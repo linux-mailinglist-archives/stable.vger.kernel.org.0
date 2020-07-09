@@ -2,121 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A78CE21A707
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 20:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DEB821A795
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 21:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726193AbgGIS0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 14:26:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
+        id S1726196AbgGITMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 15:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726196AbgGIS0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 14:26:49 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144CCC08C5DC
-        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 11:26:49 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id g67so1322046pgc.8
-        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 11:26:49 -0700 (PDT)
+        with ESMTP id S1726193AbgGITMj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 15:12:39 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2550C08C5DC
+        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 12:12:38 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id c11so1808562lfh.8
+        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 12:12:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=bbOsfemkppItMRL9baKJDrdeIT9dav/5vOG4sh+GTJw=;
-        b=YU79DjoIN/w7y5TyqFO3ZzDnsrj2BCinthNc2lfzih0B5hSlbM9EPloRGc7GUGLZ0o
-         6JCSijpWAwERecVO9M0iG7unm7ZYrZrnPJPNyO9Oco+db4Slc8o+2SvXhQzFecZDzV3x
-         uE470OnBMx34GKCyElA8NXtqGTnzpolwAW8kQ=
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MUXt+VaotMhfJOd6E9mEicpXY5WrC4/+FNcOPjlj6ss=;
+        b=S5oSqZW1A4t7CU5Ud+a9tiBkoj4BM6Sb6vMvdJv3Exg0n0rEmbYvLoimbCBwZjSiZf
+         ulX3gUvqC5I6VLONpTNqv63W33nX+dqOm728Rx2Ga/A0F2iuJeXZeKYi75E/67UrmbHZ
+         sGKbdD7B2JCya4oDSFY2vxM6TwJonF4IFsbKg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bbOsfemkppItMRL9baKJDrdeIT9dav/5vOG4sh+GTJw=;
-        b=YXeSZjYNlB7cWgbwrXx3nuJDoaiytsMxZCY4qk9XVyfgYIVoAbyG0JCrYiTpaaui4C
-         G23gS07mUJlHtLFW+N23YmSOobeOONid1DeZMDRww5FwR50yAwZ23oMaj7d6aPkMLmfx
-         NuFsPLzm/LCr84WInf8+S/xDFKdgbMqyCyPBOJ/nsDmowKktvvV+QD3VjoQUSjzFghjN
-         Qt5yI5Wq2zNSHqDzhwHc5e4wCDKGTXBmLxA7oWU96wIsx33Iu75lbv0aBK062+EYiS3+
-         wKo5hGW15qrEBw+GjMbIaWej7KVTHj4d3o4M3ZZ7lYNpvTHOmMOaPsa8oa3/l9m24ESu
-         qNkg==
-X-Gm-Message-State: AOAM533/s66NwSBBM/f113KdVR7V+NMZ5Dk6m6OSnDedew8gHU8+LX5m
-        RE+o7Z9kYbjkQLOyzSCBUykmfg==
-X-Google-Smtp-Source: ABdhPJzltdn89rhN6XYfPiPOe4yMRQPDF/YkLsmF+9nfEb0qXub5V6RSRyXpBK142NIdo+LNFAx+Tw==
-X-Received: by 2002:a63:9212:: with SMTP id o18mr37331988pgd.347.1594319208450;
-        Thu, 09 Jul 2020 11:26:48 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id h1sm3436654pgn.41.2020.07.09.11.26.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2020 11:26:47 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
-        Sargun Dhillon <sargun@sargun.me>,
-        Christian Brauner <christian@brauner.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Christoph Hellwig <hch@lst.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Matt Denton <mpdenton@google.com>,
-        Jann Horn <jannh@google.com>, Chris Palmer <palmer@google.com>,
-        Robert Sesek <rsesek@google.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Will Drewry <wad@chromium.org>, Shuah Khan <shuah@kernel.org>,
-        netdev@vger.kernel.org, containers@lists.linux-foundation.org,
-        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH v7 2/9] pidfd: Add missing sock updates for pidfd_getfd()
-Date:   Thu,  9 Jul 2020 11:26:35 -0700
-Message-Id: <20200709182642.1773477-3-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200709182642.1773477-1-keescook@chromium.org>
-References: <20200709182642.1773477-1-keescook@chromium.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MUXt+VaotMhfJOd6E9mEicpXY5WrC4/+FNcOPjlj6ss=;
+        b=YUPDw2Zc3g2d/zMbMb668XKZ4RAd6zTFCv6ZXflQ1gCDqdLt8OA8ObL8EWWRPaD2oI
+         oG/WQ4Gn+f9pJJQHFTO/c/5bgoGfGc4fwo8+Bj2F+rjofvU57M78EhVQAszjNetYFiQt
+         DeCviY9xKCJCtCYU/Ta9r1Qv0HosML934TXuvxZnI2k7odGF3MB3VG5dziglG5EjP3QM
+         B9VZ2qLLThtXawIyGuGCKOk9rCY6mspW1oJqj1dEPG553x9ryaB2A/srHXNLbbmfqb/m
+         sbnDecXrCRE76H3Mo7YKZCZN3NrM00APX0lIPemPeK0LBw0d9vqkotA0fxSEiYygeggq
+         DHcg==
+X-Gm-Message-State: AOAM530CAsm+dYORjPu8qZCwAGQgjW2f/TQa68k1qMWcIuI/c3znCi54
+        eazceWjKgbli+hebcFE2PW1v3G32W9Y=
+X-Google-Smtp-Source: ABdhPJyPGh3sv6mM4vaZYcoBR6v0nMxNxGA4Cs3JPfQQTTN9tnGIAF00hCXdoBAREebmqW6XvrANhg==
+X-Received: by 2002:a19:8a07:: with SMTP id m7mr40618660lfd.31.1594321957294;
+        Thu, 09 Jul 2020 12:12:37 -0700 (PDT)
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com. [209.85.208.174])
+        by smtp.gmail.com with ESMTPSA id a16sm1513586ljj.108.2020.07.09.12.12.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Jul 2020 12:12:37 -0700 (PDT)
+Received: by mail-lj1-f174.google.com with SMTP id q4so3694134lji.2
+        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 12:12:36 -0700 (PDT)
+X-Received: by 2002:a2e:991:: with SMTP id 139mr36799176ljj.314.1594321956136;
+ Thu, 09 Jul 2020 12:12:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+In-Reply-To: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 9 Jul 2020 12:12:19 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+Message-ID: <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>, anshuman.khandual@arm.com,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        Jerome Glisse <jglisse@redhat.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: multipart/mixed; boundary="000000000000daa8dc05aa070182"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The sock counting (sock_update_netprioidx() and sock_update_classid())
-was missing from pidfd's implementation of received fd installation. Add
-a call to the new __receive_sock() helper.
+--000000000000daa8dc05aa070182
+Content-Type: text/plain; charset="UTF-8"
 
-Cc: stable@vger.kernel.org
-Fixes: 8649c322f75c ("pid: Implement pidfd_getfd syscall")
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- kernel/pid.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+On Wed, Jul 8, 2020 at 10:28 PM Naresh Kamboju
+<naresh.kamboju@linaro.org> wrote:
+>
+> While running LTP mm test suite on i386 or qemu_i386 this kernel warning
+> has been noticed from stable 5.4 to stable 5.7 branches and mainline 5.8.0-rc4
+> and linux next.
 
-diff --git a/kernel/pid.c b/kernel/pid.c
-index f1496b757162..85ed00abdc7c 100644
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -42,6 +42,7 @@
- #include <linux/sched/signal.h>
- #include <linux/sched/task.h>
- #include <linux/idr.h>
-+#include <net/sock.h>
- 
- struct pid init_struct_pid = {
- 	.count		= REFCOUNT_INIT(1),
-@@ -642,10 +643,12 @@ static int pidfd_getfd(struct pid *pid, int fd)
- 	}
- 
- 	ret = get_unused_fd_flags(O_CLOEXEC);
--	if (ret < 0)
-+	if (ret < 0) {
- 		fput(file);
--	else
-+	} else {
- 		fd_install(ret, file);
-+		__receive_sock(file);
-+	}
- 
- 	return ret;
- }
--- 
-2.25.1
+Hmm
 
+If this is repeatable, would you mind making the warning also print
+out the old range and new addresses and pmd value?
+
+Something like the attached (UNTESTED!) patch.
+
+         Linus
+
+--000000000000daa8dc05aa070182
+Content-Type: application/octet-stream; name=patch
+Content-Disposition: attachment; filename=patch
+Content-Transfer-Encoding: base64
+Content-ID: <f_kcf6480o0>
+X-Attachment-Id: f_kcf6480o0
+
+IG1tL21yZW1hcC5jIHwgNCArKystCiAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvbW0vbXJlbWFwLmMgYi9tbS9tcmVtYXAuYwppbmRl
+eCA1ZGQ1NzJkNTdjYTkuLmIzZjA3M2NmMjgwNiAxMDA2NDQKLS0tIGEvbW0vbXJlbWFwLmMKKysr
+IGIvbW0vbXJlbWFwLmMKQEAgLTIwOCw4ICsyMDgsMTAgQEAgc3RhdGljIGJvb2wgbW92ZV9ub3Jt
+YWxfcG1kKHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hLCB1bnNpZ25lZCBsb25nIG9sZF9hZGRy
+LAogCSAqIFRoZSBkZXN0aW5hdGlvbiBwbWQgc2hvdWxkbid0IGJlIGVzdGFibGlzaGVkLCBmcmVl
+X3BndGFibGVzKCkKIAkgKiBzaG91bGQgaGF2ZSByZWxlYXNlIGl0LgogCSAqLwotCWlmIChXQVJO
+X09OKCFwbWRfbm9uZSgqbmV3X3BtZCkpKQorCWlmIChXQVJOX09OKCFwbWRfbm9uZSgqbmV3X3Bt
+ZCkpKSB7CisJCXByaW50aygiIG9sZDogJWx4LSVseCBuZXc6ICVseCAodmFsOiAlbHgpXG4iLCBv
+bGRfYWRkciwgb2xkX2VuZCwgbmV3X2FkZHIsIHBtZF92YWwoKm5ld19wbWQpKTsKIAkJcmV0dXJu
+IGZhbHNlOworCX0KIAogCS8qCiAJICogV2UgZG9uJ3QgaGF2ZSB0byB3b3JyeSBhYm91dCB0aGUg
+b3JkZXJpbmcgb2Ygc3JjIGFuZCBkc3QK
+--000000000000daa8dc05aa070182--
