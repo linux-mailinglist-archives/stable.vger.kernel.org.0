@@ -2,119 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D56962195FD
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 04:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76AFF219636
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 04:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726272AbgGICHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 22:07:47 -0400
-Received: from foss.arm.com ([217.140.110.172]:52698 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726072AbgGICHr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 22:07:47 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 501621396;
-        Wed,  8 Jul 2020 19:07:46 -0700 (PDT)
-Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.212.213])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id B5F703F887;
-        Wed,  8 Jul 2020 19:07:36 -0700 (PDT)
-From:   Jia He <justin.he@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        David Hildenbrand <david@redhat.com>
-Cc:     x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Baoquan He <bhe@redhat.com>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-nvdimm@lists.01.org, linux-mm@kvack.org,
-        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
-        Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v3 6/6] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
-Date:   Thu,  9 Jul 2020 10:06:29 +0800
-Message-Id: <20200709020629.91671-7-justin.he@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200709020629.91671-1-justin.he@arm.com>
-References: <20200709020629.91671-1-justin.he@arm.com>
+        id S1726117AbgGICYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 22:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726082AbgGICYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 22:24:54 -0400
+Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A59C061A0B
+        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 19:24:53 -0700 (PDT)
+Received: by mail-oo1-xc44.google.com with SMTP id k47so76702ool.2
+        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 19:24:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=iMSV2cyhzDXuSQN/5mI1WM18V+lLxj8SWd+84CtDZc0=;
+        b=b28i0tu1PHfpH58rQwUwGeeGoyuwPJb7Iep6Eqf824e0IGgrJlyoX3fp1+rZCSZnh9
+         bt1QP/nrpd5w2Yfofi+0PRCbp3GRq4ZclQAfW3dvXZOEAXqm4Bm8AvL0dJRi5uLaKawV
+         neq4fDkqf1NJS4SnqlcKxvTvjMB41DSRQUM9r8Gzwm7VSeBWPLMxvaUUkL6eNdJph0/h
+         PQ0RS/esnAcDnHjqLHMeTGIDGvBmcBD2VeQwbxb5CkoxElKN1wZ0/+ianmRng8+N9M0O
+         Snr+xcR3kjrIGEaugL+Zbp0gpKoSL8t5IhTs5quOKiwcasLkZgHjLR1j3UYiXebmHLPz
+         EzdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=iMSV2cyhzDXuSQN/5mI1WM18V+lLxj8SWd+84CtDZc0=;
+        b=Yr6xiX3PmUK40LruLua/1U6UyX5DBENAHjcpHqEXInnJmx9lqTt2vpkm81/yhDMHyW
+         RFWzRRobwKmt6GO3VRtesmqWTmpg/SoBEofTKgroiWMIralGYLDHacDI2XN1DYjWGu7q
+         IQ89TNwgwQ9IkygjL133RE5yItI0vylNBULHv5Axw5UM1kz+1dDl7RQa6ohGLxUgpcOp
+         JabYhNSCZLUT+33sd+HAeKxWhomPFSROQAxUF4A5AmEGU7kbsgJJ5rkXrGT+AYVmgEMI
+         LyYJY8UWN1SYC+CJvWjdBhIMP8jI2WrZ6G0GKogIgBEs+frJPwZ/yDu6yqenrw7mx7lO
+         sWrg==
+X-Gm-Message-State: AOAM5313Bbx2KISzuSZHEQ2KRbAqee+6BPBG0mbkPvLR2zJp6GYONLbD
+        OZsFJUkyoX7J51Jj5GxTSjcETSPvIqG/CBBoIfQ=
+X-Google-Smtp-Source: ABdhPJzeAiYZqMXzBlSsqISsgAvrVQ2S4lAP8NByapRhuZbJgmfMQ6o2B8ilaefykFoHWjDMn6jGcQ9cT26NOXbMXyw=
+X-Received: by 2002:a4a:6443:: with SMTP id d3mr15872710oof.47.1594261493228;
+ Wed, 08 Jul 2020 19:24:53 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a9d:4807:0:0:0:0:0 with HTTP; Wed, 8 Jul 2020 19:24:52 -0700 (PDT)
+Reply-To: sctnld11170@tlen.pl
+From:   "Mr. Scott Donald" <yghgfff0@gmail.com>
+Date:   Wed, 8 Jul 2020 19:24:52 -0700
+Message-ID: <CAPqooi5Sxy3-amPWvZSUhigS7aNO7wxYYEwmEZPvXzqPjadNcw@mail.gmail.com>
+Subject: Hello, Please
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
-online at that time), mem_hotplug_begin/done is unpaired in such case.
+--=20
+Dear Friend,
 
-Therefore a warning:
- Call Trace:
-  percpu_up_write+0x33/0x40
-  try_remove_memory+0x66/0x120
-  ? _cond_resched+0x19/0x30
-  remove_memory+0x2b/0x40
-  dev_dax_kmem_remove+0x36/0x72 [kmem]
-  device_release_driver_internal+0xf0/0x1c0
-  device_release_driver+0x12/0x20
-  bus_remove_device+0xe1/0x150
-  device_del+0x17b/0x3e0
-  unregister_dev_dax+0x29/0x60
-  devm_action_release+0x15/0x20
-  release_nodes+0x19a/0x1e0
-  devres_release_all+0x3f/0x50
-  device_release_driver_internal+0x100/0x1c0
-  driver_detach+0x4c/0x8f
-  bus_remove_driver+0x5c/0xd0
-  driver_unregister+0x31/0x50
-  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
+I'm Mr. Scott Donald a Successful business Man dealing with
+Exportation, I got your mail contact through search to let you know my
+Ugly Situation Am a dying Man here in Los Angeles California Hospital
+Bed in (USA), I Lost my Wife and my only Daughter for Covid-19 I'm
+dying with same symptoms and more. my Doctor open-up to me that he is
+Afraid to tell me my Condition and inside me, I already know that I'm
+not going to survive and I can't live alone without my Family on
+Earth,
 
-Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
-Cc: stable@vger.kernel.org # v5.6+
-Signed-off-by: Jia He <justin.he@arm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
----
- mm/memory_hotplug.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+I have a project that I am about to hand over to you. and I already
+instructed the Barclays Bank of London to transfer my fund sum of
+=C2=A33,7M GBP to you as to enable you to give 50% to Charitable Home and
+take 50% don't think otherwise and why would anybody send someone you
+barely know to help you deliver a message, help me do this for the
+happiness of my soul and for God to mercy me and my Family and give Us
+a good place.
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b49ab743d914..3e0645387daf 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1752,7 +1752,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 	 */
- 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
- 	if (rc)
--		goto done;
-+		return rc;
- 
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
-@@ -1776,9 +1776,8 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 
- 	try_offline_node(nid);
- 
--done:
- 	mem_hotplug_done();
--	return rc;
-+	return 0;
- }
- 
- /**
--- 
-2.17.1
 
+please, do as I said there was someone from your State that I deeply
+love so very very much and I miss her so bad I have no means to reach
+any Charitable Home there. that is why I go for a personal search of
+the Country and State and I got your mail contact through search to
+let you know my Bitterness and please, help me is getting Dark I ask
+my Doctor to help me keep you notice failure for me to reach you in
+person Your urgent Response, here is my Doctor Whats-app Number for
+urgent notice +13019692737
+
+Hope To Hear From You. I'm sending this email to you for the second
+time yet no response from you.
+
+My Regards.
+
+Mr. Scott Donald
+CEO
