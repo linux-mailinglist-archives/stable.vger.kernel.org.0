@@ -2,137 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D99219CF0
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 12:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A42E219E60
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 12:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726302AbgGIKEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 06:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33820 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726298AbgGIKEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 06:04:50 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C16BC061A0B;
-        Thu,  9 Jul 2020 03:04:50 -0700 (PDT)
-Date:   Thu, 09 Jul 2020 10:04:46 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1594289087;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dXH1fpBV4Oym4GLTgCmE/nJ8fXIAKGGs5Wg9KfiTMVk=;
-        b=lc+omKDZ4zjK5eskqG6yJ7++eY6og70sCWynTb2dploUg1L2EU2aV6jDRFyXNO4zxuoHbT
-        Szz0rze4DsLEEwdAVfDc8gJGUbECLo/XKIHYrWzkt/84sggzncVRqXWLJf1J+9NTicKIVK
-        WbJYxzDJApGmVe9uE7QPmeBZ1rp/rsZjzbWHnQL7TrY+o8C+ynCC+pw6s7ga4nikf/RUCn
-        mJtQW4KYPaoH5pUNa4YKh+VPeVLqNVnyjwdUOrDOpGjjNJOaJHCQf8z04fMvxw4rfwoP1Y
-        KrCm+yQiKsub3lacJelNtwYLVeec3nDPAVpGYb1gWhz0oXdwRkWZbXUIEfRLnQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1594289087;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dXH1fpBV4Oym4GLTgCmE/nJ8fXIAKGGs5Wg9KfiTMVk=;
-        b=HSlub6Mu1R87O+XAiuX7CRftkum5LYWi0UVO/uVAWEYCN0A4+eH8BZIrUZxwY7JLYM7iRd
-        tClPfZ7NpEt8n/Ag==
-From:   "tip-bot2 for Frederic Weisbecker" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] timer: Prevent base->clk from moving backward
-Cc:     Frederic Weisbecker <frederic@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Anna-Maria Behnsen" <anna-maria@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200703010657.2302-1-frederic@kernel.org>
-References: <20200703010657.2302-1-frederic@kernel.org>
+        id S1726538AbgGIKxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 06:53:18 -0400
+Received: from mga12.intel.com ([192.55.52.136]:25233 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726513AbgGIKxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jul 2020 06:53:18 -0400
+IronPort-SDR: 5bAOzo8vPO0qiBySoGeyAmQc8XplNZo/kY3UwKt35RYS3ppVxSc0OH3KJzWSDiK4rPMsyiMwdw
+ dBVkqq9dSqjw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9676"; a="127557441"
+X-IronPort-AV: E=Sophos;i="5.75,331,1589266800"; 
+   d="scan'208";a="127557441"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jul 2020 03:53:17 -0700
+IronPort-SDR: P4hWY/sye1VYuLTzDCkFtKV52yM7tKk5/vXcJpES3ptC2WS01pmaVpqjBuZ+rp+5rbNRAgTcIZ
+ 5oWMsWZ+jzpw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,331,1589266800"; 
+   d="scan'208";a="323208484"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by FMSMGA003.fm.intel.com with ESMTP; 09 Jul 2020 03:53:15 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1000)
+        id 9D3E01EA; Thu,  9 Jul 2020 13:53:14 +0300 (EEST)
+From:   "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Jann Horn <jannh@google.com>, stable@vger.kernel.org,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH] mm: Close race between munmap() and expand_upwards()/downwards()
+Date:   Thu,  9 Jul 2020 13:53:09 +0300
+Message-Id: <20200709105309.42495-1-kirill.shutemov@linux.intel.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Message-ID: <159428908623.4006.8962643860352985536.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+VMA with VM_GROWSDOWN or VM_GROWSUP flag set can change their size under
+mmap_read_lock(). It can lead to race with __do_munmap():
 
-Commit-ID:     30c66fc30ee7a98c4f3adf5fb7e213b61884474f
-Gitweb:        https://git.kernel.org/tip/30c66fc30ee7a98c4f3adf5fb7e213b61884474f
-Author:        Frederic Weisbecker <frederic@kernel.org>
-AuthorDate:    Fri, 03 Jul 2020 03:06:57 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 09 Jul 2020 11:56:57 +02:00
+	Thread A			Thread B
+__do_munmap()
+  detach_vmas_to_be_unmapped()
+  mmap_write_downgrade()
+				expand_downwards()
+				  vma->vm_start = address;
+				  // The VMA now overlaps with
+				  // VMAs detached by the Thread A
+				// page fault populates expanded part
+				// of the VMA
+  unmap_region()
+    // Zaps pagetables partly
+    // populated by Thread B
 
-timer: Prevent base->clk from moving backward
+Similar race exists for expand_upwards().
 
-When a timer is enqueued with a negative delta (ie: expiry is below
-base->clk), it gets added to the wheel as expiring now (base->clk).
+The fix is to avoid downgrading mmap_lock in __do_munmap() if detached
+VMAs are next to VM_GROWSDOWN or VM_GROWSUP VMA.
 
-Yet the value that gets stored in base->next_expiry, while calling
-trigger_dyntick_cpu(), is the initial timer->expires value. The
-resulting state becomes:
-
-	base->next_expiry < base->clk
-
-On the next timer enqueue, forward_timer_base() may accidentally
-rewind base->clk. As a possible outcome, timers may expire way too
-early, the worst case being that the highest wheel levels get spuriously
-processed again.
-
-To prevent from that, make sure that base->next_expiry doesn't get below
-base->clk.
-
-Fixes: a683f390b93f ("timers: Forward the wheel clock whenever possible")
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
-Tested-by: Juri Lelli <juri.lelli@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200703010657.2302-1-frederic@kernel.org
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reported-by: Jann Horn <jannh@google.com>
+Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+Cc: <stable@vger.kernel.org> # 4.20
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
 ---
- kernel/time/timer.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ mm/mmap.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index 398e6ea..9a838d3 100644
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -584,7 +584,15 @@ trigger_dyntick_cpu(struct timer_base *base, struct timer_list *timer)
- 	 * Set the next expiry time and kick the CPU so it can reevaluate the
- 	 * wheel:
- 	 */
--	base->next_expiry = timer->expires;
-+	if (time_before(timer->expires, base->clk)) {
-+		/*
-+		 * Prevent from forward_timer_base() moving the base->clk
-+		 * backward
-+		 */
-+		base->next_expiry = base->clk;
-+	} else {
-+		base->next_expiry = timer->expires;
-+	}
- 	wake_up_nohz_cpu(base->cpu);
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 59a4682ebf3f..71df4b36b42a 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2620,7 +2620,7 @@ static void unmap_region(struct mm_struct *mm,
+  * Create a list of vma's touched by the unmap, removing them from the mm's
+  * vma list as we go..
+  */
+-static void
++static bool
+ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
+ 	struct vm_area_struct *prev, unsigned long end)
+ {
+@@ -2645,6 +2645,17 @@ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
+ 
+ 	/* Kill the cache */
+ 	vmacache_invalidate(mm);
++
++	/*
++	 * Do not downgrade mmap_sem if we are next to VM_GROWSDOWN or
++	 * VM_GROWSUP VMA. Such VMAs can change their size under
++	 * down_read(mmap_sem) and collide with the VMA we are about to unmap.
++	 */
++	if (vma && (vma->vm_flags & VM_GROWSDOWN))
++		return false;
++	if (prev && (prev->vm_flags & VM_GROWSUP))
++		return false;
++	return true;
  }
  
-@@ -896,10 +904,13 @@ static inline void forward_timer_base(struct timer_base *base)
- 	 * If the next expiry value is > jiffies, then we fast forward to
- 	 * jiffies otherwise we forward to the next expiry value.
- 	 */
--	if (time_after(base->next_expiry, jnow))
-+	if (time_after(base->next_expiry, jnow)) {
- 		base->clk = jnow;
--	else
-+	} else {
-+		if (WARN_ON_ONCE(time_before(base->next_expiry, base->clk)))
-+			return;
- 		base->clk = base->next_expiry;
-+	}
- #endif
- }
+ /*
+@@ -2825,7 +2836,8 @@ int __do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
+ 	}
  
+ 	/* Detach vmas from rbtree */
+-	detach_vmas_to_be_unmapped(mm, vma, prev, end);
++	if (!detach_vmas_to_be_unmapped(mm, vma, prev, end))
++		downgrade = false;
+ 
+ 	if (downgrade)
+ 		mmap_write_downgrade(mm);
+-- 
+2.26.2
+
