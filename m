@@ -2,114 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F43121A99A
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 23:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736C521AA78
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 00:28:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgGIVRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 17:17:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54318 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726228AbgGIVRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 17:17:12 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B968CC08E6DC
-        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 14:17:11 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id o1so1343517plk.1
-        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 14:17:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=OdZDweBCXIY5hOfHC/pzwDJUpC5RDbUGhkzQWryCGXU=;
-        b=Ekb99TF0TfmRaA9hW6hG4dBbVri8QR1MMxv9/mRy/x0ImlbCX507ivj5lU7T+5R4Pb
-         DsC3NKoXWhj5yyGBbqvxD/A1SXEK2191ZyAwulgr1lDggvHGTgyiCcn8kMCbFzRYi9TU
-         5Pipg4QaZAq+z2XgKxlu7h0Za08DFYoJM93GI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=OdZDweBCXIY5hOfHC/pzwDJUpC5RDbUGhkzQWryCGXU=;
-        b=LXoefr+1qZlEG/NqJv54lPm32/j+D1gwRH1UXULFh9c+d2PSQPTj1kaYwDTgd3z64M
-         eW1k3QE/FeRRofgH9Oa6tMsTfEZm4Js5DgymVDZiJ36pOABUsSNskD8zW9OS9X1x9uxB
-         x6dHhwz2yXmTaEnt8lOg+kYcgAxXJHYyUWQjLdswfHgyBwtL9bR56NwDJbFczfmJRk+/
-         ndOoGsk98L1syN3kL39Hn4yAgCxqoJ/WVfNwu5DiW6zklyfB3hodmlH1f5ES9/jWM73O
-         ePPPJuNCZCcnqp2zFVSLRHXac/2BJawWgszp8urLD4r9kdEIEu9gy/7e0TPN6LP7ilBE
-         xJyQ==
-X-Gm-Message-State: AOAM53212MWcpCmpuHoEqosJho6lyDmwVfcaYx0EI1MiyivGRXlEWKYz
-        hyR4Lpb/GfqS4gfX0mX9qG7nuA==
-X-Google-Smtp-Source: ABdhPJzIErmRrR6qma2jb3xZPC+8eFY/GKXvK8O6767phNef8KK0PNwVAWZMl7fyfoDxnU3LZlOzzw==
-X-Received: by 2002:a17:902:c38b:: with SMTP id g11mr9718711plg.340.1594329431105;
-        Thu, 09 Jul 2020 14:17:11 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id y22sm3411040pjp.41.2020.07.09.14.17.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2020 14:17:09 -0700 (PDT)
-Date:   Thu, 9 Jul 2020 14:17:08 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Jann Horn <jannh@google.com>
-Cc:     kernel list <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Christian Brauner <christian@brauner.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Laight <David.Laight@aculab.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Matt Denton <mpdenton@google.com>,
-        Chris Palmer <palmer@google.com>,
-        Robert Sesek <rsesek@google.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Will Drewry <wad@chromium.org>, Shuah Khan <shuah@kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>
-Subject: Re: [PATCH v7 2/9] pidfd: Add missing sock updates for pidfd_getfd()
-Message-ID: <202007091416.42530A9C@keescook>
-References: <20200709182642.1773477-1-keescook@chromium.org>
- <20200709182642.1773477-3-keescook@chromium.org>
- <CAG48ez1gz3mtAO5QdvGEMt5KnRBq7hhWJMGS6piGDrcGNEdSrQ@mail.gmail.com>
+        id S1726269AbgGIW2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 18:28:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726213AbgGIW2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jul 2020 18:28:17 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1504B2070E;
+        Thu,  9 Jul 2020 22:28:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594333697;
+        bh=vth7oOQ5CwiMgzvmWzAb0BCz7GgvktX0waV9e0XtVoc=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=DJmyEEKSnVjzen9FvYhBmCdwG6lqyHu4BDgbKQ8uVt8Lpl3sgaoHu0pMq6zjhHXFj
+         3uSN+MA8SFzj1nW1NNAgPvf1ccok2ekLcrkXjSZmyOvMT4z5G+7LSoqGydB23cwTVR
+         qEG3t/NbMbswdLntV59tSOUjQZPS6DREr/PPtqPE=
+Date:   Thu, 9 Jul 2020 18:28:15 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     dsterba@suse.cz, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 11/53] btrfs: use kfree() in
+ btrfs_ioctl_get_subvol_info()
+Message-ID: <20200709222815.GB2722994@sasha-vm>
+References: <20200702012202.2700645-1-sashal@kernel.org>
+ <20200702012202.2700645-11-sashal@kernel.org>
+ <20200702082558.GH27795@twin.jikos.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAG48ez1gz3mtAO5QdvGEMt5KnRBq7hhWJMGS6piGDrcGNEdSrQ@mail.gmail.com>
+In-Reply-To: <20200702082558.GH27795@twin.jikos.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 09, 2020 at 10:00:42PM +0200, Jann Horn wrote:
-> On Thu, Jul 9, 2020 at 8:26 PM Kees Cook <keescook@chromium.org> wrote:
-> > The sock counting (sock_update_netprioidx() and sock_update_classid())
-> > was missing from pidfd's implementation of received fd installation. Add
-> > a call to the new __receive_sock() helper.
-> [...]
-> > diff --git a/kernel/pid.c b/kernel/pid.c
-> [...]
-> > @@ -642,10 +643,12 @@ static int pidfd_getfd(struct pid *pid, int fd)
-> >         }
-> >
-> >         ret = get_unused_fd_flags(O_CLOEXEC);
-> > -       if (ret < 0)
-> > +       if (ret < 0) {
-> >                 fput(file);
-> > -       else
-> > +       } else {
-> >                 fd_install(ret, file);
-> > +               __receive_sock(file);
-> > +       }
-> 
-> __receive_sock() has to be before fd_install(), otherwise `file` can
-> be a dangling pointer.
+On Thu, Jul 02, 2020 at 10:25:58AM +0200, David Sterba wrote:
+>On Wed, Jul 01, 2020 at 09:21:20PM -0400, Sasha Levin wrote:
+>> From: Waiman Long <longman@redhat.com>
+>>
+>> [ Upstream commit b091f7fede97cc64f7aaad3eeb37965aebee3082 ]
+>>
+>> In btrfs_ioctl_get_subvol_info(), there is a classic case where kzalloc()
+>> was incorrectly paired with kzfree(). According to David Sterba, there
+>> isn't any sensitive information in the subvol_info that needs to be
+>> cleared before freeing. So kzfree() isn't really needed, use kfree()
+>> instead.
+>
+>I don't think this patch is necessary for any stable tree, it's meant
+>only to ease merging a tree-wide patchset to rename kzfree.  In btrfs
+>code there was no point using it so it's plain kfree.
 
-Burned by fd_install()'s API again. Thanks. I will respin.
+I've dropped it, thanks!
 
 -- 
-Kees Cook
+Thanks,
+Sasha
