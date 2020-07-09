@@ -2,137 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B226E21983E
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 08:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1E4219897
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 08:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgGIGKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 02:10:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59992 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725787AbgGIGKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jul 2020 02:10:52 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CE31206A5;
-        Thu,  9 Jul 2020 06:10:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594275051;
-        bh=HkO5Yg136PYC2vLtfeUtNDLTItu1WXaILkpHkgJ+kI4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sLttGrpufPQVt+u3fxp4mi2R6RDJR5DtBMws794b2hTptjRsjf3gvPM6cHsHLyer/
-         4aCxkZcuxRYvYRNWvwW4jK2ffF9PGak4YXAha7EpFiRHa9YYxN05Y1expxSNzhowwP
-         nbMdXzYy7IGI8I2JB2brCvvvvLZoeDrRxClxYyt4=
-Date:   Thu, 9 Jul 2020 08:10:48 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Adam Ford <aford173@gmail.com>
-Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        linux-fbdev@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        stable <stable@vger.kernel.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>
-Subject: Re: [PATCH] omapfb: dss: Fix max fclk divider for omap36xx
-Message-ID: <20200709061048.GA129902@kroah.com>
-References: <20200630182636.439015-1-aford173@gmail.com>
- <b9052a12-af5a-c1b9-5b86-907eac470cf8@ti.com>
- <20200703193648.GA373653@ravnborg.org>
- <bda1606f-b12c-3356-15ce-489fc2441737@ti.com>
- <CAHCN7xJdg8uUDaghFftze2K6t2pnyZg_JYpdmA=UU-shmk0Xgw@mail.gmail.com>
- <CAHCN7xLGAWEO5CPDOsHoy4B0FjD+1GHhHYgihmVg=mhjUFjSTQ@mail.gmail.com>
+        id S1726099AbgGIG0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 02:26:40 -0400
+Received: from mail-am6eur05on2073.outbound.protection.outlook.com ([40.107.22.73]:14177
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726064AbgGIG0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jul 2020 02:26:40 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XJEw3u5iXOOrzjhBwTgYAqKyGZ7ybXW6gTPMuK+uw57e67qjdGNnocDMV+DsUTqYBd3MAMU+/Y/HFfWqBAoNRu9yl7OdbevzV/FUyEd82CYmMqdUSc+vDtwrryuBZ+0S1w+cjL4wOlezPRM0x/4D4w7CiqkqW0hm+Uxq0womN06DSkHMS4ykMixbIE7H3h70jO8XYdJd4HZGeE9ERZHjc61bLdZbymC54TMV7K9D9bHXDcyur07TMhyqrfTS8TzT9DY/cn2gmCui2tD4GaKUtuI8zztCIZUNzlnWBxUjUKTaXu5TuY12twC0f8JdHeJ38yCKbNxW1CycV2YurT35pw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5Ytndxm9ZVFAhJ6JGXDjMpKDnktB4vryboUH8Km7qEA=;
+ b=CgBF6iZ8Mx7ONWJAjtAjsMlFdGpbq2a/qm2qKnfdkNtZLLFwpqNUVA82brofgeX/5Zq6BfXUs1cN+aYldYOZ6xvcN74ZxwLxVJcfVjxuSR0wU9C9lxsvSAASYDJOkq3sU2T1ydShT+EzzJse4L3ZM+vx8uyvJCqfY9OfIX++gLb2+7BI/75h4Iob505PQYeuzZyLw+BX3mMh8RvA5BlAgn00K3I32qOsRZCcsTgQnfmUj33/7pSXZHmMHaqYQm4ggF7VDUzdm55CBNzC0+NWa3jh3B+TKjsJG+wMRSZfssLh1QQL2Eu6/SXuJd2LX4wuJz2EzC2SQEawH/6QX3kL8g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5Ytndxm9ZVFAhJ6JGXDjMpKDnktB4vryboUH8Km7qEA=;
+ b=iwWJcxrKhnZXkv458yMYZgm3a8T+qUfP32jEYI215Z/6lDPIY1BqVFG28L1dKFp78ctjmc1mcTJUnK8GkuNv3se41XPvpLRQdz38sA2xY9eApoMMH7iyxW/h3ST8ey6ZCmKTN8hLe+N3WvBX8BedmBjXAqEWy+yFI7bGHqWhZ5Y=
+Received: from AM7PR04MB7157.eurprd04.prod.outlook.com (2603:10a6:20b:118::20)
+ by AM6PR04MB5912.eurprd04.prod.outlook.com (2603:10a6:20b:ab::28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.21; Thu, 9 Jul
+ 2020 06:26:36 +0000
+Received: from AM7PR04MB7157.eurprd04.prod.outlook.com
+ ([fe80::1101:adaa:ee89:af2a]) by AM7PR04MB7157.eurprd04.prod.outlook.com
+ ([fe80::1101:adaa:ee89:af2a%3]) with mapi id 15.20.3174.022; Thu, 9 Jul 2020
+ 06:26:36 +0000
+From:   Peter Chen <peter.chen@nxp.com>
+To:     Jun Li <jun.li@nxp.com>
+CC:     "balbi@kernel.org" <balbi@kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        "pawell@cadence.com" <pawell@cadence.com>,
+        "rogerq@ti.com" <rogerq@ti.com>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/1] usb: cdns3: gadget: own the lock wrongly at the
+ suspend routine
+Thread-Topic: [PATCH 1/1] usb: cdns3: gadget: own the lock wrongly at the
+ suspend routine
+Thread-Index: AQHWVQp3Rt8mOl2Uc0WzqZpoCRSvX6j9rsYAgAEa+oA=
+Date:   Thu, 9 Jul 2020 06:26:36 +0000
+Message-ID: <20200709062644.GB17510@b29397-desktop>
+References: <20200708093043.25756-1-peter.chen@nxp.com>
+ <VE1PR04MB6528647055C8D740ED81E7C389670@VE1PR04MB6528.eurprd04.prod.outlook.com>
+In-Reply-To: <VE1PR04MB6528647055C8D740ED81E7C389670@VE1PR04MB6528.eurprd04.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: nxp.com; dkim=none (message not signed)
+ header.d=none;nxp.com; dmarc=none action=none header.from=nxp.com;
+x-originating-ip: [119.31.174.67]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 9a20a533-0f29-4a84-416d-08d823d10835
+x-ms-traffictypediagnostic: AM6PR04MB5912:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <AM6PR04MB591279ABB79ED77C0F74B2838B640@AM6PR04MB5912.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ote3ateXNSUvCfDzCUTsI2EZghvucahfn3HmXGdVzA4Vwasa+tIK00skcVp/NLDAckk7bkUQuzrlAW9ZX53cd5Gytnmp0piRF7lczRkY9zDySByWKcqaquc9LkrX0IG8VNVMOBiFkzDYxJzGTy3SfHQ5/lAGvhd+VT4MwGmE3bGxV7NXIXiYeT7xztZ0U5xK0SsRMMDEg11CkuFcWipMCQbnkiEtAsKlhdOZqnQjGAJrZ8XQLBW8Yj6M+r+3gHhXhM9RcDJD+oJz5wsk2dmB0/v7PvdRMirIUJmrJSa65AEKRQXsTE0mrr4JyFhMOw7Gtm7QluZwSSfS9eCbS4XcMg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM7PR04MB7157.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(7916004)(396003)(136003)(376002)(39860400002)(346002)(366004)(33716001)(54906003)(66946007)(86362001)(8676002)(8936002)(6636002)(1076003)(15650500001)(66476007)(64756008)(5660300002)(66556008)(76116006)(2906002)(66446008)(91956017)(6486002)(4326008)(316002)(53546011)(6506007)(44832011)(6862004)(83380400001)(9686003)(33656002)(186003)(71200400001)(26005)(6512007)(478600001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: QAPHVonwqw+QRbJ43RwrY5hFq6TpNLJsT4bz1HejBiR8bOtvEXHmBHgWEDyKnSnsYL/dDGPAu72pDpNXkd1ti46Ebl/iB8okFN2wtdXepQ93biXjSG4RpWGJ+yMVIAoC89UYxOKS/M2hTFkfoRp2eI7z1vMHL4IamZTX1UcfSdEdSvLsO9gZQWdNWjkqEtgAAMzZS9gsBT+mTCyIfUnJ/46OB5+TNcmvyfIJWS+kzfpWwD2l4DYp5nJS3Hn+3YSmR1ax8AmxuSL7SAYYPff+pWp+1zp5Q6FUDz4NDoRez6Okkvn6d7Ll7UA6Q6Z01ZTgX03B5ieNxT47QFfmcP5kaE/URUlKpSG1MG4xI1tQyUykDOQw2VxtqF5NHNWCAeDj4Xzvnv5gb8hBGmF6v9PhHGirKpASrnasDFFO3Mk5/iHsDpmSq58qNEnIr+FUJP3i6EzYOnzq9rClqjNtW9vevHX3qLbDaN5U5L1nPAqpusU=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <895B3B77C7467348B47D68B0FBF71488@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHCN7xLGAWEO5CPDOsHoy4B0FjD+1GHhHYgihmVg=mhjUFjSTQ@mail.gmail.com>
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM7PR04MB7157.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9a20a533-0f29-4a84-416d-08d823d10835
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Jul 2020 06:26:36.5033
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ecoAUjKjiNvB+NZ3EaRI1c+g39B96AE1ywYeVhMD8pVDFrfeRVmRyWnQ60ydxfhgtrTbix+/PUSM2pU0J+ZhMQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR04MB5912
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 08, 2020 at 06:37:51PM -0500, Adam Ford wrote:
-> On Mon, Jul 6, 2020 at 6:18 AM Adam Ford <aford173@gmail.com> wrote:
-> >
-> > On Mon, Jul 6, 2020 at 1:02 AM Tomi Valkeinen <tomi.valkeinen@ti.com> wrote:
-> > >
-> > > Hi,
-> > >
-> > > On 03/07/2020 22:36, Sam Ravnborg wrote:
-> > > > Hi Tomi.
-> > > >
-> > > > On Fri, Jul 03, 2020 at 10:17:29AM +0300, Tomi Valkeinen wrote:
-> > > >> On 30/06/2020 21:26, Adam Ford wrote:
-> > > >>> The drm/omap driver was fixed to correct an issue where using a
-> > > >>> divider of 32 breaks the DSS despite the TRM stating 32 is a valid
-> > > >>> number.  Through experimentation, it appears that 31 works, and
-> > > >>> it is consistent with the value used by the drm/omap driver.
-> > > >>>
-> > > >>> This patch fixes the divider for fbdev driver instead of the drm.
-> > > >>>
-> > > >>> Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
-> > > >>>
-> > > >>> Cc: <stable@vger.kernel.org> #4.9+
-> > > >>> Signed-off-by: Adam Ford <aford173@gmail.com>
-> > > >>> ---
-> > > >>> Linux 4.4 will need a similar patch, but it doesn't apply cleanly.
-> > > >>>
-> > > >>> The DRM version of this same fix is:
-> > > >>> e2c4ed148cf3 ("drm/omap: fix max fclk divider for omap36xx")
-> > > >>>
-> > > >>>
-> > > >>> diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
-> > > >>> index 7252d22dd117..bfc5c4c5a26a 100644
-> > > >>> --- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
-> > > >>> +++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
-> > > >>> @@ -833,7 +833,7 @@ static const struct dss_features omap34xx_dss_feats = {
-> > > >>>    };
-> > > >>>    static const struct dss_features omap3630_dss_feats = {
-> > > >>> -   .fck_div_max            =       32,
-> > > >>> +   .fck_div_max            =       31,
-> > > >>>     .dss_fck_multiplier     =       1,
-> > > >>>     .parent_clk_name        =       "dpll4_ck",
-> > > >>>     .dpi_select_source      =       &dss_dpi_select_source_omap2_omap3,
-> > > >>>
-> > > >>
-> > > >> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> > > > Will you apply to drm-misc?
-> > >
-> > > This is for fbdev, so I presume Bartlomiej will pick this one.
-> > >
-> > > > Note  following output from "dim fixes":
-> > > > $ dim fixes f76ee892a99e
-> > > > Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
-> > > > Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> > > > Cc: Dave Airlie <airlied@gmail.com>
-> > > > Cc: Rob Clark <robdclark@gmail.com>
-> > > > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > > > Cc: Sam Ravnborg <sam@ravnborg.org>
-> > > > Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > > > Cc: Jason Yan <yanaijie@huawei.com>
-> > > > Cc: "Andrew F. Davis" <afd@ti.com>
-> > > > Cc: YueHaibing <yuehaibing@huawei.com>
-> > > > Cc: <stable@vger.kernel.org> # v4.5+
-> > > >
-> > > > Here it says the fix is valid from v4.5 onwards.
-> > >
-> > > Hmm... Adam, you marked the fix to apply to v4.9+, and then you said
-> > > v4.4 needs a new patch (that's before the big copy/rename). Did you
-> > > check the versions between 4.4 and 4.9? I would guess this one applies
-> > > to v4.5+.
-> >
-> > I only tried 4.9 because it's listed as an LTS kernel.  The stuff
-> > between 4.4 and 4.9 were EOL, so I didn't go back further.    The 4.5+
-> > is probably more accurate.  I would like to do the same thing for the
-> > 4.4 kernel, but I am not sure the proper way to do that.
-> 
-> What is the correct protocol for patching 4.4?  I'd like to do that,
-> but the patch would be unique to the 4.4.  Should I just submit the
-> patch directly to stable and cc Tomi?
+On 20-07-08 13:33:56, Jun Li wrote:
+>=20
+> Hi,
+> > -----Original Message-----
+> > From: Peter Chen <peter.chen@nxp.com>
+> > Sent: Wednesday, July 8, 2020 5:31 PM
+> > To: balbi@kernel.org; gregkh@linuxfoundation.org
+> > Cc: linux-usb@vger.kernel.org; dl-linux-imx <linux-imx@nxp.com>;
+> > pawell@cadence.com; rogerq@ti.com; Jun Li <jun.li@nxp.com>; Peter Chen
+> > <peter.chen@nxp.com>; stable <stable@vger.kernel.org>
+> > Subject: [PATCH 1/1] usb: cdns3: gadget: own the lock wrongly at the su=
+spend routine
+> >=20
+> > When it is device mode with cable connected to host, the call stack is:
+> > cdns3_suspend->cdns3_gadget_suspend->cdns3_disconnect_gadget,
+> > the cdns3_disconnect_gadget owns lock wrongly at this situation, it cau=
+ses the
+>=20
+> Isn't afterwards the lock will be released in cdns3_suspend() by below co=
+de?
+> spin_unlock_irqrestore(&cdns->gadget_dev->lock, flags);
+>=20
+> > system being deadlock after resume due to at cdns3_device_thread_irq_ha=
+ndler, it
+> > tries to get the lock, but will never get it.
+> >=20
+> > To fix it, we delete the lock operations, and add them at the caller wh=
+en necessary.
+>=20
+> There are 2 caller places, by this, another code path:
+> cdns3_suspend->cdns3_gadget_suspend->cdns3_disconnect_gadget() will do
+> gadget_driver->disconnect() with lock hold, is this intentional?
+>=20
 
-Yes, and document the heck out of why this is a 4.4-only patch, and why
-we can't take whatever happened in newer kernels instead.
+Oh, my oops. This patch is based on my PM patch set which delete the
+gadget_dev->lock protect at cdns3_suspend, please skip it.
 
-thanks,
+Peter
 
-greg k-h
+> =20
+> >=20
+> > Cc: stable <stable@vger.kernel.org>
+> > Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+> > Signed-off-by: Peter Chen <peter.chen@nxp.com>
+> > ---
+> >  drivers/usb/cdns3/gadget.c | 7 +++----
+> >  1 file changed, 3 insertions(+), 4 deletions(-)
+> >=20
+> > diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c in=
+dex
+> > 13027ce6bed8..f6c51cc924a8 100644
+> > --- a/drivers/usb/cdns3/gadget.c
+> > +++ b/drivers/usb/cdns3/gadget.c
+> > @@ -1674,11 +1674,8 @@ static int cdns3_check_ep_interrupt_proceed(stru=
+ct
+> > cdns3_endpoint *priv_ep)
+> >=20
+> >  static void cdns3_disconnect_gadget(struct cdns3_device *priv_dev)  {
+> > -	if (priv_dev->gadget_driver && priv_dev->gadget_driver->disconnect) {
+> > -		spin_unlock(&priv_dev->lock);
+> > +	if (priv_dev->gadget_driver && priv_dev->gadget_driver->disconnect)
+> >  		priv_dev->gadget_driver->disconnect(&priv_dev->gadget);
+> > -		spin_lock(&priv_dev->lock);
+> > -	}
+> >  }
+> >=20
+> >  /**
+> > @@ -1713,8 +1710,10 @@ static void cdns3_check_usb_interrupt_proceed(st=
+ruct
+> > cdns3_device *priv_dev,
+> >=20
+> >  	/* Disconnection detected */
+> >  	if (usb_ists & (USB_ISTS_DIS2I | USB_ISTS_DISI)) {
+> > +		spin_unlock(&priv_dev->lock);
+> >  		cdns3_disconnect_gadget(priv_dev);
+> >  		priv_dev->gadget.speed =3D USB_SPEED_UNKNOWN;
+> > +		spin_lock(&priv_dev->lock);
+> >  		usb_gadget_set_state(&priv_dev->gadget, USB_STATE_NOTATTACHED);
+> >  		cdns3_hw_reset_eps_config(priv_dev);
+> >  	}
+> > --
+> > 2.17.1
+>=20
+
+--=20
+
+Thanks,
+Peter Chen=
