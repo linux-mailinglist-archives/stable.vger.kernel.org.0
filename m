@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9958B219C25
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 11:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FFA4219C28
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 11:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726407AbgGIJ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 05:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33750 "EHLO mail.kernel.org"
+        id S1726707AbgGIJ2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 05:28:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726302AbgGIJ2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jul 2020 05:28:32 -0400
+        id S1726302AbgGIJ2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jul 2020 05:28:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 326CE20663;
-        Thu,  9 Jul 2020 09:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC8DF20663;
+        Thu,  9 Jul 2020 09:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594286911;
-        bh=M61dY405Dd326PxFu/tksHMPXmc6zDtlJ5tWWMNkGPI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WzQog+TzBE5XsnyE+CKGrdpXhlYDbm8yn74Cv/KJOBSSbJhn+hGKYHmJ27tN+Mtqr
-         eFSs4qgB+lo4f2uiN0sIKtcLtrjmRn4C9jXXVd7xOyE6u+lRbAmCmOt22ACgjZpDXP
-         InlSkhafjQPF6a4TOw5zalz3ylUN5lDKkJbVayAw=
+        s=default; t=1594286916;
+        bh=BTc7ipBbJ3TWSbMqrXVjGIuLkBVZGvVE701TF+6LeqU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BIpLnthBarauf6fU3ZIJUxg7v1MDeEsrIK3lcMiQJoI0eniBdpcAifFruMrHUg5gp
+         3mRoJR9g0ilr3CH2opC7oLlMFO5pRTfRi/sW3xq2QWvAv2c5J7ZqvCSOctOPv7XgJA
+         TP2Cd5jrRqz3e3b5Az8aUqZZk8jNLtGGM5kEYCZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.4.230
-Date:   Thu,  9 Jul 2020 11:28:37 +0200
-Message-Id: <15942869165019@kroah.com>
+Subject: Re: Linux 4.4.230
+Date:   Thu,  9 Jul 2020 11:28:38 +0200
+Message-Id: <159428691611262@kroah.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <15942869165019@kroah.com>
+References: <15942869165019@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -39,104 +41,682 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.4.230 kernel.
-
-All users of the 4.4 kernel series must upgrade.
-
-The updated 4.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                               |    2 -
- arch/mips/kernel/traps.c               |    1 
- crypto/af_alg.c                        |   26 ++++++++-----------
- crypto/algif_aead.c                    |    9 ++----
- crypto/algif_hash.c                    |    9 ++----
- crypto/algif_skcipher.c                |    9 ++----
- drivers/block/virtio_blk.c             |    1 
- drivers/edac/amd64_edac.c              |    2 +
- drivers/hwmon/acpi_power_meter.c       |    4 ++-
- drivers/hwmon/max6697.c                |    7 +++--
- drivers/i2c/algos/i2c-algo-pca.c       |    3 +-
- drivers/usb/misc/usbtest.c             |    1 
- fs/btrfs/inode.c                       |   36 +++++++++++++++++++--------
- fs/cifs/connect.c                      |    3 ++
- fs/cifs/inode.c                        |   10 ++++++-
- include/crypto/if_alg.h                |    4 +--
- include/linux/sched/sysctl.h           |    1 
- kernel/debug/debug_core.c              |    4 +++
- kernel/sched/core.c                    |    5 ++-
- kernel/sched/rt.c                      |    1 
- kernel/sysctl.c                        |    2 -
- mm/slub.c                              |    3 +-
- mm/swap_state.c                        |    3 +-
- net/netfilter/nf_conntrack_h323_main.c |    1 
- sound/usb/card.h                       |    4 ---
- sound/usb/endpoint.c                   |   43 +++------------------------------
- sound/usb/endpoint.h                   |    1 
- sound/usb/pcm.c                        |    2 -
- 28 files changed, 94 insertions(+), 103 deletions(-)
-
-Anand Jain (1):
-      btrfs: cow_file_range() num_bytes and disk_num_bytes are same
-
-Borislav Petkov (1):
-      EDAC/amd64: Read back the scrub rate PCI register on F15h
-
-Chris Packham (1):
-      i2c: algo-pca: Add 0x78 as SCL stuck low status for PCA9665
-
-Chu Lin (1):
-      hwmon: (max6697) Make sure the OVERT mask is set correctly
-
-Douglas Anderson (1):
-      kgdb: Avoid suspicious RCU usage warning
-
-Filipe Manana (1):
-      btrfs: fix data block group relocation failure due to concurrent scrub
-
-Greg Kroah-Hartman (2):
-      Revert "ALSA: usb-audio: Improve frames size computation"
-      Linux 4.4.230
-
-Hauke Mehrtens (1):
-      MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
-
-Herbert Xu (1):
-      crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
-
-Hou Tao (1):
-      virtio-blk: free vblk-vqs in error path of virtblk_probe()
-
-Hugh Dickins (1):
-      mm: fix swap cache node allocation mask
-
-Misono Tomohiro (1):
-      hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
-
-Paul Aurich (2):
-      SMB3: Honor 'seal' flag for multiuser mounts
-      SMB3: Honor persistent/resilient handle flags for multiuser mounts
-
-Qian Cai (1):
-      mm/slub: fix stack overruns with SLUB_STATS
-
-Shile Zhang (1):
-      sched/rt: Show the 'sched_rr_timeslice' SCHED_RR timeslice tuning knob in milliseconds
-
-Vasily Averin (1):
-      netfilter: nf_conntrack_h323: lost .data_len definition for Q.931/ipv6
-
-Zhang Xiaoxu (1):
-      cifs: Fix the target file was deleted when rename failed.
-
-Zqiang (1):
-      usb: usbtest: fix missing kfree(dev->buf) in usbtest_disconnect
-
+diff --git a/Makefile b/Makefile
+index 99b211904ac5..847f2537d39d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 4
+-SUBLEVEL = 229
++SUBLEVEL = 230
+ EXTRAVERSION =
+ NAME = Blurry Fish Butt
+ 
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index 6abd6b41c13d..36472fc266fd 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2080,6 +2080,7 @@ static void configure_status(void)
+ 
+ 	change_c0_status(ST0_CU|ST0_MX|ST0_RE|ST0_FR|ST0_BEV|ST0_TS|ST0_KX|ST0_SX|ST0_UX,
+ 			 status_set);
++	back_to_back_c0_hazard();
+ }
+ 
+ /* configure HWRENA register */
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index cf3975ee4fd8..c48ddeb6c328 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -130,21 +130,15 @@ EXPORT_SYMBOL_GPL(af_alg_release);
+ void af_alg_release_parent(struct sock *sk)
+ {
+ 	struct alg_sock *ask = alg_sk(sk);
+-	unsigned int nokey = ask->nokey_refcnt;
+-	bool last = nokey && !ask->refcnt;
++	unsigned int nokey = atomic_read(&ask->nokey_refcnt);
+ 
+ 	sk = ask->parent;
+ 	ask = alg_sk(sk);
+ 
+-	local_bh_disable();
+-	bh_lock_sock(sk);
+-	ask->nokey_refcnt -= nokey;
+-	if (!last)
+-		last = !--ask->refcnt;
+-	bh_unlock_sock(sk);
+-	local_bh_enable();
++	if (nokey)
++		atomic_dec(&ask->nokey_refcnt);
+ 
+-	if (last)
++	if (atomic_dec_and_test(&ask->refcnt))
+ 		sock_put(sk);
+ }
+ EXPORT_SYMBOL_GPL(af_alg_release_parent);
+@@ -189,7 +183,7 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 
+ 	err = -EBUSY;
+ 	lock_sock(sk);
+-	if (ask->refcnt | ask->nokey_refcnt)
++	if (atomic_read(&ask->refcnt))
+ 		goto unlock;
+ 
+ 	swap(ask->type, type);
+@@ -238,7 +232,7 @@ static int alg_setsockopt(struct socket *sock, int level, int optname,
+ 	int err = -EBUSY;
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (atomic_read(&ask->refcnt) != atomic_read(&ask->nokey_refcnt))
+ 		goto unlock;
+ 
+ 	type = ask->type;
+@@ -305,12 +299,14 @@ int af_alg_accept(struct sock *sk, struct socket *newsock)
+ 
+ 	sk2->sk_family = PF_ALG;
+ 
+-	if (nokey || !ask->refcnt++)
++	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
+ 		sock_hold(sk);
+-	ask->nokey_refcnt += nokey;
++	if (nokey) {
++		atomic_inc(&ask->nokey_refcnt);
++		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
++	}
+ 	alg_sk(sk2)->parent = sk;
+ 	alg_sk(sk2)->type = type;
+-	alg_sk(sk2)->nokey_refcnt = nokey;
+ 
+ 	newsock->ops = type->ops;
+ 	newsock->state = SS_CONNECTED;
+diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
+index faea9d728fd2..c50175ad5485 100644
+--- a/crypto/algif_aead.c
++++ b/crypto/algif_aead.c
+@@ -528,7 +528,7 @@ static int aead_check_key(struct socket *sock)
+ 	struct alg_sock *ask = alg_sk(sk);
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -540,11 +540,8 @@ static int aead_check_key(struct socket *sock)
+ 	if (!tfm->has_key)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+diff --git a/crypto/algif_hash.c b/crypto/algif_hash.c
+index 8d8b3eeba725..fd23261f1d16 100644
+--- a/crypto/algif_hash.c
++++ b/crypto/algif_hash.c
+@@ -252,7 +252,7 @@ static int hash_check_key(struct socket *sock)
+ 	struct alg_sock *ask = alg_sk(sk);
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -264,11 +264,8 @@ static int hash_check_key(struct socket *sock)
+ 	if (!tfm->has_key)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
+index 9bd4691cc5c5..0e200bf5aa82 100644
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -774,7 +774,7 @@ static int skcipher_check_key(struct socket *sock)
+ 	struct alg_sock *ask = alg_sk(sk);
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -786,11 +786,8 @@ static int skcipher_check_key(struct socket *sock)
+ 	if (!tfm->has_key)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 1e5cd39d0cc2..bdc3efacd0d2 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -757,6 +757,7 @@ out_put_disk:
+ 	put_disk(vblk->disk);
+ out_free_vq:
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
+ out_free_vblk:
+ 	kfree(vblk);
+ out_free_index:
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index 932ba7676183..5f86075e34da 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -248,6 +248,8 @@ static int get_scrub_rate(struct mem_ctl_info *mci)
+ 
+ 		if (pvt->model == 0x60)
+ 			amd64_read_pci_cfg(pvt->F2, F15H_M60H_SCRCTRL, &scrubval);
++		else
++			amd64_read_pci_cfg(pvt->F3, SCRCTRL, &scrubval);
+ 	} else
+ 		amd64_read_pci_cfg(pvt->F3, SCRCTRL, &scrubval);
+ 
+diff --git a/drivers/hwmon/acpi_power_meter.c b/drivers/hwmon/acpi_power_meter.c
+index e27f7e12c05b..9b4ad6c74041 100644
+--- a/drivers/hwmon/acpi_power_meter.c
++++ b/drivers/hwmon/acpi_power_meter.c
+@@ -895,7 +895,7 @@ static int acpi_power_meter_add(struct acpi_device *device)
+ 
+ 	res = setup_attrs(resource);
+ 	if (res)
+-		goto exit_free;
++		goto exit_free_capability;
+ 
+ 	resource->hwmon_dev = hwmon_device_register(&device->dev);
+ 	if (IS_ERR(resource->hwmon_dev)) {
+@@ -908,6 +908,8 @@ static int acpi_power_meter_add(struct acpi_device *device)
+ 
+ exit_remove:
+ 	remove_attrs(resource);
++exit_free_capability:
++	free_capabilities(resource);
+ exit_free:
+ 	kfree(resource);
+ exit:
+diff --git a/drivers/hwmon/max6697.c b/drivers/hwmon/max6697.c
+index f03a71722849..d4bb3d6aaf18 100644
+--- a/drivers/hwmon/max6697.c
++++ b/drivers/hwmon/max6697.c
+@@ -46,8 +46,9 @@ static const u8 MAX6697_REG_CRIT[] = {
+  * Map device tree / platform data register bit map to chip bit map.
+  * Applies to alert register and over-temperature register.
+  */
+-#define MAX6697_MAP_BITS(reg)	((((reg) & 0x7e) >> 1) | \
++#define MAX6697_ALERT_MAP_BITS(reg)	((((reg) & 0x7e) >> 1) | \
+ 				 (((reg) & 0x01) << 6) | ((reg) & 0x80))
++#define MAX6697_OVERT_MAP_BITS(reg) (((reg) >> 1) | (((reg) & 0x01) << 7))
+ 
+ #define MAX6697_REG_STAT(n)		(0x44 + (n))
+ 
+@@ -586,12 +587,12 @@ static int max6697_init_chip(struct max6697_data *data,
+ 		return ret;
+ 
+ 	ret = i2c_smbus_write_byte_data(client, MAX6697_REG_ALERT_MASK,
+-					MAX6697_MAP_BITS(pdata->alert_mask));
++				MAX6697_ALERT_MAP_BITS(pdata->alert_mask));
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	ret = i2c_smbus_write_byte_data(client, MAX6697_REG_OVERT_MASK,
+-				MAX6697_MAP_BITS(pdata->over_temperature_mask));
++			MAX6697_OVERT_MAP_BITS(pdata->over_temperature_mask));
+ 	if (ret < 0)
+ 		return ret;
+ 
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index e370804ec8bc..3a9db4626cb6 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -326,7 +326,8 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
+ 			DEB2("BUS ERROR - SDA Stuck low\n");
+ 			pca_reset(adap);
+ 			goto out;
+-		case 0x90: /* Bus error - SCL stuck low */
++		case 0x78: /* Bus error - SCL stuck low (PCA9665) */
++		case 0x90: /* Bus error - SCL stuck low (PCA9564) */
+ 			DEB2("BUS ERROR - SCL Stuck low\n");
+ 			pca_reset(adap);
+ 			goto out;
+diff --git a/drivers/usb/misc/usbtest.c b/drivers/usb/misc/usbtest.c
+index bc92a498ec03..9f19aa950bb1 100644
+--- a/drivers/usb/misc/usbtest.c
++++ b/drivers/usb/misc/usbtest.c
+@@ -2703,6 +2703,7 @@ static void usbtest_disconnect(struct usb_interface *intf)
+ 
+ 	usb_set_intfdata(intf, NULL);
+ 	dev_dbg(&intf->dev, "disconnect\n");
++	kfree(dev->buf);
+ 	kfree(dev);
+ }
+ 
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 972475eeb2dd..b1125778b908 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -926,7 +926,7 @@ static noinline int cow_file_range(struct inode *inode,
+ 	u64 alloc_hint = 0;
+ 	u64 num_bytes;
+ 	unsigned long ram_size;
+-	u64 disk_num_bytes;
++	u64 min_alloc_size;
+ 	u64 cur_alloc_size;
+ 	u64 blocksize = root->sectorsize;
+ 	struct btrfs_key ins;
+@@ -942,7 +942,6 @@ static noinline int cow_file_range(struct inode *inode,
+ 
+ 	num_bytes = ALIGN(end - start + 1, blocksize);
+ 	num_bytes = max(blocksize,  num_bytes);
+-	disk_num_bytes = num_bytes;
+ 
+ 	/* if this is a small write inside eof, kick off defrag */
+ 	if (num_bytes < 64 * 1024 &&
+@@ -969,18 +968,33 @@ static noinline int cow_file_range(struct inode *inode,
+ 		}
+ 	}
+ 
+-	BUG_ON(disk_num_bytes >
+-	       btrfs_super_total_bytes(root->fs_info->super_copy));
++	BUG_ON(num_bytes > btrfs_super_total_bytes(root->fs_info->super_copy));
+ 
+ 	alloc_hint = get_extent_allocation_hint(inode, start, num_bytes);
+ 	btrfs_drop_extent_cache(inode, start, start + num_bytes - 1, 0);
+ 
+-	while (disk_num_bytes > 0) {
++	/*
++	 * Relocation relies on the relocated extents to have exactly the same
++	 * size as the original extents. Normally writeback for relocation data
++	 * extents follows a NOCOW path because relocation preallocates the
++	 * extents. However, due to an operation such as scrub turning a block
++	 * group to RO mode, it may fallback to COW mode, so we must make sure
++	 * an extent allocated during COW has exactly the requested size and can
++	 * not be split into smaller extents, otherwise relocation breaks and
++	 * fails during the stage where it updates the bytenr of file extent
++	 * items.
++	 */
++	if (root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID)
++		min_alloc_size = num_bytes;
++	else
++		min_alloc_size = root->sectorsize;
++
++	while (num_bytes > 0) {
+ 		unsigned long op;
+ 
+-		cur_alloc_size = disk_num_bytes;
++		cur_alloc_size = num_bytes;
+ 		ret = btrfs_reserve_extent(root, cur_alloc_size,
+-					   root->sectorsize, 0, alloc_hint,
++					   min_alloc_size, 0, alloc_hint,
+ 					   &ins, 1, 1);
+ 		if (ret < 0)
+ 			goto out_unlock;
+@@ -1033,7 +1047,7 @@ static noinline int cow_file_range(struct inode *inode,
+ 				goto out_drop_extent_cache;
+ 		}
+ 
+-		if (disk_num_bytes < cur_alloc_size)
++		if (num_bytes < cur_alloc_size)
+ 			break;
+ 
+ 		/* we're not doing compressed IO, don't unlock the first
+@@ -1050,8 +1064,10 @@ static noinline int cow_file_range(struct inode *inode,
+ 					     start + ram_size - 1, locked_page,
+ 					     EXTENT_LOCKED | EXTENT_DELALLOC,
+ 					     op);
+-		disk_num_bytes -= cur_alloc_size;
+-		num_bytes -= cur_alloc_size;
++		if (num_bytes < cur_alloc_size)
++			num_bytes = 0;
++		else
++			num_bytes -= cur_alloc_size;
+ 		alloc_hint = ins.objectid + ins.offset;
+ 		start += cur_alloc_size;
+ 	}
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 21ddfd77966e..f4ef8d6ea8ed 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -4203,9 +4203,12 @@ cifs_construct_tcon(struct cifs_sb_info *cifs_sb, kuid_t fsuid)
+ 	vol_info->retry = master_tcon->retry;
+ 	vol_info->nocase = master_tcon->nocase;
+ 	vol_info->local_lease = master_tcon->local_lease;
++	vol_info->resilient = master_tcon->use_resilient;
++	vol_info->persistent = master_tcon->use_persistent;
+ 	vol_info->no_linux_ext = !master_tcon->unix_ext;
+ 	vol_info->sectype = master_tcon->ses->sectype;
+ 	vol_info->sign = master_tcon->ses->sign;
++	vol_info->seal = master_tcon->seal;
+ 
+ 	rc = cifs_set_vol_auth(vol_info, master_tcon->ses);
+ 	if (rc) {
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index c18c26a78453..a002e289a544 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1737,6 +1737,7 @@ cifs_rename2(struct inode *source_dir, struct dentry *source_dentry,
+ 	FILE_UNIX_BASIC_INFO *info_buf_target;
+ 	unsigned int xid;
+ 	int rc, tmprc;
++	bool new_target = d_really_is_negative(target_dentry);
+ 
+ 	if (flags & ~RENAME_NOREPLACE)
+ 		return -EINVAL;
+@@ -1813,8 +1814,13 @@ cifs_rename2(struct inode *source_dir, struct dentry *source_dentry,
+ 	 */
+ 
+ unlink_target:
+-	/* Try unlinking the target dentry if it's not negative */
+-	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
++	/*
++	 * If the target dentry was created during the rename, try
++	 * unlinking it if it's not negative
++	 */
++	if (new_target &&
++	    d_really_is_positive(target_dentry) &&
++	    (rc == -EACCES || rc == -EEXIST)) {
+ 		if (d_is_dir(target_dentry))
+ 			tmprc = cifs_rmdir(target_dir, target_dentry);
+ 		else
+diff --git a/include/crypto/if_alg.h b/include/crypto/if_alg.h
+index a2bfd7843f18..4bb6b98782e9 100644
+--- a/include/crypto/if_alg.h
++++ b/include/crypto/if_alg.h
+@@ -30,8 +30,8 @@ struct alg_sock {
+ 
+ 	struct sock *parent;
+ 
+-	unsigned int refcnt;
+-	unsigned int nokey_refcnt;
++	atomic_t refcnt;
++	atomic_t nokey_refcnt;
+ 
+ 	const struct af_alg_type *type;
+ 	void *private;
+diff --git a/include/linux/sched/sysctl.h b/include/linux/sched/sysctl.h
+index c9e4731cf10b..7fc36ebc5de3 100644
+--- a/include/linux/sched/sysctl.h
++++ b/include/linux/sched/sysctl.h
+@@ -81,6 +81,7 @@ extern unsigned int sysctl_sched_cfs_bandwidth_slice;
+ extern unsigned int sysctl_sched_autogroup_enabled;
+ #endif
+ 
++extern int sysctl_sched_rr_timeslice;
+ extern int sched_rr_timeslice;
+ 
+ extern int sched_rr_handler(struct ctl_table *table, int write,
+diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
+index 9c939c6bf21c..321ccdbb7364 100644
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -488,6 +488,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
+ 		arch_kgdb_ops.disable_hw_break(regs);
+ 
+ acquirelock:
++	rcu_read_lock();
+ 	/*
+ 	 * Interrupts will be restored by the 'trap return' code, except when
+ 	 * single stepping.
+@@ -542,6 +543,7 @@ return_normal:
+ 			atomic_dec(&slaves_in_kgdb);
+ 			dbg_touch_watchdogs();
+ 			local_irq_restore(flags);
++			rcu_read_unlock();
+ 			return 0;
+ 		}
+ 		cpu_relax();
+@@ -560,6 +562,7 @@ return_normal:
+ 		raw_spin_unlock(&dbg_master_lock);
+ 		dbg_touch_watchdogs();
+ 		local_irq_restore(flags);
++		rcu_read_unlock();
+ 
+ 		goto acquirelock;
+ 	}
+@@ -677,6 +680,7 @@ kgdb_restore:
+ 	raw_spin_unlock(&dbg_master_lock);
+ 	dbg_touch_watchdogs();
+ 	local_irq_restore(flags);
++	rcu_read_unlock();
+ 
+ 	return kgdb_info[cpu].ret_state;
+ }
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 14a87c1f3a3a..4a0a754f24c8 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8266,8 +8266,9 @@ int sched_rr_handler(struct ctl_table *table, int write,
+ 	/* make sure that internally we keep jiffies */
+ 	/* also, writing zero resets timeslice to default */
+ 	if (!ret && write) {
+-		sched_rr_timeslice = sched_rr_timeslice <= 0 ?
+-			RR_TIMESLICE : msecs_to_jiffies(sched_rr_timeslice);
++		sched_rr_timeslice =
++			sysctl_sched_rr_timeslice <= 0 ? RR_TIMESLICE :
++			msecs_to_jiffies(sysctl_sched_rr_timeslice);
+ 	}
+ 	mutex_unlock(&mutex);
+ 	return ret;
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 801b4ec40702..5ee5740635f3 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -9,6 +9,7 @@
+ #include <linux/irq_work.h>
+ 
+ int sched_rr_timeslice = RR_TIMESLICE;
++int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
+ 
+ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
+ 
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index c2dddd335d06..ecbb1b764a82 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -412,7 +412,7 @@ static struct ctl_table kern_table[] = {
+ 	},
+ 	{
+ 		.procname	= "sched_rr_timeslice_ms",
+-		.data		= &sched_rr_timeslice,
++		.data		= &sysctl_sched_rr_timeslice,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+ 		.proc_handler	= sched_rr_handler,
+diff --git a/mm/slub.c b/mm/slub.c
+index bb5237c67cbc..a3870034bfcc 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5305,7 +5305,8 @@ static void memcg_propagate_slab_attrs(struct kmem_cache *s)
+ 		 */
+ 		if (buffer)
+ 			buf = buffer;
+-		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
++		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf) &&
++			 !IS_ENABLED(CONFIG_SLUB_STATS))
+ 			buf = mbuf;
+ 		else {
+ 			buffer = (char *) get_zeroed_page(GFP_KERNEL);
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index d504adb7fa5f..9e587464e634 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -19,6 +19,7 @@
+ #include <linux/migrate.h>
+ 
+ #include <asm/pgtable.h>
++#include "internal.h"
+ 
+ /*
+  * swapper_space is a fiction, retained to simplify the path through
+@@ -319,7 +320,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 		/*
+ 		 * call radix_tree_preload() while we can wait.
+ 		 */
+-		err = radix_tree_maybe_preload(gfp_mask & GFP_KERNEL);
++		err = radix_tree_maybe_preload(gfp_mask & GFP_RECLAIM_MASK);
+ 		if (err)
+ 			break;
+ 
+diff --git a/net/netfilter/nf_conntrack_h323_main.c b/net/netfilter/nf_conntrack_h323_main.c
+index 9511af04dc81..15495b956855 100644
+--- a/net/netfilter/nf_conntrack_h323_main.c
++++ b/net/netfilter/nf_conntrack_h323_main.c
+@@ -1225,6 +1225,7 @@ static struct nf_conntrack_helper nf_conntrack_helper_q931[] __read_mostly = {
+ 	{
+ 		.name			= "Q.931",
+ 		.me			= THIS_MODULE,
++		.data_len		= sizeof(struct nf_ct_h323_master),
+ 		.tuple.src.l3num	= AF_INET6,
+ 		.tuple.src.u.tcp.port	= cpu_to_be16(Q931_PORT),
+ 		.tuple.dst.protonum	= IPPROTO_TCP,
+diff --git a/sound/usb/card.h b/sound/usb/card.h
+index 844c68863810..71778ca4b26a 100644
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -80,10 +80,6 @@ struct snd_usb_endpoint {
+ 	dma_addr_t sync_dma;		/* DMA address of syncbuf */
+ 
+ 	unsigned int pipe;		/* the data i/o pipe */
+-	unsigned int framesize[2];	/* small/large frame sizes in samples */
+-	unsigned int sample_rem;	/* remainder from division fs/fps */
+-	unsigned int sample_accum;	/* sample accumulator */
+-	unsigned int fps;		/* frames per second */
+ 	unsigned int freqn;		/* nominal sampling rate in fs/fps in Q16.16 format */
+ 	unsigned int freqm;		/* momentary sampling rate in fs/fps in Q16.16 format */
+ 	int	   freqshift;		/* how much to shift the feedback value to get Q16.16 */
+diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
+index 666731317b33..66648b4bdd28 100644
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -137,12 +137,12 @@ int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep)
+ 
+ /*
+  * For streaming based on information derived from sync endpoints,
+- * prepare_outbound_urb_sizes() will call slave_next_packet_size() to
++ * prepare_outbound_urb_sizes() will call next_packet_size() to
+  * determine the number of samples to be sent in the next packet.
+  *
+- * For implicit feedback, slave_next_packet_size() is unused.
++ * For implicit feedback, next_packet_size() is unused.
+  */
+-int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep)
++int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
+ {
+ 	unsigned long flags;
+ 	int ret;
+@@ -159,29 +159,6 @@ int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep)
+ 	return ret;
+ }
+ 
+-/*
+- * For adaptive and synchronous endpoints, prepare_outbound_urb_sizes()
+- * will call next_packet_size() to determine the number of samples to be
+- * sent in the next packet.
+- */
+-int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
+-{
+-	int ret;
+-
+-	if (ep->fill_max)
+-		return ep->maxframesize;
+-
+-	ep->sample_accum += ep->sample_rem;
+-	if (ep->sample_accum >= ep->fps) {
+-		ep->sample_accum -= ep->fps;
+-		ret = ep->framesize[1];
+-	} else {
+-		ret = ep->framesize[0];
+-	}
+-
+-	return ret;
+-}
+-
+ static void retire_outbound_urb(struct snd_usb_endpoint *ep,
+ 				struct snd_urb_ctx *urb_ctx)
+ {
+@@ -226,8 +203,6 @@ static void prepare_silent_urb(struct snd_usb_endpoint *ep,
+ 
+ 		if (ctx->packet_size[i])
+ 			counts = ctx->packet_size[i];
+-		else if (ep->sync_master)
+-			counts = snd_usb_endpoint_slave_next_packet_size(ep);
+ 		else
+ 			counts = snd_usb_endpoint_next_packet_size(ep);
+ 
+@@ -904,17 +879,10 @@ int snd_usb_endpoint_set_params(struct snd_usb_endpoint *ep,
+ 	ep->maxpacksize = fmt->maxpacksize;
+ 	ep->fill_max = !!(fmt->attributes & UAC_EP_CS_ATTR_FILL_MAX);
+ 
+-	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL) {
++	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL)
+ 		ep->freqn = get_usb_full_speed_rate(rate);
+-		ep->fps = 1000;
+-	} else {
++	else
+ 		ep->freqn = get_usb_high_speed_rate(rate);
+-		ep->fps = 8000;
+-	}
+-
+-	ep->sample_rem = rate % ep->fps;
+-	ep->framesize[0] = rate / ep->fps;
+-	ep->framesize[1] = (rate + (ep->fps - 1)) / ep->fps;
+ 
+ 	/* calculate the frequency in 16.16 format */
+ 	ep->freqm = ep->freqn;
+@@ -973,7 +941,6 @@ int snd_usb_endpoint_start(struct snd_usb_endpoint *ep)
+ 	ep->active_mask = 0;
+ 	ep->unlink_mask = 0;
+ 	ep->phase = 0;
+-	ep->sample_accum = 0;
+ 
+ 	snd_usb_endpoint_start_quirk(ep);
+ 
+diff --git a/sound/usb/endpoint.h b/sound/usb/endpoint.h
+index 4aad49cbeb5f..584f295d7c77 100644
+--- a/sound/usb/endpoint.h
++++ b/sound/usb/endpoint.h
+@@ -27,7 +27,6 @@ void snd_usb_endpoint_release(struct snd_usb_endpoint *ep);
+ void snd_usb_endpoint_free(struct snd_usb_endpoint *ep);
+ 
+ int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep);
+-int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep);
+ int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep);
+ 
+ void snd_usb_handle_sync_urb(struct snd_usb_endpoint *ep,
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index 53d91cae86f9..f84c55ecd0fb 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1473,8 +1473,6 @@ static void prepare_playback_urb(struct snd_usb_substream *subs,
+ 	for (i = 0; i < ctx->packets; i++) {
+ 		if (ctx->packet_size[i])
+ 			counts = ctx->packet_size[i];
+-		else if (ep->sync_master)
+-			counts = snd_usb_endpoint_slave_next_packet_size(ep);
+ 		else
+ 			counts = snd_usb_endpoint_next_packet_size(ep);
+ 
