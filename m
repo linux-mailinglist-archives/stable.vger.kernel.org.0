@@ -2,122 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DEB821A795
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 21:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E666321A830
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 21:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgGITMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 15:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
+        id S1726757AbgGITwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 15:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726193AbgGITMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 15:12:39 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2550C08C5DC
-        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 12:12:38 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id c11so1808562lfh.8
-        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 12:12:38 -0700 (PDT)
+        with ESMTP id S1726265AbgGITvB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 15:51:01 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A95C08C5DC;
+        Thu,  9 Jul 2020 12:51:00 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id k5so1235100plk.13;
+        Thu, 09 Jul 2020 12:51:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MUXt+VaotMhfJOd6E9mEicpXY5WrC4/+FNcOPjlj6ss=;
-        b=S5oSqZW1A4t7CU5Ud+a9tiBkoj4BM6Sb6vMvdJv3Exg0n0rEmbYvLoimbCBwZjSiZf
-         ulX3gUvqC5I6VLONpTNqv63W33nX+dqOm728Rx2Ga/A0F2iuJeXZeKYi75E/67UrmbHZ
-         sGKbdD7B2JCya4oDSFY2vxM6TwJonF4IFsbKg=
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=RwIQJPyP7UHlF/ZGGKtcnGZyKRkZA3pCBcfEq7K/2Ho=;
+        b=AznY960+pK6TOErT6DuUqz4G4vZlBkddYOl5d2OHe7pG00Y0HIPRjgSEb5zEauhq3u
+         RKM6boUHn3SMWeCJDchdIobej2f1kSt+RZnspd8DsOp/HbooshTkDo+M00AmnvDD6yXH
+         07OtQgi8r6ZPSJ0Eky6PU/dhvo8seV9KaGEOORqVmXVD95zxKP5jR5wAtjB3sN2Ew/hy
+         194wpp1EWZyhMIKvI8Zcwi+hxgj5t/ag+Ch9C2Q9Lsq4+u6xoosUVdcMXrVlxNwX4KnF
+         b4SSBTNB108RFRlXcVo67ObtTCVjwrxgMaYcHYZ4WSWCa1aEhdNOPddPq475+qFl6uyO
+         X/fA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MUXt+VaotMhfJOd6E9mEicpXY5WrC4/+FNcOPjlj6ss=;
-        b=YUPDw2Zc3g2d/zMbMb668XKZ4RAd6zTFCv6ZXflQ1gCDqdLt8OA8ObL8EWWRPaD2oI
-         oG/WQ4Gn+f9pJJQHFTO/c/5bgoGfGc4fwo8+Bj2F+rjofvU57M78EhVQAszjNetYFiQt
-         DeCviY9xKCJCtCYU/Ta9r1Qv0HosML934TXuvxZnI2k7odGF3MB3VG5dziglG5EjP3QM
-         B9VZ2qLLThtXawIyGuGCKOk9rCY6mspW1oJqj1dEPG553x9ryaB2A/srHXNLbbmfqb/m
-         sbnDecXrCRE76H3Mo7YKZCZN3NrM00APX0lIPemPeK0LBw0d9vqkotA0fxSEiYygeggq
-         DHcg==
-X-Gm-Message-State: AOAM530CAsm+dYORjPu8qZCwAGQgjW2f/TQa68k1qMWcIuI/c3znCi54
-        eazceWjKgbli+hebcFE2PW1v3G32W9Y=
-X-Google-Smtp-Source: ABdhPJyPGh3sv6mM4vaZYcoBR6v0nMxNxGA4Cs3JPfQQTTN9tnGIAF00hCXdoBAREebmqW6XvrANhg==
-X-Received: by 2002:a19:8a07:: with SMTP id m7mr40618660lfd.31.1594321957294;
-        Thu, 09 Jul 2020 12:12:37 -0700 (PDT)
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com. [209.85.208.174])
-        by smtp.gmail.com with ESMTPSA id a16sm1513586ljj.108.2020.07.09.12.12.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Jul 2020 12:12:37 -0700 (PDT)
-Received: by mail-lj1-f174.google.com with SMTP id q4so3694134lji.2
-        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 12:12:36 -0700 (PDT)
-X-Received: by 2002:a2e:991:: with SMTP id 139mr36799176ljj.314.1594321956136;
- Thu, 09 Jul 2020 12:12:36 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
-In-Reply-To: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 9 Jul 2020 12:12:19 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
-Message-ID: <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
-Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
-        Michel Lespinasse <walken@google.com>,
-        Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Brian Geffon <bgeffon@google.com>, anshuman.khandual@arm.com,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
-        Jerome Glisse <jglisse@redhat.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Hugh Dickins <hughd@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: multipart/mixed; boundary="000000000000daa8dc05aa070182"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=RwIQJPyP7UHlF/ZGGKtcnGZyKRkZA3pCBcfEq7K/2Ho=;
+        b=pWplp87076ZuJPqIPv8cq5dCsBCIwxIJRCRSG+aX/J+Jrjvfwhrwjkvm8vVET6weGj
+         aTx5pbCrw4yXY4o3fF7SenrXRR8iD028NLvAxLu7yx/VJKpSLdZr01ZXfXj5P7DJp20p
+         12HfPkeIRhYt/89hku/5SQLT43vDIUFf6XsXO8oZ1+HbwMUS/GoH9ZD0ZE/YDTk/zDnF
+         7NNxg7k4W8NXKaVnTCaaVJInf1rEGLeMmS+JzOx60cc5822dEQs6RbDc0zCRayWzVb1U
+         P9S7xXEQqWxGiGtqDZzWFuU3LbQQShwN0Dq0nlbkW8rYrPMYoFQv0Csbft6GW1YvFEwE
+         A74Q==
+X-Gm-Message-State: AOAM533YSkLsX/8sV5Mdnb+F0lZIgwWSvRmlu6MklxOHh9q3M+BFDzWM
+        7x8eau5+b2a06ip+SyJIEQE=
+X-Google-Smtp-Source: ABdhPJwDJxkzz3kgTcJCu9/JCf8HhRsvChMEW+U2cgrMgNAOBN45sP1bW6XPDT8vS97J11EP5enArQ==
+X-Received: by 2002:a17:902:820a:: with SMTP id x10mr4938403pln.135.1594324260334;
+        Thu, 09 Jul 2020 12:51:00 -0700 (PDT)
+Received: from localhost.localdomain ([2001:470:67:5b9:5dec:e971:4cde:a128])
+        by smtp.gmail.com with ESMTPSA id f2sm3694941pfb.184.2020.07.09.12.50.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2020 12:50:59 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Kristina Martsenko <kristina.martsenko@arm.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        linux-kernel@vger.kernel.org (open list),
+        kvmarm@lists.cs.columbia.edu (open list:KERNEL VIRTUAL MACHINE FOR
+        ARM64 (KVM/arm64))
+Subject: [PATCH stable v4.9 v2] arm64: entry: Place an SB sequence following an ERET instruction
+Date:   Thu,  9 Jul 2020 12:50:23 -0700
+Message-Id: <20200709195034.15185-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---000000000000daa8dc05aa070182
-Content-Type: text/plain; charset="UTF-8"
+From: Will Deacon <will.deacon@arm.com>
 
-On Wed, Jul 8, 2020 at 10:28 PM Naresh Kamboju
-<naresh.kamboju@linaro.org> wrote:
->
-> While running LTP mm test suite on i386 or qemu_i386 this kernel warning
-> has been noticed from stable 5.4 to stable 5.7 branches and mainline 5.8.0-rc4
-> and linux next.
+commit 679db70801da9fda91d26caf13bf5b5ccc74e8e8 upstream
 
-Hmm
+Some CPUs can speculate past an ERET instruction and potentially perform
+speculative accesses to memory before processing the exception return.
+Since the register state is often controlled by a lower privilege level
+at the point of an ERET, this could potentially be used as part of a
+side-channel attack.
 
-If this is repeatable, would you mind making the warning also print
-out the old range and new addresses and pmd value?
+This patch emits an SB sequence after each ERET so that speculation is
+held up on exception return.
 
-Something like the attached (UNTESTED!) patch.
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+[florian: Adjust hyp-entry.S to account for the label
+ added change to hyp/entry.S]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+Changes in v2:
 
-         Linus
+- added missing hunk in hyp/entry.S per Will's feedback
 
---000000000000daa8dc05aa070182
-Content-Type: application/octet-stream; name=patch
-Content-Disposition: attachment; filename=patch
-Content-Transfer-Encoding: base64
-Content-ID: <f_kcf6480o0>
-X-Attachment-Id: f_kcf6480o0
+ arch/arm64/kernel/entry.S      | 2 ++
+ arch/arm64/kvm/hyp/entry.S     | 2 ++
+ arch/arm64/kvm/hyp/hyp-entry.S | 4 ++++
+ 3 files changed, 8 insertions(+)
 
-IG1tL21yZW1hcC5jIHwgNCArKystCiAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAx
-IGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvbW0vbXJlbWFwLmMgYi9tbS9tcmVtYXAuYwppbmRl
-eCA1ZGQ1NzJkNTdjYTkuLmIzZjA3M2NmMjgwNiAxMDA2NDQKLS0tIGEvbW0vbXJlbWFwLmMKKysr
-IGIvbW0vbXJlbWFwLmMKQEAgLTIwOCw4ICsyMDgsMTAgQEAgc3RhdGljIGJvb2wgbW92ZV9ub3Jt
-YWxfcG1kKHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hLCB1bnNpZ25lZCBsb25nIG9sZF9hZGRy
-LAogCSAqIFRoZSBkZXN0aW5hdGlvbiBwbWQgc2hvdWxkbid0IGJlIGVzdGFibGlzaGVkLCBmcmVl
-X3BndGFibGVzKCkKIAkgKiBzaG91bGQgaGF2ZSByZWxlYXNlIGl0LgogCSAqLwotCWlmIChXQVJO
-X09OKCFwbWRfbm9uZSgqbmV3X3BtZCkpKQorCWlmIChXQVJOX09OKCFwbWRfbm9uZSgqbmV3X3Bt
-ZCkpKSB7CisJCXByaW50aygiIG9sZDogJWx4LSVseCBuZXc6ICVseCAodmFsOiAlbHgpXG4iLCBv
-bGRfYWRkciwgb2xkX2VuZCwgbmV3X2FkZHIsIHBtZF92YWwoKm5ld19wbWQpKTsKIAkJcmV0dXJu
-IGZhbHNlOworCX0KIAogCS8qCiAJICogV2UgZG9uJ3QgaGF2ZSB0byB3b3JyeSBhYm91dCB0aGUg
-b3JkZXJpbmcgb2Ygc3JjIGFuZCBkc3QK
---000000000000daa8dc05aa070182--
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index ca978d7d98eb..3408c782702c 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -255,6 +255,7 @@ alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
+ 	.else
+ 	eret
+ 	.endif
++	sb
+ 	.endm
+ 
+ 	.macro	get_thread_info, rd
+@@ -945,6 +946,7 @@ __ni_sys_trace:
+ 	mrs	x30, far_el1
+ 	.endif
+ 	eret
++	sb
+ 	.endm
+ 
+ 	.align	11
+diff --git a/arch/arm64/kvm/hyp/entry.S b/arch/arm64/kvm/hyp/entry.S
+index a360ac6e89e9..93704e6894d2 100644
+--- a/arch/arm64/kvm/hyp/entry.S
++++ b/arch/arm64/kvm/hyp/entry.S
+@@ -83,6 +83,7 @@ ENTRY(__guest_enter)
+ 
+ 	// Do not touch any register after this!
+ 	eret
++	sb
+ ENDPROC(__guest_enter)
+ 
+ ENTRY(__guest_exit)
+@@ -195,4 +196,5 @@ alternative_endif
+ 	ldp	x0, x1, [sp], #16
+ 
+ 	eret
++	sb
+ ENDPROC(__fpsimd_guest_restore)
+diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
+index bf4988f9dae8..3675e7f0ab72 100644
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -97,6 +97,7 @@ el1_sync:				// Guest trapped into EL2
+ 	do_el2_call
+ 
+ 2:	eret
++	sb
+ 
+ el1_hvc_guest:
+ 	/*
+@@ -147,6 +148,7 @@ wa_epilogue:
+ 	mov	x0, xzr
+ 	add	sp, sp, #16
+ 	eret
++	sb
+ 
+ el1_trap:
+ 	get_vcpu_ptr	x1, x0
+@@ -198,6 +200,7 @@ el2_error:
+ 	b.ne	__hyp_panic
+ 	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
+ 	eret
++	sb
+ 
+ ENTRY(__hyp_do_panic)
+ 	mov	lr, #(PSR_F_BIT | PSR_I_BIT | PSR_A_BIT | PSR_D_BIT |\
+@@ -206,6 +209,7 @@ ENTRY(__hyp_do_panic)
+ 	ldr	lr, =panic
+ 	msr	elr_el2, lr
+ 	eret
++	sb
+ ENDPROC(__hyp_do_panic)
+ 
+ ENTRY(__hyp_panic)
+-- 
+2.17.1
+
