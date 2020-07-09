@@ -2,149 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4FC21A513
-	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 18:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB57521A6F1
+	for <lists+stable@lfdr.de>; Thu,  9 Jul 2020 20:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728265AbgGIQrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 12:47:07 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:45211 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728248AbgGIQrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 12:47:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594313226;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=UspVOw6XAGLtilKBpYwpbaqQeMaCCmM2aVuZ489RO+o=;
-        b=LWSfhdjnKyWaxIDXzJHe5txJCczeUZlpJu4HSOt/ZveqCkI6SrkOLSLd79i17J5PQ+8+SH
-        3adPyEvlaCGMhNCu3de9dA8LZhKiUVerkYGwEEAxwQpP8IKHxnLMreAO3vILouoiaWCk1u
-        lKbAiKyr/b1ne9H5sz8FU/mtSc2H3Zs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-486-oDlM1zC6Nci7D7IE62glIQ-1; Thu, 09 Jul 2020 12:46:55 -0400
-X-MC-Unique: oDlM1zC6Nci7D7IE62glIQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9C8D5E918;
-        Thu,  9 Jul 2020 16:46:53 +0000 (UTC)
-Received: from localhost (ovpn-116-137.gru2.redhat.com [10.97.116.137])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4B7085BAEA;
-        Thu,  9 Jul 2020 16:46:50 +0000 (UTC)
-From:   Bruno Meneguele <bmeneg@redhat.com>
-To:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-integrity@vger.kernel.org
-Cc:     zohar@linux.ibm.com, erichte@linux.ibm.com, nayna@linux.ibm.com,
-        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>
-Subject: [PATCH v5] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY to runtime
-Date:   Thu,  9 Jul 2020 13:46:47 -0300
-Message-Id: <20200709164647.45153-1-bmeneg@redhat.com>
+        id S1726352AbgGIS0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 14:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726734AbgGIS0v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 14:26:51 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D11DC08E85B
+        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 11:26:51 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id b92so1479793pjc.4
+        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 11:26:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=JDLlch6jQ6b/Ci4KTwYO3yaCS+hjAOCVDzfUIy5QEwQ=;
+        b=DNDleAo0uMHf7/DTXLL/i2S24PvXDPvlQ14Ivr2titwFCsKNgi+Kv/vKbnaXprb6f1
+         chcoIAKkLN9//ppx4zyPvXEqToxeppaTc44FyNcsYcs2zXewo1+29WB3m2ouuFmQ3vud
+         vI+jn29PW0Sf+mrlVCIaa3TsiU1811viEuh3g=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=JDLlch6jQ6b/Ci4KTwYO3yaCS+hjAOCVDzfUIy5QEwQ=;
+        b=AbmFLyYqGhrPra8UkID8igbMZfyXSB6C/BdLUi6FiWFGT0JHFfcVVmBs03n9h1z8Sj
+         WCVGjUMFNgCNBI/wXMOavlruHezmOPqlM4GPPw75bkUQ2jW4sdx2sKMBLUr6l5hVJ6qv
+         krwBWo8Fgdp9PfufL/v2YhRfE7sCP6WwldNnADg2BJNlfUlNFtnLLA49Qx+ASrFUrb6I
+         EF7ctbD6JzLvltWErfEd+C95ejQURjrxb3KyZWFv8mDIz89DVqVZauCrrTmkHNrc874R
+         4ZCJL0xsfKUdUslc41lzTfB3bOij0PYuwneJzwxZltI+0I0F02a9ZFXa1fTHvJdrq9E8
+         wPIQ==
+X-Gm-Message-State: AOAM531g+CO2huNWmbDP2mrLDV1rWH5FdsXaVBoIRm5rh44BlZxf6drU
+        Ii+l99p2SwzNGALDRgwRXLdEng==
+X-Google-Smtp-Source: ABdhPJyA+Ic2E+z6uMO1UTG3SkSJOCj/9RBjg+eRJHv5onUU1yxGvD5dA+aRgVJ0h36ibNdtF7idTw==
+X-Received: by 2002:a17:90a:f206:: with SMTP id bs6mr1490003pjb.48.1594319210806;
+        Thu, 09 Jul 2020 11:26:50 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id z1sm3429471pgk.89.2020.07.09.11.26.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2020 11:26:47 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Sargun Dhillon <sargun@sargun.me>,
+        Christian Brauner <christian@brauner.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Christoph Hellwig <hch@lst.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Matt Denton <mpdenton@google.com>,
+        Jann Horn <jannh@google.com>, Chris Palmer <palmer@google.com>,
+        Robert Sesek <rsesek@google.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>, Shuah Khan <shuah@kernel.org>,
+        netdev@vger.kernel.org, containers@lists.linux-foundation.org,
+        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH v7 1/9] net/compat: Add missing sock updates for SCM_RIGHTS
+Date:   Thu,  9 Jul 2020 11:26:34 -0700
+Message-Id: <20200709182642.1773477-2-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200709182642.1773477-1-keescook@chromium.org>
+References: <20200709182642.1773477-1-keescook@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-APPRAISE_BOOTPARAM has been marked as dependent on !ARCH_POLICY in compile
-time, enforcing the appraisal whenever the kernel had the arch policy option
-enabled.
-
-However it breaks systems where the option is set but the system didn't
-boot in a "secure boot" platform. In this scenario, anytime an appraisal
-policy (i.e. ima_policy=appraisal_tcb) is used it will be forced, without
-giving the user the opportunity to label the filesystem, before enforcing
-integrity.
-
-Considering the ARCH_POLICY is only effective when secure boot is actually
-enabled this patch remove the compile time dependency and move it to a
-runtime decision, based on the secure boot state of that platform.
-
-With this patch:
-
-- x86-64 with secure boot enabled
-
-[    0.004305] Secure boot enabled
-...
-[    0.015651] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-[    0.015682] ima: appraise boot param ignored: secure boot enabled
-
-- powerpc with secure boot disabled
-
-[    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-[    0.000000] Secure boot mode disabled
-...
-< nothing about boot param ignored >
-
-System working fine without secure boot and with both options set:
-
-CONFIG_IMA_APPRAISE_BOOTPARAM=y
-CONFIG_IMA_ARCH_POLICY=y
-
-Audit logs pointing to "missing-hash" but still being able to execute due to
-ima_appraise=fix:
-
-type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
-uid=root auid=root ses=2
-subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
-cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
-res=no
+Add missed sock updates to compat path via a new helper, which will be
+used more in coming patches. (The net/core/scm.c code is left as-is here
+to assist with -stable backports for the compat path.)
 
 Cc: stable@vger.kernel.org
-Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
-Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
+Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
-Changelog:
-v5:
-  - add pr_info() to inform user the ima_appraise= boot param is being
-	ignored due to secure boot enabled (Nayna)
-  - add some testing results to commit log
-v4:
-  - instead of change arch_policy loading code, check secure boot state at
-	"ima_appraise=" parameter handler (Mimi)
-v3:
-  - extend secure boot arch checker to also consider trusted boot
-  - enforce IMA appraisal when secure boot is effectively enabled (Nayna)
-  - fix ima_appraise flag assignment by or'ing it (Mimi)
-v2:
-  - pr_info() message prefix correction
+ include/net/sock.h |  4 ++++
+ net/compat.c       |  1 +
+ net/core/sock.c    | 21 +++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
 
- security/integrity/ima/Kconfig        | 2 +-
- security/integrity/ima/ima_appraise.c | 5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
-index edde88dbe576..62dc11a5af01 100644
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -232,7 +232,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
- 
- config IMA_APPRAISE_BOOTPARAM
- 	bool "ima_appraise boot parameter"
--	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
-+	depends on IMA_APPRAISE
- 	default y
- 	help
- 	  This option enables the different "ima_appraise=" modes
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index a9649b04b9f1..884de471b38a 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -19,6 +19,11 @@
- static int __init default_appraise_setup(char *str)
+diff --git a/include/net/sock.h b/include/net/sock.h
+index c53cc42b5ab9..2be67f1ee8b1 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -890,6 +890,8 @@ static inline int sk_memalloc_socks(void)
  {
- #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
-+	if (arch_ima_get_secureboot()) {
-+		pr_info("appraise boot param ignored: secure boot enabled");
-+		return 1;
-+	}
+ 	return static_branch_unlikely(&memalloc_socks_key);
+ }
 +
- 	if (strncmp(str, "off", 3) == 0)
- 		ima_appraise = 0;
- 	else if (strncmp(str, "log", 3) == 0)
++void __receive_sock(struct file *file);
+ #else
+ 
+ static inline int sk_memalloc_socks(void)
+@@ -897,6 +899,8 @@ static inline int sk_memalloc_socks(void)
+ 	return 0;
+ }
+ 
++static inline void __receive_sock(struct file *file)
++{ }
+ #endif
+ 
+ static inline gfp_t sk_gfp_mask(const struct sock *sk, gfp_t gfp_mask)
+diff --git a/net/compat.c b/net/compat.c
+index 5e3041a2c37d..2937b816107d 100644
+--- a/net/compat.c
++++ b/net/compat.c
+@@ -309,6 +309,7 @@ void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
+ 			break;
+ 		}
+ 		/* Bump the usage count and install the file. */
++		__receive_sock(fp[i]);
+ 		fd_install(new_fd, get_file(fp[i]));
+ 	}
+ 
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 6c4acf1f0220..bde394979041 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2840,6 +2840,27 @@ int sock_no_mmap(struct file *file, struct socket *sock, struct vm_area_struct *
+ }
+ EXPORT_SYMBOL(sock_no_mmap);
+ 
++/*
++ * When a file is received (via SCM_RIGHTS, etc), we must bump the
++ * various sock-based usage counts.
++ */
++void __receive_sock(struct file *file)
++{
++	struct socket *sock;
++	int error;
++
++	/*
++	 * The resulting value of "error" is ignored here since we only
++	 * need to take action when the file is a socket and testing
++	 * "sock" for NULL is sufficient.
++	 */
++	sock = sock_from_file(file, &error);
++	if (sock) {
++		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
++		sock_update_classid(&sock->sk->sk_cgrp_data);
++	}
++}
++
+ ssize_t sock_no_sendpage(struct socket *sock, struct page *page, int offset, size_t size, int flags)
+ {
+ 	ssize_t res;
 -- 
-2.26.2
+2.25.1
 
