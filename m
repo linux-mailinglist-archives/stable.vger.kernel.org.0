@@ -2,119 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2A921AD61
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 05:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BB321ADD1
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 06:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726509AbgGJDQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 23:16:58 -0400
-Received: from foss.arm.com ([217.140.110.172]:44194 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726495AbgGJDQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jul 2020 23:16:58 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C604D113E;
-        Thu,  9 Jul 2020 20:16:57 -0700 (PDT)
-Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.212.213])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 43D383F9AB;
-        Thu,  9 Jul 2020 20:16:48 -0700 (PDT)
-From:   Jia He <justin.he@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        David Hildenbrand <david@redhat.com>
-Cc:     x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
+        id S1726768AbgGJERu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 00:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbgGJERt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 00:17:49 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43AECC08C5CE
+        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 21:17:49 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id q4so4900952lji.2
+        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 21:17:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GOMunx3lII6WiFhmgXs6T+sFqTi8oTyhM5FPcahBiiw=;
+        b=x2EauDhpkHLZTqe4KZEHA12Eg/+hjjsWaGtUf76DIl22j4xWvuSNhdrb1CmJN7sFKA
+         ZI9hXDk3LNKTzhj+MSOjESmm/PRUTbRsky5OwjMhbVOqeU46NMBofU93TgMavaTNJrff
+         8ZqcFxYWALq3owf6BE5DpDkQZwxurRUvMZbJ+VlWKXYoAERkOQ35aLZigtpQe/3sGot5
+         Lk0M6l199ufPUj1B9V3PO4CGbukEkl/oLLHeGM3yM9Yfi3RZ5cfqssnLWjOEQW0cKNrJ
+         4hXgsG8d4wWT8i9pv2epuJcGwmog4GXGw7nqOkK99uljD1qt+f5KUsWr4TC2ivxVVgTf
+         VIOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GOMunx3lII6WiFhmgXs6T+sFqTi8oTyhM5FPcahBiiw=;
+        b=h+RQKG5w0+xROT0CnND/YRFUka2RNT6yKe4/9QqyxLcf4tqMdpXYX68rpN+vDqH4O1
+         XrORYmi1q8zTFlKiZo1XOIK8xvHk0PYUSPZs1Q/PRwG2hZ4Q7EF/vG2mHB85SXgWYRXW
+         2hzSr2XU1TGW1I6ckFivT1+nSkjHaTIHsGN1j5XonlwXnU93ZFwUf83OxpO1BaMiiobw
+         LJmO+lx6JQmgRfAIBtbbTrlI+hoHsu1ZVph5nkr4LbMM03JkNMMAEvpgAcylrHq+i2nT
+         D7LLGgHhu09idjhcO7yfls4CXYsJmov3Mb0HsIgZUOPsw9rFTzRGkFdO24eHUtMv0pbm
+         d0pA==
+X-Gm-Message-State: AOAM53106MNIYnW+n65b5AxStHayNJtZBBGncuXFNdUFUKcNsCw/T7VQ
+        VCWg75fhVvWxAt4/fYIVawyWeog91K2sgcI6rOazbg==
+X-Google-Smtp-Source: ABdhPJzJ5G9NeGhYRGYXrilWZEb+Io/ok8iNRSWg6aJugFsWnWQO5XiLBdPCFqnu9yYcQ3qL/dVPmgppJtVodiO8leM=
+X-Received: by 2002:a2e:9089:: with SMTP id l9mr31662918ljg.431.1594354667432;
+ Thu, 09 Jul 2020 21:17:47 -0700 (PDT)
+MIME-Version: 1.0
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAK8P3a0ii1Z-UG8NpwTvkmOEcOvvTo4+m9xjW0JqR6LPvUZ4=g@mail.gmail.com>
+In-Reply-To: <CAK8P3a0ii1Z-UG8NpwTvkmOEcOvvTo4+m9xjW0JqR6LPvUZ4=g@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 10 Jul 2020 09:47:35 +0530
+Message-ID: <CA+G9fYsoEiQ-8ECKxMqQqPZKUbTQStp6wZi7ZiJDyi0YahFAvg@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Baoquan He <bhe@redhat.com>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-nvdimm@lists.01.org, linux-mm@kvack.org,
-        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
-        Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
-Date:   Fri, 10 Jul 2020 11:16:19 +0800
-Message-Id: <20200710031619.18762-3-justin.he@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200710031619.18762-1-justin.he@arm.com>
-References: <20200710031619.18762-1-justin.he@arm.com>
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Michel Lespinasse <walken@google.com>, Fan_Yang@sjtu.edu.cn,
+        bgeffon@google.com, Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
-online at that time), mem_hotplug_begin/done is unpaired in such case.
+On Thu, 9 Jul 2020 at 13:55, Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Thu, Jul 9, 2020 at 7:28 AM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> >
+> > While running LTP mm test suite on i386 or qemu_i386 this kernel warning
+> > has been noticed from stable 5.4 to stable 5.7 branches and mainline 5.8.0-rc4
+> > and linux next.
+>
+> Are you able to correlate this with any particular test case in LTP, or does
+> it happen for random processes?
+>
+> In the log you linked to, it happens once for ksm05.c and multiple times for
+> thp01.c, sources here:
+>
+> https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/mem/ksm/ksm05.c
+> https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/mem/thp/thp01.c
+>
+> Is it always these tests that trigger the warning, or sometimes others?
 
-Therefore a warning:
- Call Trace:
-  percpu_up_write+0x33/0x40
-  try_remove_memory+0x66/0x120
-  ? _cond_resched+0x19/0x30
-  remove_memory+0x2b/0x40
-  dev_dax_kmem_remove+0x36/0x72 [kmem]
-  device_release_driver_internal+0xf0/0x1c0
-  device_release_driver+0x12/0x20
-  bus_remove_device+0xe1/0x150
-  device_del+0x17b/0x3e0
-  unregister_dev_dax+0x29/0x60
-  devm_action_release+0x15/0x20
-  release_nodes+0x19a/0x1e0
-  devres_release_all+0x3f/0x50
-  device_release_driver_internal+0x100/0x1c0
-  driver_detach+0x4c/0x8f
-  bus_remove_driver+0x5c/0xd0
-  driver_unregister+0x31/0x50
-  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
+These two test cases are causing this warning multiple times on i386.
 
-Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
-Cc: stable@vger.kernel.org # v5.6+
-Signed-off-by: Jia He <justin.he@arm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
+>
+> When you say it happens with linux-5.4 stable, does that mean you don't see
+> it with older versions? What is the last known working version?
+
+I do not notice on stable-4.19 and below versions.
+Sorry i did not get the known working commit id or version.
+
+It started happening from stable-rc 5.0 first release.
+I have evidence [1] showing it on 5.0.1
+
+>
+> I also see that you give the virtual machine 16GB of RAM, but as you are
+> running a 32-bit kernel without PAE, only 2.3GB end up being available,
+> and some other LTP tests in the log run out of memory.
+>
+> You could check if the behavior changes if you give the kernel less memory,
+> e.g. 768MB (lowmem only), or enable CONFIG_X86_PAE to let it use the
+> entire 16GB.
+
+Warning is still happening after enabling PAE config.
+But the oom-killer messages are gone. Thank you.
+
+CONFIG_HIGHMEM=y
+CONFIG_X86_PAE=y
+
+full test log oom-killer messages are gone and kernel warning is still there,
+https://lkft.validation.linaro.org/scheduler/job/1552606#L10357
+
+build location:
+https://builds.tuxbuild.com/puilcMcGVwzFMN5fDUhY4g/
+
+[1] https://qa-reports.linaro.org/lkft/linux-stable-rc-5.0-oe/build/v5.0.1/testrun/1324990/suite/ltp-mm-tests/test/ksm02/log
+
 ---
- mm/memory_hotplug.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+[  775.646689] WARNING: CPU: 3 PID: 10858 at
+/srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/mm/mremap.c:211
+move_page_tables+0x553/0x570
+[  775.647006] Modules linked in: fuse
+[  775.647006] CPU: 3 PID: 10858 Comm: true Not tainted 5.0.1 #1
+[  775.647006] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS 1.10.2-1 04/01/2014
+[  775.647006] EIP: move_page_tables+0x553/0x570
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b49ab743d914..3e0645387daf 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1752,7 +1752,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 	 */
- 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
- 	if (rc)
--		goto done;
-+		return rc;
- 
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
-@@ -1776,9 +1776,8 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 
- 	try_offline_node(nid);
- 
--done:
- 	mem_hotplug_done();
--	return rc;
-+	return 0;
- }
- 
- /**
--- 
-2.17.1
-
+- Naresh
