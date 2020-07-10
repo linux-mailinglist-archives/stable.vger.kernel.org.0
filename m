@@ -2,185 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E57D21B2F6
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 12:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA13921B309
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 12:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726615AbgGJKKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 06:10:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:58896 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726496AbgGJKKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 06:10:30 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B8490AC79;
-        Fri, 10 Jul 2020 10:10:26 +0000 (UTC)
-Subject: Re: [PATCH] btrfs: add missing check for nocow and compression inode
- flags
-To:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20200710100553.13567-1-dsterba@suse.com>
-From:   Nikolay Borisov <nborisov@suse.com>
-Autocrypt: addr=nborisov@suse.com; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <c564eb4a-c798-ccd1-2fc9-d365cf5ba3a1@suse.com>
-Date:   Fri, 10 Jul 2020 13:10:25 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
-In-Reply-To: <20200710100553.13567-1-dsterba@suse.com>
-Content-Type: text/plain; charset=utf-8
+        id S1726840AbgGJKQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 06:16:38 -0400
+Received: from mail-bn8nam12on2061.outbound.protection.outlook.com ([40.107.237.61]:6044
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726496AbgGJKQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 06:16:37 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LcNIZ0oJWnx0eUrnSoEcW4UvPkee/27pNnlm05G4B9Tg5jauUJfHGZg23PCoi6imAfQVyGMXWBJ0g9vv9ObnNhICBDZOXqccrAmaBGD81X6+ljRxJMInyY+TI+N2Loz4pSSWgbsZNHszBi0CuX5ph+CB8sSXGkeX8/ChJrKxxF+EDUDMyf1lXHbK16a9AtoXCsFS7H4JVf/Gh7Wq/qmLuQhUb536HEipZkEeUvANZVxDXOFCittspPm2IOGBVq86K33mjw24houlAsNOKKZ2LxDdYGFIUS7PptlxSC6PveVSTCR1WAKzMI+eZn9ZiywdTa/1qrP4UikWSYq4Lbxl1A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3Mir0SMXVfwJiDGdE9u3Ae+HxyhPPuzFxqLz2PMZRNY=;
+ b=bkef2RT0hUIxW7X8s+2M99oEmEXiS3i7IqQTSHEpsKaXfEsyps6MKBdX496zGKbqJoKtB72cDQSNgETp5lZKy9Lcjkp9IXw2JIC9cg/3IIL0GvlKredEv8z8BUmkX+XkIiM0akDs10D/nhO1VOOr7MvkVFavqbV9R4QGGgOmUdR5zYsiF+eTx+Pa0OzvUJLlz9icr9dIhE9mFekz1XXMPqYCPdxwieemGkhyCbungpsVZy8boTUFaJRy5gA/vMtPk6QXxCUNZV6uJpmEc+8vM4nlwfVSPSm+63w53ftCTrZG0uNDjS1++GBlnCQ72RzI4qy9o+sVzCZyFEfdUD7Qjg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=infinera.com; dmarc=pass action=none header.from=infinera.com;
+ dkim=pass header.d=infinera.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3Mir0SMXVfwJiDGdE9u3Ae+HxyhPPuzFxqLz2PMZRNY=;
+ b=Rqr0WIVf76xvnbhkeTTWAvFyt1hTfAweWpRdcFEQDmZrOLnhtXA9xhXZOLMm0N1bES3vq3HaOQsqabNOe+UcAX7y5mVeBZM3BUtgbtRq/QJfLHOu+VK6kKLYkvBHVP2IPJ9TrzJ0SgvgLoB3ciHSlcYnch/4psU1XG6hqTgKCio=
+Received: from MWHPR1001MB2190.namprd10.prod.outlook.com
+ (2603:10b6:301:2e::20) by MWHPR10MB1469.namprd10.prod.outlook.com
+ (2603:10b6:300:1f::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.22; Fri, 10 Jul
+ 2020 10:16:33 +0000
+Received: from MWHPR1001MB2190.namprd10.prod.outlook.com
+ ([fe80::b439:ba0:98d6:c2d1]) by MWHPR1001MB2190.namprd10.prod.outlook.com
+ ([fe80::b439:ba0:98d6:c2d1%5]) with mapi id 15.20.3174.021; Fri, 10 Jul 2020
+ 10:16:33 +0000
+From:   Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+To:     "johan@kernel.org" <johan@kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: Re: [PATCH] cdc-acm: acm_init: Set initial BAUD to B0
+Thread-Topic: [PATCH] cdc-acm: acm_init: Set initial BAUD to B0
+Thread-Index: AQHWVp10AvhYW+hsHEuT/7Zwfc2fs6kAkwyAgAAGFgA=
+Date:   Fri, 10 Jul 2020 10:16:33 +0000
+Message-ID: <b4fca29185bfce940bf52813b5f92af27282c738.camel@infinera.com>
+References: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
+         <20200710095445.GS3453@localhost>
+In-Reply-To: <20200710095445.GS3453@localhost>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.37.3 
+authentication-results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=infinera.com;
+x-originating-ip: [88.131.87.201]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a237b358-2739-44d5-c59a-08d824ba5240
+x-ms-traffictypediagnostic: MWHPR10MB1469:
+x-microsoft-antispam-prvs: <MWHPR10MB1469F3D5899CF1AA9E1FCB32F4650@MWHPR10MB1469.namprd10.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:4714;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: K1QMzdBc/Ksg6DU2SIdKBSExR1Mgwk26A2NhveA5jXnMGQK6eABeiaXOcQfOh05lgMAY5zvd1Aqyyp8sL9YjkvRxgtz/eUDXTqFEPc5swt8/+gVrUdv2viDZbrPbzTlerIAy2c06hYeYCg597N48pLW1O+lip3LZUicB84PxjkJbDloDFqa2BfrAjQtbs6JXBL4o6ar78TR1mcy5UjUYtI47FQt6JThev2C/eYHS74NwtrYcMHD4477rZHWcg/K8GYbYDTW644k1J6rK6nz9bzeBTX24/g82ArngcJD9GCY8jOTVesp5X1nlkMl5U4Dn
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1001MB2190.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(136003)(376002)(346002)(39860400002)(366004)(36756003)(64756008)(66476007)(2616005)(66446008)(316002)(4326008)(6506007)(76116006)(2906002)(8676002)(8936002)(86362001)(91956017)(83380400001)(66556008)(6486002)(26005)(186003)(71200400001)(54906003)(66946007)(5660300002)(6512007)(6916009)(478600001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: ztLcSON0Wy2wroBDaKbm7PE5oLOoFzL9mLcWCAnqSwqlhaUUmp7R5cfqaQMc7SlbQDy7ALYbWcCYOKzqQtIafa92kX6qPh0VnFIMn7TBpo/wvub7OdmML71E0aUfeyC9zgEGBb1WH8OM6TQFnhm7CreVItWFaYetfhCDnVjWJ5kC10AR7pgprwkflCIvr6MvWW/wJrkK84H+fqFIM1Eg2CnBDUY45S2cfd2aGpbOdRsV9PR49x5gLdm2EnrFwmSdqsCdohBVJbr3ZnLilYmWo2OqeQB9/oKgzx+hr7zJNd/IV4oSK8UjkzULrSvv0RxkiD5hfgZkXNP4dJ/36o1je/xvimip8zW3LbmtKgjIugWh+7z2wxa+as3EDr6ybyzFsk2ofAPWplnjqQwEMyJCGfbLuRFmQzdbxkyLzmGoFxCef0xOEV39Gx5QBaFJc1uSl2bstwYl+HbOQseaMcjnM5gZ1QMxJUxYnXYp0ZOAniQSENvIxYdRotLd7zDTzaHf
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <0C2ABAC57B5BAC46AABD1C8DE5145DF5@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: infinera.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2190.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a237b358-2739-44d5-c59a-08d824ba5240
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2020 10:16:33.3439
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: STg7CbCDnvd6EK+ov7oEzf6HyTSe7rsS+8XNEy/1ooBZG/B89tYd9fWcb7/q0Jk8OSQU2T9YKUuw2BU3xWTrWQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1469
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 10.07.20 г. 13:05 ч., David Sterba wrote:
-> User Forza reported on IRC that some invalid combinations of file
-> attributes are accepted by chattr.
-> 
-> The NODATACOW and compression file flags/attributes are mutually
-> exclusive, but they could be set by 'chattr +c +C' on an empty file. The
-> nodatacow will be in effect because it's checked first in
-> btrfs_run_delalloc_range.
-> 
-> Extend the flag validation to catch the following cases:
-> 
->   - input flags are conflicting
->   - old and new flags are conflicting
->   - initialize the local variable with inode flags after inode ls locked
-> 
-> CC: stable@vger.kernel.org # 4.4+
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> ---
->  fs/btrfs/ioctl.c | 30 ++++++++++++++++++++++--------
->  1 file changed, 22 insertions(+), 8 deletions(-)
-> 
-> diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-> index 3a566cf71fc6..0c13bb38425b 100644
-> --- a/fs/btrfs/ioctl.c
-> +++ b/fs/btrfs/ioctl.c
-> @@ -164,8 +164,11 @@ static int btrfs_ioctl_getflags(struct file *file, void __user *arg)
->  	return 0;
->  }
->  
-> -/* Check if @flags are a supported and valid set of FS_*_FL flags */
-> -static int check_fsflags(unsigned int flags)
-> +/*
-> + * Check if @flags are a supported and valid set of FS_*_FL flags and that
-> + * the old and new flags are not conflicting
-> + */
-> +static int check_fsflags(unsigned int old_flags, unsigned int flags)
->  {
->  	if (flags & ~(FS_IMMUTABLE_FL | FS_APPEND_FL | \
->  		      FS_NOATIME_FL | FS_NODUMP_FL | \
-> @@ -174,9 +177,19 @@ static int check_fsflags(unsigned int flags)
->  		      FS_NOCOW_FL))
->  		return -EOPNOTSUPP;
->  
-> +	/* COMPR and NOCOMP on new/old are valid */
->  	if ((flags & FS_NOCOMP_FL) && (flags & FS_COMPR_FL))
->  		return -EINVAL;
->  
-> +	if ((flags & FS_COMPR_FL) && (flags & FS_NOCOW_FL))
-> +		return -EINVAL;
-> +
-> +	/* NOCOW and compression options are mutually exclusive */
-> +	if ((old_flags & FS_NOCOW_FL) && (flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
-
-Why is NOCOW and setting NOCOMP (which would really be a NOOP) an
-invalid combination?
-
-> +		return -EINVAL;
-> +	if ((flags & FS_NOCOW_FL) && (old_flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
-> +		return -EINVAL;
-
-Same thing here, just inverted?
-
-> +
->  	return 0;
->  }
->  
-> @@ -190,7 +203,7 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
->  	unsigned int fsflags, old_fsflags;
->  	int ret;
->  	const char *comp = NULL;
-> -	u32 binode_flags = binode->flags;
-> +	u32 binode_flags;
->  
->  	if (!inode_owner_or_capable(inode))
->  		return -EPERM;
-> @@ -201,22 +214,23 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
->  	if (copy_from_user(&fsflags, arg, sizeof(fsflags)))
->  		return -EFAULT;
->  
-> -	ret = check_fsflags(fsflags);
-> -	if (ret)
-> -		return ret;
-> -
->  	ret = mnt_want_write_file(file);
->  	if (ret)
->  		return ret;
->  
->  	inode_lock(inode);
-> -
->  	fsflags = btrfs_mask_fsflags_for_type(inode, fsflags);
->  	old_fsflags = btrfs_inode_flags_to_fsflags(binode->flags);
-> +
->  	ret = vfs_ioc_setflags_prepare(inode, old_fsflags, fsflags);
->  	if (ret)
->  		goto out_unlock;
->  
-> +	ret = check_fsflags(old_fsflags, fsflags);
-> +	if (ret)
-> +		goto out_unlock;
-> +
-> +	binode_flags = binode->flags;
->  	if (fsflags & FS_SYNC_FL)
->  		binode_flags |= BTRFS_INODE_SYNC;
->  	else
-> 
+T24gRnJpLCAyMDIwLTA3LTEwIGF0IDExOjU0ICswMjAwLCBKb2hhbiBIb3ZvbGQgd3JvdGU6DQo+
+IENBVVRJT046IFRoaXMgZW1haWwgb3JpZ2luYXRlZCBmcm9tIG91dHNpZGUgb2YgdGhlIG9yZ2Fu
+aXphdGlvbi4gRG8gbm90IGNsaWNrIGxpbmtzIG9yIG9wZW4gYXR0YWNobWVudHMgdW5sZXNzIHlv
+dSByZWNvZ25pemUgdGhlIHNlbmRlciBhbmQga25vdyB0aGUgY29udGVudCBpcyBzYWZlLg0KPiAN
+Cj4gDQo+IE9uIEZyaSwgSnVsIDEwLCAyMDIwIGF0IDExOjM1OjE4QU0gKzAyMDAsIEpvYWtpbSBU
+amVybmx1bmQgd3JvdGU6DQo+ID4gQk8gd2lsbCBkaXNhYmxlIFVTQiBpbnB1dCB1bnRpbCB0aGUg
+ZGV2aWNlIG9wZW5zLiBUaGlzIHdpbGwNCj4gPiBhdm9pZCBnYXJiYWdlIGNoYXJzIHdhaXRpbmcg
+Zmxvb2QgdGhlIFRUWS4gVGhpcyBtaW1pY3MgYSByZWFsIFVBUlQNCj4gPiBkZXZpY2UgYmV0dGVy
+Lg0KPiA+IEZvciBpbml0aWFsIHRlcm1pb3MgdG8gcmVhY2ggVVNCIGNvcmUsIFVTQiBkcml2ZXIg
+aGFzIHRvIGJlDQo+ID4gcmVnaXN0ZXJlZCBiZWZvcmUgVFRZIGRyaXZlci4NCj4gPiANCj4gPiBT
+aWduZWQtb2ZmLWJ5OiBKb2FraW0gVGplcm5sdW5kIDxqb2FraW0udGplcm5sdW5kQGluZmluZXJh
+LmNvbT4NCj4gPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiA+IC0tLQ0KPiA+IA0KPiA+
+IMKgSSBob3BlIHRoaXMgY2hhbmdlIG1ha2VzIHNlbnNlIHRvIHlvdSwgaWYgc28gSSBiZWxpdmUN
+Cj4gPiDCoHR0eVVTQiBjb3VsZCBkbyB0aGUgc2FtZS4NCj4gDQo+IE5vLCB0aGlzIGRvZXNuJ3Qg
+bWFrZSBzZW5zZS4gQjAgaXMgdXNlZCB0byBoYW5nIHVwIGFuIGFscmVhZHkgb3BlbiB0dHkuDQoN
+ClRoaXMgaXMgYXQgbW9kdWxlIGluaXQgc28gdGhlcmUgaXMgbm8gdHR5IHlldC4NCmFjbV9wcm9i
+ZSgpIHdpbGwgbGF0ZXIgc2V0Og0KICAgICAgICBhY20tPmxpbmUuZHdEVEVSYXRlID0gY3B1X3Rv
+X2xlMzIoOTYwMCk7DQoJYWNtLT5saW5lLmJEYXRhQml0cyA9IDg7DQoJYWNtX3NldF9saW5lKGFj
+bSwgJmFjbS0+bGluZSk7DQoNCj4gDQo+IEZ1cnRoZXJtb3JlLCB0aGlzIGNoYW5nZSBvbmx5IGFm
+ZmVjdHMgdGhlIGluaXRpYWwgdGVybWluYWwgc2V0dGluZ3MgYW5kDQo+IHdvbid0IGhhdmUgYW55
+IGVmZmVjdCB0aGUgbmV4dCB0aW1lIHlvdSBvcGVuIHRoZSBzYW1lIHBvcnQuDQoNCmhtbSwgaXQg
+aXMgbm90IGlkZWFsIGJ1dCBhY21fcHJvYmUoKSB3aWxsIGxhdGVyIHNldDoNCiAgICAgICAgYWNt
+LT5saW5lLmR3RFRFUmF0ZSA9IGNwdV90b19sZTMyKDk2MDApOw0KCWFjbS0+bGluZS5iRGF0YUJp
+dHMgPSA4Ow0KCWFjbV9zZXRfbGluZShhY20sICZhY20tPmxpbmUpOw0KDQpCdXQsIHdvdWxkIGl0
+IG5vdCBtYWtlIHNlbnNlIHRvIG5vdCBhY2NlcHQgaW5wdXQgdW50aWwgVFRZIGlzIG9wZW5lZCA/
+DQpUaGF0IHdvdWxkIGJlIG1vcmUgaW5saW5lIHdpdGggYSByZWFsIFJTMjMyLCB3b3VsZCBpdCBu
+b3Q/DQo+IA0KPiBXaHkgbm90IGZpeCB5b3VyIGZpcm13YXJlIHNvIHRoYXQgaXQgZG9lc24ndCB0
+cmFuc21pdCBiZWZvcmUgRFRSIGlzDQo+IGFzc2VydGVkIGR1cmluZyBvcGVuKCk/DQoNCkkgd291
+bGQgYnV0IGl0IGlzIG5vdCBteSBmaXJtd2FyZSwgaXQgaXMgYSByZWFkeSBtYWRlIFVTQiB0byBV
+QVJUIGNoaXAuIHdpbGwgdGFsaw0KdG8gdGhlIG1hbnVmYWN0dXJlciB0aG91Z2guDQoNCg0KPiA+
+IMKgZHJpdmVycy91c2IvY2xhc3MvY2RjLWFjbS5jIHwgOCArKysrLS0tLQ0KPiA+IMKgMSBmaWxl
+IGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gPiANCj4gPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy91c2IvY2xhc3MvY2RjLWFjbS5jIGIvZHJpdmVycy91c2IvY2xhc3Mv
+Y2RjLWFjbS5jDQo+ID4gaW5kZXggNzUxZjAwMjg1ZWU2Li41NjgwZjcxMjAwZTUgMTAwNjQ0DQo+
+ID4gLS0tIGEvZHJpdmVycy91c2IvY2xhc3MvY2RjLWFjbS5jDQo+ID4gKysrIGIvZHJpdmVycy91
+c2IvY2xhc3MvY2RjLWFjbS5jDQo+ID4gQEAgLTE5OTksMTkgKzE5OTksMTkgQEAgc3RhdGljIGlu
+dCBfX2luaXQgYWNtX2luaXQodm9pZCkNCj4gPiDCoMKgwqDCoMKgwqBhY21fdHR5X2RyaXZlci0+
+c3VidHlwZSA9IFNFUklBTF9UWVBFX05PUk1BTCwNCj4gPiDCoMKgwqDCoMKgwqBhY21fdHR5X2Ry
+aXZlci0+ZmxhZ3MgPSBUVFlfRFJJVkVSX1JFQUxfUkFXIHwgVFRZX0RSSVZFUl9EWU5BTUlDX0RF
+VjsNCj4gPiDCoMKgwqDCoMKgwqBhY21fdHR5X2RyaXZlci0+aW5pdF90ZXJtaW9zID0gdHR5X3N0
+ZF90ZXJtaW9zOw0KPiA+IC0gICAgIGFjbV90dHlfZHJpdmVyLT5pbml0X3Rlcm1pb3MuY19jZmxh
+ZyA9IEI5NjAwIHwgQ1M4IHwgQ1JFQUQgfA0KPiA+ICsgICAgIGFjbV90dHlfZHJpdmVyLT5pbml0
+X3Rlcm1pb3MuY19jZmxhZyA9IEIwIHwgQ1M4IHwgQ1JFQUQgfA0KPiA+IMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBIVVBD
+TCB8IENMT0NBTDsNCj4gPiDCoMKgwqDCoMKgwqB0dHlfc2V0X29wZXJhdGlvbnMoYWNtX3R0eV9k
+cml2ZXIsICZhY21fb3BzKTsNCj4gPiANCj4gPiAtICAgICByZXR2YWwgPSB0dHlfcmVnaXN0ZXJf
+ZHJpdmVyKGFjbV90dHlfZHJpdmVyKTsNCj4gPiArICAgICByZXR2YWwgPSB1c2JfcmVnaXN0ZXIo
+JmFjbV9kcml2ZXIpOw0KPiA+IMKgwqDCoMKgwqDCoGlmIChyZXR2YWwpIHsNCj4gPiDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgcHV0X3R0eV9kcml2ZXIoYWNtX3R0eV9kcml2ZXIpOw0KPiA+
+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gcmV0dmFsOw0KPiA+IMKgwqDCoMKg
+wqDCoH0NCj4gPiANCj4gPiAtICAgICByZXR2YWwgPSB1c2JfcmVnaXN0ZXIoJmFjbV9kcml2ZXIp
+Ow0KPiA+ICsgICAgIHJldHZhbCA9IHR0eV9yZWdpc3Rlcl9kcml2ZXIoYWNtX3R0eV9kcml2ZXIp
+Ow0KPiA+IMKgwqDCoMKgwqDCoGlmIChyZXR2YWwpIHsNCj4gPiAtICAgICAgICAgICAgIHR0eV91
+bnJlZ2lzdGVyX2RyaXZlcihhY21fdHR5X2RyaXZlcik7DQo+ID4gKyAgICAgICAgICAgICB1c2Jf
+ZGVyZWdpc3RlcigmYWNtX2RyaXZlcik7DQo+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oHB1dF90dHlfZHJpdmVyKGFjbV90dHlfZHJpdmVyKTsNCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgcmV0dXJuIHJldHZhbDsNCj4gPiDCoMKgwqDCoMKgwqB9DQo+IA0KPiBKb2hhbg0K
+DQo=
