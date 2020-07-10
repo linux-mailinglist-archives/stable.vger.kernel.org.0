@@ -2,67 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB6B21AD11
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 04:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E36D521AD50
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 05:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgGJCar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 22:30:47 -0400
-Received: from mailgw02.mediatek.com ([1.203.163.81]:47983 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726446AbgGJCar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 22:30:47 -0400
-X-UUID: 593811f480164a9ea9c7c0c594f73d8b-20200710
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=Kd0C+S4Ayp+24088Gsa5JiqqukKJHb4/Z3Dk20GZNaA=;
-        b=rD3EhzO4i+X+SbryJ8Nm4eTbBaXYYDXu/tvU8MWyfwbbt6SFX+bDQ7T9+y8sUZZt20w+Jy8gtnFuOU8S3pMx6rqZ9eMXUPRzIa6WbTT4zM5UTMUhQaqpFmfyB/b+o//4CTXqbSZ7hEUfRXKGtuKmJyhBt9EH/c688eN6j3rIG1s=;
-X-UUID: 593811f480164a9ea9c7c0c594f73d8b-20200710
-Received: from mtkcas32.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLS)
-        with ESMTP id 299434186; Fri, 10 Jul 2020 10:30:26 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- MTKMBS31N2.mediatek.inc (172.27.4.87) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 10 Jul 2020 10:30:19 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 10 Jul 2020 10:30:18 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Mathias Nyman <mathias.nyman@intel.com>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] usb: xhci-mtk: fix the failure of bandwidth allocation
-Date:   Fri, 10 Jul 2020 10:29:42 +0800
-Message-ID: <1594348182-431-1-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
+        id S1726830AbgGJDPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 23:15:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726560AbgGJDPE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 23:15:04 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A139C08C5DD
+        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 20:15:04 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id s20so2242310vsq.5
+        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 20:15:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0xK96ZEj03BYxsiwTCEC7aLn5QyV2i1PW83BHZdlgiE=;
+        b=iz5+7TZuV43ycSJaAM7QXsHXHZMrqwe1VHhvH7nzaLRNqyuSzRIKsTm9ZY6hcyT6xL
+         rUeURvW6GTpfMb+6hgPG7XBznhNpcnfnoWcODmOEsJARCaoCb5xul+H0TsOjwz8m0Gpt
+         8etFgsVIuVEHJxU8FqnuyA13ZWtKyl5k05Cmg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0xK96ZEj03BYxsiwTCEC7aLn5QyV2i1PW83BHZdlgiE=;
+        b=a74woxa5OfEhy61WIOEwTHSn9VwCUuMdrbQefp7GEIpNTK4KrulAc+72WRxLPFJ8Ea
+         cARY7gF+ihxTbjO+MGOURcTa/CIKIQ/Z0PtW9UMMrtF7UMaL/dwf2xhc+Wq95NhGjhDI
+         jVLu0Sak+7EVmwgXz6JqBArRgvuZMD7GHcxiKYX4tb1+YMT6lnsM/wZY2U+eSU6l/NUb
+         v8brVTQXeYEtiWBMRIGHK/ESAgNTBBE0Fl6jr8cUMtYlau5OSXemYqyfI/KxRS31WR0d
+         hmBBVQdDGLTwg0DGu2mUgERoQX1OioRjuSNsak0mJrDjrJbItQeYs8JU2BYDQDKtU/US
+         U7gQ==
+X-Gm-Message-State: AOAM530CyJudwIVS+k5RP2xFEp56Hw+n2Nk02oDiK1HJ8V9sy+Lf7zMW
+        aWql+YjmABRyTF3oMQssLP8o9GnonOK4NcswuK/6CQ==
+X-Google-Smtp-Source: ABdhPJwwWTRG9i6cMBcyGYThfNXEyr1KpiR5j0/N7lIP76+Rz5QR86zchLcWA1ir6x7GGNOpx8rJ1ZOQxoECbAD4Myo=
+X-Received: by 2002:a67:e0c3:: with SMTP id m3mr52687562vsl.1.1594350903351;
+ Thu, 09 Jul 2020 20:15:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: 3E47718F58DC4962AF1F31FFDB8BDCC6908A18FE5C4F4A0FE152DF2C456BC00A2000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+References: <1594348182-431-1-git-send-email-chunfeng.yun@mediatek.com>
+In-Reply-To: <1594348182-431-1-git-send-email-chunfeng.yun@mediatek.com>
+From:   Nicolas Boichat <drinkcat@chromium.org>
+Date:   Fri, 10 Jul 2020 11:14:52 +0800
+Message-ID: <CANMq1KA2kT1yLGqhJFBKt4sRzzE6r=ABkSX59S-Mjr8Dg8sTOQ@mail.gmail.com>
+Subject: Re: [PATCH] usb: xhci-mtk: fix the failure of bandwidth allocation
+To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
+Cc:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        Ikjoon Jang <ikjn@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhlIHdNYXhQYWNrZXRTaXplIGZpZWxkIG9mIGVuZHBvaW50IGRlc2NyaXB0b3IgbWF5IGJlIHpl
-cm8NCmFzIGRlZmF1bHQgdmFsdWUgaW4gYWx0ZXJuYXRlIGludGVyZmFjZSwgYW5kIHRoZXkgYXJl
-IG5vdA0KYWN0dWFsbHkgc2VsZWN0ZWQgd2hlbiBzdGFydCBzdHJlYW0sIHNvIHNraXAgdGhlbSB3
-aGVuIHRyeSB0bw0KYWxsb2NhdGUgYmFuZHdpZHRoLg0KDQpDYzogc3RhYmxlIDxzdGFibGVAdmdl
-ci5rZXJuZWwub3JnPg0KU2lnbmVkLW9mZi1ieTogQ2h1bmZlbmcgWXVuIDxjaHVuZmVuZy55dW5A
-bWVkaWF0ZWsuY29tPg0KLS0tDQogZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay1zY2guYyB8IDQg
-KysrKw0KIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKykNCg0KZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2NoLmMgYi9kcml2ZXJzL3VzYi9ob3N0L3hoY2ktbXRr
-LXNjaC5jDQppbmRleCBmZWE1NTU1Li40NWM1NGQ1NiAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvdXNi
-L2hvc3QveGhjaS1tdGstc2NoLmMNCisrKyBiL2RyaXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2No
-LmMNCkBAIC01NTcsNiArNTU3LDEwIEBAIHN0YXRpYyBib29sIG5lZWRfYndfc2NoKHN0cnVjdCB1
-c2JfaG9zdF9lbmRwb2ludCAqZXAsDQogCWlmIChpc19mc19vcl9scyhzcGVlZCkgJiYgIWhhc190
-dCkNCiAJCXJldHVybiBmYWxzZTsNCiANCisJLyogc2tpcCBlbmRwb2ludCB3aXRoIHplcm8gbWF4
-cGt0ICovDQorCWlmICh1c2JfZW5kcG9pbnRfbWF4cCgmZXAtPmRlc2MpID09IDApDQorCQlyZXR1
-cm4gZmFsc2U7DQorDQogCXJldHVybiB0cnVlOw0KIH0NCiANCi0tIA0KMS45LjENCg==
+On Fri, Jul 10, 2020 at 10:30 AM Chunfeng Yun <chunfeng.yun@mediatek.com> wrote:
+>
+> The wMaxPacketSize field of endpoint descriptor may be zero
+> as default value in alternate interface, and they are not
+> actually selected when start stream, so skip them when try to
+> allocate bandwidth.
+>
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
+Add this?
+Fixes: 0cbd4b34cda9dfd ("xhci: mediatek: support MTK xHCI host controller")
+
+> ---
+>  drivers/usb/host/xhci-mtk-sch.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+> index fea5555..45c54d56 100644
+> --- a/drivers/usb/host/xhci-mtk-sch.c
+> +++ b/drivers/usb/host/xhci-mtk-sch.c
+> @@ -557,6 +557,10 @@ static bool need_bw_sch(struct usb_host_endpoint *ep,
+>         if (is_fs_or_ls(speed) && !has_tt)
+>                 return false;
+>
+> +       /* skip endpoint with zero maxpkt */
+> +       if (usb_endpoint_maxp(&ep->desc) == 0)
+> +               return false;
+> +
+>         return true;
+>  }
+>
+> --
+> 1.9.1
+> _______________________________________________
+> Linux-mediatek mailing list
+> Linux-mediatek@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-mediatek
