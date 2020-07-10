@@ -2,112 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1066B21B455
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 13:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C5121B48E
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 14:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726965AbgGJL6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 07:58:14 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:21543 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726921AbgGJL6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 07:58:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594382292;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nAOXmVWgoczSuOlfXxBAYA4BAGAkdUAmIONdRmDi7fU=;
-        b=PMrWyJyVkkPNOoYglXGBqgq38slyr1M6XgD6o1bVtWBQKADIkmc/ZMAXujoR/rQs1ZN4/3
-        iGL4EYFk5wIiDM0oXqUIsyryvJ7w4+ri2C/Ma1qMF8bwO7gJTrgjvc0mhGZgTn8mMCrXHY
-        wPJrd5VlkIqtf5bc3dS9p0t4LaYPPEM=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-70-k7VtrdnCOe6wvsggYynLuw-1; Fri, 10 Jul 2020 07:58:10 -0400
-X-MC-Unique: k7VtrdnCOe6wvsggYynLuw-1
-Received: by mail-ej1-f70.google.com with SMTP id q9so6163105ejr.21
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 04:58:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=nAOXmVWgoczSuOlfXxBAYA4BAGAkdUAmIONdRmDi7fU=;
-        b=WuE5DA/vOkRH63bpZ2jFjMvlMA55D0hQ4pCocEa372kj8nawvc6Z5RuaxNBeIwMEYt
-         7LLov58r/6HMus65H0DrHKUKMr9TlXYYn8JBZtXZe3bFFgVAxnRlVVytjlbzHEe+usSd
-         5vg1l4AqN3HrdADnQ2RXjLhG/f2CYYIYjnof24+qUdJZTQ581rdLwpprbG4Q8T434J6k
-         zF50aY3ZPw6EQ9VFTBqu0A1EB6mYmY9uht9YogfWC9mMxImPq8CsLvTGZ8M+rEgIacky
-         eRzJRDbSwYkF+MBskrbZUCpfQGL2dUsMQYg7EcgtcNm6W0PxvMG2N6YHacr4+K/kkCmq
-         fJOQ==
-X-Gm-Message-State: AOAM530on3xVBcQauAmRxKfBkTRc9xSKslbVY0Mzd3BYeZCheTJNTw4Y
-        4/DXq2+T0lhkAlKAEzBslbNFko5iDmdHjoOrgSaLjktxRDkYCPWGqO+tEpKzQ48TsIj5Y2XT8O3
-        WN3VDhqMMY7cnon0M
-X-Received: by 2002:a17:906:cd2:: with SMTP id l18mr63295732ejh.18.1594382288907;
-        Fri, 10 Jul 2020 04:58:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxTEnQRlfNnkfPFFldvYN1w1+dgGHdWpPHvYgpL+8iT4dpCcLKqV3BiLsKe2MEEqovgVDMfZQ==
-X-Received: by 2002:a17:906:cd2:: with SMTP id l18mr63295724ejh.18.1594382288749;
-        Fri, 10 Jul 2020 04:58:08 -0700 (PDT)
-Received: from miu.piliscsaba.redhat.com (catv-212-96-48-140.catv.broadband.hu. [212.96.48.140])
-        by smtp.gmail.com with ESMTPSA id a8sm3536951ejp.51.2020.07.10.04.58.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jul 2020 04:58:08 -0700 (PDT)
-From:   Miklos Szeredi <mszeredi@redhat.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     Stefan Priebe <s.priebe@profihost.ag>,
-        David Howells <dhowells@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 2/3] fuse: ignore 'data' argument of mount(..., MS_REMOUNT)
-Date:   Fri, 10 Jul 2020 13:58:04 +0200
-Message-Id: <20200710115805.4478-2-mszeredi@redhat.com>
-X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20200710115805.4478-1-mszeredi@redhat.com>
-References: <20200710115805.4478-1-mszeredi@redhat.com>
+        id S1726867AbgGJMBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 08:01:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:54702 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726757AbgGJMBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 08:01:05 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E2654AC46;
+        Fri, 10 Jul 2020 12:01:03 +0000 (UTC)
+Subject: Re: [PATCH] xen: don't reschedule in preemption off sections
+To:     Jan Beulich <jbeulich@suse.com>
+Cc:     xen-devel@lists.xenproject.org, stable@vger.kernel.org,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Sarah Newman <srn@prgmr.com>
+References: <20200710075050.4769-1-jgross@suse.com>
+ <988ff766-b7de-2e25-2524-c412379686fc@suse.com>
+ <742457cf-4892-0e85-2fc8-d2eb9f8a3a51@suse.com>
+ <af6db1b7-7802-0b2e-eb5f-ce69533b771f@suse.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <97b15bd2-11f0-b530-dc07-b7d523bf88a2@suse.com>
+Date:   Fri, 10 Jul 2020 14:01:03 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
+In-Reply-To: <af6db1b7-7802-0b2e-eb5f-ce69533b771f@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The command
+On 10.07.20 13:55, Jan Beulich wrote:
+> On 10.07.2020 12:50, Jürgen Groß wrote:
+>> On 10.07.20 11:49, Jan Beulich wrote:
+>>> On 10.07.2020 09:50, Juergen Gross wrote:
+>>>> For support of long running hypercalls xen_maybe_preempt_hcall() is
+>>>> calling cond_resched() in case a hypercall marked as preemptible has
+>>>> been interrupted.
+>>>>
+>>>> Normally this is no problem, as only hypercalls done via some ioctl()s
+>>>> are marked to be preemptible. In rare cases when during such a
+>>>> preemptible hypercall an interrupt occurs and any softirq action is
+>>>> started from irq_exit(), a further hypercall issued by the softirq
+>>>> handler will be regarded to be preemptible, too. This might lead to
+>>>> rescheduling in spite of the softirq handler potentially having set
+>>>> preempt_disable(), leading to splats like:
+>>>>
+>>>> BUG: sleeping function called from invalid context at drivers/xen/preempt.c:37
+>>>> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 20775, name: xl
+>>>> INFO: lockdep is turned off.
+>>>> CPU: 1 PID: 20775 Comm: xl Tainted: G D W 5.4.46-1_prgmr_debug.el7.x86_64 #1
+>>>> Call Trace:
+>>>> <IRQ>
+>>>> dump_stack+0x8f/0xd0
+>>>> ___might_sleep.cold.76+0xb2/0x103
+>>>> xen_maybe_preempt_hcall+0x48/0x70
+>>>> xen_do_hypervisor_callback+0x37/0x40
+>>>> RIP: e030:xen_hypercall_xen_version+0xa/0x20
+>>>> Code: ...
+>>>> RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
+>>>> RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
+>>>> RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
+>>>> RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
+>>>> R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
+>>>> R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
+>>>> ? xen_hypercall_xen_version+0xa/0x20
+>>>> ? xen_force_evtchn_callback+0x9/0x10
+>>>> ? check_events+0x12/0x20
+>>>> ? xen_restore_fl_direct+0x1f/0x20
+>>>> ? _raw_spin_unlock_irqrestore+0x53/0x60
+>>>> ? debug_dma_sync_single_for_cpu+0x91/0xc0
+>>>> ? _raw_spin_unlock_irqrestore+0x53/0x60
+>>>> ? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
+>>>> ? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
+>>>> ? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
+>>>> ? net_rx_action+0x151/0x4a0
+>>>> ? __do_softirq+0xed/0x55b
+>>>> ? irq_exit+0xea/0x100
+>>>> ? xen_evtchn_do_upcall+0x2c/0x40
+>>>> ? xen_do_hypervisor_callback+0x29/0x40
+>>>> </IRQ>
+>>>> ? xen_hypercall_domctl+0xa/0x20
+>>>> ? xen_hypercall_domctl+0x8/0x20
+>>>> ? privcmd_ioctl+0x221/0x990 [xen_privcmd]
+>>>> ? do_vfs_ioctl+0xa5/0x6f0
+>>>> ? ksys_ioctl+0x60/0x90
+>>>> ? trace_hardirqs_off_thunk+0x1a/0x20
+>>>> ? __x64_sys_ioctl+0x16/0x20
+>>>> ? do_syscall_64+0x62/0x250
+>>>> ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
+>>>>
+>>>> Fix that by testing preempt_count() before calling cond_resched().
+>>>>
+>>>> In kernel 5.8 this can't happen any more due to the entry code rework.
+>>>>
+>>>> Reported-by: Sarah Newman <srn@prgmr.com>
+>>>> Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use need_resched() instead of should_resched()")
+>>>> Cc: Sarah Newman <srn@prgmr.com>
+>>>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>>>> ---
+>>>>    drivers/xen/preempt.c | 2 +-
+>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/xen/preempt.c b/drivers/xen/preempt.c
+>>>> index 17240c5325a3..6ad87b5c95ed 100644
+>>>> --- a/drivers/xen/preempt.c
+>>>> +++ b/drivers/xen/preempt.c
+>>>> @@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hcall);
+>>>>    asmlinkage __visible void xen_maybe_preempt_hcall(void)
+>>>>    {
+>>>>    	if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
+>>>> -		     && need_resched())) {
+>>>> +		     && need_resched() && !preempt_count())) {
+>>>
+>>> Doesn't this have the at least latent risk of hiding issues in
+>>> other call trees (by no longer triggering logging like the one
+>>> that has propmted this change)? Wouldn't it be better to save,
+>>> clear, and restore the flag in one of xen_evtchn_do_upcall() or
+>>> xen_do_hypervisor_callback()?
+>>
+>> First regarding "risk of hiding issues": it seems as if lots of kernels
+>> aren't even configured to trigger this logging. It would need
+>> CONFIG_DEBUG_ATOMIC_SLEEP to be enabled and at least SUSE kernels don't
+>> seem to have it on. I suspect the occasional xen_mc_flush() failures we
+>> have seen are related to this problem.
+>>
+>> And in theory saving, clearing and restoring the flag would be fine, but
+>> it can't be done in a single function with the code flow as up to 5.7.
+>> What would need to be done is to save and clear the flag in e.g.
+>> __xen_evtchn_do_upcall() and to pass it to xen_maybe_preempt_hcall() as
+>> a parameter. In xen_maybe_preempt_hcall() the passed flag value would
+>> need to be used for the decision whether to call cond_resched() and then
+>> the flag could be restored (after the cond_resched() call).
+> 
+> I'm afraid I don't follow: If __xen_evtchn_do_upcall() cleared the flag,
+> xen_maybe_preempt_hcall() would amount to a no-op (up and until the
+> flag's prior value would get restored), wouldn't it? No need to pass
+> anything into there.
 
-  mount -o remount -o unknownoption /mnt/fuse
+The problem is after __xen_evtchn_do_upcall() restoring the flag.
+As soon as irq_exit() is being called (either by xen_evtchn_do_upcall()
+or by the caller of xen_hvm_evtchn_do_upcall()) softirq handling might
+be executed resulting in another hypercall, which might be preempted
+afterwards. And this is the case which happened in the original
+report by Sarah.
 
-succeeds on kernel versions prior to v5.4 and fails on kernel version at or
-after.  This is because fuse_parse_param() rejects any unrecognised options
-in case of FS_CONTEXT_FOR_RECONFIGURE, just as for FS_CONTEXT_FOR_MOUNT.
 
-This causes a regression in case the fuse filesystem is in fstab, since
-remount sends all options found there to the kernel; even ones that are
-meant for the initial mount and are consumed by the userspace fuse server.
-
-Fix this by ignoring mount options, just as fuse_remount_fs() did prior to
-the conversion to the new API.
-
-Reported-by: Stefan Priebe <s.priebe@profihost.ag>
-Fixes: c30da2e981a7 ("fuse: convert to use the new mount API")
-Cc: <stable@vger.kernel.org> # v5.4
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
----
- fs/fuse/inode.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index be39dff57c28..ba201bf5ffad 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -477,6 +477,13 @@ static int fuse_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 	struct fuse_fs_context *ctx = fc->fs_private;
- 	int opt;
- 
-+	/*
-+	 * Ignore options coming from mount(MS_REMOUNT) for backward
-+	 * compatibility.
-+	 */
-+	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE)
-+		return 0;
-+
- 	opt = fs_parse(fc, fuse_fs_parameters, param, &result);
- 	if (opt < 0)
- 		return opt;
--- 
-2.21.1
+Juergen
 
