@@ -2,141 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F4821AFE5
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 09:12:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0A921AFEF
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 09:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgGJHMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 03:12:12 -0400
-Received: from mailout4.samsung.com ([203.254.224.34]:37128 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725851AbgGJHMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 03:12:12 -0400
-Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20200710071209epoutp041ed18a712b653437eeaf6372b9434bde~gUqNv5L611141311413epoutp04b
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 07:12:09 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20200710071209epoutp041ed18a712b653437eeaf6372b9434bde~gUqNv5L611141311413epoutp04b
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1594365130;
-        bh=/t3GOhd3EujC86HBkGwp/MyxxttlluRp2O1d8XhoX4c=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=ENSl+aJFuNV8/llOHJ5qCd1b+k3diEsXP6SFhSSF3falqHLTKwjAUNzhQoiPu4LNy
-         swGvjmwgDEQEX4DWTJllnXuq98Ed7YOMhaZ8zlE0E8Zxa3Wacg6k6udF3mb3JF487O
-         EKoCixLKFtFq9rlnEXcuWgS85qqojrUIiBA0NrCU=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20200710071209epcas1p1e22cd134d7e1aeceabf5718bdd7a8cf7~gUqNXMqae2509625096epcas1p1j;
-        Fri, 10 Jul 2020 07:12:09 +0000 (GMT)
-Received: from epsmges1p5.samsung.com (unknown [182.195.40.166]) by
-        epsnrtp2.localdomain (Postfix) with ESMTP id 4B343r3yt0zMqYkn; Fri, 10 Jul
-        2020 07:12:08 +0000 (GMT)
-Received: from epcas1p3.samsung.com ( [182.195.41.47]) by
-        epsmges1p5.samsung.com (Symantec Messaging Gateway) with SMTP id
-        68.DD.28578.8C4180F5; Fri, 10 Jul 2020 16:12:08 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20200710071207epcas1p2bbcd1f5c96f6aba7e3f67cbedbe85a19~gUqL2xCbX0143001430epcas1p2j;
-        Fri, 10 Jul 2020 07:12:07 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20200710071207epsmtrp202b7032d125c2b43ce843a551954940e~gUqL2GsaO0421104211epsmtrp2L;
-        Fri, 10 Jul 2020 07:12:07 +0000 (GMT)
-X-AuditID: b6c32a39-8dfff70000006fa2-aa-5f0814c858b2
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        9C.77.08382.7C4180F5; Fri, 10 Jul 2020 16:12:07 +0900 (KST)
-Received: from localhost.localdomain (unknown [10.88.103.87]) by
-        epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20200710071207epsmtip211d9a43c1d5acdd09b877149f77f1af4~gUqLnd1lQ1117611176epsmtip2u;
-        Fri, 10 Jul 2020 07:12:07 +0000 (GMT)
-From:   Namjae Jeon <namjae.jeon@samsung.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     Ilya Ponetayev <i.ponetaev@ndmsystems.com>, stable@vger.kernel.org,
-        Chen Minqiang <ptpt52@gmail.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>
-Subject: [PATCH] exfat: fix name_hash computation on big endian systems
-Date:   Fri, 10 Jul 2020 16:06:30 +0900
-Message-Id: <20200710070630.32684-1-namjae.jeon@samsung.com>
-X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrHKsWRmVeSWpSXmKPExsWy7bCmvu4JEY54g20/pS1W//rEbrFn70kW
-        ix/T6y32f//MaLFg4yNGB1aPnbPusnus7pzK6NG3ZRWjx+dNcgEsUTk2GamJKalFCql5yfkp
-        mXnptkrewfHO8aZmBoa6hpYW5koKeYm5qbZKLj4Bum6ZOUBrlRTKEnNKgUIBicXFSvp2NkX5
-        pSWpChn5xSW2SqkFKTkFhgYFesWJucWleel6yfm5VoYGBkamQJUJORnTjm9nLWjkqni/9R5j
-        A+Myji5GTg4JAROJQ+dbmboYuTiEBHYwSnyf3gflfGKU2PDjGiOE841Rovl3CxNMy58Hc6ES
-        exkl7k++xwrXMvlKL3sXIwcHm4C2xJ8toiCmiICixOX3TiAlzAITGSXezbjDCDJIWMBd4vaB
-        hSwgNouAqsTKVW1gcV4BG4n/n+axQCyTl1i94QAzhD2dXeJ9QxaE7SJx/vYJqLiwxKvjW9gh
-        bCmJz+/2soHslRColvi4H6qkg1HixXdbCNtY4ub6DawgJcwCmhLrd+lDhBUldv6eC3YBswCf
-        xLuvPawQU3glOtqEIEpUJfouHYaGgrREV/sHqKUeEgcbl4LFhQRiJQ6cP8s+gVF2FsKCBYyM
-        qxjFUguKc9NTiw0LTJGjaBMjOCFpWe5gnP72g94hRiYOxkOMEhzMSiK8Boqs8UK8KYmVValF
-        +fFFpTmpxYcYTYGhNZFZSjQ5H5gS80riDU2NjI2NLUzMzM1MjZXEef+dZY8XEkhPLEnNTk0t
-        SC2C6WPi4JRqYNqdWrK0IbiO+5eNdUcd997rLw7NO6/E/C45TYBTZa12v3bt8Tt+j/Ollip+
-        ++p57V5Q2zVtLp/30gFsVelmF8/oqz//c7122q6/2hNLbS5tEG17vykkSkl+sx1f4sxLn3Q2
-        6B5aWXV31i79yLpdfRq+FQ3isWb/vh7UmnZ0sbZx10nWRturV7eFNbz5mLK3VsdoRsOh2RyP
-        ldK3blylIh4QdP1exiczVb3ulCXsywWvSftYiVnFrTipqPJ9js/+RyEb5xZJrs3sfLStrLpc
-        yL1gR6mfnvGPbk65qK8z3zTbHzt6vMZsi9HyskXLb2yd7d6jyOjZ+PpK29ozs/8xaG468LvF
-        2+GiTEWSxxP3BCWW4oxEQy3mouJEAKPHfurRAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrLJMWRmVeSWpSXmKPExsWy7bCSvO5xEY54g8tTjC1W//rEbrFn70kW
-        ix/T6y32f//MaLFg4yNGB1aPnbPusnus7pzK6NG3ZRWjx+dNcgEsUVw2Kak5mWWpRfp2CVwZ
-        045vZy1o5Kp4v/UeYwPjMo4uRk4OCQETiT8P5jJ2MXJxCAnsZpR4vPAuE0RCWuLYiTPMXYwc
-        QLawxOHDxRA1HxglJuzdxgoSZxPQlvizRRTEFBFQlLj83gmkhFlgKqPE/P41YGOEBdwlbh9Y
-        yAJiswioSqxc1cYIYvMK2Ej8/zSPBWKVvMTqDQeYJzDyLGBkWMUomVpQnJueW2xYYJiXWq5X
-        nJhbXJqXrpecn7uJERwiWpo7GLev+qB3iJGJg/EQowQHs5IIr4Eia7wQb0piZVVqUX58UWlO
-        avEhRmkOFiVx3huFC+OEBNITS1KzU1MLUotgskwcnFINTNNOF4gEG0lZ2ipcteC4MW/Wv8ly
-        c3rubbs3OaRHmjWmJrjh1mHz24eOV3uUnFPT2iOeUGRha9E3R/3Dkpkaf9Ynef9uXhu8cnFx
-        mpiU0rvLi/fExC15ajBjhXZPd9rMUNu2GSG/+B47ZkfWJqtq923YI26oPHMHm9DfgiiZuOi1
-        rkErJJc1Wd0WZd53k8fuvErWytsaDuZ9Ep9btmRXbPmr0jyPU1rL4ffRU2UmAVqV6mLTbjqZ
-        zFhibrX2+M5np1MfV8832azinnPlZ2zh5HeLvF/WKL3RF3OtSb/5pUXnRc4SzvOcEdeX65s0
-        d5S8/jgx/e43lt+eLtUJh3u5usKSgmdvVpM9HvfXZp2jEktxRqKhFnNRcSIAqhZzTYACAAA=
-X-CMS-MailID: 20200710071207epcas1p2bbcd1f5c96f6aba7e3f67cbedbe85a19
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20200710071207epcas1p2bbcd1f5c96f6aba7e3f67cbedbe85a19
-References: <CGME20200710071207epcas1p2bbcd1f5c96f6aba7e3f67cbedbe85a19@epcas1p2.samsung.com>
+        id S1727003AbgGJHRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 03:17:02 -0400
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:20859 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbgGJHRB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 03:17:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1594365424; x=1625901424;
+  h=from:to:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=yzADV//sVEeyFQCrWKyCKhlMtNMIvHjMzQSLM1JAHCg=;
+  b=Pj9yf3xkIUilCjrJ6Tg5/668o+b0fbVzIKN23ZmHSggOvhKgMq/dhhVy
+   4H74dUtyUspk90qc6Vqac+5s9XSuCkAsEUHpZXj2L+p6bZPyCrnb5mePB
+   Mdu2sKihtLnOd8VplSRzbI01OpPsqU9t0ub4hHsKXeeLphzI3wzGt20Zb
+   AV0j4kA/rpy5SCxdO8Hdg3baAiqYVzmfTHmA8JiBEFrC4yd8gcA8/QyxM
+   5tjPL00y4Dtt7fI6J6MWUPnfS1eGXYJSB1Jk6DwWnrmSvrjQnysoc2Mw4
+   XnMjEiZ8EV04WH1QZXi7ENfMpDeMgME0q/aLSF3JzfpWgQIDax7n4HV7b
+   w==;
+IronPort-SDR: CZkw4wBJFiCSe7rTd3vhqLDsUICicg5YTlZyRDrCYyGdyeg+J4FSxwXUe8WVr1lbidcmgbYB4+
+ g1oh0EbTWRse7cToMslp2QBHu4qdqL9Oh7IZJ7oI1uBHRgRhEdZUui46LGlqg5gPoqOytM/sd5
+ SGZQpBEp4XRDFvciTxI3Q7EEPj3CJ5/GQ6yKBXQhe7J7Ko3lmdnCmItWObbkCakAoZOH0NrR7I
+ jiqCj8TarQV71FF3PWI7DHp8d23xjW87Nl74UoY/Th/XjgEbg4N9r3n1Dp+hVqJMEA2uO52nbV
+ yxI=
+X-IronPort-AV: E=Sophos;i="5.75,334,1589212800"; 
+   d="scan'208";a="245129104"
+Received: from mail-bl2nam02lp2055.outbound.protection.outlook.com (HELO NAM02-BL2-obe.outbound.protection.outlook.com) ([104.47.38.55])
+  by ob1.hgst.iphmx.com with ESMTP; 10 Jul 2020 15:17:02 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=D43IhckpUAfpb/NoC1F90wC5tnP8T1CFopZi3lw91qItDzgFWoosgnRtGwghpDCaAXkIrCROUo4iwROdYrmFL+hCGQ4I9E7F5bm6djfJfR4ielfN0df3Q2j/yp75M/7hD2Z0eInYn9b1s5jj2ZaUQGeBBBOzUWwpY/CFl7NzgWgu4Sr2DglyU22aA8yMzzEo50yFU4uUtFOiN6zjChFYGN60frem17gQNqg9UVYXQiuvYjnRgKFG5XwZ4aoMFniGfoCmb5Uv7KT6HoJeGK5tsNdJiWm3opHfeFiJI5bgxp4nQHOYBVfdQLDW5Q/zJWpcAsGgVJ9cUOceJJQWsEu1rg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yzADV//sVEeyFQCrWKyCKhlMtNMIvHjMzQSLM1JAHCg=;
+ b=PWL76l/8NndWERJjfXJs7LCl73rBNoQVNm52mbJLXEyjPsRfllRvDCEVsaIOvFCjbcKQMy+ICFIx8JHiwCu9Kbp2GBSlqhsGnAG/ORgwj7xYxt6KxoWKs5SJGLtuugnPjDbKLtLE6Ua0DHyxe4YywJWcchDouirGrEfRbhT0yD31R5L2pZgHXdTydETZEZmkD/OGP4XhCWhDcLNsUwZq8pHxr8yw5/nbj2gzFX7E5OXZVGzmdfVU1YzDxyDZqAd93xI0qVOMXrp89K0jCIcKqEPI7U11BYNj55eNroaoCUUgzvh7mcQx0daNi2sk83/1o8wuInw/5c8nPRcafz3UvA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yzADV//sVEeyFQCrWKyCKhlMtNMIvHjMzQSLM1JAHCg=;
+ b=xzmhnGNjazEed6VjF8NJCX3wRz8Rjmdx92GE2hYWmR3p2rPfCXqM3tuZnR7M8cfyOsnzYPImMFeLIO52EpRUqZQGtI/5cWMgm4dwvlXfW9ERMPZcqyQ2Z1GYUYVBn4IA9HhJMMrIItDPeiB3hQnpcT6pNRb/ck/S3Vd2LLIshv0=
+Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
+ (2603:10b6:803:47::21) by SN4PR0401MB3680.namprd04.prod.outlook.com
+ (2603:10b6:803:4e::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.20; Fri, 10 Jul
+ 2020 07:16:59 +0000
+Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
+ ([fe80::1447:186c:326e:30b2]) by SN4PR0401MB3598.namprd04.prod.outlook.com
+ ([fe80::1447:186c:326e:30b2%7]) with mapi id 15.20.3174.022; Fri, 10 Jul 2020
+ 07:16:58 +0000
+From:   Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
+To:     Hans van Kranenburg <hans@knorrie.org>,
+        "dsterba@suse.cz" <dsterba@suse.cz>,
+        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v5] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+Thread-Topic: [PATCH v5] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+Thread-Index: AQHWU6dz/dJGHpip8kylOkU+DLHb6A==
+Date:   Fri, 10 Jul 2020 07:16:58 +0000
+Message-ID: <SN4PR0401MB3598AD00963CCAD88F49BAE79B650@SN4PR0401MB3598.namprd04.prod.outlook.com>
+References: <20200706150924.40218-1-johannes.thumshirn@wdc.com>
+ <20200709145211.GA3533@twin.jikos.cz>
+ <3a9bc1b2-a780-1ba9-eba0-7fca2198e5c3@knorrie.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: knorrie.org; dkim=none (message not signed)
+ header.d=none;knorrie.org; dmarc=none action=none header.from=wdc.com;
+x-originating-ip: [2001:a62:1515:bd01:3d54:75d5:bb74:f595]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: ac76c43f-742f-40a7-96e3-08d824a13c1f
+x-ms-traffictypediagnostic: SN4PR0401MB3680:
+x-microsoft-antispam-prvs: <SN4PR0401MB368060FFE92E103697F3F54D9B650@SN4PR0401MB3680.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:4941;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ipa9Vhpi60qu1qx9RwcVA89QivxkpxYa07vdS5cxWCa97aIeUyHamuiHGp4bG7Bf+dMYx8/SPplGnixmvqZtR2zmOZP92r57di+O06K2VxHJqojwUcfATPTtoysj13zOGiCDtamYnVre9uaABTIaoAKgdwSNxniPFN2QDZHnrneS2xhW+yL3M3dTUSn1XKXDSY7UTEkGp4ukApB6BqQnxUTOy1VJ2gQ86bqyBttKhc6Tzz964mnOcM2Psk3pGfMBdstbi3RGzOeMJ5PQ/x1sCJvGcP1floxsyJNm+FKIfgUMtwL3V9YdQgvtXVSYCYXGGX7ZXuzaVTcDI2U34cSO5jKY/qbbkym8+o/tJBwk0/0JHlE9HlWEKcq9wZr1nmiXKzjlGd168x4TnU4kgco5ig==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0401MB3598.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(366004)(346002)(376002)(136003)(39860400002)(316002)(9686003)(66446008)(64756008)(66946007)(558084003)(2906002)(478600001)(55016002)(66476007)(110136005)(6506007)(53546011)(66556008)(966005)(91956017)(186003)(8676002)(76116006)(86362001)(71200400001)(8936002)(33656002)(7696005)(16799955002)(5660300002)(52536014);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: xd1ikJ9IenL9aNA/Jfha338dmfiYndEChRKuU9iSQEsUWyQDN5x9iGYyms80Yl0BKgPleacoUeHLh7KbEKkz8WhRF/wham8FVhZG5d/WIT/wgTqA7XMUe8gq3Ni9sIqBp4nS1GL6qQ5dthPfkQY4nW4Y9NB3bbfMqPY/JcQn/MWZ6vbqMiADnC7eZHVNPsDJovjmmTrYzq2q/UNX1tLOL+fsyaMHJdwQQTkmKoAHsr/oC8OhCDu5Yz8BZIy/Vi4gjXF+jb8EXq1iFgfwqK9RLBzxRuEm+YgGwHbEqaf5bV0baoXIK61G1RwXtuseu7hP516WNQrGabDIF3sySutswW1B76MK4ERUDsx3WpU1NmY14mHNVoY+h4LFPtz+25+rrQgyFNA9C4u7uYxNoUqRWkfeEIEaPWKD/JgDgKWiVymGYQs9VbcPZwQM4P3Mdu1A4ylEfPejI3PIwIKNvDkIz0mZj+pEniDxCkTwsTcXlvzAh+CvG7B2me2Y89dYn4+bw9E+uD4ih13+UBdUB7ItNLLZfa8hk4Ia43JqymWDJjnnDVzxib6oAnc6J5+3szuo
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN4PR0401MB3598.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ac76c43f-742f-40a7-96e3-08d824a13c1f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2020 07:16:58.8763
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MpQuyFubavXE9hfZk9AxhgZR6WKaMVhwePCvjlx9IXdzSbwF2z3DGmumNUvtuM9oy2rfOBzHRN3Fwm04nKnup9jLKxkS08lKWN5jsPj7kec=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR0401MB3680
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Ponetayev <i.ponetaev@ndmsystems.com>
-
-On-disk format for name_hash field is LE, so it must be explicitly transformed
-on BE system for proper result.
-
-Fixes: 370e812b3ec1 ("exfat: add nls operations")
-Cc: stable@vger.kernel.org # v5.7
-Signed-off-by: Chen Minqiang <ptpt52@gmail.com>
-Signed-off-by: Ilya Ponetayev <i.ponetaev@ndmsystems.com>
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
----
- fs/exfat/nls.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fs/exfat/nls.c b/fs/exfat/nls.c
-index 57b5a7a4d1f7..c286a5c2e323 100644
---- a/fs/exfat/nls.c
-+++ b/fs/exfat/nls.c
-@@ -519,7 +519,7 @@ static int exfat_utf8_to_utf16(struct super_block *sb,
- 		    exfat_wstrchr(bad_uni_chars, *uniname))
- 			lossy |= NLS_NAME_LOSSY;
- 
--		upname[i] = exfat_toupper(sb, *uniname);
-+		upname[i] = cpu_to_le16(exfat_toupper(sb, *uniname));
- 		uniname++;
- 	}
- 
-@@ -611,7 +611,7 @@ static int exfat_nls_to_ucs2(struct super_block *sb,
- 		    exfat_wstrchr(bad_uni_chars, *uniname))
- 			lossy |= NLS_NAME_LOSSY;
- 
--		upname[unilen] = exfat_toupper(sb, *uniname);
-+		upname[unilen] = cpu_to_le16(exfat_toupper(sb, *uniname));
- 		uniname++;
- 		unilen++;
- 	}
--- 
-2.17.1
-
+On 09/07/2020 18:20, Hans van Kranenburg wrote:=0A=
+[...]=0A=
+=0A=
+> Next task is to write changes for strace:=0A=
+> =0A=
+> https://btrfs.wiki.kernel.org/index.php/Development_notes#Adding_a_new_io=
+ctl.2C_extending_an_existing_one=0A=
+=0A=
+Yes I do have code for v1 of this for strace, need to adopt it.=0A=
