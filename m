@@ -2,102 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E36D521AD50
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 05:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2A921AD61
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 05:17:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726830AbgGJDPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jul 2020 23:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726560AbgGJDPE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jul 2020 23:15:04 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A139C08C5DD
-        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 20:15:04 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id s20so2242310vsq.5
-        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 20:15:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0xK96ZEj03BYxsiwTCEC7aLn5QyV2i1PW83BHZdlgiE=;
-        b=iz5+7TZuV43ycSJaAM7QXsHXHZMrqwe1VHhvH7nzaLRNqyuSzRIKsTm9ZY6hcyT6xL
-         rUeURvW6GTpfMb+6hgPG7XBznhNpcnfnoWcODmOEsJARCaoCb5xul+H0TsOjwz8m0Gpt
-         8etFgsVIuVEHJxU8FqnuyA13ZWtKyl5k05Cmg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0xK96ZEj03BYxsiwTCEC7aLn5QyV2i1PW83BHZdlgiE=;
-        b=a74woxa5OfEhy61WIOEwTHSn9VwCUuMdrbQefp7GEIpNTK4KrulAc+72WRxLPFJ8Ea
-         cARY7gF+ihxTbjO+MGOURcTa/CIKIQ/Z0PtW9UMMrtF7UMaL/dwf2xhc+Wq95NhGjhDI
-         jVLu0Sak+7EVmwgXz6JqBArRgvuZMD7GHcxiKYX4tb1+YMT6lnsM/wZY2U+eSU6l/NUb
-         v8brVTQXeYEtiWBMRIGHK/ESAgNTBBE0Fl6jr8cUMtYlau5OSXemYqyfI/KxRS31WR0d
-         hmBBVQdDGLTwg0DGu2mUgERoQX1OioRjuSNsak0mJrDjrJbItQeYs8JU2BYDQDKtU/US
-         U7gQ==
-X-Gm-Message-State: AOAM530CyJudwIVS+k5RP2xFEp56Hw+n2Nk02oDiK1HJ8V9sy+Lf7zMW
-        aWql+YjmABRyTF3oMQssLP8o9GnonOK4NcswuK/6CQ==
-X-Google-Smtp-Source: ABdhPJwwWTRG9i6cMBcyGYThfNXEyr1KpiR5j0/N7lIP76+Rz5QR86zchLcWA1ir6x7GGNOpx8rJ1ZOQxoECbAD4Myo=
-X-Received: by 2002:a67:e0c3:: with SMTP id m3mr52687562vsl.1.1594350903351;
- Thu, 09 Jul 2020 20:15:03 -0700 (PDT)
-MIME-Version: 1.0
-References: <1594348182-431-1-git-send-email-chunfeng.yun@mediatek.com>
-In-Reply-To: <1594348182-431-1-git-send-email-chunfeng.yun@mediatek.com>
-From:   Nicolas Boichat <drinkcat@chromium.org>
-Date:   Fri, 10 Jul 2020 11:14:52 +0800
-Message-ID: <CANMq1KA2kT1yLGqhJFBKt4sRzzE6r=ABkSX59S-Mjr8Dg8sTOQ@mail.gmail.com>
-Subject: Re: [PATCH] usb: xhci-mtk: fix the failure of bandwidth allocation
-To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc:     Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Ikjoon Jang <ikjn@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726509AbgGJDQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jul 2020 23:16:58 -0400
+Received: from foss.arm.com ([217.140.110.172]:44194 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726495AbgGJDQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jul 2020 23:16:58 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C604D113E;
+        Thu,  9 Jul 2020 20:16:57 -0700 (PDT)
+Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.212.213])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 43D383F9AB;
+        Thu,  9 Jul 2020 20:16:48 -0700 (PDT)
+From:   Jia He <justin.he@arm.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        David Hildenbrand <david@redhat.com>
+Cc:     x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Baoquan He <bhe@redhat.com>,
+        Chuhong Yuan <hslester96@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-nvdimm@lists.01.org, linux-mm@kvack.org,
+        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
+        Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/2] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
+Date:   Fri, 10 Jul 2020 11:16:19 +0800
+Message-Id: <20200710031619.18762-3-justin.he@arm.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200710031619.18762-1-justin.he@arm.com>
+References: <20200710031619.18762-1-justin.he@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 10, 2020 at 10:30 AM Chunfeng Yun <chunfeng.yun@mediatek.com> wrote:
->
-> The wMaxPacketSize field of endpoint descriptor may be zero
-> as default value in alternate interface, and they are not
-> actually selected when start stream, so skip them when try to
-> allocate bandwidth.
->
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
+online at that time), mem_hotplug_begin/done is unpaired in such case.
 
-Add this?
-Fixes: 0cbd4b34cda9dfd ("xhci: mediatek: support MTK xHCI host controller")
+Therefore a warning:
+ Call Trace:
+  percpu_up_write+0x33/0x40
+  try_remove_memory+0x66/0x120
+  ? _cond_resched+0x19/0x30
+  remove_memory+0x2b/0x40
+  dev_dax_kmem_remove+0x36/0x72 [kmem]
+  device_release_driver_internal+0xf0/0x1c0
+  device_release_driver+0x12/0x20
+  bus_remove_device+0xe1/0x150
+  device_del+0x17b/0x3e0
+  unregister_dev_dax+0x29/0x60
+  devm_action_release+0x15/0x20
+  release_nodes+0x19a/0x1e0
+  devres_release_all+0x3f/0x50
+  device_release_driver_internal+0x100/0x1c0
+  driver_detach+0x4c/0x8f
+  bus_remove_driver+0x5c/0xd0
+  driver_unregister+0x31/0x50
+  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
 
-> ---
->  drivers/usb/host/xhci-mtk-sch.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-> index fea5555..45c54d56 100644
-> --- a/drivers/usb/host/xhci-mtk-sch.c
-> +++ b/drivers/usb/host/xhci-mtk-sch.c
-> @@ -557,6 +557,10 @@ static bool need_bw_sch(struct usb_host_endpoint *ep,
->         if (is_fs_or_ls(speed) && !has_tt)
->                 return false;
->
-> +       /* skip endpoint with zero maxpkt */
-> +       if (usb_endpoint_maxp(&ep->desc) == 0)
-> +               return false;
-> +
->         return true;
->  }
->
-> --
-> 1.9.1
-> _______________________________________________
-> Linux-mediatek mailing list
-> Linux-mediatek@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-mediatek
+Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
+Cc: stable@vger.kernel.org # v5.6+
+Signed-off-by: Jia He <justin.he@arm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+---
+ mm/memory_hotplug.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b49ab743d914..3e0645387daf 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1752,7 +1752,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ 	 */
+ 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
+ 	if (rc)
+-		goto done;
++		return rc;
+ 
+ 	/* remove memmap entry */
+ 	firmware_map_remove(start, start + size, "System RAM");
+@@ -1776,9 +1776,8 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ 
+ 	try_offline_node(nid);
+ 
+-done:
+ 	mem_hotplug_done();
+-	return rc;
++	return 0;
+ }
+ 
+ /**
+-- 
+2.17.1
+
