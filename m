@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3A421B794
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E8221B798
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:02:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728328AbgGJOCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 10:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49844 "EHLO mail.kernel.org"
+        id S1727097AbgGJOCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 10:02:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728330AbgGJOCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 10:02:47 -0400
+        id S1728371AbgGJOCs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 10:02:48 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76C7A207BB;
-        Fri, 10 Jul 2020 14:02:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CB7420842;
+        Fri, 10 Jul 2020 14:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594389766;
-        bh=SGM9git5cbSZWULtLea44yJGOmD2g6GhrUsQUL8FwqM=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=Lf/9cJkUmVGClpvOqVUFAI1hWJ+WRht5cOLM5i1Yx9tXjhAbZFdVINP9UNgOajchH
-         MxxlQ9fAFj3x3PvWE8voKdvVIGFanqG/yc7RuI4mthlgJKCXqu1AWudf8vG4KScRik
-         5Zrt43g1kLcZtJTu9lyK7NHiVeGC1f7ewZFp1P0s=
-Date:   Fri, 10 Jul 2020 14:02:45 +0000
+        s=default; t=1594389767;
+        bh=gOCXE0At89S30b4cma36Ycpafqqwv4v/vuS6wzLQKM0=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=aT7ddxmxzPhAM/6LdVFg73nWVpL0R7FxOWkHuVO1XDX6N7AZmPDfsn/JWHDWXN6nD
+         KSxR/zkTZ8DyAK7GhASEJjvW0apcMA6RjhyV1aP68Qg4bwoPN9D1G3YrqC7XVanncp
+         QQ8ClRmxawI9gyXZj4h2SoLSEzmngq84TAy3MAGI=
+Date:   Fri, 10 Jul 2020 14:02:46 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     David Sterba <dsterba@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>, stable@vger.kernel.org
+To:     Will Deacon <will@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     Will Deacon <will@kernel.org>, kernel-team@android.com
+Cc:     <stable@vger.kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>
+Cc:     Luis Machado <luis.machado@linaro.org>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] btrfs: allow use of global block reserve for balance item deletion
-In-Reply-To: <20200625103528.15154-1-dsterba@suse.com>
-References: <20200625103528.15154-1-dsterba@suse.com>
-Message-Id: <20200710140246.76C7A207BB@mail.kernel.org>
+Subject: Re: [PATCH v2 2/4] arm64: ptrace: Consistently use pseudo-singlestep exceptions
+In-Reply-To: <20200702212618.17800-3-will@kernel.org>
+References: <20200702212618.17800-3-will@kernel.org>
+Message-Id: <20200710140247.7CB7420842@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,23 +48,68 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: 4.4+
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
+The bot has tested the following trees: v5.7.7, v5.4.50, v4.19.131, v4.14.187, v4.9.229, v4.4.229.
 
-v5.7.6: Build OK!
-v5.4.49: Build OK!
-v4.19.130: Build failed! Errors:
-    fs/btrfs/volumes.c:3082:10: error: too few arguments to function ‘btrfs_start_transaction_fallback_global_rsv’
+v5.7.7: Build OK!
+v5.4.50: Build OK!
+v4.19.131: Build OK!
+v4.14.187: Failed to apply! Possible dependencies:
+    0013aceb30748 ("xtensa: clean up fixups in assembly code")
+    1af1e8a39dc0f ("xtensa: move fixmap and kmap just above the KSEG")
+    2a61f4747eeaa ("stack-protector: test compiler capability in Kconfig and drop AUTO mode")
+    2b8383927525d ("Makefile: move stack-protector compiler breakage test earlier")
+    2bc2f688fdf88 ("Makefile: move stack-protector availability out of Kconfig")
+    409d5db49867c ("arm64: rseq: Implement backend rseq calls and select HAVE_RSEQ")
+    40d1a07b333ef ("xtensa: enable stack protector")
+    44c6dc940b190 ("Makefile: introduce CONFIG_CC_STACKPROTECTOR_AUTO")
+    5cf97ebd8b40e ("xtensa: clean up functions in assembly code")
+    8d66772e869e7 ("arm64: Mask all exceptions during kernel_exit")
+    9800b9dc13cdf ("arm: Add restartable sequences support")
+    a92d4d1454ab8 ("arm64: entry.S: move SError handling into a C function for future expansion")
+    c2edb35ae342f ("xtensa: extract init_kio")
+    c633544a61541 ("xtensa: add support for KASAN")
+    d148eac0e70f0 ("Kbuild: rename HAVE_CC_STACKPROTECTOR config variable")
+    f37099b6992a0 ("arm64: convert syscall trace logic to C")
+    f4431396be5b2 ("xtensa: consolidate kernel stack size related definitions")
 
-v4.14.186: Build failed! Errors:
-    fs/btrfs/volumes.c:3109:10: error: too few arguments to function ‘btrfs_start_transaction_fallback_global_rsv’
+v4.9.229: Failed to apply! Possible dependencies:
+    096683724cb2e ("arm64: unwind: avoid percpu indirection for irq stack")
+    12964443e8d19 ("arm64: add on_accessible_stack()")
+    17c2895860092 ("arm64: Abstract syscallno manipulation")
+    34be98f4944f9 ("arm64: kernel: remove {THREAD,IRQ_STACK}_START_SP")
+    35d0e6fb4d219 ("arm64: syscallno is secretly an int, make it official")
+    8018ba4edfd3a ("arm64: move SEGMENT_ALIGN to <asm/memory.h>")
+    872d8327ce898 ("arm64: add VMAP_STACK overflow detection")
+    9842ceae9fa8d ("arm64: Add uprobe support")
+    a92d4d1454ab8 ("arm64: entry.S: move SError handling into a C function for future expansion")
+    a9ea0017ebe88 ("arm64: factor out current_stack_pointer")
+    c02433dd6de32 ("arm64: split thread_info from task stack")
+    c7365330753c5 ("arm64: unwind: disregard frame.sp when validating frame pointer")
+    cf7de27ab3517 ("arm64/syscalls: Check address limit on user-mode return")
+    dbc9344a68e50 ("arm64: clean up THREAD_* definitions")
+    f37099b6992a0 ("arm64: convert syscall trace logic to C")
+    f60ad4edcf072 ("arm64: clean up irq stack definitions")
 
-v4.9.228: Build failed! Errors:
-    fs/btrfs/volumes.c:3097:10: error: too few arguments to function ‘btrfs_start_transaction_fallback_global_rsv’
-
-v4.4.228: Build failed! Errors:
-    fs/btrfs/volumes.c:3012:10: error: too few arguments to function ‘btrfs_start_transaction_fallback_global_rsv’
+v4.4.229: Failed to apply! Possible dependencies:
+    0a28714c53fd4 ("arm64: Use PoU cache instr for I/D coherency")
+    0a8ea52c3eb15 ("arm64: Add HAVE_REGS_AND_STACK_ACCESS_API feature")
+    17c2895860092 ("arm64: Abstract syscallno manipulation")
+    2dd0e8d2d2a15 ("arm64: Kprobes with single stepping support")
+    35d0e6fb4d219 ("arm64: syscallno is secretly an int, make it official")
+    39a67d49ba353 ("arm64: kprobes instruction simulation support")
+    421dd6fa6709e ("arm64: factor work_pending state machine to C")
+    57f4959bad0a1 ("arm64: kernel: Add support for User Access Override")
+    872d8327ce898 ("arm64: add VMAP_STACK overflow detection")
+    9842ceae9fa8d ("arm64: Add uprobe support")
+    a92d4d1454ab8 ("arm64: entry.S: move SError handling into a C function for future expansion")
+    b11e5759bfac0 ("arm64: factor out entry stack manipulation")
+    cf7de27ab3517 ("arm64/syscalls: Check address limit on user-mode return")
+    d5370f7548754 ("arm64: prefetch: add alternative pattern for CPUs without a prefetcher")
+    d59bee8872311 ("arm64: Add more test functions to insn.c")
+    e04a28d45ff34 ("arm64: debug: re-enable irqs before sending breakpoint SIGTRAP")
+    f37099b6992a0 ("arm64: convert syscall trace logic to C")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
