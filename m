@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A0421B96D
+	by mail.lfdr.de (Postfix) with ESMTP id D7C3721B96F
 	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 17:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbgGJP11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 11:27:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51286 "EHLO mail.kernel.org"
+        id S1727091AbgGJP12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 11:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727091AbgGJP11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727839AbgGJP11 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 10 Jul 2020 11:27:27 -0400
 Received: from [192.168.1.30] (cpe-70-114-128-244.austin.res.rr.com [70.114.128.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25EF92078B;
+        by mail.kernel.org (Postfix) with ESMTPSA id 260E42082E;
         Fri, 10 Jul 2020 15:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1594394846;
         bh=HtQU5OPY9EFeSVUj/3uwy2WcyP2F8grkgn60jU+WHLI=;
         h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=dtyD3Jdj91VicCUgNYq/dqvIa8XnCB5bTIQ8PRb0/d4wczuyrQZTuzLjAQqWFdhTs
-         /v9S8AhsafMkXtIrwa8KDYuCk15cYajfV6fIRadPCVuLtDmduHj4GzqyepX3gLsV8a
-         CgEAQXJIkIogRrowrmVAdvPYGkxoewbItjuptVLc=
+        b=eZdmlEojSNgMcSiIrH5Gujtb1uzznV7QQGNMM/JNhT5otvisgwCTbRWI9qOu0WtqE
+         mW17b1I/AEI99n66Eg2On53wtNE8lL0TqOO/t7cH6otkX2F8UJbR36L4S33fPy8LnA
+         PfRW30T0e1eaqIpW7MU2fB9chDngmzQtVc3v8rsE=
 Subject: Re: [PATCH 2/3] arm64: dts: stratix10: add status to qspi dts node
 To:     Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
@@ -72,8 +72,8 @@ Autocrypt: addr=dinguyen@kernel.org; prefer-encrypt=mutual; keydata=
  cJEJNezizexE0dVclt9OS2U9Xwb3VOjs1ITMEYUf8T1j83iiCCFuXqH4U3Eji0nDEiEN5Ac0
  Jn/EGOBG2qGyKZ4uOec9j5ABF7J6hyO7H6LJaX5bLtp0Z7wUbyVaR4UIGdIOchNgNQk4stfm
  JiyuXyoFl/1ihREfvUG/e7+VAAoOBnMjitE5/qUERDoEkkuQkMcAHyEyd+XZMyXY
-Message-ID: <7fb07b88-611f-532b-ed7e-108baadf43c5@kernel.org>
-Date:   Fri, 10 Jul 2020 10:27:23 -0500
+Message-ID: <3f972455-396f-d389-6aa5-73d91bd25387@kernel.org>
+Date:   Fri, 10 Jul 2020 10:27:24 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
