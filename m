@@ -2,126 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3611021B960
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 17:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A0421B96D
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 17:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727098AbgGJPYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 11:24:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52450 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727078AbgGJPYd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 11:24:33 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4C6C08C5DC
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 08:24:33 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id j18so6580807wmi.3
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 08:24:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=ssK+8iLM11qslosSf1j2G0wYl7L4CVX8Ifo/vpqTDIQ=;
-        b=FrtYecrJ5Ux8Bb2xvNXWLMKdeSCTBFcqZ62IVxO3EETjjgKNau0aI78KHeFHXroO8g
-         tDa9gmjvjjYHtht++RtdJuo5FfhTK8eqA++q3zeIPPXHOK/qZ2pfo88L7+oT6suKjxLs
-         PBFah0+fIX9gNI28ehCXzMgLzcD+OvmjDMFsSwDGyXDkkiQRyOMcrOwf7WjWQoaEM5HT
-         9AGAjfURfd6aw6W0KDxnaiX0JkmgX6zUiz0JTV+vV9ik2DuBDnNkhoEfLEyYZkPb0cND
-         mhE5HAb1UFnn8EheHec94E4X6qSfMtGdR6mnNw1DintDuCPBgbUWYFsU1MFcecdp37UV
-         AsxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=ssK+8iLM11qslosSf1j2G0wYl7L4CVX8Ifo/vpqTDIQ=;
-        b=olDjldElQgYCVagAWVLo1+7Izbx7iyRuoPgDiPqkNOSCwfIJdlSxhbvzrG3AMtL2j3
-         iuVyaXkkRtLygckcZTHavLRPoJfQr9gyPPiG2RcWQgcOYO/6KMH09PNXeMJd8+xczGc3
-         X+vt7f80ZYXw+hniXiK7LAe1Xo6/MCvAYcG7HlfV4EvUJ23ZXTm8gygazSRdc1+/Jp++
-         /PzDNFgTy3dDMbS696RdFBTTEEyzhNbjXiBgVqZSExQpDLkfUy+7Vfkhq05V0Tmzz3L/
-         6RySu/QYuuFzOrCs87HsuGyJiboAYgXRGr7l6Xs3VGF7baBXeqwEHyVhg/FAfnzxMvbC
-         DXFQ==
-X-Gm-Message-State: AOAM530PsRq/WCnfszUdGpJTQmnauO+d19NyUoPxw9gl67moZXZqhYnO
-        c98rEjPEdrOK6AQuVpw9eaP0Uw==
-X-Google-Smtp-Source: ABdhPJy1IkcK+d02lK9Yiiu/N3xEyya1puU9CiIr/AfoqwCcNGhXhnOadBrXZoTy4jkFPzYaFEl5Sg==
-X-Received: by 2002:a1c:4d05:: with SMTP id o5mr5605806wmh.130.1594394671937;
-        Fri, 10 Jul 2020 08:24:31 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:e0a:f:6020:3448:acab:4d05:2aee])
-        by smtp.gmail.com with ESMTPSA id m10sm10673506wru.4.2020.07.10.08.24.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jul 2020 08:24:30 -0700 (PDT)
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
-        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
-        mgorman@suse.de, linux-kernel@vger.kernel.org
-Cc:     valentin.schneider@arm.com,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v3] sched/fair: handle case of task_h_load() returning 0
-Date:   Fri, 10 Jul 2020 17:24:26 +0200
-Message-Id: <20200710152426.16981-1-vincent.guittot@linaro.org>
-X-Mailer: git-send-email 2.17.1
+        id S1727995AbgGJP11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 11:27:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51286 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727091AbgGJP11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 11:27:27 -0400
+Received: from [192.168.1.30] (cpe-70-114-128-244.austin.res.rr.com [70.114.128.244])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25EF92078B;
+        Fri, 10 Jul 2020 15:27:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594394846;
+        bh=HtQU5OPY9EFeSVUj/3uwy2WcyP2F8grkgn60jU+WHLI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=dtyD3Jdj91VicCUgNYq/dqvIa8XnCB5bTIQ8PRb0/d4wczuyrQZTuzLjAQqWFdhTs
+         /v9S8AhsafMkXtIrwa8KDYuCk15cYajfV6fIRadPCVuLtDmduHj4GzqyepX3gLsV8a
+         CgEAQXJIkIogRrowrmVAdvPYGkxoewbItjuptVLc=
+Subject: Re: [PATCH 2/3] arm64: dts: stratix10: add status to qspi dts node
+To:     Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     devicetree@vger.kernel.org, stable@vger.kernel.org
+References: <20200629203949.6601-2-dinguyen@kernel.org>
+ <20200710140244.6097C207BB@mail.kernel.org>
+From:   Dinh Nguyen <dinguyen@kernel.org>
+Autocrypt: addr=dinguyen@kernel.org; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <7fb07b88-611f-532b-ed7e-108baadf43c5@kernel.org>
+Date:   Fri, 10 Jul 2020 10:27:23 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
+MIME-Version: 1.0
+In-Reply-To: <20200710140244.6097C207BB@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-task_h_load() can return 0 in some situations like running stress-ng
-mmapfork, which forks thousands of threads, in a sched group on a 224 cores
-system. The load balance doesn't handle this correctly because
-env->imbalance never decreases and it will stop pulling tasks only after
-reaching loop_max, which can be equal to the number of running tasks of
-the cfs. Make sure that imbalance will be decreased by at least 1.
+Please apply to v5.7.7
 
-misfit task is the other feature that doesn't handle correctly such
-situation although it's probably more difficult to face the problem
-because of the smaller number of CPUs and running tasks on heterogenous
-system.
+Thanks,
+Dinh
 
-We can't simply ensure that task_h_load() returns at least one because it
-would imply to handle underflow in other places.
-
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: <stable@vger.kernel.org> # v4.4+
----
-
-Changes v3:
-- Fix warning about cast reported by lkp@intel.com>
-
- kernel/sched/fair.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index b9b9f19e80c1..71a372e3707a 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4049,7 +4049,11 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
- 		return;
- 	}
- 
--	rq->misfit_task_load = task_h_load(p);
-+	/*
-+	 * Make sure that misfit_task_load will not be null even if
-+	 * task_h_load() returns 0.
-+	 */
-+	rq->misfit_task_load = max_t(unsigned long, task_h_load(p), 1);
- }
- 
- #else /* CONFIG_SMP */
-@@ -7648,7 +7652,14 @@ static int detach_tasks(struct lb_env *env)
- 
- 		switch (env->migration_type) {
- 		case migrate_load:
--			load = task_h_load(p);
-+			/*
-+			 * Depending of the number of CPUs and tasks and the
-+			 * cgroup hierarchy, task_h_load() can return a null
-+			 * value. Make sure that env->imbalance decreases
-+			 * otherwise detach_tasks() will stop only after
-+			 * detaching up to loop_max tasks.
-+			 */
-+			load = max_t(unsigned long, task_h_load(p), 1);
- 
- 			if (sched_feat(LB_MIN) &&
- 			    load < 16 && !env->sd->nr_balance_failed)
--- 
-2.17.1
-
+On 7/10/20 9:02 AM, Sasha Levin wrote:
+> Hi
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag
+> fixing commit: 0cb140d07fc7 ("arm64: dts: stratix10: Add QSPI support for Stratix10").
+> 
+> The bot has tested the following trees: v5.7.7, v5.4.50, v4.19.131.
+> 
+> v5.7.7: Build OK!
+> v5.4.50: Failed to apply! Possible dependencies:
+>     3c0f3b8545e79 ("arm64: dts: add NAND board files for Stratix10 and Agilex")
+> 
+> v4.19.131: Failed to apply! Possible dependencies:
+>     116edf6e5239e ("MIPS: mscc: add DT for Ocelot PCB120")
+>     1ac832509f2ea ("nds32: Support FP emulation")
+>     387181dcdb6c1 ("RISC-V: Always compile mm/init.c with cmodel=medany and notrace")
+>     3c0f3b8545e79 ("arm64: dts: add NAND board files for Stratix10 and Agilex")
+>     4b36daf9ada30 ("arm64: dts: agilex: Add initial support for Intel's Agilex SoCFPGA")
+>     704cfd7f5f71c ("ARM: sti: remove pen_release and boot_lock")
+>     78e3dbc166a13 ("ARM: Prepare RDA8810PL SoC")
+>     7938e6315c9af ("nds32: Power management for nds32")
+>     9671f7061433e ("Allow to disable FPU support")
+>     9fb29c734f9e9 ("ARM: milbeaut: Add basic support for Milbeaut m10v SoC")
+>     c32e64e852f3f ("csky: Build infrastructure")
+>     c4c14c3bd177e ("csky: remove builtin-dtb Kbuild")
+>     e46bf83c1864a ("nds32: nds32 FPU port")
+>     ebd09753b5707 ("nds32: Perf porting")
+>     ec8f24b7faaf3 ("treewide: Add SPDX license identifier - Makefile/Kconfig")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
