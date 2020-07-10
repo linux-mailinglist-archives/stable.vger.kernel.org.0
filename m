@@ -2,129 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B25321BC22
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 19:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC89221BC5B
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 19:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728312AbgGJRXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 13:23:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25512 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726950AbgGJRXm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 13:23:42 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 06AGXXIK035408;
-        Fri, 10 Jul 2020 13:23:32 -0400
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 326j83u61m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Jul 2020 13:23:31 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 06AGsp6t109873;
-        Fri, 10 Jul 2020 13:23:31 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 326j83u60m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Jul 2020 13:23:31 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 06AHGIBY017599;
-        Fri, 10 Jul 2020 17:23:29 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 326bc30t54-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Jul 2020 17:23:28 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 06AHNQ2461735024
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 10 Jul 2020 17:23:26 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15FA44C046;
-        Fri, 10 Jul 2020 17:23:26 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9DD254C044;
-        Fri, 10 Jul 2020 17:23:24 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.80.206.93])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 10 Jul 2020 17:23:24 +0000 (GMT)
-Message-ID: <1594401804.14405.8.camel@linux.ibm.com>
-Subject: Re: [PATCH v5] ima: move APPRAISE_BOOTPARAM dependency on
- ARCH_POLICY to runtime
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Bruno Meneguele <bmeneg@redhat.com>, linux-kernel@vger.kernel.org,
-        x86@kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org
-Cc:     erichte@linux.ibm.com, nayna@linux.ibm.com, stable@vger.kernel.org
-Date:   Fri, 10 Jul 2020 13:23:24 -0400
-In-Reply-To: <20200709164647.45153-1-bmeneg@redhat.com>
-References: <20200709164647.45153-1-bmeneg@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-07-10_10:2020-07-10,2020-07-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1011 malwarescore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 impostorscore=0 suspectscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2007100111
+        id S1727085AbgGJRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 13:36:06 -0400
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:46326 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727078AbgGJRgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 13:36:05 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07425;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0U2JRgj0_1594402558;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0U2JRgj0_1594402558)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 11 Jul 2020 01:36:00 +0800
+Subject: Re: [PATCH] mm: Close race between munmap() and
+ expand_upwards()/downwards()
+To:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Jann Horn <jannh@google.com>, stable@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>
+References: <20200709105309.42495-1-kirill.shutemov@linux.intel.com>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <cacf4768-f7f2-ccb3-f4cc-0e7338045642@linux.alibaba.com>
+Date:   Fri, 10 Jul 2020 10:35:50 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
+MIME-Version: 1.0
+In-Reply-To: <20200709105309.42495-1-kirill.shutemov@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2020-07-09 at 13:46 -0300, Bruno Meneguele wrote:
-> APPRAISE_BOOTPARAM has been marked as dependent on !ARCH_POLICY in compile
-> time, enforcing the appraisal whenever the kernel had the arch policy option
-> enabled.
 
-> However it breaks systems where the option is set but the system didn't
-> boot in a "secure boot" platform. In this scenario, anytime an appraisal
-> policy (i.e. ima_policy=appraisal_tcb) is used it will be forced, without
-> giving the user the opportunity to label the filesystem, before enforcing
-> integrity.
-> 
-> Considering the ARCH_POLICY is only effective when secure boot is actually
-> enabled this patch remove the compile time dependency and move it to a
-> runtime decision, based on the secure boot state of that platform.
 
-Perhaps we could simplify this patch description a bit?
+On 7/9/20 3:53 AM, Kirill A. Shutemov wrote:
+> VMA with VM_GROWSDOWN or VM_GROWSUP flag set can change their size under
+> mmap_read_lock(). It can lead to race with __do_munmap():
+>
+> 	Thread A			Thread B
+> __do_munmap()
+>    detach_vmas_to_be_unmapped()
+>    mmap_write_downgrade()
+> 				expand_downwards()
+> 				  vma->vm_start = address;
+> 				  // The VMA now overlaps with
+> 				  // VMAs detached by the Thread A
+> 				// page fault populates expanded part
+> 				// of the VMA
+>    unmap_region()
+>      // Zaps pagetables partly
+>      // populated by Thread B
+>
+> Similar race exists for expand_upwards().
+>
+> The fix is to avoid downgrading mmap_lock in __do_munmap() if detached
+> VMAs are next to VM_GROWSDOWN or VM_GROWSUP VMA.
 
-The IMA_APPRAISE_BOOTPARAM config allows enabling different
-"ima_appraise=" modes - log, fix, enforce - at run time, but not when
-IMA architecture specific policies are enabled.  This prevents
-properly labeling the filesystem on systems where secure boot is
-supported, but not enabled on the platform.  Only when secure boot is
-enabled, should these IMA appraise modes be disabled.
+Thanks for catching this. The fix makes sense to me. Reviewed-by: Yang 
+Shi <yang.shi@linux.alibaba.com>
 
-This patch removes the compile time dependency and makes it a runtime
-decision, based on the secure boot state of that platform.
-
-<snip>
-
-> diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-> index a9649b04b9f1..884de471b38a 100644
-> --- a/security/integrity/ima/ima_appraise.c
-> +++ b/security/integrity/ima/ima_appraise.c
-> @@ -19,6 +19,11 @@
->  static int __init default_appraise_setup(c
-
-> har *str)
->  {
->  #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
-> +	if (arch_ima_get_secureboot()) {
-> +		pr_info("appraise boot param ignored: secure boot enabled");
-
-Instead of a generic statement, is it possible to include the actual
-option being denied?  Perhaps something like: "Secure boot enabled,
-ignoring %s boot command line option"
-
-Mimi
-
-> +		return 1;
-> +	}
+>
+> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> Reported-by: Jann Horn <jannh@google.com>
+> Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+> Cc: <stable@vger.kernel.org> # 4.20
+> Cc: Yang Shi <yang.shi@linux.alibaba.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Oleg Nesterov <oleg@redhat.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> ---
+>   mm/mmap.c | 16 ++++++++++++++--
+>   1 file changed, 14 insertions(+), 2 deletions(-)
+>
+> diff --git a/mm/mmap.c b/mm/mmap.c
+> index 59a4682ebf3f..71df4b36b42a 100644
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -2620,7 +2620,7 @@ static void unmap_region(struct mm_struct *mm,
+>    * Create a list of vma's touched by the unmap, removing them from the mm's
+>    * vma list as we go..
+>    */
+> -static void
+> +static bool
+>   detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
+>   	struct vm_area_struct *prev, unsigned long end)
+>   {
+> @@ -2645,6 +2645,17 @@ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
+>   
+>   	/* Kill the cache */
+>   	vmacache_invalidate(mm);
 > +
->  	if (strncmp(str, "off", 3) == 0)
->  		ima_appraise = 0;
->  	else if (strncmp(str, "log", 3) == 0)
+> +	/*
+> +	 * Do not downgrade mmap_sem if we are next to VM_GROWSDOWN or
+> +	 * VM_GROWSUP VMA. Such VMAs can change their size under
+> +	 * down_read(mmap_sem) and collide with the VMA we are about to unmap.
+> +	 */
+> +	if (vma && (vma->vm_flags & VM_GROWSDOWN))
+> +		return false;
+> +	if (prev && (prev->vm_flags & VM_GROWSUP))
+> +		return false;
+> +	return true;
+>   }
+>   
+>   /*
+> @@ -2825,7 +2836,8 @@ int __do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
+>   	}
+>   
+>   	/* Detach vmas from rbtree */
+> -	detach_vmas_to_be_unmapped(mm, vma, prev, end);
+> +	if (!detach_vmas_to_be_unmapped(mm, vma, prev, end))
+> +		downgrade = false;
+>   
+>   	if (downgrade)
+>   		mmap_write_downgrade(mm);
 
