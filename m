@@ -2,122 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8764D21B949
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 17:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3611021B960
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 17:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgGJPUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 11:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
+        id S1727098AbgGJPYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 11:24:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727098AbgGJPTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 11:19:51 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF0EC08E6DC
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 08:19:51 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id g75so6546607wme.5
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 08:19:51 -0700 (PDT)
+        with ESMTP id S1727078AbgGJPYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 11:24:33 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4C6C08C5DC
+        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 08:24:33 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id j18so6580807wmi.3
+        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 08:24:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=secretlab.ca; s=google;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=kxnyGnMwxTRwHtpgKXQFv4Sp6EsduZoxQF9xvlfrbr8=;
-        b=ZRVe/ibOcbNKEM/ckw2d45EAviU8Pdos52byPUPcHAF0KcH9B9qASluESjw4KaH4Yg
-         gBkMUVeA1w+53smdKc/n0mMXp8ja0j3tKCB99dT5ELfcmTBVz/0PIEcqwf9AD2yrL8er
-         PY1kyYvl0PYqsDEk51ZVOmlJCnfONwb34Yym1ASVdaVRgYExPRp2Y3zXG/wT4X8+Nosi
-         WXeFcMTadVk1AeJs7OmMT/m29gdv4Ev/PzKgJYP1/nA0q7mFScCBEyass+jmBB4cgKJE
-         iMAW7Rj1l5WQ57KkxmxPz2NC3QjhP/w9B1s0khMrEXmosFgOecRkp0W0udq1Wt4sttst
-         fihQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=ssK+8iLM11qslosSf1j2G0wYl7L4CVX8Ifo/vpqTDIQ=;
+        b=FrtYecrJ5Ux8Bb2xvNXWLMKdeSCTBFcqZ62IVxO3EETjjgKNau0aI78KHeFHXroO8g
+         tDa9gmjvjjYHtht++RtdJuo5FfhTK8eqA++q3zeIPPXHOK/qZ2pfo88L7+oT6suKjxLs
+         PBFah0+fIX9gNI28ehCXzMgLzcD+OvmjDMFsSwDGyXDkkiQRyOMcrOwf7WjWQoaEM5HT
+         9AGAjfURfd6aw6W0KDxnaiX0JkmgX6zUiz0JTV+vV9ik2DuBDnNkhoEfLEyYZkPb0cND
+         mhE5HAb1UFnn8EheHec94E4X6qSfMtGdR6mnNw1DintDuCPBgbUWYFsU1MFcecdp37UV
+         AsxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=kxnyGnMwxTRwHtpgKXQFv4Sp6EsduZoxQF9xvlfrbr8=;
-        b=oRutxFFDwbMVxaEP5XIYACY7beU0cl04iT/whBSa91gYH0GY+IoOOJ5O0UIll0684R
-         lUGnSRS8KGkEBzgPD2uiZvrL7Yut1UzYowVdl0oRwHFAB8UozS0YX+9ToHuuU2pr1ybY
-         dYrDtE4fDT75eIal5x4mDjHVQpOy6FNHyiGp7ubE9gSczfjITpMf+m3BIBgtTe/pzmy1
-         gEKaZ4iirq1yIM0+FhB+XmyU+hthzpMlz6rGf+GH+/578yxyT8RbubrhJODEDiBfyGoK
-         lGvQw5j1CFMvPsd8q4EfbZeXAX63L/UwFLEDjRGY5lL7OTOe+kE1ntKeVnfXyMyr7q0s
-         oxyg==
-X-Gm-Message-State: AOAM530nQzh3L+ezkGdzKCrCC4pn7/5Gvw58cv/UYUmP5k/N4+dCp1g3
-        rlGAdprC+9TeHAkfNGMjL+rWMg==
-X-Google-Smtp-Source: ABdhPJzXzqIMMMApQjKWDU1z5QkbzF8CAES3zC4qQ+Oqh5yRVV9kfEvVTZWzmZDin+QTicbt2ad4Cw==
-X-Received: by 2002:a1c:790e:: with SMTP id l14mr5587090wme.65.1594394389624;
-        Fri, 10 Jul 2020 08:19:49 -0700 (PDT)
-Received: from moist.secretlab.ca (188.28.146.46.threembb.co.uk. [188.28.146.46])
-        by smtp.gmail.com with ESMTPSA id d13sm10400297wrn.61.2020.07.10.08.19.47
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=ssK+8iLM11qslosSf1j2G0wYl7L4CVX8Ifo/vpqTDIQ=;
+        b=olDjldElQgYCVagAWVLo1+7Izbx7iyRuoPgDiPqkNOSCwfIJdlSxhbvzrG3AMtL2j3
+         iuVyaXkkRtLygckcZTHavLRPoJfQr9gyPPiG2RcWQgcOYO/6KMH09PNXeMJd8+xczGc3
+         X+vt7f80ZYXw+hniXiK7LAe1Xo6/MCvAYcG7HlfV4EvUJ23ZXTm8gygazSRdc1+/Jp++
+         /PzDNFgTy3dDMbS696RdFBTTEEyzhNbjXiBgVqZSExQpDLkfUy+7Vfkhq05V0Tmzz3L/
+         6RySu/QYuuFzOrCs87HsuGyJiboAYgXRGr7l6Xs3VGF7baBXeqwEHyVhg/FAfnzxMvbC
+         DXFQ==
+X-Gm-Message-State: AOAM530PsRq/WCnfszUdGpJTQmnauO+d19NyUoPxw9gl67moZXZqhYnO
+        c98rEjPEdrOK6AQuVpw9eaP0Uw==
+X-Google-Smtp-Source: ABdhPJy1IkcK+d02lK9Yiiu/N3xEyya1puU9CiIr/AfoqwCcNGhXhnOadBrXZoTy4jkFPzYaFEl5Sg==
+X-Received: by 2002:a1c:4d05:: with SMTP id o5mr5605806wmh.130.1594394671937;
+        Fri, 10 Jul 2020 08:24:31 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:e0a:f:6020:3448:acab:4d05:2aee])
+        by smtp.gmail.com with ESMTPSA id m10sm10673506wru.4.2020.07.10.08.24.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jul 2020 08:19:49 -0700 (PDT)
-From:   Grant Likely <grant.likely@secretlab.ca>
-X-Google-Original-From: Grant Likely <grant.likely@arm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        Grant Likely <grant.likely@arm.com>,
-        Grant Likely <grant.likely@secretlab.ca>,
-        Darren Hart <darren@dvhart.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Fri, 10 Jul 2020 08:24:30 -0700 (PDT)
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, linux-kernel@vger.kernel.org
+Cc:     valentin.schneider@arm.com,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH] hid-input: Fix devices that return multiple bytes in battery report
-Date:   Fri, 10 Jul 2020 16:19:39 +0100
-Message-Id: <20200710151939.4894-1-grant.likely@arm.com>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+Subject: [PATCH v3] sched/fair: handle case of task_h_load() returning 0
+Date:   Fri, 10 Jul 2020 17:24:26 +0200
+Message-Id: <20200710152426.16981-1-vincent.guittot@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some devices, particularly the 3DConnexion Spacemouse wireless 3D
-controllers, return more than just the battery capacity in the battery
-report. The Spacemouse devices return an additional byte with a device
-specific field. However, hidinput_query_battery_capacity() only
-requests a 2 byte transfer.
+task_h_load() can return 0 in some situations like running stress-ng
+mmapfork, which forks thousands of threads, in a sched group on a 224 cores
+system. The load balance doesn't handle this correctly because
+env->imbalance never decreases and it will stop pulling tasks only after
+reaching loop_max, which can be equal to the number of running tasks of
+the cfs. Make sure that imbalance will be decreased by at least 1.
 
-When a spacemouse is connected via USB (direct wire, no wireless dongle)
-and it returns a 3 byte report instead of the assumed 2 byte battery
-report the larger transfer confuses and frightens the USB subsystem
-which chooses to ignore the transfer. Then after 2 seconds assume the
-device has stopped responding and reset it. This can be reproduced
-easily by using a wired connection with a wireless spacemouse. The
-Spacemouse will enter a loop of resetting every 2 seconds which can be
-observed in dmesg.
+misfit task is the other feature that doesn't handle correctly such
+situation although it's probably more difficult to face the problem
+because of the smaller number of CPUs and running tasks on heterogenous
+system.
 
-This patch solves the problem by increasing the transfer request to 4
-bytes instead of 2. The fix isn't particularly elegant, but it is simple
-and safe to backport to stable kernels. A further patch will follow to
-more elegantly handle battery reports that contain additional data.
+We can't simply ensure that task_h_load() returns at least one because it
+would imply to handle underflow in other places.
 
-Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
-Cc: Darren Hart <darren@dvhart.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: <stable@vger.kernel.org> # v4.4+
 ---
- drivers/hid/hid-input.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index dea9cc65bf80..e8641ce677e4 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -350,13 +350,13 @@ static int hidinput_query_battery_capacity(struct hid_device *dev)
- 	u8 *buf;
- 	int ret;
- 
--	buf = kmalloc(2, GFP_KERNEL);
-+	buf = kmalloc(4, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
--	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
-+	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 4,
- 				 dev->battery_report_type, HID_REQ_GET_REPORT);
--	if (ret != 2) {
-+	if (ret < 2) {
- 		kfree(buf);
- 		return -ENODATA;
+Changes v3:
+- Fix warning about cast reported by lkp@intel.com>
+
+ kernel/sched/fair.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index b9b9f19e80c1..71a372e3707a 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4049,7 +4049,11 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 		return;
  	}
+ 
+-	rq->misfit_task_load = task_h_load(p);
++	/*
++	 * Make sure that misfit_task_load will not be null even if
++	 * task_h_load() returns 0.
++	 */
++	rq->misfit_task_load = max_t(unsigned long, task_h_load(p), 1);
+ }
+ 
+ #else /* CONFIG_SMP */
+@@ -7648,7 +7652,14 @@ static int detach_tasks(struct lb_env *env)
+ 
+ 		switch (env->migration_type) {
+ 		case migrate_load:
+-			load = task_h_load(p);
++			/*
++			 * Depending of the number of CPUs and tasks and the
++			 * cgroup hierarchy, task_h_load() can return a null
++			 * value. Make sure that env->imbalance decreases
++			 * otherwise detach_tasks() will stop only after
++			 * detaching up to loop_max tasks.
++			 */
++			load = max_t(unsigned long, task_h_load(p), 1);
+ 
+ 			if (sched_feat(LB_MIN) &&
+ 			    load < 16 && !env->sd->nr_balance_failed)
 -- 
-2.20.1
+2.17.1
 
