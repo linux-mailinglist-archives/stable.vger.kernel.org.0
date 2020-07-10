@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F21421B79C
+	by mail.lfdr.de (Postfix) with ESMTP id 10A4F21B79A
 	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728378AbgGJOCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728374AbgGJOCw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 10 Jul 2020 10:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49940 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728382AbgGJOCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 10:02:49 -0400
+        id S1728386AbgGJOCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 10:02:50 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 861902082E;
-        Fri, 10 Jul 2020 14:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9033520849;
+        Fri, 10 Jul 2020 14:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594389768;
-        bh=VHy3Qnh/ip7TCmR8hEM3laox1nHcsBpekT7Ga5Hggac=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=vBXS0h/SxL5Pu12TXzkYyUe8PIpoHM3wkCbZncTaeAXAfucPwKpE3XBMnLW9Oe/uF
-         uk6KTrRFGjn7WOd8PbB7r9d5KLfGdi2E36bRmHO/dmEQNSF245wYVspnbWf1Ujb8zz
-         qgwB894bACZhdQnePYyAZgMNjHnmmOnjIxPYzD40=
-Date:   Fri, 10 Jul 2020 14:02:47 +0000
+        s=default; t=1594389769;
+        bh=3yFXOIlf/jaJ9LVqAKz8KOR8fQJjduxx7bKp5GcEi+M=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
+         References:From;
+        b=Enpoo6ixM4fMy/bPcm4iVhfl8HFW2OiAwWW6Nh5+D+Lfi3hZWeF+AYiXuNXq71h8r
+         bydkTP2/FSmKV/606lfR0VVJKK9jlozErg+Ouz7rJCBiqcRnpnnN1BXRMvLa9PIO1h
+         l4PNEyfAtJv9taiw7eNd5ZzJaLq9zDf0B4JfrATE=
+Date:   Fri, 10 Jul 2020 14:02:48 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Andrew Donnellan <ajd@linux.ibm.com>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     leobras.c@gmail.com, nathanl@linux.ibm.com
+To:     Dan Williams <dan.j.williams@intel.com>
+To:     linux-nvdimm@lists.01.org
+Cc:     Vishal Verma <vishal.l.verma@intel.com>
+Cc:     Vishal Verma <vishal.l.verma@intel.com>
+Cc:     Dave Jiang <dave.jiang@intel.com>
+Cc:     Ira Weiny <ira.weiny@intel.com>
+Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc:     Len Brown <lenb@kernel.org>
+Cc:     <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] powerpc/rtas: Restrict RTAS requests from userspace
-In-Reply-To: <20200702161932.18176-1-ajd@linux.ibm.com>
-References: <20200702161932.18176-1-ajd@linux.ibm.com>
-Message-Id: <20200710140248.861902082E@mail.kernel.org>
+Subject: Re: [PATCH 01/12] libnvdimm: Validate command family indices
+In-Reply-To: <159312902579.1850128.3536310031352445291.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <159312902579.1850128.3536310031352445291.stgit@dwillia2-desk3.amr.corp.intel.com>
+Message-Id: <20200710140249.9033520849@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,86 +50,61 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 31eca76ba2fc ("nfit, libnvdimm: limited/whitelisted dimm command marshaling mechanism").
 
-The bot has tested the following trees: v5.7.7, v5.4.50, v4.19.131, v4.14.187, v4.9.229, v4.4.229.
+The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228.
 
-v5.7.7: Build OK!
-v5.4.50: Failed to apply! Possible dependencies:
-    1a8916ee3ac29 ("powerpc: Detect the secure boot mode of the system")
-    4238fad366a66 ("powerpc/ima: Add support to initialize ima policy rules")
-    9155e2341aa8b ("powerpc/powernv: Add OPAL API interface to access secure variable")
-    bd5d9c743d38f ("powerpc: expose secure variables to userspace via sysfs")
+v5.7.6: Failed to apply! Possible dependencies:
+    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
 
-v4.19.131: Failed to apply! Possible dependencies:
-    1a8916ee3ac29 ("powerpc: Detect the secure boot mode of the system")
-    4238fad366a66 ("powerpc/ima: Add support to initialize ima policy rules")
-    6f5f193e84d3d ("powerpc/opal: add MPIPL interface definitions")
-    75d9fc7fd94eb ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
-    8139046a5a347 ("powerpc/powernv: Make possible for user to force a full ipl cec reboot")
-    88ec6b93c8e7d ("powerpc/xive: add OPAL extensions for the XIVE native exploitation support")
-    9155e2341aa8b ("powerpc/powernv: Add OPAL API interface to access secure variable")
-    bd5d9c743d38f ("powerpc: expose secure variables to userspace via sysfs")
-    fb0b0a73b223f ("powerpc: Enable kcov")
+v5.4.49: Failed to apply! Possible dependencies:
+    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
+    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
 
-v4.14.187: Failed to apply! Possible dependencies:
-    04baaf28f40c6 ("powerpc/powernv: Add support to enable sensor groups")
-    10dac04c79b18 ("mips: fix an off-by-one in dma_capable")
-    1a8916ee3ac29 ("powerpc: Detect the secure boot mode of the system")
-    32ce3862af3c4 ("powerpc/lib: Implement PMEM API")
-    5cdcb01e0af5a ("powernv: opal-sensor: Add support to read 64bit sensor values")
-    656ecc16e8fc2 ("crypto/nx: Initialize 842 high and normal RxFIFO control registers")
-    6f5f193e84d3d ("powerpc/opal: add MPIPL interface definitions")
-    74d656d219b98 ("powerpc/powernv: Add opal calls for opencapi")
-    77adbd2207e85 ("powerpc/powernv: Add OPAL_BUSY to opal_error_code()")
-    88ec6b93c8e7d ("powerpc/xive: add OPAL extensions for the XIVE native exploitation support")
-    8c4cdce8b1ab0 ("mtd: nand: qcom: add command elements in BAM transaction")
-    9155e2341aa8b ("powerpc/powernv: Add OPAL API interface to access secure variable")
-    92e3da3cf193f ("powerpc: initial pkey plumbing")
-    bd5d9c743d38f ("powerpc: expose secure variables to userspace via sysfs")
-    d6a90bb83b508 ("powerpc/powernv: Enable tunneled operations")
-    e36d0a2ed5019 ("powerpc/powernv: Implement NMI IPI with OPAL_SIGNAL_SYSTEM_RESET")
-    ea8c64ace8664 ("dma-mapping: move swiotlb arch helpers to a new header")
-    fb0b0a73b223f ("powerpc: Enable kcov")
+v4.19.130: Failed to apply! Possible dependencies:
+    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
+    0ead11181fe0c ("acpi, nfit: Collect shutdown status")
+    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
+    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
+    b3ed2ce024c36 ("acpi/nfit: Add support for Intel DSM 1.8 commands")
+    b5beae5e224f1 ("powerpc/pseries: Add driver for PAPR SCM regions")
+    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
+    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
 
-v4.9.229: Failed to apply! Possible dependencies:
-    1515ab9321562 ("powerpc/mm: Dump hash table")
-    1a8916ee3ac29 ("powerpc: Detect the secure boot mode of the system")
-    40565b5aedd6d ("sched/cputime, powerpc, s390: Make scaled cputime arch specific")
-    4ad8622dc5489 ("powerpc/8xx: Implement hw_breakpoint")
-    51c9c08439935 ("powerpc/kprobes: Implement Optprobes")
-    5b9ff02785986 ("powerpc: Build-time sort the exception table")
-    6533b7c16ee57 ("powerpc: Initial stack protector (-fstack-protector) support")
-    65c059bcaa731 ("powerpc: Enable support for GCC plugins")
-    8eb07b187000d ("powerpc/mm: Dump linux pagetables")
-    92e3da3cf193f ("powerpc: initial pkey plumbing")
-    981ee2d444408 ("sched/cputime, powerpc: Remove cputime_to_scaled()")
-    a7d2475af7aed ("powerpc: Sort the selects under CONFIG_PPC")
-    bd5d9c743d38f ("powerpc: expose secure variables to userspace via sysfs")
-    d6c569b99558b ("powerpc/64: Move HAVE_CONTEXT_TRACKING from pseries to common Kconfig")
-    dd5ac03e09554 ("powerpc/mm: Fix page table dump build on non-Book3S")
-    ea8c64ace8664 ("dma-mapping: move swiotlb arch helpers to a new header")
-    ebfa50df435ee ("powerpc: Add helper to check if offset is within relative branch range")
-    fa769d3f58e6b ("powerpc/32: Enable HW_BREAKPOINT on BOOK3S")
-    fb0b0a73b223f ("powerpc: Enable kcov")
+v4.14.186: Failed to apply! Possible dependencies:
+    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
+    0e7f0741450b1 ("acpi, nfit: validate commands against the device type")
+    1194c4133195d ("nfit: Add Hyper-V NVDIMM DSM command set to white list")
+    11e1427016095 ("acpi, nfit: add support for NVDIMM_FAMILY_INTEL v1.6 DSMs")
+    466d1493ea830 ("acpi, nfit: rework NVDIMM leaf method detection")
+    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
+    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
+    b37b3fd33d034 ("acpi nfit: Enable to show what feature is supported via ND_CMD_CALL for nfit_test")
+    b9b1504d3c6d6 ("acpi, nfit: hide unknown commands from nmemX/commands")
+    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
 
-v4.4.229: Failed to apply! Possible dependencies:
-    019132ff3daf3 ("x86/mm/pkeys: Fill in pkey field in siginfo")
-    01c8f1c44b83a ("mm, dax, gpu: convert vm_insert_mixed to pfn_t")
-    0e749e54244ee ("dax: increase granularity of dax_clear_blocks() operations")
-    1874f6895c92d ("x86/mm/gup: Simplify get_user_pages() PTE bit handling")
-    1a8916ee3ac29 ("powerpc: Detect the secure boot mode of the system")
-    33a709b25a760 ("mm/gup, x86/mm/pkeys: Check VMAs and PTEs for protection keys")
-    34c0fd540e79f ("mm, dax, pmem: introduce pfn_t")
-    3565fce3a6597 ("mm, x86: get_user_pages() for dax mappings")
-    52db400fcd502 ("pmem, dax: clean up clear_pmem()")
-    7b2d0dbac4890 ("x86/mm/pkeys: Pass VMA down in to fault signal generation code")
-    8f62c883222c9 ("x86/mm/pkeys: Add arch-specific VMA protection bits")
-    92e3da3cf193f ("powerpc: initial pkey plumbing")
-    b2e0d1625e193 ("dax: fix lifetime of in-kernel dax mappings with dax_map_atomic()")
-    bd5d9c743d38f ("powerpc: expose secure variables to userspace via sysfs")
-    f25748e3c34eb ("mm, dax: convert vmf_insert_pfn_pmd() to pfn_t")
+v4.9.228: Failed to apply! Possible dependencies:
+    095ab4b39f91b ("acpi, nfit: allow override of built-in bitmasks for nvdimm DSMs")
+    0f817ae696b04 ("usb: dwc3: pci: add a private driver structure")
+    36daf3aa399c0 ("usb: dwc3: pci: avoid build warning")
+    3f23df72dc351 ("mmc: sdhci-pci: Use ACPI to get max frequency for Intel NI byt sdio")
+    41c8bdb3ab10c ("acpi, nfit: Switch to use new generic UUID API")
+    42237e393f64d ("libnvdimm: allow a platform to force enable label support")
+    42b06496407c0 ("mmc: sdhci-pci: Add PCI ID for Intel NI byt sdio")
+    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
+    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
+    8f078b38dd382 ("libnvdimm: convert NDD_ flags to use bitops, introduce NDD_LOCKED")
+    94116f8126de9 ("ACPI: Switch to use generic guid_t in acpi_evaluate_dsm()")
+    9cecca75b5a0d ("usb: dwc3: pci: call _DSM for suspend/resume")
+    9d62ed9651182 ("libnvdimm: handle locked label storage areas")
+    b7fe92999a98a ("ACPI / extlog: Switch to use new generic UUID API")
+    b917078c1c107 ("net: hns: Add ACPI support to check SFP present")
+    ba650cfcf9409 ("acpi, nfit: allow specifying a default DSM family")
+    c959a6b00ff58 ("mmc: sdhci-pci: Don't re-tune with runtime pm for some Intel devices")
+    d2061f9cc32db ("usb: typec: add driver for Intel Whiskey Cove PMIC USB Type-C PHY")
+    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
+    fab9288428ec0 ("usb: USB Type-C connector class")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
