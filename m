@@ -2,148 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D942121B44E
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 13:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CACC221B454
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 13:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726945AbgGJLz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 07:55:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48812 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726820AbgGJLz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 07:55:29 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 152FEAC46;
-        Fri, 10 Jul 2020 11:55:27 +0000 (UTC)
-Subject: Re: [PATCH] xen: don't reschedule in preemption off sections
-To:     =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Cc:     xen-devel@lists.xenproject.org, stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Sarah Newman <srn@prgmr.com>
-References: <20200710075050.4769-1-jgross@suse.com>
- <988ff766-b7de-2e25-2524-c412379686fc@suse.com>
- <742457cf-4892-0e85-2fc8-d2eb9f8a3a51@suse.com>
-From:   Jan Beulich <jbeulich@suse.com>
-Message-ID: <af6db1b7-7802-0b2e-eb5f-ce69533b771f@suse.com>
-Date:   Fri, 10 Jul 2020 13:55:28 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726945AbgGJL6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 07:58:13 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:22564 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726840AbgGJL6M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 07:58:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594382291;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=WrAUzsslcQ6587N6bpxNIRSuTpr2lTJ8ANwKcgAAxbY=;
+        b=OZbDARtSE9shDd8MeAWB6v1zmXBXpIDcc5+f75rMkisqSs8H8mD+lgm0aaQb76D0LpA5oZ
+        lgPN7rB9txrOaoOCeCleLINV1cuie7B5W9nfEApwJRd7mb/r/CHU1OVafujv14rVx64Lps
+        Cj+uNEIhdeP0ntLeezUUuY+4Vywr5Mo=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-243-vXRw3GdeMdCwUFuZ_ds0rw-1; Fri, 10 Jul 2020 07:58:09 -0400
+X-MC-Unique: vXRw3GdeMdCwUFuZ_ds0rw-1
+Received: by mail-ed1-f72.google.com with SMTP id v8so6704299edj.4
+        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 04:58:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=WrAUzsslcQ6587N6bpxNIRSuTpr2lTJ8ANwKcgAAxbY=;
+        b=CHsXyH5g4BmBHksk/Ij4xigVT2nGI1iMboapsViR80gc5qMpRNvvG9Dmp7ebmZM8cs
+         TfH94x56sNsogQIL6e2+6hDPdESi47AJAlQKMlhjsRXCUQcA28gi2QS2RfSSNiuDH3C9
+         MDWISfJ5D2qQ80IFoAo4EbXGAgI38hyyfzCzDXpTcPdrf0Wg7+LY9HJ6rS/saonERC6v
+         RhTYbbMEoYXyR1+PLk3aO9JdSlyKC4Spbph5n4jCok8VCxK8UXlW+D3QEdZRIUrQHosj
+         P/SzgU6cykmt+T4szczsSGWzoQHnV8diFMCGZcQy7rbfvtEAnzkBF8+rsBEmMesC1XDA
+         zagw==
+X-Gm-Message-State: AOAM533GmP5fKbcLgaWFgg4KzgdonxZGccN5Wq6FIP8yFIGKKfuw8DWe
+        GeER7F1b/pmJpxDn3humI0+rO3bThTE4j34KE7TLvFcK6v0+v+Tz7M9a85vWeXLf/3he9Zlg+ic
+        kYVhPrQLOdmGbJUdg
+X-Received: by 2002:a17:906:69d3:: with SMTP id g19mr41788064ejs.402.1594382287911;
+        Fri, 10 Jul 2020 04:58:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwDuJCnhjKq7P41NLwcaIkbXSfBf3rS02RRzO4bSzyOQBnJMkwuSDs+EhrikFKVkS77vA9vUg==
+X-Received: by 2002:a17:906:69d3:: with SMTP id g19mr41788051ejs.402.1594382287748;
+        Fri, 10 Jul 2020 04:58:07 -0700 (PDT)
+Received: from miu.piliscsaba.redhat.com (catv-212-96-48-140.catv.broadband.hu. [212.96.48.140])
+        by smtp.gmail.com with ESMTPSA id a8sm3536951ejp.51.2020.07.10.04.58.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jul 2020 04:58:07 -0700 (PDT)
+From:   Miklos Szeredi <mszeredi@redhat.com>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     Stefan Priebe <s.priebe@profihost.ag>,
+        David Howells <dhowells@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH 1/3] fuse: use ->reconfigure() instead of ->remount_fs()
+Date:   Fri, 10 Jul 2020 13:58:03 +0200
+Message-Id: <20200710115805.4478-1-mszeredi@redhat.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-In-Reply-To: <742457cf-4892-0e85-2fc8-d2eb9f8a3a51@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10.07.2020 12:50, Jürgen Groß wrote:
-> On 10.07.20 11:49, Jan Beulich wrote:
->> On 10.07.2020 09:50, Juergen Gross wrote:
->>> For support of long running hypercalls xen_maybe_preempt_hcall() is
->>> calling cond_resched() in case a hypercall marked as preemptible has
->>> been interrupted.
->>>
->>> Normally this is no problem, as only hypercalls done via some ioctl()s
->>> are marked to be preemptible. In rare cases when during such a
->>> preemptible hypercall an interrupt occurs and any softirq action is
->>> started from irq_exit(), a further hypercall issued by the softirq
->>> handler will be regarded to be preemptible, too. This might lead to
->>> rescheduling in spite of the softirq handler potentially having set
->>> preempt_disable(), leading to splats like:
->>>
->>> BUG: sleeping function called from invalid context at drivers/xen/preempt.c:37
->>> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 20775, name: xl
->>> INFO: lockdep is turned off.
->>> CPU: 1 PID: 20775 Comm: xl Tainted: G D W 5.4.46-1_prgmr_debug.el7.x86_64 #1
->>> Call Trace:
->>> <IRQ>
->>> dump_stack+0x8f/0xd0
->>> ___might_sleep.cold.76+0xb2/0x103
->>> xen_maybe_preempt_hcall+0x48/0x70
->>> xen_do_hypervisor_callback+0x37/0x40
->>> RIP: e030:xen_hypercall_xen_version+0xa/0x20
->>> Code: ...
->>> RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
->>> RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
->>> RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
->>> RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
->>> R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
->>> R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
->>> ? xen_hypercall_xen_version+0xa/0x20
->>> ? xen_force_evtchn_callback+0x9/0x10
->>> ? check_events+0x12/0x20
->>> ? xen_restore_fl_direct+0x1f/0x20
->>> ? _raw_spin_unlock_irqrestore+0x53/0x60
->>> ? debug_dma_sync_single_for_cpu+0x91/0xc0
->>> ? _raw_spin_unlock_irqrestore+0x53/0x60
->>> ? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
->>> ? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
->>> ? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
->>> ? net_rx_action+0x151/0x4a0
->>> ? __do_softirq+0xed/0x55b
->>> ? irq_exit+0xea/0x100
->>> ? xen_evtchn_do_upcall+0x2c/0x40
->>> ? xen_do_hypervisor_callback+0x29/0x40
->>> </IRQ>
->>> ? xen_hypercall_domctl+0xa/0x20
->>> ? xen_hypercall_domctl+0x8/0x20
->>> ? privcmd_ioctl+0x221/0x990 [xen_privcmd]
->>> ? do_vfs_ioctl+0xa5/0x6f0
->>> ? ksys_ioctl+0x60/0x90
->>> ? trace_hardirqs_off_thunk+0x1a/0x20
->>> ? __x64_sys_ioctl+0x16/0x20
->>> ? do_syscall_64+0x62/0x250
->>> ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
->>>
->>> Fix that by testing preempt_count() before calling cond_resched().
->>>
->>> In kernel 5.8 this can't happen any more due to the entry code rework.
->>>
->>> Reported-by: Sarah Newman <srn@prgmr.com>
->>> Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use need_resched() instead of should_resched()")
->>> Cc: Sarah Newman <srn@prgmr.com>
->>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>> ---
->>>   drivers/xen/preempt.c | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/xen/preempt.c b/drivers/xen/preempt.c
->>> index 17240c5325a3..6ad87b5c95ed 100644
->>> --- a/drivers/xen/preempt.c
->>> +++ b/drivers/xen/preempt.c
->>> @@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hcall);
->>>   asmlinkage __visible void xen_maybe_preempt_hcall(void)
->>>   {
->>>   	if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
->>> -		     && need_resched())) {
->>> +		     && need_resched() && !preempt_count())) {
->>
->> Doesn't this have the at least latent risk of hiding issues in
->> other call trees (by no longer triggering logging like the one
->> that has propmted this change)? Wouldn't it be better to save,
->> clear, and restore the flag in one of xen_evtchn_do_upcall() or
->> xen_do_hypervisor_callback()?
-> 
-> First regarding "risk of hiding issues": it seems as if lots of kernels
-> aren't even configured to trigger this logging. It would need
-> CONFIG_DEBUG_ATOMIC_SLEEP to be enabled and at least SUSE kernels don't
-> seem to have it on. I suspect the occasional xen_mc_flush() failures we
-> have seen are related to this problem.
-> 
-> And in theory saving, clearing and restoring the flag would be fine, but
-> it can't be done in a single function with the code flow as up to 5.7.
-> What would need to be done is to save and clear the flag in e.g.
-> __xen_evtchn_do_upcall() and to pass it to xen_maybe_preempt_hcall() as
-> a parameter. In xen_maybe_preempt_hcall() the passed flag value would
-> need to be used for the decision whether to call cond_resched() and then
-> the flag could be restored (after the cond_resched() call).
+s_op->remount_fs() is only called from legacy_reconfigure(), which is not
+used after being converted to the new API.
 
-I'm afraid I don't follow: If __xen_evtchn_do_upcall() cleared the flag,
-xen_maybe_preempt_hcall() would amount to a no-op (up and until the
-flag's prior value would get restored), wouldn't it? No need to pass
-anything into there.
+Convert to using ->reconfigure().  This restores the previous behavior of
+syncing the filesystem and rejecting MS_MANDLOCK on remount.
 
-Jan
+Fixes: c30da2e981a7 ("fuse: convert to use the new mount API")
+Cc: <stable@vger.kernel.org> # v5.4
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+---
+ fs/fuse/inode.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 5b4aebf5821f..be39dff57c28 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -121,10 +121,12 @@ static void fuse_evict_inode(struct inode *inode)
+ 	}
+ }
+ 
+-static int fuse_remount_fs(struct super_block *sb, int *flags, char *data)
++static int fuse_reconfigure(struct fs_context *fc)
+ {
++	struct super_block *sb = fc->root->d_sb;
++
+ 	sync_filesystem(sb);
+-	if (*flags & SB_MANDLOCK)
++	if (fc->sb_flags & SB_MANDLOCK)
+ 		return -EINVAL;
+ 
+ 	return 0;
+@@ -817,7 +819,6 @@ static const struct super_operations fuse_super_operations = {
+ 	.evict_inode	= fuse_evict_inode,
+ 	.write_inode	= fuse_write_inode,
+ 	.drop_inode	= generic_delete_inode,
+-	.remount_fs	= fuse_remount_fs,
+ 	.put_super	= fuse_put_super,
+ 	.umount_begin	= fuse_umount_begin,
+ 	.statfs		= fuse_statfs,
+@@ -1296,6 +1297,7 @@ static int fuse_get_tree(struct fs_context *fc)
+ static const struct fs_context_operations fuse_context_ops = {
+ 	.free		= fuse_free_fc,
+ 	.parse_param	= fuse_parse_param,
++	.reconfigure	= fuse_reconfigure,
+ 	.get_tree	= fuse_get_tree,
+ };
+ 
+-- 
+2.21.1
+
