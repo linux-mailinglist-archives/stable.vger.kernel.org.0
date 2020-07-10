@@ -2,61 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44FCF21B089
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 09:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D502F21B08B
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 09:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbgGJHtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 03:49:22 -0400
-Received: from smtp.rcn.com ([69.168.97.78]:62356 "EHLO smtp.rcn.com"
+        id S1726004AbgGJHuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 03:50:55 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34564 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726288AbgGJHtW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 03:49:22 -0400
-DKIM-Signature: v=1; a=rsa-sha1; d=rcn.com; s=20180516; c=relaxed/simple;
-        q=dns/txt; i=@rcn.com; t=1594367361;
-        h=From:Subject:Date:To:MIME-Version:Content-Type;
-        bh=mGnPMTKpQ3RjqXOqGiRe8eRUkaI=;
-        b=Wo+bBRq/TZZu2xTzRnuHjLuisl/HOUmg6fPY5k0s7vgoNOrbSfX/v7FAgkZH9Yr2
-        cdF+HTUxW9StF0mlyPHmrMH22mE9ojvkQoE0ODwjRcukzwUaL6ZZqIRSAjPmpgEa
-        KnJBfpSq9E2Bv7V+1iocHq6ysJJ3xfVMcmnmgEQ8o+3m7cgjPxSWU+l4Lc1GfQum
-        o840ZeGc3bQyqu/OO7fOIGJiHyImcXJnC/BApllOluAcJTPQM9ymbS49+hbE3JxV
-        RHYO3ImHLEGVpgjUUXh1kBOOVy7wuzktxe2+BAv6/q98PS2DSB0cIjpd4aho5/Sr
-        RKuhkR9oBK1+Fgbh3S1LGg==;
-X_CMAE_Category: , ,
-X-CNFS-Analysis: v=2.3 cv=F/kpiZpN c=1 sm=1 tr=0 a=AXOXmC7qNAQnWmTI8tCY6g==:117 a=KGjhK52YXX0A:10 a=FKkrIqjQGGEA:10 a=D-k6GPcDruMA:10 a=IkcTkHD0fZMA:10 a=_RQrkK6FrEwA:10 a=Qysc_E5tLUEA:10 a=buoqxzEoFFkA:10 a=xvgvYPCgePwatwzcfOsA:9 a=QEXdDO2ut3YA:10
-X-CM-Score: 0
-X-Scanned-by: Cloudmark Authority Engine
-X-Authed-Username: Y2JzMTNAcmNuLmNvbQ==
-Authentication-Results: smtp03.rcn.cmh.synacor.com smtp.mail=cbs13@rcn.com; spf=softfail; sender-id=softfail
-Authentication-Results: smtp03.rcn.cmh.synacor.com header.from=cbs13@rcn.com; sender-id=softfail
-Received: from [10.33.66.3] ([10.33.66.3:60752] helo=md07.rcn.cmh.synacor.com)
-        by smtp.rcn.com (envelope-from <cbs13@rcn.com>)
-        (ecelerity 3.6.25.56547 r(Core:3.6.25.0)) with ESMTP
-        id B8/5B-51190-08D180F5; Fri, 10 Jul 2020 03:49:20 -0400
-Date:   Fri, 10 Jul 2020 03:49:20 -0400 (EDT)
-From:   riddhi kapoor <cbs13@rcn.com>
-Reply-To: riddhi kapoor <riddhikapoor@mediacombb.net>
-To:     riddhi kapoor <riddhikapoor@mediacombb.net>
-Message-ID: <1524322967.31535418.1594367360445.JavaMail.root@rcn.com>
-In-Reply-To: <55719396.31522924.1594366780817.JavaMail.root@rcn.com>
-Subject: Re: hii ref
+        id S1725802AbgGJHuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 03:50:55 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 83B8AAD32;
+        Fri, 10 Jul 2020 07:50:53 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, stable@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Sarah Newman <srn@prgmr.com>
+Subject: [PATCH] xen: don't reschedule in preemption off sections
+Date:   Fri, 10 Jul 2020 09:50:50 +0200
+Message-Id: <20200710075050.4769-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [173.234.158.53]
-X-Mailer: Zimbra 7.2.7_GA_2942 (zclient/7.2.7_GA_2942)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+For support of long running hypercalls xen_maybe_preempt_hcall() is
+calling cond_resched() in case a hypercall marked as preemptible has
+been interrupted.
 
+Normally this is no problem, as only hypercalls done via some ioctl()s
+are marked to be preemptible. In rare cases when during such a
+preemptible hypercall an interrupt occurs and any softirq action is
+started from irq_exit(), a further hypercall issued by the softirq
+handler will be regarded to be preemptible, too. This might lead to
+rescheduling in spite of the softirq handler potentially having set
+preempt_disable(), leading to splats like:
 
-Am into Handicrafts, Furniture 
+BUG: sleeping function called from invalid context at drivers/xen/preempt.c:37
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 20775, name: xl
+INFO: lockdep is turned off.
+CPU: 1 PID: 20775 Comm: xl Tainted: G D W 5.4.46-1_prgmr_debug.el7.x86_64 #1
+Call Trace:
+<IRQ>
+dump_stack+0x8f/0xd0
+___might_sleep.cold.76+0xb2/0x103
+xen_maybe_preempt_hcall+0x48/0x70
+xen_do_hypervisor_callback+0x37/0x40
+RIP: e030:xen_hypercall_xen_version+0xa/0x20
+Code: ...
+RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
+RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
+RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
+R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
+R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
+? xen_hypercall_xen_version+0xa/0x20
+? xen_force_evtchn_callback+0x9/0x10
+? check_events+0x12/0x20
+? xen_restore_fl_direct+0x1f/0x20
+? _raw_spin_unlock_irqrestore+0x53/0x60
+? debug_dma_sync_single_for_cpu+0x91/0xc0
+? _raw_spin_unlock_irqrestore+0x53/0x60
+? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
+? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
+? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
+? net_rx_action+0x151/0x4a0
+? __do_softirq+0xed/0x55b
+? irq_exit+0xea/0x100
+? xen_evtchn_do_upcall+0x2c/0x40
+? xen_do_hypervisor_callback+0x29/0x40
+</IRQ>
+? xen_hypercall_domctl+0xa/0x20
+? xen_hypercall_domctl+0x8/0x20
+? privcmd_ioctl+0x221/0x990 [xen_privcmd]
+? do_vfs_ioctl+0xa5/0x6f0
+? ksys_ioctl+0x60/0x90
+? trace_hardirqs_off_thunk+0x1a/0x20
+? __x64_sys_ioctl+0x16/0x20
+? do_syscall_64+0x62/0x250
+? entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Manufacturing, Match box 
+Fix that by testing preempt_count() before calling cond_resched().
 
-so sir what are you into
+In kernel 5.8 this can't happen any more due to the entry code rework.
 
-plz answer me 
+Reported-by: Sarah Newman <srn@prgmr.com>
+Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use need_resched() instead of should_resched()")
+Cc: Sarah Newman <srn@prgmr.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/xen/preempt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/xen/preempt.c b/drivers/xen/preempt.c
+index 17240c5325a3..6ad87b5c95ed 100644
+--- a/drivers/xen/preempt.c
++++ b/drivers/xen/preempt.c
+@@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hcall);
+ asmlinkage __visible void xen_maybe_preempt_hcall(void)
+ {
+ 	if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
+-		     && need_resched())) {
++		     && need_resched() && !preempt_count())) {
+ 		/*
+ 		 * Clear flag as we may be rescheduled on a different
+ 		 * cpu.
+-- 
+2.26.2
 
