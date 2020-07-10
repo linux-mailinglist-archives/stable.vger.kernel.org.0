@@ -2,97 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74FC921B399
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 13:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C10CE21B3F1
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 13:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgGJLCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 07:02:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40026 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727906AbgGJLCQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 07:02:16 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E65DC08C5CE
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 04:02:16 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id a12so5535707ion.13
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 04:02:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=78hNQqwMLyQS0JX7l1AdXA1n8GOpUVOxy7AZFzaMTEo=;
-        b=iKDzDF6P3mT/nhflYFm2SZ74CpMSFetCGL0dW0lfb6WYz7nwS/voTzILALM8MtEwNG
-         JPEGVOC3pg8wMm1qpyXjcmC0OE4gJWAM8pK2oEGaPkrUPlRpVZnCHDyzvv1O3BQovolH
-         JxeyD+Jxc2rOSoj7DwOWQsb/HEB5IiTcnkukJBqstejwzYAtkEsCMjOf71zeE0nb7KZn
-         K4N30xTR8DZPpG1vuNZ5z8PmVnJqU4IfqAEANHnJTcJCOeot+Rnd+GK5k0FY87tjIRN+
-         hcclSdpLPxPNeQbETHtPmHpRb126A8CVYiYizVYRbnAkVUpMVMS91mos+sCBZyWYA+vg
-         HZ4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=78hNQqwMLyQS0JX7l1AdXA1n8GOpUVOxy7AZFzaMTEo=;
-        b=WeupSQMYbTqdyfXWyFCeZcxF03JvuOXa8hl8HSB137KWSpAMI4mdRlpvSacxRv/vNV
-         PK9vG8ASiRAuxCtN5LWQR+UlgHd+GIiAyJg0tBwgMkn0BgQFJ2QmVm+qXnXdGzA7if3y
-         LoGM86zjmlXXrU6qqXDoI7I+8jET2/cdWDV2fxGppWctj8S1yXN+hiUPkKyBqh4TieAd
-         5/8ItAemmm+jr7qwCXECrj7ug3pk0TkS5WzVji2vUnVPtbZkOJs/jhXjEjWo1KsVQaap
-         CeLQ7r5VFH55ujsaqylXASW6GA3MYOepc50rCLlvNZLYHbnfzSxB+hZmcgoDiaxjQROT
-         KXfA==
-X-Gm-Message-State: AOAM533YLjzWgGZy9tYFcJeXXta7UpR/UKUp6QSb9aNmrpNmXxJ/b+CK
-        BzhBBGiQ53cICYL9XOxWZn02vA1qyq3FOG6SlvY=
-X-Google-Smtp-Source: ABdhPJw9aOxwUPqEGamXXArKGlDamoVnpsYDH3zludrdAobVae92m7kR+ZhpCWhy4qOoXU4pVRnZp/GCY4fj/ckclWE=
-X-Received: by 2002:a6b:3ec6:: with SMTP id l189mr47076693ioa.32.1594378935142;
- Fri, 10 Jul 2020 04:02:15 -0700 (PDT)
+        id S1727976AbgGJL3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 07:29:06 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:44692 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727902AbgGJL24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 07:28:56 -0400
+Received: from ip5f5af08c.dynamic.kabel-deutschland.de ([95.90.240.140] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jtrD1-0005TR-0A; Fri, 10 Jul 2020 11:28:51 +0000
+Date:   Fri, 10 Jul 2020 13:28:48 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sargun Dhillon <sargun@sargun.me>,
+        Christian Brauner <christian@brauner.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Christoph Hellwig <hch@lst.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Matt Denton <mpdenton@google.com>,
+        Jann Horn <jannh@google.com>, Chris Palmer <palmer@google.com>,
+        Robert Sesek <rsesek@google.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>, Shuah Khan <shuah@kernel.org>,
+        netdev@vger.kernel.org, containers@lists.linux-foundation.org,
+        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v7 1/9] net/compat: Add missing sock updates for
+ SCM_RIGHTS
+Message-ID: <20200710112848.ict5lbpyq35jj4qm@wittgenstein>
+References: <20200709182642.1773477-1-keescook@chromium.org>
+ <20200709182642.1773477-2-keescook@chromium.org>
 MIME-Version: 1.0
-Received: by 2002:a92:c88e:0:0:0:0:0 with HTTP; Fri, 10 Jul 2020 04:02:14
- -0700 (PDT)
-Reply-To: suleman1945mohammed@gmail.com
-From:   "Mr.Suleman Mohammed" <kkakakk66@gmail.com>
-Date:   Fri, 10 Jul 2020 04:02:14 -0700
-Message-ID: <CAJHOYrBDvjHSj6gka+yZ2onbB+SugTfZEbed9beg-BDB_G3ceA@mail.gmail.com>
-Subject: I am Mr.Suleman Mohammed
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200709182642.1773477-2-keescook@chromium.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
+On Thu, Jul 09, 2020 at 11:26:34AM -0700, Kees Cook wrote:
+> Add missed sock updates to compat path via a new helper, which will be
+> used more in coming patches. (The net/core/scm.c code is left as-is here
+> to assist with -stable backports for the compat path.)
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
+> Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
 
-Hello Dear,
-
-I am Mr.Suleman Mohammed and I work with UNITED BANK OF AFRICA. Please
-Can you use ATM Visa card to withdraw money at ATM cash machine in
-your country? I want to transfer money to you from my country; it=E2=80=99s
-part of money taken by some old politician that was forced out of
-power.
-
-I will change the account details to yours, and apply for a visa card
-with your details in our bank, they will send the visa card to you and
-you will be withdrawing money with it and always send my own
-percentage of the money, and the money we are talking about is
-$6.5Million us dollars.
-
-Whatever amount you withdraw daily, you will send 50% to me and you
-will take 50%, the visa card and the bank account will be on your
-name, I will be waiting for your information as soon as possible.
-Your name.......................... .................
-
-Age........................... ......................
-
-Sex........................... ......................
-
-Country....................... ......................
-
-Occupation.................... ......................
-
-Phone number........................ ................
-
-
-Best Regards.
-
-Mr.Suleman Mohammed
-
-MAIL.....suleman1945mohammed@ gmail.com
+Thanks!
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
