@@ -2,93 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A4E21B327
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 12:28:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9750421B339
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 12:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726774AbgGJK2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 06:28:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726369AbgGJK2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 06:28:04 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09F5C08C5CE
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 03:28:03 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1jtqG8-0005cN-Hu; Fri, 10 Jul 2020 12:28:00 +0200
-Received: from ukl by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1jtqG7-0002ow-TG; Fri, 10 Jul 2020 12:27:59 +0200
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     stable@vger.kernel.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        letux-kernel@openphoenux.org, linux-mips@vger.kernel.org,
-        tsbogend@alpha.franken.de
-Subject: [PATCH] [stable v5.4.x] pwm: jz4740: Fix build failure
-Date:   Fri, 10 Jul 2020 12:27:58 +0200
-Message-Id: <20200710102758.8341-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.27.0
+        id S1726880AbgGJKe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 06:34:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43554 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726644AbgGJKez (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 06:34:55 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B41020748;
+        Fri, 10 Jul 2020 10:34:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594377294;
+        bh=uoo/kYGcEqSkFRDsbv9PdFntw+TKsZrIM8N9EZNzZ8M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FiUGy2uOanw/cRdJyiV6JrwDDXtZswDrk1UHsHFgfIiREPh08iemLtL9t93YsEAZ7
+         2YZY4eUDT5xev5nAvY6Lu9Nmn4PAxkCiJ4wIvSZyJrZKUh2N6qrVMaEXyCfc3iwSJD
+         j2wTJ4n5ZpoqnQD+Ysc0zk3yP9gjfWlcrMPUfLzE=
+Date:   Fri, 10 Jul 2020 12:34:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc:     "linux-usb @ vger . kernel . org" <linux-usb@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] cdc-acm: acm_init: Set initial BAUD to B0
+Message-ID: <20200710103459.GA1203263@kroah.com>
+References: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When commit 9017dc4fbd59 ("pwm: jz4740: Enhance precision in calculation
-of duty cycle") from v5.8-rc1 was backported to v5.4.x its dependency on
-commit ce1f9cece057 ("pwm: jz4740: Use clocks from TCU driver") was not
-noticed which made the pwm-jz4740 driver fail to build.
+On Fri, Jul 10, 2020 at 11:35:18AM +0200, Joakim Tjernlund wrote:
+> BO will disable USB input until the device opens. This will
+> avoid garbage chars waiting flood the TTY. This mimics a real UART
+> device better.
+> For initial termios to reach USB core, USB driver has to be
+> registered before TTY driver.
 
-As ce1f9cece057 depends on still more rework, just backport a small part
-of this commit to make the driver build again. (There is no dependency
-on the functionality introduced in ce1f9cece057, just the rate variable
-is needed.)
+You are doing two different things here, please break this up into 2
+patches, with good documentation for both of them.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
-Hello,
+And any reason you didn't send this to the people listed in
+scripts/get_maintainers.pl when run on this patch?
 
-@Paul: Can you please check this is correct? I only build-tested this
-change.
+> 
+> Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> Cc: stable@vger.kernel.org
+> ---
+> 
+>  I hope this change makes sense to you, if so I belive
+>  ttyUSB could do the same.
+> 
+>  drivers/usb/class/cdc-acm.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+> index 751f00285ee6..5680f71200e5 100644
+> --- a/drivers/usb/class/cdc-acm.c
+> +++ b/drivers/usb/class/cdc-acm.c
+> @@ -1999,19 +1999,19 @@ static int __init acm_init(void)
+>  	acm_tty_driver->subtype = SERIAL_TYPE_NORMAL,
+>  	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+>  	acm_tty_driver->init_termios = tty_std_termios;
+> -	acm_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD |
+> +	acm_tty_driver->init_termios.c_cflag = B0 | CS8 | CREAD |
+>  								HUPCL | CLOCAL;
 
-Best regards
-Uwe
+Huh?  Are you sure this works?
 
- drivers/pwm/pwm-jz4740.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+>  	tty_set_operations(acm_tty_driver, &acm_ops);
+>  
+> -	retval = tty_register_driver(acm_tty_driver);
+> +	retval = usb_register(&acm_driver);
+>  	if (retval) {
+>  		put_tty_driver(acm_tty_driver);
+>  		return retval;
+>  	}
+>  
+> -	retval = usb_register(&acm_driver);
+> +	retval = tty_register_driver(acm_tty_driver);
+>  	if (retval) {
+> -		tty_unregister_driver(acm_tty_driver);
+> +		usb_deregister(&acm_driver);
 
-diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index d0f5c69930d0..77c28313e95f 100644
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -92,11 +92,12 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- {
- 	struct jz4740_pwm_chip *jz4740 = to_jz4740(pwm->chip);
- 	unsigned long long tmp;
--	unsigned long period, duty;
-+	unsigned long rate, period, duty;
- 	unsigned int prescaler = 0;
- 	uint16_t ctrl;
- 
--	tmp = (unsigned long long)clk_get_rate(jz4740->clk) * state->period;
-+	rate = clk_get_rate(jz4740->clk);
-+	tmp = rate * state->period;
- 	do_div(tmp, 1000000000);
- 	period = tmp;
- 
--- 
-2.27.0
+Why are you switching these around?  I think I know, but you don't
+really say...
 
+thanks,
+
+greg k-h
