@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E08021BE7B
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 22:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73FF221BE7F
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 22:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727078AbgGJUeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 16:34:04 -0400
-Received: from mail-eopbgr760083.outbound.protection.outlook.com ([40.107.76.83]:57009
+        id S1726965AbgGJUeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 16:34:08 -0400
+Received: from mail-eopbgr760048.outbound.protection.outlook.com ([40.107.76.48]:50830
         "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726725AbgGJUeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 16:34:03 -0400
+        id S1726725AbgGJUeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 16:34:07 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OEclNMt4AEcfXFNIVtylwPvd3XASLn7INKbWqn87lhAmCZvAarKAgXNuP0K4kmU3LCviXjiAK/p3FOoJlF9OjJgPwytUYm+okTqt07mr2FQw7Uw1j6gg0NopOGp7RnrJBA1ptmNo9vzgcL77D17yQVGgbcSRYOEsy06+rQDU35jdGfoPoEEeHVbjC5cV4hJgV8TMqjOvF35yUpCRc3iuYglPKtzKigTLJWDsBfT7xVe4y1742mTOpoTPe5qxX6jkM/gmQ2yZIEZSnSJrVxaGtcD8ieB7A3RJ8awSiU5/BqHQF/5T+MBa+64humCn7YDWUL7feRxanEnTsGp+Ov3R9A==
+ b=bC/mlVa4JSB7Tw2rrtQ+SdTGbLksdIN3vKmljTUTR4XAfLSS5WaKzZcBrYbV7r1tLdbLOdi3Iea8oGZQoUosvwyJr2KZtLFotX7TmHqD2K1du4VYElKq2H2JR3JtNLGUjkUBqYk70O5Q41Q1P1dQobPBjKhgTzDLh8hu2QmQ7hlE4ML19v+wXOsRA+zC4KdR1AxXuukfKBZi2YH2K+hoklP/PIaUwqjpYaE7seRTQigKxtl6IPmmCzEme9xtzJUNn9xMfWqI8YQWZD/0VgyAg8HeGvBldQvxsZV0nioOtTLSGd6O9RJm8+UWF1P1Qaiyb4GFV+hfV90ldOYAZ6LMYg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yN5UwhteYtoxml3Ak4BoRL/xX/HWJqs9qyXbNaW7GRI=;
- b=nrwj9jt+oFHomt+NkDFK+ZPwJbIrPpmeP6YDaLSDxWfLVdsR/+Z45hFNFY8XYzQzZ5GAwzI5ko6pEUZROKqhqZzWdUNOw7Dsk3yq+aHN0s8XTdxtp2EK5bC/90WDFAao3PQcGQRf3wldzCur8olJI5MU9Q6Xiz1hxKroEG9v3DtzZg1fc+mejvNZ6DJoHCVZSZCCUmgYmdqQZ1aaC7i3ZKeA9r7NoLI+XzR2gPlxAlt8UZIB+fivL7Ip49r5LT+Yv00J3LU3atZXp4OqkfrXy0d0EdmE/cao/8nXszMpJIxUP1cSY94c/J/1+l6cW61/pcdfkaFqS+jZqMDiFnZTIw==
+ bh=Z8J3RmcBl2Jn90aB6ogeSk05au9Er6SH9pmQtkWAMss=;
+ b=XgnBrejzSWgcjzCE4g0DjfKZardP5meGPohNJ/Z2Ot/tMAGQDx3cUBH1pAmaBAQlg2rdf2LDO5TiZWhFFYT4p/5+XAP60bWhEAkeJ8BcaaI8U/dNM1UiqqLEasz+a0668bTfKpAgpL+zZHM04g3Ea9rnu26DEjlk7NsqsZTmTlLeivk4ASRtjZ/XngidxCVsBSVjGlqph4ADhOQuDEFzAMq2LxW42TbM1PV7GFfE2R+xV3RODIa0KFvj9BUR7otTEOPeQ3mlBWag6Tu7IWq2eDX+vNHBHHAplAVlDcSdhkU9CCM8iVPI7uj7Be7+hbM6h78dHXAS2uDCWHxjg38TXg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yN5UwhteYtoxml3Ak4BoRL/xX/HWJqs9qyXbNaW7GRI=;
- b=A5niN3FZt329ySaTK5OF4YuWKgqg0JUp8p99q407o9lQpPjheSSZAnH6jCLn5rBqpWmIHthCA9RR9mbEtL/0FHWZ1/b13hIwSAbr6GVcRf9CCy2JS5wIr5i7bpJvkwohq3HE/E3/7Jyg8k/O8tIzjeU0//8bQu4yLgBQXSuID5c=
+ bh=Z8J3RmcBl2Jn90aB6ogeSk05au9Er6SH9pmQtkWAMss=;
+ b=1exAqHqJboRJh8C7qTXVna3HqGtZCskMtkGC9AaNAtW43Rpf24V0hH5YhI/xf5IGwf55QYVKJaBioVAMyNkBfbJx+u39SoAwcnxKT/xnDAg6/siCY6ZSxs/aODuZCFSJ9LfLRfkNnSTTJ5/VBattLoUAaU20m74mrSzjFpfpPn0=
 Authentication-Results: lists.freedesktop.org; dkim=none (message not signed)
  header.d=none;lists.freedesktop.org; dmarc=none action=none
  header.from=amd.com;
@@ -34,21 +34,21 @@ Received: from CH2PR12MB4198.namprd12.prod.outlook.com (2603:10b6:610:7e::23)
  by CH2PR12MB4231.namprd12.prod.outlook.com (2603:10b6:610:7d::24) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.21; Fri, 10 Jul
- 2020 20:34:02 +0000
+ 2020 20:34:05 +0000
 Received: from CH2PR12MB4198.namprd12.prod.outlook.com
  ([fe80::9013:9410:7d60:cce1]) by CH2PR12MB4198.namprd12.prod.outlook.com
  ([fe80::9013:9410:7d60:cce1%9]) with mapi id 15.20.3174.023; Fri, 10 Jul 2020
- 20:34:01 +0000
+ 20:34:05 +0000
 From:   Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 To:     amd-gfx@lists.freedesktop.org
 Cc:     Harry.Wentland@amd.com, Sunpeng.Li@amd.com,
         Bhawanpreet.Lakha@amd.com, Rodrigo.Siqueira@amd.com,
         Aurabindo.Pillai@amd.com, qingqing.zhuo@amd.com, Eryk.Brol@amd.com,
-        hersen wu <hersenxs.wu@amd.com>, stable@vger.kernel.org,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Subject: [PATCH 04/10] drm/amd/display: OLED panel backlight adjust not work with external display connected
-Date:   Fri, 10 Jul 2020 16:33:19 -0400
-Message-Id: <20200710203325.1097188-5-Rodrigo.Siqueira@amd.com>
+        Josip Pavic <Josip.Pavic@amd.com>, stable@vger.kernel.org,
+        Aric Cyr <Aric.Cyr@amd.com>
+Subject: [PATCH 10/10] drm/amd/display: handle failed allocation during stream construction
+Date:   Fri, 10 Jul 2020 16:33:25 -0400
+Message-Id: <20200710203325.1097188-11-Rodrigo.Siqueira@amd.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200710203325.1097188-1-Rodrigo.Siqueira@amd.com>
 References: <20200710203325.1097188-1-Rodrigo.Siqueira@amd.com>
@@ -59,81 +59,108 @@ X-ClientProxiedBy: YTOPR0101CA0025.CANPRD01.PROD.OUTLOOK.COM
  (2603:10b6:610:7e::23)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from atma2.hitronhub.home (2607:fea8:56a0:8440::b10e) by YTOPR0101CA0025.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b00:15::38) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.21 via Frontend Transport; Fri, 10 Jul 2020 20:34:01 +0000
+Received: from atma2.hitronhub.home (2607:fea8:56a0:8440::b10e) by YTOPR0101CA0025.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b00:15::38) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.21 via Frontend Transport; Fri, 10 Jul 2020 20:34:05 +0000
 X-Mailer: git-send-email 2.27.0
 X-Originating-IP: [2607:fea8:56a0:8440::b10e]
 X-MS-PublicTrafficType: Email
 X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: ade2866e-8867-402c-a016-08d8251094aa
+X-MS-Office365-Filtering-Correlation-Id: 37bc2f50-ac81-40de-4add-08d8251096dc
 X-MS-TrafficTypeDiagnostic: CH2PR12MB4231:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <CH2PR12MB4231394AC9FE163BBDA5727398650@CH2PR12MB4231.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4125;
+X-Microsoft-Antispam-PRVS: <CH2PR12MB4231CE2FB04B59C3F52AEDA998650@CH2PR12MB4231.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3826;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HTpHADZ6u1FtNBstKZXUopvZuaQi4bXAjBIIPoad0eOhRZoJvnaGEbB0vWMmh1Hx5sZtqqgnRlDP5xosEcSLyMsm5HbBGwFyxEjrfZ8JgapbN1T9apqcM3RCx7EJf+cND+hd6WjB4JZ/bWbgG08Mx0dtlwqudSFXZPA0NwSdhmCC27kpPkJ1wwn4NSOgxB1GpOYqjYkzuswwY9bM8prhm1tHG/Wd0hXAXdR8qFNaT3PtUS4IbvOqIpaRbr896w8vCHijywM1t/BNJyKwy1vIuWvpWcmsPZ/bqHPDWkt4fbBPbIAWOesnpz5OQak/L3PLNRkyEvUc9SbO8pg0m7/m2Q==
+X-Microsoft-Antispam-Message-Info: tqiyYN9/E3CqpvmqQUVXirbs50zp9SbG29ciqR5I5d4hOtGGy78EELAotk/fZWa1dppaIg2HJa74UqFuXWPjFTHxb1SnFRXtYV9drStZpBppSfDBfG04kSdbGBnzq+cq+AopRZi5HGxUuQr5nr1iNTC9RZx85SSsbI3UOuoYm0oprg13tKrcP4priprrY6lo5lP1Sq/qLiZ8EnCfAKePho8L8psdgh9Jp+rMI2vLMRa7nLRrYbrJr8QhRMJthqF64HXtVn8sWPmZtaT0yxAFjunrx28PTPYpl7dBBKazLf2b7wkviKcjgiorbOsK5dlWKh8ZHNOaGX7QiBoPzS0yPQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB4198.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(376002)(396003)(39860400002)(136003)(346002)(366004)(54906003)(2616005)(8936002)(8676002)(6512007)(478600001)(316002)(16526019)(5660300002)(186003)(4326008)(86362001)(6916009)(52116002)(6506007)(6486002)(1076003)(6666004)(36756003)(66476007)(66556008)(66946007)(83380400001)(2906002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: Wo9ZNqWgUdg2WhsL5gc2C5hiSd61gZ6daIXB4gMbf1CtQo9ML1w/0zBtzw0yksU1R/P8gerwApNWxm7SWirutDAabcXv+8utH3ViYTFwVxPPsjN26LV3W7aEWqDtlfz4bqt13MtzVVfJxDra2MiPyqaEwYbhoxgstMkbogLpgDMv+dkXhl/jFgAFs/eIAXYeKYerSyQ4f5DsfgTCMVadBw1/YYg3KzpMzxrrK11Rx5lYGnn/nBIkQWcC+V5QcI4EcErvrGfIvME9hYv+gNAya4nMaky9RLglloH2m+uXCGCrEPQKG5Jff7K+Vx1adu+ekazpjLZjMcNj6vZncynUt9tNb6fxMLlJOc0SBUta4CF+ju9Znn+m1etrmE5JJbFYXiAdtgXruzYdTNf59lPNkkASl1JvdLMXR1Y9YkpdufbmH+S25Mu5mh0D5hC+iYH5o5lKlaxhda+risX9fjDw90s47lSYF9FZhLNFDFonsJ9qbuoyk+eltzVWlFrUfK5RPT/FwAcuk7F7G/WH2vfoNA==
+X-MS-Exchange-AntiSpam-MessageData: m2MoAGnkx1qlyfoDk9fmVWAQnGF9guLc8PoecvotqkPJSa/g9Vh+hPtNEsGuuNzhCdH4ZYuj34yR+3YJoAfVV+a1cOIi2Wh3fhAdw62AqKGzyK+fNHnexfaG2URyosHi/RPZKWikuKOlvvnfuje19iBx++BzifU6OyW2Fi/1gcIAESmi4O7N8YP6bs7QeIIb6f4GeuvwaTSqJ91HixTK7H22HSBm2ctU9/l2l8AMWk0Qa9bsAuEpZpQUWoUeF3Pd1QYTFBsiXuaO2m/eB6rGvNZ5yk8O9elLV5CdFnHYfwj1i46K+nAbCjNo515k1Zb9gORpe2OWZoJN12rR3faBfEcXExZEFSX4sOUZbF6FC6BmP2OWOH5mskw9nUA4/R/Qvff45N6aSABaVkrOQFv5Ehqt7JmzEfReIImRI7iKww+1s6Ft6+Vmm5H5R+alRilffm+se2AT9daaFrjRUX4/H2DnKwBQKrS0pfkFRLrNFzDDn/B4JQPEvQezD6gsNSDFjiY0StXYzZ7P/2lBfYcgLw==
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ade2866e-8867-402c-a016-08d8251094aa
+X-MS-Exchange-CrossTenant-Network-Message-Id: 37bc2f50-ac81-40de-4add-08d8251096dc
 X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB4198.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2020 20:34:01.8412
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2020 20:34:05.4973
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: j1xR+Hyb3ZDYzu2rLebRZOFK0C5PYok3J0FtERDxwYR7vUC5jIoVWpuPPeM7V9k9wmEaqCrpScF6JsyAuhnZNA==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 4NTkPvMLA7B6FP6hMmXOPo7s0B8PXtrdZlDnBiE++v/+BdGkUVeJopkQsw3sL31xJkDnRhtOm2IZLH6FQn0ZdQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4231
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hersen wu <hersenxs.wu@amd.com>
+From: Josip Pavic <Josip.Pavic@amd.com>
 
 [Why]
-amdgpu_dm->backlight_caps is for single eDP only. the caps are upddated
-for very connector. Real eDP caps will be overwritten by other external
-display. For OLED panel, caps->aux_support is set to 1 for OLED pnael.
-after external connected, caps+.aux_support is set to 0. This causes
-OLED backlight adjustment not work.
+Failing to allocate a transfer function during stream construction leads
+to a null pointer dereference
 
 [How]
-within update_conector_ext_caps, backlight caps will be updated only for
-eDP connector.
+Handle the failed allocation by failing the stream construction
 
 Cc: stable@vger.kernel.org
-Signed-off-by: hersen wu <hersenxs.wu@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Signed-off-by: Josip Pavic <Josip.Pavic@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
 Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../gpu/drm/amd/display/dc/core/dc_stream.c   | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index b4e120e95438..5569e0500734 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2019,6 +2019,7 @@ static void update_connector_ext_caps(struct amdgpu_dm_connector *aconnector)
- 	struct amdgpu_display_manager *dm;
- 	struct drm_connector *conn_base;
- 	struct amdgpu_device *adev;
-+	struct dc_link *link = NULL;
- 	static const u8 pre_computed_values[] = {
- 		50, 51, 52, 53, 55, 56, 57, 58, 59, 61, 62, 63, 65, 66, 68, 69,
- 		71, 72, 74, 75, 77, 79, 81, 82, 84, 86, 88, 90, 92, 94, 96, 98};
-@@ -2026,6 +2027,10 @@ static void update_connector_ext_caps(struct amdgpu_dm_connector *aconnector)
- 	if (!aconnector || !aconnector->dc_link)
- 		return;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
+index 3b897372ed27..d6989d115c5c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
+@@ -56,7 +56,7 @@ void update_stream_signal(struct dc_stream_state *stream, struct dc_sink *sink)
+ 	}
+ }
  
-+	link = aconnector->dc_link;
-+	if (link->connector_signal != SIGNAL_TYPE_EDP)
-+		return;
+-static void dc_stream_construct(struct dc_stream_state *stream,
++static bool dc_stream_construct(struct dc_stream_state *stream,
+ 	struct dc_sink *dc_sink_data)
+ {
+ 	uint32_t i = 0;
+@@ -118,11 +118,17 @@ static void dc_stream_construct(struct dc_stream_state *stream,
+ 	update_stream_signal(stream, dc_sink_data);
+ 
+ 	stream->out_transfer_func = dc_create_transfer_func();
++	if (stream->out_transfer_func == NULL) {
++		dc_sink_release(dc_sink_data);
++		return false;
++	}
+ 	stream->out_transfer_func->type = TF_TYPE_BYPASS;
+ 	stream->out_transfer_func->ctx = stream->ctx;
+ 
+ 	stream->stream_id = stream->ctx->dc_stream_id_count;
+ 	stream->ctx->dc_stream_id_count++;
 +
- 	conn_base = &aconnector->base;
- 	adev = conn_base->dev->dev_private;
- 	dm = &adev->dm;
++	return true;
+ }
+ 
+ static void dc_stream_destruct(struct dc_stream_state *stream)
+@@ -164,13 +170,20 @@ struct dc_stream_state *dc_create_stream_for_sink(
+ 
+ 	stream = kzalloc(sizeof(struct dc_stream_state), GFP_KERNEL);
+ 	if (stream == NULL)
+-		return NULL;
++		goto alloc_fail;
+ 
+-	dc_stream_construct(stream, sink);
++	if (dc_stream_construct(stream, sink) == false)
++		goto construct_fail;
+ 
+ 	kref_init(&stream->refcount);
+ 
+ 	return stream;
++
++construct_fail:
++	kfree(stream);
++
++alloc_fail:
++	return NULL;
+ }
+ 
+ struct dc_stream_state *dc_copy_stream(const struct dc_stream_state *stream)
 -- 
 2.27.0
 
