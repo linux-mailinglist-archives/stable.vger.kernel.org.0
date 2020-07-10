@@ -2,117 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D502F21B08B
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 09:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344E221B120
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 10:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgGJHuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 03:50:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34564 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725802AbgGJHuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 03:50:55 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 83B8AAD32;
-        Fri, 10 Jul 2020 07:50:53 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Sarah Newman <srn@prgmr.com>
-Subject: [PATCH] xen: don't reschedule in preemption off sections
-Date:   Fri, 10 Jul 2020 09:50:50 +0200
-Message-Id: <20200710075050.4769-1-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726852AbgGJIVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 04:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726288AbgGJIVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 04:21:14 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2770FC08C5DC
+        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 01:21:14 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id r12so4960522wrj.13
+        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 01:21:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=ynM2bWxeTn3B4stC5l/mKdyKaAKd6qyXtb9n0JAnXl4=;
+        b=M4hbIimDWHDxIoruPmVjldouGQ0JTd7k2pZVcvJqCY8mySTjJ5pjjutdN2Ii65L4uN
+         Kr12V8DVUvNSPBeDsNCkpeI0NfUWGtZ6CCOj2h53ons0CGCJn5kZXuUbgwx8Qku5oYE+
+         Oo+ER0fV4J0DB0Lkd/SiZnXUiBmYZ9z505Ln+5+7tosaaPf9cwHD9WwsXhEi/dYhM0Mo
+         2NdSx+evdM/1bkqNdeV0qPvKIhi0tfQbmDVK4Eh+HfMleM8eoBg4+kARnj8qzOYwjrEI
+         DMS+tV1eAYdvwi5v9Q+UC3i7K0b9jwOXLdDRB4ZHbkdE36mJ+k01jJ/VrEmMwIlV735p
+         lRyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=ynM2bWxeTn3B4stC5l/mKdyKaAKd6qyXtb9n0JAnXl4=;
+        b=nu/MLQ/1b2zgiLb97KKiJU0Iz477NKCgMeOmL/5AXGJmM7F/zHdfU+1vRL9w4TD/oL
+         /S3Dogk+5bTMGruJA1/CbhjyiDhIb7lCGpHNlQtqJ7Z+O3dic13PsB2TeCMTNifMRV3f
+         dNhhmxjzneudwOqMZIgDNcqKm30yO7MbZKtOVKFrKqd5xkKcndXCxKnZTZBqFyab/SsL
+         o2rbjjcbhrONNJyV65nR5hxYxeDeUpCukxl3gX91SftWDLdtINk/803OuWKoiEc/rdHo
+         wwiaLUsHn07j08Z3yo3v5BcCpsiUL1S4TiRJFdoa68C7ixzxLaYJU9Si1dgayfKqY3kV
+         DqGQ==
+X-Gm-Message-State: AOAM530Diby1gfSxTakP3jIazMVGrPnwU+QoKkKhbyotlnoNZ18YW5sE
+        bHgIwkwBhwtnnw++OigNxbyHNcQgL78=
+X-Google-Smtp-Source: ABdhPJzZLZzBvSRLSRAJRsB3jQELprbOVOua3kFEM8pXN4wt4he7YoHxeiwH0kL7aV6pdF08UEO8/g==
+X-Received: by 2002:adf:de12:: with SMTP id b18mr71994886wrm.390.1594369272647;
+        Fri, 10 Jul 2020 01:21:12 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:e0a:f:6020:5569:1070:a96a:6ac])
+        by smtp.gmail.com with ESMTPSA id q3sm7939260wmq.22.2020.07.10.01.21.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jul 2020 01:21:11 -0700 (PDT)
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, linux-kernel@vger.kernel.org
+Cc:     valentin.schneider@arm.com,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] sched/fair: handle case of task_h_load() returning 0
+Date:   Fri, 10 Jul 2020 10:21:05 +0200
+Message-Id: <20200710082105.3809-1-vincent.guittot@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For support of long running hypercalls xen_maybe_preempt_hcall() is
-calling cond_resched() in case a hypercall marked as preemptible has
-been interrupted.
+task_h_load() can return 0 in some situations like running stress-ng
+mmapfork, which forks thousands of threads, in a sched group on a 224 cores
+system. The load balance doesn't handle this correctly because
+env->imbalance never decreases and it will stop pulling tasks only after
+reaching loop_max, which can be equal to the number of running tasks of
+the cfs. Make sure that imbalance will be decreased by at least 1.
 
-Normally this is no problem, as only hypercalls done via some ioctl()s
-are marked to be preemptible. In rare cases when during such a
-preemptible hypercall an interrupt occurs and any softirq action is
-started from irq_exit(), a further hypercall issued by the softirq
-handler will be regarded to be preemptible, too. This might lead to
-rescheduling in spite of the softirq handler potentially having set
-preempt_disable(), leading to splats like:
+misfit task is the other feature that doesn't handle correctly such
+situation although it's probably more difficult to face the problem
+because of the smaller number of CPUs and running tasks on heterogenous
+system.
 
-BUG: sleeping function called from invalid context at drivers/xen/preempt.c:37
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 20775, name: xl
-INFO: lockdep is turned off.
-CPU: 1 PID: 20775 Comm: xl Tainted: G D W 5.4.46-1_prgmr_debug.el7.x86_64 #1
-Call Trace:
-<IRQ>
-dump_stack+0x8f/0xd0
-___might_sleep.cold.76+0xb2/0x103
-xen_maybe_preempt_hcall+0x48/0x70
-xen_do_hypervisor_callback+0x37/0x40
-RIP: e030:xen_hypercall_xen_version+0xa/0x20
-Code: ...
-RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
-RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
-RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
-R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
-? xen_hypercall_xen_version+0xa/0x20
-? xen_force_evtchn_callback+0x9/0x10
-? check_events+0x12/0x20
-? xen_restore_fl_direct+0x1f/0x20
-? _raw_spin_unlock_irqrestore+0x53/0x60
-? debug_dma_sync_single_for_cpu+0x91/0xc0
-? _raw_spin_unlock_irqrestore+0x53/0x60
-? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
-? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
-? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
-? net_rx_action+0x151/0x4a0
-? __do_softirq+0xed/0x55b
-? irq_exit+0xea/0x100
-? xen_evtchn_do_upcall+0x2c/0x40
-? xen_do_hypervisor_callback+0x29/0x40
-</IRQ>
-? xen_hypercall_domctl+0xa/0x20
-? xen_hypercall_domctl+0x8/0x20
-? privcmd_ioctl+0x221/0x990 [xen_privcmd]
-? do_vfs_ioctl+0xa5/0x6f0
-? ksys_ioctl+0x60/0x90
-? trace_hardirqs_off_thunk+0x1a/0x20
-? __x64_sys_ioctl+0x16/0x20
-? do_syscall_64+0x62/0x250
-? entry_SYSCALL_64_after_hwframe+0x49/0xbe
+We can't simply ensure that task_h_load() returns at least one because it
+would imply to handle underflow in other places.
 
-Fix that by testing preempt_count() before calling cond_resched().
-
-In kernel 5.8 this can't happen any more due to the entry code rework.
-
-Reported-by: Sarah Newman <srn@prgmr.com>
-Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use need_resched() instead of should_resched()")
-Cc: Sarah Newman <srn@prgmr.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: <stable@vger.kernel.org> # v4.4+
 ---
- drivers/xen/preempt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/preempt.c b/drivers/xen/preempt.c
-index 17240c5325a3..6ad87b5c95ed 100644
---- a/drivers/xen/preempt.c
-+++ b/drivers/xen/preempt.c
-@@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hcall);
- asmlinkage __visible void xen_maybe_preempt_hcall(void)
- {
- 	if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
--		     && need_resched())) {
-+		     && need_resched() && !preempt_count())) {
- 		/*
- 		 * Clear flag as we may be rescheduled on a different
- 		 * cpu.
+Changes v2:
+- use max() instead of adding 1
+- add review and tested tag
+
+ kernel/sched/fair.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index b9b9f19e80c1..ffd23caa5799 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4049,7 +4049,11 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 		return;
+ 	}
+ 
+-	rq->misfit_task_load = task_h_load(p);
++	/*
++	 * Make sure that misfit_task_load will not be null even if
++	 * task_h_load() returns 0.
++	 */
++	rq->misfit_task_load = max(task_h_load(p), 1);
+ }
+ 
+ #else /* CONFIG_SMP */
+@@ -7648,7 +7652,14 @@ static int detach_tasks(struct lb_env *env)
+ 
+ 		switch (env->migration_type) {
+ 		case migrate_load:
+-			load = task_h_load(p);
++			/*
++			 * Depending of the number of CPUs and tasks and the
++			 * cgroup hierarchy, task_h_load() can return a null
++			 * value. Make sure that env->imbalance decreases
++			 * otherwise detach_tasks() will stop only after
++			 * detaching up to loop_max tasks.
++			 */
++			load = max(task_h_load(p), 1);
+ 
+ 			if (sched_feat(LB_MIN) &&
+ 			    load < 16 && !env->sd->nr_balance_failed)
 -- 
-2.26.2
+2.17.1
 
