@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76AC821B7B3
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:03:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907D821B7AF
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbgGJODO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 10:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
+        id S1728433AbgGJODJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 10:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728396AbgGJODE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728449AbgGJODE (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 10 Jul 2020 10:03:04 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E602207DD;
-        Fri, 10 Jul 2020 14:03:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72DCC2082E;
+        Fri, 10 Jul 2020 14:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594389783;
-        bh=N2f6dNa0zm1G+CzQof96J68S69txegg3zJ2gyRzibb8=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=ovrqZiVOfCHp2z6VkbdbOJPhyEliyav202rCSw5Oql+EVIFTrm7RxIhZo9cpUVBKn
-         1RmO0ld3mWOUyd8SXcmugcyn/qSB7m8eqStLZCRf2m1lnD7+yzW1FuiLst3cULLtqA
-         EZbDZM2aV2Q4Ong77loueHeRikODHqGnZuc1+ykA=
-Date:   Fri, 10 Jul 2020 14:03:02 +0000
+        s=default; t=1594389784;
+        bh=PIClI0sFL2uSyFyo6uiNIL8cUhLjKb6+sOqjCYDTVAg=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=eTjjUsY0sgCe9aVrzVIDtVhGdxw7Xd005E9N0tEJwwAGJ0RZLqApWE1xfE8/AUqi8
+         6k5JSCawuGRflxK/t/oCaTDgoDHQSLuKmKRoYF/7J3rox5KB8tgv9e9lsDzRDwguJh
+         WN9jrO4UiKzwx3HPTkKK44moqnmpG4FCVDxobS7k=
+Date:   Fri, 10 Jul 2020 14:03:03 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-Cc:     Thor Thayer <thor.thayer@linux.intel.com>
+To:     Alexander Shishkin <alexander.shishkin@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 04/10] mfd: altera-sysmgr: Fix physical address storing hacks
-In-Reply-To: <20200624150704.2729736-5-lee.jones@linaro.org>
-References: <20200624150704.2729736-5-lee.jones@linaro.org>
-Message-Id: <20200710140303.5E602207DD@mail.kernel.org>
+Subject: Re: [PATCH 4/4] intel_th: Fix a NULL dereference when hub driver is not loaded
+In-Reply-To: <20200706161339.55468-5-alexander.shishkin@linux.intel.com>
+References: <20200706161339.55468-5-alexander.shishkin@linux.intel.com>
+Message-Id: <20200710140304.72DCC2082E@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -46,35 +43,22 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 39f4034693b7 ("intel_th: Add driver infrastructure for Intel(R) Trace Hub devices").
 
-The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
+The bot has tested the following trees: v5.7.7, v5.4.50, v4.19.131, v4.14.187, v4.9.229, v4.4.229.
 
-v5.7.6: Build OK!
-v5.4.49: Build OK!
-v4.19.130: Failed to apply! Possible dependencies:
-    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
-    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+v5.7.7: Build OK!
+v5.4.50: Build OK!
+v4.19.131: Build OK!
+v4.14.187: Failed to apply! Possible dependencies:
+    c2d2c7de972d7 ("intel_th: Don't touch switch routing in host mode")
 
-v4.14.186: Failed to apply! Possible dependencies:
-    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
-    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+v4.9.229: Failed to apply! Possible dependencies:
+    c2d2c7de972d7 ("intel_th: Don't touch switch routing in host mode")
 
-v4.9.228: Failed to apply! Possible dependencies:
-    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
-    937d3a0af521e ("mfd: Add support for Allwinner SoCs ADC")
-    d0f949e220fdf ("mfd: Add STM32 Timers driver")
-    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
-
-v4.4.228: Failed to apply! Possible dependencies:
-    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
-    8ce064bfe7c8c ("MAINTAINERS: Add Altera Arria10 System Resource Chip")
-    937d3a0af521e ("mfd: Add support for Allwinner SoCs ADC")
-    9787f5e28b507 ("mfd: altr_a10sr: Add Altera Arria10 DevKit System Resource Chip")
-    b25c6b7d2801f ("mfd: act8945a: Add Active-semi ACT8945A PMIC MFD driver")
-    d0f949e220fdf ("mfd: Add STM32 Timers driver")
-    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+v4.4.229: Failed to apply! Possible dependencies:
+    c2d2c7de972d7 ("intel_th: Don't touch switch routing in host mode")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
