@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D341221AF10
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 07:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C574821AF13
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 07:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726974AbgGJF67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 01:58:59 -0400
-Received: from Mailgw01.mediatek.com ([1.203.163.78]:2731 "EHLO
+        id S1727059AbgGJF7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 01:59:05 -0400
+Received: from Mailgw01.mediatek.com ([1.203.163.78]:36738 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726288AbgGJF67 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 01:58:59 -0400
-X-UUID: 608734bb72ea495f801e4bd979a00c26-20200710
+        with ESMTP id S1725966AbgGJF7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 01:59:04 -0400
+X-UUID: 8c6f72ef7b134dfaa0591a3f94dd9dbe-20200710
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=NXSoc40w/vzs0ddT+Wgmf68IXPtgdbuXrs4l5A4rBb8=;
-        b=QbSlvJqPSnMFhxDlQjAwuFfqCFVI8kw/C7eolqgnJz5u2aKy00V+DxPsVgxoWxdDdDoLi3iddwQt7gT09KYlLmZRn0W3Kcxkq69Zf5jpDlxhrofjBPuxqcggQy6vfLBc+hJ+wEu+6uqetrP7p/GYtuhk2NOeiG8jh1k0uXpWgHc=;
-X-UUID: 608734bb72ea495f801e4bd979a00c26-20200710
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=3J4M+F0supuqFwxgQsU3V/czRpfnA/Zs7qlL02F271M=;
+        b=eaOWi4hboW4xKQFG6Pz2Ttjuvu9LRJe9uYlsgtwdQEAF4M90fJb/wBYfVh/GKmCF8pWrjdL4FcrIO2HrhR+YHGfjvGQevi3sz16QpKqr/LpN/m/Mku0mVEEQHZwOkc7CfDR9ywpuFuVzm23MCU6cnl/6uEjqG6x+Re4YtB8xv9Q=;
+X-UUID: 8c6f72ef7b134dfaa0591a3f94dd9dbe-20200710
 Received: from mtkcas36.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
         (envelope-from <chunfeng.yun@mediatek.com>)
         (mailgw01.mediatek.com ESMTP with TLS)
-        with ESMTP id 758997052; Fri, 10 Jul 2020 13:58:52 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- MTKMBS31N1.mediatek.inc (172.27.4.69) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 10 Jul 2020 13:58:48 +0800
-Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 10 Jul 2020 13:58:49 +0800
+        with ESMTP id 1894286242; Fri, 10 Jul 2020 13:58:56 +0800
+Received: from MTKCAS36.mediatek.inc (172.27.4.186) by MTKMBS32DR.mediatek.inc
+ (172.27.6.104) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 10 Jul
+ 2020 13:58:52 +0800
+Received: from [10.17.3.153] (10.17.3.153) by MTKCAS36.mediatek.inc
+ (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 10 Jul 2020 13:58:51 +0800
+Message-ID: <1594360692.23885.29.camel@mhfsdcap03>
+Subject: Re: [PATCH] usb: xhci-mtk: fix the failure of bandwidth allocation
 From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Mathias Nyman <mathias.nyman@intel.com>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
+To:     Nicolas Boichat <drinkcat@chromium.org>
+CC:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-usb@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support" 
         <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        stable <stable@vger.kernel.org>
-Subject: [v2 PATCH] usb: xhci-mtk: fix the failure of bandwidth allocation
-Date:   Fri, 10 Jul 2020 13:57:52 +0800
-Message-ID: <1594360672-2076-1-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        Ikjoon Jang <ikjn@chromium.org>
+Date:   Fri, 10 Jul 2020 13:58:12 +0800
+In-Reply-To: <CANMq1KA2kT1yLGqhJFBKt4sRzzE6r=ABkSX59S-Mjr8Dg8sTOQ@mail.gmail.com>
+References: <1594348182-431-1-git-send-email-chunfeng.yun@mediatek.com>
+         <CANMq1KA2kT1yLGqhJFBKt4sRzzE6r=ABkSX59S-Mjr8Dg8sTOQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.10.4-0ubuntu2 
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: A4E306D334522FFBCC74B2420148282F0928E1E8771E2A2BEF95B67EF98867B52000:8
+X-TM-SNTS-SMTP: 97B22A963E31DADB986C97287E9D5D6F20148FF6D6DB6C9860D7A8A1AC4405352000:8
 X-MTK:  N
 Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
@@ -51,21 +54,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhlIHdNYXhQYWNrZXRTaXplIGZpZWxkIG9mIGVuZHBvaW50IGRlc2NyaXB0b3IgbWF5IGJlIHpl
-cm8NCmFzIGRlZmF1bHQgdmFsdWUgaW4gYWx0ZXJuYXRlIGludGVyZmFjZSwgYW5kIHRoZXkgYXJl
-IG5vdA0KYWN0dWFsbHkgc2VsZWN0ZWQgd2hlbiBzdGFydCBzdHJlYW0sIHNvIHNraXAgdGhlbSB3
-aGVuIHRyeSB0bw0KYWxsb2NhdGUgYmFuZHdpZHRoLg0KDQpDYzogc3RhYmxlIDxzdGFibGVAdmdl
-ci5rZXJuZWwub3JnPg0KRml4ZXM6IDBjYmQ0YjM0Y2RhOSgieGhjaTogbWVkaWF0ZWs6IHN1cHBv
-cnQgTVRLIHhIQ0kgaG9zdCBjb250cm9sbGVyIikNClNpZ25lZC1vZmYtYnk6IENodW5mZW5nIFl1
-biA8Y2h1bmZlbmcueXVuQG1lZGlhdGVrLmNvbT4NCi0tLQ0KVjI6IGFkZCBGaXhlcyBzdWdnZXN0
-ZWQgYnkgTmljb2xhcw0KLS0tDQogZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay1zY2guYyB8IDQg
-KysrKw0KIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKykNCg0KZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2NoLmMgYi9kcml2ZXJzL3VzYi9ob3N0L3hoY2ktbXRr
-LXNjaC5jDQppbmRleCBmZWE1NTU1Li40NWM1NGQ1NiAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvdXNi
-L2hvc3QveGhjaS1tdGstc2NoLmMNCisrKyBiL2RyaXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2No
-LmMNCkBAIC01NTcsNiArNTU3LDEwIEBAIHN0YXRpYyBib29sIG5lZWRfYndfc2NoKHN0cnVjdCB1
-c2JfaG9zdF9lbmRwb2ludCAqZXAsDQogCWlmIChpc19mc19vcl9scyhzcGVlZCkgJiYgIWhhc190
-dCkNCiAJCXJldHVybiBmYWxzZTsNCiANCisJLyogc2tpcCBlbmRwb2ludCB3aXRoIHplcm8gbWF4
-cGt0ICovDQorCWlmICh1c2JfZW5kcG9pbnRfbWF4cCgmZXAtPmRlc2MpID09IDApDQorCQlyZXR1
-cm4gZmFsc2U7DQorDQogCXJldHVybiB0cnVlOw0KIH0NCiANCi0tIA0KMS45LjENCg==
+T24gRnJpLCAyMDIwLTA3LTEwIGF0IDExOjE0ICswODAwLCBOaWNvbGFzIEJvaWNoYXQgd3JvdGU6
+DQo+IE9uIEZyaSwgSnVsIDEwLCAyMDIwIGF0IDEwOjMwIEFNIENodW5mZW5nIFl1biA8Y2h1bmZl
+bmcueXVuQG1lZGlhdGVrLmNvbT4gd3JvdGU6DQo+ID4NCj4gPiBUaGUgd01heFBhY2tldFNpemUg
+ZmllbGQgb2YgZW5kcG9pbnQgZGVzY3JpcHRvciBtYXkgYmUgemVybw0KPiA+IGFzIGRlZmF1bHQg
+dmFsdWUgaW4gYWx0ZXJuYXRlIGludGVyZmFjZSwgYW5kIHRoZXkgYXJlIG5vdA0KPiA+IGFjdHVh
+bGx5IHNlbGVjdGVkIHdoZW4gc3RhcnQgc3RyZWFtLCBzbyBza2lwIHRoZW0gd2hlbiB0cnkgdG8N
+Cj4gPiBhbGxvY2F0ZSBiYW5kd2lkdGguDQo+ID4NCj4gPiBDYzogc3RhYmxlIDxzdGFibGVAdmdl
+ci5rZXJuZWwub3JnPg0KPiA+IFNpZ25lZC1vZmYtYnk6IENodW5mZW5nIFl1biA8Y2h1bmZlbmcu
+eXVuQG1lZGlhdGVrLmNvbT4NCj4gDQo+IEFkZCB0aGlzPw0KPiBGaXhlczogMGNiZDRiMzRjZGE5
+ZGZkICgieGhjaTogbWVkaWF0ZWs6IHN1cHBvcnQgTVRLIHhIQ0kgaG9zdCBjb250cm9sbGVyIikN
+Ck9rLCB0aGFua3MNCg0KPiANCj4gPiAtLS0NCj4gPiAgZHJpdmVycy91c2IvaG9zdC94aGNpLW10
+ay1zY2guYyB8IDQgKysrKw0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspDQo+
+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay1zY2guYyBiL2Ry
+aXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2NoLmMNCj4gPiBpbmRleCBmZWE1NTU1Li40NWM1NGQ1
+NiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3VzYi9ob3N0L3hoY2ktbXRrLXNjaC5jDQo+ID4g
+KysrIGIvZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay1zY2guYw0KPiA+IEBAIC01NTcsNiArNTU3
+LDEwIEBAIHN0YXRpYyBib29sIG5lZWRfYndfc2NoKHN0cnVjdCB1c2JfaG9zdF9lbmRwb2ludCAq
+ZXAsDQo+ID4gICAgICAgICBpZiAoaXNfZnNfb3JfbHMoc3BlZWQpICYmICFoYXNfdHQpDQo+ID4g
+ICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsNCj4gPg0KPiA+ICsgICAgICAgLyogc2tpcCBl
+bmRwb2ludCB3aXRoIHplcm8gbWF4cGt0ICovDQo+ID4gKyAgICAgICBpZiAodXNiX2VuZHBvaW50
+X21heHAoJmVwLT5kZXNjKSA9PSAwKQ0KPiA+ICsgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7
+DQo+ID4gKw0KPiA+ICAgICAgICAgcmV0dXJuIHRydWU7DQo+ID4gIH0NCj4gPg0KPiA+IC0tDQo+
+ID4gMS45LjENCj4gPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXw0KPiA+IExpbnV4LW1lZGlhdGVrIG1haWxpbmcgbGlzdA0KPiA+IExpbnV4LW1lZGlhdGVr
+QGxpc3RzLmluZnJhZGVhZC5vcmcNCj4gPiBodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL2xpbnV4LW1lZGlhdGVrDQoNCg==
 
