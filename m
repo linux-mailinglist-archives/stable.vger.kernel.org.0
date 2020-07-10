@@ -2,125 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE7C21B2AC
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 11:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D61E21B2C3
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 11:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726828AbgGJJtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 05:49:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:39500 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726664AbgGJJtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 05:49:42 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id D99DAADC5;
-        Fri, 10 Jul 2020 09:49:40 +0000 (UTC)
-Subject: Re: [PATCH] xen: don't reschedule in preemption off sections
-To:     Juergen Gross <jgross@suse.com>
-Cc:     xen-devel@lists.xenproject.org, stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Sarah Newman <srn@prgmr.com>
-References: <20200710075050.4769-1-jgross@suse.com>
-From:   Jan Beulich <jbeulich@suse.com>
-Message-ID: <988ff766-b7de-2e25-2524-c412379686fc@suse.com>
-Date:   Fri, 10 Jul 2020 11:49:41 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728050AbgGJJys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 05:54:48 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35014 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728048AbgGJJyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 05:54:46 -0400
+Received: by mail-lj1-f193.google.com with SMTP id q4so5776029lji.2;
+        Fri, 10 Jul 2020 02:54:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=k3Kcp9tKsZ9UZgz57Z7n/yDq0NW3ryD3wlI7GXv6Mzo=;
+        b=I5jv9fUGkBTu6z/c1/LU+ERn56UlL/I9FlKP0eBVtovk+We2Hd39vNGJpqwFA1jBiT
+         lbHIzuu0lTSJcVtA/MQuzIlgYkNxZ/GRh2/KsXui7ywldqmqlSyU9DpWQfne1uybJgcb
+         0vRH0AhFSUZDBG3dNMzkya/XVaDGXRy/7NDmDJY2LPRfrGmAUMl47GRl2VyKW05E2TUj
+         9Vmm0I/RsP8oq21mKQa8+1XyB9wgYaiuPOrFRKYd0qj+5UM/4NPquC5cThMBMmEj8Qkb
+         yBZ1c+TcVq2J9sb3y/GadwTi+8kNelralTy4fcsWsseVCeWBzz8jhaIlY83jyHKiKGXN
+         TvNQ==
+X-Gm-Message-State: AOAM531IGshhekKTufM6WWpEshQbWSDeqNbOo76M8yKmqNHSkE1jAhcP
+        QbutJV9Vokb5O8FfdeKgE4+oJgAmnrQ=
+X-Google-Smtp-Source: ABdhPJz5Ov+ZuRZJj+Pst2u2eDAHnzjyWj/drC0TWMPgLNLcpiBN0F6yv1PGyGTFEXlWT78meEIQww==
+X-Received: by 2002:a2e:9050:: with SMTP id n16mr38348055ljg.376.1594374884286;
+        Fri, 10 Jul 2020 02:54:44 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id u5sm2915415lfm.81.2020.07.10.02.54.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jul 2020 02:54:43 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1jtpjx-0005KI-Hg; Fri, 10 Jul 2020 11:54:46 +0200
+Date:   Fri, 10 Jul 2020 11:54:45 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc:     "linux-usb @ vger . kernel . org" <linux-usb@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] cdc-acm: acm_init: Set initial BAUD to B0
+Message-ID: <20200710095445.GS3453@localhost>
+References: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
 MIME-Version: 1.0
-In-Reply-To: <20200710075050.4769-1-jgross@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10.07.2020 09:50, Juergen Gross wrote:
-> For support of long running hypercalls xen_maybe_preempt_hcall() is
-> calling cond_resched() in case a hypercall marked as preemptible has
-> been interrupted.
+On Fri, Jul 10, 2020 at 11:35:18AM +0200, Joakim Tjernlund wrote:
+> BO will disable USB input until the device opens. This will
+> avoid garbage chars waiting flood the TTY. This mimics a real UART
+> device better.
+> For initial termios to reach USB core, USB driver has to be
+> registered before TTY driver.
 > 
-> Normally this is no problem, as only hypercalls done via some ioctl()s
-> are marked to be preemptible. In rare cases when during such a
-> preemptible hypercall an interrupt occurs and any softirq action is
-> started from irq_exit(), a further hypercall issued by the softirq
-> handler will be regarded to be preemptible, too. This might lead to
-> rescheduling in spite of the softirq handler potentially having set
-> preempt_disable(), leading to splats like:
-> 
-> BUG: sleeping function called from invalid context at drivers/xen/preempt.c:37
-> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 20775, name: xl
-> INFO: lockdep is turned off.
-> CPU: 1 PID: 20775 Comm: xl Tainted: G D W 5.4.46-1_prgmr_debug.el7.x86_64 #1
-> Call Trace:
-> <IRQ>
-> dump_stack+0x8f/0xd0
-> ___might_sleep.cold.76+0xb2/0x103
-> xen_maybe_preempt_hcall+0x48/0x70
-> xen_do_hypervisor_callback+0x37/0x40
-> RIP: e030:xen_hypercall_xen_version+0xa/0x20
-> Code: ...
-> RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
-> RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
-> RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
-> R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
-> R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
-> ? xen_hypercall_xen_version+0xa/0x20
-> ? xen_force_evtchn_callback+0x9/0x10
-> ? check_events+0x12/0x20
-> ? xen_restore_fl_direct+0x1f/0x20
-> ? _raw_spin_unlock_irqrestore+0x53/0x60
-> ? debug_dma_sync_single_for_cpu+0x91/0xc0
-> ? _raw_spin_unlock_irqrestore+0x53/0x60
-> ? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
-> ? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
-> ? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
-> ? net_rx_action+0x151/0x4a0
-> ? __do_softirq+0xed/0x55b
-> ? irq_exit+0xea/0x100
-> ? xen_evtchn_do_upcall+0x2c/0x40
-> ? xen_do_hypervisor_callback+0x29/0x40
-> </IRQ>
-> ? xen_hypercall_domctl+0xa/0x20
-> ? xen_hypercall_domctl+0x8/0x20
-> ? privcmd_ioctl+0x221/0x990 [xen_privcmd]
-> ? do_vfs_ioctl+0xa5/0x6f0
-> ? ksys_ioctl+0x60/0x90
-> ? trace_hardirqs_off_thunk+0x1a/0x20
-> ? __x64_sys_ioctl+0x16/0x20
-> ? do_syscall_64+0x62/0x250
-> ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> 
-> Fix that by testing preempt_count() before calling cond_resched().
-> 
-> In kernel 5.8 this can't happen any more due to the entry code rework.
-> 
-> Reported-by: Sarah Newman <srn@prgmr.com>
-> Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use need_resched() instead of should_resched()")
-> Cc: Sarah Newman <srn@prgmr.com>
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> Cc: stable@vger.kernel.org
 > ---
->  drivers/xen/preempt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/xen/preempt.c b/drivers/xen/preempt.c
-> index 17240c5325a3..6ad87b5c95ed 100644
-> --- a/drivers/xen/preempt.c
-> +++ b/drivers/xen/preempt.c
-> @@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hcall);
->  asmlinkage __visible void xen_maybe_preempt_hcall(void)
->  {
->  	if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
-> -		     && need_resched())) {
-> +		     && need_resched() && !preempt_count())) {
+>  I hope this change makes sense to you, if so I belive
+>  ttyUSB could do the same.
 
-Doesn't this have the at least latent risk of hiding issues in
-other call trees (by no longer triggering logging like the one
-that has propmted this change)? Wouldn't it be better to save,
-clear, and restore the flag in one of xen_evtchn_do_upcall() or
-xen_do_hypervisor_callback()?
+No, this doesn't make sense. B0 is used to hang up an already open tty.
 
-Jan
+Furthermore, this change only affects the initial terminal settings and
+won't have any effect the next time you open the same port.
+
+Why not fix your firmware so that it doesn't transmit before DTR is
+asserted during open()?
+
+>  drivers/usb/class/cdc-acm.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+> index 751f00285ee6..5680f71200e5 100644
+> --- a/drivers/usb/class/cdc-acm.c
+> +++ b/drivers/usb/class/cdc-acm.c
+> @@ -1999,19 +1999,19 @@ static int __init acm_init(void)
+>  	acm_tty_driver->subtype = SERIAL_TYPE_NORMAL,
+>  	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+>  	acm_tty_driver->init_termios = tty_std_termios;
+> -	acm_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD |
+> +	acm_tty_driver->init_termios.c_cflag = B0 | CS8 | CREAD |
+>  								HUPCL | CLOCAL;
+>  	tty_set_operations(acm_tty_driver, &acm_ops);
+>  
+> -	retval = tty_register_driver(acm_tty_driver);
+> +	retval = usb_register(&acm_driver);
+>  	if (retval) {
+>  		put_tty_driver(acm_tty_driver);
+>  		return retval;
+>  	}
+>  
+> -	retval = usb_register(&acm_driver);
+> +	retval = tty_register_driver(acm_tty_driver);
+>  	if (retval) {
+> -		tty_unregister_driver(acm_tty_driver);
+> +		usb_deregister(&acm_driver);
+>  		put_tty_driver(acm_tty_driver);
+>  		return retval;
+>  	}
+
+Johan
