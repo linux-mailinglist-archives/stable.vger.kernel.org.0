@@ -2,68 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23BB321ADD1
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 06:17:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A9B21AE11
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 06:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726768AbgGJERu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 00:17:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34144 "EHLO
+        id S1726536AbgGJE3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 00:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725851AbgGJERt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 00:17:49 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43AECC08C5CE
-        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 21:17:49 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id q4so4900952lji.2
-        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 21:17:49 -0700 (PDT)
+        with ESMTP id S1725995AbgGJE3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jul 2020 00:29:09 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBBBC08C5DC
+        for <stable@vger.kernel.org>; Thu,  9 Jul 2020 21:29:09 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id c11so2432581lfh.8
+        for <stable@vger.kernel.org>; Thu, 09 Jul 2020 21:29:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=GOMunx3lII6WiFhmgXs6T+sFqTi8oTyhM5FPcahBiiw=;
-        b=x2EauDhpkHLZTqe4KZEHA12Eg/+hjjsWaGtUf76DIl22j4xWvuSNhdrb1CmJN7sFKA
-         ZI9hXDk3LNKTzhj+MSOjESmm/PRUTbRsky5OwjMhbVOqeU46NMBofU93TgMavaTNJrff
-         8ZqcFxYWALq3owf6BE5DpDkQZwxurRUvMZbJ+VlWKXYoAERkOQ35aLZigtpQe/3sGot5
-         Lk0M6l199ufPUj1B9V3PO4CGbukEkl/oLLHeGM3yM9Yfi3RZ5cfqssnLWjOEQW0cKNrJ
-         4hXgsG8d4wWT8i9pv2epuJcGwmog4GXGw7nqOkK99uljD1qt+f5KUsWr4TC2ivxVVgTf
-         VIOg==
+        bh=mjMEHo8189HJa7MEyvNdBopJi1aBYqswf36F3ZzUmHE=;
+        b=zJ6DbLIMI9RS1PmJSJo6xFsTDH6O8QB//0z7B26kKdSld9NfBya8Rtu3IZ074XA+CR
+         PguXCBuyQSrp48FDSdtpHC7sXpIeoytzCn4yZJuMc4a+HhVuBhkF65tWkHci0v9jDyUp
+         3fl2+D4AVaXwcR1us0SK9O6PhX8yo08LWb6Mxp+3I4gmL5zBBb3qeS/YuWiuhbm4s8Xs
+         7ksKitvvtr6ndfV5SLJDDI7VIU+LC2QXgmVFC8XA8RoGWoMj9/yHZ4lepjWHA0Xo6Nft
+         SUxflY6EifOYbS7WQHtSt2iGPYeDGj2yyPGJyFWP7+NMTKzk4hkjYkEiZMyAFMVSkByI
+         D5Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=GOMunx3lII6WiFhmgXs6T+sFqTi8oTyhM5FPcahBiiw=;
-        b=h+RQKG5w0+xROT0CnND/YRFUka2RNT6yKe4/9QqyxLcf4tqMdpXYX68rpN+vDqH4O1
-         XrORYmi1q8zTFlKiZo1XOIK8xvHk0PYUSPZs1Q/PRwG2hZ4Q7EF/vG2mHB85SXgWYRXW
-         2hzSr2XU1TGW1I6ckFivT1+nSkjHaTIHsGN1j5XonlwXnU93ZFwUf83OxpO1BaMiiobw
-         LJmO+lx6JQmgRfAIBtbbTrlI+hoHsu1ZVph5nkr4LbMM03JkNMMAEvpgAcylrHq+i2nT
-         D7LLGgHhu09idjhcO7yfls4CXYsJmov3Mb0HsIgZUOPsw9rFTzRGkFdO24eHUtMv0pbm
-         d0pA==
-X-Gm-Message-State: AOAM53106MNIYnW+n65b5AxStHayNJtZBBGncuXFNdUFUKcNsCw/T7VQ
-        VCWg75fhVvWxAt4/fYIVawyWeog91K2sgcI6rOazbg==
-X-Google-Smtp-Source: ABdhPJzJ5G9NeGhYRGYXrilWZEb+Io/ok8iNRSWg6aJugFsWnWQO5XiLBdPCFqnu9yYcQ3qL/dVPmgppJtVodiO8leM=
-X-Received: by 2002:a2e:9089:: with SMTP id l9mr31662918ljg.431.1594354667432;
- Thu, 09 Jul 2020 21:17:47 -0700 (PDT)
+        bh=mjMEHo8189HJa7MEyvNdBopJi1aBYqswf36F3ZzUmHE=;
+        b=AgBtcxpJ4KpQsdz5PYhmKHaWd5JfwhqLVtebsr1cjbH1G4Zp/GKqHXaiFDoxM2O/8O
+         /rOCBVw+FNB0T0BPKfqEL3guxM6p+88P+Dhi4kc4LkzJIrB3IOwpD/e+MN+eoo1INPYH
+         HcM3aVt9/d0n2Xn5dI6mlmste6u7jBa1sHomjhYVFWZdQltQUNfPOsRAvoN/DtM3gyHm
+         2ETBm3ibdsf4A/Mk/6HzUCZ37Sg9TvFje9xl0d3UQHDLvmWyEATaKafLQhbVlt6kMUZL
+         S3YsJogQIlyJ3acyvMRmVhdNt2JK7uFFTkpzex8NmO08XvtuOeLald9+xtTeL/ASvmS8
+         05iQ==
+X-Gm-Message-State: AOAM533CY9ZrUh6gUpFo0G07M8l+IluxwOiUpzC6NkaYujkwrz8UxofB
+        4L39bQlOjzX4qzz1InGN0SmiHogOyY0s87xH7uxSug==
+X-Google-Smtp-Source: ABdhPJybWciRrhe576e0XFkP5ZOq4e0ax7CtRCdKFW0nOqW2ctV9r+kQAZVIQT05SbrSdysuc/SYrSucY8LQCyzy0w0=
+X-Received: by 2002:ac2:5226:: with SMTP id i6mr42252318lfl.55.1594355347306;
+ Thu, 09 Jul 2020 21:29:07 -0700 (PDT)
 MIME-Version: 1.0
 References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
- <CAK8P3a0ii1Z-UG8NpwTvkmOEcOvvTo4+m9xjW0JqR6LPvUZ4=g@mail.gmail.com>
-In-Reply-To: <CAK8P3a0ii1Z-UG8NpwTvkmOEcOvvTo4+m9xjW0JqR6LPvUZ4=g@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+In-Reply-To: <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 10 Jul 2020 09:47:35 +0530
-Message-ID: <CA+G9fYsoEiQ-8ECKxMqQqPZKUbTQStp6wZi7ZiJDyi0YahFAvg@mail.gmail.com>
+Date:   Fri, 10 Jul 2020 09:58:55 +0530
+Message-ID: <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
 Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-To:     Arnd Bergmann <arnd@arndb.de>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     linux- stable <stable@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
         Andrew Morton <akpm@linux-foundation.org>,
         Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
         lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michel Lespinasse <walken@google.com>, Fan_Yang@sjtu.edu.cn,
-        bgeffon@google.com, Anshuman Khandual <anshuman.khandual@arm.com>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Will Deacon <will@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
-        =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>,
+        Jerome Glisse <jglisse@redhat.com>,
         Joel Fernandes <joel@joelfernandes.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mel Gorman <mgorman@techsingularity.net>,
@@ -76,68 +77,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 9 Jul 2020 at 13:55, Arnd Bergmann <arnd@arndb.de> wrote:
+On Fri, 10 Jul 2020 at 00:42, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> On Thu, Jul 9, 2020 at 7:28 AM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> On Wed, Jul 8, 2020 at 10:28 PM Naresh Kamboju
+> <naresh.kamboju@linaro.org> wrote:
 > >
 > > While running LTP mm test suite on i386 or qemu_i386 this kernel warning
 > > has been noticed from stable 5.4 to stable 5.7 branches and mainline 5.8.0-rc4
 > > and linux next.
 >
-> Are you able to correlate this with any particular test case in LTP, or does
-> it happen for random processes?
+> Hmm
 >
-> In the log you linked to, it happens once for ksm05.c and multiple times for
-> thp01.c, sources here:
->
-> https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/mem/ksm/ksm05.c
-> https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/mem/thp/thp01.c
->
-> Is it always these tests that trigger the warning, or sometimes others?
+> If this is repeatable, would you mind making the warning also print
+> out the old range and new addresses and pmd value?
 
-These two test cases are causing this warning multiple times on i386.
+Your patch applied and re-tested.
+warning triggered 10 times.
 
->
-> When you say it happens with linux-5.4 stable, does that mean you don't see
-> it with older versions? What is the last known working version?
+old: bfe00000-c0000000 new: bfa00000 (val: 7d530067)
 
-I do not notice on stable-4.19 and below versions.
-Sorry i did not get the known working commit id or version.
+Here is the crash output log,
+thp01.c:98: PASS: system didn't crash.
+[  741.507000] ------------[ cut here ]------------
+[  741.511684] WARNING: CPU: 1 PID: 15173 at mm/mremap.c:211
+move_page_tables.cold+0x0/0x2b
+[  741.519812] Modules linked in: x86_pkg_temp_thermal fuse
+[  741.525163] CPU: 1 PID: 15173 Comm: true Not tainted 5.8.0-rc4 #1
+[  741.531313] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.2 05/23/2018
+[  741.538760] EIP: move_page_tables.cold+0x0/0x2b
+[  741.543337] Code: b1 a0 03 00 00 81 c1 cc 04 00 00 bb ea ff ff ff
+51 68 e0 bc 68 d8 c6 05 dc 29 97 d8 01 e8 13 26 e9 ff 83 c4 0c e9 70
+ea ff ff <0f> 0b 52 50 ff 75 08 ff 75 b4 ff 75 d4 68 3c bd 68 d8 e8 f4
+25 e9
+[  741.562140] EAX: 7d530067 EBX: e9c90ff8 ECX: 00000000 EDX: 00000000
+[  741.568456] ESI: 00000000 EDI: 7d5ba007 EBP: cef67dd0 ESP: cef67d28
+[  741.574776] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010202
+[  741.581623] CR0: 80050033 CR2: b7d53f50 CR3: 107da000 CR4: 003406f0
+[  741.587941] DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+[  741.594259] DR6: fffe0ff0 DR7: 00000400
+[  741.598159] Call Trace:
+[  741.600694]  setup_arg_pages+0x22b/0x310
+[  741.604654]  ? _raw_spin_unlock_irqrestore+0x45/0x50
+[  741.609677]  ? trace_hardirqs_on+0x4b/0x110
+[  741.613930]  ? get_random_u32+0x4e/0x80
+[  741.617809]  ? get_random_u32+0x4e/0x80
+[  741.621687]  load_elf_binary+0x31e/0x10f0
+[  741.625714]  ? __do_execve_file+0x5b4/0xbf0
+[  741.629917]  ? find_held_lock+0x24/0x80
+[  741.633839]  __do_execve_file+0x5a8/0xbf0
+[  741.637893]  __ia32_sys_execve+0x2a/0x40
+[  741.641875]  do_syscall_32_irqs_on+0x3d/0x2c0
+[  741.646246]  ? find_held_lock+0x24/0x80
+[  741.650105]  ? lock_release+0x8a/0x260
+[  741.653890]  ? __might_fault+0x41/0x80
+[  741.657660]  do_fast_syscall_32+0x60/0xf0
+[  741.661691]  do_SYSENTER_32+0x15/0x20
+[  741.665373]  entry_SYSENTER_32+0x9f/0xf2
+[  741.669328] EIP: 0xb7f38549
+[  741.672140] Code: Bad RIP value.
+[  741.675430] EAX: ffffffda EBX: bfe19bf0 ECX: 08067420 EDX: bfe19e24
+[  741.681708] ESI: 08058a14 EDI: bfe19bf9 EBP: bfe19c98 ESP: bfe19bc8
+[  741.687991] DS: 007b ES: 007b FS: 0000 GS: 0033 SS: 007b EFLAGS: 00000292
+[  741.694804] irq event stamp: 23911
+[  741.698253] hardirqs last  enabled at (23929): [<d756f075>]
+console_unlock+0x4a5/0x610
+[  741.706181] hardirqs last disabled at (23946): [<d756ec5a>]
+console_unlock+0x8a/0x610
+[  741.714041] softirqs last  enabled at (23962): [<d82b975c>]
+__do_softirq+0x2dc/0x3da
+[  741.721849] softirqs last disabled at (23973): [<d74a8275>]
+call_on_stack+0x45/0x50
+[  741.729513] ---[ end trace 170f646c1b6225e0 ]---
+[  741.734151]  old: bfe00000-c0000000 new: bfa00000 (val: 7d530067)
 
-It started happening from stable-rc 5.0 first release.
-I have evidence [1] showing it on 5.0.1
+Build link: https://builds.tuxbuild.com/1cwiUvFIB4M0hPyB1eA3cA/
+vmlinux: https://builds.tuxbuild.com/1cwiUvFIB4M0hPyB1eA3cA/vmlinux.xz
+system.map: https://builds.tuxbuild.com/1cwiUvFIB4M0hPyB1eA3cA/System.map
 
->
-> I also see that you give the virtual machine 16GB of RAM, but as you are
-> running a 32-bit kernel without PAE, only 2.3GB end up being available,
-> and some other LTP tests in the log run out of memory.
->
-> You could check if the behavior changes if you give the kernel less memory,
-> e.g. 768MB (lowmem only), or enable CONFIG_X86_PAE to let it use the
-> entire 16GB.
 
-Warning is still happening after enabling PAE config.
-But the oom-killer messages are gone. Thank you.
-
-CONFIG_HIGHMEM=y
-CONFIG_X86_PAE=y
-
-full test log oom-killer messages are gone and kernel warning is still there,
-https://lkft.validation.linaro.org/scheduler/job/1552606#L10357
-
-build location:
-https://builds.tuxbuild.com/puilcMcGVwzFMN5fDUhY4g/
-
-[1] https://qa-reports.linaro.org/lkft/linux-stable-rc-5.0-oe/build/v5.0.1/testrun/1324990/suite/ltp-mm-tests/test/ksm02/log
-
----
-[  775.646689] WARNING: CPU: 3 PID: 10858 at
-/srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/mm/mremap.c:211
-move_page_tables+0x553/0x570
-[  775.647006] Modules linked in: fuse
-[  775.647006] CPU: 3 PID: 10858 Comm: true Not tainted 5.0.1 #1
-[  775.647006] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS 1.10.2-1 04/01/2014
-[  775.647006] EIP: move_page_tables+0x553/0x570
+full test log,
+https://lkft.validation.linaro.org/scheduler/job/1554181#L10557
 
 - Naresh
+
+>
+> Something like the attached (UNTESTED!) patch.
+>
+>          Linus
