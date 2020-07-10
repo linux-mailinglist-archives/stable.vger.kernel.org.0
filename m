@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC26921B7A5
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A69FD21B7A7
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728382AbgGJOC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 10:02:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
+        id S1726962AbgGJOC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 10:02:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728371AbgGJOC4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 10:02:56 -0400
+        id S1727083AbgGJOC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 10:02:57 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA68D207DF;
-        Fri, 10 Jul 2020 14:02:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18E06207BB;
+        Fri, 10 Jul 2020 14:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594389776;
-        bh=50V+iGgf2MS3379aPyK1msckdvEEfeg1k+ec1BjefyA=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=TVZm3YGF6QxfR89Du+7H+Rf/celh5kAZEzr2KKKY0p3HqN4g+ilFI6cSBB28Z7USU
-         IjwtZgDkuKntOm57Ukp09LhVzmrZYSfH33LUv5k6gV6A3WRXkmx+jXOu47Tzfe4q9l
-         HGISlrGO7G5XgaZUlbp/UvmQ4ulslbCssWoECEYE=
-Date:   Fri, 10 Jul 2020 14:02:55 +0000
+        s=default; t=1594389777;
+        bh=eM0Ao62YKFdPT0OPwr8aTRMpQDLdKVZ5S0zGdE4uUyQ=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=mfb/PjeWH3jfrV3TRQDr27G3HNWzfXZH0iuG5/+aFmgGH36w0/2lNSLqWd9dY3Kjt
+         Uk/Uv2fO1USbH9aPAeOik5ju2k45A3K/4pxWwG/x6mtAeWzEPBzCqNLcTYGe8FLVJb
+         BN9xhbSEOkQEmmMP7pMrwUNu9/bbe6QkhvknM+Jg=
+Date:   Fri, 10 Jul 2020 14:02:56 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Jia He <justin.he@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Michal Hocko <mhocko@suse.com>
+To:     Marc Zyngier <maz@kernel.org>
+To:     Chanwoo Choi <cw00.choi@samsung.com>
+Cc:     MyungJoo Ham <myungjoo.ham@samsung.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
-In-Reply-To: <20200707055917.143653-4-justin.he@arm.com>
-References: <20200707055917.143653-4-justin.he@arm.com>
-Message-Id: <20200710140255.DA68D207DF@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v3] PM / devfreq: rk3399_dmc: Fix kernel oops when rockchip,pmu is absent
+In-Reply-To: <20200630100546.862468-1-maz@kernel.org>
+References: <20200630100546.862468-1-maz@kernel.org>
+Message-Id: <20200710140257.18E06207BB@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,14 +45,14 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat").
+fixing commit: 9173c5ceb035 ("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters to TF-A.").
 
-The bot has tested the following trees: v5.7.7, v5.4.50, v4.19.131.
+The bot has tested the following trees: v5.7.7, v5.4.50.
 
 v5.7.7: Build OK!
-v5.4.50: Build OK!
-v4.19.131: Failed to apply! Possible dependencies:
-    eca499ab3749a ("mm/hotplug: make remove_memory() interface usable")
+v5.4.50: Failed to apply! Possible dependencies:
+    29d867e97f7d7 ("PM / devfreq: rk3399_dmc: Add missing of_node_put()")
+    39a6e4739c19d ("PM / devfreq: rk3399_dmc: Disable devfreq-event device when fails")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
