@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6A921B7BA
-	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:03:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CCED21B7B9
+	for <lists+stable@lfdr.de>; Fri, 10 Jul 2020 16:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728212AbgGJODX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jul 2020 10:03:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50418 "EHLO mail.kernel.org"
+        id S1728402AbgGJODB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jul 2020 10:03:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727914AbgGJOC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jul 2020 10:02:59 -0400
+        id S1728396AbgGJODA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jul 2020 10:03:00 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 305DF2082E;
-        Fri, 10 Jul 2020 14:02:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38908207BB;
+        Fri, 10 Jul 2020 14:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594389779;
-        bh=Td9RQrVjQAYm4R6hKpsdZTaixRsTHAsdDvTyA61WDfk=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=mjtoxuPAR3XV10xTujPV5gLoBCyXxyC7eNFZP5KY7NL/ls5YHPh2VLuUe/+OoVZDl
-         Nq9Um2Sal42E0U/98BfnqTvgOkruvknFStEJ+OPyAvMfUZzPAjHhOBGS7ok2qoVxyY
-         QmOyVl+2xb3NL3c1MUSMXSIB/7PujtOO/KwPAiCw=
-Date:   Fri, 10 Jul 2020 14:02:58 +0000
+        s=default; t=1594389780;
+        bh=N2f6dNa0zm1G+CzQof96J68S69txegg3zJ2gyRzibb8=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=nhx5oJX4eh6tqw5o6ki8aNEAy5LEt5fjbUNpWhh0KwspTXMnDSt5f8YN0DsG0u+zZ
+         ZBntQ66dotWqwlZOtbvkhX7Ege2uaOb4jJYKj0PX7dJbVq02Z7q0EGUaIAK1yiWPhv
+         qOBem1TBM3ZvKx9FtROgPxoliUTnrLRMvWWbaHFw=
+Date:   Fri, 10 Jul 2020 14:02:59 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-To:     Cezary Rojewski <cezary.rojewski@intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org
+To:     Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+Cc:     Thor Thayer <thor.thayer@linux.intel.com>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/6] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S 2 channel
-In-Reply-To: <20200628155231.71089-2-hdegoede@redhat.com>
-References: <20200628155231.71089-2-hdegoede@redhat.com>
-Message-Id: <20200710140259.305DF2082E@mail.kernel.org>
+Subject: Re: [PATCH 10/10] mfd: altera-sysmgr: Supply descriptions for 'np' and 'property' function args
+In-Reply-To: <20200625064619.2775707-11-lee.jones@linaro.org>
+References: <20200625064619.2775707-11-lee.jones@linaro.org>
+Message-Id: <20200710140300.38908207BB@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -50,111 +52,29 @@ The stable tag indicates that it's relevant for the following trees: all
 The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
 
 v5.7.6: Build OK!
-v5.4.49: Failed to apply! Possible dependencies:
-    0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
-    157b006f6be46 ("ASoC: bdw-rt5677: Add a DAI link for rt5677 SPI PCM device")
-    17fe95d6df932 ("ASoC: Intel: boards: Add CML m/c using RT1011 and RT5682")
-    332719b1840b9 ("ASoC: Intel: bytcr_rt5640: Remove code duplication in byt_rt5640_codec_fixup")
-    35dc19ad86fdf ("ASoC: Intel: Add machine driver for da7219_max98373")
-    461c623270e4f ("ASoC: rt5677: Load firmware via SPI using delayed work")
-    4f0637eae56f0 ("ASoC: Intel: common: add ACPI matching tables for JSL")
-    57ad18906f242 ("ASoC: Intel: bxt-da7219-max98357a: common hdmi codec support")
-    59bbd703ea2ea ("ASoC: intel: sof_rt5682: common hdmi codec support")
-    5b425814f13f3 ("ASoC: intel: Add Broadwell rt5650 machine driver")
-    7d2ae58376658 ("ASoC: Intel: bxt_rt298: common hdmi codec support")
-    8039105987fcd ("ASoC: Intel: boards: sof_rt5682: use dependency on SOF_HDA_LINK")
-    a0e0d135427cf ("ASoC: rt5677: Add a PCM device for streaming hotword via SPI")
-    ba0b3a977ecf5 ("ASoC: rt5677: Set ADC clock to use PLL and enable ASRC")
-    dfe87aa86cd92 ("ASoC: Intel: glk_rt5682_max98357a: common hdmi codec support")
-    f40ed2e8db8d5 ("ASoC: Intel: sof_pcm512x: add support for SOF platforms with pcm512x")
-
+v5.4.49: Build OK!
 v4.19.130: Failed to apply! Possible dependencies:
-    0b7990e38971d ("ASoC: add for_each_rtd_codec_dai() macro")
-    0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
-    10b02b53a9986 ("ASoC: Intel: select relevant machine drivers for SOF")
-    35bc99aaa1a3a ("ASoC: Intel: Skylake: Add more platform granularity")
-    5b425814f13f3 ("ASoC: intel: Add Broadwell rt5650 machine driver")
-    6bae5ea949892 ("ASoC: hdac_hda: add asoc extension for legacy HDA codec drivers")
-    7c33b5f16915a ("ASoC: Intel: Boards: Machine driver for SKL+ w/ HDAudio codecs")
-    8c4e7c2ee8096 ("ASoC: Intel: Skylake: fix Kconfigs, make HDaudio codec optional")
-    98061fdbfccc0 ("ASoC: add for_each_card_links() macro")
-    bca0ac1d96739 ("ASoC: Intel: Boards: Add KBL Dialog Maxim I2S machine driver")
-    bcb1fd1fcd650 ("ASoC: add for_each_card_rtds() macro")
-    e894efef9ac7c ("ASoC: core: add support to card rebind")
+    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
 
 v4.14.186: Failed to apply! Possible dependencies:
-    0b7990e38971d ("ASoC: add for_each_rtd_codec_dai() macro")
-    0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
-    1a11d88f499ce ("ASoC: meson: add tdm formatter base driver")
-    273d778ef38a8 ("ASoC: snd_soc_component_driver has endianness")
-    291bfb928863d ("ASoC: topology: Revert recent changes while boot errors are investigated")
-    45f8cb57da0d7 ("ASoC: core: Allow topology to override machine driver FE DAI link config.")
-    53eb4b7aaa045 ("ASoC: meson: add axg spdif output")
-    57d552e3ea760 ("ASoC: meson: add axg frddr driver")
-    5d61f0ba6524d ("ASoC: pcm: Sync delayed work before releasing resources")
-    69941bab7c7ae ("ASoC: snd_soc_component_driver has non_legacy_dai_naming")
-    6dc4fa179fb86 ("ASoC: meson: add axg fifo base driver")
-    7864a79f37b55 ("ASoC: meson: add axg sound card support")
-    7a679ea75a1bc ("ASoC: Intel: Enable tdm slots for max98927")
-    7ba236ce58bd7 ("ASoC: add Component level set_bias_level")
-    7ed4877b403c9 ("ASoC: meson: add axg toddr driver")
-    98061fdbfccc0 ("ASoC: add for_each_card_links() macro")
-    9900a4226c785 ("ASoC: remove unneeded dai->driver->ops check")
-    a655de808cbde ("ASoC: core: Allow topology to override machine driver FE DAI link config.")
-    bcb1fd1fcd650 ("ASoC: add for_each_card_rtds() macro")
-    bf14adcc4ddd1 ("ASoC: Intel: cht-bsw-rt5672: allow for topology-defined codec-dai setup")
-    c41c2a355b863 ("ASoC: meson: add tdm output driver")
-    d60e4f1e4be5e ("ASoC: meson: add tdm interface driver")
-    e0dac41b8c21d ("ASoC: soc-core: add snd_soc_add_component()")
-    f11a5c27f9287 ("ASoC: core: Add name prefix for machines with topology rewrites")
-    f523acebbb74f ("ASoC: add Component level pcm_new/pcm_free v2")
-    fbb16563c6c2b ("ASoC: snd_soc_component_driver has pmdown_time")
+    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
 
 v4.9.228: Failed to apply! Possible dependencies:
-    0b7990e38971d ("ASoC: add for_each_rtd_codec_dai() macro")
-    0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
-    17fb175520e54 ("ASoC: Define API to find a dai link")
-    1a11d88f499ce ("ASoC: meson: add tdm formatter base driver")
-    1a653aa447256 ("ASoC: core: replace aux_comp_list to component_dev_list")
-    273d778ef38a8 ("ASoC: snd_soc_component_driver has endianness")
-    2a18483a7fb41 ("ASoC: Intel: Add Kabylake machine driver for RT5514, RT5663 and MAX98927")
-    44c07365e9e2c ("ASoC: add Component level set_jack")
-    53eb4b7aaa045 ("ASoC: meson: add axg spdif output")
-    57d552e3ea760 ("ASoC: meson: add axg frddr driver")
-    69941bab7c7ae ("ASoC: snd_soc_component_driver has non_legacy_dai_naming")
-    6dc4fa179fb86 ("ASoC: meson: add axg fifo base driver")
-    71ccef0df533c ("ASoC: add Component level set_sysclk")
-    759db1c4660b5 ("ASoC: Intel: boards: add card for MinnowBoardMax/Up I2S access")
-    7864a79f37b55 ("ASoC: meson: add axg sound card support")
-    7a679ea75a1bc ("ASoC: Intel: Enable tdm slots for max98927")
-    7ba236ce58bd7 ("ASoC: add Component level set_bias_level")
-    7ed4877b403c9 ("ASoC: meson: add axg toddr driver")
-    804e73adf5cf4 ("ASoC: rt5670: Fix GPIO headset detection regression")
-    82cf89de2c9c2 ("ASoC: Intel: add machine driver for BYT/CHT + DA7213")
-    9178feb4538e0 ("ASoC: add Component level suspend/resume")
-    98061fdbfccc0 ("ASoC: add for_each_card_links() macro")
-    a655de808cbde ("ASoC: core: Allow topology to override machine driver FE DAI link config.")
-    bcb1fd1fcd650 ("ASoC: add for_each_card_rtds() macro")
-    bf14adcc4ddd1 ("ASoC: Intel: cht-bsw-rt5672: allow for topology-defined codec-dai setup")
-    c41c2a355b863 ("ASoC: meson: add tdm output driver")
-    d60e4f1e4be5e ("ASoC: meson: add tdm interface driver")
-    d9fc40639dc1b ("ASoC: core: replace codec_dev_list to component_dev_list on Card")
-    ec040dd5ef647 ("ASoC: Intel: Add Kabylake Realtek Maxim machine driver")
-    ef641e5d5e6c7 ("ASoC: add Component level set_pll")
-    fbb16563c6c2b ("ASoC: snd_soc_component_driver has pmdown_time")
+    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+    937d3a0af521e ("mfd: Add support for Allwinner SoCs ADC")
+    d0f949e220fdf ("mfd: Add STM32 Timers driver")
+    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
 
 v4.4.228: Failed to apply! Possible dependencies:
-    0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
-    17fb175520e54 ("ASoC: Define API to find a dai link")
-    1a497983a5ae6 ("ASoC: Change the PCM runtime array to a list")
-    49a5ba1cd9da4 ("ASoC: soc_bind_dai_link() directly returns success for a bound DAI link")
-    6f2f1ff0de83a ("ASoC: Change 2nd argument of soc_bind_dai_link() to DAI link pointer")
-    804e73adf5cf4 ("ASoC: rt5670: Fix GPIO headset detection regression")
-    923c5e61ecd9b ("ASoC: Define soc_init_dai_link() to wrap link intialization.")
-    98061fdbfccc0 ("ASoC: add for_each_card_links() macro")
-    bcb1fd1fcd650 ("ASoC: add for_each_card_rtds() macro")
-    bf14adcc4ddd1 ("ASoC: Intel: cht-bsw-rt5672: allow for topology-defined codec-dai setup")
-    f8f80361d07d5 ("ASoC: Implement DAI links in a list & define API to add/remove a link")
+    51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+    8ce064bfe7c8c ("MAINTAINERS: Add Altera Arria10 System Resource Chip")
+    937d3a0af521e ("mfd: Add support for Allwinner SoCs ADC")
+    9787f5e28b507 ("mfd: altr_a10sr: Add Altera Arria10 DevKit System Resource Chip")
+    b25c6b7d2801f ("mfd: act8945a: Add Active-semi ACT8945A PMIC MFD driver")
+    d0f949e220fdf ("mfd: Add STM32 Timers driver")
+    f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
