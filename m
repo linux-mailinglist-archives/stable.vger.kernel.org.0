@@ -2,154 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C094C21C258
-	for <lists+stable@lfdr.de>; Sat, 11 Jul 2020 07:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A455D21C322
+	for <lists+stable@lfdr.de>; Sat, 11 Jul 2020 10:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726900AbgGKFPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jul 2020 01:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726786AbgGKFPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jul 2020 01:15:37 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E2C7C08C5DD
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 22:15:37 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id k27so3450666pgm.2
-        for <stable@vger.kernel.org>; Fri, 10 Jul 2020 22:15:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SJul6dXjF6aUHhlpebRyreJxqBSVCxmWsHR8T+nlCVI=;
-        b=eCxBWqFD+Vtvi4uN13svPBmx3scwGce7AbYfwvuCEf5pORw49GUquRjtBVxCN421Yn
-         7aKD5xIuSm0J8yk6IJd/VsbHtoqIX/9UCAYA3bjBKLo8VEyveFLMS1CaLGp4rNin2ctq
-         QdAHIQIKS/4uobbMa+BRNEtUBOrz7DLEqX9dUB9Cslgmbd4PqLwc3NVZstmt78gmkoIa
-         blR5+qp6NjcCo7Mc1He77rn1x/Ub2oxqkHxfI7ftdKBPzG3iXOKKLb1BighIPSvpXTOR
-         zCRNw0VUWBw93tg4kt31Vjb0ORdhb8GUf+5tKiVxiyM0LhQHT+svKJVR6bdjrDZQKmVM
-         pSFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SJul6dXjF6aUHhlpebRyreJxqBSVCxmWsHR8T+nlCVI=;
-        b=XigCQYXtbyanTDkM4EJ5AUP/Exr0a8fA0aMPUZc0VGTPV/eGDd8xQ55qVAx+uhXJgj
-         s7AGY7RODmJ3GkIrponquo5o7ENb/qpcrfYRp0rAOuBuo1hRs2OKZDTfxpUCb7LpkJsT
-         m6To+ju5oDF+ceQUiuf+CSIDSiR+DnGA72NNixNs3BEzx/tqn/K4ABjzESxQqQGI7Zz1
-         AfNdWUG5laMYOFqnNZ49iKWb2seOcceLrYrg/b8aeYQI7ILpVkEJi6Ibs9mv6fsvxV+o
-         tH0YKW3JGhZvUa5dTuor5cGrx8k+d68XwEhuOjTBLUbcB4rmvrt/mUF5odhgh0n5zQKx
-         9n0g==
-X-Gm-Message-State: AOAM530YNPWYtvpTKyQkYgDRnJQudr/w7Q8pcBgAHLJyEAgUlA9qG+X4
-        WCP0fXx28rEQr0mAJuWTKEC2WX5E/nA=
-X-Google-Smtp-Source: ABdhPJzgSXe/MGJ5ir+wtr7+NbgyWgxbku1woIRrfVWaWxhxPwLK1P8XQ3veae3zRd2k04LXbNAXLg==
-X-Received: by 2002:a65:63d4:: with SMTP id n20mr63467911pgv.213.1594444536538;
-        Fri, 10 Jul 2020 22:15:36 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r8sm7811388pfh.29.2020.07.10.22.15.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jul 2020 22:15:35 -0700 (PDT)
-Message-ID: <5f094af7.1c69fb81.756d.3c2d@mx.google.com>
-Date:   Fri, 10 Jul 2020 22:15:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728025AbgGKIDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jul 2020 04:03:41 -0400
+Received: from mga09.intel.com ([134.134.136.24]:19962 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728012AbgGKIDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jul 2020 04:03:40 -0400
+IronPort-SDR: Rcz0PlFQ8vvY287nVkwtK9q7/cqDxWgiZNXxXSPE5V1YRte0iHosj/IHn7ByX/S9eEN1R46BkD
+ 3gV632Phm2cw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9678"; a="149830584"
+X-IronPort-AV: E=Sophos;i="5.75,338,1589266800"; 
+   d="scan'208";a="149830584"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2020 01:03:39 -0700
+IronPort-SDR: vL2UUlTSfuHGJ0FVwIy2MMGLiDnEPbd5QWfiZkafe1iZlFCgIIkvTp+uFWzk6z6a1kvwW0vAM7
+ M/8eeNo0mYQQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,338,1589266800"; 
+   d="scan'208";a="324929590"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga007.jf.intel.com with SMTP; 11 Jul 2020 01:03:37 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Sat, 11 Jul 2020 11:03:36 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2] drm/i915: Recalculate FBC w/a stride when needed
+Date:   Sat, 11 Jul 2020 11:03:36 +0300
+Message-Id: <20200711080336.13423-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200710203408.23039-1-ville.syrjala@linux.intel.com>
+References: <20200710203408.23039-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.132
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y baseline: 105 runs, 2 regressions (v4.19.132)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 105 runs, 2 regressions (v4.19.132)
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Regressions Summary
--------------------
+Currently we're failing to recalculate the gen9 FBC w/a stride
+unless something more drastic than just the modifier itself has
+changed. This often leaves us with FBC enabled with the linear
+fbdev framebuffer without the w/a stride enabled. That will cause
+an immediate underrun and FBC will get promptly disabled.
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+Fix the problem by checking if the w/a stride is about to change,
+and go through the full dance if so. This part of the FBC code
+is still pretty much a disaster and will need lots more work.
+But this should at least fix the immediate issue.
 
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 4/5    =
+v2: Deactivate FBC when the modifier changes since that will
+    likely require resetting the w/a CFB stride
 
+Cc: stable@vger.kernel.org
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_fbc.c | 33 +++++++++++++++++++-----
+ drivers/gpu/drm/i915/i915_drv.h          |  1 +
+ 2 files changed, 27 insertions(+), 7 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.132/plan/baseline/
+diff --git a/drivers/gpu/drm/i915/display/intel_fbc.c b/drivers/gpu/drm/i915/display/intel_fbc.c
+index ef2eb14f6157..85723fba6002 100644
+--- a/drivers/gpu/drm/i915/display/intel_fbc.c
++++ b/drivers/gpu/drm/i915/display/intel_fbc.c
+@@ -742,6 +742,25 @@ static bool intel_fbc_cfb_size_changed(struct drm_i915_private *dev_priv)
+ 		fbc->compressed_fb.size * fbc->threshold;
+ }
+ 
++static u16 intel_fbc_gen9_wa_cfb_stride(struct drm_i915_private *dev_priv)
++{
++	struct intel_fbc *fbc = &dev_priv->fbc;
++	struct intel_fbc_state_cache *cache = &fbc->state_cache;
++
++	if ((IS_GEN9_BC(dev_priv) || IS_BROXTON(dev_priv)) &&
++	    cache->fb.modifier != I915_FORMAT_MOD_X_TILED)
++		return DIV_ROUND_UP(cache->plane.src_w, 32 * fbc->threshold) * 8;
++	else
++		return 0;
++}
++
++static bool intel_fbc_gen9_wa_cfb_stride_changed(struct drm_i915_private *dev_priv)
++{
++	struct intel_fbc *fbc = &dev_priv->fbc;
++
++	return fbc->params.gen9_wa_cfb_stride != intel_fbc_gen9_wa_cfb_stride(dev_priv);
++}
++
+ static bool intel_fbc_can_enable(struct drm_i915_private *dev_priv)
+ {
+ 	struct intel_fbc *fbc = &dev_priv->fbc;
+@@ -902,6 +921,7 @@ static void intel_fbc_get_reg_params(struct intel_crtc *crtc,
+ 	params->crtc.i9xx_plane = to_intel_plane(crtc->base.primary)->i9xx_plane;
+ 
+ 	params->fb.format = cache->fb.format;
++	params->fb.modifier = cache->fb.modifier;
+ 	params->fb.stride = cache->fb.stride;
+ 
+ 	params->cfb_size = intel_fbc_calculate_cfb_size(dev_priv, cache);
+@@ -931,6 +951,9 @@ static bool intel_fbc_can_flip_nuke(const struct intel_crtc_state *crtc_state)
+ 	if (params->fb.format != cache->fb.format)
+ 		return false;
+ 
++	if (params->fb.modifier != cache->fb.modifier)
++		return false;
++
+ 	if (params->fb.stride != cache->fb.stride)
+ 		return false;
+ 
+@@ -1218,7 +1241,8 @@ void intel_fbc_enable(struct intel_atomic_state *state,
+ 
+ 	if (fbc->crtc) {
+ 		if (fbc->crtc != crtc ||
+-		    !intel_fbc_cfb_size_changed(dev_priv))
++		    (!intel_fbc_cfb_size_changed(dev_priv) &&
++		     !intel_fbc_gen9_wa_cfb_stride_changed(dev_priv)))
+ 			goto out;
+ 
+ 		__intel_fbc_disable(dev_priv);
+@@ -1240,12 +1264,7 @@ void intel_fbc_enable(struct intel_atomic_state *state,
+ 		goto out;
+ 	}
+ 
+-	if ((IS_GEN9_BC(dev_priv) || IS_BROXTON(dev_priv)) &&
+-	    plane_state->hw.fb->modifier != I915_FORMAT_MOD_X_TILED)
+-		cache->gen9_wa_cfb_stride =
+-			DIV_ROUND_UP(cache->plane.src_w, 32 * fbc->threshold) * 8;
+-	else
+-		cache->gen9_wa_cfb_stride = 0;
++	cache->gen9_wa_cfb_stride = intel_fbc_gen9_wa_cfb_stride(dev_priv);
+ 
+ 	drm_dbg_kms(&dev_priv->drm, "Enabling FBC on pipe %c\n",
+ 		    pipe_name(crtc->pipe));
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index 87973dedf8e7..14b095afab42 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -442,6 +442,7 @@ struct intel_fbc {
+ 		struct {
+ 			const struct drm_format_info *format;
+ 			unsigned int stride;
++			u64 modifier;
+ 		} fb;
+ 
+ 		int cfb_size;
+-- 
+2.26.2
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.132
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dce0f88600e49746b4bda873965b671a23ff4313 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f090d6a770b7db11b85bb91
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-32/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-32/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f090d6a770b7db11b85b=
-b92
-      failing since 24 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
-ail: v4.19.126-113-gd694d4388e88) =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f09134d5831f61fa485bb26
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-32/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-32/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f09134d5831f61f=
-a485bb29
-      new failure (last pass: v4.19.130-131-gd77d34fc4818)
-      1 lines =20
