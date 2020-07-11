@@ -2,67 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C256521C325
-	for <lists+stable@lfdr.de>; Sat, 11 Jul 2020 10:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA32021C3C8
+	for <lists+stable@lfdr.de>; Sat, 11 Jul 2020 12:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbgGKIR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jul 2020 04:17:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38910 "EHLO
+        id S1726281AbgGKKq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jul 2020 06:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726262AbgGKIR6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jul 2020 04:17:58 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514F1C08C5DD
-        for <stable@vger.kernel.org>; Sat, 11 Jul 2020 01:17:57 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id v8so8472700iox.2
-        for <stable@vger.kernel.org>; Sat, 11 Jul 2020 01:17:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=UXgtDsRN7lwk5hslMhDS77KoWasIDbV8j6zhJXeW8ys=;
-        b=Or9QJ653poxyws5EXriMlq0+xfmg6R+ilwbhOlJKsJgH7hTDAPkMain5xFDkP0MO4V
-         5SP7tIJZ8O5WoQ5nXTCmoxuju342I5p63+hD5brPv0mK1CYPLsny0if+yzyncN1zVHku
-         nEu+PwWx9Z2biAS9FjaK/czwyS5yH3xmrNFTWC4Uzc0XztxEKGrPZZWqyiFdQuKH7VMT
-         qjXV+q1R1y6of7GearHamirxl2a5IBL1vfUnuMCpHVpyMMMfFTHMsX2UU/tsoKiFVrd8
-         nfhkdq/MjMhPovW8qetKXpOCOcCQct6R1O9U6V0lJ6nbFKBNwOoz9DjURU1e4OfIUL0E
-         AR1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=UXgtDsRN7lwk5hslMhDS77KoWasIDbV8j6zhJXeW8ys=;
-        b=c/FJcA5BONMl1cGSu/KQcwmnRhb2xQZsTIggcFjqzjy3yFHOM92232xn7DixlLBk74
-         yAqa+0Rl98jgi1/o8fpz3HCA2wRGa173Vu3ejdyGLj59gylcVcxEBUDeOiIOOjpWsSsw
-         hztETVv0VuT3yo9LOrGEKHibhyY0BxEGomme4TTq7czz1Ly2s6PVRUCoHtTBs73U8Ynk
-         w8CtGuQXgHpKR2kFCCvbU59BDHfdEy/NesFyCwlGaJRAyPf/i7/6ISdRYYFaDXhn2jcB
-         5BpojGhiV3eaivO9n2iFbzinBP2HhP4ePhyJOPyySOxsl8+q41jV0MUyoMfAVN41kD5m
-         A0sQ==
-X-Gm-Message-State: AOAM533/qEqPu0VOeXGCBeVpQmSounPOOfp7PradIAbtZ05QED0V0Gih
-        eHv2/dufX5ggybBTOIwhqdvHu8J1hPKcv/VgGwk=
-X-Google-Smtp-Source: ABdhPJxubx0EpOSvhfMWB9X51gHl+2rOp9l2I8BEMwhdjkegxt4zxXAix7vriYdBSV0+Yi51uI+Goz/wKwb2YPVHu1U=
-X-Received: by 2002:a02:ccb3:: with SMTP id t19mr81978711jap.122.1594455476549;
- Sat, 11 Jul 2020 01:17:56 -0700 (PDT)
+        with ESMTP id S1726203AbgGKKq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jul 2020 06:46:57 -0400
+X-Greylist: delayed 2696 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 11 Jul 2020 03:46:57 PDT
+Received: from hall.aurel32.net (hall.aurel32.net [IPv6:2001:bc8:30d7:100::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1E7C08C5DD;
+        Sat, 11 Jul 2020 03:46:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
+        ; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
+        Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
+        Subject:Content-ID:Content-Description:X-Debbugs-Cc;
+        bh=Brj2Uur/vWw8fobBoxnPCAHoheyz+8lGCkL8KGgE4kk=; b=T3rF3OsCphU2NAQsomSG79Gt7G
+        toOUn6F5KjoMhxsr7qwX0TqKajhOBb5Yiwwk7CK6VeFp8KlTLYtmadtvGpULqvEEUVGwymznvessY
+        5skk9TM12Wf3h47kZUDIbTMD+cCSJKHfCtijxevGHedRQlD857qWYp3owOp3DlgxEyGEfxGy4830G
+        gnkd1pPeUZxEgirqLUdI96a9Rw8nnJCgofAUmv0QwIE1RbxsMZ1HBL1dUTMt182DuKbQuKqqducmU
+        BmSvsX7hSsF8s3RJnoBcSCU0ZChdIhHvDUwQDF85JjEsXYUhEK2eAq0gPt7+eFVxbqotky0YlLYOj
+        IDry8pzw==;
+Received: from [2a01:e35:2fdd:a4e1:fe91:fc89:bc43:b814] (helo=ohm.rr44.fr)
+        by hall.aurel32.net with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <aurelien@aurel32.net>)
+        id 1juCKN-0005Xf-Iz; Sat, 11 Jul 2020 12:01:51 +0200
+Received: from aurel32 by ohm.rr44.fr with local (Exim 4.94)
+        (envelope-from <aurelien@aurel32.net>)
+        id 1juCKL-00A3er-Fn; Sat, 11 Jul 2020 12:01:49 +0200
+Date:   Sat, 11 Jul 2020 12:01:49 +0200
+From:   Aurelien Jarno <aurelien@aurel32.net>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 080/106] mips: Add udelay lpj numbers
+ adjustment
+Message-ID: <20200711100149.GA2397222@aurel32.net>
+Mail-Followup-To: Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>, Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org
+References: <20200608232238.3368589-1-sashal@kernel.org>
+ <20200608232238.3368589-80-sashal@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a02:6615:0:0:0:0:0 with HTTP; Sat, 11 Jul 2020 01:17:56
- -0700 (PDT)
-From:   Abibatu ali <abibatu22ali@gmail.com>
-Date:   Sat, 11 Jul 2020 01:17:56 -0700
-X-Google-Sender-Auth: vPJP8yd1oRn_oJ5sGHBWCQXf4IQ
-Message-ID: <CABzhNW0S0iBoX7B-_1APOMKdbhPYXGoF1Wd4gHtEVK9Ep0c3TA@mail.gmail.com>
-Subject: Hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200608232238.3368589-80-sashal@kernel.org>
+User-Agent: Mutt/1.14.0 (2020-05-02)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear.Friend
-I am Mrs. Abibatu. I am sending this brief letter to solicit
-your partnership to transfer a sum of 11.9 Million Dollars into your
-reliable account as my business partner. However, it's my urgent need
-for foreign partner that made me to contact you for this transaction.
-Further details of the transfer will be forwarded to you if you are
-ready to assist me.
-Best Regards.
-Mrs.Abibatu Ali
+On 2020-06-08 19:22, Sasha Levin wrote:
+> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> 
+> [ Upstream commit ed26aacfb5f71eecb20a51c4467da440cb719d66 ]
+> 
+> Loops-per-jiffies is a special number which represents a number of
+> noop-loop cycles per CPU-scheduler quantum - jiffies. As you
+> understand aside from CPU-specific implementation it depends on
+> the CPU frequency. So when a platform has the CPU frequency fixed,
+> we have no problem and the current udelay interface will work
+> just fine. But as soon as CPU-freq driver is enabled and the cores
+> frequency changes, we'll end up with distorted udelay's. In order
+> to fix this we have to accordinly adjust the per-CPU udelay_val
+> (the same as the global loops_per_jiffy) number. This can be done
+> in the CPU-freq transition event handler. We subscribe to that event
+> in the MIPS arch time-inititalization method.
+> 
+> Co-developed-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Paul Burton <paulburton@kernel.org>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/mips/kernel/time.c | 70 +++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 70 insertions(+)
+> 
+> diff --git a/arch/mips/kernel/time.c b/arch/mips/kernel/time.c
+> index bfe02ded25d1..1e631a484ddf 100644
+> --- a/arch/mips/kernel/time.c
+> +++ b/arch/mips/kernel/time.c
+> @@ -22,12 +22,82 @@
+>  #include <linux/smp.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/export.h>
+> +#include <linux/cpufreq.h>
+> +#include <linux/delay.h>
+>  
+>  #include <asm/cpu-features.h>
+>  #include <asm/cpu-type.h>
+>  #include <asm/div64.h>
+>  #include <asm/time.h>
+>  
+> +#ifdef CONFIG_CPU_FREQ
+> +
+> +static DEFINE_PER_CPU(unsigned long, pcp_lpj_ref);
+> +static DEFINE_PER_CPU(unsigned long, pcp_lpj_ref_freq);
+> +static unsigned long glb_lpj_ref;
+> +static unsigned long glb_lpj_ref_freq;
+> +
+> +static int cpufreq_callback(struct notifier_block *nb,
+> +			    unsigned long val, void *data)
+> +{
+> +	struct cpufreq_freqs *freq = data;
+> +	struct cpumask *cpus = freq->policy->cpus;
+                                     ^^^^^^
+
+The policy member has been added in kernel 5.2, so kernel 4.19.129 and
+later do not build anymore when CONFIG_CPU_FREQ=y.
+
+-- 
+Aurelien Jarno                          GPG: 4096R/1DDD8C9B
+aurelien@aurel32.net                 http://www.aurel32.net
