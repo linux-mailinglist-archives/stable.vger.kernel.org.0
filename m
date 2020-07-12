@@ -2,109 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1760221CB17
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 21:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332BC21CB59
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 22:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729221AbgGLTYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 15:24:02 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:26379 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729162AbgGLTYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 15:24:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594581841;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=b3KrXXJU4xTFoLZxrkdOWqXLXUZ09xiehHzSqm0Pkjg=;
-        b=YkTew4p7joE7FRYbi461BYun6QyZXlwl75wFMQ9+dA4pPLMDKVsIl0yM7eqxDOgWoeYszR
-        rMcNfg4ZkPvwo8j1JOKdObEHFyCbkbqpAnEFmqoqj1TrHUr0rSyMtI1d0Z2bfweW5bwcHJ
-        xET0zNi9DZDNzwxhSQVMt87GynB8ijM=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-484-lQsg-kf_PDuHNIBWXOv8NA-1; Sun, 12 Jul 2020 15:23:59 -0400
-X-MC-Unique: lQsg-kf_PDuHNIBWXOv8NA-1
-Received: by mail-qv1-f72.google.com with SMTP id g17so6370299qvw.0
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 12:23:59 -0700 (PDT)
+        id S1729437AbgGLUhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 16:37:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729397AbgGLUhW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 16:37:22 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D68C08C5DE
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 13:37:21 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id p1so4551644pls.4
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 13:37:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=/nuEi5LSAR+BLYQ3M1VbbdXftovzZ8g7a0HCozi5Z14=;
+        b=OKbsTsBjFpc2Q2RpjNItVv+FVfQd9DdK31sK2+p3JNMHwt1q+he7+lWvU0dJ6lQ5pY
+         FyNrVK7DBeU3wgSpTq+PpurW0LFMIq2FaqSUR73fvsSD+VUlCF4F67yomf7csOm33DY2
+         FilVSTqU5S6LDR5+1jOn1PUXuHjaw/28YUtIx4tkeFUFttTgv7jHUpsTjfq5KU4EZ6Z+
+         JtVlGLVNSkS4vpVdGQ+0jSfP3Rm8y1TZLF7Pmph2+YGjy+udBCGPJBxgr4/h0P2LO3dA
+         Ut1qM++ITGMc5j5d8XgFpmlQMPqXnzcKap1Sp+3WWXF4nzT84Y18CdJWB0Rk5m/d2vm4
+         CtEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=b3KrXXJU4xTFoLZxrkdOWqXLXUZ09xiehHzSqm0Pkjg=;
-        b=bXWgjF+Q6rqySBxrCLpJbiwnJtWqXZp4nlZ9LrOV0PxQfASaf8FeKa9mmlN/iOgTyH
-         QyFFOiFiOaNgfZZyEBMPcB4UIHSBAnT3pXxrbaDPjPqRKTA3+o6VaZKkuUbx/0WI6eoP
-         B8EV6mLxEwJ57/kuJpea5mXxLcbyn8EwlH1aAGxW+jibaG88vRgx8ujQzdj8n3dhy/5H
-         U3PnXx0pZGYaxyLeWddn3YINblcPWT7dENRnd2t9ffMvdezsgUo6PlHNjpWbDJsGSWlP
-         ZZ+RpR9JCF3KbYjQPl5wL2USr6OB0gI6B7EvMCX/V4dBeSfND6857PndjnL+aoxVEUKL
-         UunQ==
-X-Gm-Message-State: AOAM532jpjyaAENYxYCCfchLYG5JXEST9QczVkjawN9ipyzj8o61VRwQ
-        8tJ05aZF0F3BtY0soKhE5UVJYiQj8a9bj7ppfSmZcoKALO3MmdihiZQHhY/qI8Z3s1XqNoi6qjW
-        PxSsWvQz0Pt08FPKn
-X-Received: by 2002:aed:2f81:: with SMTP id m1mr81595688qtd.266.1594581838903;
-        Sun, 12 Jul 2020 12:23:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyFr53b37diI/w/IdeVAqL09teKKMSooWPoLaA53zo+3jg48N0X3U39i0Ti1XPPzdbbAPOSWw==
-X-Received: by 2002:aed:2f81:: with SMTP id m1mr81595671qtd.266.1594581838617;
-        Sun, 12 Jul 2020 12:23:58 -0700 (PDT)
-Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
-        by smtp.gmail.com with ESMTPSA id p7sm15836151qki.61.2020.07.12.12.23.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Jul 2020 12:23:57 -0700 (PDT)
-From:   trix@redhat.com
-To:     sre@kernel.org, anton.vorontsov@linaro.org, jtzhou@marvell.com
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>
-Subject: [PATCH] power: supply: check if calc_soc succeeded in pm860x_init_battery
-Date:   Sun, 12 Jul 2020 12:23:51 -0700
-Message-Id: <20200712192351.15428-1-trix@redhat.com>
-X-Mailer: git-send-email 2.18.1
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=/nuEi5LSAR+BLYQ3M1VbbdXftovzZ8g7a0HCozi5Z14=;
+        b=Dvn1v1+TFf8al3GhtpYgjx3oeTGtPiKele2FetCBlApyyd84xvxJx9iriEjks7PpOQ
+         TBBJZowDTYjwPUkF7tQQkYsc316++ZRdlNNL/ZoqgDslNrsgNO9gzveXpmClaGXT58oN
+         nSaNvtYOOc18YiAfNNLMUeZEBAqZ1zPrqRlfjIxxOe+UsTDdAFPfICUdnGW5CDu54WYC
+         i+/y6ursaBdzyeAjdLypYZlJ7b9+kjLZ3Nj/yZIgPCHMeltAVgX/YHU21saHm4pI/94Y
+         kq7dJ5j6n0iBrVbxV/VQtftIKZxq4XpSWKmr4aYONN40u3f+ADZ0S7xP+p7CoMImCn4N
+         0kCA==
+X-Gm-Message-State: AOAM532+O3+/KzKKPUkY3LVqFvelLNRG240Y6uZtRPcb1X8twlpUkI8a
+        FWFT0X+gvLg0YtpyC+S9zBzcrSLiyfZKng==
+X-Google-Smtp-Source: ABdhPJxJ5S6nNjHYOWkL5qX+tcJMU4wE4qGu4a14gg3IesW7UiP86NpYK+fA596DOp1xGeR1N986aQ==
+X-Received: by 2002:a17:902:446:: with SMTP id 64mr23802034ple.157.1594586241283;
+        Sun, 12 Jul 2020 13:37:21 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id nl5sm13018985pjb.36.2020.07.12.13.37.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 12 Jul 2020 13:37:20 -0700 (PDT)
+Subject: Re: [PATCH 1/2] bcache: avoid nr_stripes overflow in
+ bcache_device_init()
+To:     Coly Li <colyli@suse.de>, linux-bcache@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, Ken Raeburn <raeburn@redhat.com>,
+        stable@vger.kernel.org
+References: <20200712174736.9840-1-colyli@suse.de>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <010a5d09-5de8-8f1e-4ff5-3f194f899073@kernel.dk>
+Date:   Sun, 12 Jul 2020 14:37:19 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200712174736.9840-1-colyli@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+On 7/12/20 11:47 AM, Coly Li wrote:
+> For some block devices which large capacity (e.g. 8TB) but small io_opt
+> size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
+> lated by,
+> 	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
+> might be overflow to the unsigned int bcache_device->nr_stripes.
+> 
+> This patch uses an unsigned long variable to store DIV_ROUND_UP_ULL()
+> and after the value is checked to be available in unsigned int range,
+> sets it to bache_device->nr_stripes. Then the overflow is avoided.
 
-clang static analysis flags this error
+Does that work on 32-bit, where sizeof(unsigned long) == 4?
 
-88pm860x_battery.c:522:19: warning: Assigned value is
-  garbage or undefined [core.uninitialized.Assign]
-                info->start_soc = soc;
-                                ^ ~~~
-soc is set by calling calc_soc.
-But calc_soc can return without setting soc.
-
-So check the return status and bail similarly to other
-checks in pm860x_init_battery and initialize soc to
-silence the warning.
-
-Fixes: a830d28b48bf ("power_supply: Enable battery-charger for 88pm860x")
-
-Signed-off-by: Tom Rix <trix@redhat.com>
----
- drivers/power/supply/88pm860x_battery.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/power/supply/88pm860x_battery.c b/drivers/power/supply/88pm860x_battery.c
-index 1308f3a185f3..590da88a17a2 100644
---- a/drivers/power/supply/88pm860x_battery.c
-+++ b/drivers/power/supply/88pm860x_battery.c
-@@ -433,7 +433,7 @@ static void pm860x_init_battery(struct pm860x_battery_info *info)
- 	int ret;
- 	int data;
- 	int bat_remove;
--	int soc;
-+	int soc = 0;
- 
- 	/* measure enable on GPADC1 */
- 	data = MEAS1_GP1;
-@@ -496,7 +496,9 @@ static void pm860x_init_battery(struct pm860x_battery_info *info)
- 	}
- 	mutex_unlock(&info->lock);
- 
--	calc_soc(info, OCV_MODE_ACTIVE, &soc);
-+	ret = calc_soc(info, OCV_MODE_ACTIVE, &soc);
-+	if (ret < 0)
-+		goto out;
- 
- 	data = pm860x_reg_read(info->i2c, PM8607_POWER_UP_LOG);
- 	bat_remove = data & BAT_WU_LOG;
 -- 
-2.18.1
+Jens Axboe
 
