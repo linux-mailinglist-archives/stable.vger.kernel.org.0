@@ -2,99 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C46121CAD9
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 19:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1760221CB17
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 21:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729312AbgGLRtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 13:49:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38746 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728882AbgGLRtv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 12 Jul 2020 13:49:51 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id BE014AD4B;
-        Sun, 12 Jul 2020 17:49:51 +0000 (UTC)
-Subject: Re: [PATCH 1/2] bcache: avoid nr_stripes overflow in
- bcache_device_init()
-Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200712174736.9840-1-colyli@suse.de>
-To:     Ken Raeburn <raeburn@redhat.com>
-From:   Coly Li <colyli@suse.de>
-Autocrypt: addr=colyli@suse.de; keydata=
- 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
-Message-ID: <1011c22f-d186-6398-98e1-83f1c363dedd@suse.de>
-Date:   Mon, 13 Jul 2020 01:49:45 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20200712174736.9840-1-colyli@suse.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1729221AbgGLTYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 15:24:02 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:26379 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729162AbgGLTYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 15:24:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594581841;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc; bh=b3KrXXJU4xTFoLZxrkdOWqXLXUZ09xiehHzSqm0Pkjg=;
+        b=YkTew4p7joE7FRYbi461BYun6QyZXlwl75wFMQ9+dA4pPLMDKVsIl0yM7eqxDOgWoeYszR
+        rMcNfg4ZkPvwo8j1JOKdObEHFyCbkbqpAnEFmqoqj1TrHUr0rSyMtI1d0Z2bfweW5bwcHJ
+        xET0zNi9DZDNzwxhSQVMt87GynB8ijM=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-484-lQsg-kf_PDuHNIBWXOv8NA-1; Sun, 12 Jul 2020 15:23:59 -0400
+X-MC-Unique: lQsg-kf_PDuHNIBWXOv8NA-1
+Received: by mail-qv1-f72.google.com with SMTP id g17so6370299qvw.0
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 12:23:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=b3KrXXJU4xTFoLZxrkdOWqXLXUZ09xiehHzSqm0Pkjg=;
+        b=bXWgjF+Q6rqySBxrCLpJbiwnJtWqXZp4nlZ9LrOV0PxQfASaf8FeKa9mmlN/iOgTyH
+         QyFFOiFiOaNgfZZyEBMPcB4UIHSBAnT3pXxrbaDPjPqRKTA3+o6VaZKkuUbx/0WI6eoP
+         B8EV6mLxEwJ57/kuJpea5mXxLcbyn8EwlH1aAGxW+jibaG88vRgx8ujQzdj8n3dhy/5H
+         U3PnXx0pZGYaxyLeWddn3YINblcPWT7dENRnd2t9ffMvdezsgUo6PlHNjpWbDJsGSWlP
+         ZZ+RpR9JCF3KbYjQPl5wL2USr6OB0gI6B7EvMCX/V4dBeSfND6857PndjnL+aoxVEUKL
+         UunQ==
+X-Gm-Message-State: AOAM532jpjyaAENYxYCCfchLYG5JXEST9QczVkjawN9ipyzj8o61VRwQ
+        8tJ05aZF0F3BtY0soKhE5UVJYiQj8a9bj7ppfSmZcoKALO3MmdihiZQHhY/qI8Z3s1XqNoi6qjW
+        PxSsWvQz0Pt08FPKn
+X-Received: by 2002:aed:2f81:: with SMTP id m1mr81595688qtd.266.1594581838903;
+        Sun, 12 Jul 2020 12:23:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyFr53b37diI/w/IdeVAqL09teKKMSooWPoLaA53zo+3jg48N0X3U39i0Ti1XPPzdbbAPOSWw==
+X-Received: by 2002:aed:2f81:: with SMTP id m1mr81595671qtd.266.1594581838617;
+        Sun, 12 Jul 2020 12:23:58 -0700 (PDT)
+Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
+        by smtp.gmail.com with ESMTPSA id p7sm15836151qki.61.2020.07.12.12.23.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Jul 2020 12:23:57 -0700 (PDT)
+From:   trix@redhat.com
+To:     sre@kernel.org, anton.vorontsov@linaro.org, jtzhou@marvell.com
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>
+Subject: [PATCH] power: supply: check if calc_soc succeeded in pm860x_init_battery
+Date:   Sun, 12 Jul 2020 12:23:51 -0700
+Message-Id: <20200712192351.15428-1-trix@redhat.com>
+X-Mailer: git-send-email 2.18.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/7/13 01:47, Coly Li wrote:
-> For some block devices which large capacity (e.g. 8TB) but small io_opt
-> size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
-> lated by,
-> 	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
-> might be overflow to the unsigned int bcache_device->nr_stripes.
-> 
-> This patch uses an unsigned long variable to store DIV_ROUND_UP_ULL()
-> and after the value is checked to be available in unsigned int range,
-> sets it to bache_device->nr_stripes. Then the overflow is avoided.
+From: Tom Rix <trix@redhat.com>
 
-Hi Ken,
+clang static analysis flags this error
 
-Could you please to try whether these two patches may avoid the kernel
-panic ? I will post the overwhelm stripe_size patch later.
+88pm860x_battery.c:522:19: warning: Assigned value is
+  garbage or undefined [core.uninitialized.Assign]
+                info->start_soc = soc;
+                                ^ ~~~
+soc is set by calling calc_soc.
+But calc_soc can return without setting soc.
 
-Thanks.
+So check the return status and bail similarly to other
+checks in pm860x_init_battery and initialize soc to
+silence the warning.
 
-Coly Li
+Fixes: a830d28b48bf ("power_supply: Enable battery-charger for 88pm860x")
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+---
+ drivers/power/supply/88pm860x_battery.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/power/supply/88pm860x_battery.c b/drivers/power/supply/88pm860x_battery.c
+index 1308f3a185f3..590da88a17a2 100644
+--- a/drivers/power/supply/88pm860x_battery.c
++++ b/drivers/power/supply/88pm860x_battery.c
+@@ -433,7 +433,7 @@ static void pm860x_init_battery(struct pm860x_battery_info *info)
+ 	int ret;
+ 	int data;
+ 	int bat_remove;
+-	int soc;
++	int soc = 0;
+ 
+ 	/* measure enable on GPADC1 */
+ 	data = MEAS1_GP1;
+@@ -496,7 +496,9 @@ static void pm860x_init_battery(struct pm860x_battery_info *info)
+ 	}
+ 	mutex_unlock(&info->lock);
+ 
+-	calc_soc(info, OCV_MODE_ACTIVE, &soc);
++	ret = calc_soc(info, OCV_MODE_ACTIVE, &soc);
++	if (ret < 0)
++		goto out;
+ 
+ 	data = pm860x_reg_read(info->i2c, PM8607_POWER_UP_LOG);
+ 	bat_remove = data & BAT_WU_LOG;
+-- 
+2.18.1
+
