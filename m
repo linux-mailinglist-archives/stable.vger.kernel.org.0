@@ -2,78 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD3921CA09
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 17:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF2B21CAB5
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 19:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728859AbgGLPkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 11:40:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43932 "EHLO
+        id S1729213AbgGLRbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 13:31:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728844AbgGLPkk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 11:40:40 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E26C08C5DB
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 08:40:39 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id i14so4858316pfu.13
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 08:40:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=OjY/mrKfhXLFbFJJSqRw4+tjDAVa1uZVE8au7MW9YJY=;
-        b=GDzgBmyd5+3zU8+zUcw/mHsUosiTmTdxMHqsembC+IcEsn3IipXLRBVPBWYhcvwqcq
-         emon4MuhuDqDkqwfsDrfWamBmbEgS6MqCAKeVW5rJIse8xqDslIYeP1D5rGtRQPqZYto
-         mdrrLBEGqlJMr4u0jISNjIWWysBVw6JkI5JNVFHOs6CgdEnpOyaDpkzx7TUJJfs6Hu3e
-         Y5vVNCsylXY9yFt6794WEzS4Fx7Syo53J5mKAFTilBCfWJfXEA/HeRUyQXuIDUaT1Piw
-         39Jstaa2cabpqVXMxemE55QASBN+BqDxBZYJ/qZ2bxu3cZCLufVwgFha3iH4XgswwVqW
-         Zm0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=OjY/mrKfhXLFbFJJSqRw4+tjDAVa1uZVE8au7MW9YJY=;
-        b=KRvkRyYJ96W1EODoPf+PcWPkTL+WniWk2nNNln6By2sbrvc2WqnRfPrB/K5/wG8/fv
-         qa59MpLb0sPCYwdy5laBUu72pz/HG9+ES269OELfar1S5VCEzPAIrjqTODlqxyFCiEms
-         7nHXi+lf09pHDLzwfnYi52ANlWhK5+w3Kn7MsFFd/Ah6IBvnghP6BTZuJevD9mRuYKAt
-         rL7EJ1eIReInbbffrhT4Vxf/6NU/iatZr5tkiV7E71MD8Qu78VgROvmn8yVGKXL9QUUB
-         PWCysCfsHL8aoS33yuG20cWeZGtHimltXWTK0jeO3K3hEpuHyHexGDw6z91fKpBaMiOP
-         Lnag==
-X-Gm-Message-State: AOAM5336TLBp44kAzp9ndqXOQGaTLuCYKfFisRBf4YfAimWjDINnRoxD
-        nygNIR/K96RLe0qb92jP9VXR4hp0bp5L9g==
-X-Google-Smtp-Source: ABdhPJzMMq60JqFmtOqnlc7ZTucB6WCPa5QN7NRwdB1CUKh59s1G3j2q8B3SZ2f6IaqqMYtbJDlF3w==
-X-Received: by 2002:aa7:8651:: with SMTP id a17mr65156739pfo.48.1594568438335;
-        Sun, 12 Jul 2020 08:40:38 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id y198sm12008231pfg.116.2020.07.12.08.40.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 12 Jul 2020 08:40:37 -0700 (PDT)
-Subject: Re: [PATCH v2] io_uring: fix missing msg_name assignment
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <fcf14a85d9478be55b72551b3046e898503950c9.1594537448.git.asml.silence@gmail.com>
- <1b98c048b3a0cad032affc44fa08ff7fd8f8f2b3.1594549283.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <dbe6c273-b045-cd64-0479-8104d30e89f4@kernel.dk>
-Date:   Sun, 12 Jul 2020 09:40:35 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        with ESMTP id S1729103AbgGLRbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 13:31:16 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0706C061794;
+        Sun, 12 Jul 2020 10:31:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=0lZACZlm7hp7p3AuwMaMc3pMQx+Gf0OKUy9R5BwWajc=; b=EpxDrpEAuVkfls1cofHEt/ntsC
+        hHzEneuO2eVxHcRPwBtIExjx8O4Z/1xHFraQYVBrYFT3o9pwMaPdtIuEVvVTD+GrePjU5HdJBDyLU
+        ikdn0vwlBsmBCokv3BN6qLdTLdmkWygYGG9qmT0UvJOsGkjHujcq6vtI9ElBoFhqHTNjF3WyBpLHJ
+        lLlsuggQuh8TTZAUo5T7erp/SKaCGf91TAcho55w0gd5+j89GqUA1Zv2tlS+FOPj9xigaGs5N8Gma
+        Bf1E67MFWlMnvI+LHlTYI5GZ8VMDabrgeDnmRMoffKnq9ZjIEdICBMEIqXZOj8TsyHfEHn12gkl79
+        Ce8OXG8w==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jufoS-0002Yv-FD; Sun, 12 Jul 2020 17:30:52 +0000
+Date:   Sun, 12 Jul 2020 18:30:52 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        William Kucharski <william.kucharski@oracle.com>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        Jerome Glisse <jglisse@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+Message-ID: <20200712173052.GU12769@casper.infradead.org>
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+ <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
+ <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
+ <CA+G9fYudT63yZrkWG+mfKHTcn5mP+Ay6hraEQy3G_4jufztrrA@mail.gmail.com>
+ <CAHk-=whPrCRZpXYKois-0t8MibxH9KVXn=+-O1YVvOA016fqhw@mail.gmail.com>
+ <CA+G9fYusSSrc5G_pZV6Lc-LjjkzQcc3EsLMo+ejSzvyRcMgbqw@mail.gmail.com>
+ <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1b98c048b3a0cad032affc44fa08ff7fd8f8f2b3.1594549283.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/12/20 4:23 AM, Pavel Begunkov wrote:
-> Ensure to set msg.msg_name for the async portion of send/recvmsg,
-> as the header copy will copy to/from it.
+On Sat, Jul 11, 2020 at 11:12:58AM -0700, Linus Torvalds wrote:
+> Yeah, that's just the commit that enables the code, not the commit
+> that introduces the fundamental problem.
+> 
+> That said, this is a prime example of why I absolutely detest patch
+> series that do this kind of thing, and are several patches that create
+> new functionality, followed by one patch to enable it.
+> 
+> If you can't get things working incrementally, maybe you shouldn't do
+> them at all. Doing a big series of "hidden work" and then enabling it
+> later is wrong.
 
-Applied, thanks.
+I'm struggling with exactly this for my current THP-in-pagecache patches.
+There are about fifty patches, each fixing something that won't work if
+the page is a THP.  And then there's the one patch which actually starts
+creating THPs, and that's the one patch any bisect will point to.
 
--- 
-Jens Axboe
+But I don't see any other way to do it.  It's not like I can put THPs
+in the page cache before fixing the things that won't work.
 
+This probably wasn't the kind of thing you had in mind when you wrote
+the above, but if you had some advice for my situation, I'd welcome it.
