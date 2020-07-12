@@ -2,98 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD3B21C885
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 12:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E2B21C887
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 12:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbgGLKZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 06:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727777AbgGLKZV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 06:25:21 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A3CC061794;
-        Sun, 12 Jul 2020 03:25:20 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id ga4so10921655ejb.11;
-        Sun, 12 Jul 2020 03:25:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=BklUmOJzay1uK19VmlrmlVYNXA/Uomou+PJbzVp04D8=;
-        b=f5hTh6O1TTBWn0QIuEFAvuYjjpaef3nla57Lrsy/tEugfWzWnFuYdc/d7QDEMlfZ7z
-         6i64T/0wrKLnjx5xSLhpJlY59o+Qu+88c6vqKjol28Ru9cAtH/KpoattzY4QA3nlGogx
-         js/JcmJMlC/DIKq5S8nn66ka+Wz8li24+Yd9bL3sA2gT6VQgHmli2TIFeeMvUTpaejyN
-         8ix3n8xvORlc3vbrJdHTN99jvau6Sp1VZ1cpublWNkNC0a2KNSbnRPQQlDC8jk//HZ5U
-         mW98rWRExNLVqBqwYWNMtBjm+iUpQTy3kSvqArwB0LbaKLk2fm+fgofJWUqJWSnHUVxm
-         r0Fw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=BklUmOJzay1uK19VmlrmlVYNXA/Uomou+PJbzVp04D8=;
-        b=Em5hms1IOGUeWMB0Sb19yh93IFiZpLwSs2OlnxfrwLBEe0CXrjEK3IDPKqMfh/WshP
-         dmCkXU6d0/1omLI561/IQTlA4mXC0JgFq3kfcdy3EIHP1y+88tPw+zTag4911NtGrpIx
-         c+u1stMbytjJww8nUrpev9D9xG8clUE5TISJ2z8W/I7MDvFyP8jUdP5VIw5uPcSYUmoV
-         YPsveNrTGwQAuMakxFizqbEUsW1KNMut9p53Uo/eSctCIWfF6myxNP6U5MfsiR0G+R/h
-         wab6bf4wUuQ7MOXMCD3Wh5oDgFcYuA9/DPEMfZcHQCfnX+NFmvZ6jP0EEQkApk/a0KnK
-         zTOw==
-X-Gm-Message-State: AOAM533XnneVa7qW28Oi/kCu6PLHp+ktXd4J2k8C4ow2mEr1qomsaaWq
-        Thp3lSg9206eDwRCIKjQ4bWfrRcy
-X-Google-Smtp-Source: ABdhPJzughq2eLqR8+bAgXYlE+87yGBajL3QGoabCPd+YlAWgx5+ciwTBtyPIv+hQ/CpnucxYVPYgw==
-X-Received: by 2002:a17:906:4bcf:: with SMTP id x15mr58377063ejv.188.1594549519132;
-        Sun, 12 Jul 2020 03:25:19 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.193.69])
-        by smtp.gmail.com with ESMTPSA id q3sm8722869eds.41.2020.07.12.03.25.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Jul 2020 03:25:18 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v2] io_uring: fix missing msg_name assignment
-Date:   Sun, 12 Jul 2020 13:23:08 +0300
-Message-Id: <1b98c048b3a0cad032affc44fa08ff7fd8f8f2b3.1594549283.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <fcf14a85d9478be55b72551b3046e898503950c9.1594537448.git.asml.silence@gmail.com>
-References: <fcf14a85d9478be55b72551b3046e898503950c9.1594537448.git.asml.silence@gmail.com>
+        id S1728685AbgGLK2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 06:28:52 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:6759 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727777AbgGLK2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 06:28:52 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f0ae5ab0000>; Sun, 12 Jul 2020 03:27:55 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Sun, 12 Jul 2020 03:28:52 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Sun, 12 Jul 2020 03:28:52 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sun, 12 Jul
+ 2020 10:28:47 +0000
+Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Sun, 12 Jul 2020 10:28:47 +0000
+Received: from moonraker.nvidia.com (Not Verified[10.26.75.246]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5f0ae5dd0001>; Sun, 12 Jul 2020 03:28:46 -0700
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Thierry Reding <thierry.reding@gmail.com>
+CC:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Jon Hunter <jonathanh@nvidia.com>, <stable@vger.kernel.org>
+Subject: [PATCH 1/2] usb: tegra: Fix allocation for the FPCI context
+Date:   Sun, 12 Jul 2020 11:28:36 +0100
+Message-ID: <20200712102837.24340-1-jonathanh@nvidia.com>
+X-Mailer: git-send-email 2.17.1
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1594549675; bh=HueIEpf3LB7+Uj4bZJ8I5wIkAbrkHVxNkCa0Lx8Mdtw=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         X-NVConfidentiality:MIME-Version:Content-Type;
+        b=WIFfdiO+ODPanyz/TA8x1jpv4gkh85h07ufOiQcJF1wEDwdwZ78eVa5iLRj/xRHMl
+         8k8pC1Qp/P4ktin+Fb8GDriH9vuj2Pkucwx1OwYqXjDYzvG3qON9cJdb21UFCWPtgH
+         18mdTUgklWL5vGL0hIvJLdgu+ZFuB82DesB5BIBvlpExW6BN1NCX3WaVkQQsP1SMjQ
+         rELeS5o98CRwoYLUK7tnmqoevSvX6Kd1htrYnzXzyiuUbpboPuTUguZOOuLgmxewAD
+         8Q3jvqphgRljoq0jVxujrxMeKY7Ed1b/Yzc44dMk+riqGWUoAilmZb/QG0AXpvTawi
+         mAq2rugrpSKtQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ensure to set msg.msg_name for the async portion of send/recvmsg,
-as the header copy will copy to/from it.
+Commit 5c4e8d3781bc ("usb: host: xhci-tegra: Add support for XUSB
+context save/restore") is using the IPFS 'num_offsets' value when
+allocating memory for FPCI context instead of the FPCI 'num_offsets'.
+We have not observed any specific issues because of this, but could
+cause too much memory or too little memory to be allocated. Fix this
+by using the FPCI 'num_offsets' for allocating the FPCI memory for
+storing the FPCI state.
 
-Cc: stable@vger.kernel.org # 5.5, 5.6, 5.7
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Cc: stable@vger.kernel.org
+
+Fixes: 5c4e8d3781bc ("usb: host: xhci-tegra: Add support for XUSB context save/restore")
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 ---
-v2: don't miss out compat for recv
+ drivers/usb/host/xhci-tegra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7f2a2cb5c056..0ecd70dbf0fd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3913,6 +3913,7 @@ static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (req->flags & REQ_F_NEED_CLEANUP)
- 		return 0;
+diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
+index 9ce28ab47f4b..014d79334f50 100644
+--- a/drivers/usb/host/xhci-tegra.c
++++ b/drivers/usb/host/xhci-tegra.c
+@@ -856,7 +856,7 @@ static int tegra_xusb_init_context(struct tegra_xusb *tegra)
+ 	if (!tegra->context.ipfs)
+ 		return -ENOMEM;
  
-+	io->msg.msg.msg_name = &io->msg.addr;
- 	io->msg.iov = io->msg.fast_iov;
- 	ret = sendmsg_copy_msghdr(&io->msg.msg, sr->msg, sr->msg_flags,
- 					&io->msg.iov);
-@@ -4094,6 +4095,7 @@ static int __io_compat_recvmsg_copy_hdr(struct io_kiocb *req,
- 
- static int io_recvmsg_copy_hdr(struct io_kiocb *req, struct io_async_ctx *io)
- {
-+	io->msg.msg.msg_name = &io->msg.addr;
- 	io->msg.iov = io->msg.fast_iov;
- 
- #ifdef CONFIG_COMPAT
+-	tegra->context.fpci = devm_kcalloc(tegra->dev, soc->ipfs.num_offsets,
++	tegra->context.fpci = devm_kcalloc(tegra->dev, soc->fpci.num_offsets,
+ 					   sizeof(u32), GFP_KERNEL);
+ 	if (!tegra->context.fpci)
+ 		return -ENOMEM;
 -- 
-2.24.0
+2.17.1
 
