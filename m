@@ -2,107 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 987B121CB5C
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 22:38:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BDF221CB5F
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 22:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729415AbgGLUiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 16:38:15 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:49815 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729287AbgGLUiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 16:38:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594586294;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2qBve8P2iGMkyjOWMAQQIHIgHGMhCrdFQndb3uLOLP0=;
-        b=RTbEEIQCnZzC1fggiH1DvwcEwif0Sd2Dtk1sxySxtA625HCUmhIOhDOSm4qG+NrfTUDWo9
-        d5XMVIDqQ61OsQ2HyIjy0hgrmb3p1qiZzMmFswAL6mmti8AYuZUdYudbTdyXF5zeN1BgCz
-        ryPdYO+OSU9puN0Bwa2+ODdN7Hzl9BQ=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-63-o-dHY2TIMYeafoY1jdibKw-1; Sun, 12 Jul 2020 16:38:12 -0400
-X-MC-Unique: o-dHY2TIMYeafoY1jdibKw-1
-Received: by mail-qk1-f198.google.com with SMTP id p126so9310863qkf.15
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 13:38:12 -0700 (PDT)
+        id S1729397AbgGLUii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 16:38:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32988 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729338AbgGLUii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 16:38:38 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43A4C061794
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 13:38:37 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id j11so13180714ljo.7
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 13:38:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Gl2ce7HaAsxftBSvHTYfVjHKxjss9sGSbVqe5rk7avY=;
+        b=XdGOzuYCMQf2MS3+YU13NwZGxK6zk35LUeoeXKnD4wgMvpsZR4f1qJiIA3edqzxUOI
+         APpAc1SkrdtdB1sVpR+nfZN5esJJgThGv9EAPSKom0yU+I4kNIz9avLhSfpeIbrUgO8N
+         jtms4zy/hQnftZTRS7OTXFDNvfm8EZQlT9LGQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-transfer-encoding:content-language;
-        bh=2qBve8P2iGMkyjOWMAQQIHIgHGMhCrdFQndb3uLOLP0=;
-        b=U8t5yPQoCDek/2OkJkChhFQKrQU0n4mVo/op7Ewg5cfHt8imvrrfXuljFtNe1L0EqF
-         aTV+b3R16YeNZPMmO77HH+a25YcztC60HDiPoV0WYhdd0FQhXFEIqR38DuFdaJf5Mbld
-         ZkpAL04Tav6ndTDsF3nTJnMV2HyFgymw0G6o1hh+h+vA6Nyk67/Qh/NPtWVxZL8Xv6Nn
-         Hx6KEeY6L7tz19wsjdsUrx3doJZAiotu31efS3vvwQfPGNxQt/f6tmjpNorkfKpHpn1C
-         zGWgQilcNp2gS3WS/OS3Tpe++e+cPfrv9J8ZTkp3J7ppeElqssZed1tK1VHdJNvxUZ69
-         PPkQ==
-X-Gm-Message-State: AOAM531OmVcFxe0wIqF03YZEKmlDv2Z89rYsUbCFkfks1nCsx9EhPoQI
-        mDr/7lUkEtaKvR+ML/+fgP27WsvgWl2sSWEz74kkksp8fx/dJYcLZUfit86ddX5YaW3g62oUuG2
-        MhE8O8U0pJ9NH9Uwb
-X-Received: by 2002:a37:a6ce:: with SMTP id p197mr77389772qke.211.1594586291879;
-        Sun, 12 Jul 2020 13:38:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzxu5vmq81STqIAWaA8vKj+4yrVNtB6fhaAqeiECOx5LnqlE72lt6VYPIxlLT4MvQlZKWCzZQ==
-X-Received: by 2002:a37:a6ce:: with SMTP id p197mr77389763qke.211.1594586291593;
-        Sun, 12 Jul 2020 13:38:11 -0700 (PDT)
-Received: from [192.168.23.174] (c-73-253-167-23.hsd1.ma.comcast.net. [73.253.167.23])
-        by smtp.gmail.com with ESMTPSA id o10sm16085503qtq.71.2020.07.12.13.38.10
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Gl2ce7HaAsxftBSvHTYfVjHKxjss9sGSbVqe5rk7avY=;
+        b=dXtFM7CfZDQfJi2c3EUjQSh0Kett+taBxEs87EZfojzFLrSeSRgu7yd3V5LngVe6qt
+         fmn/IiFofOADJv5a3/8UbClShfU8SGGtxboMgosNOJDeGc3W+zQkTuwYGz8RffqshbTc
+         EpV/pZ7xIdAF3KgAepTdW4PB3cnCXd6w7vkjRt0jiVKR/BdfDQTCaTQe7+Y1umUPam0o
+         q/QpMeE7O/Y5rpSQ0muxYG6bhFcUlyCq71H85aN7oy/FH2nS2Z6GuUEpwwX2ITInmTjY
+         tR/hjdVSGHnNGdlXyYaM7lJbtnvkezgyr08t7No5I+mpMJmNBO2eLRqIJhMak8pdrpIy
+         BPIg==
+X-Gm-Message-State: AOAM531WzI0w9gm/tG81M5UdFh6GMMBZRrmX0s4MI7CRVKxv87zWQ++4
+        f50y7u6XEgLsoLU465iImmS1RZvjdzY=
+X-Google-Smtp-Source: ABdhPJzrQmgN+RYYDTkw4pHUDj8c8FfKYBnO16CY/c7x4/JSEPSYWLTXYR+YW9esVD8Op39tYaGflw==
+X-Received: by 2002:a2e:810e:: with SMTP id d14mr24506758ljg.31.1594586316186;
+        Sun, 12 Jul 2020 13:38:36 -0700 (PDT)
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com. [209.85.167.48])
+        by smtp.gmail.com with ESMTPSA id j4sm4178274lfb.94.2020.07.12.13.38.34
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 12 Jul 2020 13:38:10 -0700 (PDT)
-Subject: Re: [PATCH 1/2] bcache: avoid nr_stripes overflow in
- bcache_device_init()
-To:     Coly Li <colyli@suse.de>
-Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200712174736.9840-1-colyli@suse.de>
- <1011c22f-d186-6398-98e1-83f1c363dedd@suse.de>
-From:   Ken Raeburn <raeburn@redhat.com>
-Organization: Red Hat, Inc.
-Message-ID: <a504604d-ac8a-3276-e0b8-f42cb3782356@redhat.com>
-Date:   Sun, 12 Jul 2020 16:38:09 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        Sun, 12 Jul 2020 13:38:34 -0700 (PDT)
+Received: by mail-lf1-f48.google.com with SMTP id d21so6772274lfb.6
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 13:38:34 -0700 (PDT)
+X-Received: by 2002:ac2:5a5e:: with SMTP id r30mr51001288lfn.30.1594586313808;
+ Sun, 12 Jul 2020 13:38:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1011c22f-d186-6398-98e1-83f1c363dedd@suse.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+ <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
+ <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
+ <CA+G9fYudT63yZrkWG+mfKHTcn5mP+Ay6hraEQy3G_4jufztrrA@mail.gmail.com>
+ <CAHk-=whPrCRZpXYKois-0t8MibxH9KVXn=+-O1YVvOA016fqhw@mail.gmail.com>
+ <CA+G9fYusSSrc5G_pZV6Lc-LjjkzQcc3EsLMo+ejSzvyRcMgbqw@mail.gmail.com>
+ <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com> <20200712173052.GU12769@casper.infradead.org>
+In-Reply-To: <20200712173052.GU12769@casper.infradead.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 12 Jul 2020 13:38:18 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiU1LR_H4zV6McCKHKJ0unX1zXLTRXfjSEW2HTDjTce0A@mail.gmail.com>
+Message-ID: <CAHk-=wiU1LR_H4zV6McCKHKJ0unX1zXLTRXfjSEW2HTDjTce0A@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        William Kucharski <william.kucharski@oracle.com>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        Jerome Glisse <jglisse@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 7/12/20 1:49 PM, Coly Li wrote:
-> On 2020/7/13 01:47, Coly Li wrote:
->> For some block devices which large capacity (e.g. 8TB) but small io_opt
->> size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
->> lated by,
->> 	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
->> might be overflow to the unsigned int bcache_device->nr_stripes.
->>
->> This patch uses an unsigned long variable to store DIV_ROUND_UP_ULL()
->> and after the value is checked to be available in unsigned int range,
->> sets it to bache_device->nr_stripes. Then the overflow is avoided.
-> Hi Ken,
+On Sun, Jul 12, 2020 at 10:31 AM Matthew Wilcox <willy@infradead.org> wrote:
 >
-> Could you please to try whether these two patches may avoid the kernel
-> panic ? I will post the overwhelm stripe_size patch later.
->
-> Thanks.
->
-> Coly Li
->
-I will. But, from inspection: On a 32-bit system, "unsigned long" will 
-still be 32 bits, but sector_t (u64) will still be 64 bits, so that 
-assignment will still discard high bits before validation in that 
-environment. I suggest "unsigned long long" or another specifically 
-64-bit type.
+> But I don't see any other way to do it.  It's not like I can put THPs
+> in the page cache before fixing the things that won't work.
 
-Also, the VDO driver I work on doesn't support 32-bit platforms 
-currently, so my own testing will be limited to 64-bit platforms.
+I agree that sometimes there are bootstrapping issues. Incremental and
+explanatory commits are still better than one big commit that
+introduces a whole new feature and enables it.
 
-Ken
+But if at all possible, at least limit the scope of the new feature
+first, enabling the simplest possible cases as they become possible so
+that there's some incremental testing, and so that bisection can say
+"ok, that baseline worked, but then when XYZ happened, things went
+sideways".
 
+And even when it's a new feature - if it needs cleanup patches to
+other things first, please do that. In fact, please do that as a
+completely independent series that goes into a previous kernel release
+entirely, so that the cleanup and preparatory patches can be
+independently verified by a lot of people who run that _previous_
+kernel, so that the baseline of that cleanup phase is something as
+stable as possible.
+
+             Linus
