@@ -2,94 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF2B21CAB5
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 19:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C866021CAC6
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 19:39:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729213AbgGLRbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 13:31:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729103AbgGLRbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 13:31:16 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0706C061794;
-        Sun, 12 Jul 2020 10:31:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=0lZACZlm7hp7p3AuwMaMc3pMQx+Gf0OKUy9R5BwWajc=; b=EpxDrpEAuVkfls1cofHEt/ntsC
-        hHzEneuO2eVxHcRPwBtIExjx8O4Z/1xHFraQYVBrYFT3o9pwMaPdtIuEVvVTD+GrePjU5HdJBDyLU
-        ikdn0vwlBsmBCokv3BN6qLdTLdmkWygYGG9qmT0UvJOsGkjHujcq6vtI9ElBoFhqHTNjF3WyBpLHJ
-        lLlsuggQuh8TTZAUo5T7erp/SKaCGf91TAcho55w0gd5+j89GqUA1Zv2tlS+FOPj9xigaGs5N8Gma
-        Bf1E67MFWlMnvI+LHlTYI5GZ8VMDabrgeDnmRMoffKnq9ZjIEdICBMEIqXZOj8TsyHfEHn12gkl79
-        Ce8OXG8w==;
-Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jufoS-0002Yv-FD; Sun, 12 Jul 2020 17:30:52 +0000
-Date:   Sun, 12 Jul 2020 18:30:52 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        William Kucharski <william.kucharski@oracle.com>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
-        Michel Lespinasse <walken@google.com>,
-        Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Brian Geffon <bgeffon@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
-        Jerome Glisse <jglisse@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Hugh Dickins <hughd@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>
-Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-Message-ID: <20200712173052.GU12769@casper.infradead.org>
-References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
- <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
- <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
- <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
- <CA+G9fYudT63yZrkWG+mfKHTcn5mP+Ay6hraEQy3G_4jufztrrA@mail.gmail.com>
- <CAHk-=whPrCRZpXYKois-0t8MibxH9KVXn=+-O1YVvOA016fqhw@mail.gmail.com>
- <CA+G9fYusSSrc5G_pZV6Lc-LjjkzQcc3EsLMo+ejSzvyRcMgbqw@mail.gmail.com>
- <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com>
+        id S1729317AbgGLRjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 13:39:03 -0400
+Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:34577
+        "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729311AbgGLRjD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 13:39:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1594575542; bh=AEu8nK9QzTA2tbqo2l5BVwPShMs+2VsmLoZOZv6b3Lc=; h=Date:From:Reply-To:Subject:References:From:Subject; b=s+pahdZSS/dJSkkEs5F5iExAzoMHVQD6D6+QyWbydYo4bfcQ3X1gmkxSbH4JDqdqXi2S/u+qzNa7bjBNrKmjQsHqxVeKbM+GYa3hs88DwP4MM6W7nSGjZV2upzyjc9t7Th5FP82VfGFVSs5J5b6ZTwdr8sv0rhTn34IyyVmU0nUGDLAttGMthxAyGidJ63VGnKCx7aQ6kFgsIyrzRAZItpBxTILQC98gjBeD9spoXoEFoNqfVuMlVB6NEKgw2Cp7GFacq1s4nJQKaKtJzxBNWRht6PDzs08o6R4GdQD0CBRjBWQ9Z4YO63Vc/HSNEbnJO8OEXRWHjp/mS3577xl2Mw==
+X-YMail-OSG: olM7ltQVM1lXjBOtlewgXdRHYPX_BBg0XQUQU_Rc3pKNlhsFzCxMcJx8jJrr5Gt
+ biogDNf6LqzgtiaWzFnEAqHX.gtnv1nP9AKiF_hd2J5S9c0qoG64hQfMVf1DmBswUMdJk60otFwr
+ oprXyh6bs5Ek6rk6YmME8nHB2zHH_5NqioLEtvK2yMr4R9ziq07L1kaWzEXytkSupIIqKV2hYDIY
+ P26aMO5vkswDBVjzomzGdw.QGdKFf8g.WinWIk44sXnPmCkQCSuRR8H2Gci1kFzZCO_CYCyAixUH
+ oxFxHko_xRoS5h_bVttQHauk095LIjLe6dr9rhP29IB6xzR8MNvJma4US2ck4FLRCa51AnEPd7VJ
+ 1Iwg2dEIg_ZIJCSGQyvlRghy82H9yLnGfhWwbst2zLlSE.EuVzB2Ex8hE6hMEAS18P8loqFkHFEE
+ LRdZGOt2rsaFcNVaKJGHsI_O4kPOUHOPfBEzn.D2d_drcaI5xUD2TsBC5uNHbZ5AT2oyLDVNfGbj
+ CtFAt7nwANQdnfVJapJo764IF6tOcymXtLPsHAi5nPs8k8KgOQHL7H2Bc6Ix61vRtrkqYftDc50b
+ Ky5pdQyI16kzlEg8Vd1FvAXTEQGEiWX7Vk_5zW.KQNBPXRZ_5N4n0DSkNEdTCqTPCSElQCPYfQcY
+ WFv.H25n42M3XQ70niRgMyGSldwRg73GRz6p59ezhnK5qXbIKXb0bXLKIYDdIYvmZOqhNfdGmjFU
+ nnnOfG9p2SQYyoAVp0EfCAgoU.KKM6lyKgUwTIAAMN6Au.gSXOcOwN9PUWCj1eeAZz5lNSoWq1.0
+ UbADSYJMsvMGSZXmA.nmmy3b3lJCfwHaKrijdtyZjX7VlU6o4SN5q2FKYy4Yhat3rIUmFtYmtCQA
+ l8374i.7yOf7q8sCGMH.TsfqWiOVeGt_r.NqCN17Kr87Y61BMVJVX7rfOC6r.bRyofp6Qxqnz.M8
+ 3luL5a2xneZiIXrklWfAg6MSkQ6MF0V9cyR4cJNY6ynPYnZXTdYTlw15H4xvbtrl8IrArpcR.bjn
+ T5diQFp8bsy_EUkjf108D04U2KOoUyMJ8SOcrSuSMFFWJbCgW5TycyJQx5pJC3C9CjT016WLiyLz
+ JOx8fpZevLKNA.3oGbQdErFnIucAyfcm1_5etBgmXtPMoGA6kSyOxPyCsxV9IjaC1Slw5xo_rhjk
+ zQavOgH8YBdnb.Rb4DzCr8JnimOcgx4fSF37f0hQ2hkrvuDChPojTTm.ZWB0LNeSQzckl098vnzQ
+ VIDZmQKPziEYfO8QIcHUjJt_rjvf4rFvTLqj17qiPb1CL8htLrCN7XpcNzwi4fgi16Q--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Sun, 12 Jul 2020 17:39:02 +0000
+Date:   Sun, 12 Jul 2020 17:38:57 +0000 (UTC)
+From:   "Mrs. Maureen Hinckley" <mau56@hgvt.in>
+Reply-To: maurhinck8@gmail.com
+Message-ID: <368984903.464034.1594575537802@mail.yahoo.com>
+Subject: RE
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <368984903.464034.1594575537802.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 11, 2020 at 11:12:58AM -0700, Linus Torvalds wrote:
-> Yeah, that's just the commit that enables the code, not the commit
-> that introduces the fundamental problem.
-> 
-> That said, this is a prime example of why I absolutely detest patch
-> series that do this kind of thing, and are several patches that create
-> new functionality, followed by one patch to enable it.
-> 
-> If you can't get things working incrementally, maybe you shouldn't do
-> them at all. Doing a big series of "hidden work" and then enabling it
-> later is wrong.
 
-I'm struggling with exactly this for my current THP-in-pagecache patches.
-There are about fifty patches, each fixing something that won't work if
-the page is a THP.  And then there's the one patch which actually starts
-creating THPs, and that's the one patch any bisect will point to.
 
-But I don't see any other way to do it.  It's not like I can put THPs
-in the page cache before fixing the things that won't work.
+I am Maureen Hinckley and my foundation is donating (Five hundred and fifty=
+ thousand USD) to you. Contact us via my email at (maurhinck8@gmail.com) fo=
+r further details.
 
-This probably wasn't the kind of thing you had in mind when you wrote
-the above, but if you had some advice for my situation, I'd welcome it.
+Best Regards,
+Mrs. Maureen Hinckley,
+Copyright =C2=A92020 The Maureen Hinckley Foundation All Rights Reserved.
