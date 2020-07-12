@@ -2,151 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B6C21C6BC
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 01:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F8D021C7D3
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 09:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbgGKXdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jul 2020 19:33:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37582 "EHLO
+        id S1728391AbgGLHHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 03:07:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726948AbgGKXdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jul 2020 19:33:46 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30838C08C5DE
-        for <stable@vger.kernel.org>; Sat, 11 Jul 2020 16:33:46 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id c30so8895262qka.10
-        for <stable@vger.kernel.org>; Sat, 11 Jul 2020 16:33:46 -0700 (PDT)
+        with ESMTP id S1727777AbgGLHHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 03:07:05 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE95C08C5DD;
+        Sun, 12 Jul 2020 00:07:05 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id by13so7992848edb.11;
+        Sun, 12 Jul 2020 00:07:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=7z7xL3EKlTOURA9bJmOChBRDZVPEDiiwDdwRoGoh3tU=;
-        b=qIl9b9zmh8XbF0q286w8Bb/Rp5f+QT1YVrRvjp3Y9+n1lXT15pyXWbNXNkzL0XJ6mA
-         OKDXVRfdHQb173yeYwpNkVXRqypw5lYX9Y0PSvjbeMceKFi6++/t3q2LLKlk2cPos5jW
-         4gCYisSVRcsDinG3Oz8HOfKRGyBGwziTFY1Kw=
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3nHUKl4XNctrmVFHzNsgRLkFK27wlOc58Cv82KbaxHo=;
+        b=fIULQabPHd6xKjjapx2tu57e5k7yU4m6yvy4AtDE5GSpBgkoa4SOKDCHBgGQYit6iX
+         z85TUU6F3XDom+Jp9Z2+JwsNjsh4Y/JdXyT2CXWE4p2pt7NVnlRMtNnU6gnIoj0Gs9nB
+         cTyqkz+tBScYhIeC/2k2Hg8U7+zWXAePky9xxQf2y2e9WSzMs373N8mcYbLwjLiQk1xz
+         i1oHkSgxXC93F2LJUbVKLWZ8dqNs13KpEit1evn1RSwz48HEYNlpZZklBQRhjQ7lAH8Y
+         vZLL808KNg6Z9YkQ4dt36BvXIb9Ju+Cr8r+dLLZw4cjMlW4G4n574l3vfqKajqIKD9U2
+         Kbng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=7z7xL3EKlTOURA9bJmOChBRDZVPEDiiwDdwRoGoh3tU=;
-        b=WIYwS+ZI5KqNh5m/ISDeMSWx9ywjGB3luFsR9LLyCkie2KI5Qati8zYnr6T3yupp1h
-         FUXhTz720NE4PRkk5VgJOpp7zxxDHOMcdxavRijwrvDOnDoT3vaKiljZFiCrs0jS2SEE
-         XIJWDHkua46TVOwlozl2CZZI+nNNruCwZZhx6S2OeCgbAyMkHnRhKK6/jfCwQhGyYczJ
-         yOTggokH6DOZzDxXZP0XoA6qBJL1hhxh/5gojDb9HRPpqi9hYApLkOtNySWbUBaCi2V0
-         ITr2SD9vqXb/QY2+l6FWejazbqDbkrZY7UVeAaifR3It/avbFPDJGSQXYBi3mbLqj4uQ
-         v5oQ==
-X-Gm-Message-State: AOAM531JmetJUQlZexl6zpikDB9vnuBYCnBFbRcUFgqxmpEsCGSx87Q5
-        jHENtGJLN5DbysfgOJekOhw19A==
-X-Google-Smtp-Source: ABdhPJzBXhmcVKPBjv4vWy1ZtmSU6d30YNUnZS4J3IZmJkvxaNowyVwLPDWdMWEwfihLoLS8ivO2Zw==
-X-Received: by 2002:a37:c40a:: with SMTP id d10mr50674650qki.110.1594510425183;
-        Sat, 11 Jul 2020 16:33:45 -0700 (PDT)
-Received: from localhost ([2620:15c:6:12:cad3:ffff:feb3:bd59])
-        by smtp.gmail.com with ESMTPSA id e23sm12603012qkl.55.2020.07.11.16.33.44
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3nHUKl4XNctrmVFHzNsgRLkFK27wlOc58Cv82KbaxHo=;
+        b=K2K63B9OoSjkxoLUJqyGsM/qvLjWm0bIlpZUdQ3Ajka24onvOPsbGTbH06fsfDv6kG
+         tca3vD9mF4dadj0qVTMDs/EbsdHWBV270mUsL11duXq1LG1dmggsbXitkSJX0JZABXpD
+         ymT5JBppJpxOIBrudMJ4BCO/cuihjpaks6KWwyqC/slV4XuzO9eDl3vA2oKT9/KKGoub
+         q5Z1OjZg3xsi6tmsQBp148hfSLhowSbAlBcMscjFoeRC74EbhET2ZE3BKCgqeZnZgnd2
+         AvgxJS+YPTlBddphM8WqHfAY3CtwJ9z4VlTxP1WCLKDk6A6BwKxlntvGJSF7MhijV+V1
+         Q+kg==
+X-Gm-Message-State: AOAM5328+xfI6zcKRITg4F2vJtdkCbSZBXlLY5hYjq/LMRL6bgjhHuBR
+        Xm4i+XORGYr90C1hRnfw7Og=
+X-Google-Smtp-Source: ABdhPJxr8mekQkfcJf64wIpurpyIu1/EIejxP1OBQc1/ddS6HKuLyoJms7/GZ73d/Fhclwk+gUzLJA==
+X-Received: by 2002:aa7:c657:: with SMTP id z23mr77491613edr.265.1594537623778;
+        Sun, 12 Jul 2020 00:07:03 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.193.69])
+        by smtp.gmail.com with ESMTPSA id y24sm6926677ejj.97.2020.07.12.00.07.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jul 2020 16:33:44 -0700 (PDT)
-Date:   Sat, 11 Jul 2020 19:33:44 -0400
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        William Kucharski <william.kucharski@oracle.com>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
-        Michel Lespinasse <walken@google.com>,
-        Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Brian Geffon <bgeffon@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
-        Jerome Glisse <jglisse@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Hugh Dickins <hughd@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>
-Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-Message-ID: <20200711233344.GB2608903@google.com>
-References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
- <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
- <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
- <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
- <CA+G9fYudT63yZrkWG+mfKHTcn5mP+Ay6hraEQy3G_4jufztrrA@mail.gmail.com>
- <CAHk-=whPrCRZpXYKois-0t8MibxH9KVXn=+-O1YVvOA016fqhw@mail.gmail.com>
- <CA+G9fYusSSrc5G_pZV6Lc-LjjkzQcc3EsLMo+ejSzvyRcMgbqw@mail.gmail.com>
- <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com>
+        Sun, 12 Jul 2020 00:07:03 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 5.8] io_uring: fix missing msg_name assignment
+Date:   Sun, 12 Jul 2020 10:05:09 +0300
+Message-Id: <fcf14a85d9478be55b72551b3046e898503950c9.1594537448.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wj_Bqu5n3OJCnKiO_gs97fYEpdx6eSacEw2kv9YnnSv_w@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 11, 2020 at 11:12:58AM -0700, Linus Torvalds wrote:
-> On Sat, Jul 11, 2020 at 10:27 AM Naresh Kamboju
-> <naresh.kamboju@linaro.org> wrote:
-> >
-> > I have started bisecting this problem and found the first bad commit
-> 
-> Thanks for the effort. Bisection is often a great tool to figure out
-> what's wrong.
-> 
-> Sadly, in this case:
-> 
-> > commit 9f132f7e145506efc0744426cb338b18a54afc3b
-> > Author: Joel Fernandes (Google) <joel@joelfernandes.org>
-> > Date:   Thu Jan 3 15:28:41 2019 -0800
-> >
-> >     mm: select HAVE_MOVE_PMD on x86 for faster mremap
-> 
-> Yeah, that's just the commit that enables the code, not the commit
-> that introduces the fundamental problem.
-> 
-> That said, this is a prime example of why I absolutely detest patch
-> series that do this kind of thing, and are several patches that create
-> new functionality, followed by one patch to enable it.
-> 
-> If you can't get things working incrementally, maybe you shouldn't do
-> them at all. Doing a big series of "hidden work" and then enabling it
-> later is wrong.
-> 
-> In this case, though, the real patch that did the code isn't that kind
-> of "big series of hidden work" patch series, it's just the (single)
-> previous commit 2c91bd4a4e2e ("mm: speed up mremap by 20x on large
-> regions").
-> 
-> So your bisection is useful, it's just that it really points to that
-> previous commit, and it's where this code was introduced.
+Ensure to set msg.msg_name for the async portion of send/recvmsg,
+as the header copy will copy to/from it.
 
-Right, I think I should have squashed the enabling of the config, and the
-introduction of the feature in the same patch, but as you pointed that
-probably would not have made a difference with this bisect since this a
-single patch.
+Cc: stable@vger.kernel.org # 5.5, 5.6, 5.7
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> It's also worth noting that that commit doesn't really *break*
-> anything, since it just falls back to the old behavior when it warns.
-
-Agreed, I am also of the opinion that the patch is likely surface an existing
-issue and not introducing a new one.
-
-> So to "fix" your test-case, we could just remove the WARN_ON.
->
-> But the WARN_ON() is still worrisome, because the thing it tests for
-> really _should_ be true.
-
-I'll get some tracing in an emulated i386 environment going and try to figure
-out exactly what is going on before the warning triggers. thanks for the other
-debug hints in this thread!
-
-thanks,
-
- - Joel
-
- - Joel
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7f2a2cb5c056..8482b9aed952 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3913,6 +3913,7 @@ static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
+ 
++	io->msg.msg.msg_name = &io->msg.addr;
+ 	io->msg.iov = io->msg.fast_iov;
+ 	ret = sendmsg_copy_msghdr(&io->msg.msg, sr->msg, sr->msg_flags,
+ 					&io->msg.iov);
+@@ -4025,6 +4026,7 @@ static int __io_recvmsg_copy_hdr(struct io_kiocb *req, struct io_async_ctx *io)
+ 	size_t iov_len;
+ 	int ret;
+ 
++	io->msg.msg.msg_name = &io->msg.addr;
+ 	ret = __copy_msghdr_from_user(&io->msg.msg, sr->msg, &io->msg.uaddr,
+ 					&uiov, &iov_len);
+ 	if (ret)
+-- 
+2.24.0
 
