@@ -2,90 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A77321CA04
-	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 17:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD3921CA09
+	for <lists+stable@lfdr.de>; Sun, 12 Jul 2020 17:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbgGLPe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 11:34:57 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:36910 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728840AbgGLPe5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 11:34:57 -0400
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 3AC83514;
-        Sun, 12 Jul 2020 17:34:55 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1594568095;
-        bh=iaw7tkJBmoWtYDNarq2CsG9BuZ73n7i1IlTNN+2hqTo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lYXQlARBLpxQ1ri9ctH2+r0Pdzroh6m4p1ODUy4SXLyF53aUv0LUQRn19E9urWwUS
-         EQcuZjNtVqP3U8Eo2h8d14m1oMAApi4V5euj8Qdd/RrzLLgnCst31B7RVwCo46lHsI
-         0iMl0Y1bxciU+iBNvFjRiSyw0VVzKdPWKEg2qfMc=
-Date:   Sun, 12 Jul 2020 18:34:49 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     trix@redhat.com
-Cc:     a.hajda@samsung.com, narmstrong@baylibre.com, jonas@kwiboo.se,
-        jernej.skrabec@siol.net, airlied@linux.ie, daniel@ffwll.ch,
-        architt@codeaurora.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/bridge: sil_sii8620: initialize return of
- sii8620_readb
-Message-ID: <20200712153449.GA6642@pendragon.ideasonboard.com>
-References: <20200712152453.27510-1-trix@redhat.com>
+        id S1728859AbgGLPkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 11:40:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43932 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728844AbgGLPkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 11:40:40 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E26C08C5DB
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 08:40:39 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id i14so4858316pfu.13
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 08:40:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=OjY/mrKfhXLFbFJJSqRw4+tjDAVa1uZVE8au7MW9YJY=;
+        b=GDzgBmyd5+3zU8+zUcw/mHsUosiTmTdxMHqsembC+IcEsn3IipXLRBVPBWYhcvwqcq
+         emon4MuhuDqDkqwfsDrfWamBmbEgS6MqCAKeVW5rJIse8xqDslIYeP1D5rGtRQPqZYto
+         mdrrLBEGqlJMr4u0jISNjIWWysBVw6JkI5JNVFHOs6CgdEnpOyaDpkzx7TUJJfs6Hu3e
+         Y5vVNCsylXY9yFt6794WEzS4Fx7Syo53J5mKAFTilBCfWJfXEA/HeRUyQXuIDUaT1Piw
+         39Jstaa2cabpqVXMxemE55QASBN+BqDxBZYJ/qZ2bxu3cZCLufVwgFha3iH4XgswwVqW
+         Zm0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=OjY/mrKfhXLFbFJJSqRw4+tjDAVa1uZVE8au7MW9YJY=;
+        b=KRvkRyYJ96W1EODoPf+PcWPkTL+WniWk2nNNln6By2sbrvc2WqnRfPrB/K5/wG8/fv
+         qa59MpLb0sPCYwdy5laBUu72pz/HG9+ES269OELfar1S5VCEzPAIrjqTODlqxyFCiEms
+         7nHXi+lf09pHDLzwfnYi52ANlWhK5+w3Kn7MsFFd/Ah6IBvnghP6BTZuJevD9mRuYKAt
+         rL7EJ1eIReInbbffrhT4Vxf/6NU/iatZr5tkiV7E71MD8Qu78VgROvmn8yVGKXL9QUUB
+         PWCysCfsHL8aoS33yuG20cWeZGtHimltXWTK0jeO3K3hEpuHyHexGDw6z91fKpBaMiOP
+         Lnag==
+X-Gm-Message-State: AOAM5336TLBp44kAzp9ndqXOQGaTLuCYKfFisRBf4YfAimWjDINnRoxD
+        nygNIR/K96RLe0qb92jP9VXR4hp0bp5L9g==
+X-Google-Smtp-Source: ABdhPJzMMq60JqFmtOqnlc7ZTucB6WCPa5QN7NRwdB1CUKh59s1G3j2q8B3SZ2f6IaqqMYtbJDlF3w==
+X-Received: by 2002:aa7:8651:: with SMTP id a17mr65156739pfo.48.1594568438335;
+        Sun, 12 Jul 2020 08:40:38 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id y198sm12008231pfg.116.2020.07.12.08.40.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 12 Jul 2020 08:40:37 -0700 (PDT)
+Subject: Re: [PATCH v2] io_uring: fix missing msg_name assignment
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <fcf14a85d9478be55b72551b3046e898503950c9.1594537448.git.asml.silence@gmail.com>
+ <1b98c048b3a0cad032affc44fa08ff7fd8f8f2b3.1594549283.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <dbe6c273-b045-cd64-0479-8104d30e89f4@kernel.dk>
+Date:   Sun, 12 Jul 2020 09:40:35 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <1b98c048b3a0cad032affc44fa08ff7fd8f8f2b3.1594549283.git.asml.silence@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200712152453.27510-1-trix@redhat.com>
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tom,
+On 7/12/20 4:23 AM, Pavel Begunkov wrote:
+> Ensure to set msg.msg_name for the async portion of send/recvmsg,
+> as the header copy will copy to/from it.
 
-Thank you for the patch.
-
-On Sun, Jul 12, 2020 at 08:24:53AM -0700, trix@redhat.com wrote:
-> From: Tom Rix <trix@redhat.com>
-> 
-> clang static analysis flags this error
-> 
-> sil-sii8620.c:184:2: warning: Undefined or garbage value
->   returned to caller [core.uninitialized.UndefReturn]
->         return ret;
->         ^~~~~~~~~~
-> 
-> sii8620_readb calls sii8620_read_buf.
-> sii8620_read_buf can return without setting its output
-> pararmeter 'ret'.
-> 
-> So initialize ret.
-> 
-> Fixes: ce6e153f414a ("drm/bridge: add Silicon Image SiI8620 driver")
-> 
-> Signed-off-by: Tom Rix <trix@redhat.com>
-
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-
-> ---
->  drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-> index 3540e4931383..da933d477e5f 100644
-> --- a/drivers/gpu/drm/bridge/sil-sii8620.c
-> +++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-> @@ -178,7 +178,7 @@ static void sii8620_read_buf(struct sii8620 *ctx, u16 addr, u8 *buf, int len)
->  
->  static u8 sii8620_readb(struct sii8620 *ctx, u16 addr)
->  {
-> -	u8 ret;
-> +	u8 ret = 0;
->  
->  	sii8620_read_buf(ctx, addr, &ret, 1);
->  	return ret;
+Applied, thanks.
 
 -- 
-Regards,
+Jens Axboe
 
-Laurent Pinchart
