@@ -2,34 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D05C421D640
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 14:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3933C21D690
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 15:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729494AbgGMMpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 08:45:02 -0400
-Received: from mx2.suse.de ([195.135.220.15]:36604 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726586AbgGMMpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jul 2020 08:45:02 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id BBE12ABF4;
-        Mon, 13 Jul 2020 12:45:02 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     linux-nvme@lists.infradead.org, linux-block@vger.kernel.org,
-        linux-bcache@vger.kernel.org, hch@lst.de
-Cc:     Coly Li <colyli@suse.de>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Hannes Reinecke <hare@suse.de>, Jan Kara <jack@suse.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Vlastimil Babka <vbabka@suse.com>, stable@vger.kernel.org
-Subject: [PATCH v2] nvme-tcp: don't use sendpage for pages not taking reference counter
-Date:   Mon, 13 Jul 2020 20:44:44 +0800
-Message-Id: <20200713124444.19640-1-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
+        id S1729545AbgGMNQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 09:16:23 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:59427 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729523AbgGMNQX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 09:16:23 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21803836-1500050 
+        for multiple; Mon, 13 Jul 2020 14:16:17 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        "Nayana, Venkata Ramana" <venkata.ramana.nayana@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Skip signaling a signaled request
+Date:   Mon, 13 Jul 2020 14:16:17 +0100
+Message-Id: <20200713131617.21175-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -37,68 +32,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently nvme_tcp_try_send_data() doesn't use kernel_sendpage() to
-send slab pages. But for pages allocated by __get_free_pages() without
-__GFP_COMP, which also have refcount as 0, they are still sent by
-kernel_sendpage() to remote end, this is problematic.
+Preempt-to-busy introduces various fascinating complications in that the
+requests may complete as we are unsubmitting them from HW. As they may
+then signal after unsubmission, we may find ourselves having to cleanup
+the signaling request from within the signaling callback. This causes us
+to recurse onto the same i915_request.lock.
 
-When bcache uses a remote NVMe SSD via nvme-over-tcp as its cache
-device, writing meta data e.g. cache_set->disk_buckets to remote SSD may
-trigger a kernel panic due to the above problem. Bcause the meta data
-pages for cache_set->disk_buckets are allocated by __get_free_pages()
-without __GFP_COMP.
+However, if the request is already signaled (as it will be before we
+enter the signal callbacks), we know we can skip the signaling of that
+request during submission, neatly evading the spinlock recursion.
 
-This problem should be fixed both in upper layer driver (bcache) and
-nvme-over-tcp code. This patch fixes the nvme-over-tcp code by checking
-whether the page refcount is 0, if yes then don't use kernel_sendpage()
-and call sock_no_sendpage() to send the page into network stack.
+unsubmit(ve.rq0) # timeslice expiration or other preemption
+ -> virtual_submit_request(ve.rq0)
+dma_fence_signal(ve.rq0) # request completed before preemption ack
+ -> submit_notify(ve.rq1)
+   -> virtual_submit_request(ve.rq1) # sees that we have completed ve.rq0
+      -> __i915_request_submit(ve.rq0)
 
-The code comments in this patch is copied and modified from drbd where
-the similar problem already gets solved by Philipp Reisner. This is the
-best code comment including my own version.
+[  264.210142] BUG: spinlock recursion on CPU#2, sample_multi_tr/2093
+[  264.210150]  lock: 0xffff9efd6ac55080, .magic: dead4ead, .owner: sample_multi_tr/2093, .owner_cpu: 2
+[  264.210155] CPU: 2 PID: 2093 Comm: sample_multi_tr Tainted: G     U       5.4.48-prod-dg1-vn-2660+ #3
+[  264.210158] Hardware name: Intel Corporation CoffeeLake Client Platform/CoffeeLake S UDIMM RVP, BIOS CNLSFWR1.R00.X212.B01.1909060036 09/06/2019
+[  264.210160] Call Trace:
+[  264.210167]  dump_stack+0x98/0xda
+[  264.210174]  spin_dump.cold+0x24/0x3c
+[  264.210178]  do_raw_spin_lock+0x9a/0xd0
+[  264.210184]  _raw_spin_lock_nested+0x6a/0x70
+[  264.210314]  __i915_request_submit+0x10a/0x3c0 [i915]
+[  264.210415]  virtual_submit_request+0x9b/0x380 [i915]
+[  264.210516]  submit_notify+0xaf/0x14c [i915]
+[  264.210602]  __i915_sw_fence_complete+0x8a/0x230 [i915]
+[  264.210692]  i915_sw_fence_complete+0x2d/0x40 [i915]
+[  264.210762]  __dma_i915_sw_fence_wake+0x19/0x30 [i915]
+[  264.210767]  dma_fence_signal_locked+0xb1/0x1c0
+[  264.210772]  dma_fence_signal+0x29/0x50
+[  264.210871]  i915_request_wait+0x5cb/0x830 [i915]
+[  264.210876]  ? dma_resv_get_fences_rcu+0x294/0x5d0
+[  264.210974]  i915_gem_object_wait_fence+0x2f/0x40 [i915]
+[  264.211084]  i915_gem_object_wait+0xce/0x400 [i915]
+[  264.211178]  i915_gem_wait_ioctl+0xff/0x290 [i915]
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.de>
-Cc: Jan Kara <jack@suse.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Sagi Grimberg <sagi@grimberg.me>
-Cc: Vlastimil Babka <vbabka@suse.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
+References: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: "Nayana, Venkata Ramana" <venkata.ramana.nayana@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
 ---
-Changelog:
-v2: fix typo in patch subject.
-v1: the initial version.
- drivers/nvme/host/tcp.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_request.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 79ef2b8e2b3c..faa71db7522a 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -887,8 +887,17 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
- 		else
- 			flags |= MSG_MORE | MSG_SENDPAGE_NOTLAST;
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 3bb7320249ae..9b74a1bea5db 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -560,9 +560,7 @@ bool __i915_request_submit(struct i915_request *request)
+ 	engine->serial++;
+ 	result = true;
  
--		/* can't zcopy slab pages */
--		if (unlikely(PageSlab(page))) {
-+		/*
-+		 * e.g. XFS meta- & log-data is in slab pages, or bcache meta
-+		 * data pages, or other high order pages allocated by
-+		 * __get_free_pages() without __GFP_COMP, which have a page_count
-+		 * of 0 and/or have PageSlab() set. We cannot use send_page for
-+		 * those, as that does get_page(); put_page(); and would cause
-+		 * either a VM_BUG directly, or __page_cache_release a page that
-+		 * would actually still be referenced by someone, leading to some
-+		 * obscure delayed Oops somewhere else.
-+		 */
-+		if (unlikely(PageSlab(page) || page_count(page) < 1)) {
- 			ret = sock_no_sendpage(queue->sock, page, offset, len,
- 					flags);
- 		} else {
+-xfer:	/* We may be recursing from the signal callback of another i915 fence */
+-	spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
+-
++xfer:
+ 	if (!test_and_set_bit(I915_FENCE_FLAG_ACTIVE, &request->fence.flags)) {
+ 		list_move_tail(&request->sched.link, &engine->active.requests);
+ 		clear_bit(I915_FENCE_FLAG_PQUEUE, &request->fence.flags);
+@@ -570,12 +568,19 @@ bool __i915_request_submit(struct i915_request *request)
+ 	}
+ 	GEM_BUG_ON(!llist_empty(&request->execute_cb));
+ 
+-	if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT, &request->fence.flags) &&
+-	    !test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &request->fence.flags) &&
+-	    !i915_request_enable_breadcrumb(request))
+-		intel_engine_signal_breadcrumbs(engine);
++	/* We may be recursing from the signal callback of another i915 fence */
++	if (!i915_request_signaled(request)) {
++		spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
++
++		if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
++			     &request->fence.flags) &&
++		    !test_bit(DMA_FENCE_FLAG_SIGNALED_BIT,
++			      &request->fence.flags) &&
++		    !i915_request_enable_breadcrumb(request))
++			intel_engine_signal_breadcrumbs(engine);
+ 
+-	spin_unlock(&request->lock);
++		spin_unlock(&request->lock);
++	}
+ 
+ 	return result;
+ }
 -- 
-2.26.2
+2.20.1
 
