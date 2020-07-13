@@ -2,95 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61FC621CDD2
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 05:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7297F21CDE1
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 05:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728252AbgGMDhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 23:37:05 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:25467 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726523AbgGMDhF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 23:37:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594611424;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TuBsngu+9JfDAXP7hTevqic2CkVZxKms9S+GM/5BLQ8=;
-        b=EMbWe6POIroP5yktEgnzg9HLYyVvpkuiWF96seKBms6+U3vQtfPpGPTSJD1AI2OpIQNgzR
-        mVquLE3TDKU82bU3aWM/8++yTmU2ouf/2MWPiuCUmznLaYUk41yr7gOBvc3n8yAO5wXwQj
-        h8EAZjQxvq0ZPYBjM5c/gloRyIo88Eo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-106-x-1Wj2mAP0Op74d-jbzjgg-1; Sun, 12 Jul 2020 23:37:02 -0400
-X-MC-Unique: x-1Wj2mAP0Op74d-jbzjgg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CB29C1800D42;
-        Mon, 13 Jul 2020 03:37:00 +0000 (UTC)
-Received: from [10.72.13.177] (ovpn-13-177.pek2.redhat.com [10.72.13.177])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5105560BE2;
-        Mon, 13 Jul 2020 03:36:53 +0000 (UTC)
-Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
-To:     "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        Alexander Duyck <alexander.duyck@gmail.com>
-References: <20200710113046.421366-1-mst@redhat.com>
-From:   Jason Wang <jasowang@redhat.com>
-Message-ID: <c0863b67-bd97-63a8-ff11-4f1b0fb655a3@redhat.com>
-Date:   Mon, 13 Jul 2020 11:36:51 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728511AbgGMDvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 23:51:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42480 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726465AbgGMDvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 23:51:48 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E24C061794
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 20:51:47 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id d21so7442600lfb.6
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 20:51:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PXZYm8YjUP841mdR1yGtgQbyBqro7EalxNIZG50LFuM=;
+        b=JZ6Y3SBEjypR0Q/yrJj53ldh8gpnRfjQF/RT1b64yjpHydiLr0yIS3u64B/OW5XJ4/
+         tBqykrHxUwjAHq0UxLcdms0xudmr7CC4BSdN8v+rXw8M+XyIrWJaQmCLkL9Q4eyPIlNw
+         tfry+uqmdsBjisvh7Qv+FSefQ995KqX6/6xdY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PXZYm8YjUP841mdR1yGtgQbyBqro7EalxNIZG50LFuM=;
+        b=dZqMmYkTqtEQr0Zjva05TagilK12LKtIrV2RHrAYmx/e97lCjrWGBdwpPMyhvN6pvL
+         cqEOwsvPGW8RVsgS4IJitfpdWhU7F6u4tzk5paaniRbr0lRhY/AgZ6HeJ6KEW8U+woll
+         PMJf7UvxuJ0yOwt2yKGKgVYxzVZn6GdHyYLyZM6Uz9EIgjtIxX+2rvgXnsvOm68LgrIG
+         dDXaxYILHtbEatqk8M/IKvp38276jCaGNt4nWN4s1llOpSGOWuWJbZjAFhaqA3gXFuhI
+         782cOwJTVra/OVBDyPguyHl5p2Xsb4MAprQG86rABH2b2vGDbzIIsFrNYdEDupAsW/4K
+         ywtQ==
+X-Gm-Message-State: AOAM5337s+5nH/0JaCBgrSobB/wv04QC5lLff2ZF3mwXZT6UoQGnLmoq
+        obcyrLPsAwmXYWbVRh3QAsuz1kAGYig=
+X-Google-Smtp-Source: ABdhPJyyWHsYFnW5R4sKuKpr17185Kr7wxmh6E2+cgmygV2ZSs66VEyasq48YZB80ZOp75CCd6+SXw==
+X-Received: by 2002:a19:90:: with SMTP id 138mr51465907lfa.100.1594612304684;
+        Sun, 12 Jul 2020 20:51:44 -0700 (PDT)
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
+        by smtp.gmail.com with ESMTPSA id r25sm4339786lfi.70.2020.07.12.20.51.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 12 Jul 2020 20:51:43 -0700 (PDT)
+Received: by mail-lf1-f49.google.com with SMTP id s16so7417392lfp.12
+        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 20:51:43 -0700 (PDT)
+X-Received: by 2002:ac2:5a5e:: with SMTP id r30mr51926816lfn.30.1594612302784;
+ Sun, 12 Jul 2020 20:51:42 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200710113046.421366-1-mst@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+ <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
+ <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
+ <20200712215041.GA3644504@google.com> <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
+ <20200713025354.GB3644504@google.com>
+In-Reply-To: <20200713025354.GB3644504@google.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 12 Jul 2020 20:51:26 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whmbpZN6-Q=8cDM42UmHmqzgNDucLLP4BvR1jQ73+KSgw@mail.gmail.com>
+Message-ID: <CAHk-=whmbpZN6-Q=8cDM42UmHmqzgNDucLLP4BvR1jQ73+KSgw@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     Joel Fernandes <joel@joelfernandes.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        Jerome Glisse <jglisse@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 2020/7/10 下午7:31, Michael S. Tsirkin wrote:
-> Page reporting features were never supported by legacy hypervisors.
-> Supporting them poses a problem: should we use native endian-ness (like
-> current code assumes)? Or little endian-ness like the virtio spec says?
-> Rather than try to figure out, and since results of
-> incorrect endian-ness are dire, let's just block this configuration.
+On Sun, Jul 12, 2020 at 7:53 PM Joel Fernandes <joel@joelfernandes.org> wrote:
 >
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->   drivers/virtio/virtio_balloon.c | 9 +++++++++
->   1 file changed, 9 insertions(+)
+> > But I do feel like you figured out why the bug happened, now we're
+> > just discussing whether the patch is the right thing to do.
 >
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 5d4b891bf84f..b9bc03345157 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
->   
->   static int virtballoon_validate(struct virtio_device *vdev)
->   {
-> +	/*
-> +	 * Legacy devices never specified how modern features should behave.
-> +	 * E.g. which endian-ness to use? Better not to assume anything.
-> +	 */
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
-> +	}
->   	/*
->   	 * Inform the hypervisor that our pages are poisoned or
->   	 * initialized. If we cannot do that then we should disable
+> Yes.
+>
+> > Maybe saying "doing the pmd copies for the initial stack isn't
+> > important, so let's just note this as a special case and get rid of
+> > the WARN_ON()" might be an alternative solution.
+>
+> Personally, I feel it is better to keep the warning just so in the future we
+> can detect any bugs.
 
+I don't disagree, the warning didn't happen to find a bug now, but it
+did fine a case we might be able to do better.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+So now that I feel we understand the issue, and it's not a horrible
+problem, just a (very hard to trigger) warning, I don't think there's
+any huge hurry.
 
+I think think I will - for now - change the WARN_ON() to
+WARN_ON_ONCE() (so that it doesn't floow the logs if somebody triggers
+this odd special case  this malisiously), and add a note about how
+this happens to the code for posterito.
 
+And if/when you figure out a better way to fix it, we can update the note.
+
+Ok?
+
+             Linus
