@@ -2,154 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 670A421D820
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 16:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07EE521D82D
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 16:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbgGMOQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 10:16:41 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:61390 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729823AbgGMOQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 10:16:41 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21804644-1500050 
-        for multiple; Mon, 13 Jul 2020 15:16:36 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        "Nayana, Venkata Ramana" <venkata.ramana.nayana@intel.com>,
+        id S1729835AbgGMOTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 10:19:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41282 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729659AbgGMOTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jul 2020 10:19:04 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 106C92072D;
+        Mon, 13 Jul 2020 14:19:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594649944;
+        bh=7okJSavCtHwHai6JZ4nUCc+G5Gb+VD9dOCnLgQFeNPY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MH8hhlqfgzIIyjZhB1EbzirONb87/opHJVkx9UXTe1aUKeZB5dMCQjInu+vYNK1gG
+         EEMaoWRpmey1OuTS/7UDQ39Hwy/Gj07QdN8htya6ZVy2wphOS8u1xZ6FmWbDrTbRQA
+         M5tJ2Ib68JLypQhu3AdKKY2hnI+JF2GEbOSDFJUg=
+Date:   Mon, 13 Jul 2020 16:19:04 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     trix@redhat.com
+Cc:     giovanni.cabiddu@intel.com, herbert@gondor.apana.org.au,
+        davem@davemloft.net, wojciech.ziemba@intel.com,
+        karen.xiang@intel.com, bruce.w.allan@intel.com, bo.cui@intel.com,
+        pingchaox.yang@intel.com, qat-linux@intel.com,
+        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915: Skip signaling a signaled request
-Date:   Mon, 13 Jul 2020 15:16:36 +0100
-Message-Id: <20200713141636.29326-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200713131617.21175-1-chris@chris-wilson.co.uk>
-References: <20200713131617.21175-1-chris@chris-wilson.co.uk>
+Subject: Re: [PATCH] crypto: qat: fix double free in
+ qat_uclo_create_batch_init_list
+Message-ID: <20200713141904.GA3730398@kroah.com>
+References: <20200713140634.14730-1-trix@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200713140634.14730-1-trix@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Preempt-to-busy introduces various fascinating complications in that the
-requests may complete as we are unsubmitting them from HW. As they may
-then signal after unsubmission, we may find ourselves having to cleanup
-the signaling request from within the signaling callback. This causes us
-to recurse onto the same i915_request.lock.
+On Mon, Jul 13, 2020 at 07:06:34AM -0700, trix@redhat.com wrote:
+> From: Tom Rix <trix@redhat.com>
+> 
+> clang static analysis flags this error
+> 
+> qat_uclo.c:297:3: warning: Attempt to free released memory
+>   [unix.Malloc]
+>                 kfree(*init_tab_base);
+>                 ^~~~~~~~~~~~~~~~~~~~~
+> 
+> When input *init_tab_base is null, the function allocates memory for
+> the head of the list.  When there is problem allocating other list
+> elements the list is unwound and freed.  Then a check is made if the
+> list head was allocated and is also freed.
+> 
+> Keeping track of the what may need to be freed is the variable 'tail_old'.
+> The unwinding/freeing block is
+> 
+> 	while (tail_old) {
+> 		mem_init = tail_old->next;
+> 		kfree(tail_old);
+> 		tail_old = mem_init;
+> 	}
+> 
+> The problem is that the first element of tail_old is also what was
+> allocated for the list head
+> 
+> 		init_header = kzalloc(sizeof(*init_header), GFP_KERNEL);
+> 		...
+> 		*init_tab_base = init_header;
+> 		flag = 1;
+> 	}
+> 	tail_old = init_header;
+> 
+> So *init_tab_base/init_header are freed twice.
+> 
+> There is another problem.
+> When the input *init_tab_base is non null the tail_old is calculated by
+> traveling down the list to first non null entry.
+> 
+> 	tail_old = init_header;
+> 	while (tail_old->next)
+> 		tail_old = tail_old->next;
+> 
+> When the unwinding free happens, the last entry of the input list will
+> be freed.
+> 
+> So the freeing needs a general changed.
+> If locally allocated the first element of tail_old is freed, else it
+> is skipped.  As a bit of cleanup, reset *init_tab_base if it came in
+> as null.
+> 
+> Fixes: b4b7e67c917f ("crypto: qat - Intel(R) QAT ucode part of fw loader")
+> 
+> Signed-off-by: Tom Rix <trix@redhat.com>
+> ---
+>  drivers/crypto/qat/qat_common/qat_uclo.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
 
-However, if the request is already signaled (as it will be before we
-enter the signal callbacks), we know we can skip the signaling of that
-request during submission, neatly evading the spinlock recursion.
+<formletter>
 
-unsubmit(ve.rq0) # timeslice expiration or other preemption
- -> virtual_submit_request(ve.rq0)
-dma_fence_signal(ve.rq0) # request completed before preemption ack
- -> submit_notify(ve.rq1)
-   -> virtual_submit_request(ve.rq1) # sees that we have completed ve.rq0
-      -> __i915_request_submit(ve.rq0)
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-[  264.210142] BUG: spinlock recursion on CPU#2, sample_multi_tr/2093
-[  264.210150]  lock: 0xffff9efd6ac55080, .magic: dead4ead, .owner: sample_multi_tr/2093, .owner_cpu: 2
-[  264.210155] CPU: 2 PID: 2093 Comm: sample_multi_tr Tainted: G     U
-[  264.210158] Hardware name: Intel Corporation CoffeeLake Client Platform/CoffeeLake S UDIMM RVP, BIOS CNLSFWR1.R00.X212.B01.1909060036 09/06/2019
-[  264.210160] Call Trace:
-[  264.210167]  dump_stack+0x98/0xda
-[  264.210174]  spin_dump.cold+0x24/0x3c
-[  264.210178]  do_raw_spin_lock+0x9a/0xd0
-[  264.210184]  _raw_spin_lock_nested+0x6a/0x70
-[  264.210314]  __i915_request_submit+0x10a/0x3c0 [i915]
-[  264.210415]  virtual_submit_request+0x9b/0x380 [i915]
-[  264.210516]  submit_notify+0xaf/0x14c [i915]
-[  264.210602]  __i915_sw_fence_complete+0x8a/0x230 [i915]
-[  264.210692]  i915_sw_fence_complete+0x2d/0x40 [i915]
-[  264.210762]  __dma_i915_sw_fence_wake+0x19/0x30 [i915]
-[  264.210767]  dma_fence_signal_locked+0xb1/0x1c0
-[  264.210772]  dma_fence_signal+0x29/0x50
-[  264.210871]  i915_request_wait+0x5cb/0x830 [i915]
-[  264.210876]  ? dma_resv_get_fences_rcu+0x294/0x5d0
-[  264.210974]  i915_gem_object_wait_fence+0x2f/0x40 [i915]
-[  264.211084]  i915_gem_object_wait+0xce/0x400 [i915]
-[  264.211178]  i915_gem_wait_ioctl+0xff/0x290 [i915]
-
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
-References: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: "Nayana, Venkata Ramana" <venkata.ramana.nayana@intel.com>
-Cc: <stable@vger.kernel.org> # v5.4+
----
- drivers/gpu/drm/i915/gt/intel_breadcrumbs.c |  7 ++++++-
- drivers/gpu/drm/i915/i915_request.c         | 23 ++++++++++++---------
- 2 files changed, 19 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-index d907d538176e..91786310c114 100644
---- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-@@ -314,13 +314,18 @@ bool i915_request_enable_breadcrumb(struct i915_request *rq)
- {
- 	lockdep_assert_held(&rq->lock);
- 
-+	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &rq->fence.flags))
-+		return true;
-+
- 	if (test_bit(I915_FENCE_FLAG_ACTIVE, &rq->fence.flags)) {
- 		struct intel_breadcrumbs *b = &rq->engine->breadcrumbs;
- 		struct intel_context *ce = rq->context;
- 		struct list_head *pos;
- 
- 		spin_lock(&b->irq_lock);
--		GEM_BUG_ON(test_bit(I915_FENCE_FLAG_SIGNAL, &rq->fence.flags));
-+
-+		if (test_bit(I915_FENCE_FLAG_SIGNAL, &rq->fence.flags))
-+			goto unlock;
- 
- 		if (!__intel_breadcrumbs_arm_irq(b))
- 			goto unlock;
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 3bb7320249ae..0b2fe55e6194 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -560,22 +560,25 @@ bool __i915_request_submit(struct i915_request *request)
- 	engine->serial++;
- 	result = true;
- 
--xfer:	/* We may be recursing from the signal callback of another i915 fence */
--	spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
--
-+xfer:
- 	if (!test_and_set_bit(I915_FENCE_FLAG_ACTIVE, &request->fence.flags)) {
- 		list_move_tail(&request->sched.link, &engine->active.requests);
- 		clear_bit(I915_FENCE_FLAG_PQUEUE, &request->fence.flags);
--		__notify_execute_cb(request);
- 	}
--	GEM_BUG_ON(!llist_empty(&request->execute_cb));
- 
--	if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT, &request->fence.flags) &&
--	    !test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &request->fence.flags) &&
--	    !i915_request_enable_breadcrumb(request))
--		intel_engine_signal_breadcrumbs(engine);
-+	/* We may be recursing from the signal callback of another i915 fence */
-+	if (!i915_request_signaled(request)) {
-+		spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
-+
-+		__notify_execute_cb(request);
-+		if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
-+			     &request->fence.flags) &&
-+		    !i915_request_enable_breadcrumb(request))
-+			intel_engine_signal_breadcrumbs(engine);
- 
--	spin_unlock(&request->lock);
-+		spin_unlock(&request->lock);
-+		GEM_BUG_ON(!llist_empty(&request->execute_cb));
-+	}
- 
- 	return result;
- }
--- 
-2.20.1
-
+</formletter>
