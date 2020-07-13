@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 919ED21D49E
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 13:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A7921D57C
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 14:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729523AbgGMLPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 07:15:12 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48244 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728950AbgGMLPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jul 2020 07:15:11 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id EBDB4B1A1;
-        Mon, 13 Jul 2020 11:15:11 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Ken Raeburn <raeburn@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] bcche: fix overflow in offset_to_stripe()
-Date:   Mon, 13 Jul 2020 19:15:01 +0800
-Message-Id: <20200713111501.19061-2-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200713111501.19061-1-colyli@suse.de>
-References: <20200713111501.19061-1-colyli@suse.de>
+        id S1729027AbgGMMEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 08:04:44 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:57422 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729143AbgGMMEn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 08:04:43 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21803010-1500050 
+        for multiple; Mon, 13 Jul 2020 13:04:36 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Free stale request on destroying the virtual engine
+Date:   Mon, 13 Jul 2020 13:04:37 +0100
+Message-Id: <20200713120437.4442-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -32,140 +31,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-offset_to_stripe() returns the stripe number (in type unsigned int) from
-an offset (in type uint64_t) by the following calculation,
-	do_div(offset, d->stripe_size);
-For large capacity backing device (e.g. 18TB) with small stripe size
-(e.g. 4KB), the result is 4831838208 and exceeds UINT_MAX. The actual
-returned value which caller receives is 536870912, due to the overflow.
+Since preempt-to-busy, we may unsubmit a request while it is still on
+the HW and completes asynchronously. That means it may be retired and in
+the process destroy the virtual engine (as the user has closed their
+context), but that engine may still be holding onto the unsubmitted
+compelted request. Therefore we need to potentially cleanup the old
+request on destroying the virtual engine. We also have to keep the
+virtual_engine alive until after the sibling's execlists_dequeue() have
+finished peeking into the virtual engines, for which we serialise with
+RCU.
 
-Indeed in bcache_device_init(), bcache_device->nr_stripes is limited in
-range [1, INT_MAX]. Therefore all valid stripe numbers in bcache are
-in range [0, bcache_dev->nr_stripes - 1].
-
-This patch adds a upper limition check in offset_to_stripe(): the max
-valid stripe number should be less than bcache_device->nr_stripes. If
-the calculated stripe number from do_div() is equal to or larger than
-bcache_device->nr_stripe, -EINVAL will be returned. (Normally nr_stripes
-is less than INT_MAX, exceeding upper limitation doesn't mean overflow,
-therefore -EOVERFLOW is not used as error code.)
-
-This patch also changes nr_stripes' type of struct bcache_device from
-'unsigned int' to 'int', and return value type of offset_to_stripe()
-from 'unsigned int' to 'int', to match their exact data ranges.
-
-All locations where bcache_device->nr_stripes and offset_to_stripe() are
-referenced also get updated for the above type change.
-
-Reported-by: Ken Raeburn <raeburn@redhat.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783075
-Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2118
+Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
+References: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
 ---
-Changelog:
-v2: Improve overflow fix on 32bit machine, suggested by Jens and Ken.
-v1: initial version.
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
- drivers/md/bcache/bcache.h    |  2 +-
- drivers/md/bcache/writeback.c | 14 +++++++++-----
- drivers/md/bcache/writeback.h | 19 +++++++++++++++++--
- 3 files changed, 27 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
-index 0bfbf4729285..0ebfda284866 100644
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -264,7 +264,7 @@ struct bcache_device {
- #define BCACHE_DEV_UNLINK_DONE		2
- #define BCACHE_DEV_WB_RUNNING		3
- #define BCACHE_DEV_RATE_DW_RUNNING	4
--	unsigned int		nr_stripes;
-+	int			nr_stripes;
- 	unsigned int		stripe_size;
- 	atomic_t		*stripe_sectors_dirty;
- 	unsigned long		*full_dirty_stripes;
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index 5397a2c5d6cc..4f4ad6b3d43a 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -521,15 +521,19 @@ void bcache_dev_sectors_dirty_add(struct cache_set *c, unsigned int inode,
- 				  uint64_t offset, int nr_sectors)
- {
- 	struct bcache_device *d = c->devices[inode];
--	unsigned int stripe_offset, stripe, sectors_dirty;
-+	unsigned int stripe_offset, sectors_dirty;
-+	int stripe;
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index cd4262cc96e2..8425fd917d75 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -179,6 +179,7 @@
+ #define EXECLISTS_REQUEST_SIZE 64 /* bytes */
  
- 	if (!d)
- 		return;
+ struct virtual_engine {
++	struct rcu_head rcu;
+ 	struct intel_engine_cs base;
+ 	struct intel_context context;
  
-+	stripe = offset_to_stripe(d, offset);
-+	if (stripe < 0)
-+		return;
+@@ -5385,10 +5386,25 @@ static void virtual_context_destroy(struct kref *kref)
+ 		container_of(kref, typeof(*ve), context.ref);
+ 	unsigned int n;
+ 
+-	GEM_BUG_ON(!list_empty(virtual_queue(ve)));
+-	GEM_BUG_ON(ve->request);
+ 	GEM_BUG_ON(ve->context.inflight);
+ 
++	if (unlikely(ve->request)) {
++		struct i915_request *old;
++		unsigned long flags;
 +
- 	if (UUID_FLASH_ONLY(&c->uuids[inode]))
- 		atomic_long_add(nr_sectors, &c->flash_dev_dirty_sectors);
- 
--	stripe = offset_to_stripe(d, offset);
- 	stripe_offset = offset & (d->stripe_size - 1);
- 
- 	while (nr_sectors) {
-@@ -569,12 +573,12 @@ static bool dirty_pred(struct keybuf *buf, struct bkey *k)
- static void refill_full_stripes(struct cached_dev *dc)
- {
- 	struct keybuf *buf = &dc->writeback_keys;
--	unsigned int start_stripe, stripe, next_stripe;
-+	unsigned int start_stripe, next_stripe;
-+	int stripe;
- 	bool wrapped = false;
- 
- 	stripe = offset_to_stripe(&dc->disk, KEY_OFFSET(&buf->last_scanned));
--
--	if (stripe >= dc->disk.nr_stripes)
-+	if (stripe < 0)
- 		stripe = 0;
- 
- 	start_stripe = stripe;
-diff --git a/drivers/md/bcache/writeback.h b/drivers/md/bcache/writeback.h
-index b029843ce5b6..3f1230e22de0 100644
---- a/drivers/md/bcache/writeback.h
-+++ b/drivers/md/bcache/writeback.h
-@@ -52,10 +52,22 @@ static inline uint64_t bcache_dev_sectors_dirty(struct bcache_device *d)
- 	return ret;
- }
- 
--static inline unsigned int offset_to_stripe(struct bcache_device *d,
-+static inline int offset_to_stripe(struct bcache_device *d,
- 					uint64_t offset)
- {
- 	do_div(offset, d->stripe_size);
++		spin_lock_irqsave(&ve->base.active.lock, flags);
 +
-+	/* d->nr_stripes is in range [1, INT_MAX] */
-+	if (unlikely(offset >= d->nr_stripes)) {
-+		pr_err("Invalid stripe %llu (>= nr_stripes %d).\n",
-+			offset, d->nr_stripes);
-+		return -EINVAL;
++		old = fetch_and_zero(&ve->request);
++		if (old) {
++			GEM_BUG_ON(!i915_request_completed(old));
++			__i915_request_submit(old);
++			i915_request_put(old);
++		}
++
++		spin_unlock_irqrestore(&ve->base.active.lock, flags);
 +	}
++	GEM_BUG_ON(!list_empty(virtual_queue(ve)));
 +
-+	/*
-+	 * Here offset is definitly smaller than INT_MAX,
-+	 * return it as int will never overflow.
-+	 */
- 	return offset;
+ 	for (n = 0; n < ve->num_siblings; n++) {
+ 		struct intel_engine_cs *sibling = ve->siblings[n];
+ 		struct rb_node *node = &ve->nodes[sibling->id].rb;
+@@ -5414,7 +5430,7 @@ static void virtual_context_destroy(struct kref *kref)
+ 	intel_engine_free_request_pool(&ve->base);
+ 
+ 	kfree(ve->bonds);
+-	kfree(ve);
++	kfree_rcu(ve, rcu);
  }
  
-@@ -63,7 +75,10 @@ static inline bool bcache_dev_stripe_dirty(struct cached_dev *dc,
- 					   uint64_t offset,
- 					   unsigned int nr_sectors)
- {
--	unsigned int stripe = offset_to_stripe(&dc->disk, offset);
-+	int stripe = offset_to_stripe(&dc->disk, offset);
-+
-+	if (stripe < 0)
-+		return false;
- 
- 	while (1) {
- 		if (atomic_read(dc->disk.stripe_sectors_dirty + stripe))
+ static void virtual_engine_initial_hint(struct virtual_engine *ve)
 -- 
-2.26.2
+2.20.1
 
