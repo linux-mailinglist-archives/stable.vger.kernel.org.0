@@ -2,161 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D74021CF11
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 07:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B11621D056
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 09:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729004AbgGMF4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 01:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39086 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727107AbgGMF4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jul 2020 01:56:03 -0400
-Received: from localhost (unknown [122.182.251.219])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 217812073A;
-        Mon, 13 Jul 2020 05:56:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594619762;
-        bh=gXFwq43ohUgKZA8gAkhAymCG+JyohqjJf0fM3HTHIZs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=paFGk7uJF66m93nyveVPcYNj/dGkVDvY1u8K9A/2rvKSlO0MBabNq/m+/4CmMR6Ff
-         L3J6QduoGk6i58NoIF1rhO3v2QX4kAL49CKLIzXdfBbn9rvtWgf4FJh/EgiUXlZ+sg
-         Df7mie1gP/c+V3+RqnTFL0MqOir01L2jDMVQjrns=
-Date:   Mon, 13 Jul 2020 11:25:58 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     Sivaprakash Murugesan <sivaprak@codeaurora.org>
-Cc:     agross@kernel.org, bjorn.andersson@linaro.org, bhelgaas@google.com,
-        robh+dt@kernel.org, kishon@ti.com, mturquette@baylibre.com,
-        sboyd@kernel.org, svarbanov@mm-sol.com, lorenzo.pieralisi@arm.com,
-        p.zabel@pengutronix.de, mgautam@codeaurora.org,
-        smuthayy@codeaurora.org, varada@codeaurora.org,
-        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, stable@vger.kernel.org,
-        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Subject: Re: [PATCH 5/9] phy: qcom-qmp: use correct values for ipq8074 gen2
- pcie phy init
-Message-ID: <20200713055558.GB34333@vkoul-mobl>
-References: <1593940680-2363-1-git-send-email-sivaprak@codeaurora.org>
- <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
+        id S1728942AbgGMHTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 03:19:52 -0400
+Received: from mailout2.samsung.com ([203.254.224.25]:23771 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728945AbgGMHTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 03:19:51 -0400
+Received: from epcas1p1.samsung.com (unknown [182.195.41.45])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20200713071946epoutp02dcc1765e31f2475683f8f5ff599cb552~hPsuIVRby3030630306epoutp02W
+        for <stable@vger.kernel.org>; Mon, 13 Jul 2020 07:19:46 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20200713071946epoutp02dcc1765e31f2475683f8f5ff599cb552~hPsuIVRby3030630306epoutp02W
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1594624786;
+        bh=T2NFV6aDiWcdlpfPV04JlC6pzkdoFqVotNneudFkf5E=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=JvH/KqBGdDENB0dCeIb12NvkI9manvTB+0f0zGVCbM/yFMQH3i+lJvRHgLSn1QFjn
+         BIGKc577z8h9AYx9M+4hX+txxhIY0tSkWib1SJ0Wc/x8NUKqU0Voo4Cw88y31BiTnn
+         Nfz8V8h3ydOsosKUZ5I/WU3GgrdVT6tq9FfSByYs=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20200713071946epcas1p1fa28a4f4ed866798785fc37805b1aa21~hPstgrUb90770907709epcas1p1b;
+        Mon, 13 Jul 2020 07:19:46 +0000 (GMT)
+Received: from epsmges1p1.samsung.com (unknown [182.195.40.153]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4B4w5C2w7czMqYkq; Mon, 13 Jul
+        2020 07:19:43 +0000 (GMT)
+Received: from epcas1p3.samsung.com ( [182.195.41.47]) by
+        epsmges1p1.samsung.com (Symantec Messaging Gateway) with SMTP id
+        3C.E8.18978.F0B0C0F5; Mon, 13 Jul 2020 16:19:43 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82~hPsqOyail0774007740epcas1p1R;
+        Mon, 13 Jul 2020 07:19:42 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20200713071942epsmtrp2fac249b59d75accf1d54cddeb267490c~hPsqOKOM32359023590epsmtrp2O;
+        Mon, 13 Jul 2020 07:19:42 +0000 (GMT)
+X-AuditID: b6c32a35-5edff70000004a22-d7-5f0c0b0fd948
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        86.ED.08303.E0B0C0F5; Mon, 13 Jul 2020 16:19:42 +0900 (KST)
+Received: from localhost.localdomain (unknown [10.113.221.102]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20200713071942epsmtip1cf2dd598ec869b849267405ada4f543a~hPsp9sadM2443624436epsmtip1I;
+        Mon, 13 Jul 2020 07:19:42 +0000 (GMT)
+From:   Chanwoo Choi <cw00.choi@samsung.com>
+To:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     cw00.choi@samsung.com, chanwoo@kernel.org,
+        myungjoo.ham@samsung.com, kyungmin.park@samsung.com,
+        stable@vger.kernel.org
+Subject: [PATCH] PM / devfrq: Fix indentaion of devfreq_summary debugfs node
+Date:   Mon, 13 Jul 2020 16:31:12 +0900
+Message-Id: <20200713073112.6297-1-cw00.choi@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrGKsWRmVeSWpSXmKPExsWy7bCmvi4/N0+8wdu/QhYTb1xhsbj+5Tmr
+        xdmmN+wWl3fNYbP43HuE0eJ24wo2iwUbHzE6sHtsWtXJ5tG3ZRWjx+dNcgHMUdk2GamJKalF
+        Cql5yfkpmXnptkrewfHO8aZmBoa6hpYW5koKeYm5qbZKLj4Bum6ZOUDLlRTKEnNKgUIBicXF
+        Svp2NkX5pSWpChn5xSW2SqkFKTkFlgV6xYm5xaV56XrJ+blWhgYGRqZAhQnZGQfbNzIX3Fau
+        +N3WzdLAeE+si5GTQ0LAROJ19xXGLkYuDiGBHYwS7Z9vQTmfGCV6frQwQTifGSUWz/zACtNy
+        ZP5xdojELkaJT3/nMUM4XxglFrxbyQhSxSagJbH/xQ02EFtEwEri9P8OZhCbWaBGYkLjIrBJ
+        wgI+EiteTQCrZxFQlXhx9TALiM0rYCmx6f1cFoht8hKrNxwAWyAhsIhd4tb0dUwQCReJY5vf
+        QBUJS7w6voUdwpaS+PxuLxuEXS2x8uQRNojmDkaJLfsvQP1gLLF/6WSgQRxAF2lKrN+lDxFW
+        lNj5ey4jxKF8Eu++9rCClEgI8Ep0tAlBlChLXH5wF+oESYnF7Z1sECUeEn8XyYGEhQRiJWZv
+        3cA0gVF2FsL8BYyMqxjFUguKc9NTiw0LDJFjaRMjOEFpme5gnPj2g94hRiYOxkOMEhzMSiK8
+        0aKc8UK8KYmVValF+fFFpTmpxYcYTYHhNZFZSjQ5H5gi80riDU2NjI2NLUwMzUwNDZXEef+d
+        ZY8XEkhPLEnNTk0tSC2C6WPi4JRqYOrY9WERY1dZ8Oldrk4Kx6Q+5ynN+WP6pHT5hJpZKu16
+        C1dyW+/TNFGafex+xN78JMPEhen2F1Rljc7/1w/x0ph94dnF78/OfGPWdJHmV2Bone00ZSPb
+        YYcXnev+TAyccmjr3l9esy9tSVxqcS3lyFqFOn2nk6KySxPXapRMNAhv+3t9wTm9SEW9Y++v
+        Mif2/XpqLlH5wGSZhEHPCY6naXyS5/7cq+/LUn52W0+LN/HL4aZWkxtbO0zOaqYq7LpbMe/f
+        dzUBHptnGar+FbxZL62eR69a4JHuFffpy/FEo6y0j2vzPiQeNU6cdiSnhcPQMzj8cUTfsZfK
+        3Q1FvkHzz4n7P7x41XjtJAuFmt2nLiqxFGckGmoxFxUnAgBArucw2QMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKJMWRmVeSWpSXmKPExsWy7bCSnC4fN0+8wZZPKhYTb1xhsbj+5Tmr
+        xdmmN+wWl3fNYbP43HuE0eJ24wo2iwUbHzE6sHtsWtXJ5tG3ZRWjx+dNcgHMUVw2Kak5mWWp
+        Rfp2CVwZB9s3MhfcVq743dbN0sB4T6yLkZNDQsBE4sj84+xdjFwcQgI7GCX6n3axQyQkJaZd
+        PMrcxcgBZAtLHD5cDFHziVHi+PKPYDVsAloS+1/cYAOxRQRsJO4uvsYCUsQs0MQoMXHeQUaQ
+        hLCAj8SKVxPAbBYBVYkXVw+zgNi8ApYSm97PZYFYJi+xesMB5gmMPAsYGVYxSqYWFOem5xYb
+        FhjlpZbrFSfmFpfmpesl5+duYgSHjJbWDsY9qz7oHWJk4mA8xCjBwawkwhstyhkvxJuSWFmV
+        WpQfX1Sak1p8iFGag0VJnPfrrIVxQgLpiSWp2ampBalFMFkmDk6pBiYrX9/pB6bJbp4h9irb
+        bdYro56DLAesDdlV30av6ZVw8T7DXVvTm5mToyqwr7FdWX7F/huVdoHx37d4zOGxaL7LutIp
+        0fjUg/uX7ZIj3qUZbm+VjpaMCM09s/W2VE3elh3hJ4I+iouf2fb6zbbnYo07eCv+9Px/Ovv9
+        /qxdHAv8z4kozLkvq2Td+2Z1nfQrHc2GB6H+5tvVjmqosbEuuliywHFD6dZdzHdEn+0/ciBT
+        oanhMd/2uw6SYRVrNAvsl6xKZk43iJFSCdkX92g/a3VRZ2sl97f/H30Vsu/FObNVlFhV/FRe
+        9XnKp7/s5y5f5DdIFrt/2frFNDPbwJIlhvf8Nm8427Ml+EWxW307oxJLcUaioRZzUXEiAGd+
+        yhWIAgAA
+X-CMS-MailID: 20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82
+References: <CGME20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82@epcas1p1.samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05-07-20, 14:47, Sivaprakash Murugesan wrote:
-> There were some problem in ipq8074 gen2 pcie phy init sequence, fix
+The commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name
+as devfreq(X) for sysfs"") roll back the device name from 'devfreqX'
+to device name explained in DT. After applied commit 66d0e797bf09,
+the indentation of devfreq_summary debugfs node was broken.
 
-Can you please describe these problems, it would help review to
-understand the issues and also for future reference to you
+So, fix indentaion of devfreq_summary debugfs node as following:
 
-> these to make gen2 pcie port on ipq8074 to work.
-> 
-> Fixes: eef243d04b2b6 ("phy: qcom-qmp: Add support for IPQ8074")
-> 
-> Cc: stable@vger.kernel.org
-> Co-developed-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-> Signed-off-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-> Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
-> ---
->  drivers/phy/qualcomm/phy-qcom-qmp.c | 16 +++++++++-------
->  drivers/phy/qualcomm/phy-qcom-qmp.h |  2 ++
->  2 files changed, 11 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
-> index e91040af3394..ba277136f52b 100644
-> --- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-> +++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-> @@ -504,8 +504,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
->  	QMP_PHY_INIT_CFG(QSERDES_COM_BG_TRIM, 0xf),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_LOCK_CMP_EN, 0x1),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_MAP, 0x0),
-> -	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0x1f),
-> -	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x3f),
-> +	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0xff),
-> +	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x1f),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_CMN_CONFIG, 0x6),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_PLL_IVCO, 0xf),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_HSCLK_SEL, 0x0),
-> @@ -531,7 +531,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
->  	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN1_MODE0, 0x0),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN0_MODE0, 0x80),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_BIAS_EN_CTRL_BY_PSM, 0x1),
-> -	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_CTRL, 0xa),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_EN_CENTER, 0x1),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER1, 0x31),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER2, 0x1),
-> @@ -540,7 +539,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
->  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE1, 0x2f),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE2, 0x19),
->  	QMP_PHY_INIT_CFG(QSERDES_COM_CLK_EP_DIV, 0x19),
-> -	QMP_PHY_INIT_CFG(QSERDES_RX_SIGDET_CNTRL, 0x7),
->  };
->  
->  static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
-> @@ -548,6 +546,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
->  	QMP_PHY_INIT_CFG(QSERDES_TX_LANE_MODE, 0x6),
->  	QMP_PHY_INIT_CFG(QSERDES_TX_RES_CODE_LANE_OFFSET, 0x2),
->  	QMP_PHY_INIT_CFG(QSERDES_TX_RCV_DETECT_LVL_2, 0x12),
-> +	QMP_PHY_INIT_CFG(QSERDES_TX_EMP_POST1_LVL, 0x36),
-> +	QMP_PHY_INIT_CFG(QSERDES_TX_SLEW_CNTL, 0x0a),
->  };
->  
->  static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
-> @@ -558,7 +558,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
->  	QMP_PHY_INIT_CFG(QSERDES_RX_RX_EQU_ADAPTOR_CNTRL4, 0xdb),
->  	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_SATURATION_AND_ENABLE, 0x4b),
->  	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN, 0x4),
-> -	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN_HALF, 0x4),
->  };
->  
->  static const struct qmp_phy_init_tbl ipq8074_pcie_pcs_tbl[] = {
-> @@ -1673,6 +1672,9 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
->  	.pwrdn_ctrl		= SW_PWRDN,
->  };
->  
-> +static const char * const ipq8074_pciephy_clk_l[] = {
-> +	"aux", "cfg_ahb",
-> +};
->  /* list of resets */
->  static const char * const ipq8074_pciephy_reset_l[] = {
->  	"phy", "common",
-> @@ -1690,8 +1692,8 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
->  	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
->  	.pcs_tbl		= ipq8074_pcie_pcs_tbl,
->  	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
-> -	.clk_list		= NULL,
-> -	.num_clks		= 0,
-> +	.clk_list		= ipq8074_pciephy_clk_l,
-> +	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
+For example on Exynos5422-based Odroid-XU3 board,
+$ cat /sys/kernel/debug/devfreq/devfreq_summary
+dev                            parent_dev                     governor        polling_ms  cur_freq_Hz  min_freq_Hz  max_freq_Hz
+------------------------------ ------------------------------ --------------- ---------- ------------ ------------ ------------
+10c20000.memory-controller     null                           simple_ondemand          0    413000000    165000000    825000000
+soc:bus_wcore                  null                           simple_ondemand         50     88700000     88700000    532000000
+soc:bus_noc                    soc:bus_wcore                  passive                  0     66600000     66600000    111000000
+soc:bus_fsys_apb               soc:bus_wcore                  passive                  0    111000000    111000000    222000000
+soc:bus_fsys                   soc:bus_wcore                  passive                  0     75000000     75000000    200000000
+soc:bus_fsys2                  soc:bus_wcore                  passive                  0     75000000     75000000    200000000
+soc:bus_mfc                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
+soc:bus_gen                    soc:bus_wcore                  passive                  0     88700000     88700000    266000000
+soc:bus_peri                   soc:bus_wcore                  passive                  0     66600000     66600000     66600000
+soc:bus_g2d                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
+soc:bus_g2d_acp                soc:bus_wcore                  passive                  0            0     66500000    266000000
+soc:bus_jpeg                   soc:bus_wcore                  passive                  0            0     75000000    300000000
+soc:bus_jpeg_apb               soc:bus_wcore                  passive                  0            0     83250000    166500000
+soc:bus_disp1_fimd             soc:bus_wcore                  passive                  0            0    120000000    200000000
+soc:bus_disp1                  soc:bus_wcore                  passive                  0            0    120000000    300000000
+soc:bus_gscl_scaler            soc:bus_wcore                  passive                  0            0    150000000    300000000
+soc:bus_mscl                   soc:bus_wcore                  passive                  0            0     84000000    666000000
 
-I see patch is modifying some register values and then adding clks, in
-the absence of proper patch description it is extremely hard to
-understand what is going on..
+Cc: stable@vger.kernel.org
+Fixes: commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"")
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ drivers/devfreq/devfreq.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
->  	.reset_list		= ipq8074_pciephy_reset_l,
->  	.num_resets		= ARRAY_SIZE(ipq8074_pciephy_reset_l),
->  	.vreg_list		= NULL,
-> diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.h b/drivers/phy/qualcomm/phy-qcom-qmp.h
-> index 6d017a0c0c8d..832b3d098403 100644
-> --- a/drivers/phy/qualcomm/phy-qcom-qmp.h
-> +++ b/drivers/phy/qualcomm/phy-qcom-qmp.h
-> @@ -77,6 +77,8 @@
->  #define QSERDES_COM_CORECLK_DIV_MODE1			0x1bc
->  
->  /* Only for QMP V2 PHY - TX registers */
-> +#define QSERDES_TX_EMP_POST1_LVL			0x018
-> +#define QSERDES_TX_SLEW_CNTL				0x040
->  #define QSERDES_TX_RES_CODE_LANE_OFFSET			0x054
->  #define QSERDES_TX_DEBUG_BUS_SEL			0x064
->  #define QSERDES_TX_HIGHZ_TRANSCEIVEREN_BIAS_DRVR_EN	0x068
-> -- 
-> 2.7.4
-
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index ce82bdb5fa5c..2ff35ec1b53b 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -1839,8 +1839,7 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+ 	unsigned long cur_freq, min_freq, max_freq;
+ 	unsigned int polling_ms;
+ 
+-	seq_printf(s, "%-30s %-10s %-10s %-15s %10s %12s %12s %12s\n",
+-			"dev_name",
++	seq_printf(s, "%-30s %-30s %-15s %10s %12s %12s %12s\n",
+ 			"dev",
+ 			"parent_dev",
+ 			"governor",
+@@ -1848,10 +1847,9 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+ 			"cur_freq_Hz",
+ 			"min_freq_Hz",
+ 			"max_freq_Hz");
+-	seq_printf(s, "%30s %10s %10s %15s %10s %12s %12s %12s\n",
++	seq_printf(s, "%30s %30s %15s %10s %12s %12s %12s\n",
++			"------------------------------",
+ 			"------------------------------",
+-			"----------",
+-			"----------",
+ 			"---------------",
+ 			"----------",
+ 			"------------",
+@@ -1880,8 +1878,7 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+ 		mutex_unlock(&devfreq->lock);
+ 
+ 		seq_printf(s,
+-			"%-30s %-10s %-10s %-15s %10d %12ld %12ld %12ld\n",
+-			dev_name(devfreq->dev.parent),
++			"%-30s %-30s %-15s %10d %12ld %12ld %12ld\n",
+ 			dev_name(&devfreq->dev),
+ 			p_devfreq ? dev_name(&p_devfreq->dev) : "null",
+ 			devfreq->governor_name,
 -- 
-~Vinod
+2.17.1
+
