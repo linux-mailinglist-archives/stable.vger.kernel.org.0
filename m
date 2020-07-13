@@ -2,118 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB8321DB1B
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 18:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F8421DB32
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 18:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729976AbgGMQCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 12:02:49 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:50691 "EHLO
-        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729659AbgGMQCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 12:02:49 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id B11215E6;
-        Mon, 13 Jul 2020 12:02:48 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 13 Jul 2020 12:02:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=WJUQnU
-        SVt5Obs69380LQsF7CjjYfn+Pu9bi8JzyfogY=; b=OMeHRZrgks8IuJbbxmqhLg
-        /MLfyzRk/ijRqPTrbAMS2wkIZflxziwuSdkEr3xqUdasA8vamyQHY/iU43XFqUCW
-        aImdgUOfbi2JsRRwwzAdEo0d0Queo/+X60VTx9iVL9OD76VFhV+CwtYnBtELBKvv
-        uqT7cL6zQ60v0QHfS8PK7UMI+3pXIaje7oSarr9DnDmdIByseGK0zzMatIcmKbJH
-        xKcAQBjwJxL0u0pBep3BKAdJHOpvKW9c9ITk2Z/6Eiz56XrjsZbV0WGE0oCc7TJA
-        +llmAvx+uMSsnrYEjXdPT5i3ZRzmo6BTdDSmuNEwBjDI9QCEdA1lwh5qe7LNjZEQ
-        ==
-X-ME-Sender: <xms:qIUMX04FRFcrMWjijIAm8G0jPGUt__hU42d_ZYjKzjRATqGjgc4t9w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrvdekgdelkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:qIUMX15ymBT9MdoaSg86qLMZ9byTwWp_WWitDJrk9wV7bUhOzAgwiw>
-    <xmx:qIUMXzd-saWW4LEGedAgalMITSQLEm4SlcyMIn6O2MyW4EwjPnT1OQ>
-    <xmx:qIUMX5KTj1VfnbIlle6BPSeijV5d4cTChPtZDP8X1eXsWgub2nHMbg>
-    <xmx:qIUMX_lSCbD89gacaIbhp3OW0mfsD1mufCjJshURXHYM98vxWJEa-FNiWiQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C57863280060;
-        Mon, 13 Jul 2020 12:02:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86: Mark CR4.TSD as being possibly owned by the guest" failed to apply to 4.4-stable tree
-To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jul 2020 18:02:39 +0200
-Message-ID: <159465615941141@kroah.com>
+        id S1729593AbgGMQFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 12:05:53 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:64242 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729027AbgGMQFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 12:05:53 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21806082-1500050 
+        for multiple; Mon, 13 Jul 2020 17:05:48 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Only swap to a random sibling once upon creation
+Date:   Mon, 13 Jul 2020 17:05:49 +0100
+Message-Id: <20200713160549.17344-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The danger in switching at random upon intel_context_pin is that the
+context may still actually be inflight, as it will not be scheduled out
+until a context switch after it is complete -- that is after we do a
+final intel_context_unpin.
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2118
+Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.3+
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 7c83d096aed055a7763a03384f92115363448b71 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Thu, 2 Jul 2020 21:04:21 -0700
-Subject: [PATCH] KVM: x86: Mark CR4.TSD as being possibly owned by the guest
-
-Mark CR4.TSD as being possibly owned by the guest as that is indeed the
-case on VMX.  Without TSD being tagged as possibly owned by the guest, a
-targeted read of CR4 to get TSD could observe a stale value.  This bug
-is benign in the current code base as the sole consumer of TSD is the
-emulator (for RDTSC) and the emulator always "reads" the entirety of CR4
-when grabbing bits.
-
-Add a build-time assertion in to ensure VMX doesn't hand over more CR4
-bits without also updating x86.
-
-Fixes: 52ce3c21aec3 ("x86,kvm,vmx: Don't trap writes to CR4.TSD")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200703040422.31536-2-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/kvm_cache_regs.h b/arch/x86/kvm/kvm_cache_regs.h
-index ff2d0e9ca3bc..cfe83d4ae625 100644
---- a/arch/x86/kvm/kvm_cache_regs.h
-+++ b/arch/x86/kvm/kvm_cache_regs.h
-@@ -7,7 +7,7 @@
- #define KVM_POSSIBLE_CR0_GUEST_BITS X86_CR0_TS
- #define KVM_POSSIBLE_CR4_GUEST_BITS				  \
- 	(X86_CR4_PVI | X86_CR4_DE | X86_CR4_PCE | X86_CR4_OSFXSR  \
--	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE)
-+	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE | X86_CR4_TSD)
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index cd4262cc96e2..f4658849b08a 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -5435,13 +5435,8 @@ static void virtual_engine_initial_hint(struct virtual_engine *ve)
+ 	 * typically be the first we inspect for submission.
+ 	 */
+ 	swp = prandom_u32_max(ve->num_siblings);
+-	if (!swp)
+-		return;
+-
+-	swap(ve->siblings[swp], ve->siblings[0]);
+-	if (!intel_engine_has_relative_mmio(ve->siblings[0]))
+-		virtual_update_register_offsets(ve->context.lrc_reg_state,
+-						ve->siblings[0]);
++	if (swp)
++		swap(ve->siblings[swp], ve->siblings[0]);
+ }
  
- #define BUILD_KVM_GPR_ACCESSORS(lname, uname)				      \
- static __always_inline unsigned long kvm_##lname##_read(struct kvm_vcpu *vcpu)\
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index cb22f33bf1d8..5c9bfc0b9ab9 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4034,6 +4034,8 @@ void vmx_set_constant_host_state(struct vcpu_vmx *vmx)
- 
- void set_cr4_guest_host_mask(struct vcpu_vmx *vmx)
+ static int virtual_context_alloc(struct intel_context *ce)
+@@ -5454,15 +5449,9 @@ static int virtual_context_alloc(struct intel_context *ce)
+ static int virtual_context_pin(struct intel_context *ce)
  {
-+	BUILD_BUG_ON(KVM_CR4_GUEST_OWNED_BITS & ~KVM_POSSIBLE_CR4_GUEST_BITS);
-+
- 	vmx->vcpu.arch.cr4_guest_owned_bits = KVM_CR4_GUEST_OWNED_BITS;
- 	if (enable_ept)
- 		vmx->vcpu.arch.cr4_guest_owned_bits |= X86_CR4_PGE;
+ 	struct virtual_engine *ve = container_of(ce, typeof(*ve), context);
+-	int err;
+ 
+ 	/* Note: we must use a real engine class for setting up reg state */
+-	err = __execlists_context_pin(ce, ve->siblings[0]);
+-	if (err)
+-		return err;
+-
+-	virtual_engine_initial_hint(ve);
+-	return 0;
++	return __execlists_context_pin(ce, ve->siblings[0]);
+ }
+ 
+ static void virtual_context_enter(struct intel_context *ce)
+@@ -5808,6 +5797,7 @@ intel_execlists_create_virtual(struct intel_engine_cs **siblings,
+ 
+ 	ve->base.flags |= I915_ENGINE_IS_VIRTUAL;
+ 
++	virtual_engine_initial_hint(ve);
+ 	return &ve->context;
+ 
+ err_put:
+-- 
+2.20.1
 
