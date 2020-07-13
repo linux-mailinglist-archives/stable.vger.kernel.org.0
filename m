@@ -2,74 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F17AB21D392
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 12:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C3821D3AD
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 12:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729460AbgGMKJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 06:09:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41586 "EHLO mx2.suse.de"
+        id S1728571AbgGMKUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 06:20:03 -0400
+Received: from mga03.intel.com ([134.134.136.65]:25393 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726523AbgGMKJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jul 2020 06:09:02 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 327C0B138;
-        Mon, 13 Jul 2020 10:09:03 +0000 (UTC)
-Message-ID: <1594634939.2541.3.camel@suse.de>
-Subject: Re: [PATCH] cdc-acm: acm_init: Set initial BAUD to B0
-From:   Oliver Neukum <oneukum@suse.de>
-To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
-        "linux-usb @ vger . kernel . org" <linux-usb@vger.kernel.org>
+        id S1727035AbgGMKUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jul 2020 06:20:03 -0400
+IronPort-SDR: jfRoMmTsVMSo3jSGudG7NmAs5zpMaAcWHbG6qgl/F51FClJYBu62vufCcNvhyAcaTMzzT4VnHF
+ OyNaxVi5i3dQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9680"; a="148584123"
+X-IronPort-AV: E=Sophos;i="5.75,347,1589266800"; 
+   d="scan'208";a="148584123"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2020 03:20:02 -0700
+IronPort-SDR: fGiJdv3yL40M+/PwvDFsAUvrOcMF2Kl8LzIUm9x1KzwKZmfq4EgpN69kY66/dHeOZYZ/0yfnpL
+ JxQfO7DF08hQ==
+X-IronPort-AV: E=Sophos;i="5.75,347,1589266800"; 
+   d="scan'208";a="459242050"
+Received: from thoebenx-mobl.ger.corp.intel.com (HELO [10.255.194.109]) ([10.255.194.109])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2020 03:20:01 -0700
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Ignore irq enabling on the
+ virtual engines
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
 Cc:     stable@vger.kernel.org
-Date:   Mon, 13 Jul 2020 12:08:59 +0200
-In-Reply-To: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
-References: <20200710093518.22272-1-joakim.tjernlund@infinera.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
-Mime-Version: 1.0
+References: <20200711203236.12330-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <4d6930b8-80d2-0e74-79fa-9e297beccf26@linux.intel.com>
+Date:   Mon, 13 Jul 2020 11:19:58 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200711203236.12330-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Freitag, den 10.07.2020, 11:35 +0200 schrieb Joakim Tjernlund:
+
+On 11/07/2020 21:32, Chris Wilson wrote:
+> We do not use the virtual engines for interrupts (they have physical
+> components), but we do use them to decouple the fence signaling during
+> submission. Currently, when we submit a completed request, we try to
+> enable the interrupt handler for the virtual engine, but we never disarm
+> it. A quick fix is then to mark the irq as enabled, and it will then
+> remain enabled -- and this prevents us from waking the device and never
+> letting it sleep again.
 > 
+> Fixes: f8db4d051b5e ("drm/i915: Initialise breadcrumb lists on the virtual engine")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.5+
+> ---
+>   drivers/gpu/drm/i915/gt/intel_lrc.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index cd4262cc96e2..504e269bb166 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -5727,6 +5727,7 @@ intel_execlists_create_virtual(struct intel_engine_cs **siblings,
+>   	intel_engine_init_active(&ve->base, ENGINE_VIRTUAL);
+>   	intel_engine_init_breadcrumbs(&ve->base);
+>   	intel_engine_init_execlists(&ve->base);
+> +	ve->base.breadcrumbs.irq_armed = true;
 
+Add a comment here saying this is a hack and why please. With that:
 
-Hi,
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-> --- a/drivers/usb/class/cdc-acm.c
-> +++ b/drivers/usb/class/cdc-acm.c
-> @@ -1999,19 +1999,19 @@ static int __init acm_init(void)
->  	acm_tty_driver->subtype = SERIAL_TYPE_NORMAL,
->  	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
->  	acm_tty_driver->init_termios = tty_std_termios;
-> -	acm_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD |
-> +	acm_tty_driver->init_termios.c_cflag = B0 | CS8 | CREAD |
->  								HUPCL | CLOCAL;
->  	tty_set_operations(acm_tty_driver, &acm_ops);
->  
-> -	retval = tty_register_driver(acm_tty_driver);
-> +	retval = usb_register(&acm_driver);
+Regards,
 
+Tvrtko
 
-No,
-
-you cannot do that. This means that probe() is now live.
-Probe() in turn does this:
-
-        tty_dev = tty_port_register_device(&acm->port, acm_tty_driver, minor,
-                        &control_interface->dev);
-        if (IS_ERR(tty_dev)) {
-                rv = PTR_ERR(tty_dev);
-                goto alloc_fail6;
-        }
-
-
-That is just not a good idea when the tty is not already registered.
-You are opening up a race.
-
-	Regards
-		Oliver
-
+>   
+>   	ve->base.cops = &virtual_context_ops;
+>   	ve->base.request_alloc = execlists_request_alloc;
+> 
