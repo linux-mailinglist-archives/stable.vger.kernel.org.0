@@ -2,24 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B42121CDC7
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 05:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DAD421CDCF
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 05:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbgGMDfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 23:35:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51738 "EHLO mx2.suse.de"
+        id S1728721AbgGMDfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jul 2020 23:35:45 -0400
+Received: from mx2.suse.de ([195.135.220.15]:51916 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726523AbgGMDfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 12 Jul 2020 23:35:02 -0400
+        id S1728550AbgGMDfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 12 Jul 2020 23:35:45 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 10CB3AD1A;
-        Mon, 13 Jul 2020 03:35:03 +0000 (UTC)
-To:     Jens Axboe <axboe@kernel.dk>
+        by mx2.suse.de (Postfix) with ESMTP id 7A83BAD1A;
+        Mon, 13 Jul 2020 03:35:45 +0000 (UTC)
+Subject: Re: [PATCH 1/2] bcache: avoid nr_stripes overflow in
+ bcache_device_init()
+To:     Ken Raeburn <raeburn@redhat.com>
 Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        Ken Raeburn <raeburn@redhat.com>, stable@vger.kernel.org
+        stable@vger.kernel.org
 References: <20200712174736.9840-1-colyli@suse.de>
- <010a5d09-5de8-8f1e-4ff5-3f194f899073@kernel.dk>
+ <1011c22f-d186-6398-98e1-83f1c363dedd@suse.de>
+ <a504604d-ac8a-3276-e0b8-f42cb3782356@redhat.com>
 From:   Coly Li <colyli@suse.de>
 Autocrypt: addr=colyli@suse.de; keydata=
  mQINBFYX6S8BEAC9VSamb2aiMTQREFXK4K/W7nGnAinca7MRuFUD4JqWMJ9FakNRd/E0v30F
@@ -64,14 +67,12 @@ Autocrypt: addr=colyli@suse.de; keydata=
  K0Jx4CEZubakJe+894sX6pvNFiI7qUUdB882i5GR3v9ijVPhaMr8oGuJ3kvwBIA8lvRBGVGn
  9xvzkQ8Prpbqh30I4NMp8MjFdkwCN6znBKPHdjNTwE5PRZH0S9J0o67IEIvHfH0eAWAsgpTz
  +jwc7VKH7vkvgscUhq/v1/PEWCAqh9UHy7R/jiUxwzw/288OpgO+i+2l11Y=
-Subject: Re: [PATCH 1/2] bcache: avoid nr_stripes overflow in
- bcache_device_init()
-Message-ID: <789e0fff-5fc3-1d2a-3e7a-62a4eac4ae59@suse.de>
-Date:   Mon, 13 Jul 2020 11:34:56 +0800
+Message-ID: <16edd3bb-944e-83fe-784c-35221f9ee287@suse.de>
+Date:   Mon, 13 Jul 2020 11:35:40 +0800
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
  Gecko/20100101 Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <010a5d09-5de8-8f1e-4ff5-3f194f899073@kernel.dk>
+In-Reply-To: <a504604d-ac8a-3276-e0b8-f42cb3782356@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -80,21 +81,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/7/13 04:37, Jens Axboe wrote:
-> On 7/12/20 11:47 AM, Coly Li wrote:
->> For some block devices which large capacity (e.g. 8TB) but small io_opt
->> size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
->> lated by,
->> 	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
->> might be overflow to the unsigned int bcache_device->nr_stripes.
+On 2020/7/13 04:38, Ken Raeburn wrote:
+> 
+> On 7/12/20 1:49 PM, Coly Li wrote:
+>> On 2020/7/13 01:47, Coly Li wrote:
+>>> For some block devices which large capacity (e.g. 8TB) but small io_opt
+>>> size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
+>>> lated by,
+>>>     DIV_ROUND_UP_ULL(sectors, d->stripe_size);
+>>> might be overflow to the unsigned int bcache_device->nr_stripes.
+>>>
+>>> This patch uses an unsigned long variable to store DIV_ROUND_UP_ULL()
+>>> and after the value is checked to be available in unsigned int range,
+>>> sets it to bache_device->nr_stripes. Then the overflow is avoided.
+>> Hi Ken,
 >>
->> This patch uses an unsigned long variable to store DIV_ROUND_UP_ULL()
->> and after the value is checked to be available in unsigned int range,
->> sets it to bache_device->nr_stripes. Then the overflow is avoided.
+>> Could you please to try whether these two patches may avoid the kernel
+>> panic ? I will post the overwhelm stripe_size patch later.
+>>
+>> Thanks.
+>>
+>> Coly Li
+>>
+> I will. But, from inspection: On a 32-bit system, "unsigned long" will
+> still be 32 bits, but sector_t (u64) will still be 64 bits, so that
+> assignment will still discard high bits before validation in that
+> environment. I suggest "unsigned long long" or another specifically
+> 64-bit type.
 > 
-> Does that work on 32-bit, where sizeof(unsigned long) == 4?
-> 
+> Also, the VDO driver I work on doesn't support 32-bit platforms
+> currently, so my own testing will be limited to 64-bit platforms.
 
-I will post v2 to explicit use uint64_t. Thanks for the remind.
+I will post a v2 for your test. Thanks :-)
 
 Coly Li
+
