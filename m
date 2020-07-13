@@ -2,113 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07EE521D82D
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 16:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1948321D852
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 16:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729835AbgGMOTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 10:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41282 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729659AbgGMOTE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jul 2020 10:19:04 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 106C92072D;
-        Mon, 13 Jul 2020 14:19:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594649944;
-        bh=7okJSavCtHwHai6JZ4nUCc+G5Gb+VD9dOCnLgQFeNPY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MH8hhlqfgzIIyjZhB1EbzirONb87/opHJVkx9UXTe1aUKeZB5dMCQjInu+vYNK1gG
-         EEMaoWRpmey1OuTS/7UDQ39Hwy/Gj07QdN8htya6ZVy2wphOS8u1xZ6FmWbDrTbRQA
-         M5tJ2Ib68JLypQhu3AdKKY2hnI+JF2GEbOSDFJUg=
-Date:   Mon, 13 Jul 2020 16:19:04 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     trix@redhat.com
-Cc:     giovanni.cabiddu@intel.com, herbert@gondor.apana.org.au,
-        davem@davemloft.net, wojciech.ziemba@intel.com,
-        karen.xiang@intel.com, bruce.w.allan@intel.com, bo.cui@intel.com,
-        pingchaox.yang@intel.com, qat-linux@intel.com,
-        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: qat: fix double free in
- qat_uclo_create_batch_init_list
-Message-ID: <20200713141904.GA3730398@kroah.com>
-References: <20200713140634.14730-1-trix@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200713140634.14730-1-trix@redhat.com>
+        id S1729782AbgGMOXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 10:23:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729649AbgGMOXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 10:23:43 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFB2C061755
+        for <stable@vger.kernel.org>; Mon, 13 Jul 2020 07:23:43 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id c30so12281661qka.10
+        for <stable@vger.kernel.org>; Mon, 13 Jul 2020 07:23:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=qq85m4gXnQc1Ga+qbIQPv/IwGROznWBDR0xGC3cs+/s=;
+        b=T0oBM/umLio1RT7JhAWEDBRpIc/6cOLaU5AuoGVcC6M2sVliNXz6JNjIjQrP/U6Xze
+         UV1/VOmqBGrOyZoTx4rBVyjuUeWLgFr7gLa2oMWc1l7oal266ypvCf8RaOx4pqMWoj+H
+         JoGpzx8kyZtAbjWce30Gqmriug99IBNz8xbHRSjFaO2Hsxx2aqI+WhU/5FXCHOb+/7Ku
+         bhZ7mepQc6UuiyHOmuSqasJ+VGS75qAQOEWO2WnQ2wvDDdNljNbLzZ9Dr0e4m/jDpqdP
+         tvAbEqx8fPqPR0S8zqWF48vhFJcsPm/Qb3Nu42aAbXCUsXC49upKScCF9lTwFCA2mUR/
+         Rdbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=qq85m4gXnQc1Ga+qbIQPv/IwGROznWBDR0xGC3cs+/s=;
+        b=qxA0qRfg8EqNI6E1EhmLF1DUTneNAkBkf2JVTNLyhajLtGn2v968DO0CWJtEk1F7cN
+         Hy/7R8LwxPPcSQXeV86jbj3ZBAS78tsnXRNCfdyCA0bciFAq8uX+u+/4UIenluw0ZceA
+         ttLumOtblABGe1s6YGrrz6YbqsxZliDs4PbDuUQJchivwy9FrupeK29ud/K4HR0xTxZt
+         urK4U4ddAZrRHYymeGX4dIZwk2LXwnK+6wpRTF9R064j0H7qhiDwB02yVqaPRjhikVBn
+         ubu8tD0ehwUfacQL21DmnIbYvWygW2l1eUNYG6KcGYIYjjzaqkauoUrR7/j7hmcqPc2g
+         sMUw==
+X-Gm-Message-State: AOAM530cqOLjxGR3v0afPNGo8cYbMorToO8Q9vmIko6U1zfG9mIrsNUh
+        0O4Re4u7+gKg0KVACgNU0MA=
+X-Google-Smtp-Source: ABdhPJySRopc6D8cjWbN5dOODXhr+yFxY135naGBcaSEtMciSbhDcHNZIujJ7+2InVzSHdYHDYPZxA==
+X-Received: by 2002:a37:b4d:: with SMTP id 74mr82504788qkl.477.1594650222717;
+        Mon, 13 Jul 2020 07:23:42 -0700 (PDT)
+Received: from localhost.localdomain ([2804:14c:482:92b:9d6d:2996:7c26:fb1d])
+        by smtp.gmail.com with ESMTPSA id t48sm19896841qtb.50.2020.07.13.07.23.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jul 2020 07:23:41 -0700 (PDT)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     shawnguo@kernel.org
+Cc:     linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] ARM: dts: imx6sx-sdb: Fix the phy-mode on fec2
+Date:   Mon, 13 Jul 2020 11:23:24 -0300
+Message-Id: <20200713142325.24601-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 13, 2020 at 07:06:34AM -0700, trix@redhat.com wrote:
-> From: Tom Rix <trix@redhat.com>
-> 
-> clang static analysis flags this error
-> 
-> qat_uclo.c:297:3: warning: Attempt to free released memory
->   [unix.Malloc]
->                 kfree(*init_tab_base);
->                 ^~~~~~~~~~~~~~~~~~~~~
-> 
-> When input *init_tab_base is null, the function allocates memory for
-> the head of the list.  When there is problem allocating other list
-> elements the list is unwound and freed.  Then a check is made if the
-> list head was allocated and is also freed.
-> 
-> Keeping track of the what may need to be freed is the variable 'tail_old'.
-> The unwinding/freeing block is
-> 
-> 	while (tail_old) {
-> 		mem_init = tail_old->next;
-> 		kfree(tail_old);
-> 		tail_old = mem_init;
-> 	}
-> 
-> The problem is that the first element of tail_old is also what was
-> allocated for the list head
-> 
-> 		init_header = kzalloc(sizeof(*init_header), GFP_KERNEL);
-> 		...
-> 		*init_tab_base = init_header;
-> 		flag = 1;
-> 	}
-> 	tail_old = init_header;
-> 
-> So *init_tab_base/init_header are freed twice.
-> 
-> There is another problem.
-> When the input *init_tab_base is non null the tail_old is calculated by
-> traveling down the list to first non null entry.
-> 
-> 	tail_old = init_header;
-> 	while (tail_old->next)
-> 		tail_old = tail_old->next;
-> 
-> When the unwinding free happens, the last entry of the input list will
-> be freed.
-> 
-> So the freeing needs a general changed.
-> If locally allocated the first element of tail_old is freed, else it
-> is skipped.  As a bit of cleanup, reset *init_tab_base if it came in
-> as null.
-> 
-> Fixes: b4b7e67c917f ("crypto: qat - Intel(R) QAT ucode part of fw loader")
-> 
-> Signed-off-by: Tom Rix <trix@redhat.com>
-> ---
->  drivers/crypto/qat/qat_common/qat_uclo.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
+Commit 0672d22a1924 ("ARM: dts: imx: Fix the AR803X phy-mode") fixed the
+phy-mode for fec1, but missed to fix it for the fec2 node.
 
-<formletter>
+Fix fec2 to also use "rgmii-id" as the phy-mode.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Cc: <stable@vger.kernel.org> 
+Fixes: 0672d22a1924 ("ARM: dts: imx: Fix the AR803X phy-mode")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+---
+ arch/arm/boot/dts/imx6sx-sdb.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-</formletter>
+diff --git a/arch/arm/boot/dts/imx6sx-sdb.dtsi b/arch/arm/boot/dts/imx6sx-sdb.dtsi
+index 3e5fb72f21fc..c99aa273c296 100644
+--- a/arch/arm/boot/dts/imx6sx-sdb.dtsi
++++ b/arch/arm/boot/dts/imx6sx-sdb.dtsi
+@@ -213,7 +213,7 @@
+ &fec2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet2>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ethphy2>;
+ 	status = "okay";
+ };
+-- 
+2.17.1
+
