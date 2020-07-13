@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B8421DB14
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 18:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15AE021DB1A
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 18:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729796AbgGMQBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 12:01:09 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:41925 "EHLO
+        id S1729946AbgGMQCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 12:02:43 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:52765 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729027AbgGMQBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 12:01:09 -0400
+        by vger.kernel.org with ESMTP id S1729659AbgGMQCm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 12:02:42 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 19435714;
-        Mon, 13 Jul 2020 12:01:08 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 13 Jul 2020 12:01:08 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id DA51C3CF;
+        Mon, 13 Jul 2020 12:02:41 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 13 Jul 2020 12:02:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=//bjZR
-        IMoLvdUuIzd76z36uH7CNUD/p02B3HIV2JW0I=; b=t6fqc2KuUKcld6gAHIwcf+
-        XgVs0/M/dPMbI19mFHT36HBgp2wv1YXarEqiCOsKNHPlU15VBQBW45+R7tfIr4mo
-        tb3suuklH2VWlqlHdOOQZJwDxMjcF55Bf+SOAKlQ1Hn288tXVvmyvYjqEGNXODJg
-        lR0gKVnnMVtUHwhcefxdboFHdV7XVYRuxV9aKZDl71kxKU54OMoeJdcCzZoMNPab
-        TlCx9E1bO45SMqpcg8nYtSbH87qGHACNH+Yg1agj/zmiPYjM507N3gSic3xcTwu/
-        36R8dvMXvwKTNsmGXW8New8RNj0U0/5XclvFeMgXmroNqDCM60OS0Uq0Xmho15GQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=mvLSDl
+        kMBIYMp7T+DfKXqtGQkCMIs38djAb/YXsHkss=; b=NF+Me0mdTRwexrLb3X3y0z
+        ir1At7UNR/xYvQatoLUmfC5n5xjQ3+d+CbZllH9fH3YwNeHUQEb7U/7R/j+GjZe7
+        Yg8xTw6bZYsB3xwQ1iw2vwgIW9DM1QCO8DrtBAIIwVc0XQIAkYfQ5zlvpqzSCcJq
+        2pXbWlD0m3qJrp+Rl8Ae1OaNgw9luiUnvJkydKuJfUy51AYZVMSYjWfOY6jSkKbM
+        3wnc7OsBmPl+D61GCyP0EV2DOO9Uclj3YDBbjWVfWRrGEXVt8p8BvvyFcAwNkqIz
+        bx11+AJhtiBaQmr+Htpm0boMQSGYl3CL1YdRlha7q4XC3WPtzmSqIc2c+CnUJCPA
         ==
-X-ME-Sender: <xms:Q4UMX7yQYstIT2xL7_s-W3feELrY9X6CXuYqgwKK0vKWsMh6AZRT3g>
+X-ME-Sender: <xms:oIUMX8GCbYEmJc-ZQ6FF3rgwLetKM6K_t31XBt3dHqxk_RCZZFFCwQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrvdekgdelkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Q4UMXzSkRuTjTEeAZbFC9RmYXjbxKPGZojYk3qd8SIPfnciOsyoiXQ>
-    <xmx:Q4UMX1X66hhhmO9A9siCKpgEZvgYXnO1Esv-8bOZNG1DDHJozlHwAA>
-    <xmx:Q4UMX1hgNHoXXO8rPwOFCVL_aFan7N2i44SiCBgq_K0gB66DvpT1yQ>
-    <xmx:Q4UMXwotW0k1b5cXw-NzuaEiTEUNGemky2wJcrZfRsWWvjPjBmDIOIWVUX8>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:oIUMX1Uu_K5_qGr0Mwe1gUK_0aI_0qBRJSuxnrZwQsmP0IATWNgB2Q>
+    <xmx:oIUMX2JwvHaFQeAWDAAfqzT3yhcSvrRRUfOw0KBj4D9x2gEGEIw04w>
+    <xmx:oIUMX-FRb7YdjT2w9PW8CgsEUqEIn4-SbsDJgiWGTlQTSzI5YDUQlQ>
+    <xmx:oYUMX9D2VRy5PXb3B7clgHqeVmesy9zo-LC7CMtyA2R8C3WZ2Luubm-uStc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1765B3280066;
-        Mon, 13 Jul 2020 12:01:06 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect" failed to apply to 5.4-stable tree
-To:     steven.price@arm.com, james.morse@arm.com, maz@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 98B8830600B2;
+        Mon, 13 Jul 2020 12:02:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Mark CR4.TSD as being possibly owned by the guest" failed to apply to 4.9-stable tree
+To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jul 2020 18:00:59 +0200
-Message-ID: <1594656059166107@kroah.com>
+Date:   Mon, 13 Jul 2020 18:02:38 +0200
+Message-ID: <1594656158131135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,59 +69,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 66b7e05dc0239c5817859f261098ba9cc2efbd2b Mon Sep 17 00:00:00 2001
-From: Steven Price <steven.price@arm.com>
-Date: Wed, 17 Jun 2020 11:54:56 +0100
-Subject: [PATCH] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect
- with SVE
+From 7c83d096aed055a7763a03384f92115363448b71 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Date: Thu, 2 Jul 2020 21:04:21 -0700
+Subject: [PATCH] KVM: x86: Mark CR4.TSD as being possibly owned by the guest
 
-If SVE is enabled then 'ret' can be assigned the return value of
-kvm_vcpu_enable_sve() which may be 0 causing future "goto out" sites to
-erroneously return 0 on failure rather than -EINVAL as expected.
+Mark CR4.TSD as being possibly owned by the guest as that is indeed the
+case on VMX.  Without TSD being tagged as possibly owned by the guest, a
+targeted read of CR4 to get TSD could observe a stale value.  This bug
+is benign in the current code base as the sole consumer of TSD is the
+emulator (for RDTSC) and the emulator always "reads" the entirety of CR4
+when grabbing bits.
 
-Remove the initialisation of 'ret' and make setting the return value
-explicit to avoid this situation in the future.
+Add a build-time assertion in to ensure VMX doesn't hand over more CR4
+bits without also updating x86.
 
-Fixes: 9a3cdf26e336 ("KVM: arm64/sve: Allow userspace to enable SVE for vcpus")
+Fixes: 52ce3c21aec3 ("x86,kvm,vmx: Don't trap writes to CR4.TSD")
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200617105456.28245-1-steven.price@arm.com
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200703040422.31536-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
-index d3b209023727..6ed36be51b4b 100644
---- a/arch/arm64/kvm/reset.c
-+++ b/arch/arm64/kvm/reset.c
-@@ -245,7 +245,7 @@ static int kvm_vcpu_enable_ptrauth(struct kvm_vcpu *vcpu)
-  */
- int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+diff --git a/arch/x86/kvm/kvm_cache_regs.h b/arch/x86/kvm/kvm_cache_regs.h
+index ff2d0e9ca3bc..cfe83d4ae625 100644
+--- a/arch/x86/kvm/kvm_cache_regs.h
++++ b/arch/x86/kvm/kvm_cache_regs.h
+@@ -7,7 +7,7 @@
+ #define KVM_POSSIBLE_CR0_GUEST_BITS X86_CR0_TS
+ #define KVM_POSSIBLE_CR4_GUEST_BITS				  \
+ 	(X86_CR4_PVI | X86_CR4_DE | X86_CR4_PCE | X86_CR4_OSFXSR  \
+-	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE)
++	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE | X86_CR4_TSD)
+ 
+ #define BUILD_KVM_GPR_ACCESSORS(lname, uname)				      \
+ static __always_inline unsigned long kvm_##lname##_read(struct kvm_vcpu *vcpu)\
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index cb22f33bf1d8..5c9bfc0b9ab9 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -4034,6 +4034,8 @@ void vmx_set_constant_host_state(struct vcpu_vmx *vmx)
+ 
+ void set_cr4_guest_host_mask(struct vcpu_vmx *vmx)
  {
--	int ret = -EINVAL;
-+	int ret;
- 	bool loaded;
- 	u32 pstate;
- 
-@@ -269,15 +269,19 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 
- 	if (test_bit(KVM_ARM_VCPU_PTRAUTH_ADDRESS, vcpu->arch.features) ||
- 	    test_bit(KVM_ARM_VCPU_PTRAUTH_GENERIC, vcpu->arch.features)) {
--		if (kvm_vcpu_enable_ptrauth(vcpu))
-+		if (kvm_vcpu_enable_ptrauth(vcpu)) {
-+			ret = -EINVAL;
- 			goto out;
-+		}
- 	}
- 
- 	switch (vcpu->arch.target) {
- 	default:
- 		if (test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features)) {
--			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1))
-+			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1)) {
-+				ret = -EINVAL;
- 				goto out;
-+			}
- 			pstate = VCPU_RESET_PSTATE_SVC;
- 		} else {
- 			pstate = VCPU_RESET_PSTATE_EL1;
++	BUILD_BUG_ON(KVM_CR4_GUEST_OWNED_BITS & ~KVM_POSSIBLE_CR4_GUEST_BITS);
++
+ 	vmx->vcpu.arch.cr4_guest_owned_bits = KVM_CR4_GUEST_OWNED_BITS;
+ 	if (enable_ept)
+ 		vmx->vcpu.arch.cr4_guest_owned_bits |= X86_CR4_PGE;
 
