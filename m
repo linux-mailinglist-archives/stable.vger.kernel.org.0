@@ -2,93 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 587A421DB0B
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 18:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A6E21DB13
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 18:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730009AbgGMQAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 12:00:17 -0400
-Received: from asavdk4.altibox.net ([109.247.116.15]:49570 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729782AbgGMQAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 12:00:17 -0400
-Received: from ravnborg.org (unknown [188.228.123.71])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by asavdk4.altibox.net (Postfix) with ESMTPS id 9E7538048A;
-        Mon, 13 Jul 2020 18:00:11 +0200 (CEST)
-Date:   Mon, 13 Jul 2020 18:00:10 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     trix@redhat.com
-Cc:     a.hajda@samsung.com, narmstrong@baylibre.com,
-        Laurent.pinchart@ideasonboard.com, jonas@kwiboo.se,
-        jernej.skrabec@siol.net, airlied@linux.ie, daniel@ffwll.ch,
-        architt@codeaurora.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH] drm/bridge: sil_sii8620: initialize return of
- sii8620_readb
-Message-ID: <20200713160010.GA1223330@ravnborg.org>
-References: <20200712152453.27510-1-trix@redhat.com>
+        id S1729700AbgGMQBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 12:01:01 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:57655 "EHLO
+        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729027AbgGMQBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 12:01:01 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 798EA609;
+        Mon, 13 Jul 2020 12:01:00 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 13 Jul 2020 12:01:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FKNJ4J
+        cxtQ4gI57VsSNTL725zbrYBDSxMivPz9DQxYk=; b=tip+MNwfmHUK+7mnMA5jPK
+        kNuYw0OPpqrtam/2fzEygDO+D8+vxPeXL4mz+ajrbqPelqKgbbS4MUL2hm0gMQQp
+        nYo6fLlYViM365tl3P25IOLowcv8C8DpvbdnvlZEM9CdNLc0GTpoeudkn1MXwPpK
+        QPRKC6Ffc/YhINzfbDsCwR/szLRCAK8I14euisuTd20Ns13KPeOEmE0e5t2yJmw3
+        +plSSmd5xqLBR5JnZegJiSg1maeQUjsvJZkeAOqogPTkh8set7QPNjsezQeUt5+Q
+        XkncP+DreNSwvpOMyGa7fWOPCwtmVfU3zOe5a2vJJdmGnHAbv0ehmK5QLikE25dA
+        ==
+X-ME-Sender: <xms:O4UMX6-bTE1gHlSI9MFcJguFiwHDJ3WIucakwfIZgte8Dfyv_m-zQg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrvdekgdelkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:O4UMX6ufx0yggbRXxLtq8AA6C4Y1UaqA-Lv4zUi4KaoANs7IHDqBQw>
+    <xmx:O4UMXwD2dn2PdJqu-RCNVHXF_TBy-UxECI98xhdfTKyrE95xwEU56A>
+    <xmx:O4UMXycqjllk5gJFIHdulHe7MxsqbCjaayy9yyVh8XXembMK2e74Jw>
+    <xmx:PIUMXxXTbMUC13L5wz13Z7YpazVUZ0uoNydxf546WPkR-TbWC5u6DrjVLwI>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2CCB93280067;
+        Mon, 13 Jul 2020 12:00:59 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect" failed to apply to 5.7-stable tree
+To:     steven.price@arm.com, james.morse@arm.com, maz@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 13 Jul 2020 18:00:59 +0200
+Message-ID: <1594656059728@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200712152453.27510-1-trix@redhat.com>
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=aP3eV41m c=1 sm=1 tr=0
-        a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
-        a=kj9zAlcOel0A:10 a=20KFwNOVAAAA:8 a=e5mUnYsNAAAA:8
-        a=O_S-2KurR925GvWnQ7MA:9 a=CjuIK1q_8ugA:10 a=Vxmtnl_E_bksehYqCbjh:22
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tom.
 
-On Sun, Jul 12, 2020 at 08:24:53AM -0700, trix@redhat.com wrote:
-> From: Tom Rix <trix@redhat.com>
-> 
-> clang static analysis flags this error
-> 
-> sil-sii8620.c:184:2: warning: Undefined or garbage value
->   returned to caller [core.uninitialized.UndefReturn]
->         return ret;
->         ^~~~~~~~~~
-> 
-> sii8620_readb calls sii8620_read_buf.
-> sii8620_read_buf can return without setting its output
-> pararmeter 'ret'.
-> 
-> So initialize ret.
-> 
-> Fixes: ce6e153f414a ("drm/bridge: add Silicon Image SiI8620 driver")
-> 
-> Signed-off-by: Tom Rix <trix@redhat.com>
+The patch below does not apply to the 5.7-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Thnaks, applied to drm-misc-next as the fix is not urgent.
+thanks,
 
-	Sam
+greg k-h
 
-> ---
->  drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-> index 3540e4931383..da933d477e5f 100644
-> --- a/drivers/gpu/drm/bridge/sil-sii8620.c
-> +++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-> @@ -178,7 +178,7 @@ static void sii8620_read_buf(struct sii8620 *ctx, u16 addr, u8 *buf, int len)
->  
->  static u8 sii8620_readb(struct sii8620 *ctx, u16 addr)
->  {
-> -	u8 ret;
-> +	u8 ret = 0;
->  
->  	sii8620_read_buf(ctx, addr, &ret, 1);
->  	return ret;
-> -- 
-> 2.18.1
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+------------------ original commit in Linus's tree ------------------
+
+From 66b7e05dc0239c5817859f261098ba9cc2efbd2b Mon Sep 17 00:00:00 2001
+From: Steven Price <steven.price@arm.com>
+Date: Wed, 17 Jun 2020 11:54:56 +0100
+Subject: [PATCH] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect
+ with SVE
+
+If SVE is enabled then 'ret' can be assigned the return value of
+kvm_vcpu_enable_sve() which may be 0 causing future "goto out" sites to
+erroneously return 0 on failure rather than -EINVAL as expected.
+
+Remove the initialisation of 'ret' and make setting the return value
+explicit to avoid this situation in the future.
+
+Fixes: 9a3cdf26e336 ("KVM: arm64/sve: Allow userspace to enable SVE for vcpus")
+Cc: stable@vger.kernel.org
+Reported-by: James Morse <james.morse@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200617105456.28245-1-steven.price@arm.com
+
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index d3b209023727..6ed36be51b4b 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -245,7 +245,7 @@ static int kvm_vcpu_enable_ptrauth(struct kvm_vcpu *vcpu)
+  */
+ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+ {
+-	int ret = -EINVAL;
++	int ret;
+ 	bool loaded;
+ 	u32 pstate;
+ 
+@@ -269,15 +269,19 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+ 
+ 	if (test_bit(KVM_ARM_VCPU_PTRAUTH_ADDRESS, vcpu->arch.features) ||
+ 	    test_bit(KVM_ARM_VCPU_PTRAUTH_GENERIC, vcpu->arch.features)) {
+-		if (kvm_vcpu_enable_ptrauth(vcpu))
++		if (kvm_vcpu_enable_ptrauth(vcpu)) {
++			ret = -EINVAL;
+ 			goto out;
++		}
+ 	}
+ 
+ 	switch (vcpu->arch.target) {
+ 	default:
+ 		if (test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features)) {
+-			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1))
++			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1)) {
++				ret = -EINVAL;
+ 				goto out;
++			}
+ 			pstate = VCPU_RESET_PSTATE_SVC;
+ 		} else {
+ 			pstate = VCPU_RESET_PSTATE_EL1;
+
