@@ -2,129 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8C021D717
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 15:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5507B21D7CA
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 16:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729700AbgGMN2N convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 13 Jul 2020 09:28:13 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:59942 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729649AbgGMN2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 09:28:13 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 21804017-1500050 
-        for multiple; Mon, 13 Jul 2020 14:28:04 +0100
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200713131738.21319-1-chris@chris-wilson.co.uk>
-References: <20200713131617.21175-1-chris@chris-wilson.co.uk> <20200713131738.21319-1-chris@chris-wilson.co.uk>
-Subject: Re: [PATCH] drm/i915: Skip signaling a signaled request
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        "Nayana, Venkata Ramana" <venkata.ramana.nayana@intel.com>,
-        stable@vger.kernel.org
-To:     intel-gfx@lists.freedesktop.org
-Date:   Mon, 13 Jul 2020 14:28:04 +0100
-Message-ID: <159464688483.23097.2677088254913725179@build.alporthouse.com>
-User-Agent: alot/0.9
+        id S1729833AbgGMOGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 10:06:48 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54957 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729695AbgGMOGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 10:06:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594649206;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc; bh=cVAnTWhIdLYJKO73w7wojsiljd9+XyaexVrW7ZP7+wg=;
+        b=OdxBOQVf5G2D2UVYUWKL8fOso0/qFcpnRDd3WHu0/pFpyYIjMijKP86h6AVCEV5rKwzTLn
+        xbe9wu+tGdfFphT0T/cqwn1QZ4nAHHTiZYGE4IwyQniIxYao/vrKuC/GnprHKWoKNBbOGr
+        Lb0/rUauAXokEUgsxjm7zJs7w35GtfQ=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-184-hMR2qr5lPwSFO4qpGE10Lw-1; Mon, 13 Jul 2020 10:06:44 -0400
+X-MC-Unique: hMR2qr5lPwSFO4qpGE10Lw-1
+Received: by mail-qv1-f69.google.com with SMTP id r19so7465072qvz.7
+        for <stable@vger.kernel.org>; Mon, 13 Jul 2020 07:06:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=cVAnTWhIdLYJKO73w7wojsiljd9+XyaexVrW7ZP7+wg=;
+        b=oDtC9y0wgOCcR81p7Q+OlZT9YSgg2EFzL8QWPenMnUxAShoARqmcNlU7D8n6gYAA8H
+         YowKO0rMTLFCmVHz0aRavo8cyJhZ4mE+hpNTc18qyZdgpTRvF3TyFJ3rv/rOgesOBcIc
+         uo/c1fsTZg9P2UpSunLf7IhXM7odHc02yYIylwVgFPog9iSHRj/awnYh1UdGXgRhIBzl
+         B/RJHhK1rD1fBkj/JTKtj1f3pwx64CiiVZXzqn/5O3qZgR9056n/02aiaJp/3KL2JhKr
+         Du9bOrzoP/vThuWoAt1tSHXTYYbg2jUqERF8EktjszFogXIts1kPXYgQ0eAeo1EOrIbg
+         /yhQ==
+X-Gm-Message-State: AOAM530ZuDcpuOk146WhAEWilgAUhQgvmS3Qs2uA1wVA92AuvTdaWwJD
+        EuoO8BEIxZmUJGu4BL+EftbYczgdlYFBPZdgyIngEQDFadGCTD+XVn8DlM0GFZCALkXhSA/D3ew
+        KOykvzmL7M5GnEUn/
+X-Received: by 2002:ad4:57c3:: with SMTP id y3mr61518417qvx.38.1594649203770;
+        Mon, 13 Jul 2020 07:06:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzc2v24kRRcIx9iU41389LXjIqZiB59Sm2o0YB8K6V71/qbHAgcbnd4J0M72wpearx39vRRHA==
+X-Received: by 2002:ad4:57c3:: with SMTP id y3mr61518386qvx.38.1594649203525;
+        Mon, 13 Jul 2020 07:06:43 -0700 (PDT)
+Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
+        by smtp.gmail.com with ESMTPSA id m4sm20218627qtf.43.2020.07.13.07.06.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jul 2020 07:06:42 -0700 (PDT)
+From:   trix@redhat.com
+To:     giovanni.cabiddu@intel.com, herbert@gondor.apana.org.au,
+        davem@davemloft.net, wojciech.ziemba@intel.com,
+        karen.xiang@intel.com, bruce.w.allan@intel.com, bo.cui@intel.com,
+        pingchaox.yang@intel.com
+Cc:     qat-linux@intel.com, linux-crypto@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tom Rix <trix@redhat.com>
+Subject: [PATCH] crypto: qat: fix double free in qat_uclo_create_batch_init_list
+Date:   Mon, 13 Jul 2020 07:06:34 -0700
+Message-Id: <20200713140634.14730-1-trix@redhat.com>
+X-Mailer: git-send-email 2.18.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Chris Wilson (2020-07-13 14:17:38)
-> Preempt-to-busy introduces various fascinating complications in that the
-> requests may complete as we are unsubmitting them from HW. As they may
-> then signal after unsubmission, we may find ourselves having to cleanup
-> the signaling request from within the signaling callback. This causes us
-> to recurse onto the same i915_request.lock.
-> 
-> However, if the request is already signaled (as it will be before we
-> enter the signal callbacks), we know we can skip the signaling of that
-> request during submission, neatly evading the spinlock recursion.
-> 
-> unsubmit(ve.rq0) # timeslice expiration or other preemption
->  -> virtual_submit_request(ve.rq0)
-> dma_fence_signal(ve.rq0) # request completed before preemption ack
->  -> submit_notify(ve.rq1)
->    -> virtual_submit_request(ve.rq1) # sees that we have completed ve.rq0
->       -> __i915_request_submit(ve.rq0)
-> 
-> [  264.210142] BUG: spinlock recursion on CPU#2, sample_multi_tr/2093
-> [  264.210150]  lock: 0xffff9efd6ac55080, .magic: dead4ead, .owner: sample_multi_tr/2093, .owner_cpu: 2
-> [  264.210155] CPU: 2 PID: 2093 Comm: sample_multi_tr Tainted: G     U
-> [  264.210158] Hardware name: Intel Corporation CoffeeLake Client Platform/CoffeeLake S UDIMM RVP, BIOS CNLSFWR1.R00.X212.B01.1909060036 09/06/2019
-> [  264.210160] Call Trace:
-> [  264.210167]  dump_stack+0x98/0xda
-> [  264.210174]  spin_dump.cold+0x24/0x3c
-> [  264.210178]  do_raw_spin_lock+0x9a/0xd0
-> [  264.210184]  _raw_spin_lock_nested+0x6a/0x70
-> [  264.210314]  __i915_request_submit+0x10a/0x3c0 [i915]
-> [  264.210415]  virtual_submit_request+0x9b/0x380 [i915]
-> [  264.210516]  submit_notify+0xaf/0x14c [i915]
-> [  264.210602]  __i915_sw_fence_complete+0x8a/0x230 [i915]
-> [  264.210692]  i915_sw_fence_complete+0x2d/0x40 [i915]
-> [  264.210762]  __dma_i915_sw_fence_wake+0x19/0x30 [i915]
-> [  264.210767]  dma_fence_signal_locked+0xb1/0x1c0
-> [  264.210772]  dma_fence_signal+0x29/0x50
-> [  264.210871]  i915_request_wait+0x5cb/0x830 [i915]
-> [  264.210876]  ? dma_resv_get_fences_rcu+0x294/0x5d0
-> [  264.210974]  i915_gem_object_wait_fence+0x2f/0x40 [i915]
-> [  264.211084]  i915_gem_object_wait+0xce/0x400 [i915]
-> [  264.211178]  i915_gem_wait_ioctl+0xff/0x290 [i915]
-> 
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
-> References: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: "Nayana, Venkata Ramana" <venkata.ramana.nayana@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.4+
-> ---
->  drivers/gpu/drm/i915/i915_request.c | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-> index 3bb7320249ae..9b74a1bea5db 100644
-> --- a/drivers/gpu/drm/i915/i915_request.c
-> +++ b/drivers/gpu/drm/i915/i915_request.c
-> @@ -560,9 +560,7 @@ bool __i915_request_submit(struct i915_request *request)
->         engine->serial++;
->         result = true;
->  
-> -xfer:  /* We may be recursing from the signal callback of another i915 fence */
-> -       spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
-> -
-> +xfer:
->         if (!test_and_set_bit(I915_FENCE_FLAG_ACTIVE, &request->fence.flags)) {
->                 list_move_tail(&request->sched.link, &engine->active.requests);
->                 clear_bit(I915_FENCE_FLAG_PQUEUE, &request->fence.flags);
-> @@ -570,12 +568,19 @@ bool __i915_request_submit(struct i915_request *request)
->         }
->         GEM_BUG_ON(!llist_empty(&request->execute_cb));
->  
-> -       if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT, &request->fence.flags) &&
-> -           !test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &request->fence.flags) &&
-> -           !i915_request_enable_breadcrumb(request))
-> -               intel_engine_signal_breadcrumbs(engine);
-> +       /* We may be recursing from the signal callback of another i915 fence */
-> +       if (!i915_request_signaled(request)) {
-> +               spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
-> +
-> +               if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
-> +                            &request->fence.flags) &&
-> +                   !test_bit(DMA_FENCE_FLAG_SIGNALED_BIT,
-> +                             &request->fence.flags) &&
-> +                   !i915_request_enable_breadcrumb(request))
-> +                       intel_engine_signal_breadcrumbs(engine);
+From: Tom Rix <trix@redhat.com>
 
-Hmm.
+clang static analysis flags this error
 
-[   68.742086] kworker/-32      3d.s4 65523842us : i915_request_enable_breadcrumb.cold: i915_request_enable_breadcrumb:345 GEM_BUG_ON(test_bit(I915_FENCE_FLAG_SIGNAL, &rq->fence.flags))
+qat_uclo.c:297:3: warning: Attempt to free released memory
+  [unix.Malloc]
+                kfree(*init_tab_base);
+                ^~~~~~~~~~~~~~~~~~~~~
 
-So will take some massaging of i915_request_enable_breadcrumb() as well,
-at which point I wonder if we can remove the request->lock from here
-entirely.
--Chris
+When input *init_tab_base is null, the function allocates memory for
+the head of the list.  When there is problem allocating other list
+elements the list is unwound and freed.  Then a check is made if the
+list head was allocated and is also freed.
+
+Keeping track of the what may need to be freed is the variable 'tail_old'.
+The unwinding/freeing block is
+
+	while (tail_old) {
+		mem_init = tail_old->next;
+		kfree(tail_old);
+		tail_old = mem_init;
+	}
+
+The problem is that the first element of tail_old is also what was
+allocated for the list head
+
+		init_header = kzalloc(sizeof(*init_header), GFP_KERNEL);
+		...
+		*init_tab_base = init_header;
+		flag = 1;
+	}
+	tail_old = init_header;
+
+So *init_tab_base/init_header are freed twice.
+
+There is another problem.
+When the input *init_tab_base is non null the tail_old is calculated by
+traveling down the list to first non null entry.
+
+	tail_old = init_header;
+	while (tail_old->next)
+		tail_old = tail_old->next;
+
+When the unwinding free happens, the last entry of the input list will
+be freed.
+
+So the freeing needs a general changed.
+If locally allocated the first element of tail_old is freed, else it
+is skipped.  As a bit of cleanup, reset *init_tab_base if it came in
+as null.
+
+Fixes: b4b7e67c917f ("crypto: qat - Intel(R) QAT ucode part of fw loader")
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+---
+ drivers/crypto/qat/qat_common/qat_uclo.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
+index 4cc1f436b075..bff759e2f811 100644
+--- a/drivers/crypto/qat/qat_common/qat_uclo.c
++++ b/drivers/crypto/qat/qat_common/qat_uclo.c
+@@ -288,13 +288,18 @@ static int qat_uclo_create_batch_init_list(struct icp_qat_fw_loader_handle
+ 	}
+ 	return 0;
+ out_err:
++	/* Do not free the list head unless we allocated it. */
++	tail_old = tail_old->next;
++	if (flag) {
++		kfree(*init_tab_base);
++		*init_tab_base = NULL;
++	}
++
+ 	while (tail_old) {
+ 		mem_init = tail_old->next;
+ 		kfree(tail_old);
+ 		tail_old = mem_init;
+ 	}
+-	if (flag)
+-		kfree(*init_tab_base);
+ 	return -ENOMEM;
+ }
+ 
+-- 
+2.18.1
+
