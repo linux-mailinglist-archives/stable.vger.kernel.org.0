@@ -2,178 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B11621D056
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 09:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4303821D2CF
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 11:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728942AbgGMHTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jul 2020 03:19:52 -0400
-Received: from mailout2.samsung.com ([203.254.224.25]:23771 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728945AbgGMHTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 03:19:51 -0400
-Received: from epcas1p1.samsung.com (unknown [182.195.41.45])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20200713071946epoutp02dcc1765e31f2475683f8f5ff599cb552~hPsuIVRby3030630306epoutp02W
-        for <stable@vger.kernel.org>; Mon, 13 Jul 2020 07:19:46 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20200713071946epoutp02dcc1765e31f2475683f8f5ff599cb552~hPsuIVRby3030630306epoutp02W
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1594624786;
-        bh=T2NFV6aDiWcdlpfPV04JlC6pzkdoFqVotNneudFkf5E=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=JvH/KqBGdDENB0dCeIb12NvkI9manvTB+0f0zGVCbM/yFMQH3i+lJvRHgLSn1QFjn
-         BIGKc577z8h9AYx9M+4hX+txxhIY0tSkWib1SJ0Wc/x8NUKqU0Voo4Cw88y31BiTnn
-         Nfz8V8h3ydOsosKUZ5I/WU3GgrdVT6tq9FfSByYs=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20200713071946epcas1p1fa28a4f4ed866798785fc37805b1aa21~hPstgrUb90770907709epcas1p1b;
-        Mon, 13 Jul 2020 07:19:46 +0000 (GMT)
-Received: from epsmges1p1.samsung.com (unknown [182.195.40.153]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4B4w5C2w7czMqYkq; Mon, 13 Jul
-        2020 07:19:43 +0000 (GMT)
-Received: from epcas1p3.samsung.com ( [182.195.41.47]) by
-        epsmges1p1.samsung.com (Symantec Messaging Gateway) with SMTP id
-        3C.E8.18978.F0B0C0F5; Mon, 13 Jul 2020 16:19:43 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82~hPsqOyail0774007740epcas1p1R;
-        Mon, 13 Jul 2020 07:19:42 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20200713071942epsmtrp2fac249b59d75accf1d54cddeb267490c~hPsqOKOM32359023590epsmtrp2O;
-        Mon, 13 Jul 2020 07:19:42 +0000 (GMT)
-X-AuditID: b6c32a35-5edff70000004a22-d7-5f0c0b0fd948
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        86.ED.08303.E0B0C0F5; Mon, 13 Jul 2020 16:19:42 +0900 (KST)
-Received: from localhost.localdomain (unknown [10.113.221.102]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20200713071942epsmtip1cf2dd598ec869b849267405ada4f543a~hPsp9sadM2443624436epsmtip1I;
-        Mon, 13 Jul 2020 07:19:42 +0000 (GMT)
-From:   Chanwoo Choi <cw00.choi@samsung.com>
-To:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     cw00.choi@samsung.com, chanwoo@kernel.org,
-        myungjoo.ham@samsung.com, kyungmin.park@samsung.com,
-        stable@vger.kernel.org
-Subject: [PATCH] PM / devfrq: Fix indentaion of devfreq_summary debugfs node
-Date:   Mon, 13 Jul 2020 16:31:12 +0900
-Message-Id: <20200713073112.6297-1-cw00.choi@samsung.com>
-X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrGKsWRmVeSWpSXmKPExsWy7bCmvi4/N0+8wdu/QhYTb1xhsbj+5Tmr
-        xdmmN+wWl3fNYbP43HuE0eJ24wo2iwUbHzE6sHtsWtXJ5tG3ZRWjx+dNcgHMUdk2GamJKalF
-        Cql5yfkpmXnptkrewfHO8aZmBoa6hpYW5koKeYm5qbZKLj4Bum6ZOUDLlRTKEnNKgUIBicXF
-        Svp2NkX5pSWpChn5xSW2SqkFKTkFlgV6xYm5xaV56XrJ+blWhgYGRqZAhQnZGQfbNzIX3Fau
-        +N3WzdLAeE+si5GTQ0LAROJ19xXGLkYuDiGBHYwS7Z9vQTmfGCV6frQwQTifGSUWz/zACtNy
-        ZP5xdojELkaJT3/nMUM4XxglFrxbyQhSxSagJbH/xQ02EFtEwEri9P8OZhCbWaBGYkLjIrBJ
-        wgI+EiteTQCrZxFQlXhx9TALiM0rYCmx6f1cFoht8hKrNxwAWyAhsIhd4tb0dUwQCReJY5vf
-        QBUJS7w6voUdwpaS+PxuLxuEXS2x8uQRNojmDkaJLfsvQP1gLLF/6WSgQRxAF2lKrN+lDxFW
-        lNj5ey4jxKF8Eu++9rCClEgI8Ep0tAlBlChLXH5wF+oESYnF7Z1sECUeEn8XyYGEhQRiJWZv
-        3cA0gVF2FsL8BYyMqxjFUguKc9NTiw0LDJFjaRMjOEFpme5gnPj2g94hRiYOxkOMEhzMSiK8
-        0aKc8UK8KYmVValF+fFFpTmpxYcYTYHhNZFZSjQ5H5gi80riDU2NjI2NLUwMzUwNDZXEef+d
-        ZY8XEkhPLEnNTk0tSC2C6WPi4JRqYOrY9WERY1dZ8Oldrk4Kx6Q+5ynN+WP6pHT5hJpZKu16
-        C1dyW+/TNFGafex+xN78JMPEhen2F1Rljc7/1w/x0ph94dnF78/OfGPWdJHmV2Bone00ZSPb
-        YYcXnev+TAyccmjr3l9esy9tSVxqcS3lyFqFOn2nk6KySxPXapRMNAhv+3t9wTm9SEW9Y++v
-        Mif2/XpqLlH5wGSZhEHPCY6naXyS5/7cq+/LUn52W0+LN/HL4aZWkxtbO0zOaqYq7LpbMe/f
-        dzUBHptnGar+FbxZL62eR69a4JHuFffpy/FEo6y0j2vzPiQeNU6cdiSnhcPQMzj8cUTfsZfK
-        3Q1FvkHzz4n7P7x41XjtJAuFmt2nLiqxFGckGmoxFxUnAgBArucw2QMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKJMWRmVeSWpSXmKPExsWy7bCSnC4fN0+8wZZPKhYTb1xhsbj+5Tmr
-        xdmmN+wWl3fNYbP43HuE0eJ24wo2iwUbHzE6sHtsWtXJ5tG3ZRWjx+dNcgHMUVw2Kak5mWWp
-        Rfp2CVwZB9s3MhfcVq743dbN0sB4T6yLkZNDQsBE4sj84+xdjFwcQgI7GCX6n3axQyQkJaZd
-        PMrcxcgBZAtLHD5cDFHziVHi+PKPYDVsAloS+1/cYAOxRQRsJO4uvsYCUsQs0MQoMXHeQUaQ
-        hLCAj8SKVxPAbBYBVYkXVw+zgNi8ApYSm97PZYFYJi+xesMB5gmMPAsYGVYxSqYWFOem5xYb
-        FhjlpZbrFSfmFpfmpesl5+duYgSHjJbWDsY9qz7oHWJk4mA8xCjBwawkwhstyhkvxJuSWFmV
-        WpQfX1Sak1p8iFGag0VJnPfrrIVxQgLpiSWp2ampBalFMFkmDk6pBiYrX9/pB6bJbp4h9irb
-        bdYro56DLAesDdlV30av6ZVw8T7DXVvTm5mToyqwr7FdWX7F/huVdoHx37d4zOGxaL7LutIp
-        0fjUg/uX7ZIj3qUZbm+VjpaMCM09s/W2VE3elh3hJ4I+iouf2fb6zbbnYo07eCv+9Px/Ovv9
-        /qxdHAv8z4kozLkvq2Td+2Z1nfQrHc2GB6H+5tvVjmqosbEuuliywHFD6dZdzHdEn+0/ciBT
-        oanhMd/2uw6SYRVrNAvsl6xKZk43iJFSCdkX92g/a3VRZ2sl97f/H30Vsu/FObNVlFhV/FRe
-        9XnKp7/s5y5f5DdIFrt/2frFNDPbwJIlhvf8Nm8427Ml+EWxW307oxJLcUaioRZzUXEiAGd+
-        yhWIAgAA
-X-CMS-MailID: 20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82
-References: <CGME20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82@epcas1p1.samsung.com>
+        id S1726380AbgGMJaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 05:30:00 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:43206 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729352AbgGMJaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jul 2020 05:30:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594632599;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FkdClRISCLaiArFjVxkA+fHx1NW3jZ3pECNBcgR6TSM=;
+        b=M+hIApVZyhMpVBIlRKY4ZrF7Flr1CO1n+ulMkF1SLqAz7ypsdvNQTZtwlTwGtFUTUABbpB
+        U4QYVi6Xop6h4Djqn6T3xFeQDtKywAFKovJfkac1TAMV82980wGEIGsZyHZfWYFZB+A+F/
+        xbjuc8x4UqdHy2qDZraKiGA28ho2idA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-63-wUIIf35hMS-KCLeMBOln2Q-1; Mon, 13 Jul 2020 05:29:55 -0400
+X-MC-Unique: wUIIf35hMS-KCLeMBOln2Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D5AF5107ACCA;
+        Mon, 13 Jul 2020 09:29:53 +0000 (UTC)
+Received: from localhost (ovpn-114-66.ams2.redhat.com [10.36.114.66])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 37CDD74F44;
+        Mon, 13 Jul 2020 09:29:50 +0000 (UTC)
+Date:   Mon, 13 Jul 2020 10:29:49 +0100
+From:   Stefan Hajnoczi <stefanha@redhat.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH] vhost/scsi: fix up req type endian-ness
+Message-ID: <20200713092949.GE28639@stefanha-x1.localdomain>
+References: <20200710104849.406023-1-mst@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <20200710104849.406023-1-mst@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="n+lFg1Zro7sl44OB"
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name
-as devfreq(X) for sysfs"") roll back the device name from 'devfreqX'
-to device name explained in DT. After applied commit 66d0e797bf09,
-the indentation of devfreq_summary debugfs node was broken.
+--n+lFg1Zro7sl44OB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So, fix indentaion of devfreq_summary debugfs node as following:
+On Fri, Jul 10, 2020 at 06:48:51AM -0400, Michael S. Tsirkin wrote:
+> vhost/scsi doesn't handle type conversion correctly
+> for request type when using virtio 1.0 and up for BE,
+> or cross-endian platforms.
+>=20
+> Fix it up using vhost_32_to_cpu.
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/vhost/scsi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-For example on Exynos5422-based Odroid-XU3 board,
-$ cat /sys/kernel/debug/devfreq/devfreq_summary
-dev                            parent_dev                     governor        polling_ms  cur_freq_Hz  min_freq_Hz  max_freq_Hz
------------------------------- ------------------------------ --------------- ---------- ------------ ------------ ------------
-10c20000.memory-controller     null                           simple_ondemand          0    413000000    165000000    825000000
-soc:bus_wcore                  null                           simple_ondemand         50     88700000     88700000    532000000
-soc:bus_noc                    soc:bus_wcore                  passive                  0     66600000     66600000    111000000
-soc:bus_fsys_apb               soc:bus_wcore                  passive                  0    111000000    111000000    222000000
-soc:bus_fsys                   soc:bus_wcore                  passive                  0     75000000     75000000    200000000
-soc:bus_fsys2                  soc:bus_wcore                  passive                  0     75000000     75000000    200000000
-soc:bus_mfc                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
-soc:bus_gen                    soc:bus_wcore                  passive                  0     88700000     88700000    266000000
-soc:bus_peri                   soc:bus_wcore                  passive                  0     66600000     66600000     66600000
-soc:bus_g2d                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
-soc:bus_g2d_acp                soc:bus_wcore                  passive                  0            0     66500000    266000000
-soc:bus_jpeg                   soc:bus_wcore                  passive                  0            0     75000000    300000000
-soc:bus_jpeg_apb               soc:bus_wcore                  passive                  0            0     83250000    166500000
-soc:bus_disp1_fimd             soc:bus_wcore                  passive                  0            0    120000000    200000000
-soc:bus_disp1                  soc:bus_wcore                  passive                  0            0    120000000    300000000
-soc:bus_gscl_scaler            soc:bus_wcore                  passive                  0            0    150000000    300000000
-soc:bus_mscl                   soc:bus_wcore                  passive                  0            0     84000000    666000000
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Cc: stable@vger.kernel.org
-Fixes: commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"")
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
----
- drivers/devfreq/devfreq.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+--n+lFg1Zro7sl44OB
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-index ce82bdb5fa5c..2ff35ec1b53b 100644
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -1839,8 +1839,7 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
- 	unsigned long cur_freq, min_freq, max_freq;
- 	unsigned int polling_ms;
- 
--	seq_printf(s, "%-30s %-10s %-10s %-15s %10s %12s %12s %12s\n",
--			"dev_name",
-+	seq_printf(s, "%-30s %-30s %-15s %10s %12s %12s %12s\n",
- 			"dev",
- 			"parent_dev",
- 			"governor",
-@@ -1848,10 +1847,9 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
- 			"cur_freq_Hz",
- 			"min_freq_Hz",
- 			"max_freq_Hz");
--	seq_printf(s, "%30s %10s %10s %15s %10s %12s %12s %12s\n",
-+	seq_printf(s, "%30s %30s %15s %10s %12s %12s %12s\n",
-+			"------------------------------",
- 			"------------------------------",
--			"----------",
--			"----------",
- 			"---------------",
- 			"----------",
- 			"------------",
-@@ -1880,8 +1878,7 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
- 		mutex_unlock(&devfreq->lock);
- 
- 		seq_printf(s,
--			"%-30s %-10s %-10s %-15s %10d %12ld %12ld %12ld\n",
--			dev_name(devfreq->dev.parent),
-+			"%-30s %-30s %-15s %10d %12ld %12ld %12ld\n",
- 			dev_name(&devfreq->dev),
- 			p_devfreq ? dev_name(&p_devfreq->dev) : "null",
- 			devfreq->governor_name,
--- 
-2.17.1
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl8MKY0ACgkQnKSrs4Gr
+c8gQOQf+KmgjzVnEXU62hGmZBNsGZ9+2r2VBviBdhlBL0AB0927CK0A8v4HXZ/5+
+8Y6UwKNT0GZnj67/+PBXAVvJm4Jny+4TTgTafuZY0gnlNZKS6PpmSoztnzwjqtgI
+ddm2TVEWDF/lDZNRcWZ1a0cURg8If2ZQPxNepxT3uqa5LnbYXiwuIlnFG6eetsHV
+Cl751SmdjCSXzCDBvEE6eboXtzt3ok1TWIx3L2jU034AyexssehBz6C0G9LVQhau
+pVJs0q2BfsF95xxX6k2Bo/8Paj4EqzUKxG4jEXteR9SIHwZH3anw0PKPygh96FWF
+XrsnZG1MAaXY8ybmuVlQkaJofLFlMA==
+=4fi+
+-----END PGP SIGNATURE-----
+
+--n+lFg1Zro7sl44OB--
 
