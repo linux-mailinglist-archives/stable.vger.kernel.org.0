@@ -2,120 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7297F21CDE1
-	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 05:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D74021CF11
+	for <lists+stable@lfdr.de>; Mon, 13 Jul 2020 07:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbgGMDvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jul 2020 23:51:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42480 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726465AbgGMDvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jul 2020 23:51:48 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E24C061794
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 20:51:47 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id d21so7442600lfb.6
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 20:51:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=PXZYm8YjUP841mdR1yGtgQbyBqro7EalxNIZG50LFuM=;
-        b=JZ6Y3SBEjypR0Q/yrJj53ldh8gpnRfjQF/RT1b64yjpHydiLr0yIS3u64B/OW5XJ4/
-         tBqykrHxUwjAHq0UxLcdms0xudmr7CC4BSdN8v+rXw8M+XyIrWJaQmCLkL9Q4eyPIlNw
-         tfry+uqmdsBjisvh7Qv+FSefQ995KqX6/6xdY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=PXZYm8YjUP841mdR1yGtgQbyBqro7EalxNIZG50LFuM=;
-        b=dZqMmYkTqtEQr0Zjva05TagilK12LKtIrV2RHrAYmx/e97lCjrWGBdwpPMyhvN6pvL
-         cqEOwsvPGW8RVsgS4IJitfpdWhU7F6u4tzk5paaniRbr0lRhY/AgZ6HeJ6KEW8U+woll
-         PMJf7UvxuJ0yOwt2yKGKgVYxzVZn6GdHyYLyZM6Uz9EIgjtIxX+2rvgXnsvOm68LgrIG
-         dDXaxYILHtbEatqk8M/IKvp38276jCaGNt4nWN4s1llOpSGOWuWJbZjAFhaqA3gXFuhI
-         782cOwJTVra/OVBDyPguyHl5p2Xsb4MAprQG86rABH2b2vGDbzIIsFrNYdEDupAsW/4K
-         ywtQ==
-X-Gm-Message-State: AOAM5337s+5nH/0JaCBgrSobB/wv04QC5lLff2ZF3mwXZT6UoQGnLmoq
-        obcyrLPsAwmXYWbVRh3QAsuz1kAGYig=
-X-Google-Smtp-Source: ABdhPJyyWHsYFnW5R4sKuKpr17185Kr7wxmh6E2+cgmygV2ZSs66VEyasq48YZB80ZOp75CCd6+SXw==
-X-Received: by 2002:a19:90:: with SMTP id 138mr51465907lfa.100.1594612304684;
-        Sun, 12 Jul 2020 20:51:44 -0700 (PDT)
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
-        by smtp.gmail.com with ESMTPSA id r25sm4339786lfi.70.2020.07.12.20.51.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 12 Jul 2020 20:51:43 -0700 (PDT)
-Received: by mail-lf1-f49.google.com with SMTP id s16so7417392lfp.12
-        for <stable@vger.kernel.org>; Sun, 12 Jul 2020 20:51:43 -0700 (PDT)
-X-Received: by 2002:ac2:5a5e:: with SMTP id r30mr51926816lfn.30.1594612302784;
- Sun, 12 Jul 2020 20:51:42 -0700 (PDT)
+        id S1729004AbgGMF4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jul 2020 01:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39086 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727107AbgGMF4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jul 2020 01:56:03 -0400
+Received: from localhost (unknown [122.182.251.219])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 217812073A;
+        Mon, 13 Jul 2020 05:56:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594619762;
+        bh=gXFwq43ohUgKZA8gAkhAymCG+JyohqjJf0fM3HTHIZs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=paFGk7uJF66m93nyveVPcYNj/dGkVDvY1u8K9A/2rvKSlO0MBabNq/m+/4CmMR6Ff
+         L3J6QduoGk6i58NoIF1rhO3v2QX4kAL49CKLIzXdfBbn9rvtWgf4FJh/EgiUXlZ+sg
+         Df7mie1gP/c+V3+RqnTFL0MqOir01L2jDMVQjrns=
+Date:   Mon, 13 Jul 2020 11:25:58 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Sivaprakash Murugesan <sivaprak@codeaurora.org>
+Cc:     agross@kernel.org, bjorn.andersson@linaro.org, bhelgaas@google.com,
+        robh+dt@kernel.org, kishon@ti.com, mturquette@baylibre.com,
+        sboyd@kernel.org, svarbanov@mm-sol.com, lorenzo.pieralisi@arm.com,
+        p.zabel@pengutronix.de, mgautam@codeaurora.org,
+        smuthayy@codeaurora.org, varada@codeaurora.org,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, stable@vger.kernel.org,
+        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+Subject: Re: [PATCH 5/9] phy: qcom-qmp: use correct values for ipq8074 gen2
+ pcie phy init
+Message-ID: <20200713055558.GB34333@vkoul-mobl>
+References: <1593940680-2363-1-git-send-email-sivaprak@codeaurora.org>
+ <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
 MIME-Version: 1.0
-References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
- <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
- <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
- <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
- <20200712215041.GA3644504@google.com> <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
- <20200713025354.GB3644504@google.com>
-In-Reply-To: <20200713025354.GB3644504@google.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 12 Jul 2020 20:51:26 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whmbpZN6-Q=8cDM42UmHmqzgNDucLLP4BvR1jQ73+KSgw@mail.gmail.com>
-Message-ID: <CAHk-=whmbpZN6-Q=8cDM42UmHmqzgNDucLLP4BvR1jQ73+KSgw@mail.gmail.com>
-Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-To:     Joel Fernandes <joel@joelfernandes.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
-        Michel Lespinasse <walken@google.com>,
-        Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Brian Geffon <bgeffon@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
-        Jerome Glisse <jglisse@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Hugh Dickins <hughd@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jul 12, 2020 at 7:53 PM Joel Fernandes <joel@joelfernandes.org> wrote:
->
-> > But I do feel like you figured out why the bug happened, now we're
-> > just discussing whether the patch is the right thing to do.
->
-> Yes.
->
-> > Maybe saying "doing the pmd copies for the initial stack isn't
-> > important, so let's just note this as a special case and get rid of
-> > the WARN_ON()" might be an alternative solution.
->
-> Personally, I feel it is better to keep the warning just so in the future we
-> can detect any bugs.
+On 05-07-20, 14:47, Sivaprakash Murugesan wrote:
+> There were some problem in ipq8074 gen2 pcie phy init sequence, fix
 
-I don't disagree, the warning didn't happen to find a bug now, but it
-did fine a case we might be able to do better.
+Can you please describe these problems, it would help review to
+understand the issues and also for future reference to you
 
-So now that I feel we understand the issue, and it's not a horrible
-problem, just a (very hard to trigger) warning, I don't think there's
-any huge hurry.
+> these to make gen2 pcie port on ipq8074 to work.
+> 
+> Fixes: eef243d04b2b6 ("phy: qcom-qmp: Add support for IPQ8074")
+> 
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+> Signed-off-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+> Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
+> ---
+>  drivers/phy/qualcomm/phy-qcom-qmp.c | 16 +++++++++-------
+>  drivers/phy/qualcomm/phy-qcom-qmp.h |  2 ++
+>  2 files changed, 11 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+> index e91040af3394..ba277136f52b 100644
+> --- a/drivers/phy/qualcomm/phy-qcom-qmp.c
+> +++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+> @@ -504,8 +504,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_BG_TRIM, 0xf),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_LOCK_CMP_EN, 0x1),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_MAP, 0x0),
+> -	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0x1f),
+> -	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x3f),
+> +	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0xff),
+> +	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x1f),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_CMN_CONFIG, 0x6),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_PLL_IVCO, 0xf),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_HSCLK_SEL, 0x0),
+> @@ -531,7 +531,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN1_MODE0, 0x0),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN0_MODE0, 0x80),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_BIAS_EN_CTRL_BY_PSM, 0x1),
+> -	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_CTRL, 0xa),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_EN_CENTER, 0x1),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER1, 0x31),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER2, 0x1),
+> @@ -540,7 +539,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE1, 0x2f),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE2, 0x19),
+>  	QMP_PHY_INIT_CFG(QSERDES_COM_CLK_EP_DIV, 0x19),
+> -	QMP_PHY_INIT_CFG(QSERDES_RX_SIGDET_CNTRL, 0x7),
+>  };
+>  
+>  static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
+> @@ -548,6 +546,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
+>  	QMP_PHY_INIT_CFG(QSERDES_TX_LANE_MODE, 0x6),
+>  	QMP_PHY_INIT_CFG(QSERDES_TX_RES_CODE_LANE_OFFSET, 0x2),
+>  	QMP_PHY_INIT_CFG(QSERDES_TX_RCV_DETECT_LVL_2, 0x12),
+> +	QMP_PHY_INIT_CFG(QSERDES_TX_EMP_POST1_LVL, 0x36),
+> +	QMP_PHY_INIT_CFG(QSERDES_TX_SLEW_CNTL, 0x0a),
+>  };
+>  
+>  static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
+> @@ -558,7 +558,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
+>  	QMP_PHY_INIT_CFG(QSERDES_RX_RX_EQU_ADAPTOR_CNTRL4, 0xdb),
+>  	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_SATURATION_AND_ENABLE, 0x4b),
+>  	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN, 0x4),
+> -	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN_HALF, 0x4),
+>  };
+>  
+>  static const struct qmp_phy_init_tbl ipq8074_pcie_pcs_tbl[] = {
+> @@ -1673,6 +1672,9 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
+>  	.pwrdn_ctrl		= SW_PWRDN,
+>  };
+>  
+> +static const char * const ipq8074_pciephy_clk_l[] = {
+> +	"aux", "cfg_ahb",
+> +};
+>  /* list of resets */
+>  static const char * const ipq8074_pciephy_reset_l[] = {
+>  	"phy", "common",
+> @@ -1690,8 +1692,8 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
+>  	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
+>  	.pcs_tbl		= ipq8074_pcie_pcs_tbl,
+>  	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
+> -	.clk_list		= NULL,
+> -	.num_clks		= 0,
+> +	.clk_list		= ipq8074_pciephy_clk_l,
+> +	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
 
-I think think I will - for now - change the WARN_ON() to
-WARN_ON_ONCE() (so that it doesn't floow the logs if somebody triggers
-this odd special case  this malisiously), and add a note about how
-this happens to the code for posterito.
+I see patch is modifying some register values and then adding clks, in
+the absence of proper patch description it is extremely hard to
+understand what is going on..
 
-And if/when you figure out a better way to fix it, we can update the note.
+>  	.reset_list		= ipq8074_pciephy_reset_l,
+>  	.num_resets		= ARRAY_SIZE(ipq8074_pciephy_reset_l),
+>  	.vreg_list		= NULL,
+> diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.h b/drivers/phy/qualcomm/phy-qcom-qmp.h
+> index 6d017a0c0c8d..832b3d098403 100644
+> --- a/drivers/phy/qualcomm/phy-qcom-qmp.h
+> +++ b/drivers/phy/qualcomm/phy-qcom-qmp.h
+> @@ -77,6 +77,8 @@
+>  #define QSERDES_COM_CORECLK_DIV_MODE1			0x1bc
+>  
+>  /* Only for QMP V2 PHY - TX registers */
+> +#define QSERDES_TX_EMP_POST1_LVL			0x018
+> +#define QSERDES_TX_SLEW_CNTL				0x040
+>  #define QSERDES_TX_RES_CODE_LANE_OFFSET			0x054
+>  #define QSERDES_TX_DEBUG_BUS_SEL			0x064
+>  #define QSERDES_TX_HIGHZ_TRANSCEIVEREN_BIAS_DRVR_EN	0x068
+> -- 
+> 2.7.4
 
-Ok?
-
-             Linus
+-- 
+~Vinod
