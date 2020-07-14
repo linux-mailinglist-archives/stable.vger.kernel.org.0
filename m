@@ -2,84 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A06DD21E7E5
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 08:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC7521E879
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 08:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725788AbgGNGI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 02:08:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55508 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725306AbgGNGI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 02:08:26 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED465221E8;
-        Tue, 14 Jul 2020 06:08:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594706905;
-        bh=reHAiOA0n3cDmaoIIM6g+MBRwZK/7y/3DGkJwQOOVoE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CmQ6cEq7FP3wRwZrA6eDWP7KL23TcuZQ9pmUcMC/nJ2qGAPwvy4x3ZijpeY7Rc3cS
-         ChWxzWReExwAvsmIPuydLdLBNwUx8M29IUaNhAqLR8HqYdahnwkuU/fuoEKiwg6IXW
-         TlnmqTPK7kQcGaSinpZA1i8dLkZ2WNYSU/494lPc=
-Date:   Tue, 14 Jul 2020 08:08:24 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     steven.price@arm.com, james.morse@arm.com, maz@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: arm64: Fix kvm_reset_vcpu() return
- code being incorrect" failed to apply to 5.4-stable tree
-Message-ID: <20200714060824.GE657428@kroah.com>
-References: <1594656059166107@kroah.com>
- <20200713185901.GG2722994@sasha-vm>
+        id S1725788AbgGNGpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 02:45:07 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:59542 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725945AbgGNGpH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 02:45:07 -0400
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 968014325CAC56413F9B;
+        Tue, 14 Jul 2020 14:45:04 +0800 (CST)
+Received: from [127.0.0.1] (10.174.176.211) by DGGEMS401-HUB.china.huawei.com
+ (10.3.19.201) with Microsoft SMTP Server id 14.3.487.0; Tue, 14 Jul 2020
+ 14:45:01 +0800
+Subject: Re: [PATCH 4.19] IB/umem: fix reference count leak in
+ ib_umem_odp_get()
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <sashal@kernel.org>,
+        <dledford@redhat.com>, <jgg@ziepe.ca>
+References: <20200714105748.1151138-1-yangyingliang@huawei.com>
+ <20200714060813.GD657428@kroah.com>
+From:   Yang Yingliang <yangyingliang@huawei.com>
+Message-ID: <5f8d0a3d-31d1-e753-5440-4bfbe07c054b@huawei.com>
+Date:   Tue, 14 Jul 2020 14:45:00 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200713185901.GG2722994@sasha-vm>
+In-Reply-To: <20200714060813.GD657428@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.174.176.211]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 13, 2020 at 02:59:01PM -0400, Sasha Levin wrote:
-> On Mon, Jul 13, 2020 at 06:00:59PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.4-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > > From 66b7e05dc0239c5817859f261098ba9cc2efbd2b Mon Sep 17 00:00:00 2001
-> > From: Steven Price <steven.price@arm.com>
-> > Date: Wed, 17 Jun 2020 11:54:56 +0100
-> > Subject: [PATCH] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect
-> > with SVE
-> > 
-> > If SVE is enabled then 'ret' can be assigned the return value of
-> > kvm_vcpu_enable_sve() which may be 0 causing future "goto out" sites to
-> > erroneously return 0 on failure rather than -EINVAL as expected.
-> > 
-> > Remove the initialisation of 'ret' and make setting the return value
-> > explicit to avoid this situation in the future.
-> > 
-> > Fixes: 9a3cdf26e336 ("KVM: arm64/sve: Allow userspace to enable SVE for vcpus")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: James Morse <james.morse@arm.com>
-> > Signed-off-by: Steven Price <steven.price@arm.com>
-> > Signed-off-by: Marc Zyngier <maz@kernel.org>
-> > Link: https://lore.kernel.org/r/20200617105456.28245-1-steven.price@arm.com
-> 
-> I've worked around not having 540f76d12c66 ("arm64: cpufeature: Add CPU
-> capability for AArch32 EL1 support") in 5.7 and 5.4 and queued this
-> patch.
 
-Thanks!
+On 2020/7/14 14:08, Greg KH wrote:
+> On Tue, Jul 14, 2020 at 10:57:48AM +0000, Yang Yingliang wrote:
+>> Add missing mmput() on error path to avoid ref-count leak.
+>>
+>> This problem has already been resolved in mainline by
+>> f27a0d50a4bc ("RDMA/umem: Use umem->owning_mm inside ODP").
+>>
+>> Fixes: 79bb5b7ee177 ("RDMA/umem: Fix missing mmap_sem in get umem ODP call")
+>> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+>> ---
+>>   drivers/infiniband/core/umem_odp.c | 3 ++-
+>>   1 file changed, 2 insertions(+), 1 deletion(-)
+> $ ./scripts/get_maintainer.pl --file drivers/infiniband/core/umem_odp.c
+> Doug Ledford <dledford@redhat.com> (supporter:INFINIBAND SUBSYSTEM)
+> Jason Gunthorpe <jgg@ziepe.ca> (supporter:INFINIBAND SUBSYSTEM,commit_signer:28/25=100%,authored:17/25=68%,added_lines:453/481=94%,removed_lines:662/722=92%)
+> Leon Romanovsky <leon@kernel.org> (commit_signer:16/25=64%)
+> Artemy Kovalyov <artemyko@mellanox.com> (commit_signer:4/25=16%)
+> Yishai Hadas <yishaih@mellanox.com> (commit_signer:3/25=12%,authored:3/25=12%)
+> Andrew Morton <akpm@linux-foundation.org> (commit_signer:2/25=8%)
+> Moni Shoua <monis@mellanox.com> (authored:2/25=8%)
+> linux-rdma@vger.kernel.org (open list:INFINIBAND SUBSYSTEM)
+> linux-kernel@vger.kernel.org (open list)
+>
+> Any reason you ignored the mailing list for the whole IB developer
+> community?
 
+It's my first time to send patch to stable mail list, I thought cc the 
+maintainer/supporter is enough.
+
+I will re-send to the supporter and devlep mail list.
+
+>
+> And you need to make this REALLY obvious that this is a stable-tree-only
+> patch, for a specific kernel version (and why only that one version),
+> and a whole lot more description to allow everyone to know what is going
+> on, and what you expect them to review this for.
+
+OK, I will describe the version in change log.
+
+
+Thanks,
+
+Yang
+
+>
+> thanks,
+>
+> greg k-h
+> .
 
