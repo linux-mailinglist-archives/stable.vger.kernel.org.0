@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 072BA21FCD7
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9CA21FBA2
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729868AbgGNSsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:48:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
+        id S1730573AbgGNTDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729865AbgGNSr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:59 -0400
+        id S1729525AbgGNS5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:57:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89FC322B2C;
-        Tue, 14 Jul 2020 18:47:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6173207F5;
+        Tue, 14 Jul 2020 18:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752479;
-        bh=JS8ZQOSUM4qWSeqJVCG/LhsLW7f6uNGnyC/H3yHP2+Q=;
+        s=default; t=1594753058;
+        bh=jTwNpFb2rkr80DQvw0fWw/2wsF8Yl1WzjH8/JVbUwZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWK3YIfqowr4BNLOoKtnFVbStahlg/AK5k3XXAODxYZpSIrTYWba6FPqk6I/1b/nH
-         py+3qg4bApo4C+jOxl6JPfyc86FGw40/LhOzX9ytKQpVL0IGWFmYou/pLJNI5+5/wa
-         hOkicPBIQnI0kIbErJPQ1Q5lwOAkW09ukQ5nB4Rs=
+        b=mqt1Ka+2N0JXGLMk5277Qnz24mPoCqnA+ZCoYlTaxsfBwIAmBhjZs0hNGCN70uXhy
+         /nygW41NyLM3fcMHqqd/L3DagVsdQDjTRKQW2cf9j/U83ICdFPCpVcxP4RWR72tIyf
+         bDSVd4peu4LaopFf8mcGseg0Lys4B6t93jgEGU9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.19 56/58] ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Harini Katakam <harini.katakam@xilinx.com>,
+        Sergio Prado <sergio.prado@e-labworks.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 104/166] net: macb: fix call to pm_runtime in the suspend/resume functions
 Date:   Tue, 14 Jul 2020 20:44:29 +0200
-Message-Id: <20200714184058.958721670@linuxfoundation.org>
+Message-Id: <20200714184120.822564844@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,81 +49,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-commit 00fdec98d9881bf5173af09aebd353ab3b9ac729 upstream.
+[ Upstream commit 6c8f85cac98a4c6b767c4c4f6af7283724c32b47 ]
 
-Trap handler for syscall tracing reads EFA (Exception Fault Address),
-in case strace wants PC of trap instruction (EFA is not part of pt_regs
-as of current code).
+The calls to pm_runtime_force_suspend/resume() functions are only
+relevant if the device is not configured to act as a WoL wakeup source.
+Add the device_may_wakeup() test before calling them.
 
-However this EFA read is racy as it happens after dropping to pure
-kernel mode (re-enabling interrupts). A taken interrupt could
-context-switch, trigger a different task's trap, clobbering EFA for this
-execution context.
-
-Fix this by reading EFA early, before re-enabling interrupts. A slight
-side benefit is de-duplication of FAKE_RET_FROM_EXCPN in trap handler.
-The trap handler is common to both ARCompact and ARCv2 builds too.
-
-This just came out of code rework/review and no real problem was reported
-but is clearly a potential problem specially for strace.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 3e2a5e153906 ("net: macb: add wake-on-lan support via magic packet")
+Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
+Cc: Harini Katakam <harini.katakam@xilinx.com>
+Cc: Sergio Prado <sergio.prado@e-labworks.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/entry.S |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -156,7 +156,6 @@ END(EV_Extension)
- tracesys:
- 	; save EFA in case tracer wants the PC of traced task
- 	; using ERET won't work since next-PC has already committed
--	lr  r12, [efa]
- 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
- 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 548815255e22b..f1f0976e7669a 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -4606,7 +4606,8 @@ static int __maybe_unused macb_suspend(struct device *dev)
  
-@@ -199,15 +198,9 @@ tracesys_exit:
- ; Breakpoint TRAP
- ; ---------------------------------------------
- trap_with_param:
--
--	; stop_pc info by gdb needs this info
--	lr  r0, [efa]
-+	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
- 	mov r1, sp
+ 	if (bp->ptp_info)
+ 		bp->ptp_info->ptp_remove(netdev);
+-	pm_runtime_force_suspend(dev);
++	if (!device_may_wakeup(dev))
++		pm_runtime_force_suspend(dev);
  
--	; Now that we have read EFA, it is safe to do "fake" rtie
--	;   and get out of CPU exception mode
--	FAKE_RET_FROM_EXCPN
--
- 	; Save callee regs in case gdb wants to have a look
- 	; SP will grow up by size of CALLEE Reg-File
- 	; NOTE: clobbers r12
-@@ -234,6 +227,10 @@ ENTRY(EV_Trap)
+ 	return 0;
+ }
+@@ -4621,7 +4622,8 @@ static int __maybe_unused macb_resume(struct device *dev)
+ 	if (!netif_running(netdev))
+ 		return 0;
  
- 	EXCEPTION_PROLOGUE
+-	pm_runtime_force_resume(dev);
++	if (!device_may_wakeup(dev))
++		pm_runtime_force_resume(dev);
  
-+	lr  r12, [efa]
-+
-+	FAKE_RET_FROM_EXCPN
-+
- 	;============ TRAP 1   :breakpoints
- 	; Check ECR for trap with arg (PROLOGUE ensures r9 has ECR)
- 	bmsk.f 0, r9, 7
-@@ -241,9 +238,6 @@ ENTRY(EV_Trap)
- 
- 	;============ TRAP  (no param): syscall top level
- 
--	; First return from Exception to pure K mode (Exception/IRQs renabled)
--	FAKE_RET_FROM_EXCPN
--
- 	; If syscall tracing ongoing, invoke pre-post-hooks
- 	GET_CURR_THR_INFO_FLAGS   r10
- 	btst r10, TIF_SYSCALL_TRACE
+ 	if (bp->wol & MACB_WOL_ENABLED) {
+ 		macb_writel(bp, IDR, MACB_BIT(WOL));
+-- 
+2.25.1
+
 
 
