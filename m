@@ -2,167 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F4421F83D
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 19:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD2CD21F8D2
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:13:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728830AbgGNRcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 13:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
+        id S1728995AbgGNSMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726169AbgGNRcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 13:32:08 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F37C061755;
-        Tue, 14 Jul 2020 10:32:08 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id i4so18122403iov.11;
-        Tue, 14 Jul 2020 10:32:08 -0700 (PDT)
+        with ESMTP id S1728118AbgGNSMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 14:12:46 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F8AC061755
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 11:12:46 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id t18so15034970ilh.2
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 11:12:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=joelfernandes.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=fyd1Yem61aBK9j4xH0v8TMCTQl2WFmnBvLzZWnwdnEc=;
-        b=tHaFTot19KPHp0MlA0uocYvaOfJzaYZ5AoPy3T9fENTCX/ku/bwFYSdr5A461u5H/B
-         xbGJA30Vt6hsgAc6nl3XF22cNxedx4Px4/vwAsBod5/hmk8YP1vE0/hHw7zP03NEGraw
-         D/siRebVYWD9N+/1mOlVmPN/7TlJ77LGx7Ynxyi4kBO2svfB7/D8lvqexWnc4oV1x2Bh
-         zRs9q+7R218hm3SarF5+KQ8/toBryohiSFcxyv6Ij/7Dt2YZi2KlyEkc430bayEZPYhF
-         OhbWsp2jJ2VNZjFuSBvyM6plx4Gq4PtxhHrRtqIatdjHSuqJKUegDO0Sy28+QlYoD6sW
-         JPHg==
+        bh=XgMYLghS9qV+zQ3j/AEHdigXuQT8tk2Ry048DCv3WNo=;
+        b=dq68p4Oe6FTibRT0OKXe06CPAge1OFrmt3gile+/qSYXPHXUtOKRn0era1397ge7iu
+         SG0nsm4H7K+6hZKM5Vkb9MlBteNDRdUG8mrLYIN7NPDfr5s5pRLh9h6UcW6OI3ZCFfXb
+         Xd09xrFtLNw2jIxhB4wLLFDrF+rMXW9ILgVMY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=fyd1Yem61aBK9j4xH0v8TMCTQl2WFmnBvLzZWnwdnEc=;
-        b=b58tivEr64G/fnUz3qPLMZb2kW+SKNbuQgLDavUSNGTVLW746UsGCHIzU3qp7+KKcf
-         DwtT0FDUYjNYCPv9hNmOAv0IKMj11yg6tDE/sC+hNSHyxhXn0MyS2udRgnSmwywRfM/Q
-         yZ1IebrObNINIfQ15JuahBWzuDviE83haOyqvlIOETZpMyJJdtFwHLyvddXzXc0mhL1c
-         gBC9y1W9EUXN4YXLgca2vwdn+kZA/7c/W+yND6vM0vUxc8sMHurzA0pVxGmt9DyzQcx2
-         aQFppQQxqTimQP5O9tW/+LVADgDgCP717Xj5SBVCERSchXlKPLtaGTDA0G2NHaQfbixF
-         0tiA==
-X-Gm-Message-State: AOAM531NcfrDS9Nl0eMjQ+1ZhZBjPHgRKQhF20tzfovAeRU72OA0flqV
-        a4hFHPspGA6hwoAt540Ca5tMy4DouYSkYwF12/aEpYGM
-X-Google-Smtp-Source: ABdhPJx1N5E0GF7/F0ba6GbZ0mPoX1MKXs80ni9M2TowfvxnnTLsD0VvV0KlxZLoPSUGdtczPlbRSc4bn9Y0Z5hlfSg=
-X-Received: by 2002:a6b:2b12:: with SMTP id r18mr5852785ior.88.1594747927418;
- Tue, 14 Jul 2020 10:32:07 -0700 (PDT)
+        bh=XgMYLghS9qV+zQ3j/AEHdigXuQT8tk2Ry048DCv3WNo=;
+        b=JLMwaTFLrNHMDaZZgS+sCRjo5pk7Q48hYbQ2Au6zvcRzt678PV7/qRgfsu1IVEfP9l
+         UY9vAcjI0k6UB4BEmmz0b3dfB4XL2HOyvg7bz31wqZsBf9uBPOQK1TlPY17xn0Lr+7wJ
+         tXovzna/0q+kA4Sc25sUMtDQv+fY1MP/GkyiKz1r5lAaFms+nNiyEuQDhDVO+VoSje/w
+         03JMZy9N9KifSYpKz7stFvKg1x9vUSZfOIrDVGkg0PPCTy8knsl9mj/qWDysiG/GosOo
+         hwEdAKIKdfsW3ZSG4h9QGYCRIhZH8pJiVVbYZ2UMDOSzXR98n2BshuCtKgufY1LndsP7
+         16Kg==
+X-Gm-Message-State: AOAM533c1Kjy2psYFBKphBw+DiX/52dHpN9ZEVy1dufCar5zt1LPHk+e
+        t+S6ycXRyJKW8ARAalV40vRlqswCCwk23OFEWODcKw==
+X-Google-Smtp-Source: ABdhPJxZh9UtdKz/96YNIgTICaWWllWK6qo3ibzuoBpQ/DEDx3DUR9Zka1P+EnolKivtnMEOWWuJNr7z5hjeAlsuqI0=
+X-Received: by 2002:a92:cf42:: with SMTP id c2mr6263546ilr.13.1594750365698;
+ Tue, 14 Jul 2020 11:12:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200710113046.421366-1-mst@redhat.com> <CAKgT0UeZN+mOWNhgiT0btZTyki3TPoj7pbqA+__GkCxoifPqeg@mail.gmail.com>
- <20200712105926-mutt-send-email-mst@kernel.org> <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
- <20200714044017-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20200714044017-mutt-send-email-mst@kernel.org>
-From:   Alexander Duyck <alexander.duyck@gmail.com>
-Date:   Tue, 14 Jul 2020 10:31:56 -0700
-Message-ID: <CAKgT0Ud_AFpB-=uCB_3qY8pFvG9Kj7OFSmFG76LZC9K91oUG2w@mail.gmail.com>
-Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+ <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
+ <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
+ <20200712215041.GA3644504@google.com> <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
+ <20200714073306.kq4zikkphqje2yzb@box> <20200714160843.GA1685150@google.com> <CAHk-=wjffJ=EBrLjsz=KUFyPXVQUO03L=VJmHnLhVr4XvT3Mpw@mail.gmail.com>
+In-Reply-To: <CAHk-=wjffJ=EBrLjsz=KUFyPXVQUO03L=VJmHnLhVr4XvT3Mpw@mail.gmail.com>
+From:   Joel Fernandes <joel@joelfernandes.org>
+Date:   Tue, 14 Jul 2020 14:12:33 -0400
+Message-ID: <CAEXW_YRTnCb-z6TeboA3OCYv8eoX8UiCNn7K1hGMX+41Zdz8Og@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        Jerome Glisse <jglisse@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 14, 2020 at 1:45 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Tue, Jul 14, 2020 at 12:11 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> On Mon, Jul 13, 2020 at 08:10:14AM -0700, Alexander Duyck wrote:
-> > On Sun, Jul 12, 2020 at 8:10 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Fri, Jul 10, 2020 at 09:13:41AM -0700, Alexander Duyck wrote:
-> > > > On Fri, Jul 10, 2020 at 4:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-
-<snip>
-
-> > > As you say correctly the command id is actually assumed native endian:
-> > >
-> > >
-> > > static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
-> > > {
-> > >         if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
-> > >                                &vb->config_read_bitmap))
-> > >                 virtio_cread(vb->vdev, struct virtio_balloon_config,
-> > >                              free_page_hint_cmd_id,
-> > >                              &vb->cmd_id_received_cache);
-> > >
-> > >         return vb->cmd_id_received_cache;
-> > > }
-> > >
-> > >
-> > > So guest assumes native, host assumes LE.
+> On Tue, Jul 14, 2020 at 9:08 AM Joel Fernandes <joel@joelfernandes.org> wrote:
 > >
-> > This wasn't even the one I was talking about, but now that you point
-> > it out this is definately bug. The command ID I was talking about was
-> > the one being passed via the descriptor ring. That one I believe is
-> > native on both sides.
+> > I was thinking we should not call move_page_tables() with overlapping ranges
+> > at all, just to keep things simple.
 >
-> Well qemu swaps it for modern devices:
+> No, we're not breaking the existing stack movement code just to keep
+> things simple.
 >
->         virtio_tswap32s(vdev, &id);
+> The rule is "make it as simple as possible, but no simpler".
 >
-> guest swaps it too:
->         vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
->                                         virtio_balloon_cmd_id_received(vb));
->         sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
->         err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
->
-> So it's native for legacy.
+> And "as possible" in the case of Linux means "no breaking of old
+> interfaces". The stack randomization movement most certainly counts.
 
-Okay, that makes sense. I just wasn't familiar with the virtio32 type.
+Hi Linus,
+I think you misunderstood me. I was not advocating breaking the stack
+movement code or breaking stack randomization, I was going to try to
+see if I could keep that working while not having to do an overlapping
+move. That would be what I would do in the future patch (until which
+as you mentioned, you would switch the WARN_ON to WARN_ON_ONCE).
 
-I guess that just means we need to fix the original issue you found
-where the guest was assuming native for the command ID in the config.
-Do you plan to patch that or should I?
+I agree with you that we keep things as simple as possible while not
+breaking functionality.
 
-> > >
-> > >
-> > >
-> > > > > ---
-> > > > >  drivers/virtio/virtio_balloon.c | 9 +++++++++
-> > > > >  1 file changed, 9 insertions(+)
-> > > > >
-> > > > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > > > > index 5d4b891bf84f..b9bc03345157 100644
-> > > > > --- a/drivers/virtio/virtio_balloon.c
-> > > > > +++ b/drivers/virtio/virtio_balloon.c
-> > > > > @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
-> > > > >
-> > > > >  static int virtballoon_validate(struct virtio_device *vdev)
-> > > > >  {
-> > > > > +       /*
-> > > > > +        * Legacy devices never specified how modern features should behave.
-> > > > > +        * E.g. which endian-ness to use? Better not to assume anything.
-> > > > > +        */
-> > > > > +       if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> > > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
-> > > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-> > > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
-> > > > > +       }
-> > > > >         /*
-> > > > >          * Inform the hypervisor that our pages are poisoned or
-> > > > >          * initialized. If we cannot do that then we should disable
-> > > >
-> > > > The patch content itself I am fine with since odds are nobody would
-> > > > expect to use these features with a legacy device.
-> > > >
-> > > > Acked-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> > >
-> > > Hmm so now you pointed out it's just cmd id, maybe I should just fix it
-> > > instead? what do you say?
-> >
-> > So the config issues are bugs, but I don't think you saw the one I was
-> > talking about. In the function send_cmd_id_start the cmd_id_active
-> > value which is initialized as a virtio32 is added as a sg entry and
-> > then sent as an outbuf to the device. I'm assuming virtio32 is a host
-> > native byte ordering.
->
-> IIUC it isn't :) virtio32 is guest native if device is legacy, and LE if
-> device is modern.
+Cheers,
 
-Okay. So I should probably document that for the spec I have been
-working on. It looks like there is an example of similar documentation
-for the memory statistics so it should be pretty straight forward.
-
-Thanks.
-
-- Alex
+ - Joel
