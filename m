@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A804021FCD2
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8268721FC2D
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgGNSsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:48:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43752 "EHLO mail.kernel.org"
+        id S1729698AbgGNSwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:52:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgGNSsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:48:20 -0400
+        id S1730480AbgGNSwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:52:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCEC622AAA;
-        Tue, 14 Jul 2020 18:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66FFF22B42;
+        Tue, 14 Jul 2020 18:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752500;
-        bh=gT5151k0Ubtk/tBEyVBe8PhGWzMR8W2gtoTZ7OzRg98=;
+        s=default; t=1594752729;
+        bh=3tzB6AKeDEjrsEjBIXQkHHynvnQ1xdrC3D6f0+nPplM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jqKG+iTjI61D+HD1QmGWJ8N+qWbgLM3mEqOeUyCngDGtkbqZJiD10ow9+JCuH3dbv
-         yiuIzCqOIt4OrZKeaX8bWZFkGrw7fnNaZSY5ojGWDlZ95b8oldUxQkmRH7OVuyFVl+
-         6FlsZWNcvsLbyR7R+IZb6SkTxfG60FdrVFvfej5o=
+        b=SzL6TVBOlHK6sZqRlyUMnBdADoY5yiByQzyKLRYiP0Pk1Sh6LzP7TjVYwEiDLpOXf
+         mPIm/bH0qLETEl4maOuino1UFoYLOPxriQS5i5OkE1H3/k7caai0MxJ9znZRMmC30F
+         TNEmT1r7hVFZonVRHq2dUmcl+6Hwf34Pys9N1X6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.19 58/58] s390/mm: fix huge pte soft dirty copying
+        stable@vger.kernel.org, Jessica Yu <jeyu@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 088/109] module: Refactor section attr into bin attribute
 Date:   Tue, 14 Jul 2020 20:44:31 +0200
-Message-Id: <20200714184059.052295653@linuxfoundation.org>
+Message-Id: <20200714184109.763764086@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 528a9539348a0234375dfaa1ca5dbbb2f8f8e8d2 upstream.
+commit ed66f991bb19d94cae5d38f77de81f96aac7813f upstream.
 
-If the pmd is soft dirty we must mark the pte as soft dirty (and not dirty).
-This fixes some cases for guest migration with huge page backings.
+In order to gain access to the open file's f_cred for kallsym visibility
+permission checks, refactor the module section attributes to use the
+bin_attribute instead of attribute interface. Additionally removes the
+redundant "name" struct member.
 
-Cc: <stable@vger.kernel.org> # 4.8
-Fixes: bc29b7ac1d9f ("s390/mm: clean up pte/pmd encoding")
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/mm/hugetlbpage.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/module.c |   45 ++++++++++++++++++++++++---------------------
+ 1 file changed, 24 insertions(+), 21 deletions(-)
 
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -117,7 +117,7 @@ static inline pte_t __rste_to_pte(unsign
- 					     _PAGE_YOUNG);
- #ifdef CONFIG_MEM_SOFT_DIRTY
- 		pte_val(pte) |= move_set_bit(rste, _SEGMENT_ENTRY_SOFT_DIRTY,
--					     _PAGE_DIRTY);
-+					     _PAGE_SOFT_DIRTY);
- #endif
- 		pte_val(pte) |= move_set_bit(rste, _SEGMENT_ENTRY_NOEXEC,
- 					     _PAGE_NOEXEC);
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1507,8 +1507,7 @@ static inline bool sect_empty(const Elf_
+ }
+ 
+ struct module_sect_attr {
+-	struct module_attribute mattr;
+-	char *name;
++	struct bin_attribute battr;
+ 	unsigned long address;
+ };
+ 
+@@ -1518,11 +1517,16 @@ struct module_sect_attrs {
+ 	struct module_sect_attr attrs[0];
+ };
+ 
+-static ssize_t module_sect_show(struct module_attribute *mattr,
+-				struct module_kobject *mk, char *buf)
++static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
++				struct bin_attribute *battr,
++				char *buf, loff_t pos, size_t count)
+ {
+ 	struct module_sect_attr *sattr =
+-		container_of(mattr, struct module_sect_attr, mattr);
++		container_of(battr, struct module_sect_attr, battr);
++
++	if (pos != 0)
++		return -EINVAL;
++
+ 	return sprintf(buf, "0x%px\n", kptr_restrict < 2 ?
+ 		       (void *)sattr->address : NULL);
+ }
+@@ -1532,7 +1536,7 @@ static void free_sect_attrs(struct modul
+ 	unsigned int section;
+ 
+ 	for (section = 0; section < sect_attrs->nsections; section++)
+-		kfree(sect_attrs->attrs[section].name);
++		kfree(sect_attrs->attrs[section].battr.attr.name);
+ 	kfree(sect_attrs);
+ }
+ 
+@@ -1541,42 +1545,41 @@ static void add_sect_attrs(struct module
+ 	unsigned int nloaded = 0, i, size[2];
+ 	struct module_sect_attrs *sect_attrs;
+ 	struct module_sect_attr *sattr;
+-	struct attribute **gattr;
++	struct bin_attribute **gattr;
+ 
+ 	/* Count loaded sections and allocate structures */
+ 	for (i = 0; i < info->hdr->e_shnum; i++)
+ 		if (!sect_empty(&info->sechdrs[i]))
+ 			nloaded++;
+ 	size[0] = ALIGN(struct_size(sect_attrs, attrs, nloaded),
+-			sizeof(sect_attrs->grp.attrs[0]));
+-	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.attrs[0]);
++			sizeof(sect_attrs->grp.bin_attrs[0]));
++	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.bin_attrs[0]);
+ 	sect_attrs = kzalloc(size[0] + size[1], GFP_KERNEL);
+ 	if (sect_attrs == NULL)
+ 		return;
+ 
+ 	/* Setup section attributes. */
+ 	sect_attrs->grp.name = "sections";
+-	sect_attrs->grp.attrs = (void *)sect_attrs + size[0];
++	sect_attrs->grp.bin_attrs = (void *)sect_attrs + size[0];
+ 
+ 	sect_attrs->nsections = 0;
+ 	sattr = &sect_attrs->attrs[0];
+-	gattr = &sect_attrs->grp.attrs[0];
++	gattr = &sect_attrs->grp.bin_attrs[0];
+ 	for (i = 0; i < info->hdr->e_shnum; i++) {
+ 		Elf_Shdr *sec = &info->sechdrs[i];
+ 		if (sect_empty(sec))
+ 			continue;
++		sysfs_bin_attr_init(&sattr->battr);
+ 		sattr->address = sec->sh_addr;
+-		sattr->name = kstrdup(info->secstrings + sec->sh_name,
+-					GFP_KERNEL);
+-		if (sattr->name == NULL)
++		sattr->battr.attr.name =
++			kstrdup(info->secstrings + sec->sh_name, GFP_KERNEL);
++		if (sattr->battr.attr.name == NULL)
+ 			goto out;
+ 		sect_attrs->nsections++;
+-		sysfs_attr_init(&sattr->mattr.attr);
+-		sattr->mattr.show = module_sect_show;
+-		sattr->mattr.store = NULL;
+-		sattr->mattr.attr.name = sattr->name;
+-		sattr->mattr.attr.mode = S_IRUSR;
+-		*(gattr++) = &(sattr++)->mattr.attr;
++		sattr->battr.read = module_sect_read;
++		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
++		sattr->battr.attr.mode = 0400;
++		*(gattr++) = &(sattr++)->battr;
+ 	}
+ 	*gattr = NULL;
+ 
+@@ -1666,7 +1669,7 @@ static void add_notes_attrs(struct modul
+ 			continue;
+ 		if (info->sechdrs[i].sh_type == SHT_NOTE) {
+ 			sysfs_bin_attr_init(nattr);
+-			nattr->attr.name = mod->sect_attrs->attrs[loaded].name;
++			nattr->attr.name = mod->sect_attrs->attrs[loaded].battr.attr.name;
+ 			nattr->attr.mode = S_IRUGO;
+ 			nattr->size = info->sechdrs[i].sh_size;
+ 			nattr->private = (void *) info->sechdrs[i].sh_addr;
 
 
