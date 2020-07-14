@@ -2,52 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 834D421F6BE
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 18:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA5621F70E
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 18:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728018AbgGNQIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 12:08:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41208 "EHLO
+        id S1725905AbgGNQSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 12:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725876AbgGNQIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 12:08:45 -0400
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D11AC061755
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 09:08:45 -0700 (PDT)
-Received: by mail-qk1-x743.google.com with SMTP id z63so16029047qkb.8
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 09:08:45 -0700 (PDT)
+        with ESMTP id S1725876AbgGNQSG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 12:18:06 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A5AC061755
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 09:18:06 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id a1so22670934ejg.12
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 09:18:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=fXf8zgvJD8RyvdGVU6SbrLCxfrnGixneNILyC8ZbGYQ=;
-        b=quO5N6ogCCYMCYm0jbm7VGfgMCjMNG3GM9hD87QoYYFvrCvi+38UVqmSgHvpoMIvtp
-         MK4ykcB/BoIm3XFsCMscMRa5eaFT+7xKl2rw3pj0xGgGwuSg2KA+KUQ0dVZgVWXhqKjh
-         TSWDGLrqQ1V0hHYAbPLbQ37d/oBs3FOrP2lo8=
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jVja+Dm3U4NNdoUzuGjR/wqvDeVbDJNnrorH0uGFQ1c=;
+        b=hPQODzQeZU73y/uYKV3Or723M4Cd3tvDmXFHXDZxwc+KS0m8Ik+d8ktVcP6IwAmUh2
+         e/Tgq0pCCJ3dVb4vS8wSP+mNSYY+Fbx1xHTpNcw7/DtynQixRQYltmHYu2OHIrdP80P7
+         B6L7zYegq+LM862HVAY4Aot1lHzFerNg0ZcSw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=fXf8zgvJD8RyvdGVU6SbrLCxfrnGixneNILyC8ZbGYQ=;
-        b=TBkhMkIO0ijE94XOnBmw8WSmuWRnfjEMyv9y42RXDb+u3arh1I/m0MtztLgXmiPBNI
-         b2iAo5MpqFxL3A+JC91XAcG3y6qZesggyL8m2Wv4jW87fj6HLNeTMkDBuCKNwunkzWiL
-         tbzg53XJTni5roWMJX1MPq3qwH641SxygHAQHazrOdcjxO7dPGLl13EHx2cU1FbjDwL+
-         mNXBgwDOdSfQ7DxqaZ3UmVSMMXx0LrzRK1cyc+JTk/3LTljIq880RqQdGplB7czO8jpd
-         LzAEhZhHTtEVKknbAkk5OvN97SXt4r8+yilM3gMqy8y+9XOdilvA2fLasqhGJPU0uR7A
-         fKnA==
-X-Gm-Message-State: AOAM531xu9GIUczl7mbVm66IT/CBUwcq1qlutWSmbfjVc23zd7vF3nUF
-        9GPzUeLj+DzuEmfgJRedzdR+VA==
-X-Google-Smtp-Source: ABdhPJz9QAcH+YKs1fhtplNEgSvm1zFmMYsJh/XrGm1MUTK4ti2w3rCC8VJsOCnzYlhLv6MJYRwPxw==
-X-Received: by 2002:a37:a950:: with SMTP id s77mr5236642qke.171.1594742924543;
-        Tue, 14 Jul 2020 09:08:44 -0700 (PDT)
-Received: from localhost ([2620:15c:6:12:cad3:ffff:feb3:bd59])
-        by smtp.gmail.com with ESMTPSA id m4sm25213289qtf.43.2020.07.14.09.08.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2020 09:08:43 -0700 (PDT)
-Date:   Tue, 14 Jul 2020 12:08:43 -0400
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     "Kirill A. Shutemov" <kirill@shutemov.name>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jVja+Dm3U4NNdoUzuGjR/wqvDeVbDJNnrorH0uGFQ1c=;
+        b=L7b6CdUmkn7xdBe+wrPxxHDN5JKcpq4Hvl2Ik0/j0s8NCJzO9n38j/Qxaqcy0eek1v
+         o+BbouFPkjthhYm3SdZNiA3K4rbQzCF6wIYxQZEUriiDLSedsJw0m6Zku6AylTJYKX6x
+         BxDp4kee8SWXGn8Ngf7a46XiVQFGTqosF+OnKVJtieWXGDpJTJ5uau7woDJk4zo8v4C8
+         f5J7D7dcsGJObKeWa3e4ZEQIFZfnyAuSBx1vv+bCx+QvbyHl3NBbt9WrfnqrpTyb6+hL
+         2gtVrqTkiaWtf9+3GlZiEyATAwL5iF1/GNmfYoaZxH+Pys/ObI9cs474K8IUsV/83X/C
+         BP2Q==
+X-Gm-Message-State: AOAM531U9KW53AgtFF2BKcnFX5N6zj9KIbA8jTmMoTC8vawPQYllqHbj
+        mBQOkA3jdp6mjtDc64zy1cpjpTsxytY=
+X-Google-Smtp-Source: ABdhPJxG6nv8+8T8KUPO7M+ixLcUxNtlNgW3t7BvUr6P2lcHIOpVGOvb/g6nh9H1i5+uGLiQNqRkcw==
+X-Received: by 2002:a17:906:284e:: with SMTP id s14mr5232882ejc.498.1594743484920;
+        Tue, 14 Jul 2020 09:18:04 -0700 (PDT)
+Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com. [209.85.208.51])
+        by smtp.gmail.com with ESMTPSA id bw7sm12961348ejb.5.2020.07.14.09.18.04
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jul 2020 09:18:04 -0700 (PDT)
+Received: by mail-ed1-f51.google.com with SMTP id a1so12393837edt.10
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 09:18:04 -0700 (PDT)
+X-Received: by 2002:a2e:999a:: with SMTP id w26mr2613302lji.371.1594743064458;
+ Tue, 14 Jul 2020 09:11:04 -0700 (PDT)
+MIME-Version: 1.0
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+ <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
+ <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
+ <20200712215041.GA3644504@google.com> <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
+ <20200714073306.kq4zikkphqje2yzb@box> <20200714160843.GA1685150@google.com>
+In-Reply-To: <20200714160843.GA1685150@google.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 14 Jul 2020 09:10:48 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjffJ=EBrLjsz=KUFyPXVQUO03L=VJmHnLhVr4XvT3Mpw@mail.gmail.com>
+Message-ID: <CAHk-=wjffJ=EBrLjsz=KUFyPXVQUO03L=VJmHnLhVr4XvT3Mpw@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     Joel Fernandes <joel@joelfernandes.org>
+Cc:     "Kirill A. Shutemov" <kirill@shutemov.name>,
         Naresh Kamboju <naresh.kamboju@linaro.org>,
         linux- stable <stable@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>,
@@ -67,86 +83,23 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Hugh Dickins <hughd@google.com>,
         Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-Message-ID: <20200714160843.GA1685150@google.com>
-References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
- <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
- <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
- <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
- <20200712215041.GA3644504@google.com>
- <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
- <20200714073306.kq4zikkphqje2yzb@box>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200714073306.kq4zikkphqje2yzb@box>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Kirill,
+On Tue, Jul 14, 2020 at 9:08 AM Joel Fernandes <joel@joelfernandes.org> wrote:
+>
+> I was thinking we should not call move_page_tables() with overlapping ranges
+> at all, just to keep things simple.
 
-On Tue, Jul 14, 2020 at 10:33:06AM +0300, Kirill A. Shutemov wrote:
-> On Sun, Jul 12, 2020 at 03:58:06PM -0700, Linus Torvalds wrote:
-> > Anybody else have any opinions?
-> 
-> Maybe we just shouldn't allow move_normal_pmd() if ranges overlap?
-> 
-> Other option: pass 'overlaps' down to move_normal_pmd() and only WARN() if
-> see establised PMD without overlaps being true.
+No, we're not breaking the existing stack movement code just to keep
+things simple.
 
-I was thinking we should not call move_page_tables() with overlapping ranges
-at all, just to keep things simple. I am concerned about other issues such as
-if you move a range forward, you will end up overwriting part of the source
-range.
+The rule is "make it as simple as possible, but no simpler".
 
-Allow me some time to develop a proper patch, I have it on my list. I will
-try to get to it this week.
+And "as possible" in the case of Linux means "no breaking of old
+interfaces". The stack randomization movement most certainly counts.
 
-I think we can also add a patch to detect the overlap as you did and warn in
-such situation.
-
-Thoughts?
-
-thanks,
-
- - Joel
-
-
-> Untested patch:
-> 
-> diff --git a/mm/mremap.c b/mm/mremap.c
-> index 5dd572d57ca9..e33fcee541fe 100644
-> --- a/mm/mremap.c
-> +++ b/mm/mremap.c
-> @@ -245,6 +245,18 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
->  	unsigned long extent, next, old_end;
->  	struct mmu_notifier_range range;
->  	pmd_t *old_pmd, *new_pmd;
-> +	bool overlaps;
-> +
-> +	/*
-> +	 * shift_arg_pages() can call move_page_tables() on overlapping ranges.
-> +	 * In this case we cannot use move_normal_pmd() because destination pmd
-> +	 * might be established page table: move_ptes() doesn't free page
-> +	 * table.
-> +	 */
-> +	if (old_addr > new_addr)
-> +		overlaps = old_addr - new_addr < len;
-> +	else
-> +		overlaps = new_addr - old_addr < len;
->  
->  	old_end = old_addr + len;
->  	flush_cache_range(vma, old_addr, old_end);
-> @@ -282,7 +294,7 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
->  			split_huge_pmd(vma, old_pmd, old_addr);
->  			if (pmd_trans_unstable(old_pmd))
->  				continue;
-> -		} else if (extent == PMD_SIZE) {
-> +		} else if (!overlaps && extent == PMD_SIZE) {
->  #ifdef CONFIG_HAVE_MOVE_PMD
->  			/*
->  			 * If the extent is PMD-sized, try to speed the move by
-> -- 
->  Kirill A. Shutemov
+                  Linus
