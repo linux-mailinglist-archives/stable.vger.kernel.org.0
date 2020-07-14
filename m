@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BF7421F9ED
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8138B21FA83
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729817AbgGNSrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:47:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42990 "EHLO mail.kernel.org"
+        id S1730606AbgGNSxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:53:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729813AbgGNSrq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:46 -0400
+        id S1730595AbgGNSxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:53:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B75422AAA;
-        Tue, 14 Jul 2020 18:47:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21AB222CAD;
+        Tue, 14 Jul 2020 18:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752465;
-        bh=b/MpVVAJc2+RtAD7Rz7jIVft8p7AIFTO1t2b3ctl1eY=;
+        s=default; t=1594752793;
+        bh=mSN9oBUWcUYye87703cbgBNrreVEIMovySJxJEBFV40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+yKXURlYlAHLwfYikxX+6+y3ZhvRFdQfSX+P8Y+TyuPwp2qDou/w2zLiQ0gppxq6
-         G9XcoIfT0FXYPNqKH5xhXpoZ2QLrdx3QlGBg3ev3JvCIGXnXvp+uOIipPSElmZdfRE
-         heHUEcc3I/7r4B0aklYokgWZshO00NiUinZiJPAU=
+        b=fkBiSEXyIf+KfpdQ0bEBzyvPubJPj9Onp+OtRazXo1STdo8hnGUnoL0qUIcSHmi1Y
+         jxmbxmFZ3ga9J4kLJ0gIVEFQJf5FWewTjzk4AoZNVISyuBzTLzj7/9HMa9pkePWcP1
+         2QO/0SRfrTAB1rPwhq2Qhx3a8lHu78ZMzG48qcJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 52/58] Revert "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb"
+        stable@vger.kernel.org,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.4 082/109] KVM: arm64: Annotate hyp NMI-related functions as __always_inline
 Date:   Tue, 14 Jul 2020 20:44:25 +0200
-Message-Id: <20200714184058.743710489@linuxfoundation.org>
+Message-Id: <20200714184109.478042495@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,184 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Alexandru Elisei <alexandru.elisei@arm.com>
 
-This reverts commit bdf4d37b03dc410b91f318c8e097a41e732d1038 which is
-commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
+commit 7733306bd593c737c63110175da6c35b4b8bb32c upstream.
 
-It is being reverted upstream, just hasn't made it there yet and is
-causing lots of problems.
+The "inline" keyword is a hint for the compiler to inline a function.  The
+functions system_uses_irq_prio_masking() and gic_write_pmr() are used by
+the code running at EL2 on a non-VHE system, so mark them as
+__always_inline to make sure they'll always be part of the .hyp.text
+section.
 
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Qiujun Huang <hqjagain@gmail.com>
-Cc: Kalle Valo <kvalo@codeaurora.org>
+This fixes the following splat when trying to run a VM:
+
+[   47.625273] Kernel panic - not syncing: HYP panic:
+[   47.625273] PS:a00003c9 PC:0000ca0b42049fc4 ESR:86000006
+[   47.625273] FAR:0000ca0b42049fc4 HPFAR:0000000010001000 PAR:0000000000000000
+[   47.625273] VCPU:0000000000000000
+[   47.647261] CPU: 1 PID: 217 Comm: kvm-vcpu-0 Not tainted 5.8.0-rc1-ARCH+ #61
+[   47.654508] Hardware name: Globalscale Marvell ESPRESSOBin Board (DT)
+[   47.661139] Call trace:
+[   47.663659]  dump_backtrace+0x0/0x1cc
+[   47.667413]  show_stack+0x18/0x24
+[   47.670822]  dump_stack+0xb8/0x108
+[   47.674312]  panic+0x124/0x2f4
+[   47.677446]  panic+0x0/0x2f4
+[   47.680407] SMP: stopping secondary CPUs
+[   47.684439] Kernel Offset: disabled
+[   47.688018] CPU features: 0x240402,20002008
+[   47.692318] Memory Limit: none
+[   47.695465] ---[ end Kernel panic - not syncing: HYP panic:
+[   47.695465] PS:a00003c9 PC:0000ca0b42049fc4 ESR:86000006
+[   47.695465] FAR:0000ca0b42049fc4 HPFAR:0000000010001000 PAR:0000000000000000
+[   47.695465] VCPU:0000000000000000 ]---
+
+The instruction abort was caused by the code running at EL2 trying to fetch
+an instruction which wasn't mapped in the EL2 translation tables. Using
+objdump showed the two functions as separate symbols in the .text section.
+
+Fixes: 85738e05dc38 ("arm64: kvm: Unmask PMR before entering guest")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/20200618171254.1596055-1-alexandru.elisei@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/wireless/ath/ath9k/hif_usb.c |   48 +++++++------------------------
- drivers/net/wireless/ath/ath9k/hif_usb.h |    5 ---
- 2 files changed, 11 insertions(+), 42 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -643,9 +643,9 @@ err:
- 
- static void ath9k_hif_usb_rx_cb(struct urb *urb)
- {
--	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
--	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
--	struct sk_buff *skb = rx_buf->skb;
-+	struct sk_buff *skb = (struct sk_buff *) urb->context;
-+	struct hif_device_usb *hif_dev =
-+		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
- 	int ret;
- 
- 	if (!skb)
-@@ -685,15 +685,14 @@ resubmit:
- 	return;
- free:
- 	kfree_skb(skb);
--	kfree(rx_buf);
+---
+ arch/arm64/include/asm/arch_gicv3.h |    2 +-
+ arch/arm64/include/asm/cpufeature.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/arm64/include/asm/arch_gicv3.h
++++ b/arch/arm64/include/asm/arch_gicv3.h
+@@ -109,7 +109,7 @@ static inline u32 gic_read_pmr(void)
+ 	return read_sysreg_s(SYS_ICC_PMR_EL1);
  }
  
- static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+-static inline void gic_write_pmr(u32 val)
++static __always_inline void gic_write_pmr(u32 val)
  {
--	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
--	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
--	struct sk_buff *skb = rx_buf->skb;
-+	struct sk_buff *skb = (struct sk_buff *) urb->context;
- 	struct sk_buff *nskb;
-+	struct hif_device_usb *hif_dev =
-+		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
- 	int ret;
- 
- 	if (!skb)
-@@ -751,7 +750,6 @@ resubmit:
- 	return;
- free:
- 	kfree_skb(skb);
--	kfree(rx_buf);
- 	urb->context = NULL;
+ 	write_sysreg_s(val, SYS_ICC_PMR_EL1);
+ }
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -601,7 +601,7 @@ static inline bool system_supports_gener
+ 		 cpus_have_const_cap(ARM64_HAS_GENERIC_AUTH_IMP_DEF));
  }
  
-@@ -797,7 +795,7 @@ static int ath9k_hif_usb_alloc_tx_urbs(s
- 	init_usb_anchor(&hif_dev->mgmt_submitted);
- 
- 	for (i = 0; i < MAX_TX_URB_NUM; i++) {
--		tx_buf = kzalloc(sizeof(*tx_buf), GFP_KERNEL);
-+		tx_buf = kzalloc(sizeof(struct tx_buf), GFP_KERNEL);
- 		if (!tx_buf)
- 			goto err;
- 
-@@ -834,9 +832,8 @@ static void ath9k_hif_usb_dealloc_rx_urb
- 
- static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
+-static inline bool system_uses_irq_prio_masking(void)
++static __always_inline bool system_uses_irq_prio_masking(void)
  {
--	struct rx_buf *rx_buf = NULL;
--	struct sk_buff *skb = NULL;
- 	struct urb *urb = NULL;
-+	struct sk_buff *skb = NULL;
- 	int i, ret;
- 
- 	init_usb_anchor(&hif_dev->rx_submitted);
-@@ -844,12 +841,6 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
- 
- 	for (i = 0; i < MAX_RX_URB_NUM; i++) {
- 
--		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
--		if (!rx_buf) {
--			ret = -ENOMEM;
--			goto err_rxb;
--		}
--
- 		/* Allocate URB */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
- 		if (urb == NULL) {
-@@ -864,14 +855,11 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
- 			goto err_skb;
- 		}
- 
--		rx_buf->hif_dev = hif_dev;
--		rx_buf->skb = skb;
--
- 		usb_fill_bulk_urb(urb, hif_dev->udev,
- 				  usb_rcvbulkpipe(hif_dev->udev,
- 						  USB_WLAN_RX_PIPE),
- 				  skb->data, MAX_RX_BUF_SIZE,
--				  ath9k_hif_usb_rx_cb, rx_buf);
-+				  ath9k_hif_usb_rx_cb, skb);
- 
- 		/* Anchor URB */
- 		usb_anchor_urb(urb, &hif_dev->rx_submitted);
-@@ -897,8 +885,6 @@ err_submit:
- err_skb:
- 	usb_free_urb(urb);
- err_urb:
--	kfree(rx_buf);
--err_rxb:
- 	ath9k_hif_usb_dealloc_rx_urbs(hif_dev);
- 	return ret;
- }
-@@ -910,21 +896,14 @@ static void ath9k_hif_usb_dealloc_reg_in
- 
- static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
- {
--	struct rx_buf *rx_buf = NULL;
--	struct sk_buff *skb = NULL;
- 	struct urb *urb = NULL;
-+	struct sk_buff *skb = NULL;
- 	int i, ret;
- 
- 	init_usb_anchor(&hif_dev->reg_in_submitted);
- 
- 	for (i = 0; i < MAX_REG_IN_URB_NUM; i++) {
- 
--		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
--		if (!rx_buf) {
--			ret = -ENOMEM;
--			goto err_rxb;
--		}
--
- 		/* Allocate URB */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
- 		if (urb == NULL) {
-@@ -939,14 +918,11 @@ static int ath9k_hif_usb_alloc_reg_in_ur
- 			goto err_skb;
- 		}
- 
--		rx_buf->hif_dev = hif_dev;
--		rx_buf->skb = skb;
--
- 		usb_fill_int_urb(urb, hif_dev->udev,
- 				  usb_rcvintpipe(hif_dev->udev,
- 						  USB_REG_IN_PIPE),
- 				  skb->data, MAX_REG_IN_BUF_SIZE,
--				  ath9k_hif_usb_reg_in_cb, rx_buf, 1);
-+				  ath9k_hif_usb_reg_in_cb, skb, 1);
- 
- 		/* Anchor URB */
- 		usb_anchor_urb(urb, &hif_dev->reg_in_submitted);
-@@ -972,8 +948,6 @@ err_submit:
- err_skb:
- 	usb_free_urb(urb);
- err_urb:
--	kfree(rx_buf);
--err_rxb:
- 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
- 	return ret;
- }
---- a/drivers/net/wireless/ath/ath9k/hif_usb.h
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
-@@ -86,11 +86,6 @@ struct tx_buf {
- 	struct list_head list;
- };
- 
--struct rx_buf {
--	struct sk_buff *skb;
--	struct hif_device_usb *hif_dev;
--};
--
- #define HIF_USB_TX_STOP  BIT(0)
- #define HIF_USB_TX_FLUSH BIT(1)
- 
+ 	return IS_ENABLED(CONFIG_ARM64_PSEUDO_NMI) &&
+ 	       cpus_have_const_cap(ARM64_HAS_IRQ_PRIO_MASKING);
 
 
