@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8DF21FB5A
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBBA21FB57
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731326AbgGNTAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:00:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59090 "EHLO mail.kernel.org"
+        id S1729261AbgGNTBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:01:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730398AbgGNTAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 15:00:14 -0400
+        id S1730524AbgGNTAY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 15:00:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77ECE22507;
-        Tue, 14 Jul 2020 19:00:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE5BF22A99;
+        Tue, 14 Jul 2020 19:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753214;
-        bh=gT5151k0Ubtk/tBEyVBe8PhGWzMR8W2gtoTZ7OzRg98=;
+        s=default; t=1594753224;
+        bh=3WhSWmNNy5hqVAlzz7aFIf/TWdrTr8fOsaf6M/t9T9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omlI0mWt3ZXeEigMEm+ODmsxKGpycnzhvFhjvJc/uFJZMxvC4cDAHV1W0069yxmp1
-         0W4YjPRBGjgXNWUGI6wq0UklHdlMW5AXzNcxoBDbqHFK+AgNb/eEX9iYaB93oBcil4
-         oCRPU2vsDBbEw3P8wLeGUF91NEeUPNj23Gkke6F0=
+        b=1d8R2x/mVU2mJUZZmMeOqYsc4qNCTAEa3Y0SQtZU5WSL5MM6+am4MzibaXQ1truIG
+         8UxkiHudXuVv2QTXt6GAa1LN1uvisKMLxYHQhp4+YJMFhfI5t8H1nZfLuVHLklYzE/
+         BXKkYfuj7iQRnmwbEX1gPrkUUlBf9ZnL+IE0v5CM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.7 156/166] s390/mm: fix huge pte soft dirty copying
-Date:   Tue, 14 Jul 2020 20:45:21 +0200
-Message-Id: <20200714184123.293574193@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.7 158/166] arm64: arch_timer: Allow an workaround descriptor to disable compat vdso
+Date:   Tue, 14 Jul 2020 20:45:23 +0200
+Message-Id: <20200714184123.389060989@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -46,35 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 528a9539348a0234375dfaa1ca5dbbb2f8f8e8d2 upstream.
+commit c1fbec4ac0d701f350a581941d35643d5a9cd184 upstream.
 
-If the pmd is soft dirty we must mark the pte as soft dirty (and not dirty).
-This fixes some cases for guest migration with huge page backings.
+As we are about to disable the vdso for compat tasks in some circumstances,
+let's allow a workaround descriptor to express exactly that.
 
-Cc: <stable@vger.kernel.org> # 4.8
-Fixes: bc29b7ac1d9f ("s390/mm: clean up pte/pmd encoding")
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200706163802.1836732-3-maz@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/mm/hugetlbpage.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/arch_timer.h  |    1 +
+ drivers/clocksource/arm_arch_timer.c |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -117,7 +117,7 @@ static inline pte_t __rste_to_pte(unsign
- 					     _PAGE_YOUNG);
- #ifdef CONFIG_MEM_SOFT_DIRTY
- 		pte_val(pte) |= move_set_bit(rste, _SEGMENT_ENTRY_SOFT_DIRTY,
--					     _PAGE_DIRTY);
-+					     _PAGE_SOFT_DIRTY);
- #endif
- 		pte_val(pte) |= move_set_bit(rste, _SEGMENT_ENTRY_NOEXEC,
- 					     _PAGE_NOEXEC);
+--- a/arch/arm64/include/asm/arch_timer.h
++++ b/arch/arm64/include/asm/arch_timer.h
+@@ -58,6 +58,7 @@ struct arch_timer_erratum_workaround {
+ 	u64 (*read_cntvct_el0)(void);
+ 	int (*set_next_event_phys)(unsigned long, struct clock_event_device *);
+ 	int (*set_next_event_virt)(unsigned long, struct clock_event_device *);
++	bool disable_compat_vdso;
+ };
+ 
+ DECLARE_PER_CPU(const struct arch_timer_erratum_workaround *,
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -566,6 +566,9 @@ void arch_timer_enable_workaround(const
+ 	if (wa->read_cntvct_el0) {
+ 		clocksource_counter.vdso_clock_mode = VDSO_CLOCKMODE_NONE;
+ 		vdso_default = VDSO_CLOCKMODE_NONE;
++	} else if (wa->disable_compat_vdso && vdso_default != VDSO_CLOCKMODE_NONE) {
++		vdso_default = VDSO_CLOCKMODE_ARCHTIMER_NOCOMPAT;
++		clocksource_counter.vdso_clock_mode = vdso_default;
+ 	}
+ }
+ 
 
 
