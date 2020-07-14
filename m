@@ -2,184 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C1B21FE5C
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 22:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E868821FECA
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 22:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgGNUP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 16:15:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
+        id S1726649AbgGNUpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 16:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgGNUP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 16:15:27 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C4AC061755
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 13:15:27 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id l17so7184908iok.7
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 13:15:27 -0700 (PDT)
+        with ESMTP id S1725945AbgGNUpO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 16:45:14 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B789C061755
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 13:45:14 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id p20so24358355ejd.13
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 13:45:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=basnieuwenhuizen-nl.20150623.gappssmtp.com; s=20150623;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/p+bzwQ5QmwSIzj6F5AB3nkYDC6rYoTIEY0YZ290OuQ=;
-        b=XFk3n0rC1iLpK80lY+HAOO1hbISONecERQS6IMwz1DkGmZrBJDxS1q2tfAPOgs5tJT
-         QVtM2ceFLcUn64poiMwiP9T8x47Gyd9jYo66OPWOAlF8gah2QUztXKlAMYJB/TGMePkX
-         rUkkrr6/uRaxzvHY5wQlniEV6Y1OM+AZejg5DpMeOc7YxjYLCu7Va7K22Zrjgi7DkVY6
-         IbpGJDcU9/sigTr9SrZvm81ql6U62wCZ49+d4FFyR2oIdww+BW47IkzCkueVbqG5IPDr
-         XBpUFTUX6AXJdfnJob5g9djHoX7pfHe2iTIJS998V/Opugxy3/OGm8Prnzv1YB11mROB
-         Z3+Q==
+         :cc;
+        bh=Kqh1NBVBlHrZFE286BUwAHdoh8ntAaaIXSLlXQ7Bm6s=;
+        b=dsDrvsXKwnz4Ec5AoGC7UzNnGr6HGFuQx0fMIrzZdpvzT8V+sMBjSseqibtKkUleNp
+         YAQBi76uicXluskJd+hTeTsyWAg05jNYM0frcHY4PBAtEKlADxwqvaJdPcxxHuR6fSg4
+         Z8Av9Xw3kWBU7AcvAiZLJvP0ANAQYQY/1HRVk5m0U6KRDc+OtwfbXN0N1c0AAmeVdh96
+         7p0jLgi5ACnL+H0e8teJtGjWlj+U1ay7gVzmHsVYk1zN8dRbuaztcrZ66pzJ2Ok7zto2
+         EGMDow93S9QTHHgzoSZB16/uOQk9fIg12WPTEmg38d7cg2Gx2p4CpzISSSFIUXkbDAsr
+         HC/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/p+bzwQ5QmwSIzj6F5AB3nkYDC6rYoTIEY0YZ290OuQ=;
-        b=gMvG/SSyvGYk04HULTVaFxq5Kg54H4fyFOnZpwt5KmQcZljmh5TeJd9GNkXTPLMRyf
-         eIDU+RFeK7CXXMtV/KQV2cYkD1WC0Le0CEyBT/o5qsuZq+iGgbOOCE3qbvBA17bFnpTY
-         cuEQQ81cAhMGGWEcDl/S+Z1Ty7bawxlICktqm55zbDd86ZUJqJ5UwuSUOVHUgfrDT4OD
-         ItcJd+9rAinqpMLSmXhcISwru2FPGHeR+118s+BxS5F4tPwuibsitlUCA4XvyimcxznF
-         vKd+8YE4mgbIHlhdkItvEBrbqOXUcX1qUx0P4ySzw9wNufsbVu1g4W814t/w9RalJZVT
-         cI8w==
-X-Gm-Message-State: AOAM532Ye6rTgBa9hBNpxmlaJJRZMiKgfWNRLMOgxBKDMO0N4iPOLK4C
-        dQUJm0mcglv4GDwf0NL3vMDu2LwQ0vK/GX1o6LkOyg==
-X-Google-Smtp-Source: ABdhPJwDIGVrJ7lxywITvDgwcv+EfcTlfNr95Jjd9li82NJlpmmppxQ7J1WX4hGgfSFieyM5CTPkkDsIYmau/LZrIHs=
-X-Received: by 2002:a05:6602:22d5:: with SMTP id e21mr4801657ioe.98.1594757726673;
- Tue, 14 Jul 2020 13:15:26 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=Kqh1NBVBlHrZFE286BUwAHdoh8ntAaaIXSLlXQ7Bm6s=;
+        b=Ve15MeEnmFj5pWQfDVkvFm0yN7SNClfXiojulmy/lPe9RvJfvGf3JseCfixAlKMdZR
+         15LcP9boVOY1IjjCylqIk8OOvUszCyGMi9bUU6luV5PZSs/IHlwwNmYjRts4DVc/VrIA
+         uBYnwQrzRmA/b+NSszUEQMUskDJSCPec44dRfbO8Hr73iGHXeL6iWz6nvj1S/KrJ2Bus
+         6Diui3U/QJ2nwLHMZRvhuItnMm4fzJN8tJlEXPoZY7QVPz4rh1Tew1hMZt4+x8Q4FWj5
+         jlSZSkh+B137nCKpXn1Ck43X5NtOd37XxN355xrBO2Z7fjcorhJrVbPme5/U02c8UQui
+         rzug==
+X-Gm-Message-State: AOAM530nzfaV947JB8uoA7LBgqFzbuh0AkUMuo0hmPK2+IVh91ZKacK5
+        Zt2gYkrsrio0uD/ntZmi7i7PPnXuTTRXwxnQhDQWsw==
+X-Google-Smtp-Source: ABdhPJysUSBHVOa53sWJQjIcFkn4l3OgSNQEcR9y15L+mAV25fgE46PISgPYdobloPCBMeTthBtC00kZdSRclXpMQu0=
+X-Received: by 2002:a17:906:fa9b:: with SMTP id lt27mr6000034ejb.513.1594759512692;
+ Tue, 14 Jul 2020 13:45:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200714200646.14041-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20200714200646.14041-1-chris@chris-wilson.co.uk>
-From:   Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Date:   Tue, 14 Jul 2020 22:14:40 +0200
-Message-ID: <CAP+8YyFz5qii=3pK4t2GKxgC=z6_Q0dsGTGzXX=tUgLihrp41g@mail.gmail.com>
-Subject: Re: [PATCH 1/3] dma-buf/sw_sync: Avoid recursive lock during fence signal.
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     ML dri-devel <dri-devel@lists.freedesktop.org>,
-        intel-gfx@lists.freedesktop.org,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
-        stable@vger.kernel.org
+References: <20200714124113.20918-1-Sergey.Semin@baikalelectronics.ru>
+In-Reply-To: <20200714124113.20918-1-Sergey.Semin@baikalelectronics.ru>
+From:   Daniel Winkler <danielwinkler@google.com>
+Date:   Tue, 14 Jul 2020 13:45:01 -0700
+Message-ID: <CAP2xMbvwxYaGPPCDWY2LWUc2te8kS9t-+A0zieYp3RiGMJR6ng@mail.gmail.com>
+Subject: Re: [PATCH] serial: 8250_mtk: Fix high-speed baud rates clamping
+To:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Claire Chang <tientzu@google.com>,
+        Nicolas Boichat <drinkcat@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Aaron Sierra <asierra@xes-inc.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-serial@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        BlueZ <linux-bluetooth@vger.kernel.org>,
+        chromeos-bluetooth-upstreaming 
+        <chromeos-bluetooth-upstreaming@chromium.org>,
+        abhishekpandit@chromium.org, stable@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks for updating the patch. LGTM
+Thank you Sergey for looking into this. Adding folks working on this
+platform to perform validation of the proposed patch.
 
-On Tue, Jul 14, 2020 at 10:07 PM Chris Wilson <chris@chris-wilson.co.uk> wr=
-ote:
+Best,
+Daniel
+
+On Tue, Jul 14, 2020 at 5:41 AM Serge Semin
+<Sergey.Semin@baikalelectronics.ru> wrote:
 >
-> From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+> Commit 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250
+> port") fixed limits of a baud rate setting for a generic 8250 port.
+> In other words since that commit the baud rate has been permitted to be
+> within [uartclk / 16 / UART_DIV_MAX; uartclk / 16], which is absolutely
+> normal for a standard 8250 UART port. But there are custom 8250 ports,
+> which provide extended baud rate limits. In particular the Mediatek 8250
+> port can work with baud rates up to "uartclk" speed.
 >
-> Calltree:
->   timeline_fence_release
->   drm_sched_entity_wakeup
->   dma_fence_signal_locked
->   sync_timeline_signal
->   sw_sync_ioctl
+> Normally that and any other peculiarity is supposed to be handled in a
+> custom set_termios() callback implemented in the vendor-specific
+> 8250-port glue-driver. Currently that is how it's done for the most of
+> the vendor-specific 8250 ports, but for some reason for Mediatek a
+> solution has been spread out to both the glue-driver and to the generic
+> 8250-port code. Due to that a bug has been introduced, which permitted the
+> extended baud rate limit for all even for standard 8250-ports. The bug
+> has been fixed by the commit 7b668c064ec3 ("serial: 8250: Fix max baud
+> limit in generic 8250 port") by narrowing the baud rates limit back down to
+> the normal bounds. Unfortunately by doing so we also broke the
+> Mediatek-specific extended bauds feature.
 >
-> Releasing the reference to the fence in the fence signal callback
-> seems reasonable to me, so this patch avoids the locking issue in
-> sw_sync.
+> A fix of the problem described above is twofold. First since we can't get
+> back the extended baud rate limits feature to the generic set_termios()
+> function and that method supports only a standard baud rates range, the
+> requested baud rate must be locally stored before calling it and then
+> restored back to the new termios structure after the generic set_termios()
+> finished its magic business. By doing so we still use the
+> serial8250_do_set_termios() method to set the LCR/MCR/FCR/etc. registers,
+> while the extended baud rate setting procedure will be performed later in
+> the custom Mediatek-specific set_termios() callback. Second since a true
+> baud rate is now fully calculated in the custom set_termios() method we
+> need to locally update the port timeout by calling the
+> uart_update_timeout() function. After the fixes described above are
+> implemented in the 8250_mtk.c driver, the Mediatek 8250-port should
+> get back to normally working with extended baud rates.
 >
-> d3862e44daa7 ("dma-buf/sw-sync: Fix locking around sync_timeline lists")
-> fixed the recursive locking issue but caused an use-after-free. Later
-> d3c6dd1fb30d ("dma-buf/sw_sync: Synchronize signal vs syncpt free")
-> fixed the use-after-free but reintroduced the recursive locking issue.
+> Link: https://lore.kernel.org/linux-serial/20200701211337.3027448-1-danielwinkler@google.com
 >
-> In this attempt we avoid the use-after-free still because the release
-> function still always locks, and outside of the locking region in the
-> signal function we have properly refcounted references.
+> Fixes: 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250 port")
+> Reported-by: Daniel Winkler <danielwinkler@google.com>
+> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 >
-> We furthermore also avoid the recurive lock by making sure that either:
->
-> 1) We have a properly refcounted reference, preventing the signal from
->    triggering the release function inside the locked region.
-> 2) The refcount was already zero, and hence nobody will be able to trigge=
-r
->    the release function from the signal function.
->
-> v2: Move dma_fence_signal() into second loop in preparation to moving
-> the callback out of the timeline obj->lock.
->
-> Fixes: d3c6dd1fb30d ("dma-buf/sw_sync: Synchronize signal vs syncpt free"=
-)
-> Cc: Sumit Semwal <sumit.semwal@linaro.org>
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Gustavo Padovan <gustavo@padovan.org>
-> Cc: Christian K=C3=B6nig <christian.koenig@amd.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 > ---
->  drivers/dma-buf/sw_sync.c | 32 ++++++++++++++++++++++----------
->  1 file changed, 22 insertions(+), 10 deletions(-)
 >
-> diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
-> index 348b3a9170fa..807c82148062 100644
-> --- a/drivers/dma-buf/sw_sync.c
-> +++ b/drivers/dma-buf/sw_sync.c
-> @@ -192,6 +192,7 @@ static const struct dma_fence_ops timeline_fence_ops =
-=3D {
->  static void sync_timeline_signal(struct sync_timeline *obj, unsigned int=
- inc)
->  {
->         struct sync_pt *pt, *next;
-> +       LIST_HEAD(signal);
+> Folks, sorry for a delay with the problem fix. A solution is turned out to
+> be a bit more complicated than I originally thought in my comment to the
+> Daniel revert-patch.
 >
->         trace_sync_timeline(obj);
+> Please also note, that I don't have a Mediatek hardware to test the
+> solution suggested in the patch. The code is written as on so called
+> the tip of the pen after digging into the 8250_mtk.c and 8250_port.c
+> drivers code. So please Daniel or someone with Mediatek 8250-port
+> available on a board test this patch first and report about the results in
+> reply to this emailing thread. After that, if your conclusion is positive
+> and there is no objection against the solution design the patch can be
+> merged in.
 >
-> @@ -203,21 +204,32 @@ static void sync_timeline_signal(struct sync_timeli=
-ne *obj, unsigned int inc)
->                 if (!timeline_fence_signaled(&pt->base))
->                         break;
+> Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Cc: Daniel Winkler <danielwinkler@google.com>
+> Cc: Aaron Sierra <asierra@xes-inc.com>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Lukas Wunner <lukas@wunner.de>
+> Cc: Vignesh Raghavendra <vigneshr@ti.com>
+> Cc: linux-serial@vger.kernel.org
+> Cc: linux-mediatek@lists.infradead.org
+> Cc: BlueZ <linux-bluetooth@vger.kernel.org>
+> Cc: chromeos-bluetooth-upstreaming <chromeos-bluetooth-upstreaming@chromium.org>
+> Cc: abhishekpandit@chromium.org
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/tty/serial/8250/8250_mtk.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
 >
-> -               list_del_init(&pt->link);
-> -               rb_erase(&pt->node, &obj->pt_tree);
-> -
->                 /*
-> -                * A signal callback may release the last reference to th=
-is
-> -                * fence, causing it to be freed. That operation has to b=
-e
-> -                * last to avoid a use after free inside this loop, and m=
-ust
-> -                * be after we remove the fence from the timeline in orde=
-r to
-> -                * prevent deadlocking on timeline->lock inside
-> -                * timeline_fence_release().
-> +                * We need to take a reference to avoid a release during
-> +                * signalling (which can cause a recursive lock of obj->l=
-ock).
-> +                * If refcount was already zero, another thread is alread=
-y
-> +                * taking care of destroying the fence.
->                  */
-> -               dma_fence_signal_locked(&pt->base);
-> +               if (!dma_fence_get_rcu(&pt->base))
-> +                       continue;
-> +
-> +               list_move_tail(&pt->link, &signal);
-> +               rb_erase(&pt->node, &obj->pt_tree);
+> diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
+> index f839380c2f4c..98b8a3e30733 100644
+> --- a/drivers/tty/serial/8250/8250_mtk.c
+> +++ b/drivers/tty/serial/8250/8250_mtk.c
+> @@ -306,8 +306,21 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
 >         }
+>  #endif
 >
->         spin_unlock_irq(&obj->lock);
+> +       /*
+> +        * Store the requested baud rate before calling the generic 8250
+> +        * set_termios method. Standard 8250 port expects bauds to be
+> +        * no higher than (uartclk / 16) so the baud will be clamped if it
+> +        * gets out of that bound. Mediatek 8250 port supports speed
+> +        * higher than that, therefore we'll get original baud rate back
+> +        * after calling the generic set_termios method and recalculate
+> +        * the speed later in this method.
+> +        */
+> +       baud = tty_termios_baud_rate(termios);
 > +
-> +       list_for_each_entry_safe(pt, next, &signal, link) {
-> +               /*
-> +                * This needs to be cleared before release, otherwise the
-> +                * timeline_fence_release function gets confused about al=
-so
-> +                * removing the fence from the pt_tree.
-> +                */
-> +               list_del_init(&pt->link);
-> +
-> +               dma_fence_signal(&pt->base);
-> +               dma_fence_put(&pt->base);
-> +       }
->  }
+>         serial8250_do_set_termios(port, termios, old);
 >
->  /**
+> +       tty_termios_encode_baud_rate(termios, baud, baud);
+> +
+>         /*
+>          * Mediatek UARTs use an extra highspeed register (MTK_UART_HIGHS)
+>          *
+> @@ -339,6 +352,11 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
+>          */
+>         spin_lock_irqsave(&port->lock, flags);
+>
+> +       /*
+> +        * Update the per-port timeout.
+> +        */
+> +       uart_update_timeout(port, termios->c_cflag, baud);
+> +
+>         /* set DLAB we have cval saved in up->lcr from the call to the core */
+>         serial_port_out(port, UART_LCR, up->lcr | UART_LCR_DLAB);
+>         serial_dl_write(up, quot);
 > --
-> 2.20.1
+> 2.26.2
 >
