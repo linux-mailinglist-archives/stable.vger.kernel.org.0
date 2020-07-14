@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB96E21FA60
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FEF21FA62
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730031AbgGNSwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:52:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
+        id S1730448AbgGNSwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:52:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730448AbgGNSwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:52:01 -0400
+        id S1730476AbgGNSwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:52:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81E9922B45;
-        Tue, 14 Jul 2020 18:52:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2CF122B48;
+        Tue, 14 Jul 2020 18:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752721;
-        bh=2tzLPYymZ+SPgvAJBgfgZt5Grrz9/AAZo6OAnnOuI/4=;
+        s=default; t=1594752726;
+        bh=pqw5UfEYGYT8ol4RNywBnTNu1KP+OoGQYk4BTsvHyYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hB6+cK8THDBc35RyiSID8iX/RTTXvGyhnQ6MS7Gf4ihE9WSyFRoyvSQ5BK5694Jrw
-         q9fN8q6CdW3pMv87Qen+ZH2Je4eCDOzf9NAAozzwXX8ukgaqzpOQ3HV1EqOKofSXpF
-         dF5SBSPjtxjd7w/lYTDqrFsMkI7UscVlkMjMqMQY=
+        b=nBUJUNV5UMzefvehC/cW7s6dF+qatrRhF64/+MxaQWviF1UBMH5+qNbeGYuJwJrJB
+         ZTsLD9YTC33TrKPQUZ0B61l2bY+yWDo5ldOTyEQfY2OWqJ9An4AAq4P8onP+0UAIfO
+         zeMfviOkrZY/n9HFKypsbjnuzRCz7MajPM4f63YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 085/109] KVM: x86: Mark CR4.TSD as being possibly owned by the guest
-Date:   Tue, 14 Jul 2020 20:44:28 +0200
-Message-Id: <20200714184109.619867462@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 087/109] kallsyms: Refactor kallsyms_show_value() to take cred
+Date:   Tue, 14 Jul 2020 20:44:30 +0200
+Message-Id: <20200714184109.715957926@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
 References: <20200714184105.507384017@linuxfoundation.org>
@@ -44,53 +42,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 7c83d096aed055a7763a03384f92115363448b71 upstream.
+commit 160251842cd35a75edfb0a1d76afa3eb674ff40a upstream.
 
-Mark CR4.TSD as being possibly owned by the guest as that is indeed the
-case on VMX.  Without TSD being tagged as possibly owned by the guest, a
-targeted read of CR4 to get TSD could observe a stale value.  This bug
-is benign in the current code base as the sole consumer of TSD is the
-emulator (for RDTSC) and the emulator always "reads" the entirety of CR4
-when grabbing bits.
+In order to perform future tests against the cred saved during open(),
+switch kallsyms_show_value() to operate on a cred, and have all current
+callers pass current_cred(). This makes it very obvious where callers
+are checking the wrong credential in their "read" contexts. These will
+be fixed in the coming patches.
 
-Add a build-time assertion in to ensure VMX doesn't hand over more CR4
-bits without also updating x86.
+Additionally switch return value to bool, since it is always used as a
+direct permission check, not a 0-on-success, negative-on-error style
+function return.
 
-Fixes: 52ce3c21aec3 ("x86,kvm,vmx: Don't trap writes to CR4.TSD")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200703040422.31536-2-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/kvm_cache_regs.h |    2 +-
- arch/x86/kvm/vmx/vmx.c        |    2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ include/linux/filter.h   |    2 +-
+ include/linux/kallsyms.h |    5 +++--
+ kernel/kallsyms.c        |   17 +++++++++++------
+ kernel/kprobes.c         |    4 ++--
+ kernel/module.c          |    2 +-
+ 5 files changed, 18 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kvm/kvm_cache_regs.h
-+++ b/arch/x86/kvm/kvm_cache_regs.h
-@@ -7,7 +7,7 @@
- #define KVM_POSSIBLE_CR0_GUEST_BITS X86_CR0_TS
- #define KVM_POSSIBLE_CR4_GUEST_BITS				  \
- 	(X86_CR4_PVI | X86_CR4_DE | X86_CR4_PCE | X86_CR4_OSFXSR  \
--	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE)
-+	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE | X86_CR4_TSD)
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -858,7 +858,7 @@ static inline bool bpf_dump_raw_ok(void)
+ 	/* Reconstruction of call-sites is dependent on kallsyms,
+ 	 * thus make dump the same restriction.
+ 	 */
+-	return kallsyms_show_value() == 1;
++	return kallsyms_show_value(current_cred());
+ }
  
- #define BUILD_KVM_GPR_ACCESSORS(lname, uname)				      \
- static __always_inline unsigned long kvm_##lname##_read(struct kvm_vcpu *vcpu)\
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -3913,6 +3913,8 @@ void vmx_set_constant_host_state(struct
+ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
+--- a/include/linux/kallsyms.h
++++ b/include/linux/kallsyms.h
+@@ -18,6 +18,7 @@
+ #define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s]") + (KSYM_NAME_LEN - 1) + \
+ 			 2*(BITS_PER_LONG*3/10) + (MODULE_NAME_LEN - 1) + 1)
  
- void set_cr4_guest_host_mask(struct vcpu_vmx *vmx)
++struct cred;
+ struct module;
+ 
+ static inline int is_kernel_inittext(unsigned long addr)
+@@ -98,7 +99,7 @@ int lookup_symbol_name(unsigned long add
+ int lookup_symbol_attrs(unsigned long addr, unsigned long *size, unsigned long *offset, char *modname, char *name);
+ 
+ /* How and when do we show kallsyms values? */
+-extern int kallsyms_show_value(void);
++extern bool kallsyms_show_value(const struct cred *cred);
+ 
+ #else /* !CONFIG_KALLSYMS */
+ 
+@@ -158,7 +159,7 @@ static inline int lookup_symbol_attrs(un
+ 	return -ERANGE;
+ }
+ 
+-static inline int kallsyms_show_value(void)
++static inline bool kallsyms_show_value(const struct cred *cred)
  {
-+	BUILD_BUG_ON(KVM_CR4_GUEST_OWNED_BITS & ~KVM_POSSIBLE_CR4_GUEST_BITS);
-+
- 	vmx->vcpu.arch.cr4_guest_owned_bits = KVM_CR4_GUEST_OWNED_BITS;
- 	if (enable_ept)
- 		vmx->vcpu.arch.cr4_guest_owned_bits |= X86_CR4_PGE;
+ 	return false;
+ }
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -645,19 +645,20 @@ static inline int kallsyms_for_perf(void
+  * Otherwise, require CAP_SYSLOG (assuming kptr_restrict isn't set to
+  * block even that).
+  */
+-int kallsyms_show_value(void)
++bool kallsyms_show_value(const struct cred *cred)
+ {
+ 	switch (kptr_restrict) {
+ 	case 0:
+ 		if (kallsyms_for_perf())
+-			return 1;
++			return true;
+ 	/* fallthrough */
+ 	case 1:
+-		if (has_capability_noaudit(current, CAP_SYSLOG))
+-			return 1;
++		if (security_capable(cred, &init_user_ns, CAP_SYSLOG,
++				     CAP_OPT_NOAUDIT) == 0)
++			return true;
+ 	/* fallthrough */
+ 	default:
+-		return 0;
++		return false;
+ 	}
+ }
+ 
+@@ -674,7 +675,11 @@ static int kallsyms_open(struct inode *i
+ 		return -ENOMEM;
+ 	reset_iter(iter, 0);
+ 
+-	iter->show_value = kallsyms_show_value();
++	/*
++	 * Instead of checking this on every s_show() call, cache
++	 * the result here at open time.
++	 */
++	iter->show_value = kallsyms_show_value(file->f_cred);
+ 	return 0;
+ }
+ 
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2362,7 +2362,7 @@ static void report_probe(struct seq_file
+ 	else
+ 		kprobe_type = "k";
+ 
+-	if (!kallsyms_show_value())
++	if (!kallsyms_show_value(current_cred()))
+ 		addr = NULL;
+ 
+ 	if (sym)
+@@ -2463,7 +2463,7 @@ static int kprobe_blacklist_seq_show(str
+ 	 * If /proc/kallsyms is not showing kernel address, we won't
+ 	 * show them here either.
+ 	 */
+-	if (!kallsyms_show_value())
++	if (!kallsyms_show_value(current_cred()))
+ 		seq_printf(m, "0x%px-0x%px\t%ps\n", NULL, NULL,
+ 			   (void *)ent->start_addr);
+ 	else
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4391,7 +4391,7 @@ static int modules_open(struct inode *in
+ 
+ 	if (!err) {
+ 		struct seq_file *m = file->private_data;
+-		m->private = kallsyms_show_value() ? NULL : (void *)8ul;
++		m->private = kallsyms_show_value(current_cred()) ? NULL : (void *)8ul;
+ 	}
+ 
+ 	return err;
 
 
