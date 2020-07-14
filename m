@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7291121FC2F
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF98021FB8E
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbgGNSwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
+        id S1731157AbgGNS6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:58:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730499AbgGNSwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:52:17 -0400
+        id S1731163AbgGNS6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:58:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F422322B3B;
-        Tue, 14 Jul 2020 18:52:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DB3D22B4E;
+        Tue, 14 Jul 2020 18:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752736;
-        bh=WvFWIqFZYs9Y+7C0fZkiSnGm3JTsVbzTEgc8EmWWUkQ=;
+        s=default; t=1594753080;
+        bh=LEm6qLaFUGYEBOM3tsUktJ9zfuWVzPIUFUl8ws+gysI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3Fx9PCoY94ckGYeZTZJPKiR9E/AIFuEe5jfNlmftZh9h6/CCfRQqo7iUR6SxP9S8
-         +LHFgVnS6AHfA7+2TXTp8E+fGpjMR6EKLH1WKq7+0GmpWWhunIospdcFciolNd2whf
-         sRSS02WLV0DQUzAvCYgI1OgNbEaoto++jHz6r4Es=
+        b=b36bvhxj7hP5BrOMtV+kpt/oWUjvW2G/ymmXfTHq6cMwNnsM5ET84UMPX3Tkd9VUw
+         wTD0ByuxzzzdYhm1fsd4JLe1xWq7Jkzw6U/pHTZSal4CKKCh7leiU1Z3hN9DrtbymE
+         VHFgxGpBDqp7NvKJ788C+EDgY1bbHjiArHaCr+oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>, bpf@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 091/109] bpf: Check correct cred for CAP_SYSLOG in bpf_dump_raw_ok()
-Date:   Tue, 14 Jul 2020 20:44:34 +0200
-Message-Id: <20200714184109.905060703@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.7 111/166] ALSA: usb-audio: add quirk for MacroSilicon MS2109
+Date:   Tue, 14 Jul 2020 20:44:36 +0200
+Message-Id: <20200714184121.153270017@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,175 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Hector Martin <marcan@marcan.st>
 
-commit 63960260457a02af2a6cb35d75e6bdb17299c882 upstream.
+commit e337bf19f6af38d5c3fa6d06cd594e0f890ca1ac upstream.
 
-When evaluating access control over kallsyms visibility, credentials at
-open() time need to be used, not the "current" creds (though in BPF's
-case, this has likely always been the same). Plumb access to associated
-file->f_cred down through bpf_dump_raw_ok() and its callers now that
-kallsysm_show_value() has been refactored to take struct cred.
+These devices claim to be 96kHz mono, but actually are 48kHz stereo with
+swapped channels and unaligned transfers.
 
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: bpf@vger.kernel.org
 Cc: stable@vger.kernel.org
-Fixes: 7105e828c087 ("bpf: allow for correlation of maps and helpers in dump")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200702071433.237843-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/filter.h     |    4 ++--
- kernel/bpf/syscall.c       |   32 ++++++++++++++++++--------------
- net/core/sysctl_net_core.c |    2 +-
- 3 files changed, 21 insertions(+), 17 deletions(-)
+ sound/usb/quirks-table.h |   52 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -853,12 +853,12 @@ void bpf_jit_compile(struct bpf_prog *pr
- bool bpf_jit_needs_zext(void);
- bool bpf_helper_changes_pkt_data(void *func);
- 
--static inline bool bpf_dump_raw_ok(void)
-+static inline bool bpf_dump_raw_ok(const struct cred *cred)
- {
- 	/* Reconstruction of call-sites is dependent on kallsyms,
- 	 * thus make dump the same restriction.
- 	 */
--	return kallsyms_show_value(current_cred());
-+	return kallsyms_show_value(cred);
- }
- 
- struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2248,7 +2248,8 @@ static const struct bpf_map *bpf_map_fro
- 	return NULL;
- }
- 
--static struct bpf_insn *bpf_insn_prepare_dump(const struct bpf_prog *prog)
-+static struct bpf_insn *bpf_insn_prepare_dump(const struct bpf_prog *prog,
-+					      const struct cred *f_cred)
- {
- 	const struct bpf_map *map;
- 	struct bpf_insn *insns;
-@@ -2271,7 +2272,7 @@ static struct bpf_insn *bpf_insn_prepare
- 		    insns[i].code == (BPF_JMP | BPF_CALL_ARGS)) {
- 			if (insns[i].code == (BPF_JMP | BPF_CALL_ARGS))
- 				insns[i].code = BPF_JMP | BPF_CALL;
--			if (!bpf_dump_raw_ok())
-+			if (!bpf_dump_raw_ok(f_cred))
- 				insns[i].imm = 0;
- 			continue;
- 		}
-@@ -2323,7 +2324,8 @@ static int set_info_rec_size(struct bpf_
- 	return 0;
- }
- 
--static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
-+static int bpf_prog_get_info_by_fd(struct file *file,
-+				   struct bpf_prog *prog,
- 				   const union bpf_attr *attr,
- 				   union bpf_attr __user *uattr)
- {
-@@ -2392,11 +2394,11 @@ static int bpf_prog_get_info_by_fd(struc
- 		struct bpf_insn *insns_sanitized;
- 		bool fault;
- 
--		if (prog->blinded && !bpf_dump_raw_ok()) {
-+		if (prog->blinded && !bpf_dump_raw_ok(file->f_cred)) {
- 			info.xlated_prog_insns = 0;
- 			goto done;
- 		}
--		insns_sanitized = bpf_insn_prepare_dump(prog);
-+		insns_sanitized = bpf_insn_prepare_dump(prog, file->f_cred);
- 		if (!insns_sanitized)
- 			return -ENOMEM;
- 		uinsns = u64_to_user_ptr(info.xlated_prog_insns);
-@@ -2430,7 +2432,7 @@ static int bpf_prog_get_info_by_fd(struc
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3611,4 +3611,56 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* A
  	}
+ },
  
- 	if (info.jited_prog_len && ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			uinsns = u64_to_user_ptr(info.jited_prog_insns);
- 			ulen = min_t(u32, info.jited_prog_len, ulen);
- 
-@@ -2465,7 +2467,7 @@ static int bpf_prog_get_info_by_fd(struc
- 	ulen = info.nr_jited_ksyms;
- 	info.nr_jited_ksyms = prog->aux->func_cnt ? : 1;
- 	if (ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			unsigned long ksym_addr;
- 			u64 __user *user_ksyms;
- 			u32 i;
-@@ -2496,7 +2498,7 @@ static int bpf_prog_get_info_by_fd(struc
- 	ulen = info.nr_jited_func_lens;
- 	info.nr_jited_func_lens = prog->aux->func_cnt ? : 1;
- 	if (ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			u32 __user *user_lens;
- 			u32 func_len, i;
- 
-@@ -2553,7 +2555,7 @@ static int bpf_prog_get_info_by_fd(struc
- 	else
- 		info.nr_jited_line_info = 0;
- 	if (info.nr_jited_line_info && ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			__u64 __user *user_linfo;
- 			u32 i;
- 
-@@ -2599,7 +2601,8 @@ done:
- 	return 0;
- }
- 
--static int bpf_map_get_info_by_fd(struct bpf_map *map,
-+static int bpf_map_get_info_by_fd(struct file *file,
-+				  struct bpf_map *map,
- 				  const union bpf_attr *attr,
- 				  union bpf_attr __user *uattr)
- {
-@@ -2641,7 +2644,8 @@ static int bpf_map_get_info_by_fd(struct
- 	return 0;
- }
- 
--static int bpf_btf_get_info_by_fd(struct btf *btf,
-+static int bpf_btf_get_info_by_fd(struct file *file,
-+				  struct btf *btf,
- 				  const union bpf_attr *attr,
- 				  union bpf_attr __user *uattr)
- {
-@@ -2673,13 +2677,13 @@ static int bpf_obj_get_info_by_fd(const
- 		return -EBADFD;
- 
- 	if (f.file->f_op == &bpf_prog_fops)
--		err = bpf_prog_get_info_by_fd(f.file->private_data, attr,
-+		err = bpf_prog_get_info_by_fd(f.file, f.file->private_data, attr,
- 					      uattr);
- 	else if (f.file->f_op == &bpf_map_fops)
--		err = bpf_map_get_info_by_fd(f.file->private_data, attr,
-+		err = bpf_map_get_info_by_fd(f.file, f.file->private_data, attr,
- 					     uattr);
- 	else if (f.file->f_op == &btf_fops)
--		err = bpf_btf_get_info_by_fd(f.file->private_data, attr, uattr);
-+		err = bpf_btf_get_info_by_fd(f.file, f.file->private_data, attr, uattr);
- 	else
- 		err = -EINVAL;
- 
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -277,7 +277,7 @@ static int proc_dointvec_minmax_bpf_enab
- 	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
- 	if (write && !ret) {
- 		if (jit_enable < 2 ||
--		    (jit_enable == 2 && bpf_dump_raw_ok())) {
-+		    (jit_enable == 2 && bpf_dump_raw_ok(current_cred()))) {
- 			*(int *)table->data = jit_enable;
- 			if (jit_enable == 2)
- 				pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
++/*
++ * MacroSilicon MS2109 based HDMI capture cards
++ *
++ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
++ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
++ * they pretend to be 96kHz mono as a workaround for stereo being broken
++ * by that...
++ *
++ * They also have swapped L-R channels, but that's for userspace to deal
++ * with.
++ */
++{
++	USB_DEVICE(0x534d, 0x2109),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "MacroSilicon",
++		.product_name = "MS2109",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
++			},
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_MIXER,
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S16_LE,
++					.channels = 2,
++					.iface = 3,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.attributes = 0,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_CONTINUOUS,
++					.rate_min = 48000,
++					.rate_max = 48000,
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++
+ #undef USB_DEVICE_VENDOR_SPEC
 
 
