@@ -2,114 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3688921EB1E
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 10:16:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92FE21EBB1
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 10:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725816AbgGNIQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 04:16:36 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:56496 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725793AbgGNIQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 04:16:35 -0400
-Received: from 1.general.cking.uk.vpn ([10.172.193.212])
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <colin.king@canonical.com>)
-        id 1jvG77-0004zV-Oq; Tue, 14 Jul 2020 08:16:33 +0000
-Subject: Re: [PATCH] RISC-V: Double the stack size on rv64
-To:     Palmer Dabbelt <palmerdabbelt@google.com>, schwab@suse.de,
-        david.abdurachmanov@gmail.com, dvyukov@google.com
-Cc:     linux-riscv@lists.infradead.org, stable@vger.kernel.org
-References: <20200714011922.138617-1-palmerdabbelt@google.com>
-From:   Colin Ian King <colin.king@canonical.com>
-Autocrypt: addr=colin.king@canonical.com; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <bd9d97f6-13c8-2fc3-fe10-97129e2d24de@canonical.com>
-Date:   Tue, 14 Jul 2020 09:16:33 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1725905AbgGNIpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 04:45:30 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59387 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725820AbgGNIp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 04:45:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594716327;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=n8A2G5vizF7CgtfiIlPSYJUsYEYYmtXCXf3/59UQTo8=;
+        b=EaMLpP3bjE55uQfKI5jvkpGfWVJ6z6dA/5weLfgcykjAbLSkBdXj0J5zjIcts7KWfzUYnc
+        s1ffbm/reOkdbXo8iA/SWJyKOuYRZo30zp6cD1aWrEYgsrQ4seqcAVuA9s/NYX8Qr55zz3
+        itltdjbWXYi3Q+A7h7mVGPw0vUIlOU8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-16-4zJY8ipnOKOYCzZdj8YzBg-1; Tue, 14 Jul 2020 04:45:26 -0400
+X-MC-Unique: 4zJY8ipnOKOYCzZdj8YzBg-1
+Received: by mail-wm1-f69.google.com with SMTP id b13so2905134wme.9
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 01:45:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=n8A2G5vizF7CgtfiIlPSYJUsYEYYmtXCXf3/59UQTo8=;
+        b=o9C3iVkxsMSciw4edTIb8hUcY5YF1bkO5+byKDoQRCXZ1oTEpzzT96r3olz/NlGmP/
+         6oGYFAwDd4nOMpq2rWsMvdYf1yta2Q+85Hi7Mmloo2idq153QeFmPkLziF8wVk1d/KaL
+         JXtrbMOj314FuavjEpjMwZRT7MPb2IrxeULVIRYZvmmZ2+K/SWtAl8JLl2Mw/JGMCpwS
+         vLrZwXTte8Me1WVtyENDJTYZ6y+TX8oQw+3cGamd79ObP+X+g+wgWxsf7lv26QVk4IZa
+         WAuiy6f7d0OuOEGWq8NNm6j7bq/eOcYludPoI6ySVdOuk3rN6njUk2DssPtSiwxScZ7g
+         AARQ==
+X-Gm-Message-State: AOAM5330b/KC4jUcIXFGXgAbMQFB+ckzAXvS2QVfp6Zp70depcJ/X/L9
+        rkeD0UeZNBkEBCInfYcdDi27GI3FE9318jzmgn3X0QklY6AxuXxspvcnZmxbYHfBu7CWFdk0QUY
+        sQGBu5NEzA6KKwTiE
+X-Received: by 2002:a5d:55c9:: with SMTP id i9mr3810341wrw.404.1594716324857;
+        Tue, 14 Jul 2020 01:45:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw+aHKVdbP2Oys421PgxREy4EGx+JNbt1AzTEV/jQbfdeekPWnshfuJL9hywzi3Xa6CYgcomw==
+X-Received: by 2002:a5d:55c9:: with SMTP id i9mr3810320wrw.404.1594716324605;
+        Tue, 14 Jul 2020 01:45:24 -0700 (PDT)
+Received: from redhat.com (bzq-79-180-10-140.red.bezeqint.net. [79.180.10.140])
+        by smtp.gmail.com with ESMTPSA id z10sm28691186wrm.21.2020.07.14.01.45.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2020 01:45:23 -0700 (PDT)
+Date:   Tue, 14 Jul 2020 04:45:21 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Alexander Duyck <alexander.duyck@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
+Message-ID: <20200714044017-mutt-send-email-mst@kernel.org>
+References: <20200710113046.421366-1-mst@redhat.com>
+ <CAKgT0UeZN+mOWNhgiT0btZTyki3TPoj7pbqA+__GkCxoifPqeg@mail.gmail.com>
+ <20200712105926-mutt-send-email-mst@kernel.org>
+ <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200714011922.138617-1-palmerdabbelt@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14/07/2020 02:19, Palmer Dabbelt wrote:
-> This was suggested in the syzkaller thread as a fix for a bunch of issues.  It
-> seems in line with what other architectures are doing, and while I haven't
-> personally figured out how to reproduce the issues they seem believable enough
-> to just change it.
+On Mon, Jul 13, 2020 at 08:10:14AM -0700, Alexander Duyck wrote:
+> On Sun, Jul 12, 2020 at 8:10 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Jul 10, 2020 at 09:13:41AM -0700, Alexander Duyck wrote:
+> > > On Fri, Jul 10, 2020 at 4:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > Page reporting features were never supported by legacy hypervisors.
+> > > > Supporting them poses a problem: should we use native endian-ness (like
+> > > > current code assumes)? Or little endian-ness like the virtio spec says?
+> > > > Rather than try to figure out, and since results of
+> > > > incorrect endian-ness are dire, let's just block this configuration.
+> > > >
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >
+> > > So I am not sure about the patch description. In the case of page
+> > > poison and free page reporting I don't think we are defining anything
+> > > that doesn't already have a definition of how to use in legacy.
+> > > Specifically the virtio_balloon_config is already defined as having
+> > > all fields as little endian in legacy mode, and there is a definition
+> > > for all of the fields in a virtqueue and how they behave in legacy
+> > > mode.
+> > >
+> > > As far as I can see the only item that may be an issue is the command
+> > > ID being supplied via the virtqueue for free page hinting, which
+> > > appears to be in native endian-ness. Otherwise it would have fallen
+> > > into the same category since it is making use of virtio_balloon_config
+> > > and a virtqueue for supplying the page location and length.
+> >
+> >
+> >
+> > So as you point out correctly balloon spec says all fields are little
+> > endian.  Fair enough.
+> > Problem is when virtio 1 is not negotiated, then this is not what the
+> > driver assumes for any except a handlful of fields.
+> >
+> > But yes it mostly works out.
+> >
+> > For example:
+> >
+> >
+> > static void update_balloon_size(struct virtio_balloon *vb)
+> > {
+> >         u32 actual = vb->num_pages;
+> >
+> >         /* Legacy balloon config space is LE, unlike all other devices. */
+> >         if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
+> >                 actual = (__force u32)cpu_to_le32(actual);
+> >
+> >         virtio_cwrite(vb->vdev, struct virtio_balloon_config, actual,
+> >                       &actual);
+> > }
+> >
+> >
+> > this is LE even without VIRTIO_F_VERSION_1, so matches spec.
+> >
+> >                 /* Start with poison val of 0 representing general init */
+> >                 __u32 poison_val = 0;
+> >
+> >                 /*
+> >                  * Let the hypervisor know that we are expecting a
+> >                  * specific value to be written back in balloon pages.
+> >                  */
+> >                 if (!want_init_on_free())
+> >                         memset(&poison_val, PAGE_POISON, sizeof(poison_val));
+> >
+> >                 virtio_cwrite(vb->vdev, struct virtio_balloon_config,
+> >                               poison_val, &poison_val);
+> >
+> >
+> > actually this writes a native endian-ness value. All bytes happen to be
+> > the same though, and host only cares about 0 or non 0 ATM.
 > 
-> Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-> ---
-> I've put this on fixes as I don't see a patch from anyone on that thread, and
-> it seems straight-forward enough to just do it.  If there's any issues I'm
-> happy to listen, otherwise this is going up later this week.
-> ---
->  arch/riscv/include/asm/thread_info.h | 4 ++++
->  1 file changed, 4 insertions(+)
+> So we are safe assuming it is a repeating value, but for correctness
+> maybe we should make certain to cast this as a le32 value. I can
+> submit a patch to do that.
+
+Thanks! But not yet - I am poking at the endian-ness things right now!
+
+> > As you say correctly the command id is actually assumed native endian:
+> >
+> >
+> > static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
+> > {
+> >         if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> >                                &vb->config_read_bitmap))
+> >                 virtio_cread(vb->vdev, struct virtio_balloon_config,
+> >                              free_page_hint_cmd_id,
+> >                              &vb->cmd_id_received_cache);
+> >
+> >         return vb->cmd_id_received_cache;
+> > }
+> >
+> >
+> > So guest assumes native, host assumes LE.
 > 
-> diff --git a/arch/riscv/include/asm/thread_info.h b/arch/riscv/include/asm/thread_info.h
-> index 1dd12a0cbb2b..2026076b1d30 100644
-> --- a/arch/riscv/include/asm/thread_info.h
-> +++ b/arch/riscv/include/asm/thread_info.h
-> @@ -12,7 +12,11 @@
->  #include <linux/const.h>
->  
->  /* thread information allocation */
-> +#if defined(CONFIG_32BIT)
->  #define THREAD_SIZE_ORDER	(1)
-> +#elif defined(CONFIG_64BIT)
-> +#define THREAD_SIZE_ORDER   (2)
-> +#endif
->  #define THREAD_SIZE		(PAGE_SIZE << THREAD_SIZE_ORDER)
->  
->  #ifndef __ASSEMBLY__
+> This wasn't even the one I was talking about, but now that you point
+> it out this is definately bug. The command ID I was talking about was
+> the one being passed via the descriptor ring. That one I believe is
+> native on both sides.
+
+Well qemu swaps it for modern devices:
+
+        virtio_tswap32s(vdev, &id);
+
+guest swaps it too:
+        vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
+                                        virtio_balloon_cmd_id_received(vb));
+        sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
+        err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
+
+So it's native for legacy.
+
+
+
+> >
+> >
+> >
+> > > > ---
+> > > >  drivers/virtio/virtio_balloon.c | 9 +++++++++
+> > > >  1 file changed, 9 insertions(+)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > > index 5d4b891bf84f..b9bc03345157 100644
+> > > > --- a/drivers/virtio/virtio_balloon.c
+> > > > +++ b/drivers/virtio/virtio_balloon.c
+> > > > @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> > > >
+> > > >  static int virtballoon_validate(struct virtio_device *vdev)
+> > > >  {
+> > > > +       /*
+> > > > +        * Legacy devices never specified how modern features should behave.
+> > > > +        * E.g. which endian-ness to use? Better not to assume anything.
+> > > > +        */
+> > > > +       if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
+> > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> > > > +       }
+> > > >         /*
+> > > >          * Inform the hypervisor that our pages are poisoned or
+> > > >          * initialized. If we cannot do that then we should disable
+> > >
+> > > The patch content itself I am fine with since odds are nobody would
+> > > expect to use these features with a legacy device.
+> > >
+> > > Acked-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> >
+> > Hmm so now you pointed out it's just cmd id, maybe I should just fix it
+> > instead? what do you say?
 > 
-FWIW, this fixes a gcov issue I was seeing.
+> So the config issues are bugs, but I don't think you saw the one I was
+> talking about. In the function send_cmd_id_start the cmd_id_active
+> value which is initialized as a virtio32 is added as a sg entry and
+> then sent as an outbuf to the device. I'm assuming virtio32 is a host
+> native byte ordering.
+
+IIUC it isn't :) virtio32 is guest native if device is legacy, and LE if
+device is modern.
+
+-- 
+MST
+
