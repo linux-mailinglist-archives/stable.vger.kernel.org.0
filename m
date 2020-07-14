@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8179521FC22
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 195EE21FC06
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730175AbgGNSxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50016 "EHLO mail.kernel.org"
+        id S1730678AbgGNTGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:06:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730156AbgGNSxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:53:04 -0400
+        id S1730618AbgGNSx0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:53:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3155022BED;
-        Tue, 14 Jul 2020 18:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD89B22B3A;
+        Tue, 14 Jul 2020 18:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752783;
-        bh=t38cKROaW5bZm5m83DpUpizQxSlDQDkFXo+98nVCCqs=;
+        s=default; t=1594752806;
+        bh=QMg3t7v4m+X0ZUi5wRxz4kW2zgxCcrXARq5pJ5mrBuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtFTcZW8LiNux8IypoXf3IoZCG+LSRHkHccxhsF0C5m6gVn5QXzqMx4hKIhGJv02K
-         yecpSsxN2Jw+R9EPSE3J6vM6nLo6UxgHHVTm5Wwf3dTn7B1Lm0qw7lZdTsL7apExKO
-         n6u5tcimALMm8gR6vRlQtnl5WKRo9gzcyIB56vK0=
+        b=T1FsQWB5+uvgRaZ7Co39xZj81n9cMvQFMG9yPYjrb/0DUKZbYvEvObKnwiV86T8rJ
+         Vc6gEKTyucIzHmNXGtDdUze1fO+9VBuOFOoqADeeQVjxjPyUV96rHDk2oIzk2pkCJd
+         eOp38lJ0WwRcexEaJr7sHeR6CsQY2cEpkPWSMaJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 107/109] perf scripts python: exported-sql-viewer.py: Fix zero id in call tree Find result
-Date:   Tue, 14 Jul 2020 20:44:50 +0200
-Message-Id: <20200714184110.688231384@linuxfoundation.org>
+Subject: [PATCH 5.4 108/109] perf scripts python: exported-sql-viewer.py: Fix unexpanded Find result
+Date:   Tue, 14 Jul 2020 20:44:51 +0200
+Message-Id: <20200714184110.734736570@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
 References: <20200714184105.507384017@linuxfoundation.org>
@@ -46,56 +46,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 031c8d5edb1ddeb6d398f7942ce2a01a1a51ada9 upstream.
+commit 3a3cf7c570a486b07d9a6e68a77548aea6a8421f upstream.
 
-Using ctrl-F ('Find') would not find 'unknown' because it matches id
-zero.  Fix by excluding id zero from selection.
+Using Python version 3.8.2 and PySide2 version 5.14.0, ctrl-F ('Find')
+would not expand the tree to the result. Fix by using setExpanded().
 
 Example:
 
-   $ perf record -e intel_pt//u uname
-   Linux
-   [ perf record: Woken up 1 times to write data ]
-   [ perf record: Captured and wrote 0.034 MB perf.data ]
-   $ perf script --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py perf.data.db branches calls
-   2020-06-26 15:32:14.928997 Creating database ...
-   2020-06-26 15:32:14.933971 Writing records...
-   2020-06-26 15:32:15.535251 Adding indexes
-   2020-06-26 15:32:15.542993 Dropping unused tables
-   2020-06-26 15:32:15.549716 Done
-   $ python3 ~/libexec/perf-core/scripts/python/exported-sql-viewer.py perf.data.db
+  $ perf record -e intel_pt//u uname
+  Linux
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.034 MB perf.data ]
+  $ perf script --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py perf.data.db branches calls
+  2020-06-26 15:32:14.928997 Creating database ...
+  2020-06-26 15:32:14.933971 Writing records...
+  2020-06-26 15:32:15.535251 Adding indexes
+  2020-06-26 15:32:15.542993 Dropping unused tables
+  2020-06-26 15:32:15.549716 Done
+  $ python3 ~/libexec/perf-core/scripts/python/exported-sql-viewer.py perf.data.db
 
-   Select: Reports -> Call Tree
-   Press: Ctrl-F
-   Enter: unknown
-   Press: Enter
+  Select: Reports -> Context-Sensitive Call Graph    or     Reports -> Call Tree
+  Press: Ctrl-F
+  Enter: main
+  Press: Enter
 
-Before: displays 'unknown' not found
-After: tree is expanded to line showing 'unknown'
+Before: line showing 'main' does not display
 
-Fixes: ae8b887c00d3f ("perf scripts python: exported-sql-viewer.py: Add call tree")
+After: tree is expanded to line showing 'main'
+
+Fixes: ebd70c7dc2f5f ("perf scripts python: exported-sql-viewer.py: Add ability to find symbols in the call-graph")
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200629091955.17090-6-adrian.hunter@intel.com
+Link: http://lore.kernel.org/lkml/20200629091955.17090-4-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/scripts/python/exported-sql-viewer.py |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/scripts/python/exported-sql-viewer.py |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/tools/perf/scripts/python/exported-sql-viewer.py
 +++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -951,7 +951,8 @@ class CallTreeModel(CallGraphModelBase):
- 						" FROM calls"
- 						" INNER JOIN call_paths ON calls.call_path_id = call_paths.id"
- 						" INNER JOIN symbols ON call_paths.symbol_id = symbols.id"
--						" WHERE symbols.name" + match +
-+						" WHERE calls.id <> 0"
-+						" AND symbols.name" + match +
- 						" ORDER BY comm_id, thread_id, call_time, calls.id")
- 
- 	def FindPath(self, query):
+@@ -1018,6 +1018,7 @@ class TreeWindowBase(QMdiSubWindow):
+ 				child = self.model.index(row, 0, parent)
+ 				if child.internalPointer().dbid == dbid:
+ 					found = True
++					self.view.setExpanded(parent, True)
+ 					self.view.setCurrentIndex(child)
+ 					parent = child
+ 					break
 
 
