@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EE821FA71
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7054821FB0F
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730551AbgGNSwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
+        id S1731199AbgGNS6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:58:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730547AbgGNSwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:52:40 -0400
+        id S1731196AbgGNS6Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:58:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81CC422B3B;
-        Tue, 14 Jul 2020 18:52:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 369AC22507;
+        Tue, 14 Jul 2020 18:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752760;
-        bh=RFeeKoui4KBDzdL8DbDuYvj3wRJoymkA9Cz7r5lf/L8=;
+        s=default; t=1594753095;
+        bh=++xeluKFGWT+3/SC5dEdlfa+Jt6oboYeozUTFtyjtvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OVEyou0OlQG7DJDiwgRVy3jqGwIBiY/bQu/tyekllcxJMYGkKCJ2PXBU0bo3QxlGd
-         QExxr7ryXU3yOORnHzXXNhD7ZXkKibcHCa3AAi66oGp6INuLcWvOac46N207WbAE6J
-         rOt4IcJd1ItdwXOX55cQtgavxZ02rggzMXklLFxo=
+        b=SZsUbfEFvpFlv00zet0m/n+kt0oWL1/OXcMfipUTJAOujO7NEKm+f+eadyI3oRZ7U
+         xR7o9ceb7FdpDHuXbPQl2QjcEgqF8Cncq5gYx7LK7yJbExpQhSWseqFHFoy0AohbKo
+         lJc0Hu81UO/oAnZZie6BeKuQGLNVHZU+VA3NVtlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.4 099/109] ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.7 117/166] KVM: arm64: Fix definition of PAGE_HYP_DEVICE
 Date:   Tue, 14 Jul 2020 20:44:42 +0200
-Message-Id: <20200714184110.300014744@linuxfoundation.org>
+Message-Id: <20200714184121.436937711@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,81 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Will Deacon <will@kernel.org>
 
-commit 00fdec98d9881bf5173af09aebd353ab3b9ac729 upstream.
+commit 68cf617309b5f6f3a651165f49f20af1494753ae upstream.
 
-Trap handler for syscall tracing reads EFA (Exception Fault Address),
-in case strace wants PC of trap instruction (EFA is not part of pt_regs
-as of current code).
+PAGE_HYP_DEVICE is intended to encode attribute bits for an EL2 stage-1
+pte mapping a device. Unfortunately, it includes PROT_DEVICE_nGnRE which
+encodes attributes for EL1 stage-1 mappings such as UXN and nG, which are
+RES0 for EL2, and DBM which is meaningless as TCR_EL2.HD is not set.
 
-However this EFA read is racy as it happens after dropping to pure
-kernel mode (re-enabling interrupts). A taken interrupt could
-context-switch, trigger a different task's trap, clobbering EFA for this
-execution context.
+Fix the definition of PAGE_HYP_DEVICE so that it doesn't set RES0 bits
+at EL2.
 
-Fix this by reading EFA early, before re-enabling interrupts. A slight
-side benefit is de-duplication of FAKE_RET_FROM_EXCPN in trap handler.
-The trap handler is common to both ARCompact and ARCv2 builds too.
-
-This just came out of code rework/review and no real problem was reported
-but is clearly a potential problem specially for strace.
-
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Link: https://lore.kernel.org/r/20200708162546.26176-1-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/entry.S |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ arch/arm64/include/asm/pgtable-prot.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -153,7 +153,6 @@ END(EV_Extension)
- tracesys:
- 	; save EFA in case tracer wants the PC of traced task
- 	; using ERET won't work since next-PC has already committed
--	lr  r12, [efa]
- 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
- 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -56,7 +56,7 @@ extern bool arm64_use_ng_mappings;
+ #define PAGE_HYP		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_HYP_XN)
+ #define PAGE_HYP_EXEC		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY)
+ #define PAGE_HYP_RO		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY | PTE_HYP_XN)
+-#define PAGE_HYP_DEVICE		__pgprot(PROT_DEVICE_nGnRE | PTE_HYP)
++#define PAGE_HYP_DEVICE		__pgprot(_PROT_DEFAULT | PTE_ATTRINDX(MT_DEVICE_nGnRE) | PTE_HYP | PTE_HYP_XN)
  
-@@ -196,15 +195,9 @@ tracesys_exit:
- ; Breakpoint TRAP
- ; ---------------------------------------------
- trap_with_param:
--
--	; stop_pc info by gdb needs this info
--	lr  r0, [efa]
-+	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
- 	mov r1, sp
- 
--	; Now that we have read EFA, it is safe to do "fake" rtie
--	;   and get out of CPU exception mode
--	FAKE_RET_FROM_EXCPN
--
- 	; Save callee regs in case gdb wants to have a look
- 	; SP will grow up by size of CALLEE Reg-File
- 	; NOTE: clobbers r12
-@@ -231,6 +224,10 @@ ENTRY(EV_Trap)
- 
- 	EXCEPTION_PROLOGUE
- 
-+	lr  r12, [efa]
-+
-+	FAKE_RET_FROM_EXCPN
-+
- 	;============ TRAP 1   :breakpoints
- 	; Check ECR for trap with arg (PROLOGUE ensures r10 has ECR)
- 	bmsk.f 0, r10, 7
-@@ -238,9 +235,6 @@ ENTRY(EV_Trap)
- 
- 	;============ TRAP  (no param): syscall top level
- 
--	; First return from Exception to pure K mode (Exception/IRQs renabled)
--	FAKE_RET_FROM_EXCPN
--
- 	; If syscall tracing ongoing, invoke pre-post-hooks
- 	GET_CURR_THR_INFO_FLAGS   r10
- 	btst r10, TIF_SYSCALL_TRACE
+ #define PAGE_S2_MEMATTR(attr)						\
+ 	({								\
 
 
