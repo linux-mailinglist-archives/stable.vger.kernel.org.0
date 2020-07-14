@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F3921FA5C
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1877D21FAF2
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729994AbgGNSv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48494 "EHLO mail.kernel.org"
+        id S1731016AbgGNS5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730020AbgGNSv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:57 -0400
+        id S1729318AbgGNS5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:57:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B25022B48;
-        Tue, 14 Jul 2020 18:51:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02FBA229CA;
+        Tue, 14 Jul 2020 18:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752716;
-        bh=/i/L+QXEIyiTeQwGZtEm3vN+93SIRsNOgz5dGm0N9jg=;
+        s=default; t=1594753026;
+        bh=wqptHnyF7gsRI9DuHpbCABRUvEkXmAG+YMAyR2V0VCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGvskTe9NnOhiZqYPuypxNZXYgz5GG3Knc719Opw4bPW2O3ToR/KIo6W/hLLIh2Qq
-         xcKumh++rlgrlhAZAuECTuzsZG1f1nDevwGMnEQ/ghSGF6fC2bTPF0V/xDC3dWaZYT
-         G/qh3h9wC6n5ENkgn3Xq8p6ys4fnh4t91T0ux3gE=
+        b=oxGR9GF8K2FY8ik7gfiNWtRpdE7nWGOUqfxQaGwYvKfNZiq8y0hshY8j05x8tOH+n
+         WrgHhxzhZoQldYQ+bE76Jcwv45v5K68S+TqkI5hqdCnD+tMb+RE8wymefGxJpLPiDK
+         561mwPm8FunttUeFt1OFhSnWgf6q1Un4ZojPvlUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot <syzkaller@googlegroups.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/109] netfilter: ipset: call ip_set_free() instead of kfree()
-Date:   Tue, 14 Jul 2020 20:43:45 +0200
-Message-Id: <20200714184107.535209568@linuxfoundation.org>
+Subject: [PATCH 5.7 061/166] netfilter: ipset: call ip_set_free() instead of kfree()
+Date:   Tue, 14 Jul 2020 20:43:46 +0200
+Message-Id: <20200714184118.795634241@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -111,10 +111,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  4 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/net/netfilter/ipset/ip_set_bitmap_ip.c b/net/netfilter/ipset/ip_set_bitmap_ip.c
-index d934384f31ad6..6e3cf4d19ce88 100644
+index 486959f70cf31..a8ce04a4bb72a 100644
 --- a/net/netfilter/ipset/ip_set_bitmap_ip.c
 +++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
-@@ -314,7 +314,7 @@ bitmap_ip_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
+@@ -326,7 +326,7 @@ bitmap_ip_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
  	set->variant = &bitmap_ip;
  	if (!init_map_ip(set, map, first_ip, last_ip,
  			 elements, hosts, netmask)) {
@@ -124,7 +124,7 @@ index d934384f31ad6..6e3cf4d19ce88 100644
  	}
  	if (tb[IPSET_ATTR_TIMEOUT]) {
 diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-index e8532783b43aa..ae7cdc0d0f29a 100644
+index 2310a316e0aff..2c625e0f49ec0 100644
 --- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
 +++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
 @@ -363,7 +363,7 @@ bitmap_ipmac_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
@@ -137,10 +137,10 @@ index e8532783b43aa..ae7cdc0d0f29a 100644
  	}
  	if (tb[IPSET_ATTR_TIMEOUT]) {
 diff --git a/net/netfilter/ipset/ip_set_bitmap_port.c b/net/netfilter/ipset/ip_set_bitmap_port.c
-index e3ac914fff1a5..d4a14750f5c42 100644
+index e56ced66f202d..7138e080def4c 100644
 --- a/net/netfilter/ipset/ip_set_bitmap_port.c
 +++ b/net/netfilter/ipset/ip_set_bitmap_port.c
-@@ -247,7 +247,7 @@ bitmap_port_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
+@@ -274,7 +274,7 @@ bitmap_port_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
  	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
  	set->variant = &bitmap_port;
  	if (!init_map_port(set, map, first_port, last_port)) {
@@ -150,7 +150,7 @@ index e3ac914fff1a5..d4a14750f5c42 100644
  	}
  	if (tb[IPSET_ATTR_TIMEOUT]) {
 diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index 2389c9f89e481..a7a982a3e6761 100644
+index 1ee43752d6d3c..521e970be4028 100644
 --- a/net/netfilter/ipset/ip_set_hash_gen.h
 +++ b/net/netfilter/ipset/ip_set_hash_gen.h
 @@ -682,7 +682,7 @@ mtype_resize(struct ip_set *set, bool retried)
