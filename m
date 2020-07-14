@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C1121FBD0
+	by mail.lfdr.de (Postfix) with ESMTP id 316B621FBCF
 	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731089AbgGNTEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
+        id S1730717AbgGNTEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:04:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730934AbgGNS4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:56:00 -0400
+        id S1729869AbgGNS4C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:56:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A276229CA;
-        Tue, 14 Jul 2020 18:55:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3F8A22A99;
+        Tue, 14 Jul 2020 18:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752959;
-        bh=tq0ZgPpb1UjGyzLqz8Drb8E6aQgtxe36pAXvAlHP1pc=;
+        s=default; t=1594752962;
+        bh=WnLnhBxYGBLSoBRAFDvZl2ayQFZ5L0B/uZa6I0SALS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B54VyKLclmrqTmWe2Pr4pF0N5csPeNS2iFgv2GQomSnIQZyd2QFzk+wRspYXf+xgR
-         /cq6mpdu0CwKFPGw3b54kHII2UpcYmcPhBHnVBHVvlzKwk/hW25RcCvxoL4KImvDJD
-         VLo8Uk8XCDkxxChD5pv9FXXHe2MrnFYq2Sf85qrY=
+        b=ghf0kZ2NGGdBA5nVfjk2NUYOIpmu+Y3cBNyRYF1MoEqnlBuhuuMJ5/rsmKfxi9EaY
+         zUpZ7smNXrSk45ml7I+rpaH9KaYj+6HuJ6cRnGNWpIr/kxDnE3lAdDJlwk55EpFF/d
+         W2DUjQDzFwNX87Q8uL8QcociIvHI2JilF4L0Fw2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
+        stable@vger.kernel.org, Divya Indi <divya.indi@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 066/166] drm/meson: viu: fix setting the OSD burst length in VIU_OSD1_FIFO_CTRL_STAT
-Date:   Tue, 14 Jul 2020 20:43:51 +0200
-Message-Id: <20200714184119.025517936@linuxfoundation.org>
+Subject: [PATCH 5.7 067/166] IB/sa: Resolv use-after-free in ib_nl_make_request()
+Date:   Tue, 14 Jul 2020 20:43:52 +0200
+Message-Id: <20200714184119.074467596@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -46,87 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Divya Indi <divya.indi@oracle.com>
 
-[ Upstream commit 17f64701ea6f541db7eb5d7423a830cb929b3052 ]
+[ Upstream commit f427f4d6214c183c474eeb46212d38e6c7223d6a ]
 
-The burst length is configured in VIU_OSD1_FIFO_CTRL_STAT[31] and
-VIU_OSD1_FIFO_CTRL_STAT[11:10]. The public S905D3 datasheet describes
-this as:
-- 0x0 = up to 24 per burst
-- 0x1 = up to 32 per burst
-- 0x2 = up to 48 per burst
-- 0x3 = up to 64 per burst
-- 0x4 = up to 96 per burst
-- 0x5 = up to 128 per burst
+There is a race condition where ib_nl_make_request() inserts the request
+data into the linked list but the timer in ib_nl_request_timeout() can see
+it and destroy it before ib_nl_send_msg() is done touching it. This could
+happen, for instance, if there is a long delay allocating memory during
+nlmsg_new()
 
-The lower two bits map to VIU_OSD1_FIFO_CTRL_STAT[11:10] while the upper
-bit maps to VIU_OSD1_FIFO_CTRL_STAT[31].
+This causes a use-after-free in the send_mad() thread:
 
-Replace meson_viu_osd_burst_length_reg() with pre-defined macros which
-set these values. meson_viu_osd_burst_length_reg() always returned 0
-(for the two used values: 32 and 64 at least) and thus incorrectly set
-the burst size to 24.
+  [<ffffffffa02f43cb>] ? ib_pack+0x17b/0x240 [ib_core]
+  [ <ffffffffa032aef1>] ib_sa_path_rec_get+0x181/0x200 [ib_sa]
+  [<ffffffffa0379db0>] rdma_resolve_route+0x3c0/0x8d0 [rdma_cm]
+  [<ffffffffa0374450>] ? cma_bind_port+0xa0/0xa0 [rdma_cm]
+  [<ffffffffa040f850>] ? rds_rdma_cm_event_handler_cmn+0x850/0x850 [rds_rdma]
+  [<ffffffffa040f22c>] rds_rdma_cm_event_handler_cmn+0x22c/0x850 [rds_rdma]
+  [<ffffffffa040f860>] rds_rdma_cm_event_handler+0x10/0x20 [rds_rdma]
+  [<ffffffffa037778e>] addr_handler+0x9e/0x140 [rdma_cm]
+  [<ffffffffa026cdb4>] process_req+0x134/0x190 [ib_addr]
+  [<ffffffff810a02f9>] process_one_work+0x169/0x4a0
+  [<ffffffff810a0b2b>] worker_thread+0x5b/0x560
+  [<ffffffff810a0ad0>] ? flush_delayed_work+0x50/0x50
+  [<ffffffff810a68fb>] kthread+0xcb/0xf0
+  [<ffffffff816ec49a>] ? __schedule+0x24a/0x810
+  [<ffffffff816ec49a>] ? __schedule+0x24a/0x810
+  [<ffffffff810a6830>] ? kthread_create_on_node+0x180/0x180
+  [<ffffffff816f25a7>] ret_from_fork+0x47/0x90
+  [<ffffffff810a6830>] ? kthread_create_on_node+0x180/0x180
 
-Fixes: 147ae1cbaa1842 ("drm: meson: viu: use proper macros instead of magic constants")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Christian Hewitt <christianshewitt@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200620155752.21065-1-martin.blumenstingl@googlemail.com
+The ownership rule is once the request is on the list, ownership transfers
+to the list and the local thread can't touch it any more, just like for
+the normal MAD case in send_mad().
+
+Thus, instead of adding before send and then trying to delete after on
+errors, move the entire thing under the spinlock so that the send and
+update of the lists are atomic to the conurrent threads. Lightly reoganize
+things so spinlock safe memory allocations are done in the final NL send
+path and the rest of the setup work is done before and outside the lock.
+
+Fixes: 3ebd2fd0d011 ("IB/sa: Put netlink request into the request list before sending")
+Link: https://lore.kernel.org/r/1592964789-14533-1-git-send-email-divya.indi@oracle.com
+Signed-off-by: Divya Indi <divya.indi@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_registers.h |  6 ++++++
- drivers/gpu/drm/meson/meson_viu.c       | 11 ++---------
- 2 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/infiniband/core/sa_query.c | 38 +++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_registers.h b/drivers/gpu/drm/meson/meson_registers.h
-index 8ea00546cd4e2..049c4bfe2a3ae 100644
---- a/drivers/gpu/drm/meson/meson_registers.h
-+++ b/drivers/gpu/drm/meson/meson_registers.h
-@@ -261,6 +261,12 @@
- #define VIU_OSD_FIFO_DEPTH_VAL(val)      ((val & 0x7f) << 12)
- #define VIU_OSD_WORDS_PER_BURST(words)   (((words & 0x4) >> 1) << 22)
- #define VIU_OSD_FIFO_LIMITS(size)        ((size & 0xf) << 24)
-+#define VIU_OSD_BURST_LENGTH_24          (0x0 << 31 | 0x0 << 10)
-+#define VIU_OSD_BURST_LENGTH_32          (0x0 << 31 | 0x1 << 10)
-+#define VIU_OSD_BURST_LENGTH_48          (0x0 << 31 | 0x2 << 10)
-+#define VIU_OSD_BURST_LENGTH_64          (0x0 << 31 | 0x3 << 10)
-+#define VIU_OSD_BURST_LENGTH_96          (0x1 << 31 | 0x0 << 10)
-+#define VIU_OSD_BURST_LENGTH_128         (0x1 << 31 | 0x1 << 10)
- 
- #define VD1_IF0_GEN_REG 0x1a50
- #define VD1_IF0_CANVAS0 0x1a51
-diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
-index 304f8ff1339cb..aede0c67a57f0 100644
---- a/drivers/gpu/drm/meson/meson_viu.c
-+++ b/drivers/gpu/drm/meson/meson_viu.c
-@@ -411,13 +411,6 @@ void meson_viu_gxm_disable_osd1_afbc(struct meson_drm *priv)
- 			    priv->io_base + _REG(VIU_MISC_CTRL1));
+diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
+index 74e0058fcf9e1..0c14ab2244d47 100644
+--- a/drivers/infiniband/core/sa_query.c
++++ b/drivers/infiniband/core/sa_query.c
+@@ -829,13 +829,20 @@ static int ib_nl_get_path_rec_attrs_len(ib_sa_comp_mask comp_mask)
+ 	return len;
  }
  
--static inline uint32_t meson_viu_osd_burst_length_reg(uint32_t length)
--{
--	uint32_t val = (((length & 0x80) % 24) / 12);
--
--	return (((val & 0x3) << 10) | (((val & 0x4) >> 2) << 31));
--}
--
- void meson_viu_init(struct meson_drm *priv)
+-static int ib_nl_send_msg(struct ib_sa_query *query, gfp_t gfp_mask)
++static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
  {
- 	uint32_t reg;
-@@ -444,9 +437,9 @@ void meson_viu_init(struct meson_drm *priv)
- 		VIU_OSD_FIFO_LIMITS(2);      /* fifo_lim: 2*16=32 */
+ 	struct sk_buff *skb = NULL;
+ 	struct nlmsghdr *nlh;
+ 	void *data;
+ 	struct ib_sa_mad *mad;
+ 	int len;
++	unsigned long flags;
++	unsigned long delay;
++	gfp_t gfp_flag;
++	int ret;
++
++	INIT_LIST_HEAD(&query->list);
++	query->seq = (u32)atomic_inc_return(&ib_nl_sa_request_seq);
  
- 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
--		reg |= meson_viu_osd_burst_length_reg(32);
-+		reg |= VIU_OSD_BURST_LENGTH_32;
- 	else
--		reg |= meson_viu_osd_burst_length_reg(64);
-+		reg |= VIU_OSD_BURST_LENGTH_64;
+ 	mad = query->mad_buf->mad;
+ 	len = ib_nl_get_path_rec_attrs_len(mad->sa_hdr.comp_mask);
+@@ -860,36 +867,25 @@ static int ib_nl_send_msg(struct ib_sa_query *query, gfp_t gfp_mask)
+ 	/* Repair the nlmsg header length */
+ 	nlmsg_end(skb, nlh);
  
- 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD1_FIFO_CTRL_STAT));
- 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD2_FIFO_CTRL_STAT));
+-	return rdma_nl_multicast(&init_net, skb, RDMA_NL_GROUP_LS, gfp_mask);
+-}
++	gfp_flag = ((gfp_mask & GFP_ATOMIC) == GFP_ATOMIC) ? GFP_ATOMIC :
++		GFP_NOWAIT;
+ 
+-static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
+-{
+-	unsigned long flags;
+-	unsigned long delay;
+-	int ret;
++	spin_lock_irqsave(&ib_nl_request_lock, flags);
++	ret = rdma_nl_multicast(&init_net, skb, RDMA_NL_GROUP_LS, gfp_flag);
+ 
+-	INIT_LIST_HEAD(&query->list);
+-	query->seq = (u32)atomic_inc_return(&ib_nl_sa_request_seq);
++	if (ret)
++		goto out;
+ 
+-	/* Put the request on the list first.*/
+-	spin_lock_irqsave(&ib_nl_request_lock, flags);
++	/* Put the request on the list.*/
+ 	delay = msecs_to_jiffies(sa_local_svc_timeout_ms);
+ 	query->timeout = delay + jiffies;
+ 	list_add_tail(&query->list, &ib_nl_request_list);
+ 	/* Start the timeout if this is the only request */
+ 	if (ib_nl_request_list.next == &query->list)
+ 		queue_delayed_work(ib_nl_wq, &ib_nl_timed_work, delay);
+-	spin_unlock_irqrestore(&ib_nl_request_lock, flags);
+ 
+-	ret = ib_nl_send_msg(query, gfp_mask);
+-	if (ret) {
+-		ret = -EIO;
+-		/* Remove the request */
+-		spin_lock_irqsave(&ib_nl_request_lock, flags);
+-		list_del(&query->list);
+-		spin_unlock_irqrestore(&ib_nl_request_lock, flags);
+-	}
++out:
++	spin_unlock_irqrestore(&ib_nl_request_lock, flags);
+ 
+ 	return ret;
+ }
 -- 
 2.25.1
 
