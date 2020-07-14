@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 753D121FCD8
+	by mail.lfdr.de (Postfix) with ESMTP id 072BA21FCD7
 	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729858AbgGNSr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
+        id S1729868AbgGNSsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729854AbgGNSr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:57 -0400
+        id S1729865AbgGNSr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFE8322AB0;
-        Tue, 14 Jul 2020 18:47:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89FC322B2C;
+        Tue, 14 Jul 2020 18:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752476;
-        bh=pHJxLikuzUBUsmeFUYG5PrZJTGqQpdsm39r3eU+a4b4=;
+        s=default; t=1594752479;
+        bh=JS8ZQOSUM4qWSeqJVCG/LhsLW7f6uNGnyC/H3yHP2+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+hQ1UswJksIMLwVFYwpnAgRmCObEVew9U1t60i/dkLImMvQhoWIbIgiz7ex51kPR
-         xkzgp9YMTeFauDptbGYcjRRCihzsTpATX9UkL6bzxbCvnLbfdirEOMSe6Sm+woZABB
-         hqow2XqPPMBfGs+kAQSqqpCEs0Qr7NVFCH0EHWj8=
+        b=sWK3YIfqowr4BNLOoKtnFVbStahlg/AK5k3XXAODxYZpSIrTYWba6FPqk6I/1b/nH
+         py+3qg4bApo4C+jOxl6JPfyc86FGw40/LhOzX9ytKQpVL0IGWFmYou/pLJNI5+5/wa
+         hOkicPBIQnI0kIbErJPQ1Q5lwOAkW09ukQ5nB4Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Tahsin Erdogan <tahsin@google.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 55/58] dm: use noio when sending kobject event
-Date:   Tue, 14 Jul 2020 20:44:28 +0200
-Message-Id: <20200714184058.910142747@linuxfoundation.org>
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.19 56/58] ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE
+Date:   Tue, 14 Jul 2020 20:44:29 +0200
+Message-Id: <20200714184058.958721670@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
 References: <20200714184056.149119318@linuxfoundation.org>
@@ -46,67 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit 6958c1c640af8c3f40fa8a2eee3b5b905d95b677 upstream.
+commit 00fdec98d9881bf5173af09aebd353ab3b9ac729 upstream.
 
-kobject_uevent may allocate memory and it may be called while there are dm
-devices suspended. The allocation may recurse into a suspended device,
-causing a deadlock. We must set the noio flag when sending a uevent.
+Trap handler for syscall tracing reads EFA (Exception Fault Address),
+in case strace wants PC of trap instruction (EFA is not part of pt_regs
+as of current code).
 
-The observed deadlock was reported here:
-https://www.redhat.com/archives/dm-devel/2020-March/msg00025.html
+However this EFA read is racy as it happens after dropping to pure
+kernel mode (re-enabling interrupts). A taken interrupt could
+context-switch, trigger a different task's trap, clobbering EFA for this
+execution context.
 
-Reported-by: Khazhismel Kumykov <khazhy@google.com>
-Reported-by: Tahsin Erdogan <tahsin@google.com>
-Reported-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fix this by reading EFA early, before re-enabling interrupts. A slight
+side benefit is de-duplication of FAKE_RET_FROM_EXCPN in trap handler.
+The trap handler is common to both ARCompact and ARCv2 builds too.
+
+This just came out of code rework/review and no real problem was reported
+but is clearly a potential problem specially for strace.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/arc/kernel/entry.S |   16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -12,6 +12,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-+#include <linux/sched/mm.h>
- #include <linux/sched/signal.h>
- #include <linux/blkpg.h>
- #include <linux/bio.h>
-@@ -2853,17 +2854,25 @@ EXPORT_SYMBOL_GPL(dm_internal_resume_fas
- int dm_kobject_uevent(struct mapped_device *md, enum kobject_action action,
- 		       unsigned cookie)
- {
-+	int r;
-+	unsigned noio_flag;
- 	char udev_cookie[DM_COOKIE_LENGTH];
- 	char *envp[] = { udev_cookie, NULL };
+--- a/arch/arc/kernel/entry.S
++++ b/arch/arc/kernel/entry.S
+@@ -156,7 +156,6 @@ END(EV_Extension)
+ tracesys:
+ 	; save EFA in case tracer wants the PC of traced task
+ 	; using ERET won't work since next-PC has already committed
+-	lr  r12, [efa]
+ 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
+ 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
  
-+	noio_flag = memalloc_noio_save();
-+
- 	if (!cookie)
--		return kobject_uevent(&disk_to_dev(md->disk)->kobj, action);
-+		r = kobject_uevent(&disk_to_dev(md->disk)->kobj, action);
- 	else {
- 		snprintf(udev_cookie, DM_COOKIE_LENGTH, "%s=%u",
- 			 DM_COOKIE_ENV_VAR_NAME, cookie);
--		return kobject_uevent_env(&disk_to_dev(md->disk)->kobj,
--					  action, envp);
-+		r = kobject_uevent_env(&disk_to_dev(md->disk)->kobj,
-+				       action, envp);
- 	}
-+
-+	memalloc_noio_restore(noio_flag);
-+
-+	return r;
- }
+@@ -199,15 +198,9 @@ tracesys_exit:
+ ; Breakpoint TRAP
+ ; ---------------------------------------------
+ trap_with_param:
+-
+-	; stop_pc info by gdb needs this info
+-	lr  r0, [efa]
++	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
+ 	mov r1, sp
  
- uint32_t dm_next_uevent_seq(struct mapped_device *md)
+-	; Now that we have read EFA, it is safe to do "fake" rtie
+-	;   and get out of CPU exception mode
+-	FAKE_RET_FROM_EXCPN
+-
+ 	; Save callee regs in case gdb wants to have a look
+ 	; SP will grow up by size of CALLEE Reg-File
+ 	; NOTE: clobbers r12
+@@ -234,6 +227,10 @@ ENTRY(EV_Trap)
+ 
+ 	EXCEPTION_PROLOGUE
+ 
++	lr  r12, [efa]
++
++	FAKE_RET_FROM_EXCPN
++
+ 	;============ TRAP 1   :breakpoints
+ 	; Check ECR for trap with arg (PROLOGUE ensures r9 has ECR)
+ 	bmsk.f 0, r9, 7
+@@ -241,9 +238,6 @@ ENTRY(EV_Trap)
+ 
+ 	;============ TRAP  (no param): syscall top level
+ 
+-	; First return from Exception to pure K mode (Exception/IRQs renabled)
+-	FAKE_RET_FROM_EXCPN
+-
+ 	; If syscall tracing ongoing, invoke pre-post-hooks
+ 	GET_CURR_THR_INFO_FLAGS   r10
+ 	btst r10, TIF_SYSCALL_TRACE
 
 
