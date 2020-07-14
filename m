@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C369021FA0F
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC70B21FAAE
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbgGNStJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:49:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
+        id S1730788AbgGNSyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:54:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730067AbgGNStH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:49:07 -0400
+        id S1729677AbgGNSyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:54:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74B1222B2A;
-        Tue, 14 Jul 2020 18:49:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79E6A22BEF;
+        Tue, 14 Jul 2020 18:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752547;
-        bh=MVAnC1VvfZxuXdIRo29VFm9919FcQ7IIv6dwWV0OXBU=;
+        s=default; t=1594752886;
+        bh=RBIbnZzztTdxZ/SbCqbKeaEtPBUQ+wEz5vBOHX/Wrjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUP6vguM9DMWRh/2MUHmz2RVSZr7isKAr7FSUuyjZ6sG8ND7skBM+Klil28dWwUZt
-         rQqOme+bQmsaBFPLnWVYPm380/95DyKxIXb+CJbmTAkjRmV6/dVvFMuPADxJAWN/H6
-         t4SUEK8KP4T0Q+hrRJmfQM+7/LWhR1n6f5iTCuww=
+        b=bcf8IYg8ZQUA52/SWeFSIEydXtjwoW1lsuyLZFJen9hiWkQXvaQlV4GyGDw14mVEw
+         /JjQsXHpAEqZzNfdfFYteuF2FbxrFs4etdi/LaXd6nkwg+vJuJFCtbjiCE5QIUmZcC
+         N5JwB5EY1hhsL36a0xDvM+/Gsm2UEKDJWTGv5WaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/109] i40e: protect ring accesses with READ- and WRITE_ONCE
-Date:   Tue, 14 Jul 2020 20:43:22 +0200
-Message-Id: <20200714184106.439526532@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 038/166] arm64: kpti: Add KRYO{3, 4}XX silver CPU cores to kpti safelist
+Date:   Tue, 14 Jul 2020 20:43:23 +0200
+Message-Id: <20200714184117.703665553@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ciara Loftus <ciara.loftus@intel.com>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-[ Upstream commit d59e267912cd90b0adf33b4659050d831e746317 ]
+[ Upstream commit f4617be35b4b547e82d30993f56d631dfc2d5f88 ]
 
-READ_ONCE should be used when reading rings prior to accessing the
-statistics pointer. Introduce this as well as the corresponding WRITE_ONCE
-usage when allocating and freeing the rings, to ensure protected access.
+QCOM KRYO{3,4}XX silver/LITTLE CPU cores are based on Cortex-A55
+and are meltdown safe, hence add them to kpti_safe_list[].
 
-Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Link: https://lore.kernel.org/r/20200624123406.3472-1-saiprakash.ranjan@codeaurora.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 29 ++++++++++++++-------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ arch/arm64/kernel/cpufeature.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index a8dd0228b6787..095ed81cc0ba4 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -458,11 +458,15 @@ static void i40e_get_netdev_stats_struct(struct net_device *netdev,
- 		i40e_get_netdev_stats_struct_tx(ring, stats);
- 
- 		if (i40e_enabled_xdp_vsi(vsi)) {
--			ring++;
-+			ring = READ_ONCE(vsi->xdp_rings[i]);
-+			if (!ring)
-+				continue;
- 			i40e_get_netdev_stats_struct_tx(ring, stats);
- 		}
- 
--		ring++;
-+		ring = READ_ONCE(vsi->rx_rings[i]);
-+		if (!ring)
-+			continue;
- 		do {
- 			start   = u64_stats_fetch_begin_irq(&ring->syncp);
- 			packets = ring->stats.packets;
-@@ -806,6 +810,8 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
- 	for (q = 0; q < vsi->num_queue_pairs; q++) {
- 		/* locate Tx ring */
- 		p = READ_ONCE(vsi->tx_rings[q]);
-+		if (!p)
-+			continue;
- 
- 		do {
- 			start = u64_stats_fetch_begin_irq(&p->syncp);
-@@ -819,8 +825,11 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
- 		tx_linearize += p->tx_stats.tx_linearize;
- 		tx_force_wb += p->tx_stats.tx_force_wb;
- 
--		/* Rx queue is part of the same block as Tx queue */
--		p = &p[1];
-+		/* locate Rx ring */
-+		p = READ_ONCE(vsi->rx_rings[q]);
-+		if (!p)
-+			continue;
-+
- 		do {
- 			start = u64_stats_fetch_begin_irq(&p->syncp);
- 			packets = p->stats.packets;
-@@ -10816,10 +10825,10 @@ static void i40e_vsi_clear_rings(struct i40e_vsi *vsi)
- 	if (vsi->tx_rings && vsi->tx_rings[0]) {
- 		for (i = 0; i < vsi->alloc_queue_pairs; i++) {
- 			kfree_rcu(vsi->tx_rings[i], rcu);
--			vsi->tx_rings[i] = NULL;
--			vsi->rx_rings[i] = NULL;
-+			WRITE_ONCE(vsi->tx_rings[i], NULL);
-+			WRITE_ONCE(vsi->rx_rings[i], NULL);
- 			if (vsi->xdp_rings)
--				vsi->xdp_rings[i] = NULL;
-+				WRITE_ONCE(vsi->xdp_rings[i], NULL);
- 		}
- 	}
- }
-@@ -10853,7 +10862,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
- 		if (vsi->back->hw_features & I40E_HW_WB_ON_ITR_CAPABLE)
- 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
- 		ring->itr_setting = pf->tx_itr_default;
--		vsi->tx_rings[i] = ring++;
-+		WRITE_ONCE(vsi->tx_rings[i], ring++);
- 
- 		if (!i40e_enabled_xdp_vsi(vsi))
- 			goto setup_rx;
-@@ -10871,7 +10880,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
- 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
- 		set_ring_xdp(ring);
- 		ring->itr_setting = pf->tx_itr_default;
--		vsi->xdp_rings[i] = ring++;
-+		WRITE_ONCE(vsi->xdp_rings[i], ring++);
- 
- setup_rx:
- 		ring->queue_index = i;
-@@ -10884,7 +10893,7 @@ setup_rx:
- 		ring->size = 0;
- 		ring->dcb_tc = 0;
- 		ring->itr_setting = pf->rx_itr_default;
--		vsi->rx_rings[i] = ring;
-+		WRITE_ONCE(vsi->rx_rings[i], ring);
- 	}
- 
- 	return 0;
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 9fac745aa7bb2..b0fb1d5bf2235 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1059,6 +1059,8 @@ static bool unmap_kernel_at_el0(const struct arm64_cpu_capabilities *entry,
+ 		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
+ 		MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+ 		MIDR_ALL_VERSIONS(MIDR_NVIDIA_CARMEL),
++		MIDR_ALL_VERSIONS(MIDR_QCOM_KRYO_3XX_SILVER),
++		MIDR_ALL_VERSIONS(MIDR_QCOM_KRYO_4XX_SILVER),
+ 		{ /* sentinel */ }
+ 	};
+ 	char const *str = "kpti command line option";
 -- 
 2.25.1
 
