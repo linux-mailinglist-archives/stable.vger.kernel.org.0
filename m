@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4153221F46C
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4692221F4FA
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728987AbgGNOjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 10:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
+        id S1729030AbgGNOji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 10:39:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729005AbgGNOjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:39:35 -0400
+        id S1729019AbgGNOjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:39:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3B022251E;
-        Tue, 14 Jul 2020 14:39:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6E632255F;
+        Tue, 14 Jul 2020 14:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594737574;
-        bh=vnz8ROALb5gubnj68vO1PvMNUEb7QYnW9YoPnbZSgck=;
+        s=default; t=1594737575;
+        bh=5BqS2uKoCv8IZQb/gAzETBypxxWJHQ1jqkWzuhumoAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBMpdyKY9keHvtx6CNo/PwyZpE4hTl+jwI721cTBgT0hWGWyqM0nq60BAkFeBq64a
-         ieytY4CkzSAj079APHtbKUaCPU8rZYfD5hiQoKNHSpjzkJqpwaSsLQfnOqL4TFXCx7
-         iDgUWd9AA0Ot3BgwCjVamoXR5n7GKlokkw46UYKA=
+        b=wtWAZJMhwOb1BitKu5lJTQ7sr5KaX/Jzxh4YL33aTluxAlo9SKXy7r3S62/qXu/XO
+         5BCpMCSs3mc88mVRb8I6DeYtcAojC5H5QUQV/kSxq9o6ii5nkgyGBsu1/r3beTFNnx
+         Eq8VGCFi8oLmHHE6bCOXKVbhl566C8QnDlGME1DA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve Schremmer <steve.schremmer@netapp.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/18] scsi: dh: Add Fujitsu device to devinfo and dh lists
-Date:   Tue, 14 Jul 2020 10:39:12 -0400
-Message-Id: <20200714143914.4035489-16-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.4 17/18] dm: use bio_uninit instead of bio_disassociate_blkg
+Date:   Tue, 14 Jul 2020 10:39:13 -0400
+Message-Id: <20200714143914.4035489-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200714143914.4035489-1-sashal@kernel.org>
 References: <20200714143914.4035489-1-sashal@kernel.org>
@@ -43,45 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Schremmer <steve.schremmer@netapp.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit e094fd346021b820f37188aaa6b502c7490ab5b5 ]
+[ Upstream commit 382761dc6312965a11f82f2217e16ec421bf17ae ]
 
-Add FUJITSU ETERNUS_AHB
+bio_uninit is the proper API to clean up a BIO that has been allocated
+on stack or inside a structure that doesn't come from the BIO allocator.
+Switch dm to use that instead of bio_disassociate_blkg, which really is
+an implementation detail.  Note that the bio_uninit calls are also moved
+to the two callers of __send_empty_flush, so that they better pair with
+the bio_init calls used to initialize them.
 
-Link: https://lore.kernel.org/r/DM6PR06MB5276CCA765336BD312C4282E8C660@DM6PR06MB5276.namprd06.prod.outlook.com
-Signed-off-by: Steve Schremmer <steve.schremmer@netapp.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_devinfo.c | 1 +
- drivers/scsi/scsi_dh.c      | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/md/dm.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
-index df14597752ec8..fb5a7832353ce 100644
---- a/drivers/scsi/scsi_devinfo.c
-+++ b/drivers/scsi/scsi_devinfo.c
-@@ -239,6 +239,7 @@ static struct {
- 	{"LSI", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
- 	{"ENGENIO", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
- 	{"LENOVO", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
-+	{"FUJITSU", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
- 	{"SanDisk", "Cruzer Blade", NULL, BLIST_TRY_VPD_PAGES |
- 		BLIST_INQUIRY_36},
- 	{"SMSC", "USB 2 HS-CF", NULL, BLIST_SPARSELUN | BLIST_INQUIRY_36},
-diff --git a/drivers/scsi/scsi_dh.c b/drivers/scsi/scsi_dh.c
-index 42f0550d6b11f..6f41e4b5a2b85 100644
---- a/drivers/scsi/scsi_dh.c
-+++ b/drivers/scsi/scsi_dh.c
-@@ -63,6 +63,7 @@ static const struct scsi_dh_blist scsi_dh_blist[] = {
- 	{"LSI", "INF-01-00",		"rdac", },
- 	{"ENGENIO", "INF-01-00",	"rdac", },
- 	{"LENOVO", "DE_Series",		"rdac", },
-+	{"FUJITSU", "ETERNUS_AHB",	"rdac", },
- 	{NULL, NULL,			NULL },
- };
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 1e6e0c970e190..6d6b96a1c5103 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1436,9 +1436,6 @@ static int __send_empty_flush(struct clone_info *ci)
+ 	BUG_ON(bio_has_data(ci->bio));
+ 	while ((ti = dm_table_get_target(ci->map, target_nr++)))
+ 		__send_duplicate_bios(ci, ti, ti->num_flush_bios, NULL);
+-
+-	bio_disassociate_blkg(ci->bio);
+-
+ 	return 0;
+ }
  
+@@ -1626,6 +1623,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
+ 		ci.bio = &flush_bio;
+ 		ci.sector_count = 0;
+ 		error = __send_empty_flush(&ci);
++		bio_uninit(ci.bio);
+ 		/* dec_pending submits any data associated with flush */
+ 	} else if (bio_op(bio) == REQ_OP_ZONE_RESET) {
+ 		ci.bio = bio;
+@@ -1700,6 +1698,7 @@ static blk_qc_t __process_bio(struct mapped_device *md, struct dm_table *map,
+ 		ci.bio = &flush_bio;
+ 		ci.sector_count = 0;
+ 		error = __send_empty_flush(&ci);
++		bio_uninit(ci.bio);
+ 		/* dec_pending submits any data associated with flush */
+ 	} else {
+ 		struct dm_target_io *tio;
 -- 
 2.25.1
 
