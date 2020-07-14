@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4CA21FAEE
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4BA21FA4C
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730623AbgGNS5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55154 "EHLO mail.kernel.org"
+        id S1730398AbgGNSvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730420AbgGNS47 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:56:59 -0400
+        id S1729917AbgGNSvV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 658F022A99;
-        Tue, 14 Jul 2020 18:56:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8B3822B3F;
+        Tue, 14 Jul 2020 18:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753019;
-        bh=UovwJC9PL68kcvH7rOCqjQnxpBm/H7ifrkPG3zBUV1k=;
+        s=default; t=1594752680;
+        bh=zYdDNT/yQE/oQ5Sz1v5XNbIvBfceOo0HS//1BuParTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+68muocQDDHdtFb5GPWSRFIW52aViWh9uD5wp2bw9A5XjuJE96R/rtjwZx93fybP
-         pFChZn9dW1QHd21gtfj0me+AQhKuVVpo0gTDS8eoJo0PgYqt1LretJuvRD/2BLnqLK
-         Phu21kIzO4MvR3Ou98RzPydc96NkTOXEHt2351D0=
+        b=PNvaBM4Z3AVM10PsaP5ix0A6J1JJ1TOHhmqCrqxVp/G+3TKDXRfBye6gw1zb3pgr4
+         P3DFt5a9EON6rJJVksvKwCvFLftaNW14T0NP6vwi7/4OcTVuingv46aljaYhx4g8is
+         JiZtGmtE/J0PmVK1x6rn2gL5OkzqJfl/SsHyVb30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Bogdanov <dbogdanov@marvell.com>,
-        Mark Starovoytov <mstarovoitov@marvell.com>,
-        Alexander Lobakin <alobakin@marvell.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 087/166] net: atlantic: fix ip dst and ipv6 address filters
+Subject: [PATCH 5.4 069/109] mlxsw: pci: Fix use-after-free in case of failed devlink reload
 Date:   Tue, 14 Jul 2020 20:44:12 +0200
-Message-Id: <20200714184120.016289959@linuxfoundation.org>
+Message-Id: <20200714184108.843201791@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <dbogdanov@marvell.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit a42e6aee7f47a8a68d09923c720fc8f605a04207 ]
+[ Upstream commit c4317b11675b99af6641662ebcbd3c6010600e64 ]
 
-This patch fixes ip dst and ipv6 address filters.
-There were 2 mistakes in the code, which led to the issue:
-* invalid register was used for ipv4 dst address;
-* incorrect write order of dwords for ipv6 addresses.
+In case devlink reload failed, it is possible to trigger a
+use-after-free when querying the kernel for device info via 'devlink dev
+info' [1].
 
-Fixes: 23e7a718a49b ("net: aquantia: add rx-flow filter definitions")
-Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
-Signed-off-by: Mark Starovoytov <mstarovoitov@marvell.com>
-Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+This happens because as part of the reload error path the PCI command
+interface is de-initialized and its mailboxes are freed. When the
+devlink '->info_get()' callback is invoked the device is queried via the
+command interface and the freed mailboxes are accessed.
+
+Fix this by initializing the command interface once during probe and not
+during every reload.
+
+This is consistent with the other bus used by mlxsw (i.e., 'mlxsw_i2c')
+and also allows user space to query the running firmware version (for
+example) from the device after a failed reload.
+
+[1]
+BUG: KASAN: use-after-free in memcpy include/linux/string.h:406 [inline]
+BUG: KASAN: use-after-free in mlxsw_pci_cmd_exec+0x177/0xa60 drivers/net/ethernet/mellanox/mlxsw/pci.c:1675
+Write of size 4096 at addr ffff88810ae32000 by task syz-executor.1/2355
+
+CPU: 1 PID: 2355 Comm: syz-executor.1 Not tainted 5.8.0-rc2+ #29
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xf6/0x16e lib/dump_stack.c:118
+ print_address_description.constprop.0+0x1c/0x250 mm/kasan/report.c:383
+ __kasan_report mm/kasan/report.c:513 [inline]
+ kasan_report.cold+0x1f/0x37 mm/kasan/report.c:530
+ check_memory_region_inline mm/kasan/generic.c:186 [inline]
+ check_memory_region+0x14e/0x1b0 mm/kasan/generic.c:192
+ memcpy+0x39/0x60 mm/kasan/common.c:106
+ memcpy include/linux/string.h:406 [inline]
+ mlxsw_pci_cmd_exec+0x177/0xa60 drivers/net/ethernet/mellanox/mlxsw/pci.c:1675
+ mlxsw_cmd_exec+0x249/0x550 drivers/net/ethernet/mellanox/mlxsw/core.c:2335
+ mlxsw_cmd_access_reg drivers/net/ethernet/mellanox/mlxsw/cmd.h:859 [inline]
+ mlxsw_core_reg_access_cmd drivers/net/ethernet/mellanox/mlxsw/core.c:1938 [inline]
+ mlxsw_core_reg_access+0x2f6/0x540 drivers/net/ethernet/mellanox/mlxsw/core.c:1985
+ mlxsw_reg_query drivers/net/ethernet/mellanox/mlxsw/core.c:2000 [inline]
+ mlxsw_devlink_info_get+0x17f/0x6e0 drivers/net/ethernet/mellanox/mlxsw/core.c:1090
+ devlink_nl_info_fill.constprop.0+0x13c/0x2d0 net/core/devlink.c:4588
+ devlink_nl_cmd_info_get_dumpit+0x246/0x460 net/core/devlink.c:4648
+ genl_lock_dumpit+0x85/0xc0 net/netlink/genetlink.c:575
+ netlink_dump+0x515/0xe50 net/netlink/af_netlink.c:2245
+ __netlink_dump_start+0x53d/0x830 net/netlink/af_netlink.c:2353
+ genl_family_rcv_msg_dumpit.isra.0+0x296/0x300 net/netlink/genetlink.c:638
+ genl_family_rcv_msg net/netlink/genetlink.c:733 [inline]
+ genl_rcv_msg+0x78d/0x9d0 net/netlink/genetlink.c:753
+ netlink_rcv_skb+0x152/0x440 net/netlink/af_netlink.c:2469
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:764
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x53a/0x750 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x850/0xd90 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0x150/0x190 net/socket.c:672
+ ____sys_sendmsg+0x6d8/0x840 net/socket.c:2363
+ ___sys_sendmsg+0xff/0x170 net/socket.c:2417
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2450
+ do_syscall_64+0x56/0xa0 arch/x86/entry/common.c:359
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: a9c8336f6544 ("mlxsw: core: Add support for devlink info command")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c    | 4 ++--
- .../ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h   | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/pci.c | 54 ++++++++++++++++-------
+ 1 file changed, 38 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c
-index d1f68fc162918..e6b1fb10ad912 100644
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c
-@@ -1651,7 +1651,7 @@ void hw_atl_rpfl3l4_ipv6_src_addr_set(struct aq_hw_s *aq_hw, u8 location,
- 	for (i = 0; i < 4; ++i)
- 		aq_hw_write_reg(aq_hw,
- 				HW_ATL_RPF_L3_SRCA_ADR(location + i),
--				ipv6_src[i]);
-+				ipv6_src[3 - i]);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+index f3d1f9411d104..aa4fef7890841 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+@@ -1401,23 +1401,12 @@ static int mlxsw_pci_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
+ 	u16 num_pages;
+ 	int err;
+ 
+-	mutex_init(&mlxsw_pci->cmd.lock);
+-	init_waitqueue_head(&mlxsw_pci->cmd.wait);
+-
+ 	mlxsw_pci->core = mlxsw_core;
+ 
+ 	mbox = mlxsw_cmd_mbox_alloc();
+ 	if (!mbox)
+ 		return -ENOMEM;
+ 
+-	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+-	if (err)
+-		goto mbox_put;
+-
+-	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
+-	if (err)
+-		goto err_out_mbox_alloc;
+-
+ 	err = mlxsw_pci_sw_reset(mlxsw_pci, mlxsw_pci->id);
+ 	if (err)
+ 		goto err_sw_reset;
+@@ -1524,9 +1513,6 @@ static int mlxsw_pci_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
+ 	mlxsw_pci_free_irq_vectors(mlxsw_pci);
+ err_alloc_irq:
+ err_sw_reset:
+-	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
+-err_out_mbox_alloc:
+-	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+ mbox_put:
+ 	mlxsw_cmd_mbox_free(mbox);
+ 	return err;
+@@ -1540,8 +1526,6 @@ static void mlxsw_pci_fini(void *bus_priv)
+ 	mlxsw_pci_aqs_fini(mlxsw_pci);
+ 	mlxsw_pci_fw_area_fini(mlxsw_pci);
+ 	mlxsw_pci_free_irq_vectors(mlxsw_pci);
+-	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
+-	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
  }
  
- void hw_atl_rpfl3l4_ipv6_dest_addr_set(struct aq_hw_s *aq_hw, u8 location,
-@@ -1662,7 +1662,7 @@ void hw_atl_rpfl3l4_ipv6_dest_addr_set(struct aq_hw_s *aq_hw, u8 location,
- 	for (i = 0; i < 4; ++i)
- 		aq_hw_write_reg(aq_hw,
- 				HW_ATL_RPF_L3_DSTA_ADR(location + i),
--				ipv6_dest[i]);
-+				ipv6_dest[3 - i]);
- }
+ static struct mlxsw_pci_queue *
+@@ -1755,6 +1739,37 @@ static const struct mlxsw_bus mlxsw_pci_bus = {
+ 	.features		= MLXSW_BUS_F_TXRX | MLXSW_BUS_F_RESET,
+ };
  
- u32 hw_atl_sem_ram_get(struct aq_hw_s *self)
-diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h
-index 18de2f7b89593..a7590b9ea2df5 100644
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h
-@@ -1360,7 +1360,7 @@
-  */
++static int mlxsw_pci_cmd_init(struct mlxsw_pci *mlxsw_pci)
++{
++	int err;
++
++	mutex_init(&mlxsw_pci->cmd.lock);
++	init_waitqueue_head(&mlxsw_pci->cmd.wait);
++
++	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
++	if (err)
++		goto err_in_mbox_alloc;
++
++	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
++	if (err)
++		goto err_out_mbox_alloc;
++
++	return 0;
++
++err_out_mbox_alloc:
++	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
++err_in_mbox_alloc:
++	mutex_destroy(&mlxsw_pci->cmd.lock);
++	return err;
++}
++
++static void mlxsw_pci_cmd_fini(struct mlxsw_pci *mlxsw_pci)
++{
++	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
++	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
++	mutex_destroy(&mlxsw_pci->cmd.lock);
++}
++
+ static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ {
+ 	const char *driver_name = pdev->driver->name;
+@@ -1810,6 +1825,10 @@ static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mlxsw_pci->pdev = pdev;
+ 	pci_set_drvdata(pdev, mlxsw_pci);
  
-  /* Register address for bitfield pif_rpf_l3_da0_i[31:0] */
--#define HW_ATL_RPF_L3_DSTA_ADR(filter) (0x000053B0 + (filter) * 0x4)
-+#define HW_ATL_RPF_L3_DSTA_ADR(filter) (0x000053D0 + (filter) * 0x4)
- /* Bitmask for bitfield l3_da0[1F:0] */
- #define HW_ATL_RPF_L3_DSTA_MSK 0xFFFFFFFFu
- /* Inverted bitmask for bitfield l3_da0[1F:0] */
++	err = mlxsw_pci_cmd_init(mlxsw_pci);
++	if (err)
++		goto err_pci_cmd_init;
++
+ 	mlxsw_pci->bus_info.device_kind = driver_name;
+ 	mlxsw_pci->bus_info.device_name = pci_name(mlxsw_pci->pdev);
+ 	mlxsw_pci->bus_info.dev = &pdev->dev;
+@@ -1827,6 +1846,8 @@ static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
+ 
+ err_bus_device_register:
++	mlxsw_pci_cmd_fini(mlxsw_pci);
++err_pci_cmd_init:
+ 	iounmap(mlxsw_pci->hw_addr);
+ err_ioremap:
+ err_pci_resource_len_check:
+@@ -1844,6 +1865,7 @@ static void mlxsw_pci_remove(struct pci_dev *pdev)
+ 	struct mlxsw_pci *mlxsw_pci = pci_get_drvdata(pdev);
+ 
+ 	mlxsw_core_bus_device_unregister(mlxsw_pci->core, false);
++	mlxsw_pci_cmd_fini(mlxsw_pci);
+ 	iounmap(mlxsw_pci->hw_addr);
+ 	pci_release_regions(mlxsw_pci->pdev);
+ 	pci_disable_device(mlxsw_pci->pdev);
 -- 
 2.25.1
 
