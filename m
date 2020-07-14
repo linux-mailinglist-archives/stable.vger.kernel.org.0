@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2760521FA99
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D05C021FA0B
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729726AbgGNSyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:54:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51360 "EHLO mail.kernel.org"
+        id S1730009AbgGNSsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:48:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730715AbgGNSyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:54:02 -0400
+        id S1729430AbgGNSsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:48:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40D6822BEB;
-        Tue, 14 Jul 2020 18:54:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DA4522B2A;
+        Tue, 14 Jul 2020 18:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752841;
-        bh=KWQ4e3p+UIInG0QsWaTKjw4uJUmUUZQzFdKT60LPMKs=;
+        s=default; t=1594752526;
+        bh=sT7ggtf5xuADU4WreWsFa4XiGl6IOswFVMXjHa0dmG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCEc3+nZP0o/yuVxyVfrIziPnO28Q85Rj3JD+Ayr8Czi3p7BdmELwYi91h9D4aJrV
-         /0CHOgix18O52iTCijy5Qb3sQ8FD7mB44gbXM9OUTc3F6Ez/fDQXEypJW/mx0/8vzp
-         p+hQcQkB1bpxHYg/UJ5+GTsvz/56XEL7QIL3C7a0=
+        b=nwfQitboMIEn8U73wdihNy9NfXULwlcOz/yOIBb9yLj7KOX/CI0sFsU6W9NxiDpPo
+         nQRjfX5mu5GL42nSo4vJD/nDqNzRn4bfumT7K0VvR5EcYUPAl7CaERqSgV4XRYnXfe
+         ogUnCzVmHc46mJZN1q9wnUYQjibE1BJa/iLwVyv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 021/166] net: ethernet: mvneta: Add 2500BaseX support for SoCs without comphy
+Subject: [PATCH 5.4 003/109] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI transfer
 Date:   Tue, 14 Jul 2020 20:43:06 +0200
-Message-Id: <20200714184116.903912669@linuxfoundation.org>
+Message-Id: <20200714184105.673355471@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 1a642ca7f38992b086101fe204a1ae3c90ed8016 ]
+[ Upstream commit 7684580d45bd3d84ed9b453a4cadf7a9a5605a3f ]
 
-The older SoCs like Armada XP support a 2500BaseX mode in the datasheets
-referred to as DR-SGMII (Double rated SGMII) or HS-SGMII (High Speed
-SGMII). This is an upclocked 1000BaseX mode, thus
-PHY_INTERFACE_MODE_2500BASEX is the appropriate mode define for it.
-adding support for it merely means writing the correct magic value into
-the MVNETA_SERDES_CFG register.
+During device removal, the driver should unregister the SPI controller
+and stop the hardware.  Otherwise the dspi_transfer_one_message() could
+wait on completion infinitely.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Additionally, calling spi_unregister_controller() first in device
+removal reverse-matches the probe function, where SPI controller is
+registered at the end.
+
+Fixes: 05209f457069 ("spi: fsl-dspi: add missing clk_disable_unprepare() in dspi_remove()")
+Reported-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200622110543.5035-1-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/spi/spi-fsl-dspi.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 401eeeca89660..af578a5813bd2 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -110,6 +110,7 @@
- #define MVNETA_SERDES_CFG			 0x24A0
- #define      MVNETA_SGMII_SERDES_PROTO		 0x0cc7
- #define      MVNETA_QSGMII_SERDES_PROTO		 0x0667
-+#define      MVNETA_HSGMII_SERDES_PROTO		 0x1107
- #define MVNETA_TYPE_PRIO                         0x24bc
- #define      MVNETA_FORCE_UNI                    BIT(21)
- #define MVNETA_TXQ_CMD_1                         0x24e4
-@@ -3558,6 +3559,11 @@ static int mvneta_config_interface(struct mvneta_port *pp,
- 			mvreg_write(pp, MVNETA_SERDES_CFG,
- 				    MVNETA_SGMII_SERDES_PROTO);
- 			break;
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index e34278a00b708..3e0e27731922e 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1164,11 +1164,20 @@ static int dspi_remove(struct platform_device *pdev)
+ 	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
+ 
+ 	/* Disconnect from the SPI framework */
++	spi_unregister_controller(dspi->ctlr);
 +
-+		case PHY_INTERFACE_MODE_2500BASEX:
-+			mvreg_write(pp, MVNETA_SERDES_CFG,
-+				    MVNETA_HSGMII_SERDES_PROTO);
-+			break;
- 		default:
- 			return -EINVAL;
- 		}
++	/* Disable RX and TX */
++	regmap_update_bits(dspi->regmap, SPI_MCR,
++			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF,
++			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF);
++
++	/* Stop Running */
++	regmap_update_bits(dspi->regmap, SPI_MCR, SPI_MCR_HALT, SPI_MCR_HALT);
++
+ 	dspi_release_dma(dspi);
+ 	if (dspi->irq)
+ 		free_irq(dspi->irq, dspi);
+ 	clk_disable_unprepare(dspi->clk);
+-	spi_unregister_controller(dspi->ctlr);
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
