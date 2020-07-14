@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DC021F478
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:40:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B014121F4E2
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729167AbgGNOjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 10:39:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55418 "EHLO mail.kernel.org"
+        id S1729168AbgGNOmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 10:42:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729157AbgGNOjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:39:53 -0400
+        id S1729162AbgGNOjy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:39:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB5022583;
-        Tue, 14 Jul 2020 14:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F73A22571;
+        Tue, 14 Jul 2020 14:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594737592;
-        bh=Nq5QR3iG8Cr3ox2BQ3/zYb67ZQcxz9425Pv2U2LcgGI=;
+        s=default; t=1594737593;
+        bh=6BIAxrKabhOJYy2xeoMCfBD72A96CeHELJj9q3yhH6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQy50JiWfMKmvQyayYdEKuGFoZyIHlB65h2wOORSiZ6hUVm/a4TfzCl8kcbe1g9Iv
-         baqjSQVZDk9KiPeM9xC+Jn0qVWIOtOi8XkSzsoN+L+Mu9ZzcutYWFmhCxGi0n3nXPL
-         PmOMusmy2We8j7Ge32cjeaSjlT10dU2RyLDx3peU=
+        b=X0O0QyDqBHoxZGUhyD/fGBKTviaE3hrveuihlhisSqtg9zkj4XEybYTK1b5/Ikyx3
+         nwXArzeeEKVKCZmzfByrD9uoKhFqJ9o0HNr4G5nlB9xSqLHytiYhJ8yMabHKVGYtse
+         VRZzuNIn/d0Y4MyaoqzmXS0TltsIkVYUpzESdBYE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 12/13] drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
-Date:   Tue, 14 Jul 2020 10:39:36 -0400
-Message-Id: <20200714143937.4035685-12-sashal@kernel.org>
+Cc:     Gavin Shan <gshan@redhat.com>, Sudeep Holla <sudeep.holla@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 13/13] drivers/firmware/psci: Fix memory leakage in alloc_init_cpu_groups()
+Date:   Tue, 14 Jul 2020 10:39:37 -0400
+Message-Id: <20200714143937.4035685-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200714143937.4035685-1-sashal@kernel.org>
 References: <20200714143937.4035685-1-sashal@kernel.org>
@@ -42,54 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Gavin Shan <gshan@redhat.com>
 
-[ Upstream commit 0156e76d388310a490aeb0f2fbb5b284ded3aecc ]
+[ Upstream commit c377e67c6271954969384f9be1b1b71de13eba30 ]
 
-Tegra TRM says worst-case reply time is 1216us, and this should fix some
-spurious timeouts that have been popping up.
+The CPU mask (@tmp) should be released on failing to allocate
+@cpu_groups or any of its elements. Otherwise, it leads to memory
+leakage because the CPU mask variable is dynamically allocated
+when CONFIG_CPUMASK_OFFSTACK is enabled.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20200630075227.199624-1-gshan@redhat.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   | 4 ++--
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/firmware/psci_checker.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-index c8ab1b5741a3e..db7769cb33eba 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-@@ -118,10 +118,10 @@ g94_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
+diff --git a/drivers/firmware/psci_checker.c b/drivers/firmware/psci_checker.c
+index cbd53cb1b2d47..9f1a913933d53 100644
+--- a/drivers/firmware/psci_checker.c
++++ b/drivers/firmware/psci_checker.c
+@@ -164,8 +164,10 @@ static int alloc_init_cpu_groups(cpumask_var_t **pcpu_groups)
  
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00e4e4 + base, 0x00010000 | ctrl);
+ 	cpu_groups = kcalloc(nb_available_cpus, sizeof(cpu_groups),
+ 			     GFP_KERNEL);
+-	if (!cpu_groups)
++	if (!cpu_groups) {
++		free_cpumask_var(tmp);
+ 		return -ENOMEM;
++	}
  
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00e4e4 + base);
- 			udelay(1);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-index 7ef60895f43a7..edb6148cbca04 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-@@ -118,10 +118,10 @@ gm200_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
+ 	cpumask_copy(tmp, cpu_online_mask);
  
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00d954 + base, 0x00010000 | ctrl);
+@@ -174,6 +176,7 @@ static int alloc_init_cpu_groups(cpumask_var_t **pcpu_groups)
+ 			topology_core_cpumask(cpumask_any(tmp));
  
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00d954 + base);
- 			udelay(1);
+ 		if (!alloc_cpumask_var(&cpu_groups[num_groups], GFP_KERNEL)) {
++			free_cpumask_var(tmp);
+ 			free_cpu_groups(num_groups, &cpu_groups);
+ 			return -ENOMEM;
+ 		}
 -- 
 2.25.1
 
