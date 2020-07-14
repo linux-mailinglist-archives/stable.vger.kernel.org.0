@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21C821FCCC
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B88A321FBCE
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728926AbgGNTLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44492 "EHLO mail.kernel.org"
+        id S1730522AbgGNSzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729992AbgGNSsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:48:50 -0400
+        id S1730020AbgGNSzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:55:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0D1222AB9;
-        Tue, 14 Jul 2020 18:48:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3E8D229CA;
+        Tue, 14 Jul 2020 18:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752529;
-        bh=XQBL9NrEUkiI8wtjcCl9dHlXNWIE2G3UKZK2k4ezkRE=;
+        s=default; t=1594752954;
+        bh=7zdd0PcQ35w9v/t6v5HtqSm+Hj/p439jpivZTh3Po5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lt4EFFIkqFYkU9CL+hOEUN8n86rdY17Lb4hftrC0iBvqsMAeFgXPhQ9gg6dXl3EgC
-         PDags0Et/yUqp2dojH4lZ1qx/I6PuQLiTMyklJN5e32x54D4LJjSkeTbgr21mODDGq
-         gjHJexMC3VZk89lAKd72aWFN92tz+dhTVUjyxcS8=
+        b=VeA+M/JGVhMS5gv5ch5ykVyoD7zpkqpUqM9L6rfwwdcSan0JFiDpdTKMA/G4/5oHP
+         IE0oUcjlvw7TPkc5U/e6Lk4KHEj1FCXJdrHeWyhlr8mtP2yI0JBvejGiYoHNdV8H4f
+         lKX9XPZBjoBf8OafNKpMZMhYAfYS3ZPCaHHwl3qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Thoms Toerring <jt@toerring.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 004/109] regmap: fix alignment issue
-Date:   Tue, 14 Jul 2020 20:43:07 +0200
-Message-Id: <20200714184105.719730471@linuxfoundation.org>
+Subject: [PATCH 5.7 023/166] i40e: protect ring accesses with READ- and WRITE_ONCE
+Date:   Tue, 14 Jul 2020 20:43:08 +0200
+Message-Id: <20200714184116.991440945@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,256 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Thoms Toerring <jt@toerring.de>
+From: Ciara Loftus <ciara.loftus@intel.com>
 
-[ Upstream commit 53d860952c8215cf9ae1ea33409c8cb71ad6ad3d ]
+[ Upstream commit d59e267912cd90b0adf33b4659050d831e746317 ]
 
-The assembly and disassembly of data to be sent to or received from
-a device invoke functions regmap_format_XX() and regmap_parse_XX()
-that extract or insert data items from or into a buffer, using
-assignments. In some cases the functions are called with a buffer
-pointer with an odd address. On architectures with strict alignment
-requirements this can result in a kernel crash. The assignments
-have been replaced by functions that take alignment into account.
+READ_ONCE should be used when reading rings prior to accessing the
+statistics pointer. Introduce this as well as the corresponding WRITE_ONCE
+usage when allocating and freeing the rings, to ensure protected access.
 
-Signed-off-by: Jens Thoms Toerring <jt@toerring.de>
-Link: https://lore.kernel.org/r/20200531095300.GA27570@toerring.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap.c | 100 ++++++++++++++++-------------------
- 1 file changed, 46 insertions(+), 54 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 29 ++++++++++++++-------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 508bbd6ea4396..320d23de02c29 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -17,6 +17,7 @@
- #include <linux/delay.h>
- #include <linux/log2.h>
- #include <linux/hwspinlock.h>
-+#include <asm/unaligned.h>
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 2a037ec244b94..80dc5fcb82db7 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -439,11 +439,15 @@ static void i40e_get_netdev_stats_struct(struct net_device *netdev,
+ 		i40e_get_netdev_stats_struct_tx(ring, stats);
  
- #define CREATE_TRACE_POINTS
- #include "trace.h"
-@@ -249,22 +250,20 @@ static void regmap_format_8(void *buf, unsigned int val, unsigned int shift)
+ 		if (i40e_enabled_xdp_vsi(vsi)) {
+-			ring++;
++			ring = READ_ONCE(vsi->xdp_rings[i]);
++			if (!ring)
++				continue;
+ 			i40e_get_netdev_stats_struct_tx(ring, stats);
+ 		}
  
- static void regmap_format_16_be(void *buf, unsigned int val, unsigned int shift)
- {
--	__be16 *b = buf;
--
--	b[0] = cpu_to_be16(val << shift);
-+	put_unaligned_be16(val << shift, buf);
- }
+-		ring++;
++		ring = READ_ONCE(vsi->rx_rings[i]);
++		if (!ring)
++			continue;
+ 		do {
+ 			start   = u64_stats_fetch_begin_irq(&ring->syncp);
+ 			packets = ring->stats.packets;
+@@ -787,6 +791,8 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
+ 	for (q = 0; q < vsi->num_queue_pairs; q++) {
+ 		/* locate Tx ring */
+ 		p = READ_ONCE(vsi->tx_rings[q]);
++		if (!p)
++			continue;
  
- static void regmap_format_16_le(void *buf, unsigned int val, unsigned int shift)
- {
--	__le16 *b = buf;
--
--	b[0] = cpu_to_le16(val << shift);
-+	put_unaligned_le16(val << shift, buf);
- }
+ 		do {
+ 			start = u64_stats_fetch_begin_irq(&p->syncp);
+@@ -800,8 +806,11 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
+ 		tx_linearize += p->tx_stats.tx_linearize;
+ 		tx_force_wb += p->tx_stats.tx_force_wb;
  
- static void regmap_format_16_native(void *buf, unsigned int val,
- 				    unsigned int shift)
- {
--	*(u16 *)buf = val << shift;
-+	u16 v = val << shift;
+-		/* Rx queue is part of the same block as Tx queue */
+-		p = &p[1];
++		/* locate Rx ring */
++		p = READ_ONCE(vsi->rx_rings[q]);
++		if (!p)
++			continue;
 +
-+	memcpy(buf, &v, sizeof(v));
+ 		do {
+ 			start = u64_stats_fetch_begin_irq(&p->syncp);
+ 			packets = p->stats.packets;
+@@ -10816,10 +10825,10 @@ static void i40e_vsi_clear_rings(struct i40e_vsi *vsi)
+ 	if (vsi->tx_rings && vsi->tx_rings[0]) {
+ 		for (i = 0; i < vsi->alloc_queue_pairs; i++) {
+ 			kfree_rcu(vsi->tx_rings[i], rcu);
+-			vsi->tx_rings[i] = NULL;
+-			vsi->rx_rings[i] = NULL;
++			WRITE_ONCE(vsi->tx_rings[i], NULL);
++			WRITE_ONCE(vsi->rx_rings[i], NULL);
+ 			if (vsi->xdp_rings)
+-				vsi->xdp_rings[i] = NULL;
++				WRITE_ONCE(vsi->xdp_rings[i], NULL);
+ 		}
+ 	}
  }
+@@ -10853,7 +10862,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
+ 		if (vsi->back->hw_features & I40E_HW_WB_ON_ITR_CAPABLE)
+ 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
+ 		ring->itr_setting = pf->tx_itr_default;
+-		vsi->tx_rings[i] = ring++;
++		WRITE_ONCE(vsi->tx_rings[i], ring++);
  
- static void regmap_format_24(void *buf, unsigned int val, unsigned int shift)
-@@ -280,43 +279,39 @@ static void regmap_format_24(void *buf, unsigned int val, unsigned int shift)
+ 		if (!i40e_enabled_xdp_vsi(vsi))
+ 			goto setup_rx;
+@@ -10871,7 +10880,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
+ 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
+ 		set_ring_xdp(ring);
+ 		ring->itr_setting = pf->tx_itr_default;
+-		vsi->xdp_rings[i] = ring++;
++		WRITE_ONCE(vsi->xdp_rings[i], ring++);
  
- static void regmap_format_32_be(void *buf, unsigned int val, unsigned int shift)
- {
--	__be32 *b = buf;
--
--	b[0] = cpu_to_be32(val << shift);
-+	put_unaligned_be32(val << shift, buf);
- }
+ setup_rx:
+ 		ring->queue_index = i;
+@@ -10884,7 +10893,7 @@ setup_rx:
+ 		ring->size = 0;
+ 		ring->dcb_tc = 0;
+ 		ring->itr_setting = pf->rx_itr_default;
+-		vsi->rx_rings[i] = ring;
++		WRITE_ONCE(vsi->rx_rings[i], ring);
+ 	}
  
- static void regmap_format_32_le(void *buf, unsigned int val, unsigned int shift)
- {
--	__le32 *b = buf;
--
--	b[0] = cpu_to_le32(val << shift);
-+	put_unaligned_le32(val << shift, buf);
- }
- 
- static void regmap_format_32_native(void *buf, unsigned int val,
- 				    unsigned int shift)
- {
--	*(u32 *)buf = val << shift;
-+	u32 v = val << shift;
-+
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- #ifdef CONFIG_64BIT
- static void regmap_format_64_be(void *buf, unsigned int val, unsigned int shift)
- {
--	__be64 *b = buf;
--
--	b[0] = cpu_to_be64((u64)val << shift);
-+	put_unaligned_be64((u64) val << shift, buf);
- }
- 
- static void regmap_format_64_le(void *buf, unsigned int val, unsigned int shift)
- {
--	__le64 *b = buf;
--
--	b[0] = cpu_to_le64((u64)val << shift);
-+	put_unaligned_le64((u64) val << shift, buf);
- }
- 
- static void regmap_format_64_native(void *buf, unsigned int val,
- 				    unsigned int shift)
- {
--	*(u64 *)buf = (u64)val << shift;
-+	u64 v = (u64) val << shift;
-+
-+	memcpy(buf, &v, sizeof(v));
- }
- #endif
- 
-@@ -333,35 +328,34 @@ static unsigned int regmap_parse_8(const void *buf)
- 
- static unsigned int regmap_parse_16_be(const void *buf)
- {
--	const __be16 *b = buf;
--
--	return be16_to_cpu(b[0]);
-+	return get_unaligned_be16(buf);
- }
- 
- static unsigned int regmap_parse_16_le(const void *buf)
- {
--	const __le16 *b = buf;
--
--	return le16_to_cpu(b[0]);
-+	return get_unaligned_le16(buf);
- }
- 
- static void regmap_parse_16_be_inplace(void *buf)
- {
--	__be16 *b = buf;
-+	u16 v = get_unaligned_be16(buf);
- 
--	b[0] = be16_to_cpu(b[0]);
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- static void regmap_parse_16_le_inplace(void *buf)
- {
--	__le16 *b = buf;
-+	u16 v = get_unaligned_le16(buf);
- 
--	b[0] = le16_to_cpu(b[0]);
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- static unsigned int regmap_parse_16_native(const void *buf)
- {
--	return *(u16 *)buf;
-+	u16 v;
-+
-+	memcpy(&v, buf, sizeof(v));
-+	return v;
- }
- 
- static unsigned int regmap_parse_24(const void *buf)
-@@ -376,69 +370,67 @@ static unsigned int regmap_parse_24(const void *buf)
- 
- static unsigned int regmap_parse_32_be(const void *buf)
- {
--	const __be32 *b = buf;
--
--	return be32_to_cpu(b[0]);
-+	return get_unaligned_be32(buf);
- }
- 
- static unsigned int regmap_parse_32_le(const void *buf)
- {
--	const __le32 *b = buf;
--
--	return le32_to_cpu(b[0]);
-+	return get_unaligned_le32(buf);
- }
- 
- static void regmap_parse_32_be_inplace(void *buf)
- {
--	__be32 *b = buf;
-+	u32 v = get_unaligned_be32(buf);
- 
--	b[0] = be32_to_cpu(b[0]);
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- static void regmap_parse_32_le_inplace(void *buf)
- {
--	__le32 *b = buf;
-+	u32 v = get_unaligned_le32(buf);
- 
--	b[0] = le32_to_cpu(b[0]);
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- static unsigned int regmap_parse_32_native(const void *buf)
- {
--	return *(u32 *)buf;
-+	u32 v;
-+
-+	memcpy(&v, buf, sizeof(v));
-+	return v;
- }
- 
- #ifdef CONFIG_64BIT
- static unsigned int regmap_parse_64_be(const void *buf)
- {
--	const __be64 *b = buf;
--
--	return be64_to_cpu(b[0]);
-+	return get_unaligned_be64(buf);
- }
- 
- static unsigned int regmap_parse_64_le(const void *buf)
- {
--	const __le64 *b = buf;
--
--	return le64_to_cpu(b[0]);
-+	return get_unaligned_le64(buf);
- }
- 
- static void regmap_parse_64_be_inplace(void *buf)
- {
--	__be64 *b = buf;
-+	u64 v =  get_unaligned_be64(buf);
- 
--	b[0] = be64_to_cpu(b[0]);
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- static void regmap_parse_64_le_inplace(void *buf)
- {
--	__le64 *b = buf;
-+	u64 v = get_unaligned_le64(buf);
- 
--	b[0] = le64_to_cpu(b[0]);
-+	memcpy(buf, &v, sizeof(v));
- }
- 
- static unsigned int regmap_parse_64_native(const void *buf)
- {
--	return *(u64 *)buf;
-+	u64 v;
-+
-+	memcpy(&v, buf, sizeof(v));
-+	return v;
- }
- #endif
- 
+ 	return 0;
 -- 
 2.25.1
 
