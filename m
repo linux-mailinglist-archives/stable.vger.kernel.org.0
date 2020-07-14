@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A2D21FBF0
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C25721FBF2
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730352AbgGNSyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:54:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51756 "EHLO mail.kernel.org"
+        id S1730671AbgGNTFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbgGNSyT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:54:19 -0400
+        id S1729821AbgGNSyY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:54:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E70822BF5;
-        Tue, 14 Jul 2020 18:54:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09F8B22BED;
+        Tue, 14 Jul 2020 18:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752859;
-        bh=7q/Jn05xenrj87leqnZtfVjiwdpZVJxdfTwBAn5Es/E=;
+        s=default; t=1594752864;
+        bh=Su7ILB/8TejBEFHJihSSLoVfxdzDuZnPTJVRyUPt8GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LfHZuw75AflXlQNro9HM2GaG6S/xZF8Y1xe1QtfrRCC7gV/1F6Y/nmfggkd7AP8QA
-         br4KZNBbxNjQxNVoV886FLTo8rCH9/HnPjVllrDdr8CLXlMGcLVZ1yUuv0nJ3JNU8N
-         k9Pnir7mjLSauP6HzVlxVHWJxdakbY9DsxOlinpo=
+        b=0rRsUFECDOD92QLpF/Hp8z1FSTDI7rppHNxQbgIcBxfGuYi+zoNsGWYxpeeVcZbWg
+         mYnb1AQ3yUlf9pctkNdbJV3AhIWxMeBkPDVIgtuO+mKwTNLX2a4PGpgpQ2mgj2m0go
+         KPsEipv+7/o+cvyfNMabBh6bqXjQM8ZlxqfsgAWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 013/166] staging: wfx: fix coherency of hif_scan() prototype
-Date:   Tue, 14 Jul 2020 20:42:58 +0200
-Message-Id: <20200714184116.532625160@linuxfoundation.org>
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 015/166] ASoC: SOF: Intel: add PCI ID for CometLake-S
+Date:   Tue, 14 Jul 2020 20:43:00 +0200
+Message-Id: <20200714184116.627511977@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -44,88 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 29de523a6270a308d12d21f4fecf52dac491e226 ]
+[ Upstream commit 258fb4f4c34a0db9d3834aba6784d7b322176bb9 ]
 
-The function hif_scan() return the timeout for the completion of the
-scan request. It is the only function from hif_tx.c that return another
-thing than just an error code. This behavior is not coherent with the
-rest of file. Worse, if value returned is positive, the caller can't
-make say if it is a timeout or the value returned by the hardware.
+Mirror ID added for legacy HDaudio
 
-Uniformize API with other HIF functions, only return the error code and
-pass timeout with parameters.
-
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Link: https://lore.kernel.org/r/20200529121256.1045521-1-Jerome.Pouiller@silabs.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200617164755.18104-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/hif_tx.c | 6 ++++--
- drivers/staging/wfx/hif_tx.h | 2 +-
- drivers/staging/wfx/scan.c   | 6 +++---
- 3 files changed, 8 insertions(+), 6 deletions(-)
+ sound/soc/sof/sof-pci-dev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/wfx/hif_tx.c b/drivers/staging/wfx/hif_tx.c
-index 20b3045d76674..15ff60a584668 100644
---- a/drivers/staging/wfx/hif_tx.c
-+++ b/drivers/staging/wfx/hif_tx.c
-@@ -222,7 +222,7 @@ int hif_write_mib(struct wfx_dev *wdev, int vif_id, u16 mib_id, void *val,
- }
- 
- int hif_scan(struct wfx_vif *wvif, struct cfg80211_scan_request *req,
--	     int chan_start_idx, int chan_num)
-+	     int chan_start_idx, int chan_num, int *timeout)
- {
- 	int ret, i;
- 	struct hif_msg *hif;
-@@ -269,11 +269,13 @@ int hif_scan(struct wfx_vif *wvif, struct cfg80211_scan_request *req,
- 	tmo_chan_fg = 512 * USEC_PER_TU + body->probe_delay;
- 	tmo_chan_fg *= body->num_of_probe_requests;
- 	tmo = chan_num * max(tmo_chan_bg, tmo_chan_fg) + 512 * USEC_PER_TU;
-+	if (timeout)
-+		*timeout = usecs_to_jiffies(tmo);
- 
- 	wfx_fill_header(hif, wvif->id, HIF_REQ_ID_START_SCAN, buf_len);
- 	ret = wfx_cmd_send(wvif->wdev, hif, NULL, 0, false);
- 	kfree(hif);
--	return ret ? ret : usecs_to_jiffies(tmo);
-+	return ret;
- }
- 
- int hif_stop_scan(struct wfx_vif *wvif)
-diff --git a/drivers/staging/wfx/hif_tx.h b/drivers/staging/wfx/hif_tx.h
-index f8520a14c14cd..7a21338470eeb 100644
---- a/drivers/staging/wfx/hif_tx.h
-+++ b/drivers/staging/wfx/hif_tx.h
-@@ -43,7 +43,7 @@ int hif_read_mib(struct wfx_dev *wdev, int vif_id, u16 mib_id,
- int hif_write_mib(struct wfx_dev *wdev, int vif_id, u16 mib_id,
- 		  void *buf, size_t buf_size);
- int hif_scan(struct wfx_vif *wvif, struct cfg80211_scan_request *req80211,
--	     int chan_start, int chan_num);
-+	     int chan_start, int chan_num, int *timeout);
- int hif_stop_scan(struct wfx_vif *wvif);
- int hif_join(struct wfx_vif *wvif, const struct ieee80211_bss_conf *conf,
- 	     struct ieee80211_channel *channel, const u8 *ssid, int ssidlen);
-diff --git a/drivers/staging/wfx/scan.c b/drivers/staging/wfx/scan.c
-index 9aa14331affd6..d47b8a3ba403c 100644
---- a/drivers/staging/wfx/scan.c
-+++ b/drivers/staging/wfx/scan.c
-@@ -56,10 +56,10 @@ static int send_scan_req(struct wfx_vif *wvif,
- 	wfx_tx_lock_flush(wvif->wdev);
- 	wvif->scan_abort = false;
- 	reinit_completion(&wvif->scan_complete);
--	timeout = hif_scan(wvif, req, start_idx, i - start_idx);
--	if (timeout < 0) {
-+	ret = hif_scan(wvif, req, start_idx, i - start_idx, &timeout);
-+	if (ret) {
- 		wfx_tx_unlock(wvif->wdev);
--		return timeout;
-+		return -EIO;
- 	}
- 	ret = wait_for_completion_timeout(&wvif->scan_complete, timeout);
- 	if (req->channels[start_idx]->max_power != wvif->vif->bss_conf.txpower)
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index cec631a1389b5..7b1846aeadd59 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -427,6 +427,8 @@ static const struct pci_device_id sof_pci_ids[] = {
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_COMETLAKE_H)
+ 	{ PCI_DEVICE(0x8086, 0x06c8),
+ 		.driver_data = (unsigned long)&cml_desc},
++	{ PCI_DEVICE(0x8086, 0xa3f0), /* CML-S */
++		.driver_data = (unsigned long)&cml_desc},
+ #endif
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_TIGERLAKE)
+ 	{ PCI_DEVICE(0x8086, 0xa0c8),
 -- 
 2.25.1
 
