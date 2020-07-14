@@ -2,136 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D765D21ECED
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 11:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8555F21ED9F
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 12:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbgGNJdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 05:33:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725952AbgGNJdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 05:33:01 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5681C061755;
-        Tue, 14 Jul 2020 02:33:00 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id dm19so16325682edb.13;
-        Tue, 14 Jul 2020 02:33:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=4hx30PqqoaKCTO0tMV5MXPy9WV4JOGXHT29cx4BAmGo=;
-        b=PUZRD7ZoJoGcBKUQ//Po15bwuf7dQgrMkN+LsH1vGn+Wu+CPT+g+1ecewCvcnztIQ2
-         Zr4cI4eZ1MrETF11GT/frURS9Hw9hMFiEj2RVZWvs6sjop4lrpEk2ap67NUS7n4q4MpM
-         h7PLhp82Z1DnvX9DQTD3RXo88dBx8f2W4Kjtsawk/okiXD48p9YZzZh4vRdRY7aZUE+t
-         o+oc98a4PzwjA3FoDxNMWnWOrcgD9r1tvaUb2zAGaNFrfsZ4sISFsSkh6zgDFEDdY7UH
-         dIafe65vWNWVDgvxDX5icgA06I7IMkr7Ob2/N82waLw2dR23WPdSpOMrvbWH8pwKsQGr
-         5uwg==
+        id S1726398AbgGNKFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 06:05:50 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22712 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726041AbgGNKFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 06:05:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594721149;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=M45goFW1k5rIsSg3jlh/sipfJG5akY3mkAx0YcJf4D0=;
+        b=OKSOid7HgU+uUpCGm8ALlR1ONHgZtMJVf+1DvSyk7UO5Z5s26VnZCasGdN6EqSI3Q0ygfM
+        +aqrWR2rCUz0kVeayOG+KF9OSq0S1rjNgdJy4r0zF9tSpePaNZJX6kz4Y+kbqB1wPpL2ly
+        mBpegFBb3BgtrW+GXGFrCrGwyjaQ7w4=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-213-zClGB2zFPJWrl9ataRcXhA-1; Tue, 14 Jul 2020 05:58:38 -0400
+X-MC-Unique: zClGB2zFPJWrl9ataRcXhA-1
+Received: by mail-wm1-f69.google.com with SMTP id g138so3148583wme.7
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 02:58:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4hx30PqqoaKCTO0tMV5MXPy9WV4JOGXHT29cx4BAmGo=;
-        b=iH9KBas7rVwtE5c2ouz1GWQ9+jV8L+q7S89moTnS5nN5a+kAJXDC4N6N8D4qkjxzJe
-         PhQmvdJ6RSBnjUtkVGpJHMKTyJNhsonkmz/iv+IiyJTq/giPpiiSEey5iS3pNFFI/DJg
-         87zuZSY+8LoA/PpDIJWZ+TJG1QQLhq5VB4cb/njCcyH6hdR1Ffo2lcFzMPQXertlH1fD
-         xXc61XWbcdSuDqa3j1k9EAJ9wyU8pH07hW201nY62CigwsiFzl0vlNmDQ7N4ZI5JASz6
-         wJ6dSKmz4fF/qvzFgPNkpw40HafOEfwyXzjDwFLjfr8VveNu1dPtD5VcD+xXf10Auyz4
-         dmeQ==
-X-Gm-Message-State: AOAM5326K1wRGXarjQDrb8+RHiQJYzrz8Il8FEtV837Tm5DHIVtTs5dz
-        uWgNJIQV8OBEx1qcZxOKw7E=
-X-Google-Smtp-Source: ABdhPJxQMpKEO/TmGr4t3/ZxNmff8nGv0ouAGV0vHWdU8pzoRUZBJ8ps7/OmisdmObnGZ/BxXqvGAw==
-X-Received: by 2002:a05:6402:1592:: with SMTP id c18mr3741523edv.258.1594719179492;
-        Tue, 14 Jul 2020 02:32:59 -0700 (PDT)
-Received: from localhost ([62.96.65.119])
-        by smtp.gmail.com with ESMTPSA id t6sm12170365ejc.40.2020.07.14.02.32.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2020 02:32:57 -0700 (PDT)
-Date:   Tue, 14 Jul 2020 11:32:56 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] usb: tegra: Fix zero length memory allocation
-Message-ID: <20200714093256.GG141356@ulmo>
-References: <20200712102837.24340-1-jonathanh@nvidia.com>
- <20200712102837.24340-2-jonathanh@nvidia.com>
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=M45goFW1k5rIsSg3jlh/sipfJG5akY3mkAx0YcJf4D0=;
+        b=Zek3dZgW+W3WkNZKtT98XWH75ovgYgjKUOB67W6mdLkCzloZJP+brlQPuiB5I61IgG
+         Bq5fLuRkGRCZSSce6v2uK1/SDP0df0gNKgC1xR6g5RwVx+bx5HjZA/8USF6mLH46lxiR
+         JTw3VNhSSQqE8ZbVnM2am3n4fhIcJ13/nsykB9ZBXPp5Q4geBMRjSCYwOtK9+4LCoC6L
+         0MOIB+A5JjJgcrMjkjAlsqL36J9PD9Z67scREgabaXna0Maal6yhbza04s98AizMTZ9/
+         OYGuxYJHkV5TKpx/TA5BWSc4Dk5H92biRqZOa1t/B8JmtkbGN8311X8MpsD7CUcmJj28
+         afYA==
+X-Gm-Message-State: AOAM532eO5n9Ab3LTbif9zHM3T3IHWXmzvJOEFLfJOpTnm2ou44aDDcX
+        gS4fMiEV/6aSPTDxfau1BT/T8XPnQt0aYHjNpXpuqGlaVysVSOcihvD92FKlXqQOYDMRv9xjKHv
+        +oD/nkUwVoVLy/WGY
+X-Received: by 2002:a05:600c:2219:: with SMTP id z25mr3687752wml.154.1594720717629;
+        Tue, 14 Jul 2020 02:58:37 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyAqljQrA/da0BJJwYmv3rWaQ1K36YlvNOU+bBrZAudP7H3iMf7Q+UgFjgeqAMWypbGKPUFqg==
+X-Received: by 2002:a05:600c:2219:: with SMTP id z25mr3687740wml.154.1594720717450;
+        Tue, 14 Jul 2020 02:58:37 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id j24sm29419847wrd.43.2020.07.14.02.58.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jul 2020 02:58:36 -0700 (PDT)
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Hans de Goede <hdegoede@redhat.com>
+Subject: Please revert "ath9k: Fix general protection fault in
+ ath9k_hif_usb_rx_cb" from all stable kernels
+Message-ID: <2a5acaae-9aef-1aab-d385-0dd11d151fa6@redhat.com>
+Date:   Tue, 14 Jul 2020 11:58:36 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="DNUSDXU7R7AVVM8C"
-Content-Disposition: inline
-In-Reply-To: <20200712102837.24340-2-jonathanh@nvidia.com>
-User-Agent: Mutt/1.14.4 (2020-06-18)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg (et all),
 
---DNUSDXU7R7AVVM8C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Note several people are already working on this, so you may already have a request for this.
 
-On Sun, Jul 12, 2020 at 11:28:37AM +0100, Jon Hunter wrote:
-> After commit cad064f1bd52 ("devres: handle zero size in devm_kmalloc()")
-> was added system suspend started failing on Tegra186. The kernel log
-> showed that the Tegra XHCI driver was crashing on entry to suspend when
-> attemptin the save the USB context. The problem is caused because we
-> are trying to allocate a zero length array for the IPFS context on
-> Tegra186 and following commit cad064f1bd52 ("devres: handle zero size
-> in devm_kmalloc()") this now causes a NULL pointer deference crash
-> when we try to access the memory. Fix this by only allocating memory
-> for both the IPFS and FPCI contexts when required.
->=20
-> Cc: stable@vger.kernel.org
->=20
-> Fixes: 5c4e8d3781bc ("usb: host: xhci-tegra: Add support for XUSB context=
- save/restore")
->=20
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-> ---
->  drivers/usb/host/xhci-tegra.c | 22 ++++++++++++++--------
->  1 file changed, 14 insertions(+), 8 deletions(-)
+The "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb" commit which has been
+added to several stable kernels (at least to 5.4.y and 5.7.y, but likely also to others)
+is breaking networking for people with an ath9k card.
 
-Actually it would seem to me that this is no longer a bug after your fix
-in patch 1. We only ever access tegra->context.ipfs if
-tegra->soc->ipfs.num_offsets > 0, so the special ZERO_SIZE_PTR case will
-not actually cause an issue anymore.
+A revert has been submitted upstream, but it does not seem to have found it way
+upstream yet. It has been cherry-picked by the Arch people:
 
-The reason why this was crashing was because tegra->context.fpci was
-allocated with a zero size (because of the bug that you fixed in patch
-1) and then that zero-size pointer was dereferenced because the code was
-correctly checking for tegra->soc->fpci.num_offsets > 0 in the context
-save and restore.
+https://git.archlinux.org/linux.git/commit/?h=v5.7.8-arch1&id=1a32e7b57b0b37cab6845093920b4d1ff94d3bf4
 
-So I don't think there's a bug here. It's not wrong to allocate a zero-
-size buffer. It's only a bug to then go and dereference it. Are you
-still seeing the issue if you leave out this patch and only apply patch
-1?
+So if you want to credit some of the original people working on fixing this,
+you can find the revert submitted upstream there.
 
-Thierry
+Reverting this fixes / also see:
 
---DNUSDXU7R7AVVM8C
-Content-Type: application/pgp-signature; name="signature.asc"
+https://bugzilla.kernel.org/show_bug.cgi?id=208251
+https://bugzilla.redhat.com/show_bug.cgi?id=1848631
 
------BEGIN PGP SIGNATURE-----
+Regards,
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl8Ne8YACgkQ3SOs138+
-s6FDDg/8CEz3TwFQZ66rzYhrJ454N+7L/iQDGUFwOVWDItvRGvKT/b6mGVa/CA1g
-mAm1dcSUr15ALz9ktJVS1kYlzUQ3XV8gLDtTQz3DPL3IULc75ykyWb6l5P0VMvQH
-s0kPu6SLZE/tLhApcoO3jzoq/m0aj0U1oBm4iDRlh9EbCZip8l4Er6Lcd0j4cRdY
-skYD09DG3v+WW2TVc97nfaWrf+J4e00a+96K/0tuw3WDFMO9CPuHOkAJ+RLVbVbF
-Ct3GDkQcrSeZ2J+ajbwXMPnRED493BJXLBAGfPGCvXh+r3gPCOVWWzFfnaXjs1mt
-m558IaWk5LRlxcKgzVY0L+vXDqBNa4oR5t9KszRosbUXqlg3sbJfIcAT4thelP9x
-1GHPrRmAlb9/Mw0zNsFaJK+O4WqLPMyms0nDHuY8Tcxhckr+vFuqZCdGW3GNI+ON
-fAL+UIr8BHjJ/pBInLe5fwAJImtLpI6o2G7sRlMtOYgnURCZAT/5ZFxlhGH/ShWL
-VVVYvf/M1oExnK4Y8kODARu9cgy1bCzvAMPFYT+Gec+TEECd2YWsPJYmFw91LiDO
-o3TnsA6g2LZmLzDsFfpp/TB+Bn0GcBz2znyncuZJltshMtVPbI4Ai/HXUIfXUMn7
-Ktl/q2KzH5cOrfyVAcn/4cNyOlNt/d9Fq7hU0kJzcooZCLxAgzs=
-=qqmM
------END PGP SIGNATURE-----
+Hans
 
---DNUSDXU7R7AVVM8C--
