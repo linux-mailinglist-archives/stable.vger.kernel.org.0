@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E17ED21FAFA
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF7421F9ED
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730677AbgGNS51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:57:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S1729817AbgGNSrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729678AbgGNS5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:57:25 -0400
+        id S1729813AbgGNSrq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF3B122B2B;
-        Tue, 14 Jul 2020 18:57:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B75422AAA;
+        Tue, 14 Jul 2020 18:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753044;
-        bh=CP5QshHsdbi112QdOMX7JdG4LdpRi4iLCU1/oUR75ro=;
+        s=default; t=1594752465;
+        bh=b/MpVVAJc2+RtAD7Rz7jIVft8p7AIFTO1t2b3ctl1eY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DD/70AiadwZIK0R5GH892KHpnmMfXtfYYncyFYt3W4M7yrBRinupd9glI8f/Dy/C9
-         x9Tty8PBbiAxgWnk7sLVisZBkKxa4iYY8Pb1FcK/ScMOkksh5jQGIDv0QssmVHFw6Q
-         Q5lZorPbeCD/MqNuw36UKzxdIDrZEqCVeqz9t0fo=
+        b=u+yKXURlYlAHLwfYikxX+6+y3ZhvRFdQfSX+P8Y+TyuPwp2qDou/w2zLiQ0gppxq6
+         G9XcoIfT0FXYPNqKH5xhXpoZ2QLrdx3QlGBg3ev3JvCIGXnXvp+uOIipPSElmZdfRE
+         heHUEcc3I/7r4B0aklYokgWZshO00NiUinZiJPAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Liu <feliu@redhat.com>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 099/166] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
-Date:   Tue, 14 Jul 2020 20:44:24 +0200
-Message-Id: <20200714184120.585415446@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Qiujun Huang <hqjagain@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 52/58] Revert "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb"
+Date:   Tue, 14 Jul 2020 20:44:25 +0200
+Message-Id: <20200714184058.743710489@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,93 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit c8b1d7436045d3599bae56aef1682813ecccaad7 ]
+This reverts commit bdf4d37b03dc410b91f318c8e097a41e732d1038 which is
+commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
 
-we need to set 'active_vfs' back to 0, if something goes wrong during the
-allocation of SR-IOV resources: otherwise, further VF configurations will
-wrongly assume that bp->pf.vf[x] are valid memory locations, and commands
-like the ones in the following sequence:
+It is being reverted upstream, just hasn't made it there yet and is
+causing lots of problems.
 
- # echo 2 >/sys/bus/pci/devices/${ADDR}/sriov_numvfs
- # ip link set dev ens1f0np0 up
- # ip link set dev ens1f0np0 vf 0 trust on
-
-will cause a kernel crash similar to this:
-
- bnxt_en 0000:3b:00.0: not enough MMIO resources for SR-IOV
- BUG: kernel NULL pointer dereference, address: 0000000000000014
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] SMP PTI
- CPU: 43 PID: 2059 Comm: ip Tainted: G          I       5.8.0-rc2.upstream+ #871
- Hardware name: Dell Inc. PowerEdge R740/08D89F, BIOS 2.2.11 06/13/2019
- RIP: 0010:bnxt_set_vf_trust+0x5b/0x110 [bnxt_en]
- Code: 44 24 58 31 c0 e8 f5 fb ff ff 85 c0 0f 85 b6 00 00 00 48 8d 1c 5b 41 89 c6 b9 0b 00 00 00 48 c1 e3 04 49 03 9c 24 f0 0e 00 00 <8b> 43 14 89 c2 83 c8 10 83 e2 ef 45 84 ed 49 89 e5 0f 44 c2 4c 89
- RSP: 0018:ffffac6246a1f570 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000000000b
- RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff98b28f538900
- RBP: ffff98b28f538900 R08: 0000000000000000 R09: 0000000000000008
- R10: ffffffffb9515be0 R11: ffffac6246a1f678 R12: ffff98b28f538000
- R13: 0000000000000001 R14: 0000000000000000 R15: ffffffffc05451e0
- FS:  00007fde0f688800(0000) GS:ffff98baffd40000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000014 CR3: 000000104bb0a003 CR4: 00000000007606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- PKRU: 55555554
- Call Trace:
-  do_setlink+0x994/0xfe0
-  __rtnl_newlink+0x544/0x8d0
-  rtnl_newlink+0x47/0x70
-  rtnetlink_rcv_msg+0x29f/0x350
-  netlink_rcv_skb+0x4a/0x110
-  netlink_unicast+0x21d/0x300
-  netlink_sendmsg+0x329/0x450
-  sock_sendmsg+0x5b/0x60
-  ____sys_sendmsg+0x204/0x280
-  ___sys_sendmsg+0x88/0xd0
-  __sys_sendmsg+0x5e/0xa0
-  do_syscall_64+0x47/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: c0c050c58d840 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Fei Liu <feliu@redhat.com>
-CC: Jonathan Toppins <jtoppins@redhat.com>
-CC: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Acked-by: Jonathan Toppins <jtoppins@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Qiujun Huang <hqjagain@gmail.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |   48 +++++++------------------------
+ drivers/net/wireless/ath/ath9k/hif_usb.h |    5 ---
+ 2 files changed, 11 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-index cea2f9958a1df..2295f539a6414 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-@@ -396,6 +396,7 @@ static void bnxt_free_vf_resources(struct bnxt *bp)
- 		}
- 	}
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -643,9 +643,9 @@ err:
  
-+	bp->pf.active_vfs = 0;
- 	kfree(bp->pf.vf);
- 	bp->pf.vf = NULL;
+ static void ath9k_hif_usb_rx_cb(struct urb *urb)
+ {
+-	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+-	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+-	struct sk_buff *skb = rx_buf->skb;
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
++	struct hif_device_usb *hif_dev =
++		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
+ 
+ 	if (!skb)
+@@ -685,15 +685,14 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
+-	kfree(rx_buf);
  }
-@@ -835,7 +836,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
  
- 	bnxt_free_vf_resources(bp);
+ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ {
+-	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+-	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+-	struct sk_buff *skb = rx_buf->skb;
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
+ 	struct sk_buff *nskb;
++	struct hif_device_usb *hif_dev =
++		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
  
--	bp->pf.active_vfs = 0;
- 	/* Reclaim all resources for the PF. */
- 	rtnl_lock();
- 	bnxt_restore_pf_fw_resources(bp);
--- 
-2.25.1
-
+ 	if (!skb)
+@@ -751,7 +750,6 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
+-	kfree(rx_buf);
+ 	urb->context = NULL;
+ }
+ 
+@@ -797,7 +795,7 @@ static int ath9k_hif_usb_alloc_tx_urbs(s
+ 	init_usb_anchor(&hif_dev->mgmt_submitted);
+ 
+ 	for (i = 0; i < MAX_TX_URB_NUM; i++) {
+-		tx_buf = kzalloc(sizeof(*tx_buf), GFP_KERNEL);
++		tx_buf = kzalloc(sizeof(struct tx_buf), GFP_KERNEL);
+ 		if (!tx_buf)
+ 			goto err;
+ 
+@@ -834,9 +832,8 @@ static void ath9k_hif_usb_dealloc_rx_urb
+ 
+ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct rx_buf *rx_buf = NULL;
+-	struct sk_buff *skb = NULL;
+ 	struct urb *urb = NULL;
++	struct sk_buff *skb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->rx_submitted);
+@@ -844,12 +841,6 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 
+ 	for (i = 0; i < MAX_RX_URB_NUM; i++) {
+ 
+-		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
+-		if (!rx_buf) {
+-			ret = -ENOMEM;
+-			goto err_rxb;
+-		}
+-
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -864,14 +855,11 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 			goto err_skb;
+ 		}
+ 
+-		rx_buf->hif_dev = hif_dev;
+-		rx_buf->skb = skb;
+-
+ 		usb_fill_bulk_urb(urb, hif_dev->udev,
+ 				  usb_rcvbulkpipe(hif_dev->udev,
+ 						  USB_WLAN_RX_PIPE),
+ 				  skb->data, MAX_RX_BUF_SIZE,
+-				  ath9k_hif_usb_rx_cb, rx_buf);
++				  ath9k_hif_usb_rx_cb, skb);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->rx_submitted);
+@@ -897,8 +885,6 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
+-	kfree(rx_buf);
+-err_rxb:
+ 	ath9k_hif_usb_dealloc_rx_urbs(hif_dev);
+ 	return ret;
+ }
+@@ -910,21 +896,14 @@ static void ath9k_hif_usb_dealloc_reg_in
+ 
+ static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct rx_buf *rx_buf = NULL;
+-	struct sk_buff *skb = NULL;
+ 	struct urb *urb = NULL;
++	struct sk_buff *skb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->reg_in_submitted);
+ 
+ 	for (i = 0; i < MAX_REG_IN_URB_NUM; i++) {
+ 
+-		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
+-		if (!rx_buf) {
+-			ret = -ENOMEM;
+-			goto err_rxb;
+-		}
+-
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -939,14 +918,11 @@ static int ath9k_hif_usb_alloc_reg_in_ur
+ 			goto err_skb;
+ 		}
+ 
+-		rx_buf->hif_dev = hif_dev;
+-		rx_buf->skb = skb;
+-
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				  usb_rcvintpipe(hif_dev->udev,
+ 						  USB_REG_IN_PIPE),
+ 				  skb->data, MAX_REG_IN_BUF_SIZE,
+-				  ath9k_hif_usb_reg_in_cb, rx_buf, 1);
++				  ath9k_hif_usb_reg_in_cb, skb, 1);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->reg_in_submitted);
+@@ -972,8 +948,6 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
+-	kfree(rx_buf);
+-err_rxb:
+ 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
+ 	return ret;
+ }
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.h
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
+@@ -86,11 +86,6 @@ struct tx_buf {
+ 	struct list_head list;
+ };
+ 
+-struct rx_buf {
+-	struct sk_buff *skb;
+-	struct hif_device_usb *hif_dev;
+-};
+-
+ #define HIF_USB_TX_STOP  BIT(0)
+ #define HIF_USB_TX_FLUSH BIT(1)
+ 
 
 
