@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C10E21FCFA
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9768B21FC5D
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729438AbgGNSqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:46:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41002 "EHLO mail.kernel.org"
+        id S1730209AbgGNStu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:49:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728591AbgGNSqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:46:22 -0400
+        id S1729612AbgGNStt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:49:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A4C822282;
-        Tue, 14 Jul 2020 18:46:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85D88222E9;
+        Tue, 14 Jul 2020 18:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752381;
-        bh=Etl3Gm+fIH+E4vV7pbD8M3aAq8PdUs9ASZvdnVGqd3E=;
+        s=default; t=1594752589;
+        bh=8loZ5vzd7dqeVhEOYV35bNDjrOFzthtoyhQ0z6NnDlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1zySKUeesKRe4EBjsmy4qX71FtHj6gAaTOphtndN3zJ6I0IFY8Gwd+tkkT6pYFCy
-         g7zJJkBzcIJFuzG56sE3ML8o/NRdFau8CvHPDYux7Yj4ndXxJqlSDEwwt7mEvSE1PD
-         8eCFwXxZdMvZP6nyPEjD3qfrVOO6DwqT9aovA3/w=
+        b=b1i1/wWUZcYOtxSjOMx9Qj4jpK0dKeMvPr6xiuonJMT97i9r3Me/+89GepIFVW+oy
+         6nD2QkXiLCSIhHfgc6ZrUPQOTy9WPvK283SfBrcO7GKhvveupp4CUDYlqDASBr7XQh
+         1jGras1NeHeUyhRLpNb/b++7W2uhQzBfDHJPfwsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/58] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI transfer
-Date:   Tue, 14 Jul 2020 20:43:36 +0200
-Message-Id: <20200714184056.312388147@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/109] sched/core: Check cpus_mask, not cpus_ptr in __set_cpus_allowed_ptr(), to fix mask corruption
+Date:   Tue, 14 Jul 2020 20:43:37 +0200
+Message-Id: <20200714184107.153892295@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Scott Wood <swood@redhat.com>
 
-[ Upstream commit 7684580d45bd3d84ed9b453a4cadf7a9a5605a3f ]
+[ Upstream commit fd844ba9ae59b51e34e77105d79f8eca780b3bd6 ]
 
-During device removal, the driver should unregister the SPI controller
-and stop the hardware.  Otherwise the dspi_transfer_one_message() could
-wait on completion infinitely.
+This function is concerned with the long-term CPU mask, not the
+transitory mask the task might have while migrate disabled.  Before
+this patch, if a task was migrate-disabled at the time
+__set_cpus_allowed_ptr() was called, and the new mask happened to be
+equal to the CPU that the task was running on, then the mask update
+would be lost.
 
-Additionally, calling spi_unregister_controller() first in device
-removal reverse-matches the probe function, where SPI controller is
-registered at the end.
-
-Fixes: 05209f457069 ("spi: fsl-dspi: add missing clk_disable_unprepare() in dspi_remove()")
-Reported-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200622110543.5035-1-krzk@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Scott Wood <swood@redhat.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200617121742.cpxppyi7twxmpin7@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ kernel/sched/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 9296bcbbd32ce..970ffdb976d73 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1137,9 +1137,18 @@ static int dspi_remove(struct platform_device *pdev)
- 	struct fsl_dspi *dspi = spi_master_get_devdata(master);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 7238ef445dafb..8b3e99d095ae0 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1649,7 +1649,7 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+ 		goto out;
+ 	}
  
- 	/* Disconnect from the SPI framework */
-+	spi_unregister_controller(dspi->master);
-+
-+	/* Disable RX and TX */
-+	regmap_update_bits(dspi->regmap, SPI_MCR,
-+			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF,
-+			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF);
-+
-+	/* Stop Running */
-+	regmap_update_bits(dspi->regmap, SPI_MCR, SPI_MCR_HALT, SPI_MCR_HALT);
-+
- 	dspi_release_dma(dspi);
- 	clk_disable_unprepare(dspi->clk);
--	spi_unregister_master(dspi->master);
+-	if (cpumask_equal(p->cpus_ptr, new_mask))
++	if (cpumask_equal(&p->cpus_mask, new_mask))
+ 		goto out;
  
- 	return 0;
- }
+ 	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
 -- 
 2.25.1
 
