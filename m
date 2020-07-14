@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF8B21FB8B
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C756D21FB92
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730864AbgGNS60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:58:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
+        id S1729491AbgGNTCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731196AbgGNS60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:58:26 -0400
+        id S1730456AbgGNS62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:58:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25AAA22A99;
-        Tue, 14 Jul 2020 18:58:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7E0822AAD;
+        Tue, 14 Jul 2020 18:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753105;
-        bh=9QAtD4QYQW1SlkZkkh5EJ3lPChvmKTyOqkTQIYB0UHY=;
+        s=default; t=1594753108;
+        bh=qvVZYZZyvXrrrupe0Ch3flCHxEUB0/G4mbDKdvK05H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vdf3GeH1+U5aPhxPKOhUx6t7X9kj53QLb7ksrpJMgtEJWl5wILH6FKKXbZt2EeS6d
-         qzBqqWqmmA9LO5kAQZwTQLsVwIUZdf4T4TC4eZBOiXhojo4BzEyEZMRqKzCfIZQW6U
-         WYbVMDY0tFERG3pWKVHXLzrYWs+lDuT3uzm5J74I=
+        b=pVbiS3TRAVCm86SRsUFXUSH19EzhDz4/2q2S1g6YW8+/I4pq7hH3owo3Ai/mCSen5
+         RO5TtB5NxJkQ9joxDH+fN5a7Cp5/fFAO6GXTkd1Ciw4PXkBaXkTYKAPCRIOFwN8g7T
+         vpJQoEUpTtj4QXHGt0xoy2wnAOsnxX/daxEo7co4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        stable@vger.kernel.org,
+        Sebastien Boeuf <sebastien.boeuf@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.7 120/166] KVM: x86: bit 8 of non-leaf PDPEs is not reserved
-Date:   Tue, 14 Jul 2020 20:44:45 +0200
-Message-Id: <20200714184121.583040678@linuxfoundation.org>
+Subject: [PATCH 5.7 121/166] KVM: x86: Inject #GP if guest attempts to toggle CR4.LA57 in 64-bit mode
+Date:   Tue, 14 Jul 2020 20:44:46 +0200
+Message-Id: <20200714184121.629538494@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -43,37 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 5ecad245de2ae23dc4e2dbece92f8ccfbaed2fa7 upstream.
+commit d74fcfc1f0ff4b6c26ecef1f9e48d8089ab4eaac upstream.
 
-Bit 8 would be the "global" bit, which does not quite make sense for non-leaf
-page table entries.  Intel ignores it; AMD ignores it in PDEs and PDPEs, but
-reserves it in PML4Es.
+Inject a #GP on MOV CR4 if CR4.LA57 is toggled in 64-bit mode, which is
+illegal per Intel's SDM:
 
-Probably, earlier versions of the AMD manual documented it as reserved in PDPEs
-as well, and that behavior made it into KVM as well as kvm-unit-tests; fix it.
+  CR4.LA57
+    57-bit linear addresses (bit 12 of CR4) ... blah blah blah ...
+    This bit cannot be modified in IA-32e mode.
 
+Note, the pseudocode for MOV CR doesn't call out the fault condition,
+which is likely why the check was missed during initial development.
+This is arguably an SDM bug and will hopefully be fixed in future
+release of the SDM.
+
+Fixes: fd8cb433734ee ("KVM: MMU: Expose the LA57 feature to VM.")
 Cc: stable@vger.kernel.org
-Reported-by: Nadav Amit <namit@vmware.com>
-Fixes: a0c0feb57992 ("KVM: x86: reserve bit 8 of non-leaf PDPEs and PML4Es in 64-bit mode on AMD", 2014-09-03)
+Reported-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200703021714.5549-1-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4484,7 +4484,7 @@ __reset_rsvds_bits_mask(struct kvm_vcpu
- 			nonleaf_bit8_rsvd | rsvd_bits(7, 7) |
- 			rsvd_bits(maxphyaddr, 51);
- 		rsvd_check->rsvd_bits_mask[0][2] = exb_bit_rsvd |
--			nonleaf_bit8_rsvd | gbpages_bit_rsvd |
-+			gbpages_bit_rsvd |
- 			rsvd_bits(maxphyaddr, 51);
- 		rsvd_check->rsvd_bits_mask[0][1] = exb_bit_rsvd |
- 			rsvd_bits(maxphyaddr, 51);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -964,6 +964,8 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, u
+ 	if (is_long_mode(vcpu)) {
+ 		if (!(cr4 & X86_CR4_PAE))
+ 			return 1;
++		if ((cr4 ^ old_cr4) & X86_CR4_LA57)
++			return 1;
+ 	} else if (is_paging(vcpu) && (cr4 & X86_CR4_PAE)
+ 		   && ((cr4 ^ old_cr4) & pdptr_bits)
+ 		   && !load_pdptrs(vcpu, vcpu->arch.walk_mmu,
 
 
