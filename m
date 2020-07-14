@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0240921FCF9
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8990721FC3A
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729407AbgGNSqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40826 "EHLO mail.kernel.org"
+        id S1729986AbgGNSvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729393AbgGNSqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:46:14 -0400
+        id S1730427AbgGNSvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA55422282;
-        Tue, 14 Jul 2020 18:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8041D207F5;
+        Tue, 14 Jul 2020 18:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752374;
-        bh=n/RZAlzXDH8rUSbrW3Nyf4sfqxn/njQDPwIOh6b0um0=;
+        s=default; t=1594752705;
+        bh=3uf1IuXZh93/qcZAinaEENd95ogQcAx98MOdCIGIPxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nPmEdS9BzH1enn4a8yVnvrtwg0qOn8GIVyUnHFlEY03Pull/yx+/sjui6c8AJMcfZ
-         RFp+6gnLzYsgTgUU0oMcjl3XsG9wLy5gVGd6Mi6nDoN4uL7CY87oyrol+ZK6sVKTY1
-         4zTPVB+bX6TmcteL11FPfrG0kSQX3sdEv/CUkdZ4=
+        b=q2xgcAC3Ld8q0C8biVM07vG1pzlxRS7BB+/AVLIDnxWK6/nsXyUsCtlhHqvd7XGJP
+         NE5mZVoGlofVa2A53Z0XjMPwiQgQ88IqzS+kVWspUcxCqCccO6NNKKe7ZyhB5YR1qI
+         99NSGeiEZmiFdkafY0V+fYHo+cKGhPE6ysiA6KlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/58] cifs: update ctime and mtime during truncate
+Subject: [PATCH 5.4 048/109] perf report TUI: Fix segmentation fault in perf_evsel__hists_browse()
 Date:   Tue, 14 Jul 2020 20:43:51 +0200
-Message-Id: <20200714184057.061438764@linuxfoundation.org>
+Message-Id: <20200714184107.821720203@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +51,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Wei Li <liwei391@huawei.com>
 
-[ Upstream commit 5618303d8516f8ac5ecfe53ee8e8bc9a40eaf066 ]
+[ Upstream commit d61cbb859b45fdb6b4997f2d51834fae41af0e94 ]
 
-As the man description of the truncate, if the size changed,
-then the st_ctime and st_mtime fields should be updated. But
-in cifs, we doesn't do it.
+The segmentation fault can be reproduced as following steps:
 
-It lead the xfstests generic/313 failed.
+1) Executing perf report in tui.
 
-So, add the ATTR_MTIME|ATTR_CTIME flags on attrs when change
-the file size
+2) Typing '/xxxxx' to filter the symbol to get nothing matched.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+3) Pressing enter with no entry selected.
+
+Then it will report a segmentation fault.
+
+It is caused by the lack of check of browser->he_selection when
+accessing it's member res_samples in perf_evsel__hists_browse().
+
+These processes are meaningful for specified samples, so we can skip
+these when nothing is selected.
+
+Fixes: 4968ac8fb7c3 ("perf report: Implement browsing of individual samples")
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Link: http://lore.kernel.org/lkml/20200612094322.39565-1-liwei391@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/inode.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ tools/perf/ui/browsers/hists.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index 44fb9ae6d1055..1d951936b0923 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2225,6 +2225,15 @@ set_size_out:
- 	if (rc == 0) {
- 		cifsInode->server_eof = attrs->ia_size;
- 		cifs_setsize(inode, attrs->ia_size);
-+
-+		/*
-+		 * The man page of truncate says if the size changed,
-+		 * then the st_ctime and st_mtime fields for the file
-+		 * are updated.
-+		 */
-+		attrs->ia_ctime = attrs->ia_mtime = current_time(inode);
-+		attrs->ia_valid |= ATTR_CTIME | ATTR_MTIME;
-+
- 		cifs_truncate_page(inode->i_mapping, inode->i_size);
- 	}
+diff --git a/tools/perf/ui/browsers/hists.c b/tools/perf/ui/browsers/hists.c
+index 88c3df24b748c..514cef3a17b40 100644
+--- a/tools/perf/ui/browsers/hists.c
++++ b/tools/perf/ui/browsers/hists.c
+@@ -2224,6 +2224,11 @@ static struct thread *hist_browser__selected_thread(struct hist_browser *browser
+ 	return browser->he_selection->thread;
+ }
  
++static struct res_sample *hist_browser__selected_res_sample(struct hist_browser *browser)
++{
++	return browser->he_selection ? browser->he_selection->res_samples : NULL;
++}
++
+ /* Check whether the browser is for 'top' or 'report' */
+ static inline bool is_report_browser(void *timer)
+ {
+@@ -3170,16 +3175,16 @@ static int perf_evsel__hists_browse(struct evsel *evsel, int nr_events,
+ 					     &options[nr_options], NULL, NULL, evsel);
+ 		nr_options += add_res_sample_opt(browser, &actions[nr_options],
+ 						 &options[nr_options],
+-				 hist_browser__selected_entry(browser)->res_samples,
+-				 evsel, A_NORMAL);
++						 hist_browser__selected_res_sample(browser),
++						 evsel, A_NORMAL);
+ 		nr_options += add_res_sample_opt(browser, &actions[nr_options],
+ 						 &options[nr_options],
+-				 hist_browser__selected_entry(browser)->res_samples,
+-				 evsel, A_ASM);
++						 hist_browser__selected_res_sample(browser),
++						 evsel, A_ASM);
+ 		nr_options += add_res_sample_opt(browser, &actions[nr_options],
+ 						 &options[nr_options],
+-				 hist_browser__selected_entry(browser)->res_samples,
+-				 evsel, A_SOURCE);
++						 hist_browser__selected_res_sample(browser),
++						 evsel, A_SOURCE);
+ 		nr_options += add_switch_opt(browser, &actions[nr_options],
+ 					     &options[nr_options]);
+ skip_scripting:
 -- 
 2.25.1
 
