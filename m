@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE73B21F4B7
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F10221F489
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:40:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729319AbgGNOkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729325AbgGNOkT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 14 Jul 2020 10:40:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56062 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729311AbgGNOkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:40:17 -0400
+        id S1729316AbgGNOkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:40:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DA8822519;
-        Tue, 14 Jul 2020 14:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73334208C3;
+        Tue, 14 Jul 2020 14:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594737617;
-        bh=GzMHvU5YZPPPhdYnAemrHx5q6lnHr6D06MopjFY/qFc=;
+        s=default; t=1594737618;
+        bh=YQdGdyFZCQb1etR9mwK5uyrGf4eoBu/JddeSOQZWijc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwPYL8DRZJZzmz2dUWrN9f7rRWJtmdbyT+mU2aiGmK0oOC7VmZjsla040xtRd+8QR
-         NiCnn34ntAaaO23DQCDjuDe5qvAcoyCxuRAeeOv43ObiynvRDwqKHKE3i851s6QjAv
-         jGbM0tbrZaf/P9LEZUeGGEr1O8raEb1PCtYVq5D8=
+        b=knjx2jsxtdy1yWsSQEMnADvtUXVJYzunp0wSxMYIfCcEBm27x5LDybviWHbaHnqj2
+         solTl+1nvTnBiUUwsQAIafCQuzy0UOlSKL21+BKLGsCXQSYNiHcK0j6lE2EdmcrWpm
+         rcWaEis6zb/LhfwYZ5kSwUH1qTfxXcpcrjhhxCXE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Filippov <jcmvbkbc@gmail.com>, Sasha Levin <sashal@kernel.org>,
-        linux-xtensa@linux-xtensa.org
-Subject: [PATCH AUTOSEL 4.9 05/10] xtensa: update *pos in cpuinfo_op.next
-Date:   Tue, 14 Jul 2020 10:40:05 -0400
-Message-Id: <20200714144010.4035987-5-sashal@kernel.org>
+Cc:     Xie He <xie.he.0141@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/10] drivers/net/wan/lapbether: Fixed the value of hard_header_len
+Date:   Tue, 14 Jul 2020 10:40:06 -0400
+Message-Id: <20200714144010.4035987-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200714144010.4035987-1-sashal@kernel.org>
 References: <20200714144010.4035987-1-sashal@kernel.org>
@@ -42,35 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 0d5ab144429e8bd80889b856a44d56ab4a5cd59b ]
+[ Upstream commit 9dc829a135fb5927f1519de11286e2bbb79f5b66 ]
 
-Increment *pos in the cpuinfo_op.next to fix the following warning
-triggered by cat /proc/cpuinfo:
+When this driver transmits data,
+  first this driver will remove a pseudo header of 1 byte,
+  then the lapb module will prepend the LAPB header of 2 or 3 bytes,
+  then this driver will prepend a length field of 2 bytes,
+  then the underlying Ethernet device will prepend its own header.
 
-  seq_file: buggy .next function c_next did not update position index
+So, the header length required should be:
+  -1 + 3 + 2 + "the header length needed by the underlying device".
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+This patch fixes kernel panic when this driver is used with AF_PACKET
+SOCK_DGRAM sockets.
+
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/setup.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wan/lapbether.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index b9beae798d727..8679fa3062060 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -830,7 +830,8 @@ c_start(struct seq_file *f, loff_t *pos)
- static void *
- c_next(struct seq_file *f, void *v, loff_t *pos)
- {
--	return NULL;
-+	++*pos;
-+	return c_start(f, pos);
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 6676607164d65..f5657783fad4e 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -308,7 +308,6 @@ static void lapbeth_setup(struct net_device *dev)
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->destructor	     = free_netdev;
+ 	dev->type            = ARPHRD_X25;
+-	dev->hard_header_len = 3;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
  }
+@@ -329,6 +328,14 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	if (!ndev)
+ 		goto out;
  
- static void
++	/* When transmitting data:
++	 * first this driver removes a pseudo header of 1 byte,
++	 * then the lapb module prepends an LAPB header of at most 3 bytes,
++	 * then this driver prepends a length field of 2 bytes,
++	 * then the underlying Ethernet device prepends its own header.
++	 */
++	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
+ 
 -- 
 2.25.1
 
