@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 157C021FCB9
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 233A621FCB4
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730116AbgGNSt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:49:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
+        id S1730130AbgGNSta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:49:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730113AbgGNSt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:49:26 -0400
+        id S1730126AbgGNSt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:49:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54E28222E9;
-        Tue, 14 Jul 2020 18:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA377222E9;
+        Tue, 14 Jul 2020 18:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752565;
-        bh=yCgP41Iuucg6rYe1fQulaznsKmDM1DXMDqNIOVZgaQg=;
+        s=default; t=1594752568;
+        bh=3logLcMQQOo83B8CEm+7SX7oSisRfIO2V1PiVpYBb2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjwYBXna0Lk3pbxyk0YNSBm3fi60nhSey5+xOctUPsAcrWKVFXW/SPGDVFScp9597
-         Yh3m9NS97Q0/E7WSQ+CzfjWx909k9QFDhSmIhR+LZS0d9YHDzZd+6hqSm3Lh2c3OfT
-         XoXBOj/XDHm/PRtRr6L4YWSOdU0GNzvq22goy19k=
+        b=OqTCCTorVHWkeOhISefvAbFzgUzV3hKL2IdadVz3l3YBOmphXT+ApENVXkYjTQLND
+         lxjrwj3+g71PB/8fj//FmUx2bEFQsTEjCNGT1Qp75/TGrbvcIpOT6YGMAsxVppY73l
+         2l+v72PRsw7iJsFZf8VxpyMY216eGPBzhG4nJL6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/109] drm/sun4i: mixer: Call of_dma_configure if theres an IOMMU
-Date:   Tue, 14 Jul 2020 20:43:29 +0200
-Message-Id: <20200714184106.782410654@linuxfoundation.org>
+Subject: [PATCH 5.4 027/109] cifs: update ctime and mtime during truncate
+Date:   Tue, 14 Jul 2020 20:43:30 +0200
+Message-Id: <20200714184106.829713172@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
 References: <20200714184105.507384017@linuxfoundation.org>
@@ -45,53 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 842ec61f4006a6477a9deaedd69131e9f46e4cb5 ]
+[ Upstream commit 5618303d8516f8ac5ecfe53ee8e8bc9a40eaf066 ]
 
-The main DRM device is actually a virtual device so it doesn't have the
-iommus property, which is instead on the DMA masters, in this case the
-mixers.
+As the man description of the truncate, if the size changed,
+then the st_ctime and st_mtime fields should be updated. But
+in cifs, we doesn't do it.
 
-Add a call to of_dma_configure with the mixers DT node but on the DRM
-virtual device to configure it in the same way than the mixers.
+It lead the xfstests generic/313 failed.
 
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/9a4daf438dd3f2fe07afb23688bfb793a0613d7d.1589378833.git-series.maxime@cerno.tech
-(cherry picked from commit b718102dbdfd0285ad559687a30e27cc9124e592)
-[Maxime: Applied to -fixes since it missed the merge window and display is
-         broken without it]
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+So, add the ATTR_MTIME|ATTR_CTIME flags on attrs when change
+the file size
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_mixer.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/cifs/inode.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun8i_mixer.c b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-index 18b4881f44814..e24f225d80f1f 100644
---- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-@@ -452,6 +452,19 @@ static int sun8i_mixer_bind(struct device *dev, struct device *master,
- 	mixer->engine.ops = &sun8i_engine_ops;
- 	mixer->engine.node = dev->of_node;
- 
-+	if (of_find_property(dev->of_node, "iommus", NULL)) {
-+		/*
-+		 * This assume we have the same DMA constraints for
-+		 * all our the mixers in our pipeline. This sounds
-+		 * bad, but it has always been the case for us, and
-+		 * DRM doesn't do per-device allocation either, so we
-+		 * would need to fix DRM first...
-+		 */
-+		ret = of_dma_configure(drm->dev, dev->of_node, true);
-+		if (ret)
-+			return ret;
-+	}
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 6045b48682752..5ae458505f630 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2270,6 +2270,15 @@ set_size_out:
+ 	if (rc == 0) {
+ 		cifsInode->server_eof = attrs->ia_size;
+ 		cifs_setsize(inode, attrs->ia_size);
 +
- 	/*
- 	 * While this function can fail, we shouldn't do anything
- 	 * if this happens. Some early DE2 DT entries don't provide
++		/*
++		 * The man page of truncate says if the size changed,
++		 * then the st_ctime and st_mtime fields for the file
++		 * are updated.
++		 */
++		attrs->ia_ctime = attrs->ia_mtime = current_time(inode);
++		attrs->ia_valid |= ATTR_CTIME | ATTR_MTIME;
++
+ 		cifs_truncate_page(inode->i_mapping, inode->i_size);
+ 	}
+ 
 -- 
 2.25.1
 
