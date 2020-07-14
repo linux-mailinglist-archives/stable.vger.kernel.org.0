@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D7521FCEB
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9091621FB71
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbgGNTM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:12:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
+        id S1731252AbgGNS6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:58:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728117AbgGNSrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:04 -0400
+        id S1731123AbgGNS44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:56:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47B2022AAE;
-        Tue, 14 Jul 2020 18:47:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB40722AAF;
+        Tue, 14 Jul 2020 18:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752423;
-        bh=WaI4zcf7p58FCzVfZfWBdeLKbAZ6Z+i4ih5TUkvlf/w=;
+        s=default; t=1594753016;
+        bh=InUAdj6RJYAkX7bsjeRys4kfr30Vf4l88303w68ZOvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnN4R0nC1p8uPxZn62Z51Yi2gPHrH2Z1KBj3UCTDsXpWZWCjDywsAFfJX53V6+tQC
-         O/9ddEgzYCRDX1blSBi1KtNwYIRt8ebcNATX96DQ5ughRR44LQ443UwNMsEAhA96Sz
-         xxxK3ft3M4TgE1BRjgJWpwLF0jQj+3NhnNu+X4mI=
+        b=Vmn4xVCVsrXNKsNAG3EsmwqkQ5vjC2gn5CaL9qAElGvZxGxJAKYqNzwnfBz6uGy4B
+         D6/6I+pcMV0exHy8/WAtTnBNiA9n3pE2YFX7YvjRlxFEw4C8zV2ld41oUcz8tO0aDq
+         LVw+YBeYa6iJgYIUpsTBi7yYqk6axZOJIYUzrdjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/58] mlxsw: spectrum_router: Remove inappropriate usage of WARN_ON()
-Date:   Tue, 14 Jul 2020 20:44:10 +0200
-Message-Id: <20200714184057.973201050@linuxfoundation.org>
+Subject: [PATCH 5.7 086/166] RDMA/siw: Fix reporting vendor_part_id
+Date:   Tue, 14 Jul 2020 20:44:11 +0200
+Message-Id: <20200714184119.968856576@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit d9d5420273997664a1c09151ca86ac993f2f89c1 ]
+[ Upstream commit 04340645f69ab7abb6f9052688a60f0213b3f79c ]
 
-We should not trigger a warning when a memory allocation fails. Remove
-the WARN_ON().
+Move the initialization of the vendor_part_id to be before calling
+ib_register_device(), this is needed because the query_device() callback
+is called from the context of ib_register_device() before initializing the
+vendor_part_id, so the reported value is wrong.
 
-The warning is constantly triggered by syzkaller when it is injecting
-faults:
-
-[ 2230.758664] FAULT_INJECTION: forcing a failure.
-[ 2230.758664] name failslab, interval 1, probability 0, space 0, times 0
-[ 2230.762329] CPU: 3 PID: 1407 Comm: syz-executor.0 Not tainted 5.8.0-rc2+ #28
-...
-[ 2230.898175] WARNING: CPU: 3 PID: 1407 at drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:6265 mlxsw_sp_router_fib_event+0xfad/0x13e0
-[ 2230.898179] Kernel panic - not syncing: panic_on_warn set ...
-[ 2230.898183] CPU: 3 PID: 1407 Comm: syz-executor.0 Not tainted 5.8.0-rc2+ #28
-[ 2230.898190] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-
-Fixes: 3057224e014c ("mlxsw: spectrum_router: Implement FIB offload in deferred work")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bdcf26bf9b3a ("rdma/siw: network and RDMA core interface")
+Link: https://lore.kernel.org/r/20200707130931.444724-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/siw/siw_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-index 76960d3adfc03..93d662de106e8 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -5982,7 +5982,7 @@ static int mlxsw_sp_router_fib_event(struct notifier_block *nb,
+diff --git a/drivers/infiniband/sw/siw/siw_main.c b/drivers/infiniband/sw/siw/siw_main.c
+index 5cd40fb9e20ce..634c4b3716238 100644
+--- a/drivers/infiniband/sw/siw/siw_main.c
++++ b/drivers/infiniband/sw/siw/siw_main.c
+@@ -67,12 +67,13 @@ static int siw_device_register(struct siw_device *sdev, const char *name)
+ 	static int dev_id = 1;
+ 	int rv;
+ 
++	sdev->vendor_part_id = dev_id++;
++
+ 	rv = ib_register_device(base_dev, name);
+ 	if (rv) {
+ 		pr_warn("siw: device registration error %d\n", rv);
+ 		return rv;
  	}
+-	sdev->vendor_part_id = dev_id++;
  
- 	fib_work = kzalloc(sizeof(*fib_work), GFP_ATOMIC);
--	if (WARN_ON(!fib_work))
-+	if (!fib_work)
- 		return NOTIFY_BAD;
+ 	siw_dbg(base_dev, "HWaddr=%pM\n", sdev->netdev->dev_addr);
  
- 	fib_work->mlxsw_sp = router->mlxsw_sp;
 -- 
 2.25.1
 
