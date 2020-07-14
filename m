@@ -2,111 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB41321FAB4
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A9CB21FC0F
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729957AbgGNSy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729973AbgGNSy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 14:54:58 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5BBC061755
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 11:54:58 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id rk21so23891978ejb.2
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 11:54:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Alox4jKEMRaA950HZ1waP0+wedXfzVsNihjzfohVQYc=;
-        b=VvlDJH5CSlxwkIB6dqeYM9fELFt2NoQrAo8WwW52hkqyP+QEgrAcfi37PxvMFQ3jXz
-         exscy1cS5CvqO0N4kUSCglH47nIFT7m+TmAko7nxgzLwvs9rvLlklibVS3y9Lb+KsOEb
-         7GJJwIeCsAlMivcZbPoiCqejNh8PNrAxOIO3I=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Alox4jKEMRaA950HZ1waP0+wedXfzVsNihjzfohVQYc=;
-        b=agxu/8EvHmR22hahtq5mIjleNjPyqDuiKcNRBUDlUW2dkxt8VtR2ZhPxcx9Ju4nZVE
-         IKMmyckRJHeyiiQX6bCYWv7xJpA8k5A0DZFOlDGzQyh3fK/jRJHFRcKZfcNBuWKK4atR
-         YbbyVyjzpfqRv0XIH+TYsUvbHKhm3jWDOVyDQjDzz6G/yK1dyVnvhfn4uSq/2F+/WsvL
-         iOdX3vIE9NZ/UEf2QiRltwJqoCGGMtnLtuA4ZlhPKq2WtL0bhvvWlbpI6md3v7oEXeoD
-         oOqmfU8i8JvovbvwcNdXsjUqOT1UbqiJRD5tE0/B4/6myFVlD9rWcJktkERF1RgLxnqJ
-         m7cQ==
-X-Gm-Message-State: AOAM532ypAlXYb1ThyJz5Xz68J4H1uhyHyWffhwgEbrAX+tg/Yu0PFiT
-        +Rt0nKnCMec8tkC5X4nzau5TYcqHFsw=
-X-Google-Smtp-Source: ABdhPJwHnvefJbtT/7c9AcWRl2hCUtwKUAVzus0YTYcBs3i6h6XCinU12VZKH81kxxi2jXC529tyPA==
-X-Received: by 2002:a17:906:3ac4:: with SMTP id z4mr5501300ejd.65.1594752896974;
-        Tue, 14 Jul 2020 11:54:56 -0700 (PDT)
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com. [209.85.221.42])
-        by smtp.gmail.com with ESMTPSA id d23sm13196799eja.27.2020.07.14.11.54.56
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Jul 2020 11:54:56 -0700 (PDT)
-Received: by mail-wr1-f42.google.com with SMTP id k6so24145531wrn.3
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 11:54:56 -0700 (PDT)
-X-Received: by 2002:a2e:86c4:: with SMTP id n4mr3097947ljj.312.1594752576542;
- Tue, 14 Jul 2020 11:49:36 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
- <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
- <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
- <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
- <20200712215041.GA3644504@google.com> <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
- <20200714073306.kq4zikkphqje2yzb@box> <20200714160843.GA1685150@google.com>
- <CAHk-=wjffJ=EBrLjsz=KUFyPXVQUO03L=VJmHnLhVr4XvT3Mpw@mail.gmail.com> <CAEXW_YRTnCb-z6TeboA3OCYv8eoX8UiCNn7K1hGMX+41Zdz8Og@mail.gmail.com>
-In-Reply-To: <CAEXW_YRTnCb-z6TeboA3OCYv8eoX8UiCNn7K1hGMX+41Zdz8Og@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 14 Jul 2020 11:49:20 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgRS_WpRdC9nyXzVZ7aWNQt0HKMbyFjhrgrNo49AFNWzg@mail.gmail.com>
-Message-ID: <CAHk-=wgRS_WpRdC9nyXzVZ7aWNQt0HKMbyFjhrgrNo49AFNWzg@mail.gmail.com>
-Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
-To:     Joel Fernandes <joel@joelfernandes.org>
-Cc:     "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
-        Michel Lespinasse <walken@google.com>,
-        Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Brian Geffon <bgeffon@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
-        Jerome Glisse <jglisse@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Hugh Dickins <hughd@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        id S1730293AbgGNTGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50564 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730247AbgGNSxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:53:30 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 929F1207F5;
+        Tue, 14 Jul 2020 18:53:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594752809;
+        bh=YQI3JFO0/IRGd0ndbGFLjzwEN80zHIU6ULPZ524xL9A=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GZPTSk09r41HgEDQjv8zq0UYZhFjhhuqEOULNdo4014KjLI9IqUO34GuIr106Tmnf
+         ItmeIQv+QZPmH827kVZPR94RFH2BcCN82IN1OnjNiBHeO8HEczc0IfDaOE34QGX8eD
+         l4NSOWchriYsXRbzhsnRn1CvqjKp8BptXc37WYVc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH 5.7 001/166] KVM: s390: reduce number of IO pins to 1
+Date:   Tue, 14 Jul 2020 20:42:46 +0200
+Message-Id: <20200714184115.917313137@linuxfoundation.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 14, 2020 at 11:12 AM Joel Fernandes <joel@joelfernandes.org> wrote:
->
-> I think you misunderstood me. I was not advocating breaking the stack
-> movement code or breaking stack randomization, I was going to try to
-> see if I could keep that working while not having to do an overlapping
-> move.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-I'm not really seeing how you'd do that with a big stack that gets
-close to the stack ulimit.
+[ Upstream commit 774911290c589e98e3638e73b24b0a4d4530e97c ]
 
-Except by avoiding randomization.
+The current number of KVM_IRQCHIP_NUM_PINS results in an order 3
+allocation (32kb) for each guest start/restart. This can result in OOM
+killer activity even with free swap when the memory is fragmented
+enough:
 
-But the existing randomization may be so bad that it doesn't much
-matter. And I do think we limit the execve stack to a reasonably small
-fraction of the whole ulimit. So worth exploring, I guess.
+kernel: qemu-system-s39 invoked oom-killer: gfp_mask=0x440dc0(GFP_KERNEL_ACCOUNT|__GFP_COMP|__GFP_ZERO), order=3, oom_score_adj=0
+kernel: CPU: 1 PID: 357274 Comm: qemu-system-s39 Kdump: loaded Not tainted 5.4.0-29-generic #33-Ubuntu
+kernel: Hardware name: IBM 8562 T02 Z06 (LPAR)
+kernel: Call Trace:
+kernel: ([<00000001f848fe2a>] show_stack+0x7a/0xc0)
+kernel:  [<00000001f8d3437a>] dump_stack+0x8a/0xc0
+kernel:  [<00000001f8687032>] dump_header+0x62/0x258
+kernel:  [<00000001f8686122>] oom_kill_process+0x172/0x180
+kernel:  [<00000001f8686abe>] out_of_memory+0xee/0x580
+kernel:  [<00000001f86e66b8>] __alloc_pages_slowpath+0xd18/0xe90
+kernel:  [<00000001f86e6ad4>] __alloc_pages_nodemask+0x2a4/0x320
+kernel:  [<00000001f86b1ab4>] kmalloc_order+0x34/0xb0
+kernel:  [<00000001f86b1b62>] kmalloc_order_trace+0x32/0xe0
+kernel:  [<00000001f84bb806>] kvm_set_irq_routing+0xa6/0x2e0
+kernel:  [<00000001f84c99a4>] kvm_arch_vm_ioctl+0x544/0x9e0
+kernel:  [<00000001f84b8936>] kvm_vm_ioctl+0x396/0x760
+kernel:  [<00000001f875df66>] do_vfs_ioctl+0x376/0x690
+kernel:  [<00000001f875e304>] ksys_ioctl+0x84/0xb0
+kernel:  [<00000001f875e39a>] __s390x_sys_ioctl+0x2a/0x40
+kernel:  [<00000001f8d55424>] system_call+0xd8/0x2c8
 
-The current code with "align_stack" doing randomization could also do
-with a lot of clarifications. The code is odd.
+As far as I can tell s390x does not use the iopins as we bail our for
+anything other than KVM_IRQ_ROUTING_S390_ADAPTER and the chip/pin is
+only used for KVM_IRQ_ROUTING_IRQCHIP. So let us use a small number to
+reduce the memory footprint.
 
-            Linus
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200617083620.5409-1-borntraeger@de.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/kvm_host.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index d6bcd34f3ec32..ec65bc2bd084e 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -31,12 +31,12 @@
+ #define KVM_USER_MEM_SLOTS 32
+ 
+ /*
+- * These seem to be used for allocating ->chip in the routing table,
+- * which we don't use. 4096 is an out-of-thin-air value. If we need
+- * to look at ->chip later on, we'll need to revisit this.
++ * These seem to be used for allocating ->chip in the routing table, which we
++ * don't use. 1 is as small as we can get to reduce the needed memory. If we
++ * need to look at ->chip later on, we'll need to revisit this.
+  */
+ #define KVM_NR_IRQCHIPS 1
+-#define KVM_IRQCHIP_NUM_PINS 4096
++#define KVM_IRQCHIP_NUM_PINS 1
+ #define KVM_HALT_POLL_NS_DEFAULT 50000
+ 
+ /* s390-specific vcpu->requests bit members */
+-- 
+2.25.1
+
+
+
