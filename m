@@ -2,40 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9570D21FB58
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3FDE21FE29
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 22:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731095AbgGNTAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730432AbgGNTAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 15:00:17 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18B2C222B9;
-        Tue, 14 Jul 2020 19:00:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753216;
-        bh=sw0ALnkgVPkZIbmwtCxhXYy2uvT5QOHsQSK5xEnka0s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yj7KQvs29UOCvR8sNRccNsIZhLuBZj6epqWcAkC9kb7GmNzjch++rYdLc5V0YaBLY
-         IuGaeYdtGkWZ6hxbB0Fvp/4LuZEbznarcezn/UL7gxNirE/XYvqmXS5Crx3phnyd3a
-         a826Bf4ok+YP3RElzyTEIhiu0Aj0QqFzmjrwg5DQ=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.7 165/166] perf scripts python: exported-sql-viewer.py: Fix unexpanded Find result
-Date:   Tue, 14 Jul 2020 20:45:30 +0200
-Message-Id: <20200714184123.727630133@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729713AbgGNUGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 16:06:51 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:53264 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729442AbgGNUGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 16:06:51 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21820071-1500050 
+        for multiple; Tue, 14 Jul 2020 21:06:47 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     dri-devel@lists.freedesktop.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] dma-buf/sw_sync: Avoid recursive lock during fence signal.
+Date:   Tue, 14 Jul 2020 21:06:44 +0100
+Message-Id: <20200714200646.14041-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,57 +36,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 
-commit 3a3cf7c570a486b07d9a6e68a77548aea6a8421f upstream.
+Calltree:
+  timeline_fence_release
+  drm_sched_entity_wakeup
+  dma_fence_signal_locked
+  sync_timeline_signal
+  sw_sync_ioctl
 
-Using Python version 3.8.2 and PySide2 version 5.14.0, ctrl-F ('Find')
-would not expand the tree to the result. Fix by using setExpanded().
+Releasing the reference to the fence in the fence signal callback
+seems reasonable to me, so this patch avoids the locking issue in
+sw_sync.
 
-Example:
+d3862e44daa7 ("dma-buf/sw-sync: Fix locking around sync_timeline lists")
+fixed the recursive locking issue but caused an use-after-free. Later
+d3c6dd1fb30d ("dma-buf/sw_sync: Synchronize signal vs syncpt free")
+fixed the use-after-free but reintroduced the recursive locking issue.
 
-  $ perf record -e intel_pt//u uname
-  Linux
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.034 MB perf.data ]
-  $ perf script --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py perf.data.db branches calls
-  2020-06-26 15:32:14.928997 Creating database ...
-  2020-06-26 15:32:14.933971 Writing records...
-  2020-06-26 15:32:15.535251 Adding indexes
-  2020-06-26 15:32:15.542993 Dropping unused tables
-  2020-06-26 15:32:15.549716 Done
-  $ python3 ~/libexec/perf-core/scripts/python/exported-sql-viewer.py perf.data.db
+In this attempt we avoid the use-after-free still because the release
+function still always locks, and outside of the locking region in the
+signal function we have properly refcounted references.
 
-  Select: Reports -> Context-Sensitive Call Graph    or     Reports -> Call Tree
-  Press: Ctrl-F
-  Enter: main
-  Press: Enter
+We furthermore also avoid the recurive lock by making sure that either:
 
-Before: line showing 'main' does not display
+1) We have a properly refcounted reference, preventing the signal from
+   triggering the release function inside the locked region.
+2) The refcount was already zero, and hence nobody will be able to trigger
+   the release function from the signal function.
 
-After: tree is expanded to line showing 'main'
+v2: Move dma_fence_signal() into second loop in preparation to moving
+the callback out of the timeline obj->lock.
 
-Fixes: ebd70c7dc2f5f ("perf scripts python: exported-sql-viewer.py: Add ability to find symbols in the call-graph")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200629091955.17090-4-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d3c6dd1fb30d ("dma-buf/sw_sync: Synchronize signal vs syncpt free")
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Gustavo Padovan <gustavo@padovan.org>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 ---
- tools/perf/scripts/python/exported-sql-viewer.py |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma-buf/sw_sync.c | 32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
---- a/tools/perf/scripts/python/exported-sql-viewer.py
-+++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -1052,6 +1052,7 @@ class TreeWindowBase(QMdiSubWindow):
- 				child = self.model.index(row, 0, parent)
- 				if child.internalPointer().dbid == dbid:
- 					found = True
-+					self.view.setExpanded(parent, True)
- 					self.view.setCurrentIndex(child)
- 					parent = child
- 					break
-
+diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
+index 348b3a9170fa..807c82148062 100644
+--- a/drivers/dma-buf/sw_sync.c
++++ b/drivers/dma-buf/sw_sync.c
+@@ -192,6 +192,7 @@ static const struct dma_fence_ops timeline_fence_ops = {
+ static void sync_timeline_signal(struct sync_timeline *obj, unsigned int inc)
+ {
+ 	struct sync_pt *pt, *next;
++	LIST_HEAD(signal);
+ 
+ 	trace_sync_timeline(obj);
+ 
+@@ -203,21 +204,32 @@ static void sync_timeline_signal(struct sync_timeline *obj, unsigned int inc)
+ 		if (!timeline_fence_signaled(&pt->base))
+ 			break;
+ 
+-		list_del_init(&pt->link);
+-		rb_erase(&pt->node, &obj->pt_tree);
+-
+ 		/*
+-		 * A signal callback may release the last reference to this
+-		 * fence, causing it to be freed. That operation has to be
+-		 * last to avoid a use after free inside this loop, and must
+-		 * be after we remove the fence from the timeline in order to
+-		 * prevent deadlocking on timeline->lock inside
+-		 * timeline_fence_release().
++		 * We need to take a reference to avoid a release during
++		 * signalling (which can cause a recursive lock of obj->lock).
++		 * If refcount was already zero, another thread is already
++		 * taking care of destroying the fence.
+ 		 */
+-		dma_fence_signal_locked(&pt->base);
++		if (!dma_fence_get_rcu(&pt->base))
++			continue;
++
++		list_move_tail(&pt->link, &signal);
++		rb_erase(&pt->node, &obj->pt_tree);
+ 	}
+ 
+ 	spin_unlock_irq(&obj->lock);
++
++	list_for_each_entry_safe(pt, next, &signal, link) {
++		/*
++		 * This needs to be cleared before release, otherwise the
++		 * timeline_fence_release function gets confused about also
++		 * removing the fence from the pt_tree.
++		 */
++		list_del_init(&pt->link);
++
++		dma_fence_signal(&pt->base);
++		dma_fence_put(&pt->base);
++	}
+ }
+ 
+ /**
+-- 
+2.20.1
 
