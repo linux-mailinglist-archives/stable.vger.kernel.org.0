@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A99A021FAE6
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 178CA21FA45
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730999AbgGNS4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:56:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54778 "EHLO mail.kernel.org"
+        id S1729912AbgGNSvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731016AbgGNS4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:56:41 -0400
+        id S1730370AbgGNSvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7997822B2B;
-        Tue, 14 Jul 2020 18:56:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFFC4208C3;
+        Tue, 14 Jul 2020 18:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753000;
-        bh=O55MKtwfA5IXcUbKUaOpt+8HOJH5TjW70tZuZMRkTVw=;
+        s=default; t=1594752666;
+        bh=Ig9SJkoqrePGD1i2jyWyoSl7rbTRe2ntMfMgdb8a0ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlPkGaq5Oa6KE72ItYbZpWMIWsH6yvAn5yG39/JPeeo+L3umgFYL/TPi5y22zEcv4
-         Si2ZtPMexWiAVAoGaKz7airLBQOcaXlB/95TdzBPB6Mi49lQsXAIhIuW+hyE5zOByM
-         JQkoUqKQh/NK1gYxY/JwSgcy+PleGc1E//MUvMug=
+        b=PJOA3Vu52+uAr9yp1WaP3ip3aWEyP281Kn+LnqINfUHrY7rNPAmYCi2qW6IB/olDU
+         QL/aFekoqu4SrJGJejVs8ANMrGg7JY3qiyUr2jCICXUYIs4bsnqtaSXtpnhsRfkv24
+         9EtUjpsnclBB6uJioS6xUHvRZq0rSyAFt92W7BGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Fei Liu <feliu@redhat.com>,
+        Jonathan Toppins <jtoppins@redhat.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 081/166] ALSA: compress: fix partial_drain completion state
-Date:   Tue, 14 Jul 2020 20:44:06 +0200
-Message-Id: <20200714184119.729230376@linuxfoundation.org>
+Subject: [PATCH 5.4 064/109] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
+Date:   Tue, 14 Jul 2020 20:44:07 +0200
+Message-Id: <20200714184108.587458560@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit f79a732a8325dfbd570d87f1435019d7e5501c6d ]
+[ Upstream commit c8b1d7436045d3599bae56aef1682813ecccaad7 ]
 
-On partial_drain completion we should be in SNDRV_PCM_STATE_RUNNING
-state, so set that for partially draining streams in
-snd_compr_drain_notify() and use a flag for partially draining streams
+we need to set 'active_vfs' back to 0, if something goes wrong during the
+allocation of SR-IOV resources: otherwise, further VF configurations will
+wrongly assume that bp->pf.vf[x] are valid memory locations, and commands
+like the ones in the following sequence:
 
-While at it, add locks for stream state change in
-snd_compr_drain_notify() as well.
+ # echo 2 >/sys/bus/pci/devices/${ADDR}/sriov_numvfs
+ # ip link set dev ens1f0np0 up
+ # ip link set dev ens1f0np0 vf 0 trust on
 
-Fixes: f44f2a5417b2 ("ALSA: compress: fix drain calls blocking other compress functions (v6)")
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Tested-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20200629134737.105993-4-vkoul@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+will cause a kernel crash similar to this:
+
+ bnxt_en 0000:3b:00.0: not enough MMIO resources for SR-IOV
+ BUG: kernel NULL pointer dereference, address: 0000000000000014
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] SMP PTI
+ CPU: 43 PID: 2059 Comm: ip Tainted: G          I       5.8.0-rc2.upstream+ #871
+ Hardware name: Dell Inc. PowerEdge R740/08D89F, BIOS 2.2.11 06/13/2019
+ RIP: 0010:bnxt_set_vf_trust+0x5b/0x110 [bnxt_en]
+ Code: 44 24 58 31 c0 e8 f5 fb ff ff 85 c0 0f 85 b6 00 00 00 48 8d 1c 5b 41 89 c6 b9 0b 00 00 00 48 c1 e3 04 49 03 9c 24 f0 0e 00 00 <8b> 43 14 89 c2 83 c8 10 83 e2 ef 45 84 ed 49 89 e5 0f 44 c2 4c 89
+ RSP: 0018:ffffac6246a1f570 EFLAGS: 00010246
+ RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000000000b
+ RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff98b28f538900
+ RBP: ffff98b28f538900 R08: 0000000000000000 R09: 0000000000000008
+ R10: ffffffffb9515be0 R11: ffffac6246a1f678 R12: ffff98b28f538000
+ R13: 0000000000000001 R14: 0000000000000000 R15: ffffffffc05451e0
+ FS:  00007fde0f688800(0000) GS:ffff98baffd40000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000014 CR3: 000000104bb0a003 CR4: 00000000007606e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ PKRU: 55555554
+ Call Trace:
+  do_setlink+0x994/0xfe0
+  __rtnl_newlink+0x544/0x8d0
+  rtnl_newlink+0x47/0x70
+  rtnetlink_rcv_msg+0x29f/0x350
+  netlink_rcv_skb+0x4a/0x110
+  netlink_unicast+0x21d/0x300
+  netlink_sendmsg+0x329/0x450
+  sock_sendmsg+0x5b/0x60
+  ____sys_sendmsg+0x204/0x280
+  ___sys_sendmsg+0x88/0xd0
+  __sys_sendmsg+0x5e/0xa0
+  do_syscall_64+0x47/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: c0c050c58d840 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Fei Liu <feliu@redhat.com>
+CC: Jonathan Toppins <jtoppins@redhat.com>
+CC: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Acked-by: Jonathan Toppins <jtoppins@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/compress_driver.h | 10 +++++++++-
- sound/core/compress_offload.c   |  4 ++++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
-index 6ce8effa0b128..70cbc5095e725 100644
---- a/include/sound/compress_driver.h
-+++ b/include/sound/compress_driver.h
-@@ -66,6 +66,7 @@ struct snd_compr_runtime {
-  * @direction: stream direction, playback/recording
-  * @metadata_set: metadata set flag, true when set
-  * @next_track: has userspace signal next track transition, true when set
-+ * @partial_drain: undergoing partial_drain for stream, true when set
-  * @private_data: pointer to DSP private data
-  * @dma_buffer: allocated buffer if any
-  */
-@@ -78,6 +79,7 @@ struct snd_compr_stream {
- 	enum snd_compr_direction direction;
- 	bool metadata_set;
- 	bool next_track;
-+	bool partial_drain;
- 	void *private_data;
- 	struct snd_dma_buffer dma_buffer;
- };
-@@ -182,7 +184,13 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
- 	if (snd_BUG_ON(!stream))
- 		return;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+index 1046b22220a30..452be9749827a 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+@@ -398,6 +398,7 @@ static void bnxt_free_vf_resources(struct bnxt *bp)
+ 		}
+ 	}
  
--	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-+	/* for partial_drain case we are back to running state on success */
-+	if (stream->partial_drain) {
-+		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
-+		stream->partial_drain = false; /* clear this flag as well */
-+	} else {
-+		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-+	}
- 
- 	wake_up(&stream->runtime->sleep);
++	bp->pf.active_vfs = 0;
+ 	kfree(bp->pf.vf);
+ 	bp->pf.vf = NULL;
  }
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 509290f2efa8e..0e53f6f319167 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -764,6 +764,9 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
+@@ -833,7 +834,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
  
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
- 	if (!retval) {
-+		/* clear flags and stop any drain wait */
-+		stream->partial_drain = false;
-+		stream->metadata_set = false;
- 		snd_compr_drain_notify(stream);
- 		stream->runtime->total_bytes_available = 0;
- 		stream->runtime->total_bytes_transferred = 0;
-@@ -921,6 +924,7 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- 	if (stream->next_track == false)
- 		return -EPERM;
+ 	bnxt_free_vf_resources(bp);
  
-+	stream->partial_drain = true;
- 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_PARTIAL_DRAIN);
- 	if (retval) {
- 		pr_debug("Partial drain returned failure\n");
+-	bp->pf.active_vfs = 0;
+ 	/* Reclaim all resources for the PF. */
+ 	rtnl_lock();
+ 	bnxt_restore_pf_fw_resources(bp);
 -- 
 2.25.1
 
