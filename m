@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D891B21FC5A
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:09:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B80C221FBCC
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730149AbgGNStf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45350 "EHLO mail.kernel.org"
+        id S1730909AbgGNSzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730147AbgGNSte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:49:34 -0400
+        id S1730518AbgGNSzq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:55:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 236E2222E9;
-        Tue, 14 Jul 2020 18:49:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE52822282;
+        Tue, 14 Jul 2020 18:55:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752573;
-        bh=Xi7/eg4OGJypXMWBSatH0ZdfxFUt+M0VePkYdJ7Z6v4=;
+        s=default; t=1594752946;
+        bh=YTaFIXKUgmcdP1e9IE1EuXcT+y6FsRB2iZKzwevw40I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJTW43fDpEmUxHcaSy3uVf2JzOeCr7L0L7Pjyoij4+xVIswgVKYn6tjx1LD5Y6mkK
-         lt8IDpd2yI90mfaXKkiDAlDNO2e1cQJcJZ4MOvYNhDUbwQ45Ck7JtM5HsYKO1qQB2O
-         DE03qeJqsf960vyMYbTxsVdD116Naak1EyRWczzQ=
+        b=tmPqKLLF9u4lhhIwVZjmkuXow/VwsRlJBpul0Ibiagx3Zw9ujavz3LZ2CpIo2npqW
+         aRxdIL4vYRpe1QbFK1vYCGF3350EkLt2iySxGi161WltlPEIkg+K0BMy1gQ0RZXK+0
+         W5frmfyWw18CsYEYGNrqpHpVUCvgzaDqhfOdZ5EA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Emil Velikov <emil.l.velikov@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/109] drm: mcde: Fix display initialization problem
-Date:   Tue, 14 Jul 2020 20:43:14 +0200
-Message-Id: <20200714184106.066312422@linuxfoundation.org>
+Subject: [PATCH 5.7 030/166] drm: panel-orientation-quirks: Use generic orientation-data for Acer S1003
+Date:   Tue, 14 Jul 2020 20:43:15 +0200
+Message-Id: <20200714184117.326544442@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit b984b6d8b52372b98cce0a6ff6c2787f50665b87 ]
+[ Upstream commit a05caf9e62a85d12da27e814ac13195f4683f21c ]
 
-The following bug appeared in the MCDE driver/display
-initialization during the recent merge window.
+The Acer S1003 has proper DMI strings for sys-vendor and product-name,
+so we do not need to match by BIOS-date.
 
-First the place we call drm_fbdev_generic_setup() in the
-wrong place: this needs to be called AFTER calling
-drm_dev_register() else we get this splat:
+This means that the Acer S1003 can use the generic lcd800x1280_rightside_up
+drm_dmi_panel_orientation_data struct which is also used by other quirks.
 
- ------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1 at ../drivers/gpu/drm/drm_fb_helper.c:2198 drm_fbdev_generic_setup+0x164/0x1a8
-mcde a0350000.mcde: Device has not been registered.
-Modules linked in:
-Hardware name: ST-Ericsson Ux5x0 platform (Device Tree Support)
-[<c010e704>] (unwind_backtrace) from [<c010a86c>] (show_stack+0x10/0x14)
-[<c010a86c>] (show_stack) from [<c0414f38>] (dump_stack+0x9c/0xb0)
-[<c0414f38>] (dump_stack) from [<c0121c8c>] (__warn+0xb8/0xd0)
-[<c0121c8c>] (__warn) from [<c0121d18>] (warn_slowpath_fmt+0x74/0xb8)
-[<c0121d18>] (warn_slowpath_fmt) from [<c04b154c>] (drm_fbdev_generic_setup+0x164/0x1a8)
-[<c04b154c>] (drm_fbdev_generic_setup) from [<c04ed278>] (mcde_drm_bind+0xc4/0x160)
-[<c04ed278>] (mcde_drm_bind) from [<c04f06b8>] (try_to_bring_up_master+0x15c/0x1a4)
-(...)
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200613223027.4189309-1-linus.walleij@linaro.org
+Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200531093025.28050-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mcde/mcde_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/mcde/mcde_drv.c b/drivers/gpu/drm/mcde/mcde_drv.c
-index 5649887d2b901..16e5fb9ec784d 100644
---- a/drivers/gpu/drm/mcde/mcde_drv.c
-+++ b/drivers/gpu/drm/mcde/mcde_drv.c
-@@ -215,7 +215,6 @@ static int mcde_modeset_init(struct drm_device *drm)
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index d11d83703931e..d00ea384dcbfe 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -30,12 +30,6 @@ struct drm_dmi_panel_orientation_data {
+ 	int orientation;
+ };
  
- 	drm_mode_config_reset(drm);
- 	drm_kms_helper_poll_init(drm);
--	drm_fbdev_generic_setup(drm, 32);
- 
- 	return 0;
- 
-@@ -282,6 +281,8 @@ static int mcde_drm_bind(struct device *dev)
- 	if (ret < 0)
- 		goto unbind;
- 
-+	drm_fbdev_generic_setup(drm, 32);
-+
- 	return 0;
- 
- unbind:
+-static const struct drm_dmi_panel_orientation_data acer_s1003 = {
+-	.width = 800,
+-	.height = 1280,
+-	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+-};
+-
+ static const struct drm_dmi_panel_orientation_data asus_t100ha = {
+ 	.width = 800,
+ 	.height = 1280,
+@@ -114,7 +108,7 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
+ 		},
+-		.driver_data = (void *)&acer_s1003,
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* Asus T100HA */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 -- 
 2.25.1
 
