@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F7F21FBCD
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC06D21FBED
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730913AbgGNSzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53576 "EHLO mail.kernel.org"
+        id S1729554AbgGNTFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:05:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730895AbgGNSzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:55:49 -0400
+        id S1730767AbgGNSyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:54:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BC4321D79;
-        Tue, 14 Jul 2020 18:55:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2CC522B4E;
+        Tue, 14 Jul 2020 18:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752948;
-        bh=ONj7aKbHlOlgWW2rGPQ0J/OhBHcYbrSt/+Ss/muTSBQ=;
+        s=default; t=1594752872;
+        bh=n0AitVfgdLldntIptWUBYQyNz/wZ9glfh8b0xqufE50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pllvgva5P8cG0dc2ov9uJHIzlRgL/p85VJWi+6ULeH/v39D7sf2OzrOmVE1qs+ytU
-         ARlKIUP+MBWnW+bmjhHRIFu0Dt1V8PKs1m9fL+lxeT9+ScqUA36c9kwhS3VYXkBDy4
-         LuLgBADwlSMjNluWjLI/26wR/hzzxRF5A85lY/lw=
+        b=bOYmrb3pOKjuZv2Dj2Gn6N/4O/OzkFcKMBJ+ClLdWR42zt8hM0TQSSzDz3H0M2iXJ
+         FIwMqflpA0XVGJbhFS0f6ueIRb6tq1yUTG9htuhWjbyUvbZRadM8Q+ch8vm5xdvvvK
+         JFyJqa845qQL3fQJfFMu1E7iW6To/SRFgX+UdqGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Subject: [PATCH 5.7 031/166] s390/kasan: fix early pgm check handler execution
-Date:   Tue, 14 Jul 2020 20:43:16 +0200
-Message-Id: <20200714184117.367925529@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 033/166] cifs: update ctime and mtime during truncate
+Date:   Tue, 14 Jul 2020 20:43:18 +0200
+Message-Id: <20200714184117.464466687@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -45,40 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+[ Upstream commit 5618303d8516f8ac5ecfe53ee8e8bc9a40eaf066 ]
 
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
+As the man description of the truncate, if the size changed,
+then the st_ctime and st_mtime fields should be updated. But
+in cifs, we doesn't do it.
 
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
+It lead the xfstests generic/313 failed.
 
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+So, add the ATTR_MTIME|ATTR_CTIME flags on attrs when change
+the file size
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/inode.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index cd241ee66eff4..0782772318580 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -170,6 +170,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 430b0b1256547..44a57b65915bf 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2350,6 +2350,15 @@ set_size_out:
+ 	if (rc == 0) {
+ 		cifsInode->server_eof = attrs->ia_size;
+ 		cifs_setsize(inode, attrs->ia_size);
++
++		/*
++		 * The man page of truncate says if the size changed,
++		 * then the st_ctime and st_mtime fields for the file
++		 * are updated.
++		 */
++		attrs->ia_ctime = attrs->ia_mtime = current_time(inode);
++		attrs->ia_valid |= ATTR_CTIME | ATTR_MTIME;
++
+ 		cifs_truncate_page(inode->i_mapping, inode->i_size);
+ 	}
  
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
 -- 
 2.25.1
 
