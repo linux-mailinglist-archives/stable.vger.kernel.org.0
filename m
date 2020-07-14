@@ -2,164 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C804921F1B3
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 14:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D2E21F24A
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 15:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbgGNMlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 08:41:23 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:32916 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726354AbgGNMlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 08:41:23 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id F1F208030809;
-        Tue, 14 Jul 2020 12:41:19 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at baikalelectronics.ru
-Received: from mail.baikalelectronics.ru ([127.0.0.1])
-        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id wvIaP-V6CogS; Tue, 14 Jul 2020 15:41:18 +0300 (MSK)
-From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Daniel Winkler <danielwinkler@google.com>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Aaron Sierra <asierra@xes-inc.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        <linux-serial@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        BlueZ <linux-bluetooth@vger.kernel.org>,
-        chromeos-bluetooth-upstreaming 
-        <chromeos-bluetooth-upstreaming@chromium.org>,
-        <abhishekpandit@chromium.org>, <stable@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] serial: 8250_mtk: Fix high-speed baud rates clamping
-Date:   Tue, 14 Jul 2020 15:41:12 +0300
-Message-ID: <20200714124113.20918-1-Sergey.Semin@baikalelectronics.ru>
+        id S1728049AbgGNNRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 09:17:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42506 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727858AbgGNNRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 09:17:43 -0400
+Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F95E22203;
+        Tue, 14 Jul 2020 13:17:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594732663;
+        bh=AYUTme/0NKI8o/8pYHxaWMD/z47b+ayOmouJUcj+GVI=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=a6xFUfrZ71TQzOZrLO+XjCUFwb34IzEV7AAwHajseJzUS5RTxVPxWp9Ep0iBHppqd
+         CmkW3M2hub/Wpy+nV8GVKLfCBNIARoQietzr++A+tZ7rIbOrhhrgV+jyTQrLrcB1fx
+         qUIq36ao8TJfHdKOeW2C24vW4gktsJRCuJ5FEYl4=
+Date:   Tue, 14 Jul 2020 15:17:39 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Darren Hart <dvhart@infradead.org>
+cc:     Grant Likely <grant.likely@secretlab.ca>,
+        LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org,
+        Grant Likely <grant.likely@arm.com>,
+        Darren Hart <darren@dvhart.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] hid-input: Fix devices that return multiple bytes in
+ battery report
+In-Reply-To: <CAJuF2pzvh2G7_2q88a4e=dpB1RATrdF8jsOkpVuuueZLGGbsiQ@mail.gmail.com>
+Message-ID: <nycvar.YFH.7.76.2007141517280.23768@cbobk.fhfr.pm>
+References: <20200710151939.4894-1-grant.likely@arm.com> <CAJuF2pzvh2G7_2q88a4e=dpB1RATrdF8jsOkpVuuueZLGGbsiQ@mail.gmail.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250
-port") fixed limits of a baud rate setting for a generic 8250 port.
-In other words since that commit the baud rate has been permitted to be
-within [uartclk / 16 / UART_DIV_MAX; uartclk / 16], which is absolutely
-normal for a standard 8250 UART port. But there are custom 8250 ports,
-which provide extended baud rate limits. In particular the Mediatek 8250
-port can work with baud rates up to "uartclk" speed.
+On Fri, 10 Jul 2020, Darren Hart wrote:
 
-Normally that and any other peculiarity is supposed to be handled in a
-custom set_termios() callback implemented in the vendor-specific
-8250-port glue-driver. Currently that is how it's done for the most of
-the vendor-specific 8250 ports, but for some reason for Mediatek a
-solution has been spread out to both the glue-driver and to the generic
-8250-port code. Due to that a bug has been introduced, which permitted the
-extended baud rate limit for all even for standard 8250-ports. The bug
-has been fixed by the commit 7b668c064ec3 ("serial: 8250: Fix max baud
-limit in generic 8250 port") by narrowing the baud rates limit back down to
-the normal bounds. Unfortunately by doing so we also broke the
-Mediatek-specific extended bauds feature.
+> > Some devices, particularly the 3DConnexion Spacemouse wireless 3D
+> > controllers, return more than just the battery capacity in the battery
+> > report. The Spacemouse devices return an additional byte with a device
+> > specific field. However, hidinput_query_battery_capacity() only
+> > requests a 2 byte transfer.
+> >
+> > When a spacemouse is connected via USB (direct wire, no wireless dongle)
+> > and it returns a 3 byte report instead of the assumed 2 byte battery
+> > report the larger transfer confuses and frightens the USB subsystem
+> > which chooses to ignore the transfer. Then after 2 seconds assume the
+> > device has stopped responding and reset it. This can be reproduced
+> > easily by using a wired connection with a wireless spacemouse. The
+> > Spacemouse will enter a loop of resetting every 2 seconds which can be
+> > observed in dmesg.
+> >
+> > This patch solves the problem by increasing the transfer request to 4
+> > bytes instead of 2. The fix isn't particularly elegant, but it is simple
+> > and safe to backport to stable kernels. A further patch will follow to
+> > more elegantly handle battery reports that contain additional data.
+> >
+> 
+> Applied and tested on 5.8.0-rc4+ (aa0c9086b40c) with a 3Dconnexion
+> SpaceMouse Wireless (tested connected via USB). Observed the same
+> behavior Grant reports before the patch. After the patch, the device stays
+> connected successfully.
+> 
+> Tested-by: Darren Hart <dvhart@infradead.org>
 
-A fix of the problem described above is twofold. First since we can't get
-back the extended baud rate limits feature to the generic set_termios()
-function and that method supports only a standard baud rates range, the
-requested baud rate must be locally stored before calling it and then
-restored back to the new termios structure after the generic set_termios()
-finished its magic business. By doing so we still use the
-serial8250_do_set_termios() method to set the LCR/MCR/FCR/etc. registers,
-while the extended baud rate setting procedure will be performed later in
-the custom Mediatek-specific set_termios() callback. Second since a true
-baud rate is now fully calculated in the custom set_termios() method we
-need to locally update the port timeout by calling the
-uart_update_timeout() function. After the fixes described above are
-implemented in the 8250_mtk.c driver, the Mediatek 8250-port should
-get back to normally working with extended baud rates.
+Applied, thanks.
 
-Link: https://lore.kernel.org/linux-serial/20200701211337.3027448-1-danielwinkler@google.com
-
-Fixes: 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250 port")
-Reported-by: Daniel Winkler <danielwinkler@google.com>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-
----
-
-Folks, sorry for a delay with the problem fix. A solution is turned out to
-be a bit more complicated than I originally thought in my comment to the
-Daniel revert-patch.
-
-Please also note, that I don't have a Mediatek hardware to test the
-solution suggested in the patch. The code is written as on so called
-the tip of the pen after digging into the 8250_mtk.c and 8250_port.c
-drivers code. So please Daniel or someone with Mediatek 8250-port
-available on a board test this patch first and report about the results in
-reply to this emailing thread. After that, if your conclusion is positive
-and there is no objection against the solution design the patch can be
-merged in.
-
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Daniel Winkler <danielwinkler@google.com>
-Cc: Aaron Sierra <asierra@xes-inc.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Cc: linux-serial@vger.kernel.org
-Cc: linux-mediatek@lists.infradead.org
-Cc: BlueZ <linux-bluetooth@vger.kernel.org>
-Cc: chromeos-bluetooth-upstreaming <chromeos-bluetooth-upstreaming@chromium.org>
-Cc: abhishekpandit@chromium.org
-Cc: stable@vger.kernel.org
----
- drivers/tty/serial/8250/8250_mtk.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
-
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index f839380c2f4c..98b8a3e30733 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -306,8 +306,21 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
- 	}
- #endif
- 
-+	/*
-+	 * Store the requested baud rate before calling the generic 8250
-+	 * set_termios method. Standard 8250 port expects bauds to be
-+	 * no higher than (uartclk / 16) so the baud will be clamped if it
-+	 * gets out of that bound. Mediatek 8250 port supports speed
-+	 * higher than that, therefore we'll get original baud rate back
-+	 * after calling the generic set_termios method and recalculate
-+	 * the speed later in this method.
-+	 */
-+	baud = tty_termios_baud_rate(termios);
-+
- 	serial8250_do_set_termios(port, termios, old);
- 
-+	tty_termios_encode_baud_rate(termios, baud, baud);
-+
- 	/*
- 	 * Mediatek UARTs use an extra highspeed register (MTK_UART_HIGHS)
- 	 *
-@@ -339,6 +352,11 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
- 	 */
- 	spin_lock_irqsave(&port->lock, flags);
- 
-+	/*
-+	 * Update the per-port timeout.
-+	 */
-+	uart_update_timeout(port, termios->c_cflag, baud);
-+
- 	/* set DLAB we have cval saved in up->lcr from the call to the core */
- 	serial_port_out(port, UART_LCR, up->lcr | UART_LCR_DLAB);
- 	serial_dl_write(up, quot);
 -- 
-2.26.2
+Jiri Kosina
+SUSE Labs
 
