@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C4021FAD8
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349A021FA38
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730950AbgGNS4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:56:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54188 "EHLO mail.kernel.org"
+        id S1729373AbgGNSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbgGNS4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:56:18 -0400
+        id S1730313AbgGNSum (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:50:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 229A5223B0;
-        Tue, 14 Jul 2020 18:56:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CF5C22B2A;
+        Tue, 14 Jul 2020 18:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752977;
-        bh=XBrveUxBJxO457EafyTfFwjDYerlhoSdCXvOusEMN2A=;
+        s=default; t=1594752641;
+        bh=WJSu7jjjoQkirFpIXvqr4UHY09mUZiBEYqt0DClml1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVRuYfCjuIZdupOibNPHfhmhGTuL6z/tJzLCLs0oJqGocwXPP12PY3gBjbMUt+a9l
-         rnp3FJ60P4zz7PDNTAMLKTckILqkBRsz/yn8Mc4VWWr1kZtkz2+Ui/Ufyhgn06PnjD
-         wTuhWz2s71OEAIRQpf3BmrHithiQgLgoRR8HqkeE=
+        b=lyqkz618pKNoMivQ5Nw9wSiudcQ8VGpXqe18OWL1+GRXl+MzGYtfkBWe059GmBX7N
+         8Hx2GjeYVG9z9mZZUiFeC+Ctt6HTW7Xwk7IDP3VYC/Lu8B5BOwgm626QIQent1uxVS
+         HL4f1640dtmBWWKf5mljZk7NqvPolTMaYoittsxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Luwei Kang <luwei.kang@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 073/166] perf intel-pt: Fix recording PEBS-via-PT with registers
-Date:   Tue, 14 Jul 2020 20:43:58 +0200
-Message-Id: <20200714184119.352467441@linuxfoundation.org>
+Subject: [PATCH 5.4 056/109] RDMA/siw: Fix reporting vendor_part_id
+Date:   Tue, 14 Jul 2020 20:43:59 +0200
+Message-Id: <20200714184108.200034373@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit 75bcb8776dc987538f267ba4ba05ca43fc2b1676 ]
+[ Upstream commit 04340645f69ab7abb6f9052688a60f0213b3f79c ]
 
-When recording PEBS-via-PT, the kernel will not accept the intel_pt
-event with register sampling e.g.
+Move the initialization of the vendor_part_id to be before calling
+ib_register_device(), this is needed because the query_device() callback
+is called from the context of ib_register_device() before initializing the
+vendor_part_id, so the reported value is wrong.
 
- # perf record --kcore -c 10000 -e '{intel_pt/branch=0/,branch-loads/aux-output/ppp}' -I -- ls -l
- Error:
- intel_pt/branch=0/: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
-
-Fix by suppressing register sampling on the intel_pt evsel.
-
-Committer notes:
-
-Adrian informed that this is only available from Tremont onwards, so on
-older processors the error continues the same as before.
-
-Fixes: 9e64cefe4335b ("perf intel-pt: Process options for PEBS event synthesis")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Luwei Kang <luwei.kang@intel.com>
-Link: http://lore.kernel.org/lkml/20200630133935.11150-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: bdcf26bf9b3a ("rdma/siw: network and RDMA core interface")
+Link: https://lore.kernel.org/r/20200707130931.444724-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/x86/util/intel-pt.c | 1 +
- tools/perf/util/evsel.c             | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/siw/siw_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/arch/x86/util/intel-pt.c b/tools/perf/arch/x86/util/intel-pt.c
-index 1643aed8c4c8e..2a548fbdf2a2a 100644
---- a/tools/perf/arch/x86/util/intel-pt.c
-+++ b/tools/perf/arch/x86/util/intel-pt.c
-@@ -634,6 +634,7 @@ static int intel_pt_recording_options(struct auxtrace_record *itr,
- 			}
- 			evsel->core.attr.freq = 0;
- 			evsel->core.attr.sample_period = 1;
-+			evsel->no_aux_samples = true;
- 			intel_pt_evsel = evsel;
- 			opts->full_auxtrace = true;
- 		}
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index eb880efbce16d..386950f29792a 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1048,12 +1048,12 @@ void perf_evsel__config(struct evsel *evsel, struct record_opts *opts,
- 	if (callchain && callchain->enabled && !evsel->no_aux_samples)
- 		perf_evsel__config_callchain(evsel, opts, callchain);
+diff --git a/drivers/infiniband/sw/siw/siw_main.c b/drivers/infiniband/sw/siw/siw_main.c
+index 130b1e31b9780..fb66d67572787 100644
+--- a/drivers/infiniband/sw/siw/siw_main.c
++++ b/drivers/infiniband/sw/siw/siw_main.c
+@@ -66,12 +66,13 @@ static int siw_device_register(struct siw_device *sdev, const char *name)
+ 	static int dev_id = 1;
+ 	int rv;
  
--	if (opts->sample_intr_regs) {
-+	if (opts->sample_intr_regs && !evsel->no_aux_samples) {
- 		attr->sample_regs_intr = opts->sample_intr_regs;
- 		perf_evsel__set_sample_bit(evsel, REGS_INTR);
++	sdev->vendor_part_id = dev_id++;
++
+ 	rv = ib_register_device(base_dev, name);
+ 	if (rv) {
+ 		pr_warn("siw: device registration error %d\n", rv);
+ 		return rv;
  	}
+-	sdev->vendor_part_id = dev_id++;
  
--	if (opts->sample_user_regs) {
-+	if (opts->sample_user_regs && !evsel->no_aux_samples) {
- 		attr->sample_regs_user |= opts->sample_user_regs;
- 		perf_evsel__set_sample_bit(evsel, REGS_USER);
- 	}
+ 	siw_dbg(base_dev, "HWaddr=%pM\n", sdev->netdev->dev_addr);
+ 
 -- 
 2.25.1
 
