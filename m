@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5BCE21F356
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 15:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4860B21F366
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725906AbgGNN6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 09:58:33 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:33843 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726793AbgGNN6c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 09:58:32 -0400
+        id S1727831AbgGNOCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 10:02:11 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:47317 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727794AbgGNOCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 10:02:11 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id BA530971A;
-        Tue, 14 Jul 2020 09:58:31 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id AB38F5762;
+        Tue, 14 Jul 2020 10:02:09 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 14 Jul 2020 09:58:32 -0400
+  by compute1.internal (MEProxy); Tue, 14 Jul 2020 10:02:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=IbwAx5
-        VHmXY0w/D35iL9cHqmjl3eYFvwPlu8iWVz93M=; b=K2Qgoz2uXdNV+kzThRXumC
-        PH7E02/gkWIgeHqu/isdw9pwhCDd344L4pWuk3UJxQJf17KzFUwONHS7jOdo/CYV
-        k/A2U8XeMmgE6VNLd0hN4xrctoLYGzqMdH2+Or248maAGsvPx0fLTv9P0/hrT+I8
-        vpSez5Img/LytbwzLSl7jR8VR1LREDkaIyGqWpIV7ZSXEu5YBMZouGylcelW6P5e
-        TO7Vyd6OqPQJqu23LKgdQG6WwEpeCDlu6rzoFtKjF3iRBdq4csizIffzdf5YN5HV
-        JG1QPhHNiNhCP9zzuAP8ujik5rm/EzcRx5o50aoJoiopb1mgoqTdhYGP5hYhCCEQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6OxziY
+        M1BiabqoTcUOt6C+ldSA5/EOku7gTETLoDkwo=; b=B383jhDODOYhsuQiEUZaxc
+        F+XRUYbsHyywuk5C9gEwWxyWUnA8CyZlaWPZvEMNvK9mmAOwowws0TOfHueeIByG
+        KSUh4zPtpitnkXmGBxYh8KPBtOrFD6LqZCS7Ptz/HbGTiN6XBEeDKtDI5mA8ATpY
+        ItbTaFINOwcWVHe3hhN+gMHjAipyLkSw40KUzf4G+ivOi7EiI3EigSRSCY4PP2yX
+        kCFNfAKEnaz26EWNQtai6W2xunWNeEaAf6bPqyEznjzG1O6X+ENqD8JvXO2c332R
+        xWGEHmcwe2IhOwhlEaXbpWu6r8Exp4CdcDauDQeowlJBVM/ndh846guMKTkBey5w
         ==
-X-ME-Sender: <xms:B7oNXy29uGiGGD7bIbxo_gouqiDCEL6ESxrZuq8TuPQTBd4E5gWi8g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfedtgdejfecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:4LoNX-BfPFaOshO_21FZu7Kfs1PKd2XuH_2e5g-6DQ3lCCefxUgBAA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfedtgdejgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:B7oNX1EWEUSw9ho-IBpW7ASenXalGHHi2RxbLOtxFMVfrnDPOwV6CA>
-    <xmx:B7oNX66eXx0o-KbB2sZHH0Pa5i9_5qjcRcprfERxTz9eil-_9DkNoA>
-    <xmx:B7oNXz1QktuFfXVdZ9yOcYvn15524QlR2BJFfBL9lXlbKcEFKefzOg>
-    <xmx:B7oNX4OjVFbqYprMT2iqz12quzpafEMcBCEhaYyzYcA8w5yBWbC2iUlyFSc>
+X-ME-Proxy: <xmx:4LoNX4guTuAOMJvISgiSHSMs0XqLauLQMLClDXy0Zj4kY3-jGT3sPQ>
+    <xmx:4LoNXxlY2Ism4fL-AuhrWgYM041aC86DIXyXPPQWHArsH5VNgAv0BA>
+    <xmx:4LoNX8xkMxQcr_LcGiaL4BULFJCBf2vIzluSiQB-SAQD4iAmrq9tMQ>
+    <xmx:4boNX2OqZhpWoVCdZy_42UIZIq3tVMSJ-ok9y2ANcjfoiaND5lCzdmbY6lM>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 172E9328005E;
-        Tue, 14 Jul 2020 09:58:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Fix pin being driven low for a while on" failed to apply to 4.9-stable tree
-To:     hdegoede@redhat.com, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3FBC43280064;
+        Tue, 14 Jul 2020 10:02:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm: do not use waitqueue for request-based DM" failed to apply to 5.7-stable tree
+To:     ming.lei@redhat.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Jul 2020 15:58:25 +0200
-Message-ID: <15947351057231@kroah.com>
+Date:   Tue, 14 Jul 2020 16:02:04 +0200
+Message-ID: <1594735324238163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,165 +69,135 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 45c11a927606c612e4898a9484867b71318699f6 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Sat, 6 Jun 2020 11:31:50 +0200
-Subject: [PATCH] pinctrl: baytrail: Fix pin being driven low for a while on
- gpiod_get(..., GPIOD_OUT_HIGH)
+From 85067747cf9888249fa11fa49ef75af5192d3988 Mon Sep 17 00:00:00 2001
+From: Ming Lei <ming.lei@redhat.com>
+Date: Wed, 24 Jun 2020 16:00:58 -0400
+Subject: [PATCH] dm: do not use waitqueue for request-based DM
 
-The pins on the Bay Trail SoC have separate input-buffer and output-buffer
-enable bits and a read of the level bit of the value register will always
-return the value from the input-buffer.
+Given request-based DM now uses blk-mq's blk_mq_queue_inflight() to
+determine if outstanding IO has completed (and DM has no control over
+the blk-mq state machine used to track outstanding IO) it is unsafe to
+wakeup waiter (dm_wait_for_completion) before blk-mq has cleared a
+request's state bits (e.g. MQ_RQ_IN_FLIGHT or MQ_RQ_COMPLETE).  As
+such dm_wait_for_completion() could be left to wait indefinitely if no
+other requests complete.
 
-The BIOS of a device may configure a pin in output-only mode, only enabling
-the output buffer, and write 1 to the level bit to drive the pin high.
-This 1 written to the level bit will be stored inside the data-latch of the
-output buffer.
+Fix this by eliminating request-based DM's use of waitqueue to wait
+for blk-mq requests to complete in dm_wait_for_completion.
 
-But a subsequent read of the value register will return 0 for the level bit
-because the input-buffer is disabled. This causes a read-modify-write as
-done by byt_gpio_set_direction() to write 0 to the level bit, driving the
-pin low!
-
-Before this commit byt_gpio_direction_output() relied on
-pinctrl_gpio_direction_output() to set the direction, followed by a call
-to byt_gpio_set() to apply the selected value. This causes the pin to
-go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
-calls.
-
-Change byt_gpio_direction_output() to directly make the register
-modifications itself instead. Replacing the 2 subsequent writes to the
-value register with a single write.
-
-Note that the pinctrl code does not keep track internally of the direction,
-so not going through pinctrl_gpio_direction_output() is not an issue.
-
-This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
-already on at boot (no external monitor connected), then the i915 driver
-does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
-temporarily going low of that GPIO was causing the panel to reset itself
-after which it would not show an image until it was turned off and back on
-again (until a full modeset was done on it). This commit fixes this.
-
-This commit also updates the byt_gpio_direction_input() to use direct
-register accesses instead of going through pinctrl_gpio_direction_input(),
-to keep it consistent with byt_gpio_direction_output().
-
-Note for backporting, this commit depends on:
-commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
-when setting direct-irq pin to output")
-
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Depends-on: 3c94d83cb3526 ("blk-mq: change blk_mq_queue_busy() to blk_mq_queue_inflight()")
 Cc: stable@vger.kernel.org
-Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index 0ff7c55173da..615174a9d1e0 100644
---- a/drivers/pinctrl/intel/pinctrl-baytrail.c
-+++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -800,6 +800,21 @@ static void byt_gpio_disable_free(struct pinctrl_dev *pctl_dev,
- 	pm_runtime_put(vg->dev);
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index f60c02512121..85e0daabad49 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -146,10 +146,6 @@ static void rq_end_stats(struct mapped_device *md, struct request *orig)
+  */
+ static void rq_completed(struct mapped_device *md)
+ {
+-	/* nudge anyone waiting on suspend queue */
+-	if (unlikely(wq_has_sleeper(&md->wait)))
+-		wake_up(&md->wait);
+-
+ 	/*
+ 	 * dm_put() must be at the end of this function. See the comment above
+ 	 */
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index e6807792fec8..446aff589732 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -654,28 +654,6 @@ static void free_tio(struct dm_target_io *tio)
+ 	bio_put(&tio->clone);
  }
  
-+static void byt_gpio_direct_irq_check(struct intel_pinctrl *vg,
-+				      unsigned int offset)
+-static bool md_in_flight_bios(struct mapped_device *md)
+-{
+-	int cpu;
+-	struct hd_struct *part = &dm_disk(md)->part0;
+-	long sum = 0;
+-
+-	for_each_possible_cpu(cpu) {
+-		sum += part_stat_local_read_cpu(part, in_flight[0], cpu);
+-		sum += part_stat_local_read_cpu(part, in_flight[1], cpu);
+-	}
+-
+-	return sum != 0;
+-}
+-
+-static bool md_in_flight(struct mapped_device *md)
+-{
+-	if (queue_is_mq(md->queue))
+-		return blk_mq_queue_inflight(md->queue);
+-	else
+-		return md_in_flight_bios(md);
+-}
+-
+ u64 dm_start_time_ns_from_clone(struct bio *bio)
+ {
+ 	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
+@@ -2470,15 +2448,29 @@ void dm_put(struct mapped_device *md)
+ }
+ EXPORT_SYMBOL_GPL(dm_put);
+ 
+-static int dm_wait_for_completion(struct mapped_device *md, long task_state)
++static bool md_in_flight_bios(struct mapped_device *md)
 +{
-+	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
++	int cpu;
++	struct hd_struct *part = &dm_disk(md)->part0;
++	long sum = 0;
 +
-+	/*
-+	 * Before making any direction modifications, do a check if gpio is set
-+	 * for direct IRQ. On Bay Trail, setting GPIO to output does not make
-+	 * sense, so let's at least inform the caller before they shoot
-+	 * themselves in the foot.
-+	 */
-+	if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
-+		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++	for_each_possible_cpu(cpu) {
++		sum += part_stat_local_read_cpu(part, in_flight[0], cpu);
++		sum += part_stat_local_read_cpu(part, in_flight[1], cpu);
++	}
++
++	return sum != 0;
 +}
 +
- static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- 				  struct pinctrl_gpio_range *range,
- 				  unsigned int offset,
-@@ -807,7 +822,6 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
++static int dm_wait_for_bios_completion(struct mapped_device *md, long task_state)
  {
- 	struct intel_pinctrl *vg = pinctrl_dev_get_drvdata(pctl_dev);
- 	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
--	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
- 	unsigned long flags;
- 	u32 value;
+ 	int r = 0;
+ 	DEFINE_WAIT(wait);
  
-@@ -817,14 +831,8 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- 	value &= ~BYT_DIR_MASK;
- 	if (input)
- 		value |= BYT_OUTPUT_EN;
--	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
--		/*
--		 * Before making any direction modifications, do a check if gpio
--		 * is set for direct IRQ.  On baytrail, setting GPIO to output
--		 * does not make sense, so let's at least inform the caller before
--		 * they shoot themselves in the foot.
--		 */
--		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
-+	else
-+		byt_gpio_direct_irq_check(vg, offset);
+-	while (1) {
++	while (true) {
+ 		prepare_to_wait(&md->wait, &wait, task_state);
  
- 	writel(value, val_reg);
+-		if (!md_in_flight(md))
++		if (!md_in_flight_bios(md))
+ 			break;
  
-@@ -1165,19 +1173,50 @@ static int byt_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
- 
- static int byt_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
- {
--	return pinctrl_gpio_direction_input(chip->base + offset);
-+	struct intel_pinctrl *vg = gpiochip_get_data(chip);
-+	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
-+	unsigned long flags;
-+	u32 reg;
-+
-+	raw_spin_lock_irqsave(&byt_lock, flags);
-+
-+	reg = readl(val_reg);
-+	reg &= ~BYT_DIR_MASK;
-+	reg |= BYT_OUTPUT_EN;
-+	writel(reg, val_reg);
-+
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
-+	return 0;
+ 		if (signal_pending_state(task_state, current)) {
+@@ -2493,6 +2485,28 @@ static int dm_wait_for_completion(struct mapped_device *md, long task_state)
+ 	return r;
  }
  
-+/*
-+ * Note despite the temptation this MUST NOT be converted into a call to
-+ * pinctrl_gpio_direction_output() + byt_gpio_set() that does not work this
-+ * MUST be done as a single BYT_VAL_REG register write.
-+ * See the commit message of the commit adding this comment for details.
-+ */
- static int byt_gpio_direction_output(struct gpio_chip *chip,
- 				     unsigned int offset, int value)
- {
--	int ret = pinctrl_gpio_direction_output(chip->base + offset);
-+	struct intel_pinctrl *vg = gpiochip_get_data(chip);
-+	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
-+	unsigned long flags;
-+	u32 reg;
- 
--	if (ret)
--		return ret;
-+	raw_spin_lock_irqsave(&byt_lock, flags);
++static int dm_wait_for_completion(struct mapped_device *md, long task_state)
++{
++	int r = 0;
 +
-+	byt_gpio_direct_irq_check(vg, offset);
- 
--	byt_gpio_set(chip, offset, value);
-+	reg = readl(val_reg);
-+	reg &= ~BYT_DIR_MASK;
-+	if (value)
-+		reg |= BYT_LEVEL;
-+	else
-+		reg &= ~BYT_LEVEL;
- 
-+	writel(reg, val_reg);
++	if (!queue_is_mq(md->queue))
++		return dm_wait_for_bios_completion(md, task_state);
 +
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 	return 0;
- }
- 
++	while (true) {
++		if (!blk_mq_queue_inflight(md->queue))
++			break;
++
++		if (signal_pending_state(task_state, current)) {
++			r = -EINTR;
++			break;
++		}
++
++		msleep(5);
++	}
++
++	return r;
++}
++
+ /*
+  * Process the deferred bios
+  */
 
