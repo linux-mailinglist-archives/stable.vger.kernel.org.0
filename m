@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B153221F4E6
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58DC021F478
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:40:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728853AbgGNOmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 10:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S1729167AbgGNOjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 10:39:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729148AbgGNOjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:39:51 -0400
+        id S1729157AbgGNOjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:39:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EE432256D;
-        Tue, 14 Jul 2020 14:39:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCB5022583;
+        Tue, 14 Jul 2020 14:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594737591;
-        bh=b/Z340xRhSHG+jhE9yjtrc/GHJ2g+duPU+ouTzebMUQ=;
+        s=default; t=1594737592;
+        bh=Nq5QR3iG8Cr3ox2BQ3/zYb67ZQcxz9425Pv2U2LcgGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzeyU6SQa8XE2QT2MC8uVh6YHofFKFwEGoXPJRhylJUZHdlNVYz/TjTJtBZhPTjWG
-         iHCWhDCjhq1qU6uFrAes8HWJa2MBnq+tGz+b2ociZWputeXshizJd5lksPjipKFcH4
-         O0IJsfysVifwo+XMotmM49qtISKDj1364a7ZMdLM=
+        b=iQy50JiWfMKmvQyayYdEKuGFoZyIHlB65h2wOORSiZ6hUVm/a4TfzCl8kcbe1g9Iv
+         baqjSQVZDk9KiPeM9xC+Jn0qVWIOtOi8XkSzsoN+L+Mu9ZzcutYWFmhCxGi0n3nXPL
+         PmOMusmy2We8j7Ge32cjeaSjlT10dU2RyLDx3peU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Rix <trix@redhat.com>, Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 11/13] net: sky2: initialize return of gm_phy_read
-Date:   Tue, 14 Jul 2020 10:39:35 -0400
-Message-Id: <20200714143937.4035685-11-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 12/13] drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
+Date:   Tue, 14 Jul 2020 10:39:36 -0400
+Message-Id: <20200714143937.4035685-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200714143937.4035685-1-sashal@kernel.org>
 References: <20200714143937.4035685-1-sashal@kernel.org>
@@ -44,48 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 28b18e4eb515af7c6661c3995c6e3c34412c2874 ]
+[ Upstream commit 0156e76d388310a490aeb0f2fbb5b284ded3aecc ]
 
-clang static analysis flags this garbage return
+Tegra TRM says worst-case reply time is 1216us, and this should fix some
+spurious timeouts that have been popping up.
 
-drivers/net/ethernet/marvell/sky2.c:208:2: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-        return v;
-        ^~~~~~~~
-
-static inline u16 gm_phy_read( ...
-{
-	u16 v;
-	__gm_phy_read(hw, port, reg, &v);
-	return v;
-}
-
-__gm_phy_read can return without setting v.
-
-So handle similar to skge.c's gm_phy_read, initialize v.
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/sky2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   | 4 ++--
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
-index d013f30019b69..2452d8ba40730 100644
---- a/drivers/net/ethernet/marvell/sky2.c
-+++ b/drivers/net/ethernet/marvell/sky2.c
-@@ -215,7 +215,7 @@ static int __gm_phy_read(struct sky2_hw *hw, unsigned port, u16 reg, u16 *val)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
+index c8ab1b5741a3e..db7769cb33eba 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
+@@ -118,10 +118,10 @@ g94_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
+ 		if (retries)
+ 			udelay(400);
  
- static inline u16 gm_phy_read(struct sky2_hw *hw, unsigned port, u16 reg)
- {
--	u16 v;
-+	u16 v = 0;
- 	__gm_phy_read(hw, port, reg, &v);
- 	return v;
- }
+-		/* transaction request, wait up to 1ms for it to complete */
++		/* transaction request, wait up to 2ms for it to complete */
+ 		nvkm_wr32(device, 0x00e4e4 + base, 0x00010000 | ctrl);
+ 
+-		timeout = 1000;
++		timeout = 2000;
+ 		do {
+ 			ctrl = nvkm_rd32(device, 0x00e4e4 + base);
+ 			udelay(1);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
+index 7ef60895f43a7..edb6148cbca04 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
+@@ -118,10 +118,10 @@ gm200_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
+ 		if (retries)
+ 			udelay(400);
+ 
+-		/* transaction request, wait up to 1ms for it to complete */
++		/* transaction request, wait up to 2ms for it to complete */
+ 		nvkm_wr32(device, 0x00d954 + base, 0x00010000 | ctrl);
+ 
+-		timeout = 1000;
++		timeout = 2000;
+ 		do {
+ 			ctrl = nvkm_rd32(device, 0x00d954 + base);
+ 			udelay(1);
 -- 
 2.25.1
 
