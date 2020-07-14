@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C756D21FB92
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0556E21FC21
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729491AbgGNTCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56926 "EHLO mail.kernel.org"
+        id S1730150AbgGNSwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730456AbgGNS62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:58:28 -0400
+        id S1730132AbgGNSwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:52:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7E0822AAD;
-        Tue, 14 Jul 2020 18:58:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5388222B4D;
+        Tue, 14 Jul 2020 18:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753108;
-        bh=qvVZYZZyvXrrrupe0Ch3flCHxEUB0/G4mbDKdvK05H8=;
+        s=default; t=1594752770;
+        bh=PeEl4ee3ukWwHBYOjv0FvZ8gt+uoagbNQbI0Jek4OAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVbiS3TRAVCm86SRsUFXUSH19EzhDz4/2q2S1g6YW8+/I4pq7hH3owo3Ai/mCSen5
-         RO5TtB5NxJkQ9joxDH+fN5a7Cp5/fFAO6GXTkd1Ciw4PXkBaXkTYKAPCRIOFwN8g7T
-         vpJQoEUpTtj4QXHGt0xoy2wnAOsnxX/daxEo7co4=
+        b=1u2l2dvO0ted0rOPFS3REG0ED0Y6yzYYNHEMSj5Dp9vHExcq8aDSaMKx+1gK0XPjQ
+         j0JXC27OnujLUTSiIEFoT0Y9zbSORQkUK5+ugKefmLXGZKanY4zFrPF5ydDPzqlBdl
+         wboXOQde+iu6lk5FpKXH9V6+US92W1ApYRnMkYvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastien Boeuf <sebastien.boeuf@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.7 121/166] KVM: x86: Inject #GP if guest attempts to toggle CR4.LA57 in 64-bit mode
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 103/109] blk-mq: consider non-idle request as "inflight" in blk_mq_rq_inflight()
 Date:   Tue, 14 Jul 2020 20:44:46 +0200
-Message-Id: <20200714184121.629538494@linuxfoundation.org>
+Message-Id: <20200714184110.498166191@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit d74fcfc1f0ff4b6c26ecef1f9e48d8089ab4eaac upstream.
+commit 05a4fed69ff00a8bd83538684cb602a4636b07a7 upstream.
 
-Inject a #GP on MOV CR4 if CR4.LA57 is toggled in 64-bit mode, which is
-illegal per Intel's SDM:
+dm-multipath is the only user of blk_mq_queue_inflight().  When
+dm-multipath calls blk_mq_queue_inflight() to check if it has
+outstanding IO it can get a false negative.  The reason for this is
+blk_mq_rq_inflight() doesn't consider requests that are no longer
+MQ_RQ_IN_FLIGHT but that are now MQ_RQ_COMPLETE (->complete isn't
+called or finished yet) as "inflight".
 
-  CR4.LA57
-    57-bit linear addresses (bit 12 of CR4) ... blah blah blah ...
-    This bit cannot be modified in IA-32e mode.
+This causes request-based dm-multipath's dm_wait_for_completion() to
+return before all outstanding dm-multipath requests have actually
+completed.  This breaks DM multipath's suspend functionality because
+blk-mq requests complete after DM's suspend has finished -- which
+shouldn't happen.
 
-Note, the pseudocode for MOV CR doesn't call out the fault condition,
-which is likely why the check was missed during initial development.
-This is arguably an SDM bug and will hopefully be fixed in future
-release of the SDM.
+Fix this by considering any request not in the MQ_RQ_IDLE state
+(so either MQ_RQ_COMPLETE or MQ_RQ_IN_FLIGHT) as "inflight" in
+blk_mq_rq_inflight().
 
-Fixes: fd8cb433734ee ("KVM: MMU: Expose the LA57 feature to VM.")
+Fixes: 3c94d83cb3526 ("blk-mq: change blk_mq_queue_busy() to blk_mq_queue_inflight()")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Cc: stable@vger.kernel.org
-Reported-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200703021714.5549-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    2 ++
- 1 file changed, 2 insertions(+)
+ block/blk-mq.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -964,6 +964,8 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, u
- 	if (is_long_mode(vcpu)) {
- 		if (!(cr4 & X86_CR4_PAE))
- 			return 1;
-+		if ((cr4 ^ old_cr4) & X86_CR4_LA57)
-+			return 1;
- 	} else if (is_paging(vcpu) && (cr4 & X86_CR4_PAE)
- 		   && ((cr4 ^ old_cr4) & pdptr_bits)
- 		   && !load_pdptrs(vcpu, vcpu->arch.walk_mmu,
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -829,10 +829,10 @@ static bool blk_mq_rq_inflight(struct bl
+ 			       void *priv, bool reserved)
+ {
+ 	/*
+-	 * If we find a request that is inflight and the queue matches,
++	 * If we find a request that isn't idle and the queue matches,
+ 	 * we know the queue is busy. Return false to stop the iteration.
+ 	 */
+-	if (rq->state == MQ_RQ_IN_FLIGHT && rq->q == hctx->queue) {
++	if (blk_mq_request_started(rq) && rq->q == hctx->queue) {
+ 		bool *busy = priv;
+ 
+ 		*busy = true;
 
 
