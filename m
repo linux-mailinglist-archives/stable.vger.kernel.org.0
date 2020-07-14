@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92EA21F4B5
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9580221F4A3
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728633AbgGNOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 10:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56114 "EHLO mail.kernel.org"
+        id S1729339AbgGNOkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 10:40:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729324AbgGNOkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:40:20 -0400
+        id S1729332AbgGNOkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:40:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90F2A206F5;
-        Tue, 14 Jul 2020 14:40:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB5332082F;
+        Tue, 14 Jul 2020 14:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594737619;
-        bh=+TpmgRyoAimEk+9EmfjO4fVbNk/czgms/EFFceKQDgs=;
+        s=default; t=1594737620;
+        bh=KSK64BLYetyzVcKoz+ANL7SQ++ub1XOz19L3Sgrhfvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIC8jTy8ry1ltCrulSBTEMEN59DUlyYLhGYT+Ra8gfaCvERy14cBEwGDLjpUgtvvO
-         mm5xuU1VJzVEA3Pxm/AN/QPjftBnB/MEbNBNq8fHj0lyOtEJ1KsZ1652d8XGH27SHC
-         8jF8FRyQZbMTiFMvmyunwxAAd8Ju5vtqghs6qvAc=
+        b=wOolozDDui+luwXM2QsWnbPW1WzrpwTd5be3es7/S9nyM4AnRaxVvZpy64ByQatNR
+         D3z6g7rUNf6whJGs1M2lNZx58vcWExGjcwv3jAErVQ0M6RSGDLnnYyP4dnmP2P1KQc
+         6szZ4IOYMH7zfjyx35AXecwp30Ywwsy9mgdtLoGg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 07/10] ALSA: hda/hdmi: fix failures at PCM open on Intel ICL and later
-Date:   Tue, 14 Jul 2020 10:40:07 -0400
-Message-Id: <20200714144010.4035987-7-sashal@kernel.org>
+Cc:     AceLan Kao <acelan.kao@canonical.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/10] net: usb: qmi_wwan: add support for Quectel EG95 LTE modem
+Date:   Tue, 14 Jul 2020 10:40:08 -0400
+Message-Id: <20200714144010.4035987-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200714144010.4035987-1-sashal@kernel.org>
 References: <20200714144010.4035987-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,103 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: AceLan Kao <acelan.kao@canonical.com>
 
-[ Upstream commit 56275036d8185f92eceac7479d48b858ee3dab84 ]
+[ Upstream commit f815dd5cf48b905eeecf0a2b990e9b7ab048b4f1 ]
 
-When HDMI PCM devices are opened in a specific order, with at least one
-HDMI/DP receiver connected, ALSA PCM open fails to -EBUSY on the
-connected monitor, on recent Intel platforms (ICL/JSL and newer). While
-this is not a typical sequence, at least Pulseaudio does this every time
-when it is started, to discover the available PCMs.
+Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
 
-The rootcause is an invalid assumption in hdmi_add_pin(), where the
-total number of converters is assumed to be known at the time the
-function is called. On older Intel platforms this held true, but after
-ICL/JSL, the order how pins and converters are in the subnode list as
-returned by snd_hda_get_sub_nodes(), was changed. As a result,
-information for some converters was not stored to per_pin->mux_nids.
-And this means some pins cannot be connected to all converters, and
-application instead gets -EBUSY instead at open.
+T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0195 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
 
-The assumption that converters are always before pins in the subnode
-list, is not really a valid one. Fix the problem in hdmi_parse_codec()
-by introducing separate loops for discovering converters and pins.
-
-BugLink: https://github.com/thesofproject/linux/issues/1978
-BugLink: https://github.com/thesofproject/linux/issues/2216
-BugLink: https://github.com/thesofproject/linux/issues/2217
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200703153818.2808592-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 2def4ad579ccf..f7bd91b713e83 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1655,33 +1655,43 @@ static int hdmi_add_cvt(struct hda_codec *codec, hda_nid_t cvt_nid)
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 9a873616dd27c..254a27295f41d 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -962,6 +962,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0125, 4)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0121, 4)},	/* Quectel EC21 Mini PCIe */
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0191, 4)},	/* Quectel EG91 */
++	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0195, 4)},	/* Quectel EG95 */
+ 	{QMI_FIXED_INTF(0x2c7c, 0x0296, 4)},	/* Quectel BG96 */
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0306, 4)},	/* Quectel EP06 Mini PCIe */
  
- static int hdmi_parse_codec(struct hda_codec *codec)
- {
--	hda_nid_t nid;
-+	hda_nid_t start_nid;
-+	unsigned int caps;
- 	int i, nodes;
- 
--	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &nid);
--	if (!nid || nodes < 0) {
-+	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &start_nid);
-+	if (!start_nid || nodes < 0) {
- 		codec_warn(codec, "HDMI: failed to get afg sub nodes\n");
- 		return -EINVAL;
- 	}
- 
--	for (i = 0; i < nodes; i++, nid++) {
--		unsigned int caps;
--		unsigned int type;
-+	/*
-+	 * hdmi_add_pin() assumes total amount of converters to
-+	 * be known, so first discover all converters
-+	 */
-+	for (i = 0; i < nodes; i++) {
-+		hda_nid_t nid = start_nid + i;
- 
- 		caps = get_wcaps(codec, nid);
--		type = get_wcaps_type(caps);
- 
- 		if (!(caps & AC_WCAP_DIGITAL))
- 			continue;
- 
--		switch (type) {
--		case AC_WID_AUD_OUT:
-+		if (get_wcaps_type(caps) == AC_WID_AUD_OUT)
- 			hdmi_add_cvt(codec, nid);
--			break;
--		case AC_WID_PIN:
-+	}
-+
-+	/* discover audio pins */
-+	for (i = 0; i < nodes; i++) {
-+		hda_nid_t nid = start_nid + i;
-+
-+		caps = get_wcaps(codec, nid);
-+
-+		if (!(caps & AC_WCAP_DIGITAL))
-+			continue;
-+
-+		if (get_wcaps_type(caps) == AC_WID_PIN)
- 			hdmi_add_pin(codec, nid);
--			break;
--		}
- 	}
- 
- 	return 0;
 -- 
 2.25.1
 
