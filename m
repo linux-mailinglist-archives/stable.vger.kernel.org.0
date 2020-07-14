@@ -2,68 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A2E21F0DE
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 14:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4BA21F00A
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 14:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbgGNMRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 08:17:47 -0400
-Received: from buro.com.pe ([190.81.117.218]:41246 "EHLO mail.buro.com.pe"
+        id S1726630AbgGNMFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 08:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728792AbgGNMRp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 08:17:45 -0400
-X-Greylist: delayed 3319 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 Jul 2020 08:17:44 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail.buro.com.pe (Postfix) with ESMTP id 63A341053C66;
-        Tue, 14 Jul 2020 06:00:27 -0500 (-05)
-Received: from mail.buro.com.pe ([127.0.0.1])
-        by localhost (mail.buro.com.pe [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id oQlPCCKRYssV; Tue, 14 Jul 2020 06:00:27 -0500 (-05)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.buro.com.pe (Postfix) with ESMTP id ED8BDDB7306;
-        Tue, 14 Jul 2020 06:00:26 -0500 (-05)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.buro.com.pe ED8BDDB7306
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=buro.com.pe;
-        s=8EF3D770-2911-11EA-9B8B-1DAC71A75241; t=1594724427;
-        bh=Ac7Tra3kO5WFjsaAYddwgJhzdbmYvRMVA/2N18uxrxU=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=abt7EhQm5utS3TALaU9PKmjEiU9clWIXSgtiQVfaEs+krYOc9HDoYJSXN49nr00xQ
-         /sjyQDiIpOMvN3uNH9ewhaZHdNwsuSfFQWGJKmGSgXfjkqFraiaX5mHiz8eQwSoTcw
-         jlFTvyq4dBIG9DdoZBXPBYwHrkqSK9HsVFtX1n96EUYctlIOk7fiUiCEIKaRgBK7MK
-         xNk1Xm4/lGNVRCPJmUg07Fk/QsDiqbGU1qf98BKUB/B55+u2ehvUP2orVsaldtpMic
-         AFHFrSepbHnhGWp+92mHtotb6vRqH6iX/XJKzKCtrO14Bjay5zR8iasfhGz1aJWoD8
-         /B/6hJvJx59hw==
-X-Virus-Scanned: amavisd-new at buro.com.pe
-Received: from mail.buro.com.pe ([127.0.0.1])
-        by localhost (mail.buro.com.pe [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id SXa4VhqK6TdK; Tue, 14 Jul 2020 06:00:26 -0500 (-05)
-Received: from [10.81.211.154] (unknown [105.8.0.181])
-        by mail.buro.com.pe (Postfix) with ESMTPSA id 5034FDB72F4;
-        Tue, 14 Jul 2020 06:00:16 -0500 (-05)
-Content-Type: text/plain; charset="utf-8"
+        id S1726748AbgGNMFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 08:05:07 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2BF522224;
+        Tue, 14 Jul 2020 12:05:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594728307;
+        bh=B4BRyWXYvvNkFA7USfvVX2MX2eMmEtTlHR5h7rMAFBw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JD1vKmu+sxcOXrGzEW/wg2xf3M2dntRndHqn0EqcicRsVx2mfoRbGuWYo7hXv/7Vh
+         vq+GaHHXKpyba6GAvaN7DnBpjL7ttxt+N0+Q1tO5+yf5ETZv3wimQIQNppWk9Rcw9d
+         R16ndrPOpTsBEL6OHxjAs0GthqxCFU/vdD8zME9M=
+Date:   Tue, 14 Jul 2020 14:05:05 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please revert "ath9k: Fix general protection fault in
+ ath9k_hif_usb_rx_cb" from all stable kernels
+Message-ID: <20200714120505.GA1547259@kroah.com>
+References: <2a5acaae-9aef-1aab-d385-0dd11d151fa6@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Sehr wichtige Nachricht an Sie
-To:     Recipients <einga@buro.com.pe>
-From:   "Jeff Lindsay" <einga@buro.com.pe>
-Date:   Tue, 14 Jul 2020 04:00:06 -0700
-Reply-To: jeffworkhomeorg@gmail.com
-Message-Id: <20200714110017.5034FDB72F4@mail.buro.com.pe>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2a5acaae-9aef-1aab-d385-0dd11d151fa6@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich bin Jeff Lindsay, ein =C3=A4lterer B=C3=BCrger aus Kalifornien, USA. Ic=
-h habe einen Jackpot von 447,8 Millionen Dollar gewonnen, der gr=C3=B6=C3=
-=9Fte Lotterie-Jackpot. Im Namen meiner Familie und aus gutem Willen spende=
-n wir Ihnen und Ihrer Familie einen Betrag von (=E2=82=AC 2.000.000,00 EUR)=
-. Ich versuche, die =C3=B6ffentlichen Waisenh=C3=A4user zu erreichen. Trage=
-n Sie zur Armutsbek=C3=A4mpfung bei und sorgen Sie f=C3=BCr eine angemessen=
-e Gesundheitsversorgung f=C3=BCr Einzelpersonen, insbesondere w=C3=A4hrend =
-dieser Welt. Pandemic. Ich m=C3=B6chte auch, dass Sie einen Teil dieser Spe=
-nde in die =C3=B6ffentliche Infrastruktur investieren, um Arbeitslosen in I=
-hrem Land Arbeitspl=C3=A4tze zu bieten. Ich habe dich gew=C3=A4hlt, weil ic=
-h an dich glaube. Ich brauche Ihre uneingeschr=C3=A4nkte Mitarbeit in Bezug=
- auf diese Spende. Bitte kontaktieren Sie mich hier zur=C3=BCck unter meine=
-r privaten E-Mail: info@jefflindsayfoundation.com
+On Tue, Jul 14, 2020 at 11:58:36AM +0200, Hans de Goede wrote:
+> Hi Greg (et all),
+> 
+> Note several people are already working on this, so you may already have a request for this.
+> 
+> The "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb" commit which has been
+> added to several stable kernels (at least to 5.4.y and 5.7.y, but likely also to others)
+> is breaking networking for people with an ath9k card.
+> 
+> A revert has been submitted upstream, but it does not seem to have found it way
+> upstream yet. It has been cherry-picked by the Arch people:
+> 
+> https://git.archlinux.org/linux.git/commit/?h=v5.7.8-arch1&id=1a32e7b57b0b37cab6845093920b4d1ff94d3bf4
+> 
+> So if you want to credit some of the original people working on fixing this,
+> you can find the revert submitted upstream there.
+> 
+> Reverting this fixes / also see:
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=208251
+> https://bugzilla.redhat.com/show_bug.cgi?id=1848631
+
+Now reverted, thanks!
+
+greg k-h
