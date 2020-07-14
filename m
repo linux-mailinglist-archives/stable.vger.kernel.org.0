@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6564321E8AD
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 08:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3ABB21E8B3
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 08:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725778AbgGNG4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 02:56:04 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:44482 "EHLO huawei.com"
+        id S1725905AbgGNG5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 02:57:41 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:7302 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726472AbgGNG4E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 02:56:04 -0400
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id 56F551B72338A2EF7613;
-        Tue, 14 Jul 2020 14:55:58 +0800 (CST)
-Received: from huawei.com (10.175.124.27) by DGGEMS404-HUB.china.huawei.com
- (10.3.19.204) with Microsoft SMTP Server id 14.3.487.0; Tue, 14 Jul 2020
- 14:55:55 +0800
+        id S1725853AbgGNG5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 02:57:41 -0400
+Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 7F2D9418D66DC7410684;
+        Tue, 14 Jul 2020 14:57:38 +0800 (CST)
+Received: from huawei.com (10.175.124.27) by DGGEMS411-HUB.china.huawei.com
+ (10.3.19.211) with Microsoft SMTP Server id 14.3.487.0; Tue, 14 Jul 2020
+ 14:57:32 +0800
 From:   Yang Yingliang <yangyingliang@huawei.com>
 To:     <stable@vger.kernel.org>, <linux-rdma@vger.kernel.org>
 CC:     <sashal@kernel.org>, <gregkh@linuxfoundation.org>,
-        <dledford@redhat.com>, <jgg@ziepe.ca>, <hal.rosenstock@gmail.com>
-Subject: [PATCH stable-4.19] IB/umem: fix reference count leak in ib_umem_odp_get()
-Date:   Tue, 14 Jul 2020 14:54:56 +0000
-Message-ID: <20200714145456.1380987-1-yangyingliang@huawei.com>
+        <dledford@redhat.com>, <jgg@ziepe.ca>, <hal.rosenstock@gmail.com>,
+        <yangyingliang@huawei.com>
+Subject: [PATCH stable-4.14] IB/umem: fix reference count leak in ib_umem_odp_get()
+Date:   Tue, 14 Jul 2020 14:56:39 +0000
+Message-ID: <20200714145639.1381719-1-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
