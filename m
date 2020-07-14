@@ -2,97 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8221221F7C0
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 18:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC85721F803
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 19:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbgGNQ62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 12:58:28 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60063 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726062AbgGNQ62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 12:58:28 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id A37F6C60;
-        Tue, 14 Jul 2020 12:58:26 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 14 Jul 2020 12:58:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=J
-        n3Ad37SZHYYU1k/teK9BKKpMr/A2B9BBUZL/dISkAw=; b=rRonHJCIud40+m7Fz
-        d+DHSXfd+BJrfwWI9tMwkRffZ9Uq6k1GrtwJp8Q/C+26k4tbg1Yadc4d8S9n0S2v
-        hr9/Y+eRygltnOdxjjJynh0JPxJ1sO9TD2EGJ3Dtxlls0Pyt2LjuSDDdiz6/V0bL
-        QtV1fvo1t0YsoPYh9G0dS+ZBFGGAe0X1LDtgH74M3CNpmsfJiyQJmLwNS6nD3yEC
-        KHO8+Bd12f85i453o5FMCvI1kdxIsYiCjebwFU7Iu23L0izQyOlDhpqPGpIKB0+O
-        wIgmwFAWli4AO2TMnjlLZY4ga+cC8rrw1KVMe+69I1bolPRn7KsS2l8h7dcGMGju
-        lahJQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=Jn3Ad37SZHYYU1k/teK9BKKpMr/A2B9BBUZL/dISk
-        Aw=; b=d+e507VnLJEX/bU269xQFlaHhcDOlaP56eL+UnVJ7wS4UreDbd8+wLQeG
-        uGH63+FGRR56QaYud7+WzxfVDv3UND+hrIn+1lCyp88mrfW26LxGfirevaL8a8th
-        CC+8WuOFk708i+HhV4k7JovSRtirV7+DJcHCS8trHqAID2oYQfEg4hkUMs+oIE3Z
-        CzcEl4U5g7QsXfiVGMHbIrhfjac4KNfm8ziykmD6SLQ7g9aWbZn00WF8IawDgiow
-        k9CldDrW0DAXLwxm6EFMkLD6AHAUSIrncd2Ctu9BE0ZJ6wqeoyhnld2528nHl2WL
-        hwx/xDu+pfFLY3W740H86KbR6I3MA==
-X-ME-Sender: <xms:MeQNXx2shWVdt-0a8WgJskjjtwldq8kpE3j9wl8ERVlphuKK_PnVvQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfedtgddutdelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepvedtie
-    elueetgeeggfeufefhvefgtdetgfetgfdtvdegjeehieduvddtkeffheffnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:MeQNX4FyPmsEPLoY3rJG8-Y8k4t0iP8vvEsKbuYdUy9cqLoB-OzVvg>
-    <xmx:MeQNXx7_wijXZzyA34CaJUKkrb6C4m7QA7OesUtE3Fm0ub106fNjrg>
-    <xmx:MeQNX-3_xgT0Lj0TRaq6m2md3F0rVqWozNva2WE0gCQWbKK6iQKY3Q>
-    <xmx:MuQNX55S2lpFY5-BJy5oiPdD7CKarlEeyLKeKRZCmequaFXEhoYibA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EF64A3280065;
-        Tue, 14 Jul 2020 12:58:24 -0400 (EDT)
-Date:   Tue, 14 Jul 2020 18:58:23 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        letux-kernel@openphoenux.org, linux-mips@vger.kernel.org,
-        tsbogend@alpha.franken.de
-Subject: Re: [PATCH] [stable v5.4.x] pwm: jz4740: Fix build failure
-Message-ID: <20200714165823.GA2127080@kroah.com>
-References: <20200710102758.8341-1-u.kleine-koenig@pengutronix.de>
- <DB8C7C01-0FBB-4A9F-B068-15C06BBC0873@goldelico.com>
- <20200710194702.ire4deel2zn7mnxk@pengutronix.de>
+        id S1728186AbgGNRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 13:18:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728312AbgGNRS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 13:18:29 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88BFC061755
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 10:18:28 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id d17so23982778ljl.3
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 10:18:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=lwlUV3a+QKc9bh6BlS9RBaiRNTGMyisXHjbIgMFrRQ4=;
+        b=zGkuS3pYmyX4lmXAAFK55PFZ5X9hdOfwxEfjGUY1WuPGnMU0JYRfnrepzX/r4s/4tQ
+         NhS8j9s4NLucZHEItc1f7DIZSaV4S5VsFV3x94/sEafDmt7DpjLkyMmfEKr06aSTl41/
+         GS3qb1VBU2A6mpLnN+LDu8PoxnFKjjkYVYeIgw9aEXGDZplB4un/jhd4iX97p1bBckjp
+         0R0IcN1FHjHsrsBXgsadKAmdMln+qAm2xsazhrKqCI7T0P5lDWBonRFfB3tmAbK76D7v
+         IdML9mq0UHY76czuIIKPonFbC6mGs3khJd3FQ5HuEZs7M4kZgDl9eBwtmx790RIpoIVd
+         vu4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=lwlUV3a+QKc9bh6BlS9RBaiRNTGMyisXHjbIgMFrRQ4=;
+        b=fn0rHGEnqs+tmZgYiggYJMfOk3FCUM0391T90oMct2RhTuONK7ub8V7s7R4foIzdPR
+         ofB+7SNPuAluHer1zAlkSkIq8Dd2RTdv6sje403WhWU0McDuxZ5tiExJMEiWI9mC9tnF
+         rrpptwlMT2TpZdzNddR9zQcVYGe6o+14XIehAH988+vz507lUtycwLvRfxSj4bvpdtbq
+         JsBZapDmwaaI5IrB2gNT8RnTMORAgguixiaCNksYaU5XeVVo/EEXQ+FVaWtuBMyfQdZc
+         6wggfAa5M9qx3Z5v5M7Xu4nZNc2k5+rWqi316aUJOT31kgExbsmXt4f3zeBcBgHbBJ4D
+         o99A==
+X-Gm-Message-State: AOAM533n9dz74bVQ6WVRc5js15p/SXRRpmR/f/kVKUPiS5NzOPd1TVk6
+        S+QeiwLxz655Zo991/YJACkPJT7le1HhRu6rvkY4mfvGh61K0A==
+X-Google-Smtp-Source: ABdhPJxOM73aZXK8ZybuK9U/imgdTEfa2aBJ8kEu00YO6gHS2efKNwuFB3QR5OgVAXZkjlqANLT7tmLRIQu5QukQ9fo=
+X-Received: by 2002:a2e:b054:: with SMTP id d20mr2629367ljl.55.1594747106341;
+ Tue, 14 Jul 2020 10:18:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200710194702.ire4deel2zn7mnxk@pengutronix.de>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 14 Jul 2020 22:48:14 +0530
+Message-ID: <CA+G9fYsLBOVVjxO2DAUgjXskxEXyMpBxYG1PRKwe7BTHJfzfZw@mail.gmail.com>
+Subject: =?UTF-8?Q?stable=2Drc_5=2E4=3A_arm64_build_failed_=2D_error=3A_=E2=80=98const_?=
+        =?UTF-8?Q?struct_arch=5Ftimer=5Ferratum=5Fworkaround=E2=80=99_has_no_member_named_?=
+        =?UTF-8?Q?=E2=80=98disable=5Fcompat=5Fvdso=E2=80=99?=
+To:     linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 10, 2020 at 09:47:02PM +0200, Uwe Kleine-König wrote:
-> On Fri, Jul 10, 2020 at 12:48:36PM +0200, H. Nikolaus Schaller wrote:
-> > 
-> > > Am 10.07.2020 um 12:27 schrieb Uwe Kleine-König <u.kleine-koenig@pengutronix.de>:
-> > > 
-> > > When commit 9017dc4fbd59 ("pwm: jz4740: Enhance precision in calculation
-> > > of duty cycle") from v5.8-rc1 was backported to v5.4.x its dependency on
-> > > commit ce1f9cece057 ("pwm: jz4740: Use clocks from TCU driver") was not
-> > > noticed which made the pwm-jz4740 driver fail to build.
-> > 
-> > Please can you add my "reported by?"
-> 
-> Greg, can you please add this while applying? (Assuming you're ok with
-> this change and ideally Paul can confirm the change is fine.)
-> 
-> Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+arm64 build failed on 5.4
 
-Now added, thanks.
+make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm64
+CROSS_COMPILE=3Daarch64-linux-gnu- HOSTCC=3Dgcc CC=3D"sccache
+aarch64-linux-gnu-gcc" O=3Dbuild Image
+#
+../drivers/clocksource/arm_arch_timer.c:484:4: error: =E2=80=98const struct
+arch_timer_erratum_workaround=E2=80=99 has no member named
+=E2=80=98disable_compat_vdso=E2=80=99
+  484 |   .disable_compat_vdso =3D true,
+      |    ^~~~~~~~~~~~~~~~~~~
+../drivers/clocksource/arm_arch_timer.c:484:26: warning:
+initialization of =E2=80=98u32 (*)(void)=E2=80=99 {aka =E2=80=98unsigned in=
+t (*)(void)=E2=80=99} from
+=E2=80=98int=E2=80=99 makes pointer from integer without a cast [-Wint-conv=
+ersion]
+  484 |   .disable_compat_vdso =3D true,
+      |                          ^~~~
+../drivers/clocksource/arm_arch_timer.c:484:26: note: (near
+initialization for =E2=80=98ool_workarounds[5].read_cntp_tval_el0=E2=80=99)
+
+Could be this patch,
+arm64: arch_timer: Disable the compat vdso for cores affected by
+ARM64_WORKAROUND_1418040
+commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
+
+ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
+the virtual counter register are trapped and emulated by the kernel.
+This makes the vdso pretty pointless, and in some cases livelock
+prone.
+
+Provide a workaround entry that limits the vdso to 64bit tasks.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200706163802.1836732-4-maz@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
+ref:
+https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/638094006
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
