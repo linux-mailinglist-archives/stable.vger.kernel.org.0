@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E34BC21FA05
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C2C921FAA5
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729399AbgGNSsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44164 "EHLO mail.kernel.org"
+        id S1730342AbgGNSyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729982AbgGNSsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:48:37 -0400
+        id S1730340AbgGNSyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:54:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29C6D22B2B;
-        Tue, 14 Jul 2020 18:48:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E55522BEB;
+        Tue, 14 Jul 2020 18:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752516;
-        bh=NbpJd0Lm+GZx1BSXzmwTJkP2fHhPnzL6+/cCHrlwfkA=;
+        s=default; t=1594752862;
+        bh=RE38XazNYCwzs9eu9smfOGnUknFmGMxPfCedVsBQs2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L577KsF/X2c7ZqUHBvpFM30W10/FHCdHKVSYGkcWUTFHTdjBDbI/c4SiMtsjCzkUU
-         W1JOnWe/gtn4b4Sr1EoSZrcRu/P2YWp6jqz6MOrebIDJeRmwe4gNIgRs7NdPKt8shn
-         kWjsenH0IhK+pRq0vm19RBtdxCynKWB/UcvGGbXI=
+        b=TGlqMsA0Sot+P2y1LZfgO2M8At5LmYO6aGmDC25CIpsc1k6LRbLX2QTGWF3fQh12o
+         2/ILn98C+OWfOCgj4T+AipUTDvAxiGQaNCLRv+iRJZhq+8Jpgqcf7/2/aLPykyUs5g
+         vbVjdepSwPO7/Myl2Z7qhi/YBHITqDLdvmupp7Ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 005/109] perf/x86/rapl: Move RAPL support to common x86 code
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 014/166] drm: mcde: Fix display initialization problem
 Date:   Tue, 14 Jul 2020 20:42:59 +0200
-Message-Id: <20200714184105.778466736@linuxfoundation.org>
+Message-Id: <20200714184116.579691657@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Eranian <eranian@google.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit fd3ae1e1587d64ef8cc8e361903d33625458073e ]
+[ Upstream commit b984b6d8b52372b98cce0a6ff6c2787f50665b87 ]
 
-To prepare for support of both Intel and AMD RAPL.
+The following bug appeared in the MCDE driver/display
+initialization during the recent merge window.
 
-As per the AMD PPR, Fam17h support Package RAPL counters to monitor power usage.
-The RAPL counter operates as with Intel RAPL, and as such it is beneficial
-to share the code.
+First the place we call drm_fbdev_generic_setup() in the
+wrong place: this needs to be called AFTER calling
+drm_dev_register() else we get this splat:
 
-No change in functionality.
+ ------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1 at ../drivers/gpu/drm/drm_fb_helper.c:2198 drm_fbdev_generic_setup+0x164/0x1a8
+mcde a0350000.mcde: Device has not been registered.
+Modules linked in:
+Hardware name: ST-Ericsson Ux5x0 platform (Device Tree Support)
+[<c010e704>] (unwind_backtrace) from [<c010a86c>] (show_stack+0x10/0x14)
+[<c010a86c>] (show_stack) from [<c0414f38>] (dump_stack+0x9c/0xb0)
+[<c0414f38>] (dump_stack) from [<c0121c8c>] (__warn+0xb8/0xd0)
+[<c0121c8c>] (__warn) from [<c0121d18>] (warn_slowpath_fmt+0x74/0xb8)
+[<c0121d18>] (warn_slowpath_fmt) from [<c04b154c>] (drm_fbdev_generic_setup+0x164/0x1a8)
+[<c04b154c>] (drm_fbdev_generic_setup) from [<c04ed278>] (mcde_drm_bind+0xc4/0x160)
+[<c04ed278>] (mcde_drm_bind) from [<c04f06b8>] (try_to_bring_up_master+0x15c/0x1a4)
+(...)
 
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200527224659.206129-2-eranian@google.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200613223027.4189309-1-linus.walleij@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/Kconfig            | 6 +++---
- arch/x86/events/Makefile           | 1 +
- arch/x86/events/intel/Makefile     | 2 --
- arch/x86/events/{intel => }/rapl.c | 9 ++++++---
- 4 files changed, 10 insertions(+), 8 deletions(-)
- rename arch/x86/events/{intel => }/rapl.c (98%)
+ drivers/gpu/drm/mcde/mcde_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/Kconfig b/arch/x86/events/Kconfig
-index 9a7a1446cb3a0..4a809c6cbd2f5 100644
---- a/arch/x86/events/Kconfig
-+++ b/arch/x86/events/Kconfig
-@@ -10,11 +10,11 @@ config PERF_EVENTS_INTEL_UNCORE
- 	available on NehalemEX and more modern processors.
+diff --git a/drivers/gpu/drm/mcde/mcde_drv.c b/drivers/gpu/drm/mcde/mcde_drv.c
+index f28cb7a576ba4..1e7c5aa4d5e62 100644
+--- a/drivers/gpu/drm/mcde/mcde_drv.c
++++ b/drivers/gpu/drm/mcde/mcde_drv.c
+@@ -208,7 +208,6 @@ static int mcde_modeset_init(struct drm_device *drm)
  
- config PERF_EVENTS_INTEL_RAPL
--	tristate "Intel rapl performance events"
--	depends on PERF_EVENTS && CPU_SUP_INTEL && PCI
-+	tristate "Intel/AMD rapl performance events"
-+	depends on PERF_EVENTS && (CPU_SUP_INTEL || CPU_SUP_AMD) && PCI
- 	default y
- 	---help---
--	Include support for Intel rapl performance events for power
-+	Include support for Intel and AMD rapl performance events for power
- 	monitoring on modern processors.
+ 	drm_mode_config_reset(drm);
+ 	drm_kms_helper_poll_init(drm);
+-	drm_fbdev_generic_setup(drm, 32);
  
- config PERF_EVENTS_INTEL_CSTATE
-diff --git a/arch/x86/events/Makefile b/arch/x86/events/Makefile
-index 9e07f554333fb..b418ef6878796 100644
---- a/arch/x86/events/Makefile
-+++ b/arch/x86/events/Makefile
-@@ -1,5 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- obj-y					+= core.o probe.o
-+obj-$(PERF_EVENTS_INTEL_RAPL)		+= rapl.o
- obj-y					+= amd/
- obj-$(CONFIG_X86_LOCAL_APIC)            += msr.o
- obj-$(CONFIG_CPU_SUP_INTEL)		+= intel/
-diff --git a/arch/x86/events/intel/Makefile b/arch/x86/events/intel/Makefile
-index 3468b0c1dc7c9..e67a5886336c1 100644
---- a/arch/x86/events/intel/Makefile
-+++ b/arch/x86/events/intel/Makefile
-@@ -2,8 +2,6 @@
- obj-$(CONFIG_CPU_SUP_INTEL)		+= core.o bts.o
- obj-$(CONFIG_CPU_SUP_INTEL)		+= ds.o knc.o
- obj-$(CONFIG_CPU_SUP_INTEL)		+= lbr.o p4.o p6.o pt.o
--obj-$(CONFIG_PERF_EVENTS_INTEL_RAPL)	+= intel-rapl-perf.o
--intel-rapl-perf-objs			:= rapl.o
- obj-$(CONFIG_PERF_EVENTS_INTEL_UNCORE)	+= intel-uncore.o
- intel-uncore-objs			:= uncore.o uncore_nhmex.o uncore_snb.o uncore_snbep.o
- obj-$(CONFIG_PERF_EVENTS_INTEL_CSTATE)	+= intel-cstate.o
-diff --git a/arch/x86/events/intel/rapl.c b/arch/x86/events/rapl.c
-similarity index 98%
-rename from arch/x86/events/intel/rapl.c
-rename to arch/x86/events/rapl.c
-index 5053a403e4ae0..3c222d6fdee3b 100644
---- a/arch/x86/events/intel/rapl.c
-+++ b/arch/x86/events/rapl.c
-@@ -1,11 +1,14 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Support Intel RAPL energy consumption counters
-+ * Support Intel/AMD RAPL energy consumption counters
-  * Copyright (C) 2013 Google, Inc., Stephane Eranian
-  *
-  * Intel RAPL interface is specified in the IA-32 Manual Vol3b
-  * section 14.7.1 (September 2013)
-  *
-+ * AMD RAPL interface for Fam17h is described in the public PPR:
-+ * https://bugzilla.kernel.org/show_bug.cgi?id=206537
-+ *
-  * RAPL provides more controls than just reporting energy consumption
-  * however here we only expose the 3 energy consumption free running
-  * counters (pp0, pkg, dram).
-@@ -58,8 +61,8 @@
- #include <linux/nospec.h>
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
--#include "../perf_event.h"
--#include "../probe.h"
-+#include "perf_event.h"
-+#include "probe.h"
+ 	return 0;
  
- MODULE_LICENSE("GPL");
+@@ -275,6 +274,8 @@ static int mcde_drm_bind(struct device *dev)
+ 	if (ret < 0)
+ 		goto unbind;
  
++	drm_fbdev_generic_setup(drm, 32);
++
+ 	return 0;
+ 
+ unbind:
 -- 
 2.25.1
 
