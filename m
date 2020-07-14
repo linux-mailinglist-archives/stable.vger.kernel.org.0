@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C3F21FB12
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3035B21FA54
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731211AbgGNS6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:58:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
+        id S1730141AbgGNSvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730813AbgGNS6V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:58:21 -0400
+        id S1729966AbgGNSvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DA5522B4E;
-        Tue, 14 Jul 2020 18:58:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E7BD207F5;
+        Tue, 14 Jul 2020 18:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753100;
-        bh=ZFlzZIRCz3wduxIYaFB+Mm1OQLBJ+1JrMJ1NTx1mBso=;
+        s=default; t=1594752696;
+        bh=v2wN1Lorr9bWGmeULkeXI4D1aoWs1M0eeIraS7x8kDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E3AM4Up9ZWgVDOKI0GSLDEWbhgUv7hYM3Y0KPdQazlAbWGeitjNTSA0u+XxKOaCGz
-         4oJJp7OKGVK7+KlqFfrqZ4Y5zQUCcxSQaZTRuSJWRDQ5t2LYEfpcITdEguqM9afIEO
-         5K7nVo+w+uY3Wc0uhKOTHQmNbPzf1Q/ubAIs8epY=
+        b=lIZKJypPrUOQdIiXNSvH/rmJ9Yj27yheB9wFfRFsBj96XU8HyidXCzID76de4FP0n
+         N5cXDNnzVuT+GgIaWMzEtZRqRyBtHK/0JcOTeicxXrEWJd7yX89i2CVglYIVSGnUGf
+         3bfPaWlQbHUWJFW5p8IZlJg58BDaZIbZVAdDaoOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 092/166] qed: Populate nvm-file attributes while reading nvm config partition.
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 074/109] ALSA: usb-audio: add quirk for MacroSilicon MS2109
 Date:   Tue, 14 Jul 2020 20:44:17 +0200
-Message-Id: <20200714184120.249982350@linuxfoundation.org>
+Message-Id: <20200714184109.091151128@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,129 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 13cf8aab7425a253070433b5a55b4209ceac8b19 ]
+commit e337bf19f6af38d5c3fa6d06cd594e0f890ca1ac upstream.
 
-NVM config file address will be modified when the MBI image is upgraded.
-Driver would return stale config values if user reads the nvm-config
-(via ethtool -d) in this state. The fix is to re-populate nvm attribute
-info while reading the nvm config values/partition.
+These devices claim to be 96kHz mono, but actually are 48kHz stereo with
+swapped channels and unaligned transfers.
 
-Changes from previous version:
--------------------------------
-v3: Corrected the formatting in 'Fixes' tag.
-v2: Added 'Fixes' tag.
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200702071433.237843-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 1ac4329a1cff ("qed: Add configuration information to register dump and debug data")
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_debug.c |  4 ++++
- drivers/net/ethernet/qlogic/qed/qed_dev.c   | 12 +++---------
- drivers/net/ethernet/qlogic/qed/qed_mcp.c   |  7 +++++++
- drivers/net/ethernet/qlogic/qed/qed_mcp.h   |  7 +++++++
- 4 files changed, 21 insertions(+), 9 deletions(-)
+ sound/usb/quirks-table.h |   52 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
-index 03ce18f653932..25745b75daf32 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
-@@ -7941,6 +7941,10 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
- 		DP_ERR(cdev, "qed_dbg_mcp_trace failed. rc = %d\n", rc);
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3695,4 +3695,56 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* A
  	}
+ },
  
-+	/* Re-populate nvm attribute info */
-+	qed_mcp_nvm_info_free(p_hwfn);
-+	qed_mcp_nvm_info_populate(p_hwfn);
-+
- 	/* nvm cfg1 */
- 	rc = qed_dbg_nvm_image(cdev,
- 			       (u8 *)buffer + offset +
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-index 9b00988fb77e1..58913fe4f3457 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-@@ -4466,12 +4466,6 @@ static int qed_get_dev_info(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
- 	return 0;
- }
- 
--static void qed_nvm_info_free(struct qed_hwfn *p_hwfn)
--{
--	kfree(p_hwfn->nvm_info.image_att);
--	p_hwfn->nvm_info.image_att = NULL;
--}
--
- static int qed_hw_prepare_single(struct qed_hwfn *p_hwfn,
- 				 void __iomem *p_regview,
- 				 void __iomem *p_doorbells,
-@@ -4556,7 +4550,7 @@ static int qed_hw_prepare_single(struct qed_hwfn *p_hwfn,
- 	return rc;
- err3:
- 	if (IS_LEAD_HWFN(p_hwfn))
--		qed_nvm_info_free(p_hwfn);
-+		qed_mcp_nvm_info_free(p_hwfn);
- err2:
- 	if (IS_LEAD_HWFN(p_hwfn))
- 		qed_iov_free_hw_info(p_hwfn->cdev);
-@@ -4617,7 +4611,7 @@ int qed_hw_prepare(struct qed_dev *cdev,
- 		if (rc) {
- 			if (IS_PF(cdev)) {
- 				qed_init_free(p_hwfn);
--				qed_nvm_info_free(p_hwfn);
-+				qed_mcp_nvm_info_free(p_hwfn);
- 				qed_mcp_free(p_hwfn);
- 				qed_hw_hwfn_free(p_hwfn);
- 			}
-@@ -4651,7 +4645,7 @@ void qed_hw_remove(struct qed_dev *cdev)
- 
- 	qed_iov_free_hw_info(cdev);
- 
--	qed_nvm_info_free(p_hwfn);
-+	qed_mcp_nvm_info_free(p_hwfn);
- }
- 
- static void qed_chain_free_next_ptr(struct qed_dev *cdev,
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-index 280527cc05781..99548d5b44ea1 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -3151,6 +3151,13 @@ int qed_mcp_nvm_info_populate(struct qed_hwfn *p_hwfn)
- 	return rc;
- }
- 
-+void qed_mcp_nvm_info_free(struct qed_hwfn *p_hwfn)
-+{
-+	kfree(p_hwfn->nvm_info.image_att);
-+	p_hwfn->nvm_info.image_att = NULL;
-+	p_hwfn->nvm_info.valid = false;
-+}
-+
- int
- qed_mcp_get_nvm_image_att(struct qed_hwfn *p_hwfn,
- 			  enum qed_nvm_images image_id,
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.h b/drivers/net/ethernet/qlogic/qed/qed_mcp.h
-index 9c4c2763de8d7..e38297383b007 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.h
-@@ -1192,6 +1192,13 @@ void qed_mcp_read_ufp_config(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt);
-  */
- int qed_mcp_nvm_info_populate(struct qed_hwfn *p_hwfn);
- 
-+/**
-+ * @brief Delete nvm info shadow in the given hardware function
++/*
++ * MacroSilicon MS2109 based HDMI capture cards
 + *
-+ * @param p_hwfn
++ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
++ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
++ * they pretend to be 96kHz mono as a workaround for stereo being broken
++ * by that...
++ *
++ * They also have swapped L-R channels, but that's for userspace to deal
++ * with.
 + */
-+void qed_mcp_nvm_info_free(struct qed_hwfn *p_hwfn);
++{
++	USB_DEVICE(0x534d, 0x2109),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "MacroSilicon",
++		.product_name = "MS2109",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
++			},
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_MIXER,
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S16_LE,
++					.channels = 2,
++					.iface = 3,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.attributes = 0,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_CONTINUOUS,
++					.rate_min = 48000,
++					.rate_max = 48000,
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
 +
- /**
-  * @brief Get the engine affinity configuration.
-  *
--- 
-2.25.1
-
+ #undef USB_DEVICE_VENDOR_SPEC
 
 
