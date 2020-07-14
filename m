@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC3F21FC4E
+	by mail.lfdr.de (Postfix) with ESMTP id BCB5821FC4F
 	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730320AbgGNSup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46950 "EHLO mail.kernel.org"
+        id S1730330AbgGNSut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:50:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729822AbgGNSuo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:50:44 -0400
+        id S1730325AbgGNSur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:50:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF3F122B2A;
-        Tue, 14 Jul 2020 18:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84AB022B3F;
+        Tue, 14 Jul 2020 18:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752644;
-        bh=5Hw03hCETa3geWJT+1x20GX7IWtu0o/SVGlKB0Adm0M=;
+        s=default; t=1594752647;
+        bh=u/65wFLFgeOfmx86HkO0SCLbQ0/z4jCPdJKcgVrD0IA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4DaWCGq6GyDOJ9ag3ZukQQb6BOlaB17TuUuc1+dakzgqOj7noToBs7WwdTYiiFt9
-         ggCI2yyRzl0Td+FsGNAl5GDNwwwOno4sMz1t3PwSX6BZqHHmXfVI3E/asTTlWO4BN/
-         kE5a2zq4PouLmGqx7J3xpDhsUMzTNTaYzo2wBpFU=
+        b=Vc0sBL79BcpQF2WkMiwslLVHQT4m1bI8eTqIujeWkzdHMjHt37GfIPp1TugbD4TkA
+         QT/uMBNzb+NohUoeGVv5yXGo4fPOjw2G3CSED8DRIPNWUhaVDAKoTUDZmxlFf2Lh7w
+         okp3NE+F2+guwuU7RfZBjOW3W7nfAstG8RAdndZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/109] arm64: kgdb: Fix single-step exception handling oops
-Date:   Tue, 14 Jul 2020 20:44:00 +0200
-Message-Id: <20200714184108.248882336@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+934037347002901b8d2a@syzkaller.appspotmail.com,
+        Zheng Bin <zhengbin13@huawei.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 058/109] nbd: Fix memory leak in nbd_add_socket
+Date:   Tue, 14 Jul 2020 20:44:01 +0200
+Message-Id: <20200714184108.296148505@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
 References: <20200714184105.507384017@linuxfoundation.org>
@@ -44,113 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-[ Upstream commit 8523c006264df65aac7d77284cc69aac46a6f842 ]
+[ Upstream commit 579dd91ab3a5446b148e7f179b6596b270dace46 ]
 
-After entering kdb due to breakpoint, when we execute 'ss' or 'go' (will
-delay installing breakpoints, do single-step first), it won't work
-correctly, and it will enter kdb due to oops.
+When adding first socket to nbd, if nsock's allocation failed, the data
+structure member "config->socks" was reallocated, but the data structure
+member "config->num_connections" was not updated. A memory leak will occur
+then because the function "nbd_config_put" will free "config->socks" only
+when "config->num_connections" is not zero.
 
-It's because the reason gotten in kdb_stub() is not as expected, and it
-seems that the ex_vector for single-step should be 0, like what arch
-powerpc/sh/parisc has implemented.
-
-Before the patch:
-Entering kdb (current=0xffff8000119e2dc0, pid 0) on processor 0 due to Keyboard Entry
-[0]kdb> bp printk
-Instruction(i) BP #0 at 0xffff8000101486cc (printk)
-    is enabled   addr at ffff8000101486cc, hardtype=0 installed=0
-
-[0]kdb> g
-
-/ # echo h > /proc/sysrq-trigger
-
-Entering kdb (current=0xffff0000fa878040, pid 266) on processor 3 due to Breakpoint @ 0xffff8000101486cc
-[3]kdb> ss
-
-Entering kdb (current=0xffff0000fa878040, pid 266) on processor 3 Oops: (null)
-due to oops @ 0xffff800010082ab8
-CPU: 3 PID: 266 Comm: sh Not tainted 5.7.0-rc4-13839-gf0e5ad491718 #6
-Hardware name: linux,dummy-virt (DT)
-pstate: 00000085 (nzcv daIf -PAN -UAO)
-pc : el1_irq+0x78/0x180
-lr : __handle_sysrq+0x80/0x190
-sp : ffff800015003bf0
-x29: ffff800015003d20 x28: ffff0000fa878040
-x27: 0000000000000000 x26: ffff80001126b1f0
-x25: ffff800011b6a0d8 x24: 0000000000000000
-x23: 0000000080200005 x22: ffff8000101486cc
-x21: ffff800015003d30 x20: 0000ffffffffffff
-x19: ffff8000119f2000 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 0000000000000000
-x13: 0000000000000000 x12: 0000000000000000
-x11: 0000000000000000 x10: 0000000000000000
-x9 : 0000000000000000 x8 : ffff800015003e50
-x7 : 0000000000000002 x6 : 00000000380b9990
-x5 : ffff8000106e99e8 x4 : ffff0000fadd83c0
-x3 : 0000ffffffffffff x2 : ffff800011b6a0d8
-x1 : ffff800011b6a000 x0 : ffff80001130c9d8
-Call trace:
- el1_irq+0x78/0x180
- printk+0x0/0x84
- write_sysrq_trigger+0xb0/0x118
- proc_reg_write+0xb4/0xe0
- __vfs_write+0x18/0x40
- vfs_write+0xb0/0x1b8
- ksys_write+0x64/0xf0
- __arm64_sys_write+0x14/0x20
- el0_svc_common.constprop.2+0xb0/0x168
- do_el0_svc+0x20/0x98
- el0_sync_handler+0xec/0x1a8
- el0_sync+0x140/0x180
-
-[3]kdb>
-
-After the patch:
-Entering kdb (current=0xffff8000119e2dc0, pid 0) on processor 0 due to Keyboard Entry
-[0]kdb> bp printk
-Instruction(i) BP #0 at 0xffff8000101486cc (printk)
-    is enabled   addr at ffff8000101486cc, hardtype=0 installed=0
-
-[0]kdb> g
-
-/ # echo h > /proc/sysrq-trigger
-
-Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to Breakpoint @ 0xffff8000101486cc
-[0]kdb> g
-
-Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to Breakpoint @ 0xffff8000101486cc
-[0]kdb> ss
-
-Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to SS trap @ 0xffff800010082ab8
-[0]kdb>
-
-Fixes: 44679a4f142b ("arm64: KGDB: Add step debugging support")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200509214159.19680-2-liwei391@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 03bf73c315ed ("nbd: prevent memory leak")
+Reported-by: syzbot+934037347002901b8d2a@syzkaller.appspotmail.com
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/kgdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/nbd.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/kernel/kgdb.c b/arch/arm64/kernel/kgdb.c
-index 43119922341f8..1a157ca33262d 100644
---- a/arch/arm64/kernel/kgdb.c
-+++ b/arch/arm64/kernel/kgdb.c
-@@ -252,7 +252,7 @@ static int kgdb_step_brk_fn(struct pt_regs *regs, unsigned int esr)
- 	if (!kgdb_single_step)
- 		return DBG_HOOK_ERROR;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 78181908f0df6..7b61d53ba050e 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1022,25 +1022,26 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
+ 	     test_bit(NBD_RT_BOUND, &config->runtime_flags))) {
+ 		dev_err(disk_to_dev(nbd->disk),
+ 			"Device being setup by another task");
+-		sockfd_put(sock);
+-		return -EBUSY;
++		err = -EBUSY;
++		goto put_socket;
++	}
++
++	nsock = kzalloc(sizeof(*nsock), GFP_KERNEL);
++	if (!nsock) {
++		err = -ENOMEM;
++		goto put_socket;
+ 	}
  
--	kgdb_handle_exception(1, SIGTRAP, 0, regs);
-+	kgdb_handle_exception(0, SIGTRAP, 0, regs);
- 	return DBG_HOOK_HANDLED;
+ 	socks = krealloc(config->socks, (config->num_connections + 1) *
+ 			 sizeof(struct nbd_sock *), GFP_KERNEL);
+ 	if (!socks) {
+-		sockfd_put(sock);
+-		return -ENOMEM;
++		kfree(nsock);
++		err = -ENOMEM;
++		goto put_socket;
+ 	}
+ 
+ 	config->socks = socks;
+ 
+-	nsock = kzalloc(sizeof(struct nbd_sock), GFP_KERNEL);
+-	if (!nsock) {
+-		sockfd_put(sock);
+-		return -ENOMEM;
+-	}
+-
+ 	nsock->fallback_index = -1;
+ 	nsock->dead = false;
+ 	mutex_init(&nsock->tx_lock);
+@@ -1052,6 +1053,10 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
+ 	atomic_inc(&config->live_connections);
+ 
+ 	return 0;
++
++put_socket:
++	sockfd_put(sock);
++	return err;
  }
- NOKPROBE_SYMBOL(kgdb_step_brk_fn);
+ 
+ static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
 -- 
 2.25.1
 
