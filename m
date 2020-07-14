@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A6821F45E
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1A9621F530
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 16:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728785AbgGNOjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 10:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
+        id S1728836AbgGNOjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 10:39:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728696AbgGNOjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:39:09 -0400
+        id S1728798AbgGNOjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:39:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D767922516;
-        Tue, 14 Jul 2020 14:39:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE5C622527;
+        Tue, 14 Jul 2020 14:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594737548;
-        bh=Nq5QR3iG8Cr3ox2BQ3/zYb67ZQcxz9425Pv2U2LcgGI=;
+        s=default; t=1594737549;
+        bh=GAFcz6VMhCl4x1qHq3sS9k3Cf5CjbBVOHTbT3FSCZ9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yw7A1xLMEtduFoQkeAHyD7T3+SgC1og07jfms3foe82i5WOa8mfB2C5+v4DEGqvQV
-         uBhzNe1WtyZiuUq6hTUKjGtsqQ/9COxT4xKWjh7fXOxGhv15sLXzSYMdQquU3d/lEM
-         RIRF2JyizVJawhzcpWuQOrniGWvLXsvivR2HsTzw=
+        b=ePr7SY9VMpffNn9QlDsz/b2dcsC5UdQOmQJJiD/wFTL/fmlY1FfMiHc/OTehBsi/5
+         yYhPw28FoYSwiYqY8zl9ufXwC8TO0MEZa3oWVcX2VQv5BT2Uf/XzORnbojiZVYOJUy
+         As+9UvGIOauQmJB/TI0KYLTTGFT/0gQXVwmKlpec=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 15/19] drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
-Date:   Tue, 14 Jul 2020 10:38:45 -0400
-Message-Id: <20200714143849.4035283-15-sashal@kernel.org>
+Cc:     Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 16/19] scsi: mpt3sas: Fix error returns in BRM_status_show
+Date:   Tue, 14 Jul 2020 10:38:46 -0400
+Message-Id: <20200714143849.4035283-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200714143849.4035283-1-sashal@kernel.org>
 References: <20200714143849.4035283-1-sashal@kernel.org>
@@ -42,54 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit 0156e76d388310a490aeb0f2fbb5b284ded3aecc ]
+[ Upstream commit 0fd181456aa0826057adbfb6c79c40f4083cfd75 ]
 
-Tegra TRM says worst-case reply time is 1216us, and this should fix some
-spurious timeouts that have been popping up.
+BRM_status_show() has several error branches, but none of them record the
+error in the error return.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Also while at it remove the manual mutex_unlock() of the pci_access_mutex
+in case of an ongoing pci error recovery or host removal and jump to the
+cleanup label instead.
+
+Note: We can safely jump to out from here as io_unit_pg3 is initialized to
+NULL and if it hasn't been allocated, kfree() skips the NULL pointer.
+
+[mkp: compilation warning]
+
+Link: https://lore.kernel.org/r/20200701131454.5255-1-johannes.thumshirn@wdc.com
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   | 4 ++--
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_ctl.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-index c8ab1b5741a3e..db7769cb33eba 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-@@ -118,10 +118,10 @@ g94_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
+index e94e72de2fc68..983e568ff2317 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
+@@ -3149,15 +3149,14 @@ BRM_status_show(struct device *cdev, struct device_attribute *attr,
+ 	}
+ 	/* pci_access_mutex lock acquired by sysfs show path */
+ 	mutex_lock(&ioc->pci_access_mutex);
+-	if (ioc->pci_error_recovery || ioc->remove_host) {
+-		mutex_unlock(&ioc->pci_access_mutex);
+-		return 0;
+-	}
++	if (ioc->pci_error_recovery || ioc->remove_host)
++		goto out;
  
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00e4e4 + base, 0x00010000 | ctrl);
+ 	/* allocate upto GPIOVal 36 entries */
+ 	sz = offsetof(Mpi2IOUnitPage3_t, GPIOVal) + (sizeof(u16) * 36);
+ 	io_unit_pg3 = kzalloc(sz, GFP_KERNEL);
+ 	if (!io_unit_pg3) {
++		rc = -ENOMEM;
+ 		ioc_err(ioc, "%s: failed allocating memory for iounit_pg3: (%d) bytes\n",
+ 			__func__, sz);
+ 		goto out;
+@@ -3167,6 +3166,7 @@ BRM_status_show(struct device *cdev, struct device_attribute *attr,
+ 	    0) {
+ 		ioc_err(ioc, "%s: failed reading iounit_pg3\n",
+ 			__func__);
++		rc = -EINVAL;
+ 		goto out;
+ 	}
  
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00e4e4 + base);
- 			udelay(1);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-index 7ef60895f43a7..edb6148cbca04 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-@@ -118,10 +118,10 @@ gm200_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
+@@ -3174,12 +3174,14 @@ BRM_status_show(struct device *cdev, struct device_attribute *attr,
+ 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+ 		ioc_err(ioc, "%s: iounit_pg3 failed with ioc_status(0x%04x)\n",
+ 			__func__, ioc_status);
++		rc = -EINVAL;
+ 		goto out;
+ 	}
  
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00d954 + base, 0x00010000 | ctrl);
+ 	if (io_unit_pg3->GPIOCount < 25) {
+ 		ioc_err(ioc, "%s: iounit_pg3->GPIOCount less than 25 entries, detected (%d) entries\n",
+ 			__func__, io_unit_pg3->GPIOCount);
++		rc = -EINVAL;
+ 		goto out;
+ 	}
  
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00d954 + base);
- 			udelay(1);
 -- 
 2.25.1
 
