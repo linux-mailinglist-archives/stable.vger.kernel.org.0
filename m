@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A8C21FC3B
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2717321FCDB
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbgGNTHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:07:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48070 "EHLO mail.kernel.org"
+        id S1729750AbgGNSrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730406AbgGNSve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:34 -0400
+        id S1729738AbgGNSr1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A898207F5;
-        Tue, 14 Jul 2020 18:51:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E81322AAA;
+        Tue, 14 Jul 2020 18:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752694;
-        bh=qiFM/BxMOjkslEgFa0Oc0P/NOeX/xVHdll8hGt151nA=;
+        s=default; t=1594752447;
+        bh=cYOpxKAoXkdPePsgbV3CLteCZS+Kk1WupGIBIWeo6Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0F02kR+Ds3av8uJuFFq77EId30T9qDkSltMZHCPLZ/btsKdfs4PZaqoFrEg1w4Xzs
-         WPwdyzdzJve0Kw68S3RSMfFVSP4VMnNN5sUDclqhZU4c7C48cGNsC9XovZVVsc0Avd
-         7JEQnrAkYUagJOLmYzn0rikJRjtIBmdoXKI6lnsM=
+        b=WwNWyU9DVHuS8jN27EMobr15pkpb7EXuF90jV3ODuyFwYL9E4TEMv3NufDJwd0mGJ
+         B9olLmo7OiSV8SVjOnW8VhXKJ9ZTpMoymrFt1XxLPrhUGf3Ynes7utHrie0rTpUxF8
+         87YKW7+1d48r8ww8GBMTCj74mt5sBHryH5MGx+UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 073/109] ALSA: hda - let hs_mic be picked ahead of hp_mic
-Date:   Tue, 14 Jul 2020 20:44:16 +0200
-Message-Id: <20200714184109.043237551@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 45/58] KVM: x86: Mark CR4.TSD as being possibly owned by the guest
+Date:   Tue, 14 Jul 2020 20:44:18 +0200
+Message-Id: <20200714184058.398101684@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 6a6ca7881b1ab1c13fe0d70bae29211a65dd90de upstream.
+commit 7c83d096aed055a7763a03384f92115363448b71 upstream.
 
-We have a Dell AIO, there is neither internal speaker nor internal
-mic, only a multi-function audio jack on it.
+Mark CR4.TSD as being possibly owned by the guest as that is indeed the
+case on VMX.  Without TSD being tagged as possibly owned by the guest, a
+targeted read of CR4 to get TSD could observe a stale value.  This bug
+is benign in the current code base as the sole consumer of TSD is the
+emulator (for RDTSC) and the emulator always "reads" the entirety of CR4
+when grabbing bits.
 
-Users reported that after freshly installing the OS and plug
-a headset to the audio jack, the headset can't output sound. I
-reproduced this bug, at that moment, the Input Source is as below:
-Simple mixer control 'Input Source',0
-  Capabilities: cenum
-  Items: 'Headphone Mic' 'Headset Mic'
-  Item0: 'Headphone Mic'
+Add a build-time assertion in to ensure VMX doesn't hand over more CR4
+bits without also updating x86.
 
-That is because the patch_realtek will set this audio jack as mic_in
-mode if Input Source's value is hp_mic.
-
-If it is not fresh installing, this issue will not happen since the
-systemd will run alsactl restore -f /var/lib/alsa/asound.state, this
-will set the 'Input Source' according to history value.
-
-If there is internal speaker or internal mic, this issue will not
-happen since there is valid sink/source in the pulseaudio, the PA will
-set the 'Input Source' according to active_port.
-
-To fix this issue, change the parser function to let the hs_mic be
-stored ahead of hp_mic.
-
+Fixes: 52ce3c21aec3 ("x86,kvm,vmx: Don't trap writes to CR4.TSD")
 Cc: stable@vger.kernel.org
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200625083833.11264-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200703040422.31536-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_auto_parser.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/kvm/kvm_cache_regs.h |    2 +-
+ arch/x86/kvm/vmx.c            |    2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_auto_parser.c
-+++ b/sound/pci/hda/hda_auto_parser.c
-@@ -72,6 +72,12 @@ static int compare_input_type(const void
- 	if (a->type != b->type)
- 		return (int)(a->type - b->type);
+--- a/arch/x86/kvm/kvm_cache_regs.h
++++ b/arch/x86/kvm/kvm_cache_regs.h
+@@ -5,7 +5,7 @@
+ #define KVM_POSSIBLE_CR0_GUEST_BITS X86_CR0_TS
+ #define KVM_POSSIBLE_CR4_GUEST_BITS				  \
+ 	(X86_CR4_PVI | X86_CR4_DE | X86_CR4_PCE | X86_CR4_OSFXSR  \
+-	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE)
++	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE | X86_CR4_TSD)
  
-+	/* If has both hs_mic and hp_mic, pick the hs_mic ahead of hp_mic. */
-+	if (a->is_headset_mic && b->is_headphone_mic)
-+		return -1; /* don't swap */
-+	else if (a->is_headphone_mic && b->is_headset_mic)
-+		return 1; /* swap */
+ static inline unsigned long kvm_register_read(struct kvm_vcpu *vcpu,
+ 					      enum kvm_reg reg)
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -6335,6 +6335,8 @@ static void vmx_set_constant_host_state(
+ 
+ static void set_cr4_guest_host_mask(struct vcpu_vmx *vmx)
+ {
++	BUILD_BUG_ON(KVM_CR4_GUEST_OWNED_BITS & ~KVM_POSSIBLE_CR4_GUEST_BITS);
 +
- 	/* In case one has boost and the other one has not,
- 	   pick the one with boost first. */
- 	return (int)(b->has_boost_on_pin - a->has_boost_on_pin);
+ 	vmx->vcpu.arch.cr4_guest_owned_bits = KVM_CR4_GUEST_OWNED_BITS;
+ 	if (enable_ept)
+ 		vmx->vcpu.arch.cr4_guest_owned_bits |= X86_CR4_PGE;
 
 
