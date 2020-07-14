@@ -2,102 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D8BA21EF3E
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 13:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A2E21F0DE
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 14:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726332AbgGNL2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 07:28:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54146 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726252AbgGNL2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 07:28:53 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078F3C061755
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 04:28:53 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id d18so16895778ion.0
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 04:28:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=/oeflvzSREAUYMTpSSWqRsDBaMz2BBwNLJO1ttrAXlc=;
-        b=BoQAA3oOA0y88J/Q0XSLJjnhdS47LS3eriWR2sCshDqMDdPvcneDcwHfBlPVig8wti
-         54anA4ATe8/4X8otBNc9xC8Swzonn2+MTX62B0ZlIHWbpgG8aXybYSKmdY2kYuWm8T2v
-         ZidTVRPkM/sr1AXSuBgNLQzNBNq3mFq7GKEUZyNSkjUtEsgjLZ6iQH1cXCoqGbWH6GDB
-         bHK0lnk61eLzPFnGAM1N/Lpm9TMrFbTcTNs1qLZC7Z4WxSLrPLIPsTN+kQKzSlumMuC6
-         U75MfLRt5StRND0L/X4hxyadaawgj00NiWXiaBxsXCMX5VJuQM8IcgXpbsxZ+S/5B095
-         WUGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=/oeflvzSREAUYMTpSSWqRsDBaMz2BBwNLJO1ttrAXlc=;
-        b=S/KCJcqhtCf1zqFNHQd8dIl/UeAVmjxRlZSPqZLddxRITPpYer30ojwXTWgXo4c0Rf
-         jDatQxdpR7JLgzLKs2x/lWxR7x5NNmWMSJAFpA0wWl8hRwGlZPEAmL/FGHP5HqZjp/Uv
-         LEorsI0YxjzoBcIiNJB31rLmyGeBLSPOHnpsyrAz5axml4STCvYf0aIkw3dJZLzE7vqg
-         pKJYrPoSfXkICEiSjlBB7dtCR2qEGCEX1Cy96OklqITpKPtE21ahPN3M/6xv83NionQa
-         TR3IWt18WW8T8zOxrCWtuS4wh/395ZqkH4+IPWBmiPAYewd5/f/9Yb0qgRWCNvUbfoeC
-         U0Kg==
-X-Gm-Message-State: AOAM532Cjy5dzXig2xOdWqU5HV5tvyuPzmxiFDaGltK1J5UIcqTFzhup
-        moAsJMDWtt2jUprs02vpoyJ6Kg==
-X-Google-Smtp-Source: ABdhPJwlST0/26MXPJEDg+XyoSZPPsf7Lcxc4EVdgXD99/lkx1GCClw5MT9zuOIlSOFKuJr3TjlhEA==
-X-Received: by 2002:a02:cb59:: with SMTP id k25mr5333445jap.112.1594726132367;
-        Tue, 14 Jul 2020 04:28:52 -0700 (PDT)
-Received: from ziepe.ca ([206.223.160.26])
-        by smtp.gmail.com with ESMTPSA id a5sm10013244ilt.71.2020.07.14.04.28.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2020 04:28:51 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.93)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1jvJ7C-00A7R6-Mq; Tue, 14 Jul 2020 08:28:50 -0300
-Date:   Tue, 14 Jul 2020 08:28:50 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Yang Yingliang <yangyingliang@huawei.com>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        gregkh@linuxfoundation.org, dledford@redhat.com
-Subject: Re: [PATCH 4.19] IB/umem: fix reference count leak in
- ib_umem_odp_get()
-Message-ID: <20200714112850.GD25301@ziepe.ca>
-References: <20200714105748.1151138-1-yangyingliang@huawei.com>
+        id S1728177AbgGNMRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 08:17:47 -0400
+Received: from buro.com.pe ([190.81.117.218]:41246 "EHLO mail.buro.com.pe"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728792AbgGNMRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 08:17:45 -0400
+X-Greylist: delayed 3319 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 Jul 2020 08:17:44 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail.buro.com.pe (Postfix) with ESMTP id 63A341053C66;
+        Tue, 14 Jul 2020 06:00:27 -0500 (-05)
+Received: from mail.buro.com.pe ([127.0.0.1])
+        by localhost (mail.buro.com.pe [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id oQlPCCKRYssV; Tue, 14 Jul 2020 06:00:27 -0500 (-05)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.buro.com.pe (Postfix) with ESMTP id ED8BDDB7306;
+        Tue, 14 Jul 2020 06:00:26 -0500 (-05)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.buro.com.pe ED8BDDB7306
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=buro.com.pe;
+        s=8EF3D770-2911-11EA-9B8B-1DAC71A75241; t=1594724427;
+        bh=Ac7Tra3kO5WFjsaAYddwgJhzdbmYvRMVA/2N18uxrxU=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=abt7EhQm5utS3TALaU9PKmjEiU9clWIXSgtiQVfaEs+krYOc9HDoYJSXN49nr00xQ
+         /sjyQDiIpOMvN3uNH9ewhaZHdNwsuSfFQWGJKmGSgXfjkqFraiaX5mHiz8eQwSoTcw
+         jlFTvyq4dBIG9DdoZBXPBYwHrkqSK9HsVFtX1n96EUYctlIOk7fiUiCEIKaRgBK7MK
+         xNk1Xm4/lGNVRCPJmUg07Fk/QsDiqbGU1qf98BKUB/B55+u2ehvUP2orVsaldtpMic
+         AFHFrSepbHnhGWp+92mHtotb6vRqH6iX/XJKzKCtrO14Bjay5zR8iasfhGz1aJWoD8
+         /B/6hJvJx59hw==
+X-Virus-Scanned: amavisd-new at buro.com.pe
+Received: from mail.buro.com.pe ([127.0.0.1])
+        by localhost (mail.buro.com.pe [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id SXa4VhqK6TdK; Tue, 14 Jul 2020 06:00:26 -0500 (-05)
+Received: from [10.81.211.154] (unknown [105.8.0.181])
+        by mail.buro.com.pe (Postfix) with ESMTPSA id 5034FDB72F4;
+        Tue, 14 Jul 2020 06:00:16 -0500 (-05)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200714105748.1151138-1-yangyingliang@huawei.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Sehr wichtige Nachricht an Sie
+To:     Recipients <einga@buro.com.pe>
+From:   "Jeff Lindsay" <einga@buro.com.pe>
+Date:   Tue, 14 Jul 2020 04:00:06 -0700
+Reply-To: jeffworkhomeorg@gmail.com
+Message-Id: <20200714110017.5034FDB72F4@mail.buro.com.pe>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 14, 2020 at 10:57:48AM +0000, Yang Yingliang wrote:
-> Add missing mmput() on error path to avoid ref-count leak.
-> 
-> This problem has already been resolved in mainline by
-> f27a0d50a4bc ("RDMA/umem: Use umem->owning_mm inside ODP").
-> 
-> Fixes: 79bb5b7ee177 ("RDMA/umem: Fix missing mmap_sem in get umem ODP call")
-> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-> ---
->  drivers/infiniband/core/umem_odp.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
-> index eeafdc0beec7..08ef654ea9b8 100644
-> --- a/drivers/infiniband/core/umem_odp.c
-> +++ b/drivers/infiniband/core/umem_odp.c
-> @@ -347,7 +347,8 @@ int ib_umem_odp_get(struct ib_ucontext *context, struct ib_umem *umem,
->  		vma = find_vma(mm, ib_umem_start(umem));
->  		if (!vma || !is_vm_hugetlb_page(vma)) {
->  			up_read(&mm->mmap_sem);
-> -			return -EINVAL;
-> +			ret_val = -EINVAL;
-> +			goto out_mm;
->  		}
->  		h = hstate_vma(vma);
->  		umem->page_shift = huge_page_shift(h);
-
-This patch does look correct, please address Greg's remarks.
-
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-
-Thanks,
-Jason
+Ich bin Jeff Lindsay, ein =C3=A4lterer B=C3=BCrger aus Kalifornien, USA. Ic=
+h habe einen Jackpot von 447,8 Millionen Dollar gewonnen, der gr=C3=B6=C3=
+=9Fte Lotterie-Jackpot. Im Namen meiner Familie und aus gutem Willen spende=
+n wir Ihnen und Ihrer Familie einen Betrag von (=E2=82=AC 2.000.000,00 EUR)=
+. Ich versuche, die =C3=B6ffentlichen Waisenh=C3=A4user zu erreichen. Trage=
+n Sie zur Armutsbek=C3=A4mpfung bei und sorgen Sie f=C3=BCr eine angemessen=
+e Gesundheitsversorgung f=C3=BCr Einzelpersonen, insbesondere w=C3=A4hrend =
+dieser Welt. Pandemic. Ich m=C3=B6chte auch, dass Sie einen Teil dieser Spe=
+nde in die =C3=B6ffentliche Infrastruktur investieren, um Arbeitslosen in I=
+hrem Land Arbeitspl=C3=A4tze zu bieten. Ich habe dich gew=C3=A4hlt, weil ic=
+h an dich glaube. Ich brauche Ihre uneingeschr=C3=A4nkte Mitarbeit in Bezug=
+ auf diese Spende. Bitte kontaktieren Sie mich hier zur=C3=BCck unter meine=
+r privaten E-Mail: info@jefflindsayfoundation.com
