@@ -2,112 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC85721F803
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 19:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F4421F83D
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 19:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728186AbgGNRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 13:18:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S1728830AbgGNRcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 13:32:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728312AbgGNRS3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 13:18:29 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88BFC061755
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 10:18:28 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id d17so23982778ljl.3
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 10:18:28 -0700 (PDT)
+        with ESMTP id S1726169AbgGNRcI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 13:32:08 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F37C061755;
+        Tue, 14 Jul 2020 10:32:08 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id i4so18122403iov.11;
+        Tue, 14 Jul 2020 10:32:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=lwlUV3a+QKc9bh6BlS9RBaiRNTGMyisXHjbIgMFrRQ4=;
-        b=zGkuS3pYmyX4lmXAAFK55PFZ5X9hdOfwxEfjGUY1WuPGnMU0JYRfnrepzX/r4s/4tQ
-         NhS8j9s4NLucZHEItc1f7DIZSaV4S5VsFV3x94/sEafDmt7DpjLkyMmfEKr06aSTl41/
-         GS3qb1VBU2A6mpLnN+LDu8PoxnFKjjkYVYeIgw9aEXGDZplB4un/jhd4iX97p1bBckjp
-         0R0IcN1FHjHsrsBXgsadKAmdMln+qAm2xsazhrKqCI7T0P5lDWBonRFfB3tmAbK76D7v
-         IdML9mq0UHY76czuIIKPonFbC6mGs3khJd3FQ5HuEZs7M4kZgDl9eBwtmx790RIpoIVd
-         vu4g==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fyd1Yem61aBK9j4xH0v8TMCTQl2WFmnBvLzZWnwdnEc=;
+        b=tHaFTot19KPHp0MlA0uocYvaOfJzaYZ5AoPy3T9fENTCX/ku/bwFYSdr5A461u5H/B
+         xbGJA30Vt6hsgAc6nl3XF22cNxedx4Px4/vwAsBod5/hmk8YP1vE0/hHw7zP03NEGraw
+         D/siRebVYWD9N+/1mOlVmPN/7TlJ77LGx7Ynxyi4kBO2svfB7/D8lvqexWnc4oV1x2Bh
+         zRs9q+7R218hm3SarF5+KQ8/toBryohiSFcxyv6Ij/7Dt2YZi2KlyEkc430bayEZPYhF
+         OhbWsp2jJ2VNZjFuSBvyM6plx4Gq4PtxhHrRtqIatdjHSuqJKUegDO0Sy28+QlYoD6sW
+         JPHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=lwlUV3a+QKc9bh6BlS9RBaiRNTGMyisXHjbIgMFrRQ4=;
-        b=fn0rHGEnqs+tmZgYiggYJMfOk3FCUM0391T90oMct2RhTuONK7ub8V7s7R4foIzdPR
-         ofB+7SNPuAluHer1zAlkSkIq8Dd2RTdv6sje403WhWU0McDuxZ5tiExJMEiWI9mC9tnF
-         rrpptwlMT2TpZdzNddR9zQcVYGe6o+14XIehAH988+vz507lUtycwLvRfxSj4bvpdtbq
-         JsBZapDmwaaI5IrB2gNT8RnTMORAgguixiaCNksYaU5XeVVo/EEXQ+FVaWtuBMyfQdZc
-         6wggfAa5M9qx3Z5v5M7Xu4nZNc2k5+rWqi316aUJOT31kgExbsmXt4f3zeBcBgHbBJ4D
-         o99A==
-X-Gm-Message-State: AOAM533n9dz74bVQ6WVRc5js15p/SXRRpmR/f/kVKUPiS5NzOPd1TVk6
-        S+QeiwLxz655Zo991/YJACkPJT7le1HhRu6rvkY4mfvGh61K0A==
-X-Google-Smtp-Source: ABdhPJxOM73aZXK8ZybuK9U/imgdTEfa2aBJ8kEu00YO6gHS2efKNwuFB3QR5OgVAXZkjlqANLT7tmLRIQu5QukQ9fo=
-X-Received: by 2002:a2e:b054:: with SMTP id d20mr2629367ljl.55.1594747106341;
- Tue, 14 Jul 2020 10:18:26 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fyd1Yem61aBK9j4xH0v8TMCTQl2WFmnBvLzZWnwdnEc=;
+        b=b58tivEr64G/fnUz3qPLMZb2kW+SKNbuQgLDavUSNGTVLW746UsGCHIzU3qp7+KKcf
+         DwtT0FDUYjNYCPv9hNmOAv0IKMj11yg6tDE/sC+hNSHyxhXn0MyS2udRgnSmwywRfM/Q
+         yZ1IebrObNINIfQ15JuahBWzuDviE83haOyqvlIOETZpMyJJdtFwHLyvddXzXc0mhL1c
+         gBC9y1W9EUXN4YXLgca2vwdn+kZA/7c/W+yND6vM0vUxc8sMHurzA0pVxGmt9DyzQcx2
+         aQFppQQxqTimQP5O9tW/+LVADgDgCP717Xj5SBVCERSchXlKPLtaGTDA0G2NHaQfbixF
+         0tiA==
+X-Gm-Message-State: AOAM531NcfrDS9Nl0eMjQ+1ZhZBjPHgRKQhF20tzfovAeRU72OA0flqV
+        a4hFHPspGA6hwoAt540Ca5tMy4DouYSkYwF12/aEpYGM
+X-Google-Smtp-Source: ABdhPJx1N5E0GF7/F0ba6GbZ0mPoX1MKXs80ni9M2TowfvxnnTLsD0VvV0KlxZLoPSUGdtczPlbRSc4bn9Y0Z5hlfSg=
+X-Received: by 2002:a6b:2b12:: with SMTP id r18mr5852785ior.88.1594747927418;
+ Tue, 14 Jul 2020 10:32:07 -0700 (PDT)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 14 Jul 2020 22:48:14 +0530
-Message-ID: <CA+G9fYsLBOVVjxO2DAUgjXskxEXyMpBxYG1PRKwe7BTHJfzfZw@mail.gmail.com>
-Subject: =?UTF-8?Q?stable=2Drc_5=2E4=3A_arm64_build_failed_=2D_error=3A_=E2=80=98const_?=
-        =?UTF-8?Q?struct_arch=5Ftimer=5Ferratum=5Fworkaround=E2=80=99_has_no_member_named_?=
-        =?UTF-8?Q?=E2=80=98disable=5Fcompat=5Fvdso=E2=80=99?=
-To:     linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>
+References: <20200710113046.421366-1-mst@redhat.com> <CAKgT0UeZN+mOWNhgiT0btZTyki3TPoj7pbqA+__GkCxoifPqeg@mail.gmail.com>
+ <20200712105926-mutt-send-email-mst@kernel.org> <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
+ <20200714044017-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200714044017-mutt-send-email-mst@kernel.org>
+From:   Alexander Duyck <alexander.duyck@gmail.com>
+Date:   Tue, 14 Jul 2020 10:31:56 -0700
+Message-ID: <CAKgT0Ud_AFpB-=uCB_3qY8pFvG9Kj7OFSmFG76LZC9K91oUG2w@mail.gmail.com>
+Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-arm64 build failed on 5.4
+On Tue, Jul 14, 2020 at 1:45 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Mon, Jul 13, 2020 at 08:10:14AM -0700, Alexander Duyck wrote:
+> > On Sun, Jul 12, 2020 at 8:10 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Fri, Jul 10, 2020 at 09:13:41AM -0700, Alexander Duyck wrote:
+> > > > On Fri, Jul 10, 2020 at 4:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > >
 
-make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm64
-CROSS_COMPILE=3Daarch64-linux-gnu- HOSTCC=3Dgcc CC=3D"sccache
-aarch64-linux-gnu-gcc" O=3Dbuild Image
-#
-../drivers/clocksource/arm_arch_timer.c:484:4: error: =E2=80=98const struct
-arch_timer_erratum_workaround=E2=80=99 has no member named
-=E2=80=98disable_compat_vdso=E2=80=99
-  484 |   .disable_compat_vdso =3D true,
-      |    ^~~~~~~~~~~~~~~~~~~
-../drivers/clocksource/arm_arch_timer.c:484:26: warning:
-initialization of =E2=80=98u32 (*)(void)=E2=80=99 {aka =E2=80=98unsigned in=
-t (*)(void)=E2=80=99} from
-=E2=80=98int=E2=80=99 makes pointer from integer without a cast [-Wint-conv=
-ersion]
-  484 |   .disable_compat_vdso =3D true,
-      |                          ^~~~
-../drivers/clocksource/arm_arch_timer.c:484:26: note: (near
-initialization for =E2=80=98ool_workarounds[5].read_cntp_tval_el0=E2=80=99)
+<snip>
 
-Could be this patch,
-arm64: arch_timer: Disable the compat vdso for cores affected by
-ARM64_WORKAROUND_1418040
-commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
+> > > As you say correctly the command id is actually assumed native endian:
+> > >
+> > >
+> > > static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
+> > > {
+> > >         if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> > >                                &vb->config_read_bitmap))
+> > >                 virtio_cread(vb->vdev, struct virtio_balloon_config,
+> > >                              free_page_hint_cmd_id,
+> > >                              &vb->cmd_id_received_cache);
+> > >
+> > >         return vb->cmd_id_received_cache;
+> > > }
+> > >
+> > >
+> > > So guest assumes native, host assumes LE.
+> >
+> > This wasn't even the one I was talking about, but now that you point
+> > it out this is definately bug. The command ID I was talking about was
+> > the one being passed via the descriptor ring. That one I believe is
+> > native on both sides.
+>
+> Well qemu swaps it for modern devices:
+>
+>         virtio_tswap32s(vdev, &id);
+>
+> guest swaps it too:
+>         vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
+>                                         virtio_balloon_cmd_id_received(vb));
+>         sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
+>         err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
+>
+> So it's native for legacy.
 
-ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
-the virtual counter register are trapped and emulated by the kernel.
-This makes the vdso pretty pointless, and in some cases livelock
-prone.
+Okay, that makes sense. I just wasn't familiar with the virtio32 type.
 
-Provide a workaround entry that limits the vdso to 64bit tasks.
+I guess that just means we need to fix the original issue you found
+where the guest was assuming native for the command ID in the config.
+Do you plan to patch that or should I?
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200706163802.1836732-4-maz@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > >
+> > >
+> > >
+> > > > > ---
+> > > > >  drivers/virtio/virtio_balloon.c | 9 +++++++++
+> > > > >  1 file changed, 9 insertions(+)
+> > > > >
+> > > > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > > > index 5d4b891bf84f..b9bc03345157 100644
+> > > > > --- a/drivers/virtio/virtio_balloon.c
+> > > > > +++ b/drivers/virtio/virtio_balloon.c
+> > > > > @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> > > > >
+> > > > >  static int virtballoon_validate(struct virtio_device *vdev)
+> > > > >  {
+> > > > > +       /*
+> > > > > +        * Legacy devices never specified how modern features should behave.
+> > > > > +        * E.g. which endian-ness to use? Better not to assume anything.
+> > > > > +        */
+> > > > > +       if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
+> > > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> > > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> > > > > +       }
+> > > > >         /*
+> > > > >          * Inform the hypervisor that our pages are poisoned or
+> > > > >          * initialized. If we cannot do that then we should disable
+> > > >
+> > > > The patch content itself I am fine with since odds are nobody would
+> > > > expect to use these features with a legacy device.
+> > > >
+> > > > Acked-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > >
+> > > Hmm so now you pointed out it's just cmd id, maybe I should just fix it
+> > > instead? what do you say?
+> >
+> > So the config issues are bugs, but I don't think you saw the one I was
+> > talking about. In the function send_cmd_id_start the cmd_id_active
+> > value which is initialized as a virtio32 is added as a sg entry and
+> > then sent as an outbuf to the device. I'm assuming virtio32 is a host
+> > native byte ordering.
+>
+> IIUC it isn't :) virtio32 is guest native if device is legacy, and LE if
+> device is modern.
 
+Okay. So I should probably document that for the spec I have been
+working on. It looks like there is an example of similar documentation
+for the memory statistics so it should be pretty straight forward.
 
-ref:
-https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/638094006
+Thanks.
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+- Alex
