@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB5821FC4F
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:08:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D9A21FCD6
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730330AbgGNSut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:50:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
+        id S1729337AbgGNSsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730325AbgGNSur (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:50:47 -0400
+        id S1729878AbgGNSsC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:48:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84AB022B3F;
-        Tue, 14 Jul 2020 18:50:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3711F22B2C;
+        Tue, 14 Jul 2020 18:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752647;
-        bh=u/65wFLFgeOfmx86HkO0SCLbQ0/z4jCPdJKcgVrD0IA=;
+        s=default; t=1594752481;
+        bh=Fv54wqq9gp7SGwfYMv7fnezNYr80YqoJFplVUEYpEWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vc0sBL79BcpQF2WkMiwslLVHQT4m1bI8eTqIujeWkzdHMjHt37GfIPp1TugbD4TkA
-         QT/uMBNzb+NohUoeGVv5yXGo4fPOjw2G3CSED8DRIPNWUhaVDAKoTUDZmxlFf2Lh7w
-         okp3NE+F2+guwuU7RfZBjOW3W7nfAstG8RAdndZ0=
+        b=bRTj4875BTsqqSeWdcQcYbosFGbcUN26aaHISW/tRzLZsO/T+L9C4x9LPWZsrfJOs
+         YgdOmZBI1nY7866dDzga3Eyr9SGaZAUbafR6RZB2xP3FvTChOthnlUXkFxqLIL+nvf
+         2n2GIwrvifNW+FHbyvvSrs+OgNVHp0tykwoIDKfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+934037347002901b8d2a@syzkaller.appspotmail.com,
-        Zheng Bin <zhengbin13@huawei.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/109] nbd: Fix memory leak in nbd_add_socket
+        stable@vger.kernel.org, Andre Edich <andre.edich@microchip.com>,
+        Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/58] smsc95xx: check return value of smsc95xx_reset
 Date:   Tue, 14 Jul 2020 20:44:01 +0200
-Message-Id: <20200714184108.296148505@linuxfoundation.org>
+Message-Id: <20200714184057.534382189@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+From: Andre Edich <andre.edich@microchip.com>
 
-[ Upstream commit 579dd91ab3a5446b148e7f179b6596b270dace46 ]
+[ Upstream commit 7c8b1e855f94f88a0c569be6309fc8d5c8844cd1 ]
 
-When adding first socket to nbd, if nsock's allocation failed, the data
-structure member "config->socks" was reallocated, but the data structure
-member "config->num_connections" was not updated. A memory leak will occur
-then because the function "nbd_config_put" will free "config->socks" only
-when "config->num_connections" is not zero.
+The return value of the function smsc95xx_reset() must be checked
+to avoid returning false success from the function smsc95xx_bind().
 
-Fixes: 03bf73c315ed ("nbd: prevent memory leak")
-Reported-by: syzbot+934037347002901b8d2a@syzkaller.appspotmail.com
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2f7ca802bdae2 ("net: Add SMSC LAN9500 USB2.0 10/100 ethernet adapter driver")
+Signed-off-by: Andre Edich <andre.edich@microchip.com>
+Signed-off-by: Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/net/usb/smsc95xx.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 78181908f0df6..7b61d53ba050e 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1022,25 +1022,26 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
- 	     test_bit(NBD_RT_BOUND, &config->runtime_flags))) {
- 		dev_err(disk_to_dev(nbd->disk),
- 			"Device being setup by another task");
--		sockfd_put(sock);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto put_socket;
-+	}
-+
-+	nsock = kzalloc(sizeof(*nsock), GFP_KERNEL);
-+	if (!nsock) {
-+		err = -ENOMEM;
-+		goto put_socket;
- 	}
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index c3389bd87c654..145ee4a02a8a5 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -1301,6 +1301,8 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
  
- 	socks = krealloc(config->socks, (config->num_connections + 1) *
- 			 sizeof(struct nbd_sock *), GFP_KERNEL);
- 	if (!socks) {
--		sockfd_put(sock);
--		return -ENOMEM;
-+		kfree(nsock);
-+		err = -ENOMEM;
-+		goto put_socket;
- 	}
+ 	/* Init all registers */
+ 	ret = smsc95xx_reset(dev);
++	if (ret)
++		goto free_pdata;
  
- 	config->socks = socks;
- 
--	nsock = kzalloc(sizeof(struct nbd_sock), GFP_KERNEL);
--	if (!nsock) {
--		sockfd_put(sock);
--		return -ENOMEM;
--	}
--
- 	nsock->fallback_index = -1;
- 	nsock->dead = false;
- 	mutex_init(&nsock->tx_lock);
-@@ -1052,6 +1053,10 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
- 	atomic_inc(&config->live_connections);
+ 	/* detect device revision as different features may be available */
+ 	ret = smsc95xx_read_reg(dev, ID_REV, &val);
+@@ -1331,6 +1333,10 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	schedule_delayed_work(&pdata->carrier_check, CARRIER_CHECK_DELAY);
  
  	return 0;
 +
-+put_socket:
-+	sockfd_put(sock);
-+	return err;
++free_pdata:
++	kfree(pdata);
++	return ret;
  }
  
- static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
+ static void smsc95xx_unbind(struct usbnet *dev, struct usb_interface *intf)
 -- 
 2.25.1
 
