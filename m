@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4555821FA9D
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1007C21FA9F
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbgGNSyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:54:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51528 "EHLO mail.kernel.org"
+        id S1730736AbgGNSyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730282AbgGNSyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:54:09 -0400
+        id S1730732AbgGNSyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:54:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDDE222BEB;
-        Tue, 14 Jul 2020 18:54:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65A2922BED;
+        Tue, 14 Jul 2020 18:54:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752849;
-        bh=/5tEx96xy1e4vi6a8sCn19YEYK/t5MtKMJLjxv8RtbY=;
+        s=default; t=1594752851;
+        bh=WZm9NVwm/5hzx3Z8PKdERAEM9pbyT8kA/yFB5RQ6bAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u36OA5GhmfMN/W8KlPoIEqw7Vy+xMF/N97tGjWUbCvqSEU1AyaDMgt4xEwozqVWp2
-         cF5HSTYFu/vGmspk73AxMKQs+rkYbkpdlp6jJd0RyseRcMdMhMRtOOz9+0kBeIYiDG
-         39iLMU2bY2NT+wLYMn4Y0YAsCVTUJvmkJY4wP8Ic=
+        b=QcbN8Q4rOYFXKUoSu1OMStUqeEK279AlGJxTUlFO/vci0+css9jOkp4b9kTYokDxm
+         MGSemkPPI2Hx1z0+N4XjltcZQkbQUg6ThA5Z98N9+Nq3MK1Yb6Zdc5V2eXEBxsl0vg
+         zUapohUiYHdmE1SkXlmj/ma4YbfGMwxmbssfVtlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 009/166] drm/ttm: Fix dma_fence refcnt leak when adding move fence
-Date:   Tue, 14 Jul 2020 20:42:54 +0200
-Message-Id: <20200714184116.328755976@linuxfoundation.org>
+Subject: [PATCH 5.7 010/166] gpu: host1x: Clean up debugfs in error handling path
+Date:   Tue, 14 Jul 2020 20:42:55 +0200
+Message-Id: <20200714184116.376338634@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -45,51 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 11425c4519e2c974a100fc984867046d905b9380 ]
+[ Upstream commit 109be8b23fb2ec8e2d309325ee3b7a49eab63961 ]
 
-ttm_bo_add_move_fence() invokes dma_fence_get(), which returns a
-reference of the specified dma_fence object to "fence" with increased
-refcnt.
+host1x_debug_init() must be reverted in an error handling path.
 
-When ttm_bo_add_move_fence() returns, local variable "fence" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
+This is already fixed in the remove function since commit 44156eee91ba
+("gpu: host1x: Clean up debugfs on removal")
 
-The reference counting issue happens in one exception handling path of
-ttm_bo_add_move_fence(). When no_wait_gpu flag is equals to true, the
-function forgets to decrease the refcnt increased by dma_fence_get(),
-causing a refcnt leak.
-
-Fix this issue by calling dma_fence_put() when no_wait_gpu flag is
-equals to true.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/370221/
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/host1x/dev.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
-index 9e07c3f75156b..ef5bc00c73e23 100644
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -881,8 +881,10 @@ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
- 	if (!fence)
- 		return 0;
+diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
+index d24344e919227..3c0f151847bae 100644
+--- a/drivers/gpu/host1x/dev.c
++++ b/drivers/gpu/host1x/dev.c
+@@ -468,11 +468,12 @@ static int host1x_probe(struct platform_device *pdev)
  
--	if (no_wait_gpu)
-+	if (no_wait_gpu) {
-+		dma_fence_put(fence);
- 		return -EBUSY;
-+	}
+ 	err = host1x_register(host);
+ 	if (err < 0)
+-		goto deinit_intr;
++		goto deinit_debugfs;
  
- 	dma_resv_add_shared_fence(bo->base.resv, fence);
+ 	return 0;
  
+-deinit_intr:
++deinit_debugfs:
++	host1x_debug_deinit(host);
+ 	host1x_intr_deinit(host);
+ deinit_syncpt:
+ 	host1x_syncpt_deinit(host);
 -- 
 2.25.1
 
