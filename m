@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A36821FC24
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDFA21FB86
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729775AbgGNTGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:06:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50088 "EHLO mail.kernel.org"
+        id S1731236AbgGNS6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730583AbgGNSxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:53:06 -0400
+        id S1730634AbgGNS6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:58:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92A6622BF5;
-        Tue, 14 Jul 2020 18:53:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9558229CA;
+        Tue, 14 Jul 2020 18:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752786;
-        bh=Wegz6/ipsnYUokJXvOMieFYrk6wYPm9LCT/S3tzRTt0=;
+        s=default; t=1594753121;
+        bh=vscYnN+/yBVE31sL8YMMRDuaN+dE6TLRG3B4dgMLsPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atNY0Oi/Qp86fFGMYBmLKSWAYiUCxSr7kerlWhSdWVz1Z/FPRIz520VDsULiRNGQD
-         EjogtcnNlLEy1woqa1TJ6EgN2+33k2oTuwOEzEXj+SjkuU9JZJVfyLlxN95vVkbctF
-         ae4hZKZ+Gb+ggBvvIFv3gZhCHQAz44Tv2TK6gqhM=
+        b=TluxcQilUCNPi8/Tv6IuQGHcCV5bs8X4LMCKIfVZXjClqYV+HzK0osDDPKyr/OBtL
+         3lBSlbORohMxNo4E5BFLpt9RS7kx9JORGH4awtyWJztkUlGOdnMCeNPfPzAXoOuJFO
+         WZ8V8WaP8CoCN402aiAv8cbjTTe6ARqZ/4A42nec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 079/109] ALSA: hda/realtek: Enable headset mic of Acer Veriton N4660G with ALC269VC
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 097/166] net/mlx5e: Fix 50G per lane indication
 Date:   Tue, 14 Jul 2020 20:44:22 +0200
-Message-Id: <20200714184109.324388925@linuxfoundation.org>
+Message-Id: <20200714184120.491647800@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +45,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Aya Levin <ayal@mellanox.com>
 
-commit 781c90c034d994c6a4e2badf189128a95ed864c2 upstream.
+[ Upstream commit 6a1cf4e443a3b0a4d690d3c93b84b1e9cbfcb1bd ]
 
-The Acer Veriton N4660G desktop's audio (1025:1248) with ALC269VC cannot
-detect the headset microphone until ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE
-quirk maps the NID 0x18 as the headset mic pin.
+Some released FW versions mistakenly don't set the capability that 50G
+per lane link-modes are supported for VFs (ptys_extended_ethernet
+capability bit). When the capability is unset, read
+PTYS.ext_eth_proto_capability (always reliable).
+If PTYS.ext_eth_proto_capability is valid (has a non-zero value)
+conclude that the HCA supports 50G per lane. Otherwise, conclude that
+the HCA doesn't support 50G per lane.
 
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200706071826.39726-3-jian-hong@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a08b4ed1373d ("net/mlx5: Add support to ext_* fields introduced in Port Type and Speed register")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ .../net/ethernet/mellanox/mlx5/core/en/port.c | 21 ++++++++++++++++---
+ .../net/ethernet/mellanox/mlx5/core/en/port.h |  2 +-
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c  |  8 +++----
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6116,6 +6116,7 @@ enum {
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
- 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
-+	ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
+index 2a8950b3056f9..3cf3e35053f77 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
+@@ -78,11 +78,26 @@ static const u32 mlx5e_ext_link_speed[MLX5E_EXT_LINK_MODES_NUMBER] = {
+ 	[MLX5E_400GAUI_8]			= 400000,
  };
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7314,6 +7315,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MIC
- 	},
-+	[ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x18, 0x01a11130 }, /* use as headset mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MIC
-+	},
- };
++bool mlx5e_ptys_ext_supported(struct mlx5_core_dev *mdev)
++{
++	struct mlx5e_port_eth_proto eproto;
++	int err;
++
++	if (MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet))
++		return true;
++
++	err = mlx5_port_query_eth_proto(mdev, 1, true, &eproto);
++	if (err)
++		return false;
++
++	return !!eproto.cap;
++}
++
+ static void mlx5e_port_get_speed_arr(struct mlx5_core_dev *mdev,
+ 				     const u32 **arr, u32 *size,
+ 				     bool force_legacy)
+ {
+-	bool ext = force_legacy ? false : MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	bool ext = force_legacy ? false : mlx5e_ptys_ext_supported(mdev);
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7335,6 +7345,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1025, 0x110e, "Acer Aspire ES1-432", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x1246, "Acer Predator Helios 500", ALC299_FIXUP_PREDATOR_SPK),
- 	SND_PCI_QUIRK(0x1025, 0x1247, "Acer vCopperbox", ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS),
-+	SND_PCI_QUIRK(0x1025, 0x1248, "Acer Veriton N4660G", ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x128f, "Acer Veriton Z6860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	*size = ext ? ARRAY_SIZE(mlx5e_ext_link_speed) :
+ 		      ARRAY_SIZE(mlx5e_link_speed);
+@@ -177,7 +192,7 @@ int mlx5e_port_linkspeed(struct mlx5_core_dev *mdev, u32 *speed)
+ 	bool ext;
+ 	int err;
+ 
+-	ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	ext = mlx5e_ptys_ext_supported(mdev);
+ 	err = mlx5_port_query_eth_proto(mdev, 1, ext, &eproto);
+ 	if (err)
+ 		goto out;
+@@ -205,7 +220,7 @@ int mlx5e_port_max_linkspeed(struct mlx5_core_dev *mdev, u32 *speed)
+ 	int err;
+ 	int i;
+ 
+-	ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	ext = mlx5e_ptys_ext_supported(mdev);
+ 	err = mlx5_port_query_eth_proto(mdev, 1, ext, &eproto);
+ 	if (err)
+ 		return err;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/port.h b/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
+index a2ddd446dd59e..7a7defe607926 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
+@@ -54,7 +54,7 @@ int mlx5e_port_linkspeed(struct mlx5_core_dev *mdev, u32 *speed);
+ int mlx5e_port_max_linkspeed(struct mlx5_core_dev *mdev, u32 *speed);
+ u32 mlx5e_port_speed2linkmodes(struct mlx5_core_dev *mdev, u32 speed,
+ 			       bool force_legacy);
+-
++bool mlx5e_ptys_ext_supported(struct mlx5_core_dev *mdev);
+ int mlx5e_port_query_pbmc(struct mlx5_core_dev *mdev, void *out);
+ int mlx5e_port_set_pbmc(struct mlx5_core_dev *mdev, void *in);
+ int mlx5e_port_query_priority2buffer(struct mlx5_core_dev *mdev, u8 *buffer);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index bc290ae80a531..1c491acd48f32 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -200,7 +200,7 @@ static void mlx5e_ethtool_get_speed_arr(struct mlx5_core_dev *mdev,
+ 					struct ptys2ethtool_config **arr,
+ 					u32 *size)
+ {
+-	bool ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	bool ext = mlx5e_ptys_ext_supported(mdev);
+ 
+ 	*arr = ext ? ptys2ext_ethtool_table : ptys2legacy_ethtool_table;
+ 	*size = ext ? ARRAY_SIZE(ptys2ext_ethtool_table) :
+@@ -883,7 +883,7 @@ static void get_lp_advertising(struct mlx5_core_dev *mdev, u32 eth_proto_lp,
+ 			       struct ethtool_link_ksettings *link_ksettings)
+ {
+ 	unsigned long *lp_advertising = link_ksettings->link_modes.lp_advertising;
+-	bool ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	bool ext = mlx5e_ptys_ext_supported(mdev);
+ 
+ 	ptys2ethtool_adver_link(lp_advertising, eth_proto_lp, ext);
+ }
+@@ -913,7 +913,7 @@ int mlx5e_ethtool_get_link_ksettings(struct mlx5e_priv *priv,
+ 			   __func__, err);
+ 		goto err_query_regs;
+ 	}
+-	ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	ext = !!MLX5_GET_ETH_PROTO(ptys_reg, out, true, eth_proto_capability);
+ 	eth_proto_cap    = MLX5_GET_ETH_PROTO(ptys_reg, out, ext,
+ 					      eth_proto_capability);
+ 	eth_proto_admin  = MLX5_GET_ETH_PROTO(ptys_reg, out, ext,
+@@ -1066,7 +1066,7 @@ int mlx5e_ethtool_set_link_ksettings(struct mlx5e_priv *priv,
+ 	autoneg = link_ksettings->base.autoneg;
+ 	speed = link_ksettings->base.speed;
+ 
+-	ext_supported = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	ext_supported = mlx5e_ptys_ext_supported(mdev);
+ 	ext = ext_requested(autoneg, adver, ext_supported);
+ 	if (!ext_supported && ext)
+ 		return -EOPNOTSUPP;
+-- 
+2.25.1
+
 
 
