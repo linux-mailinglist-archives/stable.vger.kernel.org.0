@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084E221FCBB
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF1B21FBE2
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729909AbgGNTLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:11:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45182 "EHLO mail.kernel.org"
+        id S1730218AbgGNTFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:05:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728926AbgGNStX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:49:23 -0400
+        id S1729554AbgGNSzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:55:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2AAE22B3F;
-        Tue, 14 Jul 2020 18:49:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87BE322BF3;
+        Tue, 14 Jul 2020 18:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752563;
-        bh=4+1CY02Uuaz+/7FNehvUYc0HJJynuT1ixS30/49OQKI=;
+        s=default; t=1594752901;
+        bh=sj7Mgy53uvCuBJN5AxCbcIf+Ao8fcs55/4IY3bzKD68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldz+V3zgFg32qCJ2GeCLPBbAbisbAebhMAkD/2KZBKQZegz3U1XthmUQE25LLpimH
-         GmpHOfVOYXQj4q6an8TUd25u79n2WmdkVEew3na0QFCIj1fcUyexhHq+e2TnmV/+wJ
-         e2b1uTrlKXIgg0DnkUiJ/ur/L8mWTzlQAtk5V2BQ=
+        b=KABGEfNkMwcFlZZAjPTzoqFKhxezYb914OoGcmVe7mYkpCueCFe8RmEFa5M4JHJ2O
+         Cfu7ym5gpd/cLQOS5WWqv6GSjhUOBhJSBYaEMHgR8Pfojl98NheaKqJ2ICAxACtZUx
+         XT0P5UXA7+OH9Zzjge/0LnCD3w5/9Dc5PdcRqfTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Subject: [PATCH 5.4 025/109] s390/kasan: fix early pgm check handler execution
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 043/166] nfs: Fix memory leak of export_path
 Date:   Tue, 14 Jul 2020 20:43:28 +0200
-Message-Id: <20200714184106.735185073@linuxfoundation.org>
+Message-Id: <20200714184117.942167644@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+[ Upstream commit 4659ed7cc8514369043053463514408ca16ad6f3 ]
 
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
+The try_location function is called within a loop by nfs_follow_referral.
+try_location calls nfs4_pathname_string to created the export_path.
+nfs4_pathname_string allocates the memory. export_path is stored in the
+nfs_fs_context/fs_context structure similarly as hostname and source.
+But whereas the ctx hostname and source are freed before assignment,
+export_path is not.  So if there are multiple loops, the new export_path
+will overwrite the old without the old being freed.
 
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
+So call kfree for export_path.
 
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/nfs4namespace.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index b432d63d0b373..2531776cf6cf9 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -169,6 +169,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
+diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
+index a3ab6e219061b..873342308dc0d 100644
+--- a/fs/nfs/nfs4namespace.c
++++ b/fs/nfs/nfs4namespace.c
+@@ -308,6 +308,7 @@ static int try_location(struct fs_context *fc,
+ 	if (IS_ERR(export_path))
+ 		return PTR_ERR(export_path);
  
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
++	kfree(ctx->nfs_server.export_path);
+ 	ctx->nfs_server.export_path = export_path;
+ 
+ 	source = kmalloc(len + 1 + ctx->nfs_server.export_path_len + 1,
 -- 
 2.25.1
 
