@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1877D21FAF2
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACD921FAF3
 	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731016AbgGNS5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55310 "EHLO mail.kernel.org"
+        id S1730679AbgGNS5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:57:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729318AbgGNS5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:57:07 -0400
+        id S1730677AbgGNS5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:57:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02FBA229CA;
-        Tue, 14 Jul 2020 18:57:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 782BE22AAB;
+        Tue, 14 Jul 2020 18:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753026;
-        bh=wqptHnyF7gsRI9DuHpbCABRUvEkXmAG+YMAyR2V0VCs=;
+        s=default; t=1594753028;
+        bh=9Fk8qdwtNyCMUQozg+B9JWPTakSh+mBFWMA1kk8Q0ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxGR9GF8K2FY8ik7gfiNWtRpdE7nWGOUqfxQaGwYvKfNZiq8y0hshY8j05x8tOH+n
-         WrgHhxzhZoQldYQ+bE76Jcwv45v5K68S+TqkI5hqdCnD+tMb+RE8wymefGxJpLPiDK
-         561mwPm8FunttUeFt1OFhSnWgf6q1Un4ZojPvlUQ=
+        b=khx4j+yBWeRk//1usasFLfeNKVdnPmwcVkrzVDVTvdcsnRMOG5CLkPdP39dD79+to
+         0EDR7aXhjZqUbkvcJwkzJ1hVJB4to5OYpDTRYt6XIG4JVF06CPpQOIl0mo5krzEJIG
+         9JSWCwN73utKWZwjQS94FAeLDSfasdc2Ax88QxD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 061/166] netfilter: ipset: call ip_set_free() instead of kfree()
-Date:   Tue, 14 Jul 2020 20:43:46 +0200
-Message-Id: <20200714184118.795634241@linuxfoundation.org>
+Subject: [PATCH 5.7 062/166] net: mvneta: fix use of state->speed
+Date:   Tue, 14 Jul 2020 20:43:47 +0200
+Message-Id: <20200714184118.843343974@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -45,132 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit c4e8fa9074ad94f80e5c0dcaa16b313e50e958c5 ]
+[ Upstream commit f2ca673d2cd5df9a76247b670e9ffd4d63682b3f ]
 
-Whenever ip_set_alloc() is used, allocated memory can either
-use kmalloc() or vmalloc(). We should call kvfree() or
-ip_set_free()
+When support for short preambles was added, it incorrectly keyed its
+decision off state->speed instead of state->interface.  state->speed
+is not guaranteed to be correct for in-band modes, which can lead to
+short preambles being unexpectedly disabled.
 
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 21935 Comm: syz-executor.3 Not tainted 5.8.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__phys_addr+0xa7/0x110 arch/x86/mm/physaddr.c:28
-Code: 1d 7a 09 4c 89 e3 31 ff 48 d3 eb 48 89 de e8 d0 58 3f 00 48 85 db 75 0d e8 26 5c 3f 00 4c 89 e0 5b 5d 41 5c c3 e8 19 5c 3f 00 <0f> 0b e8 12 5c 3f 00 48 c7 c0 10 10 a8 89 48 ba 00 00 00 00 00 fc
-RSP: 0000:ffffc900018572c0 EFLAGS: 00010046
-RAX: 0000000000040000 RBX: 0000000000000001 RCX: ffffc9000fac3000
-RDX: 0000000000040000 RSI: ffffffff8133f437 RDI: 0000000000000007
-RBP: ffffc90098aff000 R08: 0000000000000000 R09: ffff8880ae636cdb
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000408018aff000
-R13: 0000000000080000 R14: 000000000000001d R15: ffffc900018573d8
-FS:  00007fc540c66700(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fc9dcd67200 CR3: 0000000059411000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- virt_to_head_page include/linux/mm.h:841 [inline]
- virt_to_cache mm/slab.h:474 [inline]
- kfree+0x77/0x2c0 mm/slab.c:3749
- hash_net_create+0xbb2/0xd70 net/netfilter/ipset/ip_set_hash_gen.h:1536
- ip_set_create+0x6a2/0x13c0 net/netfilter/ipset/ip_set_core.c:1128
- nfnetlink_rcv_msg+0xbe8/0xea0 net/netfilter/nfnetlink.c:230
- netlink_rcv_skb+0x15a/0x430 net/netlink/af_netlink.c:2469
- nfnetlink_rcv+0x1ac/0x420 net/netfilter/nfnetlink.c:564
- netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1329
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1918
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2352
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2406
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
- do_syscall_64+0x60/0xe0 arch/x86/entry/common.c:359
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45cb19
-Code: Bad RIP value.
-RSP: 002b:00007fc540c65c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00000000004fed80 RCX: 000000000045cb19
-RDX: 0000000000000000 RSI: 0000000020001080 RDI: 0000000000000003
-RBP: 000000000078bf00 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 000000000000095e R14: 00000000004cc295 R15: 00007fc540c666d4
+Fix this by keying off the interface mode, which is the only way that
+mvneta can operate at 2.5Gbps.
 
-Fixes: f66ee0410b1c ("netfilter: ipset: Fix "INFO: rcu detected stall in hash_xxx" reports")
-Fixes: 03c8b234e61a ("netfilter: ipset: Generalize extensions support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: da58a931f248 ("net: mvneta: Add support for 2500Mbps SGMII")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_bitmap_ip.c    | 2 +-
- net/netfilter/ipset/ip_set_bitmap_ipmac.c | 2 +-
- net/netfilter/ipset/ip_set_bitmap_port.c  | 2 +-
- net/netfilter/ipset/ip_set_hash_gen.h     | 4 ++--
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/marvell/mvneta.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipset/ip_set_bitmap_ip.c b/net/netfilter/ipset/ip_set_bitmap_ip.c
-index 486959f70cf31..a8ce04a4bb72a 100644
---- a/net/netfilter/ipset/ip_set_bitmap_ip.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
-@@ -326,7 +326,7 @@ bitmap_ip_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
- 	set->variant = &bitmap_ip;
- 	if (!init_map_ip(set, map, first_ip, last_ip,
- 			 elements, hosts, netmask)) {
--		kfree(map);
-+		ip_set_free(map);
- 		return -ENOMEM;
- 	}
- 	if (tb[IPSET_ATTR_TIMEOUT]) {
-diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-index 2310a316e0aff..2c625e0f49ec0 100644
---- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-@@ -363,7 +363,7 @@ bitmap_ipmac_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
- 	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
- 	set->variant = &bitmap_ipmac;
- 	if (!init_map_ipmac(set, map, first_ip, last_ip, elements)) {
--		kfree(map);
-+		ip_set_free(map);
- 		return -ENOMEM;
- 	}
- 	if (tb[IPSET_ATTR_TIMEOUT]) {
-diff --git a/net/netfilter/ipset/ip_set_bitmap_port.c b/net/netfilter/ipset/ip_set_bitmap_port.c
-index e56ced66f202d..7138e080def4c 100644
---- a/net/netfilter/ipset/ip_set_bitmap_port.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_port.c
-@@ -274,7 +274,7 @@ bitmap_port_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
- 	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
- 	set->variant = &bitmap_port;
- 	if (!init_map_port(set, map, first_port, last_port)) {
--		kfree(map);
-+		ip_set_free(map);
- 		return -ENOMEM;
- 	}
- 	if (tb[IPSET_ATTR_TIMEOUT]) {
-diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index 1ee43752d6d3c..521e970be4028 100644
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -682,7 +682,7 @@ mtype_resize(struct ip_set *set, bool retried)
- 	}
- 	t->hregion = ip_set_alloc(ahash_sizeof_regions(htable_bits));
- 	if (!t->hregion) {
--		kfree(t);
-+		ip_set_free(t);
- 		ret = -ENOMEM;
- 		goto out;
- 	}
-@@ -1533,7 +1533,7 @@ IPSET_TOKEN(HTYPE, _create)(struct net *net, struct ip_set *set,
- 	}
- 	t->hregion = ip_set_alloc(ahash_sizeof_regions(hbits));
- 	if (!t->hregion) {
--		kfree(t);
-+		ip_set_free(t);
- 		kfree(h);
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index af578a5813bd2..cf26cf4e47aa8 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -3953,7 +3953,7 @@ static void mvneta_mac_config(struct phylink_config *config, unsigned int mode,
+ 	/* When at 2.5G, the link partner can send frames with shortened
+ 	 * preambles.
+ 	 */
+-	if (state->speed == SPEED_2500)
++	if (state->interface == PHY_INTERFACE_MODE_2500BASEX)
+ 		new_ctrl4 |= MVNETA_GMAC4_SHORT_PREAMBLE_ENABLE;
+ 
+ 	if (pp->phy_interface != state->interface) {
 -- 
 2.25.1
 
