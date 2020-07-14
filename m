@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8990721FC3A
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C1121FBD0
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbgGNSvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
+        id S1731089AbgGNTEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:04:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730427AbgGNSvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:45 -0400
+        id S1730934AbgGNS4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:56:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8041D207F5;
-        Tue, 14 Jul 2020 18:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A276229CA;
+        Tue, 14 Jul 2020 18:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752705;
-        bh=3uf1IuXZh93/qcZAinaEENd95ogQcAx98MOdCIGIPxE=;
+        s=default; t=1594752959;
+        bh=tq0ZgPpb1UjGyzLqz8Drb8E6aQgtxe36pAXvAlHP1pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2xgcAC3Ld8q0C8biVM07vG1pzlxRS7BB+/AVLIDnxWK6/nsXyUsCtlhHqvd7XGJP
-         NE5mZVoGlofVa2A53Z0XjMPwiQgQ88IqzS+kVWspUcxCqCccO6NNKKe7ZyhB5YR1qI
-         99NSGeiEZmiFdkafY0V+fYHo+cKGhPE6ysiA6KlY=
+        b=B54VyKLclmrqTmWe2Pr4pF0N5csPeNS2iFgv2GQomSnIQZyd2QFzk+wRspYXf+xgR
+         /cq6mpdu0CwKFPGw3b54kHII2UpcYmcPhBHnVBHVvlzKwk/hW25RcCvxoL4KImvDJD
+         VLo8Uk8XCDkxxChD5pv9FXXHe2MrnFYq2Sf85qrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/109] perf report TUI: Fix segmentation fault in perf_evsel__hists_browse()
+Subject: [PATCH 5.7 066/166] drm/meson: viu: fix setting the OSD burst length in VIU_OSD1_FIFO_CTRL_STAT
 Date:   Tue, 14 Jul 2020 20:43:51 +0200
-Message-Id: <20200714184107.821720203@linuxfoundation.org>
+Message-Id: <20200714184119.025517936@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,82 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit d61cbb859b45fdb6b4997f2d51834fae41af0e94 ]
+[ Upstream commit 17f64701ea6f541db7eb5d7423a830cb929b3052 ]
 
-The segmentation fault can be reproduced as following steps:
+The burst length is configured in VIU_OSD1_FIFO_CTRL_STAT[31] and
+VIU_OSD1_FIFO_CTRL_STAT[11:10]. The public S905D3 datasheet describes
+this as:
+- 0x0 = up to 24 per burst
+- 0x1 = up to 32 per burst
+- 0x2 = up to 48 per burst
+- 0x3 = up to 64 per burst
+- 0x4 = up to 96 per burst
+- 0x5 = up to 128 per burst
 
-1) Executing perf report in tui.
+The lower two bits map to VIU_OSD1_FIFO_CTRL_STAT[11:10] while the upper
+bit maps to VIU_OSD1_FIFO_CTRL_STAT[31].
 
-2) Typing '/xxxxx' to filter the symbol to get nothing matched.
+Replace meson_viu_osd_burst_length_reg() with pre-defined macros which
+set these values. meson_viu_osd_burst_length_reg() always returned 0
+(for the two used values: 32 and 64 at least) and thus incorrectly set
+the burst size to 24.
 
-3) Pressing enter with no entry selected.
-
-Then it will report a segmentation fault.
-
-It is caused by the lack of check of browser->he_selection when
-accessing it's member res_samples in perf_evsel__hists_browse().
-
-These processes are meaningful for specified samples, so we can skip
-these when nothing is selected.
-
-Fixes: 4968ac8fb7c3 ("perf report: Implement browsing of individual samples")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Link: http://lore.kernel.org/lkml/20200612094322.39565-1-liwei391@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 147ae1cbaa1842 ("drm: meson: viu: use proper macros instead of magic constants")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200620155752.21065-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/ui/browsers/hists.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/meson/meson_registers.h |  6 ++++++
+ drivers/gpu/drm/meson/meson_viu.c       | 11 ++---------
+ 2 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/ui/browsers/hists.c b/tools/perf/ui/browsers/hists.c
-index 88c3df24b748c..514cef3a17b40 100644
---- a/tools/perf/ui/browsers/hists.c
-+++ b/tools/perf/ui/browsers/hists.c
-@@ -2224,6 +2224,11 @@ static struct thread *hist_browser__selected_thread(struct hist_browser *browser
- 	return browser->he_selection->thread;
+diff --git a/drivers/gpu/drm/meson/meson_registers.h b/drivers/gpu/drm/meson/meson_registers.h
+index 8ea00546cd4e2..049c4bfe2a3ae 100644
+--- a/drivers/gpu/drm/meson/meson_registers.h
++++ b/drivers/gpu/drm/meson/meson_registers.h
+@@ -261,6 +261,12 @@
+ #define VIU_OSD_FIFO_DEPTH_VAL(val)      ((val & 0x7f) << 12)
+ #define VIU_OSD_WORDS_PER_BURST(words)   (((words & 0x4) >> 1) << 22)
+ #define VIU_OSD_FIFO_LIMITS(size)        ((size & 0xf) << 24)
++#define VIU_OSD_BURST_LENGTH_24          (0x0 << 31 | 0x0 << 10)
++#define VIU_OSD_BURST_LENGTH_32          (0x0 << 31 | 0x1 << 10)
++#define VIU_OSD_BURST_LENGTH_48          (0x0 << 31 | 0x2 << 10)
++#define VIU_OSD_BURST_LENGTH_64          (0x0 << 31 | 0x3 << 10)
++#define VIU_OSD_BURST_LENGTH_96          (0x1 << 31 | 0x0 << 10)
++#define VIU_OSD_BURST_LENGTH_128         (0x1 << 31 | 0x1 << 10)
+ 
+ #define VD1_IF0_GEN_REG 0x1a50
+ #define VD1_IF0_CANVAS0 0x1a51
+diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
+index 304f8ff1339cb..aede0c67a57f0 100644
+--- a/drivers/gpu/drm/meson/meson_viu.c
++++ b/drivers/gpu/drm/meson/meson_viu.c
+@@ -411,13 +411,6 @@ void meson_viu_gxm_disable_osd1_afbc(struct meson_drm *priv)
+ 			    priv->io_base + _REG(VIU_MISC_CTRL1));
  }
  
-+static struct res_sample *hist_browser__selected_res_sample(struct hist_browser *browser)
-+{
-+	return browser->he_selection ? browser->he_selection->res_samples : NULL;
-+}
-+
- /* Check whether the browser is for 'top' or 'report' */
- static inline bool is_report_browser(void *timer)
+-static inline uint32_t meson_viu_osd_burst_length_reg(uint32_t length)
+-{
+-	uint32_t val = (((length & 0x80) % 24) / 12);
+-
+-	return (((val & 0x3) << 10) | (((val & 0x4) >> 2) << 31));
+-}
+-
+ void meson_viu_init(struct meson_drm *priv)
  {
-@@ -3170,16 +3175,16 @@ static int perf_evsel__hists_browse(struct evsel *evsel, int nr_events,
- 					     &options[nr_options], NULL, NULL, evsel);
- 		nr_options += add_res_sample_opt(browser, &actions[nr_options],
- 						 &options[nr_options],
--				 hist_browser__selected_entry(browser)->res_samples,
--				 evsel, A_NORMAL);
-+						 hist_browser__selected_res_sample(browser),
-+						 evsel, A_NORMAL);
- 		nr_options += add_res_sample_opt(browser, &actions[nr_options],
- 						 &options[nr_options],
--				 hist_browser__selected_entry(browser)->res_samples,
--				 evsel, A_ASM);
-+						 hist_browser__selected_res_sample(browser),
-+						 evsel, A_ASM);
- 		nr_options += add_res_sample_opt(browser, &actions[nr_options],
- 						 &options[nr_options],
--				 hist_browser__selected_entry(browser)->res_samples,
--				 evsel, A_SOURCE);
-+						 hist_browser__selected_res_sample(browser),
-+						 evsel, A_SOURCE);
- 		nr_options += add_switch_opt(browser, &actions[nr_options],
- 					     &options[nr_options]);
- skip_scripting:
+ 	uint32_t reg;
+@@ -444,9 +437,9 @@ void meson_viu_init(struct meson_drm *priv)
+ 		VIU_OSD_FIFO_LIMITS(2);      /* fifo_lim: 2*16=32 */
+ 
+ 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+-		reg |= meson_viu_osd_burst_length_reg(32);
++		reg |= VIU_OSD_BURST_LENGTH_32;
+ 	else
+-		reg |= meson_viu_osd_burst_length_reg(64);
++		reg |= VIU_OSD_BURST_LENGTH_64;
+ 
+ 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD1_FIFO_CTRL_STAT));
+ 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD2_FIFO_CTRL_STAT));
 -- 
 2.25.1
 
