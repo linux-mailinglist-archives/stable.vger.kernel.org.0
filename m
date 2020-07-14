@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFCA921F9E3
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07DFB21FA5E
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729748AbgGNSrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:47:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42610 "EHLO mail.kernel.org"
+        id S1730451AbgGNSwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729723AbgGNSra (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:30 -0400
+        id S1730442AbgGNSv7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 435C822AAA;
-        Tue, 14 Jul 2020 18:47:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDC0E22B3B;
+        Tue, 14 Jul 2020 18:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752449;
-        bh=ssamkp596EXbZQHlpbDnTR2J3XrIK6VqKSQHgPFMpJ4=;
+        s=default; t=1594752718;
+        bh=I70nf84rWZrSCLQ2NFeB75EIdPZPnGNrLbNIid3wd1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhVfoKtkIKGjY42doq9Veu9KX4x6tG49c5lZgqP/vs4GV7asYAl2vemRIj6YT/tsF
-         MaU861Ej4s5g5zRQj1KT2EYBMzInL8nH3i6CbFdXe6Rq3YXPtaevCPA5GfdEMTSQgi
-         RyqUcI3lI1g+RGc+aPcOUr9CdpLN4AYKy802TKbo=
+        b=n/dkTnwpe40p6KDVBXvCr4DjHEBy+1swiDschdbHXB+bmqFarXBzOSg2CQlmV0SDB
+         nRNQjd7IosL3sgAWHQNwFf0AyZvb7O7RXzcWNpTCOXsaKWC6IvS0dqavyJ7B5pffn5
+         KWZGSs2GBi7pCm8/vcmD1h1zaDmMPH9hptx/NQaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.19 46/58] kallsyms: Refactor kallsyms_show_value() to take cred
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Kailang Yang <kailang@realtek.com>,
+        Vincent Bernat <vincent@bernat.ch>,
+        Even Brenden <evenbrenden@gmail.com>,
+        Benjamin Poirier <benjamin.poirier@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 076/109] ALSA: hda/realtek - Fix Lenovo Thinkpad X1 Carbon 7th quirk subdevice id
 Date:   Tue, 14 Jul 2020 20:44:19 +0200
-Message-Id: <20200714184058.446415796@linuxfoundation.org>
+Message-Id: <20200714184109.182219719@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,142 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Benjamin Poirier <benjamin.poirier@gmail.com>
 
-commit 160251842cd35a75edfb0a1d76afa3eb674ff40a upstream.
+commit 9774dc218bb628974dcbc76412f970e9258e5f27 upstream.
 
-In order to perform future tests against the cred saved during open(),
-switch kallsyms_show_value() to operate on a cred, and have all current
-callers pass current_cred(). This makes it very obvious where callers
-are checking the wrong credential in their "read" contexts. These will
-be fixed in the coming patches.
+1)
+In snd_hda_pick_fixup(), quirks are first matched by PCI SSID and then, if
+there is no match, by codec SSID. The Lenovo "ThinkPad X1 Carbon 7th" has
+an audio chip with PCI SSID 0x2292 and codec SSID 0x2293[1]. Therefore, fix
+the quirk meant for that device to match on .subdevice == 0x2292.
 
-Additionally switch return value to bool, since it is always used as a
-direct permission check, not a 0-on-success, negative-on-error style
-function return.
+2)
+The "Thinkpad X1 Yoga 7th" does not exist. The companion product to the
+Carbon 7th is the Yoga 4th. That device has an audio chip with PCI SSID
+0x2292 and codec SSID 0x2292[2]. Given the behavior of
+snd_hda_pick_fixup(), it is not possible to have a separate quirk for the
+Yoga based on SSID. Therefore, merge the quirks meant for the Carbon and
+Yoga. This preserves the current behavior for the Yoga.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+[1] This is the case on my own machine and can also be checked here
+https://github.com/linuxhw/LsPCI/tree/master/Notebook/Lenovo/ThinkPad
+https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3225701
+[2]
+https://github.com/linuxhw/LsPCI/tree/master/Convertible/Lenovo/ThinkPad
+https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3176355
+
+Fixes: d2cd795c4ece ("ALSA: hda - fixup for the bass speaker on Lenovo Carbon X1 7th gen")
+Fixes: 54a6a7dc107d ("ALSA: hda/realtek - Add quirk for the bass speaker on Lenovo Yoga X1 7th gen")
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Kailang Yang <kailang@realtek.com>
+Tested-by: Vincent Bernat <vincent@bernat.ch>
+Tested-by: Even Brenden <evenbrenden@gmail.com>
+Signed-off-by: Benjamin Poirier <benjamin.poirier@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200703080005.8942-2-benjamin.poirier@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/filter.h   |    2 +-
- include/linux/kallsyms.h |    5 +++--
- kernel/kallsyms.c        |   17 +++++++++++------
- kernel/kprobes.c         |    4 ++--
- kernel/module.c          |    2 +-
- 5 files changed, 18 insertions(+), 12 deletions(-)
+ sound/pci/hda/patch_realtek.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -757,7 +757,7 @@ static inline bool bpf_dump_raw_ok(void)
- 	/* Reconstruction of call-sites is dependent on kallsyms,
- 	 * thus make dump the same restriction.
- 	 */
--	return kallsyms_show_value() == 1;
-+	return kallsyms_show_value(current_cred());
- }
- 
- struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
---- a/include/linux/kallsyms.h
-+++ b/include/linux/kallsyms.h
-@@ -18,6 +18,7 @@
- #define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s]") + (KSYM_NAME_LEN - 1) + \
- 			 2*(BITS_PER_LONG*3/10) + (MODULE_NAME_LEN - 1) + 1)
- 
-+struct cred;
- struct module;
- 
- static inline int is_kernel_inittext(unsigned long addr)
-@@ -98,7 +99,7 @@ int lookup_symbol_name(unsigned long add
- int lookup_symbol_attrs(unsigned long addr, unsigned long *size, unsigned long *offset, char *modname, char *name);
- 
- /* How and when do we show kallsyms values? */
--extern int kallsyms_show_value(void);
-+extern bool kallsyms_show_value(const struct cred *cred);
- 
- #else /* !CONFIG_KALLSYMS */
- 
-@@ -158,7 +159,7 @@ static inline int lookup_symbol_attrs(un
- 	return -ERANGE;
- }
- 
--static inline int kallsyms_show_value(void)
-+static inline bool kallsyms_show_value(const struct cred *cred)
- {
- 	return false;
- }
---- a/kernel/kallsyms.c
-+++ b/kernel/kallsyms.c
-@@ -644,19 +644,20 @@ static inline int kallsyms_for_perf(void
-  * Otherwise, require CAP_SYSLOG (assuming kptr_restrict isn't set to
-  * block even that).
-  */
--int kallsyms_show_value(void)
-+bool kallsyms_show_value(const struct cred *cred)
- {
- 	switch (kptr_restrict) {
- 	case 0:
- 		if (kallsyms_for_perf())
--			return 1;
-+			return true;
- 	/* fallthrough */
- 	case 1:
--		if (has_capability_noaudit(current, CAP_SYSLOG))
--			return 1;
-+		if (security_capable(cred, &init_user_ns, CAP_SYSLOG,
-+				     CAP_OPT_NOAUDIT) == 0)
-+			return true;
- 	/* fallthrough */
- 	default:
--		return 0;
-+		return false;
- 	}
- }
- 
-@@ -673,7 +674,11 @@ static int kallsyms_open(struct inode *i
- 		return -ENOMEM;
- 	reset_iter(iter, 0);
- 
--	iter->show_value = kallsyms_show_value();
-+	/*
-+	 * Instead of checking this on every s_show() call, cache
-+	 * the result here at open time.
-+	 */
-+	iter->show_value = kallsyms_show_value(file->f_cred);
- 	return 0;
- }
- 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2334,7 +2334,7 @@ static void report_probe(struct seq_file
- 	else
- 		kprobe_type = "k";
- 
--	if (!kallsyms_show_value())
-+	if (!kallsyms_show_value(current_cred()))
- 		addr = NULL;
- 
- 	if (sym)
-@@ -2435,7 +2435,7 @@ static int kprobe_blacklist_seq_show(str
- 	 * If /proc/kallsyms is not showing kernel address, we won't
- 	 * show them here either.
- 	 */
--	if (!kallsyms_show_value())
-+	if (!kallsyms_show_value(current_cred()))
- 		seq_printf(m, "0x%px-0x%px\t%ps\n", NULL, NULL,
- 			   (void *)ent->start_addr);
- 	else
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -4258,7 +4258,7 @@ static int modules_open(struct inode *in
- 
- 	if (!err) {
- 		struct seq_file *m = file->private_data;
--		m->private = kallsyms_show_value() ? NULL : (void *)8ul;
-+		m->private = kallsyms_show_value(current_cred()) ? NULL : (void *)8ul;
- 	}
- 
- 	return err;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7536,8 +7536,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x224c, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x224d, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x225d, "Thinkpad T480", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+-	SND_PCI_QUIRK(0x17aa, 0x2292, "Thinkpad X1 Yoga 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+-	SND_PCI_QUIRK(0x17aa, 0x2293, "Thinkpad X1 Carbon 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
++	SND_PCI_QUIRK(0x17aa, 0x2292, "Thinkpad X1 Carbon 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+ 	SND_PCI_QUIRK(0x17aa, 0x22be, "Thinkpad X1 Carbon 8th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+ 	SND_PCI_QUIRK(0x17aa, 0x30bb, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
+ 	SND_PCI_QUIRK(0x17aa, 0x30e2, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
 
 
