@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 178CA21FA45
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519E121F9D4
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729912AbgGNSvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47462 "EHLO mail.kernel.org"
+        id S1729659AbgGNSrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730370AbgGNSvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:07 -0400
+        id S1729652AbgGNSq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:46:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFFC4208C3;
-        Tue, 14 Jul 2020 18:51:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6026322AAD;
+        Tue, 14 Jul 2020 18:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752666;
-        bh=Ig9SJkoqrePGD1i2jyWyoSl7rbTRe2ntMfMgdb8a0ns=;
+        s=default; t=1594752418;
+        bh=xZrHt63A966fvbEgcorxDd/tiuYihsmKfqDkPZ2lMV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJOA3Vu52+uAr9yp1WaP3ip3aWEyP281Kn+LnqINfUHrY7rNPAmYCi2qW6IB/olDU
-         QL/aFekoqu4SrJGJejVs8ANMrGg7JY3qiyUr2jCICXUYIs4bsnqtaSXtpnhsRfkv24
-         9EtUjpsnclBB6uJioS6xUHvRZq0rSyAFt92W7BGM=
+        b=EHs/MLXNrA7DCL9nszb2joaFucY69JMlfV+QcHnel56Ew+17cJ+foP3wjezFCCqRE
+         6aq5v0wfpCWk4yKgtRiFv8x/lrGOHsfpgD13BS7L3v6QIGhia4NfJFaA1ageAlAdqP
+         wgW591ZwUNP2ukhu1kWEkvfhVZPa+3RGM6AuBd3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Davide Caratti <dcaratti@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/109] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
-Date:   Tue, 14 Jul 2020 20:44:07 +0200
-Message-Id: <20200714184108.587458560@linuxfoundation.org>
+Subject: [PATCH 4.19 35/58] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
+Date:   Tue, 14 Jul 2020 20:44:08 +0200
+Message-Id: <20200714184057.880568665@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -113,10 +113,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-index 1046b22220a30..452be9749827a 100644
+index bba6f09279d5e..ff53e597938ad 100644
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-@@ -398,6 +398,7 @@ static void bnxt_free_vf_resources(struct bnxt *bp)
+@@ -365,6 +365,7 @@ static void bnxt_free_vf_resources(struct bnxt *bp)
  		}
  	}
  
@@ -124,7 +124,7 @@ index 1046b22220a30..452be9749827a 100644
  	kfree(bp->pf.vf);
  	bp->pf.vf = NULL;
  }
-@@ -833,7 +834,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
+@@ -750,7 +751,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
  
  	bnxt_free_vf_resources(bp);
  
