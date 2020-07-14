@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA44821FC49
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AEAE21FD02
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:13:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbgGNSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:50:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46640 "EHLO mail.kernel.org"
+        id S1729324AbgGNSqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:46:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730301AbgGNSu2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:50:28 -0400
+        id S1729312AbgGNSqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:46:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2C21207F5;
-        Tue, 14 Jul 2020 18:50:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB31B2231B;
+        Tue, 14 Jul 2020 18:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752628;
-        bh=alMXgitqfudaWLiNgIEZtpaM4OOytV1zOGA/mL7al90=;
+        s=default; t=1594752361;
+        bh=+VzMihOcflKyBhJLRK+iXixmPZ+aRhDOslFb+/ZKxFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUYumaajgOP/K/mEu5AuXepFHGT3wUPR4t1mBFbKzIBkwWzSO10ZaN88QhMg2LCKv
-         dy75KYRDuNW5Eu40Col1gGOfM7PQIl8wihoRzC4cZU8Sm5TRcgraqHzQZx4/pLa5O/
-         zd3ubAGIhxswGC2FdVtRS1KLfDnUM3nVaBVhHMGo=
+        b=kFXMzuh55rwrFjewswGicMZeRupoMDZG6c487kzO+2+nQBeoYZCUMXZgSH2y2o/kI
+         WDxu8Z1rPt42H1N98xpWmXfk6ygV0UQUgFinPMfUeg9waGMfXaZv2dgr4J3rqHkvyO
+         xWf4qAlWVN0+1UpsenE8buNMEaBQ8UUnKgwQxB1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 043/109] net: mvneta: fix use of state->speed
+Subject: [PATCH 4.19 13/58] i40e: protect ring accesses with READ- and WRITE_ONCE
 Date:   Tue, 14 Jul 2020 20:43:46 +0200
-Message-Id: <20200714184107.582661292@linuxfoundation.org>
+Message-Id: <20200714184056.800412889@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Ciara Loftus <ciara.loftus@intel.com>
 
-[ Upstream commit f2ca673d2cd5df9a76247b670e9ffd4d63682b3f ]
+[ Upstream commit d59e267912cd90b0adf33b4659050d831e746317 ]
 
-When support for short preambles was added, it incorrectly keyed its
-decision off state->speed instead of state->interface.  state->speed
-is not guaranteed to be correct for in-band modes, which can lead to
-short preambles being unexpectedly disabled.
+READ_ONCE should be used when reading rings prior to accessing the
+statistics pointer. Introduce this as well as the corresponding WRITE_ONCE
+usage when allocating and freeing the rings, to ensure protected access.
 
-Fix this by keying off the interface mode, which is the only way that
-mvneta can operate at 2.5Gbps.
-
-Fixes: da58a931f248 ("net: mvneta: Add support for 2500Mbps SGMII")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 29 ++++++++++++++-------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 9799253948281..ffdb7b113f172 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3594,7 +3594,7 @@ static void mvneta_mac_config(struct phylink_config *config, unsigned int mode,
- 	/* When at 2.5G, the link partner can send frames with shortened
- 	 * preambles.
- 	 */
--	if (state->speed == SPEED_2500)
-+	if (state->interface == PHY_INTERFACE_MODE_2500BASEX)
- 		new_ctrl4 |= MVNETA_GMAC4_SHORT_PREAMBLE_ENABLE;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 23b31b2ff5ccd..a74b01bf581e9 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -446,11 +446,15 @@ static void i40e_get_netdev_stats_struct(struct net_device *netdev,
+ 		i40e_get_netdev_stats_struct_tx(ring, stats);
  
- 	if (pp->phy_interface != state->interface) {
+ 		if (i40e_enabled_xdp_vsi(vsi)) {
+-			ring++;
++			ring = READ_ONCE(vsi->xdp_rings[i]);
++			if (!ring)
++				continue;
+ 			i40e_get_netdev_stats_struct_tx(ring, stats);
+ 		}
+ 
+-		ring++;
++		ring = READ_ONCE(vsi->rx_rings[i]);
++		if (!ring)
++			continue;
+ 		do {
+ 			start   = u64_stats_fetch_begin_irq(&ring->syncp);
+ 			packets = ring->stats.packets;
+@@ -793,6 +797,8 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
+ 	for (q = 0; q < vsi->num_queue_pairs; q++) {
+ 		/* locate Tx ring */
+ 		p = READ_ONCE(vsi->tx_rings[q]);
++		if (!p)
++			continue;
+ 
+ 		do {
+ 			start = u64_stats_fetch_begin_irq(&p->syncp);
+@@ -806,8 +812,11 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
+ 		tx_linearize += p->tx_stats.tx_linearize;
+ 		tx_force_wb += p->tx_stats.tx_force_wb;
+ 
+-		/* Rx queue is part of the same block as Tx queue */
+-		p = &p[1];
++		/* locate Rx ring */
++		p = READ_ONCE(vsi->rx_rings[q]);
++		if (!p)
++			continue;
++
+ 		do {
+ 			start = u64_stats_fetch_begin_irq(&p->syncp);
+ 			packets = p->stats.packets;
+@@ -10196,10 +10205,10 @@ static void i40e_vsi_clear_rings(struct i40e_vsi *vsi)
+ 	if (vsi->tx_rings && vsi->tx_rings[0]) {
+ 		for (i = 0; i < vsi->alloc_queue_pairs; i++) {
+ 			kfree_rcu(vsi->tx_rings[i], rcu);
+-			vsi->tx_rings[i] = NULL;
+-			vsi->rx_rings[i] = NULL;
++			WRITE_ONCE(vsi->tx_rings[i], NULL);
++			WRITE_ONCE(vsi->rx_rings[i], NULL);
+ 			if (vsi->xdp_rings)
+-				vsi->xdp_rings[i] = NULL;
++				WRITE_ONCE(vsi->xdp_rings[i], NULL);
+ 		}
+ 	}
+ }
+@@ -10233,7 +10242,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
+ 		if (vsi->back->hw_features & I40E_HW_WB_ON_ITR_CAPABLE)
+ 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
+ 		ring->itr_setting = pf->tx_itr_default;
+-		vsi->tx_rings[i] = ring++;
++		WRITE_ONCE(vsi->tx_rings[i], ring++);
+ 
+ 		if (!i40e_enabled_xdp_vsi(vsi))
+ 			goto setup_rx;
+@@ -10251,7 +10260,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
+ 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
+ 		set_ring_xdp(ring);
+ 		ring->itr_setting = pf->tx_itr_default;
+-		vsi->xdp_rings[i] = ring++;
++		WRITE_ONCE(vsi->xdp_rings[i], ring++);
+ 
+ setup_rx:
+ 		ring->queue_index = i;
+@@ -10264,7 +10273,7 @@ setup_rx:
+ 		ring->size = 0;
+ 		ring->dcb_tc = 0;
+ 		ring->itr_setting = pf->rx_itr_default;
+-		vsi->rx_rings[i] = ring;
++		WRITE_ONCE(vsi->rx_rings[i], ring);
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
