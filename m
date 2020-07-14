@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B88A321FBCE
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F356E21FCC8
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730522AbgGNSzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
+        id S1730023AbgGNSsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730020AbgGNSzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:55:55 -0400
+        id S1730015AbgGNSsw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:48:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3E8D229CA;
-        Tue, 14 Jul 2020 18:55:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C14922B2A;
+        Tue, 14 Jul 2020 18:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752954;
-        bh=7zdd0PcQ35w9v/t6v5HtqSm+Hj/p439jpivZTh3Po5w=;
+        s=default; t=1594752531;
+        bh=NbpJd0Lm+GZx1BSXzmwTJkP2fHhPnzL6+/cCHrlwfkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeA+M/JGVhMS5gv5ch5ykVyoD7zpkqpUqM9L6rfwwdcSan0JFiDpdTKMA/G4/5oHP
-         IE0oUcjlvw7TPkc5U/e6Lk4KHEj1FCXJdrHeWyhlr8mtP2yI0JBvejGiYoHNdV8H4f
-         lKX9XPZBjoBf8OafNKpMZMhYAfYS3ZPCaHHwl3qY=
+        b=XJaqcxgePFy+oDGuUrV36KMBpA2H+wGEU6ezfxT832m9flSUKbF98RA3t1gmMYoeu
+         ZKIJ7RmFLmqbvZ2HRyZi+KFnH2xhVQcojzzVxYkNOp/Hh+cJmvcFdvvlL/HugIqbgO
+         tBbpnuST0PsiceHCyUopanCl5sjUqu0oEdCNmrYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 023/166] i40e: protect ring accesses with READ- and WRITE_ONCE
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 005/109] perf/x86/rapl: Move RAPL support to common x86 code
 Date:   Tue, 14 Jul 2020 20:43:08 +0200
-Message-Id: <20200714184116.991440945@linuxfoundation.org>
+Message-Id: <20200714184105.778466736@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +43,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ciara Loftus <ciara.loftus@intel.com>
+From: Stephane Eranian <eranian@google.com>
 
-[ Upstream commit d59e267912cd90b0adf33b4659050d831e746317 ]
+[ Upstream commit fd3ae1e1587d64ef8cc8e361903d33625458073e ]
 
-READ_ONCE should be used when reading rings prior to accessing the
-statistics pointer. Introduce this as well as the corresponding WRITE_ONCE
-usage when allocating and freeing the rings, to ensure protected access.
+To prepare for support of both Intel and AMD RAPL.
 
-Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+As per the AMD PPR, Fam17h support Package RAPL counters to monitor power usage.
+The RAPL counter operates as with Intel RAPL, and as such it is beneficial
+to share the code.
+
+No change in functionality.
+
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200527224659.206129-2-eranian@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 29 ++++++++++++++-------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ arch/x86/events/Kconfig            | 6 +++---
+ arch/x86/events/Makefile           | 1 +
+ arch/x86/events/intel/Makefile     | 2 --
+ arch/x86/events/{intel => }/rapl.c | 9 ++++++---
+ 4 files changed, 10 insertions(+), 8 deletions(-)
+ rename arch/x86/events/{intel => }/rapl.c (98%)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 2a037ec244b94..80dc5fcb82db7 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -439,11 +439,15 @@ static void i40e_get_netdev_stats_struct(struct net_device *netdev,
- 		i40e_get_netdev_stats_struct_tx(ring, stats);
+diff --git a/arch/x86/events/Kconfig b/arch/x86/events/Kconfig
+index 9a7a1446cb3a0..4a809c6cbd2f5 100644
+--- a/arch/x86/events/Kconfig
++++ b/arch/x86/events/Kconfig
+@@ -10,11 +10,11 @@ config PERF_EVENTS_INTEL_UNCORE
+ 	available on NehalemEX and more modern processors.
  
- 		if (i40e_enabled_xdp_vsi(vsi)) {
--			ring++;
-+			ring = READ_ONCE(vsi->xdp_rings[i]);
-+			if (!ring)
-+				continue;
- 			i40e_get_netdev_stats_struct_tx(ring, stats);
- 		}
+ config PERF_EVENTS_INTEL_RAPL
+-	tristate "Intel rapl performance events"
+-	depends on PERF_EVENTS && CPU_SUP_INTEL && PCI
++	tristate "Intel/AMD rapl performance events"
++	depends on PERF_EVENTS && (CPU_SUP_INTEL || CPU_SUP_AMD) && PCI
+ 	default y
+ 	---help---
+-	Include support for Intel rapl performance events for power
++	Include support for Intel and AMD rapl performance events for power
+ 	monitoring on modern processors.
  
--		ring++;
-+		ring = READ_ONCE(vsi->rx_rings[i]);
-+		if (!ring)
-+			continue;
- 		do {
- 			start   = u64_stats_fetch_begin_irq(&ring->syncp);
- 			packets = ring->stats.packets;
-@@ -787,6 +791,8 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
- 	for (q = 0; q < vsi->num_queue_pairs; q++) {
- 		/* locate Tx ring */
- 		p = READ_ONCE(vsi->tx_rings[q]);
-+		if (!p)
-+			continue;
+ config PERF_EVENTS_INTEL_CSTATE
+diff --git a/arch/x86/events/Makefile b/arch/x86/events/Makefile
+index 9e07f554333fb..b418ef6878796 100644
+--- a/arch/x86/events/Makefile
++++ b/arch/x86/events/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ obj-y					+= core.o probe.o
++obj-$(PERF_EVENTS_INTEL_RAPL)		+= rapl.o
+ obj-y					+= amd/
+ obj-$(CONFIG_X86_LOCAL_APIC)            += msr.o
+ obj-$(CONFIG_CPU_SUP_INTEL)		+= intel/
+diff --git a/arch/x86/events/intel/Makefile b/arch/x86/events/intel/Makefile
+index 3468b0c1dc7c9..e67a5886336c1 100644
+--- a/arch/x86/events/intel/Makefile
++++ b/arch/x86/events/intel/Makefile
+@@ -2,8 +2,6 @@
+ obj-$(CONFIG_CPU_SUP_INTEL)		+= core.o bts.o
+ obj-$(CONFIG_CPU_SUP_INTEL)		+= ds.o knc.o
+ obj-$(CONFIG_CPU_SUP_INTEL)		+= lbr.o p4.o p6.o pt.o
+-obj-$(CONFIG_PERF_EVENTS_INTEL_RAPL)	+= intel-rapl-perf.o
+-intel-rapl-perf-objs			:= rapl.o
+ obj-$(CONFIG_PERF_EVENTS_INTEL_UNCORE)	+= intel-uncore.o
+ intel-uncore-objs			:= uncore.o uncore_nhmex.o uncore_snb.o uncore_snbep.o
+ obj-$(CONFIG_PERF_EVENTS_INTEL_CSTATE)	+= intel-cstate.o
+diff --git a/arch/x86/events/intel/rapl.c b/arch/x86/events/rapl.c
+similarity index 98%
+rename from arch/x86/events/intel/rapl.c
+rename to arch/x86/events/rapl.c
+index 5053a403e4ae0..3c222d6fdee3b 100644
+--- a/arch/x86/events/intel/rapl.c
++++ b/arch/x86/events/rapl.c
+@@ -1,11 +1,14 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Support Intel RAPL energy consumption counters
++ * Support Intel/AMD RAPL energy consumption counters
+  * Copyright (C) 2013 Google, Inc., Stephane Eranian
+  *
+  * Intel RAPL interface is specified in the IA-32 Manual Vol3b
+  * section 14.7.1 (September 2013)
+  *
++ * AMD RAPL interface for Fam17h is described in the public PPR:
++ * https://bugzilla.kernel.org/show_bug.cgi?id=206537
++ *
+  * RAPL provides more controls than just reporting energy consumption
+  * however here we only expose the 3 energy consumption free running
+  * counters (pp0, pkg, dram).
+@@ -58,8 +61,8 @@
+ #include <linux/nospec.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
+-#include "../perf_event.h"
+-#include "../probe.h"
++#include "perf_event.h"
++#include "probe.h"
  
- 		do {
- 			start = u64_stats_fetch_begin_irq(&p->syncp);
-@@ -800,8 +806,11 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
- 		tx_linearize += p->tx_stats.tx_linearize;
- 		tx_force_wb += p->tx_stats.tx_force_wb;
+ MODULE_LICENSE("GPL");
  
--		/* Rx queue is part of the same block as Tx queue */
--		p = &p[1];
-+		/* locate Rx ring */
-+		p = READ_ONCE(vsi->rx_rings[q]);
-+		if (!p)
-+			continue;
-+
- 		do {
- 			start = u64_stats_fetch_begin_irq(&p->syncp);
- 			packets = p->stats.packets;
-@@ -10816,10 +10825,10 @@ static void i40e_vsi_clear_rings(struct i40e_vsi *vsi)
- 	if (vsi->tx_rings && vsi->tx_rings[0]) {
- 		for (i = 0; i < vsi->alloc_queue_pairs; i++) {
- 			kfree_rcu(vsi->tx_rings[i], rcu);
--			vsi->tx_rings[i] = NULL;
--			vsi->rx_rings[i] = NULL;
-+			WRITE_ONCE(vsi->tx_rings[i], NULL);
-+			WRITE_ONCE(vsi->rx_rings[i], NULL);
- 			if (vsi->xdp_rings)
--				vsi->xdp_rings[i] = NULL;
-+				WRITE_ONCE(vsi->xdp_rings[i], NULL);
- 		}
- 	}
- }
-@@ -10853,7 +10862,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
- 		if (vsi->back->hw_features & I40E_HW_WB_ON_ITR_CAPABLE)
- 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
- 		ring->itr_setting = pf->tx_itr_default;
--		vsi->tx_rings[i] = ring++;
-+		WRITE_ONCE(vsi->tx_rings[i], ring++);
- 
- 		if (!i40e_enabled_xdp_vsi(vsi))
- 			goto setup_rx;
-@@ -10871,7 +10880,7 @@ static int i40e_alloc_rings(struct i40e_vsi *vsi)
- 			ring->flags = I40E_TXR_FLAGS_WB_ON_ITR;
- 		set_ring_xdp(ring);
- 		ring->itr_setting = pf->tx_itr_default;
--		vsi->xdp_rings[i] = ring++;
-+		WRITE_ONCE(vsi->xdp_rings[i], ring++);
- 
- setup_rx:
- 		ring->queue_index = i;
-@@ -10884,7 +10893,7 @@ setup_rx:
- 		ring->size = 0;
- 		ring->dcb_tc = 0;
- 		ring->itr_setting = pf->rx_itr_default;
--		vsi->rx_rings[i] = ring;
-+		WRITE_ONCE(vsi->rx_rings[i], ring);
- 	}
- 
- 	return 0;
 -- 
 2.25.1
 
