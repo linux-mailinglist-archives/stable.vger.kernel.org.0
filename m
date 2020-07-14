@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A3121FAA1
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1015621FA01
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730197AbgGNSyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:54:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51692 "EHLO mail.kernel.org"
+        id S1729366AbgGNSse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730740AbgGNSyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:54:17 -0400
+        id S1729970AbgGNSse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:48:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0C3722BEB;
-        Tue, 14 Jul 2020 18:54:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6C3922B2B;
+        Tue, 14 Jul 2020 18:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752857;
-        bh=G+uS8SYJDr3PJrz8oRLSBFYFdFUlrst1MS89HE8KMjQ=;
+        s=default; t=1594752513;
+        bh=XQBL9NrEUkiI8wtjcCl9dHlXNWIE2G3UKZK2k4ezkRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvuRXS1sPIm6/7/cRsvwiy2HnSODQH6wopVv/vMAgozqXBii6l5/EflH9JTMqUUio
-         u0wQsEBpIDveaqXa4wxiF1xQlVDQv6PmLEhf4oML+fbkmEaYgGQuK4I/xB0UM3oLFt
-         +RcpdqzvXnFuX2LpuBRdrPcQCrMVa+IPLrSw8Qp0=
+        b=gEj1ShBQpUttUONpGEDKU0vJzRGXCq/sKbbklHDGFRxgzncuq59AjGJAjhdq2F9PT
+         DxqMtD1wqJYTBYocN2ZNy/ghDhZK6X5SOcM8/UP+VvxQrx/61L7YLpjpVsXPMOf8y1
+         ac55u9VHCNh/RI+f6ABN0ZGIvT3VANhoCXAxwvro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Jens Thoms Toerring <jt@toerring.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 012/166] gpu: host1x: Detach driver on unregister
-Date:   Tue, 14 Jul 2020 20:42:57 +0200
-Message-Id: <20200714184116.483510926@linuxfoundation.org>
+Subject: [PATCH 5.4 004/109] regmap: fix alignment issue
+Date:   Tue, 14 Jul 2020 20:42:58 +0200
+Message-Id: <20200714184105.719730471@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,256 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Jens Thoms Toerring <jt@toerring.de>
 
-[ Upstream commit d9a0a05bf8c76e6dc79230669a8b5d685b168c30 ]
+[ Upstream commit 53d860952c8215cf9ae1ea33409c8cb71ad6ad3d ]
 
-Currently when a host1x device driver is unregistered, it is not
-detached from the host1x controller, which means that the device
-will stay around and when the driver is registered again, it may
-bind to the old, stale device rather than the new one that was
-created from scratch upon driver registration. This in turn can
-cause various weird crashes within the driver core because it is
-confronted with a device that was already deleted.
+The assembly and disassembly of data to be sent to or received from
+a device invoke functions regmap_format_XX() and regmap_parse_XX()
+that extract or insert data items from or into a buffer, using
+assignments. In some cases the functions are called with a buffer
+pointer with an odd address. On architectures with strict alignment
+requirements this can result in a kernel crash. The assignments
+have been replaced by functions that take alignment into account.
 
-Fix this by detaching the driver from the host1x controller when
-it is unregistered. This ensures that the deleted device also is
-no longer present in the device list that drivers will bind to.
-
-Reported-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Jens Thoms Toerring <jt@toerring.de>
+Link: https://lore.kernel.org/r/20200531095300.GA27570@toerring.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/bus.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/base/regmap/regmap.c | 100 ++++++++++++++++-------------------
+ 1 file changed, 46 insertions(+), 54 deletions(-)
 
-diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
-index 6a995db51d6d8..e201f62d62c0c 100644
---- a/drivers/gpu/host1x/bus.c
-+++ b/drivers/gpu/host1x/bus.c
-@@ -686,8 +686,17 @@ EXPORT_SYMBOL(host1x_driver_register_full);
-  */
- void host1x_driver_unregister(struct host1x_driver *driver)
- {
-+	struct host1x *host1x;
-+
- 	driver_unregister(&driver->driver);
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 508bbd6ea4396..320d23de02c29 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -17,6 +17,7 @@
+ #include <linux/delay.h>
+ #include <linux/log2.h>
+ #include <linux/hwspinlock.h>
++#include <asm/unaligned.h>
  
-+	mutex_lock(&devices_lock);
+ #define CREATE_TRACE_POINTS
+ #include "trace.h"
+@@ -249,22 +250,20 @@ static void regmap_format_8(void *buf, unsigned int val, unsigned int shift)
+ 
+ static void regmap_format_16_be(void *buf, unsigned int val, unsigned int shift)
+ {
+-	__be16 *b = buf;
+-
+-	b[0] = cpu_to_be16(val << shift);
++	put_unaligned_be16(val << shift, buf);
+ }
+ 
+ static void regmap_format_16_le(void *buf, unsigned int val, unsigned int shift)
+ {
+-	__le16 *b = buf;
+-
+-	b[0] = cpu_to_le16(val << shift);
++	put_unaligned_le16(val << shift, buf);
+ }
+ 
+ static void regmap_format_16_native(void *buf, unsigned int val,
+ 				    unsigned int shift)
+ {
+-	*(u16 *)buf = val << shift;
++	u16 v = val << shift;
 +
-+	list_for_each_entry(host1x, &devices, list)
-+		host1x_detach_driver(host1x, driver);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static void regmap_format_24(void *buf, unsigned int val, unsigned int shift)
+@@ -280,43 +279,39 @@ static void regmap_format_24(void *buf, unsigned int val, unsigned int shift)
+ 
+ static void regmap_format_32_be(void *buf, unsigned int val, unsigned int shift)
+ {
+-	__be32 *b = buf;
+-
+-	b[0] = cpu_to_be32(val << shift);
++	put_unaligned_be32(val << shift, buf);
+ }
+ 
+ static void regmap_format_32_le(void *buf, unsigned int val, unsigned int shift)
+ {
+-	__le32 *b = buf;
+-
+-	b[0] = cpu_to_le32(val << shift);
++	put_unaligned_le32(val << shift, buf);
+ }
+ 
+ static void regmap_format_32_native(void *buf, unsigned int val,
+ 				    unsigned int shift)
+ {
+-	*(u32 *)buf = val << shift;
++	u32 v = val << shift;
 +
-+	mutex_unlock(&devices_lock);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ #ifdef CONFIG_64BIT
+ static void regmap_format_64_be(void *buf, unsigned int val, unsigned int shift)
+ {
+-	__be64 *b = buf;
+-
+-	b[0] = cpu_to_be64((u64)val << shift);
++	put_unaligned_be64((u64) val << shift, buf);
+ }
+ 
+ static void regmap_format_64_le(void *buf, unsigned int val, unsigned int shift)
+ {
+-	__le64 *b = buf;
+-
+-	b[0] = cpu_to_le64((u64)val << shift);
++	put_unaligned_le64((u64) val << shift, buf);
+ }
+ 
+ static void regmap_format_64_native(void *buf, unsigned int val,
+ 				    unsigned int shift)
+ {
+-	*(u64 *)buf = (u64)val << shift;
++	u64 v = (u64) val << shift;
 +
- 	mutex_lock(&drivers_lock);
- 	list_del_init(&driver->list);
- 	mutex_unlock(&drivers_lock);
++	memcpy(buf, &v, sizeof(v));
+ }
+ #endif
+ 
+@@ -333,35 +328,34 @@ static unsigned int regmap_parse_8(const void *buf)
+ 
+ static unsigned int regmap_parse_16_be(const void *buf)
+ {
+-	const __be16 *b = buf;
+-
+-	return be16_to_cpu(b[0]);
++	return get_unaligned_be16(buf);
+ }
+ 
+ static unsigned int regmap_parse_16_le(const void *buf)
+ {
+-	const __le16 *b = buf;
+-
+-	return le16_to_cpu(b[0]);
++	return get_unaligned_le16(buf);
+ }
+ 
+ static void regmap_parse_16_be_inplace(void *buf)
+ {
+-	__be16 *b = buf;
++	u16 v = get_unaligned_be16(buf);
+ 
+-	b[0] = be16_to_cpu(b[0]);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static void regmap_parse_16_le_inplace(void *buf)
+ {
+-	__le16 *b = buf;
++	u16 v = get_unaligned_le16(buf);
+ 
+-	b[0] = le16_to_cpu(b[0]);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static unsigned int regmap_parse_16_native(const void *buf)
+ {
+-	return *(u16 *)buf;
++	u16 v;
++
++	memcpy(&v, buf, sizeof(v));
++	return v;
+ }
+ 
+ static unsigned int regmap_parse_24(const void *buf)
+@@ -376,69 +370,67 @@ static unsigned int regmap_parse_24(const void *buf)
+ 
+ static unsigned int regmap_parse_32_be(const void *buf)
+ {
+-	const __be32 *b = buf;
+-
+-	return be32_to_cpu(b[0]);
++	return get_unaligned_be32(buf);
+ }
+ 
+ static unsigned int regmap_parse_32_le(const void *buf)
+ {
+-	const __le32 *b = buf;
+-
+-	return le32_to_cpu(b[0]);
++	return get_unaligned_le32(buf);
+ }
+ 
+ static void regmap_parse_32_be_inplace(void *buf)
+ {
+-	__be32 *b = buf;
++	u32 v = get_unaligned_be32(buf);
+ 
+-	b[0] = be32_to_cpu(b[0]);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static void regmap_parse_32_le_inplace(void *buf)
+ {
+-	__le32 *b = buf;
++	u32 v = get_unaligned_le32(buf);
+ 
+-	b[0] = le32_to_cpu(b[0]);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static unsigned int regmap_parse_32_native(const void *buf)
+ {
+-	return *(u32 *)buf;
++	u32 v;
++
++	memcpy(&v, buf, sizeof(v));
++	return v;
+ }
+ 
+ #ifdef CONFIG_64BIT
+ static unsigned int regmap_parse_64_be(const void *buf)
+ {
+-	const __be64 *b = buf;
+-
+-	return be64_to_cpu(b[0]);
++	return get_unaligned_be64(buf);
+ }
+ 
+ static unsigned int regmap_parse_64_le(const void *buf)
+ {
+-	const __le64 *b = buf;
+-
+-	return le64_to_cpu(b[0]);
++	return get_unaligned_le64(buf);
+ }
+ 
+ static void regmap_parse_64_be_inplace(void *buf)
+ {
+-	__be64 *b = buf;
++	u64 v =  get_unaligned_be64(buf);
+ 
+-	b[0] = be64_to_cpu(b[0]);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static void regmap_parse_64_le_inplace(void *buf)
+ {
+-	__le64 *b = buf;
++	u64 v = get_unaligned_le64(buf);
+ 
+-	b[0] = le64_to_cpu(b[0]);
++	memcpy(buf, &v, sizeof(v));
+ }
+ 
+ static unsigned int regmap_parse_64_native(const void *buf)
+ {
+-	return *(u64 *)buf;
++	u64 v;
++
++	memcpy(&v, buf, sizeof(v));
++	return v;
+ }
+ #endif
+ 
 -- 
 2.25.1
 
