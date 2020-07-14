@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC6F21FB3D
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD14921FB1F
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729441AbgGNTAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:00:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58746 "EHLO mail.kernel.org"
+        id S1730911AbgGNS67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730432AbgGNTAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 15:00:02 -0400
+        id S1731267AbgGNS66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:58:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA17722507;
-        Tue, 14 Jul 2020 19:00:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81351229CA;
+        Tue, 14 Jul 2020 18:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753201;
-        bh=k5W7uSQ0DgcsqwPBsi79a47RJXimzq06OvHjsTY60X0=;
+        s=default; t=1594753137;
+        bh=FTLyPPbaj+NZWuuBlx8MpnRDJYumexhmm8zyT7FeYBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPr2rvBj7vKtz8FscKjBZgE/oOYKO09oC+KF4kPJrtiwiSESLuik5LTqPbZY9P68k
-         b6xQVT7WFpI+fF3plg3POKsK1xLknFna3yO86eGkY5Yl5X4+Hss/nFEmmayclPRyG2
-         QP+/oiDHkoSgB/JECskGWA+Y8dQMIYyiDLwWfnW4=
+        b=N57RK6DXOBYcFy8T32WkfwGZMBgF2mdsWxnpk4Ijg7rdTtg6l5Jm/YArj2rpJp7gM
+         wO0/LIUCacW9q+8n8kbnMt3lnWmXVZX1Cc7t6WXS/1MP7/2tEWFhPexctJYZd2Y2VF
+         xl3BcgcZItEVVd+CW/vD1ysE1r2sYNWBCKuOK6cU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.7 128/166] kallsyms: Refactor kallsyms_show_value() to take cred
-Date:   Tue, 14 Jul 2020 20:44:53 +0200
-Message-Id: <20200714184121.962592534@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.7 134/166] btrfs: fix fatal extent_buffer readahead vs releasepage race
+Date:   Tue, 14 Jul 2020 20:44:59 +0200
+Message-Id: <20200714184122.245660939@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -42,142 +43,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Boris Burkov <boris@bur.io>
 
-commit 160251842cd35a75edfb0a1d76afa3eb674ff40a upstream.
+commit 6bf9cd2eed9aee6d742bb9296c994a91f5316949 upstream.
 
-In order to perform future tests against the cred saved during open(),
-switch kallsyms_show_value() to operate on a cred, and have all current
-callers pass current_cred(). This makes it very obvious where callers
-are checking the wrong credential in their "read" contexts. These will
-be fixed in the coming patches.
+Under somewhat convoluted conditions, it is possible to attempt to
+release an extent_buffer that is under io, which triggers a BUG_ON in
+btrfs_release_extent_buffer_pages.
 
-Additionally switch return value to bool, since it is always used as a
-direct permission check, not a 0-on-success, negative-on-error style
-function return.
+This relies on a few different factors. First, extent_buffer reads done
+as readahead for searching use WAIT_NONE, so they free the local extent
+buffer reference while the io is outstanding. However, they should still
+be protected by TREE_REF. However, if the system is doing signficant
+reclaim, and simultaneously heavily accessing the extent_buffers, it is
+possible for releasepage to race with two concurrent readahead attempts
+in a way that leaves TREE_REF unset when the readahead extent buffer is
+released.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Essentially, if two tasks race to allocate a new extent_buffer, but the
+winner who attempts the first io is rebuffed by a page being locked
+(likely by the reclaim itself) then the loser will still go ahead with
+issuing the readahead. The loser's call to find_extent_buffer must also
+race with the reclaim task reading the extent_buffer's refcount as 1 in
+a way that allows the reclaim to re-clear the TREE_REF checked by
+find_extent_buffer.
+
+The following represents an example execution demonstrating the race:
+
+            CPU0                                                         CPU1                                           CPU2
+reada_for_search                                            reada_for_search
+  readahead_tree_block                                        readahead_tree_block
+    find_create_tree_block                                      find_create_tree_block
+      alloc_extent_buffer                                         alloc_extent_buffer
+                                                                  find_extent_buffer // not found
+                                                                  allocates eb
+                                                                  lock pages
+                                                                  associate pages to eb
+                                                                  insert eb into radix tree
+                                                                  set TREE_REF, refs == 2
+                                                                  unlock pages
+                                                              read_extent_buffer_pages // WAIT_NONE
+                                                                not uptodate (brand new eb)
+                                                                                                            lock_page
+                                                                if !trylock_page
+                                                                  goto unlock_exit // not an error
+                                                              free_extent_buffer
+                                                                release_extent_buffer
+                                                                  atomic_dec_and_test refs to 1
+        find_extent_buffer // found
+                                                                                                            try_release_extent_buffer
+                                                                                                              take refs_lock
+                                                                                                              reads refs == 1; no io
+          atomic_inc_not_zero refs to 2
+          mark_buffer_accessed
+            check_buffer_tree_ref
+              // not STALE, won't take refs_lock
+              refs == 2; TREE_REF set // no action
+    read_extent_buffer_pages // WAIT_NONE
+                                                                                                              clear TREE_REF
+                                                                                                              release_extent_buffer
+                                                                                                                atomic_dec_and_test refs to 1
+                                                                                                                unlock_page
+      still not uptodate (CPU1 read failed on trylock_page)
+      locks pages
+      set io_pages > 0
+      submit io
+      return
+    free_extent_buffer
+      release_extent_buffer
+        dec refs to 0
+        delete from radix tree
+        btrfs_release_extent_buffer_pages
+          BUG_ON(io_pages > 0)!!!
+
+We observe this at a very low rate in production and were also able to
+reproduce it in a test environment by introducing some spurious delays
+and by introducing probabilistic trylock_page failures.
+
+To fix it, we apply check_tree_ref at a point where it could not
+possibly be unset by a competing task: after io_pages has been
+incremented. All the codepaths that clear TREE_REF check for io, so they
+would not be able to clear it after this point until the io is done.
+
+Stack trace, for reference:
+[1417839.424739] ------------[ cut here ]------------
+[1417839.435328] kernel BUG at fs/btrfs/extent_io.c:4841!
+[1417839.447024] invalid opcode: 0000 [#1] SMP
+[1417839.502972] RIP: 0010:btrfs_release_extent_buffer_pages+0x20/0x1f0
+[1417839.517008] Code: ed e9 ...
+[1417839.558895] RSP: 0018:ffffc90020bcf798 EFLAGS: 00010202
+[1417839.570816] RAX: 0000000000000002 RBX: ffff888102d6def0 RCX: 0000000000000028
+[1417839.586962] RDX: 0000000000000002 RSI: ffff8887f0296482 RDI: ffff888102d6def0
+[1417839.603108] RBP: ffff88885664a000 R08: 0000000000000046 R09: 0000000000000238
+[1417839.619255] R10: 0000000000000028 R11: ffff88885664af68 R12: 0000000000000000
+[1417839.635402] R13: 0000000000000000 R14: ffff88875f573ad0 R15: ffff888797aafd90
+[1417839.651549] FS:  00007f5a844fa700(0000) GS:ffff88885f680000(0000) knlGS:0000000000000000
+[1417839.669810] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[1417839.682887] CR2: 00007f7884541fe0 CR3: 000000049f609002 CR4: 00000000003606e0
+[1417839.699037] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[1417839.715187] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[1417839.731320] Call Trace:
+[1417839.737103]  release_extent_buffer+0x39/0x90
+[1417839.746913]  read_block_for_search.isra.38+0x2a3/0x370
+[1417839.758645]  btrfs_search_slot+0x260/0x9b0
+[1417839.768054]  btrfs_lookup_file_extent+0x4a/0x70
+[1417839.778427]  btrfs_get_extent+0x15f/0x830
+[1417839.787665]  ? submit_extent_page+0xc4/0x1c0
+[1417839.797474]  ? __do_readpage+0x299/0x7a0
+[1417839.806515]  __do_readpage+0x33b/0x7a0
+[1417839.815171]  ? btrfs_releasepage+0x70/0x70
+[1417839.824597]  extent_readpages+0x28f/0x400
+[1417839.833836]  read_pages+0x6a/0x1c0
+[1417839.841729]  ? startup_64+0x2/0x30
+[1417839.849624]  __do_page_cache_readahead+0x13c/0x1a0
+[1417839.860590]  filemap_fault+0x6c7/0x990
+[1417839.869252]  ? xas_load+0x8/0x80
+[1417839.876756]  ? xas_find+0x150/0x190
+[1417839.884839]  ? filemap_map_pages+0x295/0x3b0
+[1417839.894652]  __do_fault+0x32/0x110
+[1417839.902540]  __handle_mm_fault+0xacd/0x1000
+[1417839.912156]  handle_mm_fault+0xaa/0x1c0
+[1417839.921004]  __do_page_fault+0x242/0x4b0
+[1417839.930044]  ? page_fault+0x8/0x30
+[1417839.937933]  page_fault+0x1e/0x30
+[1417839.945631] RIP: 0033:0x33c4bae
+[1417839.952927] Code: Bad RIP value.
+[1417839.960411] RSP: 002b:00007f5a844f7350 EFLAGS: 00010206
+[1417839.972331] RAX: 000000000000006e RBX: 1614b3ff6a50398a RCX: 0000000000000000
+[1417839.988477] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000002
+[1417840.004626] RBP: 00007f5a844f7420 R08: 000000000000006e R09: 00007f5a94aeccb8
+[1417840.020784] R10: 00007f5a844f7350 R11: 0000000000000000 R12: 00007f5a94aecc79
+[1417840.036932] R13: 00007f5a94aecc78 R14: 00007f5a94aecc90 R15: 00007f5a94aecc40
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Boris Burkov <boris@bur.io>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/filter.h   |    2 +-
- include/linux/kallsyms.h |    5 +++--
- kernel/kallsyms.c        |   17 +++++++++++------
- kernel/kprobes.c         |    4 ++--
- kernel/module.c          |    2 +-
- 5 files changed, 18 insertions(+), 12 deletions(-)
+ fs/btrfs/extent_io.c |   40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -893,7 +893,7 @@ static inline bool bpf_dump_raw_ok(void)
- 	/* Reconstruction of call-sites is dependent on kallsyms,
- 	 * thus make dump the same restriction.
- 	 */
--	return kallsyms_show_value() == 1;
-+	return kallsyms_show_value(current_cred());
- }
- 
- struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
---- a/include/linux/kallsyms.h
-+++ b/include/linux/kallsyms.h
-@@ -18,6 +18,7 @@
- #define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s]") + (KSYM_NAME_LEN - 1) + \
- 			 2*(BITS_PER_LONG*3/10) + (MODULE_NAME_LEN - 1) + 1)
- 
-+struct cred;
- struct module;
- 
- static inline int is_kernel_inittext(unsigned long addr)
-@@ -98,7 +99,7 @@ int lookup_symbol_name(unsigned long add
- int lookup_symbol_attrs(unsigned long addr, unsigned long *size, unsigned long *offset, char *modname, char *name);
- 
- /* How and when do we show kallsyms values? */
--extern int kallsyms_show_value(void);
-+extern bool kallsyms_show_value(const struct cred *cred);
- 
- #else /* !CONFIG_KALLSYMS */
- 
-@@ -158,7 +159,7 @@ static inline int lookup_symbol_attrs(un
- 	return -ERANGE;
- }
- 
--static inline int kallsyms_show_value(void)
-+static inline bool kallsyms_show_value(const struct cred *cred)
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -5063,25 +5063,28 @@ struct extent_buffer *alloc_dummy_extent
+ static void check_buffer_tree_ref(struct extent_buffer *eb)
  {
- 	return false;
- }
---- a/kernel/kallsyms.c
-+++ b/kernel/kallsyms.c
-@@ -644,19 +644,20 @@ static inline int kallsyms_for_perf(void
-  * Otherwise, require CAP_SYSLOG (assuming kptr_restrict isn't set to
-  * block even that).
-  */
--int kallsyms_show_value(void)
-+bool kallsyms_show_value(const struct cred *cred)
- {
- 	switch (kptr_restrict) {
- 	case 0:
- 		if (kallsyms_for_perf())
--			return 1;
-+			return true;
- 	/* fallthrough */
- 	case 1:
--		if (has_capability_noaudit(current, CAP_SYSLOG))
--			return 1;
-+		if (security_capable(cred, &init_user_ns, CAP_SYSLOG,
-+				     CAP_OPT_NOAUDIT) == 0)
-+			return true;
- 	/* fallthrough */
- 	default:
--		return 0;
-+		return false;
- 	}
- }
- 
-@@ -673,7 +674,11 @@ static int kallsyms_open(struct inode *i
- 		return -ENOMEM;
- 	reset_iter(iter, 0);
- 
--	iter->show_value = kallsyms_show_value();
+ 	int refs;
+-	/* the ref bit is tricky.  We have to make sure it is set
+-	 * if we have the buffer dirty.   Otherwise the
+-	 * code to free a buffer can end up dropping a dirty
+-	 * page
 +	/*
-+	 * Instead of checking this on every s_show() call, cache
-+	 * the result here at open time.
-+	 */
-+	iter->show_value = kallsyms_show_value(file->f_cred);
- 	return 0;
- }
- 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2362,7 +2362,7 @@ static void report_probe(struct seq_file
- 	else
- 		kprobe_type = "k";
- 
--	if (!kallsyms_show_value())
-+	if (!kallsyms_show_value(current_cred()))
- 		addr = NULL;
- 
- 	if (sym)
-@@ -2463,7 +2463,7 @@ static int kprobe_blacklist_seq_show(str
- 	 * If /proc/kallsyms is not showing kernel address, we won't
- 	 * show them here either.
++	 * The TREE_REF bit is first set when the extent_buffer is added
++	 * to the radix tree. It is also reset, if unset, when a new reference
++	 * is created by find_extent_buffer.
+ 	 *
+-	 * Once the ref bit is set, it won't go away while the
+-	 * buffer is dirty or in writeback, and it also won't
+-	 * go away while we have the reference count on the
+-	 * eb bumped.
++	 * It is only cleared in two cases: freeing the last non-tree
++	 * reference to the extent_buffer when its STALE bit is set or
++	 * calling releasepage when the tree reference is the only reference.
+ 	 *
+-	 * We can't just set the ref bit without bumping the
+-	 * ref on the eb because free_extent_buffer might
+-	 * see the ref bit and try to clear it.  If this happens
+-	 * free_extent_buffer might end up dropping our original
+-	 * ref by mistake and freeing the page before we are able
+-	 * to add one more ref.
++	 * In both cases, care is taken to ensure that the extent_buffer's
++	 * pages are not under io. However, releasepage can be concurrently
++	 * called with creating new references, which is prone to race
++	 * conditions between the calls to check_buffer_tree_ref in those
++	 * codepaths and clearing TREE_REF in try_release_extent_buffer.
+ 	 *
+-	 * So bump the ref count first, then set the bit.  If someone
+-	 * beat us to it, drop the ref we added.
++	 * The actual lifetime of the extent_buffer in the radix tree is
++	 * adequately protected by the refcount, but the TREE_REF bit and
++	 * its corresponding reference are not. To protect against this
++	 * class of races, we call check_buffer_tree_ref from the codepaths
++	 * which trigger io after they set eb->io_pages. Note that once io is
++	 * initiated, TREE_REF can no longer be cleared, so that is the
++	 * moment at which any such race is best fixed.
  	 */
--	if (!kallsyms_show_value())
-+	if (!kallsyms_show_value(current_cred()))
- 		seq_printf(m, "0x%px-0x%px\t%ps\n", NULL, NULL,
- 			   (void *)ent->start_addr);
- 	else
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -4348,7 +4348,7 @@ static int modules_open(struct inode *in
+ 	refs = atomic_read(&eb->refs);
+ 	if (refs >= 2 && test_bit(EXTENT_BUFFER_TREE_REF, &eb->bflags))
+@@ -5532,6 +5535,11 @@ int read_extent_buffer_pages(struct exte
+ 	clear_bit(EXTENT_BUFFER_READ_ERR, &eb->bflags);
+ 	eb->read_mirror = 0;
+ 	atomic_set(&eb->io_pages, num_reads);
++	/*
++	 * It is possible for releasepage to clear the TREE_REF bit before we
++	 * set io_pages. See check_buffer_tree_ref for a more detailed comment.
++	 */
++	check_buffer_tree_ref(eb);
+ 	for (i = 0; i < num_pages; i++) {
+ 		page = eb->pages[i];
  
- 	if (!err) {
- 		struct seq_file *m = file->private_data;
--		m->private = kallsyms_show_value() ? NULL : (void *)8ul;
-+		m->private = kallsyms_show_value(current_cred()) ? NULL : (void *)8ul;
- 	}
- 
- 	return err;
 
 
