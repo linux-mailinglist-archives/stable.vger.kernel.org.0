@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B01821FAB9
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0098E21FABB
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730430AbgGNSzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:55:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52704 "EHLO mail.kernel.org"
+        id S1730840AbgGNSzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730433AbgGNSzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:55:06 -0400
+        id S1730833AbgGNSzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:55:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9680222BEF;
-        Tue, 14 Jul 2020 18:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04D2222B45;
+        Tue, 14 Jul 2020 18:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752906;
-        bh=YhQ2ixbfhp4SiAICf1XQbHb7sW6dkMUmpy8IK3GkMpc=;
+        s=default; t=1594752908;
+        bh=JWG7+TRaw8KM0rnneWTrc86o5aSOOmpb0FdLuyLoM4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqFoO1r5mk25sNEPvIhM4E9yk5IvIbMmW2gLXztlWz8bHNGIRo8UekHAsnYHirh2k
-         Iq3gmB4Ne0vP0O0COiYCqYwhbMointaitng65yB2rOx3QsXewy9TL2ptg8mR0azgUZ
-         zeVizL66VWII0iNGUXczRM4L7hM6RhLZqNmZg2V8=
+        b=0f7ySXR26Hf+EUCdWC4STrXH4iMkNKqvH4Hi3NIzrJgFNmPQ98OWC2C+Vpsde3Li0
+         khdcliMnC9vyH/ReAvPhcxEPpW0xaUUg5nwAmGc0ePSp3KwwWj3pD1A2PkE98+zK7P
+         5SCuY4qGLV5Mqm4VnHls0xY6HZuSDxvBQLPvJRSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        syzbot+b8fe393f999a291a9ea6@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 045/166] net: qrtr: Fix an out of bounds read qrtr_endpoint_post()
-Date:   Tue, 14 Jul 2020 20:43:30 +0200
-Message-Id: <20200714184118.037636310@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 046/166] mtd: set master partition panic write flag
+Date:   Tue, 14 Jul 2020 20:43:31 +0200
+Message-Id: <20200714184118.087679531@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -46,53 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kamal Dasu <kdasu.kdev@gmail.com>
 
-commit 8ff41cc21714704ef0158a546c3c4d07fae2c952 upstream.
+[ Upstream commit 630e8d5507d9f55dfa98134bfcadefb6cfba4fbb ]
 
-This code assumes that the user passed in enough data for a
-qrtr_hdr_v1 or qrtr_hdr_v2 struct, but it's not necessarily true.  If
-the buffer is too small then it will read beyond the end.
+Check and set master panic write flag so that low level drivers
+can use it to take required action to ensure oops data gets written
+to assigned mtdoops device partition.
 
-Reported-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reported-by: syzbot+b8fe393f999a291a9ea6@syzkaller.appspotmail.com
-Fixes: 194ccc88297a ("net: qrtr: Support decoding incoming v2 packets")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 9f897bfdd89f ("mtd: Add flag to indicate panic_write")
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200615155134.32007-1-kdasu.kdev@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/qrtr.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/mtd/mtdcore.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -427,7 +427,7 @@ int qrtr_endpoint_post(struct qrtr_endpo
- 	unsigned int ver;
- 	size_t hdrlen;
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 29d41003d6e0d..f8317ccd8f2a6 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -1235,8 +1235,8 @@ int mtd_panic_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
+ 		return -EROFS;
+ 	if (!len)
+ 		return 0;
+-	if (!mtd->oops_panic_write)
+-		mtd->oops_panic_write = true;
++	if (!master->oops_panic_write)
++		master->oops_panic_write = true;
  
--	if (len & 3)
-+	if (len == 0 || len & 3)
- 		return -EINVAL;
- 
- 	skb = netdev_alloc_skb(NULL, len);
-@@ -441,6 +441,8 @@ int qrtr_endpoint_post(struct qrtr_endpo
- 
- 	switch (ver) {
- 	case QRTR_PROTO_VER_1:
-+		if (len < sizeof(*v1))
-+			goto err;
- 		v1 = data;
- 		hdrlen = sizeof(*v1);
- 
-@@ -454,6 +456,8 @@ int qrtr_endpoint_post(struct qrtr_endpo
- 		size = le32_to_cpu(v1->size);
- 		break;
- 	case QRTR_PROTO_VER_2:
-+		if (len < sizeof(*v2))
-+			goto err;
- 		v2 = data;
- 		hdrlen = sizeof(*v2) + v2->optlen;
- 
+ 	return master->_panic_write(master, mtd_get_master_ofs(mtd, to), len,
+ 				    retlen, buf);
+-- 
+2.25.1
+
 
 
