@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 158AE21FA47
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6A021FA48
 	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729898AbgGNSvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
+        id S1729781AbgGNSvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729904AbgGNSvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:12 -0400
+        id S1730370AbgGNSvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81968207F5;
-        Tue, 14 Jul 2020 18:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F331522B3F;
+        Tue, 14 Jul 2020 18:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752672;
-        bh=pIlEJRjVxi2ury+/Ey2yaXirtWPwYck8Ee9HE9kUsGs=;
+        s=default; t=1594752674;
+        bh=nPabgI61cyglhr8CDG2fYST1FksxQWMrZeREH6JDWuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KM7MKYkzpZC28s07GxEOXtkdmnsGZVDPp+u0HQEzDGVUARW1qBlnZ63qpsC7HIAbf
-         7LipdeRsadeXJ7hmrPuyQdEV62ISTr+rXR+mn2kEAdoY/VkKxnSqjC8zU5JYfBoQqj
-         awIIxoqZNDRynuhneLNof9ypJliV9SeGQCMzw1ac=
+        b=Es62PjgIiz9QwtHQzV2qdK0S0m8i33UpRDkGOy4xrULoHTKcSZxzlOk6/Qeeyt7oR
+         tKs+tHr3AHd2mopsfCyir5lHYNrkzUeB3YQN11Iom4VogAO51fpbvDPNlmvUUZ0h3q
+         UJwpN5UIaJ4T02RSS8lC07ZRs4zD6BEgYVmtEdj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,9 +34,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/109] net: macb: mark device wake capable when "magic-packet" property present
-Date:   Tue, 14 Jul 2020 20:44:09 +0200
-Message-Id: <20200714184108.685050591@linuxfoundation.org>
+Subject: [PATCH 5.4 067/109] net: macb: fix call to pm_runtime in the suspend/resume functions
+Date:   Tue, 14 Jul 2020 20:44:10 +0200
+Message-Id: <20200714184108.732893390@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
 References: <20200714184105.507384017@linuxfoundation.org>
@@ -51,19 +51,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-[ Upstream commit ced4799d06375929e013eea04ba6908207afabbe ]
+[ Upstream commit 6c8f85cac98a4c6b767c4c4f6af7283724c32b47 ]
 
-Change the way the "magic-packet" DT property is handled in the
-macb_probe() function, matching DT binding documentation.
-Now we mark the device as "wakeup capable" instead of calling the
-device_init_wakeup() function that would enable the wakeup source.
-
-For Ethernet WoL, enabling the wakeup_source is done by
-using ethtool and associated macb_set_wol() function that
-already calls device_set_wakeup_enable() for this purpose.
-
-That would reduce power consumption by cutting more clocks if
-"magic-packet" property is set but WoL is not configured by ethtool.
+The calls to pm_runtime_force_suspend/resume() functions are only
+relevant if the device is not configured to act as a WoL wakeup source.
+Add the device_may_wakeup() test before calling them.
 
 Fixes: 3e2a5e153906 ("net: macb: add wake-on-lan support via magic packet")
 Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
@@ -74,22 +66,33 @@ Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cadence/macb_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 16f5c62ba6dfe..e7fafe2fcae5d 100644
+index e7fafe2fcae5d..01ed4d4296db2 100644
 --- a/drivers/net/ethernet/cadence/macb_main.c
 +++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4260,7 +4260,7 @@ static int macb_probe(struct platform_device *pdev)
- 	bp->wol = 0;
- 	if (of_get_property(np, "magic-packet", NULL))
- 		bp->wol |= MACB_WOL_HAS_MAGIC_PACKET;
--	device_init_wakeup(&pdev->dev, bp->wol & MACB_WOL_HAS_MAGIC_PACKET);
-+	device_set_wakeup_capable(&pdev->dev, bp->wol & MACB_WOL_HAS_MAGIC_PACKET);
+@@ -4453,7 +4453,8 @@ static int __maybe_unused macb_suspend(struct device *dev)
+ 	netif_carrier_off(netdev);
+ 	if (bp->ptp_info)
+ 		bp->ptp_info->ptp_remove(netdev);
+-	pm_runtime_force_suspend(dev);
++	if (!device_may_wakeup(dev))
++		pm_runtime_force_suspend(dev);
  
- 	spin_lock_init(&bp->lock);
+ 	return 0;
+ }
+@@ -4468,7 +4469,8 @@ static int __maybe_unused macb_resume(struct device *dev)
+ 	if (!netif_running(netdev))
+ 		return 0;
  
+-	pm_runtime_force_resume(dev);
++	if (!device_may_wakeup(dev))
++		pm_runtime_force_resume(dev);
+ 
+ 	if (bp->wol & MACB_WOL_ENABLED) {
+ 		macb_writel(bp, IDR, MACB_BIT(WOL));
 -- 
 2.25.1
 
