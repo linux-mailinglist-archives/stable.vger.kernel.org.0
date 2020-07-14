@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2293F21FCDE
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F094621FC23
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729791AbgGNSrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:47:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
+        id S1730609AbgGNTGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:06:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729785AbgGNSrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:40 -0400
+        id S1730588AbgGNSxJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:53:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D434522AB0;
-        Tue, 14 Jul 2020 18:47:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D73D22C7B;
+        Tue, 14 Jul 2020 18:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752460;
-        bh=W7vStj3YtdpzeydOFVEpUDcx8DzNF5sDUM/w66x1BVo=;
+        s=default; t=1594752788;
+        bh=jnIhzxpXO0JKlxaSrH9JI4FN6RQDYgOo1kucbxLZ2DA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVijbIzMc+SoDEMnvKDhPn3KOJJMjZtA3K/Xakmw5gIwZZyFM6ORi8jXPjmq6JwKE
-         2aoyXi5eIb0lAjzKTg9yOwekJxD7CGtwpWZudObhWuZi/joc9tCmRrP5fmzTUsGRiH
-         72o0Fx5DNfaGQYEtppjwRxe9xKhMjKBjPO5hijGg=
+        b=RCIDXry/Cdu8FhhiEITw/AJKbF/aVJPKi60228YpT/W5G2582IAs0XT+BYqR2mKjR
+         8o/O5hnIdKVHvP0byop0jd44dfmDKebRmey7tRLiY7NxnW4DcJxEMLb8x5NIRxIcQl
+         Xk9avGXyxnMJuae1P2VMtfm0p3Rgyx9tuN2Y5/jA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.19 50/58] kprobes: Do not expose probe addresses to non-CAP_SYSLOG
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 080/109] KVM: arm64: Fix definition of PAGE_HYP_DEVICE
 Date:   Tue, 14 Jul 2020 20:44:23 +0200
-Message-Id: <20200714184058.655527155@linuxfoundation.org>
+Message-Id: <20200714184109.380816501@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Will Deacon <will@kernel.org>
 
-commit 60f7bb66b88b649433bf700acfc60c3f24953871 upstream.
+commit 68cf617309b5f6f3a651165f49f20af1494753ae upstream.
 
-The kprobe show() functions were using "current"'s creds instead
-of the file opener's creds for kallsyms visibility. Fix to use
-seq_file->file->f_cred.
+PAGE_HYP_DEVICE is intended to encode attribute bits for an EL2 stage-1
+pte mapping a device. Unfortunately, it includes PROT_DEVICE_nGnRE which
+encodes attributes for EL1 stage-1 mappings such as UXN and nG, which are
+RES0 for EL2, and DBM which is meaningless as TCR_EL2.HD is not set.
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 81365a947de4 ("kprobes: Show address of kprobes if kallsyms does")
-Fixes: ffb9bd68ebdb ("kprobes: Show blacklist addresses as same as kallsyms does")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fix the definition of PAGE_HYP_DEVICE so that it doesn't set RES0 bits
+at EL2.
+
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200708162546.26176-1-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kprobes.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/pgtable-prot.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2334,7 +2334,7 @@ static void report_probe(struct seq_file
- 	else
- 		kprobe_type = "k";
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -54,7 +54,7 @@
+ #define PAGE_HYP		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_HYP_XN)
+ #define PAGE_HYP_EXEC		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY)
+ #define PAGE_HYP_RO		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY | PTE_HYP_XN)
+-#define PAGE_HYP_DEVICE		__pgprot(PROT_DEVICE_nGnRE | PTE_HYP)
++#define PAGE_HYP_DEVICE		__pgprot(_PROT_DEFAULT | PTE_ATTRINDX(MT_DEVICE_nGnRE) | PTE_HYP | PTE_HYP_XN)
  
--	if (!kallsyms_show_value(current_cred()))
-+	if (!kallsyms_show_value(pi->file->f_cred))
- 		addr = NULL;
- 
- 	if (sym)
-@@ -2435,7 +2435,7 @@ static int kprobe_blacklist_seq_show(str
- 	 * If /proc/kallsyms is not showing kernel address, we won't
- 	 * show them here either.
- 	 */
--	if (!kallsyms_show_value(current_cred()))
-+	if (!kallsyms_show_value(m->file->f_cred))
- 		seq_printf(m, "0x%px-0x%px\t%ps\n", NULL, NULL,
- 			   (void *)ent->start_addr);
- 	else
+ #define PAGE_S2_MEMATTR(attr)						\
+ 	({								\
 
 
