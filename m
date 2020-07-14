@@ -2,93 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8555F21ED9F
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 12:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EF621EF3A
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 13:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726398AbgGNKFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 06:05:50 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22712 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726041AbgGNKFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 06:05:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594721149;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=M45goFW1k5rIsSg3jlh/sipfJG5akY3mkAx0YcJf4D0=;
-        b=OKSOid7HgU+uUpCGm8ALlR1ONHgZtMJVf+1DvSyk7UO5Z5s26VnZCasGdN6EqSI3Q0ygfM
-        +aqrWR2rCUz0kVeayOG+KF9OSq0S1rjNgdJy4r0zF9tSpePaNZJX6kz4Y+kbqB1wPpL2ly
-        mBpegFBb3BgtrW+GXGFrCrGwyjaQ7w4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-213-zClGB2zFPJWrl9ataRcXhA-1; Tue, 14 Jul 2020 05:58:38 -0400
-X-MC-Unique: zClGB2zFPJWrl9ataRcXhA-1
-Received: by mail-wm1-f69.google.com with SMTP id g138so3148583wme.7
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 02:58:38 -0700 (PDT)
+        id S1726748AbgGNL1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 07:27:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53958 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726041AbgGNL1k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 07:27:40 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129C8C061755
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 04:27:40 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id h22so22041501lji.9
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 04:27:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WRuLFKvQDaw1sZL3IQ7c0WjQdAQsHCg8KMZ60fQDX3s=;
+        b=IvWTr1G8MbRGNvmmF3GY36Q3iShIoAcmF57XjtqSMlX+UjsveepMcNyeYiicFU+3E+
+         bOSSCqYtoFqjo48izwzZCRfWncfuq8FFX4ZqMpjYPlN0DXZQAn/uvQY+8tWFxBm4nQam
+         biWrkcFebp86rk2x+UCbWrFkPpCtZl4Om/XQnX76mubHorOPHg8ALbs3ZdV2Tqtt4CDU
+         xB74Epl7L2Ddpc9UFfC+3qdjiFaxKde5OlQzlkOvvSfKv62WKARQGEf135nJb1Pg2Mo1
+         23YiVG67fLpJQ5Q/2V5JmibKAzCtpBzjkEqkCL73RuAwhHw6ElJUCyx+wzJlEMs++D6D
+         jxow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=M45goFW1k5rIsSg3jlh/sipfJG5akY3mkAx0YcJf4D0=;
-        b=Zek3dZgW+W3WkNZKtT98XWH75ovgYgjKUOB67W6mdLkCzloZJP+brlQPuiB5I61IgG
-         Bq5fLuRkGRCZSSce6v2uK1/SDP0df0gNKgC1xR6g5RwVx+bx5HjZA/8USF6mLH46lxiR
-         JTw3VNhSSQqE8ZbVnM2am3n4fhIcJ13/nsykB9ZBXPp5Q4geBMRjSCYwOtK9+4LCoC6L
-         0MOIB+A5JjJgcrMjkjAlsqL36J9PD9Z67scREgabaXna0Maal6yhbza04s98AizMTZ9/
-         OYGuxYJHkV5TKpx/TA5BWSc4Dk5H92biRqZOa1t/B8JmtkbGN8311X8MpsD7CUcmJj28
-         afYA==
-X-Gm-Message-State: AOAM532eO5n9Ab3LTbif9zHM3T3IHWXmzvJOEFLfJOpTnm2ou44aDDcX
-        gS4fMiEV/6aSPTDxfau1BT/T8XPnQt0aYHjNpXpuqGlaVysVSOcihvD92FKlXqQOYDMRv9xjKHv
-        +oD/nkUwVoVLy/WGY
-X-Received: by 2002:a05:600c:2219:: with SMTP id z25mr3687752wml.154.1594720717629;
-        Tue, 14 Jul 2020 02:58:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyAqljQrA/da0BJJwYmv3rWaQ1K36YlvNOU+bBrZAudP7H3iMf7Q+UgFjgeqAMWypbGKPUFqg==
-X-Received: by 2002:a05:600c:2219:: with SMTP id z25mr3687740wml.154.1594720717450;
-        Tue, 14 Jul 2020 02:58:37 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id j24sm29419847wrd.43.2020.07.14.02.58.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Jul 2020 02:58:36 -0700 (PDT)
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-From:   Hans de Goede <hdegoede@redhat.com>
-Subject: Please revert "ath9k: Fix general protection fault in
- ath9k_hif_usb_rx_cb" from all stable kernels
-Message-ID: <2a5acaae-9aef-1aab-d385-0dd11d151fa6@redhat.com>
-Date:   Tue, 14 Jul 2020 11:58:36 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WRuLFKvQDaw1sZL3IQ7c0WjQdAQsHCg8KMZ60fQDX3s=;
+        b=bn2QQkLNjtHsQEwI9A3uKMFSDZzLwYSs+7MJSiak6WNSd9etCbGodTx8KLVmsW+ObE
+         epcrKWKNhLuQ5F1nQE3RceC1aOZZ6nYKpp1+8zHkJppkdPLRrHTXNL1XsRM7FSYgJfKo
+         fKf6Mn3ctsxnroKII7rh5/avcqL9xpJsy7f12rh7Ikg47+rhyvT2IAFQFvAUMWCHqyOX
+         Vm0lIDW+av6JkPZZylofc6QFJJm+ADk04OgGUJuXNYzmOsIpKOJGidl1uwIaS2MdwGc/
+         NL7S1DOO3cr7fXG6hpBl/NOAOn0PCMO4j+5VQn90G13+xv3b6VwAG9NLtrubTaLwXiOz
+         qwnA==
+X-Gm-Message-State: AOAM532hyG5kKo8FNWwWytlSGfppEWHNsTrh7cAoZK/4VD7pTa51i8v7
+        HdhyR7IfyVv9o8Kna30bNeIjN/ezUn+2uWFtIZ7ZRA==
+X-Google-Smtp-Source: ABdhPJy5qZDrujqexb2KWuHgK/pg2E8r3sHYRhykgzZdB+4AhkS8Ejrdf1ttrfztmNGMOeYDytwHysJ8zfNi+ujHmGY=
+X-Received: by 2002:a2e:9089:: with SMTP id l9mr2090256ljg.431.1594726058377;
+ Tue, 14 Jul 2020 04:27:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CA+G9fYt+6OeibZMD0fP=O3nqFbcN3O4xcLkjq0mpQbZJ2uxB9w@mail.gmail.com>
+ <CAHk-=wgRcFSnQt=T95S+1dPkyvCuVAVGQ37JDvRg41h8hRqO3Q@mail.gmail.com>
+ <CA+G9fYuL=xJPLbQJVzDfXB8uNiCWdXpL=joDsnATEFCzyFh_1g@mail.gmail.com>
+ <CAHk-=wgB6Ds6yqbZZmscKNuAiNR2J0Pf3a8UrbdfewYxHE7SbA@mail.gmail.com>
+ <20200712215041.GA3644504@google.com> <CAHk-=whxP0Gj70pJN5R7Qec4qjrGr+G9Ex7FJi7=_fPcdQ2ocQ@mail.gmail.com>
+ <20200714073306.kq4zikkphqje2yzb@box>
+In-Reply-To: <20200714073306.kq4zikkphqje2yzb@box>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 14 Jul 2020 16:57:26 +0530
+Message-ID: <CA+G9fYsqdHR=ty2hKj44zQ=SrHuWwu-eN0odp72AGCiNkFVUog@mail.gmail.com>
+Subject: Re: WARNING: at mm/mremap.c:211 move_page_tables in i386
+To:     "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        lkft-triage@lists.linaro.org, Chris Down <chris@chrisdown.name>,
+        Michel Lespinasse <walken@google.com>,
+        Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Brian Geffon <bgeffon@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, pugaowei@gmail.com,
+        Jerome Glisse <jglisse@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Hugh Dickins <hughd@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg (et all),
+On Tue, 14 Jul 2020 at 13:03, Kirill A. Shutemov <kirill@shutemov.name> wrote:
+>
+> On Sun, Jul 12, 2020 at 03:58:06PM -0700, Linus Torvalds wrote:
+> > Anybody else have any opinions?
+>
+> Maybe we just shouldn't allow move_normal_pmd() if ranges overlap?
+>
+> Other option: pass 'overlaps' down to move_normal_pmd() and only WARN() if
+> see establised PMD without overlaps being true.
+>
+> Untested patch:
 
-Note several people are already working on this, so you may already have a request for this.
+This patch applied on top of Linus mainline tree and tested on i386.
+The reported warning did not happen while testing LTP mm [1].
 
-The "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb" commit which has been
-added to several stable kernels (at least to 5.4.y and 5.7.y, but likely also to others)
-is breaking networking for people with an ath9k card.
 
-A revert has been submitted upstream, but it does not seem to have found it way
-upstream yet. It has been cherry-picked by the Arch people:
+>
+> diff --git a/mm/mremap.c b/mm/mremap.c
+> index 5dd572d57ca9..e33fcee541fe 100644
+> --- a/mm/mremap.c
+> +++ b/mm/mremap.c
+> @@ -245,6 +245,18 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
+>         unsigned long extent, next, old_end;
+>         struct mmu_notifier_range range;
+>         pmd_t *old_pmd, *new_pmd;
+> +       bool overlaps;
+> +
+> +       /*
+> +        * shift_arg_pages() can call move_page_tables() on overlapping ranges.
+> +        * In this case we cannot use move_normal_pmd() because destination pmd
+> +        * might be established page table: move_ptes() doesn't free page
+> +        * table.
+> +        */
+> +       if (old_addr > new_addr)
+> +               overlaps = old_addr - new_addr < len;
+> +       else
+> +               overlaps = new_addr - old_addr < len;
+>
+>         old_end = old_addr + len;
+>         flush_cache_range(vma, old_addr, old_end);
+> @@ -282,7 +294,7 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
+>                         split_huge_pmd(vma, old_pmd, old_addr);
+>                         if (pmd_trans_unstable(old_pmd))
+>                                 continue;
+> -               } else if (extent == PMD_SIZE) {
+> +               } else if (!overlaps && extent == PMD_SIZE) {
+>  #ifdef CONFIG_HAVE_MOVE_PMD
+>                         /*
+>                          * If the extent is PMD-sized, try to speed the move by
+> --
+>  Kirill A. Shutemov
 
-https://git.archlinux.org/linux.git/commit/?h=v5.7.8-arch1&id=1a32e7b57b0b37cab6845093920b4d1ff94d3bf4
+ref:
+https://lkft.validation.linaro.org/scheduler/job/1561734#L1598
 
-So if you want to credit some of the original people working on fixing this,
-you can find the revert submitted upstream there.
-
-Reverting this fixes / also see:
-
-https://bugzilla.kernel.org/show_bug.cgi?id=208251
-https://bugzilla.redhat.com/show_bug.cgi?id=1848631
-
-Regards,
-
-Hans
-
+- Naresh
