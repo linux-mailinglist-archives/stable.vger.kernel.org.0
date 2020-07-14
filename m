@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349A021FA38
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F43021F9E0
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729373AbgGNSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46890 "EHLO mail.kernel.org"
+        id S1729727AbgGNSrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730313AbgGNSum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:50:42 -0400
+        id S1729723AbgGNSrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CF5C22B2A;
-        Tue, 14 Jul 2020 18:50:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D62ED22B2A;
+        Tue, 14 Jul 2020 18:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752641;
-        bh=WJSu7jjjoQkirFpIXvqr4UHY09mUZiBEYqt0DClml1A=;
+        s=default; t=1594752441;
+        bh=nc5ptVElFyhbVAD0wGK3yfRVj/HVSHjTkRwZoBI3fVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyqkz618pKNoMivQ5Nw9wSiudcQ8VGpXqe18OWL1+GRXl+MzGYtfkBWe059GmBX7N
-         8Hx2GjeYVG9z9mZZUiFeC+Ctt6HTW7Xwk7IDP3VYC/Lu8B5BOwgm626QIQent1uxVS
-         HL4f1640dtmBWWKf5mljZk7NqvPolTMaYoittsxg=
+        b=nT+Dff9iHyv+aauKu3SriRpjaaWVLvA8MYgzup7wKh/fmOPN3SNmXEcNUTkAzNnWt
+         ghqsg1Y0erXAvsKmSQWSmvF2OxvZSEgz2VKWo+7FDH4GgqiwbW2P0RB7c/xVTPlUyA
+         th3JpqaihwovnXaMCQQHwmWmnER7BDkDLx7rhuj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 056/109] RDMA/siw: Fix reporting vendor_part_id
+Subject: [PATCH 4.19 26/58] drm/mediatek: Check plane visibility in atomic_update
 Date:   Tue, 14 Jul 2020 20:43:59 +0200
-Message-Id: <20200714184108.200034373@linuxfoundation.org>
+Message-Id: <20200714184057.440381152@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-[ Upstream commit 04340645f69ab7abb6f9052688a60f0213b3f79c ]
+[ Upstream commit c0b8892e2461b5fa740e47efbb1269a487b04020 ]
 
-Move the initialization of the vendor_part_id to be before calling
-ib_register_device(), this is needed because the query_device() callback
-is called from the context of ib_register_device() before initializing the
-vendor_part_id, so the reported value is wrong.
+Disable the plane if it's not visible. Otherwise mtk_ovl_layer_config()
+would proceed with invalid plane and we may see vblank timeout.
 
-Fixes: bdcf26bf9b3a ("rdma/siw: network and RDMA core interface")
-Link: https://lore.kernel.org/r/20200707130931.444724-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_drm_plane.c | 25 ++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_main.c b/drivers/infiniband/sw/siw/siw_main.c
-index 130b1e31b9780..fb66d67572787 100644
---- a/drivers/infiniband/sw/siw/siw_main.c
-+++ b/drivers/infiniband/sw/siw/siw_main.c
-@@ -66,12 +66,13 @@ static int siw_device_register(struct siw_device *sdev, const char *name)
- 	static int dev_id = 1;
- 	int rv;
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_plane.c b/drivers/gpu/drm/mediatek/mtk_drm_plane.c
+index f7e6aa1b5b7d1..83d4a710601db 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_plane.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_plane.c
+@@ -108,6 +108,16 @@ static int mtk_plane_atomic_check(struct drm_plane *plane,
+ 						   true, true);
+ }
  
-+	sdev->vendor_part_id = dev_id++;
++static void mtk_plane_atomic_disable(struct drm_plane *plane,
++				     struct drm_plane_state *old_state)
++{
++	struct mtk_plane_state *state = to_mtk_plane_state(plane->state);
 +
- 	rv = ib_register_device(base_dev, name);
- 	if (rv) {
- 		pr_warn("siw: device registration error %d\n", rv);
- 		return rv;
- 	}
--	sdev->vendor_part_id = dev_id++;
++	state->pending.enable = false;
++	wmb(); /* Make sure the above parameter is set before update */
++	state->pending.dirty = true;
++}
++
+ static void mtk_plane_atomic_update(struct drm_plane *plane,
+ 				    struct drm_plane_state *old_state)
+ {
+@@ -122,6 +132,11 @@ static void mtk_plane_atomic_update(struct drm_plane *plane,
+ 	if (!crtc || WARN_ON(!fb))
+ 		return;
  
- 	siw_dbg(base_dev, "HWaddr=%pM\n", sdev->netdev->dev_addr);
++	if (!plane->state->visible) {
++		mtk_plane_atomic_disable(plane, old_state);
++		return;
++	}
++
+ 	gem = fb->obj[0];
+ 	mtk_gem = to_mtk_gem_obj(gem);
+ 	addr = mtk_gem->dma_addr;
+@@ -143,16 +158,6 @@ static void mtk_plane_atomic_update(struct drm_plane *plane,
+ 	state->pending.dirty = true;
+ }
  
+-static void mtk_plane_atomic_disable(struct drm_plane *plane,
+-				     struct drm_plane_state *old_state)
+-{
+-	struct mtk_plane_state *state = to_mtk_plane_state(plane->state);
+-
+-	state->pending.enable = false;
+-	wmb(); /* Make sure the above parameter is set before update */
+-	state->pending.dirty = true;
+-}
+-
+ static const struct drm_plane_helper_funcs mtk_plane_helper_funcs = {
+ 	.atomic_check = mtk_plane_atomic_check,
+ 	.atomic_update = mtk_plane_atomic_update,
 -- 
 2.25.1
 
