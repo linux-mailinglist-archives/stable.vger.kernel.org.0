@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D876921FCE1
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A36821FC24
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729842AbgGNTMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
+        id S1729775AbgGNTGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729738AbgGNSrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:47:35 -0400
+        id S1730583AbgGNSxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:53:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 788DB22AAE;
-        Tue, 14 Jul 2020 18:47:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92A6622BF5;
+        Tue, 14 Jul 2020 18:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752455;
-        bh=lHoFsJHhdG2dbnh2ce7yjRas4/oHkqce+YQiHAMMOGo=;
+        s=default; t=1594752786;
+        bh=Wegz6/ipsnYUokJXvOMieFYrk6wYPm9LCT/S3tzRTt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bODN6zQpyX9qAwvAUsXaFLcpd040evA0KX1PTpTIW34ePsD+VSlh+46Yco7zCwXYz
-         8FBQ6lXpDhahAcu/1RQFkMLJYIEJ6rghfV08UtjjM713fi9LMGmkeiVBJ5PdXnywVp
-         /dn5+5+wJwXkdfO4ofa9kTCW/8SSy+XdwwmLdu3w=
+        b=atNY0Oi/Qp86fFGMYBmLKSWAYiUCxSr7kerlWhSdWVz1Z/FPRIz520VDsULiRNGQD
+         EjogtcnNlLEy1woqa1TJ6EgN2+33k2oTuwOEzEXj+SjkuU9JZJVfyLlxN95vVkbctF
+         ae4hZKZ+Gb+ggBvvIFv3gZhCHQAz44Tv2TK6gqhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jessica Yu <jeyu@kernel.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.19 48/58] module: Refactor section attr into bin attribute
-Date:   Tue, 14 Jul 2020 20:44:21 +0200
-Message-Id: <20200714184058.548988651@linuxfoundation.org>
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 079/109] ALSA: hda/realtek: Enable headset mic of Acer Veriton N4660G with ALC269VC
+Date:   Tue, 14 Jul 2020 20:44:22 +0200
+Message-Id: <20200714184109.324388925@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit ed66f991bb19d94cae5d38f77de81f96aac7813f upstream.
+commit 781c90c034d994c6a4e2badf189128a95ed864c2 upstream.
 
-In order to gain access to the open file's f_cred for kallsym visibility
-permission checks, refactor the module section attributes to use the
-bin_attribute instead of attribute interface. Additionally removes the
-redundant "name" struct member.
+The Acer Veriton N4660G desktop's audio (1025:1248) with ALC269VC cannot
+detect the headset microphone until ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE
+quirk maps the NID 0x18 as the headset mic pin.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-by: Jessica Yu <jeyu@kernel.org>
-Acked-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200706071826.39726-3-jian-hong@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/module.c |   45 ++++++++++++++++++++++++---------------------
- 1 file changed, 24 insertions(+), 21 deletions(-)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1451,8 +1451,7 @@ static inline bool sect_empty(const Elf_
- }
- 
- struct module_sect_attr {
--	struct module_attribute mattr;
--	char *name;
-+	struct bin_attribute battr;
- 	unsigned long address;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6116,6 +6116,7 @@ enum {
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
++	ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE,
  };
  
-@@ -1462,11 +1461,16 @@ struct module_sect_attrs {
- 	struct module_sect_attr attrs[0];
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7314,6 +7315,15 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MIC
+ 	},
++	[ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x18, 0x01a11130 }, /* use as headset mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MIC
++	},
  };
  
--static ssize_t module_sect_show(struct module_attribute *mattr,
--				struct module_kobject *mk, char *buf)
-+static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
-+				struct bin_attribute *battr,
-+				char *buf, loff_t pos, size_t count)
- {
- 	struct module_sect_attr *sattr =
--		container_of(mattr, struct module_sect_attr, mattr);
-+		container_of(battr, struct module_sect_attr, battr);
-+
-+	if (pos != 0)
-+		return -EINVAL;
-+
- 	return sprintf(buf, "0x%px\n", kptr_restrict < 2 ?
- 		       (void *)sattr->address : NULL);
- }
-@@ -1476,7 +1480,7 @@ static void free_sect_attrs(struct modul
- 	unsigned int section;
- 
- 	for (section = 0; section < sect_attrs->nsections; section++)
--		kfree(sect_attrs->attrs[section].name);
-+		kfree(sect_attrs->attrs[section].battr.attr.name);
- 	kfree(sect_attrs);
- }
- 
-@@ -1485,42 +1489,41 @@ static void add_sect_attrs(struct module
- 	unsigned int nloaded = 0, i, size[2];
- 	struct module_sect_attrs *sect_attrs;
- 	struct module_sect_attr *sattr;
--	struct attribute **gattr;
-+	struct bin_attribute **gattr;
- 
- 	/* Count loaded sections and allocate structures */
- 	for (i = 0; i < info->hdr->e_shnum; i++)
- 		if (!sect_empty(&info->sechdrs[i]))
- 			nloaded++;
- 	size[0] = ALIGN(struct_size(sect_attrs, attrs, nloaded),
--			sizeof(sect_attrs->grp.attrs[0]));
--	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.attrs[0]);
-+			sizeof(sect_attrs->grp.bin_attrs[0]));
-+	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.bin_attrs[0]);
- 	sect_attrs = kzalloc(size[0] + size[1], GFP_KERNEL);
- 	if (sect_attrs == NULL)
- 		return;
- 
- 	/* Setup section attributes. */
- 	sect_attrs->grp.name = "sections";
--	sect_attrs->grp.attrs = (void *)sect_attrs + size[0];
-+	sect_attrs->grp.bin_attrs = (void *)sect_attrs + size[0];
- 
- 	sect_attrs->nsections = 0;
- 	sattr = &sect_attrs->attrs[0];
--	gattr = &sect_attrs->grp.attrs[0];
-+	gattr = &sect_attrs->grp.bin_attrs[0];
- 	for (i = 0; i < info->hdr->e_shnum; i++) {
- 		Elf_Shdr *sec = &info->sechdrs[i];
- 		if (sect_empty(sec))
- 			continue;
-+		sysfs_bin_attr_init(&sattr->battr);
- 		sattr->address = sec->sh_addr;
--		sattr->name = kstrdup(info->secstrings + sec->sh_name,
--					GFP_KERNEL);
--		if (sattr->name == NULL)
-+		sattr->battr.attr.name =
-+			kstrdup(info->secstrings + sec->sh_name, GFP_KERNEL);
-+		if (sattr->battr.attr.name == NULL)
- 			goto out;
- 		sect_attrs->nsections++;
--		sysfs_attr_init(&sattr->mattr.attr);
--		sattr->mattr.show = module_sect_show;
--		sattr->mattr.store = NULL;
--		sattr->mattr.attr.name = sattr->name;
--		sattr->mattr.attr.mode = S_IRUSR;
--		*(gattr++) = &(sattr++)->mattr.attr;
-+		sattr->battr.read = module_sect_read;
-+		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
-+		sattr->battr.attr.mode = 0400;
-+		*(gattr++) = &(sattr++)->battr;
- 	}
- 	*gattr = NULL;
- 
-@@ -1610,7 +1613,7 @@ static void add_notes_attrs(struct modul
- 			continue;
- 		if (info->sechdrs[i].sh_type == SHT_NOTE) {
- 			sysfs_bin_attr_init(nattr);
--			nattr->attr.name = mod->sect_attrs->attrs[loaded].name;
-+			nattr->attr.name = mod->sect_attrs->attrs[loaded].battr.attr.name;
- 			nattr->attr.mode = S_IRUGO;
- 			nattr->size = info->sechdrs[i].sh_size;
- 			nattr->private = (void *) info->sechdrs[i].sh_addr;
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7335,6 +7345,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x110e, "Acer Aspire ES1-432", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1246, "Acer Predator Helios 500", ALC299_FIXUP_PREDATOR_SPK),
+ 	SND_PCI_QUIRK(0x1025, 0x1247, "Acer vCopperbox", ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS),
++	SND_PCI_QUIRK(0x1025, 0x1248, "Acer Veriton N4660G", ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x128f, "Acer Veriton Z6860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
 
 
