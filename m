@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6A021FA48
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDECE21FAEB
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729781AbgGNSvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
+        id S1729761AbgGNS45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730370AbgGNSvO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:14 -0400
+        id S1731044AbgGNS4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:56:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F331522B3F;
-        Tue, 14 Jul 2020 18:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F956229CA;
+        Tue, 14 Jul 2020 18:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752674;
-        bh=nPabgI61cyglhr8CDG2fYST1FksxQWMrZeREH6JDWuA=;
+        s=default; t=1594753011;
+        bh=iRx1+1p0vuvi3P51WF8Ek61xIZ9udJj8O2ghz7fif+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Es62PjgIiz9QwtHQzV2qdK0S0m8i33UpRDkGOy4xrULoHTKcSZxzlOk6/Qeeyt7oR
-         tKs+tHr3AHd2mopsfCyir5lHYNrkzUeB3YQN11Iom4VogAO51fpbvDPNlmvUUZ0h3q
-         UJwpN5UIaJ4T02RSS8lC07ZRs4zD6BEgYVmtEdj4=
+        b=MkteAJYMrzERJ7AUJbYV3xWhX3eXhQGkNE0ieFTxLaTldTCEXUyMqSX2gY7CQBgLg
+         2M0pDfjLKVBLkpLJeo2xd1F5FdXk2nz2Xv+Ff0/pXRfE1IjaB+E3PHAtfd6a8XgLG8
+         6onPx2G0ptDyacImHe8BXaxYzZZ7rsZkJffeb2Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Harini Katakam <harini.katakam@xilinx.com>,
-        Sergio Prado <sergio.prado@e-labworks.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/109] net: macb: fix call to pm_runtime in the suspend/resume functions
+Subject: [PATCH 5.7 085/166] powerpc/64s/exception: Fix 0x1500 interrupt handler crash
 Date:   Tue, 14 Jul 2020 20:44:10 +0200
-Message-Id: <20200714184108.732893390@linuxfoundation.org>
+Message-Id: <20200714184119.922263353@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,50 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 6c8f85cac98a4c6b767c4c4f6af7283724c32b47 ]
+[ Upstream commit 4557ac6b344b8cdf948ff8b007e8e1de34832f2e ]
 
-The calls to pm_runtime_force_suspend/resume() functions are only
-relevant if the device is not configured to act as a WoL wakeup source.
-Add the device_may_wakeup() test before calling them.
+A typo caused the interrupt handler to branch immediately to the
+common "unknown interrupt" handler and skip the special case test for
+denormal cause.
 
-Fixes: 3e2a5e153906 ("net: macb: add wake-on-lan support via magic packet")
-Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc: Harini Katakam <harini.katakam@xilinx.com>
-Cc: Sergio Prado <sergio.prado@e-labworks.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This does not affect KVM softpatch handling (e.g., for POWER9 TM
+assist) because the KVM test was moved to common code by commit
+9600f261acaa ("powerpc/64s/exception: Move KVM test to common code")
+just before this bug was introduced.
+
+Fixes: 3f7fbd97d07d ("powerpc/64s/exception: Clean up SRR specifiers")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+[mpe: Split selftest into a separate patch]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200708074942.1713396-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index e7fafe2fcae5d..01ed4d4296db2 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4453,7 +4453,8 @@ static int __maybe_unused macb_suspend(struct device *dev)
- 	netif_carrier_off(netdev);
- 	if (bp->ptp_info)
- 		bp->ptp_info->ptp_remove(netdev);
--	pm_runtime_force_suspend(dev);
-+	if (!device_may_wakeup(dev))
-+		pm_runtime_force_suspend(dev);
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index d9ddce40bed89..fd99d4feec7a4 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -2547,7 +2547,7 @@ EXC_VIRT_NONE(0x5400, 0x100)
+ INT_DEFINE_BEGIN(denorm_exception)
+ 	IVEC=0x1500
+ 	IHSRR=1
+-	IBRANCH_COMMON=0
++	IBRANCH_TO_COMMON=0
+ 	IKVM_REAL=1
+ INT_DEFINE_END(denorm_exception)
  
- 	return 0;
- }
-@@ -4468,7 +4469,8 @@ static int __maybe_unused macb_resume(struct device *dev)
- 	if (!netif_running(netdev))
- 		return 0;
- 
--	pm_runtime_force_resume(dev);
-+	if (!device_may_wakeup(dev))
-+		pm_runtime_force_resume(dev);
- 
- 	if (bp->wol & MACB_WOL_ENABLED) {
- 		macb_writel(bp, IDR, MACB_BIT(WOL));
 -- 
 2.25.1
 
