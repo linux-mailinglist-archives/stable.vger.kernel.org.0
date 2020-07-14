@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E3F21FD04
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2425D21FC37
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729394AbgGNSqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40866 "EHLO mail.kernel.org"
+        id S1729124AbgGNSvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729337AbgGNSqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:46:17 -0400
+        id S1730438AbgGNSvv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 722022231B;
-        Tue, 14 Jul 2020 18:46:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5320C22B47;
+        Tue, 14 Jul 2020 18:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752377;
-        bh=RuX7XymmSpb68dqOmXem0gJj+i+LOUS1/D/zwv86Of0=;
+        s=default; t=1594752710;
+        bh=PtD6kzJHepOAdrv/PmWvzqv98Ct/bG4qvEQTAwnaIM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkIuBa586qSwR4abyIYJr5fG6e/65dwwG8Pc9Z9H2jyIJ43rALtXrjbKbKh1oD+na
-         lQBODjFcHzE42wqn4VMO0kWz4NtrWPh1+pELLesdMpwcPf/fCzZMWti8YODFXeYKFq
-         pCrOxcnBHePWLjAPgl5Wce7PQ/WLfhIhwvO+Z0xM=
+        b=krxwT34G2Mrq9BTWY6rHhSb4L5P4GKUASredrODBjjBYDar/Dwz4sosyPFpCfvqo4
+         fE3HTBBBmN+S/CUcLqKWA/ExD967tonS+wpDiSCTwCGWNpH4EuSgzbE6/kLop1uTgf
+         q/nb6aGX3T0aa9BFWtgCcWk1RBa9yoiw0VL+3KlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Luwei Kang <luwei.kang@intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/58] ARM: imx6: add missing put_device() call in imx6q_suspend_init()
-Date:   Tue, 14 Jul 2020 20:43:52 +0200
-Message-Id: <20200714184057.101914704@linuxfoundation.org>
+Subject: [PATCH 5.4 050/109] perf intel-pt: Fix PEBS sample for XMM registers
+Date:   Tue, 14 Jul 2020 20:43:53 +0200
+Message-Id: <20200714184107.917340584@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 4845446036fc9c13f43b54a65c9b757c14f5141b ]
+[ Upstream commit 4c95ad261cfac120dd66238fcae222766754c219 ]
 
-if of_find_device_by_node() succeed, imx6q_suspend_init() doesn't have a
-corresponding put_device(). Thus add a jump target to fix the exception
-handling for this function implementation.
+The condition to add XMM registers was missing, the regs array needed to
+be in the outer scope, and the size of the regs array was too small.
 
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 143d34a6b387b ("perf intel-pt: Add XMM registers to synthesized PEBS sample")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Luwei Kang <luwei.kang@intel.com>
+Link: http://lore.kernel.org/lkml/20200630133935.11150-4-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-imx/pm-imx6.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/perf/util/intel-pt.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
-index 529f4b5bbd3a7..4bfefbec971a6 100644
---- a/arch/arm/mach-imx/pm-imx6.c
-+++ b/arch/arm/mach-imx/pm-imx6.c
-@@ -497,14 +497,14 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
- 	if (!ocram_pool) {
- 		pr_warn("%s: ocram pool unavailable!\n", __func__);
- 		ret = -ENODEV;
--		goto put_node;
-+		goto put_device;
+diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
+index a1c9eb6d4f40d..c5cce3a60476b 100644
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -1707,6 +1707,7 @@ static int intel_pt_synth_pebs_sample(struct intel_pt_queue *ptq)
+ 	u64 sample_type = evsel->core.attr.sample_type;
+ 	u64 id = evsel->core.id[0];
+ 	u8 cpumode;
++	u64 regs[8 * sizeof(sample.intr_regs.mask)];
+ 
+ 	if (intel_pt_skip_event(pt))
+ 		return 0;
+@@ -1756,8 +1757,8 @@ static int intel_pt_synth_pebs_sample(struct intel_pt_queue *ptq)
  	}
  
- 	ocram_base = gen_pool_alloc(ocram_pool, MX6Q_SUSPEND_OCRAM_SIZE);
- 	if (!ocram_base) {
- 		pr_warn("%s: unable to alloc ocram!\n", __func__);
- 		ret = -ENOMEM;
--		goto put_node;
-+		goto put_device;
- 	}
- 
- 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
-@@ -527,7 +527,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
- 	ret = imx6_pm_get_base(&pm_info->mmdc_base, socdata->mmdc_compat);
- 	if (ret) {
- 		pr_warn("%s: failed to get mmdc base %d!\n", __func__, ret);
--		goto put_node;
-+		goto put_device;
- 	}
- 
- 	ret = imx6_pm_get_base(&pm_info->src_base, socdata->src_compat);
-@@ -574,7 +574,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
- 		&imx6_suspend,
- 		MX6Q_SUSPEND_OCRAM_SIZE - sizeof(*pm_info));
- 
--	goto put_node;
-+	goto put_device;
- 
- pl310_cache_map_failed:
- 	iounmap(pm_info->gpc_base.vbase);
-@@ -584,6 +584,8 @@ iomuxc_map_failed:
- 	iounmap(pm_info->src_base.vbase);
- src_map_failed:
- 	iounmap(pm_info->mmdc_base.vbase);
-+put_device:
-+	put_device(&pdev->dev);
- put_node:
- 	of_node_put(node);
+ 	if (sample_type & PERF_SAMPLE_REGS_INTR &&
+-	    items->mask[INTEL_PT_GP_REGS_POS]) {
+-		u64 regs[sizeof(sample.intr_regs.mask)];
++	    (items->mask[INTEL_PT_GP_REGS_POS] ||
++	     items->mask[INTEL_PT_XMM_POS])) {
+ 		u64 regs_mask = evsel->core.attr.sample_regs_intr;
+ 		u64 *pos;
  
 -- 
 2.25.1
