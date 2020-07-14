@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E7821FB06
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB9B21FB08
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731168AbgGNS6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:58:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
+        id S1731177AbgGNS6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:58:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730806AbgGNS6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:58:03 -0400
+        id S1731174AbgGNS6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:58:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 584F8229CA;
-        Tue, 14 Jul 2020 18:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAEBF229CA;
+        Tue, 14 Jul 2020 18:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753082;
-        bh=sBNdJl4w5KzMHk76Q+hkYXFrJJggdaSJ9oZroUN7ooM=;
+        s=default; t=1594753085;
+        bh=I70nf84rWZrSCLQ2NFeB75EIdPZPnGNrLbNIid3wd1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACjJABMusfg0j6jzYo0iSh3dOxx63fVaDa91ERRR1lw36vTXTfy1HsCNZXwUI46oO
-         JTdro4axfJC8QgNx4Yn0t+Z0vf43jZxZB6V748DJ1NEtDNhz+2P/iaTEuOPvbDR9MM
-         TZtWcxY+NmrnBUuQXf3az664gQPs5aVB7vY23GYI=
+        b=k8lH/bKULi/GAywnEI1QP62Uyw0eR7gqkhirCSI/vG2LC/4PehoK+wyFY0WGO8X+9
+         PW6Leh+52r87xMTrN6FrAsbEXIuAmfdccBQR9IudP3Xcz1C56OxWFpTfUyqMugE+yf
+         GD/WBKHSW10TwNIWmSL6hfaUprSLcOwgeB5MjHMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Hofman <pavel.hofman@ivitera.com>,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Kailang Yang <kailang@realtek.com>,
+        Vincent Bernat <vincent@bernat.ch>,
+        Even Brenden <evenbrenden@gmail.com>,
+        Benjamin Poirier <benjamin.poirier@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.7 112/166] ALSA: usb-audio: Add implicit feedback quirk for RTX6001
-Date:   Tue, 14 Jul 2020 20:44:37 +0200
-Message-Id: <20200714184121.200567985@linuxfoundation.org>
+Subject: [PATCH 5.7 113/166] ALSA: hda/realtek - Fix Lenovo Thinkpad X1 Carbon 7th quirk subdevice id
+Date:   Tue, 14 Jul 2020 20:44:38 +0200
+Message-Id: <20200714184121.248208501@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -43,33 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Hofman <pavel.hofman@ivitera.com>
+From: Benjamin Poirier <benjamin.poirier@gmail.com>
 
-commit b6a1e78b96a5d7f312f08b3a470eb911ab5feec0 upstream.
+commit 9774dc218bb628974dcbc76412f970e9258e5f27 upstream.
 
-USB Audio analyzer RTX6001 uses the same implicit feedback quirk
-as other XMOS-based devices.
+1)
+In snd_hda_pick_fixup(), quirks are first matched by PCI SSID and then, if
+there is no match, by codec SSID. The Lenovo "ThinkPad X1 Carbon 7th" has
+an audio chip with PCI SSID 0x2292 and codec SSID 0x2293[1]. Therefore, fix
+the quirk meant for that device to match on .subdevice == 0x2292.
 
-Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
-Tested-by: Pavel Hofman <pavel.hofman@ivitera.com>
+2)
+The "Thinkpad X1 Yoga 7th" does not exist. The companion product to the
+Carbon 7th is the Yoga 4th. That device has an audio chip with PCI SSID
+0x2292 and codec SSID 0x2292[2]. Given the behavior of
+snd_hda_pick_fixup(), it is not possible to have a separate quirk for the
+Yoga based on SSID. Therefore, merge the quirks meant for the Carbon and
+Yoga. This preserves the current behavior for the Yoga.
+
+[1] This is the case on my own machine and can also be checked here
+https://github.com/linuxhw/LsPCI/tree/master/Notebook/Lenovo/ThinkPad
+https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3225701
+[2]
+https://github.com/linuxhw/LsPCI/tree/master/Convertible/Lenovo/ThinkPad
+https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3176355
+
+Fixes: d2cd795c4ece ("ALSA: hda - fixup for the bass speaker on Lenovo Carbon X1 7th gen")
+Fixes: 54a6a7dc107d ("ALSA: hda/realtek - Add quirk for the bass speaker on Lenovo Yoga X1 7th gen")
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Kailang Yang <kailang@realtek.com>
+Tested-by: Vincent Bernat <vincent@bernat.ch>
+Tested-by: Even Brenden <evenbrenden@gmail.com>
+Signed-off-by: Benjamin Poirier <benjamin.poirier@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/822f0f20-1886-6884-a6b2-d11c685cbafa@ivitera.com
+Link: https://lore.kernel.org/r/20200703080005.8942-2-benjamin.poirier@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/pcm.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -368,6 +368,7 @@ static int set_sync_ep_implicit_fb_quirk
- 		goto add_sync_ep_from_ifnum;
- 	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
- 	case USB_ID(0x31e9, 0x0002): /* Solid State Logic SSL2+ */
-+	case USB_ID(0x0d9a, 0x00df): /* RTX6001 */
- 		ep = 0x81;
- 		ifnum = 2;
- 		goto add_sync_ep_from_ifnum;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7536,8 +7536,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x224c, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x224d, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x225d, "Thinkpad T480", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+-	SND_PCI_QUIRK(0x17aa, 0x2292, "Thinkpad X1 Yoga 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+-	SND_PCI_QUIRK(0x17aa, 0x2293, "Thinkpad X1 Carbon 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
++	SND_PCI_QUIRK(0x17aa, 0x2292, "Thinkpad X1 Carbon 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+ 	SND_PCI_QUIRK(0x17aa, 0x22be, "Thinkpad X1 Carbon 8th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+ 	SND_PCI_QUIRK(0x17aa, 0x30bb, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
+ 	SND_PCI_QUIRK(0x17aa, 0x30e2, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
 
 
