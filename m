@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 688CA21FB29
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F33BF21FB2C
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731113AbgGNS7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:59:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57974 "EHLO mail.kernel.org"
+        id S1730534AbgGNS72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730705AbgGNS7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:59:20 -0400
+        id S1731273AbgGNS72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:59:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AA8222507;
-        Tue, 14 Jul 2020 18:59:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1903D22B2E;
+        Tue, 14 Jul 2020 18:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753160;
-        bh=PPHhOefhquj0kG2S3xsqFhi0SGzY5jt59PIVciQXpo0=;
+        s=default; t=1594753167;
+        bh=Q0LQgVtH4CFpQOkg6bdkoLilcxloV5tF80mkP6KjlnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcT4iwttNPusNriCM73YyTpv/TkvIDphEb919pj3gZ1DMiYwUsTfUHeooeYY7jB6a
-         HD8yKwAVzBVbDfDzFMb9EKRPVBjqwed91L6CLAJHiugce/t4ZsgUn76BEwYykJa+zs
-         +n8ih3ICHqFcp+F1QGvUW1NhqtNQ7kI4fpogbAgA=
+        b=cWs8ePDxfrO+O0YV91ZYlv1Ym1fY3Uzj/R2G4+azwB2KLhOt3LM2o2HayXnkWsVj8
+         9aNPrIHajWENs1W40Yw4994VMhx/kd6lg859NQUfU6J5Fjj5Zo5m+gkyeQho2VhLgL
+         f4DRYBm1argIQiylTD26m7rYudqDqbrBrN+n3KS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.7 142/166] drm/amdgpu: add TMR destory function for psp
-Date:   Tue, 14 Jul 2020 20:45:07 +0200
-Message-Id: <20200714184122.623525965@linuxfoundation.org>
+        stable@vger.kernel.org, Andi Shyti <andi.shyti@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.7 145/166] drm/i915: Also drop vm.ref along error paths for vma construction
+Date:   Tue, 14 Jul 2020 20:45:10 +0200
+Message-Id: <20200714184122.768805571@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -43,113 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Rui <ray.huang@amd.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit c564b8601ae917086751d90f464d5f19d731ece7 upstream.
+commit cf1976b11372cac3b57fbae1831f66a4486355d3 upstream.
 
-TMR is required to be destoried with GFX_CMD_ID_DESTROY_TMR while the
-system goes to suspend. Otherwise, PSP may return the failure state
-(0xFFFF007) on Gfx-2-PSP command GFX_CMD_ID_SETUP_TMR after do multiple
-times suspend/resume.
+Not only do we need to release the vm.ref we acquired for the vma on the
+duplicate insert branch, but also for the normal error paths, so roll
+them all into one.
 
-Signed-off-by: Huang Rui <ray.huang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Reported-by: Andi Shyti <andi.shyti@intel.com>
+Suggested-by: Andi Shyti <andi.shyti@intel.com>
+Fixes: 2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Andi Shyti <andi.shyti@intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200702211015.29604-1-chris@chris-wilson.co.uk
+(cherry picked from commit 03fca66b7a36b52da8915341eee388267f6d5b73)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c |   57 +++++++++++++++++++++++++++++---
- 1 file changed, 53 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/i915_vma.c |   16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -370,6 +370,52 @@ static int psp_tmr_load(struct psp_conte
- 	return ret;
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -104,6 +104,7 @@ vma_create(struct drm_i915_gem_object *o
+ 	   struct i915_address_space *vm,
+ 	   const struct i915_ggtt_view *view)
+ {
++	struct i915_vma *pos = ERR_PTR(-E2BIG);
+ 	struct i915_vma *vma;
+ 	struct rb_node *rb, **p;
+ 
+@@ -184,7 +185,6 @@ vma_create(struct drm_i915_gem_object *o
+ 	rb = NULL;
+ 	p = &obj->vma.tree.rb_node;
+ 	while (*p) {
+-		struct i915_vma *pos;
+ 		long cmp;
+ 
+ 		rb = *p;
+@@ -196,17 +196,12 @@ vma_create(struct drm_i915_gem_object *o
+ 		 * and dispose of ours.
+ 		 */
+ 		cmp = i915_vma_compare(pos, vm, view);
+-		if (cmp == 0) {
+-			spin_unlock(&obj->vma.lock);
+-			i915_vm_put(vm);
+-			i915_vma_free(vma);
+-			return pos;
+-		}
+-
+ 		if (cmp < 0)
+ 			p = &rb->rb_right;
+-		else
++		else if (cmp > 0)
+ 			p = &rb->rb_left;
++		else
++			goto err_unlock;
+ 	}
+ 	rb_link_node(&vma->obj_node, rb, p);
+ 	rb_insert_color(&vma->obj_node, &obj->vma.tree);
+@@ -229,8 +224,9 @@ vma_create(struct drm_i915_gem_object *o
+ err_unlock:
+ 	spin_unlock(&obj->vma.lock);
+ err_vma:
++	i915_vm_put(vm);
+ 	i915_vma_free(vma);
+-	return ERR_PTR(-E2BIG);
++	return pos;
  }
  
-+static void psp_prep_tmr_unload_cmd_buf(struct psp_context *psp,
-+					struct psp_gfx_cmd_resp *cmd)
-+{
-+	if (amdgpu_sriov_vf(psp->adev))
-+		cmd->cmd_id = GFX_CMD_ID_DESTROY_VMR;
-+	else
-+		cmd->cmd_id = GFX_CMD_ID_DESTROY_TMR;
-+}
-+
-+static int psp_tmr_unload(struct psp_context *psp)
-+{
-+	int ret;
-+	struct psp_gfx_cmd_resp *cmd;
-+
-+	cmd = kzalloc(sizeof(struct psp_gfx_cmd_resp), GFP_KERNEL);
-+	if (!cmd)
-+		return -ENOMEM;
-+
-+	psp_prep_tmr_unload_cmd_buf(psp, cmd);
-+	DRM_INFO("free PSP TMR buffer\n");
-+
-+	ret = psp_cmd_submit_buf(psp, NULL, cmd,
-+				 psp->fence_buf_mc_addr);
-+
-+	kfree(cmd);
-+
-+	return ret;
-+}
-+
-+static int psp_tmr_terminate(struct psp_context *psp)
-+{
-+	int ret;
-+	void *tmr_buf;
-+	void **pptr;
-+
-+	ret = psp_tmr_unload(psp);
-+	if (ret)
-+		return ret;
-+
-+	/* free TMR memory buffer */
-+	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
-+	amdgpu_bo_free_kernel(&psp->tmr_bo, &psp->tmr_mc_addr, pptr);
-+
-+	return 0;
-+}
-+
- static void psp_prep_asd_load_cmd_buf(struct psp_gfx_cmd_resp *cmd,
- 				uint64_t asd_mc, uint32_t size)
- {
-@@ -1575,8 +1621,6 @@ static int psp_hw_fini(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 	struct psp_context *psp = &adev->psp;
--	void *tmr_buf;
--	void **pptr;
- 
- 	if (psp->adev->psp.ta_fw) {
- 		psp_ras_terminate(psp);
-@@ -1586,10 +1630,9 @@ static int psp_hw_fini(void *handle)
- 
- 	psp_asd_unload(psp);
- 
-+	psp_tmr_terminate(psp);
- 	psp_ring_destroy(psp, PSP_RING_TYPE__KM);
- 
--	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
--	amdgpu_bo_free_kernel(&psp->tmr_bo, &psp->tmr_mc_addr, pptr);
- 	amdgpu_bo_free_kernel(&psp->fw_pri_bo,
- 			      &psp->fw_pri_mc_addr, &psp->fw_pri_buf);
- 	amdgpu_bo_free_kernel(&psp->fence_buf_bo,
-@@ -1636,6 +1679,12 @@ static int psp_suspend(void *handle)
- 		}
- 	}
- 
-+	ret = psp_tmr_terminate(psp);
-+	if (ret) {
-+		DRM_ERROR("Falied to terminate tmr\n");
-+		return ret;
-+	}
-+
- 	ret = psp_ring_stop(psp, PSP_RING_TYPE__KM);
- 	if (ret) {
- 		DRM_ERROR("PSP ring stop failed\n");
+ static struct i915_vma *
 
 
