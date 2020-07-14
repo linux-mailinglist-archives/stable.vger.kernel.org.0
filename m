@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D929721FC45
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D50521FBBA
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730361AbgGNSvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47440 "EHLO mail.kernel.org"
+        id S1729627AbgGNTD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:03:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729873AbgGNSvE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:04 -0400
+        id S1731023AbgGNS4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:56:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D766522B2A;
-        Tue, 14 Jul 2020 18:51:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC317229CA;
+        Tue, 14 Jul 2020 18:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752663;
-        bh=m1m092XrQX3GfV9d3V77hve2zULsbBlvhWpQsEt4laY=;
+        s=default; t=1594753003;
+        bh=qlLNvsE77hLkylIVZ+jK60slbvjQdGxm1kMv+RPlm5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgGOMx8IXreG3nIWBz1HI0z0dTmaQlHGgFBoGwTHDz8C42Erd6ssIwzzKaGxpp3Bg
-         rcFT5O3HOl81tWDy86rz00m41JEJkLT1DyTq5fyuimE1fi99qwcXhpujjOJfjOle30
-         JAX3OSAaRqe/MDo3mcmeW5BVyKJhB0c8Y3+AooLU=
+        b=jPhT6JtopkOus+Ac6NAcjmC1RX1nmNAlG4ArKduCC9jfWsPrQGPkpTP22ZWp5mTCz
+         SYDnxOQnIS/NbG+4w5JRJSfqwn22DIiL10towI7804ZN6LIgfugP4ska06TK4vTikP
+         CgHNaJwIeDHJQYispopeGDUF/P8I5iuY8rcozLIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Eran Ben Elisha <eranbe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/109] net/mlx5e: Fix 50G per lane indication
-Date:   Tue, 14 Jul 2020 20:44:06 +0200
-Message-Id: <20200714184108.539102399@linuxfoundation.org>
+Subject: [PATCH 5.7 082/166] net: ipa: fix QMI structure definition bugs
+Date:   Tue, 14 Jul 2020 20:44:07 +0200
+Message-Id: <20200714184119.779061934@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,132 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 6a1cf4e443a3b0a4d690d3c93b84b1e9cbfcb1bd ]
+[ Upstream commit 74478ea4ded519db35cb1f059948b1e713bb4abf ]
 
-Some released FW versions mistakenly don't set the capability that 50G
-per lane link-modes are supported for VFs (ptys_extended_ethernet
-capability bit). When the capability is unset, read
-PTYS.ext_eth_proto_capability (always reliable).
-If PTYS.ext_eth_proto_capability is valid (has a non-zero value)
-conclude that the HCA supports 50G per lane. Otherwise, conclude that
-the HCA doesn't support 50G per lane.
+Building with "W=1" did exactly what it was supposed to do, namely
+point out some suspicious-looking code to be verified not to contain
+bugs.
 
-Fixes: a08b4ed1373d ("net/mlx5: Add support to ext_* fields introduced in Port Type and Speed register")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Some QMI message structures defined in "ipa_qmi_msg.c" contained
+some bad field names (duplicating the "elem_size" field instead of
+defining the "offset" field), almost certainly due to copy/paste
+errors that weren't obvious in a scan of the code.  Fix these bugs.
+
+Fixes: 530f9216a953 ("soc: qcom: ipa: AP/modem communications")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/port.c | 21 ++++++++++++++++---
- .../net/ethernet/mellanox/mlx5/core/en/port.h |  2 +-
- .../ethernet/mellanox/mlx5/core/en_ethtool.c  |  8 +++----
- 3 files changed, 23 insertions(+), 8 deletions(-)
+ drivers/net/ipa/ipa_qmi_msg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
-index fce6eccdcf8b2..fa81a97f6ba9e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
-@@ -78,11 +78,26 @@ static const u32 mlx5e_ext_link_speed[MLX5E_EXT_LINK_MODES_NUMBER] = {
- 	[MLX5E_400GAUI_8]			= 400000,
- };
- 
-+bool mlx5e_ptys_ext_supported(struct mlx5_core_dev *mdev)
-+{
-+	struct mlx5e_port_eth_proto eproto;
-+	int err;
-+
-+	if (MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet))
-+		return true;
-+
-+	err = mlx5_port_query_eth_proto(mdev, 1, true, &eproto);
-+	if (err)
-+		return false;
-+
-+	return !!eproto.cap;
-+}
-+
- static void mlx5e_port_get_speed_arr(struct mlx5_core_dev *mdev,
- 				     const u32 **arr, u32 *size,
- 				     bool force_legacy)
- {
--	bool ext = force_legacy ? false : MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	bool ext = force_legacy ? false : mlx5e_ptys_ext_supported(mdev);
- 
- 	*size = ext ? ARRAY_SIZE(mlx5e_ext_link_speed) :
- 		      ARRAY_SIZE(mlx5e_link_speed);
-@@ -177,7 +192,7 @@ int mlx5e_port_linkspeed(struct mlx5_core_dev *mdev, u32 *speed)
- 	bool ext;
- 	int err;
- 
--	ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	ext = mlx5e_ptys_ext_supported(mdev);
- 	err = mlx5_port_query_eth_proto(mdev, 1, ext, &eproto);
- 	if (err)
- 		goto out;
-@@ -205,7 +220,7 @@ int mlx5e_port_max_linkspeed(struct mlx5_core_dev *mdev, u32 *speed)
- 	int err;
- 	int i;
- 
--	ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	ext = mlx5e_ptys_ext_supported(mdev);
- 	err = mlx5_port_query_eth_proto(mdev, 1, ext, &eproto);
- 	if (err)
- 		return err;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/port.h b/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
-index 4a7f4497692bc..e196888f7056b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
-@@ -54,7 +54,7 @@ int mlx5e_port_linkspeed(struct mlx5_core_dev *mdev, u32 *speed);
- int mlx5e_port_max_linkspeed(struct mlx5_core_dev *mdev, u32 *speed);
- u32 mlx5e_port_speed2linkmodes(struct mlx5_core_dev *mdev, u32 speed,
- 			       bool force_legacy);
--
-+bool mlx5e_ptys_ext_supported(struct mlx5_core_dev *mdev);
- int mlx5e_port_query_pbmc(struct mlx5_core_dev *mdev, void *out);
- int mlx5e_port_set_pbmc(struct mlx5_core_dev *mdev, void *in);
- int mlx5e_port_query_priority2buffer(struct mlx5_core_dev *mdev, u8 *buffer);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-index 39ee32518b106..8cd529556b214 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -200,7 +200,7 @@ static void mlx5e_ethtool_get_speed_arr(struct mlx5_core_dev *mdev,
- 					struct ptys2ethtool_config **arr,
- 					u32 *size)
- {
--	bool ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	bool ext = mlx5e_ptys_ext_supported(mdev);
- 
- 	*arr = ext ? ptys2ext_ethtool_table : ptys2legacy_ethtool_table;
- 	*size = ext ? ARRAY_SIZE(ptys2ext_ethtool_table) :
-@@ -871,7 +871,7 @@ static void get_lp_advertising(struct mlx5_core_dev *mdev, u32 eth_proto_lp,
- 			       struct ethtool_link_ksettings *link_ksettings)
- {
- 	unsigned long *lp_advertising = link_ksettings->link_modes.lp_advertising;
--	bool ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	bool ext = mlx5e_ptys_ext_supported(mdev);
- 
- 	ptys2ethtool_adver_link(lp_advertising, eth_proto_lp, ext);
- }
-@@ -900,7 +900,7 @@ int mlx5e_ethtool_get_link_ksettings(struct mlx5e_priv *priv,
- 			   __func__, err);
- 		goto err_query_regs;
- 	}
--	ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	ext = !!MLX5_GET_ETH_PROTO(ptys_reg, out, true, eth_proto_capability);
- 	eth_proto_cap    = MLX5_GET_ETH_PROTO(ptys_reg, out, ext,
- 					      eth_proto_capability);
- 	eth_proto_admin  = MLX5_GET_ETH_PROTO(ptys_reg, out, ext,
-@@ -1052,7 +1052,7 @@ int mlx5e_ethtool_set_link_ksettings(struct mlx5e_priv *priv,
- 	autoneg = link_ksettings->base.autoneg;
- 	speed = link_ksettings->base.speed;
- 
--	ext_supported = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
-+	ext_supported = mlx5e_ptys_ext_supported(mdev);
- 	ext = ext_requested(autoneg, adver, ext_supported);
- 	if (!ext_supported && ext)
- 		return -EOPNOTSUPP;
+diff --git a/drivers/net/ipa/ipa_qmi_msg.c b/drivers/net/ipa/ipa_qmi_msg.c
+index 03a1d0e559644..73413371e3d3e 100644
+--- a/drivers/net/ipa/ipa_qmi_msg.c
++++ b/drivers/net/ipa/ipa_qmi_msg.c
+@@ -119,7 +119,7 @@ struct qmi_elem_info ipa_driver_init_complete_rsp_ei[] = {
+ 			sizeof_field(struct ipa_driver_init_complete_rsp,
+ 				     rsp),
+ 		.tlv_type	= 0x02,
+-		.elem_size	= offsetof(struct ipa_driver_init_complete_rsp,
++		.offset		= offsetof(struct ipa_driver_init_complete_rsp,
+ 					   rsp),
+ 		.ei_array	= qmi_response_type_v01_ei,
+ 	},
+@@ -137,7 +137,7 @@ struct qmi_elem_info ipa_init_complete_ind_ei[] = {
+ 			sizeof_field(struct ipa_init_complete_ind,
+ 				     status),
+ 		.tlv_type	= 0x02,
+-		.elem_size	= offsetof(struct ipa_init_complete_ind,
++		.offset		= offsetof(struct ipa_init_complete_ind,
+ 					   status),
+ 		.ei_array	= qmi_response_type_v01_ei,
+ 	},
+@@ -218,7 +218,7 @@ struct qmi_elem_info ipa_init_modem_driver_req_ei[] = {
+ 			sizeof_field(struct ipa_init_modem_driver_req,
+ 				     platform_type_valid),
+ 		.tlv_type	= 0x10,
+-		.elem_size	= offsetof(struct ipa_init_modem_driver_req,
++		.offset		= offsetof(struct ipa_init_modem_driver_req,
+ 					   platform_type_valid),
+ 	},
+ 	{
 -- 
 2.25.1
 
