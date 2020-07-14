@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F81721FBAD
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5686621FB8D
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729583AbgGNTDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:03:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55594 "EHLO mail.kernel.org"
+        id S1731142AbgGNS5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:57:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731148AbgGNS5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:57:22 -0400
+        id S1731105AbgGNS5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:57:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16172229CA;
-        Tue, 14 Jul 2020 18:57:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 704E0207F5;
+        Tue, 14 Jul 2020 18:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753041;
-        bh=jnp0t6ErVSfA+lpTQq88zRCWkkjlAaptnMPyR4Wd4Ls=;
+        s=default; t=1594753072;
+        bh=iAix+odTu5gBFd40uh7vpisp2QYBWz+szMkM3yv+AcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPz9lbTHa+YCCBQHu0IEyvLszQ4lsm+fpkCL2b2bSYk0JT6peudLuTydywVUXTL5D
-         2+Zh1PEp9HB7CvqOyyq890oy12rwIn8nsZtLQCRwTKd5lAzQ30UsrI0x/3kqRCrm41
-         hE1fmXJsEHg37AlsqpHjYgGN5UiTPNz5VGkLSzBI=
+        b=JswMJrsYEBPirwtSrgDUL6M9n++eICTZvPLE8codxXE2ujeMHwbXtBYgb0zDClyqW
+         1iQV6dPRvSZ8n2yDELs3Jk/MRPukHK06U4iG/SbfwRwaGkeLN6UvOQ0TH4xwLcD8Da
+         Y2AHrDQTf1FQ+3zeG2vgiw3x6V2MtHLqhONrAo0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 090/166] cxgb4: fix all-mask IP address comparison
-Date:   Tue, 14 Jul 2020 20:44:15 +0200
-Message-Id: <20200714184120.150771598@linuxfoundation.org>
+Subject: [PATCH 5.7 091/166] IB/mlx5: Fix 50G per lane indication
+Date:   Tue, 14 Jul 2020 20:44:16 +0200
+Message-Id: <20200714184120.200773750@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
 References: <20200714184115.844176932@linuxfoundation.org>
@@ -45,46 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit 76c4d85c9260c3d741cbd194c30c61983d0a4303 ]
+[ Upstream commit 530c8632b547ff72f11ff83654b22462a73f1f7b ]
 
-Convert all-mask IP address to Big Endian, instead, for comparison.
+Some released FW versions mistakenly don't set the capability that 50G per
+lane link-modes are supported for VFs (ptys_extended_ethernet capability
+bit).
 
-Fixes: f286dd8eaad5 ("cxgb4: use correct type for all-mask IP address comparison")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Use PTYS.ext_eth_proto_capability instead, as this indication is always
+accurate. If PTYS.ext_eth_proto_capability is valid
+(has a non-zero value) conclude that the HCA supports 50G per lane.
+
+Otherwise, conclude that the HCA doesn't support 50G per lane.
+
+Fixes: 08e8676f1607 ("IB/mlx5: Add support for 50Gbps per lane link modes")
+Link: https://lore.kernel.org/r/20200707110612.882962-3-leon@kernel.org
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Eran Ben Elisha <eranbe@mellanox.com>
+Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-index 7a7f61a8cdf40..d02d346629b36 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -1112,16 +1112,16 @@ static bool is_addr_all_mask(u8 *ipmask, int family)
- 		struct in_addr *addr;
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 6679756506e60..820e407b3e260 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -515,7 +515,7 @@ static int mlx5_query_port_roce(struct ib_device *device, u8 port_num,
+ 					   mdev_port_num);
+ 	if (err)
+ 		goto out;
+-	ext = MLX5_CAP_PCAM_FEATURE(dev->mdev, ptys_extended_ethernet);
++	ext = !!MLX5_GET_ETH_PROTO(ptys_reg, out, true, eth_proto_capability);
+ 	eth_prot_oper = MLX5_GET_ETH_PROTO(ptys_reg, out, ext, eth_proto_oper);
  
- 		addr = (struct in_addr *)ipmask;
--		if (ntohl(addr->s_addr) == 0xffffffff)
-+		if (addr->s_addr == htonl(0xffffffff))
- 			return true;
- 	} else if (family == AF_INET6) {
- 		struct in6_addr *addr6;
- 
- 		addr6 = (struct in6_addr *)ipmask;
--		if (ntohl(addr6->s6_addr32[0]) == 0xffffffff &&
--		    ntohl(addr6->s6_addr32[1]) == 0xffffffff &&
--		    ntohl(addr6->s6_addr32[2]) == 0xffffffff &&
--		    ntohl(addr6->s6_addr32[3]) == 0xffffffff)
-+		if (addr6->s6_addr32[0] == htonl(0xffffffff) &&
-+		    addr6->s6_addr32[1] == htonl(0xffffffff) &&
-+		    addr6->s6_addr32[2] == htonl(0xffffffff) &&
-+		    addr6->s6_addr32[3] == htonl(0xffffffff))
- 			return true;
- 	}
- 	return false;
+ 	props->active_width     = IB_WIDTH_4X;
 -- 
 2.25.1
 
