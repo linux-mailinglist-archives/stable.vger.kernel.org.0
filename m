@@ -2,76 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0BB21E7E4
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 08:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A06DD21E7E5
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 08:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725778AbgGNGIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 02:08:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55436 "EHLO mail.kernel.org"
+        id S1725788AbgGNGI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 02:08:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725306AbgGNGIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 02:08:15 -0400
+        id S1725306AbgGNGI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 02:08:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64EBF20890;
-        Tue, 14 Jul 2020 06:08:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED465221E8;
+        Tue, 14 Jul 2020 06:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594706895;
-        bh=+jF4wJzWGOkFcxEN3+EVfYYFbyhA0fxkfk7jHwiYYUg=;
+        s=default; t=1594706905;
+        bh=reHAiOA0n3cDmaoIIM6g+MBRwZK/7y/3DGkJwQOOVoE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fyred2ckNXe78RZ4Q/Bixp2eohl9dQWhMKBLHKpDg0NwcXW7UotFwtMEIK8qEPqwx
-         4QTrOmlX5g/rl149x43MlmoDfDLPPojqxEPttufcCSuP8J5j/BqIcBeTnW3eqKh5PM
-         uQ54pTAhUb5fvdXb7frT0BN7Ye6dOCkL9lRxL3D8=
-Date:   Tue, 14 Jul 2020 08:08:13 +0200
+        b=CmQ6cEq7FP3wRwZrA6eDWP7KL23TcuZQ9pmUcMC/nJ2qGAPwvy4x3ZijpeY7Rc3cS
+         ChWxzWReExwAvsmIPuydLdLBNwUx8M29IUaNhAqLR8HqYdahnwkuU/fuoEKiwg6IXW
+         TlnmqTPK7kQcGaSinpZA1i8dLkZ2WNYSU/494lPc=
+Date:   Tue, 14 Jul 2020 08:08:24 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yang Yingliang <yangyingliang@huawei.com>
-Cc:     stable@vger.kernel.org, sashal@kernel.org, dledford@redhat.com,
-        jgg@ziepe.ca
-Subject: Re: [PATCH 4.19] IB/umem: fix reference count leak in
- ib_umem_odp_get()
-Message-ID: <20200714060813.GD657428@kroah.com>
-References: <20200714105748.1151138-1-yangyingliang@huawei.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     steven.price@arm.com, james.morse@arm.com, maz@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: arm64: Fix kvm_reset_vcpu() return
+ code being incorrect" failed to apply to 5.4-stable tree
+Message-ID: <20200714060824.GE657428@kroah.com>
+References: <1594656059166107@kroah.com>
+ <20200713185901.GG2722994@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200714105748.1151138-1-yangyingliang@huawei.com>
+In-Reply-To: <20200713185901.GG2722994@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 14, 2020 at 10:57:48AM +0000, Yang Yingliang wrote:
-> Add missing mmput() on error path to avoid ref-count leak.
+On Mon, Jul 13, 2020 at 02:59:01PM -0400, Sasha Levin wrote:
+> On Mon, Jul 13, 2020 at 06:00:59PM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > > From 66b7e05dc0239c5817859f261098ba9cc2efbd2b Mon Sep 17 00:00:00 2001
+> > From: Steven Price <steven.price@arm.com>
+> > Date: Wed, 17 Jun 2020 11:54:56 +0100
+> > Subject: [PATCH] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect
+> > with SVE
+> > 
+> > If SVE is enabled then 'ret' can be assigned the return value of
+> > kvm_vcpu_enable_sve() which may be 0 causing future "goto out" sites to
+> > erroneously return 0 on failure rather than -EINVAL as expected.
+> > 
+> > Remove the initialisation of 'ret' and make setting the return value
+> > explicit to avoid this situation in the future.
+> > 
+> > Fixes: 9a3cdf26e336 ("KVM: arm64/sve: Allow userspace to enable SVE for vcpus")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: James Morse <james.morse@arm.com>
+> > Signed-off-by: Steven Price <steven.price@arm.com>
+> > Signed-off-by: Marc Zyngier <maz@kernel.org>
+> > Link: https://lore.kernel.org/r/20200617105456.28245-1-steven.price@arm.com
 > 
-> This problem has already been resolved in mainline by
-> f27a0d50a4bc ("RDMA/umem: Use umem->owning_mm inside ODP").
-> 
-> Fixes: 79bb5b7ee177 ("RDMA/umem: Fix missing mmap_sem in get umem ODP call")
-> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-> ---
->  drivers/infiniband/core/umem_odp.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> I've worked around not having 540f76d12c66 ("arm64: cpufeature: Add CPU
+> capability for AArch32 EL1 support") in 5.7 and 5.4 and queued this
+> patch.
 
-$ ./scripts/get_maintainer.pl --file drivers/infiniband/core/umem_odp.c
-Doug Ledford <dledford@redhat.com> (supporter:INFINIBAND SUBSYSTEM)
-Jason Gunthorpe <jgg@ziepe.ca> (supporter:INFINIBAND SUBSYSTEM,commit_signer:28/25=100%,authored:17/25=68%,added_lines:453/481=94%,removed_lines:662/722=92%)
-Leon Romanovsky <leon@kernel.org> (commit_signer:16/25=64%)
-Artemy Kovalyov <artemyko@mellanox.com> (commit_signer:4/25=16%)
-Yishai Hadas <yishaih@mellanox.com> (commit_signer:3/25=12%,authored:3/25=12%)
-Andrew Morton <akpm@linux-foundation.org> (commit_signer:2/25=8%)
-Moni Shoua <monis@mellanox.com> (authored:2/25=8%)
-linux-rdma@vger.kernel.org (open list:INFINIBAND SUBSYSTEM)
-linux-kernel@vger.kernel.org (open list)
+Thanks!
 
-Any reason you ignored the mailing list for the whole IB developer
-community?
 
-And you need to make this REALLY obvious that this is a stable-tree-only
-patch, for a specific kernel version (and why only that one version),
-and a whole lot more description to allow everyone to know what is going
-on, and what you expect them to review this for.
-
-thanks,
-
-greg k-h
