@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BDA121FAC9
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B293A21FA26
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730900AbgGNSzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
+        id S1729676AbgGNSuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730895AbgGNSzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:55:43 -0400
+        id S1729663AbgGNSuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:50:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C109D22507;
-        Tue, 14 Jul 2020 18:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF55022AAA;
+        Tue, 14 Jul 2020 18:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752943;
-        bh=aLKc2SmUfn8SIjJJkUSZ8J7RkjL7/t9i+FwVY1Z71rM=;
+        s=default; t=1594752601;
+        bh=EAz4seBjivztUDkIMKifhMhzenT9iqxoaHQ5/wp543c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFyOdxVMQwXc/ndYlr9uiHxpeoThcpzVSjuqo/FHOhiRY2zF5PF4iMGY6soeX4asq
-         duaiu6faBY2IS0dUmp+niQKu3LjQlbC+vnb/j3ZlUnJGyfHUkXn9V1/8OdR/C5+v+1
-         adKjrLVmc4X6FHJUEQYL6WsCXUBwgKUPrFdurDFI=
+        b=X5gJyLeKXaItj71TDPaOevLq9j6RTfq6Zai0EWCCr2t3Cqa1q7qlnOOnDEsyYEt4X
+         lf1hnd+G1M9jaAy/PXtr1+yFGMz2/QPlZXGbrEqoza7vHJXlfRPIQfKknJzXkHsVHB
+         upubbLVtDc0eClmOA3rlCzzGS12NXzKzu9TWOHSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Emil Velikov <emil.l.velikov@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 029/166] drm: panel-orientation-quirks: Add quirk for Asus T101HA panel
-Date:   Tue, 14 Jul 2020 20:43:14 +0200
-Message-Id: <20200714184117.280189159@linuxfoundation.org>
+Subject: [PATCH 5.4 012/109] ASoC: SOF: Intel: add PCI ID for CometLake-S
+Date:   Tue, 14 Jul 2020 20:43:15 +0200
+Message-Id: <20200714184106.108948035@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 6c22bc18a3b93a38018844636557ad02e588e055 ]
+[ Upstream commit 258fb4f4c34a0db9d3834aba6784d7b322176bb9 ]
 
-Like the Asus T100HA the Asus T101HA also uses a panel which has been
-mounted 90 degrees rotated, albeit in the opposite direction.
-Add a quirk for this.
+Mirror ID added for legacy HDaudio
 
-Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200531093025.28050-1-hdegoede@redhat.com
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200617164755.18104-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/soc/sof/sof-pci-dev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index ffd95bfeaa94c..d11d83703931e 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -121,6 +121,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100HAN"),
- 		},
- 		.driver_data = (void *)&asus_t100ha,
-+	}, {	/* Asus T101HA */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T101HA"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index d66412a778739..3f79cd03507c9 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -420,6 +420,8 @@ static const struct pci_device_id sof_pci_ids[] = {
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_COMETLAKE_H)
+ 	{ PCI_DEVICE(0x8086, 0x06c8),
+ 		.driver_data = (unsigned long)&cml_desc},
++	{ PCI_DEVICE(0x8086, 0xa3f0), /* CML-S */
++		.driver_data = (unsigned long)&cml_desc},
+ #endif
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_TIGERLAKE)
+ 	{ PCI_DEVICE(0x8086, 0xa0c8),
 -- 
 2.25.1
 
