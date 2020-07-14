@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 519A321FA50
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E16521F9BC
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730107AbgGNSvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47948 "EHLO mail.kernel.org"
+        id S1729357AbgGNSqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730406AbgGNSv3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:29 -0400
+        id S1729350AbgGNSqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:46:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AFD722BF3;
-        Tue, 14 Jul 2020 18:51:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0179522AAC;
+        Tue, 14 Jul 2020 18:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752688;
-        bh=dy2uQDYAA9PIx9olKKhx+sOCYXjelwa7t4G64V/NNKQ=;
+        s=default; t=1594752366;
+        bh=CEY62XlbzwgiW5Lf2uBoRurdb/wAA8yCa81CH4PGnhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLooLLrsLTF4bZ3/C5yYZ2K1e6uS7Mf6hRdVYf3RgahuBvFscgQweU2nUjNlbdsXe
-         6yckD6Ac+ueHh0nxau4xlgiAZgWpjn1JFfu3Nd5/rWpyZqb8rDxVemjAnVclQ79ejU
-         LINgu63fBypTHrxAO8OqlDdXniqDzZ+t12Pmj0EA=
+        b=qq5HE+akQRcwuIdD1uNyxrILB2XC+U77j5sH2IV71lDL7JdIJwDT6B4o0faqaTeub
+         G5vu4Nw/YdSbFrl3Qtt2Gn3Mzcvfg/cSCrgaRzMQuNUvOAAlmnF+OXIpLLJUVLz/A5
+         i4P9gaW3vGCsLdtDIeI5OHLr+itC1NvGyIdS9wxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Divya Indi <divya.indi@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Emil Velikov <emil.l.velikov@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/109] IB/sa: Resolv use-after-free in ib_nl_make_request()
+Subject: [PATCH 4.19 15/58] drm: panel-orientation-quirks: Use generic orientation-data for Acer S1003
 Date:   Tue, 14 Jul 2020 20:43:48 +0200
-Message-Id: <20200714184107.680715975@linuxfoundation.org>
+Message-Id: <20200714184056.909662669@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,128 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Divya Indi <divya.indi@oracle.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f427f4d6214c183c474eeb46212d38e6c7223d6a ]
+[ Upstream commit a05caf9e62a85d12da27e814ac13195f4683f21c ]
 
-There is a race condition where ib_nl_make_request() inserts the request
-data into the linked list but the timer in ib_nl_request_timeout() can see
-it and destroy it before ib_nl_send_msg() is done touching it. This could
-happen, for instance, if there is a long delay allocating memory during
-nlmsg_new()
+The Acer S1003 has proper DMI strings for sys-vendor and product-name,
+so we do not need to match by BIOS-date.
 
-This causes a use-after-free in the send_mad() thread:
+This means that the Acer S1003 can use the generic lcd800x1280_rightside_up
+drm_dmi_panel_orientation_data struct which is also used by other quirks.
 
-  [<ffffffffa02f43cb>] ? ib_pack+0x17b/0x240 [ib_core]
-  [ <ffffffffa032aef1>] ib_sa_path_rec_get+0x181/0x200 [ib_sa]
-  [<ffffffffa0379db0>] rdma_resolve_route+0x3c0/0x8d0 [rdma_cm]
-  [<ffffffffa0374450>] ? cma_bind_port+0xa0/0xa0 [rdma_cm]
-  [<ffffffffa040f850>] ? rds_rdma_cm_event_handler_cmn+0x850/0x850 [rds_rdma]
-  [<ffffffffa040f22c>] rds_rdma_cm_event_handler_cmn+0x22c/0x850 [rds_rdma]
-  [<ffffffffa040f860>] rds_rdma_cm_event_handler+0x10/0x20 [rds_rdma]
-  [<ffffffffa037778e>] addr_handler+0x9e/0x140 [rdma_cm]
-  [<ffffffffa026cdb4>] process_req+0x134/0x190 [ib_addr]
-  [<ffffffff810a02f9>] process_one_work+0x169/0x4a0
-  [<ffffffff810a0b2b>] worker_thread+0x5b/0x560
-  [<ffffffff810a0ad0>] ? flush_delayed_work+0x50/0x50
-  [<ffffffff810a68fb>] kthread+0xcb/0xf0
-  [<ffffffff816ec49a>] ? __schedule+0x24a/0x810
-  [<ffffffff816ec49a>] ? __schedule+0x24a/0x810
-  [<ffffffff810a6830>] ? kthread_create_on_node+0x180/0x180
-  [<ffffffff816f25a7>] ret_from_fork+0x47/0x90
-  [<ffffffff810a6830>] ? kthread_create_on_node+0x180/0x180
-
-The ownership rule is once the request is on the list, ownership transfers
-to the list and the local thread can't touch it any more, just like for
-the normal MAD case in send_mad().
-
-Thus, instead of adding before send and then trying to delete after on
-errors, move the entire thing under the spinlock so that the send and
-update of the lists are atomic to the conurrent threads. Lightly reoganize
-things so spinlock safe memory allocations are done in the final NL send
-path and the rest of the setup work is done before and outside the lock.
-
-Fixes: 3ebd2fd0d011 ("IB/sa: Put netlink request into the request list before sending")
-Link: https://lore.kernel.org/r/1592964789-14533-1-git-send-email-divya.indi@oracle.com
-Signed-off-by: Divya Indi <divya.indi@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200531093025.28050-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/sa_query.c | 38 +++++++++++++-----------------
- 1 file changed, 17 insertions(+), 21 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index bddb5434fbed2..d2d70c89193ff 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -829,13 +829,20 @@ static int ib_nl_get_path_rec_attrs_len(ib_sa_comp_mask comp_mask)
- 	return len;
- }
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index de7837efbbfce..fa5c25d36d3dc 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -30,12 +30,6 @@ struct drm_dmi_panel_orientation_data {
+ 	int orientation;
+ };
  
--static int ib_nl_send_msg(struct ib_sa_query *query, gfp_t gfp_mask)
-+static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
- {
- 	struct sk_buff *skb = NULL;
- 	struct nlmsghdr *nlh;
- 	void *data;
- 	struct ib_sa_mad *mad;
- 	int len;
-+	unsigned long flags;
-+	unsigned long delay;
-+	gfp_t gfp_flag;
-+	int ret;
-+
-+	INIT_LIST_HEAD(&query->list);
-+	query->seq = (u32)atomic_inc_return(&ib_nl_sa_request_seq);
- 
- 	mad = query->mad_buf->mad;
- 	len = ib_nl_get_path_rec_attrs_len(mad->sa_hdr.comp_mask);
-@@ -860,36 +867,25 @@ static int ib_nl_send_msg(struct ib_sa_query *query, gfp_t gfp_mask)
- 	/* Repair the nlmsg header length */
- 	nlmsg_end(skb, nlh);
- 
--	return rdma_nl_multicast(&init_net, skb, RDMA_NL_GROUP_LS, gfp_mask);
--}
-+	gfp_flag = ((gfp_mask & GFP_ATOMIC) == GFP_ATOMIC) ? GFP_ATOMIC :
-+		GFP_NOWAIT;
- 
--static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
--{
--	unsigned long flags;
--	unsigned long delay;
--	int ret;
-+	spin_lock_irqsave(&ib_nl_request_lock, flags);
-+	ret = rdma_nl_multicast(&init_net, skb, RDMA_NL_GROUP_LS, gfp_flag);
- 
--	INIT_LIST_HEAD(&query->list);
--	query->seq = (u32)atomic_inc_return(&ib_nl_sa_request_seq);
-+	if (ret)
-+		goto out;
- 
--	/* Put the request on the list first.*/
--	spin_lock_irqsave(&ib_nl_request_lock, flags);
-+	/* Put the request on the list.*/
- 	delay = msecs_to_jiffies(sa_local_svc_timeout_ms);
- 	query->timeout = delay + jiffies;
- 	list_add_tail(&query->list, &ib_nl_request_list);
- 	/* Start the timeout if this is the only request */
- 	if (ib_nl_request_list.next == &query->list)
- 		queue_delayed_work(ib_nl_wq, &ib_nl_timed_work, delay);
--	spin_unlock_irqrestore(&ib_nl_request_lock, flags);
- 
--	ret = ib_nl_send_msg(query, gfp_mask);
--	if (ret) {
--		ret = -EIO;
--		/* Remove the request */
--		spin_lock_irqsave(&ib_nl_request_lock, flags);
--		list_del(&query->list);
--		spin_unlock_irqrestore(&ib_nl_request_lock, flags);
--	}
-+out:
-+	spin_unlock_irqrestore(&ib_nl_request_lock, flags);
- 
- 	return ret;
- }
+-static const struct drm_dmi_panel_orientation_data acer_s1003 = {
+-	.width = 800,
+-	.height = 1280,
+-	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+-};
+-
+ static const struct drm_dmi_panel_orientation_data asus_t100ha = {
+ 	.width = 800,
+ 	.height = 1280,
+@@ -100,7 +94,7 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
+ 		},
+-		.driver_data = (void *)&acer_s1003,
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* Asus T100HA */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 -- 
 2.25.1
 
