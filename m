@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D31021FA5A
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D0321F9C6
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730469AbgGNSvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48462 "EHLO mail.kernel.org"
+        id S1729479AbgGNSq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:46:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729994AbgGNSvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:53 -0400
+        id S1729465AbgGNSqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:46:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA1ED22B2B;
-        Tue, 14 Jul 2020 18:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23AE222282;
+        Tue, 14 Jul 2020 18:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752713;
-        bh=QuTUpPj32od8xKGnqQ9wp9FMjS5Eo+apjOKbMlh7Uxw=;
+        s=default; t=1594752384;
+        bh=MSXNpAEhno4g986D8o9A5a+ESTpY1tYD20T+D+8C4+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehIiNthK9RfzTIMpxDyWMHdjLlSZ8lGreOKe7rbuk7lsb8k+0hLPdWrSKdd9dLBLN
-         NMDRut1Z8V1M4TXwGIKFhtRu78zBNn43CNnKelY3Lc0+2mO3swKK5xHoWno59It7fV
-         R+3wA2byJ1z0TdxwauqmqBtSkvBoa3KwRNOR0oKs=
+        b=CR2tWKGpMriZmMXSdsK5yyvVMIzCJYbKOoCQZyxXERiyED+Norp0ILJ0pol7PAMtf
+         B1S0Zy5RbhSxfxSK8qwvMnI+iBoFvSw03EgXcH4xAeZHgYTE8Pw620DZl8aJDKrw+R
+         0ozyOTCYmHtBAPrWzedtHuP1B4Vem9a90hFgNQIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Edich <andre.edich@microchip.com>,
-        Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/109] smsc95xx: check return value of smsc95xx_reset
+Subject: [PATCH 4.19 21/58] usb: dwc3: pci: Fix reference count leak in dwc3_pci_resume_work
 Date:   Tue, 14 Jul 2020 20:43:54 +0200
-Message-Id: <20200714184107.964772377@linuxfoundation.org>
+Message-Id: <20200714184057.196831279@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Edich <andre.edich@microchip.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 7c8b1e855f94f88a0c569be6309fc8d5c8844cd1 ]
+[ Upstream commit 2655971ad4b34e97dd921df16bb0b08db9449df7 ]
 
-The return value of the function smsc95xx_reset() must be checked
-to avoid returning false success from the function smsc95xx_bind().
+dwc3_pci_resume_work() calls pm_runtime_get_sync() that increments
+the reference counter. In case of failure, decrement the reference
+before returning.
 
-Fixes: 2f7ca802bdae2 ("net: Add SMSC LAN9500 USB2.0 10/100 ethernet adapter driver")
-Signed-off-by: Andre Edich <andre.edich@microchip.com>
-Signed-off-by: Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/dwc3/dwc3-pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 3cf4dc3433f91..eb404bb74e18e 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1287,6 +1287,8 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index b2fd505938a0c..389ec4c689c44 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -204,8 +204,10 @@ static void dwc3_pci_resume_work(struct work_struct *work)
+ 	int ret;
  
- 	/* Init all registers */
- 	ret = smsc95xx_reset(dev);
-+	if (ret)
-+		goto free_pdata;
+ 	ret = pm_runtime_get_sync(&dwc3->dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put_sync_autosuspend(&dwc3->dev);
+ 		return;
++	}
  
- 	/* detect device revision as different features may be available */
- 	ret = smsc95xx_read_reg(dev, ID_REV, &val);
-@@ -1317,6 +1319,10 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	schedule_delayed_work(&pdata->carrier_check, CARRIER_CHECK_DELAY);
- 
- 	return 0;
-+
-+free_pdata:
-+	kfree(pdata);
-+	return ret;
- }
- 
- static void smsc95xx_unbind(struct usbnet *dev, struct usb_interface *intf)
+ 	pm_runtime_mark_last_busy(&dwc3->dev);
+ 	pm_runtime_put_sync_autosuspend(&dwc3->dev);
 -- 
 2.25.1
 
