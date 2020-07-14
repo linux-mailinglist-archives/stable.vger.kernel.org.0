@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB2E321FC39
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0240921FCF9
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730414AbgGNSvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48238 "EHLO mail.kernel.org"
+        id S1729407AbgGNSqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:46:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729986AbgGNSvn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:43 -0400
+        id S1729393AbgGNSqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:46:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0201122B2A;
-        Tue, 14 Jul 2020 18:51:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA55422282;
+        Tue, 14 Jul 2020 18:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752702;
-        bh=kTY2Fjn4gqXaQmk4478iYSdk+A5ULQRdbyTB/5xmTzo=;
+        s=default; t=1594752374;
+        bh=n/RZAlzXDH8rUSbrW3Nyf4sfqxn/njQDPwIOh6b0um0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9sxlssVWti3vjFqBFIMLCfV/JepOOFUZ4wH7EIjXfw5EyetujGrH/2hMh5fwKIIT
-         aFnZICgy5bbvJB4al7ckHPT/cwFAaR1mG3LDpg8oO0r7Cpyxva5yVe/0Ox+LibVoDS
-         5OZlLOb3S3sSXiBn0YmPDNKHrbTyMSoRCTlukTok=
+        b=nPmEdS9BzH1enn4a8yVnvrtwg0qOn8GIVyUnHFlEY03Pull/yx+/sjui6c8AJMcfZ
+         RFp+6gnLzYsgTgUU0oMcjl3XsG9wLy5gVGd6Mi6nDoN4uL7CY87oyrol+ZK6sVKTY1
+         4zTPVB+bX6TmcteL11FPfrG0kSQX3sdEv/CUkdZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/109] netfilter: conntrack: refetch conntrack after nf_conntrack_update()
-Date:   Tue, 14 Jul 2020 20:43:50 +0200
-Message-Id: <20200714184107.774838090@linuxfoundation.org>
+Subject: [PATCH 4.19 18/58] cifs: update ctime and mtime during truncate
+Date:   Tue, 14 Jul 2020 20:43:51 +0200
+Message-Id: <20200714184057.061438764@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit d005fbb855d3b5660d62ee5a6bd2d99c13ff8cf3 ]
+[ Upstream commit 5618303d8516f8ac5ecfe53ee8e8bc9a40eaf066 ]
 
-__nf_conntrack_update() might refresh the conntrack object that is
-attached to the skbuff. Otherwise, this triggers UAF.
+As the man description of the truncate, if the size changed,
+then the st_ctime and st_mtime fields should be updated. But
+in cifs, we doesn't do it.
 
-[  633.200434] ==================================================================
-[  633.200472] BUG: KASAN: use-after-free in nf_conntrack_update+0x34e/0x770 [nf_conntrack]
-[  633.200478] Read of size 1 at addr ffff888370804c00 by task nfqnl_test/6769
+It lead the xfstests generic/313 failed.
 
-[  633.200487] CPU: 1 PID: 6769 Comm: nfqnl_test Not tainted 5.8.0-rc2+ #388
-[  633.200490] Hardware name: LENOVO 23259H1/23259H1, BIOS G2ET32WW (1.12 ) 05/30/2012
-[  633.200491] Call Trace:
-[  633.200499]  dump_stack+0x7c/0xb0
-[  633.200526]  ? nf_conntrack_update+0x34e/0x770 [nf_conntrack]
-[  633.200532]  print_address_description.constprop.6+0x1a/0x200
-[  633.200539]  ? _raw_write_lock_irqsave+0xc0/0xc0
-[  633.200568]  ? nf_conntrack_update+0x34e/0x770 [nf_conntrack]
-[  633.200594]  ? nf_conntrack_update+0x34e/0x770 [nf_conntrack]
-[  633.200598]  kasan_report.cold.9+0x1f/0x42
-[  633.200604]  ? call_rcu+0x2c0/0x390
-[  633.200633]  ? nf_conntrack_update+0x34e/0x770 [nf_conntrack]
-[  633.200659]  nf_conntrack_update+0x34e/0x770 [nf_conntrack]
-[  633.200687]  ? nf_conntrack_find_get+0x30/0x30 [nf_conntrack]
+So, add the ATTR_MTIME|ATTR_CTIME flags on attrs when change
+the file size
 
-Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1436
-Fixes: ee04805ff54a ("netfilter: conntrack: make conntrack userspace helpers work again")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/inode.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 48db4aec02dea..200cdad3ff3ab 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -2012,6 +2012,8 @@ static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
- 		err = __nf_conntrack_update(net, skb, ct, ctinfo);
- 		if (err < 0)
- 			return err;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 44fb9ae6d1055..1d951936b0923 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2225,6 +2225,15 @@ set_size_out:
+ 	if (rc == 0) {
+ 		cifsInode->server_eof = attrs->ia_size;
+ 		cifs_setsize(inode, attrs->ia_size);
 +
-+		ct = nf_ct_get(skb, &ctinfo);
++		/*
++		 * The man page of truncate says if the size changed,
++		 * then the st_ctime and st_mtime fields for the file
++		 * are updated.
++		 */
++		attrs->ia_ctime = attrs->ia_mtime = current_time(inode);
++		attrs->ia_valid |= ATTR_CTIME | ATTR_MTIME;
++
+ 		cifs_truncate_page(inode->i_mapping, inode->i_size);
  	}
  
- 	return nf_confirm_cthelper(skb, ct, ctinfo);
 -- 
 2.25.1
 
