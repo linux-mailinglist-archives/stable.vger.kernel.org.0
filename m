@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3035B21FA54
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCA921F9E3
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730141AbgGNSvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:51:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
+        id S1729748AbgGNSrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729966AbgGNSvh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:51:37 -0400
+        id S1729723AbgGNSra (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E7BD207F5;
-        Tue, 14 Jul 2020 18:51:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 435C822AAA;
+        Tue, 14 Jul 2020 18:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752696;
-        bh=v2wN1Lorr9bWGmeULkeXI4D1aoWs1M0eeIraS7x8kDU=;
+        s=default; t=1594752449;
+        bh=ssamkp596EXbZQHlpbDnTR2J3XrIK6VqKSQHgPFMpJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIZKJypPrUOQdIiXNSvH/rmJ9Yj27yheB9wFfRFsBj96XU8HyidXCzID76de4FP0n
-         N5cXDNnzVuT+GgIaWMzEtZRqRyBtHK/0JcOTeicxXrEWJd7yX89i2CVglYIVSGnUGf
-         3bfPaWlQbHUWJFW5p8IZlJg58BDaZIbZVAdDaoOI=
+        b=VhVfoKtkIKGjY42doq9Veu9KX4x6tG49c5lZgqP/vs4GV7asYAl2vemRIj6YT/tsF
+         MaU861Ej4s5g5zRQj1KT2EYBMzInL8nH3i6CbFdXe6Rq3YXPtaevCPA5GfdEMTSQgi
+         RyqUcI3lI1g+RGc+aPcOUr9CdpLN4AYKy802TKbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 074/109] ALSA: usb-audio: add quirk for MacroSilicon MS2109
-Date:   Tue, 14 Jul 2020 20:44:17 +0200
-Message-Id: <20200714184109.091151128@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 46/58] kallsyms: Refactor kallsyms_show_value() to take cred
+Date:   Tue, 14 Jul 2020 20:44:19 +0200
+Message-Id: <20200714184058.446415796@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +42,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Kees Cook <keescook@chromium.org>
 
-commit e337bf19f6af38d5c3fa6d06cd594e0f890ca1ac upstream.
+commit 160251842cd35a75edfb0a1d76afa3eb674ff40a upstream.
 
-These devices claim to be 96kHz mono, but actually are 48kHz stereo with
-swapped channels and unaligned transfers.
+In order to perform future tests against the cred saved during open(),
+switch kallsyms_show_value() to operate on a cred, and have all current
+callers pass current_cred(). This makes it very obvious where callers
+are checking the wrong credential in their "read" contexts. These will
+be fixed in the coming patches.
+
+Additionally switch return value to bool, since it is always used as a
+direct permission check, not a 0-on-success, negative-on-error style
+function return.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200702071433.237843-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks-table.h |   52 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ include/linux/filter.h   |    2 +-
+ include/linux/kallsyms.h |    5 +++--
+ kernel/kallsyms.c        |   17 +++++++++++------
+ kernel/kprobes.c         |    4 ++--
+ kernel/module.c          |    2 +-
+ 5 files changed, 18 insertions(+), 12 deletions(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3695,4 +3695,56 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* A
- 	}
- },
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -757,7 +757,7 @@ static inline bool bpf_dump_raw_ok(void)
+ 	/* Reconstruction of call-sites is dependent on kallsyms,
+ 	 * thus make dump the same restriction.
+ 	 */
+-	return kallsyms_show_value() == 1;
++	return kallsyms_show_value(current_cred());
+ }
  
-+/*
-+ * MacroSilicon MS2109 based HDMI capture cards
-+ *
-+ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
-+ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
-+ * they pretend to be 96kHz mono as a workaround for stereo being broken
-+ * by that...
-+ *
-+ * They also have swapped L-R channels, but that's for userspace to deal
-+ * with.
-+ */
-+{
-+	USB_DEVICE(0x534d, 0x2109),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "MacroSilicon",
-+		.product_name = "MS2109",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
-+			},
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_STANDARD_MIXER,
-+			},
-+			{
-+				.ifnum = 3,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+					.channels = 2,
-+					.iface = 3,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.attributes = 0,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_CONTINUOUS,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
-+
- #undef USB_DEVICE_VENDOR_SPEC
+ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
+--- a/include/linux/kallsyms.h
++++ b/include/linux/kallsyms.h
+@@ -18,6 +18,7 @@
+ #define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s]") + (KSYM_NAME_LEN - 1) + \
+ 			 2*(BITS_PER_LONG*3/10) + (MODULE_NAME_LEN - 1) + 1)
+ 
++struct cred;
+ struct module;
+ 
+ static inline int is_kernel_inittext(unsigned long addr)
+@@ -98,7 +99,7 @@ int lookup_symbol_name(unsigned long add
+ int lookup_symbol_attrs(unsigned long addr, unsigned long *size, unsigned long *offset, char *modname, char *name);
+ 
+ /* How and when do we show kallsyms values? */
+-extern int kallsyms_show_value(void);
++extern bool kallsyms_show_value(const struct cred *cred);
+ 
+ #else /* !CONFIG_KALLSYMS */
+ 
+@@ -158,7 +159,7 @@ static inline int lookup_symbol_attrs(un
+ 	return -ERANGE;
+ }
+ 
+-static inline int kallsyms_show_value(void)
++static inline bool kallsyms_show_value(const struct cred *cred)
+ {
+ 	return false;
+ }
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -644,19 +644,20 @@ static inline int kallsyms_for_perf(void
+  * Otherwise, require CAP_SYSLOG (assuming kptr_restrict isn't set to
+  * block even that).
+  */
+-int kallsyms_show_value(void)
++bool kallsyms_show_value(const struct cred *cred)
+ {
+ 	switch (kptr_restrict) {
+ 	case 0:
+ 		if (kallsyms_for_perf())
+-			return 1;
++			return true;
+ 	/* fallthrough */
+ 	case 1:
+-		if (has_capability_noaudit(current, CAP_SYSLOG))
+-			return 1;
++		if (security_capable(cred, &init_user_ns, CAP_SYSLOG,
++				     CAP_OPT_NOAUDIT) == 0)
++			return true;
+ 	/* fallthrough */
+ 	default:
+-		return 0;
++		return false;
+ 	}
+ }
+ 
+@@ -673,7 +674,11 @@ static int kallsyms_open(struct inode *i
+ 		return -ENOMEM;
+ 	reset_iter(iter, 0);
+ 
+-	iter->show_value = kallsyms_show_value();
++	/*
++	 * Instead of checking this on every s_show() call, cache
++	 * the result here at open time.
++	 */
++	iter->show_value = kallsyms_show_value(file->f_cred);
+ 	return 0;
+ }
+ 
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2334,7 +2334,7 @@ static void report_probe(struct seq_file
+ 	else
+ 		kprobe_type = "k";
+ 
+-	if (!kallsyms_show_value())
++	if (!kallsyms_show_value(current_cred()))
+ 		addr = NULL;
+ 
+ 	if (sym)
+@@ -2435,7 +2435,7 @@ static int kprobe_blacklist_seq_show(str
+ 	 * If /proc/kallsyms is not showing kernel address, we won't
+ 	 * show them here either.
+ 	 */
+-	if (!kallsyms_show_value())
++	if (!kallsyms_show_value(current_cred()))
+ 		seq_printf(m, "0x%px-0x%px\t%ps\n", NULL, NULL,
+ 			   (void *)ent->start_addr);
+ 	else
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4258,7 +4258,7 @@ static int modules_open(struct inode *in
+ 
+ 	if (!err) {
+ 		struct seq_file *m = file->private_data;
+-		m->private = kallsyms_show_value() ? NULL : (void *)8ul;
++		m->private = kallsyms_show_value(current_cred()) ? NULL : (void *)8ul;
+ 	}
+ 
+ 	return err;
 
 
