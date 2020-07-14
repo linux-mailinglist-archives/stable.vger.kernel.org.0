@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0556E21FC21
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD3E21FB5D
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbgGNSwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S1729776AbgGNTBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 15:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730132AbgGNSwv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:52:51 -0400
+        id S1730809AbgGNTAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 15:00:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5388222B4D;
-        Tue, 14 Jul 2020 18:52:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2331222B9;
+        Tue, 14 Jul 2020 19:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752770;
-        bh=PeEl4ee3ukWwHBYOjv0FvZ8gt+uoagbNQbI0Jek4OAY=;
+        s=default; t=1594753211;
+        bh=imOiDUvX9IgMI4DgKmLXDbP4TlQTsiuChEG4SULf2I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1u2l2dvO0ted0rOPFS3REG0ED0Y6yzYYNHEMSj5Dp9vHExcq8aDSaMKx+1gK0XPjQ
-         j0JXC27OnujLUTSiIEFoT0Y9zbSORQkUK5+ugKefmLXGZKanY4zFrPF5ydDPzqlBdl
-         wboXOQde+iu6lk5FpKXH9V6+US92W1ApYRnMkYvU=
+        b=EYJrgTHhUhtPF+6F1VSPisLCcfctAA/8NHBzeFY32dURW75WhgxLxaYJpAmN1PBUr
+         dfLWvIpjk2YXVbjlVYQlQtOc71CeMrWC/UWcgZG1umMa4Fo2RESKNVvktwDDPaR/Fj
+         lmNhklmX3k+zGQrKb1Z+uNaTCZGAMLBANpb7KYeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 103/109] blk-mq: consider non-idle request as "inflight" in blk_mq_rq_inflight()
-Date:   Tue, 14 Jul 2020 20:44:46 +0200
-Message-Id: <20200714184110.498166191@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 122/166] KVM: x86: Mark CR4.TSD as being possibly owned by the guest
+Date:   Tue, 14 Jul 2020 20:44:47 +0200
+Message-Id: <20200714184121.677249888@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 05a4fed69ff00a8bd83538684cb602a4636b07a7 upstream.
+commit 7c83d096aed055a7763a03384f92115363448b71 upstream.
 
-dm-multipath is the only user of blk_mq_queue_inflight().  When
-dm-multipath calls blk_mq_queue_inflight() to check if it has
-outstanding IO it can get a false negative.  The reason for this is
-blk_mq_rq_inflight() doesn't consider requests that are no longer
-MQ_RQ_IN_FLIGHT but that are now MQ_RQ_COMPLETE (->complete isn't
-called or finished yet) as "inflight".
+Mark CR4.TSD as being possibly owned by the guest as that is indeed the
+case on VMX.  Without TSD being tagged as possibly owned by the guest, a
+targeted read of CR4 to get TSD could observe a stale value.  This bug
+is benign in the current code base as the sole consumer of TSD is the
+emulator (for RDTSC) and the emulator always "reads" the entirety of CR4
+when grabbing bits.
 
-This causes request-based dm-multipath's dm_wait_for_completion() to
-return before all outstanding dm-multipath requests have actually
-completed.  This breaks DM multipath's suspend functionality because
-blk-mq requests complete after DM's suspend has finished -- which
-shouldn't happen.
+Add a build-time assertion in to ensure VMX doesn't hand over more CR4
+bits without also updating x86.
 
-Fix this by considering any request not in the MQ_RQ_IDLE state
-(so either MQ_RQ_COMPLETE or MQ_RQ_IN_FLIGHT) as "inflight" in
-blk_mq_rq_inflight().
-
-Fixes: 3c94d83cb3526 ("blk-mq: change blk_mq_queue_busy() to blk_mq_queue_inflight()")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 52ce3c21aec3 ("x86,kvm,vmx: Don't trap writes to CR4.TSD")
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200703040422.31536-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/kvm_cache_regs.h |    2 +-
+ arch/x86/kvm/vmx/vmx.c        |    2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -829,10 +829,10 @@ static bool blk_mq_rq_inflight(struct bl
- 			       void *priv, bool reserved)
- {
- 	/*
--	 * If we find a request that is inflight and the queue matches,
-+	 * If we find a request that isn't idle and the queue matches,
- 	 * we know the queue is busy. Return false to stop the iteration.
- 	 */
--	if (rq->state == MQ_RQ_IN_FLIGHT && rq->q == hctx->queue) {
-+	if (blk_mq_request_started(rq) && rq->q == hctx->queue) {
- 		bool *busy = priv;
+--- a/arch/x86/kvm/kvm_cache_regs.h
++++ b/arch/x86/kvm/kvm_cache_regs.h
+@@ -7,7 +7,7 @@
+ #define KVM_POSSIBLE_CR0_GUEST_BITS X86_CR0_TS
+ #define KVM_POSSIBLE_CR4_GUEST_BITS				  \
+ 	(X86_CR4_PVI | X86_CR4_DE | X86_CR4_PCE | X86_CR4_OSFXSR  \
+-	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE)
++	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE | X86_CR4_TSD)
  
- 		*busy = true;
+ #define BUILD_KVM_GPR_ACCESSORS(lname, uname)				      \
+ static __always_inline unsigned long kvm_##lname##_read(struct kvm_vcpu *vcpu)\
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3932,6 +3932,8 @@ void vmx_set_constant_host_state(struct
+ 
+ void set_cr4_guest_host_mask(struct vcpu_vmx *vmx)
+ {
++	BUILD_BUG_ON(KVM_CR4_GUEST_OWNED_BITS & ~KVM_POSSIBLE_CR4_GUEST_BITS);
++
+ 	vmx->vcpu.arch.cr4_guest_owned_bits = KVM_CR4_GUEST_OWNED_BITS;
+ 	if (enable_ept)
+ 		vmx->vcpu.arch.cr4_guest_owned_bits |= X86_CR4_PGE;
 
 
