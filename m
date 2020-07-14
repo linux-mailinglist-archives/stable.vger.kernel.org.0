@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF4A21FD03
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF2E21FC38
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729376AbgGNSqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:46:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40690 "EHLO mail.kernel.org"
+        id S1729966AbgGNSvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729337AbgGNSqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:46:09 -0400
+        id S1730414AbgGNSvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:51:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAE2C22282;
-        Tue, 14 Jul 2020 18:46:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37DFC22B2A;
+        Tue, 14 Jul 2020 18:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752369;
-        bh=/gmxHS3XLDyTXY59bVZQeIR8YytUDZlxFAMR595dCLM=;
+        s=default; t=1594752699;
+        bh=WRyhUMy+DWXzjQWDgtrpaPvNdPpvSXErZPea/B5SiX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cnTLTuFao7GCqxqKUdwMEsJKyMuti4NYz5dOTxB7TVyyMTWV9nUxtmPpoFsbBwEuU
-         1RvCSvrzshy0uiGo3Ho1xhFZm77X5wqzK8tFkdCxQBuwXGzH/P3/nsmxiRaRnZZUs4
-         fy61WRUmtgij81BNHO7prgGsLyrZB8WLInkGO/Z8=
+        b=P1h6bfhPBmpXXMMyQ7kBsGUNt7QGxgzM1RCeilLGyzVC6pyLGYz6eXo0fsL+pRb4v
+         rFmlxZpx7xC026XkOb65v7ibhpVZ3nBjc6mSXOdrqiJS+PcLpyDmheXgLEbPCxiP30
+         vVaBJZtCGCOWe1eCTY+TQEWX+kvCGzsG55XkAubQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Subject: [PATCH 4.19 16/58] s390/kasan: fix early pgm check handler execution
+        stable@vger.kernel.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 046/109] net: dsa: microchip: set the correct number of ports
 Date:   Tue, 14 Jul 2020 20:43:49 +0200
-Message-Id: <20200714184056.958041028@linuxfoundation.org>
+Message-Id: <20200714184107.727844251@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
-References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+[ Upstream commit af199a1a9cb02ec0194804bd46c174b6db262075 ]
 
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
+The number of ports is incorrectly set to the maximum available for a DSA
+switch. Even if the extra ports are not used, this causes some functions
+to be called later, like port_disable() and port_stp_state_set(). If the
+driver doesn't check the port index, it will end up modifying unknown
+registers.
 
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
-
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/dsa/microchip/ksz8795.c | 3 +++
+ drivers/net/dsa/microchip/ksz9477.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index e7e6608b996c6..ad88bed743954 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -155,6 +155,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
+diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+index 24a5e99f7fd5b..84c4319e3b31f 100644
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -1267,6 +1267,9 @@ static int ksz8795_switch_init(struct ksz_device *dev)
+ 			return -ENOMEM;
+ 	}
  
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
++	/* set the real number of ports */
++	dev->ds->num_ports = dev->port_cnt;
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index 50ffc63d62319..3afb596d8e43f 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -1587,6 +1587,9 @@ static int ksz9477_switch_init(struct ksz_device *dev)
+ 			return -ENOMEM;
+ 	}
+ 
++	/* set the real number of ports */
++	dev->ds->num_ports = dev->port_cnt;
++
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
