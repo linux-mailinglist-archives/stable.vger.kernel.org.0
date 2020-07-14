@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D27921FB17
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 077D421FA6B
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730500AbgGNS6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
+        id S1730523AbgGNSw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731224AbgGNS6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:58:36 -0400
+        id S1730519AbgGNSw1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:52:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EC9F207F5;
-        Tue, 14 Jul 2020 18:58:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B859223B0;
+        Tue, 14 Jul 2020 18:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753116;
-        bh=ZRVe7wtzGG6LClUzL+VdbD6hONZdEGckQng5JJBKQms=;
+        s=default; t=1594752746;
+        bh=0Xrp3e7cgjtiKwpBv8X81MrVr9eYVuOABMXE5NdW4mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkVANOgpzAoK1eVJBpJC1aTGmXXJxPlYi0X+DB1C1DgQFHu7d2blLHBQEShdvfPK/
-         RFKD/We6vkZXHuL8AO0Ge4Xk+9cWUMiTR1NP7MhqY/oW7O1ZV1B3JwSjLmESvpmLaw
-         AxiEQpLxUS8oY3Jmn1AzPrfDeFl3wntofP1xFC5s=
+        b=dwZl2/cu6VdtK5IcaAWA4Pa0ndfIoZG2YoMwQi5B5JDbH9ozg8dDFgksFvEhKT+s5
+         knbiMsQXeQoVYkG01lsPeKVB/Jf9wrAeX4juEQ6g9lMvTGyAJNAkpra8ufTyTFO90g
+         JPmhzAqljzLZBN6pXJU/+Ql5HvMb8J6br0zjZid0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Eran Ben Elisha <eranbe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 095/166] net/mlx5e: Fix VXLAN configuration restore after function reload
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Chris Chiu <chiu@endlessm.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 077/109] ALSA: hda/realtek - Enable audio jacks of Acer vCopperbox with ALC269VC
 Date:   Tue, 14 Jul 2020 20:44:20 +0200
-Message-Id: <20200714184120.394132366@linuxfoundation.org>
+Message-Id: <20200714184109.229556637@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
+References: <20200714184105.507384017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-[ Upstream commit b3c2ed21c0bdf35ba498a9974aa587f99a03b658 ]
+commit 8eae7e9b3967f08efaa4d70403aec513cbe45ad0 upstream.
 
-When detaching netdev, remove vxlan port configuration using
-udp_tunnel_drop_rx_info. During function reload, configuration will be
-restored using udp_tunnel_get_rx_info. This ensures sync between
-firmware and driver. Use udp_tunnel_get_rx_info even if its physical
-interface is down.
+The Acer desktop vCopperbox with ALC269VC cannot detect the MIC of
+headset, the line out and internal speaker until
+ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS quirk applied.
 
-Fixes: 4383cfcc65e7 ("net/mlx5: Add devlink reload")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200706071826.39726-1-jian-hong@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index bd8d0e0960857..02f6b6bd2847c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3076,9 +3076,6 @@ int mlx5e_open(struct net_device *netdev)
- 		mlx5_set_port_admin_status(priv->mdev, MLX5_PORT_UP);
- 	mutex_unlock(&priv->state_lock);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6114,6 +6114,7 @@ enum {
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
++	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+ };
  
--	if (mlx5_vxlan_allowed(priv->mdev->vxlan))
--		udp_tunnel_get_rx_info(netdev);
--
- 	return err;
- }
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7292,6 +7293,17 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE
+ 	},
++	[ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x14, 0x90100120 }, /* use as internal speaker */
++			{ 0x18, 0x02a111f0 }, /* use as headset mic, without its own jack detect */
++			{ 0x1a, 0x01011020 }, /* use as line out */
++			{ },
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MIC
++	},
+ };
  
-@@ -5207,6 +5204,8 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
- 	rtnl_lock();
- 	if (netif_running(netdev))
- 		mlx5e_open(netdev);
-+	if (mlx5_vxlan_allowed(priv->mdev->vxlan))
-+		udp_tunnel_get_rx_info(netdev);
- 	netif_device_attach(netdev);
- 	rtnl_unlock();
- }
-@@ -5223,6 +5222,8 @@ static void mlx5e_nic_disable(struct mlx5e_priv *priv)
- 	rtnl_lock();
- 	if (netif_running(priv->netdev))
- 		mlx5e_close(priv->netdev);
-+	if (mlx5_vxlan_allowed(priv->mdev->vxlan))
-+		udp_tunnel_drop_rx_info(priv->netdev);
- 	netif_device_detach(priv->netdev);
- 	rtnl_unlock();
- 
--- 
-2.25.1
-
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7311,6 +7323,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x1099, "Acer Aspire E5-523G", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x110e, "Acer Aspire ES1-432", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1246, "Acer Predator Helios 500", ALC299_FIXUP_PREDATOR_SPK),
++	SND_PCI_QUIRK(0x1025, 0x1247, "Acer vCopperbox", ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS),
+ 	SND_PCI_QUIRK(0x1025, 0x128f, "Acer Veriton Z6860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
 
 
