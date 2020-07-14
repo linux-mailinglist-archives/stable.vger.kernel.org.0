@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 138D921F355
+	by mail.lfdr.de (Postfix) with ESMTP id A5BCE21F356
 	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 15:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726742AbgGNN6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 09:58:30 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:39753 "EHLO
+        id S1725906AbgGNN6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 09:58:33 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:33843 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725906AbgGNN63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 09:58:29 -0400
+        by vger.kernel.org with ESMTP id S1726793AbgGNN6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 09:58:32 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 612A79715;
-        Tue, 14 Jul 2020 09:58:28 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id BA530971A;
+        Tue, 14 Jul 2020 09:58:31 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 14 Jul 2020 09:58:28 -0400
+  by compute1.internal (MEProxy); Tue, 14 Jul 2020 09:58:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZLlSE7
-        V2yOgVkO17/xpFtPT4jWw8X0koZFr+h7vMZgo=; b=b2RKS/6f4R2MTc3nYZy0Qb
-        FBsYFIwMy5BQP+AF92Fb6w1qWm9UI//jyJL0EBUzczj4XwsXXCDB8jZR5JB6cIWj
-        EjjAwelRnxpc93fE8A83+1RXx1pPbBTFkBUIItdONx4pmt+PEbe3BZdkmSHl+lLZ
-        Y2lCwQi/Aj0KYjKzcEHW3kOW+aZu2J77AfjmEsxPKXRc7/N8XQiayLa2v7Jocbq3
-        AF4L1+KBBGO+fj1Om/RQFsast/H85dkVYda5dnIJxMaOUPHru1f44k5zOdZAKj1D
-        agjYSSFRUcOIemmemk6DKv87r/24ivlLxXMwBeYYZBiTYu2KB14BwGtnud7xATYA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=IbwAx5
+        VHmXY0w/D35iL9cHqmjl3eYFvwPlu8iWVz93M=; b=K2Qgoz2uXdNV+kzThRXumC
+        PH7E02/gkWIgeHqu/isdw9pwhCDd344L4pWuk3UJxQJf17KzFUwONHS7jOdo/CYV
+        k/A2U8XeMmgE6VNLd0hN4xrctoLYGzqMdH2+Or248maAGsvPx0fLTv9P0/hrT+I8
+        vpSez5Img/LytbwzLSl7jR8VR1LREDkaIyGqWpIV7ZSXEu5YBMZouGylcelW6P5e
+        TO7Vyd6OqPQJqu23LKgdQG6WwEpeCDlu6rzoFtKjF3iRBdq4csizIffzdf5YN5HV
+        JG1QPhHNiNhCP9zzuAP8ujik5rm/EzcRx5o50aoJoiopb1mgoqTdhYGP5hYhCCEQ
         ==
-X-ME-Sender: <xms:A7oNX6NCafoo5Ame4MZxXQisaw2k6b2QRqWkCzSzGPVFtdEOIxtXkg>
+X-ME-Sender: <xms:B7oNXy29uGiGGD7bIbxo_gouqiDCEL6ESxrZuq8TuPQTBd4E5gWi8g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfedtgdejfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:BLoNX4_t6UDTf5mahD5EVf3_fIHZ1UabWM2Jc19lGGdIDooTwGhKxw>
-    <xmx:BLoNXxT4PMiemmA1ykZiQrwVrugaj81EF8JLm5rZeBvpR7rI5OhR9A>
-    <xmx:BLoNX6sEK1haQiXgmrU3r4mQANEVkEu7q9mxXTVzlza4P8YJ6mgXdw>
-    <xmx:BLoNX6mDIR1YJlgwoC17G_FDpuVGxbHQkt8kGY_wPvdS4xL6uRgIPMsHzFA>
+X-ME-Proxy: <xmx:B7oNX1EWEUSw9ho-IBpW7ASenXalGHHi2RxbLOtxFMVfrnDPOwV6CA>
+    <xmx:B7oNX66eXx0o-KbB2sZHH0Pa5i9_5qjcRcprfERxTz9eil-_9DkNoA>
+    <xmx:B7oNXz1QktuFfXVdZ9yOcYvn15524QlR2BJFfBL9lXlbKcEFKefzOg>
+    <xmx:B7oNX4OjVFbqYprMT2iqz12quzpafEMcBCEhaYyzYcA8w5yBWbC2iUlyFSc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 922F6328005A;
-        Tue, 14 Jul 2020 09:58:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Fix pin being driven low for a while on" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 172E9328005E;
+        Tue, 14 Jul 2020 09:58:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Fix pin being driven low for a while on" failed to apply to 4.9-stable tree
 To:     hdegoede@redhat.com, andriy.shevchenko@linux.intel.com,
         mika.westerberg@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Jul 2020 15:58:23 +0200
-Message-ID: <1594735103410@kroah.com>
+Date:   Tue, 14 Jul 2020 15:58:25 +0200
+Message-ID: <15947351057231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
