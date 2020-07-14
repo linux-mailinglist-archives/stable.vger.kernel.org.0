@@ -2,66 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4BA21F00A
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 14:05:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F0521F114
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 14:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726630AbgGNMFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 08:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726748AbgGNMFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 08:05:07 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2BF522224;
-        Tue, 14 Jul 2020 12:05:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594728307;
-        bh=B4BRyWXYvvNkFA7USfvVX2MX2eMmEtTlHR5h7rMAFBw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JD1vKmu+sxcOXrGzEW/wg2xf3M2dntRndHqn0EqcicRsVx2mfoRbGuWYo7hXv/7Vh
-         vq+GaHHXKpyba6GAvaN7DnBpjL7ttxt+N0+Q1tO5+yf5ETZv3wimQIQNppWk9Rcw9d
-         R16ndrPOpTsBEL6OHxjAs0GthqxCFU/vdD8zME9M=
-Date:   Tue, 14 Jul 2020 14:05:05 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Please revert "ath9k: Fix general protection fault in
- ath9k_hif_usb_rx_cb" from all stable kernels
-Message-ID: <20200714120505.GA1547259@kroah.com>
-References: <2a5acaae-9aef-1aab-d385-0dd11d151fa6@redhat.com>
+        id S1728066AbgGNMT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 08:19:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728103AbgGNMT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jul 2020 08:19:29 -0400
+X-Greylist: delayed 382 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 14 Jul 2020 05:19:28 PDT
+Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96353C061755
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 05:19:28 -0700 (PDT)
+Received: by nautica.notk.org (Postfix, from userid 1001)
+        id C9AB1C01B; Tue, 14 Jul 2020 14:13:04 +0200 (CEST)
+Date:   Tue, 14 Jul 2020 14:12:49 +0200
+From:   Dominique Martinet <asmadeus@codewreck.org>
+To:     Victor Hsieh <victorhsieh@google.com>
+Cc:     v9fs-developer@lists.sourceforge.net,
+        Eric Van Hensbergen <ericvh@gmail.com>,
+        Latchesar Ionkov <lucho@ionkov.net>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] fs/9p: Fix TCREATE's fid in protocol
+Message-ID: <20200714121249.GA21928@nautica>
+References: <20200713215759.3701482-1-victorhsieh@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <2a5acaae-9aef-1aab-d385-0dd11d151fa6@redhat.com>
+In-Reply-To: <20200713215759.3701482-1-victorhsieh@google.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 14, 2020 at 11:58:36AM +0200, Hans de Goede wrote:
-> Hi Greg (et all),
-> 
-> Note several people are already working on this, so you may already have a request for this.
-> 
-> The "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb" commit which has been
-> added to several stable kernels (at least to 5.4.y and 5.7.y, but likely also to others)
-> is breaking networking for people with an ath9k card.
-> 
-> A revert has been submitted upstream, but it does not seem to have found it way
-> upstream yet. It has been cherry-picked by the Arch people:
-> 
-> https://git.archlinux.org/linux.git/commit/?h=v5.7.8-arch1&id=1a32e7b57b0b37cab6845093920b4d1ff94d3bf4
-> 
-> So if you want to credit some of the original people working on fixing this,
-> you can find the revert submitted upstream there.
-> 
-> Reverting this fixes / also see:
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=208251
-> https://bugzilla.redhat.com/show_bug.cgi?id=1848631
+Victor Hsieh wrote on Mon, Jul 13, 2020:
+> The fid parameter of TCREATE represents the directory that the file
 
-Now reverted, thanks!
+This is not TCREATE, this is TLCREATE.
+The fid represents the directory before the call, but on success
+represents the file that has been created.
 
-greg k-h
+> should be created at. The current implementation mistakenly passes a
+> locally created fid for the file. The correct file fid is usually
+> retrieved by another WALK call, which does happen right after.
+> 
+> The problem happens when a new created fd is read from (i.e. where
+> private_data->fid is used), but not write to.
+
+I'm not sure why the code currently does a 2nd walk from the directory
+with the name which is prone to a race instead of cloning ofid without a
+path, but I fail to see the problem you ran into - file->private_data is
+a fid pointing to the file as it should be.
+
+Could you describe what kind of errors you get and if possible how to
+reproduce?
+
+> Fixes: 5643135a2846 ("fs/9p: This patch implements TLCREATE for 9p2000.L protocol.")
+> Signed-off-by: Victor Hsieh <victorhsieh@google.com>
+> Cc: stable@vger.kernel.org
+
+(afaiu it is normally frowned upon for developers to add this cc (I can
+understand stable@ not wanting spam discussing issues left and right
+before maintainers agreed on them!) ; I can add it to the commit itself
+if requested but they normally pick most such fixes pretty nicely for
+backport anyway; I see most 9p patches backported as long as the patch
+applies cleanly which is pretty much all the time.
+Please let me know if I understood that incorrectly)
+
+> ---
+>  fs/9p/vfs_inode_dotl.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/9p/vfs_inode_dotl.c b/fs/9p/vfs_inode_dotl.c
+> index 60328b21c5fb..90a7aaea918d 100644
+> --- a/fs/9p/vfs_inode_dotl.c
+> +++ b/fs/9p/vfs_inode_dotl.c
+> @@ -285,7 +285,7 @@ v9fs_vfs_atomic_open_dotl(struct inode *dir, struct dentry *dentry,
+>  			 err);
+>  		goto error;
+>  	}
+> -	err = p9_client_create_dotl(ofid, name, v9fs_open_to_dotl_flags(flags),
+> +	err = p9_client_create_dotl(dfid, name, v9fs_open_to_dotl_flags(flags),
+>  				    mode, gid, &qid);
+>  	if (err < 0) {
+>  		p9_debug(P9_DEBUG_VFS, "p9_client_open_dotl failed in creat %d\n",
