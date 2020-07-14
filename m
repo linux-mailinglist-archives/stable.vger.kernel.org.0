@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 086EA21FA81
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17ED21FAFA
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730592AbgGNSxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:53:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50168 "EHLO mail.kernel.org"
+        id S1730677AbgGNS51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730208AbgGNSxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:53:11 -0400
+        id S1729678AbgGNS5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:57:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9D2422C9D;
-        Tue, 14 Jul 2020 18:53:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF3B122B2B;
+        Tue, 14 Jul 2020 18:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752791;
-        bh=/9Hm/xSYktH0LLH6MOmys3DleHFYDKGxs4K6ki9AYFg=;
+        s=default; t=1594753044;
+        bh=CP5QshHsdbi112QdOMX7JdG4LdpRi4iLCU1/oUR75ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTMQqX10Us4Cz+CcOk5Vq7lI5/PGNN+3MZE8LhQgrOgjleoUQUH5zzEiFI+5mtpW1
-         rDBnI6XYh+TmUke6chVrLWBZUueZMrDWDY77u1hwKJyJMAHOHSfLfO8l4FsG/xgvLH
-         RRVpaJ1W8YPTXjXTnk7bfKv2Sg5kCBsxhpk3OXfM=
+        b=DD/70AiadwZIK0R5GH892KHpnmMfXtfYYncyFYt3W4M7yrBRinupd9glI8f/Dy/C9
+         x9Tty8PBbiAxgWnk7sLVisZBkKxa4iYY8Pb1FcK/ScMOkksh5jQGIDv0QssmVHFw6Q
+         Q5lZorPbeCD/MqNuw36UKzxdIDrZEqCVeqz9t0fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Scull <ascull@google.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 081/109] KVM: arm64: Stop clobbering x0 for HVC_SOFT_RESTART
+        stable@vger.kernel.org, Fei Liu <feliu@redhat.com>,
+        Jonathan Toppins <jtoppins@redhat.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 099/166] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
 Date:   Tue, 14 Jul 2020 20:44:24 +0200
-Message-Id: <20200714184109.428333611@linuxfoundation.org>
+Message-Id: <20200714184120.585415446@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +47,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Scull <ascull@google.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit b9e10d4a6c9f5cbe6369ce2c17ebc67d2e5a4be5 upstream.
+[ Upstream commit c8b1d7436045d3599bae56aef1682813ecccaad7 ]
 
-HVC_SOFT_RESTART is given values for x0-2 that it should installed
-before exiting to the new address so should not set x0 to stub HVC
-success or failure code.
+we need to set 'active_vfs' back to 0, if something goes wrong during the
+allocation of SR-IOV resources: otherwise, further VF configurations will
+wrongly assume that bp->pf.vf[x] are valid memory locations, and commands
+like the ones in the following sequence:
 
-Fixes: af42f20480bf1 ("arm64: hyp-stub: Zero x0 on successful stub handling")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrew Scull <ascull@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200706095259.1338221-1-ascull@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # echo 2 >/sys/bus/pci/devices/${ADDR}/sriov_numvfs
+ # ip link set dev ens1f0np0 up
+ # ip link set dev ens1f0np0 vf 0 trust on
 
+will cause a kernel crash similar to this:
+
+ bnxt_en 0000:3b:00.0: not enough MMIO resources for SR-IOV
+ BUG: kernel NULL pointer dereference, address: 0000000000000014
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] SMP PTI
+ CPU: 43 PID: 2059 Comm: ip Tainted: G          I       5.8.0-rc2.upstream+ #871
+ Hardware name: Dell Inc. PowerEdge R740/08D89F, BIOS 2.2.11 06/13/2019
+ RIP: 0010:bnxt_set_vf_trust+0x5b/0x110 [bnxt_en]
+ Code: 44 24 58 31 c0 e8 f5 fb ff ff 85 c0 0f 85 b6 00 00 00 48 8d 1c 5b 41 89 c6 b9 0b 00 00 00 48 c1 e3 04 49 03 9c 24 f0 0e 00 00 <8b> 43 14 89 c2 83 c8 10 83 e2 ef 45 84 ed 49 89 e5 0f 44 c2 4c 89
+ RSP: 0018:ffffac6246a1f570 EFLAGS: 00010246
+ RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000000000b
+ RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff98b28f538900
+ RBP: ffff98b28f538900 R08: 0000000000000000 R09: 0000000000000008
+ R10: ffffffffb9515be0 R11: ffffac6246a1f678 R12: ffff98b28f538000
+ R13: 0000000000000001 R14: 0000000000000000 R15: ffffffffc05451e0
+ FS:  00007fde0f688800(0000) GS:ffff98baffd40000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000014 CR3: 000000104bb0a003 CR4: 00000000007606e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ PKRU: 55555554
+ Call Trace:
+  do_setlink+0x994/0xfe0
+  __rtnl_newlink+0x544/0x8d0
+  rtnl_newlink+0x47/0x70
+  rtnetlink_rcv_msg+0x29f/0x350
+  netlink_rcv_skb+0x4a/0x110
+  netlink_unicast+0x21d/0x300
+  netlink_sendmsg+0x329/0x450
+  sock_sendmsg+0x5b/0x60
+  ____sys_sendmsg+0x204/0x280
+  ___sys_sendmsg+0x88/0xd0
+  __sys_sendmsg+0x5e/0xa0
+  do_syscall_64+0x47/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: c0c050c58d840 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Fei Liu <feliu@redhat.com>
+CC: Jonathan Toppins <jtoppins@redhat.com>
+CC: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Acked-by: Jonathan Toppins <jtoppins@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/hyp-init.S |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/hyp-init.S
-+++ b/arch/arm64/kvm/hyp-init.S
-@@ -136,11 +136,15 @@ ENTRY(__kvm_handle_stub_hvc)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+index cea2f9958a1df..2295f539a6414 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+@@ -396,6 +396,7 @@ static void bnxt_free_vf_resources(struct bnxt *bp)
+ 		}
+ 	}
  
- 1:	cmp	x0, #HVC_RESET_VECTORS
- 	b.ne	1f
--reset:
-+
- 	/*
--	 * Reset kvm back to the hyp stub. Do not clobber x0-x4 in
--	 * case we coming via HVC_SOFT_RESTART.
-+	 * Set the HVC_RESET_VECTORS return code before entering the common
-+	 * path so that we do not clobber x0-x2 in case we are coming via
-+	 * HVC_SOFT_RESTART.
- 	 */
-+	mov	x0, xzr
-+reset:
-+	/* Reset kvm back to the hyp stub. */
- 	mrs	x5, sctlr_el2
- 	ldr	x6, =SCTLR_ELx_FLAGS
- 	bic	x5, x5, x6		// Clear SCTL_M and etc
-@@ -151,7 +155,6 @@ reset:
- 	/* Install stub vectors */
- 	adr_l	x5, __hyp_stub_vectors
- 	msr	vbar_el2, x5
--	mov	x0, xzr
- 	eret
++	bp->pf.active_vfs = 0;
+ 	kfree(bp->pf.vf);
+ 	bp->pf.vf = NULL;
+ }
+@@ -835,7 +836,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
  
- 1:	/* Bad stub call */
+ 	bnxt_free_vf_resources(bp);
+ 
+-	bp->pf.active_vfs = 0;
+ 	/* Reclaim all resources for the PF. */
+ 	rtnl_lock();
+ 	bnxt_restore_pf_fw_resources(bp);
+-- 
+2.25.1
+
 
 
