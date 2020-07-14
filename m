@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2652121FA7A
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4E621F9E7
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 20:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730256AbgGNSw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 14:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S1729781AbgGNSrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729820AbgGNSw4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:52:56 -0400
+        id S1729723AbgGNSri (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DFB6223B0;
-        Tue, 14 Jul 2020 18:52:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FB4D22B2C;
+        Tue, 14 Jul 2020 18:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594752775;
-        bh=pRAM5uxbYFcPLfSBwRsJ+pVFsdxPO7cUTTFpcYq2DkE=;
+        s=default; t=1594752457;
+        bh=FrW5svSSOMr6F6SuCMiGrVaNwk3DE5YpZW0VtD3OlHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6+QL5vrmgNNHCZTfckdseU3rv+GleLavkisIVSdoClOht9GeRydjlVuHjqcM6sRG
-         PMrXejRlFVBK4VSWupTbuTrfgSuEofTuFxeH905u/bez0hgyH0A6jSEgAwh5YkUUxy
-         7EC0eVTrnqHhBsFPl5YfDqkN/5AL/UswYqZvbwtI=
+        b=xaAvRnONvkZemAES5cErBf7B17PMwaZv8yv6/REzpstNAH20gDcQ/L7uBPrxcIXd+
+         fnj2GaBIOPKSreUWqbh4fUDIU94JDFrXgVgmSrFhu5uruc1/eFLd/e3iTlrJWxfEzu
+         T0zHmpntsdlRu1CN+09lzW/kQJvKAbjlLK8KMGZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Daniel Drake <drake@endlessm.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 078/109] ALSA: hda/realtek: Enable headset mic of Acer C20-820 with ALC269VC
-Date:   Tue, 14 Jul 2020 20:44:21 +0200
-Message-Id: <20200714184109.277269270@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dominik Czarnota <dominik.czarnota@trailofbits.com>,
+        Jessica Yu <jeyu@kernel.org>, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 49/58] module: Do not expose section addresses to non-CAP_SYSLOG
+Date:   Tue, 14 Jul 2020 20:44:22 +0200
+Message-Id: <20200714184058.596597029@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184105.507384017@linuxfoundation.org>
-References: <20200714184105.507384017@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 6e15d1261d522d1d222f8f89b23c6966905e9049 upstream.
+commit b25a7c5af9051850d4f3d93ca500056ab6ec724b upstream.
 
-The Acer Aspire C20-820 AIO's audio (1025:1065) with ALC269VC can't
-detect the headset microphone until ALC269VC_FIXUP_ACER_HEADSET_MIC
-quirk maps the NID 0x18 as the headset mic pin.
+The printing of section addresses in /sys/module/*/sections/* was not
+using the correct credentials to evaluate visibility.
 
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200706071826.39726-2-jian-hong@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Before:
+
+ # cat /sys/module/*/sections/.*text
+ 0xffffffffc0458000
+ ...
+ # capsh --drop=CAP_SYSLOG -- -c "cat /sys/module/*/sections/.*text"
+ 0xffffffffc0458000
+ ...
+
+After:
+
+ # cat /sys/module/*/sections/*.text
+ 0xffffffffc0458000
+ ...
+ # capsh --drop=CAP_SYSLOG -- -c "cat /sys/module/*/sections/.*text"
+ 0x0000000000000000
+ ...
+
+Additionally replaces the existing (safe) /proc/modules check with
+file->f_cred for consistency.
+
+Reported-by: Dominik Czarnota <dominik.czarnota@trailofbits.com>
+Fixes: be71eda5383f ("module: Fix display of wrong module .text address")
+Cc: stable@vger.kernel.org
+Tested-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/module.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6115,6 +6115,7 @@ enum {
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
-+	ALC269VC_FIXUP_ACER_HEADSET_MIC,
- };
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1471,8 +1471,8 @@ static ssize_t module_sect_read(struct f
+ 	if (pos != 0)
+ 		return -EINVAL;
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7304,6 +7305,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MIC
- 	},
-+	[ALC269VC_FIXUP_ACER_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x18, 0x02a11030 }, /* use as headset mic */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MIC
-+	},
- };
+-	return sprintf(buf, "0x%px\n", kptr_restrict < 2 ?
+-		       (void *)sattr->address : NULL);
++	return sprintf(buf, "0x%px\n",
++		       kallsyms_show_value(file->f_cred) ? (void *)sattr->address : NULL);
+ }
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7319,6 +7329,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1025, 0x0775, "Acer Aspire E1-572", ALC271_FIXUP_HP_GATE_MIC_JACK_E1_572),
- 	SND_PCI_QUIRK(0x1025, 0x079b, "Acer Aspire V5-573G", ALC282_FIXUP_ASPIRE_V5_PINS),
- 	SND_PCI_QUIRK(0x1025, 0x102b, "Acer Aspire C24-860", ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1025, 0x1065, "Acer Aspire C20-820", ALC269VC_FIXUP_ACER_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x106d, "Acer Cloudbook 14", ALC283_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x1025, 0x1099, "Acer Aspire E5-523G", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x110e, "Acer Aspire ES1-432", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
+ static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
+@@ -4260,7 +4260,7 @@ static int modules_open(struct inode *in
+ 
+ 	if (!err) {
+ 		struct seq_file *m = file->private_data;
+-		m->private = kallsyms_show_value(current_cred()) ? NULL : (void *)8ul;
++		m->private = kallsyms_show_value(file->f_cred) ? NULL : (void *)8ul;
+ 	}
+ 
+ 	return err;
 
 
