@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3061021FBA4
-	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 753D121FCD8
+	for <lists+stable@lfdr.de>; Tue, 14 Jul 2020 21:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729704AbgGNTDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jul 2020 15:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
+        id S1729858AbgGNSr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jul 2020 14:47:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731099AbgGNS5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jul 2020 14:57:36 -0400
+        id S1729854AbgGNSr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jul 2020 14:47:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F6A7207F5;
-        Tue, 14 Jul 2020 18:57:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFE8322AB0;
+        Tue, 14 Jul 2020 18:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594753055;
-        bh=Y4vXQKe7mtBW2sC8bi/lqBkpZsVxlG9RqnJgmezmESQ=;
+        s=default; t=1594752476;
+        bh=pHJxLikuzUBUsmeFUYG5PrZJTGqQpdsm39r3eU+a4b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbCPD67aONpLOpcDa7XWq+Ld/+Bu+duqqSIjbswGUQWUoW1+pEWai3fu7/gsNLNeO
-         ToF4OYXRu0M8hLPzwRXxAoQ6miHqBfqTqE1fCxGV/h/n+7GYXRrZG2hAcxZMIC9PC2
-         oqxkNBKGxbDEW9bUuZ9E8JbYreeGVCbHXhEILaMQ=
+        b=g+hQ1UswJksIMLwVFYwpnAgRmCObEVew9U1t60i/dkLImMvQhoWIbIgiz7ex51kPR
+         xkzgp9YMTeFauDptbGYcjRRCihzsTpATX9UkL6bzxbCvnLbfdirEOMSe6Sm+woZABB
+         hqow2XqPPMBfGs+kAQSqqpCEs0Qr7NVFCH0EHWj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Harini Katakam <harini.katakam@xilinx.com>,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 103/166] net: macb: fix macb_suspend() by removing call to netif_carrier_off()
+        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
+        Tahsin Erdogan <tahsin@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 55/58] dm: use noio when sending kobject event
 Date:   Tue, 14 Jul 2020 20:44:28 +0200
-Message-Id: <20200714184120.775125901@linuxfoundation.org>
+Message-Id: <20200714184058.910142747@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+References: <20200714184056.149119318@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,40 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 64febc5e56c9a748162f206dcc5be1a44436087a ]
+commit 6958c1c640af8c3f40fa8a2eee3b5b905d95b677 upstream.
 
-As we now use the phylink call to phylink_stop() in the non-WoL path,
-there is no need for this call to netif_carrier_off() anymore. It can
-disturb the underlying phylink FSM.
+kobject_uevent may allocate memory and it may be called while there are dm
+devices suspended. The allocation may recurse into a suspended device,
+causing a deadlock. We must set the noio flag when sending a uevent.
 
-Fixes: 7897b071ac3b ("net: macb: convert to phylink")
-Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc: Harini Katakam <harini.katakam@xilinx.com>
-Cc: Antoine Tenart <antoine.tenart@bootlin.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The observed deadlock was reported here:
+https://www.redhat.com/archives/dm-devel/2020-March/msg00025.html
+
+Reported-by: Khazhismel Kumykov <khazhy@google.com>
+Reported-by: Tahsin Erdogan <tahsin@google.com>
+Reported-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/cadence/macb_main.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/md/dm.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 79c2fe0543038..548815255e22b 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4604,7 +4604,6 @@ static int __maybe_unused macb_suspend(struct device *dev)
- 			bp->pm_data.scrt2 = gem_readl_n(bp, ETHT, SCRT2_ETHT);
- 	}
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -12,6 +12,7 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/sched/mm.h>
+ #include <linux/sched/signal.h>
+ #include <linux/blkpg.h>
+ #include <linux/bio.h>
+@@ -2853,17 +2854,25 @@ EXPORT_SYMBOL_GPL(dm_internal_resume_fas
+ int dm_kobject_uevent(struct mapped_device *md, enum kobject_action action,
+ 		       unsigned cookie)
+ {
++	int r;
++	unsigned noio_flag;
+ 	char udev_cookie[DM_COOKIE_LENGTH];
+ 	char *envp[] = { udev_cookie, NULL };
  
--	netif_carrier_off(netdev);
- 	if (bp->ptp_info)
- 		bp->ptp_info->ptp_remove(netdev);
- 	pm_runtime_force_suspend(dev);
--- 
-2.25.1
-
++	noio_flag = memalloc_noio_save();
++
+ 	if (!cookie)
+-		return kobject_uevent(&disk_to_dev(md->disk)->kobj, action);
++		r = kobject_uevent(&disk_to_dev(md->disk)->kobj, action);
+ 	else {
+ 		snprintf(udev_cookie, DM_COOKIE_LENGTH, "%s=%u",
+ 			 DM_COOKIE_ENV_VAR_NAME, cookie);
+-		return kobject_uevent_env(&disk_to_dev(md->disk)->kobj,
+-					  action, envp);
++		r = kobject_uevent_env(&disk_to_dev(md->disk)->kobj,
++				       action, envp);
+ 	}
++
++	memalloc_noio_restore(noio_flag);
++
++	return r;
+ }
+ 
+ uint32_t dm_next_uevent_seq(struct mapped_device *md)
 
 
