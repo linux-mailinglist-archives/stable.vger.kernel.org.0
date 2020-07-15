@@ -2,151 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 445C6220E7C
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 15:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F8B220E82
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 15:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729689AbgGONwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 09:52:53 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:48583 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729086AbgGONww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 09:52:52 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id D42BB8F5;
-        Wed, 15 Jul 2020 09:52:51 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Jul 2020 09:52:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=n
-        q4iZhdIJBB0pMs/jBc2gVB57W1xPaK7wixzTDqlSQM=; b=IWmAconde8sCNFasT
-        z3tZPkbLa70v1IgZmvLRKH9T8fPBetXB1q5q84uaXe2yYe+TuwzrNKJhGQLcQmld
-        Cem3wEOi1ZVvFJDTAhnInHv/ci7NcKBiGbXvX53NOnwKY1bCfMFji1nZc1ZWQ1Sa
-        husOuRtO78PBqK+kPQBc0TlCUxWze5CNUgetyvc9sAs68fUUkAV7B3/WeKQEiu34
-        TXCc2oL4HZYGST+cdHQ6SR1Rae9nkDxBkLf3J7mLbQSHrtWO5tHfvv8fh+xaVYqV
-        5DjZ2xtZ4IPCksA3VPUQixjuB/APjrexOYMalg87n3ySLuV5v2+a1rNQlawuXxTj
-        KilIw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=nq4iZhdIJBB0pMs/jBc2gVB57W1xPaK7wixzTDqlS
-        QM=; b=pE2QWba8wOetO5Ze6xKMDRgpej0UhnseFZJgRB95CA+XxFGy9cf1vUeby
-        V0kpq8Ge9RbexNik3O/GTYg72Qi4HJTWQunqu+elwd8ISYdFPM5zPDsxx9wXamzK
-        yDfvuHLKNPHYIlyDXC6mibOxzePKgt3iwG0UB/+ylvfphU2TMy8zByoV7tsCxejT
-        omuTlbYaY1t5eN6pDs5dltScpwY2qQ0OmG19R+Z0uXqLlaroryUgAcQ6rSLEXO6r
-        9GZcLeQZSYB6r7fIx3pToh4SKqWNuQoQcgnDD3IqDD6BoF4A7MHflDvtzInEQhA6
-        w0lPfRZnyedU4i91Lg4fpURRMPlTw==
-X-ME-Sender: <xms:MwoPX_19TJCnT7GCg-I2F2dim140LThFewO6BdP9aqhZzkecK3rxrA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfedvgdejhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttdejnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueeuvd
-    fhteevfefgfefgjeffueetvdetudfhffekjedvueffheegjeevgfelveenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgpdgrmhgriihonhgrfihsrdgtohhmnecukfhppeekfedrke
-    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
-    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:MwoPX-EO9fymYjttv8lJJNwjU-27_pdkiRrBzr-5wyT583ZHrWaBSA>
-    <xmx:MwoPX_7Tgax2dD8iHawvr2AGDnLpR55J49APtmDBVxj67gfWmkcbJQ>
-    <xmx:MwoPX03jyA7E1HOmW2l5AXJJ9fw3VCG31Sc1h2JPKuWeZn45fYCY7Q>
-    <xmx:MwoPX9zcHSWbMtrlfJJhzS8MEYHbPI49KhPUQxwO35zBTYn3XvHFeQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 02792328005A;
-        Wed, 15 Jul 2020 09:52:50 -0400 (EDT)
-Date:   Wed, 15 Jul 2020 15:52:47 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Xiong Zhou <xzhou@redhat.com>
-Subject: Re: =?utf-8?B?8J+SpSBQQU5JQ0tFRA==?= =?utf-8?Q?=3A?= Test report for
- kernel 5.7.9-rc1-c2fb28a.cki (stable)
-Message-ID: <20200715135247.GB3342767@kroah.com>
-References: <cki.9BE0703C38.BLD1GT3V8U@redhat.com>
- <2125467353.2778784.1594820204666.JavaMail.zimbra@redhat.com>
+        id S1729858AbgGONyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 09:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729757AbgGONyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 09:54:12 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E2CC08C5DB
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 06:54:12 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id c25so1500283otf.7
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 06:54:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=zevQ7L819A5+HQKEue+bXkAwYvfiFRDlPMUrv63M1Lc=;
+        b=e6yziB2Y75V/oJ47iNgF/BM8AgQRy8qxhw86+Pu3WqavW3gOUUDrUVGuc/SFldGhbf
+         ObQ3lm/YBMv5/xNzF+dCZ+S0mAKiclwl0cSJi1DCn1nTdJsLkTE1jHB9sUUkgwM/QHZd
+         k59c+GSpQY5H/t3OHfx5giJRfzYBUXY3mNQbw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=zevQ7L819A5+HQKEue+bXkAwYvfiFRDlPMUrv63M1Lc=;
+        b=gLtZp18uKSTZ2x8M0LuYQQjGGvchOsPlw0Rq/wRpxE6blsGRkutEdcCaP5DmgvDRI6
+         SFhr3XvElG6OhmIlBk9rofclmpAyh/yLYof/9TfJCCIVIoTiXJ3xdl8RMlBjSSTxcz4d
+         aXC4u88XGGGw6nMLNN0d1hzmnfB8S9+40R3vF+KAYEaACNTmXqt3piPk76xfeEYlLA+T
+         h+BetlQgcJwQJCVc0u91MGkY/eBtuO9yPArRplQHQw3Jptm/gnOE0W89hvgojpTtXpFT
+         pGUgyDTs2F+1uHyvMg3bKi+ctMl4t8yWxp0xrxAphivnBMhRqbPxR1WVZrBm66sY6Ipw
+         xnww==
+X-Gm-Message-State: AOAM533nBnN+3phSM8vgBaQEZJBJ1NBfI14zSZMiQAweYwoimh7Lq1rm
+        GWbF1xQ6xfTySW9nqAFccwNqSg==
+X-Google-Smtp-Source: ABdhPJw4YtuIvoz55X2G1KSV6+9Zs36xzyXAT2Sd1S+gfTcLnWqxD8jlFW6jsuOlkW66s/ikG0BuDQ==
+X-Received: by 2002:a9d:7c8:: with SMTP id 66mr8586373oto.169.1594821250495;
+        Wed, 15 Jul 2020 06:54:10 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id g7sm433754oop.47.2020.07.15.06.54.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Jul 2020 06:54:09 -0700 (PDT)
+Subject: Re: [PATCH 5.7 000/166] 5.7.9-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20200714184115.844176932@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <e8d1da73-9c00-66c9-58d7-18175f539015@linuxfoundation.org>
+Date:   Wed, 15 Jul 2020 07:54:08 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2125467353.2778784.1594820204666.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 09:36:44AM -0400, Veronika Kabatova wrote:
+On 7/14/20 12:42 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.9 release.
+> There are 166 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
+> Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
+> Anything received after that time might be too late.
 > 
-> ----- Original Message -----
-> > From: "CKI Project" <cki-project@redhat.com>
-> > To: "Linux Stable maillist" <stable@vger.kernel.org>
-> > Cc: "Xiong Zhou" <xzhou@redhat.com>
-> > Sent: Wednesday, July 15, 2020 3:33:45 PM
-> > Subject: 💥 PANICKED: Test report for kernel 5.7.9-rc1-c2fb28a.cki (stable)
-> > 
-> > 
-> > Hello,
-> > 
-> > We ran automated tests on a recent commit from this kernel tree:
-> > 
-> >        Kernel repo:
-> >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >             Commit: c2fb28a4b6e4 - Linux 5.7.9-rc1
-> > 
-> > The results of these automated tests are provided below.
-> > 
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: PANICKED
-> > 
-> > All kernel binaries, config files, and logs are available for download here:
-> > 
-> >   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/07/14/610210
-> > 
-> > One or more kernel tests failed:
-> > 
-> >     s390x:
-> >      ❌ Boot test
-> >      ❌ Boot test
-> >      💥 Boot test
-> > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
 > 
-> Hi,
+> thanks,
 > 
-> we started observing boot panics with 5.7 on s390x yesterday:
+> greg k-h
 > 
-> [    0.388965] Kernel panic - not syncing: Corrupted kernel text
-> [    0.388970] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.7.8-0930ce5.cki #1
-> [    0.388971] Hardware name: IBM 2964 N96 400 (z/VM 6.4.0)
-> [    0.388975] Workqueue: events timer_update_keys
-> [    0.388977] Call Trace:
-> [    0.388980]  [<00000001378c868a>] show_stack+0x8a/0xd0
-> [    0.388983]  [<0000000137e0c9c2>] dump_stack+0x8a/0xb8
-> [    0.388985]  [<00000001378fa372>] panic+0x112/0x308
-> [    0.388989]  [<00000001378d20b6>] jump_label_bug+0x7e/0x80
-> [    0.388990]  [<00000001378d1fb8>] __jump_label_transform+0xa8/0xd8
-> [    0.388992]  [<00000001378d200e>] arch_jump_label_transform+0x26/0x40
-> [    0.388995]  [<0000000137a8d448>] __jump_label_update+0xb8/0x128
-> [    0.388996]  [<0000000137a8dca6>] static_key_enable_cpuslocked+0x8e/0xd0
-> [    0.388998]  [<0000000137a8dd18>] static_key_enable+0x30/0x40
-> [    0.389000]  [<000000013798a0d2>] timer_update_keys+0x3a/0x50
-> [    0.389003]  [<000000013791cdde>] process_one_work+0x206/0x458
-> [    0.389005]  [<000000013791d078>] worker_thread+0x48/0x460
-> [    0.389007]  [<0000000137924912>] kthread+0x12a/0x160
-> [    0.389013]  [<00000001381b9a70>] ret_from_fork+0x2c/0x30
-> 
-> I only released one of the reports to not spam too much but the panics are
-> still happening with the most recent code.
-> 
-> These panics are NOT present on the current mainline. All other arches are OK.
-> 
-> Given the call trace, I'm guessing it is something related to
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.7.y&id=477d4930b0c7e70c1ac3e3c35e5ad15c5ebde8be
 
-Can you bisect to see if that really is the issue or not?
+Compiled and booted on my test system. No dmesg regressions.
 
 thanks,
+-- Shuah
 
-greg k-h
