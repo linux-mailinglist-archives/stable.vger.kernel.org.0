@@ -2,77 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF71220D19
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 14:41:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8BE2220D73
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 14:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729771AbgGOMjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 08:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50148 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728975AbgGOMjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 08:39:45 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71CDA20658;
-        Wed, 15 Jul 2020 12:39:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594816785;
-        bh=fLtpqQQ1vTct0NAohkfk+DM+rpihJlpQUOZbauAYrxU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jbNu8mJXIqqm6ux5vjwll0ARmb5a1yn4l62fpR7A7mLsQzz+Z8VZ+Dux2MhmaYBSM
-         pRrAeUH+No2kXc5Lm9TwccKcBuENKSrX0cUvnnSBg5NmK61ibcx1YAnEQ/v9+XKd/m
-         IWOCN0wMHrc87W8cCgniFksv5vDpgL/vbIAHbhME=
-Date:   Wed, 15 Jul 2020 14:39:40 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 4.19 00/58] 4.19.133-rc1 review
-Message-ID: <20200715123940.GD3134677@kroah.com>
-References: <20200714184056.149119318@linuxfoundation.org>
- <CA+G9fYuicrgx6sPfovfzMX4W31HPE=LbxXtBKB5M-M+2sz+sXA@mail.gmail.com>
+        id S1726479AbgGOMyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 08:54:15 -0400
+Received: from esa3.microchip.iphmx.com ([68.232.153.233]:6356 "EHLO
+        esa3.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726335AbgGOMyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 08:54:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1594817654; x=1626353654;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=JoNK/q2iYvYFvbaflGD2Rg+e5vGTcnyC23z8HfTCMEM=;
+  b=vm/hAQ+P+j25PpJABnxEcOfKWrNriNiXU2OgPeyJrakrJwUyon3XvC6E
+   YcllKxJ9hThLA4Qlu2scHuPFc6abcNDQ5xy/CkmEdnLKOrHvl6cT8qDgs
+   76P/L9kT97MTjXMDD6ap4+JzE7tsfb1gvWPMJLVagDEyczcOWFsWwfG4c
+   jZZ72KH1of/C2YkoepXekpJ/Eaxt8WBAt9YcprjJ2C28hKC0AaeLYV9zx
+   b8qUvNkjuU5FMk0u6Mf0Lb09EWucrhsG9oczkae29P7so6DcMXUj4HEcD
+   gMt8LzeugiqVUdG64OGGPmA3GoQNE6Hu0I+StShX8hEqmeiOM4ip04XhG
+   w==;
+IronPort-SDR: LnILQd3PXb3RzJUt2/ZliFsFQYJ2ETxT7gx08wO+8hkdRe90t43vaOdebkGvUYUmi/XZlGO++0
+ agbX0LJX5Ma5l+gMRnstX9V2bcguFFlnQAFbTRt9g5smq/6Lm3SYn1Z08B33Vmlq6xZv+l+l5u
+ UetNnst/aqC1XCOu/8+WNIzHxRe4fKm7VXdhQCf3Jce8rm/4iy6ioREl4Jk33RhubaOyYTrShL
+ XsoDxYz0hrHFmySqyc90447znrJpNFHfXvwp6l/GAGcfLvsNvjy0aKEIIkh8oT2ae1HReJpm9K
+ xtk=
+X-IronPort-AV: E=Sophos;i="5.75,355,1589266800"; 
+   d="scan'208";a="83971980"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 15 Jul 2020 05:54:14 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Wed, 15 Jul 2020 05:53:41 -0700
+Received: from atudor-ThinkPad-T470p.amer.actel.com (10.10.115.15) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
+ 15.1.1979.3 via Frontend Transport; Wed, 15 Jul 2020 05:54:11 -0700
+From:   Tudor Ambarus <tudor.ambarus@microchip.com>
+To:     <gregkh@linuxfoundation.org>, <alexander.levin@microsoft.com>
+CC:     <stable@vger.kernel.org>, <herbert@gondor.apana.org.au>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH v2 for 5.4 1/2] crypto: atmel - Fix selection of CRYPTO_AUTHENC
+Date:   Wed, 15 Jul 2020 15:54:09 +0300
+Message-ID: <20200715125410.479112-1-tudor.ambarus@microchip.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuicrgx6sPfovfzMX4W31HPE=LbxXtBKB5M-M+2sz+sXA@mail.gmail.com>
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 03:11:15PM +0530, Naresh Kamboju wrote:
-> On Wed, 15 Jul 2020 at 00:16, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 4.19.133 release.
-> > There are 58 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.133-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+Backport to 5.4.52-rc1:
+commit d158367682cd822aca811971e988be6a8d8f679f upstream.
 
-Thanks for testing all of these and letting me know.
+The following error is raised when CONFIG_CRYPTO_DEV_ATMEL_AES=y and
+CONFIG_CRYPTO_DEV_ATMEL_AUTHENC=m:
+drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_setkey':
+atmel-aes.c:(.text+0x9bc): undefined reference to `crypto_authenc_extractkeys'
+Makefile:1094: recipe for target 'vmlinux' failed
 
-greg k-h
+Fix it by moving the selection of CRYPTO_AUTHENC under
+config CRYPTO_DEV_ATMEL_AES.
+
+Fixes: 89a82ef87e01 ("crypto: atmel-authenc - add support to...")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+---
+ drivers/crypto/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+index 06b2b3fa5206..b76ded4f829b 100644
+--- a/drivers/crypto/Kconfig
++++ b/drivers/crypto/Kconfig
+@@ -493,7 +493,6 @@ endif # if CRYPTO_DEV_UX500
+ config CRYPTO_DEV_ATMEL_AUTHENC
+ 	tristate "Support for Atmel IPSEC/SSL hw accelerator"
+ 	depends on ARCH_AT91 || COMPILE_TEST
+-	select CRYPTO_AUTHENC
+ 	select CRYPTO_DEV_ATMEL_AES
+ 	select CRYPTO_DEV_ATMEL_SHA
+ 	help
+@@ -508,6 +507,7 @@ config CRYPTO_DEV_ATMEL_AES
+ 	select CRYPTO_AES
+ 	select CRYPTO_AEAD
+ 	select CRYPTO_BLKCIPHER
++	select CRYPTO_AUTHENC
+ 	help
+ 	  Some Atmel processors have AES hw accelerator.
+ 	  Select this if you want to use the Atmel module for
+-- 
+2.25.1
+
