@@ -2,139 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A61C22097B
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 12:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D23D2209A9
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 12:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725855AbgGOKEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 06:04:45 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:56683 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727883AbgGOKEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 06:04:44 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21824638-1500050 
-        for multiple; Wed, 15 Jul 2020 11:04:39 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] dma-buf/sw_sync: Avoid recursive lock during fence signal
-Date:   Wed, 15 Jul 2020 11:04:31 +0100
-Message-Id: <20200715100432.13928-2-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200715100432.13928-1-chris@chris-wilson.co.uk>
-References: <20200715100432.13928-1-chris@chris-wilson.co.uk>
+        id S1728110AbgGOKQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 06:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57750 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731040AbgGOKQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jul 2020 06:16:19 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3216220720;
+        Wed, 15 Jul 2020 10:16:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594808178;
+        bh=MLE6slukUJCbU4Lp9wAIRaIGRB77Hb5WdLKM3BaDRZg=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Z/hBgYAUtMb3ykHVV9GI88hnXyICEjxpuiy5xGErl1SVFMKVix7P/c5R1UTh0Xsdd
+         i4Xs61OJnTZpMRpW552peDPpgieXAV5jOBLuHuvEoS+zwEToJSDxr2gVAN8hkKpZSd
+         V+OrJUIt5Rwh7FU1QFY2cJb5K+BpWNidyEWovIRQ=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jveSV-00BxRw-WC; Wed, 15 Jul 2020 11:16:16 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 8bit
+Date:   Wed, 15 Jul 2020 11:16:15 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: =?UTF-8?Q?Re=3A_stable-rc_5=2E4=3A_arm64_build_failed_-_error=3A?=
+ =?UTF-8?Q?_=E2=80=98const_struct_arch=5Ftimer=5Ferratum=5Fworkaround?=
+ =?UTF-8?Q?=E2=80=99_has_no_member_named_=E2=80=98disable=5Fcompat=5Fvdso?=
+ =?UTF-8?Q?=E2=80=99?=
+In-Reply-To: <20200715092704.GE2722864@kroah.com>
+References: <CA+G9fYsLBOVVjxO2DAUgjXskxEXyMpBxYG1PRKwe7BTHJfzfZw@mail.gmail.com>
+ <20200714184013.GA2174489@kroah.com>
+ <CAK8P3a2B6xO-PEOEsseajBvJCvF0d269XHvOzqzdfhyssZ6wrw@mail.gmail.com>
+ <20200715092704.GE2722864@kroah.com>
+User-Agent: Roundcube Webmail/1.4.5
+Message-ID: <0367b2521cc678cb858c5af64c085506@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, arnd@arndb.de, naresh.kamboju@linaro.org, stable@vger.kernel.org, lkft-triage@lists.linaro.org, sashal@kernel.org, will@kernel.org, mark.rutland@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a signal callback releases the sw_sync fence, that will trigger a
-deadlock as the timeline_fence_release recurses onto the fence->lock
-(used both for signaling and the the timeline tree).
+On 2020-07-15 10:27, Greg Kroah-Hartman wrote:
+> On Wed, Jul 15, 2020 at 08:54:33AM +0200, Arnd Bergmann wrote:
+>> On Tue, Jul 14, 2020 at 8:40 PM Greg Kroah-Hartman
+>> <gregkh@linuxfoundation.org> wrote:
+>> >
+>> > On Tue, Jul 14, 2020 at 10:48:14PM +0530, Naresh Kamboju wrote:
+>> > > arm64 build failed on 5.4
+>> > >
+>> > > make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm64
+>> > > CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
+>> > > aarch64-linux-gnu-gcc" O=build Image
+>> > > #
+>> > > ../drivers/clocksource/arm_arch_timer.c:484:4: error: ‘const struct
+>> > > arch_timer_erratum_workaround’ has no member named
+>> > > ‘disable_compat_vdso’
+>> > >   484 |   .disable_compat_vdso = true,
+>> > >       |    ^~~~~~~~~~~~~~~~~~~
+>> > > ../drivers/clocksource/arm_arch_timer.c:484:26: warning:
+>> > > initialization of ‘u32 (*)(void)’ {aka ‘unsigned int (*)(void)’} from
+>> > > ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+>> > >   484 |   .disable_compat_vdso = true,
+>> > >       |                          ^~~~
+>> > > ../drivers/clocksource/arm_arch_timer.c:484:26: note: (near
+>> > > initialization for ‘ool_workarounds[5].read_cntp_tval_el0’)
+>> > >
+>> > > Could be this patch,
+>> > > arm64: arch_timer: Disable the compat vdso for cores affected by
+>> > > ARM64_WORKAROUND_1418040
+>> > > commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
+>> > >
+>> > > ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
+>> > > the virtual counter register are trapped and emulated by the kernel.
+>> > > This makes the vdso pretty pointless, and in some cases livelock
+>> > > prone.
+>> > >
+>> > > Provide a workaround entry that limits the vdso to 64bit tasks.
+>> > >
+>> > > ref:
+>> > > https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/638094006
+>> >
+>> > Thanks, I've now dropped this patch.
+>> 
+>> I think we do want to have it back eventually. It appears that the 
+>> patch
+>> upstream depends on the two immediately before it:
+>> 
+>> 4b661d6133c5 arm64: arch_timer: Disable the compat vdso for cores
+>> affected by ARM64_WORKAROUND_1418040
+>> c1fbec4ac0d7 arm64: arch_timer: Allow an workaround descriptor to
+>> disable compat vdso
+>> 97884ca8c292 arm64: Introduce a way to disable the 32bit vdso
+>> 
+>> AFAICT, the second one was missing, causing the build failure.
+>> Do you know if that one needed a manual backport, or could you
+>> try applying all three in sequence again?
+> 
+> The "first one", 97884ca8c292 ("arm64: Introduce a way to disable the
+> 32bit vdso"), does not apply to 5.4.y, and neither does c1fbec4ac0d7
+> ("arm64: arch_timer: Allow an workaround descriptor to disable compat
+> vdso").
+> 
+> So backports for all 3 would be appreciated.
 
-If we always hold a reference for an unsignaled fence held by the
-timeline, we no longer need to detach the fence from the timeline upon
-release. This is only possible since commit ea4d5a270b57
-("dma-buf/sw_sync: force signal all unsignaled fences on dying timeline")
-where we introduced decoupling of the fences from the timeline upon release.
+These patches cannot just be backported, as 5.4 uses very different
+data structures and abstractions. I'll try and come up with something
+semantically equivalent by the end of the day...
 
-Reported-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Fixes: d3c6dd1fb30d ("dma-buf/sw_sync: Synchronize signal vs syncpt free")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Gustavo Padovan <gustavo@padovan.org>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/dma-buf/sw_sync.c | 32 +++++++-------------------------
- 1 file changed, 7 insertions(+), 25 deletions(-)
+Thanks,
 
-diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
-index 348b3a9170fa..4cc2ac03a84a 100644
---- a/drivers/dma-buf/sw_sync.c
-+++ b/drivers/dma-buf/sw_sync.c
-@@ -130,16 +130,7 @@ static const char *timeline_fence_get_timeline_name(struct dma_fence *fence)
- 
- static void timeline_fence_release(struct dma_fence *fence)
- {
--	struct sync_pt *pt = dma_fence_to_sync_pt(fence);
- 	struct sync_timeline *parent = dma_fence_parent(fence);
--	unsigned long flags;
--
--	spin_lock_irqsave(fence->lock, flags);
--	if (!list_empty(&pt->link)) {
--		list_del(&pt->link);
--		rb_erase(&pt->node, &parent->pt_tree);
--	}
--	spin_unlock_irqrestore(fence->lock, flags);
- 
- 	sync_timeline_put(parent);
- 	dma_fence_free(fence);
-@@ -203,18 +194,11 @@ static void sync_timeline_signal(struct sync_timeline *obj, unsigned int inc)
- 		if (!timeline_fence_signaled(&pt->base))
- 			break;
- 
--		list_del_init(&pt->link);
-+		list_del(&pt->link);
- 		rb_erase(&pt->node, &obj->pt_tree);
- 
--		/*
--		 * A signal callback may release the last reference to this
--		 * fence, causing it to be freed. That operation has to be
--		 * last to avoid a use after free inside this loop, and must
--		 * be after we remove the fence from the timeline in order to
--		 * prevent deadlocking on timeline->lock inside
--		 * timeline_fence_release().
--		 */
- 		dma_fence_signal_locked(&pt->base);
-+		dma_fence_put(&pt->base);
- 	}
- 
- 	spin_unlock_irq(&obj->lock);
-@@ -261,13 +245,9 @@ static struct sync_pt *sync_pt_create(struct sync_timeline *obj,
- 			} else if (cmp < 0) {
- 				p = &parent->rb_left;
- 			} else {
--				if (dma_fence_get_rcu(&other->base)) {
--					sync_timeline_put(obj);
--					kfree(pt);
--					pt = other;
--					goto unlock;
--				}
--				p = &parent->rb_left;
-+				dma_fence_put(&pt->base);
-+				pt = other;
-+				goto unlock;
- 			}
- 		}
- 		rb_link_node(&pt->node, parent, p);
-@@ -278,6 +258,7 @@ static struct sync_pt *sync_pt_create(struct sync_timeline *obj,
- 			      parent ? &rb_entry(parent, typeof(*pt), node)->link : &obj->pt_list);
- 	}
- unlock:
-+	dma_fence_get(&pt->base); /* keep a ref for the timeline */
- 	spin_unlock_irq(&obj->lock);
- 
- 	return pt;
-@@ -316,6 +297,7 @@ static int sw_sync_debugfs_release(struct inode *inode, struct file *file)
- 	list_for_each_entry_safe(pt, next, &obj->pt_list, link) {
- 		dma_fence_set_error(&pt->base, -ENOENT);
- 		dma_fence_signal_locked(&pt->base);
-+		dma_fence_put(&pt->base);
- 	}
- 
- 	spin_unlock_irq(&obj->lock);
+         M.
 -- 
-2.20.1
-
+Jazz is not dead. It just smells funny...
