@@ -2,197 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 575A322072A
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267DF220786
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbgGOI2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 04:28:19 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:41079 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730058AbgGOI2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 04:28:17 -0400
-Received: by mail-ed1-f66.google.com with SMTP id e22so958605edq.8;
-        Wed, 15 Jul 2020 01:28:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=oZ21mSnPalCDyZJRBXz6beFTnZl6MlEpDn98/WJ6aVk=;
-        b=HLjDK7sUUFheiKuhwwiyk5o4LlkpxLALWX+wvcKGvQY+5NUyhvnD9ApM2T2ESyIY8S
-         U2Y823w+LbjjVCHwhUcYmftqJY2KUszVygdetrYJ8/G4mhghq5NSpbcaLbksIpQ/m7p0
-         oH8rbhZpKw3WEAV3YzJ6nVTTnmn0bIMHUCjMjHyv4grTNT1918xEuF/PwQN6qesG7eJq
-         kNyUc7MMPUPJtYpV1lbgjhWtJ8Ml/SPtTPQLsjDEBmy/butbjumYt6GlKHblpGbu6KC0
-         O6yXNMqeJRvP627bTufHSjyFW6qfWA6cl5oiXn5LkfUKQfU7aFDT4IxqHCVUrXcsBreM
-         usFg==
-X-Gm-Message-State: AOAM533SS24sv9nusOxFsqqA0M+W+b8sXZAayTfb2AXgzHcb7P/k/03l
-        CRmJI3SlOAvfQOFtCK9lMlQ=
-X-Google-Smtp-Source: ABdhPJx2NyCCKKPhJFFeXgZeW596eU5ArCMhpEYnf1D02xQP3M2UhZ/zPOfS+KfAap43eDl6NHVlFQ==
-X-Received: by 2002:a05:6402:a58:: with SMTP id bt24mr8754330edb.333.1594801694308;
-        Wed, 15 Jul 2020 01:28:14 -0700 (PDT)
-Received: from localhost (ip-37-188-169-187.eurotel.cz. [37.188.169.187])
-        by smtp.gmail.com with ESMTPSA id w24sm1452324edt.28.2020.07.15.01.28.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2020 01:28:13 -0700 (PDT)
-Date:   Wed, 15 Jul 2020 10:28:12 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     js1304@gmail.com
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, kernel-team@lge.com,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Hellwig <hch@infradead.org>,
-        Roman Gushchin <guro@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
-Message-ID: <20200715082812.GD5451@dhcp22.suse.cz>
-References: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+        id S1729095AbgGOIiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 04:38:10 -0400
+Received: from esa6.microchip.iphmx.com ([216.71.154.253]:20400 "EHLO
+        esa6.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728961AbgGOIiJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 04:38:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1594802288; x=1626338288;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=zkOPZga5dYjTfkahTVbo+6M0cJuULmnOy6fWthXpK9k=;
+  b=gMHt6ncBsSW1LSfyYL5gHtBolOP/3Y5Q3EYAdMyZFwoehmrgvIoscpvf
+   +rcSQBfN5aWylaDOLZkEc171E/Cut3FfJH9K61QB4Ko4S4qMG7rqzkTD1
+   t1Gpw9JiV0VwrZIOjsKx3IIixLe0492Sx9w6+8rfEBzX7xMKe88ddtFjE
+   pUMN9Og29/mvWvWT4G/Ss0OTtyR7LpSKRR98W69zP/lOjx8ivZGzEvS2R
+   NldAeW5StFnx4BomE10lS3usINs1w/CRz0beU9GA7pKNvCSFGoezFLgi9
+   lr/MviGTJCXmJWGn8WBCR2UP4/dmmqkxFyzGzDQNy6rTBg9ClsVyrnPC+
+   Q==;
+IronPort-SDR: NZaz99ak4TN9N/ru3szRqpCtjyZ57j3xIjUar/s5uyN826UBRDbFY0pxIlWHPJOMo7SlenK/ua
+ MnDeVpXtGK/Pfvo0QTPkien4gcCPuc42k0437EYGvJt9XmLHTTWH1w0KcAymNWTczSAbvvua3H
+ N9S5jdWLCT4ukRGuqRC2bN4u3wF+lSNvdIl93QKLREzuIkdXPryINnBGShQwhPb3ImMUv2l9SF
+ 6hjtpjbPODJfMaQs4c4ugUdK/wNgJb1njA+6J9R/XKb/YgFfAeAJU7c2DuAerlEHYjGxd7Db3v
+ isc=
+X-IronPort-AV: E=Sophos;i="5.75,354,1589266800"; 
+   d="scan'208";a="19255443"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 15 Jul 2020 01:38:08 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.87.72) by
+ chn-vm-ex02.mchp-main.com (10.10.87.72) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Wed, 15 Jul 2020 01:37:34 -0700
+Received: from atudor-ThinkPad-T470p.amer.actel.com (10.10.115.15) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
+ 15.1.1979.3 via Frontend Transport; Wed, 15 Jul 2020 01:37:31 -0700
+From:   Tudor Ambarus <tudor.ambarus@microchip.com>
+To:     <gregkh@linuxfoundation.org>, <alexander.levin@microsoft.com>
+CC:     <stable@vger.kernel.org>, <herbert@gondor.apana.org.au>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        "kernel test robot" <lkp@intel.com>,
+        YueHaibing <yuehaibing@huawei.com>
+Subject: [PATCH 5.4] crypto: atmel - Fix build error of CRYPTO_AUTHENC
+Date:   Wed, 15 Jul 2020 11:38:02 +0300
+Message-ID: <20200715083802.460760-1-tudor.ambarus@microchip.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 15-07-20 14:05:26, Joonsoo Kim wrote:
-> From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-> 
-> Currently, preventing cma area in page allocation is implemented by using
-> current_gfp_context(). However, there are two problems of this
-> implementation.
-> 
-> First, this doesn't work for allocation fastpath. In the fastpath,
-> original gfp_mask is used since current_gfp_context() is introduced in
-> order to control reclaim and it is on slowpath.
-> Second, clearing __GFP_MOVABLE has a side effect to exclude the memory
-> on the ZONE_MOVABLE for allocation target.
+Backport to 5.4.52-rc1 the following commits in upstream:
+commit aee1f9f3c30e1e20e7f74729ced61eac7d74ca68 upstream.
+commit d158367682cd822aca811971e988be6a8d8f679f upstream.
 
-This can be especially a problem with movable_node configurations where
-a large portion of the memory is in movable zones.
+If CRYPTO_DEV_ATMEL_AUTHENC is m, CRYPTO_DEV_ATMEL_SHA is m,
+but CRYPTO_DEV_ATMEL_AES is y, building will fail:
 
-> To fix these problems, this patch changes the implementation to exclude
-> cma area in page allocation. Main point of this change is using the
-> alloc_flags. alloc_flags is mainly used to control allocation so it fits
-> for excluding cma area in allocation.
+drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_init_tfm':
+atmel-aes.c:(.text+0x670): undefined reference to `atmel_sha_authenc_get_reqsize'
+atmel-aes.c:(.text+0x67a): undefined reference to `atmel_sha_authenc_spawn'
+drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_setkey':
+atmel-aes.c:(.text+0x7e5): undefined reference to `atmel_sha_authenc_setkey'
 
-The approach is sensible and the patch makes sense to me from a quick
-glance but I am not really familiar with all subtle details about cma
-integration with the allocator so I do not feel confident to provide my
-ack.
+Make CRYPTO_DEV_ATMEL_AUTHENC depend on CRYPTO_DEV_ATMEL_AES,
+and select CRYPTO_DEV_ATMEL_SHA and CRYPTO_AUTHENC for it under there.
 
-Thanks!
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 89a82ef87e01 ("crypto: atmel-authenc - add support to...")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[tudor.ambarus@microchip.com: Backport to 5.4.52-rc1]
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+---
+ drivers/crypto/Kconfig | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> Fixes: d7fefcc (mm/cma: add PF flag to force non cma alloc)
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-> ---
->  include/linux/sched/mm.h |  4 ----
->  mm/page_alloc.c          | 27 +++++++++++++++------------
->  2 files changed, 15 insertions(+), 16 deletions(-)
-> 
-> diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
-> index 44ad5b7..a73847a 100644
-> --- a/include/linux/sched/mm.h
-> +++ b/include/linux/sched/mm.h
-> @@ -191,10 +191,6 @@ static inline gfp_t current_gfp_context(gfp_t flags)
->  			flags &= ~(__GFP_IO | __GFP_FS);
->  		else if (pflags & PF_MEMALLOC_NOFS)
->  			flags &= ~__GFP_FS;
-> -#ifdef CONFIG_CMA
-> -		if (pflags & PF_MEMALLOC_NOCMA)
-> -			flags &= ~__GFP_MOVABLE;
-> -#endif
->  	}
->  	return flags;
->  }
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 6416d08..cd53894 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -2791,7 +2791,7 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype,
->  	 * allocating from CMA when over half of the zone's free memory
->  	 * is in the CMA area.
->  	 */
-> -	if (migratetype == MIGRATE_MOVABLE &&
-> +	if (alloc_flags & ALLOC_CMA &&
->  	    zone_page_state(zone, NR_FREE_CMA_PAGES) >
->  	    zone_page_state(zone, NR_FREE_PAGES) / 2) {
->  		page = __rmqueue_cma_fallback(zone, order);
-> @@ -2802,7 +2802,7 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype,
->  retry:
->  	page = __rmqueue_smallest(zone, order, migratetype);
->  	if (unlikely(!page)) {
-> -		if (migratetype == MIGRATE_MOVABLE)
-> +		if (alloc_flags & ALLOC_CMA)
->  			page = __rmqueue_cma_fallback(zone, order);
->  
->  		if (!page && __rmqueue_fallback(zone, order, migratetype,
-> @@ -3502,11 +3502,9 @@ static inline long __zone_watermark_unusable_free(struct zone *z,
->  	if (likely(!alloc_harder))
->  		unusable_free += z->nr_reserved_highatomic;
->  
-> -#ifdef CONFIG_CMA
->  	/* If allocation can't use CMA areas don't use free CMA pages */
-> -	if (!(alloc_flags & ALLOC_CMA))
-> +	if (IS_ENABLED(CONFIG_CMA) && !(alloc_flags & ALLOC_CMA))
->  		unusable_free += zone_page_state(z, NR_FREE_CMA_PAGES);
-> -#endif
->  
->  	return unusable_free;
->  }
-> @@ -3693,6 +3691,16 @@ alloc_flags_nofragment(struct zone *zone, gfp_t gfp_mask)
->  	return alloc_flags;
->  }
->  
-> +static inline void current_alloc_flags(gfp_t gfp_mask,
-> +				unsigned int *alloc_flags)
-> +{
-> +	unsigned int pflags = READ_ONCE(current->flags);
-> +
-> +	if (!(pflags & PF_MEMALLOC_NOCMA) &&
-> +		gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
-> +		*alloc_flags |= ALLOC_CMA;
-> +}
-> +
->  /*
->   * get_page_from_freelist goes through the zonelist trying to allocate
->   * a page.
-> @@ -3706,6 +3714,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
->  	struct pglist_data *last_pgdat_dirty_limit = NULL;
->  	bool no_fallback;
->  
-> +	current_alloc_flags(gfp_mask, &alloc_flags);
-> +
->  retry:
->  	/*
->  	 * Scan zonelist, looking for a zone with enough free.
-> @@ -4339,10 +4349,6 @@ gfp_to_alloc_flags(gfp_t gfp_mask)
->  	} else if (unlikely(rt_task(current)) && !in_interrupt())
->  		alloc_flags |= ALLOC_HARDER;
->  
-> -#ifdef CONFIG_CMA
-> -	if (gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
-> -		alloc_flags |= ALLOC_CMA;
-> -#endif
->  	return alloc_flags;
->  }
->  
-> @@ -4808,9 +4814,6 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
->  	if (should_fail_alloc_page(gfp_mask, order))
->  		return false;
->  
-> -	if (IS_ENABLED(CONFIG_CMA) && ac->migratetype == MIGRATE_MOVABLE)
-> -		*alloc_flags |= ALLOC_CMA;
-> -
->  	return true;
->  }
->  
-> -- 
-> 2.7.4
-
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+index 06b2b3fa5206..0952f059d967 100644
+--- a/drivers/crypto/Kconfig
++++ b/drivers/crypto/Kconfig
+@@ -491,11 +491,9 @@ if CRYPTO_DEV_UX500
+ endif # if CRYPTO_DEV_UX500
+ 
+ config CRYPTO_DEV_ATMEL_AUTHENC
+-	tristate "Support for Atmel IPSEC/SSL hw accelerator"
++	bool "Support for Atmel IPSEC/SSL hw accelerator"
+ 	depends on ARCH_AT91 || COMPILE_TEST
+-	select CRYPTO_AUTHENC
+-	select CRYPTO_DEV_ATMEL_AES
+-	select CRYPTO_DEV_ATMEL_SHA
++	depends on CRYPTO_DEV_ATMEL_AES
+ 	help
+ 	  Some Atmel processors can combine the AES and SHA hw accelerators
+ 	  to enhance support of IPSEC/SSL.
+@@ -508,6 +506,8 @@ config CRYPTO_DEV_ATMEL_AES
+ 	select CRYPTO_AES
+ 	select CRYPTO_AEAD
+ 	select CRYPTO_BLKCIPHER
++	select CRYPTO_AUTHENC if CRYPTO_DEV_ATMEL_AUTHENC
++	select CRYPTO_DEV_ATMEL_SHA if CRYPTO_DEV_ATMEL_AUTHENC
+ 	help
+ 	  Some Atmel processors have AES hw accelerator.
+ 	  Select this if you want to use the Atmel module for
 -- 
-Michal Hocko
-SUSE Labs
+2.25.1
+
