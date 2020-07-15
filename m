@@ -2,71 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ACBD2206C5
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A1B2206F7
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729569AbgGOIJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 04:09:22 -0400
-Received: from mail-il1-f196.google.com ([209.85.166.196]:36017 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727871AbgGOIJW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 04:09:22 -0400
-Received: by mail-il1-f196.google.com with SMTP id x9so1235871ila.3;
-        Wed, 15 Jul 2020 01:09:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7GqAsqCXaN6ZfFXKDdHixXpcIHkuyc+NEgmoh8fdZz8=;
-        b=MwoLRGQHki8I70p8PY1fC5Eu9GHm/9QCavVUWsZwhbY0dW1a3POgmR4FkJ/L4R5YMY
-         ZeByr0S8ujpQsa5LdyaC1IrLpdRg+7ANU/o8Zu+Ilryn1rNWzutcj+FZadNorEUqQ8eB
-         JiSB14RZ3enGv46nrXApTCY9X0GjbjQiQtKy7aUOEVheYplxUON1ZhXRIu4ARb8Hyz4n
-         ieBHMSZ1yG1dA4VB3fmUZqtcMwWHzQ6+oJEdv6KP5Kkzol3P5L6zi4H1ugGPFT2KtChB
-         dBtC95QLiSYjXmXRaQHbTBdER4uNVraeHtbvbgLNGBUEQHAV9YY6hA4PKmxvholB0OG+
-         jv3Q==
-X-Gm-Message-State: AOAM532lmT+LoDnVkKpsCBDMo9a+puV8StV5NSHemIhTsTzKd6XAlk3S
-        4u4aoEGg6dxM4Z3N9dbUWN/lheZlayUlZ8YFlUE=
-X-Google-Smtp-Source: ABdhPJzqSQf+tjLQ6NhcA9CTBoOtkRZPoTX/7p73ixJyP/w1wKQ/vZG/+2ertGRZN/JjVhw51KcAwtPSAhtfWGIBH5g=
-X-Received: by 2002:a92:d204:: with SMTP id y4mr3899253ily.147.1594800561490;
- Wed, 15 Jul 2020 01:09:21 -0700 (PDT)
+        id S1729770AbgGOIYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 04:24:55 -0400
+Received: from [195.135.220.15] ([195.135.220.15]:52834 "EHLO mx2.suse.de"
+        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S1727086AbgGOIYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jul 2020 04:24:55 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 6FBD6AEA6;
+        Wed, 15 Jul 2020 08:24:56 +0000 (UTC)
+Subject: Re: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
+To:     js1304@gmail.com, Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        kernel-team@lge.com, Christoph Hellwig <hch@infradead.org>,
+        Roman Gushchin <guro@fb.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
+References: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <332d620b-bfe3-3b69-931b-77e3a74edbfd@suse.cz>
+Date:   Wed, 15 Jul 2020 10:24:54 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <1594791329-20563-1-git-send-email-chenhc@lemote.com> <32525b2d-6a5d-1064-788c-96233a375d1d@cogentembedded.com>
-In-Reply-To: <32525b2d-6a5d-1064-788c-96233a375d1d@cogentembedded.com>
-From:   Huacai Chen <chenhc@lemote.com>
-Date:   Wed, 15 Jul 2020 16:09:09 +0800
-Message-ID: <CAAhV-H5Ubx+tRm1+tVifyHyF-Ef=zH+0j_9A2GmkRMR+JyFs-A@mail.gmail.com>
-Subject: Re: [PATCH] MIPS: CPU#0 is not hotpluggable
-To:     Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "open list:MIPS" <linux-mips@vger.kernel.org>,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Zhangjin Wu <wuzhangjin@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Sergei,
+On 7/15/20 7:05 AM, js1304@gmail.com wrote:
+> From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> 
+> Currently, preventing cma area in page allocation is implemented by using
+> current_gfp_context(). However, there are two problems of this
+> implementation.
+> 
+> First, this doesn't work for allocation fastpath. In the fastpath,
+> original gfp_mask is used since current_gfp_context() is introduced in
+> order to control reclaim and it is on slowpath.
+> Second, clearing __GFP_MOVABLE has a side effect to exclude the memory
+> on the ZONE_MOVABLE for allocation target.
+> 
+> To fix these problems, this patch changes the implementation to exclude
+> cma area in page allocation. Main point of this change is using the
+> alloc_flags. alloc_flags is mainly used to control allocation so it fits
+> for excluding cma area in allocation.
 
-On Wed, Jul 15, 2020 at 3:56 PM Sergei Shtylyov
-<sergei.shtylyov@cogentembedded.com> wrote:
->
-> Hello!
->
-> On 15.07.2020 8:35, Huacai Chen wrote:
->
-> > Now CPU#0 is not hotpluggable on MIPS, so prevent to create /sys/devices
-> > /system/cpu/cpu0/online which confusing some user-space tools.
->
->     Confuses?
-Yes, this is my fault.
+Agreed, should have been done with ALLOC_CMA since the beginning.
 
->
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Huacai Chen <chenhc@lemote.com>
-> [...]
->
-> MBR, Sergei
+> Fixes: d7fefcc (mm/cma: add PF flag to force non cma alloc)
+
+More digits please.
+Fixes: d7fefcc8de91 ("mm/cma: add PF flag to force non cma alloc")
+
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> ---
+>  include/linux/sched/mm.h |  4 ----
+>  mm/page_alloc.c          | 27 +++++++++++++++------------
+>  2 files changed, 15 insertions(+), 16 deletions(-)
+> 
+> diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+> index 44ad5b7..a73847a 100644
+> --- a/include/linux/sched/mm.h
+> +++ b/include/linux/sched/mm.h
+> @@ -191,10 +191,6 @@ static inline gfp_t current_gfp_context(gfp_t flags)
+>  			flags &= ~(__GFP_IO | __GFP_FS);
+>  		else if (pflags & PF_MEMALLOC_NOFS)
+>  			flags &= ~__GFP_FS;
+
+Above this hunk you should also remove PF_MEMALLOC_NOCMA from the test.
+
+> -#ifdef CONFIG_CMA
+> -		if (pflags & PF_MEMALLOC_NOCMA)
+> -			flags &= ~__GFP_MOVABLE;
+> -#endif
+>  	}
+>  	return flags;
+>  }
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 6416d08..cd53894 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -2791,7 +2791,7 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype,
+>  	 * allocating from CMA when over half of the zone's free memory
+>  	 * is in the CMA area.
+>  	 */
+> -	if (migratetype == MIGRATE_MOVABLE &&
+> +	if (alloc_flags & ALLOC_CMA &&
+>  	    zone_page_state(zone, NR_FREE_CMA_PAGES) >
+>  	    zone_page_state(zone, NR_FREE_PAGES) / 2) {
+>  		page = __rmqueue_cma_fallback(zone, order);
+> @@ -2802,7 +2802,7 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype,
+>  retry:
+>  	page = __rmqueue_smallest(zone, order, migratetype);
+>  	if (unlikely(!page)) {
+> -		if (migratetype == MIGRATE_MOVABLE)
+> +		if (alloc_flags & ALLOC_CMA)
+>  			page = __rmqueue_cma_fallback(zone, order);
+>  
+>  		if (!page && __rmqueue_fallback(zone, order, migratetype,
+> @@ -3502,11 +3502,9 @@ static inline long __zone_watermark_unusable_free(struct zone *z,
+>  	if (likely(!alloc_harder))
+>  		unusable_free += z->nr_reserved_highatomic;
+>  
+> -#ifdef CONFIG_CMA
+>  	/* If allocation can't use CMA areas don't use free CMA pages */
+> -	if (!(alloc_flags & ALLOC_CMA))
+> +	if (IS_ENABLED(CONFIG_CMA) && !(alloc_flags & ALLOC_CMA))
+>  		unusable_free += zone_page_state(z, NR_FREE_CMA_PAGES);
+> -#endif
+>  
+>  	return unusable_free;
+>  }
+> @@ -3693,6 +3691,16 @@ alloc_flags_nofragment(struct zone *zone, gfp_t gfp_mask)
+>  	return alloc_flags;
+>  }
+>  
+> +static inline void current_alloc_flags(gfp_t gfp_mask,
+> +				unsigned int *alloc_flags)
+> +{
+> +	unsigned int pflags = READ_ONCE(current->flags);
+> +
+> +	if (!(pflags & PF_MEMALLOC_NOCMA) &&
+> +		gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
+> +		*alloc_flags |= ALLOC_CMA;
+> +}
+
+I don't like the modification through parameter, would just do what
+current_gfp_context() does and return the modified value.
+Also make it a no-op (including no READ_ONCE(current->flags)) if !CONFIG_CMA,
+please.
+
+>  /*
+>   * get_page_from_freelist goes through the zonelist trying to allocate
+>   * a page.
+> @@ -3706,6 +3714,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
+>  	struct pglist_data *last_pgdat_dirty_limit = NULL;
+>  	bool no_fallback;
+>  
+> +	current_alloc_flags(gfp_mask, &alloc_flags);
+
+I don't see why to move the test here? It will still be executed in the
+fastpath, if that's what you wanted to avoid.
+
+> +
+>  retry:
+>  	/*
+>  	 * Scan zonelist, looking for a zone with enough free.
+> @@ -4339,10 +4349,6 @@ gfp_to_alloc_flags(gfp_t gfp_mask)
+>  	} else if (unlikely(rt_task(current)) && !in_interrupt())
+>  		alloc_flags |= ALLOC_HARDER;
+>  
+> -#ifdef CONFIG_CMA
+> -	if (gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
+> -		alloc_flags |= ALLOC_CMA;
+> -#endif
+
+I would just replace this here with:
+alloc_flags = current_alloc_flags(gfp_mask, alloc_flags);
+
+>  	return alloc_flags;
+>  }
+>  
+> @@ -4808,9 +4814,6 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
+>  	if (should_fail_alloc_page(gfp_mask, order))
+>  		return false;
+>  
+> -	if (IS_ENABLED(CONFIG_CMA) && ac->migratetype == MIGRATE_MOVABLE)
+> -		*alloc_flags |= ALLOC_CMA;
+
+And same here... Ah, I see. current_alloc_flags() should probably take a
+migratetype parameter instead of gfp_mask then.
+
+> -
+>  	return true;
+>  }
+>  
+> 
+
