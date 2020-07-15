@@ -2,135 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D23D2209A9
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 12:16:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBCD220A7D
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 12:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbgGOKQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 06:16:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57750 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731040AbgGOKQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 06:16:19 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3216220720;
-        Wed, 15 Jul 2020 10:16:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594808178;
-        bh=MLE6slukUJCbU4Lp9wAIRaIGRB77Hb5WdLKM3BaDRZg=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Z/hBgYAUtMb3ykHVV9GI88hnXyICEjxpuiy5xGErl1SVFMKVix7P/c5R1UTh0Xsdd
-         i4Xs61OJnTZpMRpW552peDPpgieXAV5jOBLuHuvEoS+zwEToJSDxr2gVAN8hkKpZSd
-         V+OrJUIt5Rwh7FU1QFY2cJb5K+BpWNidyEWovIRQ=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jveSV-00BxRw-WC; Wed, 15 Jul 2020 11:16:16 +0100
+        id S1731245AbgGOKtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 06:49:55 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:13175 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729424AbgGOKtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 06:49:55 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f0edee00000>; Wed, 15 Jul 2020 03:48:00 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 15 Jul 2020 03:49:54 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 15 Jul 2020 03:49:54 -0700
+Received: from [10.26.73.219] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 15 Jul
+ 2020 10:49:51 +0000
+Subject: Re: [PATCH 4.19 00/58] 4.19.133-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200714184056.149119318@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <71d26f05-089b-6dd5-8c61-ba343e83e1cb@nvidia.com>
+Date:   Wed, 15 Jul 2020 11:49:49 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-Date:   Wed, 15 Jul 2020 11:16:15 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: =?UTF-8?Q?Re=3A_stable-rc_5=2E4=3A_arm64_build_failed_-_error=3A?=
- =?UTF-8?Q?_=E2=80=98const_struct_arch=5Ftimer=5Ferratum=5Fworkaround?=
- =?UTF-8?Q?=E2=80=99_has_no_member_named_=E2=80=98disable=5Fcompat=5Fvdso?=
- =?UTF-8?Q?=E2=80=99?=
-In-Reply-To: <20200715092704.GE2722864@kroah.com>
-References: <CA+G9fYsLBOVVjxO2DAUgjXskxEXyMpBxYG1PRKwe7BTHJfzfZw@mail.gmail.com>
- <20200714184013.GA2174489@kroah.com>
- <CAK8P3a2B6xO-PEOEsseajBvJCvF0d269XHvOzqzdfhyssZ6wrw@mail.gmail.com>
- <20200715092704.GE2722864@kroah.com>
-User-Agent: Roundcube Webmail/1.4.5
-Message-ID: <0367b2521cc678cb858c5af64c085506@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, arnd@arndb.de, naresh.kamboju@linaro.org, stable@vger.kernel.org, lkft-triage@lists.linaro.org, sashal@kernel.org, will@kernel.org, mark.rutland@arm.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1594810080; bh=b7FCQXOyhkG2Se8m3nwXVwmckVjOEVoAqtUmZCh//N0=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=EP/+l4R1ypqj68dr+tjl6AjOl2eqv1NriGRKvnPmSj9aTf9CNt6KYHzZxeTz1K+YU
+         KRc5tBET4G01vDVi5EMWXa6jpz170QSwZwTdOGc2MSQ29yVRo9hno2+/mvUtOikA95
+         /RrxaUyeW1rkUsWRyj4z+GQz36QQ8MZQKihqvGSGGrxYzC20SsxguNWjMBwTsa5t87
+         DtEHNNR7MY+QYWDPtd4QFMZKFmcEFh87BhB4PH2RbZzxUtDjS7o1e8xBzJHdoAQoQh
+         Bnqeme58pQAsgGs97I+XOaCGhZdeZhEuxSLPxZHE8dSLvVqugkTTFZOMBbLcY6ksdc
+         g+Faz/wxr4agA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-07-15 10:27, Greg Kroah-Hartman wrote:
-> On Wed, Jul 15, 2020 at 08:54:33AM +0200, Arnd Bergmann wrote:
->> On Tue, Jul 14, 2020 at 8:40 PM Greg Kroah-Hartman
->> <gregkh@linuxfoundation.org> wrote:
->> >
->> > On Tue, Jul 14, 2020 at 10:48:14PM +0530, Naresh Kamboju wrote:
->> > > arm64 build failed on 5.4
->> > >
->> > > make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm64
->> > > CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
->> > > aarch64-linux-gnu-gcc" O=build Image
->> > > #
->> > > ../drivers/clocksource/arm_arch_timer.c:484:4: error: ‘const struct
->> > > arch_timer_erratum_workaround’ has no member named
->> > > ‘disable_compat_vdso’
->> > >   484 |   .disable_compat_vdso = true,
->> > >       |    ^~~~~~~~~~~~~~~~~~~
->> > > ../drivers/clocksource/arm_arch_timer.c:484:26: warning:
->> > > initialization of ‘u32 (*)(void)’ {aka ‘unsigned int (*)(void)’} from
->> > > ‘int’ makes pointer from integer without a cast [-Wint-conversion]
->> > >   484 |   .disable_compat_vdso = true,
->> > >       |                          ^~~~
->> > > ../drivers/clocksource/arm_arch_timer.c:484:26: note: (near
->> > > initialization for ‘ool_workarounds[5].read_cntp_tval_el0’)
->> > >
->> > > Could be this patch,
->> > > arm64: arch_timer: Disable the compat vdso for cores affected by
->> > > ARM64_WORKAROUND_1418040
->> > > commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
->> > >
->> > > ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
->> > > the virtual counter register are trapped and emulated by the kernel.
->> > > This makes the vdso pretty pointless, and in some cases livelock
->> > > prone.
->> > >
->> > > Provide a workaround entry that limits the vdso to 64bit tasks.
->> > >
->> > > ref:
->> > > https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/638094006
->> >
->> > Thanks, I've now dropped this patch.
->> 
->> I think we do want to have it back eventually. It appears that the 
->> patch
->> upstream depends on the two immediately before it:
->> 
->> 4b661d6133c5 arm64: arch_timer: Disable the compat vdso for cores
->> affected by ARM64_WORKAROUND_1418040
->> c1fbec4ac0d7 arm64: arch_timer: Allow an workaround descriptor to
->> disable compat vdso
->> 97884ca8c292 arm64: Introduce a way to disable the 32bit vdso
->> 
->> AFAICT, the second one was missing, causing the build failure.
->> Do you know if that one needed a manual backport, or could you
->> try applying all three in sequence again?
+
+On 14/07/2020 19:43, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.133 release.
+> There are 58 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> The "first one", 97884ca8c292 ("arm64: Introduce a way to disable the
-> 32bit vdso"), does not apply to 5.4.y, and neither does c1fbec4ac0d7
-> ("arm64: arch_timer: Allow an workaround descriptor to disable compat
-> vdso").
+> Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
+> Anything received after that time might be too late.
 > 
-> So backports for all 3 would be appreciated.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.133-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-These patches cannot just be backported, as 5.4 uses very different
-data structures and abstractions. I'll try and come up with something
-semantically equivalent by the end of the day...
 
-Thanks,
+All tests are passing for Tegra ...
 
-         M.
+Test results for stable-v4.19:
+    11 builds:	11 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    38 tests:	38 pass, 0 fail
+
+Linux version:	4.19.133-rc1-g4e2a5cde3f03
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
 -- 
-Jazz is not dead. It just smells funny...
+nvpublic
