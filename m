@@ -2,86 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59276220686
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 09:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADAED2206B2
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:04:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729497AbgGOH4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 03:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47078 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729430AbgGOH4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 03:56:09 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39434C08C5C1
-        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 00:56:09 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id r19so1456960ljn.12
-        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 00:56:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=K5YLBhht2HRvgF96H7m+IGI8jSAwEMdpV9SgmyIfzMI=;
-        b=r27Po4YObiocd+JoC+zwPaGCXmx6/xrstz3Nf7LzE73KixHCc+SkQnIvb7K0rUdihw
-         ZtHlF5grpUIL7sHeWMSQTozSkKo+lT1+7EA44i3luWkNisuYErw8QsWQ0sJHhZ2lQwrF
-         H06AlUD5ixFMqF5Yx3yJVUkiadIFV3HC6WFitVUPv+0xh1r2XbpbdxTBrfjZmSrxxAlh
-         6wIQwhNLah0I9pgIuIqk/X7FmS7i7W0nn7FzJ5DZeRYXNW8EbBOIsV7zq1R9zHiFXLcH
-         p/59lQXBi5X2wywUvlK6lWBhIRc+c/oblHKvTcFtWqTJzvzudlib1SOjhIygbYDhq43X
-         Eozg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=K5YLBhht2HRvgF96H7m+IGI8jSAwEMdpV9SgmyIfzMI=;
-        b=B2256SypP1QCrpikY/pBrlkxH+Dt9bH4kOQzoS7kmuNhV6ZAjsYwVMzmoSNS5TcDz7
-         08HVheBCmLV9s1IsqFX4kB0Yzs+WdXVPnRtShS0DCNkkzQudeXGCCOnPs6ZHZ4XsA1sc
-         rr6SI59w6hxch969vUdZPAf7bkqt3SLc3WohtIG1fDhMBfty90JVcup+9jKBstvQ7+wo
-         iuuSC/Xff0OklsRMfTTCx4MoTGZBkB4ZJiWZPsRCkB+KUuaRd8HanGJtCiOxXnOYAqJ6
-         MypQS6Bo/IepvKVpAYrmyH4uWDzyrXlwanEvH7AKoqFfounquvAZ0MsCud7JLeYwYwO3
-         bkew==
-X-Gm-Message-State: AOAM53372SBXZ37trAVFXpXztVgNv9OjJ8zzfSXKMxKjQRBEP6rmAk96
-        PXrKLeL8Kcq0kDhlEBPE68iruM5d9cU=
-X-Google-Smtp-Source: ABdhPJzU3yGsrxJIB8k0N5KCjSUvlWM7fbRR3TmBNr94BMV/CACDiq/9IoJDgdZbGb3qq9dF9aWHqA==
-X-Received: by 2002:a2e:7816:: with SMTP id t22mr3862538ljc.373.1594799767026;
-        Wed, 15 Jul 2020 00:56:07 -0700 (PDT)
-Received: from ?IPv6:2a00:1fa0:42dd:3c8c:7d45:c199:bbef:e36? ([2a00:1fa0:42dd:3c8c:7d45:c199:bbef:e36])
-        by smtp.gmail.com with ESMTPSA id y24sm327833lfy.49.2020.07.15.00.56.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jul 2020 00:56:06 -0700 (PDT)
-Subject: Re: [PATCH] MIPS: CPU#0 is not hotpluggable
-To:     Huacai Chen <chenhc@lemote.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
-        Zhangjin Wu <wuzhangjin@gmail.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>, stable@vger.kernel.org
-References: <1594791329-20563-1-git-send-email-chenhc@lemote.com>
-From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Message-ID: <32525b2d-6a5d-1064-788c-96233a375d1d@cogentembedded.com>
-Date:   Wed, 15 Jul 2020 10:56:00 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1729585AbgGOIEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 04:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58852 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729001AbgGOIEC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jul 2020 04:04:02 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B5BE2064C;
+        Wed, 15 Jul 2020 08:04:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594800242;
+        bh=HIG91/ioMlIScqdxhHK1XI6hYx30577FlENF9j/AlEw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bfepzjD7u8Mx9WRTyJYUr0DmmMF7Fe3KKrMrTFDZnsH4TrYXAvF1hg/OpTq0XbmWP
+         Cr6KfiadSdvxq7c0jZlsW/nZKBVwjtIlUggx4lQcpnclJrcTreRe80E9c1NLx3J9Kf
+         wTrqHuXAdpBeVGbS7Q924vpShEv7DcwHRUrlcPLM=
+Date:   Wed, 15 Jul 2020 10:03:58 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dominique Martinet <asmadeus@codewreck.org>
+Cc:     Eric Biggers <ebiggers@kernel.org>,
+        Victor Hsieh <victorhsieh@google.com>,
+        v9fs-developer@lists.sourceforge.net,
+        Eric Van Hensbergen <ericvh@gmail.com>,
+        Latchesar Ionkov <lucho@ionkov.net>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] fs/9p: Fix TCREATE's fid in protocol
+Message-ID: <20200715080358.GA2521386@kroah.com>
+References: <20200713215759.3701482-1-victorhsieh@google.com>
+ <20200714121249.GA21928@nautica>
+ <20200714205401.GE1064009@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1594791329-20563-1-git-send-email-chenhc@lemote.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200714205401.GE1064009@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+On Tue, Jul 14, 2020 at 01:54:01PM -0700, Eric Biggers wrote:
+> On Tue, Jul 14, 2020 at 02:12:49PM +0200, Dominique Martinet wrote:
+> > 
+> > > Fixes: 5643135a2846 ("fs/9p: This patch implements TLCREATE for 9p2000.L protocol.")
+> > > Signed-off-by: Victor Hsieh <victorhsieh@google.com>
+> > > Cc: stable@vger.kernel.org
+> > 
+> > (afaiu it is normally frowned upon for developers to add this cc (I can
+> > understand stable@ not wanting spam discussing issues left and right
+> > before maintainers agreed on them!) ; I can add it to the commit itself
+> > if requested but they normally pick most such fixes pretty nicely for
+> > backport anyway; I see most 9p patches backported as long as the patch
+> > applies cleanly which is pretty much all the time.
+> > Please let me know if I understood that incorrectly)
 
-On 15.07.2020 8:35, Huacai Chen wrote:
+As Eric says, this is fine to cc: stable with this kind of thing.  It's
+good to get a "heads up" on patches that are coming, and Sasha runs some
+tests on them as well to make sure that they really are going to apply
+to what trees you think they should apply to.
 
-> Now CPU#0 is not hotpluggable on MIPS, so prevent to create /sys/devices
-> /system/cpu/cpu0/online which confusing some user-space tools.
+thanks,
 
-    Confuses?
-
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Huacai Chen <chenhc@lemote.com>
-[...]
-
-MBR, Sergei
+greg k-h
