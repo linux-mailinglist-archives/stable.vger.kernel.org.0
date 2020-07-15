@@ -2,126 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54DEE220F69
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 16:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A516220FBA
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 16:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726828AbgGOOen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 10:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35620 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726568AbgGOOen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 10:34:43 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 367702065D;
-        Wed, 15 Jul 2020 14:34:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594823682;
-        bh=LrWUkleHxZV4c+Di+w1VVzb6X+CPgI6RtdSaLqqPXCI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=umBRMvjgol0MNMeEYw91XA59Oyz8fUvDWT9IMOt5qmPRHHGZQSwBiXyhC+kkMbEr9
-         YvYahzKUL6OtUZUg2mAAgKDwxI3MmM1VPNYyQXygqttfaohKm4tc2SAkCFy3OeR3ZI
-         q2SkD42+7y1wMDvKv67qzFV/FUyPIl5uOUeVuOX0=
-Date:   Wed, 15 Jul 2020 10:34:41 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Xiong Zhou <xzhou@redhat.com>
-Subject: Re: =?utf-8?B?8J+SpSBQQU5JQ0tFRA==?= =?utf-8?Q?=3A?= Test report for
- kernel 5.7.9-rc1-c2fb28a.cki (stable)
-Message-ID: <20200715143441.GM2722994@sasha-vm>
-References: <cki.9BE0703C38.BLD1GT3V8U@redhat.com>
- <2125467353.2778784.1594820204666.JavaMail.zimbra@redhat.com>
+        id S1729520AbgGOOpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 10:45:54 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59996 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725838AbgGOOpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 10:45:53 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 6E8E91C0BDB; Wed, 15 Jul 2020 16:45:47 +0200 (CEST)
+Date:   Wed, 15 Jul 2020 16:45:46 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Emil Velikov <emil.l.velikov@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 15/58] drm: panel-orientation-quirks: Use generic
+ orientation-data for Acer S1003
+Message-ID: <20200715144546.GA20651@duo.ucw.cz>
+References: <20200714184056.149119318@linuxfoundation.org>
+ <20200714184056.909662669@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2125467353.2778784.1594820204666.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200714184056.909662669@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 09:36:44AM -0400, Veronika Kabatova wrote:
->
->
->----- Original Message -----
->> From: "CKI Project" <cki-project@redhat.com>
->> To: "Linux Stable maillist" <stable@vger.kernel.org>
->> Cc: "Xiong Zhou" <xzhou@redhat.com>
->> Sent: Wednesday, July 15, 2020 3:33:45 PM
->> Subject: 💥 PANICKED: Test report for kernel 5.7.9-rc1-c2fb28a.cki (stable)
->>
->>
->> Hello,
->>
->> We ran automated tests on a recent commit from this kernel tree:
->>
->>        Kernel repo:
->>        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->>             Commit: c2fb28a4b6e4 - Linux 5.7.9-rc1
->>
->> The results of these automated tests are provided below.
->>
->>     Overall result: FAILED (see details below)
->>              Merge: OK
->>            Compile: OK
->>              Tests: PANICKED
->>
->> All kernel binaries, config files, and logs are available for download here:
->>
->>   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/07/14/610210
->>
->> One or more kernel tests failed:
->>
->>     s390x:
->>      ❌ Boot test
->>      ❌ Boot test
->>      💥 Boot test
->>
->
->Hi,
->
->we started observing boot panics with 5.7 on s390x yesterday:
->
->[    0.388965] Kernel panic - not syncing: Corrupted kernel text
->[    0.388970] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.7.8-0930ce5.cki #1
->[    0.388971] Hardware name: IBM 2964 N96 400 (z/VM 6.4.0)
->[    0.388975] Workqueue: events timer_update_keys
->[    0.388977] Call Trace:
->[    0.388980]  [<00000001378c868a>] show_stack+0x8a/0xd0
->[    0.388983]  [<0000000137e0c9c2>] dump_stack+0x8a/0xb8
->[    0.388985]  [<00000001378fa372>] panic+0x112/0x308
->[    0.388989]  [<00000001378d20b6>] jump_label_bug+0x7e/0x80
->[    0.388990]  [<00000001378d1fb8>] __jump_label_transform+0xa8/0xd8
->[    0.388992]  [<00000001378d200e>] arch_jump_label_transform+0x26/0x40
->[    0.388995]  [<0000000137a8d448>] __jump_label_update+0xb8/0x128
->[    0.388996]  [<0000000137a8dca6>] static_key_enable_cpuslocked+0x8e/0xd0
->[    0.388998]  [<0000000137a8dd18>] static_key_enable+0x30/0x40
->[    0.389000]  [<000000013798a0d2>] timer_update_keys+0x3a/0x50
->[    0.389003]  [<000000013791cdde>] process_one_work+0x206/0x458
->[    0.389005]  [<000000013791d078>] worker_thread+0x48/0x460
->[    0.389007]  [<0000000137924912>] kthread+0x12a/0x160
->[    0.389013]  [<00000001381b9a70>] ret_from_fork+0x2c/0x30
->
->I only released one of the reports to not spam too much but the panics are
->still happening with the most recent code.
->
->These panics are NOT present on the current mainline. All other arches are OK.
->
->Given the call trace, I'm guessing it is something related to
->
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.7.y&id=477d4930b0c7e70c1ac3e3c35e5ad15c5ebde8be
 
-Indeed, looks like we were missing d6df52e9996d ("s390/maccess: add no
-DAT mode to kernel_write").
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I also took cb2cceaefb4c ("s390: Change s390_kernel_write() return type
-to match memcpy()") as a dependency.
+Hi!
 
-Thank you!
+> The Acer S1003 has proper DMI strings for sys-vendor and product-name,
+> so we do not need to match by BIOS-date.
+>=20
+> This means that the Acer S1003 can use the generic lcd800x1280_rightside_=
+up
+> drm_dmi_panel_orientation_data struct which is also used by other quirks.
 
--- 
-Thanks,
-Sasha
+This is	just a cleanup,	it does	not fix	anything. I don't think we
+need it in stable.
+
+Best regards,
+								Pavel
+							=09
+> =20
+> -static const struct drm_dmi_panel_orientation_data acer_s1003 =3D {
+> -	.width =3D 800,
+> -	.height =3D 1280,
+> -	.orientation =3D DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+> -};
+> -
+>  static const struct drm_dmi_panel_orientation_data asus_t100ha =3D {
+>  	.width =3D 800,
+>  	.height =3D 1280,
+> @@ -100,7 +94,7 @@ static const struct dmi_system_id orientation_data[] =
+=3D {
+>  		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
+>  		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
+>  		},
+> -		.driver_data =3D (void *)&acer_s1003,
+> +		.driver_data =3D (void *)&lcd800x1280_rightside_up,
+>  	}, {	/* Asus T100HA */
+>  		.matches =3D {
+>  		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> --=20
+> 2.25.1
+>=20
+>=20
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXw8WmgAKCRAw5/Bqldv6
+8gylAKC4LV32Hyp+Z40bVQzp0yoG4Su2JwCfWuPV9I/hi5eWiDUWJKQ5B1H0Ilk=
+=tys3
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--
