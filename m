@@ -2,119 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 267DF220786
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 394552207AE
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729095AbgGOIiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 04:38:10 -0400
-Received: from esa6.microchip.iphmx.com ([216.71.154.253]:20400 "EHLO
-        esa6.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728961AbgGOIiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 04:38:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1594802288; x=1626338288;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=zkOPZga5dYjTfkahTVbo+6M0cJuULmnOy6fWthXpK9k=;
-  b=gMHt6ncBsSW1LSfyYL5gHtBolOP/3Y5Q3EYAdMyZFwoehmrgvIoscpvf
-   +rcSQBfN5aWylaDOLZkEc171E/Cut3FfJH9K61QB4Ko4S4qMG7rqzkTD1
-   t1Gpw9JiV0VwrZIOjsKx3IIixLe0492Sx9w6+8rfEBzX7xMKe88ddtFjE
-   pUMN9Og29/mvWvWT4G/Ss0OTtyR7LpSKRR98W69zP/lOjx8ivZGzEvS2R
-   NldAeW5StFnx4BomE10lS3usINs1w/CRz0beU9GA7pKNvCSFGoezFLgi9
-   lr/MviGTJCXmJWGn8WBCR2UP4/dmmqkxFyzGzDQNy6rTBg9ClsVyrnPC+
-   Q==;
-IronPort-SDR: NZaz99ak4TN9N/ru3szRqpCtjyZ57j3xIjUar/s5uyN826UBRDbFY0pxIlWHPJOMo7SlenK/ua
- MnDeVpXtGK/Pfvo0QTPkien4gcCPuc42k0437EYGvJt9XmLHTTWH1w0KcAymNWTczSAbvvua3H
- N9S5jdWLCT4ukRGuqRC2bN4u3wF+lSNvdIl93QKLREzuIkdXPryINnBGShQwhPb3ImMUv2l9SF
- 6hjtpjbPODJfMaQs4c4ugUdK/wNgJb1njA+6J9R/XKb/YgFfAeAJU7c2DuAerlEHYjGxd7Db3v
- isc=
-X-IronPort-AV: E=Sophos;i="5.75,354,1589266800"; 
-   d="scan'208";a="19255443"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 15 Jul 2020 01:38:08 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.87.72) by
- chn-vm-ex02.mchp-main.com (10.10.87.72) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Wed, 15 Jul 2020 01:37:34 -0700
-Received: from atudor-ThinkPad-T470p.amer.actel.com (10.10.115.15) by
- chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
- 15.1.1979.3 via Frontend Transport; Wed, 15 Jul 2020 01:37:31 -0700
-From:   Tudor Ambarus <tudor.ambarus@microchip.com>
-To:     <gregkh@linuxfoundation.org>, <alexander.levin@microsoft.com>
-CC:     <stable@vger.kernel.org>, <herbert@gondor.apana.org.au>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        "kernel test robot" <lkp@intel.com>,
-        YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH 5.4] crypto: atmel - Fix build error of CRYPTO_AUTHENC
-Date:   Wed, 15 Jul 2020 11:38:02 +0300
-Message-ID: <20200715083802.460760-1-tudor.ambarus@microchip.com>
-X-Mailer: git-send-email 2.25.1
+        id S1729466AbgGOInv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 04:43:51 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:8674 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729377AbgGOInu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 04:43:50 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f0ec18c0000>; Wed, 15 Jul 2020 01:42:52 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 15 Jul 2020 01:43:50 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 15 Jul 2020 01:43:50 -0700
+Received: from [10.26.73.219] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 15 Jul
+ 2020 08:43:44 +0000
+Subject: Re: [PATCH 2/2] usb: tegra: Fix zero length memory allocation
+To:     Thierry Reding <thierry.reding@gmail.com>
+CC:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <20200712102837.24340-1-jonathanh@nvidia.com>
+ <20200712102837.24340-2-jonathanh@nvidia.com> <20200714093256.GG141356@ulmo>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <9c8ddf99-40fb-547f-81a9-05f0c64c9a5f@nvidia.com>
+Date:   Wed, 15 Jul 2020 09:43:42 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+In-Reply-To: <20200714093256.GG141356@ulmo>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1594802572; bh=3xiQ0vTDOSTESSN096aBDlKYmYjzrdf/LhVyTEamGSc=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=nc7TV2jLCSjE3pSrrGfu/3q01u0z0h9PWL0U6XakGVGY4UqrVPyuW4xTolcE0HET4
+         9qp+6VYCgB2I9PqGZaNwqVVNMmtnrC14xan6oxdDMn9q+sx7+8EGXr1cgOFN4KKcdQ
+         vXfNKcIxRyn6hkm/FOHJw2GHkYQ7TVJi3Yfu9cluLqu67f5fkRnbT2NtX7NPw87phJ
+         CXKKVCd8ZVY+UeHBD+bz7iaM7/nPk3s+pVuV3hDpocPthL+c0980bsGJOTmrrUAvqb
+         bhAjyMx2jZvFR8DnFPpDUggd5+451h4klTBbtIZY4hkJxi2knFNDqCJ0orF0ZiUsD+
+         f2UXlqXmCR4ZA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Backport to 5.4.52-rc1 the following commits in upstream:
-commit aee1f9f3c30e1e20e7f74729ced61eac7d74ca68 upstream.
-commit d158367682cd822aca811971e988be6a8d8f679f upstream.
 
-If CRYPTO_DEV_ATMEL_AUTHENC is m, CRYPTO_DEV_ATMEL_SHA is m,
-but CRYPTO_DEV_ATMEL_AES is y, building will fail:
+On 14/07/2020 10:32, Thierry Reding wrote:
+> On Sun, Jul 12, 2020 at 11:28:37AM +0100, Jon Hunter wrote:
+>> After commit cad064f1bd52 ("devres: handle zero size in devm_kmalloc()")
+>> was added system suspend started failing on Tegra186. The kernel log
+>> showed that the Tegra XHCI driver was crashing on entry to suspend when
+>> attemptin the save the USB context. The problem is caused because we
+>> are trying to allocate a zero length array for the IPFS context on
+>> Tegra186 and following commit cad064f1bd52 ("devres: handle zero size
+>> in devm_kmalloc()") this now causes a NULL pointer deference crash
+>> when we try to access the memory. Fix this by only allocating memory
+>> for both the IPFS and FPCI contexts when required.
+>>
+>> Cc: stable@vger.kernel.org
+>>
+>> Fixes: 5c4e8d3781bc ("usb: host: xhci-tegra: Add support for XUSB context save/restore")
+>>
+>> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+>> ---
+>>  drivers/usb/host/xhci-tegra.c | 22 ++++++++++++++--------
+>>  1 file changed, 14 insertions(+), 8 deletions(-)
+> 
+> Actually it would seem to me that this is no longer a bug after your fix
+> in patch 1. We only ever access tegra->context.ipfs if
+> tegra->soc->ipfs.num_offsets > 0, so the special ZERO_SIZE_PTR case will
+> not actually cause an issue anymore.
+> 
+> The reason why this was crashing was because tegra->context.fpci was
+> allocated with a zero size (because of the bug that you fixed in patch
+> 1) and then that zero-size pointer was dereferenced because the code was
+> correctly checking for tegra->soc->fpci.num_offsets > 0 in the context
+> save and restore.
+> 
+> So I don't think there's a bug here. It's not wrong to allocate a zero-
+> size buffer. It's only a bug to then go and dereference it. Are you
+> still seeing the issue if you leave out this patch and only apply patch
+> 1?
 
-drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_init_tfm':
-atmel-aes.c:(.text+0x670): undefined reference to `atmel_sha_authenc_get_reqsize'
-atmel-aes.c:(.text+0x67a): undefined reference to `atmel_sha_authenc_spawn'
-drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_setkey':
-atmel-aes.c:(.text+0x7e5): undefined reference to `atmel_sha_authenc_setkey'
+Ah yes you are right. OK, we can drop this. I will update the commit
+message to patch 1/1.
 
-Make CRYPTO_DEV_ATMEL_AUTHENC depend on CRYPTO_DEV_ATMEL_AES,
-and select CRYPTO_DEV_ATMEL_SHA and CRYPTO_AUTHENC for it under there.
+Jon
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-Fixes: 89a82ef87e01 ("crypto: atmel-authenc - add support to...")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[tudor.ambarus@microchip.com: Backport to 5.4.52-rc1]
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
----
- drivers/crypto/Kconfig | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
-index 06b2b3fa5206..0952f059d967 100644
---- a/drivers/crypto/Kconfig
-+++ b/drivers/crypto/Kconfig
-@@ -491,11 +491,9 @@ if CRYPTO_DEV_UX500
- endif # if CRYPTO_DEV_UX500
- 
- config CRYPTO_DEV_ATMEL_AUTHENC
--	tristate "Support for Atmel IPSEC/SSL hw accelerator"
-+	bool "Support for Atmel IPSEC/SSL hw accelerator"
- 	depends on ARCH_AT91 || COMPILE_TEST
--	select CRYPTO_AUTHENC
--	select CRYPTO_DEV_ATMEL_AES
--	select CRYPTO_DEV_ATMEL_SHA
-+	depends on CRYPTO_DEV_ATMEL_AES
- 	help
- 	  Some Atmel processors can combine the AES and SHA hw accelerators
- 	  to enhance support of IPSEC/SSL.
-@@ -508,6 +506,8 @@ config CRYPTO_DEV_ATMEL_AES
- 	select CRYPTO_AES
- 	select CRYPTO_AEAD
- 	select CRYPTO_BLKCIPHER
-+	select CRYPTO_AUTHENC if CRYPTO_DEV_ATMEL_AUTHENC
-+	select CRYPTO_DEV_ATMEL_SHA if CRYPTO_DEV_ATMEL_AUTHENC
- 	help
- 	  Some Atmel processors have AES hw accelerator.
- 	  Select this if you want to use the Atmel module for
 -- 
-2.25.1
-
+nvpublic
