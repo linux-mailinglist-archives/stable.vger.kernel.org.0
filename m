@@ -2,125 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F05422204E5
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 08:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B442204F1
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 08:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725832AbgGOGWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 02:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
+        id S1728699AbgGOG1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 02:27:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725824AbgGOGWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 02:22:37 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7D4C061755
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:22:37 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id j20so1641027pfe.5
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:22:37 -0700 (PDT)
+        with ESMTP id S1728689AbgGOG1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 02:27:23 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B247C061794
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:27:23 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id f5so1232067ljj.10
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:27:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=eRGzYyp3e2i0uaHheTjgAZF3qrl0CqWbOJLxqnPXDCA=;
-        b=nKHOHB8qoZWGMpzAVcHuq5p5JKbJgxfqR6NUcg3uf1DP6pk4dvoxMWewUurQa+n6Qk
-         ZCT9jBQ3HQj61a4ShYKlUUmSLtkDNgI35hBFBiSbIXzRzVq50PJDyRzfDWVxYQJ3rXgT
-         l6wHVryiC9qOWQQKgTsMQ3IAfYBEH6Aom12Dm3lB9C9aFFiI16e+2Ue0z4J7FfiFYR64
-         UjIkaTtPCwcKU0zLxnk74RkdEAWuR95NNDFMgoKesSwfDYCMgtKkfqGYqivNecQALrZw
-         jxJiw8YcZGxBSOmqoQ4y+v6ZVtGmziOii6Unz7gDZDKpmJLc9karM1XRySJtLZKhQ9+m
-         TIjA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=PJzQ6C5etwDQHSi7DhcVYIwc+Qw2lPx1DzppZhJZzF8=;
+        b=gFQ0jjKdytUBmHCTdUeIywxJqRPut7uAw/seKwSMTETRW0zuBPA/3c08CXMdM7pVs1
+         3P3Yp1z0JBYtOUZy9ks0rASnRoGZNwFZnFKu6U3PikDaGoXlKiCjwxlnX6oviP1HAk/h
+         tbA/sQ18KLZWwmcAPOBgXKchC9q6N+8n/bzJTUdiRdazQIL0oOJ4ytfKLm1QScpma+3U
+         jomrtZiiZM5aq2ncdgRHnR2p+PXv7fJRAoxaZ3WPJnE4tBAhqx6bsh+aojr8BiJwGLKQ
+         XJaB0EkLFY7FaWC4S+xB4hOavceqQIhVfH98Izk2tIIHb9o5XRI9Tre5gVkP9ZSPRHuP
+         iCQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=eRGzYyp3e2i0uaHheTjgAZF3qrl0CqWbOJLxqnPXDCA=;
-        b=TJneheRwJnXfASDREnPYzvi7hPCZeQF8mv+eK9rFov9d7o1CdjIp4w+oB47xEhvU7j
-         bqfF2KLZCpmpsPJFOzpgeYZilRkWdcBtOqsdJ5tZkqw1OCKp+pki3fUY8LZCUE1PZCNu
-         gpykhwwu+lMK722Ws0pABE+7l3Yk/S+TPx06id/g4dKxUDFEb8N6nwyLs1/+M62ugcC3
-         jCWeqS3I2pQlsc93aWlOM+xEz61wFgKSRcg1Yhe3SP/vA/XzMLj4C2ENz6gnHD00yeA0
-         YKeqpbEuCIbRa8C2NQk7iGN8gQS3v1/Wb9oX2fAm2hl0gsj8wd+vjhuaiIPjz1CdvA72
-         o3qw==
-X-Gm-Message-State: AOAM532lzWexVS9q2zz0PbQYphkjXs1iX4kI6hbpu+uN+IP47YvJGg7G
-        i8rT41pU3ourRIBL3IYFLRpCPVRy7Sc=
-X-Google-Smtp-Source: ABdhPJzFNCoitmS6xf+pYe7QZnwcyFURDTkvWSNOEcqP4n4keiuGQPfeA9opKkT19mcuV70qzoBFoQ==
-X-Received: by 2002:a63:8ec7:: with SMTP id k190mr6521974pge.261.1594794156762;
-        Tue, 14 Jul 2020 23:22:36 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x66sm1074055pgb.12.2020.07.14.23.22.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2020 23:22:36 -0700 (PDT)
-Message-ID: <5f0ea0ac.1c69fb81.85398.3ce2@mx.google.com>
-Date:   Tue, 14 Jul 2020 23:22:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=PJzQ6C5etwDQHSi7DhcVYIwc+Qw2lPx1DzppZhJZzF8=;
+        b=DMaCuSB6uI4ajhhtsB5tVfE5XGg10pBku89qwCBABrs7GodsxVvbrfGv1rWkFNBWXB
+         i/MF5Q/TbOURRBydmN1QvbWyf45WlMW1BSueoKmjQSqCUcm8HeAPU7ugcT486zfhWmrX
+         iQoUUMSTWVej3cRY2stxWO1LtjztP+KfZNRoMPKRRhRqnqsufDO+okGDNWIDzDpcGXnR
+         fOQS2REqi3wY1YsDwdelFN07237b6tBDRZF3PKO8/qJAAm+Q6EqhC96ljjLyVB/4qbLJ
+         0vunRHHb7is8MB9ynLg3Nrg5g8YkaIWY84N0tgwP1h6F0eSotpp91PBriqz4Kwk3qqmO
+         SWjg==
+X-Gm-Message-State: AOAM533aXRzrxmFWss1CQkvMooC+EMXRR7cQWcxJG5uKTCPTLv74Rtax
+        92MDuL0QQ46xn0esyML5pdDlvNKLqyEMCboJxvewHw==
+X-Google-Smtp-Source: ABdhPJxB/h5ZZI6qtvUaf2IQPkAuV1D7Mz80yAR+8Beqkb7bSTeVTs7ktXvRmAhPgHpKS9QvSqW2OFczUFpTTF0rZdw=
+X-Received: by 2002:a2e:9857:: with SMTP id e23mr4226879ljj.411.1594794441480;
+ Tue, 14 Jul 2020 23:27:21 -0700 (PDT)
 MIME-Version: 1.0
+References: <20200714184115.844176932@linuxfoundation.org>
+In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 15 Jul 2020 11:57:10 +0530
+Message-ID: <CA+G9fYs_6hgdEUaM3hJ9QzH0R0_qvXkQ4a0oUVMPGN9qfMdGGQ@mail.gmail.com>
+Subject: Re: [PATCH 5.7 000/166] 5.7.9-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.7.8-167-gc2fb28a4b6e4
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.7.y
-Subject: stable-rc/linux-5.7.y baseline: 60 runs,
- 1 regressions (v5.7.8-167-gc2fb28a4b6e4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.7.y baseline: 60 runs, 1 regressions (v5.7.8-167-gc2fb28a=
-4b6e4)
+On Wed, 15 Jul 2020 at 00:23, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.7.9 release.
+> There are 166 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.7.9-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.7.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Regressions Summary
--------------------
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-platform                     | arch  | lab          | compiler | defconfig =
-| results
------------------------------+-------+--------------+----------+-----------=
-+--------
-meson-gxl-s805x-libretech-ac | arm64 | lab-baylibre | gcc-8    | defconfig =
-| 0/1    =
+Summary
+------------------------------------------------------------------------
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
-el/v5.7.8-167-gc2fb28a4b6e4/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.7.y
-  Describe: v5.7.8-167-gc2fb28a4b6e4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c2fb28a4b6e42b090d478b30aab47f3fef177964 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab          | compiler | defconfig =
-| results
------------------------------+-------+--------------+----------+-----------=
-+--------
-meson-gxl-s805x-libretech-ac | arm64 | lab-baylibre | gcc-8    | defconfig =
-| 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f0e6ea74ee0942abe85bb18
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.8-1=
-67-gc2fb28a4b6e4/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s805=
-x-libretech-ac.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.8-1=
-67-gc2fb28a4b6e4/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s805=
-x-libretech-ac.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
+kernel: 5.7.9-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.7.y
+git commit: c2fb28a4b6e42b090d478b30aab47f3fef177964
+git describe: v5.7.8-167-gc2fb28a4b6e4
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.7-oe/bui=
+ld/v5.7.8-167-gc2fb28a4b6e4
 
 
-  * baseline.login: https://kernelci.org/test/case/id/5f0e6ea74ee0942abe85b=
-b19
-      new failure (last pass: v5.7.8) =20
+No regressions (compared to build v5.7.8)
+
+
+No fixes (compared to build v5.7.8)
+
+Ran 33472 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2800
+* libhugetlbfs
+* linux-log-parser
+* ltp-containers-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* v4l2-compliance
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-math-tests
+* network-basic-tests
+* ltp-controllers-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-ipc-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
