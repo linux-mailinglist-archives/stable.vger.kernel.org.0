@@ -2,99 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C943B220D7D
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 14:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67FA220D84
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 14:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731174AbgGOM4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 08:56:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726335AbgGOM4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 08:56:24 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04A76206E9;
-        Wed, 15 Jul 2020 12:56:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594817784;
-        bh=lLzzKnjPZFsQliwuK2UoN47QQgGtjviOYVT/55SWMgs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAvp8tbI65/xUAuhJY9HQpbBH+ZaBVACU7AG9v9EmvL6Dba9u4CmUdLUDpQDe4ZLj
-         /Bbvlmfx1AeZdTyYqT7L33NQTFyacaETwHGpiRN9Zp3cNwvbbt53LmWpcSjV4+GXcn
-         owv9fgcNXbQ1rCCW3+fFmWEbDPpuCLwZxkY30Ilg=
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jvgxS-00Bzgo-HW; Wed, 15 Jul 2020 13:56:22 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     arnd@arndb.de, sashal@kernel.org, naresh.kamboju@linaro.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <linux@arm.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com
-Subject: [Stable-5.4][PATCH 3/3] arm64: arch_timer: Disable the compat vdso for cores affected by ARM64_WORKAROUND_1418040
-Date:   Wed, 15 Jul 2020 13:56:14 +0100
-Message-Id: <20200715125614.3240269-4-maz@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200715125614.3240269-1-maz@kernel.org>
-References: <20200715125614.3240269-1-maz@kernel.org>
+        id S1730739AbgGOM60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 08:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37280 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730054AbgGOM60 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 08:58:26 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A3BC061755
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 05:58:26 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id dp18so2040682ejc.8
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 05:58:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=from:references:in-reply-to:mime-version:thread-index:date
+         :message-id:subject:to:cc;
+        bh=v9mJg7XwGipwizXx2S4vBBwdqtrKKslDDhrfD/jXi6Q=;
+        b=E65toy9yE3dWp6mE9zSSCUTS68BRTC3ozDL/84HtMGAF7cR7NYvxQArR8EHRSHuhlN
+         +CfJUySYM/LNp0C0KvNDqblM/AFjRt4Ll9Ccl0mksR7maQdlKtjZm/zAduNRun/lC56y
+         k+B5Mo5UcrpuIpgeaiVNzfNJ6xPqTwGAX8s10=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:references:in-reply-to:mime-version
+         :thread-index:date:message-id:subject:to:cc;
+        bh=v9mJg7XwGipwizXx2S4vBBwdqtrKKslDDhrfD/jXi6Q=;
+        b=EdiR2cLxrKhtK2PB+v7372XhtnVQ4Ht02ORptevWHytJaUQ3Pi8cxgB10MUGTzYyyG
+         NiRMmr7GMs/g0h91apiUL4Bu1TnUiumDstkTX6wnlBXbOxLhsSzRnKGhUBu0yLzHQP2b
+         z++L9MQAidismFq3L+Cfl7Q0wtlSuVL3axbYxLBdCyFZgrjumkHGDNrXjYkWcj4sL4GD
+         fREF4Jnv3tG+l5FceMf/M8TJHgCbsESqdFEFEAozULqn3eInM33EnUClwjEzWD0g9aTQ
+         9rGDCeyHvqWPWyPThLbfLgF/iHw2etpMogMJ1eGzLf36HeZGcNn5lM65Ku/qy5qWaks8
+         L+5A==
+X-Gm-Message-State: AOAM531l+ypSopeKlmwWIg/29MeVvkUmg70BYkowI0SUkPbXs2JUZfwu
+        nNInKFii7nyw7gA3kVvRRxrtGN67bf1dckyaQVVFBohHGV0=
+X-Google-Smtp-Source: ABdhPJybPJKpuVcDzrBJ9aX/i515oH9wm4U2m50QYEEErG0T8nr61YDj0YV7C27geyilp3TNLu8mbDWP0+4BaOZ1QDU=
+X-Received: by 2002:a17:906:f117:: with SMTP id gv23mr8763400ejb.528.1594817904541;
+ Wed, 15 Jul 2020 05:58:24 -0700 (PDT)
+From:   Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+References: <20200715115630.19457-1-chandrakanth.patil@broadcom.com>    <20200715122124.GA2937397@kroah.com>
+In-Reply-To: <20200715122124.GA2937397@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, stable@vger.kernel.org, arnd@arndb.de, sashal@kernel.org, naresh.kamboju@linaro.org, mark.rutland@arm.com, will@kernel.org, catalin.marinas@arm.com, daniel.lezcano@linaro.org, vincenzo.frascino@arm.com, linux@arm.linux.org.uk, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel-team@android.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQKfxiKNv+ra1O767Z8oR49tlxGshAI/n7IRAdizjoQ=
+Date:   Wed, 15 Jul 2020 05:58:21 -0700
+Message-ID: <CABvwm=NmpcgRBqRAB15hzL99nt+Pyu7T7+aj+sC70jHJGcKpkQ@mail.gmail.com>
+Subject: Re: [PATCH] megaraid_sas: remove undefined ENABLE_IRQ_POLL macro
+To:     Greg KH <greg@kroah.com>
+Cc:     "# v5 . 3+" <stable@vger.kernel.org>,
+        Kashyap Desai <kashyap.desai@broadcom.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
+Hi Greg,
 
-ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
-the virtual counter register are trapped and emulated by the kernel.
-This makes the vdso pretty pointless, and in some cases livelock
-prone.
+Sorry for the inconvenience. While circulating patch internally (within
+company) with cc stable enabled in patch header has caused this problem.
+I have sent a new patch including appropriate scsi developers and
+maintainers.
 
-Provide a workaround entry that limits the vdso to 64bit tasks.
+Thanks,
+Chandrakanth Patil
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200706163802.1836732-4-maz@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
----
- drivers/clocksource/arm_arch_timer.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+On Wed, Jul 15, 2020 at 5:21 AM Greg KH <greg@kroah.com> wrote:
+>
+> On Wed, Jul 15, 2020 at 05:26:30PM +0530, Chandrakanth Patil wrote:
+> > Issue:
+> > As ENABLE_IRQ_POLL macro is undefined, the check for ENABLE_IRQ_POLL
+> > macro in ISR will always be false leads to irq polling non-functional.
+> >
+> > Fix:
+> > Remove ENABLE_IRQ_POLL check from isr
+> >
+> > Fixes: a6ffd5bf6819 ("scsi: megaraid_sas: Call disable_irq from process
+> > IRQ")
+> > Cc: <stable@vger.kernel.org> # v5.3+
+> > Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+> > Signed-off-by: Kashyap Desai <kashyap.desai@broadcom.com>
+> > ---
+> >  drivers/scsi/megaraid/megaraid_sas_fusion.c | 2 --
+> >  1 file changed, 2 deletions(-)
+>
+> Why are you not sending this to the scsi developers / maintainers?
+>
+> thanks,
+>
+> greg k-h
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index fd2a75f0af77..4be83b4de2a0 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -476,6 +476,14 @@ static const struct arch_timer_erratum_workaround ool_workarounds[] = {
- 		.set_next_event_virt = erratum_set_next_event_tval_virt,
- 	},
- #endif
-+#ifdef CONFIG_ARM64_ERRATUM_1418040
-+	{
-+		.match_type = ate_match_local_cap_id,
-+		.id = (void *)ARM64_WORKAROUND_1418040,
-+		.desc = "ARM erratum 1418040",
-+		.disable_compat_vdso = true,
-+	},
-+#endif
- };
- 
- typedef bool (*ate_match_fn_t)(const struct arch_timer_erratum_workaround *,
+
+
 -- 
-2.27.0
-
+Regards,
+Chandrakanth Patil
