@@ -2,168 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B442204F1
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 08:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61694220534
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 08:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728699AbgGOG1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 02:27:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33328 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728689AbgGOG1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 02:27:23 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B247C061794
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:27:23 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id f5so1232067ljj.10
-        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:27:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=PJzQ6C5etwDQHSi7DhcVYIwc+Qw2lPx1DzppZhJZzF8=;
-        b=gFQ0jjKdytUBmHCTdUeIywxJqRPut7uAw/seKwSMTETRW0zuBPA/3c08CXMdM7pVs1
-         3P3Yp1z0JBYtOUZy9ks0rASnRoGZNwFZnFKu6U3PikDaGoXlKiCjwxlnX6oviP1HAk/h
-         tbA/sQ18KLZWwmcAPOBgXKchC9q6N+8n/bzJTUdiRdazQIL0oOJ4ytfKLm1QScpma+3U
-         jomrtZiiZM5aq2ncdgRHnR2p+PXv7fJRAoxaZ3WPJnE4tBAhqx6bsh+aojr8BiJwGLKQ
-         XJaB0EkLFY7FaWC4S+xB4hOavceqQIhVfH98Izk2tIIHb9o5XRI9Tre5gVkP9ZSPRHuP
-         iCQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=PJzQ6C5etwDQHSi7DhcVYIwc+Qw2lPx1DzppZhJZzF8=;
-        b=DMaCuSB6uI4ajhhtsB5tVfE5XGg10pBku89qwCBABrs7GodsxVvbrfGv1rWkFNBWXB
-         i/MF5Q/TbOURRBydmN1QvbWyf45WlMW1BSueoKmjQSqCUcm8HeAPU7ugcT486zfhWmrX
-         iQoUUMSTWVej3cRY2stxWO1LtjztP+KfZNRoMPKRRhRqnqsufDO+okGDNWIDzDpcGXnR
-         fOQS2REqi3wY1YsDwdelFN07237b6tBDRZF3PKO8/qJAAm+Q6EqhC96ljjLyVB/4qbLJ
-         0vunRHHb7is8MB9ynLg3Nrg5g8YkaIWY84N0tgwP1h6F0eSotpp91PBriqz4Kwk3qqmO
-         SWjg==
-X-Gm-Message-State: AOAM533aXRzrxmFWss1CQkvMooC+EMXRR7cQWcxJG5uKTCPTLv74Rtax
-        92MDuL0QQ46xn0esyML5pdDlvNKLqyEMCboJxvewHw==
-X-Google-Smtp-Source: ABdhPJxB/h5ZZI6qtvUaf2IQPkAuV1D7Mz80yAR+8Beqkb7bSTeVTs7ktXvRmAhPgHpKS9QvSqW2OFczUFpTTF0rZdw=
-X-Received: by 2002:a2e:9857:: with SMTP id e23mr4226879ljj.411.1594794441480;
- Tue, 14 Jul 2020 23:27:21 -0700 (PDT)
+        id S1727913AbgGOGiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 02:38:02 -0400
+Received: from sonic302-19.consmr.mail.ir2.yahoo.com ([87.248.110.82]:46004
+        "EHLO sonic302-19.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728871AbgGOGiB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 02:38:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1594795079; bh=TYgdp/zNeW9P5rVjVpFopjba7a+Fm8hxyemx2bQVZd8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=VjofQRkaxLQglJ5GK6l9tbQzZ7pymSm5/o7/olWu9g9nkoKOICiVkDiwVySX15kdy+8vsxT2pnblsPglRqL8gMn7RBaBX/nyZc7W/7eHRMb4e6Cmf87sHqmmDSvmaBJNRZocx6gUBCJtsjGEuyufbgMOfJUySrLs7Zw08Fxo98iSpQzIb4+28i+mSWJ6bZlmr7xYEnKiY7Hl2PLM20gtRFqqcC2t0M7hS7Rbr68U9Du09uLJ/6z3h7e0cgiYckIO6RpJupanmz/T5GAvBw25dIqubaVz7bs/KXUtSAtuhDPtqF5e8i8ni/gplF1dFn3jds2UVIt6yDSnAABmiXV7LQ==
+X-YMail-OSG: d5dfEn4VM1mmV8BswBPABReLLiAzaWvH8nBEQ0pCZ29lVzxRXqih8PCh8eINnBm
+ HEMOrlj8cKYUM2LWLPwKo4AcV47gixL07069cgGAmjtbfVlVImTnRs5eGAK5YMmXIh4KLQInEDo5
+ 3Jb2s8pnbA8Tflmv3FUyeOFkYbjVf3CapmjPd_WviTOyi4YmPAasJo135kNCjCN6BNYNA6UFzqQ5
+ 3mooIAOpJ01vNI3HtPP0raKmBRFZWYwdMS56ylV2CIRlv4az5ZgWXHqKt_Qyvt_dsvszgtIBOm2j
+ tX7IpgpFX9fWQ2zS7nMTk2MWVipjNgIHA4QfiT_eE40GbPHUeVpr4asupOojx6n7WmCf1EMNn8d6
+ RQRi0EWaNbBDD8z3Qpd3o4rpKNXewnARHqnwdULu.1yAGx129BIwGrsKlUzMjC4DbmtoRW.GpBw6
+ mtkpMnIij__ZW6i61DRrEsniioC14qLe5fmfXBYeJnCIzNREKk7UrBYGugw3c3vzV7i7k2sPiroc
+ UP4CKhT2YN3.s2SnnubKgYQAjjTVsqK418ijDWbIqHIx2n388XMrTifwzUKgb88haVviKjub21D6
+ bDUsEGv7iIqK6cLv6PP1ApuVg38_uwoc7FwsUBkoM4rreYvkKrkQT8PIVgPJAxu5moXorjUY1loi
+ sOkM_Q7VaUgNyOEViSKCAJ_.nsrXhnIcvuvl5FhyLlKyMM3upbbbJ6YG4UpjIVxh.FpDp1oTPCQ3
+ UQFJkBAy4QyXwjhctc4ERH3tuefUB3LCjYpRHoOIbeBuGPhFhVZZdS51l6xjE8mJcdr7YhJ7mGky
+ Em7MXK228OAKnqU8V6YaQK4UbkF1DORufSCSVKaQvdFLdN2TpHC2rnZnSJNA9SzLw1Pcr3A1dutm
+ rD0MRxZr1vNhwigia4Qm2kX81E_ane7hclUOZRG0zzi.pKnWz3uABS5X.0fmuIve2Wa4rCFa4Tin
+ .xemRw0c_RcAbx.HlAnZaevCu0OGPhX50CssPPApVlJDociMlPdL6HmLFSf7oaVdbkafx9jlRD_2
+ ujtLE4rTJoDaigC.blcL9KbA5sXnTu6q5BQUFStNuEyvp7XubS3tHW.W7ZLczgmr0C0_oRFwmeeN
+ 6XbJu0p8DpVIoG5TDGzjq.4tCeSsvbjarZNlxoIgakuXXlQj2ULDRo_JTsZTGkawN2wO9cj2BMfr
+ iDP3ZD6u6Jm4vzh8I5J7rMZuwx2iGpwF0WWiVxvnwWAd3tZUR7YECVHeqMmiKNKjc4HwAMr4w7Sx
+ _dJhh9hvhhVAsL2XFgQeU4Ip9TMm9TUDnoYeUZzmuaPLLTquMa.LMWXxHoK6mo7v6i_Wmsw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ir2.yahoo.com with HTTP; Wed, 15 Jul 2020 06:37:59 +0000
+Date:   Wed, 15 Jul 2020 06:37:54 +0000 (UTC)
+From:   mcompola <visacarddapartbf@gmail.com>
+Reply-To: mcompola444@gmail.com
+Message-ID: <316054178.2708732.1594795074832@mail.yahoo.com>
+Subject: Dear Friend, My present internet connection is very slow in case
+ you
 MIME-Version: 1.0
-References: <20200714184115.844176932@linuxfoundation.org>
-In-Reply-To: <20200714184115.844176932@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 15 Jul 2020 11:57:10 +0530
-Message-ID: <CA+G9fYs_6hgdEUaM3hJ9QzH0R0_qvXkQ4a0oUVMPGN9qfMdGGQ@mail.gmail.com>
-Subject: Re: [PATCH 5.7 000/166] 5.7.9-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <316054178.2708732.1594795074832.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 Jul 2020 at 00:23, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.7.9 release.
-> There are 166 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.7.9-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.7.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.7.9-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.7.y
-git commit: c2fb28a4b6e42b090d478b30aab47f3fef177964
-git describe: v5.7.8-167-gc2fb28a4b6e4
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.7-oe/bui=
-ld/v5.7.8-167-gc2fb28a4b6e4
 
 
-No regressions (compared to build v5.7.8)
+Dear Friend, My present internet connection is very slow in case you
+received my email in your spam
 
+How are you today?.With due respect to your person and much sincerity
+of purpose,Well it is a pleasure to contact you on this regard and i
+pray that this will turn out to be everlasting relationship for both
+of us. However it's just my urgent need for a Foreign partner that
+made me to contact you for this Transaction,I got your contact from
+internet, while searching for a reliable someone that I can go into
+partnership with. I am Mrs.mcompola, from BURKINA FASO, West
+Africa .Presently i work in the Bank as bill and exchange manager.
 
-No fixes (compared to build v5.7.8)
+I have the opportunity of transferring the left over fund $5.4 Million
+us dollars of one of my Bank clients who died in the collapsing of the
+world trade center on september 11th 2001.I have placed this fund to
+and escrow account without name of beneficiary.i will use my position
+here in the bank to effect a hitch free transfer of the fund to your
+bank account and there will be no trace.
 
-Ran 33472 total tests in the following environments and test suites.
+I agree that 40% of this money will be for you as my foriegn
+partner,50% for me while 10% will be for the expenses that will occur
+in this transaction .If you are really interested in my proposal
+further details of the Transfer will be forwarded unto you as soon as
+I receive your willingness mail for successful transfer.
 
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2800
-* libhugetlbfs
-* linux-log-parser
-* ltp-containers-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* v4l2-compliance
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-math-tests
-* network-basic-tests
-* ltp-controllers-tests
-* ltp-cve-tests
-* ltp-fs-tests
-* ltp-ipc-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Yours Faithfully,
+Mrs.mcompola444@gmail.com
