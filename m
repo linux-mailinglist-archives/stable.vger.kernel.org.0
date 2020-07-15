@@ -2,115 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FABF2208B5
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 11:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA315220904
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 11:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729869AbgGOJ1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 05:27:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41844 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729850AbgGOJ1J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 05:27:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EED1D206E9;
-        Wed, 15 Jul 2020 09:27:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594805228;
-        bh=pRB4+btXkRMLsZyybK6bfL9gZC4uGzSBaBVkJFk+GyM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dc6bmwh08/G0OnQ0fWFY9KmOP4Zn5vkCzMguMV+WVQSprFgkfywZtDX0UiX0rcpz0
-         0H6x4tHieRvfYOM572e2rJOqiNfhcl+c1PfEuMWts3dXLgUI8BJUC6GkOtcnrrdYAo
-         IrlIVYNqMsBGIzQjpzqg148mDH87w3h3QsucSkXM=
-Date:   Wed, 15 Jul 2020 11:27:04 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: Re: stable-rc 5.4: arm64 build =?utf-8?Q?f?=
- =?utf-8?Q?ailed_-_error=3A_=E2=80=98const_struct_arch=5Ftimer=5Ferratum?=
- =?utf-8?Q?=5Fworkaround=E2=80=99_has_no_member_named_=E2=80=98disable=5Fc?=
- =?utf-8?B?b21wYXRfdmRzb+KAmQ==?=
-Message-ID: <20200715092704.GE2722864@kroah.com>
-References: <CA+G9fYsLBOVVjxO2DAUgjXskxEXyMpBxYG1PRKwe7BTHJfzfZw@mail.gmail.com>
- <20200714184013.GA2174489@kroah.com>
- <CAK8P3a2B6xO-PEOEsseajBvJCvF0d269XHvOzqzdfhyssZ6wrw@mail.gmail.com>
+        id S1730689AbgGOJlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 05:41:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728043AbgGOJla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 05:41:30 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5310C061755
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 02:41:28 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id u25so720285lfm.1
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 02:41:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=k1aB59xJzzV9Zgka5kmL2bgePHq7UP95SPUQANhn3lY=;
+        b=bkNDVDfwdUPMmXauAUFTxo1rAPhNE72iTW4BCL8OCMD5iQw4E7xMAr+aXLcVnKx9Jj
+         YD+j/VUN7IIwTlUPxVvaaNphv7aHSZHn8NFoQ6iqHokGrmxx17+G7263R6adbOZowbnw
+         S2TWnaCyaXqAN2Z+icpQyBAfsziTjlMuzEJ7D1xWrU5hfcpHxj/eijd2KGwD7W6K/+h6
+         MdKHtNYgr4VGmF8x+8xfhOPJZ/FqnpzSmjGCeiQP560uokoeo4ALR5uy1NVU0iNSrhnE
+         Vny8JMBoNBUKHNvDMvrri/Jt1sIkQu8CEXZltxHkKcdVWPzIKQnD1wDpvtggcUbDu+CO
+         I+Ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=k1aB59xJzzV9Zgka5kmL2bgePHq7UP95SPUQANhn3lY=;
+        b=WyBknullIjnqVpBNgwabrFGH/Y+oiLvh1y+vyMVKOKS7cDkWM4fVOjFjqKf74UEMc8
+         0ZWqdBeCHK7Z8LrF7s2pJ5jYK1HqEcR7So2d2EMX0IRt7gbPsaF7mKXC/8rU3u4px/p+
+         aCIsyM5ewd7Oi/3V3pTb+dWfaqOm/6efEqJPPf8UgjWvzjJrLlQnsKSfimiTt0JQCvbV
+         S/ffywI0dVbkA9nVRsGMTEYmgN7c9bgXDiOhgUU7DossfOP4ha7b0tPwJIinkBl5pXje
+         TODQGkQm5drD+cM+5pzmijABnawMOuNsUwf99kzalxRHwVtYtTG8oHnqh/IBK7XxHdDd
+         IT7w==
+X-Gm-Message-State: AOAM533Qm0yectgGjnBV+t/WLXvpcntIiTL6CgEWx3xywKHfVAty3J/x
+        VxwKsaQNutngK9/7z4oMWmZf+5AcQ910eRWvfweY26eGalxJOw==
+X-Google-Smtp-Source: ABdhPJw3G7L5gZTWxkRfp4kncFkH4fBbb2QptrMvbD/7lSCGCCpOwSWcEyUcCV4SeuQni2N8/XwPVvNEOzq7Zr9bhZQ=
+X-Received: by 2002:a19:2292:: with SMTP id i140mr4252097lfi.95.1594806087007;
+ Wed, 15 Jul 2020 02:41:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAK8P3a2B6xO-PEOEsseajBvJCvF0d269XHvOzqzdfhyssZ6wrw@mail.gmail.com>
+References: <20200714184056.149119318@linuxfoundation.org>
+In-Reply-To: <20200714184056.149119318@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 15 Jul 2020 15:11:15 +0530
+Message-ID: <CA+G9fYuicrgx6sPfovfzMX4W31HPE=LbxXtBKB5M-M+2sz+sXA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/58] 4.19.133-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 08:54:33AM +0200, Arnd Bergmann wrote:
-> On Tue, Jul 14, 2020 at 8:40 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Jul 14, 2020 at 10:48:14PM +0530, Naresh Kamboju wrote:
-> > > arm64 build failed on 5.4
-> > >
-> > > make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm64
-> > > CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
-> > > aarch64-linux-gnu-gcc" O=build Image
-> > > #
-> > > ../drivers/clocksource/arm_arch_timer.c:484:4: error: ‘const struct
-> > > arch_timer_erratum_workaround’ has no member named
-> > > ‘disable_compat_vdso’
-> > >   484 |   .disable_compat_vdso = true,
-> > >       |    ^~~~~~~~~~~~~~~~~~~
-> > > ../drivers/clocksource/arm_arch_timer.c:484:26: warning:
-> > > initialization of ‘u32 (*)(void)’ {aka ‘unsigned int (*)(void)’} from
-> > > ‘int’ makes pointer from integer without a cast [-Wint-conversion]
-> > >   484 |   .disable_compat_vdso = true,
-> > >       |                          ^~~~
-> > > ../drivers/clocksource/arm_arch_timer.c:484:26: note: (near
-> > > initialization for ‘ool_workarounds[5].read_cntp_tval_el0’)
-> > >
-> > > Could be this patch,
-> > > arm64: arch_timer: Disable the compat vdso for cores affected by
-> > > ARM64_WORKAROUND_1418040
-> > > commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
-> > >
-> > > ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
-> > > the virtual counter register are trapped and emulated by the kernel.
-> > > This makes the vdso pretty pointless, and in some cases livelock
-> > > prone.
-> > >
-> > > Provide a workaround entry that limits the vdso to 64bit tasks.
-> > >
-> > > ref:
-> > > https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/638094006
-> >
-> > Thanks, I've now dropped this patch.
-> 
-> I think we do want to have it back eventually. It appears that the patch
-> upstream depends on the two immediately before it:
-> 
-> 4b661d6133c5 arm64: arch_timer: Disable the compat vdso for cores
-> affected by ARM64_WORKAROUND_1418040
-> c1fbec4ac0d7 arm64: arch_timer: Allow an workaround descriptor to
-> disable compat vdso
-> 97884ca8c292 arm64: Introduce a way to disable the 32bit vdso
-> 
-> AFAICT, the second one was missing, causing the build failure.
-> Do you know if that one needed a manual backport, or could you
-> try applying all three in sequence again?
+On Wed, 15 Jul 2020 at 00:16, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.133 release.
+> There are 58 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.133-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The "first one", 97884ca8c292 ("arm64: Introduce a way to disable the
-32bit vdso"), does not apply to 5.4.y, and neither does c1fbec4ac0d7
-("arm64: arch_timer: Allow an workaround descriptor to disable compat
-vdso").
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-So backports for all 3 would be appreciated.
+Summary
+------------------------------------------------------------------------
 
-thanks,
+kernel: 4.19.133-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 4e2a5cde3f03246325a5db594e9aff787b2b7fab
+git describe: v4.19.132-59-g4e2a5cde3f03
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.132-59-g4e2a5cde3f03
 
-greg k-h
+No regressions (compared to build v4.19.132)
+
+No fixes (compared to build v4.19.132)
+
+Ran 30760 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-ipc-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* ltp-open-posix-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
