@@ -2,78 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61694220534
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 08:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF92A22058A
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 08:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727913AbgGOGiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 02:38:02 -0400
-Received: from sonic302-19.consmr.mail.ir2.yahoo.com ([87.248.110.82]:46004
-        "EHLO sonic302-19.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728871AbgGOGiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 02:38:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1594795079; bh=TYgdp/zNeW9P5rVjVpFopjba7a+Fm8hxyemx2bQVZd8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=VjofQRkaxLQglJ5GK6l9tbQzZ7pymSm5/o7/olWu9g9nkoKOICiVkDiwVySX15kdy+8vsxT2pnblsPglRqL8gMn7RBaBX/nyZc7W/7eHRMb4e6Cmf87sHqmmDSvmaBJNRZocx6gUBCJtsjGEuyufbgMOfJUySrLs7Zw08Fxo98iSpQzIb4+28i+mSWJ6bZlmr7xYEnKiY7Hl2PLM20gtRFqqcC2t0M7hS7Rbr68U9Du09uLJ/6z3h7e0cgiYckIO6RpJupanmz/T5GAvBw25dIqubaVz7bs/KXUtSAtuhDPtqF5e8i8ni/gplF1dFn3jds2UVIt6yDSnAABmiXV7LQ==
-X-YMail-OSG: d5dfEn4VM1mmV8BswBPABReLLiAzaWvH8nBEQ0pCZ29lVzxRXqih8PCh8eINnBm
- HEMOrlj8cKYUM2LWLPwKo4AcV47gixL07069cgGAmjtbfVlVImTnRs5eGAK5YMmXIh4KLQInEDo5
- 3Jb2s8pnbA8Tflmv3FUyeOFkYbjVf3CapmjPd_WviTOyi4YmPAasJo135kNCjCN6BNYNA6UFzqQ5
- 3mooIAOpJ01vNI3HtPP0raKmBRFZWYwdMS56ylV2CIRlv4az5ZgWXHqKt_Qyvt_dsvszgtIBOm2j
- tX7IpgpFX9fWQ2zS7nMTk2MWVipjNgIHA4QfiT_eE40GbPHUeVpr4asupOojx6n7WmCf1EMNn8d6
- RQRi0EWaNbBDD8z3Qpd3o4rpKNXewnARHqnwdULu.1yAGx129BIwGrsKlUzMjC4DbmtoRW.GpBw6
- mtkpMnIij__ZW6i61DRrEsniioC14qLe5fmfXBYeJnCIzNREKk7UrBYGugw3c3vzV7i7k2sPiroc
- UP4CKhT2YN3.s2SnnubKgYQAjjTVsqK418ijDWbIqHIx2n388XMrTifwzUKgb88haVviKjub21D6
- bDUsEGv7iIqK6cLv6PP1ApuVg38_uwoc7FwsUBkoM4rreYvkKrkQT8PIVgPJAxu5moXorjUY1loi
- sOkM_Q7VaUgNyOEViSKCAJ_.nsrXhnIcvuvl5FhyLlKyMM3upbbbJ6YG4UpjIVxh.FpDp1oTPCQ3
- UQFJkBAy4QyXwjhctc4ERH3tuefUB3LCjYpRHoOIbeBuGPhFhVZZdS51l6xjE8mJcdr7YhJ7mGky
- Em7MXK228OAKnqU8V6YaQK4UbkF1DORufSCSVKaQvdFLdN2TpHC2rnZnSJNA9SzLw1Pcr3A1dutm
- rD0MRxZr1vNhwigia4Qm2kX81E_ane7hclUOZRG0zzi.pKnWz3uABS5X.0fmuIve2Wa4rCFa4Tin
- .xemRw0c_RcAbx.HlAnZaevCu0OGPhX50CssPPApVlJDociMlPdL6HmLFSf7oaVdbkafx9jlRD_2
- ujtLE4rTJoDaigC.blcL9KbA5sXnTu6q5BQUFStNuEyvp7XubS3tHW.W7ZLczgmr0C0_oRFwmeeN
- 6XbJu0p8DpVIoG5TDGzjq.4tCeSsvbjarZNlxoIgakuXXlQj2ULDRo_JTsZTGkawN2wO9cj2BMfr
- iDP3ZD6u6Jm4vzh8I5J7rMZuwx2iGpwF0WWiVxvnwWAd3tZUR7YECVHeqMmiKNKjc4HwAMr4w7Sx
- _dJhh9hvhhVAsL2XFgQeU4Ip9TMm9TUDnoYeUZzmuaPLLTquMa.LMWXxHoK6mo7v6i_Wmsw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ir2.yahoo.com with HTTP; Wed, 15 Jul 2020 06:37:59 +0000
-Date:   Wed, 15 Jul 2020 06:37:54 +0000 (UTC)
-From:   mcompola <visacarddapartbf@gmail.com>
-Reply-To: mcompola444@gmail.com
-Message-ID: <316054178.2708732.1594795074832@mail.yahoo.com>
-Subject: Dear Friend, My present internet connection is very slow in case
- you
+        id S1728995AbgGOGyy convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 15 Jul 2020 02:54:54 -0400
+Received: from mout.kundenserver.de ([212.227.17.10]:60363 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728982AbgGOGyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 02:54:53 -0400
+Received: from mail-qv1-f49.google.com ([209.85.219.49]) by
+ mrelayeu.kundenserver.de (mreue106 [212.227.15.145]) with ESMTPSA (Nemesis)
+ id 1N0nSN-1kpvWY1EyT-00wqCG for <stable@vger.kernel.org>; Wed, 15 Jul 2020
+ 08:54:51 +0200
+Received: by mail-qv1-f49.google.com with SMTP id m8so430614qvk.7
+        for <stable@vger.kernel.org>; Tue, 14 Jul 2020 23:54:51 -0700 (PDT)
+X-Gm-Message-State: AOAM533uf96aeVik7CXeQnk63ky/amOEoqq472YiKTubVh6yGDmLrVCt
+        h/DCjc3YdpQXg6at2x8rmK+mmIBzLxX0rn4FSA4=
+X-Google-Smtp-Source: ABdhPJzZwB4hO0/Tq7XSeeHTRZ2JeciAv8SwtuaXKme8mVm5kQesA4zAD6Wow/94RtIvHH9WQ4rqq/3HUe1X+w+y2QA=
+X-Received: by 2002:a0c:f802:: with SMTP id r2mr8145700qvn.197.1594796090120;
+ Tue, 14 Jul 2020 23:54:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <316054178.2708732.1594795074832.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+References: <CA+G9fYsLBOVVjxO2DAUgjXskxEXyMpBxYG1PRKwe7BTHJfzfZw@mail.gmail.com>
+ <20200714184013.GA2174489@kroah.com>
+In-Reply-To: <20200714184013.GA2174489@kroah.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 15 Jul 2020 08:54:33 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a2B6xO-PEOEsseajBvJCvF0d269XHvOzqzdfhyssZ6wrw@mail.gmail.com>
+Message-ID: <CAK8P3a2B6xO-PEOEsseajBvJCvF0d269XHvOzqzdfhyssZ6wrw@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_stable=2Drc_5=2E4=3A_arm64_build_failed_=2D_error=3A_=E2=80=98co?=
+        =?UTF-8?Q?nst_struct_arch=5Ftimer=5Ferratum=5Fworkaround=E2=80=99_has_no_member_na?=
+        =?UTF-8?Q?med_=E2=80=98disable=5Fcompat=5Fvdso=E2=80=99?=
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: V03:K1:OEGVEXQWIRuXSiBTLgsme84uU7X/xFY2/e0DZJmWd7z67IJrddF
+ 37BVfIE4oBw52PyqWl53DNTe6rgxqzn6foymRfOjIASiDY5WEYO9pjDpZ9OxtshAb7aIbsh
+ TuiZooKTlibIM84Q9Wx6WgNGgiXF6HIo1qpcuqnrl4YwHUOQej9I0MoUQb5c58wpOP7WAHj
+ AqKd3AenpW8RS8pYh5bTg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:5NlDjtSnfOI=:N79WHIEZ1hiW1qdgud3Fe2
+ YaBkNPGNJatnESgmZ2B9d0itlphqnPbQ9XfZv3eOo/jYDugXLCBemLG0g1R5LbzCNTDI6APpY
+ +p8QtpHU7FxaSfzT/4L9VZJOEccmpiMRVunvX9DnWGiivmicQqpm6AswaDeYuDEkQN7e/2uhV
+ UZNUS63sdu6F9SZiKkI5XoY1zziEatuawvtWdAUK7t+lKodm2jo4hMIppjEOgHygTHfJIPtAe
+ F1AU2cd/LV1idrKLZhbxuyiZBzGwV+na8Do9KO/9yYYvp5HvmeCSrHEnwerobon1x3BNU/Pkj
+ w5EzFPJ+MEQDVYVDGgb0q/2ffBf4fvdnJcoY0sVA65EevU4N6EIkEbC/Z/y3MTO1TmfpjBe9N
+ XEyNIREUWp12GdwgrkOIoVF+9cZqkuYcJ4p24ld+R18LDDt7PaO2x9+IyXzZzEulBVOViYpgw
+ Y4M9AkRxv2lNybJhFv9mSRUgv1M9gi0rXKgZBBQabBT5FtxW6AtsCXfbVZm/IGg6XpIsWPud+
+ Bos6X5N9/NjrsxEX1uggvwcUreWCdJs0l7ewBdmkIaNSzQI6nKrp8jGAtLSNF3mzvvx9TJsTU
+ 1aix3Ii67lulyRghPNPOrghzj4B15rU/3pMeBIRrqEGKnOhhpRJSuKo7PSBn9cq+dZ3b1kXkT
+ CoTrFxcvEUm1CG1oT7cndddSGyMoRhwj57a/bpo6TIrzRXD0WR4XefWXyRng+s49YKBu89+WD
+ v6PbrA9Yy6gVzCJVyLVBtGbSFhjx4b94yw6Vxk0qXaZL2bk7CzbSi5Ju1JjlEx250IH5PxAOP
+ lWgfNExw/0iANqtdCK2sZdJ0Gqv1zjhzKUCHZP4yrXwHGu/Y+7HJNFSf9W317FYuaJU8RzrJr
+ CMnRTo9QISdbnCQ78+XOAjHkF9ftQHB/eGVGhRFvQRw+dFvn7zczD/PF1m7L7zLqJfgyuSTA4
+ YqFLtxEykML2R5yIR6C8NvXqmsRePEJAMGGiJYseI816ciCd5fhMa
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jul 14, 2020 at 8:40 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Jul 14, 2020 at 10:48:14PM +0530, Naresh Kamboju wrote:
+> > arm64 build failed on 5.4
+> >
+> > make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm64
+> > CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
+> > aarch64-linux-gnu-gcc" O=build Image
+> > #
+> > ../drivers/clocksource/arm_arch_timer.c:484:4: error: ‘const struct
+> > arch_timer_erratum_workaround’ has no member named
+> > ‘disable_compat_vdso’
+> >   484 |   .disable_compat_vdso = true,
+> >       |    ^~~~~~~~~~~~~~~~~~~
+> > ../drivers/clocksource/arm_arch_timer.c:484:26: warning:
+> > initialization of ‘u32 (*)(void)’ {aka ‘unsigned int (*)(void)’} from
+> > ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+> >   484 |   .disable_compat_vdso = true,
+> >       |                          ^~~~
+> > ../drivers/clocksource/arm_arch_timer.c:484:26: note: (near
+> > initialization for ‘ool_workarounds[5].read_cntp_tval_el0’)
+> >
+> > Could be this patch,
+> > arm64: arch_timer: Disable the compat vdso for cores affected by
+> > ARM64_WORKAROUND_1418040
+> > commit 4b661d6133c5d3a7c9aca0b4ee5a78c7766eff3f upstream.
+> >
+> > ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
+> > the virtual counter register are trapped and emulated by the kernel.
+> > This makes the vdso pretty pointless, and in some cases livelock
+> > prone.
+> >
+> > Provide a workaround entry that limits the vdso to 64bit tasks.
+> >
+> > ref:
+> > https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/638094006
+>
+> Thanks, I've now dropped this patch.
 
+I think we do want to have it back eventually. It appears that the patch
+upstream depends on the two immediately before it:
 
-Dear Friend, My present internet connection is very slow in case you
-received my email in your spam
+4b661d6133c5 arm64: arch_timer: Disable the compat vdso for cores
+affected by ARM64_WORKAROUND_1418040
+c1fbec4ac0d7 arm64: arch_timer: Allow an workaround descriptor to
+disable compat vdso
+97884ca8c292 arm64: Introduce a way to disable the 32bit vdso
 
-How are you today?.With due respect to your person and much sincerity
-of purpose,Well it is a pleasure to contact you on this regard and i
-pray that this will turn out to be everlasting relationship for both
-of us. However it's just my urgent need for a Foreign partner that
-made me to contact you for this Transaction,I got your contact from
-internet, while searching for a reliable someone that I can go into
-partnership with. I am Mrs.mcompola, from BURKINA FASO, West
-Africa .Presently i work in the Bank as bill and exchange manager.
+AFAICT, the second one was missing, causing the build failure.
+Do you know if that one needed a manual backport, or could you
+try applying all three in sequence again?
 
-I have the opportunity of transferring the left over fund $5.4 Million
-us dollars of one of my Bank clients who died in the collapsing of the
-world trade center on september 11th 2001.I have placed this fund to
-and escrow account without name of beneficiary.i will use my position
-here in the bank to effect a hitch free transfer of the fund to your
-bank account and there will be no trace.
-
-I agree that 40% of this money will be for you as my foriegn
-partner,50% for me while 10% will be for the expenses that will occur
-in this transaction .If you are really interested in my proposal
-further details of the Transfer will be forwarded unto you as soon as
-I receive your willingness mail for successful transfer.
-
-Yours Faithfully,
-Mrs.mcompola444@gmail.com
+      Arnd
