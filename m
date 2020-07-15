@@ -2,46 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A1B2206F7
-	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 575A322072A
+	for <lists+stable@lfdr.de>; Wed, 15 Jul 2020 10:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729770AbgGOIYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 04:24:55 -0400
-Received: from [195.135.220.15] ([195.135.220.15]:52834 "EHLO mx2.suse.de"
-        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1727086AbgGOIYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 04:24:55 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 6FBD6AEA6;
-        Wed, 15 Jul 2020 08:24:56 +0000 (UTC)
-Subject: Re: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
-To:     js1304@gmail.com, Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kernel-team@lge.com, Christoph Hellwig <hch@infradead.org>,
+        id S1730070AbgGOI2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 04:28:19 -0400
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:41079 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730058AbgGOI2R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 04:28:17 -0400
+Received: by mail-ed1-f66.google.com with SMTP id e22so958605edq.8;
+        Wed, 15 Jul 2020 01:28:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=oZ21mSnPalCDyZJRBXz6beFTnZl6MlEpDn98/WJ6aVk=;
+        b=HLjDK7sUUFheiKuhwwiyk5o4LlkpxLALWX+wvcKGvQY+5NUyhvnD9ApM2T2ESyIY8S
+         U2Y823w+LbjjVCHwhUcYmftqJY2KUszVygdetrYJ8/G4mhghq5NSpbcaLbksIpQ/m7p0
+         oH8rbhZpKw3WEAV3YzJ6nVTTnmn0bIMHUCjMjHyv4grTNT1918xEuF/PwQN6qesG7eJq
+         kNyUc7MMPUPJtYpV1lbgjhWtJ8Ml/SPtTPQLsjDEBmy/butbjumYt6GlKHblpGbu6KC0
+         O6yXNMqeJRvP627bTufHSjyFW6qfWA6cl5oiXn5LkfUKQfU7aFDT4IxqHCVUrXcsBreM
+         usFg==
+X-Gm-Message-State: AOAM533SS24sv9nusOxFsqqA0M+W+b8sXZAayTfb2AXgzHcb7P/k/03l
+        CRmJI3SlOAvfQOFtCK9lMlQ=
+X-Google-Smtp-Source: ABdhPJx2NyCCKKPhJFFeXgZeW596eU5ArCMhpEYnf1D02xQP3M2UhZ/zPOfS+KfAap43eDl6NHVlFQ==
+X-Received: by 2002:a05:6402:a58:: with SMTP id bt24mr8754330edb.333.1594801694308;
+        Wed, 15 Jul 2020 01:28:14 -0700 (PDT)
+Received: from localhost (ip-37-188-169-187.eurotel.cz. [37.188.169.187])
+        by smtp.gmail.com with ESMTPSA id w24sm1452324edt.28.2020.07.15.01.28.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2020 01:28:13 -0700 (PDT)
+Date:   Wed, 15 Jul 2020 10:28:12 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     js1304@gmail.com
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, kernel-team@lge.com,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Hellwig <hch@infradead.org>,
         Roman Gushchin <guro@fb.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Michal Hocko <mhocko@suse.com>,
         "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
+Message-ID: <20200715082812.GD5451@dhcp22.suse.cz>
 References: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <332d620b-bfe3-3b69-931b-77e3a74edbfd@suse.cz>
-Date:   Wed, 15 Jul 2020 10:24:54 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/15/20 7:05 AM, js1304@gmail.com wrote:
+On Wed 15-07-20 14:05:26, Joonsoo Kim wrote:
 > From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 > 
 > Currently, preventing cma area in page allocation is implemented by using
@@ -53,19 +69,23 @@ On 7/15/20 7:05 AM, js1304@gmail.com wrote:
 > order to control reclaim and it is on slowpath.
 > Second, clearing __GFP_MOVABLE has a side effect to exclude the memory
 > on the ZONE_MOVABLE for allocation target.
-> 
+
+This can be especially a problem with movable_node configurations where
+a large portion of the memory is in movable zones.
+
 > To fix these problems, this patch changes the implementation to exclude
 > cma area in page allocation. Main point of this change is using the
 > alloc_flags. alloc_flags is mainly used to control allocation so it fits
 > for excluding cma area in allocation.
 
-Agreed, should have been done with ALLOC_CMA since the beginning.
+The approach is sensible and the patch makes sense to me from a quick
+glance but I am not really familiar with all subtle details about cma
+integration with the allocator so I do not feel confident to provide my
+ack.
+
+Thanks!
 
 > Fixes: d7fefcc (mm/cma: add PF flag to force non cma alloc)
-
-More digits please.
-Fixes: d7fefcc8de91 ("mm/cma: add PF flag to force non cma alloc")
-
 > Cc: <stable@vger.kernel.org>
 > Signed-off-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 > ---
@@ -81,9 +101,6 @@ Fixes: d7fefcc8de91 ("mm/cma: add PF flag to force non cma alloc")
 >  			flags &= ~(__GFP_IO | __GFP_FS);
 >  		else if (pflags & PF_MEMALLOC_NOFS)
 >  			flags &= ~__GFP_FS;
-
-Above this hunk you should also remove PF_MEMALLOC_NOCMA from the test.
-
 > -#ifdef CONFIG_CMA
 > -		if (pflags & PF_MEMALLOC_NOCMA)
 > -			flags &= ~__GFP_MOVABLE;
@@ -139,12 +156,7 @@ Above this hunk you should also remove PF_MEMALLOC_NOCMA from the test.
 > +		gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
 > +		*alloc_flags |= ALLOC_CMA;
 > +}
-
-I don't like the modification through parameter, would just do what
-current_gfp_context() does and return the modified value.
-Also make it a no-op (including no READ_ONCE(current->flags)) if !CONFIG_CMA,
-please.
-
+> +
 >  /*
 >   * get_page_from_freelist goes through the zonelist trying to allocate
 >   * a page.
@@ -153,10 +165,6 @@ please.
 >  	bool no_fallback;
 >  
 > +	current_alloc_flags(gfp_mask, &alloc_flags);
-
-I don't see why to move the test here? It will still be executed in the
-fastpath, if that's what you wanted to avoid.
-
 > +
 >  retry:
 >  	/*
@@ -169,10 +177,6 @@ fastpath, if that's what you wanted to avoid.
 > -	if (gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
 > -		alloc_flags |= ALLOC_CMA;
 > -#endif
-
-I would just replace this here with:
-alloc_flags = current_alloc_flags(gfp_mask, alloc_flags);
-
 >  	return alloc_flags;
 >  }
 >  
@@ -182,13 +186,13 @@ alloc_flags = current_alloc_flags(gfp_mask, alloc_flags);
 >  
 > -	if (IS_ENABLED(CONFIG_CMA) && ac->migratetype == MIGRATE_MOVABLE)
 > -		*alloc_flags |= ALLOC_CMA;
-
-And same here... Ah, I see. current_alloc_flags() should probably take a
-migratetype parameter instead of gfp_mask then.
-
 > -
 >  	return true;
 >  }
 >  
-> 
+> -- 
+> 2.7.4
 
+-- 
+Michal Hocko
+SUSE Labs
