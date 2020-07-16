@@ -2,67 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E34222209
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 13:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5697B222210
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 13:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbgGPL6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jul 2020 07:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60570 "EHLO mail.kernel.org"
+        id S1728096AbgGPL7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jul 2020 07:59:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726239AbgGPL6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jul 2020 07:58:20 -0400
+        id S1727844AbgGPL7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jul 2020 07:59:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C6B920739;
-        Thu, 16 Jul 2020 11:58:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5981620739;
+        Thu, 16 Jul 2020 11:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594900699;
-        bh=9srEDBajR9p24JXNJ8Nyoxyn9WC5JbPe2lny+DUlt7Y=;
+        s=default; t=1594900791;
+        bh=ikXu4oZKrgzgUuocJpRo3Ozau2YlOtlMKUhcrYyuxTA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pu8X5C/5QsnFhDYwgMhuZLTAmv5Iqm3pbpC4uVRJj4m4dpHIfW2d8aQoHWl7fesKX
-         itxj2q3KFriY/jQchrDds7xvxv0ktKU2nIU4F5CXZKR/PsKumfdtf6bXm8/ob6ZYIr
-         +5AlXeyoDa123hOfnJb1XjLL+QBv3w1oaKyQfYFo=
-Date:   Thu, 16 Jul 2020 13:58:13 +0200
+        b=zRyABTV6OV/3PHZ4QZehQSEyzPhv83G79288vuY+JVUtwMudTAbnNByTlZzv0W9W7
+         T7BaqJ2GkuJfm8Cb7kV5pcxVpMoA0xSxbPEPasKFl34Jseff4J5/18FRffaR/Gbp8U
+         Y6Phbxyq650ZPMenLGD9ofcnhrT4RUN9t56fbGa0=
+Date:   Thu, 16 Jul 2020 13:59:45 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     stable@vger.kernel.org, arnd@arndb.de, sashal@kernel.org,
-        naresh.kamboju@linaro.org, Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <linux@arm.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com
-Subject: Re: [Stable-5.4][PATCH 0/3] arm64: Allow the compat vdso to be
- disabled at runtime
-Message-ID: <20200716115813.GB1668009@kroah.com>
-References: <20200715125614.3240269-1-maz@kernel.org>
+To:     Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc:     alexander.levin@microsoft.com, stable@vger.kernel.org,
+        herbert@gondor.apana.org.au
+Subject: Re: [PATCH v2 for 5.4 1/2] crypto: atmel - Fix selection of
+ CRYPTO_AUTHENC
+Message-ID: <20200716115945.GC1668009@kroah.com>
+References: <20200715125410.479112-1-tudor.ambarus@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200715125614.3240269-1-maz@kernel.org>
+In-Reply-To: <20200715125410.479112-1-tudor.ambarus@microchip.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 01:56:11PM +0100, Marc Zyngier wrote:
-> This is a backport of the series that recently went into 5.8. Note
-> that the first patch is more a complete rewriting than a backport, as
-> the vdso implementation in 5.4 doesn't have much in common with
-> mainline. This affects the 32bit arch code in a benign way.
+On Wed, Jul 15, 2020 at 03:54:09PM +0300, Tudor Ambarus wrote:
+> Backport to 5.4.52-rc1:
+> commit d158367682cd822aca811971e988be6a8d8f679f upstream.
 > 
-> It has seen very little testing, as I don't have the HW that triggers
-> this issue. I have run it in VMs by faking the CPU MIDR, and nothing
-> caught fire. Famous last words.
+> The following error is raised when CONFIG_CRYPTO_DEV_ATMEL_AES=y and
+> CONFIG_CRYPTO_DEV_ATMEL_AUTHENC=m:
+> drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_setkey':
+> atmel-aes.c:(.text+0x9bc): undefined reference to `crypto_authenc_extractkeys'
+> Makefile:1094: recipe for target 'vmlinux' failed
+> 
+> Fix it by moving the selection of CRYPTO_AUTHENC under
+> config CRYPTO_DEV_ATMEL_AES.
+> 
+> Fixes: 89a82ef87e01 ("crypto: atmel-authenc - add support to...")
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+> ---
+>  drivers/crypto/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-These are also needed in 5.7.y, right?  If so, I need that series before
-I can take this one as we don't want people moving to a newer kernel and
-suffer regressions :(
-
-thanks,
+Both of these now queued up, thanks!
 
 greg k-h
