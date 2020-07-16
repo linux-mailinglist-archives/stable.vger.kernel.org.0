@@ -2,143 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4DD222BFD
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 21:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25506222CBB
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 22:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729714AbgGPTcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jul 2020 15:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38036 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729703AbgGPTb6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jul 2020 15:31:58 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63101C061755
-        for <stable@vger.kernel.org>; Thu, 16 Jul 2020 12:31:58 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id gc9so5296521pjb.2
-        for <stable@vger.kernel.org>; Thu, 16 Jul 2020 12:31:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6IbZERBIlWuYDSMJeYviO2iuEag7hE7HVXx+FrihYhk=;
-        b=OWGrM2YKFUARKgky7XK/A6Bsk+hUJBEI2KYyfbOhn04BRgwC42ma/F/jljFWy3RW6P
-         OmTchO7H44A0Mx+4Jsz7NyvpwDIT9YrvkRpbV0UE5vwV5CexwR97VEnFHE+5s4ApYKV5
-         0FuvxG5TZHPnLNdwjme7aq7Vu4bysGOSoHPVEnDwu7xYq1sDjJ1PJpVitMaVypUqGLlS
-         at3iq6qX+R4TSinidB/j/hwtDz2XKDSAxz4uqGO8yBcoWXg0hGSUFHQ77TSlT52rZkKs
-         VNjm8+na0DCQKuZZnoedQtNw/1YKqMk20+CwkvJ47snGE0nKK8eMGN8rJP/8Dc26WJo4
-         nenQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6IbZERBIlWuYDSMJeYviO2iuEag7hE7HVXx+FrihYhk=;
-        b=dmEhcoDwyiEUyxMLT6n4QFPWDNGIOkw8mWx48ebk4YImqZ9LIbvhr+qIVjqmRNyrsD
-         R0bAtl9ktreCDy3j+ftjuHQNHiG/UdDph3HgpAC7GlLV+OK17S6jrEp6ZOJfiOd0Yp3N
-         OGKe+NR4I3NQDQJnmwBfBySn+BpKj/Pfb4KrZSEYQgvcOwU8asU389zHJ8TxZ/iX8xT7
-         U6mTPI1wTMhMFtjj2leUG3tjmJCF5aHabAuumu5PnxBwQYpDaexRkPJh3JFb4eyQdqcv
-         BBhnLT5ZsQ+eChDx9mCVSz0O/XVk+KXAeHGart2oTP7UIlWf0Ipz853OPT+VJel8wAh3
-         2g7A==
-X-Gm-Message-State: AOAM533W6o1kMtp8A8b6gejdDNkRU8E/3e5lDCustv+sJtWXaoXF6hww
-        NU76oOqAgdxc+8NO6xeH3B0kmqwp7jM=
-X-Google-Smtp-Source: ABdhPJxVakQxtOWXCdqCRnplDaQZ4HbDK1IeAyJ7r9Iwwv2wK+FAgzY/cW7ZyBchSqhtoFqm0wjOHw==
-X-Received: by 2002:a17:902:6194:: with SMTP id u20mr4866040plj.68.1594927917541;
-        Thu, 16 Jul 2020 12:31:57 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h6sm5575533pfo.123.2020.07.16.12.31.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2020 12:31:56 -0700 (PDT)
-Message-ID: <5f10ab2c.1c69fb81.7c344.0220@mx.google.com>
-Date:   Thu, 16 Jul 2020 12:31:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726233AbgGPU0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jul 2020 16:26:06 -0400
+Received: from crapouillou.net ([89.234.176.41]:41410 "EHLO crapouillou.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726069AbgGPU0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jul 2020 16:26:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1594931164; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SX7hdu69Ya5NdmyT12h41uasgZBzqU3phiTCNybRetM=;
+        b=fygTz1AkK3F+KkSqLcdpUfyr3zmBZjEUKSa/Vt00eTSF72jQDKtklUryyIrQc3Oa8rtmYM
+        YWSRB4PVWihapc0vvKQgXHwti43BXsbCFSDEk4IVlkAUUAib8gf6krgrd5yvZjzNZB1DvT
+        EDDLKtIE3EVZe0Sk+6bYeKsdbWK+UkI=
+Date:   Thu, 16 Jul 2020 22:25:54 +0200
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v3 01/12] drm/ingenic: Fix incorrect assumption about
+ plane->index
+To:     Sam Ravnborg <sam@ravnborg.org>
+Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+        od@zcrc.me, dri-devel@lists.freedesktop.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Message-Id: <6RWKDQ.JP0OMXFFTGWS1@crapouillou.net>
+In-Reply-To: <20200716174335.GC2235355@ravnborg.org>
+References: <20200716163846.174790-1-paul@crapouillou.net>
+        <20200716174335.GC2235355@ravnborg.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.188
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 138 runs, 2 regressions (v4.14.188)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 138 runs, 2 regressions (v4.14.188)
+Hi Sam,
 
-Regressions Summary
--------------------
+Le jeu. 16 juil. 2020 =E0 19:43, Sam Ravnborg <sam@ravnborg.org> a=20
+=E9crit :
+> Hi Paul.
+>=20
+> On Thu, Jul 16, 2020 at 06:38:35PM +0200, Paul Cercueil wrote:
+>>  plane->index is NOT the index of the color plane in a YUV frame.
+>>  Actually, a YUV frame is represented by a single drm_plane, even=20
+>> though
+>>  it contains three Y, U, V planes.
+>>=20
+>>  v2-v3: No change
+>>=20
+>>  Cc: stable@vger.kernel.org # v5.3
+>>  Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx=20
+>> SoCs")
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  Acked-by: Sam Ravnborg <sam@ravnborg.org>
+>=20
+> A cover letter would have been useful. Please consider that in the
+> future.
+> All patches in this set are:
+> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+>=20
+> A few requires some trivial issues fixed. They can be fixed while
+> applying.
+>=20
+> I consider the patch-set ready to go in and I expect you to commit=20
+> them.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+Great! Thanks!
 
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+-Paul
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.188/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.188
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      56dfe6252c6823c486ce4b1a922d72abc7e3c6b1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f08f975ae00d04f6785bb1f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-88/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-88/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f08f975ae00d04f6785b=
-b20
-      failing since 101 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23) =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f1074d3c0bef8864a85bb19
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-88/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-88/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
+> 	Sam
+>=20
+>>  ---
+>>   drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>=20
+>>  diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c=20
+>> b/drivers/gpu/drm/ingenic/ingenic-drm.c
+>>  index deb37b4a8e91..606d8acb0954 100644
+>>  --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
+>>  +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
+>>  @@ -386,7 +386,7 @@ static void=20
+>> ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+>>   		addr =3D drm_fb_cma_get_gem_addr(state->fb, state, 0);
+>>   		width =3D state->src_w >> 16;
+>>   		height =3D state->src_h >> 16;
+>>  -		cpp =3D state->fb->format->cpp[plane->index];
+>>  +		cpp =3D state->fb->format->cpp[0];
+>>=20
+>>   		priv->dma_hwdesc->addr =3D addr;
+>>   		priv->dma_hwdesc->cmd =3D width * height * cpp / 4;
+>>  --
+>>  2.27.0
 
 
-  * baseline.login: https://kernelci.org/test/case/id/5f1074d3c0bef8864a85b=
-b1a
-      failing since 101 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23) =20
