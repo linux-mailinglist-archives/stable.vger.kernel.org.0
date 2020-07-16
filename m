@@ -2,109 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D5E221D90
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 09:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BF2221D92
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 09:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725965AbgGPHqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jul 2020 03:46:00 -0400
-Received: from mx2.suse.de ([195.135.220.15]:35558 "EHLO mx2.suse.de"
+        id S1726453AbgGPHqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jul 2020 03:46:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725867AbgGPHqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jul 2020 03:46:00 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 62992ABF4;
-        Thu, 16 Jul 2020 07:46:02 +0000 (UTC)
-Subject: Re: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
-To:     Joonsoo Kim <js1304@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>, kernel-team@lge.com,
-        Christoph Hellwig <hch@infradead.org>,
-        Roman Gushchin <guro@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
-References: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
- <332d620b-bfe3-3b69-931b-77e3a74edbfd@suse.cz>
- <CAAmzW4NbG0fCtU2mV83pRamUeOEqKKxGTpQK2zuDxzmoF2FVrg@mail.gmail.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <6f18d999-4518-31ce-4cea-9b5b89a577ad@suse.cz>
-Date:   Thu, 16 Jul 2020 09:45:55 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1725867AbgGPHqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jul 2020 03:46:23 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28EE3206C1;
+        Thu, 16 Jul 2020 07:46:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594885582;
+        bh=hdSSvyRjLr2q5K9OrFcecgMptQqwj90OLvlRIEBQMX0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Awsmb9OEXqqTDOEqtKFp2muv6d0/lJR10kK0S66x52JAYJI7UZZwtNVESeIawHhNV
+         3ljLxMfPXI/abQzZiS/4/j5N8B+s6sK3RltwA0V/tGa4B71+kkFpUK+aWGId31Ejmr
+         DQ5+jRKLiTPL5SrtaN/+X0nX/f1n5hCYkX0F12TY=
+Date:   Thu, 16 Jul 2020 09:46:16 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.7 000/166] 5.7.9-rc1 review
+Message-ID: <20200716074616.GA975409@kroah.com>
+References: <20200714184115.844176932@linuxfoundation.org>
+ <e8d1da73-9c00-66c9-58d7-18175f539015@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <CAAmzW4NbG0fCtU2mV83pRamUeOEqKKxGTpQK2zuDxzmoF2FVrg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8d1da73-9c00-66c9-58d7-18175f539015@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/16/20 9:27 AM, Joonsoo Kim wrote:
-> 2020년 7월 15일 (수) 오후 5:24, Vlastimil Babka <vbabka@suse.cz>님이 작성:
->> >  /*
->> >   * get_page_from_freelist goes through the zonelist trying to allocate
->> >   * a page.
->> > @@ -3706,6 +3714,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
->> >       struct pglist_data *last_pgdat_dirty_limit = NULL;
->> >       bool no_fallback;
->> >
->> > +     current_alloc_flags(gfp_mask, &alloc_flags);
->>
->> I don't see why to move the test here? It will still be executed in the
->> fastpath, if that's what you wanted to avoid.
+On Wed, Jul 15, 2020 at 07:54:08AM -0600, Shuah Khan wrote:
+> On 7/14/20 12:42 PM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.7.9 release.
+> > There are 166 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 16 Jul 2020 18:40:38 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.9-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> I want to execute it on the fastpath, too. Reason that I moved it here
-> is that alloc_flags could be reset on slowpath. See the code where
-> __gfp_pfmemalloc_flags() is on. This is the only place that I can apply
-> this option to all the allocation paths at once.
+> Compiled and booted on my test system. No dmesg regressions.
 
-But get_page_from_freelist() might be called multiple times in the slowpath, and
-also anyone looking for gfp and alloc flags setup will likely not examine this
-function. I don't see a problem in having it in two places that already deal
-with alloc_flags setup, as it is now.
+Thanks for testing all of these and letting me know.
 
-> Thanks.
-> 
->> > +
->> >  retry:
->> >       /*
->> >        * Scan zonelist, looking for a zone with enough free.
->> > @@ -4339,10 +4349,6 @@ gfp_to_alloc_flags(gfp_t gfp_mask)
->> >       } else if (unlikely(rt_task(current)) && !in_interrupt())
->> >               alloc_flags |= ALLOC_HARDER;
->> >
->> > -#ifdef CONFIG_CMA
->> > -     if (gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
->> > -             alloc_flags |= ALLOC_CMA;
->> > -#endif
->>
->> I would just replace this here with:
->> alloc_flags = current_alloc_flags(gfp_mask, alloc_flags);
->>
->> >       return alloc_flags;
->> >  }
->> >
->> > @@ -4808,9 +4814,6 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
->> >       if (should_fail_alloc_page(gfp_mask, order))
->> >               return false;
->> >
->> > -     if (IS_ENABLED(CONFIG_CMA) && ac->migratetype == MIGRATE_MOVABLE)
->> > -             *alloc_flags |= ALLOC_CMA;
->>
->> And same here... Ah, I see. current_alloc_flags() should probably take a
->> migratetype parameter instead of gfp_mask then.
->>
->> > -
->> >       return true;
->> >  }
->> >
->> >
->>
-> 
-
+greg k-h
