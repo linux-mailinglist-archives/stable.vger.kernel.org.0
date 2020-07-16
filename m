@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7512218D5
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 02:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C122218E8
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 02:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727839AbgGPA1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 20:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
+        id S1726998AbgGPA1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 20:27:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727819AbgGPA1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 20:27:35 -0400
+        id S1727828AbgGPA1g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jul 2020 20:27:36 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43BD32076C;
-        Thu, 16 Jul 2020 00:27:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D2C12071B;
+        Thu, 16 Jul 2020 00:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594859254;
-        bh=GEziDP5HiD3f/2kmMiC8OrJXv3eCmwGtVsBzNMZsU+w=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=vLPJrvMfbDzPzOHQ7J05iGi3WdscwKMquMY5LLL8luuf5pctza9rJlt6FuOdrre42
-         NHHwyzM3bv7bStEhJAjzR55nXRzTtewlQ6G4kNoPAq7gwZ3ncMUzWfg+gIjDCGoSoC
-         S+LxqrULZMHWOke+r4w5ty1mJN9gUtrVNA1qjmvk=
-Date:   Thu, 16 Jul 2020 00:27:33 +0000
+        s=default; t=1594859255;
+        bh=x/uIkq3gdeTElq8c36eX80RkDlRLt4d873hFSTWT39I=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
+         References:From;
+        b=eEp4n1+uDwCeW1mtguuEi1VhThFTY4pUeISgTzdQvIhVuB7Bjm0zcAQHul/60xQrd
+         D47qUEJkd6Amn6wU7sRcsBAGtj+6tQdHs93Am9+S3r5aWCAu7Neu7pWKE5S7eVz2c2
+         veJ6p9TV0vOe1AZovqYeCwqFoB6kPDDoG97KvMt8=
+Date:   Thu, 16 Jul 2020 00:27:34 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     David Sterba <dsterba@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>, stable@vger.kernel.org
+To:     Will Deacon <will@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     catalin.marinas@arm.com, Will Deacon <will@kernel.org>
+Cc:     <stable@vger.kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>
+Cc:     Keno Fischer <keno@juliacomputing.com>
+Cc:     Luis Machado <luis.machado@linaro.org>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] btrfs: add missing check for nocow and compression inode flags
-In-Reply-To: <20200710100553.13567-1-dsterba@suse.com>
-References: <20200710100553.13567-1-dsterba@suse.com>
-Message-Id: <20200716002734.43BD32076C@mail.kernel.org>
+Subject: Re: [PATCH v3 3/7] arm64: compat: Ensure upper 32 bits of x0 are zero on syscall return
+In-Reply-To: <20200710130702.30658-4-will@kernel.org>
+References: <20200710130702.30658-4-will@kernel.org>
+Message-Id: <20200716002735.4D2C12071B@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,75 +49,80 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: 4.4+
+The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.7.8, v5.4.51, v4.19.132, v4.14.188, v4.9.230, v4.4.230.
 
 v5.7.8: Build OK!
 v5.4.51: Build OK!
-v4.19.132: Failed to apply! Possible dependencies:
-    04e6863b19c72 ("btrfs: split btrfs_setxattr calls regarding transaction")
-    262c96a3c3670 ("btrfs: refactor btrfs_set_prop and add btrfs_set_prop_trans")
-    7715da84f74d5 ("btrfs: merge _btrfs_set_prop helpers")
-    8b4d1efc9e6c3 ("btrfs: prop: open code btrfs_set_prop in inherit_prop")
-    cac237ae095f6 ("btrfs: rename btrfs_setxattr to btrfs_setxattr_trans")
-    d2b8fcfe43155 ("btrfs: modify local copy of btrfs_inode flags")
-    f22125e5d8ae1 ("btrfs: refactor btrfs_set_props to validate externally")
-    ff9fef559babe ("btrfs: start transaction in btrfs_ioctl_setflags()")
-
+v4.19.132: Build OK!
 v4.14.188: Failed to apply! Possible dependencies:
-    04e6863b19c72 ("btrfs: split btrfs_setxattr calls regarding transaction")
-    1905a0f7c7de3 ("btrfs: rename btrfs_mask_flags to reflect which flags it touches")
-    262c96a3c3670 ("btrfs: refactor btrfs_set_prop and add btrfs_set_prop_trans")
-    38e82de8ccd18 ("btrfs: user proper type for btrfs_mask_flags flags")
-    5ba76abfb2336 ("btrfs: rename check_flags to reflect which flags it touches")
-    5c57b8b6a4966 ("btrfs: unify naming of flags variables for SETFLAGS and XFLAGS")
-    7715da84f74d5 ("btrfs: merge _btrfs_set_prop helpers")
-    7852781d94b30 ("btrfs: drop underscores from exported xattr functions")
-    7b6a221e5b21f ("btrfs: rename btrfs_update_iflags to reflect which flags it touches")
-    8b4d1efc9e6c3 ("btrfs: prop: open code btrfs_set_prop in inherit_prop")
-    93370509c24cc ("btrfs: SETFLAGS ioctl: use helper for compression type conversion")
-    a157d4fd81dc7 ("btrfs: rename btrfs_flags_to_ioctl to reflect which flags it touches")
-    ab0d09361662b ("btrfs: drop extern from function declarations")
-    cac237ae095f6 ("btrfs: rename btrfs_setxattr to btrfs_setxattr_trans")
-    d2b8fcfe43155 ("btrfs: modify local copy of btrfs_inode flags")
-    f22125e5d8ae1 ("btrfs: refactor btrfs_set_props to validate externally")
-    ff9fef559babe ("btrfs: start transaction in btrfs_ioctl_setflags()")
+    0013aceb30748 ("xtensa: clean up fixups in assembly code")
+    1af1e8a39dc0f ("xtensa: move fixmap and kmap just above the KSEG")
+    2a61f4747eeaa ("stack-protector: test compiler capability in Kconfig and drop AUTO mode")
+    2b8383927525d ("Makefile: move stack-protector compiler breakage test earlier")
+    2bc2f688fdf88 ("Makefile: move stack-protector availability out of Kconfig")
+    409d5db49867c ("arm64: rseq: Implement backend rseq calls and select HAVE_RSEQ")
+    40d1a07b333ef ("xtensa: enable stack protector")
+    4141c857fd09d ("arm64: convert raw syscall invocation to C")
+    44c6dc940b190 ("Makefile: introduce CONFIG_CC_STACKPROTECTOR_AUTO")
+    5cf97ebd8b40e ("xtensa: clean up functions in assembly code")
+    8d66772e869e7 ("arm64: Mask all exceptions during kernel_exit")
+    9800b9dc13cdf ("arm: Add restartable sequences support")
+    c2edb35ae342f ("xtensa: extract init_kio")
+    c633544a61541 ("xtensa: add support for KASAN")
+    d148eac0e70f0 ("Kbuild: rename HAVE_CC_STACKPROTECTOR config variable")
+    f4431396be5b2 ("xtensa: consolidate kernel stack size related definitions")
 
 v4.9.230: Failed to apply! Possible dependencies:
-    0b246afa62b0c ("btrfs: root->fs_info cleanup, add fs_info convenience variables")
-    1905a0f7c7de3 ("btrfs: rename btrfs_mask_flags to reflect which flags it touches")
-    38e82de8ccd18 ("btrfs: user proper type for btrfs_mask_flags flags")
-    5ba76abfb2336 ("btrfs: rename check_flags to reflect which flags it touches")
-    5c57b8b6a4966 ("btrfs: unify naming of flags variables for SETFLAGS and XFLAGS")
-    62d1f9fe97dd2 ("btrfs: remove trivial helper btrfs_find_tree_block")
-    a157d4fd81dc7 ("btrfs: rename btrfs_flags_to_ioctl to reflect which flags it touches")
-    cf8cddd38bab3 ("btrfs: don't abuse REQ_OP_* flags for btrfs_map_block")
-    da17066c40472 ("btrfs: pull node/sector/stripe sizes out of root and into fs_info")
-    de143792253e2 ("btrfs: struct btrfsic_state->root should be an fs_info")
-    fb456252d3d9c ("btrfs: root->fs_info cleanup, use fs_info->dev_root everywhere")
-    ff9fef559babe ("btrfs: start transaction in btrfs_ioctl_setflags()")
+    12597988319c8 ("MIPS: Sort MIPS Kconfig Alphabetically.")
+    2a61f4747eeaa ("stack-protector: test compiler capability in Kconfig and drop AUTO mode")
+    2b8383927525d ("Makefile: move stack-protector compiler breakage test earlier")
+    2bc2f688fdf88 ("Makefile: move stack-protector availability out of Kconfig")
+    313dd1b629219 ("gcc-plugins: Add the randstruct plugin")
+    39c13c204bb11 ("arm: eBPF JIT compiler")
+    409d5db49867c ("arm64: rseq: Implement backend rseq calls and select HAVE_RSEQ")
+    4141c857fd09d ("arm64: convert raw syscall invocation to C")
+    44c6dc940b190 ("Makefile: introduce CONFIG_CC_STACKPROTECTOR_AUTO")
+    74d86a70636a0 ("arm: use set_memory.h header")
+    8d66772e869e7 ("arm64: Mask all exceptions during kernel_exit")
+    9800b9dc13cdf ("arm: Add restartable sequences support")
+    c02433dd6de32 ("arm64: split thread_info from task stack")
+    c61f13eaa1ee1 ("gcc-plugins: Add structleak for more stack initialization")
+    c763ea2650dfa ("x86/kconfig: Sort the 'config X86' selects alphabetically")
+    d148eac0e70f0 ("Kbuild: rename HAVE_CC_STACKPROTECTOR config variable")
+    f381bf6d82f03 ("MIPS: Add support for eBPF JIT.")
 
 v4.4.230: Failed to apply! Possible dependencies:
-    0132761017e01 ("btrfs: fix string and comment grammatical issues and typos")
-    09cbfeaf1a5a6 ("mm, fs: get rid of PAGE_CACHE_* and page_cache_{get,release} macros")
-    0b246afa62b0c ("btrfs: root->fs_info cleanup, add fs_info convenience variables")
-    0e749e54244ee ("dax: increase granularity of dax_clear_blocks() operations")
-    1905a0f7c7de3 ("btrfs: rename btrfs_mask_flags to reflect which flags it touches")
-    38e82de8ccd18 ("btrfs: user proper type for btrfs_mask_flags flags")
-    4420cfd3f51cf ("staging: lustre: format properly all comment blocks for LNet core")
-    52db400fcd502 ("pmem, dax: clean up clear_pmem()")
-    5ba76abfb2336 ("btrfs: rename check_flags to reflect which flags it touches")
-    5c57b8b6a4966 ("btrfs: unify naming of flags variables for SETFLAGS and XFLAGS")
-    5fd88337d209d ("staging: lustre: fix all conditional comparison to zero in LNet layer")
-    a157d4fd81dc7 ("btrfs: rename btrfs_flags_to_ioctl to reflect which flags it touches")
-    b2e0d1625e193 ("dax: fix lifetime of in-kernel dax mappings with dax_map_atomic()")
-    bb7ab3b92e46d ("btrfs: Fix misspellings in comments.")
-    cf8cddd38bab3 ("btrfs: don't abuse REQ_OP_* flags for btrfs_map_block")
-    d1a5f2b4d8a12 ("block: use DAX for partition table reads")
-    de143792253e2 ("btrfs: struct btrfsic_state->root should be an fs_info")
-    e10624f8c0971 ("pmem: fail io-requests to known bad blocks")
-    ff9fef559babe ("btrfs: start transaction in btrfs_ioctl_setflags()")
+    218cfe4ed8885 ("perf/x86: Move perf_event_amd_ibs.c ....... => x86/events/amd/ibs.c")
+    25a77b55e74c4 ("xtensa/perf: Convert the hotplug notifier to state machine callbacks")
+    2a803c4db615d ("arm64: head.S: use memset to clear BSS")
+    2bf31a4a05f5b ("arm64: avoid dynamic relocations in early boot code")
+    3600c2fdc09a4 ("arm64: Add macros to read/write system registers")
+    39b0332a21583 ("perf/x86: Move perf_event_amd.c ........... => x86/events/amd/core.c")
+    4141c857fd09d ("arm64: convert raw syscall invocation to C")
+    499c81507f599 ("arm64/debug: Remove superfluous SMP function call")
+    49de0493e5f67 ("x86/perf/intel/cstate: Make cstate hotplug handling actually work")
+    4b6e2571bf000 ("x86/perf/intel/rapl: Make the Intel RAPL PMU driver modular")
+    5b26547dd7faa ("perf/x86: Move perf_event_amd_iommu.[ch] .. => x86/events/amd/iommu.[ch]")
+    609116d202a8c ("arm64: add function to install the idmap")
+    6cdf9c7ca687e ("arm64: Store struct thread_info in sp_el0")
+    77c34ef1c3194 ("perf/x86/intel/cstate: Convert Intel CSTATE to hotplug state machine")
+    8d66772e869e7 ("arm64: Mask all exceptions during kernel_exit")
+    9e8e865bbe294 ("arm64: unify idmap removal")
+    a563f7598198b ("arm64: Reuse TCR field definitions for EL1 and EL2")
+    adf7589997927 ("arm64: simplify sysreg manipulation")
+    ae7e27fe6834d ("arm64: hw_breakpoint: Allow EL2 breakpoints if running in HYP")
+    bb9052744f4b7 ("arm64: Handle early CPU boot failures")
+    c02433dd6de32 ("arm64: split thread_info from task stack")
+    c4bc34d20273d ("arm64: Add a helper for parking CPUs in a loop")
+    c7afba320e91c ("x86/perf/intel/cstate: Modularize driver")
+    e5b61bafe7047 ("arm: Convert VFP hotplug notifiers to state machine")
+    e633c65a1d585 ("x86/perf/intel/uncore: Make the Intel uncore PMU driver modular")
+    e937dd5782688 ("arm64: debug: convert OS lock CPU hotplug notifier to new infrastructure")
+    ee02a15919cf8 ("arm64: Introduce cpu_die_early")
+    fa9cbf320e996 ("perf/x86: Move perf_event.c ............... => x86/events/core.c")
+    fce6361fe9b0c ("arm64: Move cpu_die_early to smp.c")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
