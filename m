@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0298B2222EE
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 14:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A13D222315
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 14:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728163AbgGPMx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jul 2020 08:53:57 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42522 "EHLO mx2.suse.de"
+        id S1728225AbgGPM46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jul 2020 08:56:58 -0400
+Received: from crapouillou.net ([89.234.176.41]:59350 "EHLO crapouillou.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726986AbgGPMx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jul 2020 08:53:56 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 74848AF9C;
-        Thu, 16 Jul 2020 12:53:59 +0000 (UTC)
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     airlied@redhat.com, daniel@ffwll.ch, sam@ravnborg.org,
-        noralf@tronnes.org, yc_chen@aspeedtech.com
-Cc:     dri-devel@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Emil Velikov <emil.l.velikov@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v2 5/6] drm/ast: Initialize DRAM type before posting GPU
-Date:   Thu, 16 Jul 2020 14:53:52 +0200
-Message-Id: <20200716125353.31512-6-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200716125353.31512-1-tzimmermann@suse.de>
-References: <20200716125353.31512-1-tzimmermann@suse.de>
+        id S1728150AbgGPM45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jul 2020 08:56:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1594904215; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references; bh=DUN8mRRTBoSNE5wMk07ynYLLgnvVyFadqpMluACqVzo=;
+        b=A9llEpHYyVXFBQJ+53KuAtojE88Sbp0dYxrXJpLeyeCNQeGJnTPeIIXOvS6y6loRvjzqiK
+        +8SmbAgNEi70JtQqVdOuetgZtYhNFinJb4fi8ekKE4UVXRw9getW4wk065sdZENPxrlNv1
+        yKfwx/rcemLi0fqStgsCpo3Mf+SjekU=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>
+Cc:     od@zcrc.me, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/2] drm/panel-simple: Fix inverted V/H SYNC for Frida FRD350H54004 panel
+Date:   Thu, 16 Jul 2020 14:56:46 +0200
+Message-Id: <20200716125647.10964-1-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -38,52 +35,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Posting the GPU requires the correct DRAM type to be stored in
-struct ast_private. Therefore first initialize the DRAM info and
-then post the GPU. This restores the original order of instructions
-in this function.
+The FRD350H54004 panel was marked as having active-high VSYNC and HSYNC
+signals, which sorts-of worked, but resulted in the picture fading out
+under certain circumstances.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Fixes: bad09da6deab ("drm/ast: Fixed vram size incorrect issue on POWER")
-Cc: Joel Stanley <joel@jms.id.au>
-Cc: Y.C. Chen <yc_chen@aspeedtech.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
-Cc: <stable@vger.kernel.org> # v4.11+
+Fix this issue by marking VSYNC and HSYNC signals active-low.
+
+v2: Rebase on drm-misc-next
+
+Fixes: 7b6bd8433609 ("drm/panel: simple: Add support for the Frida FRD350H54004 panel")
+Cc: stable@vger.kernel.org # v5.5
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- drivers/gpu/drm/ast/ast_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_main.c b/drivers/gpu/drm/ast/ast_main.c
-index b162cc82204d..87e5baded2a7 100644
---- a/drivers/gpu/drm/ast/ast_main.c
-+++ b/drivers/gpu/drm/ast/ast_main.c
-@@ -418,15 +418,15 @@ int ast_driver_load(struct drm_device *dev, unsigned long flags)
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index f42249b72548..8b0bab9dd075 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -1763,7 +1763,7 @@ static const struct drm_display_mode frida_frd350h54004_mode = {
+ 	.vsync_start = 240 + 2,
+ 	.vsync_end = 240 + 2 + 6,
+ 	.vtotal = 240 + 2 + 6 + 2,
+-	.flags = DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+ };
  
- 	ast_detect_chip(dev, &need_post);
- 
--	if (need_post)
--		ast_post_gpu(dev);
--
- 	ret = ast_get_dram_info(dev);
- 	if (ret)
- 		goto out_free;
- 	drm_info(dev, "dram MCLK=%u Mhz type=%d bus_width=%d\n",
- 		 ast->mclk, ast->dram_type, ast->dram_bus_width);
- 
-+	if (need_post)
-+		ast_post_gpu(dev);
-+
- 	ret = ast_mm_init(ast);
- 	if (ret)
- 		goto out_free;
+ static const struct panel_desc frida_frd350h54004 = {
 -- 
 2.27.0
 
