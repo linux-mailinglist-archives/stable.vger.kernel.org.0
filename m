@@ -2,87 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CB62220BB
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 12:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B24222112
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 13:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbgGPKin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jul 2020 06:38:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40066 "EHLO
+        id S1727927AbgGPLEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jul 2020 07:04:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbgGPKin (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jul 2020 06:38:43 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30046C061755;
-        Thu, 16 Jul 2020 03:38:43 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id ch3so4587698pjb.5;
-        Thu, 16 Jul 2020 03:38:43 -0700 (PDT)
+        with ESMTP id S1726332AbgGPLES (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jul 2020 07:04:18 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE53C061755
+        for <stable@vger.kernel.org>; Thu, 16 Jul 2020 04:04:17 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id z3so3499191pfn.12
+        for <stable@vger.kernel.org>; Thu, 16 Jul 2020 04:04:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=Xi10Azjc3LYA6y1wwwmx1FIXyFCFp9l/aJg3weE/cU8=;
-        b=Pq/FSfpzhrM0GxXsdRR/uLQv2uAiDhYjXndr1acNxbgDZLlKQlwa7Ukoh2LRi1gVYT
-         16/3pMbpXwb3kzCXGu/I886DT7nsVNjss85pqCjLsIT/OErNjdkGn3RuU8deA6X0GH48
-         yAzXNCmUUnAiVGD8tSXi5sNPCwjDTPr4hHtmgxHw7xFPBhrpOKHR9jsKtwWUEQ90hSi8
-         BjHQ/mXzseMwrbtAWFU6eeEXUH9pBZnasezCMQYSscYCfcak7XdMGEQPVwWcrGjKGmcF
-         dk4xJ0aVOaIaRBNM1oXcoN9m8PqqXXvgOyLWfVjseBTHlBmkZa3RwAOii1zKbh1g8QWP
-         WevQ==
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=wPRl0505y+027RyzFUutRjyuEL3B00o52CwCvDpRs+4=;
+        b=nfYnBXsUwGNOUnChtgRjUsvgL8eX07TmqcaKhGNNdf4IVeXyDmtPUzaY5oHo4kG43E
+         27h+P+XfntrhDdwgAs7aCqFMzDGcYrfCWMq8jQbvsUX0yCiMQ604T8E1dVrqs6pkQT0L
+         Bj0Km57O/gsLfvqhm0HC/ysUPaXda7QwHnWieJzLHO8T92pfKJCc4eL17NqB4f3qWEoV
+         DQfoySpknNzGhWylD+m9VXzgSKNWSQnFIwtFU/QeGx6D8tAtN1FSBGsrqx1wNp27u021
+         /2rvt3SxeIK3/PzUCBEJF3ref/CveUwphliugLfUb4Crpm19LfHk56b3kfuBkZfi+mq7
+         66Qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=Xi10Azjc3LYA6y1wwwmx1FIXyFCFp9l/aJg3weE/cU8=;
-        b=khVGhvgvh9ooiXOHCAvCuOpTib85EadG9eMEmO3RNlQhamn5g9LYGPEAqTtTsbHEjm
-         3lhSOPlUR5tfI+xaW6lyr0J4tVjOCFqO8GMRHwcIe+cvsplSx86+4QmdWDQXW3CMG5Sf
-         EmFcGv7Ih2M7hb/Pa49wLzP4dZHO5HsKFFEuRMqjhZ8hYbE3Q21H14mBZ8M76kv9dIto
-         e7xSQih5EbROjRkuzeNkGtUJoVsU0hGshw78LBUrXyVZtKW5Pu5u4aCLzfAlmnfNseHe
-         pD5/JLHZ+BH2KOMGFvmvoXc5UhKv5xt3W6p2eAiPGW57E+5CNjX1aEkfDQBHRbTTjQNO
-         19tQ==
-X-Gm-Message-State: AOAM530qyYjtpvxFagg9Sy3a2VPtpukc8TDgv6BzUOmB7o+HH8a9WdhP
-        AIVlhIQZHAWzdpPhs6KLICc=
-X-Google-Smtp-Source: ABdhPJwvwc5xQa3njYBfmLlIdhRXSaeHNwZ/ppB8TxJ/caisV3Cjf4ACMDjgQfmcagMB2l5CbbeR1A==
-X-Received: by 2002:a17:90b:390e:: with SMTP id ob14mr3798618pjb.221.1594895922546;
-        Thu, 16 Jul 2020 03:38:42 -0700 (PDT)
-Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
-        by smtp.gmail.com with ESMTPSA id o129sm4936655pfg.14.2020.07.16.03.38.40
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Jul 2020 03:38:42 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
-        Zhangjin Wu <wuzhangjin@gmail.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
-Subject: [PATCH V2] MIPS: CPU#0 is not hotpluggable
-Date:   Thu, 16 Jul 2020 18:40:23 +0800
-Message-Id: <1594896024-16624-1-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=wPRl0505y+027RyzFUutRjyuEL3B00o52CwCvDpRs+4=;
+        b=jsfmu/odQGso6iFzvU40I0TW9kOT8DcSIoXdrsHzssrqEFSnKf/IIthn4rvWkEtid5
+         xAPqa5yoLkjd1tQ4hNwp331ERxUNu4ID0/INsWbi7CTn5U+Jcs+t/39ugaN8KNL+yItR
+         pLJaKzxQ+vClpwm/fGSU6/iabfQJmSvVIyza54ybSCmKk9sZlQ1sfDetA/wSSbx8w4pZ
+         hnDCayA3izNGfcQ8Nhda1Yq6LEj6+/UD0BKwzKUAVM+rrazclZSZhRqcUPx7Fleb6Xz1
+         3Pp3DdlOehR8Jbp11Rg8EsiYibF2A8NsFQUq+pNEUT+U59f0QNlbqnrqYEzkcddiEHTM
+         vb/g==
+X-Gm-Message-State: AOAM53218ElYENkRg5NUIygQ4KLeRD6lIzJ4io46lS3ZR29VuaQ+AmAq
+        l0p9ZjcrGkSx7zomNP5irtxGBPSpaNAaQf5dPVU=
+X-Google-Smtp-Source: ABdhPJxc99M1qDTPGjqr/+e2PNChb4jdBif09roZPhyOp7S/O07U7VuBFqFBnhhYh4AUBgzjkGnIDFGg86W6V2iwBRc=
+X-Received: by 2002:a63:5a01:: with SMTP id o1mr3673698pgb.337.1594897457300;
+ Thu, 16 Jul 2020 04:04:17 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a17:90a:fb8c:0:0:0:0 with HTTP; Thu, 16 Jul 2020 04:04:16
+ -0700 (PDT)
+Reply-To: esthernicolas150@gmail.com
+From:   "Mrs. Esther Nicolas" <jessicaw2261@gmail.com>
+Date:   Thu, 16 Jul 2020 11:04:16 +0000
+Message-ID: <CAFPdKTaFrjbUMYcihkVkKsnQ79ct_BDVVz3fCtJ7+g-tHgZp1A@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Now CPU#0 is not hotpluggable on MIPS, so prevent to create /sys/devices
-/system/cpu/cpu0/online which confuses some user-space tools.
+Pozdravy tob=C4=9B,
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- arch/mips/kernel/topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+S =C3=BActou a lidskost=C3=AD jsem byl nucen ps=C3=A1t v=C3=A1m pod humanit=
+=C3=A1rn=C3=AD p=C5=AFdou.
 
-diff --git a/arch/mips/kernel/topology.c b/arch/mips/kernel/topology.c
-index cd3e1f8..08ad637 100644
---- a/arch/mips/kernel/topology.c
-+++ b/arch/mips/kernel/topology.c
-@@ -20,7 +20,7 @@ static int __init topology_init(void)
- 	for_each_present_cpu(i) {
- 		struct cpu *c = &per_cpu(cpu_devices, i);
- 
--		c->hotpluggable = 1;
-+		c->hotpluggable = !!i;
- 		ret = register_cpu(c, i);
- 		if (ret)
- 			printk(KERN_WARNING "topology_init: register_cpu %d "
--- 
-2.7.0
+Jmenuji se pan=C3=AD Esther Nicolasov=C3=A1. Narodil jsem se v Baltimoru v
+Marylandu, jsem =C5=BEenat=C3=BD s panem Jacobem Nicolasem =C5=99editelem J=
+.C
+Industry Togo. Byli jsme man=C5=BEel=C3=A9 t=C5=99icet =C5=A1est let bez d=
+=C3=ADt=C4=9Bte. Zem=C5=99el po
+operaci srde=C4=8Dn=C3=ADch tepen.
 
+A v posledn=C3=AD dob=C4=9B mi m=C5=AFj doktor =C5=99ekl, =C5=BEe nebudu tr=
+vat dal=C5=A1=C3=ADch =C5=A1est
+m=C4=9Bs=C3=ADc=C5=AF kv=C5=AFli sv=C3=A9mu probl=C3=A9mu s rakovinou (rako=
+vina jater a mrtvice).
+Ne=C5=BE m=C5=AFj man=C5=BEel loni zem=C5=99el, je zde tato =C4=8D=C3=A1stk=
+a dva miliony osm set
+tis=C3=ADc dolar=C5=AF, kter=C3=A9 vlo=C5=BEil do banky tady v Togu. V sou=
+=C4=8Dasn=C3=A9 dob=C4=9B jsou
+tyto pen=C3=ADze st=C3=A1le v bance.
+
+Pot=C3=A9, co jsem poznal sv=C5=AFj stav, rozhodl jsem se v=C4=9Bnovat tent=
+o fond
+ka=C5=BEd=C3=A9mu dobr=C3=A9mu Bohu, kter=C3=BD se boj=C3=AD bratra nebo se=
+stry, kter=C3=BD tento
+fond pou=C5=BEije tak, jak zde budu pou=C4=8Dovat. Chci n=C4=9Bkoho, kdo po=
+u=C5=BEije
+tento fond podle p=C5=99=C3=A1n=C3=AD m=C3=A9ho pozd=C4=9B. Man=C5=BEel na =
+pomoc m=C3=A9n=C4=9B privilegovan=C3=BDm
+lidem, d=C4=9Btsk=C3=BDm domov=C5=AFm, vdov=C3=A1m a =C5=A1=C3=AD=C5=99en=
+=C3=AD Bo=C5=BE=C3=ADho slova.
+
+Toto rozhodnut=C3=AD jsem p=C5=99ijal, proto=C5=BEe nem=C3=A1m =C5=BE=C3=A1=
+dn=C3=A9 d=C3=ADt=C4=9B, kter=C3=A9 by
+zd=C4=9Bdilo tento fond, a nechci pry=C4=8D, kde budou tyto pen=C3=ADze pou=
+=C5=BEity
+bezbo=C5=BEn=C4=9B. Proto p=C5=99ij=C3=ADm=C3=A1m toto rozhodnut=C3=AD, aby=
+ch v=C3=A1m tento fond p=C5=99edal.
+
+Neboj=C3=ADm se smrti, proto v=C3=ADm, kam jdu. Chci, abys m=C4=9B vzpomn=
+=C4=9Bl na sv=C3=A9
+ka=C5=BEdodenn=C3=AD modlitby kv=C5=AFli m=C3=A9 nadch=C3=A1zej=C3=ADc=C3=
+=AD rakovin=C4=9B.
+Odepi=C5=A1te co nejd=C5=99=C3=ADve jak=C3=A9koli zpo=C5=BEd=C4=9Bn=C3=AD v=
+e va=C5=A1=C3=AD odpov=C4=9Bdi mi poskytne
+prostor p=C5=99i z=C3=ADsk=C3=A1v=C3=A1n=C3=AD jin=C3=A9 osoby pro stejn=C3=
+=BD =C3=BA=C4=8Del v nad=C4=9Bji, =C5=BEe od v=C3=A1s
+ode=C4=8Dteme ASAP.
+
+
+B=C5=AFh v=C3=A1m =C5=BEehnej, kdy=C5=BE poslouch=C3=A1te hlas rozumu,
+
+
+Pan=C3=AD Esther Nicolasov=C3=A1.
