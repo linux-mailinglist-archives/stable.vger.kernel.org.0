@@ -2,103 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25506222CBB
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 22:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A20222DE1
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 23:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726233AbgGPU0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jul 2020 16:26:06 -0400
-Received: from crapouillou.net ([89.234.176.41]:41410 "EHLO crapouillou.net"
+        id S1726125AbgGPV22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jul 2020 17:28:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726069AbgGPU0G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jul 2020 16:26:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1594931164; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SX7hdu69Ya5NdmyT12h41uasgZBzqU3phiTCNybRetM=;
-        b=fygTz1AkK3F+KkSqLcdpUfyr3zmBZjEUKSa/Vt00eTSF72jQDKtklUryyIrQc3Oa8rtmYM
-        YWSRB4PVWihapc0vvKQgXHwti43BXsbCFSDEk4IVlkAUUAib8gf6krgrd5yvZjzNZB1DvT
-        EDDLKtIE3EVZe0Sk+6bYeKsdbWK+UkI=
-Date:   Thu, 16 Jul 2020 22:25:54 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v3 01/12] drm/ingenic: Fix incorrect assumption about
- plane->index
-To:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        od@zcrc.me, dri-devel@lists.freedesktop.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Message-Id: <6RWKDQ.JP0OMXFFTGWS1@crapouillou.net>
-In-Reply-To: <20200716174335.GC2235355@ravnborg.org>
-References: <20200716163846.174790-1-paul@crapouillou.net>
-        <20200716174335.GC2235355@ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+        id S1726090AbgGPV21 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jul 2020 17:28:27 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D268220787;
+        Thu, 16 Jul 2020 21:28:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594934906;
+        bh=XjpmwpqQaaG73yx7/K3aj3b2qjYwIj7j4S4YgPX8vV8=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=0J0MnEC9RR9E4z4FzmlAXySC51JwAFjD4v0KdFXADo1sRtT8v3dYWhyL6vl446U1D
+         WZDcNbC3L89I91XhSSrRGwFi3YL2FxDVwCN/0IyUKnIBbOoSkBR80VDNyhfR62mE5Q
+         CQKdYRE2jIGwku+l7FHnNiV4nMTBvBzzFkdqVMZM=
+Date:   Thu, 16 Jul 2020 14:28:25 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     cl@linux.com, guro@fb.com, iamjoonsoo.kim@lge.com,
+        mm-commits@vger.kernel.org, penberg@kernel.org,
+        rientjes@google.com, shakeelb@google.com, songmuchun@bytedance.com,
+        stable@vger.kernel.org, vbabka@suse.cz
+Subject:  +
+ mm-memcg-slab-fix-memory-leak-at-non-root-kmem_cache-destroy.patch added to
+ -mm tree
+Message-ID: <20200716212825.AGqHB_kfq%akpm@linux-foundation.org>
+In-Reply-To: <20200703151445.b6a0cfee402c7c5c4651f1b1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sam,
 
-Le jeu. 16 juil. 2020 =E0 19:43, Sam Ravnborg <sam@ravnborg.org> a=20
-=E9crit :
-> Hi Paul.
->=20
-> On Thu, Jul 16, 2020 at 06:38:35PM +0200, Paul Cercueil wrote:
->>  plane->index is NOT the index of the color plane in a YUV frame.
->>  Actually, a YUV frame is represented by a single drm_plane, even=20
->> though
->>  it contains three Y, U, V planes.
->>=20
->>  v2-v3: No change
->>=20
->>  Cc: stable@vger.kernel.org # v5.3
->>  Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx=20
->> SoCs")
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  Acked-by: Sam Ravnborg <sam@ravnborg.org>
->=20
-> A cover letter would have been useful. Please consider that in the
-> future.
-> All patches in this set are:
-> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
->=20
-> A few requires some trivial issues fixed. They can be fixed while
-> applying.
->=20
-> I consider the patch-set ready to go in and I expect you to commit=20
-> them.
+The patch titled
+     Subject: mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
+has been added to the -mm tree.  Its filename is
+     mm-memcg-slab-fix-memory-leak-at-non-root-kmem_cache-destroy.patch
 
-Great! Thanks!
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-slab-fix-memory-leak-at-non-root-kmem_cache-destroy.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-slab-fix-memory-leak-at-non-root-kmem_cache-destroy.patch
 
--Paul
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> 	Sam
->=20
->>  ---
->>   drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>=20
->>  diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c=20
->> b/drivers/gpu/drm/ingenic/ingenic-drm.c
->>  index deb37b4a8e91..606d8acb0954 100644
->>  --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
->>  +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
->>  @@ -386,7 +386,7 @@ static void=20
->> ingenic_drm_plane_atomic_update(struct drm_plane *plane,
->>   		addr =3D drm_fb_cma_get_gem_addr(state->fb, state, 0);
->>   		width =3D state->src_w >> 16;
->>   		height =3D state->src_h >> 16;
->>  -		cpp =3D state->fb->format->cpp[plane->index];
->>  +		cpp =3D state->fb->format->cpp[0];
->>=20
->>   		priv->dma_hwdesc->addr =3D addr;
->>   		priv->dma_hwdesc->cmd =3D width * height * cpp / 4;
->>  --
->>  2.27.0
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Muchun Song <songmuchun@bytedance.com>
+Subject: mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
+
+If the kmem_cache refcount is greater than one, we should not mark the
+root kmem_cache as dying.  If we mark the root kmem_cache dying
+incorrectly, the non-root kmem_cache can never be destroyed.  It resulted
+in memory leak when memcg was destroyed.  We can use the following steps
+to reproduce.
+
+  1) Use kmem_cache_create() to create a new kmem_cache named A.
+  2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
+     so the refcount of B is just increased.
+  3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
+     decrease the B's refcount but mark the B as dying.
+  4) Create a new memory cgroup and alloc memory from the kmem_cache
+     B. It leads to create a non-root kmem_cache for allocating memory.
+  5) When destroy the memory cgroup created in the step 4), the
+     non-root kmem_cache can never be destroyed.
+
+If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
+only when refcount reach zero, we mark the root kmem_cache as dying.
+
+Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
+Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 7 deletions(-)
+
+--- a/mm/slab_common.c~mm-memcg-slab-fix-memory-leak-at-non-root-kmem_cache-destroy
++++ a/mm/slab_common.c
+@@ -326,6 +326,14 @@ int slab_unmergeable(struct kmem_cache *
+ 	if (s->refcount < 0)
+ 		return 1;
+ 
++#ifdef CONFIG_MEMCG_KMEM
++	/*
++	 * Skip the dying kmem_cache.
++	 */
++	if (s->memcg_params.dying)
++		return 1;
++#endif
++
+ 	return 0;
+ }
+ 
+@@ -886,12 +894,15 @@ static int shutdown_memcg_caches(struct
+ 	return 0;
+ }
+ 
+-static void flush_memcg_workqueue(struct kmem_cache *s)
++static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
+ {
+ 	spin_lock_irq(&memcg_kmem_wq_lock);
+ 	s->memcg_params.dying = true;
+ 	spin_unlock_irq(&memcg_kmem_wq_lock);
++}
+ 
++static void flush_memcg_workqueue(struct kmem_cache *s)
++{
+ 	/*
+ 	 * SLAB and SLUB deactivate the kmem_caches through call_rcu. Make
+ 	 * sure all registered rcu callbacks have been invoked.
+@@ -923,10 +934,6 @@ static inline int shutdown_memcg_caches(
+ {
+ 	return 0;
+ }
+-
+-static inline void flush_memcg_workqueue(struct kmem_cache *s)
+-{
+-}
+ #endif /* CONFIG_MEMCG_KMEM */
+ 
+ void slab_kmem_cache_release(struct kmem_cache *s)
+@@ -944,8 +951,6 @@ void kmem_cache_destroy(struct kmem_cach
+ 	if (unlikely(!s))
+ 		return;
+ 
+-	flush_memcg_workqueue(s);
+-
+ 	get_online_cpus();
+ 	get_online_mems();
+ 
+@@ -955,6 +960,22 @@ void kmem_cache_destroy(struct kmem_cach
+ 	if (s->refcount)
+ 		goto out_unlock;
+ 
++#ifdef CONFIG_MEMCG_KMEM
++	memcg_set_kmem_cache_dying(s);
++
++	mutex_unlock(&slab_mutex);
++
++	put_online_mems();
++	put_online_cpus();
++
++	flush_memcg_workqueue(s);
++
++	get_online_cpus();
++	get_online_mems();
++
++	mutex_lock(&slab_mutex);
++#endif
++
+ 	err = shutdown_memcg_caches(s);
+ 	if (!err)
+ 		err = shutdown_cache(s);
+_
+
+Patches currently in -mm which might be from songmuchun@bytedance.com are
+
+mm-memcg-slab-fix-memory-leak-at-non-root-kmem_cache-destroy.patch
+mm-page_alloc-skip-setting-nodemask-when-we-are-in-interrupt.patch
 
