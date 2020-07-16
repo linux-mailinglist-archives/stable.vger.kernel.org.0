@@ -2,133 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D0772218E2
-	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 02:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACA1221939
+	for <lists+stable@lfdr.de>; Thu, 16 Jul 2020 03:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727910AbgGPA1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jul 2020 20:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727915AbgGPA1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jul 2020 20:27:46 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B625720842;
-        Thu, 16 Jul 2020 00:27:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594859265;
-        bh=oSaYgjsR7WCqaMplPFHVreVXgOuBrajY9wLoEU5PPcE=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=doLwer/AfGZCxgx59REb7ZVTkPFG5qgmDNyVWx1IhLRWA/ep+LCtdm7syPz5984ZS
-         p55cPMBfkSjWKG5ceHoM1sAN/icziKBHCFbDzmhloC4WGvQAIM9HXW9/etSFwf6Ds/
-         5z41y8SEuQhlXUyOSbXEBEDJwiON5+7kIusCp1Bs=
-Date:   Thu, 16 Jul 2020 00:27:45 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Vincent Guittot <vincent.guittot@linaro.org>
-To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com
-Cc:     valentin.schneider@arm.com
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2] sched/fair: handle case of task_h_load() returning 0
-In-Reply-To: <20200710082105.3809-1-vincent.guittot@linaro.org>
-References: <20200710082105.3809-1-vincent.guittot@linaro.org>
-Message-Id: <20200716002745.B625720842@mail.kernel.org>
+        id S1726785AbgGPBCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jul 2020 21:02:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35958 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726479AbgGPBCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jul 2020 21:02:05 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B8BC061755
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 18:02:04 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id l63so3960656pge.12
+        for <stable@vger.kernel.org>; Wed, 15 Jul 2020 18:02:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fkiKPT2POriAf7HJMZZ9tir5HHECWKm5q0n+n3Cgu14=;
+        b=1K7Pddyo3sxnAlUwyX+R0J/w+zehwxGHI08jcd24rUkeIF7kZ4Q56UyNRStONW8UVJ
+         WSMwLbwlDZUguTaZu82HFNhRaX3lJQAmp4h1g9GVZjGdhMa3cR8V7f1Fr0qgZGQN8gnc
+         x0eYkZqK1y6tesTrVfXZ8CGMdn2rUiD7RWUZPjm8heO20P/3BonsoQJDXfjf+vIgUTyq
+         hTkrWTFD3BGoHjG3c1doPMYacOBebGnHQqF9w7eGt/yXDtmy284Y9pO0EkQF23dK01ir
+         tcl8EaqpenwCxJ+IIHoUMdtBMlnr8QDi4TIQxD+YpDtiBCxKkU4Yd/VSglDC+9R+Bj94
+         CpRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fkiKPT2POriAf7HJMZZ9tir5HHECWKm5q0n+n3Cgu14=;
+        b=CjYdlRcPYEcEhUXu3LY5siWys55y+t5+zvY5ZuiN7NPQaIKeoGXvlxTFbWainxwqo3
+         aIb0+KekRmGS7JZjNGza/tle1R/9Xs6m9ZTXEvSs7bXqcyIkwTqmJVNYRPe5iVku592p
+         MOh98fdQCG7hNBB80G2ogT22MarQvDxJM/J0r2Gf2gB0OIClSXrXMsolLTxC3P80Ol6L
+         YJcFTrwbxeCdx3JP4MK8skt7lwQSLQJEAbcon+LXjD6K4YjoHC0CimtjStP+qgutOn6g
+         oeQHz9KNW438HcDzmrGx/g/Y/qZtCpKBLfOOwHzxGOyfg2HyLKYdqJVIwcuo6NpjM+nj
+         Uzig==
+X-Gm-Message-State: AOAM532WWLFDkKrX5fOZiAGKyNnO6Tc7ma3u6OFaXU8jhvstHF+nVrV6
+        GSkT7FU0HGyRVwWjL1OeHne+vxoZ+Oo=
+X-Google-Smtp-Source: ABdhPJzXOCJFPxdzJoirfewlMzJIO3/a4Wt4SbPV37daCBU5XajqIUiVShZ573GoZFtl5UmOWQzloQ==
+X-Received: by 2002:a62:7a56:: with SMTP id v83mr1592934pfc.114.1594861323998;
+        Wed, 15 Jul 2020 18:02:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w20sm3045331pfn.44.2020.07.15.18.02.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2020 18:02:03 -0700 (PDT)
+Message-ID: <5f0fa70b.1c69fb81.b1201.8fc4@mx.google.com>
+Date:   Wed, 15 Jul 2020 18:02:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.51-111-ga4b36fa05420
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 90 runs,
+ 1 regressions (v5.4.51-111-ga4b36fa05420)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+stable-rc/linux-5.4.y baseline: 90 runs, 1 regressions (v5.4.51-111-ga4b36f=
+a05420)
 
-[This is an automated email]
+Regressions Summary
+-------------------
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: 4.4+
-
-The bot has tested the following trees: v5.7.8, v5.4.51, v4.19.132, v4.14.188, v4.9.230, v4.4.230.
-
-v5.7.8: Build OK!
-v5.4.51: Failed to apply! Possible dependencies:
-    0b0695f2b34a4 ("sched/fair: Rework load_balance()")
-    490ba971d8b49 ("sched/fair: Clean up asym packing")
-    a349834703010 ("sched/fair: Rename sg_lb_stats::sum_nr_running to sum_h_nr_running")
-    fcf0553db6f4c ("sched/fair: Remove meaningless imbalance calculation")
-
-v4.19.132: Failed to apply! Possible dependencies:
-    0b0695f2b34a4 ("sched/fair: Rework load_balance()")
-    1c1b8a7b03ef5 ("sched/fair: Replace source_load() & target_load() with weighted_cpuload()")
-    3b1baa6496e6b ("sched/fair: Add 'group_misfit_task' load-balance type")
-    4ad3831a9d4af ("sched/fair: Don't move tasks to lower capacity CPUs unless necessary")
-    575638d1047eb ("sched/core: Change root_domain->overload type to int")
-    630246a06ae2a ("sched/fair: Clean-up update_sg_lb_stats parameters")
-    6aa140fa45089 ("sched/topology: Reference the Energy Model of CPUs when available")
-    757ffdd705ee9 ("sched/fair: Set rq->rd->overload when misfit")
-    a3df067974c52 ("sched/fair: Rename weighted_cpuload() to cpu_runnable_load()")
-    cad68e552e777 ("sched/fair: Consider misfit tasks when load-balancing")
-    dbbad719449e0 ("sched/fair: Change 'prefer_sibling' type to bool")
-    e90c8fe15a3bf ("sched/fair: Wrap rq->rd->overload accesses with READ/WRITE_ONCE()")
-    fdf5f315d5cfa ("sched/fair: Disable LB_BIAS by default")
-
-v4.14.188: Failed to apply! Possible dependencies:
-    0b0695f2b34a4 ("sched/fair: Rework load_balance()")
-    1c1b8a7b03ef5 ("sched/fair: Replace source_load() & target_load() with weighted_cpuload()")
-    2a2f5d4e44ed1 ("sched/fair: Rewrite cfs_rq->removed_*avg")
-    3b1baa6496e6b ("sched/fair: Add 'group_misfit_task' load-balance type")
-    7f65ea42eb00b ("sched/fair: Add util_est on top of PELT")
-    97fb7a0a8944b ("sched: Clean up and harmonize the coding style of the scheduler code base")
-    a3df067974c52 ("sched/fair: Rename weighted_cpuload() to cpu_runnable_load()")
-    cad68e552e777 ("sched/fair: Consider misfit tasks when load-balancing")
-    d18be45dbfef2 ("sched/cpufreq: Split utilization signals")
-    d4edd662ac165 ("sched/cpufreq: Use the DEADLINE utilization signal")
-    f01415fdbfe83 ("sched/fair: Use 'unsigned long' for utilization, consistently")
-
-v4.9.230: Failed to apply! Possible dependencies:
-    3b1baa6496e6b ("sched/fair: Add 'group_misfit_task' load-balance type")
-    4eb5aaa3af8a5 ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/autogroup.h>")
-    4f17722c7256a ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/loadavg.h>")
-    555570d744f81 ("sched/clock: Update static_key usage")
-    5eca1c10cbaa9 ("sched/headers: Clean up <linux/sched.h>")
-    6e84f31522f93 ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/mm.h>")
-    7f65ea42eb00b ("sched/fair: Add util_est on top of PELT")
-    983de5f97169a ("firmware: tegra: Add BPMP support")
-    9881b024b7d76 ("sched/clock: Delay switching sched_clock to stable")
-    acb04058de494 ("sched/clock: Fix hotplug crash")
-    ae7e81c077d60 ("sched/headers: Prepare for new header dependencies before moving code to <uapi/linux/sched/types.h>")
-    b52992c06c902 ("drm/i915: Support asynchronous waits on struct fence from i915_gem_request")
-    ca791d7f42563 ("firmware: tegra: Add IVC library")
-    e601757102cfd ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/clock.h>")
-    ea8b1c4a6019f ("drivers: psci: PSCI checker module")
-    ee6a3d19f15b9 ("sched/headers: Remove the <linux/topology.h> include from <linux/sched.h>")
-    fd7712337ff09 ("sched/headers: Prepare to remove the <linux/gfp.h> include from <linux/sched.h>")
-
-v4.4.230: Failed to apply! Possible dependencies:
-    051f263098a90 ("IB/mlx5: Add driver cross-channel support")
-    146d2f1af3245 ("IB/mlx5: Allocate a Transport Domain for each ucontext")
-    2811ba51b0495 ("IB/mlx5: Add RoCE fields to Address Vector")
-    37aa5c36aa70c ("IB/mlx5: Add UARs write-combining and non-cached mapping")
-    3b1baa6496e6b ("sched/fair: Add 'group_misfit_task' load-balance type")
-    3cca26069a4b7 ("IB/mlx5: Support IB device's callbacks for adding/deleting GIDs")
-    3f89a643eb295 ("IB/mlx5: Extend query_device/port to support RoCE")
-    5eca1c10cbaa9 ("sched/headers: Clean up <linux/sched.h>")
-    6e84f31522f93 ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/mm.h>")
-    7c2344c3bbf97 ("IB/mlx5: Implements disassociate_ucontext API")
-    7f65ea42eb00b ("sched/fair: Add util_est on top of PELT")
-    a8c21a5451d83 ("drm/etnaviv: add initial etnaviv DRM driver")
-    a9709d6874d55 ("vhost: convert pre sorted vhost memory array to interval tree")
-    b368d7cb8ceb7 ("IB/mlx5: Add hca_core_clock_offset to udata in init_ucontext")
-    cfb5e088e26ae ("IB/mlx5: Add CQE version 1 support to user QPs and SRQs")
-    d69e3bcf79764 ("IB/mlx5: Mmap the HCA's core clock register to user-space")
-    ebd61f68e1c79 ("IB/mlx5: Support IB device's callback for getting the link layer")
-    ee6a3d19f15b9 ("sched/headers: Remove the <linux/topology.h> include from <linux/sched.h>")
-    fc24fc5e9530a ("IB/mlx5: Support IB device's callback for getting its netdev")
-    fd7712337ff09 ("sched/headers: Prepare to remove the <linux/gfp.h> include from <linux/sched.h>")
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
 
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.51-111-ga4b36fa05420/plan/baseline/
 
-How should we proceed with this patch?
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.51-111-ga4b36fa05420
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a4b36fa0542081247babc8a62b4857a5a78c8e3b =
 
--- 
-Thanks
-Sasha
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f0f711d564839084485bb43
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.51-=
+111-ga4b36fa05420/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
+5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.51-=
+111-ga4b36fa05420/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
+5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f0f711d564839084485b=
+b44
+      failing since 95 days (last pass: v5.4.30-54-g6f04e8ca5355, first fai=
+l: v5.4.30-81-gf163418797b9) =20
