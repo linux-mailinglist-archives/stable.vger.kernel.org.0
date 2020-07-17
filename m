@@ -2,136 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B262241E6
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 398E222426E
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726439AbgGQRgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 13:36:24 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:54216 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726322AbgGQRgX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 13:36:23 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06HHX61B196185;
-        Fri, 17 Jul 2020 17:34:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to;
- s=corp-2020-01-29; bh=cifHzIcoftN1NjY2VgZBGvbry+3hcUjikyTTIwz6b+I=;
- b=Kw8MW12jaxZbEDIWxd1/ANXZGBk+CWJAjC1z+/QFX3IYh6cp9g2U3XoEvBJHyubv54uc
- 2Kjb+NmX50QkogKhdU6A1oELLrGyMyrCJDvavhHKZoSo8CBO/VXCYW220vEozbQgwTOQ
- VqI/WbZYr+Q5NxlBMeIXQR2TH/J8DhaMfxYjsLEzZVNX7Dw14r0BMbG2vYjGCWwPFZEr
- U5hR97QoquZvDMNXeH0eTp3L4CQcFd3MCbKHp8plqci2giGJ3gvWFexjVn/vS/Xhu1pz
- HLHR5Zu9+n3yupwfe5Ezy90SwuKo6khEg4DBJbMFqjcCWCvMVrYZW69TQ7rHqLztj9ux 6A== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 3275cmrhqd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 17 Jul 2020 17:34:15 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06HHXvjk071078;
-        Fri, 17 Jul 2020 17:34:15 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 32bbk0shbs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Jul 2020 17:34:14 +0000
-Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 06HHYDY6002560;
-        Fri, 17 Jul 2020 17:34:13 GMT
-Received: from anon-dhcp-152.1015granger.net (/68.61.232.219)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 17 Jul 2020 10:34:12 -0700
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Subject: Re: [Regression] "SUNRPC: Add "@len" parameter to gss_unwrap()"
- breaks NFS Kerberos on upstream stable 5.4.y
-From:   Chuck Lever <chuck.lever@oracle.com>
-In-Reply-To: <4546230.GXAFRqVoOG@keks.as.studentenwerk.mhn.de>
-Date:   Fri, 17 Jul 2020 13:34:11 -0400
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        matthew.ruffell@canonical.com,
-        linux-stable <stable@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-kernel-owner@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <650B6279-9550-4844-9375-280F11C3DC4B@oracle.com>
-References: <309E203B-8818-4E33-87F0-017E127788E2@canonical.com>
- <5619613.lOV4Wx5bFT@keks.as.studentenwerk.mhn.de>
- <0885F62B-F9D2-4248-9313-70DAA1A1DE71@oracle.com>
- <4546230.GXAFRqVoOG@keks.as.studentenwerk.mhn.de>
-To:     Pierre Sauter <pierre.sauter@stwm.de>
-X-Mailer: Apple Mail (2.3608.80.23.2.2)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9685 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxscore=0 adultscore=0
- spamscore=0 mlxlogscore=999 malwarescore=0 phishscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2007170124
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9685 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 priorityscore=1501
- bulkscore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
- impostorscore=0 malwarescore=0 mlxlogscore=999 clxscore=1015 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2007170124
+        id S1728041AbgGQRoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 13:44:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45896 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727946AbgGQRnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 13:43:15 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 773B3C0619DC
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 10:43:15 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id o22so6750703pjw.2
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 10:43:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=wrxYLXP2oheEEaGsKNp0stRrknyVueRaJu8i8kSptew=;
+        b=Vmebw9xzyFrFLgnwLQyPbu9sUxIvT3iz/LZhlggPZzdK8yi/sNJp1ISZhzAODP/aQq
+         DA1aJsmMOF5WM3+KxOc/jJOdCUMwDEegiUHYTk5QHuuuSDkU5ULxP6uWFu0Zgzte/hrz
+         inlXJ3TzZ7dygl/RRmbqjrIF3idceAZR9MaU4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=wrxYLXP2oheEEaGsKNp0stRrknyVueRaJu8i8kSptew=;
+        b=DJVbZsg2ol9fBErAv9PzAn/AXC5QRrqR5xiF7bGYMyLuaz/f0s4aaQGpZnIUAxb3NS
+         Hjw3ipxF7Ht4pH57rJBW6cPQTRRwlEWEW54S4NsiZCXQ/ZMjDI46SD6mqWhD3nK3nLJG
+         XTiizSoVbrKQwINpCUgSsJ2gwnTtnhoqNsGQ3+x9XPX/G2LVVt8Ob5EjJKbAaR5ktCrz
+         lvIjd+TW3JSvpF+4vTDWooTkt+wMjfLfDrq4Y6GlNeeI8aNNG8OcdP1KIBfhnDucScz2
+         pULBLDvYWQvdeHnSpjztL7BbrwbSYPYQVL1lOYClxtc21AwqTF9+uScnAXXlOvG0ALaO
+         EhmA==
+X-Gm-Message-State: AOAM5334ZtNVZXHvv6L/lw/sDWHCPEbRRHXhydqqPmBGOiLMsZqtVwCT
+        J5Mj1cKIZYSrAxQD253mU0oM1Q==
+X-Google-Smtp-Source: ABdhPJwUg0XMxYDUbRjKGsYc4z6GZTjsdq+bfOADQJjU8WjIWVN4iFhFlTSQL5o2BTwLAVb1iIGijw==
+X-Received: by 2002:a17:90a:9f4a:: with SMTP id q10mr11275946pjv.139.1595007795012;
+        Fri, 17 Jul 2020 10:43:15 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id d9sm8187840pfd.133.2020.07.17.10.43.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2020 10:43:13 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Scott Branden <scott.branden@broadcom.com>
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        James Morris <jmorris@namei.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jessica Yu <jeyu@kernel.org>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        KP Singh <kpsingh@google.com>, Dave Olsthoorn <dave@bewaar.me>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Peter Jones <pjones@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Boyd <stephen.boyd@linaro.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 01/13] firmware_loader: EFI firmware loader must handle pre-allocated buffer
+Date:   Fri, 17 Jul 2020 10:42:56 -0700
+Message-Id: <20200717174309.1164575-2-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200717174309.1164575-1-keescook@chromium.org>
+References: <20200717174309.1164575-1-keescook@chromium.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The EFI platform firmware fallback would clobber any pre-allocated
+buffers. Instead, correctly refuse to reallocate when too small (as
+already done in the sysfs fallback), or perform allocation normally
+when needed.
 
+Fixes: e4c2c0ff00ec ("firmware: Add new platform fallback mechanism and firm ware_request_platform()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+To aid in backporting, this change is made before moving
+kernel_read_file() to separate header/source files.
+---
+ drivers/base/firmware_loader/fallback_platform.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-> On Jul 17, 2020, at 1:29 PM, Pierre Sauter <pierre.sauter@stwm.de> =
-wrote:
->=20
-> Hi Chuck,
->=20
-> Am Donnerstag, 16. Juli 2020, 21:25:40 CEST schrieb Chuck Lever:
->> So this makes me think there's a possibility you are not using =
-upstream
->> stable kernels. I can't help if I don't know what source code and =
-commit
->> stream you are using. It also makes me question the bisect result.
->=20
-> Yes you are right, I was referring to Ubuntu kernels 5.4.0-XX. =46rom =
-the
-> discussion in the Ubuntu bugtracker I got the impression that Ubuntu =
-kernels
-> 5.4.0-XX and upstream 5.4.XX are closely related, obviously they are =
-not. The
-> bisection was done by the original bug reporter and also refers to the =
-Ubuntu
-> kernel.
->=20
-> In the meantime I tested v5.4.51 upstream, which shows no problems. =
-Sorry for
-> the bother.
-
-Pierre, thanks for confirming!
-
-Kai-Heng suspected an upstream stable commit that is missing in =
-5.4.0-40,
-but I don't have any good suggestions.
-
-
->>> My krb5 etype is aes256-cts-hmac-sha1-96.
->>=20
->> Thanks! And what is your NFS server and filesystem? It's possible =
-that the
->> client is not estimating the size of the reply correctly. Variables =
-include
->> the size of file handles, MIC verifiers, and wrap tokens.
->=20
-> The server is Debian with v4.19.130 upstream, filesystem ext4.
->=20
->> You might try:
->>=20
->> e8d70b321ecc ("SUNRPC: Fix another issue with MIC buffer space")
->=20
-> That one is actually in Ubuntus 5.4.0-40, from looking at the code.
-
---
-Chuck Lever
-
-
+diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
+index cdd2c9a9f38a..685edb7dd05a 100644
+--- a/drivers/base/firmware_loader/fallback_platform.c
++++ b/drivers/base/firmware_loader/fallback_platform.c
+@@ -25,7 +25,10 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
+ 	if (rc)
+ 		return rc; /* rc == -ENOENT when the fw was not found */
+ 
+-	fw_priv->data = vmalloc(size);
++	if (fw_priv->data && size > fw_priv->allocated_size)
++		return -ENOMEM;
++	if (!fw_priv->data)
++		fw_priv->data = vmalloc(size);
+ 	if (!fw_priv->data)
+ 		return -ENOMEM;
+ 
+-- 
+2.25.1
 
