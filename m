@@ -2,222 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25793224091
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 18:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C75224174
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726256AbgGQQ3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 12:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726221AbgGQQ3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 12:29:43 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0957C0619D2
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 09:29:42 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d1so5654702plr.8
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 09:29:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=n8JVGaMe3Z44B7qoi2FAKTE2Sz25ES+TtQruPDJLrb8=;
-        b=oqmGv/+wl51r1UohOpSYYZD6WubpEdix2egWgsZ3COTAh6SUkP5LKZwq9H0fXOeLy0
-         kRwOdaUTx8fvpJMQv4WEiMPtuNYcnid9prd6apeSfEEGwZ5Xe9ypQdQWS5jKZmKg3j1H
-         2AK6Lk/AkNPnmOqsw1Qbmz2JUp3dPlbNzQ2ZlzskuI6Qwnba99obldtxh+RybJy5pLu4
-         k+G+l9eunoPElkJDf1soMn73eb2ikvblHWynRVDQt647yGDwWCykOP6kQaAIPKurPyRN
-         Zj2BAQN9UWsdIAlHCv12rbFE1BlZIYv8w9sOKvdLOUPnlACfHlTv5V/MF99b3q0fn0mS
-         0KyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=n8JVGaMe3Z44B7qoi2FAKTE2Sz25ES+TtQruPDJLrb8=;
-        b=E19jsoQHSnEJnq8T+59qRQedYpMRF7F9fmh5l30kTp6Hc9PN/8yneTJhEbFvE0fF86
-         5yBQ9EwwKa2Ed2Kq59+pQcNVJ8rfQg5//hh36XMi4ya4I3bmXqB8ytwPRDUJ4bEsppvm
-         IzlnJLGyB7Wqff0A9CaqZ24YeGVgAhvIoN49duIo3CjLeI0h1WrqztZYtW2gnvSX0+qr
-         50qABr0V5EScVAulB3ntWvO4q+L/6syVpjc4KCp2pz240BcaNbSDGiyRM58qBSsSUH6S
-         Hbku1jm3faSgu6PUIQlFZxx53me33NvMvit0C2FMjLA5YJX/NzrMoZNZjGlAmE/iX2wV
-         aLOw==
-X-Gm-Message-State: AOAM532Y34RoVuHgpFB1BBVfYKuTnNDEv3a82cXUgiGj7AcUV+iS/L/9
-        6qyN7PuqeMiBedFSMAvCzY8jASH+yRY=
-X-Google-Smtp-Source: ABdhPJzMQy0RrFzNbNG7ArfcDmXPG/dCC/ydOEN6/7PayZ06v8g2lbDrsDoYNsIO+Xkx9lnnqdi/gA==
-X-Received: by 2002:a17:90a:1f08:: with SMTP id u8mr11148500pja.154.1595003381134;
-        Fri, 17 Jul 2020 09:29:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d18sm3264638pjv.25.2020.07.17.09.29.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2020 09:29:40 -0700 (PDT)
-Message-ID: <5f11d1f4.1c69fb81.9a6d1.ad0b@mx.google.com>
-Date:   Fri, 17 Jul 2020 09:29:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.7.9-32-g83669367670a
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.7.y
-Subject: stable-rc/linux-5.7.y baseline: 113 runs,
- 4 regressions (v5.7.9-32-g83669367670a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726901AbgGQRIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 13:08:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46022 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726393AbgGQRIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 13:08:44 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDC5020717;
+        Fri, 17 Jul 2020 17:08:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595005724;
+        bh=iszOuuRFn0grWAUjNr1O+f5aLxO1F5cAvHJyL0IRrX0=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=j65yTO6VC/N6CizIUMdmLQpOElnJz20fK3fWfiRPCFgb1FqgutmAO1OtBPYmG2ZEi
+         rfkduxC+dAFVdh1VKwY7kixJROlVO42pRrrg+vOVNz5RPqTwuoww2Iw4LP3YqJfDD+
+         GqDoW1SZgWUBu3GL8q8xbVskkLux+osyzcqvjmCk=
+Date:   Fri, 17 Jul 2020 17:08:42 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Coly Li <colyli@suse.de>
+To:     linux-bcache@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] bcche: fix overflow in offset_to_stripe()
+In-Reply-To: <20200713111501.19061-2-colyli@suse.de>
+References: <20200713111501.19061-2-colyli@suse.de>
+Message-Id: <20200717170843.CDC5020717@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.7.y baseline: 113 runs, 4 regressions (v5.7.9-32-g8366936=
-7670a)
+Hi
 
-Regressions Summary
--------------------
+[This is an automated email]
 
-platform                | arch  | lab          | compiler | defconfig      =
-    | results
-------------------------+-------+--------------+----------+----------------=
-----+--------
-at91-sama5d4_xplained   | arm   | lab-baylibre | gcc-8    | sama5_defconfig=
-    | 0/1    =
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-meson-gxl-s905d-p230    | arm64 | lab-baylibre | gcc-8    | defconfig      =
-    | 0/1    =
+The bot has tested the following trees: v5.7.8, v5.4.51, v4.19.132, v4.14.188, v4.9.230, v4.4.230.
 
-omap3-beagle-xm         | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig | 0/1    =
+v5.7.8: Build OK!
+v5.4.51: Build OK!
+v4.19.132: Build OK!
+v4.14.188: Failed to apply! Possible dependencies:
+    1d316e658374f ("bcache: implement PI controller for writeback rate")
+    25d8be77e1922 ("block: move bio_alloc_pages() to bcache")
+    27a40ab9269e7 ("bcache: add backing_request_endio() for bi_end_io")
+    2831231d4c3f9 ("bcache: reduce cache_set devices iteration by devices_max_used")
+    3b304d24a718a ("bcache: convert cached_dev.count from atomic_t to refcount_t")
+    3fd47bfe55b00 ("bcache: stop dc->writeback_rate_update properly")
+    5138ac6748e38 ("bcache: fix misleading error message in bch_count_io_errors()")
+    539d39eb27083 ("bcache: fix wrong return value in bch_debug_init()")
+    5fa89fb9a86bc ("bcache: don't write back data if reading it failed")
+    6f10f7d1b02b1 ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
+    771f393e8ffc9 ("bcache: add CACHE_SET_IO_DISABLE to struct cache_set flags")
+    7ba0d830dc0e4 ("bcache: set error_limit correctly")
+    7e027ca4b534b ("bcache: add stop_when_cache_set_failed option to backing device")
+    804f3c6981f5e ("bcache: fix cached_dev->count usage for bch_cache_set_error()")
+    a8500fc816b19 ("bcache: rearrange writeback main thread ratelimit")
+    b1092c9af9ed8 ("bcache: allow quick writeback when backing idle")
+    bc082a55d25c8 ("bcache: fix inaccurate io state for detached bcache devices")
+    c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-    | 0/1    =
+v4.9.230: Failed to apply! Possible dependencies:
+    1d316e658374f ("bcache: implement PI controller for writeback rate")
+    2831231d4c3f9 ("bcache: reduce cache_set devices iteration by devices_max_used")
+    297e3d8547848 ("blk-throttle: make throtl_slice tunable")
+    3fd47bfe55b00 ("bcache: stop dc->writeback_rate_update properly")
+    4e4cbee93d561 ("block: switch bios to blk_status_t")
+    5138ac6748e38 ("bcache: fix misleading error message in bch_count_io_errors()")
+    6f10f7d1b02b1 ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
+    7e027ca4b534b ("bcache: add stop_when_cache_set_failed option to backing device")
+    87760e5eef359 ("block: hook up writeback throttling")
+    9e234eeafbe17 ("blk-throttle: add a simple idle detection")
+    c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
+    cf43e6be865a5 ("block: add scalable completion tracking of requests")
+    e806402130c9c ("block: split out request-only flags into a new namespace")
+    fbbaf700e7b16 ("block: trace completion of all bios.")
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
-el/v5.7.9-32-g83669367670a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.7.y
-  Describe: v5.7.9-32-g83669367670a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      83669367670a429e399df551489a52116fd98c96 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | results
-------------------------+-------+--------------+----------+----------------=
-----+--------
-at91-sama5d4_xplained   | arm   | lab-baylibre | gcc-8    | sama5_defconfig=
-    | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f119e2b8a88b427bf85bb3e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d=
-4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d=
-4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f119e2b8a88b427bf85b=
-b3f
-      failing since 0 day (last pass: v5.7.8-167-gc2fb28a4b6e4, first fail:=
- v5.7.9) =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | results
-------------------------+-------+--------------+----------+----------------=
-----+--------
-meson-gxl-s905d-p230    | arm64 | lab-baylibre | gcc-8    | defconfig      =
-    | 0/1    =
+v4.4.230: Failed to apply! Possible dependencies:
+    005411ea7ee77 ("doc: update block/queue-sysfs.txt entries")
+    1d316e658374f ("bcache: implement PI controller for writeback rate")
+    2831231d4c3f9 ("bcache: reduce cache_set devices iteration by devices_max_used")
+    297e3d8547848 ("blk-throttle: make throtl_slice tunable")
+    38f8baae89056 ("block: factor out chained bio completion")
+    3fd47bfe55b00 ("bcache: stop dc->writeback_rate_update properly")
+    4e4cbee93d561 ("block: switch bios to blk_status_t")
+    511cbce2ff8b9 ("irq_poll: make blk-iopoll available outside the block layer")
+    5138ac6748e38 ("bcache: fix misleading error message in bch_count_io_errors()")
+    6f10f7d1b02b1 ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
+    7e027ca4b534b ("bcache: add stop_when_cache_set_failed option to backing device")
+    87760e5eef359 ("block: hook up writeback throttling")
+    9467f85960a31 ("blk-mq/cpu-notif: Convert to new hotplug state machine")
+    9e234eeafbe17 ("blk-throttle: add a simple idle detection")
+    af3e3a5259e35 ("block: don't unecessarily clobber bi_error for chained bios")
+    ba8c6967b7391 ("block: cleanup bio_endio")
+    c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
+    cf43e6be865a5 ("block: add scalable completion tracking of requests")
+    e57690fe009b2 ("blk-mq: don't overwrite rq->mq_ctx")
+    fbbaf700e7b16 ("block: trace completion of all bios.")
 
 
-  Details:     https://kernelci.org/test/plan/id/5f119ff7565d5513b785bb22
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905d=
--p230.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905d=
--p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
+How should we proceed with this patch?
 
-
-  * baseline.login: https://kernelci.org/test/case/id/5f119ff7565d5513b785b=
-b23
-      new failure (last pass: v5.7.9) =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | results
-------------------------+-------+--------------+----------+----------------=
-----+--------
-omap3-beagle-xm         | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f11a058cc4f2290bb85bb33
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-be=
-agle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-be=
-agle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f11a058cc4f2290bb85b=
-b34
-      new failure (last pass: v5.7.9) =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | results
-------------------------+-------+--------------+----------+----------------=
-----+--------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-    | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f119f420df796681385bb5e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banana=
-pi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.9-3=
-2-g83669367670a/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banana=
-pi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f119f420df796681385b=
-b5f
-      new failure (last pass: v5.7.9) =20
+-- 
+Thanks
+Sasha
