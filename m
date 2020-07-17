@@ -2,132 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3610E223E19
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 16:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7803B223E78
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 16:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgGQOe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 10:34:58 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:42804 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726198AbgGQOe6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 10:34:58 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06HEXhD0033219;
-        Fri, 17 Jul 2020 14:34:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2020-01-29; bh=sC82X1Ql6Y+RsP6ymT7mIIOgEdvX7Xx89bBouH4vdWA=;
- b=JPQxJ9YLMSqNwkV8Rj+V9TNkk7ZrUA0Q5oZEDxGcZ4nFsg3idI0nMP6c3NplFmyYiMK+
- ZVfF6fQcWYQWKD3tsEoFlkFEVD7VIH+XEUriVJCm5ets2E2H1AcuJhNni0R7i5Srgl6Z
- XmWcdzu7CnU0F/GTgsALhswC2zWW5RLobM8kyFvC7nNpCksWHeMv4EzW2ne7HWvpMvOW
- K6B4YSR6DmHUiS8J5Fx4CTWzNJIpmedXb6RXzwEqan03XiJpr9h3UikSIP+0jzyY+Sem
- BhWMI5VA/emzIxqrP4+zgg/NDsUQlBxbOsneliea50eH5ca4NjZzG/2EY77Yfs4uhhTH Ew== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 3275cmqk6f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 17 Jul 2020 14:34:30 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06HEXsXb113559;
-        Fri, 17 Jul 2020 14:34:30 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by userp3020.oracle.com with ESMTP id 32bbk0g0b0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 17 Jul 2020 14:34:30 +0000
-Received: from userp3020.oracle.com (userp3020.oracle.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 06HEYTxn114997;
-        Fri, 17 Jul 2020 14:34:29 GMT
-Received: from localhost.localdomain (dhcp-10-175-216-252.vpn.oracle.com [10.175.216.252])
-        by userp3020.oracle.com with ESMTP id 32bbk0g09m-1;
-        Fri, 17 Jul 2020 14:34:29 +0000
-From:   gregory.herrero@oracle.com
-To:     linux-kernel@vger.kernel.org
-Cc:     rostedt@goodmis.org, stable@vger.kernel.org,
-        Gregory Herrero <gregory.herrero@oracle.com>
-Subject: [PATCH] recordmcount: only record relocation of type R_AARCH64_CALL26 on arm64.
-Date:   Fri, 17 Jul 2020 16:33:38 +0200
-Message-Id: <20200717143338.19302-1-gregory.herrero@oracle.com>
-X-Mailer: git-send-email 2.27.0
+        id S1726201AbgGQOnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 10:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51596 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726104AbgGQOnU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 10:43:20 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41B7E22B4D;
+        Fri, 17 Jul 2020 14:43:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594996999;
+        bh=kfIT860OGYjpsG+nnhvbf8g/TLaZHhOpaJXIoOPMX4k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CtmQXYemaxq5EZM3qammzH9eXI+H3tIAZbwTf1FIOvkKux2il9kBx8+m0GP3sZGVJ
+         yiyiFCcl0C04iZ8omtucXb3T4HxWEcBwG9Vq94CCPlfzmb8UATfR9ys9FrqWQCz0aP
+         tdactR5dpsJmLPN0Y4uFVqZbHsv8hZ4i3nc6+Sgk=
+Date:   Fri, 17 Jul 2020 10:43:18 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Karol Herbst <kherbst@redhat.com>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>,
+        Linux PCI <linux-pci@vger.kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lyude Paul <lyude@redhat.com>,
+        nouveau <nouveau@lists.freedesktop.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Patrick Volkerding <volkerdi@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        stable@vger.kernel.org
+Subject: Re: nouveau regression with 5.7 caused by "PCI/PM: Assume ports
+ without DLL Link Active train links in 100 ms"
+Message-ID: <20200717144318.GP2722994@sasha-vm>
+References: <CACO55tuA+XMgv=GREf178NzTLTHri4kyD5mJjKuDpKxExauvVg@mail.gmail.com>
+ <20200716235440.GA675421@bjorn-Precision-5520>
+ <CACO55tuVJHjEbsW657ToczN++_iehXA8pimPAkzc=NOnx4Ztnw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9684 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 priorityscore=1501
- bulkscore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
- impostorscore=0 malwarescore=0 mlxlogscore=999 clxscore=1011 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2007170107
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CACO55tuVJHjEbsW657ToczN++_iehXA8pimPAkzc=NOnx4Ztnw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory Herrero <gregory.herrero@oracle.com>
+On Fri, Jul 17, 2020 at 02:43:52AM +0200, Karol Herbst wrote:
+>On Fri, Jul 17, 2020 at 1:54 AM Bjorn Helgaas <helgaas@kernel.org> wrote:
+>>
+>> [+cc Sasha -- stable kernel regression]
+>> [+cc Patrick, Kai-Heng, LKML]
+>>
+>> On Fri, Jul 17, 2020 at 12:10:39AM +0200, Karol Herbst wrote:
+>> > On Tue, Jul 7, 2020 at 9:30 PM Karol Herbst <kherbst@redhat.com> wrote:
+>> > >
+>> > > Hi everybody,
+>> > >
+>> > > with the mentioned commit Nouveau isn't able to load firmware onto the
+>> > > GPU on one of my systems here. Even though the issue doesn't always
+>> > > happen I am quite confident this is the commit breaking it.
+>> > >
+>> > > I am still digging into the issue and trying to figure out what
+>> > > exactly breaks, but it shows up in different ways. Either we are not
+>> > > able to boot the engines on the GPU or the GPU becomes unresponsive.
+>> > > Btw, this is also a system where our runtime power management issue
+>> > > shows up, so maybe there is indeed something funky with the bridge
+>> > > controller.
+>> > >
+>> > > Just pinging you in case you have an idea on how this could break Nouveau
+>> > >
+>> > > most of the times it shows up like this:
+>> > > nouveau 0000:01:00.0: acr: AHESASC binary failed
+>> > >
+>> > > Sometimes it works at boot and fails at runtime resuming with random
+>> > > faults. So I will be investigating a bit more, but yeah... I am super
+>> > > sure the commit triggered this issue, no idea if it actually causes
+>> > > it.
+>> >
+>> > so yeah.. I reverted that locally and never ran into issues again.
+>> > Still valid on latest 5.7. So can we get this reverted or properly
+>> > fixed? This breaks runtime pm for us on at least some hardware.
+>>
+>> Yeah, that stinks.  We had another similar report from Patrick:
+>>
+>>   https://lore.kernel.org/r/CAErSpo5sTeK_my1dEhWp7aHD0xOp87+oHYWkTjbL7ALgDbXo-Q@mail.gmail.com
+>>
+>> Apparently the problem is ec411e02b7a2 ("PCI/PM: Assume ports without
+>> DLL Link Active train links in 100 ms"), which Patrick found was
+>> backported to v5.4.49 as 828b192c57e8, and you found was backported to
+>> v5.7.6 as afaff825e3a4.
+>>
+>> Oddly, Patrick reported that v5.7.7 worked correctly, even though it
+>> still contains afaff825e3a4.
+>>
+>> I guess in the absence of any other clues we'll have to revert it.
+>> I hate to do that because that means we'll have slow resume of
+>> Thunderbolt-connected devices again, but that's better than having
+>> GPUs completely broken.
+>>
+>> Could you and Patrick open bugzilla.kernel.org reports, attach dmesg
+>> logs and "sudo lspci -vv" output, and add the URLs to Kai-Heng's
+>> original report at https://bugzilla.kernel.org/show_bug.cgi?id=206837
+>> and to this thread?
+>>
+>> There must be a way to fix the slow resume problem without breaking
+>> the GPUs.
+>>
+>
+>I wouldn't be surprised if this is related to the Intel bridge we
+>check against for Nouveau.. I still have to check on another laptop
+>with the same bridge our workaround was required as well but wouldn't
+>be surprised if it shows the same problem. Will get you the
+>information from both systems tomorrow then.
 
-Currently, if a section has a relocation to '_mcount' symbol, a new
-__mcount_loc entry will be added whatever the relocation type is.
-This is problematic when a relocation to '_mcount' is in the middle of a
-section and is not a call for ftrace use.
+I take it that ec411e02b7a2 will be reverted upstream?
 
-Such relocation could be generated with below code for example:
-    bool is_mcount(unsigned long addr)
-    {
-        return (target == (unsigned long) &_mcount);
-    }
-
-With this snippet of code, ftrace will try to patch the mcount location
-generated by this code on module load and fail with:
-
-    Call trace:
-     ftrace_bug+0xa0/0x28c
-     ftrace_process_locs+0x2f4/0x430
-     ftrace_module_init+0x30/0x38
-     load_module+0x14f0/0x1e78
-     __do_sys_finit_module+0x100/0x11c
-     __arm64_sys_finit_module+0x28/0x34
-     el0_svc_common+0x88/0x194
-     el0_svc_handler+0x38/0x8c
-     el0_svc+0x8/0xc
-    ---[ end trace d828d06b36ad9d59 ]---
-    ftrace failed to modify
-    [<ffffa2dbf3a3a41c>] 0xffffa2dbf3a3a41c
-     actual:   66:a9:3c:90
-    Initializing ftrace call sites
-    ftrace record flags: 2000000
-     (0)
-    expected tramp: ffffa2dc6cf66724
-
-So Limit the relocation type to R_AARCH64_CALL26 as in perl version of
-recordmcount.
-
-Fixes: ed60453fa8f8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
-Signed-off-by: Gregory Herrero <gregory.herrero@oracle.com>
----
- scripts/recordmcount.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
-index 7225107a9aaf..e59022b3f125 100644
---- a/scripts/recordmcount.c
-+++ b/scripts/recordmcount.c
-@@ -434,6 +434,11 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
- 	return 1;
- }
- 
-+static int arm64_is_fake_mcount(Elf64_Rel const *rp)
-+{
-+	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
-+}
-+
- /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
-  * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
-  * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
-@@ -547,6 +552,7 @@ static int do_file(char const *const fname)
- 		make_nop = make_nop_arm64;
- 		rel_type_nop = R_AARCH64_NONE;
- 		ideal_nop = ideal_nop4_arm64;
-+		is_fake_mcount64 = arm64_is_fake_mcount;
- 		break;
- 	case EM_IA_64:	reltype = R_IA64_IMM64; break;
- 	case EM_MIPS:	/* reltype: e_class    */ break;
 -- 
-2.27.0
-
+Thanks,
+Sasha
