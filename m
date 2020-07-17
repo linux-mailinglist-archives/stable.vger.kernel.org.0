@@ -2,158 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE631223F24
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 17:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8FE223F57
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 17:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726229AbgGQPJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 11:09:02 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:60547 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726210AbgGQPJC (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 17 Jul 2020 11:09:02 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 68CD1F54;
-        Fri, 17 Jul 2020 11:09:01 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 17 Jul 2020 11:09:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RQ2EWv
-        H6H/FHOexdT5GdekIdx8vI6AmKqCrcHPQJ6yQ=; b=kp2C02etJvhVyDSP6WFfV/
-        OE9Y8RUSJbq9wbQB8Fd1UI8kPMEMGGZmhzgFL68DSv487KAJI+nas9ivFSMRByrM
-        lCBiYVwG7gyFDlKEovkFNieWXbJ8UatnukZdUD1SGAeJcGDl2m04wsWNKRdxiK6a
-        6IGjEXKpPX0U2UKGS0E1t5L67hz6slInTMaKDQuGqINDRTQ1UeCvPT1d/qEV9F9N
-        Vxu25aYvFDxZNi7/gJZeh2eRAYmNytFWW1duOrPdyzOwW6jVVqSAvu77q/6mgVkY
-        IgKtdkEkE29v53ZAo4k6teRozUPIXX9GmvaKl7Guu3PoWNfWw4m/F7tD1kXn2bqQ
-        ==
-X-ME-Sender: <xms:DL8RX_L6KqufEj3TAUfJgLu0NolWfUfJ7bLymKhSKJf8kQKVbZFSRg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfeeigdekfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:DL8RXzJh0PkRkE6MWdNM0irv64Pv5mBPWuoCMTlURyERX-_vYzo0Sw>
-    <xmx:DL8RX3umhIJT1RfFNXKUQsG9vcdZBwi70R0Ht5zh44x56OXK5fJVdw>
-    <xmx:DL8RX4bQVCjtYSEij9s5S8n9qU-BzOjNOF9d6zhgr1Ak4rsfuxreBw>
-    <xmx:Db8RX_D3k9P5KimRHehzpsswJ52zh5c1RDKEXx3DD_g72bo_NBojhgdiPUM>
+        id S1726691AbgGQPSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 11:18:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44436 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726071AbgGQPSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 11:18:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0B33C328006A;
-        Fri, 17 Jul 2020 11:08:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio:humidity:hts221 Fix alignment and data leak issues" failed to apply to 4.14-stable tree
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        lars@metafoo.de, lorenzo@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Jul 2020 17:08:52 +0200
-Message-ID: <1594998532206185@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA702204EA;
+        Fri, 17 Jul 2020 15:18:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594999122;
+        bh=f1BtxKJaxkXjtdYFh9DQbVUURSaaQKnBnQ/oI8xfcDk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vq06lZsj+1EQOKS9xGWyG+EaFbACKC145UCtY5yIj5mOPNqf/XN2JYOteJ9eMx9Rj
+         dIoLHk8Y0Z7kJbGq+LeSWS0lFba4jbbO3yQGLRbUIwMwvqGQKaWiXbhq4O3CsX+QrE
+         dd1XEHTJ54GhVArVpb630Y71mK3/JzwltRon+/v0=
+Date:   Fri, 17 Jul 2020 17:18:33 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     gregory.herrero@oracle.com
+Cc:     linux-kernel@vger.kernel.org, rostedt@goodmis.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] recordmcount: only record relocation of type
+ R_AARCH64_CALL26 on arm64.
+Message-ID: <20200717151833.GA3403494@kroah.com>
+References: <20200717143338.19302-1-gregory.herrero@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200717143338.19302-1-gregory.herrero@oracle.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jul 17, 2020 at 04:33:38PM +0200, gregory.herrero@oracle.com wrote:
+> From: Gregory Herrero <gregory.herrero@oracle.com>
+> 
+> Currently, if a section has a relocation to '_mcount' symbol, a new
+> __mcount_loc entry will be added whatever the relocation type is.
+> This is problematic when a relocation to '_mcount' is in the middle of a
+> section and is not a call for ftrace use.
+> 
+> Such relocation could be generated with below code for example:
+>     bool is_mcount(unsigned long addr)
+>     {
+>         return (target == (unsigned long) &_mcount);
+>     }
+> 
+> With this snippet of code, ftrace will try to patch the mcount location
+> generated by this code on module load and fail with:
+> 
+>     Call trace:
+>      ftrace_bug+0xa0/0x28c
+>      ftrace_process_locs+0x2f4/0x430
+>      ftrace_module_init+0x30/0x38
+>      load_module+0x14f0/0x1e78
+>      __do_sys_finit_module+0x100/0x11c
+>      __arm64_sys_finit_module+0x28/0x34
+>      el0_svc_common+0x88/0x194
+>      el0_svc_handler+0x38/0x8c
+>      el0_svc+0x8/0xc
+>     ---[ end trace d828d06b36ad9d59 ]---
+>     ftrace failed to modify
+>     [<ffffa2dbf3a3a41c>] 0xffffa2dbf3a3a41c
+>      actual:   66:a9:3c:90
+>     Initializing ftrace call sites
+>     ftrace record flags: 2000000
+>      (0)
+>     expected tramp: ffffa2dc6cf66724
+> 
+> So Limit the relocation type to R_AARCH64_CALL26 as in perl version of
+> recordmcount.
+> 
+> Fixes: ed60453fa8f8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
+> Signed-off-by: Gregory Herrero <gregory.herrero@oracle.com>
+> ---
+>  scripts/recordmcount.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
+> index 7225107a9aaf..e59022b3f125 100644
+> --- a/scripts/recordmcount.c
+> +++ b/scripts/recordmcount.c
+> @@ -434,6 +434,11 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
+>  	return 1;
+>  }
+>  
+> +static int arm64_is_fake_mcount(Elf64_Rel const *rp)
+> +{
+> +	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
+> +}
+> +
+>  /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
+>   * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
+>   * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
+> @@ -547,6 +552,7 @@ static int do_file(char const *const fname)
+>  		make_nop = make_nop_arm64;
+>  		rel_type_nop = R_AARCH64_NONE;
+>  		ideal_nop = ideal_nop4_arm64;
+> +		is_fake_mcount64 = arm64_is_fake_mcount;
+>  		break;
+>  	case EM_IA_64:	reltype = R_IA64_IMM64; break;
+>  	case EM_MIPS:	/* reltype: e_class    */ break;
+> -- 
+> 2.27.0
+> 
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+<formletter>
 
-thanks,
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 5c49056ad9f3c786f7716da2dd47e4488fc6bd25 Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 7 Jun 2020 16:53:53 +0100
-Subject: [PATCH] iio:humidity:hts221 Fix alignment and data leak issues
-
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
-This data is allocated with kzalloc so no data can leak
-apart from previous readings.
-
-Explicit alignment of ts needed to ensure consistent padding
-on all architectures (particularly x86_32 with it's 4 byte alignment
-of s64)
-
-Fixes: e4a70e3e7d84 ("iio: humidity: add support to hts221 rh/temp combo device")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
-
-diff --git a/drivers/iio/humidity/hts221.h b/drivers/iio/humidity/hts221.h
-index 7d6771f7cf47..b2eb5abeaccd 100644
---- a/drivers/iio/humidity/hts221.h
-+++ b/drivers/iio/humidity/hts221.h
-@@ -14,8 +14,6 @@
- 
- #include <linux/iio/iio.h>
- 
--#define HTS221_DATA_SIZE	2
--
- enum hts221_sensor_type {
- 	HTS221_SENSOR_H,
- 	HTS221_SENSOR_T,
-@@ -39,6 +37,11 @@ struct hts221_hw {
- 
- 	bool enabled;
- 	u8 odr;
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		__le16 channels[2];
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- extern const struct dev_pm_ops hts221_pm_ops;
-diff --git a/drivers/iio/humidity/hts221_buffer.c b/drivers/iio/humidity/hts221_buffer.c
-index 9fb3f33614d4..ba7d413d75ba 100644
---- a/drivers/iio/humidity/hts221_buffer.c
-+++ b/drivers/iio/humidity/hts221_buffer.c
-@@ -160,7 +160,6 @@ static const struct iio_buffer_setup_ops hts221_buffer_ops = {
- 
- static irqreturn_t hts221_buffer_handler_thread(int irq, void *p)
- {
--	u8 buffer[ALIGN(2 * HTS221_DATA_SIZE, sizeof(s64)) + sizeof(s64)];
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *iio_dev = pf->indio_dev;
- 	struct hts221_hw *hw = iio_priv(iio_dev);
-@@ -170,18 +169,20 @@ static irqreturn_t hts221_buffer_handler_thread(int irq, void *p)
- 	/* humidity data */
- 	ch = &iio_dev->channels[HTS221_SENSOR_H];
- 	err = regmap_bulk_read(hw->regmap, ch->address,
--			       buffer, HTS221_DATA_SIZE);
-+			       &hw->scan.channels[0],
-+			       sizeof(hw->scan.channels[0]));
- 	if (err < 0)
- 		goto out;
- 
- 	/* temperature data */
- 	ch = &iio_dev->channels[HTS221_SENSOR_T];
- 	err = regmap_bulk_read(hw->regmap, ch->address,
--			       buffer + HTS221_DATA_SIZE, HTS221_DATA_SIZE);
-+			       &hw->scan.channels[1],
-+			       sizeof(hw->scan.channels[1]));
- 	if (err < 0)
- 		goto out;
- 
--	iio_push_to_buffers_with_timestamp(iio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(iio_dev, &hw->scan,
- 					   iio_get_time_ns(iio_dev));
- 
- out:
-
+</formletter>
