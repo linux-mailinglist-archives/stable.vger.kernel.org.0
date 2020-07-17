@@ -2,102 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C75DA223FDA
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 17:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63447223FEC
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 17:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726256AbgGQPqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 11:46:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55986 "EHLO
+        id S1726322AbgGQPuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 11:50:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726233AbgGQPqd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 11:46:33 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D8CC0619D2
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 08:46:33 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id b92so6528406pjc.4
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 08:46:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=KDjARDrAABCR1QhOWtYwrzkNutZQfhPK2WokrRR3P5Q=;
-        b=ENLbP/DgoabllMldo4dQAjI43wkqK0MEGk9JhSn6e7lKGL4p9C8Mwvo5QcY4A4vjZp
-         kCh3A8cuW+P5wr9OB28edFJQZvW+7omgMScH7FN0xaSBCDbLw0LRoQ1XPMd5brHQtNSZ
-         432iTa62Qz2g1DRZ8AI4sJppUur+3hhx+xglsgg+apbN2idjrkmQxCsy/t8O3ANH21OK
-         JZI8dDUoDgQRwiKm58KMu7XYkJWBU1t/n+ljAVOYicg9dOFIOObJrZaY8xnRl1Kh5aqH
-         ACWQZMqXr+k952BkZl4thWVj5Yks+2zNdeFKAEBKn1pbIVNe2KUhi6wMN/Bwx+ceqmUM
-         BLUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=KDjARDrAABCR1QhOWtYwrzkNutZQfhPK2WokrRR3P5Q=;
-        b=ufDE8uAUuVE6gqJxB0KOOsUqG6ys8gUyOwbC7hY72JyaUnk0KRq0zx4J/w/KkKgxxP
-         euxYAhdnI9befGW8cq5Kns9ww7T5NYXDSsM5zNB9C2+Zrkgot1mngX/ofufa4YTI1AND
-         a0ezhC/c5CsuJY0ctRtX44eY4V1zexA1aBw8EwoUnptGxY0HFqURke8oA+B5ZAh0B7om
-         q7zIyv5EGt5admD7SNJOG8NfBe+z2dA/2lBhO18pKN81K8t7WpzumEZDjpyZwyYqyze6
-         yQZFFbrjkO9cD4LELTDdr7uAMpOYIzJgjE8AVtAjA5pPzYlNwiCUVPwLmq+WCPiuPBiJ
-         dUPw==
-X-Gm-Message-State: AOAM5338ljjW06w/LCfxfrvjk+LfpYEKuPLgnnxnPeWpTCKekipsrqBX
-        hXWLCZY5mkMk8zUlU8Y0x7fPB92vNXV24bgBaQo=
-X-Google-Smtp-Source: ABdhPJwZaSwsZN7pXNlOvHma3DH7yLXMcXTsqnlHcxBt8WawisYfEeF5To/iuLrFEoGyh0rlf9W36PFYJVu2YsufAOQ=
-X-Received: by 2002:a17:90b:1249:: with SMTP id gx9mr10729704pjb.149.1595000792491;
- Fri, 17 Jul 2020 08:46:32 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: mr_mohammadahmed62@yahoo.com
-Received: by 2002:a17:90a:ff95:0:0:0:0 with HTTP; Fri, 17 Jul 2020 08:46:32
- -0700 (PDT)
-From:   Mohammad Ahmed <mohamadahmed0055@gmail.com>
-Date:   Fri, 17 Jul 2020 08:46:32 -0700
-X-Google-Sender-Auth: 3wNlZyE0xzlqhEB4PnOlvGmbV5I
-Message-ID: <CAKtYdpz_G2-1YN1Eu9BcKHNrRzTsVK2kAQWvGWnqgW5F_WDP1A@mail.gmail.com>
-Subject: GREETINGS FROM MR.MOHAMMAD AHMED / CAN I TRUST YOU?
-To:     undisclosed-recipients:;
+        with ESMTP id S1726090AbgGQPuy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 11:50:54 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 324BCC0619D2;
+        Fri, 17 Jul 2020 08:50:54 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: nicolas)
+        with ESMTPSA id EA4062A03FC
+Message-ID: <f409d4ddad0a352ca7ec84699c94a64e5dbf0407.camel@collabora.com>
+Subject: Re: [PATCH 2/2] media: coda: Add more H264 levels for CODA960
+From:   Nicolas Dufresne <nicolas.dufresne@collabora.com>
+To:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        linux-media@vger.kernel.org
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Robert Beckett <bob.beckett@collabora.com>,
+        kernel@collabora.com, stable@vger.kernel.org
+Date:   Fri, 17 Jul 2020 11:50:38 -0400
+In-Reply-To: <05184a7c923c7e2aacca9da2bafe338ff5a7c16d.camel@pengutronix.de>
+References: <20200717034923.219524-1-ezequiel@collabora.com>
+         <20200717034923.219524-2-ezequiel@collabora.com>
+         <05184a7c923c7e2aacca9da2bafe338ff5a7c16d.camel@pengutronix.de>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear Friend.
+Le vendredi 17 juillet 2020 à 09:48 +0200, Philipp Zabel a écrit :
+> Hi Ezequiel, Nicolas,
+> 
+> On Fri, 2020-07-17 at 00:49 -0300, Ezequiel Garcia wrote:
+> > From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+> > 
+> > This add H264 level 4.1, 4.2 and 5.0 to the list of supported formats.
+> > While the hardware does not fully support these levels, it do support
+> > most of them.
+> 
+> Could you clarify this? As far as I understand the hardware supports
+> maximum frame size requirement for up to level 4.2 (8704 macroblocks),
+> but not 5.0, and at least the implementation on i.MX6 does not support
+> the max encoding speed requirements for levels 4.1 and higher.
+> 
+> I don't think the firmware ever produces any output with a level higher
+> than 4.0 either, so what is the purpose of pretending otherwise?
 
-Greetings.
+The level is a combination of 3 contraints, frame size, raw bitrate and encoded
+bitrate. We have a streams here the decode just fine, that reaches 5.0 for the
+endoded bitrate, but is near 4.0 for everything else. This streams works just
+fine with the 960. I think the risk with this patch is that it now allow a
+stream to underperform in raw bitrate, but that can be controlled otherwise by
+the frame interval, so there is no need to limit it through levels.  I could be
+wrong.
 
-I know this message will come to you as a surprise; My name is Mr.
-Mohammad Ahmed a banker with Bank of Africa Burkina Faso West Africa,
-Please i want to transfer an abandoned sum of 13.5 Million United
-States Dollars into your account, if you are interested do not
-Hesitate to get back to me with your personal information listed
-bellow for trust and confident to enable me feed you with more detail
-on how the fund will be transfer into your account.
+But in public domain [0], Chips&Media seems to claim 4.2 decode, 4.0 encode. So
+yes, claiming 5.0 is off track, we will reduce this to 4.2 in v2.
 
-My dear you will provide account for transfer of the fund in your
-favor by our bank management and once the fund transferred into your
-account 50% is for you and 50% for me and do not entertain any atom
-for fear for the transaction will be done legal and official without
-any problem.
+[0] https://www.chipsnmedia.com/fullhd
 
-The transaction is risk free and there will be no harm, I will like
-you to respond back to me immediately after reading this message to
-enable us proceed ahead for mutual benefit.
+Considering how buggy and inconcistent this is going to be in decoder drivers,
+I'm tempted to just drop that restriction in GStreamer v4l2 decoders (was added
+by Philippe Normand from Igalia). Specially the bitrate limits, since it is
+quite clear from testing that this limits is only related to real-time
+performance, and that offline decoding should still be possible. Meanwhile, the
+driver should still advertise 4.1 and 4.2 decoding. But we should check the
+decoding/encoding levels are actually not the same, that I haven't checked, the
+code is a bit ... kindly said ... hairy.
 
-My  Dear  i know the source of the fund and I assure you of receiving
-it into your account without any problem, Read this message and if we
-have business urgently get back to me with your personal information
-required bellow for more details.
+> 
+> regards
+> Philipp
 
-I am looking forward to hear back from you urgently.
-
-1. Full name:.........
-2. Home Address:.........
-3. Phone.............
-4. Occupation:.............
-5. Age:............
-6. Country:........
-7. Sex........
-8. Your Passport or ID card or Driving License
-
-Thanks.
-
-Yours faithfully
-
-Mr. Mohammad Ahmed.
