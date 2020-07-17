@@ -2,139 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9031223906
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 12:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90A2223A42
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 13:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726198AbgGQKLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 06:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39262 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725864AbgGQKLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jul 2020 06:11:41 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19CAB20768;
-        Fri, 17 Jul 2020 10:11:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594980700;
-        bh=B3JoUqgGe0B0TfHfs74+zTyY6of+0qT6FMEql4yr3pY=;
-        h=Subject:To:From:Date:From;
-        b=zKlZzqNKHrWq7bYwQ7X3XyJVE+JFZjCcG4Ox2z3TqjcO6URw5R/9eoBzQ/8aDvP9G
-         QRVZ5SoJw4yfP421hIOf0ct/YVOMHIPE1GCV5rNkAqzwnoTNRuypf2XcdH9tWv2Kwu
-         7cGSdhUNUVweVysAHIpyAxQlKmNkJKLBHenAsSGk=
-Subject: patch "staging: rtl8712: handle firmware load failure" added to staging-testing
-To:     rkovhaev@gmail.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Jul 2020 12:09:12 +0200
-Message-ID: <1594980552169213@kroah.com>
+        id S1725950AbgGQLV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 07:21:58 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:40062 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725912AbgGQLV6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 07:21:58 -0400
+Date:   Fri, 17 Jul 2020 11:21:54 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1594984915;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2N7cl9Uv5C2BfTmcs6AcgRYir7yXNppoUxiGa6sKO0s=;
+        b=pHFLMjCZfl8dEb9NJli+wvKsWOyJCm4uv+kwgNehGo494JrWm7LkJaMxkUnkSUcxRmGIIB
+        JFntO7z87LrNyfSAAx8PgSVrOv48yyZPg6ppZfnLm/4CJcvgn6fkBsyzHbd2NfeVC5U+rx
+        zyBCn0jK7Yao+8CfaPF0+0sQtNEFzFpw0gam9UkEkwmEbFbR56JmT0Zc9tc+yJZZ3S00Ou
+        fSmzhH30Yg1TW8xccuf/mFopvSGDpVX5mQHI7mxYzZsW71sk3DTNxuSOQygPNjvkOrmLkB
+        e6j3JQIo7ICRPonWYMYurHcA0CCIwA2Loh8wywrcusMQEhA0dZ3WzaUgOn0QtA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1594984915;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2N7cl9Uv5C2BfTmcs6AcgRYir7yXNppoUxiGa6sKO0s=;
+        b=9SuBPK/vnOVHz/2gDXbIDl6CQbKZN0lMQ2VhrQHRA7+m65L5VQJolm6Ok2iM6aV88RZSN/
+        8ui1Oa/N0rtU8sDA==
+From:   "tip-bot2 for Vincent Guittot" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: sched/urgent] sched/fair: handle case of task_h_load() returning 0
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        <stable@vger.kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200710152426.16981-1-vincent.guittot@linaro.org>
+References: <20200710152426.16981-1-vincent.guittot@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Message-ID: <159498491467.4006.8575391976004781075.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the sched/urgent branch of tip:
 
-This is a note to let you know that I've just added the patch titled
+Commit-ID:     01cfcde9c26d8555f0e6e9aea9d6049f87683998
+Gitweb:        https://git.kernel.org/tip/01cfcde9c26d8555f0e6e9aea9d6049f87683998
+Author:        Vincent Guittot <vincent.guittot@linaro.org>
+AuthorDate:    Fri, 10 Jul 2020 17:24:26 +02:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Thu, 16 Jul 2020 23:19:48 +02:00
 
-    staging: rtl8712: handle firmware load failure
+sched/fair: handle case of task_h_load() returning 0
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-testing branch.
+task_h_load() can return 0 in some situations like running stress-ng
+mmapfork, which forks thousands of threads, in a sched group on a 224 cores
+system. The load balance doesn't handle this correctly because
+env->imbalance never decreases and it will stop pulling tasks only after
+reaching loop_max, which can be equal to the number of running tasks of
+the cfs. Make sure that imbalance will be decreased by at least 1.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+misfit task is the other feature that doesn't handle correctly such
+situation although it's probably more difficult to face the problem
+because of the smaller number of CPUs and running tasks on heterogenous
+system.
 
-The patch will be merged to the staging-next branch sometime soon,
-after it passes testing, and the merge window is open.
+We can't simply ensure that task_h_load() returns at least one because it
+would imply to handle underflow in other places.
 
-If you have any questions about this process, please let me know.
-
-
-From b4383c971bc5263efe2b0915ba67ebf2bf3f1ee5 Mon Sep 17 00:00:00 2001
-From: Rustam Kovhaev <rkovhaev@gmail.com>
-Date: Thu, 16 Jul 2020 08:13:26 -0700
-Subject: staging: rtl8712: handle firmware load failure
-
-when firmware fails to load we should not call unregister_netdev()
-this patch fixes a race condition between rtl871x_load_fw_cb() and
-r871xu_dev_remove() and fixes the bug reported by syzbot
-
-Reported-by: syzbot+80899a8a8efe8968cde7@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=80899a8a8efe8968cde7
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200716151324.1036204-1-rkovhaev@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: <stable@vger.kernel.org> # v4.4+
+Link: https://lkml.kernel.org/r/20200710152426.16981-1-vincent.guittot@linaro.org
 ---
- drivers/staging/rtl8712/hal_init.c |  3 ++-
- drivers/staging/rtl8712/usb_intf.c | 11 ++++++++---
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ kernel/sched/fair.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/hal_init.c b/drivers/staging/rtl8712/hal_init.c
-index ed51023b85a0..715f1fe8b472 100644
---- a/drivers/staging/rtl8712/hal_init.c
-+++ b/drivers/staging/rtl8712/hal_init.c
-@@ -33,7 +33,6 @@ static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
- {
- 	struct _adapter *adapter = context;
- 
--	complete(&adapter->rtl8712_fw_ready);
- 	if (!firmware) {
- 		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
- 		struct usb_interface *usb_intf = adapter->pusb_intf;
-@@ -41,11 +40,13 @@ static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
- 		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
- 		usb_put_dev(udev);
- 		usb_set_intfdata(usb_intf, NULL);
-+		complete(&adapter->rtl8712_fw_ready);
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 658aa7a..04fa8db 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4039,7 +4039,11 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
  		return;
  	}
- 	adapter->fw = firmware;
- 	/* firmware available - start netdev */
- 	register_netdev(adapter->pnetdev);
-+	complete(&adapter->rtl8712_fw_ready);
+ 
+-	rq->misfit_task_load = task_h_load(p);
++	/*
++	 * Make sure that misfit_task_load will not be null even if
++	 * task_h_load() returns 0.
++	 */
++	rq->misfit_task_load = max_t(unsigned long, task_h_load(p), 1);
  }
  
- static const char firmware_file[] = "rtlwifi/rtl8712u.bin";
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index a87562f632a7..2fcd65260f4c 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -595,13 +595,17 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
- 	if (pnetdev) {
- 		struct _adapter *padapter = netdev_priv(pnetdev);
+ #else /* CONFIG_SMP */
+@@ -7638,7 +7642,14 @@ static int detach_tasks(struct lb_env *env)
  
--		usb_set_intfdata(pusb_intf, NULL);
--		release_firmware(padapter->fw);
- 		/* never exit with a firmware callback pending */
- 		wait_for_completion(&padapter->rtl8712_fw_ready);
-+		pnetdev = usb_get_intfdata(pusb_intf);
-+		usb_set_intfdata(pusb_intf, NULL);
-+		if (!pnetdev)
-+			goto firmware_load_fail;
-+		release_firmware(padapter->fw);
- 		if (drvpriv.drv_registered)
- 			padapter->surprise_removed = true;
--		unregister_netdev(pnetdev); /* will call netdev_close() */
-+		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
-+			unregister_netdev(pnetdev); /* will call netdev_close() */
- 		flush_scheduled_work();
- 		udelay(1);
- 		/* Stop driver mlme relation timer */
-@@ -614,6 +618,7 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
- 		 */
- 		usb_put_dev(udev);
- 	}
-+firmware_load_fail:
- 	/* If we didn't unplug usb dongle and remove/insert module, driver
- 	 * fails on sitesurvey for the first time when device is up.
- 	 * Reset usb port for sitesurvey fail issue.
--- 
-2.27.0
-
-
+ 		switch (env->migration_type) {
+ 		case migrate_load:
+-			load = task_h_load(p);
++			/*
++			 * Depending of the number of CPUs and tasks and the
++			 * cgroup hierarchy, task_h_load() can return a null
++			 * value. Make sure that env->imbalance decreases
++			 * otherwise detach_tasks() will stop only after
++			 * detaching up to loop_max tasks.
++			 */
++			load = max_t(unsigned long, task_h_load(p), 1);
+ 
+ 			if (sched_feat(LB_MIN) &&
+ 			    load < 16 && !env->sd->nr_balance_failed)
