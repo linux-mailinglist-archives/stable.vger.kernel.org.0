@@ -2,39 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BCB022418A
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F714224181
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727034AbgGQRI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 13:08:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
+        id S1727026AbgGQRIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 13:08:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726936AbgGQRIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726439AbgGQRIr (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 17 Jul 2020 13:08:47 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA6FF207EA;
-        Fri, 17 Jul 2020 17:08:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E402C20717;
+        Fri, 17 Jul 2020 17:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595005726;
-        bh=n0ZG9OWBzBeO0FIjX02Ig/elKad2KmFT1sUX0+e1HDE=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=jjwVRD5c0OokjWiL0P6hRCIWWuBFW7ZS2gi8sTVqiGGyBDtb1HeUE7FRoVtQL+QOP
-         UlSb2hn2ZVMbba/acxYCposQ2r2sutKY0nmyoIFaMNZyguM6ottzk+SNcHzxc+JQMX
-         9ki9yr8FcBjK72Fxj0dquTklTcQ++fFzpHADDSiY=
-Date:   Fri, 17 Jul 2020 17:08:45 +0000
+        s=default; t=1595005727;
+        bh=nngL0ckNf8/smwBwPZWSKAozcrsj4QkjLpABavd1ntw=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:
+         In-Reply-To:References:From;
+        b=tMrGkN0UUwRSBqkwgXeS8ViNy7E7W7ZTQRfessXN68QJVXhi4u6w5iniLwjK3B3P8
+         8e3RkGNrGR3vPbNogYivIWuDEyvmN7yYUIlW7lCz8WNHo+H+s5lr2Hl7FHoHOiioBC
+         P0pouD6/7hJN6dZ3ORVKLFrPL0o/izTH6VsVdFqw=
+Date:   Fri, 17 Jul 2020 17:08:46 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Coly Li <colyli@suse.de>
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>
+To:     linux-nvme@lists.infradead.org, linux-block@vger.kernel.org
+Cc:     Coly Li <colyli@suse.de>
+Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Cc:     Christoph Hellwig <hch@lst.de>
+Cc:     Hannes Reinecke <hare@suse.de>
+Cc:     Jan Kara <jack@suse.com>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Cc:     Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+Cc:     Philipp Reisner <philipp.reisner@linbit.com>
+Cc:     Sagi Grimberg <sagi@grimberg.me>
+Cc:     Vlastimil Babka <vbabka@suse.com>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] bcache: avoid nr_stripes overflow in bcache_device_init()
-In-Reply-To: <20200712174736.9840-1-colyli@suse.de>
-References: <20200712174736.9840-1-colyli@suse.de>
-Message-Id: <20200717170845.DA6FF207EA@mail.kernel.org>
+Subject: Re: [PATCH v2] nvme-tcp: don't use sendpage for pages not taking reference counter
+In-Reply-To: <20200713124444.19640-1-colyli@suse.de>
+References: <20200713124444.19640-1-colyli@suse.de>
+Message-Id: <20200717170846.E402C20717@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -49,104 +59,38 @@ The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.7.8, v5.4.51, v4.19.132, v4.14.188, v4.9.230, v4.4.230.
 
-v5.7.8: Failed to apply! Possible dependencies:
-    46f5aa8806e34 ("bcache: Convert pr_<level> uses to a more typical style")
-
-v5.4.51: Failed to apply! Possible dependencies:
-    253a99d95d5b3 ("bcache: move macro btree() and btree_root() into btree.h")
-    46f5aa8806e34 ("bcache: Convert pr_<level> uses to a more typical style")
-    49d08d596e85f ("bcache: check return value of prio_read()")
-    8e7102273f597 ("bcache: make bch_btree_check() to be multithreaded")
-    b144e45fc5764 ("bcache: make bch_sectors_dirty_init() to be multithreaded")
-    feac1a70b8063 ("bcache: add bcache_ prefix to btree_root() and btree() macros")
-
+v5.7.8: Build OK!
+v5.4.51: Build OK!
 v4.19.132: Failed to apply! Possible dependencies:
-    0b13efecf5f25 ("bcache: add return value check to bch_cached_dev_run()")
-    253a99d95d5b3 ("bcache: move macro btree() and btree_root() into btree.h")
-    46f5aa8806e34 ("bcache: Convert pr_<level> uses to a more typical style")
-    49d08d596e85f ("bcache: check return value of prio_read()")
-    4b6efb4bdbce2 ("bcache: more detailed error message to bcache_device_link()")
-    5c2a634cbfaf1 ("bcache: stop writeback kthread and kworker when bch_cached_dev_run() failed")
-    633bb2ce60b94 ("bcache: add more error message in bch_cached_dev_attach()")
-    792732d9852c0 ("bcache: use kmemdup_nul for CACHED_LABEL buffer")
-    88c12d42d2bb6 ("bcache: add error check for calling register_bdev()")
-    8e7102273f597 ("bcache: make bch_btree_check() to be multithreaded")
-    91be66e1318f6 ("bcache: performance improvement for btree_flush_write()")
-    cb07ad63682ff ("bcache: introduce force_wake_up_gc()")
-    e0faa3d7f79f7 ("bcache: improve error message in bch_cached_dev_run()")
-    feac1a70b8063 ("bcache: add bcache_ prefix to btree_root() and btree() macros")
+    37c15219599f7 ("nvme-tcp: don't use sendpage for SLAB pages")
+    3f2304f8c6d6e ("nvme-tcp: add NVMe over TCP host driver")
 
 v4.14.188: Failed to apply! Possible dependencies:
-    1d316e658374f ("bcache: implement PI controller for writeback rate")
-    1dbe32ad0a82f ("bcache: rewrite multiple partitions support")
-    25d8be77e1922 ("block: move bio_alloc_pages() to bcache")
-    27a40ab9269e7 ("bcache: add backing_request_endio() for bi_end_io")
-    2831231d4c3f9 ("bcache: reduce cache_set devices iteration by devices_max_used")
-    3b304d24a718a ("bcache: convert cached_dev.count from atomic_t to refcount_t")
-    3fd47bfe55b00 ("bcache: stop dc->writeback_rate_update properly")
-    46f5aa8806e34 ("bcache: Convert pr_<level> uses to a more typical style")
-    5138ac6748e38 ("bcache: fix misleading error message in bch_count_io_errors()")
-    539d39eb27083 ("bcache: fix wrong return value in bch_debug_init()")
-    5f2b18ec8e164 ("bcache: Fix a compiler warning in bcache_device_init()")
-    5fa89fb9a86bc ("bcache: don't write back data if reading it failed")
-    6ae63e3501c49 ("bcache: replace printk() by pr_*() routines")
-    6f10f7d1b02b1 ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
-    771f393e8ffc9 ("bcache: add CACHE_SET_IO_DISABLE to struct cache_set flags")
-    7ba0d830dc0e4 ("bcache: set error_limit correctly")
-    7e027ca4b534b ("bcache: add stop_when_cache_set_failed option to backing device")
-    804f3c6981f5e ("bcache: fix cached_dev->count usage for bch_cache_set_error()")
-    a8500fc816b19 ("bcache: rearrange writeback main thread ratelimit")
-    b1092c9af9ed8 ("bcache: allow quick writeback when backing idle")
-    bc082a55d25c8 ("bcache: fix inaccurate io state for detached bcache devices")
-    c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
+    37c15219599f7 ("nvme-tcp: don't use sendpage for SLAB pages")
+    3f2304f8c6d6e ("nvme-tcp: add NVMe over TCP host driver")
 
 v4.9.230: Failed to apply! Possible dependencies:
-    1d316e658374f ("bcache: implement PI controller for writeback rate")
-    1dbe32ad0a82f ("bcache: rewrite multiple partitions support")
-    2831231d4c3f9 ("bcache: reduce cache_set devices iteration by devices_max_used")
-    297e3d8547848 ("blk-throttle: make throtl_slice tunable")
-    3fd47bfe55b00 ("bcache: stop dc->writeback_rate_update properly")
-    46f5aa8806e34 ("bcache: Convert pr_<level> uses to a more typical style")
-    4e4cbee93d561 ("block: switch bios to blk_status_t")
-    5138ac6748e38 ("bcache: fix misleading error message in bch_count_io_errors()")
-    5f2b18ec8e164 ("bcache: Fix a compiler warning in bcache_device_init()")
-    6ae63e3501c49 ("bcache: replace printk() by pr_*() routines")
-    6f10f7d1b02b1 ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
-    7e027ca4b534b ("bcache: add stop_when_cache_set_failed option to backing device")
-    87760e5eef359 ("block: hook up writeback throttling")
-    9e234eeafbe17 ("blk-throttle: add a simple idle detection")
-    b8c0d911ac528 ("bcache: partition support: add 16 minors per bcacheN device")
-    c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
-    cf43e6be865a5 ("block: add scalable completion tracking of requests")
-    e806402130c9c ("block: split out request-only flags into a new namespace")
-    fbbaf700e7b16 ("block: trace completion of all bios.")
+    37c15219599f7 ("nvme-tcp: don't use sendpage for SLAB pages")
+    3f2304f8c6d6e ("nvme-tcp: add NVMe over TCP host driver")
+    b1ad1475b447a ("nvme-fabrics: Add FC transport FC-NVME definitions")
+    d6d20012e1169 ("nvme-fabrics: Add FC transport LLDD api definitions")
+    e399441de9115 ("nvme-fabrics: Add host support for FC transport")
 
 v4.4.230: Failed to apply! Possible dependencies:
-    005411ea7ee77 ("doc: update block/queue-sysfs.txt entries")
-    1d316e658374f ("bcache: implement PI controller for writeback rate")
-    1dbe32ad0a82f ("bcache: rewrite multiple partitions support")
-    2831231d4c3f9 ("bcache: reduce cache_set devices iteration by devices_max_used")
-    297e3d8547848 ("blk-throttle: make throtl_slice tunable")
-    38f8baae89056 ("block: factor out chained bio completion")
-    3fd47bfe55b00 ("bcache: stop dc->writeback_rate_update properly")
-    46f5aa8806e34 ("bcache: Convert pr_<level> uses to a more typical style")
-    4e4cbee93d561 ("block: switch bios to blk_status_t")
-    511cbce2ff8b9 ("irq_poll: make blk-iopoll available outside the block layer")
-    5138ac6748e38 ("bcache: fix misleading error message in bch_count_io_errors()")
-    5f2b18ec8e164 ("bcache: Fix a compiler warning in bcache_device_init()")
-    6ae63e3501c49 ("bcache: replace printk() by pr_*() routines")
-    6f10f7d1b02b1 ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
-    7e027ca4b534b ("bcache: add stop_when_cache_set_failed option to backing device")
-    87760e5eef359 ("block: hook up writeback throttling")
-    90706094d5be6 ("bcache: pr_err: more meaningful error message when nr_stripes is invalid")
-    9467f85960a31 ("blk-mq/cpu-notif: Convert to new hotplug state machine")
-    9e234eeafbe17 ("blk-throttle: add a simple idle detection")
-    af3e3a5259e35 ("block: don't unecessarily clobber bi_error for chained bios")
-    b8c0d911ac528 ("bcache: partition support: add 16 minors per bcacheN device")
-    ba8c6967b7391 ("block: cleanup bio_endio")
-    c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
-    cf43e6be865a5 ("block: add scalable completion tracking of requests")
-    fbbaf700e7b16 ("block: trace completion of all bios.")
+    07bfcd09a2885 ("nvme-fabrics: add a generic NVMe over Fabrics library")
+    1673f1f08c887 ("nvme: move block_device_operations and ns/ctrl freeing to common code")
+    1c63dc66580d4 ("nvme: split a new struct nvme_ctrl out of struct nvme_dev")
+    21d147880e489 ("nvme: fix Kconfig description for BLK_DEV_NVME_SCSI")
+    21d34711e1b59 ("nvme: split command submission helpers out of pci.c")
+    3f2304f8c6d6e ("nvme-tcp: add NVMe over TCP host driver")
+    4160982e75944 ("nvme: split __nvme_submit_sync_cmd")
+    4490733250b8b ("nvme: make SG_IO support optional")
+    6f3b0e8bcf3cb ("blk-mq: add a flags parameter to blk_mq_alloc_request")
+    7110230719602 ("nvme-rdma: add a NVMe over Fabrics RDMA host driver")
+    a07b4970f464f ("nvmet: add a generic NVMe target")
+    b1ad1475b447a ("nvme-fabrics: Add FC transport FC-NVME definitions")
+    d6d20012e1169 ("nvme-fabrics: Add FC transport LLDD api definitions")
+    e399441de9115 ("nvme-fabrics: Add host support for FC transport")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
