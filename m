@@ -2,225 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66D052245DA
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 23:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DA52245DF
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 23:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726863AbgGQVex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 17:34:53 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:43312 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726204AbgGQVex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 17:34:53 -0400
-Date:   Fri, 17 Jul 2020 21:34:48 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1595021689;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SPWBpVP2RhRga83juGM3kt8abhmjMkgko6QmWcngcwY=;
-        b=ZliFmb8MyVLLYa2zg+x4ic5Oo4Ctx5EnF9JUmWohJQfMJtEW5uQ4ryAuVlyz7OUSD6H9lp
-        XToXcn0vfc25PIxOZf7s4Ap4filgobN7B+UyaEQez/6v+gh8eUJcmTnd/jGk/PB+Nbd2dy
-        4nuW3P/d2rjELD1D/PVZvn+CzATXYB/s5u9vn8VzmBRkY09tpNzae8nJNqSKFLlkDb0QU0
-        P0xJK4+AUpZysWr+YdSHoaoEVYb8Ndx2rlRmOqz073GGRptnjhFvWKys1LQF+mUEjqdm5Q
-        +5+jadVD4FLvggL3mZdTRd3XQAJ2xbHRytTKZf4KMVK8i5uOMZHW9gF4WDjIgg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1595021689;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SPWBpVP2RhRga83juGM3kt8abhmjMkgko6QmWcngcwY=;
-        b=ktr3L9kwtY7DWGfl/n4pCh671oMaxZK9/cFguy92C2N7QyIF9wg72ZHwo3yM83O/MaVgEy
-        YzUlZhd7YP5g7GAg==
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] genirq/affinity: Handle affinity setting on
- inactive interrupts correctly
-Cc:     Ali Saidi <alisaidi@amazon.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200529015501.15771-1-alisaidi@amazon.com>
-References: <20200529015501.15771-1-alisaidi@amazon.com>
+        id S1726512AbgGQVfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 17:35:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53554 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726204AbgGQVfP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 17:35:15 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695BAC0619D2;
+        Fri, 17 Jul 2020 14:35:15 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id 22so16796642wmg.1;
+        Fri, 17 Jul 2020 14:35:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xD3P6zxh/wy50/KlLOtT7FxG3otaDrHyxXNJVg8NnD8=;
+        b=NSOZ3AopEjuXvowHc7o3w9XALyvZl+VVgdZcNvQ/H3Bv3bwE3Eh/faSjf69MABiBCD
+         OXef1H+DLwfThk/resJnINnj4hzskoOwLKJb0HNsvc+V1POISP4qa+NRWRbdzwrDDN7T
+         XaEKbj/5E1xiL6Cu0FSc/XbhZ0HWztZzoMKiKz8FpzjN9ib3sug1aU5AvzfJKY/2zv82
+         42KF6+gAPOEFgo1YtB9NKPkLpS8h6gz+yrmFaMFCgL6NBU7c7VnyduYs2lJOX70ieDQs
+         paPgfXXHl8qnF2oQSV5zSnj1x5KO/McpT2UwEBE5dieAswW6Poe4p+430q9enGfV5Y95
+         jWSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xD3P6zxh/wy50/KlLOtT7FxG3otaDrHyxXNJVg8NnD8=;
+        b=etqd+FHAFghlsNqjnmMZI9vZdmlItWszaYpof1bAr5zEZCdj5Yo6jXN181S91jBCCS
+         u3imgm+0Whi1i90z1MSHb5e0WDziRQy0c6DI5TSmKjrWlPvfJyh5MMCqNYzTyGENNqIh
+         8Q6PdWoNAsr9GJlMKApjqCnEQZK9StO35lZIXVpV8Vq6sMD4Rm4uVRPe5JuJkrVyRWwJ
+         5eJ01Jn8uZV8faaSThZZ7VogZrQ3IeSqZY4lli8V7XcvRjG2SDJheRRc1USCaWMb+dyQ
+         hguA6RgnD32zC0leU8q5D+rC8QgzFGUyxU8uhxaMYBfE3yoshMqz82p+UHn+ns0hW9XP
+         Krfw==
+X-Gm-Message-State: AOAM530eDsUNWJqog/oj5O9XVEb1JDljlpDw29pzZ8G7bt7bADbxa2si
+        Var9RFO+4ulYyBbAe3QiMC8=
+X-Google-Smtp-Source: ABdhPJwkM6ohJugQ386es/MCzx2X/YpHm6f3XNOHwVx4tNj8W/dqrs8vsJ++nTX12KC7vw1nH9/8wQ==
+X-Received: by 2002:a7b:c394:: with SMTP id s20mr11582964wmj.31.1595021714053;
+        Fri, 17 Jul 2020 14:35:14 -0700 (PDT)
+Received: from arrakis.kwizart.net (amontpellier-652-1-69-19.w109-210.abo.wanadoo.fr. [109.210.52.19])
+        by smtp.gmail.com with ESMTPSA id q7sm16546558wra.56.2020.07.17.14.35.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2020 14:35:13 -0700 (PDT)
+From:   Nicolas Chauvet <kwizart@gmail.com>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Manikanta Maddireddy <mmaddireddy@nvidia.com>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc:     linux-tegra@vger.kernel.org, linux-pci@vger.kernel.org,
+        Nicolas Chauvet <kwizart@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] pci: tegra: Revert raw_violation_fixup for tegra124
+Date:   Fri, 17 Jul 2020 23:35:10 +0200
+Message-Id: <20200717213510.171726-1-kwizart@gmail.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-Message-ID: <159502168875.4006.5712868222524660630.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
+As reported in https://bugzilla.kernel.org/206217 , raw_violation_fixup
+is causing more harm than good in some common use-cases.
 
-Commit-ID:     baedb87d1b53532f81b4bd0387f83b05d4f7eb9a
-Gitweb:        https://git.kernel.org/tip/baedb87d1b53532f81b4bd0387f83b05d4f7eb9a
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Fri, 17 Jul 2020 18:00:02 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Fri, 17 Jul 2020 23:30:43 +02:00
+This patch is a partial revert of the 191cd6fb5 commit:
+ "PCI: tegra: Add SW fixup for RAW violations"
+that was first introduced in 5.3-rc1 kernel.
+This fix the following regression since then.
 
-genirq/affinity: Handle affinity setting on inactive interrupts correctly
+* Description:
+When both the NIC and MMC are used one can see the following message:
 
-Setting interrupt affinity on inactive interrupts is inconsistent when
-hierarchical irq domains are enabled. The core code should just store the
-affinity and not call into the irq chip driver for inactive interrupts
-because the chip drivers may not be in a state to handle such requests.
+NETDEV WATCHDOG: enp1s0 (r8169): transmit queue 0 timed out
 
-X86 has a hacky workaround for that but all other irq chips have not which
-causes problems e.g. on GIC V3 ITS.
+  and
 
-Instead of adding more ugly hacks all over the place, solve the problem in
-the core code. If the affinity is set on an inactive interrupt then:
+pcieport 0000:00:02.0: AER: Uncorrected (Non-Fatal) error received: 0000:01:00.0
+r8169 0000:01:00.0: AER: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+r8169 0000:01:00.0: AER:   device [10ec:8168] error status/mask=00004000/00400000
+r8169 0000:01:00.0: AER:    [14] CmpltTO                (First)
+r8169 0000:01:00.0: AER: can't recover (no error_detected callback)
+pcieport 0000:00:02.0: AER: device recovery failed
 
-    - Store it in the irq descriptors affinity mask
-    - Update the effective affinity to reflect that so user space has
-      a consistent view
-    - Don't call into the irq chip driver
+After that, the ethernet NIC isn't functional anymore even after reloading
+the r8169 module.
+After a reboot, this is reproducible by copying a large file over the
+NIC to the MMC.
 
-This is the core equivalent of the X86 workaround and works correctly
-because the affinity setting is established in the irq chip when the
-interrupt is activated later on.
+For some reasons this cannot be reproduced when the same file is copied
+to a tmpfs.
 
-Note, that this is only effective when hierarchical irq domains are enabled
-by the architecture. Doing it unconditionally would break legacy irq chip
-implementations.
+* Little background on the fixup, by Manikanta Maddireddy:
+  "In the internal testing with dGPU on Tegra124, CmplTO is reported by
+dGPU. This happened because FIFO queue in AFI(AXI to PCIe) module
+get full by upstream posted writes. Back to back upstream writes
+interleaved with infrequent reads, triggers RAW violation and CmpltTO.
+This is fixed by reducing the posted write credits and by changing
+updateFC timer frequency. These settings are fixed after stress test.
 
-For hierarchial irq domains this works correctly as none of the drivers can
-have a dependency on affinity setting in inactive state by design.
+In the current case, RTL NIC is also reporting CmplTO. These settings
+seems to be aggravating the issue instead of fixing it."
 
-Remove the X86 workaround as it is not longer required.
+v1: first non-RFC version
+ - Disable raw_violation_fixup and fully remove unused code and macros
 
-Fixes: 02edee152d6e ("x86/apic/vector: Ignore set_affinity call for inactive interrupts")
-Reported-by: Ali Saidi <alisaidi@amazon.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Ali Saidi <alisaidi@amazon.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529015501.15771-1-alisaidi@amazon.com
-Link: https://lkml.kernel.org/r/877dv2rv25.fsf@nanos.tec.linutronix.de
+Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
+Reviewed-by: Manikanta Maddireddy <mmaddireddy@nvidia.com>
+Cc: <stable@vger.kernel.org> # 5.4.x
 ---
- arch/x86/kernel/apic/vector.c | 22 ++++----------------
- kernel/irq/manage.c           | 37 ++++++++++++++++++++++++++++++++--
- 2 files changed, 40 insertions(+), 19 deletions(-)
+ drivers/pci/controller/pci-tegra.c | 32 ------------------------------
+ 1 file changed, 32 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index cc8b16f..7649da2 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -446,12 +446,10 @@ static int x86_vector_activate(struct irq_domain *dom, struct irq_data *irqd,
- 	trace_vector_activate(irqd->irq, apicd->is_managed,
- 			      apicd->can_reserve, reserve);
+diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
+index 235b456698fc..b532d5082fb6 100644
+--- a/drivers/pci/controller/pci-tegra.c
++++ b/drivers/pci/controller/pci-tegra.c
+@@ -181,13 +181,6 @@
  
--	/* Nothing to do for fixed assigned vectors */
--	if (!apicd->can_reserve && !apicd->is_managed)
--		return 0;
+ #define AFI_PEXBIAS_CTRL_0		0x168
+ 
+-#define RP_PRIV_XP_DL		0x00000494
+-#define  RP_PRIV_XP_DL_GEN2_UPD_FC_TSHOLD	(0x1ff << 1)
 -
- 	raw_spin_lock_irqsave(&vector_lock, flags);
--	if (reserve || irqd_is_managed_and_shutdown(irqd))
-+	if (!apicd->can_reserve && !apicd->is_managed)
-+		assign_irq_vector_any_locked(irqd);
-+	else if (reserve || irqd_is_managed_and_shutdown(irqd))
- 		vector_assign_managed_shutdown(irqd);
- 	else if (apicd->is_managed)
- 		ret = activate_managed(irqd);
-@@ -774,20 +772,10 @@ void lapic_offline(void)
- static int apic_set_affinity(struct irq_data *irqd,
- 			     const struct cpumask *dest, bool force)
- {
--	struct apic_chip_data *apicd = apic_chip_data(irqd);
- 	int err;
+-#define RP_RX_HDR_LIMIT		0x00000e00
+-#define  RP_RX_HDR_LIMIT_PW_MASK	(0xff << 8)
+-#define  RP_RX_HDR_LIMIT_PW		(0x0e << 8)
+-
+ #define RP_ECTL_2_R1	0x00000e84
+ #define  RP_ECTL_2_R1_RX_CTLE_1C_MASK		0xffff
  
--	/*
--	 * Core code can call here for inactive interrupts. For inactive
--	 * interrupts which use managed or reservation mode there is no
--	 * point in going through the vector assignment right now as the
--	 * activation will assign a vector which fits the destination
--	 * cpumask. Let the core code store the destination mask and be
--	 * done with it.
--	 */
--	if (!irqd_is_activated(irqd) &&
--	    (apicd->is_managed || apicd->can_reserve))
--		return IRQ_SET_MASK_OK;
-+	if (WARN_ON_ONCE(!irqd_is_activated(irqd)))
-+		return -EIO;
+@@ -323,7 +316,6 @@ struct tegra_pcie_soc {
+ 	bool program_uphy;
+ 	bool update_clamp_threshold;
+ 	bool program_deskew_time;
+-	bool raw_violation_fixup;
+ 	bool update_fc_timer;
+ 	bool has_cache_bars;
+ 	struct {
+@@ -659,23 +651,6 @@ static void tegra_pcie_apply_sw_fixup(struct tegra_pcie_port *port)
+ 		writel(value, port->base + RP_VEND_CTL0);
+ 	}
  
- 	raw_spin_lock(&vector_lock);
- 	cpumask_and(vector_searchmask, dest, cpu_online_mask);
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 7619111..2a9fec5 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -195,9 +195,9 @@ void irq_set_thread_affinity(struct irq_desc *desc)
- 			set_bit(IRQTF_AFFINITY, &action->thread_flags);
- }
- 
-+#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
- static void irq_validate_effective_affinity(struct irq_data *data)
- {
--#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
- 	const struct cpumask *m = irq_data_get_effective_affinity_mask(data);
- 	struct irq_chip *chip = irq_data_get_irq_chip(data);
- 
-@@ -205,9 +205,19 @@ static void irq_validate_effective_affinity(struct irq_data *data)
- 		return;
- 	pr_warn_once("irq_chip %s did not update eff. affinity mask of irq %u\n",
- 		     chip->name, data->irq);
--#endif
- }
- 
-+static inline void irq_init_effective_affinity(struct irq_data *data,
-+					       const struct cpumask *mask)
-+{
-+	cpumask_copy(irq_data_get_effective_affinity_mask(data), mask);
-+}
-+#else
-+static inline void irq_validate_effective_affinity(struct irq_data *data) { }
-+static inline void irq_init_effective_affinity(struct irq_data *data,
-+					       const struct cpumask *mask) { }
-+#endif
-+
- int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
- 			bool force)
- {
-@@ -304,6 +314,26 @@ static int irq_try_set_affinity(struct irq_data *data,
- 	return ret;
- }
- 
-+static bool irq_set_affinity_deactivated(struct irq_data *data,
-+					 const struct cpumask *mask, bool force)
-+{
-+	struct irq_desc *desc = irq_data_to_desc(data);
-+
-+	/*
-+	 * If the interrupt is not yet activated, just store the affinity
-+	 * mask and do not call the chip driver at all. On activation the
-+	 * driver has to make sure anyway that the interrupt is in a
-+	 * useable state so startup works.
-+	 */
-+	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
-+		return false;
-+
-+	cpumask_copy(desc->irq_common_data.affinity, mask);
-+	irq_init_effective_affinity(data, mask);
-+	irqd_set(data, IRQD_AFFINITY_SET);
-+	return true;
-+}
-+
- int irq_set_affinity_locked(struct irq_data *data, const struct cpumask *mask,
- 			    bool force)
- {
-@@ -314,6 +344,9 @@ int irq_set_affinity_locked(struct irq_data *data, const struct cpumask *mask,
- 	if (!chip || !chip->irq_set_affinity)
- 		return -EINVAL;
- 
-+	if (irq_set_affinity_deactivated(data, mask, force))
-+		return 0;
-+
- 	if (irq_can_move_pcntxt(data) && !irqd_is_setaffinity_pending(data)) {
- 		ret = irq_try_set_affinity(data, mask, force);
- 	} else {
+-	/* Fixup for read after write violation. */
+-	if (soc->raw_violation_fixup) {
+-		value = readl(port->base + RP_RX_HDR_LIMIT);
+-		value &= ~RP_RX_HDR_LIMIT_PW_MASK;
+-		value |= RP_RX_HDR_LIMIT_PW;
+-		writel(value, port->base + RP_RX_HDR_LIMIT);
+-
+-		value = readl(port->base + RP_PRIV_XP_DL);
+-		value |= RP_PRIV_XP_DL_GEN2_UPD_FC_TSHOLD;
+-		writel(value, port->base + RP_PRIV_XP_DL);
+-
+-		value = readl(port->base + RP_VEND_XP);
+-		value &= ~RP_VEND_XP_UPDATE_FC_THRESHOLD_MASK;
+-		value |= soc->update_fc_threshold;
+-		writel(value, port->base + RP_VEND_XP);
+-	}
+-
+ 	if (soc->update_fc_timer) {
+ 		value = readl(port->base + RP_VEND_XP);
+ 		value &= ~RP_VEND_XP_UPDATE_FC_THRESHOLD_MASK;
+@@ -2416,7 +2391,6 @@ static const struct tegra_pcie_soc tegra20_pcie = {
+ 	.program_uphy = true,
+ 	.update_clamp_threshold = false,
+ 	.program_deskew_time = false,
+-	.raw_violation_fixup = false,
+ 	.update_fc_timer = false,
+ 	.has_cache_bars = true,
+ 	.ectl.enable = false,
+@@ -2446,7 +2420,6 @@ static const struct tegra_pcie_soc tegra30_pcie = {
+ 	.program_uphy = true,
+ 	.update_clamp_threshold = false,
+ 	.program_deskew_time = false,
+-	.raw_violation_fixup = false,
+ 	.update_fc_timer = false,
+ 	.has_cache_bars = false,
+ 	.ectl.enable = false,
+@@ -2459,8 +2432,6 @@ static const struct tegra_pcie_soc tegra124_pcie = {
+ 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+ 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+ 	.pads_refclk_cfg0 = 0x44ac44ac,
+-	/* FC threshold is bit[25:18] */
+-	.update_fc_threshold = 0x03fc0000,
+ 	.has_pex_clkreq_en = true,
+ 	.has_pex_bias_ctrl = true,
+ 	.has_intr_prsnt_sense = true,
+@@ -2470,7 +2441,6 @@ static const struct tegra_pcie_soc tegra124_pcie = {
+ 	.program_uphy = true,
+ 	.update_clamp_threshold = true,
+ 	.program_deskew_time = false,
+-	.raw_violation_fixup = true,
+ 	.update_fc_timer = false,
+ 	.has_cache_bars = false,
+ 	.ectl.enable = false,
+@@ -2494,7 +2464,6 @@ static const struct tegra_pcie_soc tegra210_pcie = {
+ 	.program_uphy = true,
+ 	.update_clamp_threshold = true,
+ 	.program_deskew_time = true,
+-	.raw_violation_fixup = false,
+ 	.update_fc_timer = true,
+ 	.has_cache_bars = false,
+ 	.ectl = {
+@@ -2536,7 +2505,6 @@ static const struct tegra_pcie_soc tegra186_pcie = {
+ 	.program_uphy = false,
+ 	.update_clamp_threshold = false,
+ 	.program_deskew_time = false,
+-	.raw_violation_fixup = false,
+ 	.update_fc_timer = false,
+ 	.has_cache_bars = false,
+ 	.ectl.enable = false,
+-- 
+2.25.4
+
