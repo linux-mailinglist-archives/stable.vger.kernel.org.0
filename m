@@ -2,92 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657132241CE
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:29:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C972241D3
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726344AbgGQR3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 13:29:47 -0400
-Received: from mailin.studentenwerk.mhn.de ([141.84.225.229]:60586 "EHLO
-        email.studentenwerk.mhn.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726104AbgGQR3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 13:29:46 -0400
-Received: from mailhub.studentenwerk.mhn.de (mailhub.studentenwerk.mhn.de [127.0.0.1])
-        by email.studentenwerk.mhn.de (Postfix) with ESMTPS id 4B7dRD4J2QzRhSV;
-        Fri, 17 Jul 2020 19:29:44 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=stwm.de; s=stwm-20170627;
-        t=1595006984;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uJr2b4jU2VVP6dxKKXRY+LDT5Rw2EvC3vE/csmHSnZ8=;
-        b=R95BtOTYv8mnKQi5bmRsB5MtTR8/gziVmk+z4Jpc8MCRBWX3/F9fcCZinXOHJe65mHT+zQ
-        ytABafxXTOvYWGYGQ3G+B6P/k7/8xIY7hv5qfI5yfxVYU9z4/So+S4PcZK0TQ+o5Vyw4u/
-        mbsbsNeDmcqTWNfv3zko4jujFTnGAEAMojNoef0PH+P0I2ZTOye3QUvt9EKJEUurkiQCtk
-        vSJLvdSvIdn3hVwW/ZOnoM7Uuza1kb6L+oQoh24BCxSnSNboIoZ1dk4ngTgyWXBHRdF+pO
-        CurVM8Z9I7P1NQ4hBXyD0tVt9GColGEqgJzUeG/Lokrv+qh/fplu6iYIicFGxA==
-From:   Pierre Sauter <pierre.sauter@stwm.de>
-To:     Chuck Lever <chuck.lever@oracle.com>
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        matthew.ruffell@canonical.com,
-        linux-stable <stable@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-kernel-owner@vger.kernel.org
-Subject: Re: [Regression] "SUNRPC: Add "@len" parameter to gss_unwrap()" breaks NFS Kerberos on upstream stable 5.4.y
-Date:   Fri, 17 Jul 2020 19:29:44 +0200
-Message-ID: <4546230.GXAFRqVoOG@keks.as.studentenwerk.mhn.de>
-Organization: Studentenwerk
-In-Reply-To: <0885F62B-F9D2-4248-9313-70DAA1A1DE71@oracle.com>
-References: <309E203B-8818-4E33-87F0-017E127788E2@canonical.com> <5619613.lOV4Wx5bFT@keks.as.studentenwerk.mhn.de> <0885F62B-F9D2-4248-9313-70DAA1A1DE71@oracle.com>
+        id S1726446AbgGQRaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 13:30:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51448 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726104AbgGQRaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 13:30:06 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2914D2074B;
+        Fri, 17 Jul 2020 17:30:05 +0000 (UTC)
+Date:   Fri, 17 Jul 2020 13:30:03 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     gregory.herrero@oracle.com
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] recordmcount: only record relocation of type
+ R_AARCH64_CALL26 on arm64.
+Message-ID: <20200717133003.025f2096@oasis.local.home>
+In-Reply-To: <20200717143338.19302-1-gregory.herrero@oracle.com>
+References: <20200717143338.19302-1-gregory.herrero@oracle.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chuck,
+On Fri, 17 Jul 2020 16:33:38 +0200
+gregory.herrero@oracle.com wrote:
 
-Am Donnerstag, 16. Juli 2020, 21:25:40 CEST schrieb Chuck Lever:
-> So this makes me think there's a possibility you are not using upstream
-> stable kernels. I can't help if I don't know what source code and commit
-> stream you are using. It also makes me question the bisect result.
+> From: Gregory Herrero <gregory.herrero@oracle.com>
+> 
+> Currently, if a section has a relocation to '_mcount' symbol, a new
+> __mcount_loc entry will be added whatever the relocation type is.
+> This is problematic when a relocation to '_mcount' is in the middle of a
+> section and is not a call for ftrace use.
+> 
+> Such relocation could be generated with below code for example:
+>     bool is_mcount(unsigned long addr)
+>     {
+>         return (target == (unsigned long) &_mcount);
+>     }
+> 
+> With this snippet of code, ftrace will try to patch the mcount location
+> generated by this code on module load and fail with:
+> 
+>     Call trace:
+>      ftrace_bug+0xa0/0x28c
+>      ftrace_process_locs+0x2f4/0x430
+>      ftrace_module_init+0x30/0x38
+>      load_module+0x14f0/0x1e78
+>      __do_sys_finit_module+0x100/0x11c
+>      __arm64_sys_finit_module+0x28/0x34
+>      el0_svc_common+0x88/0x194
+>      el0_svc_handler+0x38/0x8c
+>      el0_svc+0x8/0xc
+>     ---[ end trace d828d06b36ad9d59 ]---
+>     ftrace failed to modify
+>     [<ffffa2dbf3a3a41c>] 0xffffa2dbf3a3a41c
+>      actual:   66:a9:3c:90
+>     Initializing ftrace call sites
+>     ftrace record flags: 2000000
+>      (0)
+>     expected tramp: ffffa2dc6cf66724
+> 
+> So Limit the relocation type to R_AARCH64_CALL26 as in perl version of
+> recordmcount.
+> 
 
-Yes you are right, I was referring to Ubuntu kernels 5.4.0-XX. From the
-discussion in the Ubuntu bugtracker I got the impression that Ubuntu kernels
-5.4.0-XX and upstream 5.4.XX are closely related, obviously they are not. T=
-he
-bisection was done by the original bug reporter and also refers to the Ubun=
-tu
-kernel.
+I'd rather have this go through the arm64 tree, as they can test it
+better than I can.
 
-In the meantime I tested v5.4.51 upstream, which shows no problems. Sorry f=
-or
-the bother.
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-> > My krb5 etype is aes256-cts-hmac-sha1-96.
->=20
-> Thanks! And what is your NFS server and filesystem? It's possible that the
-> client is not estimating the size of the reply correctly. Variables inclu=
-de
-> the size of file handles, MIC verifiers, and wrap tokens.
-
-The server is Debian with v4.19.130 upstream, filesystem ext4.
-
-> You might try:
->=20
-> e8d70b321ecc ("SUNRPC: Fix another issue with MIC buffer space")
-
-That one is actually in Ubuntus 5.4.0-40, from looking at the code.
-
-Best Regards
-=2D-=20
-Pierre Sauter
-Studentenwerk M=FCnchen
-=2D------
+-- Steve
 
 
+> Fixes: ed60453fa8f8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
+> Signed-off-by: Gregory Herrero <gregory.herrero@oracle.com>
+> ---
+>  scripts/recordmcount.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
+> index 7225107a9aaf..e59022b3f125 100644
+> --- a/scripts/recordmcount.c
+> +++ b/scripts/recordmcount.c
+> @@ -434,6 +434,11 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
+>  	return 1;
+>  }
+>  
+> +static int arm64_is_fake_mcount(Elf64_Rel const *rp)
+> +{
+> +	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
+> +}
+> +
+>  /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
+>   * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
+>   * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
+> @@ -547,6 +552,7 @@ static int do_file(char const *const fname)
+>  		make_nop = make_nop_arm64;
+>  		rel_type_nop = R_AARCH64_NONE;
+>  		ideal_nop = ideal_nop4_arm64;
+> +		is_fake_mcount64 = arm64_is_fake_mcount;
+>  		break;
+>  	case EM_IA_64:	reltype = R_IA64_IMM64; break;
+>  	case EM_MIPS:	/* reltype: e_class    */ break;
 
