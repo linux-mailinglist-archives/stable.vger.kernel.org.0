@@ -2,77 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A18002236EB
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 10:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4556223712
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 10:32:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726113AbgGQIVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 04:21:25 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:59191 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726056AbgGQIVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 04:21:25 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 51737AB7;
-        Fri, 17 Jul 2020 04:21:24 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 17 Jul 2020 04:21:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=Fd7ulc5lJ7BN7KhqtmCodaF9lBt
-        21K/QsVL/XYpcvLI=; b=GxCbRO2RCbjNaryCP/0Yu6R+uka2dj3LTDz/7Oh+gsx
-        xuifBuggLtYtqG07KLxvp+81FdWcvvDuha7Yu3KEnEFGEVf0/8/nJmD2/csVAeXA
-        051kyPBOkvjO1b7sKhp6F0ntpW7ubzWtkf/46h2cKlORQD51OmKWH2Kqb7/2uJej
-        MADq0CEJHQtHEJW2q+Imq1PK8XvwFINfzdNbgZIIlCThaOQMdWzbL7T8XqcAjND9
-        axOx8ETmIUQXNWuxptyIlwJYKIF7xHtEgvWWOKIZFVN4rWD8WykPI9mlDnu5ZiF1
-        GLlHbUkBRHQ8T//ypI6MKLlJmNeuk5APsLsdFNJuo1Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Fd7ulc
-        5lJ7BN7KhqtmCodaF9lBt21K/QsVL/XYpcvLI=; b=lrRWGpLAzw3WI/U81UDM2G
-        3EizPHU0kf/JLT6NCDomCDoH7oNZ0azfxefjKoPBB3+6arETDroXBVf2K8VsY0aq
-        EVc6nbVgYOZOTSoiMjZp7//qRQtzKFnCO0jqXwwa0AwBdu+inHdDhyIJ5vNDWRvO
-        P9ceKiRuiUDWcIrMjHGLBbnrRUTHryjyAY5GdiPZR2ibMXgCr078zzQYICninCfp
-        hG0xJmWBAVk1v09UtSLmBr26kC+zUEyVbGE6LMHd7O8T8h96uzq0xMMa715jwwB3
-        fG1Ngazz8uUA8qAFv7US7UIwX2S4tljmw1xmNnwk9GQKizlfzHLVrkeguMlgA22g
-        ==
-X-ME-Sender: <xms:g18RXywXy2mHkjKOzxx_66CYtySA71OpgHnQX8VPzE_KI3TP7WJnzw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrfeehgddufedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:g18RX-SB0E41sEe_GWnlTU2kFAVk5t7c0omSJ195QOIuIyUdF7TZGg>
-    <xmx:g18RX0V-ClFI2Ews5w201soENYkZhZwqT_YSlfInBWeYAQFeuh0Uag>
-    <xmx:g18RX4gtaXEgFu19qnyQ-_lxDTOHCi9suM3yl_OGsFPNnwKijO66EQ>
-    <xmx:g18RX3O7PgCOpZmX5WtO139XvX-yXG4xsPtDRJ-hhMVJx1R4wmjmZw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5A85730600A6;
-        Fri, 17 Jul 2020 04:21:23 -0400 (EDT)
-Date:   Fri, 17 Jul 2020 10:21:16 +0200
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20200717082116.GA1168425@kroah.com>
-References: <20200716.160720.2007825724071053507.davem@davemloft.net>
+        id S1726855AbgGQIcO convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 17 Jul 2020 04:32:14 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:38827 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726803AbgGQIcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 04:32:14 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-30-vOfOUf7XOJW9yv-pErlP7A-1; Fri, 17 Jul 2020 09:32:08 +0100
+X-MC-Unique: vOfOUf7XOJW9yv-pErlP7A-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Fri, 17 Jul 2020 09:32:07 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Fri, 17 Jul 2020 09:32:07 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'js1304@gmail.com'" <js1304@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+CC:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kernel-team@lge.com" <kernel-team@lge.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Hellwig <hch@infradead.org>,
+        Roman Gushchin <guro@fb.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Naoya Horiguchi" <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
+Thread-Topic: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
+Thread-Index: AQHWWmWbQrqMs3IygU6Uq8saGSVLGakLcr1w
+Date:   Fri, 17 Jul 2020 08:32:07 +0000
+Message-ID: <be55deff4ef1453983522d247bd36110@AcuMS.aculab.com>
+References: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+In-Reply-To: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200716.160720.2007825724071053507.davem@davemloft.net>
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 16, 2020 at 04:07:20PM -0700, David Miller wrote:
+From: js1304@gmail.com
+> Sent: 15 July 2020 06:05
+> From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 > 
-> Please queue up the following networking bug fixes for v5.4 and
-> v5.7 -stable, respectively.
+> Currently, preventing cma area in page allocation is implemented by using
+> current_gfp_context(). However, there are two problems of this
+> implementation.
+...
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 6416d08..cd53894 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+...
+> @@ -3693,6 +3691,16 @@ alloc_flags_nofragment(struct zone *zone, gfp_t gfp_mask)
+>  	return alloc_flags;
+>  }
+> 
+> +static inline void current_alloc_flags(gfp_t gfp_mask,
+> +				unsigned int *alloc_flags)
+> +{
+> +	unsigned int pflags = READ_ONCE(current->flags);
+> +
+> +	if (!(pflags & PF_MEMALLOC_NOCMA) &&
+> +		gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
+> +		*alloc_flags |= ALLOC_CMA;
+> +}
+> +
 
-All now queued up, thanks!
+I'd guess this would be easier to understand and probably generate
+better code if renamed and used as:
+	alloc_flags |= can_alloc_cma(gpf_mask);
 
-greg k-h
+Given it is a 'static inline' the compiler might end up
+generating the same code.
+If you needed to clear a flag doing:
+	alloc_flags = current_alloc_flags(gpf_mask, alloc_flags);
+is much better for non-inlined function.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
