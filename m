@@ -2,128 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16DB62242A2
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DDDB2242EC
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 20:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbgGQR4T convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 17 Jul 2020 13:56:19 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:42737 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726359AbgGQR4S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 13:56:18 -0400
-Received: from mail-pg1-f197.google.com ([209.85.215.197])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kai.heng.feng@canonical.com>)
-        id 1jwUal-0003bg-F9
-        for stable@vger.kernel.org; Fri, 17 Jul 2020 17:56:15 +0000
-Received: by mail-pg1-f197.google.com with SMTP id e127so8441425pgc.2
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 10:56:15 -0700 (PDT)
+        id S1726256AbgGQSKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 14:10:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726205AbgGQSKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 14:10:01 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4CEC0619D2
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 11:10:01 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id k27so7067241pgm.2
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 11:10:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=i04VIV5yBy5MktxhQ64pKyHDiBTIn39ShvbAT6u/y+8=;
+        b=pXnbPZXGj542WQPXH1WNHe7FwbZqnK0mLnAwBWkD/0vMdH4xAUOk/8cS64zoAbmZ3C
+         uvmuQDDn3m4GCsndzWvR/yQYE2YeGOaPVS6OI1/qoqvR79/T/IlQAu/YdgU4KhVmCD6z
+         M4z8BJG/zD0XgdTmBdR6kSVqmnRO2c9AESADZd2VqTz6ecZQvQkCcmEscHkAZhGt1dZt
+         XGQNcu3uiJTs9CI1iaXPwD+iobiz2DfXXqyDhmyRAlPJRjUIBISOcbD5lUZL7xN59LOs
+         ZmAwJPyCdBIl5z0VuiEFkoS6Pk2mFVowQ9RlwH99VLocIcCWCUMvhuq/r/0R8xMrXUPL
+         HKxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=DJeYw43KCdF1n+mtxqHrWGu9uDmkgMx6dDVvN1r/iUI=;
-        b=WDopjb/HmyVEozdG1006hn6LxGaw/qEwEkyplVgViFVB3SoFT7kvvk+mGDZQkn9tbA
-         c0OFx/mAr9oGLLU1GXXY2ODoUs0Km0ocpY2j//RyaG4reHOtx7eSPvSNRiJ9wRGH0HWh
-         Un/+6dI0UwpMNk43qsD1nRkNYpA9zW3hDpnIU2g1fLsaFqMr0JYNrIOZ7QiuGtcam4EI
-         O6/h/OgPSLKLW3EyOnY18KmNAimj7ji0kykodAfDoPsBHFY4lYxhgB4QGmlD2FFyhj+l
-         8mPmoDMrIMYkZVmN8CSH4U6k93zxByIqVEqkB0S+FbM2VOn5NKyahzwhZyMK2LWczsYF
-         v4rA==
-X-Gm-Message-State: AOAM530X835vNs8HAamibBbg0UX/iyDnN6hUqTala7gWZ6DAjRrlEHSz
-        zQoRAMb+Vam3pKz58tbfRUuOrnlFqTwJXX9ujfdM0dY772Q7JsdoGzCL9zMC7BVt9L3GuqshJpR
-        701x/hxlcuWb92JjYqsSUoYGJ8uUbPzUjSA==
-X-Received: by 2002:a17:902:a412:: with SMTP id p18mr8397694plq.283.1595008574082;
-        Fri, 17 Jul 2020 10:56:14 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyfTo9D7lyFkDMei5LDbgFf/qwVM6msV/kFw7ZA8SiHACyAuV9cXxTJL0fSYj34hSeq6uLdww==
-X-Received: by 2002:a17:902:a412:: with SMTP id p18mr8397678plq.283.1595008573667;
-        Fri, 17 Jul 2020 10:56:13 -0700 (PDT)
-Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
-        by smtp.gmail.com with ESMTPSA id b18sm3514062pju.10.2020.07.17.10.56.11
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Jul 2020 10:56:13 -0700 (PDT)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Subject: Re: [Regression] "SUNRPC: Add "@len" parameter to gss_unwrap()"
- breaks NFS Kerberos on upstream stable 5.4.y
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-In-Reply-To: <650B6279-9550-4844-9375-280F11C3DC4B@oracle.com>
-Date:   Sat, 18 Jul 2020 01:56:09 +0800
-Cc:     Pierre Sauter <pierre.sauter@stwm.de>,
-        matthew.ruffell@canonical.com,
-        linux-stable <stable@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-kernel-owner@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <CCF13E29-7B8B-47B3-A8D0-1A6E0E626BA6@canonical.com>
-References: <309E203B-8818-4E33-87F0-017E127788E2@canonical.com>
- <5619613.lOV4Wx5bFT@keks.as.studentenwerk.mhn.de>
- <0885F62B-F9D2-4248-9313-70DAA1A1DE71@oracle.com>
- <4546230.GXAFRqVoOG@keks.as.studentenwerk.mhn.de>
- <650B6279-9550-4844-9375-280F11C3DC4B@oracle.com>
-To:     Chuck Lever <chuck.lever@oracle.com>
-X-Mailer: Apple Mail (2.3608.80.23.2.2)
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=i04VIV5yBy5MktxhQ64pKyHDiBTIn39ShvbAT6u/y+8=;
+        b=ogFzYhX0PacRYciTjPXOyMr6X37IUJfnGeLzncMYxb1mlNQ/l8EuNtEQf+WUePuqNf
+         JMpB7oe/D8DTIThv7WPajDmnPWuT9H9ih0j5Y1I3AnCRETSmRQ9T/RfCk3za1yKxYxjy
+         WeaF7lmPZQhpJAo+TSaEK9Jl0Gyu2ATdJFdeDNDIzTxFAd/v1ntJ5eazmLHWzZSCIXRc
+         Qc+jjDvqSjXNLDdT82InVDIi09QBQLMo9EN1e8xpGKOpneuxgqnkP2kF0RebSRxy3DFn
+         X6BOAWZT3ntrMKZAayYypTgFl1ahLut71FYZkQzn4UttFPDdocxHAPc3Kq7Fh+vEBTcJ
+         gD3g==
+X-Gm-Message-State: AOAM531CaghhFKRcYIMtQTcpru6n57Up65d3tjDhWQTFhSuITd5kQr1m
+        QpiAkHLAtbzedQn9gOlUZUi24kHCz/b2Uw==
+X-Google-Smtp-Source: ABdhPJxemuSalONdbTUCWrotdGb8GpzT/30U+NKqqoioj/BnBwOX6f+y28yHMLoxrjUmdQg1I+ag8w==
+X-Received: by 2002:a65:64c1:: with SMTP id t1mr9603127pgv.267.1595009400455;
+        Fri, 17 Jul 2020 11:10:00 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id s10sm3506208pjl.41.2020.07.17.11.09.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 17 Jul 2020 11:09:59 -0700 (PDT)
+To:     stable@vger.kernel.org
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: Stable inclusion request
+Message-ID: <bd2a28c0-ee8c-3be9-58f1-a52cc935bb86@kernel.dk>
+Date:   Fri, 17 Jul 2020 12:09:58 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
+I forgot to mark this one with stable, can you please cherry-pick it
+for 5.7-stable? It picks cleanly. Thanks!
 
-> On Jul 18, 2020, at 01:34, Chuck Lever <chuck.lever@oracle.com> wrote:
-> 
-> 
-> 
->> On Jul 17, 2020, at 1:29 PM, Pierre Sauter <pierre.sauter@stwm.de> wrote:
->> 
->> Hi Chuck,
->> 
->> Am Donnerstag, 16. Juli 2020, 21:25:40 CEST schrieb Chuck Lever:
->>> So this makes me think there's a possibility you are not using upstream
->>> stable kernels. I can't help if I don't know what source code and commit
->>> stream you are using. It also makes me question the bisect result.
->> 
->> Yes you are right, I was referring to Ubuntu kernels 5.4.0-XX. From the
->> discussion in the Ubuntu bugtracker I got the impression that Ubuntu kernels
->> 5.4.0-XX and upstream 5.4.XX are closely related, obviously they are not. The
->> bisection was done by the original bug reporter and also refers to the Ubuntu
->> kernel.
->> 
->> In the meantime I tested v5.4.51 upstream, which shows no problems. Sorry for
->> the bother.
-> 
-> Pierre, thanks for confirming!
-> 
-> Kai-Heng suspected an upstream stable commit that is missing in 5.4.0-40,
-> but I don't have any good suggestions.
+commit 681fda8d27a66f7e65ff7f2d200d7635e64a8d05
+Author: Pavel Begunkov <asml.silence@gmail.com>
+Date:   Wed Jul 15 22:20:45 2020 +0300
 
-Well, Ubuntu's 5.4 kernel is based on upstream stable v5.4, so I asked users to test stable v5.4.51, however the feedback was negative, and that's the reason why I raised the issue here.
+    io_uring: fix recvmsg memory leak with buffer selection
 
-Anyway, good to know that it's fixed in upstream stable, everything's good now!
-Thanks for your effort Chuck.
-
-Kai-Heng
-
-
-> 
-> 
->>>> My krb5 etype is aes256-cts-hmac-sha1-96.
->>> 
->>> Thanks! And what is your NFS server and filesystem? It's possible that the
->>> client is not estimating the size of the reply correctly. Variables include
->>> the size of file handles, MIC verifiers, and wrap tokens.
->> 
->> The server is Debian with v4.19.130 upstream, filesystem ext4.
->> 
->>> You might try:
->>> 
->>> e8d70b321ecc ("SUNRPC: Fix another issue with MIC buffer space")
->> 
->> That one is actually in Ubuntus 5.4.0-40, from looking at the code.
-> 
-> --
-> Chuck Lever
+-- 
+Jens Axboe
 
