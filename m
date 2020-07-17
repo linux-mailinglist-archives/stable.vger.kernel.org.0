@@ -2,139 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17762224225
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16DB62242A2
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 19:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbgGQRnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 13:43:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45886 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726344AbgGQRnQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 13:43:16 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80438C0619D2
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 10:43:16 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id x72so5759437pfc.6
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 10:43:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=7gESCYHdeEc18WmSHoFiRlcOM8qkMy02/gtCzbZTAqQ=;
-        b=WxPHrXXFANimi0wbvfcJ6Cfo6RILGM8zrzptr/i4wicbfpzxjVf9s2PSObmLwcn9aq
-         SbUDJlkCbpwtWAmmR9A2NZpribK1YDkwqAQ5TTgN4F0z1JKluyrZrKxbZBHXSmRh0PPQ
-         ei15QxSWG1ELter/xoH0l0moiUBAi1WUPtXtc=
+        id S1726446AbgGQR4T convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 17 Jul 2020 13:56:19 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:42737 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726359AbgGQR4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 13:56:18 -0400
+Received: from mail-pg1-f197.google.com ([209.85.215.197])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1jwUal-0003bg-F9
+        for stable@vger.kernel.org; Fri, 17 Jul 2020 17:56:15 +0000
+Received: by mail-pg1-f197.google.com with SMTP id e127so8441425pgc.2
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 10:56:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=7gESCYHdeEc18WmSHoFiRlcOM8qkMy02/gtCzbZTAqQ=;
-        b=h/JcsPGXZUQkN8TxwblGQnU0lMe028WYBtShJxhbWSjBHDDVSmfkvxx6r/qClzaaFI
-         mygb+vKf4f5WxBCAFfwhHOWTb7Ki2gU72u+4IzHZprdTRutXzqG5ML1WB5UzWtqfcAdv
-         MGp10eBuZgHFbl2Nql7gXiktXBokQlAuAXBMc5SBwoRiQtNm60SKfDPFh93uonBZZ/MX
-         LFKmB0JWm5yM9m90fK2CcbbmG16zBvyvuEGU7mfAAkw+cacM08GLmP/N6635SDlXu1zy
-         WFrZ0W/J9TavzbEMWB/9ZUg9r7axbm1JCw0fpnmPGTwBy7no80TZfVgHlILJ3KfcArof
-         aD+w==
-X-Gm-Message-State: AOAM533dEM50gXsI2R2woDei1hOK1eDDDfsXSGO4LJTMowhCqnnHJn+4
-        DxGw61xjNiegR4XeA/r3IWUc4w==
-X-Google-Smtp-Source: ABdhPJysbKI9KHmH4JZipg0ZRO74vc0Q1f/poXmDdT5wVjf46XMdV4SEDnNnhl9+P92e4T6IX1H7yg==
-X-Received: by 2002:a63:338c:: with SMTP id z134mr9360703pgz.245.1595007796077;
-        Fri, 17 Jul 2020 10:43:16 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id c139sm8072372pfb.65.2020.07.17.10.43.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2020 10:43:13 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Scott Branden <scott.branden@broadcom.com>
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        James Morris <jmorris@namei.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jessica Yu <jeyu@kernel.org>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        KP Singh <kpsingh@google.com>, Dave Olsthoorn <dave@bewaar.me>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Jones <pjones@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <stephen.boyd@linaro.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 03/13] fs/kernel_read_file: Remove FIRMWARE_EFI_EMBEDDED enum
-Date:   Fri, 17 Jul 2020 10:42:58 -0700
-Message-Id: <20200717174309.1164575-4-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200717174309.1164575-1-keescook@chromium.org>
-References: <20200717174309.1164575-1-keescook@chromium.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=DJeYw43KCdF1n+mtxqHrWGu9uDmkgMx6dDVvN1r/iUI=;
+        b=WDopjb/HmyVEozdG1006hn6LxGaw/qEwEkyplVgViFVB3SoFT7kvvk+mGDZQkn9tbA
+         c0OFx/mAr9oGLLU1GXXY2ODoUs0Km0ocpY2j//RyaG4reHOtx7eSPvSNRiJ9wRGH0HWh
+         Un/+6dI0UwpMNk43qsD1nRkNYpA9zW3hDpnIU2g1fLsaFqMr0JYNrIOZ7QiuGtcam4EI
+         O6/h/OgPSLKLW3EyOnY18KmNAimj7ji0kykodAfDoPsBHFY4lYxhgB4QGmlD2FFyhj+l
+         8mPmoDMrIMYkZVmN8CSH4U6k93zxByIqVEqkB0S+FbM2VOn5NKyahzwhZyMK2LWczsYF
+         v4rA==
+X-Gm-Message-State: AOAM530X835vNs8HAamibBbg0UX/iyDnN6hUqTala7gWZ6DAjRrlEHSz
+        zQoRAMb+Vam3pKz58tbfRUuOrnlFqTwJXX9ujfdM0dY772Q7JsdoGzCL9zMC7BVt9L3GuqshJpR
+        701x/hxlcuWb92JjYqsSUoYGJ8uUbPzUjSA==
+X-Received: by 2002:a17:902:a412:: with SMTP id p18mr8397694plq.283.1595008574082;
+        Fri, 17 Jul 2020 10:56:14 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyfTo9D7lyFkDMei5LDbgFf/qwVM6msV/kFw7ZA8SiHACyAuV9cXxTJL0fSYj34hSeq6uLdww==
+X-Received: by 2002:a17:902:a412:: with SMTP id p18mr8397678plq.283.1595008573667;
+        Fri, 17 Jul 2020 10:56:13 -0700 (PDT)
+Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
+        by smtp.gmail.com with ESMTPSA id b18sm3514062pju.10.2020.07.17.10.56.11
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 17 Jul 2020 10:56:13 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Subject: Re: [Regression] "SUNRPC: Add "@len" parameter to gss_unwrap()"
+ breaks NFS Kerberos on upstream stable 5.4.y
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+In-Reply-To: <650B6279-9550-4844-9375-280F11C3DC4B@oracle.com>
+Date:   Sat, 18 Jul 2020 01:56:09 +0800
+Cc:     Pierre Sauter <pierre.sauter@stwm.de>,
+        matthew.ruffell@canonical.com,
+        linux-stable <stable@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <CCF13E29-7B8B-47B3-A8D0-1A6E0E626BA6@canonical.com>
+References: <309E203B-8818-4E33-87F0-017E127788E2@canonical.com>
+ <5619613.lOV4Wx5bFT@keks.as.studentenwerk.mhn.de>
+ <0885F62B-F9D2-4248-9313-70DAA1A1DE71@oracle.com>
+ <4546230.GXAFRqVoOG@keks.as.studentenwerk.mhn.de>
+ <650B6279-9550-4844-9375-280F11C3DC4B@oracle.com>
+To:     Chuck Lever <chuck.lever@oracle.com>
+X-Mailer: Apple Mail (2.3608.80.23.2.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The "FIRMWARE_EFI_EMBEDDED" enum is a "where", not a "what". It
-should not be distinguished separately from just "FIRMWARE", as this
-confuses the LSMs about what is being loaded. Additionally, there was
-no actual validation of the firmware contents happening.
 
-Fixes: e4c2c0ff00ec ("firmware: Add new platform fallback mechanism and firmware_request_platform()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
-To aid in backporting, this change is made before moving
-kernel_read_file() to separate header/source files.
----
- drivers/base/firmware_loader/fallback_platform.c | 2 +-
- include/linux/fs.h                               | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
-index 685edb7dd05a..6958ab1a8059 100644
---- a/drivers/base/firmware_loader/fallback_platform.c
-+++ b/drivers/base/firmware_loader/fallback_platform.c
-@@ -17,7 +17,7 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
- 	if (!(opt_flags & FW_OPT_FALLBACK_PLATFORM))
- 		return -ENOENT;
- 
--	rc = security_kernel_load_data(LOADING_FIRMWARE_EFI_EMBEDDED);
-+	rc = security_kernel_load_data(LOADING_FIRMWARE);
- 	if (rc)
- 		return rc;
- 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 95fc775ed937..f50a35d54a61 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2993,11 +2993,10 @@ static inline void i_readcount_inc(struct inode *inode)
- #endif
- extern int do_pipe_flags(int *, int);
- 
--/* This is a list of *what* is being read, not *how*. */
-+/* This is a list of *what* is being read, not *how* nor *where*. */
- #define __kernel_read_file_id(id) \
- 	id(UNKNOWN, unknown)		\
- 	id(FIRMWARE, firmware)		\
--	id(FIRMWARE_EFI_EMBEDDED, firmware)	\
- 	id(MODULE, kernel-module)		\
- 	id(KEXEC_IMAGE, kexec-image)		\
- 	id(KEXEC_INITRAMFS, kexec-initramfs)	\
--- 
-2.25.1
+> On Jul 18, 2020, at 01:34, Chuck Lever <chuck.lever@oracle.com> wrote:
+> 
+> 
+> 
+>> On Jul 17, 2020, at 1:29 PM, Pierre Sauter <pierre.sauter@stwm.de> wrote:
+>> 
+>> Hi Chuck,
+>> 
+>> Am Donnerstag, 16. Juli 2020, 21:25:40 CEST schrieb Chuck Lever:
+>>> So this makes me think there's a possibility you are not using upstream
+>>> stable kernels. I can't help if I don't know what source code and commit
+>>> stream you are using. It also makes me question the bisect result.
+>> 
+>> Yes you are right, I was referring to Ubuntu kernels 5.4.0-XX. From the
+>> discussion in the Ubuntu bugtracker I got the impression that Ubuntu kernels
+>> 5.4.0-XX and upstream 5.4.XX are closely related, obviously they are not. The
+>> bisection was done by the original bug reporter and also refers to the Ubuntu
+>> kernel.
+>> 
+>> In the meantime I tested v5.4.51 upstream, which shows no problems. Sorry for
+>> the bother.
+> 
+> Pierre, thanks for confirming!
+> 
+> Kai-Heng suspected an upstream stable commit that is missing in 5.4.0-40,
+> but I don't have any good suggestions.
+
+Well, Ubuntu's 5.4 kernel is based on upstream stable v5.4, so I asked users to test stable v5.4.51, however the feedback was negative, and that's the reason why I raised the issue here.
+
+Anyway, good to know that it's fixed in upstream stable, everything's good now!
+Thanks for your effort Chuck.
+
+Kai-Heng
+
+
+> 
+> 
+>>>> My krb5 etype is aes256-cts-hmac-sha1-96.
+>>> 
+>>> Thanks! And what is your NFS server and filesystem? It's possible that the
+>>> client is not estimating the size of the reply correctly. Variables include
+>>> the size of file handles, MIC verifiers, and wrap tokens.
+>> 
+>> The server is Debian with v4.19.130 upstream, filesystem ext4.
+>> 
+>>> You might try:
+>>> 
+>>> e8d70b321ecc ("SUNRPC: Fix another issue with MIC buffer space")
+>> 
+>> That one is actually in Ubuntus 5.4.0-40, from looking at the code.
+> 
+> --
+> Chuck Lever
 
