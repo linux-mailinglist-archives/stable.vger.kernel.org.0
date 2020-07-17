@@ -2,107 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53EA62236BD
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 10:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA402236BF
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 10:15:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728210AbgGQIOf convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 17 Jul 2020 04:14:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42660 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726240AbgGQIOf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 04:14:35 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0228AC061755
-        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 01:14:35 -0700 (PDT)
-Received: from lupine.hi.pengutronix.de ([2001:67c:670:100:3ad5:47ff:feaf:1a17] helo=lupine)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1jwLVn-0001qL-9I; Fri, 17 Jul 2020 10:14:31 +0200
-Received: from pza by lupine with local (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1jwLVn-0007E0-0T; Fri, 17 Jul 2020 10:14:31 +0200
-Message-ID: <51175cb496644aaa5d5004630925ead4c6f0ddc7.camel@pengutronix.de>
-Subject: Re: [PATCH 1/2] media: coda: Fix reported H264 profile
-From:   Philipp Zabel <p.zabel@pengutronix.de>
-To:     Ezequiel Garcia <ezequiel@collabora.com>,
-        linux-media@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Robert Beckett <bob.beckett@collabora.com>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        kernel@collabora.com, stable@vger.kernel.org
-Date:   Fri, 17 Jul 2020 10:14:30 +0200
-In-Reply-To: <20200717034923.219524-1-ezequiel@collabora.com>
-References: <20200717034923.219524-1-ezequiel@collabora.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.30.5-1.1 
+        id S1726240AbgGQIPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 04:15:06 -0400
+Received: from mx2.suse.de ([195.135.220.15]:54316 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726201AbgGQIPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 04:15:06 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id A7952AFF7;
+        Fri, 17 Jul 2020 08:15:08 +0000 (UTC)
+Subject: Re: [PATCH 1/4] mm/page_alloc: fix non cma alloc context
+From:   Vlastimil Babka <vbabka@suse.cz>
+To:     Joonsoo Kim <js1304@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>, kernel-team@lge.com,
+        Christoph Hellwig <hch@infradead.org>,
+        Roman Gushchin <guro@fb.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
+References: <1594789529-6206-1-git-send-email-iamjoonsoo.kim@lge.com>
+ <332d620b-bfe3-3b69-931b-77e3a74edbfd@suse.cz>
+ <CAAmzW4NbG0fCtU2mV83pRamUeOEqKKxGTpQK2zuDxzmoF2FVrg@mail.gmail.com>
+ <6f18d999-4518-31ce-4cea-9b5b89a577ad@suse.cz>
+ <CAAmzW4MLc8bmkYW1q1fL_WRFQHksX-oy9tS-s9Kb-A=ZEeGETQ@mail.gmail.com>
+ <5a8b13d5-da40-7b1b-2968-e6701001cc0e@suse.cz>
+Message-ID: <c2edfd71-eee5-3d73-a9ee-0c384a3440be@suse.cz>
+Date:   Fri, 17 Jul 2020 10:15:03 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2001:67c:670:100:3ad5:47ff:feaf:1a17
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+In-Reply-To: <5a8b13d5-da40-7b1b-2968-e6701001cc0e@suse.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-07-17 at 00:49 -0300, Ezequiel Garcia wrote:
-> From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+On 7/17/20 10:10 AM, Vlastimil Babka wrote:
+> On 7/17/20 9:29 AM, Joonsoo Kim wrote:
+>> 2020년 7월 16일 (목) 오후 4:45, Vlastimil Babka <vbabka@suse.cz>님이 작성:
+>>>
+>>> On 7/16/20 9:27 AM, Joonsoo Kim wrote:
+>>> > 2020년 7월 15일 (수) 오후 5:24, Vlastimil Babka <vbabka@suse.cz>님이 작성:
+>>> >> >  /*
+>>> >> >   * get_page_from_freelist goes through the zonelist trying to allocate
+>>> >> >   * a page.
+>>> >> > @@ -3706,6 +3714,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
+>>> >> >       struct pglist_data *last_pgdat_dirty_limit = NULL;
+>>> >> >       bool no_fallback;
+>>> >> >
+>>> >> > +     current_alloc_flags(gfp_mask, &alloc_flags);
+>>> >>
+>>> >> I don't see why to move the test here? It will still be executed in the
+>>> >> fastpath, if that's what you wanted to avoid.
+>>> >
+>>> > I want to execute it on the fastpath, too. Reason that I moved it here
+>>> > is that alloc_flags could be reset on slowpath. See the code where
+>>> > __gfp_pfmemalloc_flags() is on. This is the only place that I can apply
+>>> > this option to all the allocation paths at once.
+>>>
+>>> But get_page_from_freelist() might be called multiple times in the slowpath, and
+>>> also anyone looking for gfp and alloc flags setup will likely not examine this
+>>> function. I don't see a problem in having it in two places that already deal
+>>> with alloc_flags setup, as it is now.
+>> 
+>> I agree that anyone looking alloc flags will miss that function easily. Okay.
+>> I will place it on its original place, although we now need to add one
+>> more place.
+>> *Three places* are gfp_to_alloc_flags(), prepare_alloc_pages() and
+>> __gfp_pfmemalloc_flags().
 > 
-> The CODA960 manual states that ASO/FMO features of baseline are not
-> supported, so for this reason this driver should only report
-> constrained baseline support.
-
-I know the encoder doesn't support this, but is this also true of the
-decoder? The i.MX6DQ Reference Manual explicitly lists H.264/AVC decoder
-support for both baseline profile and constrained base line profile.
-
-> This fixes negotiation issue with constrained baseline content
-> on GStreamer 1.17.1.
+> Hm the check below should also work for ALLOC_OOM|ALLOC_NOCMA then.
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
-> Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-> Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-> ---
->  drivers/media/platform/coda/coda-common.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> /* Avoid allocations with no watermarks from looping endlessly */
+>    if (tsk_is_oom_victim(current) &&
+>         (alloc_flags == ALLOC_OOM ||
+>          (gfp_mask & __GFP_NOMEMALLOC)))
+>             goto nopage;
 > 
-> diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-> index 3ab3d976d8ca..c641d1608825 100644
-> --- a/drivers/media/platform/coda/coda-common.c
-> +++ b/drivers/media/platform/coda/coda-common.c
-> @@ -2335,8 +2335,8 @@ static void coda_encode_ctrls(struct coda_ctx *ctx)
->  		V4L2_CID_MPEG_VIDEO_H264_CHROMA_QP_INDEX_OFFSET, -12, 12, 1, 0);
->  	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
->  		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
-> -		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
-> -		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
-> +		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
-> +		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
+> Maybe it's simpler to change get_page_from_freelist() then. But document well.
 
-Encoder support is listed as baseline, not constrained baseline, in the
-manual, but the SPS NALs produced by the encoder start with:
-  00 00 00 01 67 42 40
-                    ^
-so that is profile_idc=66, constraint_set1_flag==1, constrained baseline
-indeed. I think this change is correct.
+But then we have e.g. should_reclaim_retry() which calls __zone_watermark_ok()
+where ALLOC_CMA plays a role too, so that means we should have alloc_mask set up
+correctly wrt ALLOC_CMA at the __alloc_pages_slowpath() level...
 
->  	if (ctx->dev->devtype->product == CODA_HX4 ||
->  	    ctx->dev->devtype->product == CODA_7541) {
->  		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
-> @@ -2417,7 +2417,7 @@ static void coda_decode_ctrls(struct coda_ctx *ctx)
->  	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
->  		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
->  		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
-> -		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
-> +		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
->  		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
->  		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
->  		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
+>> Thanks.
+>> 
+> 
 
-I'm not sure about this one.
-
-regards
-Philipp
