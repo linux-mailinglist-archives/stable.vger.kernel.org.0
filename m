@@ -2,112 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEB5224000
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 17:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C65722406C
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 18:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726104AbgGQP5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 11:57:19 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:58842 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726393AbgGQP5T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 11:57:19 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: nicolas)
-        with ESMTPSA id 4432C2A03FC
-Message-ID: <17189cd91b7412fdd102c2710d9e6aa8778aac23.camel@collabora.com>
-Subject: Re: [PATCH 1/2] media: coda: Fix reported H264 profile
-From:   Nicolas Dufresne <nicolas.dufresne@collabora.com>
-To:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        linux-media@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Robert Beckett <bob.beckett@collabora.com>,
-        kernel@collabora.com, stable@vger.kernel.org
-Date:   Fri, 17 Jul 2020 11:56:57 -0400
-In-Reply-To: <51175cb496644aaa5d5004630925ead4c6f0ddc7.camel@pengutronix.de>
-References: <20200717034923.219524-1-ezequiel@collabora.com>
-         <51175cb496644aaa5d5004630925ead4c6f0ddc7.camel@pengutronix.de>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
+        id S1726550AbgGQQR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 12:17:28 -0400
+Received: from foss.arm.com ([217.140.110.172]:43376 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726104AbgGQQR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 12:17:28 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A864B142F;
+        Fri, 17 Jul 2020 09:17:27 -0700 (PDT)
+Received: from e107158-lin.cambridge.arm.com (e107158-lin.cambridge.arm.com [10.1.195.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AB4FF3F68F;
+        Fri, 17 Jul 2020 09:17:25 -0700 (PDT)
+Date:   Fri, 17 Jul 2020 17:17:23 +0100
+From:   Qais Yousef <qais.yousef@arm.com>
+To:     Eugeniu Rosca <erosca@de.adit-jv.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
+        Tony Prisk <linux@prisktech.co.nz>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Oliver Neukum <oneukum@suse.de>,
+        linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Dirk Behme <dirk.behme@de.bosch.com>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>
+Subject: Re: [PATCH 4.14 105/136] usb/ehci-platform: Set PM runtime as active
+ on resume
+Message-ID: <20200717161639.37ptgbolborimcvs@e107158-lin.cambridge.arm.com>
+References: <20200623195303.601828702@linuxfoundation.org>
+ <20200623195308.955410923@linuxfoundation.org>
+ <20200709070023.GA18414@lxhi-065.adit-jv.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200709070023.GA18414@lxhi-065.adit-jv.com>
+User-Agent: NeoMutt/20171215
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le vendredi 17 juillet 2020 à 10:14 +0200, Philipp Zabel a écrit :
-> On Fri, 2020-07-17 at 00:49 -0300, Ezequiel Garcia wrote:
-> > From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-> > 
-> > The CODA960 manual states that ASO/FMO features of baseline are not
-> > supported, so for this reason this driver should only report
-> > constrained baseline support.
-> 
-> I know the encoder doesn't support this, but is this also true of the
-> decoder? The i.MX6DQ Reference Manual explicitly lists H.264/AVC decoder
-> support for both baseline profile and constrained base line profile.
+Hi Eugeniu
 
-Hmm, double checking, you are right this is documented in the encoding tools
-sections, not the decoding. But there is extra buffers that need to be passed
-for ASO/FMO to work, I greatly doubt you have ever tested it. This is not
-supported by GStreamer parser, or FFMPEG parsers either. Again, we need to make
-sure in V2 that encoding and decoding capabilities are well seperated.
+On 07/09/20 09:00, Eugeniu Rosca wrote:
+> Hello everyone,
+> 
+> Cc: linux-renesas-soc
+> Cc: linux-pm
 
-As for advertising ASO/FMO, I can leave it there, but be aware I won't be
-testing it. I can provide you links to streams if you care (they are publicly
-accessible throught the ITU conformance streams published by the ITU). But as
-for GStreamer and FFMPEG, this is not supported anyway.
+[...]
 
+> After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
+> Set PM runtime as active on resume") into downstream v4.14.x, we started
+> to consistently experience below panic [1] on every second s2ram of
+> R-Car H3 Salvator-X Renesas reference board.
 > 
-> > This fixes negotiation issue with constrained baseline content
-> > on GStreamer 1.17.1.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder
-> > profile/level controls")
-> > Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-> > Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-> > ---
-> >  drivers/media/platform/coda/coda-common.c | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/media/platform/coda/coda-common.c
-> > b/drivers/media/platform/coda/coda-common.c
-> > index 3ab3d976d8ca..c641d1608825 100644
-> > --- a/drivers/media/platform/coda/coda-common.c
-> > +++ b/drivers/media/platform/coda/coda-common.c
-> > @@ -2335,8 +2335,8 @@ static void coda_encode_ctrls(struct coda_ctx *ctx)
-> >  		V4L2_CID_MPEG_VIDEO_H264_CHROMA_QP_INDEX_OFFSET, -12, 12, 1, 0);
-> >  	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
-> >  		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
-> > -		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
-> > -		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
-> > +		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
-> > +		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
+> After some investigations, we concluded the following:
+>  - the issue does not exist in vanilla v5.8-rc4+
+>  - [bisecting shows that] the panic on v4.14.186 is caused by the lack
+>    of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
+>    link support"). Getting evidence for that is easy. Reverting
+>    987351e1ea7772 in vanilla leads to a similar backtrace [2].
 > 
-> Encoder support is listed as baseline, not constrained baseline, in the
-> manual, but the SPS NALs produced by the encoder start with:
->   00 00 00 01 67 42 40
->                     ^
-> so that is profile_idc=66, constraint_set1_flag==1, constrained baseline
-> indeed. I think this change is correct.
-> 
-> >  	if (ctx->dev->devtype->product == CODA_HX4 ||
-> >  	    ctx->dev->devtype->product == CODA_7541) {
-> >  		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
-> > @@ -2417,7 +2417,7 @@ static void coda_decode_ctrls(struct coda_ctx *ctx)
-> >  	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
-> >  		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
-> >  		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
-> > -		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
-> > +		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
-> >  		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
-> >  		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
-> >  		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
-> 
-> I'm not sure about this one.
-> 
-> regards
-> Philipp
+> Questions:
+>  - Backporting 987351e1ea7772 ("phy: core: Add consumer device
+>    link support") to v4.14.187 looks challenging enough, so probably not
+>    worth it. Anybody to contradict this?
+>  - Assuming no plans to backport the missing mainline commit to v4.14.x,
+>    should the following three v4.14.186 commits be reverted on v4.14.x?
+>    * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
+>    * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
+>    * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
 
+Thanks for investigating this.
+
+Alan, Greg, do you have any ideas?
+
+Let me know if there's anything I can help with.
+
+Thanks
+
+--
+Qais Yousef
