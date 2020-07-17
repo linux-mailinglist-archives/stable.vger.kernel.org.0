@@ -2,126 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3942245FF
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 23:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3236D22467F
+	for <lists+stable@lfdr.de>; Sat, 18 Jul 2020 00:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726829AbgGQVxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 17:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48554 "EHLO mail.kernel.org"
+        id S1726556AbgGQW7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 18:59:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726793AbgGQVxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jul 2020 17:53:06 -0400
+        id S1726205AbgGQW7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 18:59:11 -0400
 Received: from localhost (mobile-166-175-191-139.mycingular.net [166.175.191.139])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6D822070A;
-        Fri, 17 Jul 2020 21:53:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 807BA2070E;
+        Fri, 17 Jul 2020 22:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595022786;
-        bh=ZAVaom5QhjHBn6ca9BuiQd8MD1k+/iw1bY0PSQH8YKc=;
+        s=default; t=1595026750;
+        bh=Si2p19g5Q2ejNUok1Tpdxy2XoGYOEq8JYIYD2SrPf2o=;
         h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=MZtg7O5xNufxkgYT//r++u+TUAkFBKKOuCfbQNU52hEQTuSlF//6vijfE1nkNyKCx
-         HM6Tev7IgCO9geyHbYkSxcPjiRjCY77tIXMwEamcCgb97wvdqy/x59QD3NJ1OIFSaY
-         RUbdQsNXckoipyqHch8jZjBS2xqJpteSUDL0NFZw=
-Date:   Fri, 17 Jul 2020 16:53:04 -0500
+        b=Xa78DP6cTPQwIDB+zLOdMNLq6OUmpcDgXzo1DstH7/SEVTcIQwQCOAlIZy0/xo/s8
+         WBsx7J7oBz8CAbGzB8qdJpOvBHGz/VNXFoeGmZq1s19GHQWZ3XrtSI2slMBi3OFVJy
+         qEeUZaUUB6aFmqcwWeU3nuixS2elvzP7gtDjMtfA=
+Date:   Fri, 17 Jul 2020 17:59:09 -0500
 From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Nicolas Chauvet <kwizart@gmail.com>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Manikanta Maddireddy <mmaddireddy@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        linux-tegra@vger.kernel.org, linux-pci@vger.kernel.org,
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Karol Herbst <kherbst@redhat.com>,
+        Linux PCI <linux-pci@vger.kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lyude Paul <lyude@redhat.com>,
+        nouveau <nouveau@lists.freedesktop.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Patrick Volkerding <volkerdi@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] pci: tegra: Revert raw_violation_fixup for tegra124
-Message-ID: <20200717215304.GA775582@bjorn-Precision-5520>
+Subject: Re: nouveau regression with 5.7 caused by "PCI/PM: Assume ports
+ without DLL Link Active train links in 100 ms"
+Message-ID: <20200717225909.GA784064@bjorn-Precision-5520>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200717213510.171726-1-kwizart@gmail.com>
+In-Reply-To: <20200717144318.GP2722994@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please update subject to follow the convention ("git log --online
-drivers/pci/controller/pci-tegra.c") to see it:
-
-  PCI: tegra: Revert tegra124 raw_violation_fixup
-
-On Fri, Jul 17, 2020 at 11:35:10PM +0200, Nicolas Chauvet wrote:
-> As reported in https://bugzilla.kernel.org/206217 , raw_violation_fixup
-> is causing more harm than good in some common use-cases.
+On Fri, Jul 17, 2020 at 10:43:18AM -0400, Sasha Levin wrote:
+> On Fri, Jul 17, 2020 at 02:43:52AM +0200, Karol Herbst wrote:
+> > On Fri, Jul 17, 2020 at 1:54 AM Bjorn Helgaas <helgaas@kernel.org> wrote:
+> > > On Fri, Jul 17, 2020 at 12:10:39AM +0200, Karol Herbst wrote:
+> > > > On Tue, Jul 7, 2020 at 9:30 PM Karol Herbst <kherbst@redhat.com> wrote:
+> > > > >
+> > > > > Hi everybody,
+> > > > >
+> > > > > with the mentioned commit Nouveau isn't able to load firmware onto the
+> > > > > GPU on one of my systems here. Even though the issue doesn't always
+> > > > > happen I am quite confident this is the commit breaking it.
+> > > > >
+> > > > > I am still digging into the issue and trying to figure out what
+> > > > > exactly breaks, but it shows up in different ways. Either we are not
+> > > > > able to boot the engines on the GPU or the GPU becomes unresponsive.
+> > > > > Btw, this is also a system where our runtime power management issue
+> > > > > shows up, so maybe there is indeed something funky with the bridge
+> > > > > controller.
+> > > > >
+> > > > > Just pinging you in case you have an idea on how this could break Nouveau
+> > > > >
+> > > > > most of the times it shows up like this:
+> > > > > nouveau 0000:01:00.0: acr: AHESASC binary failed
+> > > > >
+> > > > > Sometimes it works at boot and fails at runtime resuming with random
+> > > > > faults. So I will be investigating a bit more, but yeah... I am super
+> > > > > sure the commit triggered this issue, no idea if it actually causes
+> > > > > it.
+> > > >
+> > > > so yeah.. I reverted that locally and never ran into issues again.
+> > > > Still valid on latest 5.7. So can we get this reverted or properly
+> > > > fixed? This breaks runtime pm for us on at least some hardware.
+> > > 
+> > > Yeah, that stinks.  We had another similar report from Patrick:
+> > > 
+> > >   https://lore.kernel.org/r/CAErSpo5sTeK_my1dEhWp7aHD0xOp87+oHYWkTjbL7ALgDbXo-Q@mail.gmail.com
+> > > 
+> > > Apparently the problem is ec411e02b7a2 ("PCI/PM: Assume ports without
+> > > DLL Link Active train links in 100 ms"), which Patrick found was
+> > > backported to v5.4.49 as 828b192c57e8, and you found was backported to
+> > > v5.7.6 as afaff825e3a4.
+> > > 
+> > > Oddly, Patrick reported that v5.7.7 worked correctly, even though it
+> > > still contains afaff825e3a4.
+> > > 
+> > > I guess in the absence of any other clues we'll have to revert it.
+> > > I hate to do that because that means we'll have slow resume of
+> > > Thunderbolt-connected devices again, but that's better than having
+> > > GPUs completely broken.
+> > > 
+> > > Could you and Patrick open bugzilla.kernel.org reports, attach dmesg
+> > > logs and "sudo lspci -vv" output, and add the URLs to Kai-Heng's
+> > > original report at https://bugzilla.kernel.org/show_bug.cgi?id=206837
+> > > and to this thread?
+> > > 
+> > > There must be a way to fix the slow resume problem without breaking
+> > > the GPUs.
+> > > 
+> > 
+> > I wouldn't be surprised if this is related to the Intel bridge we
+> > check against for Nouveau.. I still have to check on another laptop
+> > with the same bridge our workaround was required as well but wouldn't
+> > be surprised if it shows the same problem. Will get you the
+> > information from both systems tomorrow then.
 > 
-> This patch is a partial revert of the 191cd6fb5 commit:
->  "PCI: tegra: Add SW fixup for RAW violations"
+> I take it that ec411e02b7a2 will be reverted upstream?
 
-Usual style is:
-191cd6fb5d2c ("PCI: tegra: Add SW fixup for RAW violations")
+Yes, unless we have a better fix soon.  I applied the revert to my
+for-linus branch, so it will appear in -next soon.  I think it's a
+little late to get it in -rc5, so I'll probably ask Linus to pull it
+next week for -rc6.
 
-> that was first introduced in 5.3-rc1 kernel.
-> This fix the following regression since then.
-> 
-> * Description:
-> When both the NIC and MMC are used one can see the following message:
-> 
-> NETDEV WATCHDOG: enp1s0 (r8169): transmit queue 0 timed out
-> 
->   and
-> 
-> pcieport 0000:00:02.0: AER: Uncorrected (Non-Fatal) error received: 0000:01:00.0
-> r8169 0000:01:00.0: AER: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-> r8169 0000:01:00.0: AER:   device [10ec:8168] error status/mask=00004000/00400000
-> r8169 0000:01:00.0: AER:    [14] CmpltTO                (First)
-> r8169 0000:01:00.0: AER: can't recover (no error_detected callback)
-> pcieport 0000:00:02.0: AER: device recovery failed
-
-Indent the quoted text (messages) two spaces so it's distinct from the
-prose.
-
-> After that, the ethernet NIC isn't functional anymore even after reloading
-> the r8169 module.
-> After a reboot, this is reproducible by copying a large file over the
-> NIC to the MMC.
-
-This looks like two paragraphs; if so, put a blank line between them.
-Otherwise wrap them so they fill the line.  It's hard to read when
-there are line breaks that look unnecessary.
-
-> For some reasons this cannot be reproduced when the same file is copied
-> to a tmpfs.
-> 
-> * Little background on the fixup, by Manikanta Maddireddy:
->   "In the internal testing with dGPU on Tegra124, CmplTO is reported by
-> dGPU. This happened because FIFO queue in AFI(AXI to PCIe) module
-> get full by upstream posted writes. Back to back upstream writes
-> interleaved with infrequent reads, triggers RAW violation and CmpltTO.
-> This is fixed by reducing the posted write credits and by changing
-> updateFC timer frequency. These settings are fixed after stress test.
-> 
-> In the current case, RTL NIC is also reporting CmplTO. These settings
-> seems to be aggravating the issue instead of fixing it."
-> 
-> v1: first non-RFC version
->  - Disable raw_violation_fixup and fully remove unused code and macros
-
-This version history can go after the "---" so it doesn't get included
-in the final commit log.  It's nice if your subject line includes
-"[PATCH v2]" or whatever is appropriate.
-
-Add this just before your Signed-off-by:
-
-  Fixes: 191cd6fb5d2c ("PCI: tegra: Add SW fixup for RAW violations")
-
-> Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
-> Reviewed-by: Manikanta Maddireddy <mmaddireddy@nvidia.com>
-> Cc: <stable@vger.kernel.org> # 5.4.x
-
-No "<>" needed around stable@vger.kernel.org
-
-You need not (and shouldn't) cc: stable@vger.kernel.org when you post
-this to the list.  The stable tag here in the commit log is
-sufficient.  Documentation/process/stable-kernel-rules.rst for more
-details.
-
-Is v5.4.x really the oldest kernel that should get this fix?  It looks
-like 191cd6fb5d2c appeared in v5.3.
+Bjorn
