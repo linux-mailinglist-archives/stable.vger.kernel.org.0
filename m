@@ -2,163 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D82C2244E5
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 22:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80AD224503
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 22:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728183AbgGQUHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 16:07:20 -0400
-Received: from aserp2130.oracle.com ([141.146.126.79]:57558 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726771AbgGQUHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 16:07:20 -0400
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06HJw2mh135643;
-        Fri, 17 Jul 2020 20:06:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=ctTlbJg6ZsvK6tf/ANMaIi1kDEh6xWj554sF+ck6xvA=;
- b=ohShRxZT1kMFsvCZr7g+i5MCaD5NT7OmprvTKFm8MSTbB0XkjAWeVriSNrqLVTU26Is/
- Wp1MthGTXlXy6rrlTwTs//erGW9Zj1sIzzQF1IayOlyhImZbLqRJLnxxydzo8RXIO+Fn
- 9ZHxqZ4fvkKjXosFS/UZsSBsXlSFZ5+DYtLaJNilYSSkRVySUda4zI3o7KyXhljgkyc6
- hhwm00VZZDs4Wkyp8tI9N60Ae9jAzK0rFLdh2tOkuwAPkKLyZTBtowOQiTqT14s2et7R
- kt0ogTyJdgDSqs2keHGINrcH3rmNXIzEHaRWigIbdjQdnBChNMZGj78I3YwieyT+frQx ng== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2130.oracle.com with ESMTP id 327s65yjrc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 17 Jul 2020 20:06:39 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06HK6OT5091616;
-        Fri, 17 Jul 2020 20:06:39 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by aserp3020.oracle.com with ESMTP id 32bjj9r9tk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Jul 2020 20:06:34 +0000
-Received: from abhmp0009.oracle.com (abhmp0009.oracle.com [141.146.116.15])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 06HK1MJe004735;
-        Fri, 17 Jul 2020 20:01:22 GMT
-Received: from localhost (/10.175.216.252)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 17 Jul 2020 13:01:22 -0700
-Date:   Fri, 17 Jul 2020 22:01:19 +0200
-From:   Gregory Herrero <gregory.herrero@oracle.com>
-To:     Steven Rostedt <rostedt@goodmis.org>
+        id S1728712AbgGQUPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 16:15:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726771AbgGQUPm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jul 2020 16:15:42 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5E4E2074B;
+        Fri, 17 Jul 2020 20:15:40 +0000 (UTC)
+Date:   Fri, 17 Jul 2020 16:15:38 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Gregory Herrero <gregory.herrero@oracle.com>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>,
         linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH] recordmcount: only record relocation of type
  R_AARCH64_CALL26 on arm64.
-Message-ID: <20200717200119.GP17377@ltoracle>
+Message-ID: <20200717161538.39edfa46@oasis.local.home>
+In-Reply-To: <20200717200119.GP17377@ltoracle>
 References: <20200717143338.19302-1-gregory.herrero@oracle.com>
- <20200717133003.025f2096@oasis.local.home>
+        <20200717133003.025f2096@oasis.local.home>
+        <20200717200119.GP17377@ltoracle>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200717133003.025f2096@oasis.local.home>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9685 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=100 malwarescore=0 suspectscore=0
- spamscore=100 adultscore=0 phishscore=0 mlxscore=100 mlxlogscore=-1000
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2007170135
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9685 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=100 adultscore=0 malwarescore=0
- phishscore=0 mlxscore=100 priorityscore=1501 lowpriorityscore=0
- spamscore=100 clxscore=1011 bulkscore=0 mlxlogscore=-1000 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2007170135
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 17, 2020 at 01:30:03PM -0400, Steven Rostedt wrote:
-> On Fri, 17 Jul 2020 16:33:38 +0200
-> gregory.herrero@oracle.com wrote:
-> 
-> > From: Gregory Herrero <gregory.herrero@oracle.com>
-> > 
-> > Currently, if a section has a relocation to '_mcount' symbol, a new
-> > __mcount_loc entry will be added whatever the relocation type is.
-> > This is problematic when a relocation to '_mcount' is in the middle of a
-> > section and is not a call for ftrace use.
-> > 
-> > Such relocation could be generated with below code for example:
-> >     bool is_mcount(unsigned long addr)
-> >     {
-> >         return (target == (unsigned long) &_mcount);
-> >     }
-> > 
-> > With this snippet of code, ftrace will try to patch the mcount location
-> > generated by this code on module load and fail with:
-> > 
-> >     Call trace:
-> >      ftrace_bug+0xa0/0x28c
-> >      ftrace_process_locs+0x2f4/0x430
-> >      ftrace_module_init+0x30/0x38
-> >      load_module+0x14f0/0x1e78
-> >      __do_sys_finit_module+0x100/0x11c
-> >      __arm64_sys_finit_module+0x28/0x34
-> >      el0_svc_common+0x88/0x194
-> >      el0_svc_handler+0x38/0x8c
-> >      el0_svc+0x8/0xc
-> >     ---[ end trace d828d06b36ad9d59 ]---
-> >     ftrace failed to modify
-> >     [<ffffa2dbf3a3a41c>] 0xffffa2dbf3a3a41c
-> >      actual:   66:a9:3c:90
-> >     Initializing ftrace call sites
-> >     ftrace record flags: 2000000
-> >      (0)
-> >     expected tramp: ffffa2dc6cf66724
-> > 
-> > So Limit the relocation type to R_AARCH64_CALL26 as in perl version of
-> > recordmcount.
-> > 
-> 
-> I'd rather have this go through the arm64 tree, as they can test it
-> better than I can.
-> 
-> Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> 
-> -- Steve
-> 
-Thanks Steve.
-Should I send a V2 to add 'Cc: stable@vger.kernel.org' in the commit
-description or can someone take care of it when adding the commit to
-the tree?
+On Fri, 17 Jul 2020 22:01:19 +0200
+Gregory Herrero <gregory.herrero@oracle.com> wrote:
 
-Thanks,
-Greg
+> Thanks Steve.
+> Should I send a V2 to add 'Cc: stable@vger.kernel.org' in the commit
+> description or can someone take care of it when adding the commit to
+> the tree?
 
-> 
-> > Fixes: ed60453fa8f8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
-> > Signed-off-by: Gregory Herrero <gregory.herrero@oracle.com>
-> > ---
-> >  scripts/recordmcount.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> > 
-> > diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
-> > index 7225107a9aaf..e59022b3f125 100644
-> > --- a/scripts/recordmcount.c
-> > +++ b/scripts/recordmcount.c
-> > @@ -434,6 +434,11 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
-> >  	return 1;
-> >  }
-> >  
-> > +static int arm64_is_fake_mcount(Elf64_Rel const *rp)
-> > +{
-> > +	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
-> > +}
-> > +
-> >  /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
-> >   * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
-> >   * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
-> > @@ -547,6 +552,7 @@ static int do_file(char const *const fname)
-> >  		make_nop = make_nop_arm64;
-> >  		rel_type_nop = R_AARCH64_NONE;
-> >  		ideal_nop = ideal_nop4_arm64;
-> > +		is_fake_mcount64 = arm64_is_fake_mcount;
-> >  		break;
-> >  	case EM_IA_64:	reltype = R_IA64_IMM64; break;
-> >  	case EM_MIPS:	/* reltype: e_class    */ break;
-> 
+If I was taking it, I would simply add the Cc: stable@vger.kernel.org
+to the commit log, and no resend would be needed.
+
+It's up to the ARM64 maintainers to decide in this case.
+
+Cheers,
+
+-- Steve
