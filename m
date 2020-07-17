@@ -2,99 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B74F4223672
-	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 10:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8E3223682
+	for <lists+stable@lfdr.de>; Fri, 17 Jul 2020 10:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728220AbgGQICN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jul 2020 04:02:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48790 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727853AbgGQICI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jul 2020 04:02:08 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC4DB20704;
-        Fri, 17 Jul 2020 08:02:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594972927;
-        bh=pEmoznDf9gF70xYZ0kn/H4fgKmERVzSDzcKBW/BAJt8=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=U3CS3Xz68p3vMXm1ko7gqCHBUTMYtSJ2y3amw8cf43q4XBPBdLTbXiMR6nm5+B+xs
-         zuCl6k3g9Tms9B+8ir1h39MMAfWw8FwF4awBmUlf5gF7g7HksMyaMw+gEa8T3vR+mu
-         i7UWlXt9CTD11QJ7cTGnSTHWElXfzXmw9tvfeW+0=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jwLJm-00CYk1-7g; Fri, 17 Jul 2020 09:02:06 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 17 Jul 2020 09:02:06 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, arnd@arndb.de, sashal@kernel.org,
-        naresh.kamboju@linaro.org, Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <linux@arm.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        id S1727978AbgGQIEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jul 2020 04:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41042 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726113AbgGQIEH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jul 2020 04:04:07 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00EA9C08C5C0
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 01:04:07 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id t15so6014788pjq.5
+        for <stable@vger.kernel.org>; Fri, 17 Jul 2020 01:04:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=KEvi0NuPU1IP8yO4PAQchnjzLd/x6LQsk0i3r7vHyn8=;
+        b=C6S1AvtTj8LyBgazLLSZt/LcOQkm40N2bLk8k+vnF1Q/0qesdwGhQOXIbIdrg+K0y3
+         6WRXf56QXTDlMKRmeCFZ40Wmw40hCGXJ7OH5bmuVOTpkjBdpI4cNzzTy063Ne67hZhDA
+         Kdd5l3sMZ+SBT2EsBKzvpMwcqdziXpz8MQdgU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=KEvi0NuPU1IP8yO4PAQchnjzLd/x6LQsk0i3r7vHyn8=;
+        b=e4jJ8W6yiBWFwX8jb1PVtp47g6sTNluTsQMvrjD++iLRvSGUGo7I6+jLGAlNTWeEPr
+         WgCnKEY1SvhgfVnrTcVFQv8wwOHD2lDQieM+O+hwUkOfYwz2MuWCUIs6Hh0YOWQ8lRVL
+         751wN/EnsK8+Q2/a5Z8BtZ8drclweKLVB2JgO4Z5k5JoM5jajbUF5PKFo0u9+FmWWdPs
+         ESZNRUEnCuznbqwqrnsLjCXj9iYzkrrTTzi77UarBhIS4JFRUvaAlB8u3nQsDNaqrqoK
+         cTORcOsmzNqEQaW7xRM6IBiKvwN5aqTZgcFA4ltxcOXRiBMESlslkpPlZWBgjRDKF4TL
+         /YGw==
+X-Gm-Message-State: AOAM531Q0GXjs4YgFpeUIQETwTkBrAi7LpsUJSJAr1J8Dms/NorXdaCK
+        /aKfmamy/ZLdmb/vpSglOmOjkQ==
+X-Google-Smtp-Source: ABdhPJyIUB2X2bt07ezL/JxWGi7QM9dTUwoDl2jBg2/4sx2zMYj96jaBOidH0UnTgvjoskVWg8dGGQ==
+X-Received: by 2002:a17:902:6b08:: with SMTP id o8mr6813081plk.104.1594973046370;
+        Fri, 17 Jul 2020 01:04:06 -0700 (PDT)
+Received: from localhost.localdomain ([183.83.226.37])
+        by smtp.gmail.com with ESMTPSA id y7sm1933330pjp.47.2020.07.17.01.04.01
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 17 Jul 2020 01:04:05 -0700 (PDT)
+From:   Suniel Mahesh <sunil@amarulasolutions.com>
+To:     robh+dt@kernel.org, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        gregkh@linuxfoundation.org, sashal@kernel.org
+Cc:     jagan@amarulasolutions.com, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com
-Subject: Re: [Stable-5.4][PATCH 0/3] arm64: Allow the compat vdso to be
- disabled at runtime
-In-Reply-To: <20200716115813.GB1668009@kroah.com>
-References: <20200715125614.3240269-1-maz@kernel.org>
- <20200716115813.GB1668009@kroah.com>
-User-Agent: Roundcube Webmail/1.4.5
-Message-ID: <c9f5b2b0512067b128dd5c98acc5db7e@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, stable@vger.kernel.org, arnd@arndb.de, sashal@kernel.org, naresh.kamboju@linaro.org, mark.rutland@arm.com, will@kernel.org, catalin.marinas@arm.com, daniel.lezcano@linaro.org, vincenzo.frascino@arm.com, linux@arm.linux.org.uk, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel-team@android.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+        linux-amarula@amarulasolutions.com,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v3] ARM: dts: imx6qdl-icore: Fix OTG_ID pin and sdcard detect
+Date:   Fri, 17 Jul 2020 13:33:52 +0530
+Message-Id: <1594973032-29671-1-git-send-email-sunil@amarulasolutions.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <20200711135925.GG21277@dragon>
+References: <20200711135925.GG21277@dragon>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+From: Michael Trimarchi <michael@amarulasolutions.com>
 
-On 2020-07-16 12:58, Greg KH wrote:
-> On Wed, Jul 15, 2020 at 01:56:11PM +0100, Marc Zyngier wrote:
->> This is a backport of the series that recently went into 5.8. Note
->> that the first patch is more a complete rewriting than a backport, as
->> the vdso implementation in 5.4 doesn't have much in common with
->> mainline. This affects the 32bit arch code in a benign way.
->> 
->> It has seen very little testing, as I don't have the HW that triggers
->> this issue. I have run it in VMs by faking the CPU MIDR, and nothing
->> caught fire. Famous last words.
-> 
-> These are also needed in 5.7.y, right?  If so, I need that series 
-> before
-> I can take this one as we don't want people moving to a newer kernel 
-> and
-> suffer regressions :(
+The current pin muxing scheme muxes GPIO_1 pad for USB_OTG_ID
+because of which when card is inserted, usb otg is enumerated
+and the card is never detected.
 
-The original mainline changes:
+[   64.492645] cfg80211: failed to load regulatory.db
+[   64.492657] imx-sdma 20ec000.sdma: external firmware not found, using ROM firmware
+[   76.343711] ci_hdrc ci_hdrc.0: EHCI Host Controller
+[   76.349742] ci_hdrc ci_hdrc.0: new USB bus registered, assigned bus number 2
+[   76.388862] ci_hdrc ci_hdrc.0: USB 2.0 started, EHCI 1.00
+[   76.396650] usb usb2: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 5.08
+[   76.405412] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[   76.412763] usb usb2: Product: EHCI Host Controller
+[   76.417666] usb usb2: Manufacturer: Linux 5.8.0-rc1-next-20200618 ehci_hcd
+[   76.424623] usb usb2: SerialNumber: ci_hdrc.0
+[   76.431755] hub 2-0:1.0: USB hub found
+[   76.435862] hub 2-0:1.0: 1 port detected
 
-4b661d6133c5 arm64: arch_timer: Disable the compat vdso for cores 
-affected by ARM64_WORKAROUND_1418040
-c1fbec4ac0d7 arm64: arch_timer: Allow an workaround descriptor to 
-disable compat vdso
-97884ca8c292 arm64: Introduce a way to disable the 32bit vdso
+The TRM mentions GPIO_1 pad should be muxed/assigned for card detect
+and ENET_RX_ER pad for USB_OTG_ID for proper operation.
 
-do apply cleanly to stable-5.7. Do you want me to resend them 
-separately,
-or will you pick the patches directly from mainline?
+This patch fixes pin muxing as per TRM and is tested on a
+i.Core 1.5 MX6 DL SOM.
 
-Thanks,
+[   22.449165] mmc0: host does not support reading read-only switch, assuming write-enable
+[   22.459992] mmc0: new high speed SDHC card at address 0001
+[   22.469725] mmcblk0: mmc0:0001 EB1QT 29.8 GiB
+[   22.478856]  mmcblk0: p1 p2
 
-         M.
+Fixes: 6df11287f7c9 ("ARM: dts: imx6q: Add Engicam i.CoreM6 Quad/Dual initial support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Suniel Mahesh <sunil@amarulasolutions.com>
+---
+Changes for v3:
+- Changed subject of the patch, added fixes tag and copied stable kernel
+  as suggested by Shawn Guo.
+
+Changes for v2:
+- Changed patch description as suggested by Michael Trimarchi to make it
+  more readable/understandable.
+
+NOTE:
+- patch tested on i.Core 1.5 MX6 DL
+---
+ arch/arm/boot/dts/imx6qdl-icore.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-icore.dtsi b/arch/arm/boot/dts/imx6qdl-icore.dtsi
+index f2f475e..23c318d 100644
+--- a/arch/arm/boot/dts/imx6qdl-icore.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-icore.dtsi
+@@ -398,7 +398,7 @@
+ 
+ 	pinctrl_usbotg: usbotggrp {
+ 		fsl,pins = <
+-			MX6QDL_PAD_GPIO_1__USB_OTG_ID 0x17059
++			MX6QDL_PAD_ENET_RX_ER__USB_OTG_ID 0x17059
+ 		>;
+ 	};
+ 
+@@ -410,6 +410,7 @@
+ 			MX6QDL_PAD_SD1_DAT1__SD1_DATA1 0x17070
+ 			MX6QDL_PAD_SD1_DAT2__SD1_DATA2 0x17070
+ 			MX6QDL_PAD_SD1_DAT3__SD1_DATA3 0x17070
++			MX6QDL_PAD_GPIO_1__GPIO1_IO01  0x1b0b0
+ 		>;
+ 	};
+ 
 -- 
-Jazz is not dead. It just smells funny...
+2.7.4
+
