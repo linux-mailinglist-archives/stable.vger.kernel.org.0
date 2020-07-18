@@ -2,222 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF68224A88
-	for <lists+stable@lfdr.de>; Sat, 18 Jul 2020 12:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F96224AA2
+	for <lists+stable@lfdr.de>; Sat, 18 Jul 2020 12:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726335AbgGRKHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jul 2020 06:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55506 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726293AbgGRKHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jul 2020 06:07:15 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05DFC0619D2;
-        Sat, 18 Jul 2020 03:07:14 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id l2so20784458wmf.0;
-        Sat, 18 Jul 2020 03:07:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TbUgyZeiuM6+BVUIAI4OdILY3CSnWGCM8BoQyFdGMKs=;
-        b=OC0B+1hbj5tnPzu0RoOh98I75oY4HQYUY3L9uBR+BE/JwnGX2voM2S3XIWFKi1AYTN
-         9IIxlMLOmcKJaGS4kCR5soTLRcKvhawmfcBqe5SS9m53rUHpbE8XYTuuZSj4DcSd1SkB
-         6y2AOOnx9xfyfUF0gvR3snn54TyBGVllxY+KvMT0DXfqNl1ie24GeWmbHbebY82vkN/k
-         aocOTxiqyY8uIN2t0SBoKZa9V/azqrxVeEygbUVxCwQn+ZwAxxbj0Gmr4Y4seX6BwULs
-         i3uS5M6FEzjZJMC4/6XYy6s0HujfStbAhS+hpkNl2wh3VJeeixis/OXBYckuikLli8G4
-         O1eQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TbUgyZeiuM6+BVUIAI4OdILY3CSnWGCM8BoQyFdGMKs=;
-        b=F788rEwRvDTCgrEkfZojaO03ue8zb/Mo4CFHXh8XnRpXBzsaQclqY3m4FyoGCP33Hw
-         QI2huOvdYd3l38LGErZ3MRbll45xP4yPrnrs9LBmHA+DTZZX5x7OcLI+IYKhnZTjvD3r
-         uwyV/Smjije6CwIgyTo77z//dg8YL56pryhslTzjA842AIX6cwKpF2xCT+fbFaF/mNhF
-         a70WgYu0QB6Kat91f2hu5MZLiI0HrMq7cdjV7cz4wr6UxsK8njGcALDFDJksPaULUd7x
-         fG0Ar0GkvsA+vtMPDryA/TQ4dR2y2t+58CxpIQWs27pD6Hd1rjO6NYsb0XkueR8uVX0a
-         GRQA==
-X-Gm-Message-State: AOAM532iB/N7gLAY+gR6oA/MO84UAsJQdHZD2Q9t6blhXDvwhPXyqtq3
-        n1cWDZJJh9k0NJsVsOYZj/9P76eksYY=
-X-Google-Smtp-Source: ABdhPJxcbaX83DdQaX3e5Oi0V4G5NBOFKyvw4yFH3H3mNbNDinbarEXp3AInlsVTsksLfM00eURSlQ==
-X-Received: by 2002:a7b:c394:: with SMTP id s20mr13753156wmj.31.1595066833465;
-        Sat, 18 Jul 2020 03:07:13 -0700 (PDT)
-Received: from arrakis.kwizart.net (amontpellier-652-1-69-19.w109-210.abo.wanadoo.fr. [109.210.52.19])
-        by smtp.gmail.com with ESMTPSA id a123sm18899653wmd.28.2020.07.18.03.07.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2020 03:07:12 -0700 (PDT)
-From:   Nicolas Chauvet <kwizart@gmail.com>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Manikanta Maddireddy <mmaddireddy@nvidia.com>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc:     linux-tegra@vger.kernel.org, linux-pci@vger.kernel.org,
-        Nicolas Chauvet <kwizart@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] PCI: tegra: Revert tegra124 raw_violation_fixup
-Date:   Sat, 18 Jul 2020 12:07:10 +0200
-Message-Id: <20200718100710.15398-1-kwizart@gmail.com>
-X-Mailer: git-send-email 2.25.4
+        id S1726528AbgGRKc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jul 2020 06:32:59 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:46418 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726465AbgGRKc7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jul 2020 06:32:59 -0400
+Date:   Sat, 18 Jul 2020 10:32:55 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1595068376;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ymd8qYWaEdTTftBfZmoWaKrPhR1IfPBGgx9wCBkgyHE=;
+        b=du6QDH8A6ETSLW6R0jB8LCZJSTRS69Ngrg3eOccUiMHWuV4M7M9HI29Jq9pD15bTZx9DGz
+        PzdASszTDxz5PN2UM65rMQNTVGSU2G7JqjLBQxG77XDwUHn5GWDqeBWpMRrzwG2G9l1MhA
+        zTaAGrPuBtUdoYhyvhexIVP3s5arjjyeWEFQXdC88CWx4SY0TkJYcYUFyYxSF7SnZHDzfe
+        65nRcLriWGi1UrEjichWIDnRbmOKVEKuk6N3YAL2sRMabN0kLs3rnkdHcRQd81drr/7hSk
+        fva03phQs1nxNDl4yN7D0t3q7vDXhVqTi40VUD3rBq0IjHgLyIXn0Ju2N+MprQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1595068376;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ymd8qYWaEdTTftBfZmoWaKrPhR1IfPBGgx9wCBkgyHE=;
+        b=Wbac0Hawfcn5aHf+XE6x8bXSBsDJJrQIsreCdNgFqcRxx5VpO0O9UdT57w8LUuGfx2ioBu
+        jrwGFysiUnHt+hBg==
+From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/ioperm: Fix io bitmap invalidation on Xen PV
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Juergen Gross <jgross@suse.com>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <d53075590e1f91c19f8af705059d3ff99424c020.1595030016.git.luto@kernel.org>
+References: <d53075590e1f91c19f8af705059d3ff99424c020.1595030016.git.luto@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <159506837509.4006.13838291680032075449.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As reported in https://bugzilla.kernel.org/206217 , raw_violation_fixup
-is causing more harm than good in some common use-cases.
+The following commit has been merged into the x86/urgent branch of tip:
 
-This patch is a partial revert of commit:
- 191cd6fb5d2c ("PCI: tegra: Add SW fixup for RAW violations")
-that was first introduced in 5.3-rc1 kernel. This fix the following
-regression since then.
+Commit-ID:     cadfad870154e14f745ec845708bc17d166065f2
+Gitweb:        https://git.kernel.org/tip/cadfad870154e14f745ec845708bc17d166065f2
+Author:        Andy Lutomirski <luto@kernel.org>
+AuthorDate:    Fri, 17 Jul 2020 16:53:55 -07:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 18 Jul 2020 12:31:49 +02:00
 
-* Description:
-When both the NIC and MMC are used one can see the following message:
+x86/ioperm: Fix io bitmap invalidation on Xen PV
 
-  NETDEV WATCHDOG: enp1s0 (r8169): transmit queue 0 timed out
+tss_invalidate_io_bitmap() wasn't wired up properly through the pvop
+machinery, so the TSS and Xen's io bitmap would get out of sync
+whenever disabling a valid io bitmap.
 
-and
+Add a new pvop for tss_invalidate_io_bitmap() to fix it.
 
-  pcieport 0000:00:02.0: AER: Uncorrected (Non-Fatal) error received: 0000:01:00.0
-  r8169 0000:01:00.0: AER: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-  r8169 0000:01:00.0: AER:   device [10ec:8168] error status/mask=00004000/00400000
-  r8169 0000:01:00.0: AER:    [14] CmpltTO                (First)
-  r8169 0000:01:00.0: AER: can't recover (no error_detected callback)
-  pcieport 0000:00:02.0: AER: device recovery failed
+This is XSA-329.
 
-After that, the ethernet NIC isn't functional anymore even after
-reloading the r8169 module. After a reboot, this is reproducible by
-copying a large file over the NIC to the MMC.
-
-For some reason this is not reproducible when files are copied to a tmpfs.
-
-* Little background on the fixup, by Manikanta Maddireddy:
-  "In the internal testing with dGPU on Tegra124, CmplTO is reported by
-dGPU. This happened because FIFO queue in AFI(AXI to PCIe) module
-get full by upstream posted writes. Back to back upstream writes
-interleaved with infrequent reads, triggers RAW violation and CmpltTO.
-This is fixed by reducing the posted write credits and by changing
-updateFC timer frequency. These settings are fixed after stress test.
-
-In the current case, RTL NIC is also reporting CmplTO. These settings
-seems to be aggravating the issue instead of fixing it."
-
-Fixes: 191cd6fb5d2c ("PCI: tegra: Add SW fixup for RAW violations")
-Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
-Reviewed-by: Manikanta Maddireddy <mmaddireddy@nvidia.com>
+Fixes: 22fe5b0439dd ("x86/ioperm: Move TSS bitmap update to exit to user work")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/d53075590e1f91c19f8af705059d3ff99424c020.1595030016.git.luto@kernel.org
+
 ---
+ arch/x86/include/asm/io_bitmap.h      | 16 ++++++++++++++++
+ arch/x86/include/asm/paravirt.h       |  5 +++++
+ arch/x86/include/asm/paravirt_types.h |  1 +
+ arch/x86/kernel/paravirt.c            |  3 ++-
+ arch/x86/kernel/process.c             | 18 ++----------------
+ arch/x86/xen/enlighten_pv.c           | 12 ++++++++++++
+ 6 files changed, 38 insertions(+), 17 deletions(-)
 
-v1: first non-RFC version
-    Disable raw_violation_fixup and fully remove unused code and macros
-
-v2: Update the commit message
-
- drivers/pci/controller/pci-tegra.c | 32 ------------------------------
- 1 file changed, 32 deletions(-)
-
-diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
-index 235b456698fc..b532d5082fb6 100644
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -181,13 +181,6 @@
+diff --git a/arch/x86/include/asm/io_bitmap.h b/arch/x86/include/asm/io_bitmap.h
+index ac1a99f..7f080f5 100644
+--- a/arch/x86/include/asm/io_bitmap.h
++++ b/arch/x86/include/asm/io_bitmap.h
+@@ -19,12 +19,28 @@ struct task_struct;
+ void io_bitmap_share(struct task_struct *tsk);
+ void io_bitmap_exit(struct task_struct *tsk);
  
- #define AFI_PEXBIAS_CTRL_0		0x168
++static inline void native_tss_invalidate_io_bitmap(void)
++{
++	/*
++	 * Invalidate the I/O bitmap by moving io_bitmap_base outside the
++	 * TSS limit so any subsequent I/O access from user space will
++	 * trigger a #GP.
++	 *
++	 * This is correct even when VMEXIT rewrites the TSS limit
++	 * to 0x67 as the only requirement is that the base points
++	 * outside the limit.
++	 */
++	this_cpu_write(cpu_tss_rw.x86_tss.io_bitmap_base,
++		       IO_BITMAP_OFFSET_INVALID);
++}
++
+ void native_tss_update_io_bitmap(void);
  
--#define RP_PRIV_XP_DL		0x00000494
--#define  RP_PRIV_XP_DL_GEN2_UPD_FC_TSHOLD	(0x1ff << 1)
+ #ifdef CONFIG_PARAVIRT_XXL
+ #include <asm/paravirt.h>
+ #else
+ #define tss_update_io_bitmap native_tss_update_io_bitmap
++#define tss_invalidate_io_bitmap native_tss_invalidate_io_bitmap
+ #endif
+ 
+ #else
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 5ca5d29..3d2afec 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -302,6 +302,11 @@ static inline void write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
+ }
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
++static inline void tss_invalidate_io_bitmap(void)
++{
++	PVOP_VCALL0(cpu.invalidate_io_bitmap);
++}
++
+ static inline void tss_update_io_bitmap(void)
+ {
+ 	PVOP_VCALL0(cpu.update_io_bitmap);
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 732f62e..8dfcb25 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -141,6 +141,7 @@ struct pv_cpu_ops {
+ 	void (*load_sp0)(unsigned long sp0);
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
++	void (*invalidate_io_bitmap)(void);
+ 	void (*update_io_bitmap)(void);
+ #endif
+ 
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 674a7d6..de2138b 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -324,7 +324,8 @@ struct paravirt_patch_template pv_ops = {
+ 	.cpu.swapgs		= native_swapgs,
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
+-	.cpu.update_io_bitmap	= native_tss_update_io_bitmap,
++	.cpu.invalidate_io_bitmap	= native_tss_invalidate_io_bitmap,
++	.cpu.update_io_bitmap		= native_tss_update_io_bitmap,
+ #endif
+ 
+ 	.cpu.start_context_switch	= paravirt_nop,
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index f362ce0..fe67dbd 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -322,20 +322,6 @@ void arch_setup_new_exec(void)
+ }
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
+-static inline void tss_invalidate_io_bitmap(struct tss_struct *tss)
+-{
+-	/*
+-	 * Invalidate the I/O bitmap by moving io_bitmap_base outside the
+-	 * TSS limit so any subsequent I/O access from user space will
+-	 * trigger a #GP.
+-	 *
+-	 * This is correct even when VMEXIT rewrites the TSS limit
+-	 * to 0x67 as the only requirement is that the base points
+-	 * outside the limit.
+-	 */
+-	tss->x86_tss.io_bitmap_base = IO_BITMAP_OFFSET_INVALID;
+-}
 -
--#define RP_RX_HDR_LIMIT		0x00000e00
--#define  RP_RX_HDR_LIMIT_PW_MASK	(0xff << 8)
--#define  RP_RX_HDR_LIMIT_PW		(0x0e << 8)
--
- #define RP_ECTL_2_R1	0x00000e84
- #define  RP_ECTL_2_R1_RX_CTLE_1C_MASK		0xffff
+ static inline void switch_to_bitmap(unsigned long tifp)
+ {
+ 	/*
+@@ -346,7 +332,7 @@ static inline void switch_to_bitmap(unsigned long tifp)
+ 	 * user mode.
+ 	 */
+ 	if (tifp & _TIF_IO_BITMAP)
+-		tss_invalidate_io_bitmap(this_cpu_ptr(&cpu_tss_rw));
++		tss_invalidate_io_bitmap();
+ }
  
-@@ -323,7 +316,6 @@ struct tegra_pcie_soc {
- 	bool program_uphy;
- 	bool update_clamp_threshold;
- 	bool program_deskew_time;
--	bool raw_violation_fixup;
- 	bool update_fc_timer;
- 	bool has_cache_bars;
- 	struct {
-@@ -659,23 +651,6 @@ static void tegra_pcie_apply_sw_fixup(struct tegra_pcie_port *port)
- 		writel(value, port->base + RP_VEND_CTL0);
+ static void tss_copy_io_bitmap(struct tss_struct *tss, struct io_bitmap *iobm)
+@@ -380,7 +366,7 @@ void native_tss_update_io_bitmap(void)
+ 	u16 *base = &tss->x86_tss.io_bitmap_base;
+ 
+ 	if (!test_thread_flag(TIF_IO_BITMAP)) {
+-		tss_invalidate_io_bitmap(tss);
++		native_tss_invalidate_io_bitmap();
+ 		return;
  	}
  
--	/* Fixup for read after write violation. */
--	if (soc->raw_violation_fixup) {
--		value = readl(port->base + RP_RX_HDR_LIMIT);
--		value &= ~RP_RX_HDR_LIMIT_PW_MASK;
--		value |= RP_RX_HDR_LIMIT_PW;
--		writel(value, port->base + RP_RX_HDR_LIMIT);
--
--		value = readl(port->base + RP_PRIV_XP_DL);
--		value |= RP_PRIV_XP_DL_GEN2_UPD_FC_TSHOLD;
--		writel(value, port->base + RP_PRIV_XP_DL);
--
--		value = readl(port->base + RP_VEND_XP);
--		value &= ~RP_VEND_XP_UPDATE_FC_THRESHOLD_MASK;
--		value |= soc->update_fc_threshold;
--		writel(value, port->base + RP_VEND_XP);
--	}
--
- 	if (soc->update_fc_timer) {
- 		value = readl(port->base + RP_VEND_XP);
- 		value &= ~RP_VEND_XP_UPDATE_FC_THRESHOLD_MASK;
-@@ -2416,7 +2391,6 @@ static const struct tegra_pcie_soc tegra20_pcie = {
- 	.program_uphy = true,
- 	.update_clamp_threshold = false,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = false,
- 	.has_cache_bars = true,
- 	.ectl.enable = false,
-@@ -2446,7 +2420,6 @@ static const struct tegra_pcie_soc tegra30_pcie = {
- 	.program_uphy = true,
- 	.update_clamp_threshold = false,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = false,
- 	.has_cache_bars = false,
- 	.ectl.enable = false,
-@@ -2459,8 +2432,6 @@ static const struct tegra_pcie_soc tegra124_pcie = {
- 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
- 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
- 	.pads_refclk_cfg0 = 0x44ac44ac,
--	/* FC threshold is bit[25:18] */
--	.update_fc_threshold = 0x03fc0000,
- 	.has_pex_clkreq_en = true,
- 	.has_pex_bias_ctrl = true,
- 	.has_intr_prsnt_sense = true,
-@@ -2470,7 +2441,6 @@ static const struct tegra_pcie_soc tegra124_pcie = {
- 	.program_uphy = true,
- 	.update_clamp_threshold = true,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = true,
- 	.update_fc_timer = false,
- 	.has_cache_bars = false,
- 	.ectl.enable = false,
-@@ -2494,7 +2464,6 @@ static const struct tegra_pcie_soc tegra210_pcie = {
- 	.program_uphy = true,
- 	.update_clamp_threshold = true,
- 	.program_deskew_time = true,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = true,
- 	.has_cache_bars = false,
- 	.ectl = {
-@@ -2536,7 +2505,6 @@ static const struct tegra_pcie_soc tegra186_pcie = {
- 	.program_uphy = false,
- 	.update_clamp_threshold = false,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = false,
- 	.has_cache_bars = false,
- 	.ectl.enable = false,
--- 
-2.25.4
-
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 0d68948..c46b9f2 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -870,6 +870,17 @@ static void xen_load_sp0(unsigned long sp0)
+ }
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
++static void xen_invalidate_io_bitmap(void)
++{
++	struct physdev_set_iobitmap iobitmap = {
++		.bitmap = 0,
++		.nr_ports = 0,
++	};
++
++	native_tss_invalidate_io_bitmap();
++	HYPERVISOR_physdev_op(PHYSDEVOP_set_iobitmap, &iobitmap);
++}
++
+ static void xen_update_io_bitmap(void)
+ {
+ 	struct physdev_set_iobitmap iobitmap;
+@@ -1099,6 +1110,7 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
+ 	.load_sp0 = xen_load_sp0,
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
++	.invalidate_io_bitmap = xen_invalidate_io_bitmap,
+ 	.update_io_bitmap = xen_update_io_bitmap,
+ #endif
+ 	.io_delay = xen_io_delay,
