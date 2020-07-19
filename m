@@ -2,68 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C832A225264
-	for <lists+stable@lfdr.de>; Sun, 19 Jul 2020 17:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7447B225298
+	for <lists+stable@lfdr.de>; Sun, 19 Jul 2020 17:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbgGSPNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jul 2020 11:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53178 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726024AbgGSPNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Jul 2020 11:13:12 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 478E622B4D;
-        Sun, 19 Jul 2020 15:13:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595171591;
-        bh=NJ+8Y8xBtYKVq7It5UDmlrFvfA6IdxHidPvXTq/XF7I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Faftx/0Hn6GnZ5dDLGHnUEQ4pR549d2YryvE4r5cdmBdg58nTgYPN7WHH7wtQPdqF
-         no581pI7YeuY17rsynWainmO83EUPIyxLHvkTOZI+boGzKVkX1piQM4uqJMmchQT6f
-         K1aBnhzIlRioT3WUJ1VrQok/NXExiUBDHEMRzbCw=
-Date:   Sun, 19 Jul 2020 17:13:22 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc:     Huacai Chen <chenhuacai@gmail.com>,
-        "open list:MIPS" <linux-mips@vger.kernel.org>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        "Stable # 4 . 4/4 . 9/4 . 14/4 . 19" <stable@vger.kernel.org>
-Subject: Re: [PATCH -stable] MIPS: Fix build for LTS kernel caused by
- backporting lpj adjustment
-Message-ID: <20200719151322.GA301242@kroah.com>
-References: <1594892369-28060-1-git-send-email-chenhc@lemote.com>
- <CAAhV-H4wdxtLCAFOJE6wgAZdg+U5mquSZjHmAL_qsDaGtENbFg@mail.gmail.com>
- <34928e81-3675-0309-b020-0cb4b402dc5c@flygoat.com>
+        id S1726499AbgGSPs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jul 2020 11:48:56 -0400
+Received: from mail22c26.carrierzone.com ([64.29.152.172]:47014 "EHLO
+        mail22c26.carrierzone.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726093AbgGSPs4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 11:48:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=carrierzone.com;
+        s=mailmia; t=1595170463;
+        bh=LnlE7Jtg6ZVuk2BQbkwEs7AGhT3ryNyE3ZXTiZugBZw=;
+        h=From:To:CC:Subject:Date:Reply-to:From;
+        b=XPsnIsiorzYP3nH37PpvyE3Tq8Hh8FPMP5XDMARCt5uyRs/Aq2zr5FmXyEWcyyKg5
+         OBeAW8hWAPt6xQaa2LWYmjGjpBoS+a+V6ccip92OwXqERSdz/sssl8eYtT4v0rhc3E
+         IADOpSNHjOwyv3RrxBeF7bIwhzdrSM6l4PxN/w5Y=
+Feedback-ID: vzezhmaa@myfair
+Received: from mail22c26.carrierzone.com (localhost [127.0.0.1])
+        by mail22c26.carrierzone.com (8.14.9/8.13.1) with ESMTP id 06JErjj6003329
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Sun, 19 Jul 2020 14:54:23 +0000
+Received: (from webmail@localhost)
+        by mail22c26.carrierzone.com (8.14.9/8.12.2/Submit) id 06JEqCVJ031272;
+        Sun, 19 Jul 2020 10:52:12 -0400
+From:   JOHN LEE <vzezhmaa@myfairpoint.net>
+Subject: PENDING MAIL
+Date:   Sun, 19 Jul 2020 10:52:12 -0400
+Message-ID: <1595170332.11hlgdkywoo0ck4w@webmail.myfairpoint.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <34928e81-3675-0309-b020-0cb4b402dc5c@flygoat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Image-Url: https://webmail.myfairpoint.net/api/storage/homeowner04537@myfairpoint.net/profile/picture
+Reply-to: homeowner04537@myfairpoint.net
+X-CTCH-RefID: str=0001.0A09020C.5F145E9F.004D,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+X-CTCH-VOD: Unknown
+X-CTCH-Spam: Unknown
+X-CTCH-Score: 0.000
+X-CTCH-Rules: 
+X-CTCH-Flags: 0
+X-CTCH-ScoreCust: 0.000
+X-CSC:  100
+X-CHA:  v=2.3 cv=D7451cZj c=1 sm=1 tr=0 p=vRwRK4cWuYTwCVreQCQA:9
+        p=dAZlUtl31qoA:10 a=WkljmVdYkabdwxfqvArNOQ==:117 a=IkcTkHD0fZMA:10
+        a=_RQrkK6FrEwA:10 a=pGLkceISAAAA:8 a=QEXdDO2ut3YA:10 a=7gU4Oal9hIAA:10
+        a=-wMPvpir8QEA:10 a=ZTDaR2KHRxEEhkckLb14:22 a=Z5ABNNGmrOfJ6cZ5bIyy:22
+        a=jd6J4Gguk5HxikPWLKER:22
+X-Origin-Country: Unknown
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jul 19, 2020 at 10:51:11PM +0800, Jiaxun Yang wrote:
-> 
-> 在 2020/7/19 上午11:24, Huacai Chen 写道:
-> > Hi, Serge,
-> > 
-> > Could you please have a look at this patch?
-> 
-> 
-> + Gregkh
-> 
-> This is urgent for next stable release, please take a look.
 
-Relax, it was only sent 3 days ago, we will get to this...
 
-Also, why was this not caught by any of the testing systems that we
-have?  That might be good to determine so we don't mess up again in the
-future.
+I sent you an email about a pending offer, please reply me on this email ad=
+dress jc19152903@gmail.com
 
-thanks,
+for more details.
 
-greg k-h
+Regards,
+John Lee
+Email: jc19152903@gmail.com
