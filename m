@@ -2,77 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F8A2251AF
-	for <lists+stable@lfdr.de>; Sun, 19 Jul 2020 13:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E223C225204
+	for <lists+stable@lfdr.de>; Sun, 19 Jul 2020 15:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726527AbgGSLnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jul 2020 07:43:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35794 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725988AbgGSLnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 07:43:31 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D92C0619D2
-        for <stable@vger.kernel.org>; Sun, 19 Jul 2020 04:43:30 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id t9so8307647lfl.5
-        for <stable@vger.kernel.org>; Sun, 19 Jul 2020 04:43:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=0szFg6H4KB0H2N+RAqtMuGxgL2E2gzTIXw7eFYVxHO4=;
-        b=U7bm5fHXr/QGbSFvuSdYgQzMX0IGN63BPHudyh436Jk+fewAOPR1CDVQqY4+tX5LqC
-         8gEHg4mpG7pS1ss4eBycterwupjl05gRcMZhxkDw7qv4xeY01uMPOWozxAaflTR+ARlV
-         RZbgN6q0VJPbOr6rOnxNzGfGbDsojyy8+ZIfRE0A9zsmXiOKmybwYvXuz8yF8N87wAcy
-         /oS/Xwv7SW12LEp7s6DcCDbKkNwp5ZIsJacf/fnL4etbVjBJRzZ1r4rH1iwMCxu1sgnG
-         xIG2fxb05IPhwU4LJJi+udsWdYh2wAH6Mu+5mCQ5nRhKxZF5vDb4N/xOu3YqMAenyp8s
-         U8LQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=0szFg6H4KB0H2N+RAqtMuGxgL2E2gzTIXw7eFYVxHO4=;
-        b=rX0OqEGJficA1tDoNEb2QNDOJmOEf+DV1fitJTbe61d9fOiDG7yqGg0gU/gsX+mPnq
-         WZOZPbmJUYu1aUaKZ4Dz1Wgv6wNUXbnMAiDpOZeczCgZDC0pY4EtzE+iapSZULQgZ2Wh
-         WI2PiQ25bwquiARerIRMGqaUxyVrNM3Tg/xzq+WseS2ZbAO3N/liMrhJc80QE1oSihIg
-         bA2D+jlQe4Hg/PSoRpB3GbUn9XLd3RQLsFKSg2HT0K3wW//cI3nkuzHeHhwbe2rDcxzp
-         Eq1sPbxLrjWOgp2GNhz7/hCz/wRGPFaVaMjXyYqsVHSRuEWlfI0oJ1QwxEuacccpS7FP
-         M0Sg==
-X-Gm-Message-State: AOAM532rJj7NeqZ2FheIWk4Wd6GIgQMzULSYfo0kL2Tth4pDqejK1Igj
-        4j2tIFRinQhyHZWbc16Jm5hiDbJbxfYZurMfkFQ=
-X-Google-Smtp-Source: ABdhPJwDSWYL9JFE3yysQj2WZ0MpiG5k5l6JwSVo9DXtotMVbj7NFEIhcDXkVd8Ql7xFyL8dky3N1bd1eLeom8RsZWs=
-X-Received: by 2002:a19:48d3:: with SMTP id v202mr8742513lfa.202.1595159009206;
- Sun, 19 Jul 2020 04:43:29 -0700 (PDT)
+        id S1726038AbgGSNqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jul 2020 09:46:14 -0400
+Received: from sonic304-9.consmr.mail.bf2.yahoo.com ([74.6.128.32]:34889 "EHLO
+        sonic304-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725988AbgGSNqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 09:46:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595166373; bh=qXBWf2EoWT9gmJgm/3NiogFnv3V/rxlq5ApKE+Dow4k=; h=Date:From:Reply-To:Subject:References:From:Subject; b=OeUOK9LhsASj7a3MU/gaoBtCuDjZhge+gYx+i7OU7mbn0l85XZP/OEeiR/R9ITg1IWQD4ka+1wFSpZsFmBuQKLhSQAxcxHAVVBVyQeVljrwuwwIhjGiE8j5UIihqyQyzmZ+3/KRnZFnAXcFXanul7La/ZKU/mYdbMClXb2FLqcYdkHOPXw4TBTL9DsEvWNkMsUU2RL5pScnNvsjVwkdC/rzPtdVsH3LxWtNcR1SP8i2fHRrXrC1z9rtIkllURhGMaPm27Uryn4UK3aqBcjtnbuuONvnwCUqc9QYS2IGAXbXeHBqPnaa3k+ozPvXTr/TwYZqg5XJgDYbKp+W2hmIQhw==
+X-YMail-OSG: G3FSzkEVM1lkJ5aBO68YKoEl5xNc31EoxUt1YNK4tv2QSxwKvt5g5y5_579WKJT
+ j1RjkLn2OL9pxI97IMRkUCvmFMsLOjxdJABsuQ_Z09Xiu7m9RoLO50g6CR8wvoVnkolRlDfep7Kf
+ kn_Be3GHE1egXADQ9K3aQZGI81MBSleRoDpTnWrdqkS4WrFEnVH2mbm9A3f0Iti14SefpiRTFLRz
+ a096FmgixP4h10EzYqVRi9fYdooiWN.9sbcWn8DbFLPM9mUsD_L0y4z.zyDZaAbLNIgWZkM_DVrI
+ Pm8J3xbl5MAW9tenUjQeM_wjtcrpTnsRgXI69OWOFVeKYj8bxlYTyScATLFU4gd3vPrgGujtRtIg
+ pihKeIyg1jhyaiCX0q2aqxvhVas7ZHmauaps1qZf2IRmHj8WmLFYxUJzWsOZwpuYotCZLDQXjjD2
+ _8LhsQp8NXLY2P7UAXwKQdg12x0A7.tFJthoZZG.cBBUVv.rt5OxOS3uewO0dcO.hA4MhOaRKNqL
+ iUl9zk40F3E3roEQz_U3EPeHrUXMPU9WbfZQ3FIrAb08Zby2P0LsE.IIW7vvTBU2WL4vOBWBKgVg
+ ocHSgpqic2okPle5p9R_bdL7wNxb1HRK0M_zu8Hy9dnk212jI7Xwoma.l5B3IyiceghQA1sGOfk_
+ 0tDwAPGhpCVB1A8xaSs8sQmYXdcFBGp0SQyaGDMAYetqBhsiodrE6._hfaN2EaC1Yst4w7UdEiyk
+ Q31WE8PQaQwcnfcWFQdirWvM_zIQel1twMgK_yKSiWS.uEgPd6bz7z6UumNUHlUKCuXf3ghJUES1
+ yPIkP.YAM9Vnus6VVGxHpDr_zx7dxDEViWJqJe12Atqf60zhBzsFKm0k_5Py20De.eNK4qzILLAJ
+ amPCQxm6QN8laSFtmPqyRyeE94XjhQx2yO52s3juotNI2xThp_H74cqMsYtv6AbG.cggr55Dmaux
+ fsipMiVBFzM1cibahAREpQmkia5lMK7RHpEXV_cIUe8GPJE8THlgVjXT16tQ53h4m3iamQZVjfHv
+ z69EmFa.q1cdbkxsud_2oVb3jzYXYbMXBnlxEDGdkevMozQynSeLEb9ZFcblmCFIgUGswFER6EpS
+ QRRlskCM95KVjAFCbdD1uzjOgJuTPS0VwODIo7S0zeSoz9IPI6BtPobv3rdWVqKDOPffuWZHP_zl
+ yIKguJ_o2dMJCKUAh5PyjReE1TUWJBaamYMyKyQj18e.cZSp1nEqxqBupXV4XwODYQngnkXuPprU
+ cdS0R3T9aOYd3ENsFvLpTp.WGicm1cf8IwSvu6EgnV803WdJl3IgwEvutA7ziiUVXSbnAj2VeKKd
+ F7rbG
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.bf2.yahoo.com with HTTP; Sun, 19 Jul 2020 13:46:13 +0000
+Date:   Sun, 19 Jul 2020 13:46:10 +0000 (UTC)
+From:   Monica Render <prender1226@gmx.com>
+Reply-To: mrender377@gmail.com
+Message-ID: <31365565.2734437.1595166370174@mail.yahoo.com>
+Subject: Nice to meet you!
 MIME-Version: 1.0
-Received: by 2002:a05:6512:690:0:0:0:0 with HTTP; Sun, 19 Jul 2020 04:43:28
- -0700 (PDT)
-Reply-To: georgemike7031@gmail.com
-From:   george mike <barristerlevi@gmail.com>
-Date:   Sun, 19 Jul 2020 13:43:28 +0200
-Message-ID: <CAEJ6Chc7HQGwiYpT+PRg_pYrySAEDFvHO5LgNfQ5W_dDzbJsSA@mail.gmail.com>
-Subject: hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <31365565.2734437.1595166370174.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo
-
-Mein Name ist George Mike. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
-Ihnen anbieten
-der n=C3=A4chste Verwandte meines Klienten. Sie erben die Summe von (8,5
-Millionen US-Dollar)
-Dollar, die mein Kunde vor seinem Tod auf der Bank gelassen hat.
-
-Mein Kunde ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau bei
-einem Autounfall ums Leben gekommen ist
-und einziger Sohn. Ich habe Anspruch auf 50% des Gesamtfonds, 50%
-sein f=C3=BCr dich.
-Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
-Informationen: georgemike7031@gmail.com
-
-Vielen Dank im Voraus,
-Mr. George Mike,
+Please do you speak english?
