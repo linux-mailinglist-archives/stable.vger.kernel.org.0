@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7447B225298
-	for <lists+stable@lfdr.de>; Sun, 19 Jul 2020 17:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD56D225281
+	for <lists+stable@lfdr.de>; Sun, 19 Jul 2020 17:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726499AbgGSPs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jul 2020 11:48:56 -0400
-Received: from mail22c26.carrierzone.com ([64.29.152.172]:47014 "EHLO
+        id S1726073AbgGSPgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jul 2020 11:36:06 -0400
+Received: from mail22c26.carrierzone.com ([64.29.152.172]:56649 "EHLO
         mail22c26.carrierzone.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726093AbgGSPs4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 11:48:56 -0400
+        with ESMTP id S1726024AbgGSPgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 11:36:06 -0400
+X-Greylist: delayed 2231 seconds by postgrey-1.27 at vger.kernel.org; Sun, 19 Jul 2020 11:36:05 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=carrierzone.com;
-        s=mailmia; t=1595170463;
+        s=mailmia; t=1595170524;
         bh=LnlE7Jtg6ZVuk2BQbkwEs7AGhT3ryNyE3ZXTiZugBZw=;
         h=From:To:CC:Subject:Date:Reply-to:From;
-        b=XPsnIsiorzYP3nH37PpvyE3Tq8Hh8FPMP5XDMARCt5uyRs/Aq2zr5FmXyEWcyyKg5
-         OBeAW8hWAPt6xQaa2LWYmjGjpBoS+a+V6ccip92OwXqERSdz/sssl8eYtT4v0rhc3E
-         IADOpSNHjOwyv3RrxBeF7bIwhzdrSM6l4PxN/w5Y=
+        b=HpKlj6AvDy7kU9uJDXfyEgjfr6bjye0Qh/GGMI/sXcbSTrNp3L8gRMgBVOpdMKMWk
+         MsBxhr3bvERLBMlKIhU9KnaIy2Q+9wPbLZ73LPKdk51/DudXvOlE8gxy+DOM4ELAYW
+         g9F/ROtuq6lHWkt6LrbfN44M+HXRNjfqD8cohacw=
 Feedback-ID: vzezhmaa@myfair
 Received: from mail22c26.carrierzone.com (localhost [127.0.0.1])
-        by mail22c26.carrierzone.com (8.14.9/8.13.1) with ESMTP id 06JErjj6003329
+        by mail22c26.carrierzone.com (8.14.9/8.13.1) with ESMTP id 06JEskMs006407
         (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Sun, 19 Jul 2020 14:54:23 +0000
+        Sun, 19 Jul 2020 14:55:24 +0000
 Received: (from webmail@localhost)
-        by mail22c26.carrierzone.com (8.14.9/8.12.2/Submit) id 06JEqCVJ031272;
-        Sun, 19 Jul 2020 10:52:12 -0400
+        by mail22c26.carrierzone.com (8.14.9/8.12.2/Submit) id 06JEs0Ya004323;
+        Sun, 19 Jul 2020 10:54:00 -0400
 From:   JOHN LEE <vzezhmaa@myfairpoint.net>
 Subject: PENDING MAIL
-Date:   Sun, 19 Jul 2020 10:52:12 -0400
-Message-ID: <1595170332.11hlgdkywoo0ck4w@webmail.myfairpoint.net>
+Date:   Sun, 19 Jul 2020 10:54:00 -0400
+Message-ID: <1595170440.vkyi56tv6s0cs444@webmail.myfairpoint.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 X-Image-Url: https://webmail.myfairpoint.net/api/storage/homeowner04537@myfairpoint.net/profile/picture
 Reply-to: homeowner04537@myfairpoint.net
-X-CTCH-RefID: str=0001.0A09020C.5F145E9F.004D,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+X-CTCH-RefID: str=0001.0A090210.5F145EDC.003E,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
 X-CTCH-VOD: Unknown
 X-CTCH-Spam: Unknown
 X-CTCH-Score: 0.000
