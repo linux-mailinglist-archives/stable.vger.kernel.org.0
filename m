@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC040226847
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2C822665C
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388064AbgGTQND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:13:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52770 "EHLO mail.kernel.org"
+        id S1731742AbgGTQCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388059AbgGTQNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:13:01 -0400
+        id S1732667AbgGTQCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:02:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5996B2065E;
-        Mon, 20 Jul 2020 16:13:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B6B822D07;
+        Mon, 20 Jul 2020 16:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261580;
-        bh=KJc236Beqe715ZNP7qUMd5cLfYkrychBQiDwOL6cJeo=;
+        s=default; t=1595260954;
+        bh=yjZZ3wnz26C3YOnjZWUHoSH43VM8+Fo1rO8bJFihQKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4WE1seqfMOaWgp3r1d64q4segSKSyLK2k60uCcd1UGqYLRibgFa/5e8U57zYcaKs
-         jIXdmhBc+y6r5jJeXhwZLzhvJuVMG5XJ3SeihFfgSHO5O1xBAuFXx6lgqX3bNWVz1z
-         Smo8kafm0gYoTHmxkViEC6d4rxs/BkJpkIePlQLk=
+        b=dRMsSAw9Ae9KJsfwtLnzFoYZqSNZ7j9M4kJ2fWgGoL7wSN/pNbXiMjMUvhSD6U4JR
+         eieLJKMvSa2guAStDB2ZP7Z7jfrqR7f9FYPEY4CThUGQcS3jy5hP3z2x+kl+DYDJFr
+         oSgvl9cFLSaFikySjks8AaupXaPex/j0cKxK6bdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.7 167/244] USB: serial: option: add GosunCn GM500 series
+        stable@vger.kernel.org, Frank Mori Hess <fmh6jj@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Doug Anderson <dianders@chromium.org>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 156/215] usb: dwc2: Fix shutdown callback in platform
 Date:   Mon, 20 Jul 2020 17:37:18 +0200
-Message-Id: <20200720152833.785632379@linuxfoundation.org>
+Message-Id: <20200720152827.614003917@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jörgen Storvist <jorgen.storvist@gmail.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-commit 08d4ef5cc9203a113702f24725f6cf4db476c958 upstream.
+commit 4fdf228cdf6925af45a2066d403821e0977bfddb upstream.
 
-Add USB IDs for GosunCn GM500 series cellular modules.
+To avoid lot of interrupts from dwc2 core, which can be asserted in
+specific conditions need to disable interrupts on HW level instead of
+disable IRQs on Kernel level, because of IRQ can be shared between
+drivers.
 
-RNDIS config:
-usb-devices
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 12 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=305a ProdID=1404 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-S:  SerialNumber=
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-
-MBIM config:
-usb-devices
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 11 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=305a ProdID=1405 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-S:  SerialNumber=
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-
-ECM config:
-usb-devices
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 13 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=305a ProdID=1406 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-S:  SerialNumber=
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
-I:  If#=0x4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-
-Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: a40a00318c7fc ("usb: dwc2: add shutdown callback to platform variant")
+Tested-by: Frank Mori Hess <fmh6jj@gmail.com>
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Reviewed-by: Doug Anderson <dianders@chromium.org>
+Reviewed-by: Frank Mori Hess <fmh6jj@gmail.com>
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc2/platform.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2028,6 +2028,9 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -337,7 +337,8 @@ static void dwc2_driver_shutdown(struct
+ {
+ 	struct dwc2_hsotg *hsotg = platform_get_drvdata(dev);
+ 
+-	disable_irq(hsotg->irq);
++	dwc2_disable_global_interrupts(hsotg);
++	synchronize_irq(hsotg->irq);
+ }
+ 
+ /**
 
 
