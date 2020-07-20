@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355E52264D3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD60A22659D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730318AbgGTPsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44310 "EHLO mail.kernel.org"
+        id S1731682AbgGTPz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730257AbgGTPsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:37 -0400
+        id S1731456AbgGTPz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B50CD2065E;
-        Mon, 20 Jul 2020 15:48:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1DF92065E;
+        Mon, 20 Jul 2020 15:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260117;
-        bh=/JGA2XoDIQuwLgX6TPhZdgryCg4I15FhD3O/4gOBQag=;
+        s=default; t=1595260527;
+        bh=vCmBmelU5vPU8/8xZyBCDs8kxWIVZ9skhYLvt55EhLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tjn5YY/BfDHct3wykIYin8KjwY+ytQyght2+bdzaE+LjnnnrkpvUm99mVF0Fubqvn
-         tCUxPC4P3fs4RzHf1j0YXUMqGuiiZ+fUUnvOGkM7EZBD/uR+9q1lYHXGzM3QvjJMKq
-         K2TSPJJyWfgg25yWXlukeOCiO46c1gVOzm5NOxpk=
+        b=DnALWLdjVvMQlGnfei3SPPt2myv1lhrN3yPBpDJKrB52cQqiOiM9z8spupzFXo53d
+         pV9TQXJNdUAG+vTFUW5M9syYyBPD5tgyE1teQiRf5w9sJ3WXWyeX2IOMgWzKXnpMDN
+         zBN95josBsIBMiEQx9AT3tLaZ7EtAwf3qtVliZD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 112/125] timer: Fix wheel index calculation on last level
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 104/133] ovl: relax WARN_ON() when decoding lower directory file handle
 Date:   Mon, 20 Jul 2020 17:37:31 +0200
-Message-Id: <20200720152808.435944012@linuxfoundation.org>
+Message-Id: <20200720152808.765838183@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit e2a71bdea81690b6ef11f4368261ec6f5b6891aa upstream.
+commit 124c2de2c0aee96271e4ddab190083d8aa7aa71a upstream.
 
-When an expiration delta falls into the last level of the wheel, that delta
-has be compared against the maximum possible delay and reduced to fit in if
-necessary.
+Decoding a lower directory file handle to overlay path with cold
+inode/dentry cache may go as follows:
 
-However instead of comparing the delta against the maximum, the code
-compares the actual expiry against the maximum. Then instead of fixing the
-delta to fit in, it sets the maximum delta as the expiry value.
+1. Decode real lower file handle to lower dir path
+2. Check if lower dir is indexed (was copied up)
+3. If indexed, get the upper dir path from index
+4. Lookup upper dir path in overlay
+5. If overlay path found, verify that overlay lower is the lower dir
+   from step 1
 
-This can result in various undesired outcomes, the worst possible one
-being a timer expiring 15 days ahead to fire immediately.
+On failure to verify step 5 above, user will get an ESTALE error and a
+WARN_ON will be printed.
 
-Fixes: 500462a9de65 ("timers: Switch to a non-cascading wheel")
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200717140551.29076-2-frederic@kernel.org
+A mismatch in step 5 could be a result of lower directory that was renamed
+while overlay was offline, after that lower directory has been copied up
+and indexed.
+
+This is a scripted reproducer based on xfstest overlay/052:
+
+  # Create lower subdir
+  create_dirs
+  create_test_files $lower/lowertestdir/subdir
+  mount_dirs
+  # Copy up lower dir and encode lower subdir file handle
+  touch $SCRATCH_MNT/lowertestdir
+  test_file_handles $SCRATCH_MNT/lowertestdir/subdir -p -o $tmp.fhandle
+  # Rename lower dir offline
+  unmount_dirs
+  mv $lower/lowertestdir $lower/lowertestdir.new/
+  mount_dirs
+  # Attempt to decode lower subdir file handle
+  test_file_handles $SCRATCH_MNT -p -i $tmp.fhandle
+
+Since this WARN_ON() can be triggered by user we need to relax it.
+
+Fixes: 4b91c30a5a19 ("ovl: lookup connected ancestor of dir in inode cache")
+Cc: <stable@vger.kernel.org> # v4.16+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/timer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/overlayfs/export.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -502,8 +502,8 @@ static int calc_wheel_index(unsigned lon
- 		 * Force expire obscene large timeouts to expire at the
- 		 * capacity limit of the wheel.
- 		 */
--		if (expires >= WHEEL_TIMEOUT_CUTOFF)
--			expires = WHEEL_TIMEOUT_MAX;
-+		if (delta >= WHEEL_TIMEOUT_CUTOFF)
-+			expires = clk + WHEEL_TIMEOUT_MAX;
+--- a/fs/overlayfs/export.c
++++ b/fs/overlayfs/export.c
+@@ -485,7 +485,7 @@ static struct dentry *ovl_lookup_real_in
+ 	if (IS_ERR_OR_NULL(this))
+ 		return this;
  
- 		idx = calc_index(expires, LVL_DEPTH - 1);
+-	if (WARN_ON(ovl_dentry_real_at(this, layer->idx) != real)) {
++	if (ovl_dentry_real_at(this, layer->idx) != real) {
+ 		dput(this);
+ 		this = ERR_PTR(-EIO);
  	}
 
 
