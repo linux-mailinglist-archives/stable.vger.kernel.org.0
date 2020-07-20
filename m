@@ -2,82 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED27225813
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 09:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BD42259DA
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 10:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727065AbgGTHDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 03:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726017AbgGTHDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 03:03:11 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 758EFC0619D2;
-        Mon, 20 Jul 2020 00:03:11 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id n2so11997752edr.5;
-        Mon, 20 Jul 2020 00:03:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1SXLMIBfdlyWcAZDCzCiZL8pBGjqpEdAnfRcPKA6Z+I=;
-        b=RkIeuIPVUEmRlE3Yg2c88oYDRAI99bhPZIp2uz0Ygc9M+y6/06ZcYgfjndg0tBoWw4
-         zAwhwMaJI09dCGSwkN2UrCeEsDHtr8AOlxxPjOOtYNP4ugvr7p1/czr4KfkOnJve/3rr
-         3YUZ+a3QOJpQ16CNoqRcZI3gwnd5vdnZZZjHb/dNY5PqyFT+RczJy9oNCvm2XdrUGrDd
-         ThI2UuGOWIu8mqd1J1Mqff/GEMYoHAIO55yp49kzuAlzgFGLTRn50ClcFW/+8+/jPhe/
-         3kI8huBnqSiAgi2A3C+qpEepCuGheTz0CjoEa0t0crBsq3pCRbcn6rm7ZmRQaT7VtZjp
-         /gGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1SXLMIBfdlyWcAZDCzCiZL8pBGjqpEdAnfRcPKA6Z+I=;
-        b=aC7hTmktBzcSbWWvSztWu+f1GH+5VYlIylPWNCfXySXalYp7p860xoaT68ZYi3LX4K
-         pMLxUhMem0NYd659kLfjerkmWhaG30ffXFjKfw123fZlQaxne1xaVe2PvlX9OGkkOYJ7
-         30C7+yBI6C/bVJ30qNb0YsfRuuICqLvfu9/tKvBXlcnEDroMYm3i1bhGc3upfXuRIBgh
-         U18T3CIlNq/DARweCeVKvcP61bCSxnp45SkR6DLWradCkUdwkkeMhqAYbyWWNLRad0fP
-         lyiRfvbItNVJSjyHdPWjy8DBrA88yKZVb+fmvlpn7rcyEqanYE3pDnOLIvFg2qeLXLgs
-         knIg==
-X-Gm-Message-State: AOAM532D4M/Di91mB4Z+a2zwLLMuAbFFtEhknbF2W7sJjRQfnQBid6wZ
-        wcjtNCxMN94Vr6jGcF4tJB/cel8vwOZCB2eDz4U=
-X-Google-Smtp-Source: ABdhPJzLszhKqRQKQT/n5dJhkrUH9K4aJ/xq9j1kS4fmR1NmGEntDUdFtIJFzLhecEhjwaj8gnY1UvxGm0oy/GZmV14=
-X-Received: by 2002:a05:6402:14c1:: with SMTP id f1mr21005708edx.342.1595228590248;
- Mon, 20 Jul 2020 00:03:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200717213510.171726-1-kwizart@gmail.com> <20200717215304.GA775582@bjorn-Precision-5520>
-In-Reply-To: <20200717215304.GA775582@bjorn-Precision-5520>
-From:   Nicolas Chauvet <kwizart@gmail.com>
-Date:   Mon, 20 Jul 2020 09:02:59 +0200
-Message-ID: <CABr+WTkJ8jZDkM_=-LYxpbrqrsPEb96YBRJvBjR5u+0Ck9R4CQ@mail.gmail.com>
-Subject: Re: [PATCH] pci: tegra: Revert raw_violation_fixup for tegra124
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Manikanta Maddireddy <mmaddireddy@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        linux-tegra@vger.kernel.org, linux-pci@vger.kernel.org,
+        id S1726814AbgGTITI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 04:19:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725815AbgGTITH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 04:19:07 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6154522B4D;
+        Mon, 20 Jul 2020 08:19:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595233147;
+        bh=RMJ1ZoGBPgmQSp9X+SEOS1SNy6vbL58vDqfArIQuNvA=;
+        h=Subject:To:From:Date:From;
+        b=OvSJff0LUL34XfhutH48WJ0lVdNne2/QUqjcDmIkBKeRaJiouVANFjFOomia+A3mW
+         9gYj5t9WcGEI4z20R2LfMnZCCHhYlCanHVqmu57vpxy8aex6+eUuKFI2TGinqJcFLk
+         a4SDJPF8YW6OfTBYxd+MQN6yV25yVACNzNcNXuNM=
+Subject: patch "staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift" added to staging-linus
+To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Jul 2020 10:19:09 +0200
+Message-ID: <159523314912091@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le ven. 17 juil. 2020 =C3=A0 23:53, Bjorn Helgaas <helgaas@kernel.org> a =
-=C3=A9crit :
->
-Thanks for the quick review. I've addressed all comments and I've
-resubmitted a v2 to
-https://www.spinics.net/lists/linux-pci/msg96863.html
-Unfortunately I've missed to modify the [Patch v2] tag. I hope this is
-fine. Let me know if I need to resend.
 
-> Is v5.4.x really the oldest kernel that should get this fix?  It looks
-> like 191cd6fb5d2c appeared in v5.3.
-The commit was introduced in 5.3 indeed. I've added 5.4.x since it's
-the last maintained kernel from long term branches.
-Now I'm using the Fixes: tag, I've dropped the version of the kernel
-for stable as it seems duplicate and less accurate.
+This is a note to let you know that I've just added the patch titled
 
-Thanks.
+    staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 0bd0db42a030b75c20028c7ba6e327b9cb554116 Mon Sep 17 00:00:00 2001
+From: Ian Abbott <abbotti@mev.co.uk>
+Date: Fri, 17 Jul 2020 15:52:55 +0100
+Subject: staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
+
+The `INSN_CONFIG` comedi instruction with sub-instruction code
+`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
+used as a right shift amount for other bitmask values without being
+checked.  Shift amounts greater than or equal to 32 will result in
+undefined behavior.  Add code to deal with this.
+
+Fixes: 33cdce6293dcc ("staging: comedi: addi_apci_1032: conform to new INSN_CONFIG_DIGITAL_TRIG")
+Cc: <stable@vger.kernel.org> #3.8+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200717145257.112660-3-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ .../staging/comedi/drivers/addi_apci_1032.c   | 20 +++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1032.c b/drivers/staging/comedi/drivers/addi_apci_1032.c
+index 560649be9d13..e035c9f757a1 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1032.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
+@@ -106,14 +106,22 @@ static int apci1032_cos_insn_config(struct comedi_device *dev,
+ 				    unsigned int *data)
+ {
+ 	struct apci1032_private *devpriv = dev->private;
+-	unsigned int shift, oldmask;
++	unsigned int shift, oldmask, himask, lomask;
+ 
+ 	switch (data[0]) {
+ 	case INSN_CONFIG_DIGITAL_TRIG:
+ 		if (data[1] != 0)
+ 			return -EINVAL;
+ 		shift = data[3];
+-		oldmask = (1U << shift) - 1;
++		if (shift < 32) {
++			oldmask = (1U << shift) - 1;
++			himask = data[4] << shift;
++			lomask = data[5] << shift;
++		} else {
++			oldmask = 0xffffffffu;
++			himask = 0;
++			lomask = 0;
++		}
+ 		switch (data[2]) {
+ 		case COMEDI_DIGITAL_TRIG_DISABLE:
+ 			devpriv->ctrl = 0;
+@@ -136,8 +144,8 @@ static int apci1032_cos_insn_config(struct comedi_device *dev,
+ 				devpriv->mode2 &= oldmask;
+ 			}
+ 			/* configure specified channels */
+-			devpriv->mode1 |= data[4] << shift;
+-			devpriv->mode2 |= data[5] << shift;
++			devpriv->mode1 |= himask;
++			devpriv->mode2 |= lomask;
+ 			break;
+ 		case COMEDI_DIGITAL_TRIG_ENABLE_LEVELS:
+ 			if (devpriv->ctrl != (APCI1032_CTRL_INT_ENA |
+@@ -154,8 +162,8 @@ static int apci1032_cos_insn_config(struct comedi_device *dev,
+ 				devpriv->mode2 &= oldmask;
+ 			}
+ 			/* configure specified channels */
+-			devpriv->mode1 |= data[4] << shift;
+-			devpriv->mode2 |= data[5] << shift;
++			devpriv->mode1 |= himask;
++			devpriv->mode2 |= lomask;
+ 			break;
+ 		default:
+ 			return -EINVAL;
+-- 
+2.27.0
+
+
