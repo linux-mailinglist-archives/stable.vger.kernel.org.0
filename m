@@ -2,248 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7CF92260C1
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 15:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597DC226257
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 16:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726535AbgGTNXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 09:23:40 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:53021 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726030AbgGTNXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 09:23:39 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4F3CB1940A23;
-        Mon, 20 Jul 2020 09:23:38 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 20 Jul 2020 09:23:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=P1ZNcM
-        GluMmSHEVAzvL4jUu1ZanH3YZJjgl6puIndh4=; b=CJDNYEuJ10f+zfnS/oiV5w
-        NvTNg4OOPm0v1ClAgN32QvoXLTlTezRCb976p7mnXclmWZGBAXViUXzhsujnYCek
-        cWj4i4Q3fpBGsr1AU8ZM/+t92IDzZAII9Mrw27H7iFTyRVdwONpxBI2u5SRxgP6d
-        sTLG0Xd54oJw8aWDpSkujJgR6I/PWDTBzUwYQ4yaqeWV8lWVDVztFix9D/tf+sGy
-        IgJFme+VITnE8q3spI/paLnoMfOR1MFi8ghiD/ZSB8wLxG/BMWeSIth95zZBy5GY
-        6w2Fpk+MT+rf0goiivJLx3XbsstqmaPG+o1JF1dFXOUPXpm6juNHPxc39hMw2pjQ
-        ==
-X-ME-Sender: <xms:2poVX49t8ovb8rhIWN3lfma_cqBK94Ntgovnlw7NkyZdQH_ryq2Tgw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggdeflecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:2poVXws8ca6nJzGOb_XGSmKwyTNStyrZoFE8SOPeX2oK2-GrEbfs7g>
-    <xmx:2poVX-DKrN1Nt00EM2vAY8hX0CZFFoj-YiTGdPseBEoof5AbVPJK6Q>
-    <xmx:2poVX4cNOyxWrh1CL0eKLaRZfCHijEK1Ys7dhHVft9ZRsmw29eEfPA>
-    <xmx:2poVX0bFPsN5Di5ybnEgz_Afmx4x3Aotr2JLghTHDmUlv-Kz4QF0HA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D27DD306005F;
-        Mon, 20 Jul 2020 09:23:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bpf: sockmap: Require attach_bpf_fd when detaching a program" failed to apply to 5.4-stable tree
-To:     lmb@cloudflare.com, ast@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jul 2020 15:23:44 +0200
-Message-ID: <1595251424136174@kroah.com>
+        id S1726771AbgGTOko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 10:40:44 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37768 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725815AbgGTOko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 10:40:44 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 06KEYgtu139830;
+        Mon, 20 Jul 2020 10:40:34 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 32d5pepkqt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jul 2020 10:40:34 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 06KEZ5HA141928;
+        Mon, 20 Jul 2020 10:40:33 -0400
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 32d5pepkq8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jul 2020 10:40:33 -0400
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 06KEdKgr018291;
+        Mon, 20 Jul 2020 14:40:33 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma05wdc.us.ibm.com with ESMTP id 32brq89tsb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jul 2020 14:40:33 +0000
+Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 06KEeURM39518718
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Jul 2020 14:40:30 GMT
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFDA078077;
+        Mon, 20 Jul 2020 14:40:31 +0000 (GMT)
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E51DB78066;
+        Mon, 20 Jul 2020 14:40:29 +0000 (GMT)
+Received: from swastik.ibm.com (unknown [9.160.78.37])
+        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Mon, 20 Jul 2020 14:40:29 +0000 (GMT)
+Subject: Re: [PATCH v6] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY
+ to runtime
+To:     Bruno Meneguele <bmeneg@redhat.com>, linux-kernel@vger.kernel.org,
+        x86@kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org,
+        zohar@linux.ibm.com
+Cc:     erichte@linux.ibm.com, nayna@linux.ibm.com, stable@vger.kernel.org
+References: <20200713164830.101165-1-bmeneg@redhat.com>
+From:   Nayna <nayna@linux.vnet.ibm.com>
+Message-ID: <d337cbba-e996-e898-1e75-9f142d480e5e@linux.vnet.ibm.com>
+Date:   Mon, 20 Jul 2020 10:40:29 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <20200713164830.101165-1-bmeneg@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-07-20_09:2020-07-20,2020-07-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ mlxlogscore=999 suspectscore=0 lowpriorityscore=0 adultscore=0
+ priorityscore=1501 mlxscore=0 phishscore=0 impostorscore=0 spamscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2007200101
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 7/13/20 12:48 PM, Bruno Meneguele wrote:
+> The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appraise="
+> modes - log, fix, enforce - at run time, but not when IMA architecture
+> specific policies are enabled.  This prevents properly labeling the
+> filesystem on systems where secure boot is supported, but not enabled on the
+> platform.  Only when secure boot is actually enabled should these IMA
+> appraise modes be disabled.
+>
+> This patch removes the compile time dependency and makes it a runtime
+> decision, based on the secure boot state of that platform.
+>
+> Test results as follows:
+>
+> -> x86-64 with secure boot enabled
+>
+> [    0.015637] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+> [    0.015668] ima: Secure boot enabled: ignoring ima_appraise=fix boot parameter option
+>
+> -> powerpc with secure boot disabled
+>
+> [    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+> [    0.000000] Secure boot mode disabled
+>
+> -> Running the system without secure boot and with both options set:
+>
+> CONFIG_IMA_APPRAISE_BOOTPARAM=y
+> CONFIG_IMA_ARCH_POLICY=y
+>
+> Audit prompts "missing-hash" but still allow execution and, consequently,
+> filesystem labeling:
+>
+> type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
+> uid=root auid=root ses=2
+> subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
+> cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
+> res=no
+>
+> Cc: stable@vger.kernel.org
+> Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
+> Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
 
-thanks,
 
-greg k-h
+Reviewed-by: Nayna Jain<nayna@linux.ibm.com>
 
------------------- original commit in Linus's tree ------------------
+Tested-by: Nayna Jain<nayna@linux.ibm.com>
 
-From bb0de3131f4c60a9bf976681e0fe4d1e55c7a821 Mon Sep 17 00:00:00 2001
-From: Lorenz Bauer <lmb@cloudflare.com>
-Date: Mon, 29 Jun 2020 10:56:28 +0100
-Subject: [PATCH] bpf: sockmap: Require attach_bpf_fd when detaching a program
 
-The sockmap code currently ignores the value of attach_bpf_fd when
-detaching a program. This is contrary to the usual behaviour of
-checking that attach_bpf_fd represents the currently attached
-program.
+Thanks & Regards,
 
-Ensure that attach_bpf_fd is indeed the currently attached
-program. It turns out that all sockmap selftests already do this,
-which indicates that this is unlikely to cause breakage.
-
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200629095630.7933-5-lmb@cloudflare.com
-
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 07052d44bca1..9750a1902ee5 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1543,13 +1543,16 @@ static inline void bpf_map_offload_map_free(struct bpf_map *map)
- #endif /* CONFIG_NET && CONFIG_BPF_SYSCALL */
- 
- #if defined(CONFIG_BPF_STREAM_PARSER)
--int sock_map_prog_update(struct bpf_map *map, struct bpf_prog *prog, u32 which);
-+int sock_map_prog_update(struct bpf_map *map, struct bpf_prog *prog,
-+			 struct bpf_prog *old, u32 which);
- int sock_map_get_from_fd(const union bpf_attr *attr, struct bpf_prog *prog);
-+int sock_map_prog_detach(const union bpf_attr *attr, enum bpf_prog_type ptype);
- void sock_map_unhash(struct sock *sk);
- void sock_map_close(struct sock *sk, long timeout);
- #else
- static inline int sock_map_prog_update(struct bpf_map *map,
--				       struct bpf_prog *prog, u32 which)
-+				       struct bpf_prog *prog,
-+				       struct bpf_prog *old, u32 which)
- {
- 	return -EOPNOTSUPP;
- }
-@@ -1559,6 +1562,12 @@ static inline int sock_map_get_from_fd(const union bpf_attr *attr,
- {
- 	return -EINVAL;
- }
-+
-+static inline int sock_map_prog_detach(const union bpf_attr *attr,
-+				       enum bpf_prog_type ptype)
-+{
-+	return -EOPNOTSUPP;
-+}
- #endif /* CONFIG_BPF_STREAM_PARSER */
- 
- #if defined(CONFIG_INET) && defined(CONFIG_BPF_SYSCALL)
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index 08674cd14d5a..1e9ed840b9fc 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -430,6 +430,19 @@ static inline void psock_set_prog(struct bpf_prog **pprog,
- 		bpf_prog_put(prog);
- }
- 
-+static inline int psock_replace_prog(struct bpf_prog **pprog,
-+				     struct bpf_prog *prog,
-+				     struct bpf_prog *old)
-+{
-+	if (cmpxchg(pprog, old, prog) != old)
-+		return -ENOENT;
-+
-+	if (old)
-+		bpf_prog_put(old);
-+
-+	return 0;
-+}
-+
- static inline void psock_progs_drop(struct sk_psock_progs *progs)
- {
- 	psock_set_prog(&progs->msg_parser, NULL);
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 28c6ef759037..a74fce8ce043 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2893,7 +2893,7 @@ static int bpf_prog_detach(const union bpf_attr *attr)
- 	switch (ptype) {
- 	case BPF_PROG_TYPE_SK_MSG:
- 	case BPF_PROG_TYPE_SK_SKB:
--		return sock_map_get_from_fd(attr, NULL);
-+		return sock_map_prog_detach(attr, ptype);
- 	case BPF_PROG_TYPE_LIRC_MODE2:
- 		return lirc_prog_detach(attr);
- 	case BPF_PROG_TYPE_FLOW_DISSECTOR:
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index 58016a5c63ff..0971f17e8e54 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -77,7 +77,42 @@ int sock_map_get_from_fd(const union bpf_attr *attr, struct bpf_prog *prog)
- 	map = __bpf_map_get(f);
- 	if (IS_ERR(map))
- 		return PTR_ERR(map);
--	ret = sock_map_prog_update(map, prog, attr->attach_type);
-+	ret = sock_map_prog_update(map, prog, NULL, attr->attach_type);
-+	fdput(f);
-+	return ret;
-+}
-+
-+int sock_map_prog_detach(const union bpf_attr *attr, enum bpf_prog_type ptype)
-+{
-+	u32 ufd = attr->target_fd;
-+	struct bpf_prog *prog;
-+	struct bpf_map *map;
-+	struct fd f;
-+	int ret;
-+
-+	if (attr->attach_flags || attr->replace_bpf_fd)
-+		return -EINVAL;
-+
-+	f = fdget(ufd);
-+	map = __bpf_map_get(f);
-+	if (IS_ERR(map))
-+		return PTR_ERR(map);
-+
-+	prog = bpf_prog_get(attr->attach_bpf_fd);
-+	if (IS_ERR(prog)) {
-+		ret = PTR_ERR(prog);
-+		goto put_map;
-+	}
-+
-+	if (prog->type != ptype) {
-+		ret = -EINVAL;
-+		goto put_prog;
-+	}
-+
-+	ret = sock_map_prog_update(map, NULL, prog, attr->attach_type);
-+put_prog:
-+	bpf_prog_put(prog);
-+put_map:
- 	fdput(f);
- 	return ret;
- }
-@@ -1206,27 +1241,32 @@ static struct sk_psock_progs *sock_map_progs(struct bpf_map *map)
- }
- 
- int sock_map_prog_update(struct bpf_map *map, struct bpf_prog *prog,
--			 u32 which)
-+			 struct bpf_prog *old, u32 which)
- {
- 	struct sk_psock_progs *progs = sock_map_progs(map);
-+	struct bpf_prog **pprog;
- 
- 	if (!progs)
- 		return -EOPNOTSUPP;
- 
- 	switch (which) {
- 	case BPF_SK_MSG_VERDICT:
--		psock_set_prog(&progs->msg_parser, prog);
-+		pprog = &progs->msg_parser;
- 		break;
- 	case BPF_SK_SKB_STREAM_PARSER:
--		psock_set_prog(&progs->skb_parser, prog);
-+		pprog = &progs->skb_parser;
- 		break;
- 	case BPF_SK_SKB_STREAM_VERDICT:
--		psock_set_prog(&progs->skb_verdict, prog);
-+		pprog = &progs->skb_verdict;
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
- 
-+	if (old)
-+		return psock_replace_prog(pprog, prog, old);
-+
-+	psock_set_prog(pprog, prog);
- 	return 0;
- }
- 
+         - Nayna
 
