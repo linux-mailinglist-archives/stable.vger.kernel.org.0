@@ -2,78 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A40E226A61
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA463226B9E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732087AbgGTQdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
+        id S1730619AbgGTQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:43:09 -0400
+Received: from mga06.intel.com ([134.134.136.31]:34808 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731718AbgGTPzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:55:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4747F206E9;
-        Mon, 20 Jul 2020 15:55:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260544;
-        bh=JU/XJysNcRRu1Kb+zGOfW3a+h/PlB8XuD3Nr/QZazjU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w4CkkHqfdjp61xQgNVTrsIKRE3S9qrKjgkZ9T6QW4MCLgA1xDc+zyUaxmfAigysJo
-         BcTAHhtxRzStxMUFzagBwoPmlBpuq+olJPixoK1SH51i05ekzxQkCN92LTMwHsY9Ri
-         ehJzSUckJPUdxBwIfUmoBfW2cBPg/N64+R7yaiMk=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lingling Xu <ling_ling.xu@unisoc.com>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 133/133] spi: sprd: switch the sequence of setting WDG_LOAD_LOW and _HIGH
-Date:   Mon, 20 Jul 2020 17:38:00 +0200
-Message-Id: <20200720152810.162934377@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1730116AbgGTQnI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:43:08 -0400
+IronPort-SDR: HCY3rPSSn6I2fxQg2ybSKsMgc5r8YNSkR/gj3gjGAY7lbtttvYtqg1ttt3/1W7ZGfxz4I/bHg3
+ R7IdzA+6Mycw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9688"; a="211497322"
+X-IronPort-AV: E=Sophos;i="5.75,375,1589266800"; 
+   d="scan'208";a="211497322"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2020 09:43:06 -0700
+IronPort-SDR: d4PLIuEwn7c0OTzx6bO7SLAnEHKLtwtFBvlrqqp3K9C7F/ygYHygZcewVV6IJYkG5wc3JVAbLT
+ ovlOs0gRdsWA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,375,1589266800"; 
+   d="scan'208";a="318061857"
+Received: from otc-nc-03.jf.intel.com ([10.54.39.25])
+  by orsmga008.jf.intel.com with ESMTP; 20 Jul 2020 09:43:06 -0700
+From:   Ashok Raj <ashok.raj@intel.com>
+To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Joerg Roedel <joro@8bytes.org>, Lu Baolu <baolu.lu@intel.com>
+Cc:     Ashok Raj <ashok.raj@intel.com>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
+Subject: [PATCH] PCI/ATS: PASID and PRI are only enumerated in PF devices.
+Date:   Mon, 20 Jul 2020 09:43:00 -0700
+Message-Id: <1595263380-209956-1-git-send-email-ashok.raj@intel.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lingling Xu <ling_ling.xu@unisoc.com>
+PASID and PRI capabilities are only enumerated in PF devices. VF devices
+do not enumerate these capabilites. IOMMU drivers also need to enumerate
+them before enabling features in the IOMMU. Extending the same support as
+PASID feature discovery (pci_pasid_features) for PRI.
 
-commit 8bdd79dae1ff5397351b95e249abcae126572617 upstream.
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 
-The watchdog counter consists of WDG_LOAD_LOW and WDG_LOAD_HIGH,
-which would be loaded to watchdog counter once writing WDG_LOAD_LOW.
-
-Fixes: ac1775012058 ("spi: sprd: Add the support of restarting the system")
-Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Link: https://lore.kernel.org/r/20200602082415.5848-1-zhang.lyra@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+To: Bjorn Helgaas <bhelgaas@google.com>
+To: Joerg Roedel <joro@8bytes.com>
+To: Lu Baolu <baolu.lu@intel.com>
+Cc: stable@vger.kernel.org
+Cc: linux-pci@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: iommu@lists.linux-foundation.org
 ---
- drivers/spi/spi-sprd-adi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/intel/iommu.c |  2 +-
+ drivers/pci/ats.c           | 14 ++++++++++++++
+ include/linux/pci-ats.h     |  1 +
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-sprd-adi.c
-+++ b/drivers/spi/spi-sprd-adi.c
-@@ -358,9 +358,9 @@ static int sprd_adi_restart_handler(stru
- 	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOCK, WDG_UNLOCK_KEY);
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index d759e7234e98..276452f5e6a7 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -2560,7 +2560,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+ 			}
  
- 	/* Load the watchdog timeout value, 50ms is always enough. */
-+	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOAD_HIGH, 0);
- 	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOAD_LOW,
- 		       WDG_LOAD_VAL & WDG_LOAD_MASK);
--	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOAD_HIGH, 0);
+ 			if (info->ats_supported && ecap_prs(iommu->ecap) &&
+-			    pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_PRI))
++			    pci_pri_supported(pdev))
+ 				info->pri_supported = 1;
+ 		}
+ 	}
+diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
+index b761c1f72f67..ffb4de8c5a77 100644
+--- a/drivers/pci/ats.c
++++ b/drivers/pci/ats.c
+@@ -461,6 +461,20 @@ int pci_pasid_features(struct pci_dev *pdev)
+ }
+ EXPORT_SYMBOL_GPL(pci_pasid_features);
  
- 	/* Start the watchdog to reset system */
- 	sprd_adi_read(sadi, sadi->slave_pbase + REG_WDG_CTRL, &val);
-
++/**
++ * pci_pri_supported - Check if PRI is supported.
++ * @pdev: PCI device structure
++ *
++ * Returns false when no PRI capability is present.
++ * Returns true if PRI feature is supported and enabled
++ */
++bool pci_pri_supported(struct pci_dev *pdev)
++{
++	/* VFs share the PF PRI configuration */
++	return !!(pci_physfn(pdev)->pri_cap);
++}
++EXPORT_SYMBOL_GPL(pci_pri_supported);
++
+ #define PASID_NUMBER_SHIFT	8
+ #define PASID_NUMBER_MASK	(0x1f << PASID_NUMBER_SHIFT)
+ /**
+diff --git a/include/linux/pci-ats.h b/include/linux/pci-ats.h
+index f75c307f346d..073d57292445 100644
+--- a/include/linux/pci-ats.h
++++ b/include/linux/pci-ats.h
+@@ -28,6 +28,7 @@ int pci_enable_pri(struct pci_dev *pdev, u32 reqs);
+ void pci_disable_pri(struct pci_dev *pdev);
+ int pci_reset_pri(struct pci_dev *pdev);
+ int pci_prg_resp_pasid_required(struct pci_dev *pdev);
++bool pci_pri_supported(struct pci_dev *pdev);
+ #endif /* CONFIG_PCI_PRI */
+ 
+ #ifdef CONFIG_PCI_PASID
+-- 
+2.7.4
 
