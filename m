@@ -2,137 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42273225E79
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB4D4225E7F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728697AbgGTMXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 08:23:25 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:59577 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728720AbgGTMXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:23:25 -0400
+        id S1728735AbgGTMZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 08:25:34 -0400
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:57573 "EHLO
+        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728460AbgGTMZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:25:32 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8461C1940E46;
-        Mon, 20 Jul 2020 08:23:24 -0400 (EDT)
+        by mailnew.nyi.internal (Postfix) with ESMTP id 7488558049E;
+        Mon, 20 Jul 2020 08:25:31 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:23:24 -0400
+  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:25:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=dLGJSUAjbZmETmpBoYPTeHolVjZ
+        eTBb1EfdYZn6WZLI=; b=cuJf8xNm+C8kIeUT4ytwaat8oR2MOgJE6KzMIXUwljh
+        W9WJmo44s6QgSKfRDyl1xWrlYgFetT8pFaE7lhyD1NqmGo9OytiomWRcwqfdNnUu
+        giplNWfHMRzHHpiXmxuq0r65pJ1Q+HaVFybfh1Snp82uSljcjpXd1fTe6G7PXwM2
+        vWdHPu/wGuN5sOmLVeo85BrQo8hbD1EpuQphhPGhirjkso+EcnjmxyMHEZvT/pBe
+        iRZjTlGU9r1dEK6H9lZ6UcGS2uN8MFSMq8/8mq9BBmH77ylPvvWQxEcHQ4mDOIvg
+        GWHCEuQ4FSbylEMbjeP0IGP+Kb06eM0qkdzq5n498cA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=CkujCQ
-        NPsZQt557lWzE0z97ebjUvVkPyh0PIUSjdK4E=; b=oRSU/mAS3y/W7Er5nefh4/
-        nC9lxF5rdj1Nu0GUxFDMK5CyPZ74emy331JelpLuh9i1VsK3s6Zaqg2G+lnXP71J
-        hY8gHX/tSbKMAluc0zGlYxmO6tR+wrkk8PMjF3ZfZUfW9q5mf0uID11ZthbI4lND
-        9+M4Y9kPbk6XJ/5c3xymkJjrTyd0m2Oq6QC1d5HBkRQXVE6dMsmr0Cd0pK/NQXeA
-        tg8FFUMlizGqhk7hhwJAz1BNvG1bGnakKQyXrzrLgrLQqhDz/uRwC+Agwwe6rRrX
-        J4bCEG4v8YCrJ6lWHKpDwKiA7G0V/7tPAzSVuZCOzQofYHKbC2ggqMLHsbJ7ksBg
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dLGJSU
+        AjbZmETmpBoYPTeHolVjZeTBb1EfdYZn6WZLI=; b=J2f71winLhYlRO5o87BYye
+        6BJdUdIzCOvlkfyuUFKsLWXIlrCv7ROwb7LSnB8wB8TyjXkCU7S/y4zEV3A+/PjG
+        zogCIGduK1iPmX0cakFsgbqXvkVRCiNT2tmz6+PrxzynoF/2FgH/VnlPLmBbTYtk
+        f019o9s2u4O0peT3LuVIL6UUz412pFV2fdS5XP5Yq0UFV9MQ7mRxW3GEmuPhLKgH
+        2QEp63ZVkAybmdBrqmSBJXanWMrTGNdduI8EcYPjMwR3+dU88xcm+hhguMuojEWm
+        gtvobuR1ocRdJDYGSrlAhxQJBghS9N1LHSU/m/nlLxJpNpFz9RndLbTpcv9ypuNw
         ==
-X-ME-Sender: <xms:vIwVX6D3vyuSWkr8Ys70bIhOP5vc_be6f7rdC9IXfsNhvM9lcF-7pg>
+X-ME-Sender: <xms:Oo0VX1Vkiij6m4EIaSDYQv4mCgoloEm3UZDTaakHjh-RFGnAp8vU8w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggddviecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:vIwVX0hLrGjS_edrHtdPbJ5SKYdPcM5HvVh_-XWQBx4sM1gB3shfWw>
-    <xmx:vIwVX9kVvyq5jMjBXM6ULuKeFv_NunU9FSoi-D34prmxQ8rk2ybSGw>
-    <xmx:vIwVX4yv7HcmIWH5eRK9Ifx3CrbZ4NvrDxpUoBtpWjAYmUJo056RxQ>
-    <xmx:vIwVX2KgHeUGuC46VXPYgdZxC_mj4-VDzRXP2q9_ZLAV5WX0ywENOA>
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:Oo0VX1kyYxVfWFWj4T43aETeGO_voSefGYjNifPJAp5OktQIHcCTcA>
+    <xmx:Oo0VXxa-5Mlv4_CoBqAz4OxSHMljZo4XH3GAe2AchSSGWuJSEOjTaQ>
+    <xmx:Oo0VX4UfWA669ZnFoy2FLSSYAdnotLKtc_nVbcRt8KpUX-xlkVJULA>
+    <xmx:O40VXx5YN6a5QyWRPbAuDUifbvdCfAobNGNbVMe7414N-AT9nt16eA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 246C530600B2;
-        Mon, 20 Jul 2020 08:23:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: compat: Ensure upper 32 bits of x0 are zero on syscall" failed to apply to 4.14-stable tree
-To:     will@kernel.org, keno@juliacomputing.com, luis.machado@linaro.org,
-        mark.rutland@arm.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jul 2020 14:23:26 +0200
-Message-ID: <1595247806108220@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1D69030600A3;
+        Mon, 20 Jul 2020 08:25:30 -0400 (EDT)
+Date:   Mon, 20 Jul 2020 14:25:41 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Vincent Guittot <vincent.guittot@linaro.org>
+Cc:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, valentin.schneider@arm.com,
+        sashal@kernel.org
+Subject: Re: [PATCH v4.19] sched/fair: handle case of task_h_load() returning
+ 0
+Message-ID: <20200720122541.GA3147730@kroah.com>
+References: <20200720083401.22164-1-vincent.guittot@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200720083401.22164-1-vincent.guittot@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jul 20, 2020 at 10:34:01AM +0200, Vincent Guittot wrote:
+> [ Upstream commit 01cfcde9c26d8555f0e6e9aea9d6049f87683998 ]
+> 
+> task_h_load() can return 0 in some situations like running stress-ng
+> mmapfork, which forks thousands of threads, in a sched group on a 224 cores
+> system. The load balance doesn't handle this correctly because
+> env->imbalance never decreases and it will stop pulling tasks only after
+> reaching loop_max, which can be equal to the number of running tasks of
+> the cfs. Make sure that imbalance will be decreased by at least 1.
+> 
+> We can't simply ensure that task_h_load() returns at least one because it
+> would imply to handle underflow in other places.
+> 
+> Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> [removed misfit part which was not implemented yet]
+> Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+> Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+> Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+> Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+> Cc: <stable@vger.kernel.org> # v4.19 v4.14 v4.9 v4.4
+> cc: Sasha Levin <sashal@kernel.org>
+> Link: https://lkml.kernel.org/r/20200710152426.16981-1-vincent.guittot@linaro.org
+> ---
+> 
+> This patch also applies on v4.14.188 v4.9.230 and v4.4.230
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Thanks for all of the backports, now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 15956689a0e60aa0c795174f3c310b60d8794235 Mon Sep 17 00:00:00 2001
-From: Will Deacon <will@kernel.org>
-Date: Fri, 3 Jul 2020 12:08:42 +0100
-Subject: [PATCH] arm64: compat: Ensure upper 32 bits of x0 are zero on syscall
- return
-
-Although we zero the upper bits of x0 on entry to the kernel from an
-AArch32 task, we do not clear them on the exception return path and can
-therefore expose 64-bit sign extended syscall return values to userspace
-via interfaces such as the 'perf_regs' ABI, which deal exclusively with
-64-bit registers.
-
-Explicitly clear the upper 32 bits of x0 on return from a compat system
-call.
-
-Cc: <stable@vger.kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Keno Fischer <keno@juliacomputing.com>
-Cc: Luis Machado <luis.machado@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-
-diff --git a/arch/arm64/include/asm/syscall.h b/arch/arm64/include/asm/syscall.h
-index 65299a2dcf9c..cfc0672013f6 100644
---- a/arch/arm64/include/asm/syscall.h
-+++ b/arch/arm64/include/asm/syscall.h
-@@ -34,6 +34,10 @@ static inline long syscall_get_error(struct task_struct *task,
- 				     struct pt_regs *regs)
- {
- 	unsigned long error = regs->regs[0];
-+
-+	if (is_compat_thread(task_thread_info(task)))
-+		error = sign_extend64(error, 31);
-+
- 	return IS_ERR_VALUE(error) ? error : 0;
- }
- 
-@@ -47,7 +51,13 @@ static inline void syscall_set_return_value(struct task_struct *task,
- 					    struct pt_regs *regs,
- 					    int error, long val)
- {
--	regs->regs[0] = (long) error ? error : val;
-+	if (error)
-+		val = error;
-+
-+	if (is_compat_thread(task_thread_info(task)))
-+		val = lower_32_bits(val);
-+
-+	regs->regs[0] = val;
- }
- 
- #define SYSCALL_MAX_ARGS 6
-diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
-index 7c14466a12af..98a26d4e7b0c 100644
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -50,6 +50,9 @@ static void invoke_syscall(struct pt_regs *regs, unsigned int scno,
- 		ret = do_ni_syscall(regs, scno);
- 	}
- 
-+	if (is_compat_task())
-+		ret = lower_32_bits(ret);
-+
- 	regs->regs[0] = ret;
- }
- 
-
