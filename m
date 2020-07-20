@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA77B226C09
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4862269B8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbgGTPkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
+        id S1729500AbgGTQ26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729649AbgGTPkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:40:07 -0400
+        id S1732207AbgGTP7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB11222B4E;
-        Mon, 20 Jul 2020 15:40:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 273152065E;
+        Mon, 20 Jul 2020 15:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259606;
-        bh=ggJg7U3GYywrFvqypLG0mz/qfbq9fBA8eTunN/7+FLg=;
+        s=default; t=1595260763;
+        bh=CxQlNwpzu/HtjbDgXa4Hn6fTEwibh3vRBOmu6FNrMz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGCIVmn1W1Soufrjuwajnj2Wj0mC5NWH5xEyzsATBjY89aLZzRa7C+FEVb+8gE8fl
-         sXgzYJIMSqHCH3APjdcDb9US+qbZb+EV2Cyy2G2o4NucIN9Grh4jwiPWoK7uvXIbp/
-         xlfo1b1Ekbknze/GyYxYkvkcO6FVnyNdwB7KpU7c=
+        b=lm3EB6u2A/62h9wd3/dQuPS6SvoFCD6gYnGgdoAaQFs0GVF4cX46qqjGB7ij2o/XZ
+         KrTrjOWqNC5gndaN8WclHpDoTkftdT+1Qdt38R6S25mqB/WBm+mzEIZjf3R9FP/fg9
+         cSi58jPwisqjNFbfhm/ugsx49lxHPb61crKDsxOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/86] arm64: kgdb: Fix single-step exception handling oops
+        stable@vger.kernel.org,
+        Emmanuel Pescosta <emmanuelpescosta099@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 087/215] ALSA: usb-audio: Add registration quirk for Kingston HyperX Cloud Alpha S
 Date:   Mon, 20 Jul 2020 17:36:09 +0200
-Message-Id: <20200720152753.794799631@linuxfoundation.org>
+Message-Id: <20200720152824.342120264@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
 
-[ Upstream commit 8523c006264df65aac7d77284cc69aac46a6f842 ]
+[ Upstream commit fd60e0683e8e9107e09cd2e4798f3e27e85d2705 ]
 
-After entering kdb due to breakpoint, when we execute 'ss' or 'go' (will
-delay installing breakpoints, do single-step first), it won't work
-correctly, and it will enter kdb due to oops.
+Similar to the Kingston HyperX AMP, the Kingston HyperX Cloud
+Alpha S (0951:16d8) uses two interfaces, but only the second
+interface contains the capture stream. This patch delays the
+registration until the second interface appears.
 
-It's because the reason gotten in kdb_stub() is not as expected, and it
-seems that the ex_vector for single-step should be 0, like what arch
-powerpc/sh/parisc has implemented.
-
-Before the patch:
-Entering kdb (current=0xffff8000119e2dc0, pid 0) on processor 0 due to Keyboard Entry
-[0]kdb> bp printk
-Instruction(i) BP #0 at 0xffff8000101486cc (printk)
-    is enabled   addr at ffff8000101486cc, hardtype=0 installed=0
-
-[0]kdb> g
-
-/ # echo h > /proc/sysrq-trigger
-
-Entering kdb (current=0xffff0000fa878040, pid 266) on processor 3 due to Breakpoint @ 0xffff8000101486cc
-[3]kdb> ss
-
-Entering kdb (current=0xffff0000fa878040, pid 266) on processor 3 Oops: (null)
-due to oops @ 0xffff800010082ab8
-CPU: 3 PID: 266 Comm: sh Not tainted 5.7.0-rc4-13839-gf0e5ad491718 #6
-Hardware name: linux,dummy-virt (DT)
-pstate: 00000085 (nzcv daIf -PAN -UAO)
-pc : el1_irq+0x78/0x180
-lr : __handle_sysrq+0x80/0x190
-sp : ffff800015003bf0
-x29: ffff800015003d20 x28: ffff0000fa878040
-x27: 0000000000000000 x26: ffff80001126b1f0
-x25: ffff800011b6a0d8 x24: 0000000000000000
-x23: 0000000080200005 x22: ffff8000101486cc
-x21: ffff800015003d30 x20: 0000ffffffffffff
-x19: ffff8000119f2000 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 0000000000000000
-x13: 0000000000000000 x12: 0000000000000000
-x11: 0000000000000000 x10: 0000000000000000
-x9 : 0000000000000000 x8 : ffff800015003e50
-x7 : 0000000000000002 x6 : 00000000380b9990
-x5 : ffff8000106e99e8 x4 : ffff0000fadd83c0
-x3 : 0000ffffffffffff x2 : ffff800011b6a0d8
-x1 : ffff800011b6a000 x0 : ffff80001130c9d8
-Call trace:
- el1_irq+0x78/0x180
- printk+0x0/0x84
- write_sysrq_trigger+0xb0/0x118
- proc_reg_write+0xb4/0xe0
- __vfs_write+0x18/0x40
- vfs_write+0xb0/0x1b8
- ksys_write+0x64/0xf0
- __arm64_sys_write+0x14/0x20
- el0_svc_common.constprop.2+0xb0/0x168
- do_el0_svc+0x20/0x98
- el0_sync_handler+0xec/0x1a8
- el0_sync+0x140/0x180
-
-[3]kdb>
-
-After the patch:
-Entering kdb (current=0xffff8000119e2dc0, pid 0) on processor 0 due to Keyboard Entry
-[0]kdb> bp printk
-Instruction(i) BP #0 at 0xffff8000101486cc (printk)
-    is enabled   addr at ffff8000101486cc, hardtype=0 installed=0
-
-[0]kdb> g
-
-/ # echo h > /proc/sysrq-trigger
-
-Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to Breakpoint @ 0xffff8000101486cc
-[0]kdb> g
-
-Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to Breakpoint @ 0xffff8000101486cc
-[0]kdb> ss
-
-Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to SS trap @ 0xffff800010082ab8
-[0]kdb>
-
-Fixes: 44679a4f142b ("arm64: KGDB: Add step debugging support")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200509214159.19680-2-liwei391@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
+Link: https://lore.kernel.org/r/20200404153843.9288-1-emmanuelpescosta099@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/kgdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/kernel/kgdb.c b/arch/arm64/kernel/kgdb.c
-index 72a660a74ff9d..44d757308e472 100644
---- a/arch/arm64/kernel/kgdb.c
-+++ b/arch/arm64/kernel/kgdb.c
-@@ -256,7 +256,7 @@ static int kgdb_step_brk_fn(struct pt_regs *regs, unsigned int esr)
- 	if (user_mode(regs))
- 		return DBG_HOOK_ERROR;
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index ad557ab65e043..5341d045e6a48 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1801,6 +1801,7 @@ struct registration_quirk {
  
--	kgdb_handle_exception(1, SIGTRAP, 0, regs);
-+	kgdb_handle_exception(0, SIGTRAP, 0, regs);
- 	return DBG_HOOK_HANDLED;
- }
- NOKPROBE_SYMBOL(kgdb_step_brk_fn);
+ static const struct registration_quirk registration_quirks[] = {
+ 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
++	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
+ 	{ 0 }					/* terminator */
+ };
+ 
 -- 
 2.25.1
 
