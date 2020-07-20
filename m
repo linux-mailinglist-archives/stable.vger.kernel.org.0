@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610E7226B71
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 068A82269D2
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730590AbgGTPqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40558 "EHLO mail.kernel.org"
+        id S1729076AbgGTQ3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:29:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730609AbgGTPqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:01 -0400
+        id S1731645AbgGTP7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7412206E9;
-        Mon, 20 Jul 2020 15:46:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3B3D2065E;
+        Mon, 20 Jul 2020 15:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259961;
-        bh=ynuj/dcNFpRus3Ks6xpCAjiLrkMB+LA/bPSLHT91n+Q=;
+        s=default; t=1595260750;
+        bh=cS5sXh8R8EECFabwRlhfigWsqZ9n88SnscShNI+HJNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLNIh8C3fQidYnz2GQmbT4tAS6FMiQUUoNDxjDffSb+jA0WnPEPhBiOflQn3pNGcD
-         MLeDRfEJ7hU3AtqCKsWIlMlURgilArYTWDYdoJAgz3LgaVYhbohZqlH6UPkFR4VCF1
-         aw6AqOCZeJQvq5e5fP27zE7Or8n6f6mYflJbQf0o=
+        b=CfX1H6Ajt43TalJdDMGbt7k1x/j/j/bIpLVcBL7SkED6SX77/VJ+juDCISvUfzwwY
+         +XLyR90SZv6LQfP9+SjldfjTVoJRMwnaV4m3tSJ+qxV6OS5TQvw6BcYFCVpHfLjcQA
+         h1+ZaRs3hrFP0URg0e3tCebAe/67ytkaR+bL8gBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 025/125] mlxsw: spectrum_router: Remove inappropriate usage of WARN_ON()
+        stable@vger.kernel.org, Chris Wulff <crwulff@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 082/215] ALSA: usb-audio: Create a registration quirk for Kingston HyperX Amp (0951:16d8)
 Date:   Mon, 20 Jul 2020 17:36:04 +0200
-Message-Id: <20200720152804.210773579@linuxfoundation.org>
+Message-Id: <20200720152824.113641618@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Chris Wulff <crwulff@gmail.com>
 
-[ Upstream commit d9d5420273997664a1c09151ca86ac993f2f89c1 ]
+[ Upstream commit 55f7326170d9e83e2d828591938e1101982a679c ]
 
-We should not trigger a warning when a memory allocation fails. Remove
-the WARN_ON().
+Create a quirk that allows special processing and/or
+skipping the call to snd_card_register.
 
-The warning is constantly triggered by syzkaller when it is injecting
-faults:
+For HyperX AMP, which uses two interfaces, but only has
+a capture stream in the second, this allows the capture
+stream to merge with the first PCM.
 
-[ 2230.758664] FAULT_INJECTION: forcing a failure.
-[ 2230.758664] name failslab, interval 1, probability 0, space 0, times 0
-[ 2230.762329] CPU: 3 PID: 1407 Comm: syz-executor.0 Not tainted 5.8.0-rc2+ #28
-...
-[ 2230.898175] WARNING: CPU: 3 PID: 1407 at drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:6265 mlxsw_sp_router_fib_event+0xfad/0x13e0
-[ 2230.898179] Kernel panic - not syncing: panic_on_warn set ...
-[ 2230.898183] CPU: 3 PID: 1407 Comm: syz-executor.0 Not tainted 5.8.0-rc2+ #28
-[ 2230.898190] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-
-Fixes: 3057224e014c ("mlxsw: spectrum_router: Implement FIB offload in deferred work")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wulff <crwulff@gmail.com>
+Link: https://lore.kernel.org/r/20200314165449.4086-3-crwulff@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/card.c   | 12 ++++++++----
+ sound/usb/quirks.c | 14 ++++++++++++++
+ sound/usb/quirks.h |  3 +++
+ 3 files changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-index 05a2006a20b9b..d9cd86c675569 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -4932,7 +4932,7 @@ static int mlxsw_sp_router_fib_event(struct notifier_block *nb,
- 		return NOTIFY_DONE;
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index f9a64e9526f54..2284377cbb98d 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -659,10 +659,14 @@ static int usb_audio_probe(struct usb_interface *intf,
+ 			goto __error;
+ 	}
  
- 	fib_work = kzalloc(sizeof(*fib_work), GFP_ATOMIC);
--	if (WARN_ON(!fib_work))
-+	if (!fib_work)
- 		return NOTIFY_BAD;
+-	/* we are allowed to call snd_card_register() many times */
+-	err = snd_card_register(chip->card);
+-	if (err < 0)
+-		goto __error;
++	/* we are allowed to call snd_card_register() many times, but first
++	 * check to see if a device needs to skip it or do anything special
++	 */
++	if (snd_usb_registration_quirk(chip, ifnum) == 0) {
++		err = snd_card_register(chip->card);
++		if (err < 0)
++			goto __error;
++	}
  
- 	router = container_of(nb, struct mlxsw_sp_router, fib_nb);
+ 	if (quirk && quirk->shares_media_device) {
+ 		/* don't want to fail when snd_media_device_create() fails */
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 9d11ff742e5f5..f3e26e65c3257 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1782,3 +1782,17 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
+ 		break;
+ 	}
+ }
++
++int snd_usb_registration_quirk(struct snd_usb_audio *chip,
++			       int iface)
++{
++	switch (chip->usb_id) {
++	case USB_ID(0x0951, 0x16d8): /* Kingston HyperX AMP */
++		/* Register only when we reach interface 2 so that streams can
++		 * merge correctly into PCMs from interface 0
++		 */
++		return (iface != 2);
++	}
++	/* Register as normal */
++	return 0;
++}
+diff --git a/sound/usb/quirks.h b/sound/usb/quirks.h
+index df0355843a4c1..3afc01eabc7e2 100644
+--- a/sound/usb/quirks.h
++++ b/sound/usb/quirks.h
+@@ -51,4 +51,7 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
+ 					  struct audioformat *fp,
+ 					  int stream);
+ 
++int snd_usb_registration_quirk(struct snd_usb_audio *chip,
++			       int iface);
++
+ #endif /* __USBAUDIO_QUIRKS_H */
 -- 
 2.25.1
 
