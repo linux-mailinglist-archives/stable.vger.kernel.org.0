@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496F1226AC8
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B38D6226B5B
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731144AbgGTPuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47216 "EHLO mail.kernel.org"
+        id S1729328AbgGTPoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:44:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730833AbgGTPuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:50:39 -0400
+        id S1729737AbgGTPoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:44:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A2D62064B;
-        Mon, 20 Jul 2020 15:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D51C2064B;
+        Mon, 20 Jul 2020 15:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260238;
-        bh=hne5j5tHjCQ2INn+cmqTg+Azexnu6yR1FGHNez1nw4A=;
+        s=default; t=1595259841;
+        bh=UH6G1+0WBk1GHP2aRIO3g6ybHZ8FCumTW500zg7A4mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ao1QDREsYa1YeEG2ZZnz0xgd+2r7xxvuOdM3R9nufatu0CVF/bqCj5JsV6GVcW8os
-         rcdIMIMcG0rSv9xyJk4vi7wHpB7dERNcKO9aGIiCvPj/YqwcN2I5nfO9JOrjKrNcF4
-         1oEKZKo5+GLg1r+BqLq0yg8xy2h/qFcbjN3HXOsk=
+        b=yNdf9AyytnPIf7RQmvXACoY1KkxyXRLKXrfP1dAM8NTWxRgYPZQWxpjd6v5fobOmp
+         R/5FrlXWiWQTl8jw+6T8Belom5Wo/eykfrK9Gj2sCpMIwEqjvnGlck6IbEZG/9EEnK
+         GU51ihapViv3yggJ5JJoSqiiem2faCePsSXJMOJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Sean Tranchetti <stranche@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 003/133] genetlink: remove genl_bind
-Date:   Mon, 20 Jul 2020 17:35:50 +0200
-Message-Id: <20200720152803.898676539@linuxfoundation.org>
+        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 013/125] ARM: imx6: add missing put_device() call in imx6q_suspend_init()
+Date:   Mon, 20 Jul 2020 17:35:52 +0200
+Message-Id: <20200720152803.612706495@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,134 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Tranchetti <stranche@codeaurora.org>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 1e82a62fec613844da9e558f3493540a5b7a7b67 ]
+[ Upstream commit 4845446036fc9c13f43b54a65c9b757c14f5141b ]
 
-A potential deadlock can occur during registering or unregistering a
-new generic netlink family between the main nl_table_lock and the
-cb_lock where each thread wants the lock held by the other, as
-demonstrated below.
+if of_find_device_by_node() succeed, imx6q_suspend_init() doesn't have a
+corresponding put_device(). Thus add a jump target to fix the exception
+handling for this function implementation.
 
-1) Thread 1 is performing a netlink_bind() operation on a socket. As part
-   of this call, it will call netlink_lock_table(), incrementing the
-   nl_table_users count to 1.
-2) Thread 2 is registering (or unregistering) a genl_family via the
-   genl_(un)register_family() API. The cb_lock semaphore will be taken for
-   writing.
-3) Thread 1 will call genl_bind() as part of the bind operation to handle
-   subscribing to GENL multicast groups at the request of the user. It will
-   attempt to take the cb_lock semaphore for reading, but it will fail and
-   be scheduled away, waiting for Thread 2 to finish the write.
-4) Thread 2 will call netlink_table_grab() during the (un)registration
-   call. However, as Thread 1 has incremented nl_table_users, it will not
-   be able to proceed, and both threads will be stuck waiting for the
-   other.
-
-genl_bind() is a noop, unless a genl_family implements the mcast_bind()
-function to handle setting up family-specific multicast operations. Since
-no one in-tree uses this functionality as Cong pointed out, simply removing
-the genl_bind() function will remove the possibility for deadlock, as there
-is no attempt by Thread 1 above to take the cb_lock semaphore.
-
-Fixes: c380d9a7afff ("genetlink: pass multicast bind/unbind to families")
-Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Johannes Berg <johannes.berg@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/genetlink.h |    8 -------
- net/netlink/genetlink.c |   49 ------------------------------------------------
- 2 files changed, 57 deletions(-)
+ arch/arm/mach-imx/pm-imx6.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/include/net/genetlink.h
-+++ b/include/net/genetlink.h
-@@ -34,12 +34,6 @@ struct genl_info;
-  *	do additional, common, filtering and return an error
-  * @post_doit: called after an operation's doit callback, it may
-  *	undo operations done by pre_doit, for example release locks
-- * @mcast_bind: a socket bound to the given multicast group (which
-- *	is given as the offset into the groups array)
-- * @mcast_unbind: a socket was unbound from the given multicast group.
-- *	Note that unbind() will not be called symmetrically if the
-- *	generic netlink family is removed while there are still open
-- *	sockets.
-  * @attrbuf: buffer to store parsed attributes (private)
-  * @mcgrps: multicast groups used by this family
-  * @n_mcgrps: number of multicast groups
-@@ -62,8 +56,6 @@ struct genl_family {
- 	void			(*post_doit)(const struct genl_ops *ops,
- 					     struct sk_buff *skb,
- 					     struct genl_info *info);
--	int			(*mcast_bind)(struct net *net, int group);
--	void			(*mcast_unbind)(struct net *net, int group);
- 	struct nlattr **	attrbuf;	/* private */
- 	const struct genl_ops *	ops;
- 	const struct genl_multicast_group *mcgrps;
---- a/net/netlink/genetlink.c
-+++ b/net/netlink/genetlink.c
-@@ -961,60 +961,11 @@ static struct genl_family genl_ctrl __ro
- 	.netnsok = true,
- };
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index 6078bcc9f594a..c7dcb0b207301 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -483,14 +483,14 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
+ 	}
  
--static int genl_bind(struct net *net, int group)
--{
--	struct genl_family *f;
--	int err = -ENOENT;
--	unsigned int id;
--
--	down_read(&cb_lock);
--
--	idr_for_each_entry(&genl_fam_idr, f, id) {
--		if (group >= f->mcgrp_offset &&
--		    group < f->mcgrp_offset + f->n_mcgrps) {
--			int fam_grp = group - f->mcgrp_offset;
--
--			if (!f->netnsok && net != &init_net)
--				err = -ENOENT;
--			else if (f->mcast_bind)
--				err = f->mcast_bind(net, fam_grp);
--			else
--				err = 0;
--			break;
--		}
--	}
--	up_read(&cb_lock);
--
--	return err;
--}
--
--static void genl_unbind(struct net *net, int group)
--{
--	struct genl_family *f;
--	unsigned int id;
--
--	down_read(&cb_lock);
--
--	idr_for_each_entry(&genl_fam_idr, f, id) {
--		if (group >= f->mcgrp_offset &&
--		    group < f->mcgrp_offset + f->n_mcgrps) {
--			int fam_grp = group - f->mcgrp_offset;
--
--			if (f->mcast_unbind)
--				f->mcast_unbind(net, fam_grp);
--			break;
--		}
--	}
--	up_read(&cb_lock);
--}
--
- static int __net_init genl_pernet_init(struct net *net)
- {
- 	struct netlink_kernel_cfg cfg = {
- 		.input		= genl_rcv,
- 		.flags		= NL_CFG_F_NONROOT_RECV,
--		.bind		= genl_bind,
--		.unbind		= genl_unbind,
- 	};
+ 	ocram_base = gen_pool_alloc(ocram_pool, MX6Q_SUSPEND_OCRAM_SIZE);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- 	/* we'll bump the group number right afterwards */
+ 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -513,7 +513,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	ret = imx6_pm_get_base(&pm_info->mmdc_base, socdata->mmdc_compat);
+ 	if (ret) {
+ 		pr_warn("%s: failed to get mmdc base %d!\n", __func__, ret);
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	ret = imx6_pm_get_base(&pm_info->src_base, socdata->src_compat);
+@@ -560,7 +560,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 		&imx6_suspend,
+ 		MX6Q_SUSPEND_OCRAM_SIZE - sizeof(*pm_info));
+ 
+-	goto put_node;
++	goto put_device;
+ 
+ pl310_cache_map_failed:
+ 	iounmap(pm_info->gpc_base.vbase);
+@@ -570,6 +570,8 @@ iomuxc_map_failed:
+ 	iounmap(pm_info->src_base.vbase);
+ src_map_failed:
+ 	iounmap(pm_info->mmdc_base.vbase);
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
+ 
+-- 
+2.25.1
+
 
 
