@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC56E226398
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC0D226543
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:52:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729205AbgGTPie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:38:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
+        id S1731345AbgGTPwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729208AbgGTPic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:38:32 -0400
+        id S1731334AbgGTPwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:52:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73D5522CBE;
-        Mon, 20 Jul 2020 15:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 116A62065E;
+        Mon, 20 Jul 2020 15:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259512;
-        bh=ydlCo1G7HAl66I6ZCb/yGwFyxMyR34a5z0XGSipExaE=;
+        s=default; t=1595260335;
+        bh=a22zVVN/NvJGBrt6FAWnyk1s+vGlWcTw0O9Xcqc6ys8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XKGOuPr9wtkmlIvsngERxIo/SGBHbiJwQTtlthjhDhvgvWeIXnVyu3508MYC5T2d9
-         AX+9n64TBVYQS5Uha4xYRERuxDCdit9YuVDiblkSqX+OvJNG1BQb4113Q2gne00eCg
-         13pnb4+RmKbL4gB3ZnHTItG3RJwAS6uFl940y/J8=
+        b=tC/VI29vpSgmueeUMcKM4JXBTnKlRvPVkgv2zDELM4xGkBmKfrm40/abZnlk2LmBy
+         rr9MvyyZbICdvnf+INIECpz/j6d5Wa0+BeB++/gO4oiZ8gnYUNbSK74B4vCUQYmn+D
+         vtY7wH4okoLa95FuN+fpIZOI8UkVIPExpfn9ncko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Edich <andre.edich@microchip.com>,
-        Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/58] smsc95xx: avoid memory leak in smsc95xx_bind
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Andrew F. Davis" <afd@ti.com>, Stable@vger.kernel.org
+Subject: [PATCH 4.19 036/133] iio:health:afe4403 Fix timestamp alignment and prevent data leak.
 Date:   Mon, 20 Jul 2020 17:36:23 +0200
-Message-Id: <20200720152747.512324108@linuxfoundation.org>
+Message-Id: <20200720152805.462507150@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Edich <andre.edich@microchip.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3ed58f96a70b85ef646d5427258f677f1395b62f ]
+commit 3f9c6d38797e9903937b007a341dad0c251765d6 upstream.
 
-In a case where the ID_REV register read is failed, the memory for a
-private data structure has to be freed before returning error from the
-function smsc95xx_bind.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 32 byte array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak appart from previous readings.
 
-Fixes: bbd9f9ee69242 ("smsc95xx: add wol support for more frame types")
-Signed-off-by: Andre Edich <andre.edich@microchip.com>
-Signed-off-by: Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: eec96d1e2d31 ("iio: health: Add driver for the TI AFE4403 heart monitor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/smsc95xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/health/afe4403.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 8037a2e51a789..e4299852974e3 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1142,7 +1142,8 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	/* detect device revision as different features may be available */
- 	ret = smsc95xx_read_reg(dev, ID_REV, &val);
- 	if (ret < 0)
--		return ret;
-+		goto free_pdata;
-+
- 	val >>= 16;
+--- a/drivers/iio/health/afe4403.c
++++ b/drivers/iio/health/afe4403.c
+@@ -71,6 +71,7 @@ static const struct reg_field afe4403_re
+  * @regulator: Pointer to the regulator for the IC
+  * @trig: IIO trigger for this device
+  * @irq: ADC_RDY line interrupt number
++ * @buffer: Used to construct data layout to push into IIO buffer.
+  */
+ struct afe4403_data {
+ 	struct device *dev;
+@@ -80,6 +81,8 @@ struct afe4403_data {
+ 	struct regulator *regulator;
+ 	struct iio_trigger *trig;
+ 	int irq;
++	/* Ensure suitable alignment for timestamp */
++	s32 buffer[8] __aligned(8);
+ };
  
- 	if ((val == ID_REV_CHIP_ID_9500A_) || (val == ID_REV_CHIP_ID_9530_) ||
--- 
-2.25.1
-
+ enum afe4403_chan_id {
+@@ -317,7 +320,6 @@ static irqreturn_t afe4403_trigger_handl
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct afe4403_data *afe = iio_priv(indio_dev);
+ 	int ret, bit, i = 0;
+-	s32 buffer[8];
+ 	u8 tx[4] = {AFE440X_CONTROL0, 0x0, 0x0, AFE440X_CONTROL0_READ};
+ 	u8 rx[3];
+ 
+@@ -334,9 +336,9 @@ static irqreturn_t afe4403_trigger_handl
+ 		if (ret)
+ 			goto err;
+ 
+-		buffer[i++] = (rx[0] << 16) |
+-				(rx[1] << 8) |
+-				(rx[2]);
++		afe->buffer[i++] = (rx[0] << 16) |
++				   (rx[1] << 8) |
++				   (rx[2]);
+ 	}
+ 
+ 	/* Disable reading from the device */
+@@ -345,7 +347,8 @@ static irqreturn_t afe4403_trigger_handl
+ 	if (ret)
+ 		goto err;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
++					   pf->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 
 
