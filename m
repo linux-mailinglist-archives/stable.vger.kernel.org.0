@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 387DE22655F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:54:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD71226436
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730266AbgGTPxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51654 "EHLO mail.kernel.org"
+        id S1730201AbgGTPnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:43:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731150AbgGTPxR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:17 -0400
+        id S1730200AbgGTPnF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:43:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31D6A2065E;
-        Mon, 20 Jul 2020 15:53:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00F8D2064B;
+        Mon, 20 Jul 2020 15:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260396;
-        bh=9LJU2H6fMzbd+XaJ/lkOY+M77+K6f0/chHN2xyvp4+A=;
+        s=default; t=1595259784;
+        bh=3nBhr8KvHL41nT9MeEU1tSZse/nQrdOPicJryuGPjBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CexFz4WgZdaZHYk/EytUzWT0pjmTiyybY3sKJnAHGJmZ2qYSsaq+lZQmG6oqW3dxD
-         oVidLaz5lqEeVSp0HDdmyokDojFSM8ogcK0P5X44eMY+r/YAxUQv9P+LYBH52grJjH
-         Gr9QKmKQ2dMQEZ+FfW2EX36JqAJJfVBklQ0AwrWc=
+        b=sFdi6y94cufMltUlCzEqmie7Pf1gcQ1dnZhzoAaTp4WDpPwySm/Ct4FbQyjlQSUYt
+         uMe8H1rt/1XzJtIADzZM34G26CdD/g+CaEpbmUXFHgNDHt3VXIdJNKoHzzi7SAf0DN
+         Jct2zED7b0vlvHSxCzEPBEq2oXO2TrupD6sL0pt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+0f4ecfe6a2c322c81728@syzkaller.appspotmail.com,
-        syzbot+5f1d24c49c1d2c427497@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 087/133] ALSA: usb-audio: Fix race against the error recovery URB submission
-Date:   Mon, 20 Jul 2020 17:37:14 +0200
-Message-Id: <20200720152807.915795785@linuxfoundation.org>
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Huacai Chen <chenhc@lemote.com>
+Subject: [PATCH 4.9 79/86] MIPS: Fix build for LTS kernel caused by backporting lpj adjustment
+Date:   Mon, 20 Jul 2020 17:37:15 +0200
+Message-Id: <20200720152757.215444569@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,90 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit 9b7e5208a941e2e491a83eb5fa83d889e888fa2f upstream.
+Commit ed26aacfb5f71eecb20a ("mips: Add udelay lpj numbers adjustment")
+has backported to 4.4~5.4, but the "struct cpufreq_freqs" (and also the
+cpufreq notifier machanism) of 4.4~4.19 are different from the upstream
+kernel. These differences cause build errors, and this patch can fix the
+build.
 
-USB MIDI driver has an error recovery mechanism to resubmit the URB in
-the delayed timer handler, and this may race with the standard start /
-stop operations.  Although both start and stop operations themselves
-don't race with each other due to the umidi->mutex protection, but
-this isn't applied to the timer handler.
-
-For fixing this potential race, the following changes are applied:
-
-- Since the timer handler can't use the mutex, we apply the
-  umidi->disc_lock protection at each input stream URB submission;
-  this also needs to change the GFP flag to GFP_ATOMIC
-- Add a check of the URB refcount and skip if already submitted
-- Move the timer cancel call at disconnection to the beginning of the
-  procedure; this assures the in-flight timer handler is gone properly
-  before killing all pending URBs
-
-Reported-by: syzbot+0f4ecfe6a2c322c81728@syzkaller.appspotmail.com
-Reported-by: syzbot+5f1d24c49c1d2c427497@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200710160656.16819-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Stable <stable@vger.kernel.org> # 4.4/4.9/4.14/4.19
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/midi.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/mips/kernel/time.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1500,6 +1500,8 @@ void snd_usbmidi_disconnect(struct list_
- 	spin_unlock_irq(&umidi->disc_lock);
- 	up_write(&umidi->disc_rwsem);
+--- a/arch/mips/kernel/time.c
++++ b/arch/mips/kernel/time.c
+@@ -40,10 +40,8 @@ static unsigned long glb_lpj_ref_freq;
+ static int cpufreq_callback(struct notifier_block *nb,
+ 			    unsigned long val, void *data)
+ {
+-	struct cpufreq_freqs *freq = data;
+-	struct cpumask *cpus = freq->policy->cpus;
+-	unsigned long lpj;
+ 	int cpu;
++	struct cpufreq_freqs *freq = data;
  
-+	del_timer_sync(&umidi->error_timer);
-+
- 	for (i = 0; i < MIDI_MAX_ENDPOINTS; ++i) {
- 		struct snd_usb_midi_endpoint *ep = &umidi->endpoints[i];
- 		if (ep->out)
-@@ -1526,7 +1528,6 @@ void snd_usbmidi_disconnect(struct list_
- 			ep->in = NULL;
+ 	/*
+ 	 * Skip lpj numbers adjustment if the CPU-freq transition is safe for
+@@ -64,6 +62,7 @@ static int cpufreq_callback(struct notif
  		}
  	}
--	del_timer_sync(&umidi->error_timer);
- }
- EXPORT_SYMBOL(snd_usbmidi_disconnect);
  
-@@ -2283,16 +2284,22 @@ void snd_usbmidi_input_stop(struct list_
- }
- EXPORT_SYMBOL(snd_usbmidi_input_stop);
++	cpu = freq->cpu;
+ 	/*
+ 	 * Adjust global lpj variable and per-CPU udelay_val number in
+ 	 * accordance with the new CPU frequency.
+@@ -74,12 +73,8 @@ static int cpufreq_callback(struct notif
+ 						glb_lpj_ref_freq,
+ 						freq->new);
  
--static void snd_usbmidi_input_start_ep(struct snd_usb_midi_in_endpoint *ep)
-+static void snd_usbmidi_input_start_ep(struct snd_usb_midi *umidi,
-+				       struct snd_usb_midi_in_endpoint *ep)
- {
- 	unsigned int i;
-+	unsigned long flags;
- 
- 	if (!ep)
- 		return;
- 	for (i = 0; i < INPUT_URBS; ++i) {
- 		struct urb *urb = ep->urbs[i];
--		urb->dev = ep->umidi->dev;
--		snd_usbmidi_submit_urb(urb, GFP_KERNEL);
-+		spin_lock_irqsave(&umidi->disc_lock, flags);
-+		if (!atomic_read(&urb->use_count)) {
-+			urb->dev = ep->umidi->dev;
-+			snd_usbmidi_submit_urb(urb, GFP_ATOMIC);
-+		}
-+		spin_unlock_irqrestore(&umidi->disc_lock, flags);
+-		for_each_cpu(cpu, cpus) {
+-			lpj = cpufreq_scale(per_cpu(pcp_lpj_ref, cpu),
+-					    per_cpu(pcp_lpj_ref_freq, cpu),
+-					    freq->new);
+-			cpu_data[cpu].udelay_val = (unsigned int)lpj;
+-		}
++		cpu_data[cpu].udelay_val = cpufreq_scale(per_cpu(pcp_lpj_ref, cpu),
++					   per_cpu(pcp_lpj_ref_freq, cpu), freq->new);
  	}
- }
  
-@@ -2308,7 +2315,7 @@ void snd_usbmidi_input_start(struct list
- 	if (umidi->input_running || !umidi->opened[1])
- 		return;
- 	for (i = 0; i < MIDI_MAX_ENDPOINTS; ++i)
--		snd_usbmidi_input_start_ep(umidi->endpoints[i].in);
-+		snd_usbmidi_input_start_ep(umidi, umidi->endpoints[i].in);
- 	umidi->input_running = 1;
- }
- EXPORT_SYMBOL(snd_usbmidi_input_start);
+ 	return NOTIFY_OK;
 
 
