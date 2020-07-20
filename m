@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5E722688A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 179CC2266D6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732813AbgGTQGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
+        id S1733071AbgGTQGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733066AbgGTQGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:06:35 -0400
+        id S1733069AbgGTQGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:06:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE2A12064B;
-        Mon, 20 Jul 2020 16:06:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BFC42065E;
+        Mon, 20 Jul 2020 16:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261195;
-        bh=Nz8ZteKhSkYTG5rCDbUfXV2UcP+Q5MKHPQObJp6Ki0M=;
+        s=default; t=1595261198;
+        bh=xjqHvRsj41feq6PMcwsFzgXHYe9N9dC9EE5odDGu2pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/ERgPxndxD10b4dglrcDoLUlRUaezn9x1OqY/DqoHYkd0Uw6NXT71NsllcoXdfCf
-         6ebmYyzKBteF9fvW+C45CEo2S/z3Yargc94w5BWIb3owEvBO1GplIsPQxHyuT3u8sE
-         B0Mrykj0GREPsPc240TR1OMZcBrNsj/UM1eMTw3E=
+        b=UMdhJDuxcFptwgOrBVO74EopLhYKbqzVWHWtMHmMkshFE7X2oAIXwl0KiR6bh8l4t
+         sH/AjQpsbCadDIutRz7ePZpwRWt3rrOc4ljtgw9LUZrFwXHsytGd5TB0e6aeyUGXVl
+         zj+75rBJ9LmxBvUN5MNDKzDH+/SmilDXEnzwJqTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Michal Kubecek <mkubecek@suse.cz>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 027/244] net: ipv4: Fix wrong type conversion from hint to rt in ip_route_use_hint()
-Date:   Mon, 20 Jul 2020 17:34:58 +0200
-Message-Id: <20200720152827.152840776@linuxfoundation.org>
+Subject: [PATCH 5.7 028/244] ethtool: fix genlmsg_put() failure handling in ethnl_default_dumpit()
+Date:   Mon, 20 Jul 2020 17:34:59 +0200
+Message-Id: <20200720152827.204316158@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,30 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Michal Kubecek <mkubecek@suse.cz>
 
-[ Upstream commit 2ce578ca9444bb44da66b9a494f56e7ec12e6466 ]
+[ Upstream commit 365f9ae4ee36037e2a9268fe7296065356840b4c ]
 
-We can't cast sk_buff to rtable by (struct rtable *)hint. Use skb_rtable().
+If the genlmsg_put() call in ethnl_default_dumpit() fails, we bail out
+without checking if we already have some messages in current skb like we do
+with ethnl_default_dump_one() failure later. Therefore if existing messages
+almost fill up the buffer so that there is not enough space even for
+netlink and genetlink header, we lose all prepared messages and return and
+error.
 
-Fixes: 02b24941619f ("ipv4: use dst hint for ipv4 list receive")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Rather than duplicating the skb->len check, move the genlmsg_put(),
+genlmsg_cancel() and genlmsg_end() calls into ethnl_default_dump_one().
+This is also more logical as all message composition will be in
+ethnl_default_dump_one() and only iteration logic will be left in
+ethnl_default_dumpit().
+
+Fixes: 728480f12442 ("ethtool: default handlers for GET requests")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ethtool/netlink.c |   27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2027,7 +2027,7 @@ int ip_route_use_hint(struct sk_buff *sk
- 		      const struct sk_buff *hint)
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -376,10 +376,17 @@ err_dev:
+ }
+ 
+ static int ethnl_default_dump_one(struct sk_buff *skb, struct net_device *dev,
+-				  const struct ethnl_dump_ctx *ctx)
++				  const struct ethnl_dump_ctx *ctx,
++				  struct netlink_callback *cb)
  {
- 	struct in_device *in_dev = __in_dev_get_rcu(dev);
--	struct rtable *rt = (struct rtable *)hint;
-+	struct rtable *rt = skb_rtable(hint);
- 	struct net *net = dev_net(dev);
- 	int err = -EINVAL;
- 	u32 tag = 0;
++	void *ehdr;
+ 	int ret;
+ 
++	ehdr = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
++			   &ethtool_genl_family, 0, ctx->ops->reply_cmd);
++	if (!ehdr)
++		return -EMSGSIZE;
++
+ 	ethnl_init_reply_data(ctx->reply_data, ctx->ops, dev);
+ 	rtnl_lock();
+ 	ret = ctx->ops->prepare_data(ctx->req_info, ctx->reply_data, NULL);
+@@ -395,6 +402,10 @@ out:
+ 	if (ctx->ops->cleanup_data)
+ 		ctx->ops->cleanup_data(ctx->reply_data);
+ 	ctx->reply_data->dev = NULL;
++	if (ret < 0)
++		genlmsg_cancel(skb, ehdr);
++	else
++		genlmsg_end(skb, ehdr);
+ 	return ret;
+ }
+ 
+@@ -411,7 +422,6 @@ static int ethnl_default_dumpit(struct s
+ 	int s_idx = ctx->pos_idx;
+ 	int h, idx = 0;
+ 	int ret = 0;
+-	void *ehdr;
+ 
+ 	rtnl_lock();
+ 	for (h = ctx->pos_hash; h < NETDEV_HASHENTRIES; h++, s_idx = 0) {
+@@ -431,26 +441,15 @@ restart_chain:
+ 			dev_hold(dev);
+ 			rtnl_unlock();
+ 
+-			ehdr = genlmsg_put(skb, NETLINK_CB(cb->skb).portid,
+-					   cb->nlh->nlmsg_seq,
+-					   &ethtool_genl_family, 0,
+-					   ctx->ops->reply_cmd);
+-			if (!ehdr) {
+-				dev_put(dev);
+-				ret = -EMSGSIZE;
+-				goto out;
+-			}
+-			ret = ethnl_default_dump_one(skb, dev, ctx);
++			ret = ethnl_default_dump_one(skb, dev, ctx, cb);
+ 			dev_put(dev);
+ 			if (ret < 0) {
+-				genlmsg_cancel(skb, ehdr);
+ 				if (ret == -EOPNOTSUPP)
+ 					goto lock_and_cont;
+ 				if (likely(skb->len))
+ 					ret = skb->len;
+ 				goto out;
+ 			}
+-			genlmsg_end(skb, ehdr);
+ lock_and_cont:
+ 			rtnl_lock();
+ 			if (net->dev_base_seq != seq) {
 
 
