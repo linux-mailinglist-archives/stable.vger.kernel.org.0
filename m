@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C8D2269F3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A9E2269F2
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387673AbgGTQa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57658 "EHLO mail.kernel.org"
+        id S1730534AbgGTP5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731471AbgGTP5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:57:41 -0400
+        id S1731692AbgGTP5q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:57:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A8A22BEF;
-        Mon, 20 Jul 2020 15:57:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E072720734;
+        Mon, 20 Jul 2020 15:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260661;
-        bh=crdC/FcSNnFfmvavFML0b9RIg1+uRvGXlo87yIAceSc=;
+        s=default; t=1595260666;
+        bh=uS/VHDOeTqAKB0h1mFUTacmcMs+EdrhTXDggYJ5xUOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kgxgMPUPVzcfSzr/yUJ8RR2DJKbFxSzhEG8QXjV5Q+cXCfIL9iIoWDx4yas9WasWA
-         Hs11lMzNkzYQTpKKM0MsmJIoICpWulaDnDEcSGIpkCs/HyW7wxbF8F06GnjmG1dMom
-         oEn2qOgheGg6XH0iHJpwQ5DT4vUyx1Dzy6FNbVTc=
+        b=BP4+aHGXkF685ZeXqoK73QOr6CMOuFofKh2Qn+MbpAAzjl9PBpKlGeQIPhGUU0xHU
+         lEVHFJVVopHhKWIP2fdFtNAJWn/rvBA86jfgrZPNOK36k98mP16dXFmMCZY+CgFLLW
+         YrarMZlZ+MRttl7IxWMxTctVoSLYaXIA3gRfDi8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Ranostay <matt.ranostay@konsulko.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 049/215] iio: core: add missing IIO_MOD_H2/ETHANOL string identifiers
-Date:   Mon, 20 Jul 2020 17:35:31 +0200
-Message-Id: <20200720152822.534195030@linuxfoundation.org>
+Subject: [PATCH 5.4 050/215] iio: mma8452: Add missed iio_device_unregister() call in mma8452_probe()
+Date:   Mon, 20 Jul 2020 17:35:32 +0200
+Message-Id: <20200720152822.582269390@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -44,33 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Ranostay <matt.ranostay@konsulko.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 25f02d3242ab4d16d0cee2dec0d89cedb3747fa9 upstream.
+commit d7369ae1f4d7cffa7574d15e1f787dcca184c49d upstream.
 
-Add missing strings to iio_modifier_names[] for proper modification
-of channels.
+The function iio_device_register() was called in mma8452_probe().
+But the function iio_device_unregister() was not called after
+a call of the function mma8452_set_freefall_mode() failed.
+Thus add the missed function call for one error case.
 
-Fixes: b170f7d48443d (iio: Add modifiers for ethanol and H2 gases)
-Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Fixes: 1a965d405fc6 ("drivers:iio:accel:mma8452: added cleanup provision in case of failure.")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/industrialio-core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/accel/mma8452.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -130,6 +130,8 @@ static const char * const iio_modifier_n
- 	[IIO_MOD_PM2P5] = "pm2p5",
- 	[IIO_MOD_PM4] = "pm4",
- 	[IIO_MOD_PM10] = "pm10",
-+	[IIO_MOD_ETHANOL] = "ethanol",
-+	[IIO_MOD_H2] = "h2",
- };
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1685,10 +1685,13 @@ static int mma8452_probe(struct i2c_clie
  
- /* relies on pairs of these shared then separate */
+ 	ret = mma8452_set_freefall_mode(data, false);
+ 	if (ret < 0)
+-		goto buffer_cleanup;
++		goto unregister_device;
+ 
+ 	return 0;
+ 
++unregister_device:
++	iio_device_unregister(indio_dev);
++
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 
 
 
