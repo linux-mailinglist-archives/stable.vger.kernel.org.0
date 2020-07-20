@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2622A226959
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 899A1226752
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:10:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732558AbgGTQBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35044 "EHLO mail.kernel.org"
+        id S2387682AbgGTQKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731433AbgGTQBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:01:34 -0400
+        id S1733042AbgGTQKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFE2620672;
-        Mon, 20 Jul 2020 16:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 664082064B;
+        Mon, 20 Jul 2020 16:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260894;
-        bh=MjQVEo8ePfmHAxMzEUEPB8j9rECsoTukm0HF3RCe50g=;
+        s=default; t=1595261433;
+        bh=7l2mC/8Pcjw0+InFX8xGT4xB/xpRCBCKKjD43qqVbpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wz5W7fq2gs/jK2vV41lfgPCmSdruu+SIBu5Xx+Ydgo9ZrgewfWtQvzLvW5oIq9jyE
-         7d7f4qMbcearp+CIAZSs7L/PRD6t9gOoCmB4VuxpSuEiCtGiQYyqAdnf7yD8+5iS4v
-         w6AEN5BLOvzcQqSSINCXHhTvr8R9zzhs0dAAHrSs=
+        b=jX+7wSUZPPL+LgIRfeJEm+wezrQJAcb3qhnX724/6r5ENrXj/iZw/2Pr4IAq4lX1T
+         S+Ps5+HZmj+LpSG4cOzlGCwi/iepVUIIuIsszI8xOPa9jelV0AcVcmVJfGEyYjJwYB
+         sObCMPXMI/ctCOOuHN8fwYh/n7RqlBY5XPh0nNKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/215] dmaengine: dw: Initialize channel before each transfer
-Date:   Mon, 20 Jul 2020 17:36:25 +0200
-Message-Id: <20200720152825.107548982@linuxfoundation.org>
+        stable@vger.kernel.org, Anthony Iliopoulos <ailiop@suse.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 115/244] nvme: explicitly update mpath disk capacity on revalidation
+Date:   Mon, 20 Jul 2020 17:36:26 +0200
+Message-Id: <20200720152831.314311521@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Anthony Iliopoulos <ailiop@suse.com>
 
-[ Upstream commit 99ba8b9b0d9780e9937eb1d488d120e9e5c2533d ]
+[ Upstream commit 05b29021fba5e725dd385151ef00b6340229b500 ]
 
-In some cases DMA can be used only with a consumer which does runtime power
-management and on the platforms, that have DMA auto power gating logic
-(see comments in the drivers/acpi/acpi_lpss.c), may result in DMA losing
-its context. Simple mitigation of this issue is to initialize channel
-each time the consumer initiates a transfer.
+Commit 3b4b19721ec652 ("nvme: fix possible deadlock when I/O is
+blocked") reverted multipath head disk revalidation due to deadlocks
+caused by holding the bd_mutex during revalidate.
 
-Fixes: cfdf5b6cc598 ("dw_dmac: add support for Lynxpoint DMA controllers")
-Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206403
-Link: https://lore.kernel.org/r/20200705115620.51929-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Updating the multipath disk blockdev size is still required though for
+userspace to be able to observe any resizing while the device is
+mounted. Directly update the bdev inode size to avoid unnecessarily
+holding the bdev->bd_mutex.
+
+Fixes: 3b4b19721ec652 ("nvme: fix possible deadlock when I/O is
+blocked")
+
+Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw/core.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ drivers/nvme/host/core.c |  1 +
+ drivers/nvme/host/nvme.h | 13 +++++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
-index 21cb2a58dbd29..a1b56f52db2f2 100644
---- a/drivers/dma/dw/core.c
-+++ b/drivers/dma/dw/core.c
-@@ -118,16 +118,11 @@ static void dwc_initialize(struct dw_dma_chan *dwc)
- {
- 	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
- 
--	if (test_bit(DW_DMA_IS_INITIALIZED, &dwc->flags))
--		return;
--
- 	dw->initialize_chan(dwc);
- 
- 	/* Enable interrupts */
- 	channel_set_bit(dw, MASK.XFER, dwc->mask);
- 	channel_set_bit(dw, MASK.ERROR, dwc->mask);
--
--	set_bit(DW_DMA_IS_INITIALIZED, &dwc->flags);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 71d63ed62071e..137d7bcc13585 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1916,6 +1916,7 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
+ 	if (ns->head->disk) {
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
+ 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
++		nvme_mpath_update_disk_size(ns->head->disk);
+ 	}
+ #endif
+ }
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 719342600be62..46f965f8c9bcd 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -583,6 +583,16 @@ static inline void nvme_trace_bio_complete(struct request *req,
+ 					 req->bio, status);
  }
  
- /*----------------------------------------------------------------------*/
-@@ -954,8 +949,6 @@ static void dwc_issue_pending(struct dma_chan *chan)
- 
- void do_dw_dma_off(struct dw_dma *dw)
++static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
++{
++	struct block_device *bdev = bdget_disk(disk, 0);
++
++	if (bdev) {
++		bd_set_size(bdev, get_capacity(disk) << SECTOR_SHIFT);
++		bdput(bdev);
++	}
++}
++
+ extern struct device_attribute dev_attr_ana_grpid;
+ extern struct device_attribute dev_attr_ana_state;
+ extern struct device_attribute subsys_attr_iopolicy;
+@@ -658,6 +668,9 @@ static inline void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys)
+ static inline void nvme_mpath_start_freeze(struct nvme_subsystem *subsys)
  {
--	unsigned int i;
--
- 	dma_writel(dw, CFG, 0);
- 
- 	channel_clear_bit(dw, MASK.XFER, dw->all_chan_mask);
-@@ -966,9 +959,6 @@ void do_dw_dma_off(struct dw_dma *dw)
- 
- 	while (dma_readl(dw, CFG) & DW_CFG_DMA_EN)
- 		cpu_relax();
--
--	for (i = 0; i < dw->dma.chancnt; i++)
--		clear_bit(DW_DMA_IS_INITIALIZED, &dw->chan[i].flags);
  }
++static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
++{
++}
+ #endif /* CONFIG_NVME_MULTIPATH */
  
- void do_dw_dma_on(struct dw_dma *dw)
-@@ -1032,8 +1022,6 @@ static void dwc_free_chan_resources(struct dma_chan *chan)
- 	/* Clear custom channel configuration */
- 	memset(&dwc->dws, 0, sizeof(struct dw_dma_slave));
- 
--	clear_bit(DW_DMA_IS_INITIALIZED, &dwc->flags);
--
- 	/* Disable interrupts */
- 	channel_clear_bit(dw, MASK.XFER, dwc->mask);
- 	channel_clear_bit(dw, MASK.BLOCK, dwc->mask);
+ #ifdef CONFIG_NVM
 -- 
 2.25.1
 
