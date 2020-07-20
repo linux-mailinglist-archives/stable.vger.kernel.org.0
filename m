@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7835B2264CB
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7471E226575
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730491AbgGTPsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S1730444AbgGTPyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730430AbgGTPsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:14 -0400
+        id S1731329AbgGTPyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:54:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFAA72064B;
-        Mon, 20 Jul 2020 15:48:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F4042065E;
+        Mon, 20 Jul 2020 15:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260094;
-        bh=HXaibJfa6wLVGPO1d4buUM+4zANypU133cG0yWbUnsQ=;
+        s=default; t=1595260446;
+        bh=1vh0gccBO5E8zyO6PG9oR09WipYYJAhhq0ytHAR8VZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3D48ZAPjm2FayhlB5QJL4aEFwj7OC3xMgA2DyBOAoAqlkhLykbPS86XbZhOcUC4k
-         MVfkdTZYBObvi3lH14BV6m9okbUdpVUnoBxiyrN1XsKtEmlylC10OE3HPDnzOaNBmy
-         Ex0umaiaIffz+72uwNAwJswQB0TGkOIPUzJCe2NQ=
+        b=c34MVwwAOvE/SmwXNZ/Q/PUY1N8GeU7hqrhEMdBwzbZ6P6s/bTt3Ma6jW8HcxzTab
+         CPqMhU33PvGGaDN7x9qvRd2SBZ3VgDeNsIXqhxjNQEWyjqq2izLS98S2kkNUwdQJVX
+         0gKYEXfrhN+dsVeDxTOXEI0n7pyh7FtB5mYusRWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 105/125] USB: serial: option: add Quectel EG95 LTE modem
-Date:   Mon, 20 Jul 2020 17:37:24 +0200
-Message-Id: <20200720152808.101065967@linuxfoundation.org>
+Subject: [PATCH 4.19 098/133] USB: serial: option: add Quectel EG95 LTE modem
+Date:   Mon, 20 Jul 2020 17:37:25 +0200
+Message-Id: <20200720152808.462536292@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -248,6 +248,7 @@ static void option_instat_callback(struc
+@@ -245,6 +245,7 @@ static void option_instat_callback(struc
  /* These Quectel products use Quectel's vendor ID */
  #define QUECTEL_PRODUCT_EC21			0x0121
  #define QUECTEL_PRODUCT_EC25			0x0125
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define QUECTEL_PRODUCT_BG96			0x0296
  #define QUECTEL_PRODUCT_EP06			0x0306
  #define QUECTEL_PRODUCT_EM12			0x0512
-@@ -1100,6 +1101,8 @@ static const struct usb_device_id option
+@@ -1097,6 +1098,8 @@ static const struct usb_device_id option
  	  .driver_info = RSVD(4) },
  	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
  	  .driver_info = RSVD(4) },
