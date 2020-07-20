@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B781F2267F3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C00BA2267F6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388474AbgGTQQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:16:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57078 "EHLO mail.kernel.org"
+        id S2387841AbgGTQQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:16:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388490AbgGTQQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:16:01 -0400
+        id S2388496AbgGTQQE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:16:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D3792176B;
-        Mon, 20 Jul 2020 16:16:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 319A42064B;
+        Mon, 20 Jul 2020 16:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261761;
-        bh=kg2cfYSlACz1h2UN+y3/6qgPaDJ7uw3fZNv6Tmy/Qzg=;
+        s=default; t=1595261763;
+        bh=2WIqrrjZ5dFloCIxE6c280prt6aRS9BfBvTLbxVQrkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hhXjQyHDKmYfDgL7qqp820T5FA0KVAG/bUBr7qTTGKDX7eTLfXPfe3SSFI3q++ca2
-         sp57rgvwdtgxhmqBJwHJ2inVN2cHFiYEez7OL1JDubSqMsUaR005G7+LSyZRhSJoUj
-         R5ShhQ9kTg5FU/hIGtRNtBz3MZfr6hK+tLYSKfvg=
+        b=BDWpv3nM9k2sllut/5i50l32BX5qMKMbV9fMrO+M+TpihzGuZZJEsJSVOKEsYQkv1
+         TpCgi+6zfYF34TRX20sszJh/oQznRwTp7aZ2AKrZGpcLX1vXnxW91XaCHR/Dbo7+G1
+         ZyIb6dRCcy2rLpmCk4Aw69bruy7hTxPOftQg4rJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 5.7 232/244] libceph: dont omit recovery_deletes in target_copy()
-Date:   Mon, 20 Jul 2020 17:38:23 +0200
-Message-Id: <20200720152836.878557848@linuxfoundation.org>
+        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
+        Michel Lespinasse <walken@google.com>,
+        Zong Li <zong.li@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.7 233/244] RISC-V: Acquire mmap lock before invoking walk_page_range
+Date:   Mon, 20 Jul 2020 17:38:24 +0200
+Message-Id: <20200720152836.926007002@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,32 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-commit 2f3fead62144002557f322c2a7c15e1255df0653 upstream.
+commit 0e2c09011d4de4161f615ff860a605a9186cf62a upstream.
 
-Currently target_copy() is used only for sending linger pings, so
-this doesn't come up, but generally omitting recovery_deletes can
-result in unneeded resends (force_resend in calc_target()).
+As per walk_page_range documentation, mmap lock should be acquired by the
+caller before invoking walk_page_range. mmap_assert_locked gets triggered
+without that. The details can be found here.
 
-Fixes: ae78dd8139ce ("libceph: make RECOVERY_DELETES feature create a new interval")
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+http://lists.infradead.org/pipermail/linux-riscv/2020-June/010335.html
+
+Fixes: 395a21ff859c(riscv: add ARCH_HAS_SET_DIRECT_MAP support)
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Reviewed-by: Michel Lespinasse <walken@google.com>
+Reviewed-by: Zong Li <zong.li@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ceph/osd_client.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/mm/pageattr.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/net/ceph/osd_client.c
-+++ b/net/ceph/osd_client.c
-@@ -445,6 +445,7 @@ static void target_copy(struct ceph_osd_
- 	dest->size = src->size;
- 	dest->min_size = src->min_size;
- 	dest->sort_bitwise = src->sort_bitwise;
-+	dest->recovery_deletes = src->recovery_deletes;
+--- a/arch/riscv/mm/pageattr.c
++++ b/arch/riscv/mm/pageattr.c
+@@ -151,6 +151,7 @@ int set_memory_nx(unsigned long addr, in
  
- 	dest->flags = src->flags;
- 	dest->paused = src->paused;
+ int set_direct_map_invalid_noflush(struct page *page)
+ {
++	int ret;
+ 	unsigned long start = (unsigned long)page_address(page);
+ 	unsigned long end = start + PAGE_SIZE;
+ 	struct pageattr_masks masks = {
+@@ -158,11 +159,16 @@ int set_direct_map_invalid_noflush(struc
+ 		.clear_mask = __pgprot(_PAGE_PRESENT)
+ 	};
+ 
+-	return walk_page_range(&init_mm, start, end, &pageattr_ops, &masks);
++	mmap_read_lock(&init_mm);
++	ret = walk_page_range(&init_mm, start, end, &pageattr_ops, &masks);
++	mmap_read_unlock(&init_mm);
++
++	return ret;
+ }
+ 
+ int set_direct_map_default_noflush(struct page *page)
+ {
++	int ret;
+ 	unsigned long start = (unsigned long)page_address(page);
+ 	unsigned long end = start + PAGE_SIZE;
+ 	struct pageattr_masks masks = {
+@@ -170,7 +176,11 @@ int set_direct_map_default_noflush(struc
+ 		.clear_mask = __pgprot(0)
+ 	};
+ 
+-	return walk_page_range(&init_mm, start, end, &pageattr_ops, &masks);
++	mmap_read_lock(&init_mm);
++	ret = walk_page_range(&init_mm, start, end, &pageattr_ops, &masks);
++	mmap_read_unlock(&init_mm);
++
++	return ret;
+ }
+ 
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
 
 
