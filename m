@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6BA226B9C
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDA4226B79
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbgGTPm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35346 "EHLO mail.kernel.org"
+        id S1731549AbgGTQlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:41:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730068AbgGTPmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:25 -0400
+        id S1730577AbgGTPpx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:45:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A915120773;
-        Mon, 20 Jul 2020 15:42:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 251462064B;
+        Mon, 20 Jul 2020 15:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259745;
-        bh=cUT6ml9QtOqvlLfbMNEBKAVIA9b3PkIIl2rBuDmt58A=;
+        s=default; t=1595259952;
+        bh=IXXT0E0Vl8OIHfSze40IxrOU8LHgj8gyfchqlMvDDp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiHiuAxjYx8zkn9B4YnEatVEG8bXieE3LpTNsN5vZ8OTFmAEOeczjsriKC7Jc7ln7
-         44mL1FNi9zzfSZ3YLPDm7F1BvljqZ+B3fLBaSaSRgtzFecwE2F75O1WvoWuCczQmKw
-         X0nzxzQQ40tRAtzAaPurOx3Tyhfta0NJkdxcGCPE=
+        b=fssVC9jxYOn7SU+s1fCjLEYkdqADN23mKCjX1lkewCaWAw64JPIFQ7b/ZXYUIOdUW
+         M9/rPQviyINUuRcSgg3LlLeNy3SOh+yRu6Mux1Rxhem5ktHuTClBsIF7S7qm/MTECY
+         TJT3wxNg4+JT3FNXB6Pjer3xgA9tqCc804oyYyE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Sean Tranchetti <stranche@codeaurora.org>,
+        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 34/86] genetlink: remove genl_bind
+Subject: [PATCH 4.14 051/125] tcp: make sure listeners dont initialize congestion-control state
 Date:   Mon, 20 Jul 2020 17:36:30 +0200
-Message-Id: <20200720152754.869489049@linuxfoundation.org>
+Message-Id: <20200720152805.484894108@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,137 +45,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Tranchetti <stranche@codeaurora.org>
+From: Christoph Paasch <cpaasch@apple.com>
 
-[ Upstream commit 1e82a62fec613844da9e558f3493540a5b7a7b67 ]
+[ Upstream commit ce69e563b325f620863830c246a8698ccea52048 ]
 
-A potential deadlock can occur during registering or unregistering a
-new generic netlink family between the main nl_table_lock and the
-cb_lock where each thread wants the lock held by the other, as
-demonstrated below.
+syzkaller found its way into setsockopt with TCP_CONGESTION "cdg".
+tcp_cdg_init() does a kcalloc to store the gradients. As sk_clone_lock
+just copies all the memory, the allocated pointer will be copied as
+well, if the app called setsockopt(..., TCP_CONGESTION) on the listener.
+If now the socket will be destroyed before the congestion-control
+has properly been initialized (through a call to tcp_init_transfer), we
+will end up freeing memory that does not belong to that particular
+socket, opening the door to a double-free:
 
-1) Thread 1 is performing a netlink_bind() operation on a socket. As part
-   of this call, it will call netlink_lock_table(), incrementing the
-   nl_table_users count to 1.
-2) Thread 2 is registering (or unregistering) a genl_family via the
-   genl_(un)register_family() API. The cb_lock semaphore will be taken for
-   writing.
-3) Thread 1 will call genl_bind() as part of the bind operation to handle
-   subscribing to GENL multicast groups at the request of the user. It will
-   attempt to take the cb_lock semaphore for reading, but it will fail and
-   be scheduled away, waiting for Thread 2 to finish the write.
-4) Thread 2 will call netlink_table_grab() during the (un)registration
-   call. However, as Thread 1 has incremented nl_table_users, it will not
-   be able to proceed, and both threads will be stuck waiting for the
-   other.
+[   11.413102] ==================================================================
+[   11.414181] BUG: KASAN: double-free or invalid-free in tcp_cleanup_congestion_control+0x58/0xd0
+[   11.415329]
+[   11.415560] CPU: 3 PID: 4884 Comm: syz-executor.5 Not tainted 5.8.0-rc2 #80
+[   11.416544] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+[   11.418148] Call Trace:
+[   11.418534]  <IRQ>
+[   11.418834]  dump_stack+0x7d/0xb0
+[   11.419297]  print_address_description.constprop.0+0x1a/0x210
+[   11.422079]  kasan_report_invalid_free+0x51/0x80
+[   11.423433]  __kasan_slab_free+0x15e/0x170
+[   11.424761]  kfree+0x8c/0x230
+[   11.425157]  tcp_cleanup_congestion_control+0x58/0xd0
+[   11.425872]  tcp_v4_destroy_sock+0x57/0x5a0
+[   11.426493]  inet_csk_destroy_sock+0x153/0x2c0
+[   11.427093]  tcp_v4_syn_recv_sock+0xb29/0x1100
+[   11.427731]  tcp_get_cookie_sock+0xc3/0x4a0
+[   11.429457]  cookie_v4_check+0x13d0/0x2500
+[   11.433189]  tcp_v4_do_rcv+0x60e/0x780
+[   11.433727]  tcp_v4_rcv+0x2869/0x2e10
+[   11.437143]  ip_protocol_deliver_rcu+0x23/0x190
+[   11.437810]  ip_local_deliver+0x294/0x350
+[   11.439566]  __netif_receive_skb_one_core+0x15d/0x1a0
+[   11.441995]  process_backlog+0x1b1/0x6b0
+[   11.443148]  net_rx_action+0x37e/0xc40
+[   11.445361]  __do_softirq+0x18c/0x61a
+[   11.445881]  asm_call_on_stack+0x12/0x20
+[   11.446409]  </IRQ>
+[   11.446716]  do_softirq_own_stack+0x34/0x40
+[   11.447259]  do_softirq.part.0+0x26/0x30
+[   11.447827]  __local_bh_enable_ip+0x46/0x50
+[   11.448406]  ip_finish_output2+0x60f/0x1bc0
+[   11.450109]  __ip_queue_xmit+0x71c/0x1b60
+[   11.451861]  __tcp_transmit_skb+0x1727/0x3bb0
+[   11.453789]  tcp_rcv_state_process+0x3070/0x4d3a
+[   11.456810]  tcp_v4_do_rcv+0x2ad/0x780
+[   11.457995]  __release_sock+0x14b/0x2c0
+[   11.458529]  release_sock+0x4a/0x170
+[   11.459005]  __inet_stream_connect+0x467/0xc80
+[   11.461435]  inet_stream_connect+0x4e/0xa0
+[   11.462043]  __sys_connect+0x204/0x270
+[   11.465515]  __x64_sys_connect+0x6a/0xb0
+[   11.466088]  do_syscall_64+0x3e/0x70
+[   11.466617]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   11.467341] RIP: 0033:0x7f56046dc469
+[   11.467844] Code: Bad RIP value.
+[   11.468282] RSP: 002b:00007f5604dccdd8 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+[   11.469326] RAX: ffffffffffffffda RBX: 000000000068bf00 RCX: 00007f56046dc469
+[   11.470379] RDX: 0000000000000010 RSI: 0000000020000000 RDI: 0000000000000004
+[   11.471311] RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000000
+[   11.472286] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+[   11.473341] R13: 000000000041427c R14: 00007f5604dcd5c0 R15: 0000000000000003
+[   11.474321]
+[   11.474527] Allocated by task 4884:
+[   11.475031]  save_stack+0x1b/0x40
+[   11.475548]  __kasan_kmalloc.constprop.0+0xc2/0xd0
+[   11.476182]  tcp_cdg_init+0xf0/0x150
+[   11.476744]  tcp_init_congestion_control+0x9b/0x3a0
+[   11.477435]  tcp_set_congestion_control+0x270/0x32f
+[   11.478088]  do_tcp_setsockopt.isra.0+0x521/0x1a00
+[   11.478744]  __sys_setsockopt+0xff/0x1e0
+[   11.479259]  __x64_sys_setsockopt+0xb5/0x150
+[   11.479895]  do_syscall_64+0x3e/0x70
+[   11.480395]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   11.481097]
+[   11.481321] Freed by task 4872:
+[   11.481783]  save_stack+0x1b/0x40
+[   11.482230]  __kasan_slab_free+0x12c/0x170
+[   11.482839]  kfree+0x8c/0x230
+[   11.483240]  tcp_cleanup_congestion_control+0x58/0xd0
+[   11.483948]  tcp_v4_destroy_sock+0x57/0x5a0
+[   11.484502]  inet_csk_destroy_sock+0x153/0x2c0
+[   11.485144]  tcp_close+0x932/0xfe0
+[   11.485642]  inet_release+0xc1/0x1c0
+[   11.486131]  __sock_release+0xc0/0x270
+[   11.486697]  sock_close+0xc/0x10
+[   11.487145]  __fput+0x277/0x780
+[   11.487632]  task_work_run+0xeb/0x180
+[   11.488118]  __prepare_exit_to_usermode+0x15a/0x160
+[   11.488834]  do_syscall_64+0x4a/0x70
+[   11.489326]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-genl_bind() is a noop, unless a genl_family implements the mcast_bind()
-function to handle setting up family-specific multicast operations. Since
-no one in-tree uses this functionality as Cong pointed out, simply removing
-the genl_bind() function will remove the possibility for deadlock, as there
-is no attempt by Thread 1 above to take the cb_lock semaphore.
+Wei Wang fixed a part of these CDG-malloc issues with commit c12014440750
+("tcp: memset ca_priv data to 0 properly").
 
-Fixes: c380d9a7afff ("genetlink: pass multicast bind/unbind to families")
-Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Johannes Berg <johannes.berg@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
+This patch here fixes the listener-scenario: We make sure that listeners
+setting the congestion-control through setsockopt won't initialize it
+(thus CDG never allocates on listeners). For those who use AF_UNSPEC to
+reuse a socket, tcp_disconnect() is changed to cleanup afterwards.
+
+(The issue can be reproduced at least down to v4.4.x.)
+
+Cc: Wei Wang <weiwan@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Fixes: 2b0a8c9eee81 ("tcp: add CDG congestion control")
+Signed-off-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/genetlink.h |    8 -------
- net/netlink/genetlink.c |   52 ------------------------------------------------
- 2 files changed, 60 deletions(-)
+ net/ipv4/tcp.c      |    3 +++
+ net/ipv4/tcp_cong.c |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/net/genetlink.h
-+++ b/include/net/genetlink.h
-@@ -33,12 +33,6 @@ struct genl_info;
-  *	do additional, common, filtering and return an error
-  * @post_doit: called after an operation's doit callback, it may
-  *	undo operations done by pre_doit, for example release locks
-- * @mcast_bind: a socket bound to the given multicast group (which
-- *	is given as the offset into the groups array)
-- * @mcast_unbind: a socket was unbound from the given multicast group.
-- *	Note that unbind() will not be called symmetrically if the
-- *	generic netlink family is removed while there are still open
-- *	sockets.
-  * @attrbuf: buffer to store parsed attributes
-  * @family_list: family list
-  * @mcgrps: multicast groups used by this family (private)
-@@ -61,8 +55,6 @@ struct genl_family {
- 	void			(*post_doit)(const struct genl_ops *ops,
- 					     struct sk_buff *skb,
- 					     struct genl_info *info);
--	int			(*mcast_bind)(struct net *net, int group);
--	void			(*mcast_unbind)(struct net *net, int group);
- 	struct nlattr **	attrbuf;	/* private */
- 	const struct genl_ops *	ops;		/* private */
- 	const struct genl_multicast_group *mcgrps; /* private */
---- a/net/netlink/genetlink.c
-+++ b/net/netlink/genetlink.c
-@@ -992,63 +992,11 @@ static const struct genl_multicast_group
- 	{ .name = "notify", },
- };
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2366,6 +2366,9 @@ int tcp_disconnect(struct sock *sk, int
+ 	tp->snd_cwnd_cnt = 0;
+ 	tp->window_clamp = 0;
+ 	tp->delivered = 0;
++	if (icsk->icsk_ca_ops->release)
++		icsk->icsk_ca_ops->release(sk);
++	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
+ 	tcp_set_ca_state(sk, TCP_CA_Open);
+ 	tp->is_sack_reneg = 0;
+ 	tcp_clear_retrans(tp);
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -199,7 +199,7 @@ static void tcp_reinit_congestion_contro
+ 	icsk->icsk_ca_setsockopt = 1;
+ 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
  
--static int genl_bind(struct net *net, int group)
--{
--	int i, err = -ENOENT;
--
--	down_read(&cb_lock);
--	for (i = 0; i < GENL_FAM_TAB_SIZE; i++) {
--		struct genl_family *f;
--
--		list_for_each_entry(f, genl_family_chain(i), family_list) {
--			if (group >= f->mcgrp_offset &&
--			    group < f->mcgrp_offset + f->n_mcgrps) {
--				int fam_grp = group - f->mcgrp_offset;
--
--				if (!f->netnsok && net != &init_net)
--					err = -ENOENT;
--				else if (f->mcast_bind)
--					err = f->mcast_bind(net, fam_grp);
--				else
--					err = 0;
--				break;
--			}
--		}
--	}
--	up_read(&cb_lock);
--
--	return err;
--}
--
--static void genl_unbind(struct net *net, int group)
--{
--	int i;
--
--	down_read(&cb_lock);
--	for (i = 0; i < GENL_FAM_TAB_SIZE; i++) {
--		struct genl_family *f;
--
--		list_for_each_entry(f, genl_family_chain(i), family_list) {
--			if (group >= f->mcgrp_offset &&
--			    group < f->mcgrp_offset + f->n_mcgrps) {
--				int fam_grp = group - f->mcgrp_offset;
--
--				if (f->mcast_unbind)
--					f->mcast_unbind(net, fam_grp);
--				break;
--			}
--		}
--	}
--	up_read(&cb_lock);
--}
--
- static int __net_init genl_pernet_init(struct net *net)
- {
- 	struct netlink_kernel_cfg cfg = {
- 		.input		= genl_rcv,
- 		.flags		= NL_CFG_F_NONROOT_RECV,
--		.bind		= genl_bind,
--		.unbind		= genl_unbind,
- 	};
+-	if (sk->sk_state != TCP_CLOSE)
++	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
+ 		tcp_init_congestion_control(sk);
+ }
  
- 	/* we'll bump the group number right afterwards */
 
 
