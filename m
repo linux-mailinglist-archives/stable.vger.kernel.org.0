@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 324C022707F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5002271C8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727042AbgGTVha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55320 "EHLO mail.kernel.org"
+        id S1728797AbgGTVp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:45:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727033AbgGTVh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:37:29 -0400
+        id S1727038AbgGTVha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:37:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AA48207FC;
-        Mon, 20 Jul 2020 21:37:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0DFD20717;
+        Mon, 20 Jul 2020 21:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281048;
-        bh=iwmpauxY7ye7TKgOjmLPiQNamZ32rwVmIfVlNHkDXnk=;
+        s=default; t=1595281049;
+        bh=nE+iPYVH7YUcPYLNkoCTd+IU2wP0RX1TQuOswIQft7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAZX/G7k4YG3ujL80kyLtvCW38isZ0JZ8HFoBypubi9Z5vOqO6zBfzhStCK251k4J
-         MLfVlTp7pRuHwPNcbeP+F+R6GlWw1cDBBuxJV+yzF2ZVG28931ej3DRT62WbZEucMq
-         b/xZM0fBUaz8uQfRbm0zZIDnWDPbQm1yJKV3BhtA=
+        b=GirtVvwb6StIReCdQNoYpkVuyTMivzjg4UrR2kjQuUk65t/1KDRqvmzVuFnxwWZ9D
+         de1umVlhnrIbSXGIbV/O30DKHaBPPeC5V4F0LUPi6VjFTNRcfMwLM4gKaa4XUfx8Dv
+         Fc6rW4gatW1PVQlo+Svaot9IxrpC9Co0+YH81Wco=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 10/40] soc: amlogic: meson-gx-socinfo: Fix S905X3 and S905D3 ID's
-Date:   Mon, 20 Jul 2020 17:36:45 -0400
-Message-Id: <20200720213715.406997-10-sashal@kernel.org>
+Cc:     Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 11/40] Input: add `SW_MACHINE_COVER`
+Date:   Mon, 20 Jul 2020 17:36:46 -0400
+Message-Id: <20200720213715.406997-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213715.406997-1-sashal@kernel.org>
 References: <20200720213715.406997-1-sashal@kernel.org>
@@ -46,51 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Merlijn Wajer <merlijn@wizzup.org>
 
-[ Upstream commit d16d0481e6bab5a916450e4ef0e1c958b550880c ]
+[ Upstream commit c463bb2a8f8d7d97aa414bf7714fc77e9d3b10df ]
 
-Correct the SoC revision and package bits/mask values for S905D3/X3 to detect
-a wider range of observed SoC IDs, and tweak sort order for A311D/S922X.
+This event code represents the state of a removable cover of a device.
+Value 0 means that the cover is open or removed, value 1 means that the
+cover is closed.
 
-S905X3 05 0000 0101  (SEI610 initial devices)
-S905X3 10 0001 0000  (ODROID-C4 and recent Android boxes)
-S905X3 50 0101 0000  (SEI610 later revisions)
-S905D3 04 0000 0100  (VIM3L devices in kernelci)
-S905D3 b0 1011 0000  (VIM3L initial production)
-
-Fixes commit c9cc9bec36d0 ("soc: amlogic: meson-gx-socinfo: Add SM1 and S905X3 IDs")
-
-Suggested-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20200609081318.28023-1-christianshewitt@gmail.com
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
+Link: https://lore.kernel.org/r/20200612125402.18393-2-merlijn@wizzup.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/amlogic/meson-gx-socinfo.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ include/linux/mod_devicetable.h        | 2 +-
+ include/uapi/linux/input-event-codes.h | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/amlogic/meson-gx-socinfo.c b/drivers/soc/amlogic/meson-gx-socinfo.c
-index 01fc0d20a70db..6f54bd832c8b8 100644
---- a/drivers/soc/amlogic/meson-gx-socinfo.c
-+++ b/drivers/soc/amlogic/meson-gx-socinfo.c
-@@ -66,10 +66,12 @@ static const struct meson_gx_package_id {
- 	{ "A113D", 0x25, 0x22, 0xff },
- 	{ "S905D2", 0x28, 0x10, 0xf0 },
- 	{ "S905X2", 0x28, 0x40, 0xf0 },
--	{ "S922X", 0x29, 0x40, 0xf0 },
- 	{ "A311D", 0x29, 0x10, 0xf0 },
--	{ "S905X3", 0x2b, 0x5, 0xf },
--	{ "S905D3", 0x2b, 0xb0, 0xf0 },
-+	{ "S922X", 0x29, 0x40, 0xf0 },
-+	{ "S905D3", 0x2b, 0x4, 0xf5 },
-+	{ "S905X3", 0x2b, 0x5, 0xf5 },
-+	{ "S905X3", 0x2b, 0x10, 0x3f },
-+	{ "S905D3", 0x2b, 0x30, 0x3f },
- 	{ "A113L", 0x2c, 0x0, 0xf8 },
- };
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 0754b8d71262b..8a84f11bf1246 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -318,7 +318,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+ #define INPUT_DEVICE_ID_FF_MAX		0x7f
+-#define INPUT_DEVICE_ID_SW_MAX		0x0f
++#define INPUT_DEVICE_ID_SW_MAX		0x10
+ #define INPUT_DEVICE_ID_PROP_MAX	0x1f
  
+ #define INPUT_DEVICE_ID_MATCH_BUS	1
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index b6a835d378263..0c2e27d28e0ac 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -888,7 +888,8 @@
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+ #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+ #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+-#define SW_MAX			0x0f
++#define SW_MACHINE_COVER	0x10  /* set = cover closed */
++#define SW_MAX			0x10
+ #define SW_CNT			(SW_MAX+1)
+ 
+ /*
 -- 
 2.25.1
 
