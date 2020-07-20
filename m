@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C67F92264E3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8A42264E6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730975AbgGTPtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
+        id S1730988AbgGTPtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730972AbgGTPtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:49:07 -0400
+        id S1730984AbgGTPtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:49:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C67A72065E;
-        Mon, 20 Jul 2020 15:49:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6F132064B;
+        Mon, 20 Jul 2020 15:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260147;
-        bh=6QA7lOPVFm34R9uCn2TjEj6wifVTLqjsygFdGfQVirU=;
+        s=default; t=1595260152;
+        bh=FvbEbj9zDmGUluItPBrqCuYmOC1pzcSCb26Tocy+TK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LB9ABmgYhu26yBHG3XK6r0ax758l378YkGzhF1DKcVEKSrDfnXMjxllT2PJaAiuvZ
-         YFCO2ZZNrk+ohfKcDF7DHIWa2AJTuxUmEk9rbTbWsPxa42eG8o34yS+YK904PVHUd9
-         tFnlGoIXUXBJSGdr2o6pVkoavIs6Oz4kQHr+9ffM=
+        b=mKbV+eqtRgEJW6TZn6haY6DfUCLgInu2ytXNdIOL74JX0t8uFGgqnmyTSDetLaop4
+         zrrkcQh/mCvDuTcSlBkDRIgW6Z9vxbOPhOB4A8VJ5ERXuctHIVV2cFo3mJpMh8U1qB
+         51VeDu7uIVj+E+LQ06FVcDrG31u13eTSWgbNaup8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.14 093/125] mtd: rawnand: oxnas: Release all devices in the _remove() path
-Date:   Mon, 20 Jul 2020 17:37:12 +0200
-Message-Id: <20200720152807.514422880@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c190f6858a04ea7fbc52@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 095/125] ALSA: line6: Perform sanity check for each URB creation
+Date:   Mon, 20 Jul 2020 17:37:14 +0200
+Message-Id: <20200720152807.614682877@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
 References: <20200720152802.929969555@linuxfoundation.org>
@@ -42,39 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 0a5f45e57e35d0840bedb816974ce2e63406cd8b upstream.
+commit 6e8a914ad619042c5f25a4feb663357c4170fd8d upstream.
 
-oxnans_nand_remove() should release all MTD devices and clean all NAND
-devices, not only the first one registered.
+LINE6 drivers create stream URBs with a fixed pipe without checking
+its validity, and this may lead to a kernel WARNING at the submission
+when a malformed USB descriptor is passed.
 
-Fixes: 668592492409 ("mtd: nand: Add OX820 NAND Support")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-39-miquel.raynal@bootlin.com
+For avoiding the kernel warning, perform the similar sanity checks for
+each pipe type at creating a URB.
+
+Reported-by: syzbot+c190f6858a04ea7fbc52@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/s5hv9iv4hq8.wl-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/oxnas_nand.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/usb/line6/capture.c  |    2 ++
+ sound/usb/line6/playback.c |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/mtd/nand/oxnas_nand.c
-+++ b/drivers/mtd/nand/oxnas_nand.c
-@@ -184,9 +184,13 @@ err_clk_unprepare:
- static int oxnas_nand_remove(struct platform_device *pdev)
- {
- 	struct oxnas_nand_ctrl *oxnas = platform_get_drvdata(pdev);
-+	struct nand_chip *chip;
-+	int i;
+--- a/sound/usb/line6/capture.c
++++ b/sound/usb/line6/capture.c
+@@ -291,6 +291,8 @@ int line6_create_audio_in_urbs(struct sn
+ 		urb->interval = LINE6_ISO_INTERVAL;
+ 		urb->error_count = 0;
+ 		urb->complete = audio_in_callback;
++		if (usb_urb_ep_type_check(urb))
++			return -EINVAL;
+ 	}
  
--	if (oxnas->chips[0])
--		nand_release(oxnas->chips[0]);
-+	for (i = 0; i < oxnas->nchips; i++) {
-+		chip = oxnas->chips[i];
-+		nand_release(chip);
-+	}
+ 	return 0;
+--- a/sound/usb/line6/playback.c
++++ b/sound/usb/line6/playback.c
+@@ -436,6 +436,8 @@ int line6_create_audio_out_urbs(struct s
+ 		urb->interval = LINE6_ISO_INTERVAL;
+ 		urb->error_count = 0;
+ 		urb->complete = audio_out_callback;
++		if (usb_urb_ep_type_check(urb))
++			return -EINVAL;
+ 	}
  
- 	clk_disable_unprepare(oxnas->clk);
- 
+ 	return 0;
 
 
