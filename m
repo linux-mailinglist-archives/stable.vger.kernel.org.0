@@ -2,200 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA876227240
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 00:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C52422728A
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 00:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727833AbgGTWXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 18:23:48 -0400
-Received: from mga04.intel.com ([192.55.52.120]:1441 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726021AbgGTWXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 18:23:48 -0400
-IronPort-SDR: uNya6BsIg/6XMoKXJTT7SsQXWFN0S/GXHvEPy7JBR5z8n5mzcs31tTdfOzKS6rymrIYQu5hKKF
- Z0C3RH7NQm3A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9688"; a="147521264"
-X-IronPort-AV: E=Sophos;i="5.75,375,1589266800"; 
-   d="scan'208";a="147521264"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2020 15:23:47 -0700
-IronPort-SDR: kmKn9RjYXaNn3nGZ+7bK90zmriF2zraooeBkrwvp4f0lz7ooTt+8zKETTtoXn8kbRB2lSzFNrf
- cbVhrgCWEBcg==
-X-IronPort-AV: E=Sophos;i="5.75,375,1589266800"; 
-   d="scan'208";a="326188633"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2020 15:23:47 -0700
-Subject: [PATCH v3 01/11] libnvdimm: Validate command family indices
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     linux-nvdimm@lists.01.org
-Cc:     Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>, stable@vger.kernel.org,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Mon, 20 Jul 2020 15:07:30 -0700
-Message-ID: <159528284995.993790.5816012252622710464.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <159528284411.993790.11733759435137949717.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <159528284411.993790.11733759435137949717.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
-MIME-Version: 1.0
+        id S1726483AbgGTW5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 18:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726021AbgGTW5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 18:57:45 -0400
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD6EC061794
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 15:57:44 -0700 (PDT)
+Received: by mail-pf1-x434.google.com with SMTP id a14so9806975pfi.2
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 15:57:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=iIYU2RhiE9LcOY8iaQcKQsvhbG9nlzgaS5XzTJY5NXg=;
+        b=dHU+X5r8M3/FnVwIbVwddW+k1/mzQ1IewtVE+UFKK96qgnftM8EZaAzUp/Cq/zrKEB
+         HviTRoknJdT83KT5QiYFOYxG0th8kVu8UrdEwkRvMwSlO8YAusSUkOJDjj3ln9i28xaP
+         HdLcrCpl29KeElnWavkhKbz82TuJzSES1kPxbaqo7gdSvljmkuOWNRHlH0KcqjHN2mL0
+         amvAUDK2Dm8aLH6b/mcuWXH2L7ZuTiHtFyquIbOULWNGsPedpB3GImgCpLpyhUYBhkMY
+         +W//mFtGnzwdsqhJSFFY8fvJNmi2/ZzrdQ7fZrx9N/7iq8eM0tut88dGIXhVj/QKrmqD
+         XCzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=iIYU2RhiE9LcOY8iaQcKQsvhbG9nlzgaS5XzTJY5NXg=;
+        b=Jx7cO82d0DQKNZ8lQPDVzcHei8MPbxkcubD6mq5PykNjBlO+2bFGzlGfN+vd4AHx3K
+         LYBH4tk0KHA3St5PFp2n05024Xu0izmG+HFKi2f3Y8GWxjBW5+2Xez7i8b8gy44Q8+rV
+         9ae/TYbpHcsHQDrC0+6p1ElVoOjaZJnQ9vRn7YqCAUbfwOHNFpcPs9MJ+PhnfC6o/dTq
+         Pii2bUKVXfnQGiqqhuIexcULc9rDd/rCr9+iGU9tS0GMf+431OvUS36O16/sEZ6LHjWx
+         6K8iTej60lalwBLp9i9QR74ISllNn3iT0GOAR+rQCczshq0CzUOvcc7llgq0PB4M5xDN
+         pK3A==
+X-Gm-Message-State: AOAM532CSvuIbBxxt3iWa3RtArTR8XAUbpJTmU06xopSM5/p4xkFSXbA
+        wYqhfvMu5hQ+2DWpjdsjuYUOiaZ0fEk=
+X-Google-Smtp-Source: ABdhPJzIB9yvBMlqZC+bMz88RZle3S/DJrtkCwQRn3SrNpgMFWUlO2Xm7UFCyHNPRkUwh8EAibLfYw==
+X-Received: by 2002:a63:be47:: with SMTP id g7mr20169559pgo.7.1595285863809;
+        Mon, 20 Jul 2020 15:57:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d4sm16700782pgf.9.2020.07.20.15.57.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jul 2020 15:57:43 -0700 (PDT)
+Message-ID: <5f162167.1c69fb81.6a229.87e9@mx.google.com>
+Date:   Mon, 20 Jul 2020 15:57:43 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.52-216-g95f1079149bd
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 84 runs,
+ 2 regressions (v5.4.52-216-g95f1079149bd)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ND_CMD_CALL format allows for a general passthrough of passlisted
-commands targeting a given command set. However there is no validation
-of the family index relative to what the bus supports.
+stable-rc/linux-5.4.y baseline: 84 runs, 2 regressions (v5.4.52-216-g95f107=
+9149bd)
 
-- Update the NFIT bus implementation (the only one that supports
-  ND_CMD_CALL passthrough) to also passlist the valid set of command
-  family indices.
+Regressions Summary
+-------------------
 
-- Update the generic __nd_ioctl() path to validate that field on behalf
-  of all implementations.
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Fixes: 31eca76ba2fc ("nfit, libnvdimm: limited/whitelisted dimm command marshaling mechanism")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- drivers/acpi/nfit/core.c   |   11 +++++++++--
- drivers/acpi/nfit/nfit.h   |    1 -
- drivers/nvdimm/bus.c       |   16 ++++++++++++++++
- include/linux/libnvdimm.h  |    2 ++
- include/uapi/linux/ndctl.h |    4 ++++
- 5 files changed, 31 insertions(+), 3 deletions(-)
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 4/5    =
 
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 7c138a4edc03..1f72ce1a782b 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -1823,6 +1823,7 @@ static void populate_shutdown_status(struct nfit_mem *nfit_mem)
- static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
- 		struct nfit_mem *nfit_mem, u32 device_handle)
- {
-+	struct nvdimm_bus_descriptor *nd_desc = &acpi_desc->nd_desc;
- 	struct acpi_device *adev, *adev_dimm;
- 	struct device *dev = acpi_desc->dev;
- 	unsigned long dsm_mask, label_mask;
-@@ -1834,6 +1835,7 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
- 	/* nfit test assumes 1:1 relationship between commands and dsms */
- 	nfit_mem->dsm_mask = acpi_desc->dimm_cmd_force_en;
- 	nfit_mem->family = NVDIMM_FAMILY_INTEL;
-+	set_bit(NVDIMM_FAMILY_INTEL, &nd_desc->dimm_family_mask);
- 
- 	if (dcr->valid_fields & ACPI_NFIT_CONTROL_MFG_INFO_VALID)
- 		sprintf(nfit_mem->id, "%04x-%02x-%04x-%08x",
-@@ -1886,10 +1888,13 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
- 	 * Note, that checking for function0 (bit0) tells us if any commands
- 	 * are reachable through this GUID.
- 	 */
-+	clear_bit(NVDIMM_FAMILY_INTEL, &nd_desc->dimm_family_mask);
- 	for (i = 0; i <= NVDIMM_FAMILY_MAX; i++)
--		if (acpi_check_dsm(adev_dimm->handle, to_nfit_uuid(i), 1, 1))
-+		if (acpi_check_dsm(adev_dimm->handle, to_nfit_uuid(i), 1, 1)) {
-+			set_bit(i, &nd_desc->dimm_family_mask);
- 			if (family < 0 || i == default_dsm_family)
- 				family = i;
-+		}
- 
- 	/* limit the supported commands to those that are publicly documented */
- 	nfit_mem->family = family;
-@@ -2153,6 +2158,9 @@ static void acpi_nfit_init_dsms(struct acpi_nfit_desc *acpi_desc)
- 
- 	nd_desc->cmd_mask = acpi_desc->bus_cmd_force_en;
- 	nd_desc->bus_dsm_mask = acpi_desc->bus_nfit_cmd_force_en;
-+	set_bit(ND_CMD_CALL, &nd_desc->cmd_mask);
-+	set_bit(NVDIMM_BUS_FAMILY_NFIT, &nd_desc->bus_family_mask);
-+
- 	adev = to_acpi_dev(acpi_desc);
- 	if (!adev)
- 		return;
-@@ -2160,7 +2168,6 @@ static void acpi_nfit_init_dsms(struct acpi_nfit_desc *acpi_desc)
- 	for (i = ND_CMD_ARS_CAP; i <= ND_CMD_CLEAR_ERROR; i++)
- 		if (acpi_check_dsm(adev->handle, guid, 1, 1ULL << i))
- 			set_bit(i, &nd_desc->cmd_mask);
--	set_bit(ND_CMD_CALL, &nd_desc->cmd_mask);
- 
- 	dsm_mask =
- 		(1 << ND_CMD_ARS_CAP) |
-diff --git a/drivers/acpi/nfit/nfit.h b/drivers/acpi/nfit/nfit.h
-index f5525f8bb770..5c5e7ebba8dc 100644
---- a/drivers/acpi/nfit/nfit.h
-+++ b/drivers/acpi/nfit/nfit.h
-@@ -33,7 +33,6 @@
- 		| ACPI_NFIT_MEM_RESTORE_FAILED | ACPI_NFIT_MEM_FLUSH_FAILED \
- 		| ACPI_NFIT_MEM_NOT_ARMED | ACPI_NFIT_MEM_MAP_FAILED)
- 
--#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_HYPERV
- #define NVDIMM_CMD_MAX 31
- 
- #define NVDIMM_STANDARD_CMDMASK \
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index 09087c38fabd..955265656b96 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -1037,9 +1037,25 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		dimm_name = "bus";
- 	}
- 
-+	/* Validate command family support against bus declared support */
- 	if (cmd == ND_CMD_CALL) {
-+		unsigned long *mask;
-+
- 		if (copy_from_user(&pkg, p, sizeof(pkg)))
- 			return -EFAULT;
-+
-+		if (nvdimm) {
-+			if (pkg.nd_family > NVDIMM_FAMILY_MAX)
-+				return -EINVAL;
-+			mask = &nd_desc->dimm_family_mask;
-+		} else {
-+			if (pkg.nd_family > NVDIMM_BUS_FAMILY_MAX)
-+				return -EINVAL;
-+			mask = &nd_desc->bus_family_mask;
-+		}
-+
-+		if (!test_bit(pkg.nd_family, mask))
-+			return -EINVAL;
- 	}
- 
- 	if (!desc ||
-diff --git a/include/linux/libnvdimm.h b/include/linux/libnvdimm.h
-index 18da4059be09..bd39a2cf7972 100644
---- a/include/linux/libnvdimm.h
-+++ b/include/linux/libnvdimm.h
-@@ -78,6 +78,8 @@ struct nvdimm_bus_descriptor {
- 	const struct attribute_group **attr_groups;
- 	unsigned long bus_dsm_mask;
- 	unsigned long cmd_mask;
-+	unsigned long dimm_family_mask;
-+	unsigned long bus_family_mask;
- 	struct module *module;
- 	char *provider_name;
- 	struct device_node *of_node;
-diff --git a/include/uapi/linux/ndctl.h b/include/uapi/linux/ndctl.h
-index 0e09dc5cec19..e9468b9332bd 100644
---- a/include/uapi/linux/ndctl.h
-+++ b/include/uapi/linux/ndctl.h
-@@ -245,6 +245,10 @@ struct nd_cmd_pkg {
- #define NVDIMM_FAMILY_MSFT 3
- #define NVDIMM_FAMILY_HYPERV 4
- #define NVDIMM_FAMILY_PAPR 5
-+#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_PAPR
-+
-+#define NVDIMM_BUS_FAMILY_NFIT 0
-+#define NVDIMM_BUS_FAMILY_MAX NVDIMM_BUS_FAMILY_NFIT
- 
- #define ND_IOCTL_CALL			_IOWR(ND_IOCTL, ND_CMD_CALL,\
- 					struct nd_cmd_pkg)
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.52-216-g95f1079149bd/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.52-216-g95f1079149bd
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      95f1079149bd5596df492ff3dd12dacdd264e0ea =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f15d3d2f1184d693685bb1c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.52-=
+216-g95f1079149bd/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
+5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.52-=
+216-g95f1079149bd/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
+5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f15d3d2f1184d693685b=
+b1d
+      failing since 99 days (last pass: v5.4.30-54-g6f04e8ca5355, first fai=
+l: v5.4.30-81-gf163418797b9) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f15ef10f83368263185bb18
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.52-=
+216-g95f1079149bd/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.52-=
+216-g95f1079149bd/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f15ef10f8336826=
+3185bb1b
+      new failure (last pass: v5.4.52-30-ge4f3e790ad57)
+      3 lines =20
