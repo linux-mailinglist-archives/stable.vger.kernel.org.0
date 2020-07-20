@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6E52266D8
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:06:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1342266DA
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733077AbgGTQGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43220 "EHLO mail.kernel.org"
+        id S1733091AbgGTQGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:06:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732811AbgGTQGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:06:44 -0400
+        id S1733080AbgGTQGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:06:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DB742064B;
-        Mon, 20 Jul 2020 16:06:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A6AB2064B;
+        Mon, 20 Jul 2020 16:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261203;
-        bh=Y8otu4S77G3sqwNTmqP5GLTNjnw8NyqohqjPLR/cagY=;
+        s=default; t=1595261206;
+        bh=4hRmMQ99p7G0+IGoYbzCkOUvU2Y4ZJNvfEM6BVc9D48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqwA4hka/U/tnOZJkgQHRXEzxUHCR7e5rrxLWWijLcpR6qqlgBLuUp65taEGmAwTy
-         9S2fepY/7DpA4w9WYCe/471E2h4nBE4QXRZk3+p3BaTCQa20pKouPTPTlGfI0CJdNi
-         syCPev8+1rjD0mk/05AWT/aZllCOkrda9cMfkpuE=
+        b=hOwH+6lXT8QEr6sihEhpfZvCehdbsE/E98PwSKQC9eLLoGJOK9JKl5MVfEURlHV3x
+         6ilN1weIBRUMqqCE55aDuf9L3ROSy52LKMWxIbfsQKKwGEDpu+QvAh+LcZuhtYH5wv
+         lPLdEQpG021GvLRhGX+GbPFtFCyS54ZCxAeevpsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+7f1c020f68dab95aab59@syzkaller.appspotmail.com,
+        Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 030/244] net: rmnet: do not allow to add multiple bridge interfaces
-Date:   Mon, 20 Jul 2020 17:35:01 +0200
-Message-Id: <20200720152827.299716845@linuxfoundation.org>
+Subject: [PATCH 5.7 031/244] hsr: fix interface leak in error path of hsr_dev_finalize()
+Date:   Mon, 20 Jul 2020 17:35:02 +0200
+Message-Id: <20200720152827.349895521@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -45,82 +47,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 2fb2799a2abb39d7dbb48abb3baa1133bf5e921a ]
+[ Upstream commit ccfc9df1352be5b2f391091e18c4b2395d30ce78 ]
 
-rmnet can have only two bridge interface.
-One of them is a link interface and another one is added by
-the master operation.
-rmnet interface shouldn't allow adding additional
-bridge interfaces by mater operation.
-But, there is no code to deny additional interfaces.
-So, interface leak occurs.
+To release hsr(upper) interface, it should release
+its own lower interfaces first.
+Then, hsr(upper) interface can be released safely.
+In the current code of error path of hsr_dev_finalize(), it releases hsr
+interface before releasing a lower interface.
+So, a warning occurs, which warns about the leak of lower interfaces.
+In order to fix this problem, changing the ordering of the error path of
+hsr_dev_finalize() is needed.
 
 Test commands:
     ip link add dummy0 type dummy
     ip link add dummy1 type dummy
     ip link add dummy2 type dummy
-    ip link add rmnet0 link dummy0 type rmnet mux_id 1
-    ip link set dummy1 master rmnet0
-    ip link set dummy2 master rmnet0
-    ip link del rmnet0
-
-In the above test command, the dummy0 was attached to rmnet as VND mode.
-Then, dummy1 was attached to rmnet0 as BRIDGE mode.
-At this point, dummy0 mode is switched from VND to BRIDGE automatically.
-Then, dummy2 is attached to rmnet as BRIDGE mode.
-At this point, rmnet0 should deny this operation.
-But, rmnet0 doesn't deny this.
-So that below splat occurs when the rmnet0 interface is deleted.
+    ip link add hsr0 type hsr slave1 dummy0 slave2 dummy1
+    ip link add hsr1 type hsr slave1 dummy2 slave2 dummy0
 
 Splat looks like:
-[  186.684787][    C2] WARNING: CPU: 2 PID: 1009 at net/core/dev.c:8992 rollback_registered_many+0x986/0xcf0
-[  186.684788][    C2] Modules linked in: rmnet dummy openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_x
-[  186.684805][    C2] CPU: 2 PID: 1009 Comm: ip Not tainted 5.8.0-rc1+ #621
-[  186.684807][    C2] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  186.684808][    C2] RIP: 0010:rollback_registered_many+0x986/0xcf0
-[  186.684811][    C2] Code: 41 8b 4e cc 45 31 c0 31 d2 4c 89 ee 48 89 df e8 e0 47 ff ff 85 c0 0f 84 cd fc ff ff 5
-[  186.684812][    C2] RSP: 0018:ffff8880cd9472e0 EFLAGS: 00010287
-[  186.684815][    C2] RAX: ffff8880cc56da58 RBX: ffff8880ab21c000 RCX: ffffffff9329d323
-[  186.684816][    C2] RDX: 1ffffffff2be6410 RSI: 0000000000000008 RDI: ffffffff95f32080
-[  186.684818][    C2] RBP: dffffc0000000000 R08: fffffbfff2be6411 R09: fffffbfff2be6411
-[  186.684819][    C2] R10: ffffffff95f32087 R11: 0000000000000001 R12: ffff8880cd947480
-[  186.684820][    C2] R13: ffff8880ab21c0b8 R14: ffff8880cd947400 R15: ffff8880cdf10640
-[  186.684822][    C2] FS:  00007f00843890c0(0000) GS:ffff8880d4e00000(0000) knlGS:0000000000000000
-[  186.684823][    C2] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  186.684825][    C2] CR2: 000055b8ab1077b8 CR3: 00000000ab612006 CR4: 00000000000606e0
-[  186.684826][    C2] Call Trace:
-[  186.684827][    C2]  ? lockdep_hardirqs_on_prepare+0x379/0x540
-[  186.684829][    C2]  ? netif_set_real_num_tx_queues+0x780/0x780
-[  186.684830][    C2]  ? rmnet_unregister_real_device+0x56/0x90 [rmnet]
-[  186.684831][    C2]  ? __kasan_slab_free+0x126/0x150
-[  186.684832][    C2]  ? kfree+0xdc/0x320
-[  186.684834][    C2]  ? rmnet_unregister_real_device+0x56/0x90 [rmnet]
-[  186.684835][    C2]  unregister_netdevice_many.part.135+0x13/0x1b0
-[  186.684836][    C2]  rtnl_delete_link+0xbc/0x100
+[  214.923127][    C2] WARNING: CPU: 2 PID: 1093 at net/core/dev.c:8992 rollback_registered_many+0x986/0xcf0
+[  214.923129][    C2] Modules linked in: hsr dummy openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipx
+[  214.923154][    C2] CPU: 2 PID: 1093 Comm: ip Not tainted 5.8.0-rc2+ #623
+[  214.923156][    C2] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  214.923157][    C2] RIP: 0010:rollback_registered_many+0x986/0xcf0
+[  214.923160][    C2] Code: 41 8b 4e cc 45 31 c0 31 d2 4c 89 ee 48 89 df e8 e0 47 ff ff 85 c0 0f 84 cd fc ff ff 5
+[  214.923162][    C2] RSP: 0018:ffff8880c5156f28 EFLAGS: 00010287
+[  214.923165][    C2] RAX: ffff8880d1dad458 RBX: ffff8880bd1b9000 RCX: ffffffffb929d243
+[  214.923167][    C2] RDX: 1ffffffff77e63f0 RSI: 0000000000000008 RDI: ffffffffbbf31f80
+[  214.923168][    C2] RBP: dffffc0000000000 R08: fffffbfff77e63f1 R09: fffffbfff77e63f1
+[  214.923170][    C2] R10: ffffffffbbf31f87 R11: 0000000000000001 R12: ffff8880c51570a0
+[  214.923172][    C2] R13: ffff8880bd1b90b8 R14: ffff8880c5157048 R15: ffff8880d1dacc40
+[  214.923174][    C2] FS:  00007fdd257a20c0(0000) GS:ffff8880da200000(0000) knlGS:0000000000000000
+[  214.923175][    C2] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  214.923177][    C2] CR2: 00007ffd78beb038 CR3: 00000000be544005 CR4: 00000000000606e0
+[  214.923179][    C2] Call Trace:
+[  214.923180][    C2]  ? netif_set_real_num_tx_queues+0x780/0x780
+[  214.923182][    C2]  ? dev_validate_mtu+0x140/0x140
+[  214.923183][    C2]  ? synchronize_rcu.part.79+0x85/0xd0
+[  214.923185][    C2]  ? synchronize_rcu_expedited+0xbb0/0xbb0
+[  214.923187][    C2]  rollback_registered+0xc8/0x170
+[  214.923188][    C2]  ? rollback_registered_many+0xcf0/0xcf0
+[  214.923190][    C2]  unregister_netdevice_queue+0x18b/0x240
+[  214.923191][    C2]  hsr_dev_finalize+0x56e/0x6e0 [hsr]
+[  214.923192][    C2]  hsr_newlink+0x36b/0x450 [hsr]
+[  214.923194][    C2]  ? hsr_dellink+0x70/0x70 [hsr]
+[  214.923195][    C2]  ? rtnl_create_link+0x2e4/0xb00
+[  214.923197][    C2]  ? __netlink_ns_capable+0xc3/0xf0
+[  214.923198][    C2]  __rtnl_newlink+0xbdb/0x1270
 [ ... ]
-[  238.440071][ T1009] unregister_netdevice: waiting for rmnet0 to become free. Usage count = 1
 
-Fixes: 037f9cdf72fb ("net: rmnet: use upper/lower device infrastructure")
+Fixes: e0a4b99773d3 ("hsr: use upper/lower device infrastructure")
+Reported-by: syzbot+7f1c020f68dab95aab59@syzkaller.appspotmail.com
 Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/hsr/hsr_device.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -434,6 +434,11 @@ int rmnet_add_bridge(struct net_device *
- 		return -EINVAL;
- 	}
+--- a/net/hsr/hsr_device.c
++++ b/net/hsr/hsr_device.c
+@@ -417,6 +417,7 @@ int hsr_dev_finalize(struct net_device *
+ 		     unsigned char multicast_spec, u8 protocol_version,
+ 		     struct netlink_ext_ack *extack)
+ {
++	bool unregister = false;
+ 	struct hsr_priv *hsr;
+ 	int res;
  
-+	if (port->rmnet_mode != RMNET_EPMODE_VND) {
-+		NL_SET_ERR_MSG_MOD(extack, "more than one bridge dev attached");
-+		return -EINVAL;
-+	}
+@@ -468,25 +469,27 @@ int hsr_dev_finalize(struct net_device *
+ 	if (res)
+ 		goto err_unregister;
+ 
++	unregister = true;
 +
- 	if (rmnet_is_real_dev_registered(slave_dev)) {
- 		NL_SET_ERR_MSG_MOD(extack,
- 				   "slave cannot be another rmnet dev");
+ 	res = hsr_add_port(hsr, slave[0], HSR_PT_SLAVE_A, extack);
+ 	if (res)
+-		goto err_add_slaves;
++		goto err_unregister;
+ 
+ 	res = hsr_add_port(hsr, slave[1], HSR_PT_SLAVE_B, extack);
+ 	if (res)
+-		goto err_add_slaves;
++		goto err_unregister;
+ 
+ 	hsr_debugfs_init(hsr, hsr_dev);
+ 	mod_timer(&hsr->prune_timer, jiffies + msecs_to_jiffies(PRUNE_PERIOD));
+ 
+ 	return 0;
+ 
+-err_add_slaves:
+-	unregister_netdevice(hsr_dev);
+ err_unregister:
+ 	hsr_del_ports(hsr);
+ err_add_master:
+ 	hsr_del_self_node(hsr);
+ 
++	if (unregister)
++		unregister_netdevice(hsr_dev);
+ 	return res;
+ }
 
 
