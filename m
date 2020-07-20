@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 411272266AD
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09F5226829
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732961AbgGTQFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:05:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40378 "EHLO mail.kernel.org"
+        id S1732293AbgGTQRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:17:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732520AbgGTQFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:05:07 -0400
+        id S2388426AbgGTQPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:15:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C7FE22CF7;
-        Mon, 20 Jul 2020 16:05:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9973F20656;
+        Mon, 20 Jul 2020 16:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261106;
-        bh=eBe0QDJL2Y0eDA0AKKFsk8hilV+Ik/d9FRnP60tpqNY=;
+        s=default; t=1595261733;
+        bh=2TS1Ea2a7AafsiS9gEeKEBmZzM6gZPlCqXNpl+2It98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSBuiD095JJfsddmkmgpHHmDJPzNyejJqsJ0e2mAEwlcPC2FZ4Jc53YxXkJx+0LyU
-         VlYejoet7wyopVYvVpXcj049VViAkFVPZVkHiGXlm7csEYNAyghNrLQYrbscCFsx6p
-         NUBN8Zd9SF03EfoB0atGL42t9o/k/VYC8dyYIEYY=
+        b=vdL2bz012duSK3iFiwxFjffW8nj5wxgpx48ywzZdn/0wyJuWOf4OXSUXCE8rkcehH
+         Bff1EuAbkuIA2N0ACpqiiuSMo+jFz3xrUwYeT6A5dd4qysyH00yq9/4Xp/AmmAnsvz
+         YRsbHb2pu3EcNyUf+aS2fikNo2fR3cAHI//+YRxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 212/215] ionic: export features for vlans to use
+        stable@vger.kernel.org, Charmaine Lee <charmainel@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>
+Subject: [PATCH 5.7 223/244] drm/vmwgfx: fix update of display surface when resolution changes
 Date:   Mon, 20 Jul 2020 17:38:14 +0200
-Message-Id: <20200720152830.232717027@linuxfoundation.org>
+Message-Id: <20200720152836.458938189@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Roland Scheidegger <sroland@vmware.com>
 
-commit ef7232da6bcd4294cbb2d424bc35885721570f01 upstream.
+commit 1f054fd26e29784d373c3d29c348ee48f1c41fb2 upstream.
 
-Set up vlan_features for use by any vlans above us.
+The assignment of metadata overwrote the new display resolution values,
+hence we'd miss the size actually changed and wouldn't redefine the
+surface. This would then lead to command buffer error when trying to
+update the screen target (due to the size mismatch), and result in a
+VM with black screen.
 
-Fixes: beead698b173 ("ionic: Add the basic NDO callbacks for netdev support")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Acked-by: Jonathan Toppins <jtoppins@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 504901dbb0b5 ("drm/vmwgfx: Refactor surface_define to use vmw_surface_metadata")
+Reviewed-by: Charmaine Lee <charmainel@vmware.com>
+Signed-off-by: Roland Scheidegger <sroland@vmware.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -1187,6 +1187,7 @@ static int ionic_init_nic_features(struc
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
+@@ -1069,10 +1069,6 @@ vmw_stdu_primary_plane_prepare_fb(struct
+ 	if (new_content_type != SAME_AS_DISPLAY) {
+ 		struct vmw_surface_metadata metadata = {0};
  
- 	netdev->hw_features |= netdev->hw_enc_features;
- 	netdev->features |= netdev->hw_features;
-+	netdev->vlan_features |= netdev->features & ~NETIF_F_VLAN_FEATURES;
+-		metadata.base_size.width = hdisplay;
+-		metadata.base_size.height = vdisplay;
+-		metadata.base_size.depth = 1;
+-
+ 		/*
+ 		 * If content buffer is a buffer object, then we have to
+ 		 * construct surface info
+@@ -1104,6 +1100,10 @@ vmw_stdu_primary_plane_prepare_fb(struct
+ 			metadata = new_vfbs->surface->metadata;
+ 		}
  
- 	netdev->priv_flags |= IFF_UNICAST_FLT;
- 
++		metadata.base_size.width = hdisplay;
++		metadata.base_size.height = vdisplay;
++		metadata.base_size.depth = 1;
++
+ 		if (vps->surf) {
+ 			struct drm_vmw_size cur_base_size =
+ 				vps->surf->metadata.base_size;
 
 
