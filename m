@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CABA6225E3A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CD5225E3B
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728532AbgGTMOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 08:14:22 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:59029 "EHLO
+        id S1728609AbgGTMOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 08:14:23 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60319 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728609AbgGTMOV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:14:21 -0400
+        by vger.kernel.org with ESMTP id S1728703AbgGTMOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:14:23 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 904A419410AB;
-        Mon, 20 Jul 2020 08:14:18 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 43CD01941060;
+        Mon, 20 Jul 2020 08:14:20 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:14:18 -0400
+  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:14:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZdK8lM
-        BzRS4Szau0Q0onYNSrJ0bguwKAdqY8r23aVQI=; b=RZ0s+I/RrXZGW6s9et70Iw
-        47+N1gVnIhNfT7VHPoEnMQEas65Co10WAADxJ6ypCyfwNRrPoCoOXxNKFY5alRqv
-        MsC9FD94ma09vWOZI3qGfC665k/eMzRRRPGUzIfaVAZ7VpKSuWw0lt74LqI6kIvw
-        954pErOYxVwZ+6CHw59Alg4XsjrP+F3mJOVOQlYx+O+A0iq9XHtX6Da1FRPRYdWV
-        gAu8407k5LXuvu8Pp4EXxt3ZxScdBFkKMklVm5tBkcIXWsmXzoQbCRnFoOlaoge9
-        Di6WF5SUJY1R1QtHOKKHcapyunf5NFpOVQkuVQd29+5MlcRVzEAPEiHOr068x2Yg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=b5qH9E
+        nooX3IrXxJIF8O9Bhx1/+hncHQwWuHxxjutz4=; b=P57oEoP2I0ITYdVPbhbvG6
+        0ChLU9kfItV2jLk9OYFa64uKeKWtBBsFZa3ylPyGt+uRmQxtvlaXYpfkuh4U++Mw
+        mftTnIx0ieorG/nRKoA7mluCCTvOwIvWXTiAKmo6vZJRGuOVgwblUCtZXX+s3ZmV
+        Yinz0z+tZAgs9JXm3KIvcpkfvoayeBFCS9kqY7YacL8N0s3xISPT3q+kJb/UZjS1
+        jlSTyupjDijHdTMof1IvGhX4f9srHJ+JbiODLaR49CffDCffycnX9odFkB9alMqu
+        mkVLgcLv4X3WWDZ7TzZIbk9QnGIwiErI26yycaIiq+LiMa2EVWOcVgqjJIHqHIhQ
         ==
-X-ME-Sender: <xms:mooVX6IZ7KYte9pQFCuBI-V_eL9576hQ3DfNGi3eS-LagbXPzwqbtQ>
+X-ME-Sender: <xms:nIoVX-cjxY0sT90KZt4MGFr2xDk_dgwA9sl0j1ZOlhntxjT1CoWraQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggddvhecutefuodetggdote
     dvueeifffhieelhfetudenucffohhmrghinhepihhnthgvlhdrtghomhenucfkphepkeef
     rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:mooVXyKS3JaePPNuR9UhE3Fe8gObDjwDCp99LaxteJLpxqvOuErcuA>
-    <xmx:mooVX6sc7ZFtqI7tKREWog8sK6Ud0oIXJ_P7jEBv-g3WYZr11Px4tg>
-    <xmx:mooVX_ZCPiY3AAgtKVAWreUsIuvT3V7Gq4i7enijCMy_YR_cuGc_Uw>
-    <xmx:mooVXz0n4B1wPtDy65YXLchieNiHCCqD9tRizMloKflKZ5ZTqK_UxA>
+X-ME-Proxy: <xmx:nIoVX4PvGy7OHrUvGm404ZyBVj9CAiALantj9_zDKHKMW7dhR3zelw>
+    <xmx:nIoVX_gEORkg5w2NBb0lYRuQWHBQI418RCScHKzACKZ92DtUWEuSEg>
+    <xmx:nIoVX79ZQeFhi0ww45uRk9oYu7DmnIsrqaU2FpPLOIRQfVvKRQfqKg>
+    <xmx:nIoVX75vD7bcNX4TZV6cCvKiOD7UT85cF26X8Ovqj1HEy8510HH6Pg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E76893280064;
-        Mon, 20 Jul 2020 08:14:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] intel_th: Add driver infrastructure for Intel(R) Trace Hub" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8ED3B3280066;
+        Mon, 20 Jul 2020 08:14:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] intel_th: Add driver infrastructure for Intel(R) Trace Hub" failed to apply to 4.14-stable tree
 To:     alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jul 2020 14:14:20 +0200
-Message-ID: <15952472606013@kroah.com>
+Date:   Mon, 20 Jul 2020 14:14:21 +0200
+Message-ID: <159524726159229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
