@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB18E226694
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D014226807
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732627AbgGTQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
+        id S2388579AbgGTQQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:16:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732834AbgGTQEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:23 -0400
+        id S2387832AbgGTQQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:16:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4292A2064B;
-        Mon, 20 Jul 2020 16:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A0082064B;
+        Mon, 20 Jul 2020 16:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261062;
-        bh=brtp9yHjy3ziQVxTsjjgYfS8uVlOTxN4qyMt/fPozVw=;
+        s=default; t=1595261797;
+        bh=gtZEHtUNqFQ1blNIPEmqlbrDBTKZATeDlaf5BnoS8no=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOrIA4Z6uEULndJDGR7KYV+ajywV9gZUXslF3OMucS+5kzXyxVFrvFLX0rE+v7zvB
-         GeuyIlp6u9I9FWCHB77V8em2M8Ih2EvwpfIpzcxV7+U6GFbIQIDFXmDvINATybiY8m
-         OMrTybk/fvKFK9LCw3Cyb/lEqdl9nfHrzemluYSI=
+        b=enfeiATsysbXBCvbsnRQHXcfFuhWBuo2qGk3JPLkVtnXEWWXOxC5tmeVnh7Rb/g7T
+         N5owIQViM81IQYiAJ1JZfdL3WlVoAmwslTRdQm2wgQZwpbk28ucc5GlC1EcIY6UH8R
+         oVk9GriarckDgmolX4CsaiGTiQJ6/gJIYz+hNauc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 194/215] dmaengine: mcf-edma: Fix NULL pointer exception in mcf_edma_tx_handler
+        stable@vger.kernel.org,
+        Walter Lozano <walter.lozano@collabora.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.7 205/244] opp: Increase parsed_static_opps in _of_add_opp_table_v1()
 Date:   Mon, 20 Jul 2020 17:37:56 +0200
-Message-Id: <20200720152829.412085710@linuxfoundation.org>
+Message-Id: <20200720152835.603815751@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Walter Lozano <walter.lozano@collabora.com>
 
-commit 8995aa3d164ddd9200e6abcf25c449cf5298c858 upstream.
+commit 6544abc520f0fff701e9da382110dc29676c683a upstream.
 
-On Toradex Colibri VF50 (Vybrid VF5xx) with fsl-edma driver NULL pointer
-exception happens occasionally on serial output initiated by login
-timeout.
+Currently, when using _of_add_opp_table_v2 parsed_static_opps is
+increased and this value is used in _opp_remove_all_static() to
+check if there are static opp entries that need to be freed.
+Unfortunately this does not happen when using _of_add_opp_table_v1(),
+which leads to warnings.
 
-This was reproduced only if kernel was built with significant debugging
-options and EDMA driver is used with serial console.
+This patch increases parsed_static_opps in _of_add_opp_table_v1() in a
+similar way as in _of_add_opp_table_v2().
 
-Issue looks like a race condition between interrupt handler
-fsl_edma_tx_handler() (called as a result of fsl_edma_xfer_desc()) and
-terminating the transfer with fsl_edma_terminate_all().
-
-The fsl_edma_tx_handler() handles interrupt for a transfer with already
-freed edesc and idle==true.
-
-The mcf-edma driver shares design and lot of code with fsl-edma.  It
-looks like being affected by same problem.  Fix this pattern the same
-way as fix for fsl-edma driver.
-
-Fixes: e7a3ff92eaf1 ("dmaengine: fsl-edma: add ColdFire mcf5441x edma support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Robin Gong <yibin.gong@nxp.com>
-Link: https://lore.kernel.org/r/1591881665-25592-1-git-send-email-krzk@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 03758d60265c ("opp: Replace list_kref with a local counter")
+Cc: v5.6+ <stable@vger.kernel.org> # v5.6+
+Signed-off-by: Walter Lozano <walter.lozano@collabora.com>
+[ Viresh: Do the operation with lock held and set the value to 1 instead
+	  of incrementing it ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/mcf-edma.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/opp/of.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/dma/mcf-edma.c
-+++ b/drivers/dma/mcf-edma.c
-@@ -35,6 +35,13 @@ static irqreturn_t mcf_edma_tx_handler(i
- 			mcf_chan = &mcf_edma->chans[ch];
+--- a/drivers/opp/of.c
++++ b/drivers/opp/of.c
+@@ -733,6 +733,10 @@ static int _of_add_opp_table_v1(struct d
+ 		return -EINVAL;
+ 	}
  
- 			spin_lock(&mcf_chan->vchan.lock);
++	mutex_lock(&opp_table->lock);
++	opp_table->parsed_static_opps = 1;
++	mutex_unlock(&opp_table->lock);
 +
-+			if (!mcf_chan->edesc) {
-+				/* terminate_all called before */
-+				spin_unlock(&mcf_chan->vchan.lock);
-+				continue;
-+			}
-+
- 			if (!mcf_chan->edesc->iscyclic) {
- 				list_del(&mcf_chan->edesc->vdesc.node);
- 				vchan_cookie_complete(&mcf_chan->edesc->vdesc);
+ 	val = prop->value;
+ 	while (nr) {
+ 		unsigned long freq = be32_to_cpup(val++) * 1000;
 
 
