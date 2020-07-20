@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799B0227109
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B64F227107
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728535AbgGTVjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59504 "EHLO mail.kernel.org"
+        id S1728737AbgGTVlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728524AbgGTVjh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:37 -0400
+        id S1728533AbgGTVjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1157207FC;
-        Mon, 20 Jul 2020 21:39:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1358D22CAF;
+        Mon, 20 Jul 2020 21:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281177;
-        bh=EPHloOM0DXlDaIKPPfLO266b1vDEBjiAw24s/4FRhi0=;
+        s=default; t=1595281178;
+        bh=vaM/NckY/1bulk+3pEPHiNnLx88iOZqkYgq2IUR8Qtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUnD7FPOQ2dSFLIEh/fZZ4Drw7x3F/FyIqY+zYM5XsJO3yE1a/ObMYy6617UlryN4
-         EGpYBxcOSyi/6XI48rux/NNgu5yx07ijLGT6hMNA27S7PLSPUIgzHoD4VMh+xEgGE2
-         w3oQAXt41HjElxzgqsSmrkO03C90QasV4bW4WeSU=
+        b=TTS3L4lsPxPy+3Q6uh46s79q7NNrwsOYTxUgDund37/q4f43OVE0q/YGBajgQdJX/
+         5czt1yTm23TmzUctAP+zbwD5LRtqMob3ZiMB8wPTDnfrEbmED7pLLvn1dJe4NDlFoF
+         ep4cHgNWW39j07Q5FpX1s5jD8C/vI7VXQyJrkElM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Kleine-Budde <mkl@pengutronix.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 4/9] regmap: dev_get_regmap_match(): fix string comparison
-Date:   Mon, 20 Jul 2020 17:39:27 -0400
-Message-Id: <20200720213932.408089-4-sashal@kernel.org>
+Cc:     Leonid Ravich <Leonid.Ravich@emc.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 5/9] dmaengine: ioat setting ioat timeout as module parameter
+Date:   Mon, 20 Jul 2020 17:39:28 -0400
+Message-Id: <20200720213932.408089-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213932.408089-1-sashal@kernel.org>
 References: <20200720213932.408089-1-sashal@kernel.org>
@@ -43,41 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Leonid Ravich <Leonid.Ravich@emc.com>
 
-[ Upstream commit e84861fec32dee8a2e62bbaa52cded6b05a2a456 ]
+[ Upstream commit 87730ccbddcb48478b1b88e88b14e73424130764 ]
 
-This function is used by dev_get_regmap() to retrieve a regmap for the
-specified device. If the device has more than one regmap, the name parameter
-can be used to specify one.
+DMA transaction time to completion is a function of PCI bandwidth,
+transaction size and a queue depth.  So hard coded value for timeouts
+might be wrong for some scenarios.
 
-The code here uses a pointer comparison to check for equal strings. This
-however will probably always fail, as the regmap->name is allocated via
-kstrdup_const() from the regmap's config->name.
-
-Fix this by using strcmp() instead.
-
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/r/20200703103315.267996-1-mkl@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Leonid Ravich <Leonid.Ravich@emc.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20200701184816.29138-1-leonid.ravich@dell.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ioat/dma.c | 12 ++++++++++++
+ drivers/dma/ioat/dma.h |  2 --
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 1799a1dfa46ea..cd984b59a8a16 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -1239,7 +1239,7 @@ static int dev_get_regmap_match(struct device *dev, void *res, void *data)
+diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
+index 1389f0582e29b..c5a45c57b8b8d 100644
+--- a/drivers/dma/ioat/dma.c
++++ b/drivers/dma/ioat/dma.c
+@@ -38,6 +38,18 @@
  
- 	/* If the user didn't specify a name match any */
- 	if (data)
--		return (*r)->name == data;
-+		return !strcmp((*r)->name, data);
- 	else
- 		return 1;
- }
+ #include "../dmaengine.h"
+ 
++int completion_timeout = 200;
++module_param(completion_timeout, int, 0644);
++MODULE_PARM_DESC(completion_timeout,
++		"set ioat completion timeout [msec] (default 200 [msec])");
++int idle_timeout = 2000;
++module_param(idle_timeout, int, 0644);
++MODULE_PARM_DESC(idle_timeout,
++		"set ioat idel timeout [msec] (default 2000 [msec])");
++
++#define IDLE_TIMEOUT msecs_to_jiffies(idle_timeout)
++#define COMPLETION_TIMEOUT msecs_to_jiffies(completion_timeout)
++
+ static char *chanerr_str[] = {
+ 	"DMA Transfer Destination Address Error",
+ 	"Next Descriptor Address Error",
+diff --git a/drivers/dma/ioat/dma.h b/drivers/dma/ioat/dma.h
+index a9bc1a15b0d16..b0152288983bc 100644
+--- a/drivers/dma/ioat/dma.h
++++ b/drivers/dma/ioat/dma.h
+@@ -111,8 +111,6 @@ struct ioatdma_chan {
+ 	#define IOAT_RUN 5
+ 	#define IOAT_CHAN_ACTIVE 6
+ 	struct timer_list timer;
+-	#define COMPLETION_TIMEOUT msecs_to_jiffies(100)
+-	#define IDLE_TIMEOUT msecs_to_jiffies(2000)
+ 	#define RESET_DELAY msecs_to_jiffies(100)
+ 	struct ioatdma_device *ioat_dma;
+ 	dma_addr_t completion_dma;
 -- 
 2.25.1
 
