@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CDA4226B79
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E320226C39
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731549AbgGTQlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:41:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
+        id S1728891AbgGTPhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:37:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730577AbgGTPpx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:53 -0400
+        id S1728888AbgGTPhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:37:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 251462064B;
-        Mon, 20 Jul 2020 15:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2972322CB3;
+        Mon, 20 Jul 2020 15:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259952;
-        bh=IXXT0E0Vl8OIHfSze40IxrOU8LHgj8gyfchqlMvDDp4=;
+        s=default; t=1595259458;
+        bh=vRAJRZCv5S+voCMoyYNEmKb+4yriXd5zBFyYeu6RdBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fssVC9jxYOn7SU+s1fCjLEYkdqADN23mKCjX1lkewCaWAw64JPIFQ7b/ZXYUIOdUW
-         M9/rPQviyINUuRcSgg3LlLeNy3SOh+yRu6Mux1Rxhem5ktHuTClBsIF7S7qm/MTECY
-         TJT3wxNg4+JT3FNXB6Pjer3xgA9tqCc804oyYyE8=
+        b=LPu53veGRlzlTC9ucLq95mY2dDZR/UqTjFQCF+fHvll2w3mzX8fC3PqMTOUPEnDNR
+         gw7BMCmO9zZp4CU7wSEU8K73Toty+p+gplV7ISJ+lpJ6XESRJwoXazOkkh9DbZjD1c
+         G6BCxrEMHmzeBjgzKA6iHFHucA/rV+DjA9DL1rto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Christoph Paasch <cpaasch@apple.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 051/125] tcp: make sure listeners dont initialize congestion-control state
-Date:   Mon, 20 Jul 2020 17:36:30 +0200
-Message-Id: <20200720152805.484894108@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.4 15/58] btrfs: fix fatal extent_buffer readahead vs releasepage race
+Date:   Mon, 20 Jul 2020 17:36:31 +0200
+Message-Id: <20200720152747.903807992@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,145 +43,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Paasch <cpaasch@apple.com>
+From: Boris Burkov <boris@bur.io>
 
-[ Upstream commit ce69e563b325f620863830c246a8698ccea52048 ]
+commit 6bf9cd2eed9aee6d742bb9296c994a91f5316949 upstream.
 
-syzkaller found its way into setsockopt with TCP_CONGESTION "cdg".
-tcp_cdg_init() does a kcalloc to store the gradients. As sk_clone_lock
-just copies all the memory, the allocated pointer will be copied as
-well, if the app called setsockopt(..., TCP_CONGESTION) on the listener.
-If now the socket will be destroyed before the congestion-control
-has properly been initialized (through a call to tcp_init_transfer), we
-will end up freeing memory that does not belong to that particular
-socket, opening the door to a double-free:
+Under somewhat convoluted conditions, it is possible to attempt to
+release an extent_buffer that is under io, which triggers a BUG_ON in
+btrfs_release_extent_buffer_pages.
 
-[   11.413102] ==================================================================
-[   11.414181] BUG: KASAN: double-free or invalid-free in tcp_cleanup_congestion_control+0x58/0xd0
-[   11.415329]
-[   11.415560] CPU: 3 PID: 4884 Comm: syz-executor.5 Not tainted 5.8.0-rc2 #80
-[   11.416544] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-[   11.418148] Call Trace:
-[   11.418534]  <IRQ>
-[   11.418834]  dump_stack+0x7d/0xb0
-[   11.419297]  print_address_description.constprop.0+0x1a/0x210
-[   11.422079]  kasan_report_invalid_free+0x51/0x80
-[   11.423433]  __kasan_slab_free+0x15e/0x170
-[   11.424761]  kfree+0x8c/0x230
-[   11.425157]  tcp_cleanup_congestion_control+0x58/0xd0
-[   11.425872]  tcp_v4_destroy_sock+0x57/0x5a0
-[   11.426493]  inet_csk_destroy_sock+0x153/0x2c0
-[   11.427093]  tcp_v4_syn_recv_sock+0xb29/0x1100
-[   11.427731]  tcp_get_cookie_sock+0xc3/0x4a0
-[   11.429457]  cookie_v4_check+0x13d0/0x2500
-[   11.433189]  tcp_v4_do_rcv+0x60e/0x780
-[   11.433727]  tcp_v4_rcv+0x2869/0x2e10
-[   11.437143]  ip_protocol_deliver_rcu+0x23/0x190
-[   11.437810]  ip_local_deliver+0x294/0x350
-[   11.439566]  __netif_receive_skb_one_core+0x15d/0x1a0
-[   11.441995]  process_backlog+0x1b1/0x6b0
-[   11.443148]  net_rx_action+0x37e/0xc40
-[   11.445361]  __do_softirq+0x18c/0x61a
-[   11.445881]  asm_call_on_stack+0x12/0x20
-[   11.446409]  </IRQ>
-[   11.446716]  do_softirq_own_stack+0x34/0x40
-[   11.447259]  do_softirq.part.0+0x26/0x30
-[   11.447827]  __local_bh_enable_ip+0x46/0x50
-[   11.448406]  ip_finish_output2+0x60f/0x1bc0
-[   11.450109]  __ip_queue_xmit+0x71c/0x1b60
-[   11.451861]  __tcp_transmit_skb+0x1727/0x3bb0
-[   11.453789]  tcp_rcv_state_process+0x3070/0x4d3a
-[   11.456810]  tcp_v4_do_rcv+0x2ad/0x780
-[   11.457995]  __release_sock+0x14b/0x2c0
-[   11.458529]  release_sock+0x4a/0x170
-[   11.459005]  __inet_stream_connect+0x467/0xc80
-[   11.461435]  inet_stream_connect+0x4e/0xa0
-[   11.462043]  __sys_connect+0x204/0x270
-[   11.465515]  __x64_sys_connect+0x6a/0xb0
-[   11.466088]  do_syscall_64+0x3e/0x70
-[   11.466617]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   11.467341] RIP: 0033:0x7f56046dc469
-[   11.467844] Code: Bad RIP value.
-[   11.468282] RSP: 002b:00007f5604dccdd8 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-[   11.469326] RAX: ffffffffffffffda RBX: 000000000068bf00 RCX: 00007f56046dc469
-[   11.470379] RDX: 0000000000000010 RSI: 0000000020000000 RDI: 0000000000000004
-[   11.471311] RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000000
-[   11.472286] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-[   11.473341] R13: 000000000041427c R14: 00007f5604dcd5c0 R15: 0000000000000003
-[   11.474321]
-[   11.474527] Allocated by task 4884:
-[   11.475031]  save_stack+0x1b/0x40
-[   11.475548]  __kasan_kmalloc.constprop.0+0xc2/0xd0
-[   11.476182]  tcp_cdg_init+0xf0/0x150
-[   11.476744]  tcp_init_congestion_control+0x9b/0x3a0
-[   11.477435]  tcp_set_congestion_control+0x270/0x32f
-[   11.478088]  do_tcp_setsockopt.isra.0+0x521/0x1a00
-[   11.478744]  __sys_setsockopt+0xff/0x1e0
-[   11.479259]  __x64_sys_setsockopt+0xb5/0x150
-[   11.479895]  do_syscall_64+0x3e/0x70
-[   11.480395]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   11.481097]
-[   11.481321] Freed by task 4872:
-[   11.481783]  save_stack+0x1b/0x40
-[   11.482230]  __kasan_slab_free+0x12c/0x170
-[   11.482839]  kfree+0x8c/0x230
-[   11.483240]  tcp_cleanup_congestion_control+0x58/0xd0
-[   11.483948]  tcp_v4_destroy_sock+0x57/0x5a0
-[   11.484502]  inet_csk_destroy_sock+0x153/0x2c0
-[   11.485144]  tcp_close+0x932/0xfe0
-[   11.485642]  inet_release+0xc1/0x1c0
-[   11.486131]  __sock_release+0xc0/0x270
-[   11.486697]  sock_close+0xc/0x10
-[   11.487145]  __fput+0x277/0x780
-[   11.487632]  task_work_run+0xeb/0x180
-[   11.488118]  __prepare_exit_to_usermode+0x15a/0x160
-[   11.488834]  do_syscall_64+0x4a/0x70
-[   11.489326]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This relies on a few different factors. First, extent_buffer reads done
+as readahead for searching use WAIT_NONE, so they free the local extent
+buffer reference while the io is outstanding. However, they should still
+be protected by TREE_REF. However, if the system is doing signficant
+reclaim, and simultaneously heavily accessing the extent_buffers, it is
+possible for releasepage to race with two concurrent readahead attempts
+in a way that leaves TREE_REF unset when the readahead extent buffer is
+released.
 
-Wei Wang fixed a part of these CDG-malloc issues with commit c12014440750
-("tcp: memset ca_priv data to 0 properly").
+Essentially, if two tasks race to allocate a new extent_buffer, but the
+winner who attempts the first io is rebuffed by a page being locked
+(likely by the reclaim itself) then the loser will still go ahead with
+issuing the readahead. The loser's call to find_extent_buffer must also
+race with the reclaim task reading the extent_buffer's refcount as 1 in
+a way that allows the reclaim to re-clear the TREE_REF checked by
+find_extent_buffer.
 
-This patch here fixes the listener-scenario: We make sure that listeners
-setting the congestion-control through setsockopt won't initialize it
-(thus CDG never allocates on listeners). For those who use AF_UNSPEC to
-reuse a socket, tcp_disconnect() is changed to cleanup afterwards.
+The following represents an example execution demonstrating the race:
 
-(The issue can be reproduced at least down to v4.4.x.)
+            CPU0                                                         CPU1                                           CPU2
+reada_for_search                                            reada_for_search
+  readahead_tree_block                                        readahead_tree_block
+    find_create_tree_block                                      find_create_tree_block
+      alloc_extent_buffer                                         alloc_extent_buffer
+                                                                  find_extent_buffer // not found
+                                                                  allocates eb
+                                                                  lock pages
+                                                                  associate pages to eb
+                                                                  insert eb into radix tree
+                                                                  set TREE_REF, refs == 2
+                                                                  unlock pages
+                                                              read_extent_buffer_pages // WAIT_NONE
+                                                                not uptodate (brand new eb)
+                                                                                                            lock_page
+                                                                if !trylock_page
+                                                                  goto unlock_exit // not an error
+                                                              free_extent_buffer
+                                                                release_extent_buffer
+                                                                  atomic_dec_and_test refs to 1
+        find_extent_buffer // found
+                                                                                                            try_release_extent_buffer
+                                                                                                              take refs_lock
+                                                                                                              reads refs == 1; no io
+          atomic_inc_not_zero refs to 2
+          mark_buffer_accessed
+            check_buffer_tree_ref
+              // not STALE, won't take refs_lock
+              refs == 2; TREE_REF set // no action
+    read_extent_buffer_pages // WAIT_NONE
+                                                                                                              clear TREE_REF
+                                                                                                              release_extent_buffer
+                                                                                                                atomic_dec_and_test refs to 1
+                                                                                                                unlock_page
+      still not uptodate (CPU1 read failed on trylock_page)
+      locks pages
+      set io_pages > 0
+      submit io
+      return
+    free_extent_buffer
+      release_extent_buffer
+        dec refs to 0
+        delete from radix tree
+        btrfs_release_extent_buffer_pages
+          BUG_ON(io_pages > 0)!!!
 
-Cc: Wei Wang <weiwan@google.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Fixes: 2b0a8c9eee81 ("tcp: add CDG congestion control")
-Signed-off-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We observe this at a very low rate in production and were also able to
+reproduce it in a test environment by introducing some spurious delays
+and by introducing probabilistic trylock_page failures.
+
+To fix it, we apply check_tree_ref at a point where it could not
+possibly be unset by a competing task: after io_pages has been
+incremented. All the codepaths that clear TREE_REF check for io, so they
+would not be able to clear it after this point until the io is done.
+
+Stack trace, for reference:
+[1417839.424739] ------------[ cut here ]------------
+[1417839.435328] kernel BUG at fs/btrfs/extent_io.c:4841!
+[1417839.447024] invalid opcode: 0000 [#1] SMP
+[1417839.502972] RIP: 0010:btrfs_release_extent_buffer_pages+0x20/0x1f0
+[1417839.517008] Code: ed e9 ...
+[1417839.558895] RSP: 0018:ffffc90020bcf798 EFLAGS: 00010202
+[1417839.570816] RAX: 0000000000000002 RBX: ffff888102d6def0 RCX: 0000000000000028
+[1417839.586962] RDX: 0000000000000002 RSI: ffff8887f0296482 RDI: ffff888102d6def0
+[1417839.603108] RBP: ffff88885664a000 R08: 0000000000000046 R09: 0000000000000238
+[1417839.619255] R10: 0000000000000028 R11: ffff88885664af68 R12: 0000000000000000
+[1417839.635402] R13: 0000000000000000 R14: ffff88875f573ad0 R15: ffff888797aafd90
+[1417839.651549] FS:  00007f5a844fa700(0000) GS:ffff88885f680000(0000) knlGS:0000000000000000
+[1417839.669810] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[1417839.682887] CR2: 00007f7884541fe0 CR3: 000000049f609002 CR4: 00000000003606e0
+[1417839.699037] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[1417839.715187] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[1417839.731320] Call Trace:
+[1417839.737103]  release_extent_buffer+0x39/0x90
+[1417839.746913]  read_block_for_search.isra.38+0x2a3/0x370
+[1417839.758645]  btrfs_search_slot+0x260/0x9b0
+[1417839.768054]  btrfs_lookup_file_extent+0x4a/0x70
+[1417839.778427]  btrfs_get_extent+0x15f/0x830
+[1417839.787665]  ? submit_extent_page+0xc4/0x1c0
+[1417839.797474]  ? __do_readpage+0x299/0x7a0
+[1417839.806515]  __do_readpage+0x33b/0x7a0
+[1417839.815171]  ? btrfs_releasepage+0x70/0x70
+[1417839.824597]  extent_readpages+0x28f/0x400
+[1417839.833836]  read_pages+0x6a/0x1c0
+[1417839.841729]  ? startup_64+0x2/0x30
+[1417839.849624]  __do_page_cache_readahead+0x13c/0x1a0
+[1417839.860590]  filemap_fault+0x6c7/0x990
+[1417839.869252]  ? xas_load+0x8/0x80
+[1417839.876756]  ? xas_find+0x150/0x190
+[1417839.884839]  ? filemap_map_pages+0x295/0x3b0
+[1417839.894652]  __do_fault+0x32/0x110
+[1417839.902540]  __handle_mm_fault+0xacd/0x1000
+[1417839.912156]  handle_mm_fault+0xaa/0x1c0
+[1417839.921004]  __do_page_fault+0x242/0x4b0
+[1417839.930044]  ? page_fault+0x8/0x30
+[1417839.937933]  page_fault+0x1e/0x30
+[1417839.945631] RIP: 0033:0x33c4bae
+[1417839.952927] Code: Bad RIP value.
+[1417839.960411] RSP: 002b:00007f5a844f7350 EFLAGS: 00010206
+[1417839.972331] RAX: 000000000000006e RBX: 1614b3ff6a50398a RCX: 0000000000000000
+[1417839.988477] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000002
+[1417840.004626] RBP: 00007f5a844f7420 R08: 000000000000006e R09: 00007f5a94aeccb8
+[1417840.020784] R10: 00007f5a844f7350 R11: 0000000000000000 R12: 00007f5a94aecc79
+[1417840.036932] R13: 00007f5a94aecc78 R14: 00007f5a94aecc90 R15: 00007f5a94aecc40
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Boris Burkov <boris@bur.io>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp.c      |    3 +++
- net/ipv4/tcp_cong.c |    2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2366,6 +2366,9 @@ int tcp_disconnect(struct sock *sk, int
- 	tp->snd_cwnd_cnt = 0;
- 	tp->window_clamp = 0;
- 	tp->delivered = 0;
-+	if (icsk->icsk_ca_ops->release)
-+		icsk->icsk_ca_ops->release(sk);
-+	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
- 	tcp_set_ca_state(sk, TCP_CA_Open);
- 	tp->is_sack_reneg = 0;
- 	tcp_clear_retrans(tp);
---- a/net/ipv4/tcp_cong.c
-+++ b/net/ipv4/tcp_cong.c
-@@ -199,7 +199,7 @@ static void tcp_reinit_congestion_contro
- 	icsk->icsk_ca_setsockopt = 1;
- 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
- 
--	if (sk->sk_state != TCP_CLOSE)
-+	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
- 		tcp_init_congestion_control(sk);
- }
- 
+---
+ fs/btrfs/extent_io.c |   40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4861,25 +4861,28 @@ err:
+ static void check_buffer_tree_ref(struct extent_buffer *eb)
+ {
+ 	int refs;
+-	/* the ref bit is tricky.  We have to make sure it is set
+-	 * if we have the buffer dirty.   Otherwise the
+-	 * code to free a buffer can end up dropping a dirty
+-	 * page
++	/*
++	 * The TREE_REF bit is first set when the extent_buffer is added
++	 * to the radix tree. It is also reset, if unset, when a new reference
++	 * is created by find_extent_buffer.
+ 	 *
+-	 * Once the ref bit is set, it won't go away while the
+-	 * buffer is dirty or in writeback, and it also won't
+-	 * go away while we have the reference count on the
+-	 * eb bumped.
++	 * It is only cleared in two cases: freeing the last non-tree
++	 * reference to the extent_buffer when its STALE bit is set or
++	 * calling releasepage when the tree reference is the only reference.
+ 	 *
+-	 * We can't just set the ref bit without bumping the
+-	 * ref on the eb because free_extent_buffer might
+-	 * see the ref bit and try to clear it.  If this happens
+-	 * free_extent_buffer might end up dropping our original
+-	 * ref by mistake and freeing the page before we are able
+-	 * to add one more ref.
++	 * In both cases, care is taken to ensure that the extent_buffer's
++	 * pages are not under io. However, releasepage can be concurrently
++	 * called with creating new references, which is prone to race
++	 * conditions between the calls to check_buffer_tree_ref in those
++	 * codepaths and clearing TREE_REF in try_release_extent_buffer.
+ 	 *
+-	 * So bump the ref count first, then set the bit.  If someone
+-	 * beat us to it, drop the ref we added.
++	 * The actual lifetime of the extent_buffer in the radix tree is
++	 * adequately protected by the refcount, but the TREE_REF bit and
++	 * its corresponding reference are not. To protect against this
++	 * class of races, we call check_buffer_tree_ref from the codepaths
++	 * which trigger io after they set eb->io_pages. Note that once io is
++	 * initiated, TREE_REF can no longer be cleared, so that is the
++	 * moment at which any such race is best fixed.
+ 	 */
+ 	refs = atomic_read(&eb->refs);
+ 	if (refs >= 2 && test_bit(EXTENT_BUFFER_TREE_REF, &eb->bflags))
+@@ -5346,6 +5349,11 @@ int read_extent_buffer_pages(struct exte
+ 	clear_bit(EXTENT_BUFFER_READ_ERR, &eb->bflags);
+ 	eb->read_mirror = 0;
+ 	atomic_set(&eb->io_pages, num_reads);
++	/*
++	 * It is possible for releasepage to clear the TREE_REF bit before we
++	 * set io_pages. See check_buffer_tree_ref for a more detailed comment.
++	 */
++	check_buffer_tree_ref(eb);
+ 	for (i = start_i; i < num_pages; i++) {
+ 		page = eb->pages[i];
+ 		if (!PageUptodate(page)) {
 
 
