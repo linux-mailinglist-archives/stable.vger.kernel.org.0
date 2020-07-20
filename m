@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88026226571
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CDE2264AF
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731271AbgGTPyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:54:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52580 "EHLO mail.kernel.org"
+        id S1730742AbgGTPrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:47:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730946AbgGTPx7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:59 -0400
+        id S1730386AbgGTPrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:47:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0599206E9;
-        Mon, 20 Jul 2020 15:53:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97655206E9;
+        Mon, 20 Jul 2020 15:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260438;
-        bh=/Jj+U6siC94ko60rqolLaoqkcuyH+GqVj3Q8RrcO8fA=;
+        s=default; t=1595260028;
+        bh=Vk7IagyqnoRmnENC1u/iaiaXIz648HETL5Ky4FZuhwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3cU2AV88jgN5XB/hV7GFqk95mFcj5Utrai7HlgpS7HC+45XA65UaSSj/OfNEDgSi
-         zirAoI0SxJS93hh744no6CapTm/PnAwBWMUM6EIEav9iTnCs9y3un0zgK7VzGTPiPD
-         mmaJZEf1aeReMqFRQ1ehELSfzpJNhWsdHxlg8dXE=
+        b=JrOTbe/bTWtPsCwiqmhBWBtm3r6EvTq31LOF4ClAOUFI6Mx5EH5KbwYxmiLuq+zln
+         ypAZJL1VwKFcIx3T8s0IKHp3iJe1OxkWxAAGat1duffhADxspO9u/qMMwVYxDyXqIx
+         poPFcsASKcACrNifCIzyNeaddLNFX8hgGd09yQ3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maulik Shah <mkshah@codeaurora.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 4.19 071/133] soc: qcom: rpmh: Invalidate SLEEP and WAKE TCSes before flushing new data
-Date:   Mon, 20 Jul 2020 17:36:58 +0200
-Message-Id: <20200720152807.144144806@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Andrew F. Davis" <afd@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 080/125] iio:health:afe4404 Fix timestamp alignment and prevent data leak.
+Date:   Mon, 20 Jul 2020 17:36:59 +0200
+Message-Id: <20200720152806.883617444@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,103 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maulik Shah <mkshah@codeaurora.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit f5ac95f9ca2f439179a5baf48e1c0f22f83d936e upstream.
+[ Upstream commit f88ecccac4be348bbcc6d056bdbc622a8955c04d ]
 
-TCSes have previously programmed data when rpmh_flush() is called.
-This can cause old data to trigger along with newly flushed.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 40 byte array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak appart from previous readings.
 
-Fix this by cleaning SLEEP and WAKE TCSes before new data is flushed.
-
-With this there is no need to invoke rpmh_rsc_invalidate() call from
-rpmh_invalidate().
-
-Simplify rpmh_invalidate() by moving invalidate_batch() inside.
-
-Fixes: 600513dfeef3 ("drivers: qcom: rpmh: cache sleep/wake state requests")
-Signed-off-by: Maulik Shah <mkshah@codeaurora.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1586703004-13674-4-git-send-email-mkshah@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 87aec56e27ef ("iio: health: Add driver for the TI AFE4404 heart monitor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmh.c |   41 ++++++++++++++++++-----------------------
- 1 file changed, 18 insertions(+), 23 deletions(-)
+ drivers/iio/health/afe4404.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/soc/qcom/rpmh.c
-+++ b/drivers/soc/qcom/rpmh.c
-@@ -318,19 +318,6 @@ static int flush_batch(struct rpmh_ctrlr
- 	return ret;
- }
+diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
+index 964f5231a831c..5e256b11ac877 100644
+--- a/drivers/iio/health/afe4404.c
++++ b/drivers/iio/health/afe4404.c
+@@ -91,6 +91,7 @@ static const struct reg_field afe4404_reg_fields[] = {
+  * @regulator: Pointer to the regulator for the IC
+  * @trig: IIO trigger for this device
+  * @irq: ADC_RDY line interrupt number
++ * @buffer: Used to construct a scan to push to the iio buffer.
+  */
+ struct afe4404_data {
+ 	struct device *dev;
+@@ -99,6 +100,7 @@ struct afe4404_data {
+ 	struct regulator *regulator;
+ 	struct iio_trigger *trig;
+ 	int irq;
++	s32 buffer[10] __aligned(8);
+ };
  
--static void invalidate_batch(struct rpmh_ctrlr *ctrlr)
--{
--	struct batch_cache_req *req, *tmp;
--	unsigned long flags;
--
--	spin_lock_irqsave(&ctrlr->cache_lock, flags);
--	list_for_each_entry_safe(req, tmp, &ctrlr->batch_cache, list)
--		kfree(req);
--	INIT_LIST_HEAD(&ctrlr->batch_cache);
--	ctrlr->dirty = true;
--	spin_unlock_irqrestore(&ctrlr->cache_lock, flags);
--}
--
- /**
-  * rpmh_write_batch: Write multiple sets of RPMH commands and wait for the
-  * batch to finish.
-@@ -470,6 +457,13 @@ int rpmh_flush(const struct device *dev)
- 		return 0;
+ enum afe4404_chan_id {
+@@ -337,17 +339,17 @@ static irqreturn_t afe4404_trigger_handler(int irq, void *private)
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+ 	int ret, bit, i = 0;
+-	s32 buffer[10];
+ 
+ 	for_each_set_bit(bit, indio_dev->active_scan_mask,
+ 			 indio_dev->masklength) {
+ 		ret = regmap_read(afe->regmap, afe4404_channel_values[bit],
+-				  &buffer[i++]);
++				  &afe->buffer[i++]);
+ 		if (ret)
+ 			goto err;
  	}
  
-+	/* Invalidate the TCSes first to avoid stale data */
-+	do {
-+		ret = rpmh_rsc_invalidate(ctrlr_to_drv(ctrlr));
-+	} while (ret == -EAGAIN);
-+	if (ret)
-+		return ret;
-+
- 	/* First flush the cached batch requests */
- 	ret = flush_batch(ctrlr);
- 	if (ret)
-@@ -501,24 +495,25 @@ int rpmh_flush(const struct device *dev)
- EXPORT_SYMBOL(rpmh_flush);
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
++					   pf->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
  
- /**
-- * rpmh_invalidate: Invalidate all sleep and active sets
-- * sets.
-+ * rpmh_invalidate: Invalidate sleep and wake sets in batch_cache
-  *
-  * @dev: The device making the request
-  *
-- * Invalidate the sleep and active values in the TCS blocks.
-+ * Invalidate the sleep and wake values in batch_cache.
-  */
- int rpmh_invalidate(const struct device *dev)
- {
- 	struct rpmh_ctrlr *ctrlr = get_rpmh_ctrlr(dev);
--	int ret;
--
--	invalidate_batch(ctrlr);
-+	struct batch_cache_req *req, *tmp;
-+	unsigned long flags;
- 
--	do {
--		ret = rpmh_rsc_invalidate(ctrlr_to_drv(ctrlr));
--	} while (ret == -EAGAIN);
-+	spin_lock_irqsave(&ctrlr->cache_lock, flags);
-+	list_for_each_entry_safe(req, tmp, &ctrlr->batch_cache, list)
-+		kfree(req);
-+	INIT_LIST_HEAD(&ctrlr->batch_cache);
-+	ctrlr->dirty = true;
-+	spin_unlock_irqrestore(&ctrlr->cache_lock, flags);
- 
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL(rpmh_invalidate);
+-- 
+2.25.1
+
 
 
