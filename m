@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4B64226BA7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C55E1226C31
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730123AbgGTQnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:43:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34772 "EHLO mail.kernel.org"
+        id S1729379AbgGTPjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730016AbgGTPmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:08 -0400
+        id S1729363AbgGTPjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C11D82064B;
-        Mon, 20 Jul 2020 15:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53E7A22CAF;
+        Mon, 20 Jul 2020 15:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259728;
-        bh=FI7gps7flBvDC7mqdfUc+hItbWd/wRfn0NGUD3v/seY=;
+        s=default; t=1595259540;
+        bh=gHMFfJOi8qxKoVrEySmfFxRRRt2jZd3dP9BATkzoiZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRVL1HBMxcRsEXUAOKSSCdvAxMd1pxp6fIr2D91w1SY28wES6JMgDel97nDLZdHv9
-         jYVwOMCByS0FXoeaQO/6g61nDLdPgaSUWGtfnXFTqPx7sY4WLIH/ahJt2Pkk628cDv
-         a0Jde3wkQPrPAmkt2Fl3+5p1nQYuOwu93bLtxfzQ=
+        b=vRrqM03MjXa/dGaquKOnoZTS64lrb6U0qzzym6jjD0S6k49qrTHd42bYOImd7OKH2
+         WMcyVhDe+le1RTzOlLrBNgMqEwuA0yDpIwPJgu1gpP58KpVSFrfouRmLs8OVX/on7c
+         gNkmc+TYTsC2LPaoi44oIPVa8xT5CAqgpMCaIJmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 58/86] perf stat: Zero all the ena and run array slot stats for interval mode
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 38/58] usb: core: Add a helper function to check the validity of EP type in URB
 Date:   Mon, 20 Jul 2020 17:36:54 +0200
-Message-Id: <20200720152756.075872523@linuxfoundation.org>
+Message-Id: <20200720152749.118768122@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 0e0bf1ea1147fcf74eab19c2d3c853cc3740a72f upstream.
+commit e901b9873876ca30a09253731bd3a6b00c44b5b0 upstream.
 
-As the code comments in perf_stat_process_counter() say, we calculate
-counter's data every interval, and the display code shows ps->res_stats
-avg value. We need to zero the stats for interval mode.
+This patch adds a new helper function to perform a sanity check of the
+given URB to see whether it contains a valid endpoint.  It's a light-
+weight version of what usb_submit_urb() does, but without the kernel
+warning followed by the stack trace, just returns an error code.
 
-But the current code only zeros the res_stats[0], it doesn't zero the
-res_stats[1] and res_stats[2], which are for ena and run of counter.
+Especially for a driver that doesn't parse the descriptor but fills
+the URB with the fixed endpoint (e.g. some quirks for non-compliant
+devices), this kind of check is preferable at the probe phase before
+actually submitting the urb.
 
-This patch zeros the whole res_stats[] for interval mode.
-
-Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200409070755.17261-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Andrey Konovalov <andreyknvl@google.com>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/stat.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/core/urb.c |   30 ++++++++++++++++++++++++++----
+ include/linux/usb.h    |    2 ++
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
---- a/tools/perf/util/stat.c
-+++ b/tools/perf/util/stat.c
-@@ -341,8 +341,10 @@ int perf_stat_process_counter(struct per
- 	 * interval mode, otherwise overall avg running
- 	 * averages will be shown for each interval.
- 	 */
--	if (config->interval)
--		init_stats(ps->res_stats);
-+	if (config->interval) {
-+		for (i = 0; i < 3; i++)
-+			init_stats(&ps->res_stats[i]);
-+	}
+--- a/drivers/usb/core/urb.c
++++ b/drivers/usb/core/urb.c
+@@ -185,6 +185,31 @@ EXPORT_SYMBOL_GPL(usb_unanchor_urb);
  
- 	if (counter->per_pkg)
- 		zero_per_pkg(counter);
+ /*-------------------------------------------------------------------*/
+ 
++static const int pipetypes[4] = {
++	PIPE_CONTROL, PIPE_ISOCHRONOUS, PIPE_BULK, PIPE_INTERRUPT
++};
++
++/**
++ * usb_urb_ep_type_check - sanity check of endpoint in the given urb
++ * @urb: urb to be checked
++ *
++ * This performs a light-weight sanity check for the endpoint in the
++ * given urb.  It returns 0 if the urb contains a valid endpoint, otherwise
++ * a negative error code.
++ */
++int usb_urb_ep_type_check(const struct urb *urb)
++{
++	const struct usb_host_endpoint *ep;
++
++	ep = usb_pipe_endpoint(urb->dev, urb->pipe);
++	if (!ep)
++		return -EINVAL;
++	if (usb_pipetype(urb->pipe) != pipetypes[usb_endpoint_type(&ep->desc)])
++		return -EINVAL;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(usb_urb_ep_type_check);
++
+ /**
+  * usb_submit_urb - issue an asynchronous transfer request for an endpoint
+  * @urb: pointer to the urb describing the request
+@@ -324,9 +349,6 @@ EXPORT_SYMBOL_GPL(usb_unanchor_urb);
+  */
+ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
+ {
+-	static int			pipetypes[4] = {
+-		PIPE_CONTROL, PIPE_ISOCHRONOUS, PIPE_BULK, PIPE_INTERRUPT
+-	};
+ 	int				xfertype, max;
+ 	struct usb_device		*dev;
+ 	struct usb_host_endpoint	*ep;
+@@ -445,7 +467,7 @@ int usb_submit_urb(struct urb *urb, gfp_
+ 	 */
+ 
+ 	/* Check that the pipe's type matches the endpoint's type */
+-	if (usb_pipetype(urb->pipe) != pipetypes[xfertype])
++	if (usb_urb_ep_type_check(urb))
+ 		dev_WARN(&dev->dev, "BOGUS urb xfer, pipe %x != type %x\n",
+ 			usb_pipetype(urb->pipe), pipetypes[xfertype]);
+ 
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -1655,6 +1655,8 @@ static inline int usb_urb_dir_out(struct
+ 	return (urb->transfer_flags & URB_DIR_MASK) == URB_DIR_OUT;
+ }
+ 
++int usb_urb_ep_type_check(const struct urb *urb);
++
+ void *usb_alloc_coherent(struct usb_device *dev, size_t size,
+ 	gfp_t mem_flags, dma_addr_t *dma);
+ void usb_free_coherent(struct usb_device *dev, size_t size,
 
 
