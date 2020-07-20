@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57BAF2267CA
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D934226832
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387802AbgGTQOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:14:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55294 "EHLO mail.kernel.org"
+        id S2388321AbgGTQOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387612AbgGTQOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:14:43 -0400
+        id S2387612AbgGTQOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76978207DD;
-        Mon, 20 Jul 2020 16:14:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B16C2176B;
+        Mon, 20 Jul 2020 16:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261683;
-        bh=20oi58UnR4BgY4g4QrVTdSrQ7JvKaf3s34bO79kePEw=;
+        s=default; t=1595261686;
+        bh=Np+j03ykyif20VWP1W2T8FI6kv/Xhb/bRgfjC8cnNxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbF9yuhdBzZzaADstgd8lSj3mkeB9uNtqiem49xY7uwsrrsIh4/TDkD700NEB4Bkv
-         I8dIosn/kRS+4ZxIQdzCiZbnCR7tdHuhzdhu4VKnVbJjps2gK41uMuav6aoFE+bN1n
-         TN/jR7Fce7VM/LeS9JcM95vb8fT6uCLAzq26PgMg=
+        b=HaogEOShVet0U9XJvZytsjpHhTa7jTL/8rypaNdEq6858Cg5Gkwi6s4cer4U/S6vS
+         m6I8SiD5VioyxjkhjSKm/qfpQEQgBoqCKJIz0JKzGD2CqJrN2sYbFNAYEgeMTL7Aay
+         SFjUgv42U3482ks49fIEdsYEVqGYuGvZNPQ69Qr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.7 203/244] intel_th: pci: Add Emmitsburg PCH support
-Date:   Mon, 20 Jul 2020 17:37:54 +0200
-Message-Id: <20200720152835.510096162@linuxfoundation.org>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Ammy Yi <ammy.yi@intel.com>
+Subject: [PATCH 5.7 204/244] intel_th: Fix a NULL dereference when hub driver is not loaded
+Date:   Mon, 20 Jul 2020 17:37:55 +0200
+Message-Id: <20200720152835.555247227@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -46,33 +47,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit fd73d74a32bfaaf259441322cc5a1c83caaa94f2 upstream.
+commit e78e1fdb282726beaf88aa75943682217e6ded0e upstream.
 
-This adds support for the Trace Hub in Emmitsburg PCH.
+Connecting master to an output port when GTH driver module is not loaded
+triggers a NULL dereference:
+
+> RIP: 0010:intel_th_set_output+0x35/0x70 [intel_th]
+> Call Trace:
+>  ? sth_stm_link+0x12/0x20 [intel_th_sth]
+>  stm_source_link_store+0x164/0x270 [stm_core]
+>  dev_attr_store+0x17/0x30
+>  sysfs_kf_write+0x3e/0x50
+>  kernfs_fop_write+0xda/0x1b0
+>  __vfs_write+0x1b/0x40
+>  vfs_write+0xb9/0x1a0
+>  ksys_write+0x67/0xe0
+>  __x64_sys_write+0x1a/0x20
+>  do_syscall_64+0x57/0x1d0
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Make sure the module in question is loaded and return an error if not.
 
 Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: 39f4034693b7c ("intel_th: Add driver infrastructure for Intel(R) Trace Hub devices")
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.14+
-Link: https://lore.kernel.org/r/20200706161339.55468-4-alexander.shishkin@linux.intel.com
+Reported-by: Ammy Yi <ammy.yi@intel.com>
+Tested-by: Ammy Yi <ammy.yi@intel.com>
+Cc: stable@vger.kernel.org # v4.4
+Link: https://lore.kernel.org/r/20200706161339.55468-5-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hwtracing/intel_th/core.c |   21 ++++++++++++++++++---
+ drivers/hwtracing/intel_th/sth.c  |    4 +---
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -258,6 +258,11 @@ static const struct pci_device_id intel_
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4b26),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
-+	{
-+		/* Emmitsburg PCH */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1bcc),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
- 	{ 0 },
- };
+--- a/drivers/hwtracing/intel_th/core.c
++++ b/drivers/hwtracing/intel_th/core.c
+@@ -1021,15 +1021,30 @@ int intel_th_set_output(struct intel_th_
+ {
+ 	struct intel_th_device *hub = to_intel_th_hub(thdev);
+ 	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
++	int ret;
  
+ 	/* In host mode, this is up to the external debugger, do nothing. */
+ 	if (hub->host_mode)
+ 		return 0;
+ 
+-	if (!hubdrv->set_output)
+-		return -ENOTSUPP;
++	/*
++	 * hub is instantiated together with the source device that
++	 * calls here, so guaranteed to be present.
++	 */
++	hubdrv = to_intel_th_driver(hub->dev.driver);
++	if (!hubdrv || !try_module_get(hubdrv->driver.owner))
++		return -EINVAL;
+ 
+-	return hubdrv->set_output(hub, master);
++	if (!hubdrv->set_output) {
++		ret = -ENOTSUPP;
++		goto out;
++	}
++
++	ret = hubdrv->set_output(hub, master);
++
++out:
++	module_put(hubdrv->driver.owner);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(intel_th_set_output);
+ 
+--- a/drivers/hwtracing/intel_th/sth.c
++++ b/drivers/hwtracing/intel_th/sth.c
+@@ -161,9 +161,7 @@ static int sth_stm_link(struct stm_data
+ {
+ 	struct sth_device *sth = container_of(stm_data, struct sth_device, stm);
+ 
+-	intel_th_set_output(to_intel_th_device(sth->dev), master);
+-
+-	return 0;
++	return intel_th_set_output(to_intel_th_device(sth->dev), master);
+ }
+ 
+ static int intel_th_sw_init(struct sth_device *sth)
 
 
