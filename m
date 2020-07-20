@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF897226696
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26DA3226909
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732634AbgGTQE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39260 "EHLO mail.kernel.org"
+        id S2387595AbgGTQYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:24:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732549AbgGTQEZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:25 -0400
+        id S1732613AbgGTQE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E43CF20672;
-        Mon, 20 Jul 2020 16:04:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91F212064B;
+        Mon, 20 Jul 2020 16:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261065;
-        bh=LinykegGTx4SBUpY0BV2ODu2MgLAznZspWm1iZtzBfc=;
+        s=default; t=1595261068;
+        bh=Hy3vcrLf+NBQZ5DCalf0KX8h04sbG4grI55+UKEruOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1twotgkt2/mO2oJPAoyIY97h3Eiu7IaPYyAdW06RgktEOXSpHdkVLSlX9tzlOmGA
-         q28HlhBUEmhFyDsyNbao3zRX4muYAC1W1kFyx4pyLlLbYClVqTgYv7Q9I+L4wprxmA
-         wkaqGVWeyZ1ynSRjaIAQGmWZOincfXMI9pNoWMa4=
+        b=Lv/8wSReZ3XatQam0ErFzK7OHqNckBSOieZhjzBTNoTMqbyY/nB48rkYehVbY5qZx
+         pGnaphLrapQaQL2aPvVZwEDHqPETOGcRknFqXBk11OxqKr/pwlk6w35/6SMgoLR4je
+         7b2VMfLOlAEkuLOscv5q44dhyYKDeXeCEJRm5m/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 5.4 166/215] Revert "tty: xilinx_uartps: Fix missing id assignment to the console"
-Date:   Mon, 20 Jul 2020 17:37:28 +0200
-Message-Id: <20200720152828.073421311@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        Amit Shah <amit@kernel.org>
+Subject: [PATCH 5.4 167/215] virtio: virtio_console: add missing MODULE_DEVICE_TABLE() for rproc serial
+Date:   Mon, 20 Jul 2020 17:37:29 +0200
+Message-Id: <20200720152828.112674813@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -43,36 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-commit 76ed2e105796710cf5b8a4ba43c81eceed948b70 upstream.
+commit 897c44f0bae574c5fb318c759b060bebf9dd6013 upstream.
 
-This reverts commit 2ae11c46d5fdc46cb396e35911c713d271056d35.
+rproc_serial_id_table lacks an exposure to module devicetable, so
+when remoteproc firmware requests VIRTIO_ID_RPROC_SERIAL, no uevent
+is generated and no module autoloading occurs.
+Add missing MODULE_DEVICE_TABLE() annotation and move the existing
+one for VIRTIO_ID_CONSOLE right to the table itself.
 
-It turned out to break the ultra96-rev1, e.g., which uses uart1 as
-serial0 (and stdout-path = "serial0:115200n8").
-
-Fixes: 2ae11c46d5fd ("tty: xilinx_uartps: Fix missing id assignment to the console")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Reviewed-by: Michal Simek <michal.simek@xilinx.com>
-Tested-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/f4092727-d8f5-5f91-2c9f-76643aace993@siemens.com
+Fixes: 1b6370463e88 ("virtio_console: Add support for remoteproc serial")
+Cc: <stable@vger.kernel.org> # v3.8+
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Reviewed-by: Amit Shah <amit@kernel.org>
+Link: https://lore.kernel.org/r/x7C_CbeJtoGMy258nwAXASYz3xgFMFpyzmUvOyZzRnQrgWCREBjaqBOpAUS7ol4NnZYvSVwmTsCG0Ohyfvta-ygw6HMHcoeKK0C3QFiAO_Q=@pm.me
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/xilinx_uartps.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/char/virtio_console.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -1445,7 +1445,6 @@ static int cdns_uart_probe(struct platfo
- 		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
- #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
- 		cdns_uart_uart_driver.cons = &cdns_uart_console;
--		cdns_uart_console.index = id;
- #endif
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -2118,6 +2118,7 @@ static struct virtio_device_id id_table[
+ 	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+ };
++MODULE_DEVICE_TABLE(virtio, id_table);
  
- 		rc = uart_register_driver(&cdns_uart_uart_driver);
+ static unsigned int features[] = {
+ 	VIRTIO_CONSOLE_F_SIZE,
+@@ -2130,6 +2131,7 @@ static struct virtio_device_id rproc_ser
+ #endif
+ 	{ 0 },
+ };
++MODULE_DEVICE_TABLE(virtio, rproc_serial_id_table);
+ 
+ static unsigned int rproc_serial_features[] = {
+ };
+@@ -2282,6 +2284,5 @@ static void __exit fini(void)
+ module_init(init);
+ module_exit(fini);
+ 
+-MODULE_DEVICE_TABLE(virtio, id_table);
+ MODULE_DESCRIPTION("Virtio console driver");
+ MODULE_LICENSE("GPL");
 
 
