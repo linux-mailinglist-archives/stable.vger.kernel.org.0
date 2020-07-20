@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1FC225E9A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D282A225EC8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728477AbgGTMc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 08:32:29 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:35591 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728290AbgGTMc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:32:29 -0400
+        id S1728508AbgGTMrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 08:47:36 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:47673 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728461AbgGTMrf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:47:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A14BA19405BD;
-        Mon, 20 Jul 2020 08:32:27 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8602B1940357;
+        Mon, 20 Jul 2020 08:47:34 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:32:27 -0400
+  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:47:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=BFY8wg
-        L1l6l9qLIrLznLZp+0EroqVin8Dt1V+dx9shw=; b=VQcW0o+0UTbYHB9HdVKfsY
-        nX/kbP0eOdOE9nR7M8K9esJNTEcO4zNiRp6T1cZf3Pja7uPIzfp6YXsYvLjK9mdj
-        QpSF7WoIMplT5ZUiW23iKMNv/gPDTja+YIaTXlZPYUj2yy+eI/zG3ColEGowGJpO
-        4k286BN4rkWTV40XczfnHEQgLTiiOHd+IoBx4W67u/lkkzvXos2E/yLY9FVf3V+t
-        wEhn9mCT0ApikjqFHeN65SZiT6gXdaQ7FVW2crNQe0vXkxNKvR49hXK/vRtlW8BV
-        z/WGXwwvRMfvcfvZuiXEJammpg2JPSqx6pqEf9nr99iQGKOs7yR5iNbQ3o+ZajDA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=KqgcsM
+        R0AgE/SddBsMRC9ZPwCRrz6sSU/WTMfnv7Iyk=; b=dI18uRlAsGDvysjuZkGGR4
+        G/uELxUeRD/X9Y5Wye8sxZ0McjSsuJd/3JdkpGUrBx5nwZRWcb6YEtO3DbnvTNr4
+        Sn1kzAiUlicDH66ZpFMwekj+vI/xnNPOe+j1A7RL5lngYaRaE+9+hZxIIpimZ806
+        HYuHhep7O+PRp+CVUnw0QRz41zJrk1ueqO6kqlcCE8dRAIqhQujZo/yd42kZ1qnD
+        kmGC9kywzzGYq3aRKMH6Vkib8fxf0AJPQmTP1kTH+TNAxhl35a9lk1KBo47pQMXT
+        4Mdrgh/Lskn1MCXrEn82SNi/Cm2cOk2sigMhBDft7BPsmb9+leA/mz/rNXBpKQUA
         ==
-X-ME-Sender: <xms:244VX-U0Tv7x182f6GOfspjp_pIf9lt3EQwQzYtOjjXglu1QZSIuqw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggddvkecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:ZpIVX7SaSqUQxe-n8tXANafgBjs6Itya2Qrhi2OCkfGtxJYfKqJf7g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggdefudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:244VX6lf5Cuol4Kaq-cuQx0FT-nIY0A3MVI-2i1uy17h40UIlv3guw>
-    <xmx:244VXybpWpPYnIYXlnspEJAegVw9C79r_cnkRKXtRSFP8upiU4LsXA>
-    <xmx:244VX1XVGJOYcIeeJny41kDEwAnJTMD4HMGHAEZ0aijpl1MyopirTA>
-    <xmx:244VX0tWUx6znpdvPI8RwNmHG3U4rcXM3KH46ldrhyMRNorgqBZp3g>
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpedvffegjeejiedtieffjeeijeffgfehvdeiudejheefge
+    evhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
+    ucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:ZpIVX8yyp2UfZG92_DBXd6KvQjuhqJQtOViiWNS-KwYHZ9njob2nVQ>
+    <xmx:ZpIVXw3BeqbIVeqjSJxN31B6QuNtRgBNTWzV_yQpUjSkZa8JCUfNtA>
+    <xmx:ZpIVX7BMla4UzEbaTA1-2Yf5YQDFBcQmO2IImCPT0V9Cw6HhV--pXw>
+    <xmx:ZpIVX8IS6NXhcchLmtKqPepDfIQFNNU_nWEGphXmqx9U8l7BOLMCTQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2BC0E30600A3;
-        Mon, 20 Jul 2020 08:32:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] irqdomain/treewide: Keep firmware node unconditionally" failed to apply to 4.14-stable tree
-To:     tglx@linutronix.de, andriy.shevchenko@linux.intel.com,
-        bhelgaas@google.com, maz@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id E4EEF306005F;
+        Mon, 20 Jul 2020 08:47:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915: Recalculate FBC w/a stride when needed" failed to apply to 5.7-stable tree
+To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com,
+        jose.souza@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jul 2020 14:32:36 +0200
-Message-ID: <159524835611340@kroah.com>
+Date:   Mon, 20 Jul 2020 14:47:44 +0200
+Message-ID: <1595249264177183@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,233 +70,117 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e3beca48a45b5e0e6e6a4e0124276b8248dcc9bb Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Thu, 9 Jul 2020 11:53:06 +0200
-Subject: [PATCH] irqdomain/treewide: Keep firmware node unconditionally
- allocated
+From 92e0575b99835b5b3aaab2132dd551e0e04eb96a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Sat, 11 Jul 2020 11:03:36 +0300
+Subject: [PATCH] drm/i915: Recalculate FBC w/a stride when needed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Quite some non OF/ACPI users of irqdomains allocate firmware nodes of type
-IRQCHIP_FWNODE_NAMED or IRQCHIP_FWNODE_NAMED_ID and free them right after
-creating the irqdomain. The only purpose of these FW nodes is to convey
-name information. When this was introduced the core code did not store the
-pointer to the node in the irqdomain. A recent change stored the firmware
-node pointer in irqdomain for other reasons and missed to notice that the
-usage sites which do the alloc_fwnode/create_domain/free_fwnode sequence
-are broken by this. Storing a dangling pointer is dangerous itself, but in
-case that the domain is destroyed later on this leads to a double free.
+Currently we're failing to recalculate the gen9 FBC w/a stride
+unless something more drastic than just the modifier itself has
+changed. This often leaves us with FBC enabled with the linear
+fbdev framebuffer without the w/a stride enabled. That will cause
+an immediate underrun and FBC will get promptly disabled.
 
-Remove the freeing of the firmware node after creating the irqdomain from
-all affected call sites to cure this.
+Fix the problem by checking if the w/a stride is about to change,
+and go through the full dance if so. This part of the FBC code
+is still pretty much a disaster and will need lots more work.
+But this should at least fix the immediate issue.
 
-Fixes: 711419e504eb ("irqdomain: Add the missing assignment of domain->fwnode for named fwnode")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
+v2: Deactivate FBC when the modifier changes since that will
+    likely require resetting the w/a CFB stride
+
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/873661qakd.fsf@nanos.tec.linutronix.de
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200711080336.13423-1-ville.syrjala@linux.intel.com
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+(cherry picked from commit 0428ab013fdd39dbfb8f4cd8ad2b60af3776c6b9)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-diff --git a/arch/mips/pci/pci-xtalk-bridge.c b/arch/mips/pci/pci-xtalk-bridge.c
-index 3b2552fb7735..5958217861b8 100644
---- a/arch/mips/pci/pci-xtalk-bridge.c
-+++ b/arch/mips/pci/pci-xtalk-bridge.c
-@@ -627,9 +627,10 @@ static int bridge_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	domain = irq_domain_create_hierarchy(parent, 0, 8, fn,
- 					     &bridge_domain_ops, NULL);
--	irq_domain_free_fwnode(fn);
--	if (!domain)
-+	if (!domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
- 
- 	pci_set_flags(PCI_PROBE_ONLY);
- 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index ce61e3e7d399..81ffcfbfaef2 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2316,12 +2316,12 @@ static int mp_irqdomain_create(int ioapic)
- 	ip->irqdomain = irq_domain_create_linear(fn, hwirqs, cfg->ops,
- 						 (void *)(long)ioapic);
- 
--	/* Release fw handle if it was allocated above */
--	if (!cfg->dev)
--		irq_domain_free_fwnode(fn);
--
--	if (!ip->irqdomain)
-+	if (!ip->irqdomain) {
-+		/* Release fw handle if it was allocated above */
-+		if (!cfg->dev)
-+			irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
- 
- 	ip->irqdomain->parent = parent;
- 
-diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
-index 5cbaca58af95..c2b2911feeef 100644
---- a/arch/x86/kernel/apic/msi.c
-+++ b/arch/x86/kernel/apic/msi.c
-@@ -263,12 +263,13 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
- 		msi_default_domain =
- 			pci_msi_create_irq_domain(fn, &pci_msi_domain_info,
- 						  parent);
--		irq_domain_free_fwnode(fn);
- 	}
--	if (!msi_default_domain)
-+	if (!msi_default_domain) {
-+		irq_domain_free_fwnode(fn);
- 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
--	else
-+	} else {
- 		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
-+	}
+diff --git a/drivers/gpu/drm/i915/display/intel_fbc.c b/drivers/gpu/drm/i915/display/intel_fbc.c
+index a65d9d8b79a7..412572f88b67 100644
+--- a/drivers/gpu/drm/i915/display/intel_fbc.c
++++ b/drivers/gpu/drm/i915/display/intel_fbc.c
+@@ -719,6 +719,25 @@ static bool intel_fbc_cfb_size_changed(struct drm_i915_private *dev_priv)
+ 		fbc->compressed_fb.size * fbc->threshold;
  }
  
- #ifdef CONFIG_IRQ_REMAP
-@@ -301,7 +302,8 @@ struct irq_domain *arch_create_remap_msi_irq_domain(struct irq_domain *parent,
- 	if (!fn)
- 		return NULL;
- 	d = pci_msi_create_irq_domain(fn, &pci_msi_ir_domain_info, parent);
--	irq_domain_free_fwnode(fn);
-+	if (!d)
-+		irq_domain_free_fwnode(fn);
- 	return d;
- }
- #endif
-@@ -364,7 +366,8 @@ static struct irq_domain *dmar_get_irq_domain(void)
- 	if (fn) {
- 		dmar_domain = msi_create_irq_domain(fn, &dmar_msi_domain_info,
- 						    x86_vector_domain);
--		irq_domain_free_fwnode(fn);
-+		if (!dmar_domain)
-+			irq_domain_free_fwnode(fn);
- 	}
- out:
- 	mutex_unlock(&dmar_lock);
-@@ -489,7 +492,10 @@ struct irq_domain *hpet_create_irq_domain(int hpet_id)
- 	}
- 
- 	d = msi_create_irq_domain(fn, domain_info, parent);
--	irq_domain_free_fwnode(fn);
-+	if (!d) {
-+		irq_domain_free_fwnode(fn);
-+		kfree(domain_info);
-+	}
- 	return d;
- }
- 
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index c48be6e1f676..cc8b16f89dd4 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -709,7 +709,6 @@ int __init arch_early_irq_init(void)
- 	x86_vector_domain = irq_domain_create_tree(fn, &x86_vector_domain_ops,
- 						   NULL);
- 	BUG_ON(x86_vector_domain == NULL);
--	irq_domain_free_fwnode(fn);
- 	irq_set_default_host(x86_vector_domain);
- 
- 	arch_init_msi_domain(x86_vector_domain);
-diff --git a/arch/x86/platform/uv/uv_irq.c b/arch/x86/platform/uv/uv_irq.c
-index fc13cbbb2dce..abb6075397f0 100644
---- a/arch/x86/platform/uv/uv_irq.c
-+++ b/arch/x86/platform/uv/uv_irq.c
-@@ -167,9 +167,10 @@ static struct irq_domain *uv_get_irq_domain(void)
- 		goto out;
- 
- 	uv_domain = irq_domain_create_tree(fn, &uv_domain_ops, NULL);
--	irq_domain_free_fwnode(fn);
- 	if (uv_domain)
- 		uv_domain->parent = x86_vector_domain;
++static u16 intel_fbc_gen9_wa_cfb_stride(struct drm_i915_private *dev_priv)
++{
++	struct intel_fbc *fbc = &dev_priv->fbc;
++	struct intel_fbc_state_cache *cache = &fbc->state_cache;
++
++	if ((IS_GEN9_BC(dev_priv) || IS_BROXTON(dev_priv)) &&
++	    cache->fb.modifier != I915_FORMAT_MOD_X_TILED)
++		return DIV_ROUND_UP(cache->plane.src_w, 32 * fbc->threshold) * 8;
 +	else
-+		irq_domain_free_fwnode(fn);
- out:
- 	mutex_unlock(&uv_lock);
++		return 0;
++}
++
++static bool intel_fbc_gen9_wa_cfb_stride_changed(struct drm_i915_private *dev_priv)
++{
++	struct intel_fbc *fbc = &dev_priv->fbc;
++
++	return fbc->params.gen9_wa_cfb_stride != intel_fbc_gen9_wa_cfb_stride(dev_priv);
++}
++
+ static bool intel_fbc_can_enable(struct drm_i915_private *dev_priv)
+ {
+ 	struct intel_fbc *fbc = &dev_priv->fbc;
+@@ -877,6 +896,7 @@ static void intel_fbc_get_reg_params(struct intel_crtc *crtc,
+ 	params->crtc.i9xx_plane = to_intel_plane(crtc->base.primary)->i9xx_plane;
  
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index 74cca1757172..2f22326ee4df 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -3985,9 +3985,10 @@ int amd_iommu_create_irq_domain(struct amd_iommu *iommu)
- 	if (!fn)
- 		return -ENOMEM;
- 	iommu->ir_domain = irq_domain_create_tree(fn, &amd_ir_domain_ops, iommu);
--	irq_domain_free_fwnode(fn);
--	if (!iommu->ir_domain)
-+	if (!iommu->ir_domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
+ 	params->fb.format = cache->fb.format;
++	params->fb.modifier = cache->fb.modifier;
+ 	params->fb.stride = cache->fb.stride;
  
- 	iommu->ir_domain->parent = arch_get_ir_parent_domain();
- 	iommu->msi_domain = arch_create_remap_msi_irq_domain(iommu->ir_domain,
-diff --git a/drivers/iommu/hyperv-iommu.c b/drivers/iommu/hyperv-iommu.c
-index 3c0c67a99c7b..8919c1c70b68 100644
---- a/drivers/iommu/hyperv-iommu.c
-+++ b/drivers/iommu/hyperv-iommu.c
-@@ -155,7 +155,10 @@ static int __init hyperv_prepare_irq_remapping(void)
- 				0, IOAPIC_REMAPPING_ENTRY, fn,
- 				&hyperv_ir_domain_ops, NULL);
+ 	params->cfb_size = intel_fbc_calculate_cfb_size(dev_priv, cache);
+@@ -906,6 +926,9 @@ static bool intel_fbc_can_flip_nuke(const struct intel_crtc_state *crtc_state)
+ 	if (params->fb.format != cache->fb.format)
+ 		return false;
  
--	irq_domain_free_fwnode(fn);
-+	if (!ioapic_ir_domain) {
-+		irq_domain_free_fwnode(fn);
-+		return -ENOMEM;
-+	}
++	if (params->fb.modifier != cache->fb.modifier)
++		return false;
++
+ 	if (params->fb.stride != cache->fb.stride)
+ 		return false;
  
- 	/*
- 	 * Hyper-V doesn't provide irq remapping function for
-diff --git a/drivers/iommu/intel/irq_remapping.c b/drivers/iommu/intel/irq_remapping.c
-index 7f8769800815..9564d23d094f 100644
---- a/drivers/iommu/intel/irq_remapping.c
-+++ b/drivers/iommu/intel/irq_remapping.c
-@@ -563,8 +563,8 @@ static int intel_setup_irq_remapping(struct intel_iommu *iommu)
- 					    0, INTR_REMAP_TABLE_ENTRIES,
- 					    fn, &intel_ir_domain_ops,
- 					    iommu);
--	irq_domain_free_fwnode(fn);
- 	if (!iommu->ir_domain) {
-+		irq_domain_free_fwnode(fn);
- 		pr_err("IR%d: failed to allocate irqdomain\n", iommu->seq_id);
- 		goto out_free_bitmap;
+@@ -1185,7 +1208,8 @@ void intel_fbc_enable(struct intel_atomic_state *state,
+ 
+ 	if (fbc->crtc) {
+ 		if (fbc->crtc != crtc ||
+-		    !intel_fbc_cfb_size_changed(dev_priv))
++		    (!intel_fbc_cfb_size_changed(dev_priv) &&
++		     !intel_fbc_gen9_wa_cfb_stride_changed(dev_priv)))
+ 			goto out;
+ 
+ 		__intel_fbc_disable(dev_priv);
+@@ -1207,12 +1231,7 @@ void intel_fbc_enable(struct intel_atomic_state *state,
+ 		goto out;
  	}
-diff --git a/drivers/mfd/ioc3.c b/drivers/mfd/ioc3.c
-index 02998d4eb74b..74cee7cb0afc 100644
---- a/drivers/mfd/ioc3.c
-+++ b/drivers/mfd/ioc3.c
-@@ -142,10 +142,11 @@ static int ioc3_irq_domain_setup(struct ioc3_priv_data *ipd, int irq)
- 		goto err;
  
- 	domain = irq_domain_create_linear(fn, 24, &ioc3_irq_domain_ops, ipd);
--	if (!domain)
-+	if (!domain) {
-+		irq_domain_free_fwnode(fn);
- 		goto err;
-+	}
+-	if ((IS_GEN9_BC(dev_priv) || IS_BROXTON(dev_priv)) &&
+-	    plane_state->hw.fb->modifier != I915_FORMAT_MOD_X_TILED)
+-		cache->gen9_wa_cfb_stride =
+-			DIV_ROUND_UP(cache->plane.src_w, 32 * fbc->threshold) * 8;
+-	else
+-		cache->gen9_wa_cfb_stride = 0;
++	cache->gen9_wa_cfb_stride = intel_fbc_gen9_wa_cfb_stride(dev_priv);
  
--	irq_domain_free_fwnode(fn);
- 	ipd->domain = domain;
+ 	drm_dbg_kms(&dev_priv->drm, "Enabling FBC on pipe %c\n",
+ 		    pipe_name(crtc->pipe));
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index f79f118bf192..ae99a9190200 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -440,6 +440,7 @@ struct intel_fbc {
+ 		struct {
+ 			const struct drm_format_info *format;
+ 			unsigned int stride;
++			u64 modifier;
+ 		} fb;
  
- 	irq_set_chained_handler_and_data(irq, ioc3_irq_handler, domain);
-diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
-index e386d4eac407..9a64cf90c291 100644
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -546,9 +546,10 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
- 
- 	vmd->irq_domain = pci_msi_create_irq_domain(fn, &vmd_msi_domain_info,
- 						    x86_vector_domain);
--	irq_domain_free_fwnode(fn);
--	if (!vmd->irq_domain)
-+	if (!vmd->irq_domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENODEV;
-+	}
- 
- 	pci_add_resource(&resources, &vmd->resources[0]);
- 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
+ 		int cfb_size;
 
