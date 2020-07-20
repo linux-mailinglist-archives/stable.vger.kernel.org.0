@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7901B226BAD
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF7C226C40
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:50:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729985AbgGTPl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34430 "EHLO mail.kernel.org"
+        id S1729241AbgGTPij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:38:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729047AbgGTPl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:41:57 -0400
+        id S1729208AbgGTPih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:38:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1BAE20773;
-        Mon, 20 Jul 2020 15:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DEC222CB2;
+        Mon, 20 Jul 2020 15:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259717;
-        bh=lDsvcQ+d7MTsXeR8vI56+IkHWs/Jk8ABoxj41miUyN4=;
+        s=default; t=1595259517;
+        bh=A0tEhcTZK2ORrISXVGP2mEpOtJHxZqgNwJBdE8A2b7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kDOCjynGI6oZVLudMJcc3HW0VABoEnb5QZiVxTXD+fhalhSdkRBu2eebXN8b5chM
-         VZ3i3+umtfB4cvL6Y7r/iRFeykgpC8Hkw85Ey6CElfdV7dz/GC9hXdbRfhZdM1Oilx
-         Z97LuLf7H5bC9TmHLDSso426G1W4k0qQvfNFuEds=
+        b=oM1TnI8fB8qE/u0S6pO9wHLuzEGXioLapjzUwVF0Kk7l8XJO40iOFP21ZgzvHzXOH
+         pmbF75wCHOPBMQEOxrWhQxuqupYRgKYlh0+JVm4Q+3RpNTjC+0rffXx4UbFpTAIcG3
+         22To+n8JOdAziZBN8HGmbYZIggi4Yyx0Y4hiXfk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 54/86] usb: gadget: udc: atmel: fix uninitialized read in debug printk
-Date:   Mon, 20 Jul 2020 17:36:50 +0200
-Message-Id: <20200720152755.878179141@linuxfoundation.org>
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.4 35/58] perf stat: Zero all the ena and run array slot stats for interval mode
+Date:   Mon, 20 Jul 2020 17:36:51 +0200
+Message-Id: <20200720152748.948731592@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit 30517ffeb3bff842e1355cbc32f1959d9dbb5414 ]
+commit 0e0bf1ea1147fcf74eab19c2d3c853cc3740a72f upstream.
 
-Fixed commit moved the assignment of 'req', but did not update a
-reference in the DBG() call. Use the argument as it was renamed.
+As the code comments in perf_stat_process_counter() say, we calculate
+counter's data every interval, and the display code shows ps->res_stats
+avg value. We need to zero the stats for interval mode.
 
-Fixes: 5fb694f96e7c ("usb: gadget: udc: atmel: fix possible oops when unloading module")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But the current code only zeros the res_stats[0], it doesn't zero the
+res_stats[1] and res_stats[2], which are for ena and run of counter.
+
+This patch zeros the whole res_stats[] for interval mode.
+
+Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200409070755.17261-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/gadget/udc/atmel_usba_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/stat.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/atmel_usba_udc.c b/drivers/usb/gadget/udc/atmel_usba_udc.c
-index 57dd3bad95397..ccf1e9fe5ebde 100644
---- a/drivers/usb/gadget/udc/atmel_usba_udc.c
-+++ b/drivers/usb/gadget/udc/atmel_usba_udc.c
-@@ -843,7 +843,7 @@ static int usba_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
- 	u32 status;
+--- a/tools/perf/util/stat.c
++++ b/tools/perf/util/stat.c
+@@ -318,8 +318,10 @@ int perf_stat_process_counter(struct per
+ 	 * interval mode, otherwise overall avg running
+ 	 * averages will be shown for each interval.
+ 	 */
+-	if (config->interval)
+-		init_stats(ps->res_stats);
++	if (config->interval) {
++		for (i = 0; i < 3; i++)
++			init_stats(&ps->res_stats[i]);
++	}
  
- 	DBG(DBG_GADGET | DBG_QUEUE, "ep_dequeue: %s, req %p\n",
--			ep->ep.name, req);
-+			ep->ep.name, _req);
- 
- 	spin_lock_irqsave(&udc->lock, flags);
- 
--- 
-2.25.1
-
+ 	if (counter->per_pkg)
+ 		zero_per_pkg(counter);
 
 
