@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA44226B29
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C78226B8E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730858AbgGTPsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43536 "EHLO mail.kernel.org"
+        id S1730280AbgGTQml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:42:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729951AbgGTPsD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:03 -0400
+        id S1730249AbgGTPnY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:43:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E111D2064B;
-        Mon, 20 Jul 2020 15:48:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4CB520773;
+        Mon, 20 Jul 2020 15:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260083;
-        bh=SsaHeLoR+9/H3CXpx889o+cGkyCf/Z5mb0WwxpVf56c=;
+        s=default; t=1595259803;
+        bh=DDE4MV+UVz+utgNs90ZX1nxcGpr1BUDKlUVFvene7KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8Q2GfYgkgziVLo8kF8VFW5OVacfneKQV61bFa2iLyqdUTJ6KeoUfQ6LSXKCDSfGt
-         OvlnVfNVJVO7lMuVR4JSdHNFFDvKpVPHfLW1Oc5ixP/cKeIENvvGq4sbSgJDtMRmdx
-         dzPhorM+yrmIgisBe0rDCJqU5xRCYAqNf1fEZR0I=
+        b=R3XYt2YAxeQulLDmDRiHt4TOQXZIm/x+B4cAvjwelixtlTFY3aMr3FiuNt35vVkKg
+         Jyg8wdCiZ8qBR8d3AvWx2skz9y4RUrl8ONzeEqz3J02EX7cdMcXDgINJwq9shBSmly
+         G2prmAVXW3UtHe8bI5+fyhukaDwH9g/h/5gvv+NU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 101/125] USB: serial: iuu_phoenix: fix memory corruption
-Date:   Mon, 20 Jul 2020 17:37:20 +0200
-Message-Id: <20200720152807.900400249@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.9 85/86] irqchip/gic: Atomically update affinity
+Date:   Mon, 20 Jul 2020 17:37:21 +0200
+Message-Id: <20200720152757.554539964@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit e7b931bee739e8a77ae216e613d3b99342b6dec0 upstream.
+commit 005c34ae4b44f085120d7f371121ec7ded677761 upstream.
 
-The driver would happily overwrite its write buffer with user data in
-256 byte increments due to a removed buffer-space sanity check.
+The GIC driver uses a RMW sequence to update the affinity, and
+relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
+to update it atomically.
 
-Fixes: 5fcf62b0f1f2 ("tty: iuu_phoenix: fix locking.")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
-Signed-off-by: Johan Hovold <johan@kernel.org>
+But these sequences only expand into anything meaningful if
+the BL_SWITCHER option is selected, which almost never happens.
+
+It also turns out that using a RMW and locks is just as silly,
+as the GIC distributor supports byte accesses for the GICD_TARGETRn
+registers, which when used make the update atomic by definition.
+
+Drop the terminally broken code and replace it by a byte write.
+
+Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/usb/serial/iuu_phoenix.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/iuu_phoenix.c
-+++ b/drivers/usb/serial/iuu_phoenix.c
-@@ -704,14 +704,16 @@ static int iuu_uart_write(struct tty_str
- 	struct iuu_private *priv = usb_get_serial_port_data(port);
- 	unsigned long flags;
+---
+ drivers/irqchip/irq-gic.c |   13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
+
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -324,10 +324,8 @@ static int gic_irq_set_vcpu_affinity(str
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
+ {
+-	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
+-	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
+-	u32 val, mask, bit;
+-	unsigned long flags;
++	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
++	unsigned int cpu;
  
--	if (count > 256)
--		return -ENOMEM;
--
- 	spin_lock_irqsave(&priv->lock, flags);
+ 	if (!force)
+ 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+@@ -337,12 +335,7 @@ static int gic_set_affinity(struct irq_d
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
  
-+	count = min(count, 256 - priv->writelen);
-+	if (count == 0)
-+		goto out;
-+
- 	/* fill the buffer */
- 	memcpy(priv->writebuf + priv->writelen, buf, count);
- 	priv->writelen += count;
-+out:
- 	spin_unlock_irqrestore(&priv->lock, flags);
+-	gic_lock_irqsave(flags);
+-	mask = 0xff << shift;
+-	bit = gic_cpu_map[cpu] << shift;
+-	val = readl_relaxed(reg) & ~mask;
+-	writel_relaxed(val | bit, reg);
+-	gic_unlock_irqrestore(flags);
++	writeb_relaxed(gic_cpu_map[cpu], reg);
  
- 	return count;
+ 	return IRQ_SET_MASK_OK_DONE;
+ }
 
 
