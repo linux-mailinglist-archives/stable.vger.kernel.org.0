@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181052264D9
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 452BB226579
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729962AbgGTPst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44502 "EHLO mail.kernel.org"
+        id S1731320AbgGTPyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730925AbgGTPsp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:45 -0400
+        id S1730181AbgGTPyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:54:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB8FB2065E;
-        Mon, 20 Jul 2020 15:48:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B20C42065E;
+        Mon, 20 Jul 2020 15:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260125;
-        bh=JAYuStscX35V8T7eGN2EN6McHf/6+H/yJAYLptJU7g4=;
+        s=default; t=1595260455;
+        bh=uUIeuthN7YjPK+Imy+UK5gSEQoybZoUj3NYqZ0gBz7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajW+Ui8qzTmQAd/r/6lvKHSc7/6JzP9o5yTGEIffiXp9BHB6jDdkLWMZ6/jDhZR3V
-         ZvTq3lZxRIy7UOARuBlOWG4NWKebK7dVxIu44LZqgyfEa3k9M50RWwJ8mcV36sUCZ6
-         mg89tsctFBj0ceS91m2sBBZm391odviu0D5E71Cc=
+        b=qcpQQLy7TC6cU48pSxTwIh8OtkH2CkRPwRjxrmg6yrh///GLJ/K26fQCA3Ex9k2mM
+         TxssXqyRpZfc5U7IQ7TuJ80eBMBLrIKvh4xNXQj5+ebMx/klM5lcNMbMACS/EOs1/Q
+         OS5RN+DTtVR4sNa5lVHCllF+nsoQQ5A/jePzjgnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 115/125] intel_th: pci: Add Jasper Lake CPU support
-Date:   Mon, 20 Jul 2020 17:37:34 +0200
-Message-Id: <20200720152808.585918391@linuxfoundation.org>
+        stable@vger.kernel.org, David Pedersen <limero1337@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 109/133] Input: i8042 - add Lenovo XiaoXin Air 12 to i8042 nomux list
+Date:   Mon, 20 Jul 2020 17:37:36 +0200
+Message-Id: <20200720152809.004851196@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: David Pedersen <limero1337@gmail.com>
 
-commit 203c1f615052921901b7a8fbe2005d8ea6add076 upstream.
+commit 17d51429da722cd8fc77a365a112f008abf4f8b3 upstream.
 
-This adds support for the Trace Hub in Jasper Lake CPU.
+This fixes two finger trackpad scroll on the Lenovo XiaoXin Air 12.
+Without nomux, the trackpad behaves as if only one finger is present and
+moves the cursor when trying to scroll.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.14+
-Link: https://lore.kernel.org/r/20200706161339.55468-2-alexander.shishkin@linux.intel.com
+Signed-off-by: David Pedersen <limero1337@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200625133754.291325-1-limero1337@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -219,6 +219,11 @@ static const struct pci_device_id intel_
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -430,6 +430,13 @@ static const struct dmi_system_id __init
+ 		},
  	},
  	{
-+		/* Jasper Lake CPU */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4e29),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
++		/* Lenovo XiaoXin Air 12 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "80UN"),
++		},
 +	},
 +	{
- 		/* Elkhart Lake CPU */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4529),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
 
 
