@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B072267FE
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13B72266B0
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbgGTQQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
+        id S1732434AbgGTQFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:05:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388530AbgGTQQV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:16:21 -0400
+        id S1732966AbgGTQFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:05:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAF74206E9;
-        Mon, 20 Jul 2020 16:16:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51DCA2064B;
+        Mon, 20 Jul 2020 16:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261780;
-        bh=tZbcvL0Yom+uemumx//KXJkqlGT24AfbHXyZqMG8DTY=;
+        s=default; t=1595261120;
+        bh=jJTY4CpwJBiOsJxX+eJrLO3bhqUPTbK7A8zPNtjrGbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v18uXDSHxKS2xMTlajKp2Av6LFL7FO+NMKVNCo64wrRiVYds51m2zNtFyk80JTnv+
-         OuhcqpoK7lhcDq4j1+/NXjvT62ZQ9EPTFteCiAlqsxa2moiYTn/67YTs8Xo7EmuCPM
-         b9HbXiLYmEbhhbAiZ1dTJF++F5oNg9ATkAz8b60E=
+        b=LIyjtARgfgDUrv3+kw/O91V5Cu/Di17KbQdlbTpehHdOf8SwK+r8jTweYZ8QF4eJ5
+         THNePQ7Rs6jp9s6sIw4HwXRG1LrgT3FOYSgb5XGKYislsrZR3q50IKs9hb/79ld7UJ
+         OiqryfVDEo3szuTmma6qfOEEWn4soHbgQmPBW0/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 5.7 209/244] misc: atmel-ssc: lock with mutex instead of spinlock
+        stable@vger.kernel.org, Finley Xiao <finley.xiao@rock-chips.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.4 198/215] thermal/drivers/cpufreq_cooling: Fix wrong frequency converted from power
 Date:   Mon, 20 Jul 2020 17:38:00 +0200
-Message-Id: <20200720152835.792755204@linuxfoundation.org>
+Message-Id: <20200720152829.583394765@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,115 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Finley Xiao <finley.xiao@rock-chips.com>
 
-commit b037d60a3b1d1227609fd858fa34321f41829911 upstream.
+commit 371a3bc79c11b707d7a1b7a2c938dc3cc042fffb upstream.
 
-Uninterruptible context is not needed in the driver and causes lockdep
-warning because of mutex taken in of_alias_get_id(). Convert the lock to
-mutex to avoid the issue.
+The function cpu_power_to_freq is used to find a frequency and set the
+cooling device to consume at most the power to be converted. For example,
+if the power to be converted is 80mW, and the em table is as follow.
+struct em_cap_state table[] = {
+	/* KHz     mW */
+	{ 1008000, 36, 0 },
+	{ 1200000, 49, 0 },
+	{ 1296000, 59, 0 },
+	{ 1416000, 72, 0 },
+	{ 1512000, 86, 0 },
+};
+The target frequency should be 1416000KHz, not 1512000KHz.
 
-Cc: stable@vger.kernel.org
-Fixes: 099343c64e16 ("ARM: at91: atmel-ssc: add device tree support")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/50f0d7fa107f318296afb49477c3571e4d6978c5.1592998403.git.mirq-linux@rere.qmqm.pl
+Fixes: 349d39dc5739 ("thermal: cpu_cooling: merge frequency and power tables")
+Cc: <stable@vger.kernel.org> # v4.13+
+Signed-off-by: Finley Xiao <finley.xiao@rock-chips.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200619090825.32747-1-finley.xiao@rock-chips.com
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/atmel-ssc.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/thermal/cpu_cooling.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/misc/atmel-ssc.c
-+++ b/drivers/misc/atmel-ssc.c
-@@ -10,7 +10,7 @@
- #include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/io.h>
--#include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/atmel-ssc.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-@@ -20,7 +20,7 @@
- #include "../../sound/soc/atmel/atmel_ssc_dai.h"
+--- a/drivers/thermal/cpu_cooling.c
++++ b/drivers/thermal/cpu_cooling.c
+@@ -210,11 +210,11 @@ static u32 cpu_power_to_freq(struct cpuf
+ 	int i;
+ 	struct freq_table *freq_table = cpufreq_cdev->freq_table;
  
- /* Serialize access to ssc_list and user count */
--static DEFINE_SPINLOCK(user_lock);
-+static DEFINE_MUTEX(user_lock);
- static LIST_HEAD(ssc_list);
+-	for (i = 1; i <= cpufreq_cdev->max_level; i++)
+-		if (power > freq_table[i].power)
++	for (i = 0; i < cpufreq_cdev->max_level; i++)
++		if (power >= freq_table[i].power)
+ 			break;
  
- struct ssc_device *ssc_request(unsigned int ssc_num)
-@@ -28,7 +28,7 @@ struct ssc_device *ssc_request(unsigned
- 	int ssc_valid = 0;
- 	struct ssc_device *ssc;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_for_each_entry(ssc, &ssc_list, list) {
- 		if (ssc->pdev->dev.of_node) {
- 			if (of_alias_get_id(ssc->pdev->dev.of_node, "ssc")
-@@ -44,18 +44,18 @@ struct ssc_device *ssc_request(unsigned
- 	}
- 
- 	if (!ssc_valid) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		pr_err("ssc: ssc%d platform device is missing\n", ssc_num);
- 		return ERR_PTR(-ENODEV);
- 	}
- 
- 	if (ssc->user) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		dev_dbg(&ssc->pdev->dev, "module busy\n");
- 		return ERR_PTR(-EBUSY);
- 	}
- 	ssc->user++;
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	clk_prepare(ssc->clk);
- 
-@@ -67,14 +67,14 @@ void ssc_free(struct ssc_device *ssc)
- {
- 	bool disable_clk = true;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	if (ssc->user)
- 		ssc->user--;
- 	else {
- 		disable_clk = false;
- 		dev_dbg(&ssc->pdev->dev, "device already free\n");
- 	}
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	if (disable_clk)
- 		clk_unprepare(ssc->clk);
-@@ -237,9 +237,9 @@ static int ssc_probe(struct platform_dev
- 		return -ENXIO;
- 	}
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_add_tail(&ssc->list, &ssc_list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	platform_set_drvdata(pdev, ssc);
- 
-@@ -258,9 +258,9 @@ static int ssc_remove(struct platform_de
- 
- 	ssc_sound_dai_remove(ssc);
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_del(&ssc->list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	return 0;
+-	return freq_table[i - 1].frequency;
++	return freq_table[i].frequency;
  }
+ 
+ /**
 
 
