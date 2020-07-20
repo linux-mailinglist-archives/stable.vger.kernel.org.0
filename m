@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74ABC226710
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 040462268D1
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733254AbgGTQI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45902 "EHLO mail.kernel.org"
+        id S1732603AbgGTQVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:21:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733300AbgGTQI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:08:27 -0400
+        id S2387404AbgGTQIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:08:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 475722064B;
-        Mon, 20 Jul 2020 16:08:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAECA206E9;
+        Mon, 20 Jul 2020 16:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261306;
-        bh=IReQaCQ1JzU9pd3WgkQG2WkZwI3+Cf/nWKg9g+Jb9Do=;
+        s=default; t=1595261312;
+        bh=JPe1lrDpA9xuwFElMoTI7X4eMCC3D4qGTTzu5bmtCbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbTNluYHU7wApbjAQQ/WFls6/lFYFFK8PMbecxf8l9ZdQhGz8foRWxXiGwcbqx1e5
-         RhLn5CkxjPZtqIr7jSFgpL93xQ9gFKYjMADBYCggpI0M7tihjHQxW+tK76TkBWX7WB
-         HX6OMswBL77rpnbXhwxtah2Av7IwFw4WeYd7XaU8=
+        b=tkrcc3rPYa/Yyy/hYybYNgPwfShShAOsGgsD6VkHOzUnL2IEB+tZo/XH95CCWMEly
+         LRLe09G4dhLCcSY7O26N4NoAxirU0YFGyBBzc73glAqV52Vk6524p0VxlGnPkb1Bu2
+         tl7viYOgfXf+SG/wf5wjlYkLYvwJvG/MLqKA/Iuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Andrew F. Davis" <afd@ti.com>, Stable@vger.kernel.org
-Subject: [PATCH 5.7 068/244] iio:health:afe4403 Fix timestamp alignment and prevent data leak.
-Date:   Mon, 20 Jul 2020 17:35:39 +0200
-Message-Id: <20200720152829.084625643@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 069/244] arm64: Add missing sentinel to erratum_1463225
+Date:   Mon, 20 Jul 2020 17:35:40 +0200
+Message-Id: <20200720152829.133440198@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -44,81 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 3f9c6d38797e9903937b007a341dad0c251765d6 upstream.
+[ Upstream commit 09c717c92b52df54918e12cbfe6a4658233fda69 ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 32 byte array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+When the erratum_1463225 array was introduced a sentinel at the end was
+missing thus causing a KASAN: global-out-of-bounds in
+is_affected_midr_range_list on arm64 error.
 
-Fixes: eec96d1e2d31 ("iio: health: Add driver for the TI AFE4403 heart monitor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Andrew F. Davis <afd@ti.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a9e821b89daa ("arm64: Add KRYO4XX gold CPU cores to erratum list 1463225 and 1418040")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Link: https://lore.kernel.org/linux-arm-kernel/CA+G9fYs3EavpU89-rTQfqQ9GgxAMgMAk7jiiVrfP0yxj5s+Q6g@mail.gmail.com/
+Link: https://lore.kernel.org/r/20200709051345.14544-1-f.fainelli@gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/health/afe4403.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/cpu_errata.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/health/afe4403.c
-+++ b/drivers/iio/health/afe4403.c
-@@ -63,6 +63,7 @@ static const struct reg_field afe4403_re
-  * @regulator: Pointer to the regulator for the IC
-  * @trig: IIO trigger for this device
-  * @irq: ADC_RDY line interrupt number
-+ * @buffer: Used to construct data layout to push into IIO buffer.
-  */
- struct afe4403_data {
- 	struct device *dev;
-@@ -72,6 +73,8 @@ struct afe4403_data {
- 	struct regulator *regulator;
- 	struct iio_trigger *trig;
- 	int irq;
-+	/* Ensure suitable alignment for timestamp */
-+	s32 buffer[8] __aligned(8);
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index dbf266212808e..f9387c1252325 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -778,6 +778,7 @@ static const struct midr_range erratum_1463225[] = {
+ 	MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 3, 1),
+ 	/* Kryo4xx Gold (rcpe to rfpf) => (r0p0 to r3p1) */
+ 	MIDR_RANGE(MIDR_QCOM_KRYO_4XX_GOLD, 0xc, 0xe, 0xf, 0xf),
++	{},
  };
+ #endif
  
- enum afe4403_chan_id {
-@@ -309,7 +312,6 @@ static irqreturn_t afe4403_trigger_handl
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct afe4403_data *afe = iio_priv(indio_dev);
- 	int ret, bit, i = 0;
--	s32 buffer[8];
- 	u8 tx[4] = {AFE440X_CONTROL0, 0x0, 0x0, AFE440X_CONTROL0_READ};
- 	u8 rx[3];
- 
-@@ -326,9 +328,9 @@ static irqreturn_t afe4403_trigger_handl
- 		if (ret)
- 			goto err;
- 
--		buffer[i++] = (rx[0] << 16) |
--				(rx[1] << 8) |
--				(rx[2]);
-+		afe->buffer[i++] = (rx[0] << 16) |
-+				   (rx[1] << 8) |
-+				   (rx[2]);
- 	}
- 
- 	/* Disable reading from the device */
-@@ -337,7 +339,8 @@ static irqreturn_t afe4403_trigger_handl
- 	if (ret)
- 		goto err;
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
-+	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
-+					   pf->timestamp);
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
- 
+-- 
+2.25.1
+
 
 
