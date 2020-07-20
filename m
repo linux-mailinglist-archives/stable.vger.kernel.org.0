@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FAD7226BF7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:46:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5493E226ADC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbgGTPkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:40:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
+        id S1731338AbgGTQg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:36:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729746AbgGTPkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:40:39 -0400
+        id S1731316AbgGTPwF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:52:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19ACA22D04;
-        Mon, 20 Jul 2020 15:40:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E8042064B;
+        Mon, 20 Jul 2020 15:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259638;
-        bh=JS8ZQOSUM4qWSeqJVCG/LhsLW7f6uNGnyC/H3yHP2+Q=;
+        s=default; t=1595260324;
+        bh=aaTkkjTThiK4kO48WcJTrCLmtM7O9Qdc/8N21SoD+Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzexIeTx7S7mu+dUKXUisKxHLtzRFyX3ZRjuQqqLwJWekbgHcAdg7URpUom9eFNDW
-         hkUsAzEuUjLdZqwVuCEtf2vxfUrgtVl5Xk0daOGBlyNHh33JqcFbXBt/2GOjctS6Go
-         TUXH2p2xByKZfBGJ6c42HL8wubxyMpwoQbUlbjkA=
+        b=Z1Z3fRe4mlAyQ7nd5hLQZbNcQ8lcLQ6CQM44tp3A+BYtHG1IshtgFm+3eJwzsqmlA
+         7DMDy9orKXjiki51MYk6/csOdp8dctTydYbgyxTNj2xtCCFanOnveNl8nn2UFMB1Dy
+         dYxqe75x9p0LS0cXJiVWDyc4sbJYonHiYmXLV1MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.9 24/86] ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE
-Date:   Mon, 20 Jul 2020 17:36:20 +0200
-Message-Id: <20200720152754.367822689@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.19 034/133] iio:humidity:hts221 Fix alignment and data leak issues
+Date:   Mon, 20 Jul 2020 17:36:21 +0200
+Message-Id: <20200720152805.365344523@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,81 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 00fdec98d9881bf5173af09aebd353ab3b9ac729 upstream.
+commit 5c49056ad9f3c786f7716da2dd47e4488fc6bd25 upstream.
 
-Trap handler for syscall tracing reads EFA (Exception Fault Address),
-in case strace wants PC of trap instruction (EFA is not part of pt_regs
-as of current code).
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data.
+This data is allocated with kzalloc so no data can leak
+apart from previous readings.
 
-However this EFA read is racy as it happens after dropping to pure
-kernel mode (re-enabling interrupts). A taken interrupt could
-context-switch, trigger a different task's trap, clobbering EFA for this
-execution context.
+Explicit alignment of ts needed to ensure consistent padding
+on all architectures (particularly x86_32 with it's 4 byte alignment
+of s64)
 
-Fix this by reading EFA early, before re-enabling interrupts. A slight
-side benefit is de-duplication of FAKE_RET_FROM_EXCPN in trap handler.
-The trap handler is common to both ARCompact and ARCv2 builds too.
-
-This just came out of code rework/review and no real problem was reported
-but is clearly a potential problem specially for strace.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Fixes: e4a70e3e7d84 ("iio: humidity: add support to hts221 rh/temp combo device")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/entry.S |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/iio/humidity/hts221.h        |    7 +++++--
+ drivers/iio/humidity/hts221_buffer.c |    9 +++++----
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -156,7 +156,6 @@ END(EV_Extension)
- tracesys:
- 	; save EFA in case tracer wants the PC of traced task
- 	; using ERET won't work since next-PC has already committed
--	lr  r12, [efa]
- 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
- 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
+--- a/drivers/iio/humidity/hts221.h
++++ b/drivers/iio/humidity/hts221.h
+@@ -15,8 +15,6 @@
  
-@@ -199,15 +198,9 @@ tracesys_exit:
- ; Breakpoint TRAP
- ; ---------------------------------------------
- trap_with_param:
+ #include <linux/iio/iio.h>
+ 
+-#define HTS221_DATA_SIZE	2
 -
--	; stop_pc info by gdb needs this info
--	lr  r0, [efa]
-+	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
- 	mov r1, sp
+ enum hts221_sensor_type {
+ 	HTS221_SENSOR_H,
+ 	HTS221_SENSOR_T,
+@@ -40,6 +38,11 @@ struct hts221_hw {
  
--	; Now that we have read EFA, it is safe to do "fake" rtie
--	;   and get out of CPU exception mode
--	FAKE_RET_FROM_EXCPN
--
- 	; Save callee regs in case gdb wants to have a look
- 	; SP will grow up by size of CALLEE Reg-File
- 	; NOTE: clobbers r12
-@@ -234,6 +227,10 @@ ENTRY(EV_Trap)
+ 	bool enabled;
+ 	u8 odr;
++	/* Ensure natural alignment of timestamp */
++	struct {
++		__le16 channels[2];
++		s64 ts __aligned(8);
++	} scan;
+ };
  
- 	EXCEPTION_PROLOGUE
+ extern const struct dev_pm_ops hts221_pm_ops;
+--- a/drivers/iio/humidity/hts221_buffer.c
++++ b/drivers/iio/humidity/hts221_buffer.c
+@@ -163,7 +163,6 @@ static const struct iio_buffer_setup_ops
  
-+	lr  r12, [efa]
-+
-+	FAKE_RET_FROM_EXCPN
-+
- 	;============ TRAP 1   :breakpoints
- 	; Check ECR for trap with arg (PROLOGUE ensures r9 has ECR)
- 	bmsk.f 0, r9, 7
-@@ -241,9 +238,6 @@ ENTRY(EV_Trap)
+ static irqreturn_t hts221_buffer_handler_thread(int irq, void *p)
+ {
+-	u8 buffer[ALIGN(2 * HTS221_DATA_SIZE, sizeof(s64)) + sizeof(s64)];
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *iio_dev = pf->indio_dev;
+ 	struct hts221_hw *hw = iio_priv(iio_dev);
+@@ -173,18 +172,20 @@ static irqreturn_t hts221_buffer_handler
+ 	/* humidity data */
+ 	ch = &iio_dev->channels[HTS221_SENSOR_H];
+ 	err = regmap_bulk_read(hw->regmap, ch->address,
+-			       buffer, HTS221_DATA_SIZE);
++			       &hw->scan.channels[0],
++			       sizeof(hw->scan.channels[0]));
+ 	if (err < 0)
+ 		goto out;
  
- 	;============ TRAP  (no param): syscall top level
+ 	/* temperature data */
+ 	ch = &iio_dev->channels[HTS221_SENSOR_T];
+ 	err = regmap_bulk_read(hw->regmap, ch->address,
+-			       buffer + HTS221_DATA_SIZE, HTS221_DATA_SIZE);
++			       &hw->scan.channels[1],
++			       sizeof(hw->scan.channels[1]));
+ 	if (err < 0)
+ 		goto out;
  
--	; First return from Exception to pure K mode (Exception/IRQs renabled)
--	FAKE_RET_FROM_EXCPN
--
- 	; If syscall tracing ongoing, invoke pre-post-hooks
- 	GET_CURR_THR_INFO_FLAGS   r10
- 	btst r10, TIF_SYSCALL_TRACE
+-	iio_push_to_buffers_with_timestamp(iio_dev, buffer,
++	iio_push_to_buffers_with_timestamp(iio_dev, &hw->scan,
+ 					   iio_get_time_ns(iio_dev));
+ 
+ out:
 
 
