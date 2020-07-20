@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B30E9226B97
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90960226A9E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729577AbgGTQm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35888 "EHLO mail.kernel.org"
+        id S1729874AbgGTPxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:53:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730116AbgGTPmr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:47 -0400
+        id S1729995AbgGTPxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:53:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 795602176B;
-        Mon, 20 Jul 2020 15:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F36CD206E9;
+        Mon, 20 Jul 2020 15:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259767;
-        bh=jDnIlYH0uSogkRrPRf6JMxXDSYXeT5AkPJW6Ms+M9ak=;
+        s=default; t=1595260385;
+        bh=w3L0ltA9Lm03hwxJdwEednYK1OeTpgermLdcgX8ulc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfq3MbPoIyAhzRVh7xOfs7sIVY7pfTMkwvezoKsq3eJ8l96Vs1Wh1/5pXkEmQiubh
-         t1muz39nUK/ifd+6Duem+8WodP/kA5dTwPpad7mJbeMEGtTFTkdCnWAB7xDN+s06Hl
-         m4S933gNilL8pmy/qGVBUfpvFAUMp2lfpSPt8ECs=
+        b=vRw+Q0IgnoipkTUjkLIHrFf8FRtGC4dFOYCyw0Vzn67X9o4Xg3m+2m2lKrCW5qf9X
+         ltgD02OoWXkEkLC29OW9d/6Annhtrv/7i/pcC0RK6edd0G/4m4zlC7MxSqls6dplg6
+         G+G4afMFAj21dtiMO5cyh5Ga9ks+GfLcbCcQxkvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Amit Shah <amit@kernel.org>
-Subject: [PATCH 4.9 73/86] virtio: virtio_console: add missing MODULE_DEVICE_TABLE() for rproc serial
-Date:   Mon, 20 Jul 2020 17:37:09 +0200
-Message-Id: <20200720152756.861659882@linuxfoundation.org>
+        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 083/133] HID: quirks: Always poll Obins Anne Pro 2 keyboard
+Date:   Mon, 20 Jul 2020 17:37:10 +0200
+Message-Id: <20200720152807.722207307@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Sebastian Parschauer <s.parschauer@gmx.de>
 
-commit 897c44f0bae574c5fb318c759b060bebf9dd6013 upstream.
+commit ca28aff0e1dc7dce9e12a7fd9276b7118ce5e73a upstream.
 
-rproc_serial_id_table lacks an exposure to module devicetable, so
-when remoteproc firmware requests VIRTIO_ID_RPROC_SERIAL, no uevent
-is generated and no module autoloading occurs.
-Add missing MODULE_DEVICE_TABLE() annotation and move the existing
-one for VIRTIO_ID_CONSOLE right to the table itself.
+The Obins Anne Pro 2 keyboard (04d9:a293) disconnects after a few
+minutes of inactivity when using it wired and typing does not result
+in any input events any more. This is a common firmware flaw. So add
+the ALWAYS_POLL quirk for this device.
 
-Fixes: 1b6370463e88 ("virtio_console: Add support for remoteproc serial")
-Cc: <stable@vger.kernel.org> # v3.8+
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Reviewed-by: Amit Shah <amit@kernel.org>
-Link: https://lore.kernel.org/r/x7C_CbeJtoGMy258nwAXASYz3xgFMFpyzmUvOyZzRnQrgWCREBjaqBOpAUS7ol4NnZYvSVwmTsCG0Ohyfvta-ygw6HMHcoeKK0C3QFiAO_Q=@pm.me
+GitHub user Dietrich Moerman (dietrichm) tested the quirk and
+requested my help in my project
+https://github.com/sriemer/fix-linux-mouse issue 22 to provide
+this patch.
+
+Link: https://www.reddit.com/r/AnnePro/comments/gruzcb/anne_pro_2_linux_cant_type_after_inactivity/
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+Cc: stable@vger.kernel.org # v4.16+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/virtio_console.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    |    1 +
+ drivers/hid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -2161,6 +2161,7 @@ static struct virtio_device_id id_table[
- 	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
- };
-+MODULE_DEVICE_TABLE(virtio, id_table);
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -609,6 +609,7 @@
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
+ #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
++#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293	0xa293
  
- static unsigned int features[] = {
- 	VIRTIO_CONSOLE_F_SIZE,
-@@ -2173,6 +2174,7 @@ static struct virtio_device_id rproc_ser
- #endif
- 	{ 0 },
- };
-+MODULE_DEVICE_TABLE(virtio, rproc_serial_id_table);
- 
- static unsigned int rproc_serial_features[] = {
- };
-@@ -2325,6 +2327,5 @@ static void __exit fini(void)
- module_init(init);
- module_exit(fini);
- 
--MODULE_DEVICE_TABLE(virtio, id_table);
- MODULE_DESCRIPTION("Virtio console driver");
- MODULE_LICENSE("GPL");
+ #define USB_VENDOR_ID_IMATION		0x0718
+ #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -90,6 +90,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
 
 
