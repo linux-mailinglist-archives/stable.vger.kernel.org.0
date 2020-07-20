@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CD5226919
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 656362267C8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:14:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732724AbgGTQDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37466 "EHLO mail.kernel.org"
+        id S1731356AbgGTQOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731994AbgGTQDO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:14 -0400
+        id S2387612AbgGTQOi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24FBC20672;
-        Mon, 20 Jul 2020 16:03:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A65E20684;
+        Mon, 20 Jul 2020 16:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260993;
-        bh=1vh0gccBO5E8zyO6PG9oR09WipYYJAhhq0ytHAR8VZY=;
+        s=default; t=1595261677;
+        bh=6uxzCo+IwlUzjA4NV+/IdtXYD5eCNWmAuMiyw7f0kJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgHur857fLqwdN6DmWfvxwixbQb22zxh1JM+cnE2+QEg1oWEJKlr7cPn3NbaNSoVH
-         NI231gM15qaBJlYXRUfQmA8Z5/tYsO+wpmh7c7fbzxQ2Rah6fy0ZEvurEsJCx0wZik
-         ZLKpXO/1WOVHF9OSDWmefy/ZO2HP/P/5bU2UhkEk=
+        b=lq48uQTuckiYvD9Jj6To1U5jSWFiHPrWXZzfVsl/yluFS7BAGFT5Cv2wa094W3gC3
+         ors07MRU+zh7Ul/Za5ypFc2UMaVdr6c0vYkt0x8DPrqCFO3005+a8e2UoPOAz//Mqs
+         no1NH90Pqba5vuhHFksPCUh2GipC2hbQRpDOWqwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 163/215] USB: serial: option: add Quectel EG95 LTE modem
-Date:   Mon, 20 Jul 2020 17:37:25 +0200
-Message-Id: <20200720152827.934538009@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+Subject: [PATCH 5.7 175/244] serial: mxs-auart: add missed iounmap() in probe failure and remove
+Date:   Mon, 20 Jul 2020 17:37:26 +0200
+Message-Id: <20200720152834.162743422@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AceLan Kao <acelan.kao@canonical.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit da6902e5b6dbca9081e3d377f9802d4fd0c5ea59 upstream.
+commit d8edf8eb5f6e921fe6389f96d2cd05862730a6ff upstream.
 
-Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
+This driver calls ioremap() in probe, but it misses calling iounmap() in
+probe's error handler and remove.
+Add the missed calls to fix it.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0195 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-
-Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 47d37d6f94cc ("serial: Add auart driver for i.MX23/28")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200709135608.68290-1-hslester96@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/mxs-auart.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -245,6 +245,7 @@ static void option_instat_callback(struc
- /* These Quectel products use Quectel's vendor ID */
- #define QUECTEL_PRODUCT_EC21			0x0121
- #define QUECTEL_PRODUCT_EC25			0x0125
-+#define QUECTEL_PRODUCT_EG95			0x0195
- #define QUECTEL_PRODUCT_BG96			0x0296
- #define QUECTEL_PRODUCT_EP06			0x0306
- #define QUECTEL_PRODUCT_EM12			0x0512
-@@ -1097,6 +1098,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95),
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
+--- a/drivers/tty/serial/mxs-auart.c
++++ b/drivers/tty/serial/mxs-auart.c
+@@ -1698,21 +1698,21 @@ static int mxs_auart_probe(struct platfo
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		ret = irq;
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 	}
+ 
+ 	s->port.irq = irq;
+ 	ret = devm_request_irq(&pdev->dev, irq, mxs_auart_irq_handle, 0,
+ 			       dev_name(&pdev->dev), s);
+ 	if (ret)
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 
+ 	platform_set_drvdata(pdev, s);
+ 
+ 	ret = mxs_auart_init_gpios(s, &pdev->dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to initialize GPIOs.\n");
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 	}
+ 
+ 	/*
+@@ -1720,7 +1720,7 @@ static int mxs_auart_probe(struct platfo
+ 	 */
+ 	ret = mxs_auart_request_gpio_irq(s);
+ 	if (ret)
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 
+ 	auart_port[s->port.line] = s;
+ 
+@@ -1746,6 +1746,9 @@ out_free_qpio_irq:
+ 	mxs_auart_free_gpio_irq(s);
+ 	auart_port[pdev->id] = NULL;
+ 
++out_iounmap:
++	iounmap(s->port.membase);
++
+ out_disable_clks:
+ 	if (is_asm9260_auart(s)) {
+ 		clk_disable_unprepare(s->clk);
+@@ -1761,6 +1764,7 @@ static int mxs_auart_remove(struct platf
+ 	uart_remove_one_port(&auart_driver, &s->port);
+ 	auart_port[pdev->id] = NULL;
+ 	mxs_auart_free_gpio_irq(s);
++	iounmap(s->port.membase);
+ 	if (is_asm9260_auart(s)) {
+ 		clk_disable_unprepare(s->clk);
+ 		clk_disable_unprepare(s->clk_ahb);
 
 
