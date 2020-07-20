@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A496226795
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58460226844
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388030AbgGTQMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52534 "EHLO mail.kernel.org"
+        id S2387683AbgGTQM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:12:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387683AbgGTQMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:12:50 -0400
+        id S2388031AbgGTQMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:12:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CC8920684;
-        Mon, 20 Jul 2020 16:12:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B881620734;
+        Mon, 20 Jul 2020 16:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261569;
-        bh=Mdl/K+7xLaxusjBhgs4IxBfsL816xmLFcY8NBTjFunY=;
+        s=default; t=1595261572;
+        bh=fsnnDiVTPQQbT2KVekUadP5jr9jJ91n2sCUXodLSEyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RrLrqsuPCPSuzaPUYquwZdkiusLHWILTfkPTLw03Z1Zx7dKVOX/c7kFSpAv+8ZqVJ
-         VDJp3YZ2ZRFvdVqVlJA4ms0MU9xiJ220pSQ7UeaHe1HLzjJXQyZlg3GhF26l31EqDJ
-         2K2LaMqaSelc3O8I69O+Tg7G5E0kcrHGAS75NgCw=
+        b=FZZkO3YPIP8+w9VOTsMOZjSNlkgrTOQpwkWUwZbdiWFA060L9dzZ2VCxvsPvF5mwh
+         p/kHesTnZYifMt/IH30P8O8SqjkXb0cI2aN7Sk+LaKseLz59x2Di2qo8IodHUb6+Db
+         CtDGUooQ4mw0YW/M/5nEqeT85A6vvlqmeGHXzBTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qiang <qiang.zhang@windriver.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.7 163/244] usb: gadget: function: fix missing spinlock in f_uac1_legacy
-Date:   Mon, 20 Jul 2020 17:37:14 +0200
-Message-Id: <20200720152833.594701777@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.7 164/244] USB: serial: iuu_phoenix: fix memory corruption
+Date:   Mon, 20 Jul 2020 17:37:15 +0200
+Message-Id: <20200720152833.642120871@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,36 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiang <qiang.zhang@windriver.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 8778eb0927ddcd3f431805c37b78fa56481aeed9 upstream.
+commit e7b931bee739e8a77ae216e613d3b99342b6dec0 upstream.
 
-Add a missing spinlock protection for play_queue, because
-the play_queue may be destroyed when the "playback_work"
-work func and "f_audio_out_ep_complete" callback func
-operate this paly_queue at the same time.
+The driver would happily overwrite its write buffer with user data in
+256 byte increments due to a removed buffer-space sanity check.
 
-Fixes: c6994e6f067cf ("USB: gadget: add USB Audio Gadget driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Zhang Qiang <qiang.zhang@windriver.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 5fcf62b0f1f2 ("tty: iuu_phoenix: fix locking.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_uac1_legacy.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/iuu_phoenix.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_uac1_legacy.c
-+++ b/drivers/usb/gadget/function/f_uac1_legacy.c
-@@ -336,7 +336,9 @@ static int f_audio_out_ep_complete(struc
+--- a/drivers/usb/serial/iuu_phoenix.c
++++ b/drivers/usb/serial/iuu_phoenix.c
+@@ -697,14 +697,16 @@ static int iuu_uart_write(struct tty_str
+ 	struct iuu_private *priv = usb_get_serial_port_data(port);
+ 	unsigned long flags;
  
- 	/* Copy buffer is full, add it to the play_queue */
- 	if (audio_buf_size - copy_buf->actual < req->actual) {
-+		spin_lock_irq(&audio->lock);
- 		list_add_tail(&copy_buf->list, &audio->play_queue);
-+		spin_unlock_irq(&audio->lock);
- 		schedule_work(&audio->playback_work);
- 		copy_buf = f_audio_buffer_alloc(audio_buf_size);
- 		if (IS_ERR(copy_buf))
+-	if (count > 256)
+-		return -ENOMEM;
+-
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 
++	count = min(count, 256 - priv->writelen);
++	if (count == 0)
++		goto out;
++
+ 	/* fill the buffer */
+ 	memcpy(priv->writebuf + priv->writelen, buf, count);
+ 	priv->writelen += count;
++out:
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+ 	return count;
 
 
