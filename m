@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B052264C0
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:48:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2B12263AF
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729919AbgGTPrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43124 "EHLO mail.kernel.org"
+        id S1729430AbgGTPjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730809AbgGTPrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:47:47 -0400
+        id S1726782AbgGTPjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43079206E9;
-        Mon, 20 Jul 2020 15:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9288122CB2;
+        Mon, 20 Jul 2020 15:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260066;
-        bh=Yqv4Iy4D7IpvZdWeRuwgS5y5415qBTlSh60EUkQfr4U=;
+        s=default; t=1595259551;
+        bh=THtNxAlLwzv2bLSqh8ByXwnmCnXX0RY7CmfXeJA86Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1Wdyuzlh4q0ZI34tMM1RX3jaR4qu/6i27Yig4Vl1MZXq2lQuyaWjLbDlx5meVP4P
-         F05vKEOgD81TQKOEb/RWVjDSXlUNwF/r6BuQ0SJ1oeRjb6Q/0SqPDprR0tvnwAhfaX
-         yLPEIToazvFF0/eQtzBPQGguFlzYefA8qYTBzSEM=
+        b=RXZlsYJYjGJcJA7T/IZd4VPGcW8DPjL0imb1k7gV9j6R3xogl6d5LkrlubAawJcEP
+         oyb1FzVRjKyxL7bIAcjDVc5b43+cBRuY2o07knQezXDd17pqDAiImrkepkO8fY1FPC
+         AwFTBhrbtOUqyX21eicT2GCUgJBXYwLJ/SRNsd9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/125] ARM: dts: socfpga: Align L2 cache-controller nodename with dtschema
+        stable@vger.kernel.org, Chirantan Ekbote <chirantan@chromium.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.4 50/58] fuse: Fix parameter for FS_IOC_{GET,SET}FLAGS
 Date:   Mon, 20 Jul 2020 17:37:06 +0200
-Message-Id: <20200720152807.219607099@linuxfoundation.org>
+Message-Id: <20200720152749.751019507@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Chirantan Ekbote <chirantan@chromium.org>
 
-[ Upstream commit d7adfe5ffed9faa05f8926223086b101e14f700d ]
+commit 31070f6ccec09f3bd4f1e28cd1e592fa4f3ba0b6 upstream.
 
-Fix dtschema validator warnings like:
-    l2-cache@fffff000: $nodename:0:
-        'l2-cache@fffff000' does not match '^(cache-controller|cpu)(@[0-9a-f,]+)*$'
+The ioctl encoding for this parameter is a long but the documentation says
+it should be an int and the kernel drivers expect it to be an int.  If the
+fuse driver treats this as a long it might end up scribbling over the stack
+of a userspace process that only allocated enough space for an int.
 
-Fixes: 475dc86d08de ("arm: dts: socfpga: Add a base DTSI for Altera's Arria10 SOC")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This was previously discussed in [1] and a patch for fuse was proposed in
+[2].  From what I can tell the patch in [2] was nacked in favor of adding
+new, "fixed" ioctls and using those from userspace.  However there is still
+no "fixed" version of these ioctls and the fact is that it's sometimes
+infeasible to change all userspace to use the new one.
+
+Handling the ioctls specially in the fuse driver seems like the most
+pragmatic way for fuse servers to support them without causing crashes in
+userspace applications that call them.
+
+[1]: https://lore.kernel.org/linux-fsdevel/20131126200559.GH20559@hall.aurel32.net/T/
+[2]: https://sourceforge.net/p/fuse/mailman/message/31771759/
+
+Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
+Fixes: 59efec7b9039 ("fuse: implement ioctl support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/socfpga.dtsi         | 2 +-
- arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/fuse/file.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
-index 10d2fa183a9ff..7ee99e11508ca 100644
---- a/arch/arm/boot/dts/socfpga.dtsi
-+++ b/arch/arm/boot/dts/socfpga.dtsi
-@@ -706,7 +706,7 @@ ocram-ecc@ffd08144 {
- 			};
- 		};
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -17,6 +17,7 @@
+ #include <linux/swap.h>
+ #include <linux/falloc.h>
+ #include <linux/uio.h>
++#include <linux/fs.h>
  
--		L2: l2-cache@fffef000 {
-+		L2: cache-controller@fffef000 {
- 			compatible = "arm,pl310-cache";
- 			reg = <0xfffef000 0x1000>;
- 			interrupts = <0 38 0x04>;
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index bd1985694bcae..672e73e35228c 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -606,7 +606,7 @@ sdr: sdr@ffcfb100 {
- 			reg = <0xffcfb100 0x80>;
- 		};
+ static const struct file_operations fuse_direct_io_file_operations;
  
--		L2: l2-cache@fffff000 {
-+		L2: cache-controller@fffff000 {
- 			compatible = "arm,pl310-cache";
- 			reg = <0xfffff000 0x1000>;
- 			interrupts = <0 18 IRQ_TYPE_LEVEL_HIGH>;
--- 
-2.25.1
-
+@@ -2517,7 +2518,16 @@ long fuse_do_ioctl(struct file *file, un
+ 		struct iovec *iov = iov_page;
+ 
+ 		iov->iov_base = (void __user *)arg;
+-		iov->iov_len = _IOC_SIZE(cmd);
++
++		switch (cmd) {
++		case FS_IOC_GETFLAGS:
++		case FS_IOC_SETFLAGS:
++			iov->iov_len = sizeof(int);
++			break;
++		default:
++			iov->iov_len = _IOC_SIZE(cmd);
++			break;
++		}
+ 
+ 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
+ 			in_iov = iov;
 
 
