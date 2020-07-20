@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B96792267FA
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4005A2267FB
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388518AbgGTQQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S2388524AbgGTQQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730844AbgGTQQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:16:15 -0400
+        id S2388521AbgGTQQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:16:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 645F8206E9;
-        Mon, 20 Jul 2020 16:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 069382176B;
+        Mon, 20 Jul 2020 16:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261774;
-        bh=xNAtOKLExuskyl6B4Nrmj0rAa9QDqrNJ1JNraiiA75Y=;
+        s=default; t=1595261777;
+        bh=3HUgmZ/tARwGMutJBhk5M2qfIB6OsRD+M0bsOSG81Y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odl4sBG/1gwnUhgFV5ppGc8OEjAHhjSU5PJuyT7Z+zzSpdJ3Qs6ejQXjssCEefUBZ
-         ESJrUmi6Zxrg2UfzyooS0IOGYQS623fX3GyDwsNi6L6kF8FKxxHIYvCQF2UsIEMlEE
-         ushmQfMzxdMTwF/aTi+98Sos5o1BrpaLsrF2qJ6w=
+        b=D/sf6nWz9F1rTnuEeGxm3w7ngaBpzxal1Z16ahb1ohZ1kdzaRb6mxbI4lEM4I5GhW
+         7r8gkuZadqy/fnswd5quu1V3MzAjGghT9jssOPNMgWn3ZT8BCwevq6Eeox5e0sTjbw
+         HN+ajfwWXP2ZN7yCTiqPwAUrxRQyRJd+HBBJPOfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
         Jonathan Toppins <jtoppins@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 236/244] ionic: no link check while resetting queues
-Date:   Mon, 20 Jul 2020 17:38:27 +0200
-Message-Id: <20200720152837.064215527@linuxfoundation.org>
+Subject: [PATCH 5.7 237/244] ionic: export features for vlans to use
+Date:   Mon, 20 Jul 2020 17:38:28 +0200
+Message-Id: <20200720152837.111201386@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -46,33 +46,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shannon Nelson <snelson@pensando.io>
 
-commit 3103b6feb4454646558eedc50ece728bc469f341 upstream.
+commit ef7232da6bcd4294cbb2d424bc35885721570f01 upstream.
 
-If the driver is busy resetting queues after a change in
-MTU or queue parameters, don't bother checking the link,
-wait until the next watchdog cycle.
+Set up vlan_features for use by any vlans above us.
 
-Fixes: 987c0871e8ae ("ionic: check for linkup in watchdog")
+Fixes: beead698b173 ("ionic: Add the basic NDO callbacks for netdev support")
 Signed-off-by: Shannon Nelson <snelson@pensando.io>
 Acked-by: Jonathan Toppins <jtoppins@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
 +++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -85,7 +85,8 @@ static void ionic_link_status_check(stru
- 	u16 link_status;
- 	bool link_up;
+@@ -1236,6 +1236,7 @@ static int ionic_init_nic_features(struc
  
--	if (!test_bit(IONIC_LIF_F_LINK_CHECK_REQUESTED, lif->state))
-+	if (!test_bit(IONIC_LIF_F_LINK_CHECK_REQUESTED, lif->state) ||
-+	    test_bit(IONIC_LIF_F_QUEUE_RESET, lif->state))
- 		return;
+ 	netdev->hw_features |= netdev->hw_enc_features;
+ 	netdev->features |= netdev->hw_features;
++	netdev->vlan_features |= netdev->features & ~NETIF_F_VLAN_FEATURES;
  
- 	if (lif->ionic->is_mgmt_nic)
+ 	netdev->priv_flags |= IFF_UNICAST_FLT |
+ 			      IFF_LIVE_ADDR_CHANGE;
 
 
