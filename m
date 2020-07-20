@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB6F226C3D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12BE226B47
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729125AbgGTPiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:38:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56698 "EHLO mail.kernel.org"
+        id S1729531AbgGTPq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:46:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729103AbgGTPiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:38:13 -0400
+        id S1730664AbgGTPq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:46:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2EDC22CB2;
-        Mon, 20 Jul 2020 15:38:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C0702065E;
+        Mon, 20 Jul 2020 15:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259493;
-        bh=jdM/Z0ndMFdunOwa0OEBRJHhNEIA6c+prmMqU4DN37w=;
+        s=default; t=1595259986;
+        bh=zsOsrZPmZ+wzBNHgbq+dUtl76rka1sDLeA+nyTO+bA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNi0mjlvSgPwTLSaNn6QRGGUijY4GrzvlbYoI5fCLPbvJCWuATgYcfhL7iz+iuZVC
-         AFdob5jp959CzClgFJj4dze+WQrbxG6ai63/R4KSqdW6HeL7+i+e7bs3BCheoQ9B0K
-         MT4qawCn9sZWsz7TcUF/RjtqMJ2KgleQVDYWiT2U=
+        b=JXVrAk5vudvXgdFAmhJa33vFdAdrJ9ojlu7ZEh/41hscKTAw+Oej1RywPO7PW8k/Z
+         2vhm0KX1R9qv0EV8cgpHFXbAG/h7X9afAfM4dYLgbELhsHK3L9pHIdAvMEvDsr7N2U
+         8S2Y46EOZfcVg5BA2KPrj0gJ9PGUc36073NfjwUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Marco Elver <elver@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 27/58] tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers
-Date:   Mon, 20 Jul 2020 17:36:43 +0200
-Message-Id: <20200720152748.504951306@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 065/125] iio: mma8452: Add missed iio_device_unregister() call in mma8452_probe()
+Date:   Mon, 20 Jul 2020 17:36:44 +0200
+Message-Id: <20200720152806.165916820@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,89 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit e6ced831ef11a2a06e8d00aad9d4fc05b610bf38 ]
+commit d7369ae1f4d7cffa7574d15e1f787dcca184c49d upstream.
 
-My prior fix went a bit too far, according to Herbert and Mathieu.
+The function iio_device_register() was called in mma8452_probe().
+But the function iio_device_unregister() was not called after
+a call of the function mma8452_set_freefall_mode() failed.
+Thus add the missed function call for one error case.
 
-Since we accept that concurrent TCP MD5 lookups might see inconsistent
-keys, we can use READ_ONCE()/WRITE_ONCE() instead of smp_rmb()/smp_wmb()
-
-Clearing all key->key[] is needed to avoid possible KMSAN reports,
-if key->keylen is increased. Since tcp_md5_do_add() is not fast path,
-using __GFP_ZERO to clear all struct tcp_md5sig_key is simpler.
-
-data_race() was added in linux-5.8 and will prevent KCSAN reports,
-this can safely be removed in stable backports, if data_race() is
-not yet backported.
-
-v2: use data_race() both in tcp_md5_hash_key() and tcp_md5_do_add()
-
-Fixes: 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Marco Elver <elver@google.com>
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1a965d405fc6 ("drivers:iio:accel:mma8452: added cleanup provision in case of failure.")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp.c      |    6 +++---
- net/ipv4/tcp_ipv4.c |   14 ++++++++++----
- 2 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3088,12 +3088,12 @@ EXPORT_SYMBOL(tcp_md5_hash_skb_data);
+---
+ drivers/iio/accel/mma8452.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1583,10 +1583,13 @@ static int mma8452_probe(struct i2c_clie
  
- int tcp_md5_hash_key(struct tcp_md5sig_pool *hp, const struct tcp_md5sig_key *key)
- {
--	u8 keylen = key->keylen;
-+	u8 keylen = READ_ONCE(key->keylen); /* paired with WRITE_ONCE() in tcp_md5_do_add */
- 	struct scatterlist sg;
+ 	ret = mma8452_set_freefall_mode(data, false);
+ 	if (ret < 0)
+-		goto buffer_cleanup;
++		goto unregister_device;
  
--	smp_rmb(); /* paired with smp_wmb() in tcp_md5_do_add() */
--
- 	sg_init_one(&sg, key->key, keylen);
+ 	return 0;
+ 
++unregister_device:
++	iio_device_unregister(indio_dev);
 +
-+	/* tcp_md5_do_add() might change key->key under us */
- 	return crypto_hash_update(&hp->md5_desc, &sg, key->keylen);
- }
- EXPORT_SYMBOL(tcp_md5_hash_key);
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -931,12 +931,18 @@ int tcp_md5_do_add(struct sock *sk, cons
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
  
- 	key = tcp_md5_do_lookup(sk, addr, family);
- 	if (key) {
--		/* Pre-existing entry - just update that one. */
-+		/* Pre-existing entry - just update that one.
-+		 * Note that the key might be used concurrently.
-+		 */
- 		memcpy(key->key, newkey, newkeylen);
- 
--		smp_wmb(); /* pairs with smp_rmb() in tcp_md5_hash_key() */
-+		/* Pairs with READ_ONCE() in tcp_md5_hash_key().
-+		 * Also note that a reader could catch new key->keylen value
-+		 * but old key->key[], this is the reason we use __GFP_ZERO
-+		 * at sock_kmalloc() time below these lines.
-+		 */
-+		WRITE_ONCE(key->keylen, newkeylen);
- 
--		key->keylen = newkeylen;
- 		return 0;
- 	}
- 
-@@ -953,7 +959,7 @@ int tcp_md5_do_add(struct sock *sk, cons
- 		rcu_assign_pointer(tp->md5sig_info, md5sig);
- 	}
- 
--	key = sock_kmalloc(sk, sizeof(*key), gfp);
-+	key = sock_kmalloc(sk, sizeof(*key), gfp | __GFP_ZERO);
- 	if (!key)
- 		return -ENOMEM;
- 	if (!tcp_alloc_md5sig_pool()) {
 
 
