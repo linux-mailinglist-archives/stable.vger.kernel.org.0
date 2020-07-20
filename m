@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31A522669E
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2302267E7
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732888AbgGTQEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:04:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
+        id S2388039AbgGTQPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:15:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732882AbgGTQEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:45 -0400
+        id S2387763AbgGTQPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:15:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 855182064B;
-        Mon, 20 Jul 2020 16:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 039052064B;
+        Mon, 20 Jul 2020 16:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261085;
-        bh=tZbcvL0Yom+uemumx//KXJkqlGT24AfbHXyZqMG8DTY=;
+        s=default; t=1595261738;
+        bh=brtp9yHjy3ziQVxTsjjgYfS8uVlOTxN4qyMt/fPozVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0VN8r6BxjphBUiuVbAd3cxtJudvOaFaLfpnW5q0vfLRuUGggBajFjng/7eNT/7Y+3
-         zz7aXWUOphqz2bjLc5mA+WB51g8xl8NnXfLx5HXfRiBW0XFxGHo4+f+KMFOrEqFFk+
-         aEmXo/8kCfdzbcHCsmcL89yeIEjXi7ahls5OJEsY=
+        b=aUVpN8EA9sWGJZZblJeA6E4cC9IRy9bnRxf8HtLq92h+nk5BRoM8UQ4UvK8xUx5kH
+         crefVUta74gUuUBpsZrAZiKHA9fsrF4dsr3dzuDRkIIhm6RUX0+KIX9jD9ms6NVYeW
+         Fk3Up9OfCBgZ8zG4kIBkhDVHyGSj98YRD6wreeHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 5.4 196/215] misc: atmel-ssc: lock with mutex instead of spinlock
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.7 207/244] dmaengine: mcf-edma: Fix NULL pointer exception in mcf_edma_tx_handler
 Date:   Mon, 20 Jul 2020 17:37:58 +0200
-Message-Id: <20200720152829.495186822@linuxfoundation.org>
+Message-Id: <20200720152835.693987804@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,115 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit b037d60a3b1d1227609fd858fa34321f41829911 upstream.
+commit 8995aa3d164ddd9200e6abcf25c449cf5298c858 upstream.
 
-Uninterruptible context is not needed in the driver and causes lockdep
-warning because of mutex taken in of_alias_get_id(). Convert the lock to
-mutex to avoid the issue.
+On Toradex Colibri VF50 (Vybrid VF5xx) with fsl-edma driver NULL pointer
+exception happens occasionally on serial output initiated by login
+timeout.
 
-Cc: stable@vger.kernel.org
-Fixes: 099343c64e16 ("ARM: at91: atmel-ssc: add device tree support")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/50f0d7fa107f318296afb49477c3571e4d6978c5.1592998403.git.mirq-linux@rere.qmqm.pl
+This was reproduced only if kernel was built with significant debugging
+options and EDMA driver is used with serial console.
+
+Issue looks like a race condition between interrupt handler
+fsl_edma_tx_handler() (called as a result of fsl_edma_xfer_desc()) and
+terminating the transfer with fsl_edma_terminate_all().
+
+The fsl_edma_tx_handler() handles interrupt for a transfer with already
+freed edesc and idle==true.
+
+The mcf-edma driver shares design and lot of code with fsl-edma.  It
+looks like being affected by same problem.  Fix this pattern the same
+way as fix for fsl-edma driver.
+
+Fixes: e7a3ff92eaf1 ("dmaengine: fsl-edma: add ColdFire mcf5441x edma support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Robin Gong <yibin.gong@nxp.com>
+Link: https://lore.kernel.org/r/1591881665-25592-1-git-send-email-krzk@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/atmel-ssc.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/dma/mcf-edma.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/misc/atmel-ssc.c
-+++ b/drivers/misc/atmel-ssc.c
-@@ -10,7 +10,7 @@
- #include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/io.h>
--#include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/atmel-ssc.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-@@ -20,7 +20,7 @@
- #include "../../sound/soc/atmel/atmel_ssc_dai.h"
+--- a/drivers/dma/mcf-edma.c
++++ b/drivers/dma/mcf-edma.c
+@@ -35,6 +35,13 @@ static irqreturn_t mcf_edma_tx_handler(i
+ 			mcf_chan = &mcf_edma->chans[ch];
  
- /* Serialize access to ssc_list and user count */
--static DEFINE_SPINLOCK(user_lock);
-+static DEFINE_MUTEX(user_lock);
- static LIST_HEAD(ssc_list);
- 
- struct ssc_device *ssc_request(unsigned int ssc_num)
-@@ -28,7 +28,7 @@ struct ssc_device *ssc_request(unsigned
- 	int ssc_valid = 0;
- 	struct ssc_device *ssc;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_for_each_entry(ssc, &ssc_list, list) {
- 		if (ssc->pdev->dev.of_node) {
- 			if (of_alias_get_id(ssc->pdev->dev.of_node, "ssc")
-@@ -44,18 +44,18 @@ struct ssc_device *ssc_request(unsigned
- 	}
- 
- 	if (!ssc_valid) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		pr_err("ssc: ssc%d platform device is missing\n", ssc_num);
- 		return ERR_PTR(-ENODEV);
- 	}
- 
- 	if (ssc->user) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		dev_dbg(&ssc->pdev->dev, "module busy\n");
- 		return ERR_PTR(-EBUSY);
- 	}
- 	ssc->user++;
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	clk_prepare(ssc->clk);
- 
-@@ -67,14 +67,14 @@ void ssc_free(struct ssc_device *ssc)
- {
- 	bool disable_clk = true;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	if (ssc->user)
- 		ssc->user--;
- 	else {
- 		disable_clk = false;
- 		dev_dbg(&ssc->pdev->dev, "device already free\n");
- 	}
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	if (disable_clk)
- 		clk_unprepare(ssc->clk);
-@@ -237,9 +237,9 @@ static int ssc_probe(struct platform_dev
- 		return -ENXIO;
- 	}
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_add_tail(&ssc->list, &ssc_list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	platform_set_drvdata(pdev, ssc);
- 
-@@ -258,9 +258,9 @@ static int ssc_remove(struct platform_de
- 
- 	ssc_sound_dai_remove(ssc);
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_del(&ssc->list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	return 0;
- }
+ 			spin_lock(&mcf_chan->vchan.lock);
++
++			if (!mcf_chan->edesc) {
++				/* terminate_all called before */
++				spin_unlock(&mcf_chan->vchan.lock);
++				continue;
++			}
++
+ 			if (!mcf_chan->edesc->iscyclic) {
+ 				list_del(&mcf_chan->edesc->vdesc.node);
+ 				vchan_cookie_complete(&mcf_chan->edesc->vdesc);
 
 
