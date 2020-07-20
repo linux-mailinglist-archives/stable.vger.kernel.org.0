@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB95226644
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D65322674E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731935AbgGTQBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:01:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35196 "EHLO mail.kernel.org"
+        id S1732781AbgGTQKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731073AbgGTQBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:01:40 -0400
+        id S2387677AbgGTQKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15BEB20672;
-        Mon, 20 Jul 2020 16:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B11B920672;
+        Mon, 20 Jul 2020 16:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260899;
-        bh=Wx7PdpUCk4pt6D9wXcsrxs6ytZVrxI8u6eKHPIONvs0=;
+        s=default; t=1595261431;
+        bh=zSLIqHYNiz6fKO5WOj4GvcUQob4ronNMos2S6vOcuA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRnbIgY5zUNgW4JYj05Bqstp7KHg1ajpQtTi8l4vjj1911Z92HWW6Fzo886J5Q1Xf
-         m8sgB15L/MoPg6iRvXMMacJopc57WMBynPc7EkTZnmuMcm7rsQe/Su2AUUGTH7NdWu
-         HXd/sPvWWn1mzMNY+ZdFcnqeqP0VAFZwu8pPpgOU=
+        b=E2Ia4ZM6xovFooyEEY4TGbL0gnC9AhJM8x8fH7+/dTScc7fR7bFapbxyZ6Rkkgk4W
+         y82MtKE1B6zcgREjVac1WxcgeonqZ/kUsNrhL9HAzSNQAh4jFvO5RL9XG0lf7fdzi3
+         UGhqYMTibdBZacTZ0VpWTXsddmTvjbzBmhXzLG14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hien Dang <hien.dang.eb@renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/215] dmaengine: sh: usb-dmac: set tx_result parameters
+        stable@vger.kernel.org, Dan Aloni <dan@kernelim.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 106/244] xprtrdma: Fix handling of connect errors
 Date:   Mon, 20 Jul 2020 17:36:17 +0200
-Message-Id: <20200720152824.734501006@linuxfoundation.org>
+Message-Id: <20200720152830.871081296@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 466257d9968ac79575831250b039dc07566c7b13 ]
+[ Upstream commit af667527b0e34912d2cb3586d585f66db4e4f486 ]
 
-A client driver (renesas_usbhs) assumed that
-dmaengine_tx_status() could return the residue even if
-the transfer was completed. However, this was not correct
-usage [1] and this caused to break getting the residue after
-the commit 24461d9792c2 ("dmaengine: virt-dma: Fix access after
-free in vchan_complete()") actually. So, this is possible to get
-wrong received size if the usb controller gets a short packet.
-For example, g_zero driver causes "bad OUT byte" errors.
+Ensure that the connect worker is awoken if an attempt to establish
+a connection is unsuccessful. Otherwise the worker waits forever
+and the transport workload hangs.
 
-To use the tx_result from the renesas_usbhs driver when
-the transfer is completed, set the tx_result parameters.
+Connect errors should not attempt to destroy the ep, since the
+connect worker continues to use it after the handler runs, so these
+errors are now handled independently of DISCONNECTED events.
 
-Notes that the renesas_usbhs driver needs to update for it.
-
-[1]
-https://lore.kernel.org/dmaengine/20200616165550.GP2324254@vkoul-mobl/
-
-Reported-by: Hien Dang <hien.dang.eb@renesas.com>
-Fixes: 24461d9792c2 ("dmaengine: virt-dma: Fix access after free in vchan_complete()")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1592482053-19433-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Dan Aloni <dan@kernelim.com>
+Fixes: e28ce90083f0 ("xprtrdma: kmalloc rpcrdma_ep separate from rpcrdma_xprt")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/usb-dmac.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sunrpc/xprtrdma/verbs.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
-index b218a013c2600..8f7ceb698226c 100644
---- a/drivers/dma/sh/usb-dmac.c
-+++ b/drivers/dma/sh/usb-dmac.c
-@@ -586,6 +586,8 @@ static void usb_dmac_isr_transfer_end(struct usb_dmac_chan *chan)
- 		desc->residue = usb_dmac_get_current_residue(chan, desc,
- 							desc->sg_index - 1);
- 		desc->done_cookie = desc->vd.tx.cookie;
-+		desc->vd.tx_result.result = DMA_TRANS_NOERROR;
-+		desc->vd.tx_result.residue = desc->residue;
- 		vchan_cookie_complete(&desc->vd);
- 
- 		/* Restart the next transfer if this driver has a next desc */
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 220c2d2eeb3e5..26e89c65ba564 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -279,17 +279,19 @@ rpcrdma_cm_event_handler(struct rdma_cm_id *id, struct rdma_cm_event *event)
+ 		break;
+ 	case RDMA_CM_EVENT_CONNECT_ERROR:
+ 		ep->re_connect_status = -ENOTCONN;
+-		goto disconnected;
++		goto wake_connect_worker;
+ 	case RDMA_CM_EVENT_UNREACHABLE:
+ 		ep->re_connect_status = -ENETUNREACH;
+-		goto disconnected;
++		goto wake_connect_worker;
+ 	case RDMA_CM_EVENT_REJECTED:
+ 		dprintk("rpcrdma: connection to %pISpc rejected: %s\n",
+ 			sap, rdma_reject_msg(id, event->status));
+ 		ep->re_connect_status = -ECONNREFUSED;
+ 		if (event->status == IB_CM_REJ_STALE_CONN)
+ 			ep->re_connect_status = -ENOTCONN;
+-		goto disconnected;
++wake_connect_worker:
++		wake_up_all(&ep->re_connect_wait);
++		return 0;
+ 	case RDMA_CM_EVENT_DISCONNECTED:
+ 		ep->re_connect_status = -ECONNABORTED;
+ disconnected:
 -- 
 2.25.1
 
