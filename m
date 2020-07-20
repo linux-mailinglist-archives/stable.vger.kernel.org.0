@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 169F7226A1D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D223226A56
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731730AbgGTPzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55120 "EHLO mail.kernel.org"
+        id S1732138AbgGTQdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:33:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731724AbgGTPzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:55:50 -0400
+        id S1731789AbgGTP4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:56:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 240F022CBE;
-        Mon, 20 Jul 2020 15:55:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4945C22BEF;
+        Mon, 20 Jul 2020 15:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260549;
-        bh=ppTfgYb09TB9qxq+h+9fQ/bwVJO7A7SzJInWDp8mVuI=;
+        s=default; t=1595260579;
+        bh=dsu5b9IIjFUsGX50qBLDgmJ2Ketn/JuBNyJ68a8xfzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irsAUX3Ui8+Hz9nqcQ+UIFxs0c/SJf8VEAL2RvLt5olBfDwiNHH14HVrfHn03LU3p
-         xej4w9o+eCqiaOxC3YBjCdftKbYKc0HPiqPNwk73ZQ6DrmX6Q1kN/A+bylAvdVrTZ9
-         N2j2nJR1rR+96Gftt8RIUKP/ordYTe5XzvI3FigE=
+        b=2iapsulwR8of0jvVl2uFjjpLgG1OiQESS9u3q3wIqy9pUTaZ9iV9UzKx/ldnQWAi4
+         dkkrjEmkB/yVhXyYmwRXyGA/EV1ZC85OlDe4+vRojdAq8lQRYCyWtDHZnBh5V4q0Rx
+         tt2tCTS54YNxs3mtEbOqn7RWEL+1fEIYFZJ6suko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 001/215] crypto: atmel - Fix selection of CRYPTO_AUTHENC
-Date:   Mon, 20 Jul 2020 17:34:43 +0200
-Message-Id: <20200720152820.208935209@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 5.4 002/215] crypto: atmel - Fix build error of CRYPTO_AUTHENC
+Date:   Mon, 20 Jul 2020 17:34:44 +0200
+Message-Id: <20200720152820.257058678@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,43 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit d158367682cd822aca811971e988be6a8d8f679f upstream.
+commit aee1f9f3c30e1e20e7f74729ced61eac7d74ca68 upstream.
 
-The following error is raised when CONFIG_CRYPTO_DEV_ATMEL_AES=y and
-CONFIG_CRYPTO_DEV_ATMEL_AUTHENC=m:
+If CRYPTO_DEV_ATMEL_AUTHENC is m, CRYPTO_DEV_ATMEL_SHA is m,
+but CRYPTO_DEV_ATMEL_AES is y, building will fail:
+
+drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_init_tfm':
+atmel-aes.c:(.text+0x670): undefined reference to `atmel_sha_authenc_get_reqsize'
+atmel-aes.c:(.text+0x67a): undefined reference to `atmel_sha_authenc_spawn'
 drivers/crypto/atmel-aes.o: In function `atmel_aes_authenc_setkey':
-atmel-aes.c:(.text+0x9bc): undefined reference to `crypto_authenc_extractkeys'
-Makefile:1094: recipe for target 'vmlinux' failed
+atmel-aes.c:(.text+0x7e5): undefined reference to `atmel_sha_authenc_setkey'
 
-Fix it by moving the selection of CRYPTO_AUTHENC under
-config CRYPTO_DEV_ATMEL_AES.
+Make CRYPTO_DEV_ATMEL_AUTHENC depend on CRYPTO_DEV_ATMEL_AES,
+and select CRYPTO_DEV_ATMEL_SHA and CRYPTO_AUTHENC for it under there.
 
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
 Fixes: 89a82ef87e01 ("crypto: atmel-authenc - add support to...")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
+
 ---
- drivers/crypto/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/Kconfig |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 --- a/drivers/crypto/Kconfig
 +++ b/drivers/crypto/Kconfig
-@@ -493,7 +493,6 @@ endif # if CRYPTO_DEV_UX500
+@@ -491,10 +491,9 @@ if CRYPTO_DEV_UX500
+ endif # if CRYPTO_DEV_UX500
+ 
  config CRYPTO_DEV_ATMEL_AUTHENC
- 	tristate "Support for Atmel IPSEC/SSL hw accelerator"
+-	tristate "Support for Atmel IPSEC/SSL hw accelerator"
++	bool "Support for Atmel IPSEC/SSL hw accelerator"
  	depends on ARCH_AT91 || COMPILE_TEST
--	select CRYPTO_AUTHENC
- 	select CRYPTO_DEV_ATMEL_AES
- 	select CRYPTO_DEV_ATMEL_SHA
+-	select CRYPTO_DEV_ATMEL_AES
+-	select CRYPTO_DEV_ATMEL_SHA
++	depends on CRYPTO_DEV_ATMEL_AES
  	help
-@@ -508,6 +507,7 @@ config CRYPTO_DEV_ATMEL_AES
+ 	  Some Atmel processors can combine the AES and SHA hw accelerators
+ 	  to enhance support of IPSEC/SSL.
+@@ -507,7 +506,8 @@ config CRYPTO_DEV_ATMEL_AES
  	select CRYPTO_AES
  	select CRYPTO_AEAD
  	select CRYPTO_BLKCIPHER
-+	select CRYPTO_AUTHENC
+-	select CRYPTO_AUTHENC
++	select CRYPTO_AUTHENC if CRYPTO_DEV_ATMEL_AUTHENC
++	select CRYPTO_DEV_ATMEL_SHA if CRYPTO_DEV_ATMEL_AUTHENC
  	help
  	  Some Atmel processors have AES hw accelerator.
  	  Select this if you want to use the Atmel module for
