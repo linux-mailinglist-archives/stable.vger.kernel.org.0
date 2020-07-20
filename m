@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B740B22672D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A3522672F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387525AbgGTQJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:09:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
+        id S1732639AbgGTQJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387499AbgGTQJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:09:25 -0400
+        id S2387529AbgGTQJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:09:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 700ED2064B;
-        Mon, 20 Jul 2020 16:09:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 681292064B;
+        Mon, 20 Jul 2020 16:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261365;
-        bh=SX4S4gF6dd0rnPHQwe1PVTi8sEa+1+Qsr20QtDcLSAI=;
+        s=default; t=1595261368;
+        bh=JYZE1ZJF74xJACzrCIs0hmji7cehT0m4hN0HhSTsEbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTryk/IxR4oiqI0EzdZ0xaIptTznGYiQWtcZkSNw+QYJLA0FP1X2Efe/Gjo4Yle84
-         l0DO4qzvWxR4pdYoc5QH6vwwsICOy5GteiExFDROxp2BSVhiZ1c8WRHM9qeFxO+/Qi
-         gI9zjth516ZynshvLWxEK0SDaGBjnDBVbw7lmqCQ=
+        b=2mVdNIM2X8c7Vzgykcjl4krGSGx6GKpaB4nIvYUckZxiqOaTEwxf98MtuWXxr+7Fi
+         QyUVJqwTZALCVI8pK274SjemgEvtjMWKv2e8p9lvTbfx2ZQ5m2mUDry8Jilot2KMbd
+         YL0WDszSP1uHAwjdf/qIudTxumeM0w6I2bvsnRMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 090/244] dmaengine: idxd: fix misc interrupt handler thread unmasking
-Date:   Mon, 20 Jul 2020 17:36:01 +0200
-Message-Id: <20200720152830.123221567@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 091/244] bus: ti-sysc: Fix wakeirq sleeping function called from invalid context
+Date:   Mon, 20 Jul 2020 17:36:02 +0200
+Message-Id: <20200720152830.163017771@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,44 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit e3122822a74033ba8d6d9af855078f9ab741e33f ]
+[ Upstream commit 9f9113925018d500a95df539014d9ff11ac2c02d ]
 
-Fix unmasking of misc interrupt handler when completing normal. It exits
-early and skips the unmasking with the current implementation. Fix to
-unmask interrupt when exiting normally.
+With CONFIG_DEBUG_ATOMIC_SLEEP enabled we can see the following with
+wakeirqs and serial console idled:
 
-Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/159311256528.855.11527922406329728512.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+BUG: sleeping function called from invalid context at drivers/bus/ti-sysc.c:242
+...
+(sysc_wait_softreset) from [<c0606894>] (sysc_enable_module+0x48/0x274)
+(sysc_enable_module) from [<c0606c5c>] (sysc_runtime_resume+0x19c/0x1d8)
+(sysc_runtime_resume) from [<c0606cf0>] (sysc_child_runtime_resume+0x58/0x84)
+(sysc_child_runtime_resume) from [<c06eb7bc>] (__rpm_callback+0x30/0x12c)
+(__rpm_callback) from [<c06eb8d8>] (rpm_callback+0x20/0x80)
+(rpm_callback) from [<c06eb434>] (rpm_resume+0x638/0x7fc)
+(rpm_resume) from [<c06eb658>] (__pm_runtime_resume+0x60/0x9c)
+(__pm_runtime_resume) from [<c06edc08>] (handle_threaded_wake_irq+0x24/0x60)
+(handle_threaded_wake_irq) from [<c01befec>] (irq_thread_fn+0x1c/0x78)
+(irq_thread_fn) from [<c01bf30c>] (irq_thread+0x140/0x26c)
+
+We have __pm_runtime_resume() call the sysc_runtime_resume() with spinlock
+held and interrupts disabled.
+
+Fixes: d46f9fbec719 ("bus: ti-sysc: Use optional clocks on for enable and wait for softreset bit")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/irq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bus/ti-sysc.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/dma/idxd/irq.c b/drivers/dma/idxd/irq.c
-index 6510791b9921b..8a35f58da6890 100644
---- a/drivers/dma/idxd/irq.c
-+++ b/drivers/dma/idxd/irq.c
-@@ -141,7 +141,7 @@ irqreturn_t idxd_misc_thread(int vec, void *data)
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index db9541f385055..a160c3a1f09a3 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -236,15 +236,14 @@ static int sysc_wait_softreset(struct sysc *ddata)
+ 		syss_done = ddata->cfg.syss_mask;
  
- 	iowrite32(cause, idxd->reg_base + IDXD_INTCAUSE_OFFSET);
- 	if (!err)
--		return IRQ_HANDLED;
-+		goto out;
+ 	if (syss_offset >= 0) {
+-		error = readx_poll_timeout(sysc_read_sysstatus, ddata, rstval,
+-					   (rstval & ddata->cfg.syss_mask) ==
+-					   syss_done,
+-					   100, MAX_MODULE_SOFTRESET_WAIT);
++		error = readx_poll_timeout_atomic(sysc_read_sysstatus, ddata,
++				rstval, (rstval & ddata->cfg.syss_mask) ==
++				syss_done, 100, MAX_MODULE_SOFTRESET_WAIT);
  
- 	gensts.bits = ioread32(idxd->reg_base + IDXD_GENSTATS_OFFSET);
- 	if (gensts.state == IDXD_DEVICE_STATE_HALT) {
-@@ -162,6 +162,7 @@ irqreturn_t idxd_misc_thread(int vec, void *data)
- 		spin_unlock_bh(&idxd->dev_lock);
+ 	} else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS) {
+-		error = readx_poll_timeout(sysc_read_sysconfig, ddata, rstval,
+-					   !(rstval & sysc_mask),
+-					   100, MAX_MODULE_SOFTRESET_WAIT);
++		error = readx_poll_timeout_atomic(sysc_read_sysconfig, ddata,
++				rstval, !(rstval & sysc_mask),
++				100, MAX_MODULE_SOFTRESET_WAIT);
  	}
  
-+ out:
- 	idxd_unmask_msix_vector(idxd, irq_entry->id);
- 	return IRQ_HANDLED;
- }
+ 	return error;
 -- 
 2.25.1
 
