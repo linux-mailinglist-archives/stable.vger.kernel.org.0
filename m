@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 068A82269D2
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D742226BF0
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729076AbgGTQ3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:29:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59660 "EHLO mail.kernel.org"
+        id S1729826AbgGTQpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731645AbgGTP7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:59:11 -0400
+        id S1729827AbgGTPlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:41:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3B3D2065E;
-        Mon, 20 Jul 2020 15:59:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B37E2065E;
+        Mon, 20 Jul 2020 15:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260750;
-        bh=cS5sXh8R8EECFabwRlhfigWsqZ9n88SnscShNI+HJNg=;
+        s=default; t=1595259667;
+        bh=914ODhceqPd2WJSKfwRdH2Hv1RPoxEEg9ABY9cnkrcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfX1H6Ajt43TalJdDMGbt7k1x/j/j/bIpLVcBL7SkED6SX77/VJ+juDCISvUfzwwY
-         +XLyR90SZv6LQfP9+SjldfjTVoJRMwnaV4m3tSJ+qxV6OS5TQvw6BcYFCVpHfLjcQA
-         h1+ZaRs3hrFP0URg0e3tCebAe/67ytkaR+bL8gBM=
+        b=R2HdJeLvqZN5trc/vF6mCSnOVGCDQVi2uMqN7dqBupFj+CZpYo1SMdsRXaPBb5fQ+
+         1bAqwM7yGMP9rC2N3oXghNNvHs/GGx3wPRHF2A6SDBjiaL4WxcTPz+dHgOrQ+IEmzc
+         98hFFM9clBTrVwmCW5EutHLxkLpFatQi74e9coao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wulff <crwulff@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/215] ALSA: usb-audio: Create a registration quirk for Kingston HyperX Amp (0951:16d8)
-Date:   Mon, 20 Jul 2020 17:36:04 +0200
-Message-Id: <20200720152824.113641618@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Li Heng <liheng40@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/86] net: cxgb4: fix return error value in t4_prep_fw
+Date:   Mon, 20 Jul 2020 17:36:05 +0200
+Message-Id: <20200720152753.584656908@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wulff <crwulff@gmail.com>
+From: Li Heng <liheng40@huawei.com>
 
-[ Upstream commit 55f7326170d9e83e2d828591938e1101982a679c ]
+[ Upstream commit 8a259e6b73ad8181b0b2ef338b35043433db1075 ]
 
-Create a quirk that allows special processing and/or
-skipping the call to snd_card_register.
+t4_prep_fw goto bye tag with positive return value when something
+bad happened and which can not free resource in adap_init0.
+so fix it to return negative value.
 
-For HyperX AMP, which uses two interfaces, but only has
-a capture stream in the second, this allows the capture
-stream to merge with the first PCM.
-
-Signed-off-by: Chris Wulff <crwulff@gmail.com>
-Link: https://lore.kernel.org/r/20200314165449.4086-3-crwulff@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 16e47624e76b ("cxgb4: Add new scheme to update T4/T5 firmware")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Li Heng <liheng40@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c   | 12 ++++++++----
- sound/usb/quirks.c | 14 ++++++++++++++
- sound/usb/quirks.h |  3 +++
- 3 files changed, 25 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index f9a64e9526f54..2284377cbb98d 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -659,10 +659,14 @@ static int usb_audio_probe(struct usb_interface *intf,
- 			goto __error;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+index 62bc2af9cde70..9a2edc4d4fe83 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -3152,7 +3152,7 @@ int t4_prep_fw(struct adapter *adap, struct fw_info *fw_info,
+ 	drv_fw = &fw_info->fw_hdr;
+ 
+ 	/* Read the header of the firmware on the card */
+-	ret = -t4_read_flash(adap, FLASH_FW_START,
++	ret = t4_read_flash(adap, FLASH_FW_START,
+ 			    sizeof(*card_fw) / sizeof(uint32_t),
+ 			    (uint32_t *)card_fw, 1);
+ 	if (ret == 0) {
+@@ -3181,8 +3181,8 @@ int t4_prep_fw(struct adapter *adap, struct fw_info *fw_info,
+ 		   should_install_fs_fw(adap, card_fw_usable,
+ 					be32_to_cpu(fs_fw->fw_ver),
+ 					be32_to_cpu(card_fw->fw_ver))) {
+-		ret = -t4_fw_upgrade(adap, adap->mbox, fw_data,
+-				     fw_size, 0);
++		ret = t4_fw_upgrade(adap, adap->mbox, fw_data,
++				    fw_size, 0);
+ 		if (ret != 0) {
+ 			dev_err(adap->pdev_dev,
+ 				"failed to install firmware: %d\n", ret);
+@@ -3213,7 +3213,7 @@ int t4_prep_fw(struct adapter *adap, struct fw_info *fw_info,
+ 			FW_HDR_FW_VER_MICRO_G(c), FW_HDR_FW_VER_BUILD_G(c),
+ 			FW_HDR_FW_VER_MAJOR_G(k), FW_HDR_FW_VER_MINOR_G(k),
+ 			FW_HDR_FW_VER_MICRO_G(k), FW_HDR_FW_VER_BUILD_G(k));
+-		ret = EINVAL;
++		ret = -EINVAL;
+ 		goto bye;
  	}
  
--	/* we are allowed to call snd_card_register() many times */
--	err = snd_card_register(chip->card);
--	if (err < 0)
--		goto __error;
-+	/* we are allowed to call snd_card_register() many times, but first
-+	 * check to see if a device needs to skip it or do anything special
-+	 */
-+	if (snd_usb_registration_quirk(chip, ifnum) == 0) {
-+		err = snd_card_register(chip->card);
-+		if (err < 0)
-+			goto __error;
-+	}
- 
- 	if (quirk && quirk->shares_media_device) {
- 		/* don't want to fail when snd_media_device_create() fails */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 9d11ff742e5f5..f3e26e65c3257 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1782,3 +1782,17 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
- 		break;
- 	}
- }
-+
-+int snd_usb_registration_quirk(struct snd_usb_audio *chip,
-+			       int iface)
-+{
-+	switch (chip->usb_id) {
-+	case USB_ID(0x0951, 0x16d8): /* Kingston HyperX AMP */
-+		/* Register only when we reach interface 2 so that streams can
-+		 * merge correctly into PCMs from interface 0
-+		 */
-+		return (iface != 2);
-+	}
-+	/* Register as normal */
-+	return 0;
-+}
-diff --git a/sound/usb/quirks.h b/sound/usb/quirks.h
-index df0355843a4c1..3afc01eabc7e2 100644
---- a/sound/usb/quirks.h
-+++ b/sound/usb/quirks.h
-@@ -51,4 +51,7 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
- 					  struct audioformat *fp,
- 					  int stream);
- 
-+int snd_usb_registration_quirk(struct snd_usb_audio *chip,
-+			       int iface);
-+
- #endif /* __USBAUDIO_QUIRKS_H */
 -- 
 2.25.1
 
