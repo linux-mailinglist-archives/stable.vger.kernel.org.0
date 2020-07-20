@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7DC022690F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 508D92267CE
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732785AbgGTQDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38174 "EHLO mail.kernel.org"
+        id S2388318AbgGTQOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732126AbgGTQDo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:44 -0400
+        id S2387888AbgGTQOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 599A720672;
-        Mon, 20 Jul 2020 16:03:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C8B4207DD;
+        Mon, 20 Jul 2020 16:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261023;
-        bh=pm6kHTtMpBoIr951g35yAHu9xhsyX7RqgTMwl37J7uY=;
+        s=default; t=1595261688;
+        bh=aJQ/DIQ+rul2GS/VuIwymqZJGkffWutP1LK6HMOdbYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0bSorloBPEaHeJ3gakB+KewZNX2JttKl28mZyGhfzGyDx/LLcnwumhbA2Mj0Cauuk
-         Q54XCGN84F/B91wspOJ+v5CK4I8FC56Zu/HYyE50yFxeBojBIG96oczwpuXoWFKNbO
-         UOvnmPdDGqn9I+m8MApW+I6SwmJBnk/EtZ218pVU=
+        b=Nz/cbvuOJ0vsLAqqdGmUGi2bqNiZWy9MuWiUHdh+CIJZjFGnxW67utTIqPHkO8m/0
+         PKklTFtTMH1uSuRoyX5hx/EDsz7N7tv2Kl7/eAqbO7MXRWBelolIWYtzYVQT5Vjlo4
+         J5rlSd4jCxn312j60MpdTMqX8/2s9SjTviyRCxFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.4 164/215] virt: vbox: Fix VBGL_IOCTL_VMMDEV_REQUEST_BIG and _LOG req numbers to match upstream
-Date:   Mon, 20 Jul 2020 17:37:26 +0200
-Message-Id: <20200720152827.982802824@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.7 176/244] Revert "serial: core: Refactor uart_unlock_and_check_sysrq()"
+Date:   Mon, 20 Jul 2020 17:37:27 +0200
+Message-Id: <20200720152834.210555871@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,119 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit f794db6841e5480208f0c3a3ac1df445a96b079e upstream.
+commit 10652a9e9fe3fbcaca090f99cd3060ac3fee2913 upstream.
 
-Until this commit the mainline kernel version (this version) of the
-vboxguest module contained a bug where it defined
-VBGL_IOCTL_VMMDEV_REQUEST_BIG and VBGL_IOCTL_LOG using
-_IOC(_IOC_READ | _IOC_WRITE, 'V', ...) instead of
-_IO(V, ...) as the out of tree VirtualBox upstream version does.
+This reverts commit da9a5aa3402db0ff3b57216d8dbf2478e1046cae.
 
-Since the VirtualBox userspace bits are always built against VirtualBox
-upstream's headers, this means that so far the mainline kernel version
-of the vboxguest module has been failing these 2 ioctls with -ENOTTY.
-I guess that VBGL_IOCTL_VMMDEV_REQUEST_BIG is never used causing us to
-not hit that one and sofar the vboxguest driver has failed to actually
-log any log messages passed it through VBGL_IOCTL_LOG.
+In order to ease backporting a fix for a sysrq regression, revert this
+rewrite which was since added on top.
 
-This commit changes the VBGL_IOCTL_VMMDEV_REQUEST_BIG and VBGL_IOCTL_LOG
-defines to match the out of tree VirtualBox upstream vboxguest version,
-while keeping compatibility with the old wrong request defines so as
-to not break the kernel ABI in case someone has been using the old
-request defines.
+The other sysrq helpers now bail out early when sysrq is not enabled;
+it's better to keep that pattern here as well.
 
-Fixes: f6ddd094f579 ("virt: Add vboxguest driver for Virtual Box Guest integration UAPI")
-Cc: stable@vger.kernel.org
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200709120858.63928-2-hdegoede@redhat.com
+Note that the __releases() attribute won't be needed after the follow-on
+fix either.
+
+Fixes: da9a5aa3402d ("serial: core: Refactor uart_unlock_and_check_sysrq()")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20200610152232.16925-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/virt/vboxguest/vboxguest_core.c  |    4 +++-
- drivers/virt/vboxguest/vboxguest_core.h  |   15 +++++++++++++++
- drivers/virt/vboxguest/vboxguest_linux.c |    3 ++-
- include/uapi/linux/vboxguest.h           |    4 ++--
- 4 files changed, 22 insertions(+), 4 deletions(-)
+ drivers/tty/serial/serial_core.c |   23 +++++++++++++----------
+ include/linux/serial_core.h      |    3 ++-
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
---- a/drivers/virt/vboxguest/vboxguest_core.c
-+++ b/drivers/virt/vboxguest/vboxguest_core.c
-@@ -1519,7 +1519,8 @@ int vbg_core_ioctl(struct vbg_session *s
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -3251,19 +3251,22 @@ int uart_prepare_sysrq_char(struct uart_
+ }
+ EXPORT_SYMBOL_GPL(uart_prepare_sysrq_char);
  
- 	/* For VMMDEV_REQUEST hdr->type != VBG_IOCTL_HDR_TYPE_DEFAULT */
- 	if (req_no_size == VBG_IOCTL_VMMDEV_REQUEST(0) ||
--	    req == VBG_IOCTL_VMMDEV_REQUEST_BIG)
-+	    req == VBG_IOCTL_VMMDEV_REQUEST_BIG ||
-+	    req == VBG_IOCTL_VMMDEV_REQUEST_BIG_ALT)
- 		return vbg_ioctl_vmmrequest(gdev, session, data);
+-void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long flags)
+-__releases(&port->lock)
++void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
+ {
+-	if (port->has_sysrq) {
+-		int sysrq_ch = port->sysrq_ch;
++	int sysrq_ch;
  
- 	if (hdr->type != VBG_IOCTL_HDR_TYPE_DEFAULT)
-@@ -1557,6 +1558,7 @@ int vbg_core_ioctl(struct vbg_session *s
- 	case VBG_IOCTL_HGCM_CALL(0):
- 		return vbg_ioctl_hgcm_call(gdev, session, f32bit, data);
- 	case VBG_IOCTL_LOG(0):
-+	case VBG_IOCTL_LOG_ALT(0):
- 		return vbg_ioctl_log(data);
+-		port->sysrq_ch = 0;
+-		spin_unlock_irqrestore(&port->lock, flags);
+-		if (sysrq_ch)
+-			handle_sysrq(sysrq_ch);
+-	} else {
+-		spin_unlock_irqrestore(&port->lock, flags);
++	if (!port->has_sysrq) {
++		spin_unlock_irqrestore(&port->lock, irqflags);
++		return;
  	}
- 
---- a/drivers/virt/vboxguest/vboxguest_core.h
-+++ b/drivers/virt/vboxguest/vboxguest_core.h
-@@ -15,6 +15,21 @@
- #include <linux/vboxguest.h>
- #include "vmmdev.h"
- 
-+/*
-+ * The mainline kernel version (this version) of the vboxguest module
-+ * contained a bug where it defined VBGL_IOCTL_VMMDEV_REQUEST_BIG and
-+ * VBGL_IOCTL_LOG using _IOC(_IOC_READ | _IOC_WRITE, 'V', ...) instead
-+ * of _IO(V, ...) as the out of tree VirtualBox upstream version does.
-+ *
-+ * These _ALT definitions keep compatibility with the wrong defines the
-+ * mainline kernel version used for a while.
-+ * Note the VirtualBox userspace bits have always been built against
-+ * VirtualBox upstream's headers, so this is likely not necessary. But
-+ * we must never break our ABI so we keep these around to be 100% sure.
-+ */
-+#define VBG_IOCTL_VMMDEV_REQUEST_BIG_ALT _IOC(_IOC_READ | _IOC_WRITE, 'V', 3, 0)
-+#define VBG_IOCTL_LOG_ALT(s)             _IOC(_IOC_READ | _IOC_WRITE, 'V', 9, s)
 +
- struct vbg_session;
++	sysrq_ch = port->sysrq_ch;
++	port->sysrq_ch = 0;
++
++	spin_unlock_irqrestore(&port->lock, irqflags);
++
++	if (sysrq_ch)
++		handle_sysrq(sysrq_ch);
+ }
+ EXPORT_SYMBOL_GPL(uart_unlock_and_check_sysrq);
  
- /** VBox guest memory balloon. */
---- a/drivers/virt/vboxguest/vboxguest_linux.c
-+++ b/drivers/virt/vboxguest/vboxguest_linux.c
-@@ -131,7 +131,8 @@ static long vbg_misc_device_ioctl(struct
- 	 * the need for a bounce-buffer and another copy later on.
- 	 */
- 	is_vmmdev_req = (req & ~IOCSIZE_MASK) == VBG_IOCTL_VMMDEV_REQUEST(0) ||
--			 req == VBG_IOCTL_VMMDEV_REQUEST_BIG;
-+			 req == VBG_IOCTL_VMMDEV_REQUEST_BIG ||
-+			 req == VBG_IOCTL_VMMDEV_REQUEST_BIG_ALT;
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -462,7 +462,8 @@ extern void uart_insert_char(struct uart
  
- 	if (is_vmmdev_req)
- 		buf = vbg_req_alloc(size, VBG_IOCTL_HDR_TYPE_DEFAULT,
---- a/include/uapi/linux/vboxguest.h
-+++ b/include/uapi/linux/vboxguest.h
-@@ -103,7 +103,7 @@ VMMDEV_ASSERT_SIZE(vbg_ioctl_driver_vers
+ extern int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch);
+ extern int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch);
+-extern void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long flags);
++extern void uart_unlock_and_check_sysrq(struct uart_port *port,
++					unsigned long irqflags);
+ extern int uart_handle_break(struct uart_port *port);
  
- 
- /* IOCTL to perform a VMM Device request larger then 1KB. */
--#define VBG_IOCTL_VMMDEV_REQUEST_BIG	_IOC(_IOC_READ | _IOC_WRITE, 'V', 3, 0)
-+#define VBG_IOCTL_VMMDEV_REQUEST_BIG	_IO('V', 3)
- 
- 
- /** VBG_IOCTL_HGCM_CONNECT data structure. */
-@@ -198,7 +198,7 @@ struct vbg_ioctl_log {
- 	} u;
- };
- 
--#define VBG_IOCTL_LOG(s)		_IOC(_IOC_READ | _IOC_WRITE, 'V', 9, s)
-+#define VBG_IOCTL_LOG(s)		_IO('V', 9)
- 
- 
- /** VBG_IOCTL_WAIT_FOR_EVENTS data structure. */
+ /*
 
 
