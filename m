@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 931B0226A5D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6D0226A5B
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731453AbgGTQde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:33:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
+        id S2388751AbgGTQd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:33:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731743AbgGTP4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:56:01 -0400
+        id S1731739AbgGTP4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:56:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2AB12065E;
-        Mon, 20 Jul 2020 15:55:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 679DD2065E;
+        Mon, 20 Jul 2020 15:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260560;
-        bh=8IS0wPSXyfonc+mkSfCnzdKuEA7ELdlkzM5ZhZEL40U=;
+        s=default; t=1595260565;
+        bh=NfknHpvHasimk0Mfmew3vVvZ3MZwSpNZ04m2CBa16tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViY7AeqCbHDC0Rw4HN1xbU+L0nUpEToDZ9qMNniYZg+j5LqM/1eVyaKFckdi1i8mB
-         o0tnZoEk3xqm9PTsshOeDT+eUaf7QH9pgd2rYzBP7JnSfwEdXd1KMn41RUxXgEzZQT
-         okSmxI3RXTllARhoLhouhLKDlpjMAskSxpWO/6fQ=
+        b=RfCt3aRpqxkQOpWA2UZA5adfKibrMvz98rzDOgutPrWd5Qib3K9ZzmJlBuIG06s0G
+         EUeUkq1F4srev9Mu6oAX9WBOUuNAdVJLtPQKLYBWh943vYjpG2ruyGbzPJJqwkqbrk
+         BmoGmT8qt6jp9AQS1k0aKCtq75y9xBNBpwnZ4cyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 013/215] net: dsa: microchip: set the correct number of ports
-Date:   Mon, 20 Jul 2020 17:34:55 +0200
-Message-Id: <20200720152820.797983621@linuxfoundation.org>
+Subject: [PATCH 5.4 015/215] net: usb: qmi_wwan: add support for Quectel EG95 LTE modem
+Date:   Mon, 20 Jul 2020 17:34:57 +0200
+Message-Id: <20200720152820.886742494@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -45,49 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: AceLan Kao <acelan.kao@canonical.com>
 
-[ Upstream commit af199a1a9cb02ec0194804bd46c174b6db262075 ]
+[ Upstream commit f815dd5cf48b905eeecf0a2b990e9b7ab048b4f1 ]
 
-The number of ports is incorrectly set to the maximum available for a DSA
-switch. Even if the extra ports are not used, this causes some functions
-to be called later, like port_disable() and port_stp_state_set(). If the
-driver doesn't check the port index, it will end up modifying unknown
-registers.
+Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
 
-Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0195 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/microchip/ksz8795.c |    3 +++
- drivers/net/dsa/microchip/ksz9477.c |    3 +++
- 2 files changed, 6 insertions(+)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/dsa/microchip/ksz8795.c
-+++ b/drivers/net/dsa/microchip/ksz8795.c
-@@ -1270,6 +1270,9 @@ static int ksz8795_switch_init(struct ks
- 	/* set the real number of ports */
- 	dev->ds->num_ports = dev->port_cnt;
- 
-+	/* set the real number of ports */
-+	dev->ds->num_ports = dev->port_cnt;
-+
- 	return 0;
- }
- 
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -515,6 +515,9 @@ static int ksz9477_port_vlan_filtering(s
- 			     PORT_VLAN_LOOKUP_VID_0, false);
- 	}
- 
-+	/* set the real number of ports */
-+	dev->ds->num_ports = dev->port_cnt;
-+
- 	return 0;
- }
- 
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1370,6 +1370,7 @@ static const struct usb_device_id produc
+ 	{QMI_QUIRK_SET_DTR(0x1e0e, 0x9001, 5)},	/* SIMCom 7100E, 7230E, 7600E ++ */
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0121, 4)},	/* Quectel EC21 Mini PCIe */
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0191, 4)},	/* Quectel EG91 */
++	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0195, 4)},	/* Quectel EG95 */
+ 	{QMI_FIXED_INTF(0x2c7c, 0x0296, 4)},	/* Quectel BG96 */
+ 	{QMI_QUIRK_SET_DTR(0x2cb7, 0x0104, 4)},	/* Fibocom NL678 series */
+ 	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
 
 
