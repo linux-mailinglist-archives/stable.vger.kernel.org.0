@@ -2,101 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D93C6226E95
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 20:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E210C226E98
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 20:57:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729259AbgGTSzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 14:55:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40970 "EHLO
+        id S1729792AbgGTS5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 14:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726506AbgGTSzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 14:55:54 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1DADC061794
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 11:55:54 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id e18so14238435ilr.7
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 11:55:54 -0700 (PDT)
+        with ESMTP id S1729203AbgGTS5X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 14:57:23 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A63C061794
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 11:57:23 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id l6so9088456plt.7
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 11:57:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FlzIBOC64fwM6IZTzOMQZVXjakvnkez1SRmk/mqAZb8=;
-        b=uK1fPqsTDsXtxyQAcmH3LFricfO/N5csbRJtisfSNyVv5LU35FtnPgVQSWo5mS+wR5
-         /ziDzA2dZmKZBQQbzKbb7t9LFHODzW1lJWQelwii0DidY8vKAJecbEH7htVhsR/CsiRD
-         zhjx3Nrnf+9u9mQNtAKgPUluDqdLqKXsM9s7c=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ba+gcfIeLFu5fsfoIwSFAhkbgHqUVCS60ZUCIphsPGo=;
+        b=Bte0fdNXMRVkexF7nGWTr8qaOWMxJ+YWU7F80cOXqLnk4kgIvOJUPjrkCC05Zl3xEI
+         /vP5XDbMmgNMqQo648kZ6UTa77uwVOQ/vnOUZ1Gvml6gq/q4Nl+DjyLByuZ8sHkjaUoX
+         +JZhjrwVq/KBG5shy1HecrqTcetaS7F/Hrn+DM2tkCFPEJ4tsREk04tjjaRAzJG0x4WL
+         v8NODCtHItLk+GCmUCL+E0zfnojSzu2lXCLqNMTiXCMCWg/gyRtzuzzuzYseXHdw3Pyh
+         WZ+f7qOLmEv8SiawZ8RenxjhPyaXHY31CC9Z3V5ACaj0dg7hRIJKBhfPLt9cX6i5WVYL
+         jsPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FlzIBOC64fwM6IZTzOMQZVXjakvnkez1SRmk/mqAZb8=;
-        b=ae5LykMy8Ghkvm4+sL9mglsyXONtgKPIOdHg2RZIxYMOzq4pWB3Nyzu3ju8mfH1d9h
-         oAXiijpVBPGBDxG0YQ9b9ZCl750wQB0n3boxpSyUyv+hNCP0lc9+NrMYBcOA8STSUS08
-         n7KyNTgev7z+byzWoJcDm9Gb8YdEUvuUQCAkiV3Dx0/AKyKDaI4Ye7+04/peogw5xpLQ
-         2iCiu3jgJTD4YW3B1ROn9uai81+BM4EnY9cdF0AmUmy3rJv8QtXheAckCJbXoWVeO8D5
-         /R9sTGe6rzKha5SYdRh2s7hXYCalmSQK9KHRqgzv+KTfs/K8F6vD1xTS53cP5qTLMHGE
-         ljOw==
-X-Gm-Message-State: AOAM5326eecJtayVq8rqa6R2uz6w+VYnCZu7SmGVQEvGEwD3jGvy5R5I
-        Rkj9zlRNSJKCPjiRNh1K0r7xbK7x8WCPDxdPNbYPgbJFpYK3dw==
-X-Google-Smtp-Source: ABdhPJx5b/BDLb+4gQ/xgW/0XyifxMyqE8yIKeMG0cLy2dTbP/W31SQE54F4cN7PPNeOrBzfbdBrQ9ArVGRsa0r01A4=
-X-Received: by 2002:a05:6e02:4c6:: with SMTP id f6mr23615757ils.98.1595271353891;
- Mon, 20 Jul 2020 11:55:53 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ba+gcfIeLFu5fsfoIwSFAhkbgHqUVCS60ZUCIphsPGo=;
+        b=baTZS/3vLCrCcw4xpr36PXx8/5YI7J29YPlnF19qOFTU78cRoUyIGShuDbYtKOatz2
+         4QJY6Qr8x0rG2PYwvVnQYjKFL8HwYKug+ryj43lKt4kpA2IQDp3L/qmiVur9kUbYPfaV
+         GBvFvk43jSg03HdeMV7nuW3PR/Qhr5M/+xxGS9eYulXjaubAPJz5IqjlilA+7y5n05xC
+         IALjW23V1z3620ojSGWNx7cPaa5CaNRgDg7OfUzcj6nWyPEGh71j+r0d4On7c73l41m+
+         WNMPZkIZgBs/NQzGlKx0etyOYxQV7rkJalvyrkRRB/2i7IL1kpK1z51Y7RX3yfnCYcH3
+         VQ6g==
+X-Gm-Message-State: AOAM531tN+bOva1ApPNUw+PA7uqW9oNK9du6VJvdbBkgNy1cv2J+yLal
+        cP9+L5SJr3tmAtSv3oB7SsORZcVTBvY=
+X-Google-Smtp-Source: ABdhPJwAuczB2WKxXs1aU1RxhVzaY0tHbvMqvj6F554nj1/91CCgErJH0Uap+utMTN4lyQNaX/PM+A==
+X-Received: by 2002:a17:902:8d98:: with SMTP id v24mr19325665plo.301.1595271442632;
+        Mon, 20 Jul 2020 11:57:22 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e16sm18036681pff.180.2020.07.20.11.57.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jul 2020 11:57:21 -0700 (PDT)
+Message-ID: <5f15e911.1c69fb81.bcb17.addd@mx.google.com>
+Date:   Mon, 20 Jul 2020 11:57:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200720152820.122442056@linuxfoundation.org> <20200720152822.437100100@linuxfoundation.org>
- <613577badc9937049d40ff14d11646f64b3dac36.camel@perches.com>
-In-Reply-To: <613577badc9937049d40ff14d11646f64b3dac36.camel@perches.com>
-From:   Matt Ranostay <matt.ranostay@konsulko.com>
-Date:   Mon, 20 Jul 2020 11:55:43 -0700
-Message-ID: <CAJCx=gmxHDm2Qhi8kXhSkpgrGc2-AKb7ymuU5oK+fcBqmQaROQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 047/215] iio:humidity:hdc100x Fix alignment and data
- leak issues
-To:     Joe Perches <joe@perches.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Alison Schofield <amsfield22@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.230-59-g9cd3125d70c0
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y baseline: 49 runs,
+ 2 regressions (v4.4.230-59-g9cd3125d70c0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 9:50 AM Joe Perches <joe@perches.com> wrote:
->
-> On Mon, 2020-07-20 at 17:35 +0200, Greg Kroah-Hartman wrote:
-> > From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> >
-> > commit ea5e7a7bb6205d24371373cd80325db1bc15eded upstream.
-> >
-> > One of a class of bugs pointed out by Lars in a recent review.
-> > iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-> > to the size of the timestamp (8 bytes).  This is not guaranteed in
-> > this driver which uses an array of smaller elements on the stack.
-> > As Lars also noted this anti pattern can involve a leak of data to
-> > userspace and that indeed can happen here.  We close both issues by
-> > moving to a suitable structure in the iio_priv() data.
-> > This data is allocated with kzalloc so no data can leak apart
-> > from previous readings.
-> []
-> > +++ b/drivers/iio/humidity/hdc100x.c
-> > @@ -38,6 +38,11 @@ struct hdc100x_data {
-> >
-> >       /* integration time of the sensor */
-> >       int adc_int_us[2];
-> > +     /* Ensure natural alignment of timestamp */
-> > +     struct {
-> > +             __be16 channels[2];
-> > +             s64 ts __aligned(8);
->
-> Why does an s64 need __aligned(8) ?
+stable-rc/linux-4.4.y baseline: 49 runs, 2 regressions (v4.4.230-59-g9cd312=
+5d70c0)
 
-This is due to on 32-bit x86 it is aligned to 4 bytes by default.
+Regressions Summary
+-------------------
 
-- Matt
+platform        | arch | lab          | compiler | defconfig           | re=
+sults
+----------------+------+--------------+----------+---------------------+---=
+-----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2/=
+5    =
 
-> This seems needlessly redundant.
->
-> Isn't this naturally aligned by the compiler?
->
-> The struct isn't packed.
->
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.230-59-g9cd3125d70c0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.230-59-g9cd3125d70c0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9cd3125d70c02db6ad2a0d89a1de2c24be0826f6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch | lab          | compiler | defconfig           | re=
+sults
+----------------+------+--------------+----------+---------------------+---=
+-----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2/=
+5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f15b319a3d50018ab85bb18
+
+  Results:     2 PASS, 2 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.230=
+-59-g9cd3125d70c0/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap3=
+-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.230=
+-59-g9cd3125d70c0/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap3=
+-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f15b319a3d50018=
+ab85bb1b
+      new failure (last pass: v4.4.230)
+      1 lines* baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f15=
+b319a3d50018ab85bb1d
+      new failure (last pass: v4.4.230)
+      28 lines =20
