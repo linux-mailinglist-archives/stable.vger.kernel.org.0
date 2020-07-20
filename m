@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6F4226624
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59B6C226875
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732005AbgGTQAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
+        id S2387816AbgGTQLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:11:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732429AbgGTQAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:00:39 -0400
+        id S1732830AbgGTQLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:11:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF1A20684;
-        Mon, 20 Jul 2020 16:00:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A74712065E;
+        Mon, 20 Jul 2020 16:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260838;
-        bh=8+F1xvidluSTrZ/um2PpFkWZI11lB1bsHhGjws3CU2E=;
+        s=default; t=1595261492;
+        bh=GFr+mlrtKxpz0IzEPdW/LVs/ydHxwPDNZhkA3xjK2B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OigXwxwOthGw+A3QBQnN7W4Hdaur0bYll9cE7R2rSZAjkPH2IJR/Kz5UlXlHo5ykD
-         T9ys5yH2PnRXpDqWcWXfrDl9qZl+Oe3KhNREZdKUshwQxlWGOPJdCD+0dIH03+44Dg
-         kxHxD4lMXxuR8s5+NP7AzxpGMSc6b9h8Q4WRZ/qk=
+        b=A+Y5Xk5sVLvC+WGMKiN7Dc6SPXJyktTCaCU/G3tJx39UH2lxJKySKvurNEeogDwdz
+         X8WxVP3pNmPGyQjQluTlamwq3gsyW6xHiV6Zn9x2y+nLSwAe7Wl8dOgCRjtZbZ6MmI
+         nVeIVLTE7mKFDUWHMOKBgsGGk6aCXPB6bFvJPzLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/215] arm64: dts: meson: add missing gxl rng clock
+Subject: [PATCH 5.7 108/244] fuse: dont ignore errors from fuse_writepages_fill()
 Date:   Mon, 20 Jul 2020 17:36:19 +0200
-Message-Id: <20200720152824.826299352@linuxfoundation.org>
+Message-Id: <20200720152830.966261311@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 95ca6f06dd4827ff63be5154120c7a8511cd9a41 ]
+[ Upstream commit 7779b047a57f6824a43d0e1f70de2741b7426b9d ]
 
-The peripheral clock of the RNG is missing for gxl while it is present
-for gxbb.
+fuse_writepages() ignores some errors taken from fuse_writepages_fill() I
+believe it is a bug: if .writepages is called with WB_SYNC_ALL it should
+either guarantee that all data was successfully saved or return error.
 
-Fixes: 1b3f6d148692 ("ARM64: dts: meson-gx: add clock CLKID_RNG0 to hwrng node")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20200617125346.1163527-1-jbrunet@baylibre.com
+Fixes: 26d614df1da9 ("fuse: Implement writepages callback")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/fuse/file.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
-index 49ff0a7d0210f..e3cfa24dca5ab 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
-@@ -288,6 +288,11 @@ clkc: clock-controller {
- 	};
- };
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index e3afceecaa6b1..93763e844cd42 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2148,10 +2148,8 @@ static int fuse_writepages(struct address_space *mapping,
  
-+&hwrng {
-+	clocks = <&clkc CLKID_RNG0>;
-+	clock-names = "core";
-+};
-+
- &i2c_A {
- 	clocks = <&clkc CLKID_I2C>;
- };
+ 	err = write_cache_pages(mapping, wbc, fuse_writepages_fill, &data);
+ 	if (data.wpa) {
+-		/* Ignore errors if we can write at least one page */
+ 		WARN_ON(!data.wpa->ia.ap.num_pages);
+ 		fuse_writepages_send(&data);
+-		err = 0;
+ 	}
+ 	if (data.ff)
+ 		fuse_file_put(data.ff, false, false);
 -- 
 2.25.1
 
