@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47334226C25
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC43226B94
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729434AbgGTPjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:39:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58446 "EHLO mail.kernel.org"
+        id S1730151AbgGTPm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:42:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726426AbgGTPjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:39:24 -0400
+        id S1729640AbgGTPm5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:42:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D76222CAF;
-        Mon, 20 Jul 2020 15:39:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BC932064B;
+        Mon, 20 Jul 2020 15:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259563;
-        bh=Goq3gE73MFyJrQ8A7qmzhAcc5rjHku2kdxLwaQUMtBY=;
+        s=default; t=1595259776;
+        bh=uUIeuthN7YjPK+Imy+UK5gSEQoybZoUj3NYqZ0gBz7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFyA5l8iFX8gySpwTv/Ej42Ocg2ydvgVnn0yh/Or3DUzIEVimctRfD3fMrBmg7Ozx
-         MWK+tzIgS2lZ1f6QwNX4TbkC6YthYV4vpzvKrbuzzRM3thDEpDAgGlHbAltiV9UO2M
-         +Pz+zaiXQqrIseT8imPApaeTIgYaX+y+eCff8zgU=
+        b=n7iU7ZBrHUvxq6fNYTdeoP6/8cjHPtxy5ynXcKJgyQTX140VR1OkjGKUceboePxcA
+         DUdWcFaipRfSew8gmESzdNy7oAxP/kIkgZEkxgbIAQiUpdTBFnKcNJHY1hqin2X3UO
+         MuQYHCm7VXw60l0RgSpeRdUNix+aM+WOBynhQacY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishwas M <vishwas.reddy.vr@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 55/58] hwmon: (emc2103) fix unable to change fan pwm1_enable attribute
-Date:   Mon, 20 Jul 2020 17:37:11 +0200
-Message-Id: <20200720152750.024884509@linuxfoundation.org>
+        stable@vger.kernel.org, David Pedersen <limero1337@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 76/86] Input: i8042 - add Lenovo XiaoXin Air 12 to i8042 nomux list
+Date:   Mon, 20 Jul 2020 17:37:12 +0200
+Message-Id: <20200720152757.026604493@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishwas M <vishwas.reddy.vr@gmail.com>
+From: David Pedersen <limero1337@gmail.com>
 
-commit 14b0e83dc4f1e52b94acaeb85a18fd7fdd46d2dc upstream.
+commit 17d51429da722cd8fc77a365a112f008abf4f8b3 upstream.
 
-This patch fixes a bug which does not let FAN mode to be changed from
-sysfs(pwm1_enable). i.e pwm1_enable can not be set to 3, it will always
-remain at 0.
+This fixes two finger trackpad scroll on the Lenovo XiaoXin Air 12.
+Without nomux, the trackpad behaves as if only one finger is present and
+moves the cursor when trying to scroll.
 
-This is caused because the device driver handles the result of
-"read_u8_from_i2c(client, REG_FAN_CONF1, &conf_reg)" incorrectly. The
-driver thinks an error has occurred if the (result != 0). This has been
-fixed by changing the condition to (result < 0).
-
-Signed-off-by: Vishwas M <vishwas.reddy.vr@gmail.com>
-Link: https://lore.kernel.org/r/20200707142747.118414-1-vishwas.reddy.vr@gmail.com
-Fixes: 9df7305b5a86 ("hwmon: Add driver for SMSC EMC2103 temperature monitor and fan controller")
+Signed-off-by: David Pedersen <limero1337@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200625133754.291325-1-limero1337@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/emc2103.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/hwmon/emc2103.c
-+++ b/drivers/hwmon/emc2103.c
-@@ -452,7 +452,7 @@ static ssize_t set_pwm_enable(struct dev
- 	}
- 
- 	result = read_u8_from_i2c(client, REG_FAN_CONF1, &conf_reg);
--	if (result) {
-+	if (result < 0) {
- 		count = result;
- 		goto err;
- 	}
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -430,6 +430,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Lenovo XiaoXin Air 12 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "80UN"),
++		},
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
 
 
