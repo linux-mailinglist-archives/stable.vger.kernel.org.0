@@ -2,87 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE38226EBE
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 21:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20162226ECE
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 21:18:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728813AbgGTTNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 15:13:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36562 "EHLO mail.kernel.org"
+        id S1728892AbgGTTPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 15:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbgGTTNy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 15:13:54 -0400
+        id S1726899AbgGTTPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 15:15:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A46C2176B;
-        Mon, 20 Jul 2020 19:13:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FEAE2176B;
+        Mon, 20 Jul 2020 19:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595272434;
-        bh=hLXOHhr7/G2lqFQDj4nvPKc453bOQlXUJx/UKuZzRJ8=;
+        s=default; t=1595272545;
+        bh=9krAQF9sYz+HpU7MAOk/PbdciQNSUovCauf4PC+UhjM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lBXDlQsr8NG7GoGgB4PpDI4UZSCPnnMRA1YjX9aKE4sQ74fC+ItEdKkJeXt+EBrRb
-         /XjQijor7OKyNKRyAgRAoVuNsAdQamO54Hpuu4xf82HH8V0jPXs1UNoJmWfemtqUlV
-         +ooY2xvQuzZ0RMEbUFMkTGD7/aOmJV9BlObs+au4=
-Date:   Mon, 20 Jul 2020 21:14:03 +0200
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Atish Patra <Atish.Patra@wdc.com>
-Cc:     "naresh.kamboju@linaro.org" <naresh.kamboju@linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "walken@google.com" <walken@google.com>,
-        "palmerdabbelt@google.com" <palmerdabbelt@google.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "zong.li@sifive.com" <zong.li@sifive.com>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>
-Subject: Re: [PATCH 5.7 233/244] RISC-V: Acquire mmap lock before invoking
- walk_page_range
-Message-ID: <20200720191403.GB1529125@kroah.com>
+        b=nz9ZtIr8gsZe8EirN8PepPNeOVJ/2q0dGSkeVkhSMPlr20GQqPONjGFEA9SQv3+ba
+         pvrTmsef5+pj03+tA6TkQDl4Y+iqlo/6kFDVpVN6M9rHOkgH0/+OaKptgX4y6dhAx8
+         b7gQlYwN9+RbphkaklS+l/iEs3qY06lSBh/JPwn8=
+Date:   Mon, 20 Jul 2020 21:15:54 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Roman Gushchin <guro@fb.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Cameron Berkenpas <cam@neo-zeon.de>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Lu Fengqi <lufq.fnst@cn.fujitsu.com>,
+        =?iso-8859-1?Q?Dani=EBl?= Sonck <dsonck92@gmail.com>,
+        Zhang Qiang <qiang.zhang@windriver.com>,
+        Thomas Lamprecht <t.lamprecht@proxmox.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Zefan Li <lizefan@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.7 021/244] cgroup: fix cgroup_sk_alloc() for
+ sk_clone_lock()
+Message-ID: <20200720191554.GC1529125@kroah.com>
 References: <20200720152825.863040590@linuxfoundation.org>
- <20200720152836.926007002@linuxfoundation.org>
- <CA+G9fYteJs0X1Ctjbt-51Q9J2JHM--cOpYg+02jSdfnbWbwr2g@mail.gmail.com>
- <194a70d4428b96b59594efc5cae7ed26f6da45b3.camel@wdc.com>
+ <20200720152826.873682902@linuxfoundation.org>
+ <20200720164541.GA139672@carbon.dhcp.thefacebook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <194a70d4428b96b59594efc5cae7ed26f6da45b3.camel@wdc.com>
+In-Reply-To: <20200720164541.GA139672@carbon.dhcp.thefacebook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 06:50:10PM +0000, Atish Patra wrote:
-> On Mon, 2020-07-20 at 23:11 +0530, Naresh Kamboju wrote:
-> > RISC-V build breaks on stable-rc 5.7 branch.
-> > build failed with gcc-8, gcc-9 and gcc-9.
+On Mon, Jul 20, 2020 at 09:46:10AM -0700, Roman Gushchin wrote:
+> On Mon, Jul 20, 2020 at 05:34:52PM +0200, Greg Kroah-Hartman wrote:
+> > From: Cong Wang <xiyou.wangcong@gmail.com>
 > > 
+> > [ Upstream commit ad0f75e5f57ccbceec13274e1e242f2b5a6397ed ]
 > 
-> Sorry for the compilation issue.
+> Hi Greg!
 > 
-> mmap_read_lock was intrdouced in the following commit.
+> There is a fix for this commit:
+> 14b032b8f8fc ("cgroup: Fix sock_cgroup_data on big-endian.")
 > 
-> commit 9740ca4e95b4
-> Author: Michel Lespinasse <walken@google.com>
-> Date:   Mon Jun 8 21:33:14 2020 -0700
-> 
->     mmap locking API: initial implementation as rwsem wrappers
-> 
-> The following two commits replaced the usage of mmap_sem rwsem calls
-> with mmap_lock.
-> 
-> d8ed45c5dcd4 (mmap locking API: use coccinelle to convert mmap_sem
-> rwsem call sites)
-> 89154dd5313f (mmap locking API: convert mmap_sem call sites missed by
-> coccinelle)
-> 
-> The first commit is not present in stale 5.7-y for obvious reasons.
-> 
-> Do we need to send a separate patch only for stable branch with
-> mmap_sem ? I am not sure if that will cause a conflict again in future.
+> Can you, please, grab it too?
 
-I do not like taking odd backports, and would rather take the real patch
-that is upstream.
-
-I will drop this patch from the tree now, so everyone can figure out
-what they want to do in the future :)
+It is already queued up in this series :)
 
 thanks,
 
