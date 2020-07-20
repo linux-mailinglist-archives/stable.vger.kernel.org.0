@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 071192269E8
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D642269E4
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbgGTQad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58582 "EHLO mail.kernel.org"
+        id S1731786AbgGTP62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732000AbgGTP6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:58:23 -0400
+        id S1732031AbgGTP60 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:58:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51AFE206E9;
-        Mon, 20 Jul 2020 15:58:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4D162065E;
+        Mon, 20 Jul 2020 15:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260702;
-        bh=dS8/G+hfAJds4aB+AZ58jEHtC4unT+hW+QxSxGfpACM=;
+        s=default; t=1595260705;
+        bh=NAbFpu8g4lg42BP7xntLAmpxriEiKBROrvqWTxwFY6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMEgGtqtvvTaBBmmhA67wOHWm+l9DQD+jC8U7bhKLMFIwWms2QMBnDNL75KQAlNUZ
-         azm8il6X+ivfJqQAaXK0hjMMDCFFalc7cXLFnVvZtjPrukwakF3mxQsbXC6m5G5vNa
-         I7/6unMknX/8wL8fOB9YYKH15CyI7zAXgO5Rr8GE=
+        b=bSrdBhZvdi5Ppio7sIni20hqAexEsrAGVcWsVGzoioplOjRsLnWQlB8MI+q02rwKR
+         IBfdrYJlxIc38gO0mfgXMLMeP1l4FJczN2OeMlTFqTeDwaBQwl5XR4ye4a3p+U8A5t
+         mtot6yfLBaEQV8sht8zEIVgeXLocxwUw3Kv2BMi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/215] thermal/drivers: imx: Fix missing of_node_put() at probe time
-Date:   Mon, 20 Jul 2020 17:35:17 +0200
-Message-Id: <20200720152821.853538696@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 036/215] blk-mq-debugfs: update blk_queue_flag_name[] accordingly for new flags
+Date:   Mon, 20 Jul 2020 17:35:18 +0200
+Message-Id: <20200720152821.903934374@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -44,49 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit b45fd13be340e4ed0a2a9673ba299eb2a71ba829 ]
+[ Upstream commit bfe373f608cf81b7626dfeb904001b0e867c5110 ]
 
-After finishing using cpu node got from of_get_cpu_node(), of_node_put()
-needs to be called.
+Else there may be magic numbers in /sys/kernel/debug/block/*/state.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1585232945-23368-1-git-send-email-Anson.Huang@nxp.com
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/imx_thermal.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ block/blk-mq-debugfs.c | 3 +++
+ include/linux/blkdev.h | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
-index bb6754a5342c1..85511c1160b7f 100644
---- a/drivers/thermal/imx_thermal.c
-+++ b/drivers/thermal/imx_thermal.c
-@@ -656,7 +656,7 @@ MODULE_DEVICE_TABLE(of, of_imx_thermal_match);
- static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
- {
- 	struct device_node *np;
--	int ret;
-+	int ret = 0;
+diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+index b3f2ba483992d..121f4c1e0697b 100644
+--- a/block/blk-mq-debugfs.c
++++ b/block/blk-mq-debugfs.c
+@@ -125,6 +125,9 @@ static const char *const blk_queue_flag_name[] = {
+ 	QUEUE_FLAG_NAME(REGISTERED),
+ 	QUEUE_FLAG_NAME(SCSI_PASSTHROUGH),
+ 	QUEUE_FLAG_NAME(QUIESCED),
++	QUEUE_FLAG_NAME(PCI_P2PDMA),
++	QUEUE_FLAG_NAME(ZONE_RESETALL),
++	QUEUE_FLAG_NAME(RQ_ALLOC_TIME),
+ };
+ #undef QUEUE_FLAG_NAME
  
- 	data->policy = cpufreq_cpu_get(0);
- 	if (!data->policy) {
-@@ -671,11 +671,12 @@ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
- 		if (IS_ERR(data->cdev)) {
- 			ret = PTR_ERR(data->cdev);
- 			cpufreq_cpu_put(data->policy);
--			return ret;
- 		}
- 	}
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index bff1def62eed9..d5338b9ee5502 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -592,6 +592,7 @@ struct request_queue {
+ 	u64			write_hints[BLK_MAX_WRITE_HINTS];
+ };
  
--	return 0;
-+	of_node_put(np);
-+
-+	return ret;
- }
- 
- static void imx_thermal_unregister_legacy_cooling(struct imx_thermal_data *data)
++/* Keep blk_queue_flag_name[] in sync with the definitions below */
+ #define QUEUE_FLAG_STOPPED	0	/* queue is stopped */
+ #define QUEUE_FLAG_DYING	1	/* queue being torn down */
+ #define QUEUE_FLAG_NOMERGES     3	/* disable merge attempts */
 -- 
 2.25.1
 
