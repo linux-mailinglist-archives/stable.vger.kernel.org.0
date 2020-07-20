@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26DA3226909
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9035B226835
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387595AbgGTQYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:24:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
+        id S1732901AbgGTQOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732613AbgGTQE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:28 -0400
+        id S2387612AbgGTQOy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91F212064B;
-        Mon, 20 Jul 2020 16:04:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEEF02064B;
+        Mon, 20 Jul 2020 16:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261068;
-        bh=Hy3vcrLf+NBQZ5DCalf0KX8h04sbG4grI55+UKEruOQ=;
+        s=default; t=1595261694;
+        bh=IvdeRcr2fUcV5Y+91mu8sLHw7p8jStSIF+Q/2YVitMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lv/8wSReZ3XatQam0ErFzK7OHqNckBSOieZhjzBTNoTMqbyY/nB48rkYehVbY5qZx
-         pGnaphLrapQaQL2aPvVZwEDHqPETOGcRknFqXBk11OxqKr/pwlk6w35/6SMgoLR4je
-         7b2VMfLOlAEkuLOscv5q44dhyYKDeXeCEJRm5m/g=
+        b=U83VtkTSUiIUeKRc8V9K1FZvT9HlZjoXuhXJwUf+N4aTHGckVCBihfZX016kuLGMN
+         vSofvO9UAHsw00ezqS+m7GC6Js+PYF/mpkvVPHwN9pQOkgb3ZTRyUEq5qAdjP9HJM1
+         dGHWGOERaf4WBBCC/33gw2sFVXjb9D+t/bCV25Yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Amit Shah <amit@kernel.org>
-Subject: [PATCH 5.4 167/215] virtio: virtio_console: add missing MODULE_DEVICE_TABLE() for rproc serial
+        stable@vger.kernel.org, Fabian <godi.beat@gmx.net>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.7 178/244] ovl: fix regression with re-formatted lower squashfs
 Date:   Mon, 20 Jul 2020 17:37:29 +0200
-Message-Id: <20200720152828.112674813@linuxfoundation.org>
+Message-Id: <20200720152834.306030297@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 897c44f0bae574c5fb318c759b060bebf9dd6013 upstream.
+commit a888db310195400f050b89c47673f0f8babfbb41 upstream.
 
-rproc_serial_id_table lacks an exposure to module devicetable, so
-when remoteproc firmware requests VIRTIO_ID_RPROC_SERIAL, no uevent
-is generated and no module autoloading occurs.
-Add missing MODULE_DEVICE_TABLE() annotation and move the existing
-one for VIRTIO_ID_CONSOLE right to the table itself.
+Commit 9df085f3c9a2 ("ovl: relax requirement for non null uuid of lower
+fs") relaxed the requirement for non null uuid with single lower layer to
+allow enabling index and nfs_export features with single lower squashfs.
 
-Fixes: 1b6370463e88 ("virtio_console: Add support for remoteproc serial")
-Cc: <stable@vger.kernel.org> # v3.8+
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Reviewed-by: Amit Shah <amit@kernel.org>
-Link: https://lore.kernel.org/r/x7C_CbeJtoGMy258nwAXASYz3xgFMFpyzmUvOyZzRnQrgWCREBjaqBOpAUS7ol4NnZYvSVwmTsCG0Ohyfvta-ygw6HMHcoeKK0C3QFiAO_Q=@pm.me
+Fabian reported a regression in a setup when overlay re-uses an existing
+upper layer and re-formats the lower squashfs image.  Because squashfs
+has no uuid, the origin xattr in upper layer are decoded from the new
+lower layer where they may resolve to a wrong origin file and user may
+get an ESTALE or EIO error on lookup.
+
+To avoid the reported regression while still allowing the new features
+with single lower squashfs, do not allow decoding origin with lower null
+uuid unless user opted-in to one of the new features that require
+following the lower inode of non-dir upper (index, xino, metacopy).
+
+Reported-by: Fabian <godi.beat@gmx.net>
+Link: https://lore.kernel.org/linux-unionfs/32532923.JtPX5UtSzP@fgdesktop/
+Fixes: 9df085f3c9a2 ("ovl: relax requirement for non null uuid of lower fs")
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/virtio_console.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/overlayfs/super.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -2118,6 +2118,7 @@ static struct virtio_device_id id_table[
- 	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
- };
-+MODULE_DEVICE_TABLE(virtio, id_table);
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1331,6 +1331,18 @@ static bool ovl_lower_uuid_ok(struct ovl
+ 	if (!ofs->config.nfs_export && !ofs->upper_mnt)
+ 		return true;
  
- static unsigned int features[] = {
- 	VIRTIO_CONSOLE_F_SIZE,
-@@ -2130,6 +2131,7 @@ static struct virtio_device_id rproc_ser
- #endif
- 	{ 0 },
- };
-+MODULE_DEVICE_TABLE(virtio, rproc_serial_id_table);
- 
- static unsigned int rproc_serial_features[] = {
- };
-@@ -2282,6 +2284,5 @@ static void __exit fini(void)
- module_init(init);
- module_exit(fini);
- 
--MODULE_DEVICE_TABLE(virtio, id_table);
- MODULE_DESCRIPTION("Virtio console driver");
- MODULE_LICENSE("GPL");
++	/*
++	 * We allow using single lower with null uuid for index and nfs_export
++	 * for example to support those features with single lower squashfs.
++	 * To avoid regressions in setups of overlay with re-formatted lower
++	 * squashfs, do not allow decoding origin with lower null uuid unless
++	 * user opted-in to one of the new features that require following the
++	 * lower inode of non-dir upper.
++	 */
++	if (!ofs->config.index && !ofs->config.metacopy && !ofs->config.xino &&
++	    uuid_is_null(uuid))
++		return false;
++
+ 	for (i = 0; i < ofs->numfs; i++) {
+ 		/*
+ 		 * We use uuid to associate an overlay lower file handle with a
 
 
