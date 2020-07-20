@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58391226AB7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:39:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E463226A13
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730204AbgGTPsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44246 "EHLO mail.kernel.org"
+        id S1731677AbgGTPzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:55:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730490AbgGTPsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:35 -0400
+        id S1729251AbgGTPzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E67D02064B;
-        Mon, 20 Jul 2020 15:48:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB5D12065E;
+        Mon, 20 Jul 2020 15:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260114;
-        bh=eIg5zlpARQ0ncoOVYVLpaBxwWN3Nt8ngvgaUr4OFHAc=;
+        s=default; t=1595260524;
+        bh=RFsfywAtYx/DgJXRzwO7LJohgfSzhyyehseVmJch2n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhklUwDIfq3JkxRp/iokbC+Gn9J+rzTWI03p4peT58ovj0G+XfFAgYotV/eYi6tsh
-         Cn3+UE6yeBixo27QVVgmYBJn/KOyBikGV7Pog9JwoN+um0eohHv38XodjrMJVU4eEX
-         j7swkURabs29rwjWvs8ggDlHvXfOUpKQntWIs28I=
+        b=Fgk/68aHPHXkvPfxdxIi1poNLpvjkjRVkli8oai1lBU/8WLRhmlIu/k0l0EAJJilu
+         XV36ucjb/L7CKtAJ9kja22ihxv43uUB2l4q7eXFXz62Eo3Zu7yzaR/kHVe2SO4NbJq
+         CPnlqq9c2QySSm5Aew6gKzQWB1BDmEie2OXU6BSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>
-Subject: [PATCH 4.14 111/125] uio_pdrv_genirq: fix use without device tree and no interrupt
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        youngjun <her0gyugyu@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 103/133] ovl: inode reference leak in ovl_is_inuse true case.
 Date:   Mon, 20 Jul 2020 17:37:30 +0200
-Message-Id: <20200720152808.387691137@linuxfoundation.org>
+Message-Id: <20200720152808.713104576@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: youngjun <her0gyugyu@gmail.com>
 
-commit bf12fdf0ab728ca8e5933aac46dd972c0dd0421e upstream.
+commit 24f14009b8f1754ec2ae4c168940c01259b0f88a upstream.
 
-While e3a3c3a20555 ("UIO: fix uio_pdrv_genirq with device tree but no
-interrupt") added support for using uio_pdrv_genirq for devices without
-interrupt for device tree platforms, the removal of uio_pdrv in
-26dac3c49d56 ("uio: Remove uio_pdrv and use uio_pdrv_genirq instead")
-broke the support for non device tree platforms.
+When "ovl_is_inuse" true case, trap inode reference not put.  plus adding
+the comment explaining sequence of ovl_is_inuse after ovl_setup_trap.
 
-This change fixes this, so that uio_pdrv_genirq can be used without
-interrupt on all platforms.
-
-This still leaves the support that uio_pdrv had for custom interrupt
-handler lacking, as uio_pdrv_genirq does not handle it (yet).
-
-Fixes: 26dac3c49d56 ("uio: Remove uio_pdrv and use uio_pdrv_genirq instead")
-Signed-off-by: Esben Haabendal <esben@geanix.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200701145659.3978-3-esben@geanix.com
+Fixes: 0be0bfd2de9d ("ovl: fix regression caused by overlapping layers detection")
+Cc: <stable@vger.kernel.org> # v4.19+
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: youngjun <her0gyugyu@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/uio/uio_pdrv_genirq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/overlayfs/super.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/uio/uio_pdrv_genirq.c
-+++ b/drivers/uio/uio_pdrv_genirq.c
-@@ -148,7 +148,7 @@ static int uio_pdrv_genirq_probe(struct
- 	if (!uioinfo->irq) {
- 		ret = platform_get_irq(pdev, 0);
- 		uioinfo->irq = ret;
--		if (ret == -ENXIO && pdev->dev.of_node)
-+		if (ret == -ENXIO)
- 			uioinfo->irq = UIO_IRQ_NONE;
- 		else if (ret < 0) {
- 			dev_err(&pdev->dev, "failed to get IRQ\n");
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1310,14 +1310,23 @@ static int ovl_get_lower_layers(struct s
+ 		if (err < 0)
+ 			goto out;
+ 
++		/*
++		 * Check if lower root conflicts with this overlay layers before
++		 * checking if it is in-use as upperdir/workdir of "another"
++		 * mount, because we do not bother to check in ovl_is_inuse() if
++		 * the upperdir/workdir is in fact in-use by our
++		 * upperdir/workdir.
++		 */
+ 		err = ovl_setup_trap(sb, stack[i].dentry, &trap, "lowerdir");
+ 		if (err)
+ 			goto out;
+ 
+ 		if (ovl_is_inuse(stack[i].dentry)) {
+ 			err = ovl_report_in_use(ofs, "lowerdir");
+-			if (err)
++			if (err) {
++				iput(trap);
+ 				goto out;
++			}
+ 		}
+ 
+ 		mnt = clone_private_mount(&stack[i]);
 
 
