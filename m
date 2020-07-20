@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B3E226AC5
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47297226B5A
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731100AbgGTPuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:50:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46506 "EHLO mail.kernel.org"
+        id S1730329AbgGTPnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731097AbgGTPuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:50:09 -0400
+        id S1730322AbgGTPnz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:43:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FA1E206E9;
-        Mon, 20 Jul 2020 15:50:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 592492064B;
+        Mon, 20 Jul 2020 15:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260208;
-        bh=zxnMGCo4vo8ewn8pZuOaBAjaV3PAbQTR0895YI56aw8=;
+        s=default; t=1595259833;
+        bh=PeKvIN1kjCHm+SwAwXuvBKYp1u9GRzDXbVJh2Y8Q7CU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFLH5KfAiPtAPrEQILOTSoEaFWFNxnz2phESlgY6l7TQwdQ6WVB+nBl7N8OvJhrgH
-         8Ct8QmQIvi4HtAj+1VeYlMykXGTSn+2GoiSb4OkCJvoug43uWvFQQZvqu9ekUsOZhB
-         PH9GTFvxWOaftNiRlQBXqjRJTuyR8PU+3PjOLH1k=
+        b=crHGpL0NKdTBgYTt3OcuKyGsmS0aagz6IA9OS5DEYuDz5iX10TYcYQdMwUwNWMFN8
+         zS2SD3Em00iH9+Pw0Qiw1leXyYEy0Dz2uunakKg41239FW9yWUGs2EhZjCOwH8TGP7
+         UlsFtaxlSWkhhtyFqG1rLQeCCBAtypwtPUzNhC7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 002/133] net: rmnet: fix lower interface leak
+        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 010/125] ixgbe: protect ring accesses with READ- and WRITE_ONCE
 Date:   Mon, 20 Jul 2020 17:35:49 +0200
-Message-Id: <20200720152803.848477803@linuxfoundation.org>
+Message-Id: <20200720152803.451830791@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Ciara Loftus <ciara.loftus@intel.com>
 
-commit 2a762e9e8cd1cf1242e4269a2244666ed02eecd1 upstream.
+[ Upstream commit f140ad9fe2ae16f385f8fe4dc9cf67bb4c51d794 ]
 
-There are two types of the lower interface of rmnet that are VND
-and BRIDGE.
-Each lower interface can have only one type either VND or BRIDGE.
-But, there is a case, which uses both lower interface types.
-Due to this unexpected behavior, lower interface leak occurs.
+READ_ONCE should be used when reading rings prior to accessing the
+statistics pointer. Introduce this as well as the corresponding WRITE_ONCE
+usage when allocating and freeing the rings, to ensure protected access.
 
-Test commands:
-    ip link add dummy0 type dummy
-    ip link add dummy1 type dummy
-    ip link add rmnet0 link dummy0 type rmnet mux_id 1
-    ip link set dummy1 master rmnet0
-    ip link add rmnet1 link dummy1 type rmnet mux_id 2
-    ip link del rmnet0
-
-The dummy1 was attached as BRIDGE interface of rmnet0.
-Then, it also was attached as VND interface of rmnet1.
-This is unexpected behavior and there is no code for handling this case.
-So that below splat occurs when the rmnet0 interface is deleted.
-
-Splat looks like:
-[   53.254112][    C1] WARNING: CPU: 1 PID: 1192 at net/core/dev.c:8992 rollback_registered_many+0x986/0xcf0
-[   53.254117][    C1] Modules linked in: rmnet dummy openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nfx
-[   53.254182][    C1] CPU: 1 PID: 1192 Comm: ip Not tainted 5.8.0-rc1+ #620
-[   53.254188][    C1] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   53.254192][    C1] RIP: 0010:rollback_registered_many+0x986/0xcf0
-[   53.254200][    C1] Code: 41 8b 4e cc 45 31 c0 31 d2 4c 89 ee 48 89 df e8 e0 47 ff ff 85 c0 0f 84 cd fc ff ff 0f 0b e5
-[   53.254205][    C1] RSP: 0018:ffff888050a5f2e0 EFLAGS: 00010287
-[   53.254214][    C1] RAX: ffff88805756d658 RBX: ffff88804d99c000 RCX: ffffffff8329d323
-[   53.254219][    C1] RDX: 1ffffffff0be6410 RSI: 0000000000000008 RDI: ffffffff85f32080
-[   53.254223][    C1] RBP: dffffc0000000000 R08: fffffbfff0be6411 R09: fffffbfff0be6411
-[   53.254228][    C1] R10: ffffffff85f32087 R11: 0000000000000001 R12: ffff888050a5f480
-[   53.254233][    C1] R13: ffff88804d99c0b8 R14: ffff888050a5f400 R15: ffff8880548ebe40
-[   53.254238][    C1] FS:  00007f6b86b370c0(0000) GS:ffff88806c200000(0000) knlGS:0000000000000000
-[   53.254243][    C1] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   53.254248][    C1] CR2: 0000562c62438758 CR3: 000000003f600005 CR4: 00000000000606e0
-[   53.254253][    C1] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   53.254257][    C1] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   53.254261][    C1] Call Trace:
-[   53.254266][    C1]  ? lockdep_hardirqs_on_prepare+0x379/0x540
-[   53.254270][    C1]  ? netif_set_real_num_tx_queues+0x780/0x780
-[   53.254275][    C1]  ? rmnet_unregister_real_device+0x56/0x90 [rmnet]
-[   53.254279][    C1]  ? __kasan_slab_free+0x126/0x150
-[   53.254283][    C1]  ? kfree+0xdc/0x320
-[   53.254288][    C1]  ? rmnet_unregister_real_device+0x56/0x90 [rmnet]
-[   53.254293][    C1]  unregister_netdevice_many.part.135+0x13/0x1b0
-[   53.254297][    C1]  rtnl_delete_link+0xbc/0x100
-[   53.254301][    C1]  ? rtnl_af_register+0xc0/0xc0
-[   53.254305][    C1]  rtnl_dellink+0x2dc/0x840
-[   53.254309][    C1]  ? find_held_lock+0x39/0x1d0
-[   53.254314][    C1]  ? valid_fdb_dump_strict+0x620/0x620
-[   53.254318][    C1]  ? rtnetlink_rcv_msg+0x457/0x890
-[   53.254322][    C1]  ? lock_contended+0xd20/0xd20
-[   53.254326][    C1]  rtnetlink_rcv_msg+0x4a8/0x890
-[ ... ]
-[   73.813696][ T1192] unregister_netdevice: waiting for rmnet0 to become free. Usage count = 1
-
-Fixes: 037f9cdf72fb ("net: rmnet: use upper/lower device infrastructure")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_lib.c  | 12 ++++++------
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 14 +++++++++++---
+ 2 files changed, 17 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -56,15 +56,23 @@ static int rmnet_unregister_real_device(
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_lib.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_lib.c
+index f1bfae0c41d0c..3cf8b3ea43b08 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_lib.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_lib.c
+@@ -917,7 +917,7 @@ static int ixgbe_alloc_q_vector(struct ixgbe_adapter *adapter,
+ 			ring->queue_index = txr_idx;
  
--static int rmnet_register_real_device(struct net_device *real_dev)
-+static int rmnet_register_real_device(struct net_device *real_dev,
-+				      struct netlink_ext_ack *extack)
- {
- 	struct rmnet_port *port;
- 	int rc, entry;
+ 		/* assign ring to adapter */
+-		adapter->tx_ring[txr_idx] = ring;
++		WRITE_ONCE(adapter->tx_ring[txr_idx], ring);
  
- 	ASSERT_RTNL();
+ 		/* update count and index */
+ 		txr_count--;
+@@ -944,7 +944,7 @@ static int ixgbe_alloc_q_vector(struct ixgbe_adapter *adapter,
+ 		set_ring_xdp(ring);
  
--	if (rmnet_is_real_dev_registered(real_dev))
-+	if (rmnet_is_real_dev_registered(real_dev)) {
-+		port = rmnet_get_port_rtnl(real_dev);
-+		if (port->rmnet_mode != RMNET_EPMODE_VND) {
-+			NL_SET_ERR_MSG_MOD(extack, "bridge device already exists");
-+			return -EINVAL;
-+		}
+ 		/* assign ring to adapter */
+-		adapter->xdp_ring[xdp_idx] = ring;
++		WRITE_ONCE(adapter->xdp_ring[xdp_idx], ring);
+ 
+ 		/* update count and index */
+ 		xdp_count--;
+@@ -991,7 +991,7 @@ static int ixgbe_alloc_q_vector(struct ixgbe_adapter *adapter,
+ 			ring->queue_index = rxr_idx;
+ 
+ 		/* assign ring to adapter */
+-		adapter->rx_ring[rxr_idx] = ring;
++		WRITE_ONCE(adapter->rx_ring[rxr_idx], ring);
+ 
+ 		/* update count and index */
+ 		rxr_count--;
+@@ -1020,13 +1020,13 @@ static void ixgbe_free_q_vector(struct ixgbe_adapter *adapter, int v_idx)
+ 
+ 	ixgbe_for_each_ring(ring, q_vector->tx) {
+ 		if (ring_is_xdp(ring))
+-			adapter->xdp_ring[ring->queue_index] = NULL;
++			WRITE_ONCE(adapter->xdp_ring[ring->queue_index], NULL);
+ 		else
+-			adapter->tx_ring[ring->queue_index] = NULL;
++			WRITE_ONCE(adapter->tx_ring[ring->queue_index], NULL);
+ 	}
+ 
+ 	ixgbe_for_each_ring(ring, q_vector->rx)
+-		adapter->rx_ring[ring->queue_index] = NULL;
++		WRITE_ONCE(adapter->rx_ring[ring->queue_index], NULL);
+ 
+ 	adapter->q_vector[v_idx] = NULL;
+ 	napi_hash_del(&q_vector->napi);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 64ee45b6680a0..9c3fa0b555519 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6842,7 +6842,10 @@ void ixgbe_update_stats(struct ixgbe_adapter *adapter)
+ 	}
+ 
+ 	for (i = 0; i < adapter->num_rx_queues; i++) {
+-		struct ixgbe_ring *rx_ring = adapter->rx_ring[i];
++		struct ixgbe_ring *rx_ring = READ_ONCE(adapter->rx_ring[i]);
 +
- 		return 0;
-+	}
++		if (!rx_ring)
++			continue;
+ 		non_eop_descs += rx_ring->rx_stats.non_eop_descs;
+ 		alloc_rx_page_failed += rx_ring->rx_stats.alloc_rx_page_failed;
+ 		alloc_rx_buff_failed += rx_ring->rx_stats.alloc_rx_buff_failed;
+@@ -6861,15 +6864,20 @@ void ixgbe_update_stats(struct ixgbe_adapter *adapter)
+ 	packets = 0;
+ 	/* gather some stats to the adapter struct that are per queue */
+ 	for (i = 0; i < adapter->num_tx_queues; i++) {
+-		struct ixgbe_ring *tx_ring = adapter->tx_ring[i];
++		struct ixgbe_ring *tx_ring = READ_ONCE(adapter->tx_ring[i]);
++
++		if (!tx_ring)
++			continue;
+ 		restart_queue += tx_ring->tx_stats.restart_queue;
+ 		tx_busy += tx_ring->tx_stats.tx_busy;
+ 		bytes += tx_ring->stats.bytes;
+ 		packets += tx_ring->stats.packets;
+ 	}
+ 	for (i = 0; i < adapter->num_xdp_queues; i++) {
+-		struct ixgbe_ring *xdp_ring = adapter->xdp_ring[i];
++		struct ixgbe_ring *xdp_ring = READ_ONCE(adapter->xdp_ring[i]);
  
- 	port = kzalloc(sizeof(*port), GFP_ATOMIC);
- 	if (!port)
-@@ -143,7 +151,7 @@ static int rmnet_newlink(struct net *src
- 
- 	mux_id = nla_get_u16(data[IFLA_RMNET_MUX_ID]);
- 
--	err = rmnet_register_real_device(real_dev);
-+	err = rmnet_register_real_device(real_dev, extack);
- 	if (err)
- 		goto err0;
- 
-@@ -425,13 +433,10 @@ int rmnet_add_bridge(struct net_device *
- 	if (port->nr_rmnet_devs > 1)
- 		return -EINVAL;
- 
--	if (port->rmnet_mode != RMNET_EPMODE_VND)
--		return -EINVAL;
--
- 	if (rmnet_is_real_dev_registered(slave_dev))
- 		return -EBUSY;
- 
--	err = rmnet_register_real_device(slave_dev);
-+	err = rmnet_register_real_device(slave_dev, extack);
- 	if (err)
- 		return -EBUSY;
- 
++		if (!xdp_ring)
++			continue;
+ 		restart_queue += xdp_ring->tx_stats.restart_queue;
+ 		tx_busy += xdp_ring->tx_stats.tx_busy;
+ 		bytes += xdp_ring->stats.bytes;
+-- 
+2.25.1
+
 
 
