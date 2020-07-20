@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0568D22673F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282CD22693E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732900AbgGTQKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
+        id S1732268AbgGTP7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:59:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387607AbgGTQKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:01 -0400
+        id S1732263AbgGTP7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 162AD2064B;
-        Mon, 20 Jul 2020 16:09:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F20AD20773;
+        Mon, 20 Jul 2020 15:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261400;
-        bh=xl9nwhS+TDJzVbY2Eaky79FtTQ1uMPn+x8ZkN+mNhXQ=;
+        s=default; t=1595260777;
+        bh=DfHZP/SU7kw+OELARZx5n+PpCHXGSkki4R6tGidCBPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJRi4CvBtonEK/49ce5E3EPfLP31W0vfV3n2klJamgVgrcIwUDNfRWeLlGydbpQ7n
-         uxV7I+KIVRj4dfmfgMsH0n/KQEZX1yKFW7z/HO3eXONKjKKGIQCx408D3yj0trBJOU
-         Fi5x3U0jn3LNSbaanANgN5uaYYEt2lENfqN24qLM=
+        b=y8WwaLQ0o1TWT/pWOpv+tBuO/ypRXkalnzpgIDOiBwRCVh7/nZESFNqR6A2nfG1WO
+         fnXQFsy9AiJwiLix9BIbzS0dbd/xanm5657ofIq4Jb855Sqsq8meCfvC+rv86geocl
+         icsQfibtmp6BP3tcx5cFdY7WOadG7nMMtdB9S6q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 075/244] io_uring: fix recvmsg memory leak with buffer selection
-Date:   Mon, 20 Jul 2020 17:35:46 +0200
-Message-Id: <20200720152829.407965865@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 065/215] net: sfp: add some quirks for GPON modules
+Date:   Mon, 20 Jul 2020 17:35:47 +0200
+Message-Id: <20200720152823.301154853@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit 681fda8d27a66f7e65ff7f2d200d7635e64a8d05 upstream.
+[ Upstream commit b0eae33b2583dceb36224619f9fd85e6140ae594 ]
 
-io_recvmsg() doesn't free memory allocated for struct io_buffer. This can
-causes a leak when used with automatic buffer selection.
+Marc Micalizzi reports that Huawei MA5671A and Alcatel/Lucent G-010S-P
+modules are capable of 2500base-X, but incorrectly report their
+capabilities in the EEPROM.  It seems rather common that GPON modules
+mis-report.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's fix these modules by adding some quirks.
 
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/phy/sfp-bus.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3884,10 +3884,16 @@ static int io_recvmsg(struct io_kiocb *r
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index 35caf2eb2c275..816e59fe68f57 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -37,7 +37,32 @@ struct sfp_bus {
+ 	bool started;
+ };
  
- 		ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.msg,
- 						kmsg->uaddr, flags);
--		if (force_nonblock && ret == -EAGAIN)
--			return io_setup_async_msg(req, kmsg);
-+		if (force_nonblock && ret == -EAGAIN) {
-+			ret = io_setup_async_msg(req, kmsg);
-+			if (ret != -EAGAIN)
-+				kfree(kbuf);
-+			return ret;
-+		}
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
-+		if (kbuf)
-+			kfree(kbuf);
- 	}
++static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
++				unsigned long *modes)
++{
++	phylink_set(modes, 2500baseX_Full);
++}
++
+ static const struct sfp_quirk sfp_quirks[] = {
++	{
++		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
++		// incorrectly report 2500MBd NRZ in their EEPROM
++		.vendor = "ALCATELLUCENT",
++		.part = "G010SP",
++		.modes = sfp_quirk_2500basex,
++	}, {
++		// Alcatel Lucent G-010S-A can operate at 2500base-X, but
++		// report 3.2GBd NRZ in their EEPROM
++		.vendor = "ALCATELLUCENT",
++		.part = "3FE46541AA",
++		.modes = sfp_quirk_2500basex,
++	}, {
++		// Huawei MA5671A can operate at 2500base-X, but report 1.2GBd
++		// NRZ in their EEPROM
++		.vendor = "HUAWEI",
++		.part = "MA5671A",
++		.modes = sfp_quirk_2500basex,
++	},
+ };
  
- 	if (kmsg && kmsg->iov != kmsg->fast_iov)
+ static size_t sfp_strlen(const char *str, size_t maxlen)
+-- 
+2.25.1
+
 
 
