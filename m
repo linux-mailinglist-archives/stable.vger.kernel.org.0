@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF8D2269F9
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 160102269FC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731684AbgGTP5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57422 "EHLO mail.kernel.org"
+        id S1732334AbgGTQbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731627AbgGTP5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:57:30 -0400
+        id S1729978AbgGTP5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:57:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14BB72065E;
-        Mon, 20 Jul 2020 15:57:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0D8E20773;
+        Mon, 20 Jul 2020 15:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260649;
-        bh=egxt+OqgdvW57MofFR/h1DolS9Q1TbBM33DDluq4gHE=;
+        s=default; t=1595260652;
+        bh=1CVY6Ixyfc3N1iXZi/C5GQOuWmGjDONCEAmLWXAlKvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yugVC8FI/y9+Jvc+wMxY01RADixhc+Z5RfBkLZluvwy9QG+QoR3hPV0EW1ERCy3+F
-         K+RSuV/eCO5nBKCtDyUr2n17dZLKN+aj4wXRHhBnl1pMwm3P+ry0W9i8bDgMxHbKC+
-         VsguS6vaqtelVw4lZx81kknopWR9sahkwkR2iNGQ=
+        b=Gw88Awx5jr0H174cEFTYblMstGnsV1k6/I93kaaUSBkQ9LRfQC66IaizbYkB6wC9X
+         n+PzflibWfx84koX/UaK9mPqII5FeES1oKdUfwCj6fBFaC8smi/KnYR/+i5xM4uTqm
+         JMaR2XRcpSSLsraUbM9WD0KVDT26nEN5+3dARDmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/215] arm64/alternatives: dont patch up internal branches
-Date:   Mon, 20 Jul 2020 17:35:27 +0200
-Message-Id: <20200720152822.340606082@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.4 046/215] iio:magnetometer:ak8974: Fix alignment and data leak issues
+Date:   Mon, 20 Jul 2020 17:35:28 +0200
+Message-Id: <20200720152822.389114777@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -45,64 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 5679b28142193a62f6af93249c0477be9f0c669b ]
+commit 838e00b13bfd4cac8b24df25bfc58e2eb99bcc70 upstream.
 
-Commit f7b93d42945c ("arm64/alternatives: use subsections for replacement
-sequences") moved the alternatives replacement sequences into subsections,
-in order to keep the as close as possible to the code that they replace.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data.
 
-Unfortunately, this broke the logic in branch_insn_requires_update,
-which assumed that any branch into kernel executable code was a branch
-that required updating, which is no longer the case now that the code
-sequences that are patched in are in the same section as the patch site
-itself.
+This data is allocated with kzalloc so no data can leak appart from
+previous readings.
 
-So the only way to discriminate branches that require updating and ones
-that don't is to check whether the branch targets the replacement sequence
-itself, and so we can drop the call to kernel_text_address() entirely.
+Fixes: 7c94a8b2ee8cf ("iio: magn: add a driver for AK8974")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
-Reported-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Link: https://lore.kernel.org/r/20200709125953.30918-1-ardb@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/alternative.c | 16 ++--------------
- 1 file changed, 2 insertions(+), 14 deletions(-)
+ drivers/iio/magnetometer/ak8974.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
-index d1757ef1b1e74..73039949b5ce2 100644
---- a/arch/arm64/kernel/alternative.c
-+++ b/arch/arm64/kernel/alternative.c
-@@ -43,20 +43,8 @@ bool alternative_is_applied(u16 cpufeature)
-  */
- static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
- {
--	unsigned long replptr;
--
--	if (kernel_text_address(pc))
--		return true;
--
--	replptr = (unsigned long)ALT_REPL_PTR(alt);
--	if (pc >= replptr && pc <= (replptr + alt->alt_len))
--		return false;
--
--	/*
--	 * Branching into *another* alternate sequence is doomed, and
--	 * we're not even trying to fix it up.
--	 */
--	BUG();
-+	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
-+	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
- }
+--- a/drivers/iio/magnetometer/ak8974.c
++++ b/drivers/iio/magnetometer/ak8974.c
+@@ -185,6 +185,11 @@ struct ak8974 {
+ 	bool drdy_irq;
+ 	struct completion drdy_complete;
+ 	bool drdy_active_low;
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		__le16 channels[3];
++		s64 ts __aligned(8);
++	} scan;
+ };
  
- #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
--- 
-2.25.1
-
+ static const char ak8974_reg_avdd[] = "avdd";
+@@ -581,7 +586,6 @@ static void ak8974_fill_buffer(struct ii
+ {
+ 	struct ak8974 *ak8974 = iio_priv(indio_dev);
+ 	int ret;
+-	__le16 hw_values[8]; /* Three axes + 64bit padding */
+ 
+ 	pm_runtime_get_sync(&ak8974->i2c->dev);
+ 	mutex_lock(&ak8974->lock);
+@@ -591,13 +595,13 @@ static void ak8974_fill_buffer(struct ii
+ 		dev_err(&ak8974->i2c->dev, "error triggering measure\n");
+ 		goto out_unlock;
+ 	}
+-	ret = ak8974_getresult(ak8974, hw_values);
++	ret = ak8974_getresult(ak8974, ak8974->scan.channels);
+ 	if (ret) {
+ 		dev_err(&ak8974->i2c->dev, "error getting measures\n");
+ 		goto out_unlock;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, hw_values,
++	iio_push_to_buffers_with_timestamp(indio_dev, &ak8974->scan,
+ 					   iio_get_time_ns(indio_dev));
+ 
+  out_unlock:
 
 
