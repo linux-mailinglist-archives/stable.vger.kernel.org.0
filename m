@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8EF0226B41
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48697226AD2
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730688AbgGTPqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41622 "EHLO mail.kernel.org"
+        id S1731237AbgGTPv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730277AbgGTPqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:47 -0400
+        id S1731234AbgGTPvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:51:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10DE72064B;
-        Mon, 20 Jul 2020 15:46:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C8DB2064B;
+        Mon, 20 Jul 2020 15:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260006;
-        bh=C7+GofNjhe+jY5AW/vb6dlbgYoHYz4aFI8DtT5Jram4=;
+        s=default; t=1595260283;
+        bh=nBlrAHqeGQBA0lnHqR2Olyd8e7caxmdF2n7El7K/J4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxkDUgrfIqHdTWQe4KiVTTp0j23rBVLXoTT8oF7XyL7CVjkX9ZRJIFxzR0Zu0jncA
-         UZl9gQW9ZV7FueEctCuu24PtQOf0mVztkfZXgVCEzQbRKGzJlsxJxI4tfdWTBvHW9a
-         pf4QG6gdhlI78zW4guFLXCPpV0gC52a6d9CRndAQ=
+        b=VmGS1SD4W1Yx0yXajSCCkDJ9bbpIAVWlZB57xl47rz4aCQNMY5WthVmUTVbPiWzO9
+         W2G0CuMRsABnhYw23pT/yKMHUOoGpi0CDGjPuhRfmYB6DyNxXMcij0CJhvQhZ9Trri
+         g4v1OL1W+hb2R8m08syWWU7AnRd5pOeZIDkrsMHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Inki Dae <inki.dae@samsung.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 055/125] drm/exynos: fix ref count leak in mic_pre_enable
+Subject: [PATCH 4.19 047/133] ARM: at91: pm: add quirk for sam9x60s ulp1
 Date:   Mon, 20 Jul 2020 17:36:34 +0200
-Message-Id: <20200720152805.688289459@linuxfoundation.org>
+Message-Id: <20200720152805.987275494@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit d4f5a095daf0d25f0b385e1ef26338608433a4c5 ]
+[ Upstream commit bb1a0e87e1c54cd884e9b92b1cec06b186edc7a0 ]
 
-in mic_pre_enable, pm_runtime_get_sync is called which
-increments the counter even in case of failure, leading to incorrect
-ref count. In case of failure, decrement the ref count before returning.
+On SAM9X60 2 nop operations has to be introduced after setting
+WAITMODE bit in CKGR_MOR.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1579522208-19523-9-git-send-email-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_mic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/mach-at91/pm_suspend.S | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_mic.c b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-index ba4a32b132baa..59ce068b152f5 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_mic.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-@@ -267,8 +267,10 @@ static void mic_pre_enable(struct drm_bridge *bridge)
- 		goto unlock;
+diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
+index a7c6ae13c9453..d650a5a1dfee9 100644
+--- a/arch/arm/mach-at91/pm_suspend.S
++++ b/arch/arm/mach-at91/pm_suspend.S
+@@ -220,6 +220,10 @@ ENDPROC(at91_backup_mode)
+ 	orr	tmp1, tmp1, #AT91_PMC_KEY
+ 	str	tmp1, [pmc, #AT91_CKGR_MOR]
  
- 	ret = pm_runtime_get_sync(mic->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(mic->dev);
- 		goto unlock;
-+	}
++	/* Quirk for SAM9X60's PMC */
++	nop
++	nop
++
+ 	wait_mckrdy
  
- 	mic_set_path(mic, 1);
- 
+ 	/* Enable the crystal oscillator */
 -- 
 2.25.1
 
