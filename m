@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDC822639A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6703226419
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729238AbgGTPij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:38:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57202 "EHLO mail.kernel.org"
+        id S1729047AbgGTPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729218AbgGTPif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:38:35 -0400
+        id S1729977AbgGTPmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:42:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1441922CBB;
-        Mon, 20 Jul 2020 15:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 178BD2064B;
+        Mon, 20 Jul 2020 15:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259514;
+        s=default; t=1595259719;
         bh=i6z5wAOGKay2yoCvdUnPgPzFvWJm4qfzKtRJ0+eiRlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUF44jjgIpvNJwYfIfvT4XyPHe7h742KrQJeY9BM7ZB4N7pYWZn8ouYSemEEeBY6A
-         pkEO8k3fdxJKuNmLt6zONe6Y51gtu0V9gh+M0Ggt6ycsIXCSuI76eUvaiLattZ94e2
-         Fa/FrQvInv4G4CZ+YjoOVJGXnIwcdHuzRQLwTEoE=
+        b=mYqlehPalEAi9lH9kZLdkT+KJ0GE9aP8TZc3nb+vMpY2QdUTUqJG+iaBySuwsbn7z
+         rLcUZpa0PCJeBMKwllog7IH0/Dj5SbLy7wIzFOXwyRbCMbm1WYa3f78G/se/ZZE1uA
+         Ilf6HrdW9N/ozAsmtZSdBfKCRKERzMf25h+JNI68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Ian Abbott <abbotti@mev.co.uk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 34/58] staging: comedi: verify array index is correct before using it
-Date:   Mon, 20 Jul 2020 17:36:50 +0200
-Message-Id: <20200720152748.894780419@linuxfoundation.org>
+Subject: [PATCH 4.9 55/86] staging: comedi: verify array index is correct before using it
+Date:   Mon, 20 Jul 2020 17:36:51 +0200
+Message-Id: <20200720152755.928515742@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
