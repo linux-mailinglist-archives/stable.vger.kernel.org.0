@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7007F22658F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C47226592
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729463AbgGTPyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:54:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
+        id S1731632AbgGTPzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731087AbgGTPyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:54:54 -0400
+        id S1731626AbgGTPzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BD4A22BEF;
-        Mon, 20 Jul 2020 15:54:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F3D3206E9;
+        Mon, 20 Jul 2020 15:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260494;
-        bh=z90SUA8yAMYpJtIMgGjptFNO+JtRmJHjqVfLHzjGxO4=;
+        s=default; t=1595260501;
+        bh=V9tV8WJZ0Y1DLNJ4UPv2uj9MIoEoBM2JretTZwxGeqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgVUnw6qXsdoJDk3ELiQtnJbCrWJ7tlgC2gahX7xRHgZ6OUy5sWV6tZW3ry7UDZOF
-         17QlfPnrTSYin/2/jMQ6cVf/1f0keKJwA7B4LCMeOecSuMUCmjlIhnIhK9cGtWqun9
-         6MkQn1JR054+eG6Wd/TPbpd/6mX5bSHT597kBD3s=
+        b=xJ9bCaJZD5mGINyvB9g+DBGxu43vgxFhLzY9ByPsUjnOniKb2WCJkKNbO0alfBLkQ
+         BlZ9KUYASQ5Iq7Bc8NEsxrreazf5E9lzlPlBoS1h6av17pVRK1btP+LxhnffIgk7YJ
+         dMgxhmTh8ww/LF8xvRW+RKncKzXS4GJQdmx0qDQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 4.19 122/133] misc: atmel-ssc: lock with mutex instead of spinlock
-Date:   Mon, 20 Jul 2020 17:37:49 +0200
-Message-Id: <20200720152809.622821046@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Luis Machado <luis.machado@linaro.org>,
+        Keno Fischer <keno@juliacomputing.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 125/133] arm64: ptrace: Consistently use pseudo-singlestep exceptions
+Date:   Mon, 20 Jul 2020 17:37:52 +0200
+Message-Id: <20200720152809.769034618@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
 References: <20200720152803.732195882@linuxfoundation.org>
@@ -43,115 +45,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Will Deacon <will@kernel.org>
 
-commit b037d60a3b1d1227609fd858fa34321f41829911 upstream.
+commit ac2081cdc4d99c57f219c1a6171526e0fa0a6fff upstream.
 
-Uninterruptible context is not needed in the driver and causes lockdep
-warning because of mutex taken in of_alias_get_id(). Convert the lock to
-mutex to avoid the issue.
+Although the arm64 single-step state machine can be fast-forwarded in
+cases where we wish to generate a SIGTRAP without actually executing an
+instruction, this has two major limitations outside of simply skipping
+an instruction due to emulation.
 
-Cc: stable@vger.kernel.org
-Fixes: 099343c64e16 ("ARM: at91: atmel-ssc: add device tree support")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/50f0d7fa107f318296afb49477c3571e4d6978c5.1592998403.git.mirq-linux@rere.qmqm.pl
+1. Stepping out of a ptrace signal stop into a signal handler where
+   SIGTRAP is blocked. Fast-forwarding the stepping state machine in
+   this case will result in a forced SIGTRAP, with the handler reset to
+   SIG_DFL.
+
+2. The hardware implicitly fast-forwards the state machine when executing
+   an SVC instruction for issuing a system call. This can interact badly
+   with subsequent ptrace stops signalled during the execution of the
+   system call (e.g. SYSCALL_EXIT or seccomp traps), as they may corrupt
+   the stepping state by updating the PSTATE for the tracee.
+
+Resolve both of these issues by injecting a pseudo-singlestep exception
+on entry to a signal handler and also on return to userspace following a
+system call.
+
+Cc: <stable@vger.kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Luis Machado <luis.machado@linaro.org>
+Reported-by: Keno Fischer <keno@juliacomputing.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/atmel-ssc.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/arm64/include/asm/thread_info.h |    1 +
+ arch/arm64/kernel/ptrace.c           |   27 ++++++++++++++++++++-------
+ arch/arm64/kernel/signal.c           |   11 ++---------
+ arch/arm64/kernel/syscall.c          |    2 +-
+ 4 files changed, 24 insertions(+), 17 deletions(-)
 
---- a/drivers/misc/atmel-ssc.c
-+++ b/drivers/misc/atmel-ssc.c
-@@ -13,7 +13,7 @@
- #include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/io.h>
--#include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/atmel-ssc.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-@@ -23,7 +23,7 @@
- #include "../../sound/soc/atmel/atmel_ssc_dai.h"
+--- a/arch/arm64/include/asm/thread_info.h
++++ b/arch/arm64/include/asm/thread_info.h
+@@ -101,6 +101,7 @@ void arch_release_task_struct(struct tas
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
+ #define _TIF_UPROBE		(1 << TIF_UPROBE)
+ #define _TIF_FSCHECK		(1 << TIF_FSCHECK)
++#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
+ #define _TIF_32BIT		(1 << TIF_32BIT)
+ #define _TIF_SVE		(1 << TIF_SVE)
  
- /* Serialize access to ssc_list and user count */
--static DEFINE_SPINLOCK(user_lock);
-+static DEFINE_MUTEX(user_lock);
- static LIST_HEAD(ssc_list);
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -1647,12 +1647,23 @@ static void tracehook_report_syscall(str
+ 	saved_reg = regs->regs[regno];
+ 	regs->regs[regno] = dir;
  
- struct ssc_device *ssc_request(unsigned int ssc_num)
-@@ -31,7 +31,7 @@ struct ssc_device *ssc_request(unsigned
- 	int ssc_valid = 0;
- 	struct ssc_device *ssc;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_for_each_entry(ssc, &ssc_list, list) {
- 		if (ssc->pdev->dev.of_node) {
- 			if (of_alias_get_id(ssc->pdev->dev.of_node, "ssc")
-@@ -47,18 +47,18 @@ struct ssc_device *ssc_request(unsigned
- 	}
- 
- 	if (!ssc_valid) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		pr_err("ssc: ssc%d platform device is missing\n", ssc_num);
- 		return ERR_PTR(-ENODEV);
- 	}
- 
- 	if (ssc->user) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		dev_dbg(&ssc->pdev->dev, "module busy\n");
- 		return ERR_PTR(-EBUSY);
- 	}
- 	ssc->user++;
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	clk_prepare(ssc->clk);
- 
-@@ -70,14 +70,14 @@ void ssc_free(struct ssc_device *ssc)
- {
- 	bool disable_clk = true;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	if (ssc->user)
- 		ssc->user--;
- 	else {
- 		disable_clk = false;
- 		dev_dbg(&ssc->pdev->dev, "device already free\n");
- 	}
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	if (disable_clk)
- 		clk_unprepare(ssc->clk);
-@@ -240,9 +240,9 @@ static int ssc_probe(struct platform_dev
- 		return -ENXIO;
- 	}
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_add_tail(&ssc->list, &ssc_list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	platform_set_drvdata(pdev, ssc);
- 
-@@ -261,9 +261,9 @@ static int ssc_remove(struct platform_de
- 
- 	ssc_sound_dai_remove(ssc);
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_del(&ssc->list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	return 0;
+-	if (dir == PTRACE_SYSCALL_EXIT)
++	if (dir == PTRACE_SYSCALL_ENTER) {
++		if (tracehook_report_syscall_entry(regs))
++			forget_syscall(regs);
++		regs->regs[regno] = saved_reg;
++	} else if (!test_thread_flag(TIF_SINGLESTEP)) {
+ 		tracehook_report_syscall_exit(regs, 0);
+-	else if (tracehook_report_syscall_entry(regs))
+-		forget_syscall(regs);
+-
+-	regs->regs[regno] = saved_reg;
++		regs->regs[regno] = saved_reg;
++	} else {
++		regs->regs[regno] = saved_reg;
++
++		/*
++		 * Signal a pseudo-step exception since we are stepping but
++		 * tracer modifications to the registers may have rewound the
++		 * state machine.
++		 */
++		tracehook_report_syscall_exit(regs, 1);
++	}
  }
+ 
+ int syscall_trace_enter(struct pt_regs *regs)
+@@ -1675,12 +1686,14 @@ int syscall_trace_enter(struct pt_regs *
+ 
+ void syscall_trace_exit(struct pt_regs *regs)
+ {
++	unsigned long flags = READ_ONCE(current_thread_info()->flags);
++
+ 	audit_syscall_exit(regs);
+ 
+-	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
++	if (flags & _TIF_SYSCALL_TRACEPOINT)
+ 		trace_sys_exit(regs, regs_return_value(regs));
+ 
+-	if (test_thread_flag(TIF_SYSCALL_TRACE))
++	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
+ 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
+ 
+ 	rseq_syscall(regs);
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -798,7 +798,6 @@ static void setup_restart_syscall(struct
+  */
+ static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
+ {
+-	struct task_struct *tsk = current;
+ 	sigset_t *oldset = sigmask_to_save();
+ 	int usig = ksig->sig;
+ 	int ret;
+@@ -822,14 +821,8 @@ static void handle_signal(struct ksignal
+ 	 */
+ 	ret |= !valid_user_regs(&regs->user_regs, current);
+ 
+-	/*
+-	 * Fast forward the stepping logic so we step into the signal
+-	 * handler.
+-	 */
+-	if (!ret)
+-		user_fastforward_single_step(tsk);
+-
+-	signal_setup_done(ret, ksig, 0);
++	/* Step into the signal handler if we are stepping */
++	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLESTEP));
+ }
+ 
+ /*
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -121,7 +121,7 @@ static void el0_svc_common(struct pt_reg
+ 	if (!has_syscall_work(flags) && !IS_ENABLED(CONFIG_DEBUG_RSEQ)) {
+ 		local_daif_mask();
+ 		flags = current_thread_info()->flags;
+-		if (!has_syscall_work(flags)) {
++		if (!has_syscall_work(flags) && !(flags & _TIF_SINGLESTEP)) {
+ 			/*
+ 			 * We're off to userspace, where interrupts are
+ 			 * always enabled after we restore the flags from
 
 
