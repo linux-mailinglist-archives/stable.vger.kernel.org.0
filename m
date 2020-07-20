@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BAD226476
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A03412264FD
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729678AbgGTPpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:45:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
+        id S1730450AbgGTPt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:49:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730498AbgGTPpR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:17 -0400
+        id S1731059AbgGTPtz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:49:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D2F820773;
-        Mon, 20 Jul 2020 15:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DD782064B;
+        Mon, 20 Jul 2020 15:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259916;
-        bh=baWO5rVjBPThrb1OlfN7ms8T0GJW+Kh/YpfW3Pae/JU=;
+        s=default; t=1595260195;
+        bh=0RwVnEK/I2mLDzT50vz+pxDG2h2QzNEwWLNPicsGOis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcJ47KbjqGMr2EqUjlLJdjQbHZgDKrljjQGLY86K93/OIeMqf8C18qwBixRkG5t1C
-         60N9CyI3dHn+h8IGWVp2+eJ3p2/c+kQm7bsQem+1vcNqJZhHmHH6+jct+0PbPd3wEq
-         WmZuWBaVbxXSiEaAG/uMttr7tdMYRjgJuQgwVLv0=
+        b=GKTmjomVg+fQhNtgp0nqahuXiOVYvFQtN2kSV7ZDyFnR3QG2xy+NawqIYYGnFhGPj
+         206cy+eTzUIPXPcrqicpLbIepPZHL6Zx4W0J0zROW1baUVuS8XC/yJhlQZH5oIVvEm
+         b7wfD/9OqMctkY6MtWzd2JfLFGUNiOkT0yRZgtwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+934037347002901b8d2a@syzkaller.appspotmail.com,
-        Zheng Bin <zhengbin13@huawei.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/125] nbd: Fix memory leak in nbd_add_socket
-Date:   Mon, 20 Jul 2020 17:36:01 +0200
-Message-Id: <20200720152804.065584760@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 015/133] tcp: md5: allow changing MD5 keys in all socket states
+Date:   Mon, 20 Jul 2020 17:36:02 +0200
+Message-Id: <20200720152804.462045128@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,80 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 579dd91ab3a5446b148e7f179b6596b270dace46 ]
+[ Upstream commit 1ca0fafd73c5268e8fc4b997094b8bb2bfe8deea ]
 
-When adding first socket to nbd, if nsock's allocation failed, the data
-structure member "config->socks" was reallocated, but the data structure
-member "config->num_connections" was not updated. A memory leak will occur
-then because the function "nbd_config_put" will free "config->socks" only
-when "config->num_connections" is not zero.
+This essentially reverts commit 721230326891 ("tcp: md5: reject TCP_MD5SIG
+or TCP_MD5SIG_EXT on established sockets")
 
-Fixes: 03bf73c315ed ("nbd: prevent memory leak")
-Reported-by: syzbot+934037347002901b8d2a@syzkaller.appspotmail.com
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Mathieu reported that many vendors BGP implementations can
+actually switch TCP MD5 on established flows.
+
+Quoting Mathieu :
+   Here is a list of a few network vendors along with their behavior
+   with respect to TCP MD5:
+
+   - Cisco: Allows for password to be changed, but within the hold-down
+     timer (~180 seconds).
+   - Juniper: When password is initially set on active connection it will
+     reset, but after that any subsequent password changes no network
+     resets.
+   - Nokia: No notes on if they flap the tcp connection or not.
+   - Ericsson/RedBack: Allows for 2 password (old/new) to co-exist until
+     both sides are ok with new passwords.
+   - Meta-Switch: Expects the password to be set before a connection is
+     attempted, but no further info on whether they reset the TCP
+     connection on a change.
+   - Avaya: Disable the neighbor, then set password, then re-enable.
+   - Zebos: Would normally allow the change when socket connected.
+
+We can revert my prior change because commit 9424e2e7ad93 ("tcp: md5: fix potential
+overestimation of TCP option space") removed the leak of 4 kernel bytes to
+the wire that was the main reason for my patch.
+
+While doing my investigations, I found a bug when a MD5 key is changed, leading
+to these commits that stable teams want to consider before backporting this revert :
+
+ Commit 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
+ Commit e6ced831ef11 ("tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers")
+
+Fixes: 721230326891 "tcp: md5: reject TCP_MD5SIG or TCP_MD5SIG_EXT on established sockets"
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ net/ipv4/tcp.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 8f56e6b2f114f..f22fad977c913 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -960,25 +960,26 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
- 	     test_bit(NBD_BOUND, &config->runtime_flags))) {
- 		dev_err(disk_to_dev(nbd->disk),
- 			"Device being setup by another task");
--		sockfd_put(sock);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto put_socket;
-+	}
-+
-+	nsock = kzalloc(sizeof(*nsock), GFP_KERNEL);
-+	if (!nsock) {
-+		err = -ENOMEM;
-+		goto put_socket;
- 	}
- 
- 	socks = krealloc(config->socks, (config->num_connections + 1) *
- 			 sizeof(struct nbd_sock *), GFP_KERNEL);
- 	if (!socks) {
--		sockfd_put(sock);
--		return -ENOMEM;
-+		kfree(nsock);
-+		err = -ENOMEM;
-+		goto put_socket;
- 	}
- 
- 	config->socks = socks;
- 
--	nsock = kzalloc(sizeof(struct nbd_sock), GFP_KERNEL);
--	if (!nsock) {
--		sockfd_put(sock);
--		return -ENOMEM;
--	}
--
- 	nsock->fallback_index = -1;
- 	nsock->dead = false;
- 	mutex_init(&nsock->tx_lock);
-@@ -990,6 +991,10 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
- 	atomic_inc(&config->live_connections);
- 
- 	return 0;
-+
-+put_socket:
-+	sockfd_put(sock);
-+	return err;
- }
- 
- static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
--- 
-2.25.1
-
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3015,10 +3015,7 @@ static int do_tcp_setsockopt(struct sock
+ #ifdef CONFIG_TCP_MD5SIG
+ 	case TCP_MD5SIG:
+ 	case TCP_MD5SIG_EXT:
+-		if ((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN))
+-			err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
+-		else
+-			err = -EINVAL;
++		err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
+ 		break;
+ #endif
+ 	case TCP_USER_TIMEOUT:
 
 
