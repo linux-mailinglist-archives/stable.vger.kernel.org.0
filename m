@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C221226BC5
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157D3226BB9
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729238AbgGTPlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33888 "EHLO mail.kernel.org"
+        id S1729324AbgGTQn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:43:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729933AbgGTPll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:41:41 -0400
+        id S1729910AbgGTPlq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:41:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 573842065E;
-        Mon, 20 Jul 2020 15:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989FE2064B;
+        Mon, 20 Jul 2020 15:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259700;
-        bh=g+1WMYJkqHeaMhrWLaaPUK+YogDfh1QqQImhBbOAncg=;
+        s=default; t=1595259706;
+        bh=H65Z4LoXTK7spilxX0Aich7GtXg8kljEivi0SLB3HZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHId54wYI6M3u5QDElw1J6sR7PtJE7GV39J2Do6kbplSvG4EiRUHRTv6hrhbAG4XJ
-         WEBwaAMNoWH/xJUCTb0iE5bqhGVbrNb0WSpJZ7gjZBEv8WNQ2uk743GEfi4SoIJQz1
-         ymh3ANQe6oCQ2Ucy+m6wNXOts7WP8SULOnN+pMYA=
+        b=NZzWBar+oUXB/WU0JkN1TMrem/22HnBuOOPA4dSJ9wLVsOEW3aLQzyOPUhROs3IBS
+         3ysVezZHsUrSi4ZtJdrJmlp9f2Mpw33RiUSHD0+Wi56+U0o6FZBIjeil+UdBPpabpP
+         hKD+Id1FbdPhBNduEdYo+IbrvxLvBcLsrNLzz25g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 49/86] Revert "usb/ehci-platform: Set PM runtime as active on resume"
-Date:   Mon, 20 Jul 2020 17:36:45 +0200
-Message-Id: <20200720152755.631250267@linuxfoundation.org>
+Subject: [PATCH 4.9 50/86] Revert "usb/xhci-plat: Set PM runtime as active on resume"
+Date:   Mon, 20 Jul 2020 17:36:46 +0200
+Message-Id: <20200720152755.681432535@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
 References: <20200720152753.138974850@linuxfoundation.org>
@@ -42,7 +42,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 5365fc3132a36a027fd7c2bb461e651b37f1e4d1.
+This reverts commit 9e148a5e5e0929a4cb3000de9c843a07508ce575.
 
 Eugeniu Rosca writes:
 
@@ -71,25 +71,32 @@ On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
 
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-platform.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/host/xhci-plat.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/usb/host/ehci-platform.c b/drivers/usb/host/ehci-platform.c
-index 1b141e9299f99..a268d9e8d6cfb 100644
---- a/drivers/usb/host/ehci-platform.c
-+++ b/drivers/usb/host/ehci-platform.c
-@@ -378,11 +378,6 @@ static int ehci_platform_resume(struct device *dev)
- 	}
- 
- 	ehci_resume(hcd, priv->reset_on_resume);
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index 169d7b2feb1f7..781283a5138ea 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -313,17 +313,8 @@ static int xhci_plat_resume(struct device *dev)
+ {
+ 	struct usb_hcd	*hcd = dev_get_drvdata(dev);
+ 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
+-	int ret;
+-
+-	ret = xhci_resume(xhci, 0);
+-	if (ret)
+-		return ret;
 -
 -	pm_runtime_disable(dev);
 -	pm_runtime_set_active(dev);
 -	pm_runtime_enable(dev);
--
- 	return 0;
+ 
+-	return 0;
++	return xhci_resume(xhci, 0);
  }
- #endif /* CONFIG_PM_SLEEP */
+ 
+ static const struct dev_pm_ops xhci_plat_pm_ops = {
 -- 
 2.25.1
 
