@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A45A2263B1
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D543226447
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729441AbgGTPjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:39:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
+        id S1730310AbgGTPnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:43:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729434AbgGTPjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:39:16 -0400
+        id S1730306AbgGTPnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:43:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12EE722CAF;
-        Mon, 20 Jul 2020 15:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10F4B2064B;
+        Mon, 20 Jul 2020 15:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259556;
-        bh=uUIeuthN7YjPK+Imy+UK5gSEQoybZoUj3NYqZ0gBz7g=;
+        s=default; t=1595259825;
+        bh=cuo+juPufaXmy7d316bkfcGe0dqdvApZ/1cf6hrJbV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsELlNiCQQCWjXaN9teY6xVdHS7T+GqTRttpRGwrbjwg7RTddq695Oo7VcHpjhf9r
-         7ZAJadw2bZi6IJG54YP0zQbJqnP3rW09h74BlJuT2wuGCcdKx2JQ8iqwcidI8f/nhD
-         es/rfQvxPGIQ5PsyOWFGLF2vK4IhwszoxiTrFDWs=
+        b=mUrHMpWdy+RaFrFLNlMr1Zva/krqIrHBWpSteyVrHhaOXBcUIwOryTdOjyh591wu5
+         yv/RgDn6xba6qNsRjGY2yoj4X60/3yuVdph+/BFfN6oLtUD1Y897TMMA4mfrwLmwmV
+         pHzOGU95ktYNbmbBoJobEIFAfEg6l/Y/CZM+hRwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Pedersen <limero1337@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 52/58] Input: i8042 - add Lenovo XiaoXin Air 12 to i8042 nomux list
+        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 72/86] USB: serial: option: add Quectel EG95 LTE modem
 Date:   Mon, 20 Jul 2020 17:37:08 +0200
-Message-Id: <20200720152749.865557209@linuxfoundation.org>
+Message-Id: <20200720152756.804215302@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Pedersen <limero1337@gmail.com>
+From: AceLan Kao <acelan.kao@canonical.com>
 
-commit 17d51429da722cd8fc77a365a112f008abf4f8b3 upstream.
+commit da6902e5b6dbca9081e3d377f9802d4fd0c5ea59 upstream.
 
-This fixes two finger trackpad scroll on the Lenovo XiaoXin Air 12.
-Without nomux, the trackpad behaves as if only one finger is present and
-moves the cursor when trying to scroll.
+Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
 
-Signed-off-by: David Pedersen <limero1337@gmail.com>
+T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0195 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200625133754.291325-1-limero1337@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -430,6 +430,13 @@ static const struct dmi_system_id __init
- 		},
- 	},
- 	{
-+		/* Lenovo XiaoXin Air 12 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "80UN"),
-+		},
-+	},
-+	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -248,6 +248,7 @@ static void option_instat_callback(struc
+ /* These Quectel products use Quectel's vendor ID */
+ #define QUECTEL_PRODUCT_EC21			0x0121
+ #define QUECTEL_PRODUCT_EC25			0x0125
++#define QUECTEL_PRODUCT_EG95			0x0195
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ 
+@@ -1095,6 +1096,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
+ 	  .driver_info = RSVD(4) },
++	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95),
++	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06),
 
 
