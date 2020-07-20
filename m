@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 154D022657D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFDC2264F3
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731334AbgGTPyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:54:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53028 "EHLO mail.kernel.org"
+        id S1729812AbgGTPtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:49:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731560AbgGTPyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:54:21 -0400
+        id S1730274AbgGTPtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:49:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41067206E9;
-        Mon, 20 Jul 2020 15:54:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7107B2064B;
+        Mon, 20 Jul 2020 15:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260460;
-        bh=Mk9BPFQSsYlWObJZHiGbURYRJrba9Qp7WU4zXP8MO70=;
+        s=default; t=1595260175;
+        bh=z90SUA8yAMYpJtIMgGjptFNO+JtRmJHjqVfLHzjGxO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFpaZGMsZSKuTbk6F70bEuyMFJVNMaoooMST4ux95+IaZM0h/bm6sGIXvPBscztd0
-         VfKq5Qv7kR/1aK9ozso+SRGsgateZPJzi75vuGBCQY+qpaMnqqXh0miv6kkXy8L5wE
-         /95T5FycsP3AS1TJHuzFPuDVUJg93tOGHGwdpX2A=
+        b=hRlPUtAvdCbndswUuUBlQpfp5O+DDBDFQzv6gLvWqYL8Yf9OZc4jwLDsg/O6ckFlH
+         FWMaUFxKUdYnrpbuZD927gT2CgFPes7Ahey2rDLug2nB6OQdBTbEhpDCyZ1DSuDhjl
+         ufYvyb/Mw6aYrGmrApszQadJ2Ya3lf7/0cd6J/dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>
-Subject: [PATCH 4.19 111/133] timer: Prevent base->clk from moving backward
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH 4.14 119/125] misc: atmel-ssc: lock with mutex instead of spinlock
 Date:   Mon, 20 Jul 2020 17:37:38 +0200
-Message-Id: <20200720152809.105593165@linuxfoundation.org>
+Message-Id: <20200720152808.792826228@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 30c66fc30ee7a98c4f3adf5fb7e213b61884474f upstream.
+commit b037d60a3b1d1227609fd858fa34321f41829911 upstream.
 
-When a timer is enqueued with a negative delta (ie: expiry is below
-base->clk), it gets added to the wheel as expiring now (base->clk).
+Uninterruptible context is not needed in the driver and causes lockdep
+warning because of mutex taken in of_alias_get_id(). Convert the lock to
+mutex to avoid the issue.
 
-Yet the value that gets stored in base->next_expiry, while calling
-trigger_dyntick_cpu(), is the initial timer->expires value. The
-resulting state becomes:
-
-	base->next_expiry < base->clk
-
-On the next timer enqueue, forward_timer_base() may accidentally
-rewind base->clk. As a possible outcome, timers may expire way too
-early, the worst case being that the highest wheel levels get spuriously
-processed again.
-
-To prevent from that, make sure that base->next_expiry doesn't get below
-base->clk.
-
-Fixes: a683f390b93f ("timers: Forward the wheel clock whenever possible")
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
-Tested-by: Juri Lelli <juri.lelli@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200703010657.2302-1-frederic@kernel.org
+Fixes: 099343c64e16 ("ARM: at91: atmel-ssc: add device tree support")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Link: https://lore.kernel.org/r/50f0d7fa107f318296afb49477c3571e4d6978c5.1592998403.git.mirq-linux@rere.qmqm.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/timer.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/misc/atmel-ssc.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -580,7 +580,15 @@ trigger_dyntick_cpu(struct timer_base *b
- 	 * Set the next expiry time and kick the CPU so it can reevaluate the
- 	 * wheel:
- 	 */
--	base->next_expiry = timer->expires;
-+	if (time_before(timer->expires, base->clk)) {
-+		/*
-+		 * Prevent from forward_timer_base() moving the base->clk
-+		 * backward
-+		 */
-+		base->next_expiry = base->clk;
-+	} else {
-+		base->next_expiry = timer->expires;
-+	}
- 	wake_up_nohz_cpu(base->cpu);
- }
+--- a/drivers/misc/atmel-ssc.c
++++ b/drivers/misc/atmel-ssc.c
+@@ -13,7 +13,7 @@
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
+-#include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/atmel-ssc.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+@@ -23,7 +23,7 @@
+ #include "../../sound/soc/atmel/atmel_ssc_dai.h"
  
-@@ -899,10 +907,13 @@ static inline void forward_timer_base(st
- 	 * If the next expiry value is > jiffies, then we fast forward to
- 	 * jiffies otherwise we forward to the next expiry value.
- 	 */
--	if (time_after(base->next_expiry, jnow))
-+	if (time_after(base->next_expiry, jnow)) {
- 		base->clk = jnow;
--	else
-+	} else {
-+		if (WARN_ON_ONCE(time_before(base->next_expiry, base->clk)))
-+			return;
- 		base->clk = base->next_expiry;
-+	}
- #endif
- }
+ /* Serialize access to ssc_list and user count */
+-static DEFINE_SPINLOCK(user_lock);
++static DEFINE_MUTEX(user_lock);
+ static LIST_HEAD(ssc_list);
  
+ struct ssc_device *ssc_request(unsigned int ssc_num)
+@@ -31,7 +31,7 @@ struct ssc_device *ssc_request(unsigned
+ 	int ssc_valid = 0;
+ 	struct ssc_device *ssc;
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	list_for_each_entry(ssc, &ssc_list, list) {
+ 		if (ssc->pdev->dev.of_node) {
+ 			if (of_alias_get_id(ssc->pdev->dev.of_node, "ssc")
+@@ -47,18 +47,18 @@ struct ssc_device *ssc_request(unsigned
+ 	}
+ 
+ 	if (!ssc_valid) {
+-		spin_unlock(&user_lock);
++		mutex_unlock(&user_lock);
+ 		pr_err("ssc: ssc%d platform device is missing\n", ssc_num);
+ 		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	if (ssc->user) {
+-		spin_unlock(&user_lock);
++		mutex_unlock(&user_lock);
+ 		dev_dbg(&ssc->pdev->dev, "module busy\n");
+ 		return ERR_PTR(-EBUSY);
+ 	}
+ 	ssc->user++;
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	clk_prepare(ssc->clk);
+ 
+@@ -70,14 +70,14 @@ void ssc_free(struct ssc_device *ssc)
+ {
+ 	bool disable_clk = true;
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	if (ssc->user)
+ 		ssc->user--;
+ 	else {
+ 		disable_clk = false;
+ 		dev_dbg(&ssc->pdev->dev, "device already free\n");
+ 	}
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	if (disable_clk)
+ 		clk_unprepare(ssc->clk);
+@@ -240,9 +240,9 @@ static int ssc_probe(struct platform_dev
+ 		return -ENXIO;
+ 	}
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	list_add_tail(&ssc->list, &ssc_list);
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	platform_set_drvdata(pdev, ssc);
+ 
+@@ -261,9 +261,9 @@ static int ssc_remove(struct platform_de
+ 
+ 	ssc_sound_dai_remove(ssc);
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	list_del(&ssc->list);
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	return 0;
+ }
 
 
