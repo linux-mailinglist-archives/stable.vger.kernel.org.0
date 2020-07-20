@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6CF2263E0
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7558E22648E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729834AbgGTPlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60864 "EHLO mail.kernel.org"
+        id S1729743AbgGTPqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:46:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729817AbgGTPlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:41:06 -0400
+        id S1730609AbgGTPqE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:46:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11BF722D07;
-        Mon, 20 Jul 2020 15:41:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E21A206E9;
+        Mon, 20 Jul 2020 15:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259665;
-        bh=HvLjSETqSGwPJTCtt7FAZ1rCHmOP8smwQD4IRxTnFBE=;
+        s=default; t=1595259964;
+        bh=PM2qco3AhDYbAW67Wclmbb4zJkBAlFrUSZOS3nlXwbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BS7pV+qV6Oe0THz2aULEvYXWwitL/vZuE9t4I9fo4VUBau0jn2iRVcrQL8cwFLXeP
-         BTUvMqbnTu1n2ZsBBI4m+rDy7+n94ihPLXDwgMFwW5vb+Ie73OVQQD331Cem9Fo+eh
-         kZHo1th/EaCq4Fr6I/OK3mxtmYCP8qjV1U5+PIss=
+        b=sKqfHEqAfhEQhywUSk+ZLtM5+H9SvuIhxYCx+7RjYfGKf+Y2Ypfo5mzMbbtYFk/oK
+         WGcdQFtc3xg6gg1n7qFu/oYMJGnCJaGhw6FCgWGVHuw7nDC/AIXVqZ6KUu7uaEr+Z9
+         PvU56W3MSMpB9NU3TP61XpxkYkxomjld5A4iU6ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislav Saner <ssaner@redhat.com>,
-        Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/86] scsi: mptscsih: Fix read sense data size
-Date:   Mon, 20 Jul 2020 17:36:04 +0200
-Message-Id: <20200720152753.535162338@linuxfoundation.org>
+        stable@vger.kernel.org, xidongwang <wangxidong_97@163.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 026/125] ALSA: opl3: fix infoleak in opl3
+Date:   Mon, 20 Jul 2020 17:36:05 +0200
+Message-Id: <20200720152804.253744600@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: xidongwang <wangxidong_97@163.com>
 
-[ Upstream commit afe89f115e84edbc76d316759e206580a06c6973 ]
+commit ad155712bb1ea2151944cf06a0e08c315c70c1e3 upstream.
 
-The sense data buffer in sense_buf_pool is allocated with size of
-MPT_SENSE_BUFFER_ALLOC(64) (multiplied by req_depth) while SNS_LEN(sc)(96)
-is used when reading the data.  That may lead to a read from unallocated
-area, sometimes from another (unallocated) page.  To fix this, limit the
-read size to MPT_SENSE_BUFFER_ALLOC.
+The stack object “info” in snd_opl3_ioctl() has a leaking problem.
+It has 2 padding bytes which are not initialized and leaked via
+“copy_to_user”.
 
-Link: https://lore.kernel.org/r/20200616150446.4840-1-thenzl@redhat.com
-Co-developed-by: Stanislav Saner <ssaner@redhat.com>
-Signed-off-by: Stanislav Saner <ssaner@redhat.com>
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: xidongwang <wangxidong_97@163.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1594006058-30362-1-git-send-email-wangxidong_97@163.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/message/fusion/mptscsih.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/drivers/opl3/opl3_synth.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/message/fusion/mptscsih.c b/drivers/message/fusion/mptscsih.c
-index 6c9fc11efb872..e77185e143ab7 100644
---- a/drivers/message/fusion/mptscsih.c
-+++ b/drivers/message/fusion/mptscsih.c
-@@ -118,8 +118,6 @@ int 		mptscsih_suspend(struct pci_dev *pdev, pm_message_t state);
- int 		mptscsih_resume(struct pci_dev *pdev);
- #endif
+--- a/sound/drivers/opl3/opl3_synth.c
++++ b/sound/drivers/opl3/opl3_synth.c
+@@ -104,6 +104,8 @@ int snd_opl3_ioctl(struct snd_hwdep * hw
+ 		{
+ 			struct snd_dm_fm_info info;
  
--#define SNS_LEN(scp)	SCSI_SENSE_BUFFERSIZE
--
- 
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
- /*
-@@ -2427,7 +2425,7 @@ mptscsih_copy_sense_data(struct scsi_cmnd *sc, MPT_SCSI_HOST *hd, MPT_FRAME_HDR
- 		/* Copy the sense received into the scsi command block. */
- 		req_index = le16_to_cpu(mf->u.frame.hwhdr.msgctxu.fld.req_idx);
- 		sense_data = ((u8 *)ioc->sense_buf_pool + (req_index * MPT_SENSE_BUFFER_ALLOC));
--		memcpy(sc->sense_buffer, sense_data, SNS_LEN(sc));
-+		memcpy(sc->sense_buffer, sense_data, MPT_SENSE_BUFFER_ALLOC);
- 
- 		/* Log SMART data (asc = 0x5D, non-IM case only) if required.
- 		 */
--- 
-2.25.1
-
++			memset(&info, 0, sizeof(info));
++
+ 			info.fm_mode = opl3->fm_mode;
+ 			info.rhythm = opl3->rhythm;
+ 			if (copy_to_user(argp, &info, sizeof(struct snd_dm_fm_info)))
 
 
