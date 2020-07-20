@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E19226AA5
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4C5226B38
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731109AbgGTPwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:52:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51060 "EHLO mail.kernel.org"
+        id S1730770AbgGTPrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:47:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731402AbgGTPwq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:52:46 -0400
+        id S1730768AbgGTPrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:47:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C98F2064B;
-        Mon, 20 Jul 2020 15:52:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B53D2065E;
+        Mon, 20 Jul 2020 15:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260366;
-        bh=dm9YX6CHswFwH4O4S2337GjX18uA5AbJOShfLVuRe+0=;
+        s=default; t=1595260044;
+        bh=i6z5wAOGKay2yoCvdUnPgPzFvWJm4qfzKtRJ0+eiRlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IW1k/Vm/kle9IrPfbqYJ3oJbv2ceVeD9LnuMuJjGwxT1yiE6tNc5OKshufZ4xPAHu
-         vhpMPwRPlD+3Ge3AVpbuV/2R5Y74QIOu+oAQH8yuzM7R8YVL/bcnXXqYXgMT4hw8ty
-         igUX0U+RjhL4MF5gNp7u/KOyPacMmMfWRU2tbMBY=
+        b=Upme2DBDmqXvSkY9AWuNlVFoicqN9MtYeTi5vfePfXViTwQ9AoP2O6PXM6T6gIFCR
+         RSQdob5GyoanvWLw73pZGrz5AB5jsfpdSUdjuU7XUCVqI+qm4DMau/8OHhugf9REku
+         GmetiQCl6eAYTtiiNWCdo/j49pSTZYI95ZEvtdts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 077/133] mtd: rawnand: brcmnand: fix CS0 layout
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Ian Abbott <abbotti@mev.co.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 085/125] staging: comedi: verify array index is correct before using it
 Date:   Mon, 20 Jul 2020 17:37:04 +0200
-Message-Id: <20200720152807.419834763@linuxfoundation.org>
+Message-Id: <20200720152807.121300435@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 3d3fb3c5be9ce07fa85d8f67fb3922e4613b955b upstream.
+[ Upstream commit ef75e14a6c935eec82abac07ab68e388514e39bc ]
 
-Only v3.3-v5.0 have a different CS0 layout.
-Controllers before v3.3 use the same layout for every CS.
+This code reads from the array before verifying that "trig" is a valid
+index.  If the index is wildly out of bounds then reading from an
+invalid address could lead to an Oops.
 
-Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200522121524.4161539-3-noltari@gmail.com
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200709102936.GA20875@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/brcmnand/brcmnand.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -491,8 +491,9 @@ static int brcmnand_revision_init(struct
- 	} else {
- 		ctrl->cs_offsets = brcmnand_cs_offsets;
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1500.c b/drivers/staging/comedi/drivers/addi_apci_1500.c
+index 63991c49ff230..79a8799b12628 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -465,9 +465,9 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
+ 	unsigned int lo_mask = data[5] << shift;
+ 	unsigned int chan_mask = hi_mask | lo_mask;
+ 	unsigned int old_mask = (1 << shift) - 1;
+-	unsigned int pm = devpriv->pm[trig] & old_mask;
+-	unsigned int pt = devpriv->pt[trig] & old_mask;
+-	unsigned int pp = devpriv->pp[trig] & old_mask;
++	unsigned int pm;
++	unsigned int pt;
++	unsigned int pp;
  
--		/* v5.0 and earlier has a different CS0 offset layout */
--		if (ctrl->nand_version <= 0x0500)
-+		/* v3.3-5.0 have a different CS0 offset layout */
-+		if (ctrl->nand_version >= 0x0303 &&
-+		    ctrl->nand_version <= 0x0500)
- 			ctrl->cs0_offsets = brcmnand_cs_offsets_cs0;
+ 	if (trig > 1) {
+ 		dev_dbg(dev->class_dev,
+@@ -480,6 +480,10 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
+ 		return -EINVAL;
  	}
  
++	pm = devpriv->pm[trig] & old_mask;
++	pt = devpriv->pt[trig] & old_mask;
++	pp = devpriv->pp[trig] & old_mask;
++
+ 	switch (data[2]) {
+ 	case COMEDI_DIGITAL_TRIG_DISABLE:
+ 		/* clear trigger configuration */
+-- 
+2.25.1
+
 
 
