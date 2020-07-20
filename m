@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4254226ACF
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CD9226BBB
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731199AbgGTPvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S1732231AbgGTQoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:44:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731190AbgGTPvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:51:07 -0400
+        id S1729945AbgGTPlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:41:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E933F22BEF;
-        Mon, 20 Jul 2020 15:51:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFE892065E;
+        Mon, 20 Jul 2020 15:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260266;
-        bh=uYxb9P/P8dua0vjr/LUf8CIp6XXI6TswYw3wgxuE2qs=;
+        s=default; t=1595259703;
+        bh=dr6vadShhVxDUp5feV3jXXDwSy9MNJ9WhHtlCUjCzHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7DH+agUF/+aciooAfq3ABvNqStZ6c086GZUsROwEGTayf0nCVcK4cuxJq0IGUXkR
-         V/O70sfl8T1wNq3LxzmE/Ej+flgNRVfK1F4ym3Kya/R0ExY4+RJ+Q0uM7JObVm3Xk3
-         CBiifevZCl++BbfydszgbwdiKY+fcDh96ghswwqs=
+        b=wlWkOOGh1wOBFMd24NdXNgQIUc1Lhv8JVEWKqDWufVGBU5fOGfNT1xrfdzExJtUCM
+         Jw393CzMt33WZCln3Yp/gV444k6QEi2fNWfvQ9PX6lvRbCY3Jrr+3czg77GKWI3lfj
+         tST4hxmVDU5h58gTc5zH3krOqJNL6JPQzVLsRzPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 041/133] Revert "usb/ohci-platform: Fix a warning when hibernating"
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 32/86] tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()
 Date:   Mon, 20 Jul 2020 17:36:28 +0200
-Message-Id: <20200720152805.704517976@linuxfoundation.org>
+Message-Id: <20200720152754.775270760@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit c83258a757687ffccce37ed73dba56cc6d4b8a1b.
+From: Eric Dumazet <edumazet@google.com>
 
-Eugeniu Rosca writes:
+[ Upstream commit 6a2febec338df7e7699a52d00b2e1207dcf65b28 ]
 
-On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
->After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
->Set PM runtime as active on resume") into downstream v4.14.x, we started
->to consistently experience below panic [1] on every second s2ram of
->R-Car H3 Salvator-X Renesas reference board.
->
->After some investigations, we concluded the following:
-> - the issue does not exist in vanilla v5.8-rc4+
-> - [bisecting shows that] the panic on v4.14.186 is caused by the lack
->   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
->   link support"). Getting evidence for that is easy. Reverting
->   987351e1ea7772 in vanilla leads to a similar backtrace [2].
->
->Questions:
-> - Backporting 987351e1ea7772 ("phy: core: Add consumer device
->   link support") to v4.14.187 looks challenging enough, so probably not
->   worth it. Anybody to contradict this?
-> - Assuming no plans to backport the missing mainline commit to v4.14.x,
->   should the following three v4.14.186 commits be reverted on v4.14.x?
->   * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
->   * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
->   * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
+MD5 keys are read with RCU protection, and tcp_md5_do_add()
+might update in-place a prior key.
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Normally, typical RCU updates would allocate a new piece
+of memory. In this case only key->key and key->keylen might
+be updated, and we do not care if an incoming packet could
+see the old key, the new one, or some intermediate value,
+since changing the key on a live flow is known to be problematic
+anyway.
+
+We only want to make sure that in the case key->keylen
+is changed, cpus in tcp_md5_hash_key() wont try to use
+uninitialized data, or crash because key->keylen was
+read twice to feed sg_init_one() and ahash_request_set_crypt()
+
+Fixes: 9ea88a153001 ("tcp: md5: check md5 signature without socket lock")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ohci-platform.c | 5 -----
- 1 file changed, 5 deletions(-)
+ net/ipv4/tcp.c      |    7 +++++--
+ net/ipv4/tcp_ipv4.c |    3 +++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/ohci-platform.c b/drivers/usb/host/ohci-platform.c
-index f40112c5920d1..65a1c3fdc88c6 100644
---- a/drivers/usb/host/ohci-platform.c
-+++ b/drivers/usb/host/ohci-platform.c
-@@ -301,11 +301,6 @@ static int ohci_platform_resume(struct device *dev)
- 	}
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3207,10 +3207,13 @@ EXPORT_SYMBOL(tcp_md5_hash_skb_data);
  
- 	ohci_resume(hcd, false);
--
--	pm_runtime_disable(dev);
--	pm_runtime_set_active(dev);
--	pm_runtime_enable(dev);
--
- 	return 0;
+ int tcp_md5_hash_key(struct tcp_md5sig_pool *hp, const struct tcp_md5sig_key *key)
+ {
++	u8 keylen = key->keylen;
+ 	struct scatterlist sg;
+ 
+-	sg_init_one(&sg, key->key, key->keylen);
+-	ahash_request_set_crypt(hp->md5_req, &sg, NULL, key->keylen);
++	smp_rmb(); /* paired with smp_wmb() in tcp_md5_do_add() */
++
++	sg_init_one(&sg, key->key, keylen);
++	ahash_request_set_crypt(hp->md5_req, &sg, NULL, keylen);
+ 	return crypto_ahash_update(hp->md5_req);
  }
- #endif /* CONFIG_PM_SLEEP */
--- 
-2.25.1
-
+ EXPORT_SYMBOL(tcp_md5_hash_key);
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -938,6 +938,9 @@ int tcp_md5_do_add(struct sock *sk, cons
+ 	if (key) {
+ 		/* Pre-existing entry - just update that one. */
+ 		memcpy(key->key, newkey, newkeylen);
++
++		smp_wmb(); /* pairs with smp_rmb() in tcp_md5_hash_key() */
++
+ 		key->keylen = newkeylen;
+ 		return 0;
+ 	}
 
 
