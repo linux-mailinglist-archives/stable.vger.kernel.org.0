@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E45E2266E0
+	by mail.lfdr.de (Postfix) with ESMTP id 0005F2266E2
 	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733110AbgGTQHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:07:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43580 "EHLO mail.kernel.org"
+        id S1732638AbgGTQHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733105AbgGTQG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:06:57 -0400
+        id S1733114AbgGTQHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:07:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB1E72065E;
-        Mon, 20 Jul 2020 16:06:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40D8C20672;
+        Mon, 20 Jul 2020 16:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261217;
-        bh=LNiLAZUBeUzQmxzaDeI4EkEX9Ch+UJWdsulMeVHPu94=;
+        s=default; t=1595261222;
+        bh=GEJJCDdVm8pUbVjvqKgHBBMZkXtSqzUnyt6nkVra9C4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+zN8eJtFTgaEh25o3rrqjXLwFXlet8C6dn8BuSCiF6Tt3mSqtbiJMcKRM73I+zF+
-         WV3kbJNX45be779Izu2UwayTEvHDhJJZ4a8YRVTN0F12we5BvBs/5QMj5Z8c4lYh4m
-         uqYnUTTdIgl7JN3qutojYWj36auRNvAfSqh0ZOEU=
+        b=YZazdAiGaow1MMrvf4Z6k2+kaUNhG4VbnJ1FUr2p0XxxWEbb2OrPhySRm/V36hNlc
+         KYjqVZc0OQa+auBfpTXUJ7FubXy7Gbki3rIkh9CC0YjyIff7OK6/q3azJ1itQgwFhO
+         vgsvvFj4fGXwgFwd6114AnYx4q/Rt9PjskkdaGQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 035/244] drm/exynos: fix ref count leak in mic_pre_enable
-Date:   Mon, 20 Jul 2020 17:35:06 +0200
-Message-Id: <20200720152827.532046895@linuxfoundation.org>
+        stable@vger.kernel.org, Petteri Aimonen <jpa@git.mail.kapsi.fi>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 036/244] x86/fpu: Reset MXCSR to default in kernel_fpu_begin()
+Date:   Mon, 20 Jul 2020 17:35:07 +0200
+Message-Id: <20200720152827.582799070@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -45,36 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Petteri Aimonen <jpa@git.mail.kapsi.fi>
 
-[ Upstream commit d4f5a095daf0d25f0b385e1ef26338608433a4c5 ]
+[ Upstream commit 7ad816762f9bf89e940e618ea40c43138b479e10 ]
 
-in mic_pre_enable, pm_runtime_get_sync is called which
-increments the counter even in case of failure, leading to incorrect
-ref count. In case of failure, decrement the ref count before returning.
+Previously, kernel floating point code would run with the MXCSR control
+register value last set by userland code by the thread that was active
+on the CPU core just before kernel call. This could affect calculation
+results if rounding mode was changed, or a crash if a FPU/SIMD exception
+was unmasked.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Restore MXCSR to the kernel's default value.
+
+ [ bp: Carve out from a bigger patch by Petteri, add feature check, add
+   FNINIT call too (amluto). ]
+
+Signed-off-by: Petteri Aimonen <jpa@git.mail.kapsi.fi>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=207979
+Link: https://lkml.kernel.org/r/20200624114646.28953-2-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_mic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/fpu/internal.h | 5 +++++
+ arch/x86/kernel/fpu/core.c          | 6 ++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_mic.c b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-index f41d75923557a..004110c5ded42 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_mic.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-@@ -269,8 +269,10 @@ static void mic_pre_enable(struct drm_bridge *bridge)
- 		goto unlock;
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 44c48e34d7994..00eac7f1529b0 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -619,6 +619,11 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+  * MXCSR and XCR definitions:
+  */
  
- 	ret = pm_runtime_get_sync(mic->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(mic->dev);
- 		goto unlock;
-+	}
++static inline void ldmxcsr(u32 mxcsr)
++{
++	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
++}
++
+ extern unsigned int mxcsr_feature_mask;
  
- 	mic_set_path(mic, 1);
+ #define XCR_XFEATURE_ENABLED_MASK	0x00000000
+diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+index 12c70840980e4..cd8839027f66d 100644
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -101,6 +101,12 @@ void kernel_fpu_begin(void)
+ 		copy_fpregs_to_fpstate(&current->thread.fpu);
+ 	}
+ 	__cpu_invalidate_fpregs_state();
++
++	if (boot_cpu_has(X86_FEATURE_XMM))
++		ldmxcsr(MXCSR_DEFAULT);
++
++	if (boot_cpu_has(X86_FEATURE_FPU))
++		asm volatile ("fninit");
+ }
+ EXPORT_SYMBOL_GPL(kernel_fpu_begin);
  
 -- 
 2.25.1
