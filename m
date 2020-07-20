@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB92D2269A0
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7704A2268B1
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732787AbgGTQ1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60386 "EHLO mail.kernel.org"
+        id S2387619AbgGTQKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732251AbgGTP7f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:59:35 -0400
+        id S2387607AbgGTQKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5925622CBB;
-        Mon, 20 Jul 2020 15:59:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27D382064B;
+        Mon, 20 Jul 2020 16:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260774;
-        bh=0FZeMFH7gDbfkGfeeYppuC4EMRgBINcNU5H0gQHaCSk=;
+        s=default; t=1595261403;
+        bh=+Yu0yXXoWm65CQbTb8rEu8e9JDG41uLdmHPn23u0NFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U93apk+D2MD5JUi+lzcsq897lzTHjDvEvX9QXmtvIXivJ3m73R6JhjJCUbj82dSew
-         HirljRE5wO2PmbmA7/dkg5YIvKCVwMtI9bPxlQdzzAnX7eQd4HXESV4g/Go7+rlsri
-         yAFLvoYN0xiaM57MGlCtyOHQlPPRqQ/FdSfzip+w=
+        b=mfKcPSTSyKrEUKFgxc6IAmQlYiiGAZVRjtOtG5QGyICK1nxOBlqLiO4QMuF4t5r+2
+         JEK3uEI3MqCE6X+DnT2e+hUOB3gzWvnbOUaoTOnh0rcH4x2xZrsOcpolO2toOU7uf1
+         8PqrB+Kz0SJnMrG5d6T4J/yhaXmOq9/KCPQ2YrC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Joel Stanley <joel@jms.id.au>, Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/215] bus: ti-sysc: Use optional clocks on for enable and wait for softreset bit
+Subject: [PATCH 5.7 102/244] clk: AST2600: Add mux for EMMC clock
 Date:   Mon, 20 Jul 2020 17:36:13 +0200
-Message-Id: <20200720152824.536061809@linuxfoundation.org>
+Message-Id: <20200720152830.684860477@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,155 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit d46f9fbec71997420e4fb83c04d9affdf423f879 ]
+[ Upstream commit c2407ab3bd55064d459bc822efd1c134e852798c ]
 
-Some modules reset automatically when idled, and when re-enabled, we must
-wait for the automatic OCP softreset to complete. And if optional clocks
-are configured, we need to keep the clocks on while waiting for the reset
-to complete.
+The EMMC clock can be derived from either the HPLL or the MPLL. Register
+a clock mux so that the rate is calculated correctly based upon the
+parent.
 
-Let's fix the issue by moving the OCP softreset code to a separate
-function sysc_wait_softreset(), and call it also from sysc_enable_module()
-with the optional clocks enabled.
-
-This is based on what we're already doing for legacy platform data booting
-in _enable_sysc().
-
-Fixes: 7324a7a0d5e2 ("bus: ti-sysc: Implement display subsystem reset quirk")
-Reported-by: Faiz Abbas <faiz_abbas@ti.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20200709195706.12741-2-eajames@linux.ibm.com
+Acked-by: Joel Stanley <joel@jms.id.au>
+Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 80 ++++++++++++++++++++++++++++++++-----------
- 1 file changed, 60 insertions(+), 20 deletions(-)
+ drivers/clk/clk-ast2600.c | 49 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 41 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index d0b75e7d5e50f..bb3e3310865bd 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -186,6 +186,35 @@ static u32 sysc_read_sysstatus(struct sysc *ddata)
- 	return sysc_read(ddata, offset);
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index 99afc949925f0..177368cac6dd6 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -131,6 +131,18 @@ static const struct clk_div_table ast2600_eclk_div_table[] = {
+ 	{ 0 }
+ };
+ 
++static const struct clk_div_table ast2600_emmc_extclk_div_table[] = {
++	{ 0x0, 2 },
++	{ 0x1, 4 },
++	{ 0x2, 6 },
++	{ 0x3, 8 },
++	{ 0x4, 10 },
++	{ 0x5, 12 },
++	{ 0x6, 14 },
++	{ 0x7, 16 },
++	{ 0 }
++};
++
+ static const struct clk_div_table ast2600_mac_div_table[] = {
+ 	{ 0x0, 4 },
+ 	{ 0x1, 4 },
+@@ -390,6 +402,11 @@ static struct clk_hw *aspeed_g6_clk_hw_register_gate(struct device *dev,
+ 	return hw;
  }
  
-+/* Poll on reset status */
-+static int sysc_wait_softreset(struct sysc *ddata)
-+{
-+	u32 sysc_mask, syss_done, rstval;
-+	int syss_offset, error = 0;
++static const char *const emmc_extclk_parent_names[] = {
++	"emmc_extclk_hpll_in",
++	"mpll",
++};
 +
-+	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
-+	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
+ static const char * const vclk_parent_names[] = {
+ 	"dpll",
+ 	"d1pll",
+@@ -459,16 +476,32 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
+ 		return PTR_ERR(hw);
+ 	aspeed_g6_clk_data->hws[ASPEED_CLK_UARTX] = hw;
+ 
+-	/* EMMC ext clock divider */
+-	hw = clk_hw_register_gate(dev, "emmc_extclk_gate", "hpll", 0,
+-			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 15, 0,
+-			&aspeed_g6_clk_lock);
++	/* EMMC ext clock */
++	hw = clk_hw_register_fixed_factor(dev, "emmc_extclk_hpll_in", "hpll",
++					  0, 1, 2);
+ 	if (IS_ERR(hw))
+ 		return PTR_ERR(hw);
+-	hw = clk_hw_register_divider_table(dev, "emmc_extclk", "emmc_extclk_gate", 0,
+-			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 12, 3, 0,
+-			ast2600_div_table,
+-			&aspeed_g6_clk_lock);
 +
-+	if (ddata->cfg.quirks & SYSS_QUIRK_RESETDONE_INVERTED)
-+		syss_done = 0;
-+	else
-+		syss_done = ddata->cfg.syss_mask;
++	hw = clk_hw_register_mux(dev, "emmc_extclk_mux",
++				 emmc_extclk_parent_names,
++				 ARRAY_SIZE(emmc_extclk_parent_names), 0,
++				 scu_g6_base + ASPEED_G6_CLK_SELECTION1, 11, 1,
++				 0, &aspeed_g6_clk_lock);
++	if (IS_ERR(hw))
++		return PTR_ERR(hw);
 +
-+	if (syss_offset >= 0) {
-+		error = readx_poll_timeout(sysc_read_sysstatus, ddata, rstval,
-+					   (rstval & ddata->cfg.syss_mask) ==
-+					   syss_done,
-+					   100, MAX_MODULE_SOFTRESET_WAIT);
++	hw = clk_hw_register_gate(dev, "emmc_extclk_gate", "emmc_extclk_mux",
++				  0, scu_g6_base + ASPEED_G6_CLK_SELECTION1,
++				  15, 0, &aspeed_g6_clk_lock);
++	if (IS_ERR(hw))
++		return PTR_ERR(hw);
 +
-+	} else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS) {
-+		error = readx_poll_timeout(sysc_read_sysconfig, ddata, rstval,
-+					   !(rstval & sysc_mask),
-+					   100, MAX_MODULE_SOFTRESET_WAIT);
-+	}
-+
-+	return error;
-+}
-+
- static int sysc_add_named_clock_from_child(struct sysc *ddata,
- 					   const char *name,
- 					   const char *optfck_name)
-@@ -892,8 +921,34 @@ static int sysc_enable_module(struct device *dev)
- 	struct sysc *ddata;
- 	const struct sysc_regbits *regbits;
- 	u32 reg, idlemodes, best_mode;
-+	int error;
- 
- 	ddata = dev_get_drvdata(dev);
-+
-+	/*
-+	 * Some modules like DSS reset automatically on idle. Enable optional
-+	 * reset clocks and wait for OCP softreset to complete.
-+	 */
-+	if (ddata->cfg.quirks & SYSC_QUIRK_OPT_CLKS_IN_RESET) {
-+		error = sysc_enable_opt_clocks(ddata);
-+		if (error) {
-+			dev_err(ddata->dev,
-+				"Optional clocks failed for enable: %i\n",
-+				error);
-+			return error;
-+		}
-+	}
-+	error = sysc_wait_softreset(ddata);
-+	if (error)
-+		dev_warn(ddata->dev, "OCP softreset timed out\n");
-+	if (ddata->cfg.quirks & SYSC_QUIRK_OPT_CLKS_IN_RESET)
-+		sysc_disable_opt_clocks(ddata);
-+
-+	/*
-+	 * Some subsystem private interconnects, like DSS top level module,
-+	 * need only the automatic OCP softreset handling with no sysconfig
-+	 * register bits to configure.
-+	 */
- 	if (ddata->offsets[SYSC_SYSCONFIG] == -ENODEV)
- 		return 0;
- 
-@@ -1691,11 +1746,10 @@ static int sysc_rstctrl_reset_deassert(struct sysc *ddata, bool reset)
-  */
- static int sysc_reset(struct sysc *ddata)
- {
--	int sysc_offset, syss_offset, sysc_val, rstval, error = 0;
--	u32 sysc_mask, syss_done;
-+	int sysc_offset, sysc_val, error;
-+	u32 sysc_mask;
- 
- 	sysc_offset = ddata->offsets[SYSC_SYSCONFIG];
--	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
- 
- 	if (ddata->legacy_mode || sysc_offset < 0 ||
- 	    ddata->cap->regbits->srst_shift < 0 ||
-@@ -1704,11 +1758,6 @@ static int sysc_reset(struct sysc *ddata)
- 
- 	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
- 
--	if (ddata->cfg.quirks & SYSS_QUIRK_RESETDONE_INVERTED)
--		syss_done = 0;
--	else
--		syss_done = ddata->cfg.syss_mask;
--
- 	if (ddata->pre_reset_quirk)
- 		ddata->pre_reset_quirk(ddata);
- 
-@@ -1723,18 +1772,9 @@ static int sysc_reset(struct sysc *ddata)
- 	if (ddata->post_reset_quirk)
- 		ddata->post_reset_quirk(ddata);
- 
--	/* Poll on reset status */
--	if (syss_offset >= 0) {
--		error = readx_poll_timeout(sysc_read_sysstatus, ddata, rstval,
--					   (rstval & ddata->cfg.syss_mask) ==
--					   syss_done,
--					   100, MAX_MODULE_SOFTRESET_WAIT);
--
--	} else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS) {
--		error = readx_poll_timeout(sysc_read_sysconfig, ddata, rstval,
--					   !(rstval & sysc_mask),
--					   100, MAX_MODULE_SOFTRESET_WAIT);
--	}
-+	error = sysc_wait_softreset(ddata);
-+	if (error)
-+		dev_warn(ddata->dev, "OCP softreset timed out\n");
- 
- 	if (ddata->reset_done_quirk)
- 		ddata->reset_done_quirk(ddata);
++	hw = clk_hw_register_divider_table(dev, "emmc_extclk",
++					   "emmc_extclk_gate", 0,
++					   scu_g6_base +
++						ASPEED_G6_CLK_SELECTION1, 12,
++					   3, 0, ast2600_emmc_extclk_div_table,
++					   &aspeed_g6_clk_lock);
+ 	if (IS_ERR(hw))
+ 		return PTR_ERR(hw);
+ 	aspeed_g6_clk_data->hws[ASPEED_CLK_EMMC] = hw;
 -- 
 2.25.1
 
