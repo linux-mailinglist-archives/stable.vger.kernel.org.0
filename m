@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44DB72263D3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A403122639E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729781AbgGTPkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
+        id S1729269AbgGTPio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:38:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729777AbgGTPks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:40:48 -0400
+        id S1729264AbgGTPio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:38:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E7AE22CB3;
-        Mon, 20 Jul 2020 15:40:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B64C22CB2;
+        Mon, 20 Jul 2020 15:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259648;
-        bh=n6aGIqkUrCRNSR4SZOUROMAjsSS3vQvpdwJrxU7Ln94=;
+        s=default; t=1595259523;
+        bh=PdWIbI7vkbelWceLiDpR3vy41889LxRcLx+CKRmuGSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MoEHHok+0rWmjxM1XZTG7I923UOU0hQNOoZk3p533qbhUPDOx62YQuX7j8NmFLohK
-         I5yF0Ea2/DQhZI8VFPOyCQYJQ8R44C/sXtJpnp7VNkzgqjyqbueDJ2xPHY4OpkQzf/
-         4c7N3gfhHdqy9q4UZ0VwLfUoj7coAzJJ437x8Ik8=
+        b=F5jSHZu6ujA1e39gth/yoW61JtGDdiyGcsuTdDvravA1mODtLIIwv9aOixz1nTF2g
+         X9SKZEyUaqnV9izHDhByXuyg/k9kciapMmGaWxvwixcT+c9+wIZS7ejTte8AkzKZ9/
+         pZgx8WCTNCDgR+aBdPkuoOUgC9vvVGnIp959vks0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        James Chapman <jchapman@katalix.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 28/86] l2tp: remove skb_dst_set() from l2tp_xmit_skb()
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/58] ALSA: compress: fix partial_drain completion state
 Date:   Mon, 20 Jul 2020 17:36:24 +0200
-Message-Id: <20200720152754.569038578@linuxfoundation.org>
+Message-Id: <20200720152747.563143461@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 27d53323664c549b5bb2dfaaf6f7ad6e0376a64e ]
+[ Upstream commit f79a732a8325dfbd570d87f1435019d7e5501c6d ]
 
-In the tx path of l2tp, l2tp_xmit_skb() calls skb_dst_set() to set
-skb's dst. However, it will eventually call inet6_csk_xmit() or
-ip_queue_xmit() where skb's dst will be overwritten by:
+On partial_drain completion we should be in SNDRV_PCM_STATE_RUNNING
+state, so set that for partially draining streams in
+snd_compr_drain_notify() and use a flag for partially draining streams
 
-   skb_dst_set_noref(skb, dst);
+While at it, add locks for stream state change in
+snd_compr_drain_notify() as well.
 
-without releasing the old dst in skb. Then it causes dst/dev refcnt leak:
-
-  unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-
-This can be reproduced by simply running:
-
-  # modprobe l2tp_eth && modprobe l2tp_ip
-  # sh ./tools/testing/selftests/net/l2tp.sh
-
-So before going to inet6_csk_xmit() or ip_queue_xmit(), skb's dst
-should be dropped. This patch is to fix it by removing skb_dst_set()
-from l2tp_xmit_skb() and moving skb_dst_drop() into l2tp_xmit_core().
-
-Fixes: 3557baabf280 ("[L2TP]: PPP over L2TP driver core")
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: James Chapman <jchapman@katalix.com>
-Tested-by: James Chapman <jchapman@katalix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f44f2a5417b2 ("ALSA: compress: fix drain calls blocking other compress functions (v6)")
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Tested-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20200629134737.105993-4-vkoul@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_core.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ include/sound/compress_driver.h | 10 +++++++++-
+ sound/core/compress_offload.c   |  4 ++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1134,6 +1134,7 @@ static int l2tp_xmit_core(struct l2tp_se
+diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
+index a5c6e6da3d3d4..57872c8f11512 100644
+--- a/include/sound/compress_driver.h
++++ b/include/sound/compress_driver.h
+@@ -71,6 +71,7 @@ struct snd_compr_runtime {
+  * @direction: stream direction, playback/recording
+  * @metadata_set: metadata set flag, true when set
+  * @next_track: has userspace signal next track transition, true when set
++ * @partial_drain: undergoing partial_drain for stream, true when set
+  * @private_data: pointer to DSP private data
+  */
+ struct snd_compr_stream {
+@@ -81,6 +82,7 @@ struct snd_compr_stream {
+ 	enum snd_compr_direction direction;
+ 	bool metadata_set;
+ 	bool next_track;
++	bool partial_drain;
+ 	void *private_data;
+ };
  
- 	/* Queue the packet to IP for output */
- 	skb->ignore_df = 1;
-+	skb_dst_drop(skb);
- #if IS_ENABLED(CONFIG_IPV6)
- 	if (tunnel->sock->sk_family == PF_INET6 && !tunnel->v4mapped)
- 		error = inet6_csk_xmit(tunnel->sock, skb, NULL);
-@@ -1198,10 +1199,6 @@ int l2tp_xmit_skb(struct l2tp_session *s
- 		goto out_unlock;
- 	}
+@@ -178,7 +180,13 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
+ 	if (snd_BUG_ON(!stream))
+ 		return;
  
--	/* Get routing info from the tunnel socket */
--	skb_dst_drop(skb);
--	skb_dst_set(skb, sk_dst_check(sk, 0));
--
- 	inet = inet_sk(sk);
- 	fl = &inet->cork.fl;
- 	switch (tunnel->encap) {
+-	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
++	/* for partial_drain case we are back to running state on success */
++	if (stream->partial_drain) {
++		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
++		stream->partial_drain = false; /* clear this flag as well */
++	} else {
++		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
++	}
+ 
+ 	wake_up(&stream->runtime->sleep);
+ }
+diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
+index 07f5017cbea2a..e788c7e1929bd 100644
+--- a/sound/core/compress_offload.c
++++ b/sound/core/compress_offload.c
+@@ -699,6 +699,9 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
+ 
+ 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
+ 	if (!retval) {
++		/* clear flags and stop any drain wait */
++		stream->partial_drain = false;
++		stream->metadata_set = false;
+ 		snd_compr_drain_notify(stream);
+ 		stream->runtime->total_bytes_available = 0;
+ 		stream->runtime->total_bytes_transferred = 0;
+@@ -809,6 +812,7 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
+ 	if (stream->next_track == false)
+ 		return -EPERM;
+ 
++	stream->partial_drain = true;
+ 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_PARTIAL_DRAIN);
+ 	if (retval) {
+ 		pr_debug("Partial drain returned failure\n");
+-- 
+2.25.1
+
 
 
