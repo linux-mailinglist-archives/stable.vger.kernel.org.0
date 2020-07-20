@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0085C226519
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69BB622644C
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731165AbgGTPuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:50:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
+        id S1730343AbgGTPn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:43:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729044AbgGTPuo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:50:44 -0400
+        id S1730342AbgGTPn7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:43:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A75B520657;
-        Mon, 20 Jul 2020 15:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A902065E;
+        Mon, 20 Jul 2020 15:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260244;
-        bh=MSSuzrTjBxIywH7AGVb1SkCXr5Meme8CiHb0TaLnz/o=;
+        s=default; t=1595259839;
+        bh=cGe61lbOqkSpfEAcXd4jQngPZQxa5uwJDyeySxi7nX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwKYYBXj011YR2UXoSeE1OJa/3w8XDWGODSGTn5rxFEdwKnThRlsYN33key1anEI0
-         gh7qBA3qEKHnIwMZ9lbfYtvddQxRb5DRG3V7YYpsRFUMPIoJzQBt6J3wmmGb4W8HH7
-         g8LK9m/EfW9TP6GTOT1uy6b0XDzcslQ8FTYCVEbQ=
+        b=0kysi8oz72S4TND8kwQqqJi31/TPlHkWhimdPzBn5B2MpdAT16xzhDCaRorZFfiju
+         DKWcygVoZgYtjLnjGMwvmyUpMXkSqmUDwFGQ1BLUHIPi7saaCXkERSpfjsPWr2DLKZ
+         cIOBrFGuhS5Oj+j4RvVzZ+VvsiqA2Odz2euOohLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Wouters <pwouters@redhat.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 004/133] ipv4: fill fl4_icmp_{type,code} in ping_v4_sendmsg
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 012/125] cifs: update ctime and mtime during truncate
 Date:   Mon, 20 Jul 2020 17:35:51 +0200
-Message-Id: <20200720152803.950494317@linuxfoundation.org>
+Message-Id: <20200720152803.556229771@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 5eff06902394425c722f0a44d9545909a8800f79 ]
+[ Upstream commit 5618303d8516f8ac5ecfe53ee8e8bc9a40eaf066 ]
 
-IPv4 ping sockets don't set fl4.fl4_icmp_{type,code}, which leads to
-incomplete IPsec ACQUIRE messages being sent to userspace. Currently,
-both raw sockets and IPv6 ping sockets set those fields.
+As the man description of the truncate, if the size changed,
+then the st_ctime and st_mtime fields should be updated. But
+in cifs, we doesn't do it.
 
-Expected output of "ip xfrm monitor":
-    acquire proto esp
-      sel src 10.0.2.15/32 dst 8.8.8.8/32 proto icmp type 8 code 0 dev ens4
-      policy src 10.0.2.15/32 dst 8.8.8.8/32
-        <snip>
+It lead the xfstests generic/313 failed.
 
-Currently with ping sockets:
-    acquire proto esp
-      sel src 10.0.2.15/32 dst 8.8.8.8/32 proto icmp type 0 code 0 dev ens4
-      policy src 10.0.2.15/32 dst 8.8.8.8/32
-        <snip>
+So, add the ATTR_MTIME|ATTR_CTIME flags on attrs when change
+the file size
 
-The Libreswan test suite found this problem after Fedora changed the
-value for the sysctl net.ipv4.ping_group_range.
-
-Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
-Reported-by: Paul Wouters <pwouters@redhat.com>
-Tested-by: Paul Wouters <pwouters@redhat.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ping.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/cifs/inode.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -791,6 +791,9 @@ static int ping_v4_sendmsg(struct sock *
- 			   inet_sk_flowi_flags(sk), faddr, saddr, 0, 0,
- 			   sk->sk_uid);
- 
-+	fl4.fl4_icmp_type = user_icmph.type;
-+	fl4.fl4_icmp_code = user_icmph.code;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 528fe225b65a9..d0d295a28b6e4 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2216,6 +2216,15 @@ set_size_out:
+ 	if (rc == 0) {
+ 		cifsInode->server_eof = attrs->ia_size;
+ 		cifs_setsize(inode, attrs->ia_size);
 +
- 	security_sk_classify_flow(sk, flowi4_to_flowi(&fl4));
- 	rt = ip_route_output_flow(net, &fl4, sk);
- 	if (IS_ERR(rt)) {
++		/*
++		 * The man page of truncate says if the size changed,
++		 * then the st_ctime and st_mtime fields for the file
++		 * are updated.
++		 */
++		attrs->ia_ctime = attrs->ia_mtime = current_time(inode);
++		attrs->ia_valid |= ATTR_CTIME | ATTR_MTIME;
++
+ 		cifs_truncate_page(inode->i_mapping, inode->i_size);
+ 	}
+ 
+-- 
+2.25.1
+
 
 
