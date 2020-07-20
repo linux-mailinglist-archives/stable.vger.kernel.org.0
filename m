@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD6F5227159
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 167B6227170
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728155AbgGTVi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:38:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57044 "EHLO mail.kernel.org"
+        id S1728197AbgGTVng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728145AbgGTVi1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:27 -0400
+        id S1728153AbgGTVi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:38:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4A3022CAF;
-        Mon, 20 Jul 2020 21:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC4C522D01;
+        Mon, 20 Jul 2020 21:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281107;
-        bh=o0bUSa9r+WlA838mzYXVW27gR8YIWsM5ux2NTn9EUyw=;
+        s=default; t=1595281108;
+        bh=MV517qUDiknYDooGSvBVdtDwv42VgYuNr25i+D7Z/3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oN9fSIbzRym4Fwto8D9Xc1QWsF6f4DwwOS54tPT1jjB8Z8ILxRkItVX3ADj0ohPcu
-         4BuTxd88uqcX253VyANetBqove16d9qj/HTrFQ0O0RgLKT7YJDdZpAT9SK7gje6iuf
-         yFgAAbsYMsDXAdOpxGoLYzZzxT7aMHi8J2yGTGCw=
+        b=MEvkMvbKcfU4HDSe6nGSmxqGP2gJXl38VZptdlr+ZNugzy/Ogj484Q3MFlW8y6iTS
+         hnDnmEJ9mFIAgyqhHO+Sme2b5fcdsiROf31o6DaNBk2CdOHcRV9Kxeti4DggAJQFhF
+         pQD2FGjRpRgD8eH0tO2MVFMa2x4d5MN7pVBqnwSk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
         Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/34] usb: dwc3: pci: add support for the Intel Jasper Lake
-Date:   Mon, 20 Jul 2020 17:37:49 -0400
-Message-Id: <20200720213807.407380-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 17/34] usb: gadget: udc: gr_udc: fix memleak on error handling path in gr_ep_init()
+Date:   Mon, 20 Jul 2020 17:37:50 -0400
+Message-Id: <20200720213807.407380-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
 References: <20200720213807.407380-1-sashal@kernel.org>
@@ -43,42 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit e25d1e8532c3d84f075deca1580a7d61e0f43ce6 ]
+[ Upstream commit c8f8529e2c4141afa2ebb487ad48e8a6ec3e8c99 ]
 
-This patch adds the necessary PCI ID for Intel Jasper Lake
-devices.
+gr_ep_init() does not assign the allocated request anywhere if allocation
+of memory for the buffer fails. This is a memory leak fixed by the given
+patch.
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/udc/gr_udc.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 47b7e83d90626..139474c3e77b1 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -39,6 +39,7 @@
- #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
- #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
- #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
-+#define PCI_DEVICE_ID_INTEL_JSP			0x4dee
+diff --git a/drivers/usb/gadget/udc/gr_udc.c b/drivers/usb/gadget/udc/gr_udc.c
+index 116d386472efe..da73a06c20a39 100644
+--- a/drivers/usb/gadget/udc/gr_udc.c
++++ b/drivers/usb/gadget/udc/gr_udc.c
+@@ -1980,9 +1980,12 @@ static int gr_ep_init(struct gr_udc *dev, int num, int is_in, u32 maxplimit)
  
- #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
- #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
-@@ -362,6 +363,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPH),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+ 	if (num == 0) {
+ 		_req = gr_alloc_request(&ep->ep, GFP_ATOMIC);
++		if (!_req)
++			return -ENOMEM;
 +
- 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
- 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
- 	{  }	/* Terminating Entry */
+ 		buf = devm_kzalloc(dev->dev, PAGE_SIZE, GFP_DMA | GFP_ATOMIC);
+-		if (!_req || !buf) {
+-			/* possible _req freed by gr_probe via gr_remove */
++		if (!buf) {
++			gr_free_request(&ep->ep, _req);
+ 			return -ENOMEM;
+ 		}
+ 
 -- 
 2.25.1
 
