@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C21226AA8
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E2D226B3D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731805AbgGTQgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50882 "EHLO mail.kernel.org"
+        id S1728795AbgGTQkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731378AbgGTPwi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:52:38 -0400
+        id S1730752AbgGTPrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:47:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2EC22064B;
-        Mon, 20 Jul 2020 15:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AFFF2065E;
+        Mon, 20 Jul 2020 15:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260358;
-        bh=jBas8mOFlfXh9oYQjcp4y6xEct2sPQmDoIjxVhDWSAA=;
+        s=default; t=1595260038;
+        bh=6tjy0WJNNWDwPU1CTmUUpnIdSjE0etRp+xsOx3xzA50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11J0xv27DLGFrI2lK05EiH7SQPTLS6euHHQktpr2j+j9PnDJO/z8aRO4jzeR/jCIf
-         Ayoq2BkjU477xKSw4sUNTToUShaP52IV96knSdmsB5w4qwYhCvAPE7GSMvxFuFH6uA
-         fAVj2gQUtxS1PBbJnowUvWfZOjMcXibyFUIP9VoY=
+        b=fBkUVgfWZg5CsRGWewMY0WnmA681nSmZpj0Q1lI9uS63HXtacD1OzBeKiMMWae6Ca
+         wHSOZehVDM2TxH7QUCX6EPIp0seSrshDOvqZdj94UHQIE1GKYUPtLSFQZQjVzuOJd5
+         nOKZf0B5/NBORQrVG4YvsztDe3kcVNoefg9nMgk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>
-Subject: [PATCH 4.19 074/133] mtd: rawnand: marvell: Use nand_cleanup() when the device is not yet registered
-Date:   Mon, 20 Jul 2020 17:37:01 +0200
-Message-Id: <20200720152807.272185792@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Maxime Ripard <mripard@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 083/125] spi: spi-sun6i: sun6i_spi_transfer_one(): fix setting of clock rate
+Date:   Mon, 20 Jul 2020 17:37:02 +0200
+Message-Id: <20200720152807.029149590@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 7a0c18fb5c71c6ac7d4662a145e4227dcd4a36a3 upstream.
+[ Upstream commit ed7815db70d17b1741883f2da8e1d80bc2efe517 ]
 
-Do not call nand_release() while the MTD device has not been
-registered, use nand_cleanup() instead.
+A SPI transfer defines the _maximum_ speed of the SPI transfer. However the
+driver doesn't take into account that the clock divider is always rounded down
+(due to integer arithmetics). This results in a too high clock rate for the SPI
+transfer.
 
-Fixes: 02f26ecf8c77 ("mtd: nand: add reworked Marvell NAND controller driver")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://lore.kernel.org/linux-mtd/20200424164501.26719-4-miquel.raynal@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+E.g.: with a mclk_rate of 24 MHz and a SPI transfer speed of 10 MHz, the
+original code calculates a reg of "0", which results in a effective divider of
+"2" and a 12 MHz clock for the SPI transfer.
 
+This patch fixes the issue by using DIV_ROUND_UP() instead of a plain
+integer division.
+
+While there simplify the divider calculation for the CDR1 case, use
+order_base_2() instead of two ilog2() calculations.
+
+Fixes: 3558fe900e8a ("spi: sunxi: Add Allwinner A31 SPI controller driver")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Link: https://lore.kernel.org/r/20200706143443.9855-2-mkl@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/marvell_nand.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-sun6i.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/mtd/nand/raw/marvell_nand.c
-+++ b/drivers/mtd/nand/raw/marvell_nand.c
-@@ -2564,7 +2564,7 @@ static int marvell_nand_chip_init(struct
- 		ret = mtd_device_register(mtd, NULL, 0);
- 	if (ret) {
- 		dev_err(dev, "failed to register mtd device: %d\n", ret);
--		nand_release(chip);
-+		nand_cleanup(chip);
- 		return ret;
+diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
+index 8533f4edd00af..21a22d42818c8 100644
+--- a/drivers/spi/spi-sun6i.c
++++ b/drivers/spi/spi-sun6i.c
+@@ -202,7 +202,7 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
+ 				  struct spi_transfer *tfr)
+ {
+ 	struct sun6i_spi *sspi = spi_master_get_devdata(master);
+-	unsigned int mclk_rate, div, timeout;
++	unsigned int mclk_rate, div, div_cdr1, div_cdr2, timeout;
+ 	unsigned int start, end, tx_time;
+ 	unsigned int trig_level;
+ 	unsigned int tx_len = 0;
+@@ -291,14 +291,12 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
+ 	 * First try CDR2, and if we can't reach the expected
+ 	 * frequency, fall back to CDR1.
+ 	 */
+-	div = mclk_rate / (2 * tfr->speed_hz);
+-	if (div <= (SUN6I_CLK_CTL_CDR2_MASK + 1)) {
+-		if (div > 0)
+-			div--;
+-
+-		reg = SUN6I_CLK_CTL_CDR2(div) | SUN6I_CLK_CTL_DRS;
++	div_cdr1 = DIV_ROUND_UP(mclk_rate, tfr->speed_hz);
++	div_cdr2 = DIV_ROUND_UP(div_cdr1, 2);
++	if (div_cdr2 <= (SUN6I_CLK_CTL_CDR2_MASK + 1)) {
++		reg = SUN6I_CLK_CTL_CDR2(div_cdr2 - 1) | SUN6I_CLK_CTL_DRS;
+ 	} else {
+-		div = ilog2(mclk_rate) - ilog2(tfr->speed_hz);
++		div = min(SUN6I_CLK_CTL_CDR1_MASK, order_base_2(div_cdr1));
+ 		reg = SUN6I_CLK_CTL_CDR1(div);
  	}
  
+-- 
+2.25.1
+
 
 
