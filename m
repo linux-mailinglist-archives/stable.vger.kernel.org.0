@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7704A2268B1
+	by mail.lfdr.de (Postfix) with ESMTP id E3D4C2268B2
 	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387619AbgGTQKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
+        id S1732365AbgGTQKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387607AbgGTQKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:04 -0400
+        id S2387618AbgGTQKG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27D382064B;
-        Mon, 20 Jul 2020 16:10:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A33AB20734;
+        Mon, 20 Jul 2020 16:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261403;
-        bh=+Yu0yXXoWm65CQbTb8rEu8e9JDG41uLdmHPn23u0NFs=;
+        s=default; t=1595261406;
+        bh=S+GbvqvYd5DQbyfyZrnVh7vsVEAGDL8ps5qUlMo54eQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfKcPSTSyKrEUKFgxc6IAmQlYiiGAZVRjtOtG5QGyICK1nxOBlqLiO4QMuF4t5r+2
-         JEK3uEI3MqCE6X+DnT2e+hUOB3gzWvnbOUaoTOnh0rcH4x2xZrsOcpolO2toOU7uf1
-         8PqrB+Kz0SJnMrG5d6T4J/yhaXmOq9/KCPQ2YrC0=
+        b=CgzGUYfyPwULE9TA8FWLSbPHV/M/AFv4CBGE4UUmOaxqAwAwblgpMcx27w2CGKLOh
+         wW83J2dzPvmJIuHcobb5d0LyHnp7O+GcFFn14101H1hRRgluO0klQp2jPuFeelMHi6
+         5aWQf+DF0AIcdqFTtj28GVOKH+4XTWaH/0bJb6Ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 102/244] clk: AST2600: Add mux for EMMC clock
-Date:   Mon, 20 Jul 2020 17:36:13 +0200
-Message-Id: <20200720152830.684860477@linuxfoundation.org>
+Subject: [PATCH 5.7 103/244] xprtrdma: Fix double-free in rpcrdma_ep_create()
+Date:   Mon, 20 Jul 2020 17:36:14 +0200
+Message-Id: <20200720152830.728589241@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -45,101 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit c2407ab3bd55064d459bc822efd1c134e852798c ]
+[ Upstream commit 85bfd71bc34e20d9fadb745131f6314c36d0f75b ]
 
-The EMMC clock can be derived from either the HPLL or the MPLL. Register
-a clock mux so that the rate is calculated correctly based upon the
-parent.
+In the error paths, there's no need to call kfree(ep) after calling
+rpcrdma_ep_put(ep).
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20200709195706.12741-2-eajames@linux.ibm.com
-Acked-by: Joel Stanley <joel@jms.id.au>
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: e28ce90083f0 ("xprtrdma: kmalloc rpcrdma_ep separate from rpcrdma_xprt")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 49 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 41 insertions(+), 8 deletions(-)
+ net/sunrpc/xprtrdma/verbs.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 99afc949925f0..177368cac6dd6 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -131,6 +131,18 @@ static const struct clk_div_table ast2600_eclk_div_table[] = {
- 	{ 0 }
- };
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index db0259c6467ef..4cb91dde849b9 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -404,8 +404,8 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
  
-+static const struct clk_div_table ast2600_emmc_extclk_div_table[] = {
-+	{ 0x0, 2 },
-+	{ 0x1, 4 },
-+	{ 0x2, 6 },
-+	{ 0x3, 8 },
-+	{ 0x4, 10 },
-+	{ 0x5, 12 },
-+	{ 0x6, 14 },
-+	{ 0x7, 16 },
-+	{ 0 }
-+};
-+
- static const struct clk_div_table ast2600_mac_div_table[] = {
- 	{ 0x0, 4 },
- 	{ 0x1, 4 },
-@@ -390,6 +402,11 @@ static struct clk_hw *aspeed_g6_clk_hw_register_gate(struct device *dev,
- 	return hw;
+ 	id = rpcrdma_create_id(r_xprt, ep);
+ 	if (IS_ERR(id)) {
+-		rc = PTR_ERR(id);
+-		goto out_free;
++		kfree(ep);
++		return PTR_ERR(id);
+ 	}
+ 	__module_get(THIS_MODULE);
+ 	device = id->device;
+@@ -504,9 +504,6 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
+ out_destroy:
+ 	rpcrdma_ep_put(ep);
+ 	rdma_destroy_id(id);
+-out_free:
+-	kfree(ep);
+-	r_xprt->rx_ep = NULL;
+ 	return rc;
  }
  
-+static const char *const emmc_extclk_parent_names[] = {
-+	"emmc_extclk_hpll_in",
-+	"mpll",
-+};
-+
- static const char * const vclk_parent_names[] = {
- 	"dpll",
- 	"d1pll",
-@@ -459,16 +476,32 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
- 		return PTR_ERR(hw);
- 	aspeed_g6_clk_data->hws[ASPEED_CLK_UARTX] = hw;
- 
--	/* EMMC ext clock divider */
--	hw = clk_hw_register_gate(dev, "emmc_extclk_gate", "hpll", 0,
--			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 15, 0,
--			&aspeed_g6_clk_lock);
-+	/* EMMC ext clock */
-+	hw = clk_hw_register_fixed_factor(dev, "emmc_extclk_hpll_in", "hpll",
-+					  0, 1, 2);
- 	if (IS_ERR(hw))
- 		return PTR_ERR(hw);
--	hw = clk_hw_register_divider_table(dev, "emmc_extclk", "emmc_extclk_gate", 0,
--			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 12, 3, 0,
--			ast2600_div_table,
--			&aspeed_g6_clk_lock);
-+
-+	hw = clk_hw_register_mux(dev, "emmc_extclk_mux",
-+				 emmc_extclk_parent_names,
-+				 ARRAY_SIZE(emmc_extclk_parent_names), 0,
-+				 scu_g6_base + ASPEED_G6_CLK_SELECTION1, 11, 1,
-+				 0, &aspeed_g6_clk_lock);
-+	if (IS_ERR(hw))
-+		return PTR_ERR(hw);
-+
-+	hw = clk_hw_register_gate(dev, "emmc_extclk_gate", "emmc_extclk_mux",
-+				  0, scu_g6_base + ASPEED_G6_CLK_SELECTION1,
-+				  15, 0, &aspeed_g6_clk_lock);
-+	if (IS_ERR(hw))
-+		return PTR_ERR(hw);
-+
-+	hw = clk_hw_register_divider_table(dev, "emmc_extclk",
-+					   "emmc_extclk_gate", 0,
-+					   scu_g6_base +
-+						ASPEED_G6_CLK_SELECTION1, 12,
-+					   3, 0, ast2600_emmc_extclk_div_table,
-+					   &aspeed_g6_clk_lock);
- 	if (IS_ERR(hw))
- 		return PTR_ERR(hw);
- 	aspeed_g6_clk_data->hws[ASPEED_CLK_EMMC] = hw;
 -- 
 2.25.1
 
