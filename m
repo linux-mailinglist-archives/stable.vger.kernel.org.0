@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85402226972
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9FA4226956
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731889AbgGTQZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:25:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34370 "EHLO mail.kernel.org"
+        id S1732494AbgGTQBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732475AbgGTQBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:01:06 -0400
+        id S1731099AbgGTQBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:01:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48B8320684;
-        Mon, 20 Jul 2020 16:01:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0858D20672;
+        Mon, 20 Jul 2020 16:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260865;
-        bh=af8InVDO/U1YjM7GM+ojmtmt52JeJZ5IDuzEDD4UhjM=;
+        s=default; t=1595260871;
+        bh=1cKTQYmZkIm0/I/HoQVjC5LCdmtRY4Nu99Fyz0W9AE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BobwqRKBT4y0p5e+maRaMd4ai2j5Xx1wjasa1UwGe01X0xUpIqwCSLYPS/GzfxfHP
-         Wmcoe8kZoaTm0tUlzHf1vrBLDo7SS1YgHERFkWEsDOY1GjOs0s4rE7U+gHdcxehC1l
-         HhnSrIIDTFM+eXJEnf9jOYYL/45YLN99QECKy/Ck=
+        b=bhCN5WZGSXNAOxyb6NoBUscHya4+cs+FeyEj3W2C6nUd4rSbVnEEN8t56PxZfU1J+
+         6UyPlfqvf7gi+kicZs+Bc34raZKghDQSW5E+qrVFTQND2EL+9ZKQqTfRkT0wrrnZmv
+         ILxtrCYfn8QP2ja1GwRlMVmN7mE0HmJgBT4SR570=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.4 124/215] PCI/PM: Call .bridge_d3() hook only if non-NULL
-Date:   Mon, 20 Jul 2020 17:36:46 +0200
-Message-Id: <20200720152826.100087522@linuxfoundation.org>
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 125/215] perf stat: Zero all the ena and run array slot stats for interval mode
+Date:   Mon, 20 Jul 2020 17:36:47 +0200
+Message-Id: <20200720152826.148267271@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -43,41 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-commit c3aaf086701d05a82c8156ee8620af41e5a7d6fe upstream.
+commit 0e0bf1ea1147fcf74eab19c2d3c853cc3740a72f upstream.
 
-26ad34d510a8 ("PCI / ACPI: Whitelist D3 for more PCIe hotplug ports") added
-the struct pci_platform_pm_ops.bridge_d3() function pointer and
-platform_pci_bridge_d3() to use it.
+As the code comments in perf_stat_process_counter() say, we calculate
+counter's data every interval, and the display code shows ps->res_stats
+avg value. We need to zero the stats for interval mode.
 
-The .bridge_d3() op is implemented by acpi_pci_platform_pm, but not by
-mid_pci_platform_pm.  We don't expect platform_pci_bridge_d3() to be called
-on Intel MID platforms, but nothing in the code itself would prevent that.
+But the current code only zeros the res_stats[0], it doesn't zero the
+res_stats[1] and res_stats[2], which are for ena and run of counter.
 
-Check the .bridge_d3() pointer for NULL before calling it.
+This patch zeros the whole res_stats[] for interval mode.
 
-Fixes: 26ad34d510a8 ("PCI / ACPI: Whitelist D3 for more PCIe hotplug ports")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200409070755.17261-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/util/stat.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -802,7 +802,9 @@ static inline bool platform_pci_need_res
+--- a/tools/perf/util/stat.c
++++ b/tools/perf/util/stat.c
+@@ -367,8 +367,10 @@ int perf_stat_process_counter(struct per
+ 	 * interval mode, otherwise overall avg running
+ 	 * averages will be shown for each interval.
+ 	 */
+-	if (config->interval)
+-		init_stats(ps->res_stats);
++	if (config->interval) {
++		for (i = 0; i < 3; i++)
++			init_stats(&ps->res_stats[i]);
++	}
  
- static inline bool platform_pci_bridge_d3(struct pci_dev *dev)
- {
--	return pci_platform_pm ? pci_platform_pm->bridge_d3(dev) : false;
-+	if (pci_platform_pm && pci_platform_pm->bridge_d3)
-+		return pci_platform_pm->bridge_d3(dev);
-+	return false;
- }
- 
- /**
+ 	if (counter->per_pkg)
+ 		zero_per_pkg(counter);
 
 
