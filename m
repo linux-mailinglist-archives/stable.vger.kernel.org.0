@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 809FC2267D3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD76F226698
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388349AbgGTQPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S1731578AbgGTQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:04:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387612AbgGTQO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:14:57 -0400
+        id S1732834AbgGTQEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7BE42064B;
-        Mon, 20 Jul 2020 16:14:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71E5920684;
+        Mon, 20 Jul 2020 16:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261697;
-        bh=QbPG9rSXRiATsoXetHNIz+YI8PZk1SZ+694pRJ3V0wA=;
+        s=default; t=1595261071;
+        bh=dL51J9ZjJIx7T182G+ExsZ/CAI778fDI4ysS9fKS0DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJ6XTzzVNn02QujVEsA2QWHWJ7Yr8yjDnhJn3En094gZcSygfC+MOqyu2MsAiu072
-         QpYHrm4n8bZ+ZYXBgKjqQV8yLifhPgXJqZN3FX7cUYc9iAjjf5fz5HcAv1jhNPs6/t
-         5a1cg1+rDZUKgGU5sMVCnCYGfXJUqRAYWouztG6g=
+        b=JeJq/JyPCqoqr95iGTHFOjlc7dTwhm/SRaCTjsKKgdxDt/RHYmkVCl5QEk+YvB7hB
+         FDX0OYDnyvnUhWjHIAHHZ7KNWLuPFtrEguykfwxViMDEnxCQ0woBRkGIt/wh+4tWB9
+         LXQ1rT2mFU89HexxvIjpl5cYieP8ptKO/iLDJy5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        youngjun <her0gyugyu@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.7 179/244] ovl: inode reference leak in ovl_is_inuse true case.
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+Subject: [PATCH 5.4 168/215] serial: mxs-auart: add missed iounmap() in probe failure and remove
 Date:   Mon, 20 Jul 2020 17:37:30 +0200
-Message-Id: <20200720152834.354881741@linuxfoundation.org>
+Message-Id: <20200720152828.162219093@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: youngjun <her0gyugyu@gmail.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 24f14009b8f1754ec2ae4c168940c01259b0f88a upstream.
+commit d8edf8eb5f6e921fe6389f96d2cd05862730a6ff upstream.
 
-When "ovl_is_inuse" true case, trap inode reference not put.  plus adding
-the comment explaining sequence of ovl_is_inuse after ovl_setup_trap.
+This driver calls ioremap() in probe, but it misses calling iounmap() in
+probe's error handler and remove.
+Add the missed calls to fix it.
 
-Fixes: 0be0bfd2de9d ("ovl: fix regression caused by overlapping layers detection")
-Cc: <stable@vger.kernel.org> # v4.19+
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: youngjun <her0gyugyu@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 47d37d6f94cc ("serial: Add auart driver for i.MX23/28")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200709135608.68290-1-hslester96@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/overlayfs/super.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/tty/serial/mxs-auart.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1450,14 +1450,23 @@ static int ovl_get_layers(struct super_b
- 		if (err < 0)
- 			goto out;
+--- a/drivers/tty/serial/mxs-auart.c
++++ b/drivers/tty/serial/mxs-auart.c
+@@ -1701,21 +1701,21 @@ static int mxs_auart_probe(struct platfo
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		ret = irq;
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 	}
  
-+		/*
-+		 * Check if lower root conflicts with this overlay layers before
-+		 * checking if it is in-use as upperdir/workdir of "another"
-+		 * mount, because we do not bother to check in ovl_is_inuse() if
-+		 * the upperdir/workdir is in fact in-use by our
-+		 * upperdir/workdir.
-+		 */
- 		err = ovl_setup_trap(sb, stack[i].dentry, &trap, "lowerdir");
- 		if (err)
- 			goto out;
+ 	s->port.irq = irq;
+ 	ret = devm_request_irq(&pdev->dev, irq, mxs_auart_irq_handle, 0,
+ 			       dev_name(&pdev->dev), s);
+ 	if (ret)
+-		goto out_disable_clks;
++		goto out_iounmap;
  
- 		if (ovl_is_inuse(stack[i].dentry)) {
- 			err = ovl_report_in_use(ofs, "lowerdir");
--			if (err)
-+			if (err) {
-+				iput(trap);
- 				goto out;
-+			}
- 		}
+ 	platform_set_drvdata(pdev, s);
  
- 		mnt = clone_private_mount(&stack[i]);
+ 	ret = mxs_auart_init_gpios(s, &pdev->dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to initialize GPIOs.\n");
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 	}
+ 
+ 	/*
+@@ -1723,7 +1723,7 @@ static int mxs_auart_probe(struct platfo
+ 	 */
+ 	ret = mxs_auart_request_gpio_irq(s);
+ 	if (ret)
+-		goto out_disable_clks;
++		goto out_iounmap;
+ 
+ 	auart_port[s->port.line] = s;
+ 
+@@ -1749,6 +1749,9 @@ out_free_qpio_irq:
+ 	mxs_auart_free_gpio_irq(s);
+ 	auart_port[pdev->id] = NULL;
+ 
++out_iounmap:
++	iounmap(s->port.membase);
++
+ out_disable_clks:
+ 	if (is_asm9260_auart(s)) {
+ 		clk_disable_unprepare(s->clk);
+@@ -1764,6 +1767,7 @@ static int mxs_auart_remove(struct platf
+ 	uart_remove_one_port(&auart_driver, &s->port);
+ 	auart_port[pdev->id] = NULL;
+ 	mxs_auart_free_gpio_irq(s);
++	iounmap(s->port.membase);
+ 	if (is_asm9260_auart(s)) {
+ 		clk_disable_unprepare(s->clk);
+ 		clk_disable_unprepare(s->clk_ahb);
 
 
