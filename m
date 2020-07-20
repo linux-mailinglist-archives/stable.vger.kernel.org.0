@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DA1C226912
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C652267BC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388084AbgGTQYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:24:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
+        id S2388240AbgGTQOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732435AbgGTQDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:50 -0400
+        id S2388236AbgGTQOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F252120773;
-        Mon, 20 Jul 2020 16:03:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E718622D2B;
+        Mon, 20 Jul 2020 16:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261029;
+        s=default; t=1595261655;
         bh=0S0MdIvexlqATgisYh+BVsnXvViVSBmHnw4wfvtKGwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUdL2IS7X4oUm+M3yGTC8UCfVMTcMLQVw0/mUz5TNEaoGkSHgFFkkuMRrEzzTxjXu
-         CubO3lzT3GdwBQcR1GBFHhK0NfgUc5aHsCQhPpM3tdAsNbv0Be2TQ3hwJNQikR3cHS
-         NYD7/12iCbNBmiLNSUd4kiJVAhTtNbldXnAZuJrw=
+        b=O6KTAhlz5bXBgjQfw2jNe9AFUoef0YZE6bx55UxpbPpFGMJtWGqhtAEPRioHmd9Zm
+         8G3FQhIzGJvknYtLSUfFPaalNQUBv7JszmVayVGAJuKAzybSGZ1hLb2h55eJp+UPiF
+         7D1Lqe/Y6PYftfsBvzMhXi1UHljGxZpi2TwUSAd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Anna-Maria Behnsen <anna-maria@linutronix.de>,
         Juri Lelli <juri.lelli@redhat.com>
-Subject: [PATCH 5.4 183/215] timer: Prevent base->clk from moving backward
+Subject: [PATCH 5.7 194/244] timer: Prevent base->clk from moving backward
 Date:   Mon, 20 Jul 2020 17:37:45 +0200
-Message-Id: <20200720152828.877890659@linuxfoundation.org>
+Message-Id: <20200720152835.071763735@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
