@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 111B3226B9A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42923226C57
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729430AbgGTPme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:42:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35442 "EHLO mail.kernel.org"
+        id S1728993AbgGTQst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:48:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730094AbgGTPmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:31 -0400
+        id S1728890AbgGTPhl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:37:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C75120773;
-        Mon, 20 Jul 2020 15:42:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB77B22CE3;
+        Mon, 20 Jul 2020 15:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259750;
-        bh=hC4pvOV0218MlFHhrKJk2sI41gTgfZF5zc1K89z40po=;
+        s=default; t=1595259461;
+        bh=zbDMcBGs6S9UgwC8NFUnNX/eQby8Z3rJvzWpchGnAew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPiSaUPO3tqtF9BmUsvfTGvJa4jvpNOqI+iXaqvJ8cCC3zash0PrCFtwU2RV8mc6S
-         3+YdU28e0c0ubykBEqBVmL3kmOW5vHzJ/TW61DYeCw3Kcz/XKHnYxkx4o4JEAOuM1S
-         LMf2K06n1Gezx4yksdONtM7/t+sq2ZO/Mopd1PAw=
+        b=WEa47ygI57IQ4uu5gVXiR5Aolc4O7XbapCThhgOkcWTlf+egGLNypg53M6llqo9o9
+         Oq+53D+UmCZvFL8Pwf0LW3dmFFZIbNB9nYHXGMoXavwiYyPZENoALcD4W4YonnyeRM
+         m1FUifCfYS3OhlB4/tgr1uQOJE1jzOktOxnHctUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 36/86] tcp: md5: do not send silly options in SYNCOOKIES
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.4 16/58] drm/radeon: fix double free
 Date:   Mon, 20 Jul 2020 17:36:32 +0200
-Message-Id: <20200720152754.980513276@linuxfoundation.org>
+Message-Id: <20200720152747.961226022@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit e114e1e8ac9d31f25b9dd873bab5d80c1fc482ca ]
+commit 41855a898650803e24b284173354cc3e44d07725 upstream.
 
-Whenever cookie_init_timestamp() has been used to encode
-ECN,SACK,WSCALE options, we can not remove the TS option in the SYNACK.
+clang static analysis flags this error
 
-Otherwise, tcp_synack_options() will still advertize options like WSCALE
-that we can not deduce later when receiving the packet from the client
-to complete 3WHS.
+drivers/gpu/drm/radeon/ci_dpm.c:5652:9: warning: Use of memory after it is freed [unix.Malloc]
+                kfree(rdev->pm.dpm.ps[i].ps_priv);
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/gpu/drm/radeon/ci_dpm.c:5654:2: warning: Attempt to free released memory [unix.Malloc]
+        kfree(rdev->pm.dpm.ps);
+        ^~~~~~~~~~~~~~~~~~~~~~
 
-Note that modern linux TCP stacks wont use MD5+TS+SACK in a SYN packet,
-but we can not know for sure that all TCP stacks have the same logic.
+problem is reported in ci_dpm_fini, with these code blocks.
 
-Before the fix a tcpdump would exhibit this wrong exchange :
+	for (i = 0; i < rdev->pm.dpm.num_ps; i++) {
+		kfree(rdev->pm.dpm.ps[i].ps_priv);
+	}
+	kfree(rdev->pm.dpm.ps);
 
-10:12:15.464591 IP C > S: Flags [S], seq 4202415601, win 65535, options [nop,nop,md5 valid,mss 1400,sackOK,TS val 456965269 ecr 0,nop,wscale 8], length 0
-10:12:15.464602 IP S > C: Flags [S.], seq 253516766, ack 4202415602, win 65535, options [nop,nop,md5 valid,mss 1400,nop,nop,sackOK,nop,wscale 8], length 0
-10:12:15.464611 IP C > S: Flags [.], ack 1, win 256, options [nop,nop,md5 valid], length 0
-10:12:15.464678 IP C > S: Flags [P.], seq 1:13, ack 1, win 256, options [nop,nop,md5 valid], length 12
-10:12:15.464685 IP S > C: Flags [.], ack 13, win 65535, options [nop,nop,md5 valid], length 0
+The first free happens in ci_parse_power_table where it cleans up locally
+on a failure.  ci_dpm_fini also does a cleanup.
 
-After this patch the exchange looks saner :
+	ret = ci_parse_power_table(rdev);
+	if (ret) {
+		ci_dpm_fini(rdev);
+		return ret;
+	}
 
-11:59:59.882990 IP C > S: Flags [S], seq 517075944, win 65535, options [nop,nop,md5 valid,mss 1400,sackOK,TS val 1751508483 ecr 0,nop,wscale 8], length 0
-11:59:59.883002 IP S > C: Flags [S.], seq 1902939253, ack 517075945, win 65535, options [nop,nop,md5 valid,mss 1400,sackOK,TS val 1751508479 ecr 1751508483,nop,wscale 8], length 0
-11:59:59.883012 IP C > S: Flags [.], ack 1, win 256, options [nop,nop,md5 valid,nop,nop,TS val 1751508483 ecr 1751508479], length 0
-11:59:59.883114 IP C > S: Flags [P.], seq 1:13, ack 1, win 256, options [nop,nop,md5 valid,nop,nop,TS val 1751508483 ecr 1751508479], length 12
-11:59:59.883122 IP S > C: Flags [.], ack 13, win 256, options [nop,nop,md5 valid,nop,nop,TS val 1751508483 ecr 1751508483], length 0
-11:59:59.883152 IP S > C: Flags [P.], seq 1:13, ack 13, win 256, options [nop,nop,md5 valid,nop,nop,TS val 1751508484 ecr 1751508483], length 12
-11:59:59.883170 IP C > S: Flags [.], ack 13, win 256, options [nop,nop,md5 valid,nop,nop,TS val 1751508484 ecr 1751508484], length 0
+So remove the cleanup in ci_parse_power_table and
+move the num_ps calculation to inside the loop so ci_dpm_fini
+will know how many array elements to free.
 
-Of course, no SACK block will ever be added later, but nothing should break.
-Technically, we could remove the 4 nops included in MD5+TS options,
-but again some stacks could break seeing not conventional alignment.
+Fixes: cc8dbbb4f62a ("drm/radeon: add dpm support for CI dGPUs (v2)")
 
-Fixes: 4957faade11b ("TCPCT part 1g: Responder Cookie => Initiator")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_output.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -615,7 +615,8 @@ static unsigned int tcp_synack_options(s
- 				       unsigned int mss, struct sk_buff *skb,
- 				       struct tcp_out_options *opts,
- 				       const struct tcp_md5sig_key *md5,
--				       struct tcp_fastopen_cookie *foc)
-+				       struct tcp_fastopen_cookie *foc,
-+				       enum tcp_synack_type synack_type)
- {
- 	struct inet_request_sock *ireq = inet_rsk(req);
- 	unsigned int remaining = MAX_TCP_OPTION_SPACE;
-@@ -630,7 +631,8 @@ static unsigned int tcp_synack_options(s
- 		 * rather than TS in order to fit in better with old,
- 		 * buggy kernels, but that was deemed to be unnecessary.
- 		 */
--		ireq->tstamp_ok &= !ireq->sack_ok;
-+		if (synack_type != TCP_SYNACK_COOKIE)
-+			ireq->tstamp_ok &= !ireq->sack_ok;
+---
+ drivers/gpu/drm/radeon/ci_dpm.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+--- a/drivers/gpu/drm/radeon/ci_dpm.c
++++ b/drivers/gpu/drm/radeon/ci_dpm.c
+@@ -5554,6 +5554,7 @@ static int ci_parse_power_table(struct r
+ 	if (!rdev->pm.dpm.ps)
+ 		return -ENOMEM;
+ 	power_state_offset = (u8 *)state_array->states;
++	rdev->pm.dpm.num_ps = 0;
+ 	for (i = 0; i < state_array->ucNumEntries; i++) {
+ 		u8 *idx;
+ 		power_state = (union pplib_power_state *)power_state_offset;
+@@ -5563,10 +5564,8 @@ static int ci_parse_power_table(struct r
+ 		if (!rdev->pm.power_state[i].clock_info)
+ 			return -EINVAL;
+ 		ps = kzalloc(sizeof(struct ci_ps), GFP_KERNEL);
+-		if (ps == NULL) {
+-			kfree(rdev->pm.dpm.ps);
++		if (ps == NULL)
+ 			return -ENOMEM;
+-		}
+ 		rdev->pm.dpm.ps[i].ps_priv = ps;
+ 		ci_parse_pplib_non_clock_info(rdev, &rdev->pm.dpm.ps[i],
+ 					      non_clock_info,
+@@ -5588,8 +5587,8 @@ static int ci_parse_power_table(struct r
+ 			k++;
+ 		}
+ 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
++		rdev->pm.dpm.num_ps = i + 1;
  	}
- #endif
+-	rdev->pm.dpm.num_ps = state_array->ucNumEntries;
  
-@@ -3165,8 +3167,8 @@ struct sk_buff *tcp_make_synack(const st
- 	md5 = tcp_rsk(req)->af_specific->req_md5_lookup(sk, req_to_sk(req));
- #endif
- 	skb_set_hash(skb, tcp_rsk(req)->txhash, PKT_HASH_TYPE_L4);
--	tcp_header_size = tcp_synack_options(req, mss, skb, &opts, md5, foc) +
--			  sizeof(*th);
-+	tcp_header_size = tcp_synack_options(req, mss, skb, &opts, md5,
-+					     foc, synack_type) + sizeof(*th);
- 
- 	skb_push(skb, tcp_header_size);
- 	skb_reset_transport_header(skb);
+ 	/* fill in the vce power states */
+ 	for (i = 0; i < RADEON_MAX_VCE_LEVELS; i++) {
 
 
