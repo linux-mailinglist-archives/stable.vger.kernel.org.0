@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAFD2226557
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A45A2263B1
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730870AbgGTPw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51230 "EHLO mail.kernel.org"
+        id S1729441AbgGTPjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731429AbgGTPw5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:52:57 -0400
+        id S1729434AbgGTPjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1805206E9;
-        Mon, 20 Jul 2020 15:52:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12EE722CAF;
+        Mon, 20 Jul 2020 15:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260377;
-        bh=Fm46hoXFhlO53sH9H9Ig3yawJJYkLxSZR5k2JOeOLNM=;
+        s=default; t=1595259556;
+        bh=uUIeuthN7YjPK+Imy+UK5gSEQoybZoUj3NYqZ0gBz7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUkU0xbmdOJdVyjuZ+YKT9OC4QxpooHelPjwS+9+5E1wht1gmGFr6zDXDf7Z5AeuZ
-         aTVY+o8zKlwiXysIF2y6hxXD+Af//WzRYTxbHPmivQztBE1dhqSoKYQsC6HGGaHrnN
-         Tc/Jg1a7HzZpWhrTofgpJ9XXuaOEVydjS083PTfc=
+        b=EsELlNiCQQCWjXaN9teY6xVdHS7T+GqTRttpRGwrbjwg7RTddq695Oo7VcHpjhf9r
+         7ZAJadw2bZi6IJG54YP0zQbJqnP3rW09h74BlJuT2wuGCcdKx2JQ8iqwcidI8f/nhD
+         es/rfQvxPGIQ5PsyOWFGLF2vK4IhwszoxiTrFDWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 4.19 081/133] slimbus: core: Fix mismatch in of_node_get/put
+        stable@vger.kernel.org, David Pedersen <limero1337@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 52/58] Input: i8042 - add Lenovo XiaoXin Air 12 to i8042 nomux list
 Date:   Mon, 20 Jul 2020 17:37:08 +0200
-Message-Id: <20200720152807.621484917@linuxfoundation.org>
+Message-Id: <20200720152749.865557209@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: David Pedersen <limero1337@gmail.com>
 
-commit 01360857486c0e4435dea3aa2f78b47213b7cf6a upstream.
+commit 17d51429da722cd8fc77a365a112f008abf4f8b3 upstream.
 
-Adding missing corresponding of_node_put
+This fixes two finger trackpad scroll on the Lenovo XiaoXin Air 12.
+Without nomux, the trackpad behaves as if only one finger is present and
+moves the cursor when trying to scroll.
 
-Fixes: 7588a511bdb4 ("slimbus: core: add support to device tree helper")
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-[Srini: added fixes tag, removed NULL check and updated log]
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200511151334.362-3-srinivas.kandagatla@linaro.org
+Signed-off-by: David Pedersen <limero1337@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200625133754.291325-1-limero1337@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/slimbus/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/slimbus/core.c
-+++ b/drivers/slimbus/core.c
-@@ -236,6 +236,7 @@ EXPORT_SYMBOL_GPL(slim_register_controll
- /* slim_remove_device: Remove the effect of slim_add_device() */
- static void slim_remove_device(struct slim_device *sbdev)
- {
-+	of_node_put(sbdev->dev.of_node);
- 	device_unregister(&sbdev->dev);
- }
- 
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -430,6 +430,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Lenovo XiaoXin Air 12 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "80UN"),
++		},
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
 
 
