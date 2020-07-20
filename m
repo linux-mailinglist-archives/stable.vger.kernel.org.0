@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3832264A4
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4581922639B
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730277AbgGTPqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41694 "EHLO mail.kernel.org"
+        id S1729254AbgGTPil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:38:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730694AbgGTPqt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:49 -0400
+        id S1729252AbgGTPik (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:38:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C018E2065E;
-        Mon, 20 Jul 2020 15:46:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B854922CBB;
+        Mon, 20 Jul 2020 15:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260009;
-        bh=a/wF/P/zlabevIzH5R9RAFZsgw4KRZvxNRAL8nXyJvU=;
+        s=default; t=1595259520;
+        bh=uT/bRBTIdkmSU5bvhXzruj9bPbkiXd8OXTikZIuokas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IFJ0D8c05jYjIddAzmjVT5cqpG3pyNl129hOlDMgWWty4CGCxoCf2zj7o4/7oJ0c
-         DesI7aW8YWlFQha7k/9zWTk0WNRLPtDVVRGMQTEZ/qxslGxihI3XAo2WmCQeR/kEJ7
-         20QsKUgqXZfXejLW3qFtaZzM1IYdQJKTmAmUHLug=
+        b=jcNjwfKUbyAJ7w/xOlsObVAmhWlnrJk4bTBr6z68NjeZF4WON/8nxhzRufhupM3Bm
+         /FYaX0KWGNLD0tPe/UG4YUk5FZiwWYCLdGeVIScRjJCaiIGyEar+XN4rfkqePQDFQn
+         /U72bNVHxoWZmary1hLyZi0G2heJI+O6V1gpF1Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/125] Revert "usb/ohci-platform: Fix a warning when hibernating"
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.4 36/58] mtd: rawnand: brcmnand: fix CS0 layout
 Date:   Mon, 20 Jul 2020 17:36:52 +0200
-Message-Id: <20200720152806.529047725@linuxfoundation.org>
+Message-Id: <20200720152749.011706626@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit baef809ea497a4f21fa67814b61094bbcc191c39.
+From: Álvaro Fernández Rojas <noltari@gmail.com>
 
-Eugeniu Rosca writes:
+commit 3d3fb3c5be9ce07fa85d8f67fb3922e4613b955b upstream.
 
-On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
->After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
->Set PM runtime as active on resume") into downstream v4.14.x, we started
->to consistently experience below panic [1] on every second s2ram of
->R-Car H3 Salvator-X Renesas reference board.
->
->After some investigations, we concluded the following:
-> - the issue does not exist in vanilla v5.8-rc4+
-> - [bisecting shows that] the panic on v4.14.186 is caused by the lack
->   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
->   link support"). Getting evidence for that is easy. Reverting
->   987351e1ea7772 in vanilla leads to a similar backtrace [2].
->
->Questions:
-> - Backporting 987351e1ea7772 ("phy: core: Add consumer device
->   link support") to v4.14.187 looks challenging enough, so probably not
->   worth it. Anybody to contradict this?
-> - Assuming no plans to backport the missing mainline commit to v4.14.x,
->   should the following three v4.14.186 commits be reverted on v4.14.x?
->   * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
->   * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
->   * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
+Only v3.3-v5.0 have a different CS0 layout.
+Controllers before v3.3 use the same layout for every CS.
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200522121524.4161539-3-noltari@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/host/ohci-platform.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/mtd/nand/brcmnand/brcmnand.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/ohci-platform.c b/drivers/usb/host/ohci-platform.c
-index 742cefa22c2b5..61fe2b985070f 100644
---- a/drivers/usb/host/ohci-platform.c
-+++ b/drivers/usb/host/ohci-platform.c
-@@ -355,11 +355,6 @@ static int ohci_platform_resume(struct device *dev)
+--- a/drivers/mtd/nand/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/brcmnand/brcmnand.c
+@@ -455,8 +455,9 @@ static int brcmnand_revision_init(struct
+ 	} else {
+ 		ctrl->cs_offsets = brcmnand_cs_offsets;
+ 
+-		/* v5.0 and earlier has a different CS0 offset layout */
+-		if (ctrl->nand_version <= 0x0500)
++		/* v3.3-5.0 have a different CS0 offset layout */
++		if (ctrl->nand_version >= 0x0303 &&
++		    ctrl->nand_version <= 0x0500)
+ 			ctrl->cs0_offsets = brcmnand_cs_offsets_cs0;
  	}
  
- 	ohci_resume(hcd, false);
--
--	pm_runtime_disable(dev);
--	pm_runtime_set_active(dev);
--	pm_runtime_enable(dev);
--
- 	return 0;
- }
- #endif /* CONFIG_PM_SLEEP */
--- 
-2.25.1
-
 
 
