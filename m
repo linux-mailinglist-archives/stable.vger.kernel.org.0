@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 822222267C4
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F2E22690D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388268AbgGTQO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:14:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54880 "EHLO mail.kernel.org"
+        id S1732801AbgGTQEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388261AbgGTQO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:14:27 -0400
+        id S1732540AbgGTQEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 066932064B;
-        Mon, 20 Jul 2020 16:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CD8120672;
+        Mon, 20 Jul 2020 16:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261666;
-        bh=MhT3uRynivrvhvXGvhtNUo8aL37u/AGUDgmW7cutRis=;
+        s=default; t=1595261040;
+        bh=cakMkwUssDNRGezxaxJHShMrS5+T/3cFdGtVNrDzmf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muG5N9A6k7qQ7jNbZVlchXS2Aw7/ju2ksSc7WRvgoQsvbTRXhyuXtXFrgR99REGUD
-         sIE784zydILsWbP9M2QyOdwjEHEn3QcBc58Gm1KxSQSB4rGkYpk6cvkmzo3xku10bJ
-         M0k21mobqGgpkQQDLPpIWZtn20RWyKNzmBO7PTOg=
+        b=lNudYKCo/56+aizx/BosqjyEg/qJHrpI/YZ/VVQiaxL2NFPqnSEfKj6uyzUfQBwzT
+         FP6dlKkh5nN/GREW72USH1zZ+s6L/C14d3d13XFsZNCMKT2l7vJDBLE8k4KCbQbXVU
+         3L5E90nNPTJRqnZOilRNdYymqjP27oQ3rBRb6u/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.7 198/244] hwmon: (drivetemp) Avoid SCT usage on Toshiba DT01ACA family drives
+        stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 187/215] powerpc/book3s64/pkeys: Fix pkey_access_permitted() for execute disable pkey
 Date:   Mon, 20 Jul 2020 17:37:49 +0200
-Message-Id: <20200720152835.263483439@linuxfoundation.org>
+Message-Id: <20200720152829.075044632@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit c66ef39eb27fe123ee05082b90eb2985c33c7715 upstream.
+commit 192b6a780598976feb7321ff007754f8511a4129 upstream.
 
-It has been observed that Toshiba DT01ACA family drives have
-WRITE FPDMA QUEUED command timeouts and sometimes just freeze until
-power-cycled under heavy write loads when their temperature is getting
-polled in SCT mode. The SMART mode seems to be fine, though.
+Even if the IAMR value denies execute access, the current code returns
+true from pkey_access_permitted() for an execute permission check, if
+the AMR read pkey bit is cleared.
 
-Let's make sure we don't use SCT mode for these drives then.
+This results in repeated page fault loop with a test like below:
 
-While only the 3 TB model was actually caught exhibiting the problem let's
-play safe here to avoid data corruption and extend the ban to the whole
-family.
+  #define _GNU_SOURCE
+  #include <errno.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <signal.h>
+  #include <inttypes.h>
 
-Fixes: 5b46903d8bf3 ("hwmon: Driver for disk and solid state drives with temperature sensors")
-Cc: stable@vger.kernel.org
-Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
-Link: https://lore.kernel.org/r/0cb2e7022b66c6d21d3f189a12a97878d0e7511b.1595075458.git.mail@maciej.szmigiero.name
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  #include <assert.h>
+  #include <malloc.h>
+  #include <unistd.h>
+  #include <pthread.h>
+  #include <sys/mman.h>
+
+  #ifdef SYS_pkey_mprotect
+  #undef SYS_pkey_mprotect
+  #endif
+
+  #ifdef SYS_pkey_alloc
+  #undef SYS_pkey_alloc
+  #endif
+
+  #ifdef SYS_pkey_free
+  #undef SYS_pkey_free
+  #endif
+
+  #undef PKEY_DISABLE_EXECUTE
+  #define PKEY_DISABLE_EXECUTE	0x4
+
+  #define SYS_pkey_mprotect	386
+  #define SYS_pkey_alloc		384
+  #define SYS_pkey_free		385
+
+  #define PPC_INST_NOP		0x60000000
+  #define PPC_INST_BLR		0x4e800020
+  #define PROT_RWX		(PROT_READ | PROT_WRITE | PROT_EXEC)
+
+  static int sys_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
+  {
+  	return syscall(SYS_pkey_mprotect, addr, len, prot, pkey);
+  }
+
+  static int sys_pkey_alloc(unsigned long flags, unsigned long access_rights)
+  {
+  	return syscall(SYS_pkey_alloc, flags, access_rights);
+  }
+
+  static int sys_pkey_free(int pkey)
+  {
+  	return syscall(SYS_pkey_free, pkey);
+  }
+
+  static void do_execute(void *region)
+  {
+  	/* jump to region */
+  	asm volatile(
+  		"mtctr	%0;"
+  		"bctrl"
+  		: : "r"(region) : "ctr", "lr");
+  }
+
+  static void do_protect(void *region)
+  {
+  	size_t pgsize;
+  	int i, pkey;
+
+  	pgsize = getpagesize();
+
+  	pkey = sys_pkey_alloc(0, PKEY_DISABLE_EXECUTE);
+  	assert (pkey > 0);
+
+  	/* perform mprotect */
+  	assert(!sys_pkey_mprotect(region, pgsize, PROT_RWX, pkey));
+  	do_execute(region);
+
+  	/* free pkey */
+  	assert(!sys_pkey_free(pkey));
+
+  }
+
+  int main(int argc, char **argv)
+  {
+  	size_t pgsize, numinsns;
+  	unsigned int *region;
+  	int i;
+
+  	/* allocate memory region to protect */
+  	pgsize = getpagesize();
+  	region = memalign(pgsize, pgsize);
+  	assert(region != NULL);
+  	assert(!mprotect(region, pgsize, PROT_RWX));
+
+  	/* fill page with NOPs with a BLR at the end */
+  	numinsns = pgsize / sizeof(region[0]);
+  	for (i = 0; i < numinsns - 1; i++)
+  		region[i] = PPC_INST_NOP;
+  	region[i] = PPC_INST_BLR;
+
+  	do_protect(region);
+
+  	return EXIT_SUCCESS;
+  }
+
+The fix is to only check the IAMR for an execute check, the AMR value
+is not relevant.
+
+Fixes: f2407ef3ba22 ("powerpc: helper to validate key-access permissions of a pte")
+Cc: stable@vger.kernel.org # v4.16+
+Reported-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[mpe: Add detail to change log, tweak wording & formatting]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200712132047.1038594-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/drivetemp.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ arch/powerpc/mm/book3s64/pkeys.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/hwmon/drivetemp.c
-+++ b/drivers/hwmon/drivetemp.c
-@@ -285,6 +285,42 @@ static int drivetemp_get_scttemp(struct
- 	return err;
+--- a/arch/powerpc/mm/book3s64/pkeys.c
++++ b/arch/powerpc/mm/book3s64/pkeys.c
+@@ -367,12 +367,14 @@ static bool pkey_access_permitted(int pk
+ 		return true;
+ 
+ 	pkey_shift = pkeyshift(pkey);
+-	if (execute && !(read_iamr() & (IAMR_EX_BIT << pkey_shift)))
+-		return true;
++	if (execute)
++		return !(read_iamr() & (IAMR_EX_BIT << pkey_shift));
++
++	amr = read_amr();
++	if (write)
++		return !(amr & (AMR_WR_BIT << pkey_shift));
+ 
+-	amr = read_amr(); /* Delay reading amr until absolutely needed */
+-	return ((!write && !(amr & (AMR_RD_BIT << pkey_shift))) ||
+-		(write &&  !(amr & (AMR_WR_BIT << pkey_shift))));
++	return !(amr & (AMR_RD_BIT << pkey_shift));
  }
  
-+static const char * const sct_avoid_models[] = {
-+/*
-+ * These drives will have WRITE FPDMA QUEUED command timeouts and sometimes just
-+ * freeze until power-cycled under heavy write loads when their temperature is
-+ * getting polled in SCT mode. The SMART mode seems to be fine, though.
-+ *
-+ * While only the 3 TB model (DT01ACA3) was actually caught exhibiting the
-+ * problem let's play safe here to avoid data corruption and ban the whole
-+ * DT01ACAx family.
-+
-+ * The models from this array are prefix-matched.
-+ */
-+	"TOSHIBA DT01ACA",
-+};
-+
-+static bool drivetemp_sct_avoid(struct drivetemp_data *st)
-+{
-+	struct scsi_device *sdev = st->sdev;
-+	unsigned int ctr;
-+
-+	if (!sdev->model)
-+		return false;
-+
-+	/*
-+	 * The "model" field contains just the raw SCSI INQUIRY response
-+	 * "product identification" field, which has a width of 16 bytes.
-+	 * This field is space-filled, but is NOT NULL-terminated.
-+	 */
-+	for (ctr = 0; ctr < ARRAY_SIZE(sct_avoid_models); ctr++)
-+		if (!strncmp(sdev->model, sct_avoid_models[ctr],
-+			     strlen(sct_avoid_models[ctr])))
-+			return true;
-+
-+	return false;
-+}
-+
- static int drivetemp_identify_sata(struct drivetemp_data *st)
- {
- 	struct scsi_device *sdev = st->sdev;
-@@ -326,6 +362,13 @@ static int drivetemp_identify_sata(struc
- 	/* bail out if this is not a SATA device */
- 	if (!is_ata || !is_sata)
- 		return -ENODEV;
-+
-+	if (have_sct && drivetemp_sct_avoid(st)) {
-+		dev_notice(&sdev->sdev_gendev,
-+			   "will avoid using SCT for temperature monitoring\n");
-+		have_sct = false;
-+	}
-+
- 	if (!have_sct)
- 		goto skip_sct;
- 
+ bool arch_pte_access_permitted(u64 pte, bool write, bool execute)
 
 
