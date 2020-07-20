@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E180A2267D7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFED5226882
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388381AbgGTQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55952 "EHLO mail.kernel.org"
+        id S1732993AbgGTQFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388376AbgGTQPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:15:11 -0400
+        id S1732990AbgGTQFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:05:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64032206E9;
-        Mon, 20 Jul 2020 16:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39F332065E;
+        Mon, 20 Jul 2020 16:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261710;
-        bh=1vkmbu4AdmaI6B55+oei26Je9Lf0eQSbr6gGBI1jgV4=;
+        s=default; t=1595261137;
+        bh=bj0cw1PrDaIgcRQsCOacLZbDZs92lM445Xkk2D129lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUuA0IYQ3Z6aDxxKNFyMuCuXrdKe/vbFa2SxEOfQqxYZ0+zP7Lms/7UFLc+Mcw7Bz
-         q6xdHv2Tms62/BPeyE9UCtETu0QmXhp9Pwig30QxesU8UG9oYuBlTJX4Pn8mg87+eG
-         CUq+A6JB1xD6mrckTRG0/FQqwP1DS72j3YbFwb50=
+        b=1Tcyawnb8toRn+aNWztKizQq5IxuhnjR/r5b1mP0AV0W2tXNrYB+BKyMKIyB8nt6Z
+         wlkeyKyh++3ayeClAePBHvOIq7/hkWyGeIFjOvN9W257yUb0ciVx1xBTmx1QxucSkY
+         iby71DXT5qQnDDYKQ3gINUQ1q++bmnXFx96h2tAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinh.nguyen@intel.com>
-Subject: [PATCH 5.7 215/244] arm64: dts: stratix10: increase QSPI reg address in nand dts file
+        stable@vger.kernel.org, Ali Saidi <alisaidi@amazon.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 204/215] genirq/affinity: Handle affinity setting on inactive interrupts correctly
 Date:   Mon, 20 Jul 2020 17:38:06 +0200
-Message-Id: <20200720152836.076914730@linuxfoundation.org>
+Message-Id: <20200720152829.867818784@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +43,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinh.nguyen@intel.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 3bf9b8ffc8980c1090bdd3a5570cf42420620838 upstream.
+commit baedb87d1b53532f81b4bd0387f83b05d4f7eb9a upstream.
 
-Match the QSPI reg address in the socfpga_stratix10_socdk.dts file.
+Setting interrupt affinity on inactive interrupts is inconsistent when
+hierarchical irq domains are enabled. The core code should just store the
+affinity and not call into the irq chip driver for inactive interrupts
+because the chip drivers may not be in a state to handle such requests.
 
-Fixes: 80f132d73709 ("arm64: dts: increase the QSPI reg address for Stratix10 and Agilex")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.6
-Signed-off-by: Dinh Nguyen <dinh.nguyen@intel.com>
+X86 has a hacky workaround for that but all other irq chips have not which
+causes problems e.g. on GIC V3 ITS.
+
+Instead of adding more ugly hacks all over the place, solve the problem in
+the core code. If the affinity is set on an inactive interrupt then:
+
+    - Store it in the irq descriptors affinity mask
+    - Update the effective affinity to reflect that so user space has
+      a consistent view
+    - Don't call into the irq chip driver
+
+This is the core equivalent of the X86 workaround and works correctly
+because the affinity setting is established in the irq chip when the
+interrupt is activated later on.
+
+Note, that this is only effective when hierarchical irq domains are enabled
+by the architecture. Doing it unconditionally would break legacy irq chip
+implementations.
+
+For hierarchial irq domains this works correctly as none of the drivers can
+have a dependency on affinity setting in inactive state by design.
+
+Remove the X86 workaround as it is not longer required.
+
+Fixes: 02edee152d6e ("x86/apic/vector: Ignore set_affinity call for inactive interrupts")
+Reported-by: Ali Saidi <alisaidi@amazon.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Ali Saidi <alisaidi@amazon.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529015501.15771-1-alisaidi@amazon.com
+Link: https://lkml.kernel.org/r/877dv2rv25.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/apic/vector.c |   22 +++++-----------------
+ kernel/irq/manage.c           |   37 +++++++++++++++++++++++++++++++++++--
+ 2 files changed, 40 insertions(+), 19 deletions(-)
 
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-@@ -212,12 +212,12 @@
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -446,12 +446,10 @@ static int x86_vector_activate(struct ir
+ 	trace_vector_activate(irqd->irq, apicd->is_managed,
+ 			      apicd->can_reserve, reserve);
  
- 			qspi_boot: partition@0 {
- 				label = "Boot and fpga data";
--				reg = <0x0 0x034B0000>;
-+				reg = <0x0 0x03FE0000>;
- 			};
+-	/* Nothing to do for fixed assigned vectors */
+-	if (!apicd->can_reserve && !apicd->is_managed)
+-		return 0;
+-
+ 	raw_spin_lock_irqsave(&vector_lock, flags);
+-	if (reserve || irqd_is_managed_and_shutdown(irqd))
++	if (!apicd->can_reserve && !apicd->is_managed)
++		assign_irq_vector_any_locked(irqd);
++	else if (reserve || irqd_is_managed_and_shutdown(irqd))
+ 		vector_assign_managed_shutdown(irqd);
+ 	else if (apicd->is_managed)
+ 		ret = activate_managed(irqd);
+@@ -769,20 +767,10 @@ void lapic_offline(void)
+ static int apic_set_affinity(struct irq_data *irqd,
+ 			     const struct cpumask *dest, bool force)
+ {
+-	struct apic_chip_data *apicd = apic_chip_data(irqd);
+ 	int err;
  
--			qspi_rootfs: partition@4000000 {
-+			qspi_rootfs: partition@3FE0000 {
- 				label = "Root Filesystem - JFFS2";
--				reg = <0x034B0000 0x0EB50000>;
-+				reg = <0x03FE0000 0x0C020000>;
- 			};
- 		};
- 	};
+-	/*
+-	 * Core code can call here for inactive interrupts. For inactive
+-	 * interrupts which use managed or reservation mode there is no
+-	 * point in going through the vector assignment right now as the
+-	 * activation will assign a vector which fits the destination
+-	 * cpumask. Let the core code store the destination mask and be
+-	 * done with it.
+-	 */
+-	if (!irqd_is_activated(irqd) &&
+-	    (apicd->is_managed || apicd->can_reserve))
+-		return IRQ_SET_MASK_OK;
++	if (WARN_ON_ONCE(!irqd_is_activated(irqd)))
++		return -EIO;
+ 
+ 	raw_spin_lock(&vector_lock);
+ 	cpumask_and(vector_searchmask, dest, cpu_online_mask);
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -194,9 +194,9 @@ void irq_set_thread_affinity(struct irq_
+ 			set_bit(IRQTF_AFFINITY, &action->thread_flags);
+ }
+ 
++#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
+ static void irq_validate_effective_affinity(struct irq_data *data)
+ {
+-#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
+ 	const struct cpumask *m = irq_data_get_effective_affinity_mask(data);
+ 	struct irq_chip *chip = irq_data_get_irq_chip(data);
+ 
+@@ -204,9 +204,19 @@ static void irq_validate_effective_affin
+ 		return;
+ 	pr_warn_once("irq_chip %s did not update eff. affinity mask of irq %u\n",
+ 		     chip->name, data->irq);
+-#endif
+ }
+ 
++static inline void irq_init_effective_affinity(struct irq_data *data,
++					       const struct cpumask *mask)
++{
++	cpumask_copy(irq_data_get_effective_affinity_mask(data), mask);
++}
++#else
++static inline void irq_validate_effective_affinity(struct irq_data *data) { }
++static inline void irq_init_effective_affinity(struct irq_data *data,
++					       const struct cpumask *mask) { }
++#endif
++
+ int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
+ 			bool force)
+ {
+@@ -265,6 +275,26 @@ static int irq_try_set_affinity(struct i
+ 	return ret;
+ }
+ 
++static bool irq_set_affinity_deactivated(struct irq_data *data,
++					 const struct cpumask *mask, bool force)
++{
++	struct irq_desc *desc = irq_data_to_desc(data);
++
++	/*
++	 * If the interrupt is not yet activated, just store the affinity
++	 * mask and do not call the chip driver at all. On activation the
++	 * driver has to make sure anyway that the interrupt is in a
++	 * useable state so startup works.
++	 */
++	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
++		return false;
++
++	cpumask_copy(desc->irq_common_data.affinity, mask);
++	irq_init_effective_affinity(data, mask);
++	irqd_set(data, IRQD_AFFINITY_SET);
++	return true;
++}
++
+ int irq_set_affinity_locked(struct irq_data *data, const struct cpumask *mask,
+ 			    bool force)
+ {
+@@ -275,6 +305,9 @@ int irq_set_affinity_locked(struct irq_d
+ 	if (!chip || !chip->irq_set_affinity)
+ 		return -EINVAL;
+ 
++	if (irq_set_affinity_deactivated(data, mask, force))
++		return 0;
++
+ 	if (irq_can_move_pcntxt(data) && !irqd_is_setaffinity_pending(data)) {
+ 		ret = irq_try_set_affinity(data, mask, force);
+ 	} else {
 
 
