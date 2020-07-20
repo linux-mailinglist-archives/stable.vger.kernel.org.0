@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07D0226A7D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDFD9226A0F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731141AbgGTQe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:34:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53880 "EHLO mail.kernel.org"
+        id S1731427AbgGTPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731087AbgGTPzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:55:00 -0400
+        id S1731657AbgGTPzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C9462065E;
-        Mon, 20 Jul 2020 15:54:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19090206E9;
+        Mon, 20 Jul 2020 15:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260499;
-        bh=6UoYeTCDSBytTXojwPPdiRhWuHhva60RZ9lc1M1AQUk=;
+        s=default; t=1595260515;
+        bh=FiL4nt4KgEVFyMuPNc8RelZhJklIIMpP0b6h4wVNgm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgNMBtJovw2B75byBjXAwy77Vr4S6tZg339YrZvR48oMZi4J1Dku/CfCyLOf78Kbj
-         o3v2+qV2OUW40M4gfTvFxDx/j3d+zq5mNUxl4CnePMnm3IC4f9Xs6xuiH8cW+cpAa9
-         hlgaIV1Ul3MkuDAC2RSD6FVohO3MTaD4X+mkhWCE=
+        b=Z6fLJcLTZDfN99TGpLIv/6xbNgjEZugxBh3oq7uAr7y6cqzpCiFQfe0hE3+TcOKaA
+         pyghK7Itje78I7hV26Qeehtidz0FcWW4vkJtKeWHZGDH+m5X5evTllfritDYClHCSa
+         +fp7DFADR3kBJI/mS2L2BgdxmwB+yq6wUU17IxjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Keno Fischer <keno@juliacomputing.com>,
-        Luis Machado <luis.machado@linaro.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 124/133] arm64: ptrace: Override SPSR.SS when single-stepping is enabled
-Date:   Mon, 20 Jul 2020 17:37:51 +0200
-Message-Id: <20200720152809.715402983@linuxfoundation.org>
+        stable@vger.kernel.org, Ali Saidi <alisaidi@amazon.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 129/133] genirq/affinity: Handle affinity setting on inactive interrupts correctly
+Date:   Mon, 20 Jul 2020 17:37:56 +0200
+Message-Id: <20200720152809.967613699@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
 References: <20200720152803.732195882@linuxfoundation.org>
@@ -45,110 +43,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 3a5a4366cecc25daa300b9a9174f7fdd352b9068 upstream.
+commit baedb87d1b53532f81b4bd0387f83b05d4f7eb9a upstream.
 
-Luis reports that, when reverse debugging with GDB, single-step does not
-function as expected on arm64:
+Setting interrupt affinity on inactive interrupts is inconsistent when
+hierarchical irq domains are enabled. The core code should just store the
+affinity and not call into the irq chip driver for inactive interrupts
+because the chip drivers may not be in a state to handle such requests.
 
-  | I've noticed, under very specific conditions, that a PTRACE_SINGLESTEP
-  | request by GDB won't execute the underlying instruction. As a consequence,
-  | the PC doesn't move, but we return a SIGTRAP just like we would for a
-  | regular successful PTRACE_SINGLESTEP request.
+X86 has a hacky workaround for that but all other irq chips have not which
+causes problems e.g. on GIC V3 ITS.
 
-The underlying problem is that when the CPU register state is restored
-as part of a reverse step, the SPSR.SS bit is cleared and so the hardware
-single-step state can transition to the "active-pending" state, causing
-an unexpected step exception to be taken immediately if a step operation
-is attempted.
+Instead of adding more ugly hacks all over the place, solve the problem in
+the core code. If the affinity is set on an inactive interrupt then:
 
-In hindsight, we probably shouldn't have exposed SPSR.SS in the pstate
-accessible by the GPR regset, but it's a bit late for that now. Instead,
-simply prevent userspace from configuring the bit to a value which is
-inconsistent with the TIF_SINGLESTEP state for the task being traced.
+    - Store it in the irq descriptors affinity mask
+    - Update the effective affinity to reflect that so user space has
+      a consistent view
+    - Don't call into the irq chip driver
 
-Cc: <stable@vger.kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Keno Fischer <keno@juliacomputing.com>
-Link: https://lore.kernel.org/r/1eed6d69-d53d-9657-1fc9-c089be07f98c@linaro.org
-Reported-by: Luis Machado <luis.machado@linaro.org>
-Tested-by: Luis Machado <luis.machado@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+This is the core equivalent of the X86 workaround and works correctly
+because the affinity setting is established in the irq chip when the
+interrupt is activated later on.
+
+Note, that this is only effective when hierarchical irq domains are enabled
+by the architecture. Doing it unconditionally would break legacy irq chip
+implementations.
+
+For hierarchial irq domains this works correctly as none of the drivers can
+have a dependency on affinity setting in inactive state by design.
+
+Remove the X86 workaround as it is not longer required.
+
+Fixes: 02edee152d6e ("x86/apic/vector: Ignore set_affinity call for inactive interrupts")
+Reported-by: Ali Saidi <alisaidi@amazon.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Ali Saidi <alisaidi@amazon.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529015501.15771-1-alisaidi@amazon.com
+Link: https://lkml.kernel.org/r/877dv2rv25.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/debug-monitors.h |    2 ++
- arch/arm64/kernel/debug-monitors.c      |   20 ++++++++++++++++----
- arch/arm64/kernel/ptrace.c              |    4 ++--
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ arch/x86/kernel/apic/vector.c |   22 +++++-----------------
+ kernel/irq/manage.c           |   37 +++++++++++++++++++++++++++++++++++--
+ 2 files changed, 40 insertions(+), 19 deletions(-)
 
---- a/arch/arm64/include/asm/debug-monitors.h
-+++ b/arch/arm64/include/asm/debug-monitors.h
-@@ -119,6 +119,8 @@ void disable_debug_monitors(enum dbg_act
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -448,12 +448,10 @@ static int x86_vector_activate(struct ir
+ 	trace_vector_activate(irqd->irq, apicd->is_managed,
+ 			      apicd->can_reserve, reserve);
  
- void user_rewind_single_step(struct task_struct *task);
- void user_fastforward_single_step(struct task_struct *task);
-+void user_regs_reset_single_step(struct user_pt_regs *regs,
-+				 struct task_struct *task);
- 
- void kernel_enable_single_step(struct pt_regs *regs);
- void kernel_disable_single_step(void);
---- a/arch/arm64/kernel/debug-monitors.c
-+++ b/arch/arm64/kernel/debug-monitors.c
-@@ -152,17 +152,20 @@ postcore_initcall(debug_monitors_init);
- /*
-  * Single step API and exception handling.
-  */
--static void set_regs_spsr_ss(struct pt_regs *regs)
-+static void set_user_regs_spsr_ss(struct user_pt_regs *regs)
+-	/* Nothing to do for fixed assigned vectors */
+-	if (!apicd->can_reserve && !apicd->is_managed)
+-		return 0;
+-
+ 	raw_spin_lock_irqsave(&vector_lock, flags);
+-	if (reserve || irqd_is_managed_and_shutdown(irqd))
++	if (!apicd->can_reserve && !apicd->is_managed)
++		assign_irq_vector_any_locked(irqd);
++	else if (reserve || irqd_is_managed_and_shutdown(irqd))
+ 		vector_assign_managed_shutdown(irqd);
+ 	else if (apicd->is_managed)
+ 		ret = activate_managed(irqd);
+@@ -771,20 +769,10 @@ void lapic_offline(void)
+ static int apic_set_affinity(struct irq_data *irqd,
+ 			     const struct cpumask *dest, bool force)
  {
- 	regs->pstate |= DBG_SPSR_SS;
- }
--NOKPROBE_SYMBOL(set_regs_spsr_ss);
-+NOKPROBE_SYMBOL(set_user_regs_spsr_ss);
+-	struct apic_chip_data *apicd = apic_chip_data(irqd);
+ 	int err;
  
--static void clear_regs_spsr_ss(struct pt_regs *regs)
-+static void clear_user_regs_spsr_ss(struct user_pt_regs *regs)
+-	/*
+-	 * Core code can call here for inactive interrupts. For inactive
+-	 * interrupts which use managed or reservation mode there is no
+-	 * point in going through the vector assignment right now as the
+-	 * activation will assign a vector which fits the destination
+-	 * cpumask. Let the core code store the destination mask and be
+-	 * done with it.
+-	 */
+-	if (!irqd_is_activated(irqd) &&
+-	    (apicd->is_managed || apicd->can_reserve))
+-		return IRQ_SET_MASK_OK;
++	if (WARN_ON_ONCE(!irqd_is_activated(irqd)))
++		return -EIO;
+ 
+ 	raw_spin_lock(&vector_lock);
+ 	cpumask_and(vector_searchmask, dest, cpu_online_mask);
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -194,9 +194,9 @@ void irq_set_thread_affinity(struct irq_
+ 			set_bit(IRQTF_AFFINITY, &action->thread_flags);
+ }
+ 
++#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
+ static void irq_validate_effective_affinity(struct irq_data *data)
  {
- 	regs->pstate &= ~DBG_SPSR_SS;
- }
--NOKPROBE_SYMBOL(clear_regs_spsr_ss);
-+NOKPROBE_SYMBOL(clear_user_regs_spsr_ss);
-+
-+#define set_regs_spsr_ss(r)	set_user_regs_spsr_ss(&(r)->user_regs)
-+#define clear_regs_spsr_ss(r)	clear_user_regs_spsr_ss(&(r)->user_regs)
+-#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
+ 	const struct cpumask *m = irq_data_get_effective_affinity_mask(data);
+ 	struct irq_chip *chip = irq_data_get_irq_chip(data);
  
- /* EL1 Single Step Handler hooks */
- static LIST_HEAD(step_hook);
-@@ -400,6 +403,15 @@ void user_fastforward_single_step(struct
- 		clear_regs_spsr_ss(task_pt_regs(task));
+@@ -204,9 +204,19 @@ static void irq_validate_effective_affin
+ 		return;
+ 	pr_warn_once("irq_chip %s did not update eff. affinity mask of irq %u\n",
+ 		     chip->name, data->irq);
+-#endif
  }
  
-+void user_regs_reset_single_step(struct user_pt_regs *regs,
-+				 struct task_struct *task)
++static inline void irq_init_effective_affinity(struct irq_data *data,
++					       const struct cpumask *mask)
 +{
-+	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
-+		set_user_regs_spsr_ss(regs);
-+	else
-+		clear_user_regs_spsr_ss(regs);
++	cpumask_copy(irq_data_get_effective_affinity_mask(data), mask);
++}
++#else
++static inline void irq_validate_effective_affinity(struct irq_data *data) { }
++static inline void irq_init_effective_affinity(struct irq_data *data,
++					       const struct cpumask *mask) { }
++#endif
++
+ int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
+ 			bool force)
+ {
+@@ -264,6 +274,26 @@ static int irq_try_set_affinity(struct i
+ 	return ret;
+ }
+ 
++static bool irq_set_affinity_deactivated(struct irq_data *data,
++					 const struct cpumask *mask, bool force)
++{
++	struct irq_desc *desc = irq_data_to_desc(data);
++
++	/*
++	 * If the interrupt is not yet activated, just store the affinity
++	 * mask and do not call the chip driver at all. On activation the
++	 * driver has to make sure anyway that the interrupt is in a
++	 * useable state so startup works.
++	 */
++	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
++		return false;
++
++	cpumask_copy(desc->irq_common_data.affinity, mask);
++	irq_init_effective_affinity(data, mask);
++	irqd_set(data, IRQD_AFFINITY_SET);
++	return true;
 +}
 +
- /* Kernel API */
- void kernel_enable_single_step(struct pt_regs *regs)
+ int irq_set_affinity_locked(struct irq_data *data, const struct cpumask *mask,
+ 			    bool force)
  {
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1758,8 +1758,8 @@ static int valid_native_regs(struct user
-  */
- int valid_user_regs(struct user_pt_regs *regs, struct task_struct *task)
- {
--	if (!test_tsk_thread_flag(task, TIF_SINGLESTEP))
--		regs->pstate &= ~DBG_SPSR_SS;
-+	/* https://lore.kernel.org/lkml/20191118131525.GA4180@willie-the-truck */
-+	user_regs_reset_single_step(regs, task);
+@@ -274,6 +304,9 @@ int irq_set_affinity_locked(struct irq_d
+ 	if (!chip || !chip->irq_set_affinity)
+ 		return -EINVAL;
  
- 	if (is_compat_thread(task_thread_info(task)))
- 		return valid_compat_regs(regs);
++	if (irq_set_affinity_deactivated(data, mask, force))
++		return 0;
++
+ 	if (irq_can_move_pcntxt(data) && !irqd_is_setaffinity_pending(data)) {
+ 		ret = irq_try_set_affinity(data, mask, force);
+ 	} else {
 
 
