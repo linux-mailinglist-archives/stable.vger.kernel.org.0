@@ -2,110 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49495226295
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 16:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8DE02262A8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 16:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726046AbgGTOxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 10:53:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726675AbgGTOxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 10:53:00 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B46FC061794
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 07:53:00 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id q7so20599857ljm.1
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 07:53:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=23eFm33zVbMakY44pp2FHM+5kxZRsAv5/tu2Q+OCFVQ=;
-        b=ACpO0EeJIItd+F55NFLQ1KRbvWWcPab7rZRdcJJavihcLSOK5tygI4kQ5zdVRpEoTF
-         vBkQchMPo3pdZ9dg+OX181q3wfUW6g9fxsWWUximHbygueLExMEP03PMxdm/xbKnWkoj
-         YOaAAE5dOKp49kKUAqEmsBjHhs23BkZSxEBIBth0CiPwpJrzUhDL4XZJRreKVQGuzwdo
-         hlyhQr2NofcIfX1W4LQPWUyn2Fe9QFIUr/245Q6UdUCzkeRNvf6twk5nHPGdnpWF2hKr
-         SxaKcPr51enfYhm08naCg8q57QpeReUTFJA0aF2mJlkyA6pmOoodLLrAjjkNj8/3L/2N
-         bZ2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=23eFm33zVbMakY44pp2FHM+5kxZRsAv5/tu2Q+OCFVQ=;
-        b=fQCF9u21IgpWk8ix2PXJPy2uHxeVXKD1luYWNLyM56Avbu07ma60aSppDgBi9d/XDD
-         cmvUla+czxXne/gH0ODDAkGbvEIu83zRnk2MQYkG5kPMm34hNaGk5hRZLmsTMFHLgenr
-         dYTkAbLAKXj6tW9w+t+azxQv4gJ2tyr08IxvTWwth3AShmvFG7zVaZsodP2FOHwLUjwf
-         LoXOBejGNga3b9UZq0TTDB42teqG7f8Pm6ncnRKFdp8Ou2fWnaAtLb6d617FcoyR9BW0
-         eZouXayWsHsexBRJ4Z9jyxUTxfBky03CcrOgAo3mfExbMPLehYVfaDi+gpEJ0xv9gpJG
-         7GIA==
-X-Gm-Message-State: AOAM532YxWdXTS8WU9qujFbc+6MNV9XWCCpyQwu3vjxuMMcweBdjGETT
-        n3i5Boap5cvg61EFu9uapS928V+tIolauftwzHXGVllhSOrpCA==
-X-Google-Smtp-Source: ABdhPJxh9HuK/xDX58PelA70nPmnYIDYc49QQNgkSf6CV/9ELpEiICSDANiza62vMlIZdctBZG5BHe7jdNywazLLoFU=
-X-Received: by 2002:a2e:9857:: with SMTP id e23mr11179243ljj.411.1595256777698;
- Mon, 20 Jul 2020 07:52:57 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+G9fYuPe=XkrTx+yDo556D5t4wrFRFXctPPb2+7w+v-hAHvyw@mail.gmail.com>
-In-Reply-To: <CA+G9fYuPe=XkrTx+yDo556D5t4wrFRFXctPPb2+7w+v-hAHvyw@mail.gmail.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 20 Jul 2020 20:22:46 +0530
-Message-ID: <CA+G9fYs0gT__dkBE7XbRj-n5kZmfeHFj=GXhHZ+d-BSNBdtYyg@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_stable=2Drc_5=2E4=3A_arm_build_failed=3A_arm=2Dinit=2Ec=3A327=3A?=
-        =?UTF-8?Q?12=3A_error=3A_implicit_declaration_of_function_=E2=80=98get=5Fdev=5Ffrom=5F?=
-        =?UTF-8?Q?fwnode=E2=80=99?=
-To:     linux- stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        saravanak@google.com
+        id S1726381AbgGTO6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 10:58:25 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15410 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726046AbgGTO6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 10:58:25 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 06KEXt6l046593;
+        Mon, 20 Jul 2020 10:58:18 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 32dcyq93r8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jul 2020 10:58:18 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 06KEYJap048848;
+        Mon, 20 Jul 2020 10:58:17 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 32dcyq93qj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jul 2020 10:58:17 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 06KEjraO017836;
+        Mon, 20 Jul 2020 14:58:15 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 32brq7tukj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jul 2020 14:58:15 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 06KEuvu627066708
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Jul 2020 14:56:57 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BD9F1A405F;
+        Mon, 20 Jul 2020 14:56:57 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 42802A405C;
+        Mon, 20 Jul 2020 14:56:56 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.145.253])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 20 Jul 2020 14:56:56 +0000 (GMT)
+Message-ID: <1595257015.5055.8.camel@linux.ibm.com>
+Subject: Re: [PATCH v6] ima: move APPRAISE_BOOTPARAM dependency on
+ ARCH_POLICY to runtime
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Nayna <nayna@linux.vnet.ibm.com>,
+        Bruno Meneguele <bmeneg@redhat.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-integrity@vger.kernel.org
+Cc:     erichte@linux.ibm.com, nayna@linux.ibm.com, stable@vger.kernel.org
+Date:   Mon, 20 Jul 2020 10:56:55 -0400
+In-Reply-To: <d337cbba-e996-e898-1e75-9f142d480e5e@linux.vnet.ibm.com>
+References: <20200713164830.101165-1-bmeneg@redhat.com>
+         <d337cbba-e996-e898-1e75-9f142d480e5e@linux.vnet.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-07-20_09:2020-07-20,2020-07-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0
+ mlxlogscore=999 spamscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2007200099
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Jul 2020 at 20:16, Naresh Kamboju <naresh.kamboju@linaro.org> wr=
-ote:
->
-> arm build failed on stable-rc 5.4 branch.
->
-> make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j32 ARCH=3Darm
-> CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc CC=3D"sccache
-> arm-linux-gnueabihf-gcc" O=3Dbuild zImage
-> #
-> ../drivers/firmware/efi/arm-init.c: In function =E2=80=98efifb_add_links=
-=E2=80=99:
-> ../drivers/firmware/efi/arm-init.c:327:12: error: implicit declaration
-> of function =E2=80=98get_dev_from_fwnode=E2=80=99
-> [-Werror=3Dimplicit-function-declaration]
->   327 |  sup_dev =3D get_dev_from_fwnode(&sup_np->fwnode);
->       |            ^~~~~~~~~~~~~~~~~~~
+On Mon, 2020-07-20 at 10:40 -0400, Nayna wrote:
+> On 7/13/20 12:48 PM, Bruno Meneguele wrote:
+> > The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appraise="
+> > modes - log, fix, enforce - at run time, but not when IMA architecture
+> > specific policies are enabled.  This prevents properly labeling the
+> > filesystem on systems where secure boot is supported, but not enabled on the
+> > platform.  Only when secure boot is actually enabled should these IMA
+> > appraise modes be disabled.
+> >
+> > This patch removes the compile time dependency and makes it a runtime
+> > decision, based on the secure boot state of that platform.
+> >
+> > Test results as follows:
+> >
+> > -> x86-64 with secure boot enabled
+> >
+> > [    0.015637] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+> > [    0.015668] ima: Secure boot enabled: ignoring ima_appraise=fix boot parameter option
+> >
 
-same build problem occurred on
-stable -rc 4.9, 4.14 and 4.19 and 5.4 for arm and arm64 architectures.
+Is it common to have two colons in the same line?  Is the colon being
+used as a delimiter when parsing the kernel logs?  Should the second
+colon be replaced with a hyphen?  (No need to repost.  I'll fix it
+up.)
+ 
 
-> efi/arm: Defer probe of PCIe backed efifb on DT systems
-> [ Upstream commit 64c8a0cd0a535891d5905c3a1651150f0f141439 ]
->
-> The new of_devlink support breaks PCIe probing on ARM platforms booting
-> via UEFI if the firmware exposes a EFI framebuffer that is backed by a
-> PCI device. The reason is that the probing order gets reversed,
-> resulting in a resource conflict on the framebuffer memory window when
-> the PCIe probes last, causing it to give up entirely.
->
-> Given that we rely on PCI quirks to deal with EFI framebuffers that get
-> moved around in memory, we cannot simply drop the memory reservation, so
-> instead, let's use the device link infrastructure to register this
-> dependency, and force the probing to occur in the expected order.
->
-> Co-developed-by: Saravana Kannan <saravanak@google.com>
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Link: https://lore.kernel.org/r/20200113172245.27925-9-ardb@kernel.org
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+> > -> powerpc with secure boot disabled
+> >
+> > [    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+> > [    0.000000] Secure boot mode disabled
+> >
+> > -> Running the system without secure boot and with both options set:
+> >
+> > CONFIG_IMA_APPRAISE_BOOTPARAM=y
+> > CONFIG_IMA_ARCH_POLICY=y
+> >
+> > Audit prompts "missing-hash" but still allow execution and, consequently,
+> > filesystem labeling:
+> >
+> > type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
+> > uid=root auid=root ses=2
+> > subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
+> > cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
+> > res=no
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
+> > Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+> 
+> 
+> Reviewed-by: Nayna Jain<nayna@linux.ibm.com>
+> Tested-by: Nayna Jain<nayna@linux.ibm.com>
+
+Thanks, Nayna.
+
+Mimi
+
