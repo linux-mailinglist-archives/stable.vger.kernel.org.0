@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57721226441
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB992263AC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbgGTPnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:43:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36894 "EHLO mail.kernel.org"
+        id S1729399AbgGTPjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729636AbgGTPnb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:43:31 -0400
+        id S1729390AbgGTPjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B5DD20773;
-        Mon, 20 Jul 2020 15:43:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97E2D22B4E;
+        Mon, 20 Jul 2020 15:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259811;
-        bh=2fTVezv4O6yvsr4HZJ8DPV6mH40wJ6H95Ue85X0zVfk=;
+        s=default; t=1595259546;
+        bh=cuo+juPufaXmy7d316bkfcGe0dqdvApZ/1cf6hrJbV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKEJoPlRetOmSiAL6EuEDyp+z60I3lPq9kd55ou+TDkPuxCiNBI4NXJO3sG4JD3f7
-         xyr/jr5Pwo5+RHJIJ1SablrwryHPyI3zL+zaFzZIK8PZlGnTpcXViKoy65qNOIIh25
-         ZXJkhLFJSMz0BVf7mENoVcr4ItWq2g/jwDtJJRlU=
+        b=kHIHMOJ4VkraaEyWLt/6KoWESuZLos57DsSrhXcleCblTjUNFi1gxlv4YDBFxy3qP
+         OAZOZ9IPhWU37JXlphuNrG75JkuWSa76XTFb4qWchLlel62jGZgMX1o9gg1kMPQhjp
+         Ow6VPv3OnTYSbh50oNBCL9a40FIH977JIXt+i4yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qiang <qiang.zhang@windriver.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.9 67/86] usb: gadget: function: fix missing spinlock in f_uac1_legacy
-Date:   Mon, 20 Jul 2020 17:37:03 +0200
-Message-Id: <20200720152756.539185169@linuxfoundation.org>
+        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 48/58] USB: serial: option: add Quectel EG95 LTE modem
+Date:   Mon, 20 Jul 2020 17:37:04 +0200
+Message-Id: <20200720152749.648141323@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiang <qiang.zhang@windriver.com>
+From: AceLan Kao <acelan.kao@canonical.com>
 
-commit 8778eb0927ddcd3f431805c37b78fa56481aeed9 upstream.
+commit da6902e5b6dbca9081e3d377f9802d4fd0c5ea59 upstream.
 
-Add a missing spinlock protection for play_queue, because
-the play_queue may be destroyed when the "playback_work"
-work func and "f_audio_out_ep_complete" callback func
-operate this paly_queue at the same time.
+Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
 
-Fixes: c6994e6f067cf ("USB: gadget: add USB Audio Gadget driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Zhang Qiang <qiang.zhang@windriver.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0195 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_uac1.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/function/f_uac1.c
-+++ b/drivers/usb/gadget/function/f_uac1.c
-@@ -336,7 +336,9 @@ static int f_audio_out_ep_complete(struc
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -248,6 +248,7 @@ static void option_instat_callback(struc
+ /* These Quectel products use Quectel's vendor ID */
+ #define QUECTEL_PRODUCT_EC21			0x0121
+ #define QUECTEL_PRODUCT_EC25			0x0125
++#define QUECTEL_PRODUCT_EG95			0x0195
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
  
- 	/* Copy buffer is full, add it to the play_queue */
- 	if (audio_buf_size - copy_buf->actual < req->actual) {
-+		spin_lock_irq(&audio->lock);
- 		list_add_tail(&copy_buf->list, &audio->play_queue);
-+		spin_unlock_irq(&audio->lock);
- 		schedule_work(&audio->playback_work);
- 		copy_buf = f_audio_buffer_alloc(audio_buf_size);
- 		if (IS_ERR(copy_buf))
+@@ -1095,6 +1096,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
+ 	  .driver_info = RSVD(4) },
++	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95),
++	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06),
 
 
