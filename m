@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3896722698E
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AED0822686F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387994AbgGTQ1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
+        id S2387903AbgGTQMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:12:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732287AbgGTP7n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:59:43 -0400
+        id S2387898AbgGTQMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:12:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D5F822BEF;
-        Mon, 20 Jul 2020 15:59:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9A8020684;
+        Mon, 20 Jul 2020 16:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260783;
-        bh=OrUqV8JJjkoxK8FuCM07uleGXeKVco3gz7e0rfHRBo0=;
+        s=default; t=1595261522;
+        bh=nHFcYKuESz6YGPy3IhjNj1H/CLmIVkZlIyzW7Y8HBHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0L3YDBptN8h1RGID9SxAOYrhicAsc9OUFIlqETxLVyvkR/QI+vMYnDl0HpahfxlPW
-         MxmgckBE/Y5jFXVcHJpoQB6HpQS5cofl/MyTIdl5S5qwCxJPKQCwO2uqHAnboP0TRa
-         jwTaIasCMYaZEaybs7CppkGB1xSlSIytXVqIFqbg=
+        b=wJtRPLTiAjQmtW/695V/7V+XNetRNFC6r2vb1JRhSPxTFVjxbIHYDjWpmJncp5bz1
+         8QH29NQ3HBQb2O/WpHU4ulCaDnRRZyz5Uk9B4aZF8zGvJXEaDqu+lkGMZU7EtW7wct
+         5OHyHLpRGkk7uC+UaqcyJ7OUiO6wf3MhNDD+JJaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Andrew F. Davis" <afd@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/215] iio:health:afe4404 Fix timestamp alignment and prevent data leak.
-Date:   Mon, 20 Jul 2020 17:36:15 +0200
-Message-Id: <20200720152824.632533390@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 105/244] xprtrdma: Fix return code from rpcrdma_xprt_connect()
+Date:   Mon, 20 Jul 2020 17:36:16 +0200
+Message-Id: <20200720152830.823401261@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit f88ecccac4be348bbcc6d056bdbc622a8955c04d ]
+[ Upstream commit dda9a951dd6dd6073bbaf2c8d3119da2f8fe2d5b ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 40 byte array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+I noticed that when rpcrdma_xprt_connect() returns -ENOMEM,
+instead of retrying the connect, the RPC client kills the
+RPC task that requested the connection. We want a retry
+here.
 
-Fixes: 87aec56e27ef ("iio: health: Add driver for the TI AFE4404 heart monitor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Andrew F. Davis <afd@ti.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: cb586decbb88 ("xprtrdma: Make sendctx queue lifetime the same as connection lifetime")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/health/afe4404.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/sunrpc/xprtrdma/verbs.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
-index e728bbb21ca88..cebb1fd4d0b15 100644
---- a/drivers/iio/health/afe4404.c
-+++ b/drivers/iio/health/afe4404.c
-@@ -83,6 +83,7 @@ static const struct reg_field afe4404_reg_fields[] = {
-  * @regulator: Pointer to the regulator for the IC
-  * @trig: IIO trigger for this device
-  * @irq: ADC_RDY line interrupt number
-+ * @buffer: Used to construct a scan to push to the iio buffer.
-  */
- struct afe4404_data {
- 	struct device *dev;
-@@ -91,6 +92,7 @@ struct afe4404_data {
- 	struct regulator *regulator;
- 	struct iio_trigger *trig;
- 	int irq;
-+	s32 buffer[10] __aligned(8);
- };
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 00ee62579137b..220c2d2eeb3e5 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -398,7 +398,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
  
- enum afe4404_chan_id {
-@@ -328,17 +330,17 @@ static irqreturn_t afe4404_trigger_handler(int irq, void *private)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct afe4404_data *afe = iio_priv(indio_dev);
- 	int ret, bit, i = 0;
--	s32 buffer[10];
+ 	ep = kzalloc(sizeof(*ep), GFP_NOFS);
+ 	if (!ep)
+-		return -EAGAIN;
++		return -ENOTCONN;
+ 	ep->re_xprt = &r_xprt->rx_xprt;
+ 	kref_init(&ep->re_kref);
  
- 	for_each_set_bit(bit, indio_dev->active_scan_mask,
- 			 indio_dev->masklength) {
- 		ret = regmap_read(afe->regmap, afe4404_channel_values[bit],
--				  &buffer[i++]);
-+				  &afe->buffer[i++]);
- 		if (ret)
- 			goto err;
+@@ -534,10 +534,6 @@ int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt)
+ 	rpcrdma_ep_get(ep);
+ 	rpcrdma_post_recvs(r_xprt, true);
+ 
+-	rc = rpcrdma_sendctxs_create(r_xprt);
+-	if (rc)
+-		goto out;
+-
+ 	rc = rdma_connect(ep->re_id, &ep->re_remote_cma);
+ 	if (rc)
+ 		goto out;
+@@ -551,9 +547,17 @@ int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt)
+ 		goto out;
  	}
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
-+	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
-+					   pf->timestamp);
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
++	rc = rpcrdma_sendctxs_create(r_xprt);
++	if (rc) {
++		rc = -ENOTCONN;
++		goto out;
++	}
++
+ 	rc = rpcrdma_reqs_setup(r_xprt);
+-	if (rc)
++	if (rc) {
++		rc = -ENOTCONN;
+ 		goto out;
++	}
+ 	rpcrdma_mrs_create(r_xprt);
  
+ out:
 -- 
 2.25.1
 
