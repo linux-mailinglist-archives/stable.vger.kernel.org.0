@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C146226A8D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B64226BA7
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730977AbgGTPxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:53:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52344 "EHLO mail.kernel.org"
+        id S1730123AbgGTQnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:43:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731500AbgGTPxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:48 -0400
+        id S1730016AbgGTPmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:42:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9A952064B;
-        Mon, 20 Jul 2020 15:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C11D82064B;
+        Mon, 20 Jul 2020 15:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260427;
-        bh=0vN9ldW4dl4UP1zx716nsKtBzsTg8JvdS54xIkDdDHE=;
+        s=default; t=1595259728;
+        bh=FI7gps7flBvDC7mqdfUc+hItbWd/wRfn0NGUD3v/seY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IM5/tzigPEOfjV2AvP4/H0JllRlkfsfAe8OMeAPKk2G+vXQwbaPiFrWt9wyDeaxdx
-         t3CkbBjbpaRgPVw+QFNfmvYUm13USg9i1r6sWpaXHigMI75X6J6rHd9GoNo8kdOTJs
-         yrKQ6nGKqcZgTCT6irCQO1GhFB7RfRtYSfSVvsBU=
+        b=KRVL1HBMxcRsEXUAOKSSCdvAxMd1pxp6fIr2D91w1SY28wES6JMgDel97nDLZdHv9
+         jYVwOMCByS0FXoeaQO/6g61nDLdPgaSUWGtfnXFTqPx7sY4WLIH/ahJt2Pkk628cDv
+         a0Jde3wkQPrPAmkt2Fl3+5p1nQYuOwu93bLtxfzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Buettner <kevinb@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Dave Airlie <airlied@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 067/133] copy_xstate_to_kernel: Fix typo which caused GDB regression
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.9 58/86] perf stat: Zero all the ena and run array slot stats for interval mode
 Date:   Mon, 20 Jul 2020 17:36:54 +0200
-Message-Id: <20200720152806.970814032@linuxfoundation.org>
+Message-Id: <20200720152756.075872523@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Buettner <kevinb@redhat.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-commit 5714ee50bb4375bd586858ad800b1d9772847452 upstream.
+commit 0e0bf1ea1147fcf74eab19c2d3c853cc3740a72f upstream.
 
-This fixes a regression encountered while running the
-gdb.base/corefile.exp test in GDB's test suite.
+As the code comments in perf_stat_process_counter() say, we calculate
+counter's data every interval, and the display code shows ps->res_stats
+avg value. We need to zero the stats for interval mode.
 
-In my testing, the typo prevented the sw_reserved field of struct
-fxregs_state from being output to the kernel XSAVES area.  Thus the
-correct mask corresponding to XCR0 was not present in the core file for
-GDB to interrogate, resulting in the following behavior:
+But the current code only zeros the res_stats[0], it doesn't zero the
+res_stats[1] and res_stats[2], which are for ena and run of counter.
 
-   [kev@f32-1 gdb]$ ./gdb -q testsuite/outputs/gdb.base/corefile/corefile testsuite/outputs/gdb.base/corefile/corefile.core
-   Reading symbols from testsuite/outputs/gdb.base/corefile/corefile...
-   [New LWP 232880]
+This patch zeros the whole res_stats[] for interval mode.
 
-   warning: Unexpected size of section `.reg-xstate/232880' in core file.
-
-With the typo fixed, the test works again as expected.
-
-Signed-off-by: Kevin Buettner <kevinb@redhat.com>
-Fixes: 9e4636545933 ("copy_xstate_to_kernel(): don't leave parts of destination uninitialized")
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Dave Airlie <airlied@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200409070755.17261-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/fpu/xstate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/stat.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1029,7 +1029,7 @@ int copy_xstate_to_kernel(void *kbuf, st
- 		copy_part(offsetof(struct fxregs_state, st_space), 128,
- 			  &xsave->i387.st_space, &kbuf, &offset_start, &count);
- 	if (header.xfeatures & XFEATURE_MASK_SSE)
--		copy_part(xstate_offsets[XFEATURE_MASK_SSE], 256,
-+		copy_part(xstate_offsets[XFEATURE_SSE], 256,
- 			  &xsave->i387.xmm_space, &kbuf, &offset_start, &count);
- 	/*
- 	 * Fill xsave->i387.sw_reserved value for ptrace frame:
+--- a/tools/perf/util/stat.c
++++ b/tools/perf/util/stat.c
+@@ -341,8 +341,10 @@ int perf_stat_process_counter(struct per
+ 	 * interval mode, otherwise overall avg running
+ 	 * averages will be shown for each interval.
+ 	 */
+-	if (config->interval)
+-		init_stats(ps->res_stats);
++	if (config->interval) {
++		for (i = 0; i < 3; i++)
++			init_stats(&ps->res_stats[i]);
++	}
+ 
+ 	if (counter->per_pkg)
+ 		zero_per_pkg(counter);
 
 
