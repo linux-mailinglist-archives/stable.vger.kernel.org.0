@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EB912270FB
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A1182270F9
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728052AbgGTVkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        id S1728561AbgGTVjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:39:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727029AbgGTVjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:44 -0400
+        id S1728558AbgGTVjq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A05E020717;
-        Mon, 20 Jul 2020 21:39:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DFE120717;
+        Mon, 20 Jul 2020 21:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281183;
-        bh=OvpeHZN2OI73IrG1M3/GUSDmqOk62H1tCVxpxfNoLDg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SwLNees4QXktuRpv3/Z2h0DYfXnZYk/fm9SGENqcc+J67NF4Chkfm+Qt2E/NqIgVb
-         znzlK3fh6j0HkTR+TiHlYpg8YsVfYqDs4bzRTVCiSTUGpNt8ygw1N5BzacIm0MTN0K
-         zg0IQLyox5SuBT+fKEwMUJ8Pg1im5GX+3u4Psy9I=
+        s=default; t=1595281185;
+        bh=EK7AU3umgWF+MjgNKJPzI26DlG5PNOhqnBDJBBvQw98=;
+        h=From:To:Cc:Subject:Date:From;
+        b=bN3ISFfoKOERraxW9itpeVZmN4dPDWaEJ2IS1rixUG9QE9UbR476c2xUCM6ZFsclU
+         6g5EGqFFQmH3MGjQy69PGIfkn0kdAvUA0zPNff4yn/MqvcGgvpGhT2C75kUcAv+LAM
+         7rEfF0KniTbdtF4/g7eH3Cl/h3GZB6JmyB1IJu/0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 9/9] SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
-Date:   Mon, 20 Jul 2020 17:39:32 -0400
-Message-Id: <20200720213932.408089-9-sashal@kernel.org>
+Cc:     Marc Kleine-Budde <mkl@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 1/4] regmap: dev_get_regmap_match(): fix string comparison
+Date:   Mon, 20 Jul 2020 17:39:40 -0400
+Message-Id: <20200720213944.408226-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200720213932.408089-1-sashal@kernel.org>
-References: <20200720213932.408089-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,87 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 65caafd0d2145d1dd02072c4ced540624daeab40 ]
+[ Upstream commit e84861fec32dee8a2e62bbaa52cded6b05a2a456 ]
 
-Reverting commit d03727b248d0 "NFSv4 fix CLOSE not waiting for
-direct IO compeletion". This patch made it so that fput() by calling
-inode_dio_done() in nfs_file_release() would wait uninterruptably
-for any outstanding directIO to the file (but that wait on IO should
-be killable).
+This function is used by dev_get_regmap() to retrieve a regmap for the
+specified device. If the device has more than one regmap, the name parameter
+can be used to specify one.
 
-The problem the patch was also trying to address was REMOVE returning
-ERR_ACCESS because the file is still opened, is supposed to be resolved
-by server returning ERR_FILE_OPEN and not ERR_ACCESS.
+The code here uses a pointer comparison to check for equal strings. This
+however will probably always fail, as the regmap->name is allocated via
+kstrdup_const() from the regmap's config->name.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fix this by using strcmp() instead.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20200703103315.267996-1-mkl@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 13 ++++---------
- fs/nfs/file.c   |  1 -
- 2 files changed, 4 insertions(+), 10 deletions(-)
+ drivers/base/regmap/regmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 1affdec237299..de135d2591ffb 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -379,6 +379,8 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
- {
- 	struct inode *inode = dreq->inode;
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 77cabde977edd..4a4efc6f54b55 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1106,7 +1106,7 @@ static int dev_get_regmap_match(struct device *dev, void *res, void *data)
  
-+	inode_dio_end(inode);
-+
- 	if (dreq->iocb) {
- 		long res = (long) dreq->error;
- 		if (dreq->count != 0) {
-@@ -390,10 +392,7 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
- 
- 	complete(&dreq->completion);
- 
--	igrab(inode);
- 	nfs_direct_req_release(dreq);
--	inode_dio_end(inode);
--	iput(inode);
- }
- 
- static void nfs_direct_readpage_release(struct nfs_page *req)
-@@ -535,10 +534,8 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
- 	 * generic layer handle the completion.
- 	 */
- 	if (requested_bytes == 0) {
--		igrab(inode);
--		nfs_direct_req_release(dreq);
- 		inode_dio_end(inode);
--		iput(inode);
-+		nfs_direct_req_release(dreq);
- 		return result < 0 ? result : -EIO;
- 	}
- 
-@@ -956,10 +953,8 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
- 	 * generic layer handle the completion.
- 	 */
- 	if (requested_bytes == 0) {
--		igrab(inode);
--		nfs_direct_req_release(dreq);
- 		inode_dio_end(inode);
--		iput(inode);
-+		nfs_direct_req_release(dreq);
- 		return result < 0 ? result : -EIO;
- 	}
- 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index a89d2f793c1b8..1eec947c562d2 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -82,7 +82,6 @@ nfs_file_release(struct inode *inode, struct file *filp)
- 	dprintk("NFS: release(%pD2)\n", filp);
- 
- 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
--	inode_dio_wait(inode);
- 	nfs_file_clear_open_context(filp);
- 	return 0;
+ 	/* If the user didn't specify a name match any */
+ 	if (data)
+-		return (*r)->name == data;
++		return !strcmp((*r)->name, data);
+ 	else
+ 		return 1;
  }
 -- 
 2.25.1
