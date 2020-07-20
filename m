@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 449CB22689F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 315652268B7
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387416AbgGTQIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46144 "EHLO mail.kernel.org"
+        id S1733266AbgGTQKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733053AbgGTQIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:08:38 -0400
+        id S1731840AbgGTQK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25775206E9;
-        Mon, 20 Jul 2020 16:08:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B48C02064B;
+        Mon, 20 Jul 2020 16:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261317;
-        bh=7A716F5omD/M+9549xHMdWlShMiF/sNXmsejAVJPGK0=;
+        s=default; t=1595261428;
+        bh=u0ikDbyX9GOqbbaXAuuFaHnxV4s/a95o1MGijX8LtEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0MtT9k3mCKW65m8916PwZXKAR2kfBA5tNLlEq37Nxk50V1RevuGeDLF+q/GwZgp4
-         zrH0pK9oFBbMlJPjq73czGC1sR+WpKm3Qg19H1wjGWwaicrCsduJjkCY/bht6h77eH
-         x7Xz2Aa/wxsUaJ+hGVRyEE+IrGzwhJeaiNA7UtW8=
+        b=d0v46QKZVDQF0JjXUGKd+NpPB74F6SBLpP3WH5Bv60+3FgPdc3od23Nc65IhW7b0a
+         N1i92nWyTEmYQSGz/Ug4EvO6F0JfllfmFMzHTVVpKlYwl266UfXBJKkHyrSvJumnSy
+         c300lGDGjB7JNkf/EjZsE78dobPkRwwXhDivq2eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 071/244] net: ethernet: mvneta: Do not error out in non serdes modes
-Date:   Mon, 20 Jul 2020 17:35:42 +0200
-Message-Id: <20200720152829.217948901@linuxfoundation.org>
+Subject: [PATCH 5.7 072/244] net: ethernet: mvneta: Add back interface mode validation
+Date:   Mon, 20 Jul 2020 17:35:43 +0200
+Message-Id: <20200720152829.265726913@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -47,17 +47,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit d3d239dcb8aae6d7b10642d292b404e57604f7ea ]
+[ Upstream commit 41c2b6b4f0f807803bb49f65835d136941a70f85 ]
 
-In mvneta_config_interface() the RGMII modes are catched by the default
-case which is an error return. The RGMII modes are valid modes for the
-driver, so instead of returning an error add a break statement to return
-successfully.
-
-This avoids this warning for non comphy SoCs which use RGMII, like
-SolidRun Clearfog:
-
-WARNING: CPU: 0 PID: 268 at drivers/net/ethernet/marvell/mvneta.c:3512 mvneta_start_dev+0x220/0x23c
+When writing the serdes configuration register was moved to
+mvneta_config_interface() the whole code block was removed from
+mvneta_port_power_up() in the assumption that its only purpose was to
+write the serdes configuration register. As mentioned by Russell King
+its purpose was also to check for valid interface modes early so that
+later in the driver we do not have to care for unexpected interface
+modes.
+Add back the test to let the driver bail out early on unhandled
+interface modes.
 
 Fixes: b4748553f53f ("net: ethernet: mvneta: Fix Serdes configuration for SoCs without comphy")
 Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
@@ -65,21 +65,58 @@ Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvneta.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index cf26cf4e47aa8..7faeb4bfc282e 100644
+index 7faeb4bfc282e..b2da295e2fc01 100644
 --- a/drivers/net/ethernet/marvell/mvneta.c
 +++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3565,7 +3565,7 @@ static int mvneta_config_interface(struct mvneta_port *pp,
- 				    MVNETA_HSGMII_SERDES_PROTO);
- 			break;
- 		default:
--			return -EINVAL;
-+			break;
+@@ -5003,10 +5003,18 @@ static void mvneta_conf_mbus_windows(struct mvneta_port *pp,
+ }
+ 
+ /* Power up the port */
+-static void mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
++static int mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
+ {
+ 	/* MAC Cause register should be cleared */
+ 	mvreg_write(pp, MVNETA_UNIT_INTR_CAUSE, 0);
++
++	if (phy_mode != PHY_INTERFACE_MODE_QSGMII &&
++	    phy_mode != PHY_INTERFACE_MODE_SGMII &&
++	    !phy_interface_mode_is_8023z(phy_mode) &&
++	    !phy_interface_mode_is_rgmii(phy_mode))
++		return -EINVAL;
++
++	return 0;
+ }
+ 
+ /* Device initialization routine */
+@@ -5192,7 +5200,11 @@ static int mvneta_probe(struct platform_device *pdev)
+ 	if (err < 0)
+ 		goto err_netdev;
+ 
+-	mvneta_port_power_up(pp, phy_mode);
++	err = mvneta_port_power_up(pp, pp->phy_interface);
++	if (err < 0) {
++		dev_err(&pdev->dev, "can't power up port\n");
++		return err;
++	}
+ 
+ 	/* Armada3700 network controller does not support per-cpu
+ 	 * operation, so only single NAPI should be initialized.
+@@ -5346,7 +5358,11 @@ static int mvneta_resume(struct device *device)
  		}
  	}
+ 	mvneta_defaults_set(pp);
+-	mvneta_port_power_up(pp, pp->phy_interface);
++	err = mvneta_port_power_up(pp, pp->phy_interface);
++	if (err < 0) {
++		dev_err(device, "can't power up port\n");
++		return err;
++	}
+ 
+ 	netif_device_attach(dev);
  
 -- 
 2.25.1
