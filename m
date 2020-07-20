@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2BE8226759
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE94226950
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387719AbgGTQK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
+        id S1732410AbgGTQA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733271AbgGTQKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:55 -0400
+        id S1732406AbgGTQA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:00:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0855F2064B;
-        Mon, 20 Jul 2020 16:10:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E948A20672;
+        Mon, 20 Jul 2020 16:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261453;
-        bh=uBsx4xn2wB3TkogGj6gfY1bvCpljOdc8F6CiyzGvaNQ=;
+        s=default; t=1595260827;
+        bh=ELeIMvO+2n1S5vQap7x4dRHulOLFJ/1t/gDUszZbH+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biLPc6ywp+FaLVKGQt0acjg1gQhnHo3/0HfK7Hyw00liQfV5Qlzv2yUrnFGTUVDTj
-         vdkoXxdJvfMFU8jWHtaASIZUrgjRRkc8jV/ZD3L1CE0CXDDtnZNFy5wGGDGYBsarZh
-         O39ctSGPE1t5AUL5JDZw8mZ7i9T68lYNjcdxIBzo=
+        b=Ki7CuZiILw6e1EnD9FjMLfu9+QMvFmtF2MGgXz1Tdjx+hXsg7aH3lFhFFOoINj01c
+         +wSEJE2kQ5cezeThGGtLE6SZH3VJUA+v+2tjp7WdcXKshIaF4g4oSMCSRI8h05Rzcn
+         eCosHGK/fBKL1oGn51O7k8/PefAKUvlRU4FEI+/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomer Tayar <ttayar@habana.ai>,
-        Oded Gabbay <oded.gabbay@gmail.com>
-Subject: [PATCH 5.7 122/244] habanalabs: Align protection bits configuration of all TPCs
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 111/215] fuse: dont ignore errors from fuse_writepages_fill()
 Date:   Mon, 20 Jul 2020 17:36:33 +0200
-Message-Id: <20200720152831.640425995@linuxfoundation.org>
+Message-Id: <20200720152825.479045822@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,229 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomer Tayar <ttayar@habana.ai>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 79c823c57e69d9e584a5ee4ee6406eb3854393ae upstream.
+[ Upstream commit 7779b047a57f6824a43d0e1f70de2741b7426b9d ]
 
-Align the protection bits configuration of all TPC cores to be as of TPC
-core 0.
+fuse_writepages() ignores some errors taken from fuse_writepages_fill() I
+believe it is a bug: if .writepages is called with WB_SYNC_ALL it should
+either guarantee that all data was successfully saved or return error.
 
-Fixes: a513f9a7eca5 ("habanalabs: make tpc registers secured")
-
-Signed-off-by: Tomer Tayar <ttayar@habana.ai>
-Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 26d614df1da9 ("fuse: Implement writepages callback")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/goya/goya_security.c |   99 ++++++++++++++++++++++++++-
- 1 file changed, 98 insertions(+), 1 deletion(-)
+ fs/fuse/file.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/misc/habanalabs/goya/goya_security.c
-+++ b/drivers/misc/habanalabs/goya/goya_security.c
-@@ -695,7 +695,6 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC0_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC0_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC0_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
--	mask |= 1 << ((mmTPC0_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC0_CFG_TPC_STALL & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC0_CFG_MSS_CONFIG & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC0_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-@@ -875,6 +874,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC1_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC1_WR_REGULATOR_BASE);
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 66214707a9456..d5963ef65c389 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2148,10 +2148,8 @@ static int fuse_writepages(struct address_space *mapping,
  
-+	pb_addr = (mmTPC1_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC1_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC1_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC1_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
- 	word_offset = ((mmTPC1_CFG_CFG_BASE_ADDRESS_HIGH &
- 			PROT_BITS_OFFS) >> 7) << 2;
-@@ -882,6 +891,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC1_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC1_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC1_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC1_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
-@@ -1057,6 +1070,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC2_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC2_WR_REGULATOR_BASE);
- 
-+	pb_addr = (mmTPC2_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC2_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC2_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC2_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
- 	word_offset = ((mmTPC2_CFG_CFG_BASE_ADDRESS_HIGH &
- 			PROT_BITS_OFFS) >> 7) << 2;
-@@ -1064,6 +1087,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC2_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC2_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC2_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC2_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
-@@ -1239,6 +1266,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC3_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC3_WR_REGULATOR_BASE);
- 
-+	pb_addr = (mmTPC3_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC3_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC3_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC3_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
- 	word_offset = ((mmTPC3_CFG_CFG_BASE_ADDRESS_HIGH
- 			& PROT_BITS_OFFS) >> 7) << 2;
-@@ -1246,6 +1283,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC3_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC3_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC3_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC3_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
-@@ -1421,6 +1462,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC4_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC4_WR_REGULATOR_BASE);
- 
-+	pb_addr = (mmTPC4_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC4_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC4_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC4_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
- 	word_offset = ((mmTPC4_CFG_CFG_BASE_ADDRESS_HIGH &
- 			PROT_BITS_OFFS) >> 7) << 2;
-@@ -1428,6 +1479,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC4_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC4_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC4_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC4_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
-@@ -1603,6 +1658,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC5_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC5_WR_REGULATOR_BASE);
- 
-+	pb_addr = (mmTPC5_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC5_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC5_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC5_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
- 	word_offset = ((mmTPC5_CFG_CFG_BASE_ADDRESS_HIGH &
- 			PROT_BITS_OFFS) >> 7) << 2;
-@@ -1610,6 +1675,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC5_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC5_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC5_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC5_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
-@@ -1785,6 +1854,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC6_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC6_WR_REGULATOR_BASE);
- 
-+	pb_addr = (mmTPC6_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC6_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC6_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC6_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
- 	word_offset = ((mmTPC6_CFG_CFG_BASE_ADDRESS_HIGH &
- 			PROT_BITS_OFFS) >> 7) << 2;
-@@ -1792,6 +1871,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC6_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC6_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC6_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC6_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
-@@ -1967,6 +2050,16 @@ static void goya_init_tpc_protection_bit
- 	goya_pb_set_block(hdev, mmTPC7_RD_REGULATOR_BASE);
- 	goya_pb_set_block(hdev, mmTPC7_WR_REGULATOR_BASE);
- 
-+	pb_addr = (mmTPC7_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
-+	word_offset = ((mmTPC7_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
-+
-+	mask = 1 << ((mmTPC7_CFG_SEMAPHORE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_VFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_SFLAGS & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_STATUS & 0x7F) >> 2);
-+
-+	WREG32(pb_addr + word_offset, ~mask);
-+
- 	pb_addr = (mmTPC7_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) +	PROT_BITS_OFFS;
- 	word_offset = ((mmTPC7_CFG_CFG_BASE_ADDRESS_HIGH &
- 			PROT_BITS_OFFS) >> 7) << 2;
-@@ -1974,6 +2067,10 @@ static void goya_init_tpc_protection_bit
- 	mask |= 1 << ((mmTPC7_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC7_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
- 	mask |= 1 << ((mmTPC7_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_TPC_STALL & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_MSS_CONFIG & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
-+	mask |= 1 << ((mmTPC7_CFG_TPC_INTR_MASK & 0x7F) >> 2);
- 
- 	WREG32(pb_addr + word_offset, ~mask);
- 
+ 	err = write_cache_pages(mapping, wbc, fuse_writepages_fill, &data);
+ 	if (data.wpa) {
+-		/* Ignore errors if we can write at least one page */
+ 		WARN_ON(!data.wpa->ia.ap.num_pages);
+ 		fuse_writepages_send(&data);
+-		err = 0;
+ 	}
+ 	if (data.ff)
+ 		fuse_file_put(data.ff, false, false);
+-- 
+2.25.1
+
 
 
