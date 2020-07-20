@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C642266AA
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68B082267EA
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732950AbgGTQFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
+        id S2387922AbgGTQPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732365AbgGTQFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:05:12 -0400
+        id S2388452AbgGTQPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:15:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4AC92064B;
-        Mon, 20 Jul 2020 16:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D96222064B;
+        Mon, 20 Jul 2020 16:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261112;
-        bh=IufbSqnQoO/XlYrV0tWMAZ9tLze7G+NS2wb+k+R0EUI=;
+        s=default; t=1595261744;
+        bh=Uv5flyql7EogvRvn4rbLtyNvjWQ4u+X8dHYmaD+qbfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndTurylZXonI5tpV4fcKpzgb8h1/52/2vWvP4/xlD46BhEuSRGOTS8VX2Zk3IutAH
-         abvVkjP9Uaztb8yQmn6h39B9eQEnzFkFnqdhHRiabbj8/Gc8WuObvoHcSBztOWqr8d
-         bASZXBP1HO5R4S2muT9pUw3jTqUqnkG5Ay78edJ0=
+        b=dyKTHbyK/6UrByCqx3a8OKN8KFoWZ0Fw3DTvXY7cgISH5Y6ChWEY97L0Nv7zJp3D9
+         HnEUq2aWiZvf6BWK5Av/vyIK0Z+ZVHTfMGcEvy9mofCfJZ7KD47/WOKkjBmMHYUZ3o
+         0zYMI7f+e2mp8due5owzC/967d2lYkUMy3mySXJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Colin Xu <colin.xu@intel.com>
-Subject: [PATCH 5.4 214/215] drm/i915/gvt: Fix two CFL MMIO handling caused by regression.
-Date:   Mon, 20 Jul 2020 17:38:16 +0200
-Message-Id: <20200720152830.328049538@linuxfoundation.org>
+        stable@vger.kernel.org, Josip Pavic <Josip.Pavic@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.7 226/244] drm/amd/display: handle failed allocation during stream construction
+Date:   Mon, 20 Jul 2020 17:38:17 +0200
+Message-Id: <20200720152836.603503000@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Xu <colin.xu@intel.com>
+From: Josip Pavic <Josip.Pavic@amd.com>
 
-commit fccd0f7cf4d532674d727c7f204f038456675dee upstream.
+commit be73e608ae2711dc8a1ab8b9549d9e348061b2ee upstream.
 
-D_CFL was incorrectly removed for:
-GAMT_CHKN_BIT_REG
-GEN9_CTX_PREEMPT_REG
+[Why]
+Failing to allocate a transfer function during stream construction leads
+to a null pointer dereference
 
-V2: Update commit message.
-V3: Rebase and split Fixes and mis-handled MMIO.
+[How]
+Handle the failed allocation by failing the stream construction
 
-Fixes: 43226e6fe798 (drm/i915/gvt: replaced register address with name)
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Colin Xu <colin.xu@intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200601030638.16002-1-colin.xu@intel.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Josip Pavic <Josip.Pavic@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gvt/handlers.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_stream.c |   19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/i915/gvt/handlers.c
-+++ b/drivers/gpu/drm/i915/gvt/handlers.c
-@@ -3103,8 +3103,8 @@ static int init_skl_mmio_info(struct int
- 	MMIO_DFH(GEN9_WM_CHICKEN3, D_SKL_PLUS, F_MODE_MASK | F_CMD_ACCESS,
- 		 NULL, NULL);
- 
--	MMIO_D(GAMT_CHKN_BIT_REG, D_KBL);
--	MMIO_D(GEN9_CTX_PREEMPT_REG, D_KBL | D_SKL);
-+	MMIO_D(GAMT_CHKN_BIT_REG, D_KBL | D_CFL);
-+	MMIO_D(GEN9_CTX_PREEMPT_REG, D_SKL_PLUS);
- 
- 	return 0;
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
+@@ -56,7 +56,7 @@ void update_stream_signal(struct dc_stre
+ 	}
  }
+ 
+-static void dc_stream_construct(struct dc_stream_state *stream,
++static bool dc_stream_construct(struct dc_stream_state *stream,
+ 	struct dc_sink *dc_sink_data)
+ {
+ 	uint32_t i = 0;
+@@ -118,11 +118,17 @@ static void dc_stream_construct(struct d
+ 	update_stream_signal(stream, dc_sink_data);
+ 
+ 	stream->out_transfer_func = dc_create_transfer_func();
++	if (stream->out_transfer_func == NULL) {
++		dc_sink_release(dc_sink_data);
++		return false;
++	}
+ 	stream->out_transfer_func->type = TF_TYPE_BYPASS;
+ 	stream->out_transfer_func->ctx = stream->ctx;
+ 
+ 	stream->stream_id = stream->ctx->dc_stream_id_count;
+ 	stream->ctx->dc_stream_id_count++;
++
++	return true;
+ }
+ 
+ static void dc_stream_destruct(struct dc_stream_state *stream)
+@@ -164,13 +170,20 @@ struct dc_stream_state *dc_create_stream
+ 
+ 	stream = kzalloc(sizeof(struct dc_stream_state), GFP_KERNEL);
+ 	if (stream == NULL)
+-		return NULL;
++		goto alloc_fail;
+ 
+-	dc_stream_construct(stream, sink);
++	if (dc_stream_construct(stream, sink) == false)
++		goto construct_fail;
+ 
+ 	kref_init(&stream->refcount);
+ 
+ 	return stream;
++
++construct_fail:
++	kfree(stream);
++
++alloc_fail:
++	return NULL;
+ }
+ 
+ struct dc_stream_state *dc_copy_stream(const struct dc_stream_state *stream)
 
 
