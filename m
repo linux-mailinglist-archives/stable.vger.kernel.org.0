@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F1522674A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C57422697D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733267AbgGTQKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48880 "EHLO mail.kernel.org"
+        id S1729446AbgGTQ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:26:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731840AbgGTQKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:23 -0400
+        id S1732340AbgGTP77 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335FA2065E;
-        Mon, 20 Jul 2020 16:10:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C5C722CAF;
+        Mon, 20 Jul 2020 15:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261422;
-        bh=ztvvJNc23Tfq8oh061M+xvD+2X0usFBKy9lq8ciHcC0=;
+        s=default; t=1595260799;
+        bh=WvytojH2IH+WuRea9tphH3q+Rxcve4U2HgOws2wIJWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OhFXzqdt8UlsfrfLlGz2CE/4i6NTvsD3IsNK2C60t3tkHi6L2dC4QMAK2NHGgsJns
-         o/6rkj2zv4vIW0KJxqSaM6Igqi4Ug4MqjOWnHlVWZvK7YbIlMn9uHUYGIaZtF+R2Xa
-         T/58wnqAevBltMtRBZGaaImIEfg0PWPfbdQF0xpI=
+        b=zJ60EqCH8yJKbMnJXEx/bBfDECmFjbLy9KsHYaXI1q8yxPSdurCwkPI8KqTZcaTIj
+         UgXwSR1unvHoo1dKMElkQIIx3N8fotnksmchZV0Dzw94KwkAEfNIC0OhwkctVQlmA7
+         bBZcgY0OnBZF/WtQCvrQgxBRZmQzubL3H13a4ZmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 080/244] dmaengine: ti: k3-udma: Use correct node to read "ti,udma-atype"
-Date:   Mon, 20 Jul 2020 17:35:51 +0200
-Message-Id: <20200720152829.648727707@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 070/215] HID: quirks: Remove ITE 8595 entry from hid_have_special_driver
+Date:   Mon, 20 Jul 2020 17:35:52 +0200
+Message-Id: <20200720152823.545485689@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9f2f3ce3daed229eecf647acac44defbdee1f7c0 ]
+[ Upstream commit 3045696d0ce663d67c95dcb8206d3de57f6841ec ]
 
-The "ti,udma-atype" property is expected in the UDMA node and not in the
-parent navss node.
+The ITE 8595 chip used in various 2-in-1 keyboard docks works fine with
+the hid-generic driver (minus the RF_KILL key) and also keeps working fine
+when swapping drivers, so there is no need to have it in the
+hid_have_special_driver list.
 
-Fixes: 0ebcf1a274c5 ("dmaengine: ti: k3-udma: Implement support for atype (for virtualization)")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200527065357.30791-1-peter.ujfalusi@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Note the other 2 USB ids in hid-ite.c were never added to
+hid_have_special_driver.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-quirks.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index a90e154b0ae0d..baf7ab64f1d7d 100644
---- a/drivers/dma/ti/k3-udma.c
-+++ b/drivers/dma/ti/k3-udma.c
-@@ -3609,7 +3609,7 @@ static int udma_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	ret = of_property_read_u32(navss_node, "ti,udma-atype", &ud->atype);
-+	ret = of_property_read_u32(dev->of_node, "ti,udma-atype", &ud->atype);
- 	if (!ret && ud->atype > 2) {
- 		dev_err(dev, "Invalid atype: %u\n", ud->atype);
- 		return -EINVAL;
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 168fdaa1999fe..70c72b33d35e2 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -400,9 +400,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
+ #endif
+-#if IS_ENABLED(CONFIG_HID_ITE)
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+-#endif
+ #if IS_ENABLED(CONFIG_HID_ICADE)
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
+ #endif
 -- 
 2.25.1
 
