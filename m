@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6703226419
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F792264A1
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729047AbgGTPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
+        id S1729887AbgGTPqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729977AbgGTPmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:00 -0400
+        id S1730138AbgGTPqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:46:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 178BD2064B;
-        Mon, 20 Jul 2020 15:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C6402065E;
+        Mon, 20 Jul 2020 15:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259719;
-        bh=i6z5wAOGKay2yoCvdUnPgPzFvWJm4qfzKtRJ0+eiRlg=;
+        s=default; t=1595260004;
+        bh=wMn9wjQUD0rMUL4y+UmL4VufUkCmHW5CbQxVvrrPA8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYqlehPalEAi9lH9kZLdkT+KJ0GE9aP8TZc3nb+vMpY2QdUTUqJG+iaBySuwsbn7z
-         rLcUZpa0PCJeBMKwllog7IH0/Dj5SbLy7wIzFOXwyRbCMbm1WYa3f78G/se/ZZE1uA
-         Ilf6HrdW9N/ozAsmtZSdBfKCRKERzMf25h+JNI68=
+        b=K+CMufkJJZtzjJNELmJ+3CI8f7ZB7DukH5qCS/26NlnKkwJhPucU9q1i7koRV11hR
+         kf4EUaZ50NNEIumoGRnPQvXyY4M/VoThOvnENiuZgVk3GdSitNuDzqKGT2WkLu1iXz
+         p8wJZJvcY4xp1pLBR6pC8CiMS0GGH0iZbM7tqXUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ian Abbott <abbotti@mev.co.uk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 55/86] staging: comedi: verify array index is correct before using it
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 072/125] of: of_mdio: Correct loop scanning logic
 Date:   Mon, 20 Jul 2020 17:36:51 +0200
-Message-Id: <20200720152755.928515742@linuxfoundation.org>
+Message-Id: <20200720152806.477897543@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit ef75e14a6c935eec82abac07ab68e388514e39bc ]
+[ Upstream commit 5a8d7f126c97d04d893f5e5be2b286437a0d01b0 ]
 
-This code reads from the array before verifying that "trig" is a valid
-index.  If the index is wildly out of bounds then reading from an
-invalid address could lead to an Oops.
+Commit 209c65b61d94 ("drivers/of/of_mdio.c:fix of_mdiobus_register()")
+introduced a break of the loop on the premise that a successful
+registration should exit the loop. The premise is correct but not to
+code, because rc && rc != -ENODEV is just a special error condition,
+that means we would exit the loop even with rc == -ENODEV which is
+absolutely not correct since this is the error code to indicate to the
+MDIO bus layer that scanning should continue.
 
-Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20200709102936.GA20875@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by explicitly checking for rc = 0 as the only valid condition
+to break out of the loop.
+
+Fixes: 209c65b61d94 ("drivers/of/of_mdio.c:fix of_mdiobus_register()")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1500.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/of/of_mdio.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/comedi/drivers/addi_apci_1500.c b/drivers/staging/comedi/drivers/addi_apci_1500.c
-index 63991c49ff230..79a8799b12628 100644
---- a/drivers/staging/comedi/drivers/addi_apci_1500.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
-@@ -465,9 +465,9 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
- 	unsigned int lo_mask = data[5] << shift;
- 	unsigned int chan_mask = hi_mask | lo_mask;
- 	unsigned int old_mask = (1 << shift) - 1;
--	unsigned int pm = devpriv->pm[trig] & old_mask;
--	unsigned int pt = devpriv->pt[trig] & old_mask;
--	unsigned int pp = devpriv->pp[trig] & old_mask;
-+	unsigned int pm;
-+	unsigned int pt;
-+	unsigned int pp;
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index 69da2f6896dae..8b7d3e64b8cab 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -256,10 +256,15 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
+ 				 child->name, addr);
  
- 	if (trig > 1) {
- 		dev_dbg(dev->class_dev,
-@@ -480,6 +480,10 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
- 		return -EINVAL;
+ 			if (of_mdiobus_child_is_phy(child)) {
++				/* -ENODEV is the return code that PHYLIB has
++				 * standardized on to indicate that bus
++				 * scanning should continue.
++				 */
+ 				rc = of_mdiobus_register_phy(mdio, child, addr);
+-				if (rc && rc != -ENODEV)
++				if (!rc)
++					break;
++				if (rc != -ENODEV)
+ 					goto unregister;
+-				break;
+ 			}
+ 		}
  	}
- 
-+	pm = devpriv->pm[trig] & old_mask;
-+	pt = devpriv->pt[trig] & old_mask;
-+	pp = devpriv->pp[trig] & old_mask;
-+
- 	switch (data[2]) {
- 	case COMEDI_DIGITAL_TRIG_DISABLE:
- 		/* clear trigger configuration */
 -- 
 2.25.1
 
