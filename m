@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 882012265E0
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0D92265E6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731299AbgGTP6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:58:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58380 "EHLO mail.kernel.org"
+        id S1732050AbgGTP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732000AbgGTP6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:58:12 -0400
+        id S1732047AbgGTP6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:58:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FA252065E;
-        Mon, 20 Jul 2020 15:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8139920734;
+        Mon, 20 Jul 2020 15:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260692;
-        bh=0CkNs1w4+hp7Zb/ftz2DB5LZ5V5bhaCc01Eh0fyBlCg=;
+        s=default; t=1595260711;
+        bh=XTUF+o5CIluzJxCVc/liIpiAQyJPlLkC0DzwQTYaWYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIVtB+m/Lqu7XwACKhqB9pvqSBH5WwI7Kf935WnxsuBgi6s9yyK5Sf7SLMqWc4lD1
-         0Sl9Kz+TfhJtsTMOd+ibdvgek0+rLOxSqrHykpHc60lcDc/VuB/tM0RI3Nv/WfbaCJ
-         3IAyWLRDiUTUrc1AK2njA0hZe6Rs0/y1O4qL6Utc=
+        b=qBc5o9365dXMvoQzbllGedCQcJjzFEtyCje2nXbp3QNtHpdLLrJFksRvcxNy1HCMy
+         p64+5cLDOxYwY9wEa7yb0ierRi/vU5JRSE6vmrc5mdTOfNmy2iJsgGkcZRdTRVBOzi
+         ggolMenSs3tga98gxNs1UkH1miC9FpDrmz1EE8DY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Inki Dae <inki.dae@samsung.com>,
+        Angelo Dureghello <angelo.dureghello@timesys.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/215] drm/exynos: fix ref count leak in mic_pre_enable
-Date:   Mon, 20 Jul 2020 17:35:15 +0200
-Message-Id: <20200720152821.762532842@linuxfoundation.org>
+Subject: [PATCH 5.4 038/215] m68k: mm: fix node memblock init
+Date:   Mon, 20 Jul 2020 17:35:20 +0200
+Message-Id: <20200720152821.994807772@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -45,37 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Angelo Dureghello <angelo.dureghello@timesys.com>
 
-[ Upstream commit d4f5a095daf0d25f0b385e1ef26338608433a4c5 ]
+[ Upstream commit c43e55796dd4d13f4855971a4d7970ce2cd94db4 ]
 
-in mic_pre_enable, pm_runtime_get_sync is called which
-increments the counter even in case of failure, leading to incorrect
-ref count. In case of failure, decrement the ref count before returning.
+After pulling 5.7.0 (linux-next merge), mcf5441x mmu boot was
+hanging silently.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+memblock_add() seems not appropriate, since using MAX_NUMNODES
+as node id, while memblock_add_node() sets up memory for node id 0.
+
+Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_mic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/m68k/mm/mcfmmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_mic.c b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-index b78e8c5ba553b..2aff986add899 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_mic.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-@@ -268,8 +268,10 @@ static void mic_pre_enable(struct drm_bridge *bridge)
- 		goto unlock;
+diff --git a/arch/m68k/mm/mcfmmu.c b/arch/m68k/mm/mcfmmu.c
+index 6cb1e41d58d00..70a5f55ea6647 100644
+--- a/arch/m68k/mm/mcfmmu.c
++++ b/arch/m68k/mm/mcfmmu.c
+@@ -164,7 +164,7 @@ void __init cf_bootmem_alloc(void)
+ 	m68k_memory[0].addr = _rambase;
+ 	m68k_memory[0].size = _ramend - _rambase;
  
- 	ret = pm_runtime_get_sync(mic->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(mic->dev);
- 		goto unlock;
-+	}
+-	memblock_add(m68k_memory[0].addr, m68k_memory[0].size);
++	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0);
  
- 	mic_set_path(mic, 1);
- 
+ 	/* compute total pages in system */
+ 	num_pages = PFN_DOWN(_ramend - _rambase);
 -- 
 2.25.1
 
