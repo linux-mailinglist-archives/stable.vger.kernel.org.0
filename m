@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 022E02263D9
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18BAD226476
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729806AbgGTPk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:40:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
+        id S1729678AbgGTPpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:45:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729802AbgGTPk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:40:58 -0400
+        id S1730498AbgGTPpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:45:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B278520773;
-        Mon, 20 Jul 2020 15:40:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D2F820773;
+        Mon, 20 Jul 2020 15:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259658;
-        bh=HQ0RL3PqNuqnPSDpWahWC774iELBt8xrsGRygVPHgJ0=;
+        s=default; t=1595259916;
+        bh=baWO5rVjBPThrb1OlfN7ms8T0GJW+Kh/YpfW3Pae/JU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ae2B5aIIqiZtrG/PO8OXJnZQ1Q9fgLoVLFz6c02exID6NVmBaA3wsY1dqmoXx9uTE
-         CmMADztzMe01Eu4/Wd+1Lyzq+jwM1DOn+agytFIbGi2NirBUa+t/lRqiPpUtxS5RSw
-         f7G5ELapS3O2q5B35ZHgZyob+YzuUozXC64ErkPM=
+        b=RcJ47KbjqGMr2EqUjlLJdjQbHZgDKrljjQGLY86K93/OIeMqf8C18qwBixRkG5t1C
+         60N9CyI3dHn+h8IGWVp2+eJ3p2/c+kQm7bsQem+1vcNqJZhHmHH6+jct+0PbPd3wEq
+         WmZuWBaVbxXSiEaAG/uMttr7tdMYRjgJuQgwVLv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Subject: [PATCH 4.9 05/86] s390/kasan: fix early pgm check handler execution
+        stable@vger.kernel.org,
+        syzbot+934037347002901b8d2a@syzkaller.appspotmail.com,
+        Zheng Bin <zhengbin13@huawei.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 022/125] nbd: Fix memory leak in nbd_add_socket
 Date:   Mon, 20 Jul 2020 17:36:01 +0200
-Message-Id: <20200720152753.400716769@linuxfoundation.org>
+Message-Id: <20200720152804.065584760@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+[ Upstream commit 579dd91ab3a5446b148e7f179b6596b270dace46 ]
 
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
+When adding first socket to nbd, if nsock's allocation failed, the data
+structure member "config->socks" was reallocated, but the data structure
+member "config->num_connections" was not updated. A memory leak will occur
+then because the function "nbd_config_put" will free "config->socks" only
+when "config->num_connections" is not zero.
 
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
-
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Fixes: 03bf73c315ed ("nbd: prevent memory leak")
+Reported-by: syzbot+934037347002901b8d2a@syzkaller.appspotmail.com
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/nbd.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index a651c2bc94ef8..f862cc27fe98f 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -288,6 +288,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 8f56e6b2f114f..f22fad977c913 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -960,25 +960,26 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
+ 	     test_bit(NBD_BOUND, &config->runtime_flags))) {
+ 		dev_err(disk_to_dev(nbd->disk),
+ 			"Device being setup by another task");
+-		sockfd_put(sock);
+-		return -EBUSY;
++		err = -EBUSY;
++		goto put_socket;
++	}
++
++	nsock = kzalloc(sizeof(*nsock), GFP_KERNEL);
++	if (!nsock) {
++		err = -ENOMEM;
++		goto put_socket;
+ 	}
  
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
+ 	socks = krealloc(config->socks, (config->num_connections + 1) *
+ 			 sizeof(struct nbd_sock *), GFP_KERNEL);
+ 	if (!socks) {
+-		sockfd_put(sock);
+-		return -ENOMEM;
++		kfree(nsock);
++		err = -ENOMEM;
++		goto put_socket;
+ 	}
+ 
+ 	config->socks = socks;
+ 
+-	nsock = kzalloc(sizeof(struct nbd_sock), GFP_KERNEL);
+-	if (!nsock) {
+-		sockfd_put(sock);
+-		return -ENOMEM;
+-	}
+-
+ 	nsock->fallback_index = -1;
+ 	nsock->dead = false;
+ 	mutex_init(&nsock->tx_lock);
+@@ -990,6 +991,10 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
+ 	atomic_inc(&config->live_connections);
+ 
+ 	return 0;
++
++put_socket:
++	sockfd_put(sock);
++	return err;
+ }
+ 
+ static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
 -- 
 2.25.1
 
