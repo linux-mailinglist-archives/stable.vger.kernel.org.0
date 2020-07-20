@@ -2,93 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDEC226370
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3832264A4
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726619AbgGTPg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:36:58 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:57142 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726546AbgGTPg5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 11:36:57 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: nicolas)
-        with ESMTPSA id 0F608283D0A
-Message-ID: <1562ccc496b7c584a0bd0123ad4c804bc77fafd1.camel@collabora.com>
-Subject: Re: [PATCH 2/2] media: coda: Add more H264 levels for CODA960
-From:   Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reply-To: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-To:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        linux-media@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Robert Beckett <bob.beckett@collabora.com>,
-        kernel@collabora.com, stable@vger.kernel.org
-Date:   Mon, 20 Jul 2020 11:36:52 -0400
-In-Reply-To: <dd59520cfcfd4c93ad9cb54116f0234a706a0bd5.camel@pengutronix.de>
-References: <20200717034923.219524-1-ezequiel@collabora.com>
-         <20200717034923.219524-2-ezequiel@collabora.com>
-         <05184a7c923c7e2aacca9da2bafe338ff5a7c16d.camel@pengutronix.de>
-         <f409d4ddad0a352ca7ec84699c94a64e5dbf0407.camel@collabora.com>
-         <dd59520cfcfd4c93ad9cb54116f0234a706a0bd5.camel@pengutronix.de>
-Organization: Collabora
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-        boundary="=-/OtHpkQJH3tGpBJ0SOOf"
-User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
+        id S1730277AbgGTPqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41694 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730694AbgGTPqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:46:49 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C018E2065E;
+        Mon, 20 Jul 2020 15:46:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595260009;
+        bh=a/wF/P/zlabevIzH5R9RAFZsgw4KRZvxNRAL8nXyJvU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=1IFJ0D8c05jYjIddAzmjVT5cqpG3pyNl129hOlDMgWWty4CGCxoCf2zj7o4/7oJ0c
+         DesI7aW8YWlFQha7k/9zWTk0WNRLPtDVVRGMQTEZ/qxslGxihI3XAo2WmCQeR/kEJ7
+         20QsKUgqXZfXejLW3qFtaZzM1IYdQJKTmAmUHLug=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 073/125] Revert "usb/ohci-platform: Fix a warning when hibernating"
+Date:   Mon, 20 Jul 2020 17:36:52 +0200
+Message-Id: <20200720152806.529047725@linuxfoundation.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This reverts commit baef809ea497a4f21fa67814b61094bbcc191c39.
 
---=-/OtHpkQJH3tGpBJ0SOOf
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Eugeniu Rosca writes:
 
-Le lundi 20 juillet 2020 =C3=A0 10:31 +0200, Philipp Zabel a =C3=A9crit :
-> > Considering how buggy and inconcistent this is going to be in decoder d=
-rivers,
-> > I'm tempted to just drop that restriction in GStreamer v4l2 decoders (w=
-as added
-> > by Philippe Normand from Igalia). Specially the bitrate limits, since i=
-t is
-> > quite clear from testing that this limits is only related to real-time
-> > performance, and that offline decoding should still be possible. Meanwh=
-ile, the
-> > driver should still advertise 4.1 and 4.2 decoding. But we should check=
- the
-> > decoding/encoding levels are actually not the same, that I haven't chec=
-ked, the
-> > code is a bit ... kindly said ... hairy.
->=20
->=20
-> I think negotiation is important for sources that can provide multiple
-> levels, to choose the right level for the decoder. If there is a given
-> stream with a fixed level, it might indeed be better to not fail
-> negotiation (maybe have a warning instead) and just hope for the best,
-> as for some streams it might just work.
+On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
+>After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
+>Set PM runtime as active on resume") into downstream v4.14.x, we started
+>to consistently experience below panic [1] on every second s2ram of
+>R-Car H3 Salvator-X Renesas reference board.
+>
+>After some investigations, we concluded the following:
+> - the issue does not exist in vanilla v5.8-rc4+
+> - [bisecting shows that] the panic on v4.14.186 is caused by the lack
+>   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
+>   link support"). Getting evidence for that is easy. Reverting
+>   987351e1ea7772 in vanilla leads to a similar backtrace [2].
+>
+>Questions:
+> - Backporting 987351e1ea7772 ("phy: core: Add consumer device
+>   link support") to v4.14.187 looks challenging enough, so probably not
+>   worth it. Anybody to contradict this?
+> - Assuming no plans to backport the missing mainline commit to v4.14.x,
+>   should the following three v4.14.186 commits be reverted on v4.14.x?
+>   * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
+>   * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
+>   * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
 
-Yes, agreed, but I didn't want to use the linux-media list to discuss
-GStreamer designs. I have a soltion for that, I'll send a MR and will
-CC you. For the general idea, I'll try and keep the levels as
-"preferred" capabilities while allowing any levels. Same mechanism used
-to proposed an unscaled display resolution, even though scaling might
-be supported.
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/usb/host/ohci-platform.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-Nicolas
+diff --git a/drivers/usb/host/ohci-platform.c b/drivers/usb/host/ohci-platform.c
+index 742cefa22c2b5..61fe2b985070f 100644
+--- a/drivers/usb/host/ohci-platform.c
++++ b/drivers/usb/host/ohci-platform.c
+@@ -355,11 +355,6 @@ static int ohci_platform_resume(struct device *dev)
+ 	}
+ 
+ 	ohci_resume(hcd, false);
+-
+-	pm_runtime_disable(dev);
+-	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
+-
+ 	return 0;
+ }
+ #endif /* CONFIG_PM_SLEEP */
+-- 
+2.25.1
 
---=-/OtHpkQJH3tGpBJ0SOOf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQSScpfJiL+hb5vvd45xUwItrAaoHAUCXxW6FAAKCRBxUwItrAao
-HDB4AKDFGeV5l5ovPT+9eQY8NKo2pRZsfQCeKPBzYvH1phd7EITxcoFDH92mHLQ=
-=YJHS
------END PGP SIGNATURE-----
-
---=-/OtHpkQJH3tGpBJ0SOOf--
 
