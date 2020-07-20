@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B08AF2269EE
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141BB2269EC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731735AbgGTP56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:57:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58056 "EHLO mail.kernel.org"
+        id S1732000AbgGTQam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:30:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731964AbgGTP55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:57:57 -0400
+        id S1731976AbgGTP6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:58:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0D4E2065E;
-        Mon, 20 Jul 2020 15:57:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0963C20734;
+        Mon, 20 Jul 2020 15:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260676;
-        bh=IReQaCQ1JzU9pd3WgkQG2WkZwI3+Cf/nWKg9g+Jb9Do=;
+        s=default; t=1595260681;
+        bh=5Wxv7ept4DIE6XkAuertppVOM9ZCvFobVTpNdxw0efo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0hZNpYhqQKbHIBnF7bS1GvVtsy8xwKWfxXRD6XFgUBO08HPhkRoVAh9O3SEvvXm3
-         ufeiVW4KWWEHGbAAE4HEqSkrKvmM3NNhgVUbVHXIGSssyU1EfoTg/2pyMXWv0T1aJ3
-         H8sufYsJwWKDvjTn3mHqvpDv/XsZlpua5vQIX9xo=
+        b=Mn3CijuWppb0izzL7dvEc5j5elUp26ejUHj64vXqw7gw9t2nizOe8CLXlbPHc642+
+         mTb6h98+Jn5lySQd9uQcqEDC07dXFkM0pHifTMFqlmln+ip6gVrTxRYWQGXSi/ydPK
+         n8VQnPCbZPR69XcVlyzn9LMj8MJkjryly+niv0Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Andrew F. Davis" <afd@ti.com>, Stable@vger.kernel.org
-Subject: [PATCH 5.4 054/215] iio:health:afe4403 Fix timestamp alignment and prevent data leak.
-Date:   Mon, 20 Jul 2020 17:35:36 +0200
-Message-Id: <20200720152822.782068169@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 056/215] net: dsa: bcm_sf2: Fix node reference count
+Date:   Mon, 20 Jul 2020 17:35:38 +0200
+Message-Id: <20200720152822.879002393@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -44,81 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 3f9c6d38797e9903937b007a341dad0c251765d6 upstream.
+[ Upstream commit 8dbe4c5d5e40fe140221024f7b16bec9f310bf70 ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 32 byte array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+of_find_node_by_name() will do an of_node_put() on the "from" argument.
+With CONFIG_OF_DYNAMIC enabled which checks for device_node reference
+counts, we would be getting a warning like this:
 
-Fixes: eec96d1e2d31 ("iio: health: Add driver for the TI AFE4403 heart monitor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Andrew F. Davis <afd@ti.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[    6.347230] refcount_t: increment on 0; use-after-free.
+[    6.352498] WARNING: CPU: 3 PID: 77 at lib/refcount.c:156
+refcount_inc_checked+0x38/0x44
+[    6.360601] Modules linked in:
+[    6.363661] CPU: 3 PID: 77 Comm: kworker/3:1 Tainted: G        W
+5.4.46-gb78b3e9956e6 #13
+[    6.372546] Hardware name: BCM97278SV (DT)
+[    6.376649] Workqueue: events deferred_probe_work_func
+[    6.381796] pstate: 60000005 (nZCv daif -PAN -UAO)
+[    6.386595] pc : refcount_inc_checked+0x38/0x44
+[    6.391133] lr : refcount_inc_checked+0x38/0x44
+...
+[    6.478791] Call trace:
+[    6.481243]  refcount_inc_checked+0x38/0x44
+[    6.485433]  kobject_get+0x3c/0x4c
+[    6.488840]  of_node_get+0x24/0x34
+[    6.492247]  of_irq_find_parent+0x3c/0xe0
+[    6.496263]  of_irq_parse_one+0xe4/0x1d0
+[    6.500191]  irq_of_parse_and_map+0x44/0x84
+[    6.504381]  bcm_sf2_sw_probe+0x22c/0x844
+[    6.508397]  platform_drv_probe+0x58/0xa8
+[    6.512413]  really_probe+0x238/0x3fc
+[    6.516081]  driver_probe_device+0x11c/0x12c
+[    6.520358]  __device_attach_driver+0xa8/0x100
+[    6.524808]  bus_for_each_drv+0xb4/0xd0
+[    6.528650]  __device_attach+0xd0/0x164
+[    6.532493]  device_initial_probe+0x24/0x30
+[    6.536682]  bus_probe_device+0x38/0x98
+[    6.540524]  deferred_probe_work_func+0xa8/0xd4
+[    6.545061]  process_one_work+0x178/0x288
+[    6.549078]  process_scheduled_works+0x44/0x48
+[    6.553529]  worker_thread+0x218/0x270
+[    6.557285]  kthread+0xdc/0xe4
+[    6.560344]  ret_from_fork+0x10/0x18
+[    6.563925] ---[ end trace 68f65caf69bb152a ]---
 
+Fix this by adding a of_node_get() to increment the reference count
+prior to the call.
+
+Fixes: afa3b592953b ("net: dsa: bcm_sf2: Ensure correct sub-node is parsed")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/health/afe4403.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/dsa/bcm_sf2.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/iio/health/afe4403.c
-+++ b/drivers/iio/health/afe4403.c
-@@ -63,6 +63,7 @@ static const struct reg_field afe4403_re
-  * @regulator: Pointer to the regulator for the IC
-  * @trig: IIO trigger for this device
-  * @irq: ADC_RDY line interrupt number
-+ * @buffer: Used to construct data layout to push into IIO buffer.
-  */
- struct afe4403_data {
- 	struct device *dev;
-@@ -72,6 +73,8 @@ struct afe4403_data {
- 	struct regulator *regulator;
- 	struct iio_trigger *trig;
- 	int irq;
-+	/* Ensure suitable alignment for timestamp */
-+	s32 buffer[8] __aligned(8);
- };
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 9502db66092eb..b16aea0e39992 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -1116,6 +1116,8 @@ static int bcm_sf2_sw_probe(struct platform_device *pdev)
+ 	set_bit(0, priv->cfp.used);
+ 	set_bit(0, priv->cfp.unique);
  
- enum afe4403_chan_id {
-@@ -309,7 +312,6 @@ static irqreturn_t afe4403_trigger_handl
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct afe4403_data *afe = iio_priv(indio_dev);
- 	int ret, bit, i = 0;
--	s32 buffer[8];
- 	u8 tx[4] = {AFE440X_CONTROL0, 0x0, 0x0, AFE440X_CONTROL0_READ};
- 	u8 rx[3];
- 
-@@ -326,9 +328,9 @@ static irqreturn_t afe4403_trigger_handl
- 		if (ret)
- 			goto err;
- 
--		buffer[i++] = (rx[0] << 16) |
--				(rx[1] << 8) |
--				(rx[2]);
-+		afe->buffer[i++] = (rx[0] << 16) |
-+				   (rx[1] << 8) |
-+				   (rx[2]);
- 	}
- 
- 	/* Disable reading from the device */
-@@ -337,7 +339,8 @@ static irqreturn_t afe4403_trigger_handl
- 	if (ret)
- 		goto err;
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
-+	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
-+					   pf->timestamp);
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
- 
++	/* Balance of_node_put() done by of_find_node_by_name() */
++	of_node_get(dn);
+ 	ports = of_find_node_by_name(dn, "ports");
+ 	if (ports) {
+ 		bcm_sf2_identify_ports(priv, ports);
+-- 
+2.25.1
+
 
 
