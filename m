@@ -2,82 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0694225E94
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:31:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B15225E92
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728412AbgGTMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 08:31:31 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:61634 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727989AbgGTMbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:31:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1595248291; x=1626784291;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   mime-version;
-  bh=B7TTGtY4SziIvCD/DMZj35NfyE0QefT2lQmcnjqpo5w=;
-  b=POK5hLCNbttnbjT1wls2qhw7omleDEKG2imqdJ7OS81wtZvUYiGxdcTy
-   r58is1c0aE5XzoXSv9E2fasFi9VXMLl1e7aRh21jz53fQRd45H25BxSwt
-   rvh/5SuUtTnmll8BClsqq0ffeqNJiiHXMicZWodD2gPozcPVbj/kiqY1Y
-   o=;
-IronPort-SDR: nu3nUjjlvEcBjuOaPn39TwfnSWSHlbTWknnyvAtHrbDeIJ2nM43GLqnEByLqXqOvA6QDpjY1Vu
- 30oCyLl0FqdA==
-X-IronPort-AV: E=Sophos;i="5.75,375,1589241600"; 
-   d="scan'208";a="42783398"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2c-2225282c.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 20 Jul 2020 12:31:30 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
-        by email-inbound-relay-2c-2225282c.us-west-2.amazon.com (Postfix) with ESMTPS id 15A6CA18C6;
-        Mon, 20 Jul 2020 12:31:27 +0000 (UTC)
-Received: from EX13D31EUA004.ant.amazon.com (10.43.165.161) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 20 Jul 2020 12:31:27 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.162.73) by
- EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 20 Jul 2020 12:31:24 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     SeongJae Park <sjpark@amazon.com>, <sashal@kernel.org>,
-        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Re: Upstream fixes not merged in 5.4.y
-Date:   Mon, 20 Jul 2020 14:31:07 +0200
-Message-ID: <20200720123107.22001-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200720121543.GA2984743@kroah.com>
+        id S1728200AbgGTMbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 08:31:09 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33987 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727989AbgGTMbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:31:08 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A311D1940ECC;
+        Mon, 20 Jul 2020 08:31:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:31:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=F4agvs
+        4woiduRLmH6SkkXt5oFsOL5h8IQLrHtap72zQ=; b=lqiAwcqUtnKhmLHTYBxj7R
+        NEG46Bud/wwmfoZJ+rMdkB+OGZnJ+/Oo2Y+/h3Gbmdg8+7ndxvjsMlSjeoYJzabA
+        0eWTxxmuzb7FTjxzL9ii+ZUHCQJy70xhQqxZGwH1AT5IFUggddkmlgqZscElSFiF
+        gDUE0bU0yD+fBlx+gmyczms8cbL49x5Ihm5FyT/aKUFRxxfT3f5YI3l0D1s8xCXD
+        EVHCoYkf2y37eKTJQyYD6iGCk7CkMbBk6vOlNORWtbKN2z3OmNzvLqJbYHkCUdtk
+        fDJ646ejXfKZcf+Nbnkcc7AaLzSlRbT3PzghmcrmvOLTSwJaIFZITAwh5dt/Pypw
+        ==
+X-ME-Sender: <xms:i44VX9SEHAuEB4ZTWma6RXVLLoPi_Y3SYq91gSXdbzKdB4HAVaJy8g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggddvjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
+    fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
+    ucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:i44VX2wi4e0cXxIdx-GpMdFfD6QJh_CnlmyOUubqFi3CNbUy-w_1-Q>
+    <xmx:i44VXy0Iuehi2CoTiFP9EujQtsD8Jf3kNt0hsBqFSCp5poE9jkRR8g>
+    <xmx:i44VX1BVgCj7yqLOk7j_Mf1M3PKqxS7KuPpTphVvSGKuzKp5DiRgKQ>
+    <xmx:i44VX-IdvDUXh2ULeVOccs9B9P32CULgG16MRk02dIzYwFOi6cir5A>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C9AD730600A9;
+        Mon, 20 Jul 2020 08:31:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Only swap to a random sibling once upon creation" failed to apply to 5.4-stable tree
+To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
+        stable@vger.kernel.org, tvrtko.ursulin@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Jul 2020 14:31:17 +0200
+Message-ID: <159524827717179@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.162.73]
-X-ClientProxiedBy: EX13D17UWB004.ant.amazon.com (10.43.161.132) To
- EX13D31EUA004.ant.amazon.com (10.43.165.161)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Jul 2020 14:15:43 +0200 Greg KH <gregkh@linuxfoundation.org> wrote:
 
-> On Mon, Jun 29, 2020 at 04:28:05PM +0200, SeongJae Park wrote:
-> > Hello,
-> > 
-> > 
-> > With my little script, I found below commits in the mainline tree are more than
-> > 1 week old and fixing commits that back-ported in v5.4..v5.4.49, but not merged
-> > in the stable/linux-5.4.y tree.  Are those need to be merged in but missed or
-> > dealyed?
-> > 
-> > 9210c075cef2 ("nvme-pci: avoid race between nvme_reap_pending_cqes() and nvme_poll()")
-> 
-> I tried this first patch, and it doesn't apply to the 5.4.y tree, so are
-> you sure you tried these yourself?
-> 
-> If so, please send a series of backported patches that you have
-> successfully tested, or if a patch applies cleanly, just the git id.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Yes, I backported it on the latest 5.4.y before.  I will rebase it on the
-latest 5.4.y, test, and send the patch.  Nonetheless, please note that it might
-take some time (say, a couple of weeks?).
+thanks,
 
+greg k-h
 
-Thanks,
-SeongJae Park
+------------------ original commit in Linus's tree ------------------
+
+From 110f9efa858f584c6bed177cd48d0c0f526940e1 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Mon, 13 Jul 2020 17:05:49 +0100
+Subject: [PATCH] drm/i915/gt: Only swap to a random sibling once upon creation
+
+The danger in switching at random upon intel_context_pin is that the
+context may still actually be inflight, as it will not be scheduled out
+until a context switch after it is complete -- that may be a long time
+after we do a final intel_context_unpin.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2118
+Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.3+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200713160549.17344-1-chris@chris-wilson.co.uk
+(cherry picked from commit 90a987205c6cf74116a102ed446d22d92cdaf915)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index d270d2db6f0a..cb07e1d2a353 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -5396,13 +5396,8 @@ static void virtual_engine_initial_hint(struct virtual_engine *ve)
+ 	 * typically be the first we inspect for submission.
+ 	 */
+ 	swp = prandom_u32_max(ve->num_siblings);
+-	if (!swp)
+-		return;
+-
+-	swap(ve->siblings[swp], ve->siblings[0]);
+-	if (!intel_engine_has_relative_mmio(ve->siblings[0]))
+-		virtual_update_register_offsets(ve->context.lrc_reg_state,
+-						ve->siblings[0]);
++	if (swp)
++		swap(ve->siblings[swp], ve->siblings[0]);
+ }
+ 
+ static int virtual_context_alloc(struct intel_context *ce)
+@@ -5415,15 +5410,9 @@ static int virtual_context_alloc(struct intel_context *ce)
+ static int virtual_context_pin(struct intel_context *ce)
+ {
+ 	struct virtual_engine *ve = container_of(ce, typeof(*ve), context);
+-	int err;
+ 
+ 	/* Note: we must use a real engine class for setting up reg state */
+-	err = __execlists_context_pin(ce, ve->siblings[0]);
+-	if (err)
+-		return err;
+-
+-	virtual_engine_initial_hint(ve);
+-	return 0;
++	return __execlists_context_pin(ce, ve->siblings[0]);
+ }
+ 
+ static void virtual_context_enter(struct intel_context *ce)
+@@ -5770,6 +5759,7 @@ intel_execlists_create_virtual(struct intel_engine_cs **siblings,
+ 
+ 	ve->base.flags |= I915_ENGINE_IS_VIRTUAL;
+ 
++	virtual_engine_initial_hint(ve);
+ 	return &ve->context;
+ 
+ err_put:
+
