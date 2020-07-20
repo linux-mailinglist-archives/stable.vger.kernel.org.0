@@ -2,112 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31A7C22606E
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 15:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCA42260B3
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 15:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726030AbgGTNIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 09:08:17 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:60745 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725815AbgGTNIR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 09:08:17 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id E57C35C01D3;
-        Mon, 20 Jul 2020 09:08:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 20 Jul 2020 09:08:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=K
-        AezyWTLnsM7OvCpH7YLgooUG/8mor/6hEMjL8WXsKI=; b=SXWKDgUsM1w4+uIH9
-        a7oZngZtyb96Em+HjrLo1gEjjZssa0blzZAHNw3NyC5fbE1O9pov056Olsa9h1Gl
-        ZhN7PRND5s1bDnacsXBkEll5Gp9E3yV8ACBSBqIfdu1s2612bw0ABwn/eOU1dTV0
-        Qdb751JaquCSTPWAIoPSBRh/aPogKT3I228a0xBb4q4sxVL0O8BCDj9BHGi3BJVb
-        RUSqs7bEdF5HXgQSb1Vh4OIKaMEsWgq4SdjKQ5EfbsCQdgLZlmL94FyYsoY6SNcY
-        bdLqbjvgYvMUTeodzosOhk1gki/Rs/oH+lva9pYSuulbOedtGiwmzhTzVpqNtwGg
-        FujfA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=KAezyWTLnsM7OvCpH7YLgooUG/8mor/6hEMjL8WXs
-        KI=; b=GSVnURPWs+6lHVuLJsnUTu9OC6gepmOozO1/GTc4rCzP+CFoEppxaZKgJ
-        PIu5kRjoa+sTBDRh4BG1wfMiUcsl8qxjE10n4ue4gkjOtjmtEshROYA7cWzUCrFJ
-        vN/FNKjZJqmL/buMkr4dJ2d/tn2h1/Vy9DdlAoUFWNkdASQjai8A1grAEA3z7rHn
-        2fbZOBmw8jEWKM6GG7vthjBNxBkmB0+G36Vjay28lC9R8Zq35cFDpa0aaHio3eqb
-        iW0u5bpRQOpYIdr8RqnqsMYX+C6VKCSBhovezeS3ZklxEmtfa/GyAENvAlbACeyS
-        LfQnBO+cmj3lmJWqHl/YhQwhZAbBA==
-X-ME-Sender: <xms:P5cVX1QHQtGH_lj4r7D6tfhxwINZVYK_4b_h97uSQAJAiwbWFFYXaQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggdefhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeejgedvhe
-    duiefhjeelhefhgfeuleejueejvdefudekudfhgeehveejffefhefgieenucffohhmrghi
-    nhepshhpihhnihgtshdrnhgvthenucfkphepkeefrdekiedrkeelrddutdejnecuvehluh
-    hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
-    rghhrdgtohhm
-X-ME-Proxy: <xmx:P5cVX-yyGE1hLoxdusxOojFObIef_UYH4oulx5wQIvuWbrRJSqyesw>
-    <xmx:P5cVX62ONJXnzu33Uo3o-YsYssK--kR6BcHS4PwbV2kY9YhUexPCGw>
-    <xmx:P5cVX9CZ75E3bgeLFMskNx7BI7rG9yvtsIWu2mgudx7HGI5jThMErg>
-    <xmx:P5cVXwbi7Lr2p8X-zxwOPwKaixyw2_jlk9N7y1wi-h8aJv5jzX0AsQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C8F793280064;
-        Mon, 20 Jul 2020 09:08:14 -0400 (EDT)
-Date:   Mon, 20 Jul 2020 15:08:22 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Tony Battersby <tonyb@cybernetics.com>,
-        stable <stable@vger.kernel.org>, linux-block@vger.kernel.org,
-        Ming Lei <ming.lei@redhat.com>, Chris Mason <clm@fb.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH] block: fix splitting segments on boundary masks
-Message-ID: <20200720130822.GC494210@kroah.com>
-References: <94114379-78f6-6465-49de-99aa5b3f4d0d@cybernetics.com>
- <75d5014a-d991-24f8-494c-fdca95205adb@roeck-us.net>
+        id S1726381AbgGTNWo convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Jul 2020 09:22:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45908 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726030AbgGTNWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 09:22:44 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89458C061794
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 06:22:44 -0700 (PDT)
+Received: from lupine.hi.pengutronix.de ([2001:67c:670:100:3ad5:47ff:feaf:1a17] helo=lupine)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1jxVkf-0005Ny-IM; Mon, 20 Jul 2020 15:22:41 +0200
+Received: from pza by lupine with local (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1jxVkf-0006sJ-4Y; Mon, 20 Jul 2020 15:22:41 +0200
+Message-ID: <85fd0e51194c031a5037acecbe64a02b5eebd3fe.camel@pengutronix.de>
+Subject: Re: [PATCH RESEND] drm/imx: imx-ldb: Disable both channels for
+ split mode in enc->disable()
+From:   Philipp Zabel <p.zabel@pengutronix.de>
+To:     Liu Ying <victor.liu@nxp.com>, dri-devel@lists.freedesktop.org
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>, stable@vger.kernel.org
+Date:   Mon, 20 Jul 2020 15:22:41 +0200
+In-Reply-To: <1594261732-16388-1-git-send-email-victor.liu@nxp.com>
+References: <1594261732-16388-1-git-send-email-victor.liu@nxp.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <75d5014a-d991-24f8-494c-fdca95205adb@roeck-us.net>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:3ad5:47ff:feaf:1a17
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 09, 2020 at 08:26:01AM -0700, Guenter Roeck wrote:
-> On 7/9/20 7:35 AM, Tony Battersby wrote:
-> > Although I was not originally involved in the development of these
-> > patches, I recently came across them while looking over the source:
-> > 
-> > upstream commit 429120f3df2d ("block: fix splitting segments on boundary masks")
-> >     Cc: stable@vger.kernel.org # v5.1+
-> >     Fixes: dcebd755926b ("block: use bio_for_each_bvec() to compute multi-page bvec count")
-> > 
-> > upstream commit 4a2f704eb2d8 ("block: fix get_max_segment_size() overflow on 32bit arch")
-> >     Fixes: 429120f3df2d ("block: fix splitting segments on boundary masks")
-> > 
-> > https://www.spinics.net/lists/linux-block/msg48605.html
-> > https://www.spinics.net/lists/linux-block/msg48959.html
-> > 
-> > 
-> > The first patch mentions fixing problems with filesystem corruption, so
-> > it seems important, but it has never been included in any -stable
-> > kernel.  Is there a specific reason these patches have been excluded
-> > from -stable, or is it just a mistake?
-> > 
-> See here:
+On Thu, 2020-07-09 at 10:28 +0800, Liu Ying wrote:
+> Both of the two LVDS channels should be disabled for split mode
+> in the encoder's ->disable() callback, because they are enabled
+> in the encoder's ->enable() callback.
 > 
-> https://www.spinics.net/lists/stable/msg355009.html
-> 
-> Looks like it was queued but dropped because of the problem that
-> was later fixed with the patch below. Maybe it is time to revisit
-> and apply both patches now.
+> Fixes: 6556f7f82b9c ("drm: imx: Move imx-drm driver out of staging")
+> Cc: Philipp Zabel <p.zabel@pengutronix.de>
+> Cc: Sascha Hauer <s.hauer@pengutronix.de>
+> Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+> Cc: NXP Linux Team <linux-imx@nxp.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Liu Ying <victor.liu@nxp.com>
 
-Ok, let me queue both up for 5.4.y now and see what happens :)
+Thank you, applied to imx-drm/next.
 
-thanks,
-
-greg k-h
+regards
+Philipp
