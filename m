@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 974A122697B
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C6BA2268CD
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729539AbgGTQ02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
+        id S2387627AbgGTQUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:20:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731830AbgGTQAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:00:05 -0400
+        id S2387513AbgGTQJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:09:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A6F320773;
-        Mon, 20 Jul 2020 16:00:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEF4A2064B;
+        Mon, 20 Jul 2020 16:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260805;
-        bh=WBOpl+qCM21lOclAgoFINRbipzR2TN0rGGdG9h3cQaA=;
+        s=default; t=1595261370;
+        bh=wUEdoBuxpspvQ+0Qz+jfMspqSrnAzZN/7y/7hGPDsmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2mQzJ22gy7BNuq7+1nsV4hvRdx+vT3PnzZ1WPqI5SmTOHqvMYbGDJ5zRBlh4at6g
-         pdkc3g+LpXOgAAXdX0WxpSXo5l9n4aSLtppdfSwLLdoL683kJ15g7QwfKgWKYsR38m
-         pbYW8QBuD6dxByW2jkeugbQyQAr6xasUYKteQu5Q=
+        b=APVkoegAVXRUhCiT7NvMNMa/zOcwi2tMd9+Ydt58bt6ZbvYH5QdePhxMmcqkbVDRZ
+         qiApi5XSn0iM6M0LWMGCGbAe7kl/JatC0xiJiOv5Wpl6kFORpqiMPACvEYB32on2f0
+         1Hw55PMFI+ARDcx6cBd0XZ3EkmrpKLj0Vx3OHwIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/215] Revert "usb/ehci-platform: Set PM runtime as active on resume"
-Date:   Mon, 20 Jul 2020 17:35:44 +0200
-Message-Id: <20200720152823.160345861@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 074/244] spi: spi-fsl-dspi: Fix lockup if device is shutdown during SPI transfer
+Date:   Mon, 20 Jul 2020 17:35:45 +0200
+Message-Id: <20200720152829.358504083@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 335d720bb4bd9d2808cae5af6f3c636c87f19596.
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-Eugeniu Rosca writes:
+[ Upstream commit 3c525b69e8c1a9a6944e976603c7a1a713e728f9 ]
 
-On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
->After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
->Set PM runtime as active on resume") into downstream v4.14.x, we started
->to consistently experience below panic [1] on every second s2ram of
->R-Car H3 Salvator-X Renesas reference board.
->
->After some investigations, we concluded the following:
-> - the issue does not exist in vanilla v5.8-rc4+
-> - [bisecting shows that] the panic on v4.14.186 is caused by the lack
->   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
->   link support"). Getting evidence for that is easy. Reverting
->   987351e1ea7772 in vanilla leads to a similar backtrace [2].
->
->Questions:
-> - Backporting 987351e1ea7772 ("phy: core: Add consumer device
->   link support") to v4.14.187 looks challenging enough, so probably not
->   worth it. Anybody to contradict this?
-> - Assuming no plans to backport the missing mainline commit to v4.14.x,
->   should the following three v4.14.186 commits be reverted on v4.14.x?
->   * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
->   * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
->   * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
+During shutdown, the driver should unregister the SPI controller
+and stop the hardware.  Otherwise the dspi_transfer_one_message() could
+wait on completion infinitely.
 
+Additionally, calling spi_unregister_controller() first in device
+shutdown reverse-matches the probe function, where SPI controller is
+registered at the end.
+
+Fixes: dc234825997e ("spi: spi-fsl-dspi: Adding shutdown hook")
+Reported-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200622110543.5035-2-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-platform.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/usb/host/ehci-platform.c b/drivers/usb/host/ehci-platform.c
-index e9a49007cce4a..e4fc3f66d43bf 100644
---- a/drivers/usb/host/ehci-platform.c
-+++ b/drivers/usb/host/ehci-platform.c
-@@ -455,10 +455,6 @@ static int ehci_platform_resume(struct device *dev)
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 38d337f0967db..e0b30e4b1b695 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1461,20 +1461,7 @@ static int dspi_remove(struct platform_device *pdev)
  
- 	ehci_resume(hcd, priv->reset_on_resume);
- 
--	pm_runtime_disable(dev);
--	pm_runtime_set_active(dev);
--	pm_runtime_enable(dev);
+ static void dspi_shutdown(struct platform_device *pdev)
+ {
+-	struct spi_controller *ctlr = platform_get_drvdata(pdev);
+-	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
 -
- 	if (priv->quirk_poll)
- 		quirk_poll_init(priv);
+-	/* Disable RX and TX */
+-	regmap_update_bits(dspi->regmap, SPI_MCR,
+-			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF,
+-			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF);
+-
+-	/* Stop Running */
+-	regmap_update_bits(dspi->regmap, SPI_MCR, SPI_MCR_HALT, SPI_MCR_HALT);
+-
+-	dspi_release_dma(dspi);
+-	clk_disable_unprepare(dspi->clk);
+-	spi_unregister_controller(dspi->ctlr);
++	dspi_remove(pdev);
+ }
  
+ static struct platform_driver fsl_dspi_driver = {
 -- 
 2.25.1
 
