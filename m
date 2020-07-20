@@ -2,58 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5CC22551C
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 02:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA97225588
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 03:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726700AbgGTA7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jul 2020 20:59:09 -0400
-Received: from sonic315-21.consmr.mail.ne1.yahoo.com ([66.163.190.147]:46130
-        "EHLO sonic315-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726699AbgGTA7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 20:59:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595206748; bh=cK2qy9Lv5SAgMg9nAvfVmkJPj46H3ss3vOVyjpHm6Nk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=orBUcPf9fTZ+OoUCjhils06UB+PCQkehs0tUuqWigA4tfJJdXXBI2cwLwZKGAE8JpWYTSnPscP3x3VKvyUCCZi1/n6KD9oaYf4wOY1bWQajp35Ojbz6eifSNINdMaA04aZbR6lndDx23Up/py279euygLwnoxB3dOlP/3z1wbP2tibdB8lfBqQeQGNQEEQJIHiXgTu+yVqWriXJCR0ho/TA2ABELymqbF9WeiB+W2JqM3yVQf/OpLvUaBAfs0n2Ezii5L8rr+DNFIFI5QKJDqogTqYHX5cBFlo6gT9ShS79KT0U02oAxF5aXdQZZEjl0Tl+isYLYpkRrlnRnxG3sCw==
-X-YMail-OSG: n_OUd_IVM1kAs8C6veqIdIJ9O0yabusvX2kVbmiLYkZoIidaehtNerA3mpmgTcD
- DvoCGA3JkMZ1ddTSTDlHpqcAAPKxP9zOTX2AkCjj7NdyKi2cP.o6MYjEjG4HYIu4J4jFKz12Q2gi
- 97yNlcrpefTmR6QhHABd1NIsPwbsPCZibvDAjUNWJbGU9wDPaoPhRNrBCJQTDUCRoSrqB67zKqD7
- y9wW4Apq4jW8Rl0BBcs8BNnKVHi2PKPbwI4NbXjhT5LVQKiwveMveszZctdHtPHd9aU4PZvRLRJE
- fW_EDq4uLTUByPOnZD3gO.yCAEkXLorgUlqBgTw6HMutS5YEnqA5xQzanhn_mmi8d19fI6hPnV3o
- m5dP8LkrOhUZD1eBWeT49tRR97WmjVPk00bzIk5ik4uL4LWY4gm_7c.1K4S8hoNz.2JkZSmdDSPu
- feAcVgtXDsXMrhkuJKrmSMX15g8L1D5ExC7YhIcTW7S2ghDnCxaY81GXVv4EqWdQlwqv6h.RQyfy
- kMaYBFXbl0qRYJbe.tfyBHSimOUvxc6NRlBuzYu0CyXB023lE3kwUfuOhhLHORVgl0x1o7lviB6S
- kvJgA7NcjcPx2ev1bXMk2AIuXxbaOhIVfY5vGcmEW9ttdjk3VAjjbVwab9c.K2DuNQyGebFpOEbU
- LC__.9yx8F_0FpqOat_YHcZGXtu.eDzhB.eCbaPPAdpUzKpfKHSaMrcWb5GyJpmARQ6XGb4WRyo4
- fFS8qG5a6ppC5_y0OvjnQWeIwJ4yAk36H0TysvAOOH49Swz52wok3OcMBaZwL9MEFLvL6OmBLn45
- MUpapElt78FFzPw7ASnWSQOjzuT1s0yQqPfLKbpMO39RgvSpBCC.v8KLQ2uVxYL_lrs.sJsrHJxU
- kl3mDGs7KFFUaxoaje1js2PXe2SlQ_wVnnoD_iT6xFEMBfJNL0ivtJA6TMp85mdVSkyrXDCOrB7.
- KaPc0oFFYaXER0q2f3fahgOG_jIQ_k52vnhj5xSFzx8jgdC5C7fhgLEcUT9Dg0S.Qx97LQdKqMSK
- com1wPuTlHd1.3RE3UBDymp3sWkiiv19NShdC0Me.mzA__VuxuMs2krm4QR95xnXS.1L2yR_0xkL
- boP9d3dtr3QUTJr9t3IpbHXUY5HZroCtGv.C4r05Gm9s3Ur0kJrJj_1.fx1NNr9cblcWjr7QiG0r
- F2e2dJaT2M5lyInrv6NGH3NBXCHPBCcz36C1zpnN7IPj_A4VNYJXdK4.IHFFWqJaYrLwoYSe4iUZ
- cphjE6ILmoZ4CX4aJhnu6dAKRulOpX.oVWxC_NhaFwvGvoTL2D3xmjdj1aiq20vulR_yc7pWW
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Mon, 20 Jul 2020 00:59:08 +0000
-Date:   Mon, 20 Jul 2020 00:59:07 +0000 (UTC)
-From:   Karim Zakari <kariim1960z@gmail.com>
-Reply-To: kzakari04@gmail.com
-Message-ID: <398505926.4060905.1595206747209@mail.yahoo.com>
-Subject: URGENT REPLY.
+        id S1726468AbgGTBmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jul 2020 21:42:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50562 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726225AbgGTBmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jul 2020 21:42:15 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3DDDC0619D2;
+        Sun, 19 Jul 2020 18:42:15 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id f23so15934747iof.6;
+        Sun, 19 Jul 2020 18:42:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=BghG0bhxWxmBh6VLuN4rW89/t/Sbp9UWEGt+blG5lpA=;
+        b=mzeyWIfsjwH1IQyIIN4YJKNVI2eThHp+im81JcoQOIZ1moVEy+D/Y8K4rISLL6r9Go
+         UK3hFVfT41JV9GqK3ZwLtQnPhfywXpgHKabxiADEfUQDQCMGRb2QjYkkdk1wo/8MXlI7
+         QUybG41Drb6npsCuwg8uKVZGQ7zc89h7+MvwY39M2nKeR409auVs8rRSTVY82U3Po/Zp
+         mywB+0atdCxzu7LEdbo03Qw8/EmpCqiZl0/HvpKqkBziqNSLAKzwZNjN/q57QOv8y0FP
+         jqJOhFFTwQh5VTuxjg4n1KSOTKnd5VbA2Uw3T2PmqUk+x3Vqllge8MfaSA9XBsSDzio6
+         nxJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=BghG0bhxWxmBh6VLuN4rW89/t/Sbp9UWEGt+blG5lpA=;
+        b=ZUzXA3JGq0vS8cKDi6RgrvaUmK2lU4j2ckdL7pVYIeFmpsiMt7ozvwQBlNJ3b0P9xz
+         AvWb3YnaBGFcWJIhXiC3Akqguo44ENS3pWrOKamh1BG5e0liAsCsDVLL7cMNQg7rIuMq
+         Ge8z2kpnHd4IWhqDwJ4uXryidVQlfPvQfPclPR0cWPyY7mK5saLSC0JpWz0RH/qQnyUG
+         Jc0X1ibdD8DWD0ZeYJ3xr0JCp1Mvik3MTkRIJRFiUS2WBw7z4uE++rVZJYIvqpZV1IJU
+         OA/h315wSFEYP9NrrwRke820Gkxv4CPpoElfhbg1ofmz8qNGeTxwGeCVfjakk7Njr9GR
+         bLvQ==
+X-Gm-Message-State: AOAM531L/DorN2flPfQRwTmVGISnfMo+2/zZ5FsLCfUgacCaaxkBaHpM
+        G5BZESOdcm6bs6ajryixjMfeGPHK0dXfXE5UpDTZeZ5grlI=
+X-Google-Smtp-Source: ABdhPJwjmlGa4NcywVbK4jNW6SEoxFdHHqdKUqEu0Tv0w1iyQfd566RIjz08dqDkFK5lpsAdNcDI9YKg66qYxJD8oNw=
+X-Received: by 2002:a05:6638:61b:: with SMTP id g27mr23016894jar.123.1595209334713;
+ Sun, 19 Jul 2020 18:42:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <398505926.4060905.1595206747209.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+References: <1594892369-28060-1-git-send-email-chenhc@lemote.com>
+ <CAAhV-H4wdxtLCAFOJE6wgAZdg+U5mquSZjHmAL_qsDaGtENbFg@mail.gmail.com>
+ <34928e81-3675-0309-b020-0cb4b402dc5c@flygoat.com> <20200719151322.GA301242@kroah.com>
+In-Reply-To: <20200719151322.GA301242@kroah.com>
+From:   Huacai Chen <chenhuacai@gmail.com>
+Date:   Mon, 20 Jul 2020 09:42:03 +0800
+Message-ID: <CAAhV-H6f0Ohx=jZL_VeC2oncW-UUMA85t5C+x84xC_NZs83jNA@mail.gmail.com>
+Subject: Re: [PATCH -stable] MIPS: Fix build for LTS kernel caused by
+ backporting lpj adjustment
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        "Stable # 4 . 4/4 . 9/4 . 14/4 . 19" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi, Greg,
 
+On Sun, Jul 19, 2020 at 11:13 PM Greg KH <gregkh@linuxfoundation.org> wrote=
+:
+>
+> On Sun, Jul 19, 2020 at 10:51:11PM +0800, Jiaxun Yang wrote:
+> >
+> > =E5=9C=A8 2020/7/19 =E4=B8=8A=E5=8D=8811:24, Huacai Chen =E5=86=99=E9=
+=81=93:
+> > > Hi, Serge,
+> > >
+> > > Could you please have a look at this patch?
+> >
+> >
+> > + Gregkh
+> >
+> > This is urgent for next stable release, please take a look.
+>
+> Relax, it was only sent 3 days ago, we will get to this...
+>
+> Also, why was this not caught by any of the testing systems that we
+> have?  That might be good to determine so we don't mess up again in the
+> future.
+I think that is because CPUFREQ is disabled by default on MIPS.
 
-Good-Day Friend,
+Huacai
 
- Hope you are doing great Today. I have a proposed business deal worthy (US$16.5 Million Dollars) that will benefit both parties. This is legitimate' legal and your personality will not be compromised.
-
-Waiting for your response for more details, As you are willing to execute this business opportunity with me.
-
-Sincerely Yours,
-Mr. Karim Zakari.
+>
+> thanks,
+>
+> greg k-h
