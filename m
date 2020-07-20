@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9612266AC
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 411272266AD
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732110AbgGTQFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40306 "EHLO mail.kernel.org"
+        id S1732961AbgGTQFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:05:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732921AbgGTQFE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:05:04 -0400
+        id S1732520AbgGTQFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:05:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1DB62064B;
-        Mon, 20 Jul 2020 16:05:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C7FE22CF7;
+        Mon, 20 Jul 2020 16:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261104;
-        bh=skdvEiz7c1Tv5JbxH89mctTRqiNTBfFs1t1/vJk7+Ds=;
+        s=default; t=1595261106;
+        bh=eBe0QDJL2Y0eDA0AKKFsk8hilV+Ik/d9FRnP60tpqNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejaCOhViYwvtqHKD/cK1iBH+t+VVyC+aAzyhmym0OSDeQnXCvdG0RfHqbxbpnJ5mm
-         i8rM/abN2Rms/VryZqG/gegWYBf+RriCcGpMVtVqxp6fVigW2VOZP44DCNsUKl5pIw
-         zRsH6rAg+3xvyVt2SwDzpBjeTOPfS9E/70JsuBaE=
+        b=RSBuiD095JJfsddmkmgpHHmDJPzNyejJqsJ0e2mAEwlcPC2FZ4Jc53YxXkJx+0LyU
+         VlYejoet7wyopVYvVpXcj049VViAkFVPZVkHiGXlm7csEYNAyghNrLQYrbscCFsx6p
+         NUBN8Zd9SF03EfoB0atGL42t9o/k/VYC8dyYIEYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lingling Xu <ling_ling.xu@unisoc.com>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 211/215] spi: sprd: switch the sequence of setting WDG_LOAD_LOW and _HIGH
-Date:   Mon, 20 Jul 2020 17:38:13 +0200
-Message-Id: <20200720152830.185982858@linuxfoundation.org>
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        Jonathan Toppins <jtoppins@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 212/215] ionic: export features for vlans to use
+Date:   Mon, 20 Jul 2020 17:38:14 +0200
+Message-Id: <20200720152830.232717027@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -44,36 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lingling Xu <ling_ling.xu@unisoc.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-commit 8bdd79dae1ff5397351b95e249abcae126572617 upstream.
+commit ef7232da6bcd4294cbb2d424bc35885721570f01 upstream.
 
-The watchdog counter consists of WDG_LOAD_LOW and WDG_LOAD_HIGH,
-which would be loaded to watchdog counter once writing WDG_LOAD_LOW.
+Set up vlan_features for use by any vlans above us.
 
-Fixes: ac1775012058 ("spi: sprd: Add the support of restarting the system")
-Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Link: https://lore.kernel.org/r/20200602082415.5848-1-zhang.lyra@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: beead698b173 ("ionic: Add the basic NDO callbacks for netdev support")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Acked-by: Jonathan Toppins <jtoppins@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-sprd-adi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/spi/spi-sprd-adi.c
-+++ b/drivers/spi/spi-sprd-adi.c
-@@ -384,9 +384,9 @@ static int sprd_adi_restart_handler(stru
- 	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOCK, WDG_UNLOCK_KEY);
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -1187,6 +1187,7 @@ static int ionic_init_nic_features(struc
  
- 	/* Load the watchdog timeout value, 50ms is always enough. */
-+	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOAD_HIGH, 0);
- 	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOAD_LOW,
- 		       WDG_LOAD_VAL & WDG_LOAD_MASK);
--	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOAD_HIGH, 0);
+ 	netdev->hw_features |= netdev->hw_enc_features;
+ 	netdev->features |= netdev->hw_features;
++	netdev->vlan_features |= netdev->features & ~NETIF_F_VLAN_FEATURES;
  
- 	/* Start the watchdog to reset system */
- 	sprd_adi_read(sadi, sadi->slave_pbase + REG_WDG_CTRL, &val);
+ 	netdev->priv_flags |= IFF_UNICAST_FLT;
+ 
 
 
