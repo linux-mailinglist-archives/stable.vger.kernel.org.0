@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63EF7226A17
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1E44226ABA
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730709AbgGTPze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54668 "EHLO mail.kernel.org"
+        id S1730935AbgGTPsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:48:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731008AbgGTPzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:55:33 -0400
+        id S1728857AbgGTPsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:48:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D21C2065E;
-        Mon, 20 Jul 2020 15:55:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F31222CBB;
+        Mon, 20 Jul 2020 15:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260532;
-        bh=9IYFXvNdzrOsWw+bw1eHWtHAmTn0VG0xwVdxYbgrFo4=;
+        s=default; t=1595260130;
+        bh=+xqjmGS6nKbWQ5Dn5BW8/Yc2jceefTSn6AOCgYaytNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6VmSkhb2YZlqtvZ+iHtLB2eYvG0KFV2eXNIqx9HGBH5r884e+hDweS0Kb6XZdNUF
-         INbly9oEc5bALn5wtitkJxsCpcqkuha6QQ6nMYFQZ+0agB2FoqA4CykxTWzj80CDHA
-         mRezr+OLExRaH786hvKE9ZXfqCN/FeyfXlg3ZUJc=
+        b=hnG18Ehnw2Da4A4iFBgC/G/iS7QqCDoggthqA7+NUQ3byuY2B7Yop/r6ISt8m64Gm
+         gFVM4YkjknS+QCIOkfrnJWywn7RAghHdJyFXdhP+EwQEpUXMVhXe8qFHOKwCwMwVSV
+         2nkbRtYwJ9hTGg3MB1KvCTbEo3XsDs/Lx0qHjJis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chirantan Ekbote <chirantan@chromium.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 106/133] fuse: Fix parameter for FS_IOC_{GET,SET}FLAGS
-Date:   Mon, 20 Jul 2020 17:37:33 +0200
-Message-Id: <20200720152808.866418357@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 116/125] intel_th: pci: Add Tiger Lake PCH-H support
+Date:   Mon, 20 Jul 2020 17:37:35 +0200
+Message-Id: <20200720152808.635317396@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chirantan Ekbote <chirantan@chromium.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 31070f6ccec09f3bd4f1e28cd1e592fa4f3ba0b6 upstream.
+commit 6227585dc7b6a5405fc08dc322f98cb95e2f0eb4 upstream.
 
-The ioctl encoding for this parameter is a long but the documentation says
-it should be an int and the kernel drivers expect it to be an int.  If the
-fuse driver treats this as a long it might end up scribbling over the stack
-of a userspace process that only allocated enough space for an int.
+This adds support for the Trace Hub in Tiger Lake PCH-H.
 
-This was previously discussed in [1] and a patch for fuse was proposed in
-[2].  From what I can tell the patch in [2] was nacked in favor of adding
-new, "fixed" ioctls and using those from userspace.  However there is still
-no "fixed" version of these ioctls and the fact is that it's sometimes
-infeasible to change all userspace to use the new one.
-
-Handling the ioctls specially in the fuse driver seems like the most
-pragmatic way for fuse servers to support them without causing crashes in
-userspace applications that call them.
-
-[1]: https://lore.kernel.org/linux-fsdevel/20131126200559.GH20559@hall.aurel32.net/T/
-[2]: https://sourceforge.net/p/fuse/mailman/message/31771759/
-
-Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
-Fixes: 59efec7b9039 ("fuse: implement ioctl support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org # v4.14+
+Link: https://lore.kernel.org/r/20200706161339.55468-3-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -18,6 +18,7 @@
- #include <linux/swap.h>
- #include <linux/falloc.h>
- #include <linux/uio.h>
-+#include <linux/fs.h>
- 
- static const struct file_operations fuse_direct_io_file_operations;
- 
-@@ -2535,7 +2536,16 @@ long fuse_do_ioctl(struct file *file, un
- 		struct iovec *iov = iov_page;
- 
- 		iov->iov_base = (void __user *)arg;
--		iov->iov_len = _IOC_SIZE(cmd);
-+
-+		switch (cmd) {
-+		case FS_IOC_GETFLAGS:
-+		case FS_IOC_SETFLAGS:
-+			iov->iov_len = sizeof(int);
-+			break;
-+		default:
-+			iov->iov_len = _IOC_SIZE(cmd);
-+			break;
-+		}
- 
- 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
- 			in_iov = iov;
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -214,6 +214,11 @@ static const struct pci_device_id intel_
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
+ 	{
++		/* Tiger Lake PCH-H */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x43a6),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
++	{
+ 		/* Jasper Lake PCH */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4da6),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 
 
