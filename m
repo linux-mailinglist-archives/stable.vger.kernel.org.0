@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1C66226763
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D27226974
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387782AbgGTQLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:11:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50314 "EHLO mail.kernel.org"
+        id S1730594AbgGTQZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:25:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732732AbgGTQLS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:11:18 -0400
+        id S1732439AbgGTQAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:00:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EFA82065E;
-        Mon, 20 Jul 2020 16:11:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9E6A22D00;
+        Mon, 20 Jul 2020 16:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261478;
-        bh=PwYgY0PClXBj/wQ9kZvqrTpH+5i2U9MhVT4YdPtSaoQ=;
+        s=default; t=1595260852;
+        bh=EQyByGgZwCdppCC+pTcTPiScPbQ5HgHvHHw/SGK4auQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHp3ulDoslfUyP1LIUvxA7/gJ71rjB4NMsQ9UGez/9c8ZKNE80v+gCfydpdp0VmKg
-         rUs2SGd4ivy3b+X4w5S2w2Xn8a4yH+32O5NpgUirJLrSyMLdgI4YfHqVOLzrYWbmJE
-         O1Ik+8sdMNrJ+if+j5Kpg5NnIkzXjwjxegwRGIsc=
+        b=tCouV1MP7vi5Ig5UDlurfA87XcYXC2DbyTKBtqb5d8mGGJ8cNr+4XmXJn/+VBUThU
+         h/D21L9ZzJyVdItSJsPvNJLonBuP9XkfEdqzuZbt+2Y2x6JqdZ85Op2x5Rm/6S+rVS
+         lVG2dwgfg1MW7bzhIoy9BV8D4kvOvSW9VkoqdY0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aharon Landau <aharonl@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.7 130/244] RDMA/mlx5: Verify that QP is created with RQ or SQ
+        stable@vger.kernel.org, Kevin Buettner <kevinb@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Dave Airlie <airlied@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 119/215] copy_xstate_to_kernel: Fix typo which caused GDB regression
 Date:   Mon, 20 Jul 2020 17:36:41 +0200
-Message-Id: <20200720152832.023451568@linuxfoundation.org>
+Message-Id: <20200720152825.858152774@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aharon Landau <aharonl@mellanox.com>
+From: Kevin Buettner <kevinb@redhat.com>
 
-commit 0eacc574aae7300bf46c10c7116c3ba5825505b7 upstream.
+commit 5714ee50bb4375bd586858ad800b1d9772847452 upstream.
 
-RAW packet QP and underlay QP must be created with either
-RQ or SQ, check that.
+This fixes a regression encountered while running the
+gdb.base/corefile.exp test in GDB's test suite.
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Link: https://lore.kernel.org/r/20200427154636.381474-37-leon@kernel.org
-Signed-off-by: Aharon Landau <aharonl@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+In my testing, the typo prevented the sw_reserved field of struct
+fxregs_state from being output to the kernel XSAVES area.  Thus the
+correct mask corresponding to XCR0 was not present in the core file for
+GDB to interrogate, resulting in the following behavior:
+
+   [kev@f32-1 gdb]$ ./gdb -q testsuite/outputs/gdb.base/corefile/corefile testsuite/outputs/gdb.base/corefile/corefile.core
+   Reading symbols from testsuite/outputs/gdb.base/corefile/corefile...
+   [New LWP 232880]
+
+   warning: Unexpected size of section `.reg-xstate/232880' in core file.
+
+With the typo fixed, the test works again as expected.
+
+Signed-off-by: Kevin Buettner <kevinb@redhat.com>
+Fixes: 9e4636545933 ("copy_xstate_to_kernel(): don't leave parts of destination uninitialized")
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Dave Airlie <airlied@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/qp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/fpu/xstate.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -1525,6 +1525,8 @@ static int create_raw_packet_qp(struct m
- 	u16 uid = to_mpd(pd)->uid;
- 	u32 out[MLX5_ST_SZ_DW(create_tir_out)] = {};
- 
-+	if (!qp->sq.wqe_cnt && !qp->rq.wqe_cnt)
-+		return -EINVAL;
- 	if (qp->sq.wqe_cnt) {
- 		err = create_raw_packet_qp_tis(dev, qp, sq, tdn, pd);
- 		if (err)
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -1017,7 +1017,7 @@ int copy_xstate_to_kernel(void *kbuf, st
+ 		copy_part(offsetof(struct fxregs_state, st_space), 128,
+ 			  &xsave->i387.st_space, &kbuf, &offset_start, &count);
+ 	if (header.xfeatures & XFEATURE_MASK_SSE)
+-		copy_part(xstate_offsets[XFEATURE_MASK_SSE], 256,
++		copy_part(xstate_offsets[XFEATURE_SSE], 256,
+ 			  &xsave->i387.xmm_space, &kbuf, &offset_start, &count);
+ 	/*
+ 	 * Fill xsave->i387.sw_reserved value for ptrace frame:
 
 
