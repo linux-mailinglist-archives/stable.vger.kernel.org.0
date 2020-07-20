@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E5F1226AE6
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36F83226B75
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731756AbgGTQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48826 "EHLO mail.kernel.org"
+        id S1730134AbgGTPqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:46:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731272AbgGTPvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:51:45 -0400
+        id S1730004AbgGTPqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:46:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7D7D2065E;
-        Mon, 20 Jul 2020 15:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3110A22BF3;
+        Mon, 20 Jul 2020 15:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260305;
-        bh=gXd2bKTIRZQ5dzukdoEGDoUqIIkGPJUwCwsJrvbTHhs=;
+        s=default; t=1595259980;
+        bh=fmeWhdhvaGBZT1EJ8XDeUQppJvMJz/VxtSuhIKoeQ58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pv9StjLXPBB/oE0QWFHDh8WXGYC9gS5Sz0LKHJD7hYrt7EjJ0PmVmn03hhfV9nJ9s
-         7p54TQWrJK3aU12XBKYtk1nwNawWpYZ3Brp8gE/9zbY5Pt1JgNgCMqaa/Hk1J20rUZ
-         EbmoE4qPV3HV/t8eatiQrQBj6YGUQelluQHeZYDY=
+        b=sfSONZa7+XLw/+6YLh7Txo39qeyDkF0JXEHwG6r1HaIzMGvyun+t8NzSzy2EgTCPp
+         2UctzHYC24EvDar41nsw1VP6F44tufkhEmWyhaKYqttieE2gvOTgiipZw4o35/b4WM
+         VE3r1jnTQ2nC57YDMOR6n/EPTq4J8kxnHml6jaU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emmanuel Pescosta <emmanuelpescosta099@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/133] ALSA: usb-audio: Add registration quirk for Kingston HyperX Cloud Alpha S
-Date:   Mon, 20 Jul 2020 17:36:41 +0200
-Message-Id: <20200720152806.325546278@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
+        Alison Schofield <amsfield22@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.14 063/125] iio:humidity:hdc100x Fix alignment and data leak issues
+Date:   Mon, 20 Jul 2020 17:36:42 +0200
+Message-Id: <20200720152806.068859819@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit fd60e0683e8e9107e09cd2e4798f3e27e85d2705 ]
+commit ea5e7a7bb6205d24371373cd80325db1bc15eded upstream.
 
-Similar to the Kingston HyperX AMP, the Kingston HyperX Cloud
-Alpha S (0951:16d8) uses two interfaces, but only the second
-interface contains the capture stream. This patch delays the
-registration until the second interface appears.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data.
+This data is allocated with kzalloc so no data can leak apart
+from previous readings.
 
-Signed-off-by: Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
-Link: https://lore.kernel.org/r/20200404153843.9288-1-emmanuelpescosta099@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 16bf793f86b2 ("iio: humidity: hdc100x: add triggered buffer support for HDC100X")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Cc: Alison Schofield <amsfield22@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/usb/quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/humidity/hdc100x.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 79c3787ad8fd8..15d7d1e92245c 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1527,6 +1527,7 @@ struct registration_quirk {
+--- a/drivers/iio/humidity/hdc100x.c
++++ b/drivers/iio/humidity/hdc100x.c
+@@ -46,6 +46,11 @@ struct hdc100x_data {
  
- static const struct registration_quirk registration_quirks[] = {
- 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
-+	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
- 	{ 0 }					/* terminator */
+ 	/* integration time of the sensor */
+ 	int adc_int_us[2];
++	/* Ensure natural alignment of timestamp */
++	struct {
++		__be16 channels[2];
++		s64 ts __aligned(8);
++	} scan;
  };
  
--- 
-2.25.1
-
+ /* integration time in us */
+@@ -327,7 +332,6 @@ static irqreturn_t hdc100x_trigger_handl
+ 	struct i2c_client *client = data->client;
+ 	int delay = data->adc_int_us[0] + data->adc_int_us[1];
+ 	int ret;
+-	s16 buf[8];  /* 2x s16 + padding + 8 byte timestamp */
+ 
+ 	/* dual read starts at temp register */
+ 	mutex_lock(&data->lock);
+@@ -338,13 +342,13 @@ static irqreturn_t hdc100x_trigger_handl
+ 	}
+ 	usleep_range(delay, delay + 1000);
+ 
+-	ret = i2c_master_recv(client, (u8 *)buf, 4);
++	ret = i2c_master_recv(client, (u8 *)data->scan.channels, 4);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev, "cannot read sensor data\n");
+ 		goto err;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   iio_get_time_ns(indio_dev));
+ err:
+ 	mutex_unlock(&data->lock);
 
 
