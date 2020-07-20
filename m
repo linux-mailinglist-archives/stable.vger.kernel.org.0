@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15836226797
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E4B226964
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388040AbgGTQM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52668 "EHLO mail.kernel.org"
+        id S1731584AbgGTQYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733224AbgGTQMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:12:55 -0400
+        id S1732671AbgGTQC3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:02:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C009E2065E;
-        Mon, 20 Jul 2020 16:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD06B2176B;
+        Mon, 20 Jul 2020 16:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261575;
-        bh=bTZfeAWR2pBaRtAlL/mVt3xpRqcquaU//lEAkN+K/r4=;
+        s=default; t=1595260949;
+        bh=kIm8M2uXcQTxSOK4OoPtGwErITq0mltCNsirn6XB47w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tt+J/o2xOx+G3sJemFad7Q8OKUdTOgVFgTPSDm3zdaE7F0GudqjO4bu6tURXTKvSU
-         LFe46AopPDKOGIPngYgiDnpmn27xQej3wHGe1l4Ok14x2Dhrx8LXHk09mZ+v353/7n
-         WaWJ9xgIyIRZUScwjlHpj5LgVPMKtkEJRzpoUqVU=
+        b=qCShURl+S/BL6CohlbfnJRaitfguxrK0MCgxWoz6CcPqf/tO08qqFrrKALuWFN9E0
+         qo3f4ghmjIOHUyHopi7ynTHjm4ibcvoeurhdKCX4GzXfj6WNJTeHC40RCzpZVcZh6u
+         ed857H2bbSlMXts5WgTKdk0/0FFMHDXefRlaaFX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.7 165/244] USB: serial: cypress_m8: enable Simply Automated UPB PIM
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 154/215] ALSA: hda/realtek - Enable Speaker for ASUS UX563
 Date:   Mon, 20 Jul 2020 17:37:16 +0200
-Message-Id: <20200720152833.690464083@linuxfoundation.org>
+Message-Id: <20200720152827.518452945@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 5c45d04c5081c1830d674f4d22d4400ea2083afe upstream.
+commit 158ae2f5e6fead30be1f0c203037f5556871513b upstream.
 
-This is a UPB (Universal Powerline Bus) PIM (Powerline Interface Module)
-which allows for controlling multiple UPB compatible devices from Linux
-using the standard serial interface.
+ASUS UX563 speaker can't output.
+Add quirk to link suitable model will enable it.
+This model also could enable headset Mic.
 
-Based on vendor application source code there are two different models
-of USB based PIM devices in addition to a number of RS232 based PIM's.
-
-The vendor UPB application source contains the following USB ID's:
-
-	#define USB_PCS_VENDOR_ID 0x04b4
-	#define USB_PCS_PIM_PRODUCT_ID 0x5500
-
-	#define USB_SAI_VENDOR_ID 0x17dd
-	#define USB_SAI_PIM_PRODUCT_ID 0x5500
-
-The first set of ID's correspond to the PIM variant sold by Powerline
-Control Systems while the second corresponds to the Simply Automated
-Incorporated PIM. As the product ID for both of these match the default
-cypress HID->COM RS232 product ID it assumed that they both use an
-internal variant of this HID->COM RS232 converter hardware. However
-as the vendor ID for the Simply Automated variant is different we need
-to also add it to the cypress_M8 driver so that it is properly
-detected.
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200616220403.1807003-1-james.hilliard1@gmail.com
-Cc: stable@vger.kernel.org
-[ johan: amend VID define entry ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/96dee3ab01a04c28a7b44061e88009dd@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/cypress_m8.c |    2 ++
- drivers/usb/serial/cypress_m8.h |    3 +++
- 2 files changed, 5 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/cypress_m8.c
-+++ b/drivers/usb/serial/cypress_m8.c
-@@ -59,6 +59,7 @@ static const struct usb_device_id id_tab
- 
- static const struct usb_device_id id_table_cyphidcomrs232[] = {
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ }						/* Terminating entry */
-@@ -73,6 +74,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
---- a/drivers/usb/serial/cypress_m8.h
-+++ b/drivers/usb/serial/cypress_m8.h
-@@ -25,6 +25,9 @@
- #define VENDOR_ID_CYPRESS		0x04b4
- #define PRODUCT_ID_CYPHIDCOM		0x5500
- 
-+/* Simply Automated HID->COM UPB PIM (using Cypress PID 0x5500) */
-+#define VENDOR_ID_SAI			0x17dd
-+
- /* FRWD Dongle - a GPS sports watch */
- #define VENDOR_ID_FRWD			0x6737
- #define PRODUCT_ID_CYPHIDCOM_FRWD	0x0001
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7516,6 +7516,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x18f1, "Asus FX505DT", ALC256_FIXUP_ASUS_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1043, 0x194e, "ASUS UX563FD", ALC294_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x19ce, "ASUS B9450FA", ALC294_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x19e1, "ASUS UX581LV", ALC295_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
 
 
