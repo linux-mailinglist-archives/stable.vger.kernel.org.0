@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FB722718C
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E5F227187
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727854AbgGTVoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:44:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56610 "EHLO mail.kernel.org"
+        id S1728063AbgGTViQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:38:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727914AbgGTViO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:14 -0400
+        id S1728053AbgGTViP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:38:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0958F22CB2;
-        Mon, 20 Jul 2020 21:38:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56B46207FC;
+        Mon, 20 Jul 2020 21:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281093;
-        bh=tH+bZieuhKiCAe1crHPmNpD1ivBEEIf7aWZ7DUPOZ+k=;
+        s=default; t=1595281095;
+        bh=T91JMT8+ATmHZgGTjTGeIrl+abx5KOHBjY+EUmJFlaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1sPmJVPabbygoj7HaDZpmJnr+92bWi/Gsbe5KI+ttpYcFs7cxM6oFpn9Ta4c6a77
-         a2/MGPSOGsm4VvBxjKRZYdJX8xxWWGblQ6+t9RY8eQ1K8zRqRuV71qxVx7qJtm90rR
-         9zuWKGVVYIhRqPG6RNH2q+tSWKYLkVPnUrP7tsys=
+        b=Gbc5sBQ7VQ5v745zter+nH6Hza4j2h3iHBLHnL5YSc1Ak0Q1iQDdllqoB6HDWQlqI
+         b0CipZpkqe/niZEAhsIk/UuT6p5n8+BHNVu27COjTeTLD4YbxxYJ/u8gqQafGzLwn6
+         NmrLUv5IjDuR1EiMzs7OmxBfutWgpXacP7U87InU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 05/34] dmaengine: tegra210-adma: Fix runtime PM imbalance on error
-Date:   Mon, 20 Jul 2020 17:37:38 -0400
-Message-Id: <20200720213807.407380-5-sashal@kernel.org>
+Cc:     Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/34] Input: add `SW_MACHINE_COVER`
+Date:   Mon, 20 Jul 2020 17:37:39 -0400
+Message-Id: <20200720213807.407380-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
 References: <20200720213807.407380-1-sashal@kernel.org>
@@ -44,47 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Merlijn Wajer <merlijn@wizzup.org>
 
-[ Upstream commit 5b78fac4b1ba731cf4177fdbc1e3a4661521bcd0 ]
+[ Upstream commit c463bb2a8f8d7d97aa414bf7714fc77e9d3b10df ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code. Thus a pairing decrement is needed on
-the error handling path to keep the counter balanced.
+This event code represents the state of a removable cover of a device.
+Value 0 means that the cover is open or removed, value 1 means that the
+cover is closed.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20200624064626.19855-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
+Link: https://lore.kernel.org/r/20200612125402.18393-2-merlijn@wizzup.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/mod_devicetable.h        | 2 +-
+ include/uapi/linux/input-event-codes.h | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
-index 914901a680c8a..9068591bd684b 100644
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -658,6 +658,7 @@ static int tegra_adma_alloc_chan_resources(struct dma_chan *dc)
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 953d7ca01eb60..4c56404e53a76 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -318,7 +318,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+ #define INPUT_DEVICE_ID_FF_MAX		0x7f
+-#define INPUT_DEVICE_ID_SW_MAX		0x0f
++#define INPUT_DEVICE_ID_SW_MAX		0x10
+ #define INPUT_DEVICE_ID_PROP_MAX	0x1f
  
- 	ret = pm_runtime_get_sync(tdc2dev(tdc));
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(tdc2dev(tdc));
- 		free_irq(tdc->irq, tdc);
- 		return ret;
- 	}
-@@ -869,8 +870,10 @@ static int tegra_adma_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
+ #define INPUT_DEVICE_ID_MATCH_BUS	1
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 85387c76c24f3..472cd5bc55676 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -808,7 +808,8 @@
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+ #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+ #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+-#define SW_MAX			0x0f
++#define SW_MACHINE_COVER	0x10  /* set = cover closed */
++#define SW_MAX			0x10
+ #define SW_CNT			(SW_MAX+1)
  
- 	ret = pm_runtime_get_sync(&pdev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&pdev->dev);
- 		goto rpm_disable;
-+	}
- 
- 	ret = tegra_adma_init(tdma);
- 	if (ret)
+ /*
 -- 
 2.25.1
 
