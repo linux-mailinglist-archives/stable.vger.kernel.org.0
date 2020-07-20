@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BACA7226837
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A63E7226681
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388232AbgGTQOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54562 "EHLO mail.kernel.org"
+        id S1732046AbgGTQDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388229AbgGTQON (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:14:13 -0400
+        id S1732435AbgGTQDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:03:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A5292064B;
-        Mon, 20 Jul 2020 16:14:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A03620684;
+        Mon, 20 Jul 2020 16:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261653;
-        bh=4vriX5B70DVSBvzKafRh6krsUhLdhbdqiDlIJdAuMwo=;
+        s=default; t=1595261026;
+        bh=DsXJ9loA09c5M4jr0i1+ZN3kgn72HzGZDhvmiwfEleA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzPh5nFq+3sPnII/OS/8y3oAW1ULWImMItjRkg0B9xPhLY2+Fwufv9yH87n9v4bDI
-         FzcDtbDG/e9x2q2nBTbJIFxrWcqx+reLHG1ACx6juoX85OfaraBpk1A7J9k7KIfAMi
-         9HwWLT+/s5FVu0U1un2N3m46Fi++y5LUdDLwRfXM=
+        b=rshey7EhL/33V0qYn9XJbSGUBkaPwJKtHFFLQwKy6MvnzvZqs7zPqz8AXZEEKgO3N
+         lmOfCvoUF5MAD8da1Yk5LnD139Xks5uyFUqwQkb3u//iPkBwrNZio69Dm5i6isjE6e
+         fpbbXnjNUEs/UCxpR0HjseixtDljP7z+xoRwHnws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
         Kashyap Desai <kashyap.desai@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.7 193/244] scsi: megaraid_sas: Remove undefined ENABLE_IRQ_POLL macro
+Subject: [PATCH 5.4 182/215] scsi: megaraid_sas: Remove undefined ENABLE_IRQ_POLL macro
 Date:   Mon, 20 Jul 2020 17:37:44 +0200
-Message-Id: <20200720152835.023086054@linuxfoundation.org>
+Message-Id: <20200720152828.829013937@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,7 +69,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -3797,10 +3797,8 @@ static irqreturn_t megasas_isr_fusion(in
+@@ -3787,10 +3787,8 @@ static irqreturn_t megasas_isr_fusion(in
  	if (instance->mask_interrupts)
  		return IRQ_NONE;
  
