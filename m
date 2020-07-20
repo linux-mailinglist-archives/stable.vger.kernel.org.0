@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0EC226886
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09762266D2
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733027AbgGTQGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:06:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41950 "EHLO mail.kernel.org"
+        id S1732620AbgGTQGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:06:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733020AbgGTQGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:06:00 -0400
+        id S1732019AbgGTQGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:06:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE1612065E;
-        Mon, 20 Jul 2020 16:05:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 975B222CB1;
+        Mon, 20 Jul 2020 16:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261159;
-        bh=7WlQAxklApndpVq4BnML78kRdfxNpqoNhGpz7O6ZraI=;
+        s=default; t=1595261190;
+        bh=1bqofZgVWvx8GHtzF7cFAhiUVoscTvfCjDMCiPnexQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WoQu1tNgvINkV6RsOWIMFKXUKZ/3mgH3m8h0y0z0Fd7BZz+etOlJc1vfjJBxnhRvp
-         t/Xu9hRaFsLuRvo6hdSpahrkKrmYBHOqR9J5YiDAMvc/1iiFJyicRud6Ue/PsgJmVz
-         qTNZQ9/EAt6ORF31gRXaxwWvabkDB+IyxHsF/6ow=
+        b=2vRXbspF3F1vtmtFshxrezrNQeUWL7J7g9MJaSPZ1kj9RzUYTtfzPx2gQ/wzG2AlH
+         ci9ckuG3LY24LoZA1hj5OXhz1G4bS3EIjORZiB3Q1MJpLX/KsQ19zvW0dhU6s+5/Tb
+         76FpQZohMqvLVl9uIqoi7/M4+IpawEdkAevkR5Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org,
+        Martin Varghese <martin.varghese@nokia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 007/244] llc: make sure applications use ARPHRD_ETHER
-Date:   Mon, 20 Jul 2020 17:34:38 +0200
-Message-Id: <20200720152826.222651012@linuxfoundation.org>
+Subject: [PATCH 5.7 008/244] net: Added pointer check for dst->ops->neigh_lookup in dst_neigh_lookup_skb
+Date:   Mon, 20 Jul 2020 17:34:39 +0200
+Message-Id: <20200720152826.263310495@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,160 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Martin Varghese <martin.varghese@nokia.com>
 
-[ Upstream commit a9b1110162357689a34992d5c925852948e5b9fd ]
+[ Upstream commit 394de110a73395de2ca4516b0de435e91b11b604 ]
 
-syzbot was to trigger a bug by tricking AF_LLC with
-non sensible addr->sllc_arphrd
+The packets from tunnel devices (eg bareudp) may have only
+metadata in the dst pointer of skb. Hence a pointer check of
+neigh_lookup is needed in dst_neigh_lookup_skb
 
-It seems clear LLC requires an Ethernet device.
+Kernel crashes when packets from bareudp device is processed in
+the kernel neighbour subsytem.
 
-Back in commit abf9d537fea2 ("llc: add support for SO_BINDTODEVICE")
-Octavian Purdila added possibility for application to use a zero
-value for sllc_arphrd, convert it to ARPHRD_ETHER to not cause
-regressions on existing applications.
+[  133.384484] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[  133.385240] #PF: supervisor instruction fetch in kernel mode
+[  133.385828] #PF: error_code(0x0010) - not-present page
+[  133.386603] PGD 0 P4D 0
+[  133.386875] Oops: 0010 [#1] SMP PTI
+[  133.387275] CPU: 0 PID: 5045 Comm: ping Tainted: G        W         5.8.0-rc2+ #15
+[  133.388052] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[  133.391076] RIP: 0010:0x0
+[  133.392401] Code: Bad RIP value.
+[  133.394029] RSP: 0018:ffffb79980003d50 EFLAGS: 00010246
+[  133.396656] RAX: 0000000080000102 RBX: ffff9de2fe0d6600 RCX: ffff9de2fe5e9d00
+[  133.399018] RDX: 0000000000000000 RSI: ffff9de2fe5e9d00 RDI: ffff9de2fc21b400
+[  133.399685] RBP: ffff9de2fe5e9d00 R08: 0000000000000000 R09: 0000000000000000
+[  133.400350] R10: ffff9de2fbc6be22 R11: ffff9de2fe0d6600 R12: ffff9de2fc21b400
+[  133.401010] R13: ffff9de2fe0d6628 R14: 0000000000000001 R15: 0000000000000003
+[  133.401667] FS:  00007fe014918740(0000) GS:ffff9de2fec00000(0000) knlGS:0000000000000000
+[  133.402412] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  133.402948] CR2: ffffffffffffffd6 CR3: 000000003bb72000 CR4: 00000000000006f0
+[  133.403611] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  133.404270] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  133.404933] Call Trace:
+[  133.405169]  <IRQ>
+[  133.405367]  __neigh_update+0x5a4/0x8f0
+[  133.405734]  arp_process+0x294/0x820
+[  133.406076]  ? __netif_receive_skb_core+0x866/0xe70
+[  133.406557]  arp_rcv+0x129/0x1c0
+[  133.406882]  __netif_receive_skb_one_core+0x95/0xb0
+[  133.407340]  process_backlog+0xa7/0x150
+[  133.407705]  net_rx_action+0x2af/0x420
+[  133.408457]  __do_softirq+0xda/0x2a8
+[  133.408813]  asm_call_on_stack+0x12/0x20
+[  133.409290]  </IRQ>
+[  133.409519]  do_softirq_own_stack+0x39/0x50
+[  133.410036]  do_softirq+0x50/0x60
+[  133.410401]  __local_bh_enable_ip+0x50/0x60
+[  133.410871]  ip_finish_output2+0x195/0x530
+[  133.411288]  ip_output+0x72/0xf0
+[  133.411673]  ? __ip_finish_output+0x1f0/0x1f0
+[  133.412122]  ip_send_skb+0x15/0x40
+[  133.412471]  raw_sendmsg+0x853/0xab0
+[  133.412855]  ? insert_pfn+0xfe/0x270
+[  133.413827]  ? vvar_fault+0xec/0x190
+[  133.414772]  sock_sendmsg+0x57/0x80
+[  133.415685]  __sys_sendto+0xdc/0x160
+[  133.416605]  ? syscall_trace_enter+0x1d4/0x2b0
+[  133.417679]  ? __audit_syscall_exit+0x1d9/0x280
+[  133.418753]  ? __prepare_exit_to_usermode+0x5d/0x1a0
+[  133.419819]  __x64_sys_sendto+0x24/0x30
+[  133.420848]  do_syscall_64+0x4d/0x90
+[  133.421768]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  133.422833] RIP: 0033:0x7fe013689c03
+[  133.423749] Code: Bad RIP value.
+[  133.424624] RSP: 002b:00007ffc7288f418 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+[  133.425940] RAX: ffffffffffffffda RBX: 000056151fc63720 RCX: 00007fe013689c03
+[  133.427225] RDX: 0000000000000040 RSI: 000056151fc63720 RDI: 0000000000000003
+[  133.428481] RBP: 00007ffc72890b30 R08: 000056151fc60500 R09: 0000000000000010
+[  133.429757] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000040
+[  133.431041] R13: 000056151fc636e0 R14: 000056151fc616bc R15: 0000000000000080
+[  133.432481] Modules linked in: mpls_iptunnel act_mirred act_tunnel_key cls_flower sch_ingress veth mpls_router ip_tunnel bareudp ip6_udp_tunnel udp_tunnel macsec udp_diag inet_diag unix_diag af_packet_diag netlink_diag binfmt_misc xt_MASQUERADE iptable_nat xt_addrtype xt_conntrack nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 br_netfilter bridge stp llc ebtable_filter ebtables overlay ip6table_filter ip6_tables iptable_filter sunrpc ext4 mbcache jbd2 pcspkr i2c_piix4 virtio_balloon joydev ip_tables xfs libcrc32c ata_generic qxl pata_acpi drm_ttm_helper ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm ata_piix libata virtio_net net_failover virtio_console failover virtio_blk i2c_core virtio_pci virtio_ring serio_raw floppy virtio dm_mirror dm_region_hash dm_log dm_mod
+[  133.444045] CR2: 0000000000000000
+[  133.445082] ---[ end trace f4aeee1958fd1638 ]---
+[  133.446236] RIP: 0010:0x0
+[  133.447180] Code: Bad RIP value.
+[  133.448152] RSP: 0018:ffffb79980003d50 EFLAGS: 00010246
+[  133.449363] RAX: 0000000080000102 RBX: ffff9de2fe0d6600 RCX: ffff9de2fe5e9d00
+[  133.450835] RDX: 0000000000000000 RSI: ffff9de2fe5e9d00 RDI: ffff9de2fc21b400
+[  133.452237] RBP: ffff9de2fe5e9d00 R08: 0000000000000000 R09: 0000000000000000
+[  133.453722] R10: ffff9de2fbc6be22 R11: ffff9de2fe0d6600 R12: ffff9de2fc21b400
+[  133.455149] R13: ffff9de2fe0d6628 R14: 0000000000000001 R15: 0000000000000003
+[  133.456520] FS:  00007fe014918740(0000) GS:ffff9de2fec00000(0000) knlGS:0000000000000000
+[  133.458046] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  133.459342] CR2: ffffffffffffffd6 CR3: 000000003bb72000 CR4: 00000000000006f0
+[  133.460782] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  133.462240] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  133.463697] Kernel panic - not syncing: Fatal exception in interrupt
+[  133.465226] Kernel Offset: 0xfa00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[  133.467025] ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
 
-BUG: KASAN: use-after-free in __read_once_size include/linux/compiler.h:199 [inline]
-BUG: KASAN: use-after-free in list_empty include/linux/list.h:268 [inline]
-BUG: KASAN: use-after-free in waitqueue_active include/linux/wait.h:126 [inline]
-BUG: KASAN: use-after-free in wq_has_sleeper include/linux/wait.h:160 [inline]
-BUG: KASAN: use-after-free in skwq_has_sleeper include/net/sock.h:2092 [inline]
-BUG: KASAN: use-after-free in sock_def_write_space+0x642/0x670 net/core/sock.c:2813
-Read of size 8 at addr ffff88801e0b4078 by task ksoftirqd/3/27
-
-CPU: 3 PID: 27 Comm: ksoftirqd/3 Not tainted 5.5.0-rc1-syzkaller #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
- __kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:639
- __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
- __read_once_size include/linux/compiler.h:199 [inline]
- list_empty include/linux/list.h:268 [inline]
- waitqueue_active include/linux/wait.h:126 [inline]
- wq_has_sleeper include/linux/wait.h:160 [inline]
- skwq_has_sleeper include/net/sock.h:2092 [inline]
- sock_def_write_space+0x642/0x670 net/core/sock.c:2813
- sock_wfree+0x1e1/0x260 net/core/sock.c:1958
- skb_release_head_state+0xeb/0x260 net/core/skbuff.c:652
- skb_release_all+0x16/0x60 net/core/skbuff.c:663
- __kfree_skb net/core/skbuff.c:679 [inline]
- consume_skb net/core/skbuff.c:838 [inline]
- consume_skb+0xfb/0x410 net/core/skbuff.c:832
- __dev_kfree_skb_any+0xa4/0xd0 net/core/dev.c:2967
- dev_kfree_skb_any include/linux/netdevice.h:3650 [inline]
- e1000_unmap_and_free_tx_resource.isra.0+0x21b/0x3a0 drivers/net/ethernet/intel/e1000/e1000_main.c:1963
- e1000_clean_tx_irq drivers/net/ethernet/intel/e1000/e1000_main.c:3854 [inline]
- e1000_clean+0x4cc/0x1d10 drivers/net/ethernet/intel/e1000/e1000_main.c:3796
- napi_poll net/core/dev.c:6532 [inline]
- net_rx_action+0x508/0x1120 net/core/dev.c:6600
- __do_softirq+0x262/0x98c kernel/softirq.c:292
- run_ksoftirqd kernel/softirq.c:603 [inline]
- run_ksoftirqd+0x8e/0x110 kernel/softirq.c:595
- smpboot_thread_fn+0x6a3/0xa40 kernel/smpboot.c:165
- kthread+0x361/0x430 kernel/kthread.c:255
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-
-Allocated by task 8247:
- save_stack+0x23/0x90 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- __kasan_kmalloc mm/kasan/common.c:513 [inline]
- __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:486
- kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:521
- slab_post_alloc_hook mm/slab.h:584 [inline]
- slab_alloc mm/slab.c:3320 [inline]
- kmem_cache_alloc+0x121/0x710 mm/slab.c:3484
- sock_alloc_inode+0x1c/0x1d0 net/socket.c:240
- alloc_inode+0x68/0x1e0 fs/inode.c:230
- new_inode_pseudo+0x19/0xf0 fs/inode.c:919
- sock_alloc+0x41/0x270 net/socket.c:560
- __sock_create+0xc2/0x730 net/socket.c:1384
- sock_create net/socket.c:1471 [inline]
- __sys_socket+0x103/0x220 net/socket.c:1513
- __do_sys_socket net/socket.c:1522 [inline]
- __se_sys_socket net/socket.c:1520 [inline]
- __ia32_sys_socket+0x73/0xb0 net/socket.c:1520
- do_syscall_32_irqs_on arch/x86/entry/common.c:337 [inline]
- do_fast_syscall_32+0x27b/0xe16 arch/x86/entry/common.c:408
- entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-
-Freed by task 17:
- save_stack+0x23/0x90 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- kasan_set_free_info mm/kasan/common.c:335 [inline]
- __kasan_slab_free+0x102/0x150 mm/kasan/common.c:474
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:483
- __cache_free mm/slab.c:3426 [inline]
- kmem_cache_free+0x86/0x320 mm/slab.c:3694
- sock_free_inode+0x20/0x30 net/socket.c:261
- i_callback+0x44/0x80 fs/inode.c:219
- __rcu_reclaim kernel/rcu/rcu.h:222 [inline]
- rcu_do_batch kernel/rcu/tree.c:2183 [inline]
- rcu_core+0x570/0x1540 kernel/rcu/tree.c:2408
- rcu_core_si+0x9/0x10 kernel/rcu/tree.c:2417
- __do_softirq+0x262/0x98c kernel/softirq.c:292
-
-The buggy address belongs to the object at ffff88801e0b4000
- which belongs to the cache sock_inode_cache of size 1152
-The buggy address is located 120 bytes inside of
- 1152-byte region [ffff88801e0b4000, ffff88801e0b4480)
-The buggy address belongs to the page:
-page:ffffea0000782d00 refcount:1 mapcount:0 mapping:ffff88807aa59c40 index:0xffff88801e0b4ffd
-raw: 00fffe0000000200 ffffea00008e6c88 ffffea0000782d48 ffff88807aa59c40
-raw: ffff88801e0b4ffd ffff88801e0b4000 0000000100000003 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88801e0b3f00: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
- ffff88801e0b3f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88801e0b4000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                                                ^
- ffff88801e0b4080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88801e0b4100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: abf9d537fea2 ("llc: add support for SO_BINDTODEVICE")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: aaa0c23cb901 ("Fix dst_neigh_lookup/dst_neigh_lookup_skb return value handling bug")
+Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/llc/af_llc.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ include/net/dst.h |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/net/llc/af_llc.c
-+++ b/net/llc/af_llc.c
-@@ -273,6 +273,10 @@ static int llc_ui_autobind(struct socket
+--- a/include/net/dst.h
++++ b/include/net/dst.h
+@@ -400,7 +400,15 @@ static inline struct neighbour *dst_neig
+ static inline struct neighbour *dst_neigh_lookup_skb(const struct dst_entry *dst,
+ 						     struct sk_buff *skb)
+ {
+-	struct neighbour *n =  dst->ops->neigh_lookup(dst, skb, NULL);
++	struct neighbour *n = NULL;
++
++	/* The packets from tunnel devices (eg bareudp) may have only
++	 * metadata in the dst pointer of skb. Hence a pointer check of
++	 * neigh_lookup is needed.
++	 */
++	if (dst->ops->neigh_lookup)
++		n = dst->ops->neigh_lookup(dst, skb, NULL);
++
+ 	return IS_ERR(n) ? NULL : n;
+ }
  
- 	if (!sock_flag(sk, SOCK_ZAPPED))
- 		goto out;
-+	if (!addr->sllc_arphrd)
-+		addr->sllc_arphrd = ARPHRD_ETHER;
-+	if (addr->sllc_arphrd != ARPHRD_ETHER)
-+		goto out;
- 	rc = -ENODEV;
- 	if (sk->sk_bound_dev_if) {
- 		llc->dev = dev_get_by_index(&init_net, sk->sk_bound_dev_if);
-@@ -328,7 +332,9 @@ static int llc_ui_bind(struct socket *so
- 	if (unlikely(!sock_flag(sk, SOCK_ZAPPED) || addrlen != sizeof(*addr)))
- 		goto out;
- 	rc = -EAFNOSUPPORT;
--	if (unlikely(addr->sllc_family != AF_LLC))
-+	if (!addr->sllc_arphrd)
-+		addr->sllc_arphrd = ARPHRD_ETHER;
-+	if (unlikely(addr->sllc_family != AF_LLC || addr->sllc_arphrd != ARPHRD_ETHER))
- 		goto out;
- 	dprintk("%s: binding %02X\n", __func__, addr->sllc_sap);
- 	rc = -ENODEV;
-@@ -336,8 +342,6 @@ static int llc_ui_bind(struct socket *so
- 	if (sk->sk_bound_dev_if) {
- 		llc->dev = dev_get_by_index_rcu(&init_net, sk->sk_bound_dev_if);
- 		if (llc->dev) {
--			if (!addr->sllc_arphrd)
--				addr->sllc_arphrd = llc->dev->type;
- 			if (is_zero_ether_addr(addr->sllc_mac))
- 				memcpy(addr->sllc_mac, llc->dev->dev_addr,
- 				       IFHWADDRLEN);
 
 
