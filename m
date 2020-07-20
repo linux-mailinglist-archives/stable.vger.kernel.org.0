@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50473226BD9
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB6F226C3D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:50:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730062AbgGTQog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:44:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
+        id S1729125AbgGTPiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:38:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729224AbgGTPlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:41:35 -0400
+        id S1729103AbgGTPiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:38:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEE422065E;
-        Mon, 20 Jul 2020 15:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2EDC22CB2;
+        Mon, 20 Jul 2020 15:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259695;
-        bh=nMIUeSSD+Emtx7Rx3Oh+WjaxNTlUbVbGWyjwxcCGi5Q=;
+        s=default; t=1595259493;
+        bh=jdM/Z0ndMFdunOwa0OEBRJHhNEIA6c+prmMqU4DN37w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=utH9ejX+LTNVJZ2GZND4KyT3vfeHCjNHP1YBmLrWYfG98uPR43TvbMznCRsYfgT2n
-         B/qRoLxfD36vn3iSDd9Iaq5ciPaN6wEQXr/u6WFVN3rVSyryGTfZisUYPb+aT1uG7O
-         VLkjKzldsW3xv6QDPJcyt0njb+LE0x7RUWcFHIaQ=
+        b=gNi0mjlvSgPwTLSaNn6QRGGUijY4GrzvlbYoI5fCLPbvJCWuATgYcfhL7iz+iuZVC
+         AFdob5jp959CzClgFJj4dze+WQrbxG6ai63/R4KSqdW6HeL7+i+e7bs3BCheoQ9B0K
+         MT4qawCn9sZWsz7TcUF/RjtqMJ2KgleQVDYWiT2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Angelo Dureghello <angelo@sysam.it>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 47/86] spi: fix initial SPI_SR value in spi-fsl-dspi
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Marco Elver <elver@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 27/58] tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers
 Date:   Mon, 20 Jul 2020 17:36:43 +0200
-Message-Id: <20200720152755.527760275@linuxfoundation.org>
+Message-Id: <20200720152748.504951306@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Dureghello <angelo@sysam.it>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit aa54c1c9d90e6db75190813907190fadcce1bf45 ]
+[ Upstream commit e6ced831ef11a2a06e8d00aad9d4fc05b610bf38 ]
 
-On ColdFire mcf54418, using DSPI_DMA_MODE mode, spi transfers
-at first boot stage are not succeding:
+My prior fix went a bit too far, according to Herbert and Mathieu.
 
-m25p80 spi0.1: unrecognized JEDEC id bytes: 00, 00, 00
+Since we accept that concurrent TCP MD5 lookups might see inconsistent
+keys, we can use READ_ONCE()/WRITE_ONCE() instead of smp_rmb()/smp_wmb()
 
-The reason is the SPI_SR initial value set by the driver, that
-is not clearing (not setting to 1) the RF_DF flag. After a tour
-on the dspi hw modules that use this driver(Vybrid, ColdFire and
-ls1021a) a better init value for SR register has been set.
+Clearing all key->key[] is needed to avoid possible KMSAN reports,
+if key->keylen is increased. Since tcp_md5_do_add() is not fast path,
+using __GFP_ZERO to clear all struct tcp_md5sig_key is simpler.
 
-Signed-off-by: Angelo Dureghello <angelo@sysam.it>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+data_race() was added in linux-5.8 and will prevent KCSAN reports,
+this can safely be removed in stable backports, if data_race() is
+not yet backported.
+
+v2: use data_race() both in tcp_md5_hash_key() and tcp_md5_do_add()
+
+Fixes: 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Marco Elver <elver@google.com>
+Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp.c      |    6 +++---
+ net/ipv4/tcp_ipv4.c |   14 ++++++++++----
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index db3b6e9151a81..672152b49d95c 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -70,7 +70,7 @@
- #define SPI_SR			0x2c
- #define SPI_SR_EOQF		0x10000000
- #define SPI_SR_TCFQF		0x80000000
--#define SPI_SR_CLEAR		0xdaad0000
-+#define SPI_SR_CLEAR		0x9aaf0000
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3088,12 +3088,12 @@ EXPORT_SYMBOL(tcp_md5_hash_skb_data);
  
- #define SPI_RSER		0x30
- #define SPI_RSER_EOQFE		0x10000000
--- 
-2.25.1
-
+ int tcp_md5_hash_key(struct tcp_md5sig_pool *hp, const struct tcp_md5sig_key *key)
+ {
+-	u8 keylen = key->keylen;
++	u8 keylen = READ_ONCE(key->keylen); /* paired with WRITE_ONCE() in tcp_md5_do_add */
+ 	struct scatterlist sg;
+ 
+-	smp_rmb(); /* paired with smp_wmb() in tcp_md5_do_add() */
+-
+ 	sg_init_one(&sg, key->key, keylen);
++
++	/* tcp_md5_do_add() might change key->key under us */
+ 	return crypto_hash_update(&hp->md5_desc, &sg, key->keylen);
+ }
+ EXPORT_SYMBOL(tcp_md5_hash_key);
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -931,12 +931,18 @@ int tcp_md5_do_add(struct sock *sk, cons
+ 
+ 	key = tcp_md5_do_lookup(sk, addr, family);
+ 	if (key) {
+-		/* Pre-existing entry - just update that one. */
++		/* Pre-existing entry - just update that one.
++		 * Note that the key might be used concurrently.
++		 */
+ 		memcpy(key->key, newkey, newkeylen);
+ 
+-		smp_wmb(); /* pairs with smp_rmb() in tcp_md5_hash_key() */
++		/* Pairs with READ_ONCE() in tcp_md5_hash_key().
++		 * Also note that a reader could catch new key->keylen value
++		 * but old key->key[], this is the reason we use __GFP_ZERO
++		 * at sock_kmalloc() time below these lines.
++		 */
++		WRITE_ONCE(key->keylen, newkeylen);
+ 
+-		key->keylen = newkeylen;
+ 		return 0;
+ 	}
+ 
+@@ -953,7 +959,7 @@ int tcp_md5_do_add(struct sock *sk, cons
+ 		rcu_assign_pointer(tp->md5sig_info, md5sig);
+ 	}
+ 
+-	key = sock_kmalloc(sk, sizeof(*key), gfp);
++	key = sock_kmalloc(sk, sizeof(*key), gfp | __GFP_ZERO);
+ 	if (!key)
+ 		return -ENOMEM;
+ 	if (!tcp_alloc_md5sig_pool()) {
 
 
