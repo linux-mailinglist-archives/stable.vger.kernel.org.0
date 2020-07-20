@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3310C226848
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C857322679E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388072AbgGTQNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:13:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52826 "EHLO mail.kernel.org"
+        id S2388067AbgGTQNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:13:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388067AbgGTQND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:13:03 -0400
+        id S2387445AbgGTQNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:13:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EED5A2065E;
-        Mon, 20 Jul 2020 16:13:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C77E2065E;
+        Mon, 20 Jul 2020 16:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261583;
-        bh=1vh0gccBO5E8zyO6PG9oR09WipYYJAhhq0ytHAR8VZY=;
+        s=default; t=1595261588;
+        bh=oOau0+3KH6k/uHs+wEGMlKCjMtBHxov0kNMMHXoXm+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZLsD2bOBp2Qv/bAH2izD6KtJrQ2n7NO78hDB3t8Lg5gTJgpcResicdZWyXtICeFJ
-         uFzD92M7HsBHJRg4tWLicTBqABodd4uNVZPBUKq/g7AjrD3ZqNgHvUnuVL2aBIhiZT
-         G9IBZr08qzVxw1wr5SooCZv+rx3ZPPf6yg3d7+aM=
+        b=s7Vl4mTp5LHk2+EHyvRFGh1JvMm4m9EyBKt5qiRUai2LGVtZ1MSF6hp/vNAmW7FXU
+         s+25RIQ46yD94isRquG8QjTXn0/10UEScDPKAZwFLjkz36WeImA6FRE+SsqguLzqhg
+         xdKhguiaiqAXPoxcOHc8a/bsFrAO4dkYfpfgIDmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.7 168/244] USB: serial: option: add Quectel EG95 LTE modem
-Date:   Mon, 20 Jul 2020 17:37:19 +0200
-Message-Id: <20200720152833.833988900@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.7 169/244] virt: vbox: Fix VBGL_IOCTL_VMMDEV_REQUEST_BIG and _LOG req numbers to match upstream
+Date:   Mon, 20 Jul 2020 17:37:20 +0200
+Message-Id: <20200720152833.881842889@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,51 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AceLan Kao <acelan.kao@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit da6902e5b6dbca9081e3d377f9802d4fd0c5ea59 upstream.
+commit f794db6841e5480208f0c3a3ac1df445a96b079e upstream.
 
-Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
+Until this commit the mainline kernel version (this version) of the
+vboxguest module contained a bug where it defined
+VBGL_IOCTL_VMMDEV_REQUEST_BIG and VBGL_IOCTL_LOG using
+_IOC(_IOC_READ | _IOC_WRITE, 'V', ...) instead of
+_IO(V, ...) as the out of tree VirtualBox upstream version does.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0195 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+Since the VirtualBox userspace bits are always built against VirtualBox
+upstream's headers, this means that so far the mainline kernel version
+of the vboxguest module has been failing these 2 ioctls with -ENOTTY.
+I guess that VBGL_IOCTL_VMMDEV_REQUEST_BIG is never used causing us to
+not hit that one and sofar the vboxguest driver has failed to actually
+log any log messages passed it through VBGL_IOCTL_LOG.
 
-Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+This commit changes the VBGL_IOCTL_VMMDEV_REQUEST_BIG and VBGL_IOCTL_LOG
+defines to match the out of tree VirtualBox upstream vboxguest version,
+while keeping compatibility with the old wrong request defines so as
+to not break the kernel ABI in case someone has been using the old
+request defines.
+
+Fixes: f6ddd094f579 ("virt: Add vboxguest driver for Virtual Box Guest integration UAPI")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200709120858.63928-2-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/virt/vboxguest/vboxguest_core.c  |    4 +++-
+ drivers/virt/vboxguest/vboxguest_core.h  |   15 +++++++++++++++
+ drivers/virt/vboxguest/vboxguest_linux.c |    3 ++-
+ include/uapi/linux/vboxguest.h           |    4 ++--
+ 4 files changed, 22 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -245,6 +245,7 @@ static void option_instat_callback(struc
- /* These Quectel products use Quectel's vendor ID */
- #define QUECTEL_PRODUCT_EC21			0x0121
- #define QUECTEL_PRODUCT_EC25			0x0125
-+#define QUECTEL_PRODUCT_EG95			0x0195
- #define QUECTEL_PRODUCT_BG96			0x0296
- #define QUECTEL_PRODUCT_EP06			0x0306
- #define QUECTEL_PRODUCT_EM12			0x0512
-@@ -1097,6 +1098,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95),
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
+--- a/drivers/virt/vboxguest/vboxguest_core.c
++++ b/drivers/virt/vboxguest/vboxguest_core.c
+@@ -1520,7 +1520,8 @@ int vbg_core_ioctl(struct vbg_session *s
+ 
+ 	/* For VMMDEV_REQUEST hdr->type != VBG_IOCTL_HDR_TYPE_DEFAULT */
+ 	if (req_no_size == VBG_IOCTL_VMMDEV_REQUEST(0) ||
+-	    req == VBG_IOCTL_VMMDEV_REQUEST_BIG)
++	    req == VBG_IOCTL_VMMDEV_REQUEST_BIG ||
++	    req == VBG_IOCTL_VMMDEV_REQUEST_BIG_ALT)
+ 		return vbg_ioctl_vmmrequest(gdev, session, data);
+ 
+ 	if (hdr->type != VBG_IOCTL_HDR_TYPE_DEFAULT)
+@@ -1558,6 +1559,7 @@ int vbg_core_ioctl(struct vbg_session *s
+ 	case VBG_IOCTL_HGCM_CALL(0):
+ 		return vbg_ioctl_hgcm_call(gdev, session, f32bit, data);
+ 	case VBG_IOCTL_LOG(0):
++	case VBG_IOCTL_LOG_ALT(0):
+ 		return vbg_ioctl_log(data);
+ 	}
+ 
+--- a/drivers/virt/vboxguest/vboxguest_core.h
++++ b/drivers/virt/vboxguest/vboxguest_core.h
+@@ -15,6 +15,21 @@
+ #include <linux/vboxguest.h>
+ #include "vmmdev.h"
+ 
++/*
++ * The mainline kernel version (this version) of the vboxguest module
++ * contained a bug where it defined VBGL_IOCTL_VMMDEV_REQUEST_BIG and
++ * VBGL_IOCTL_LOG using _IOC(_IOC_READ | _IOC_WRITE, 'V', ...) instead
++ * of _IO(V, ...) as the out of tree VirtualBox upstream version does.
++ *
++ * These _ALT definitions keep compatibility with the wrong defines the
++ * mainline kernel version used for a while.
++ * Note the VirtualBox userspace bits have always been built against
++ * VirtualBox upstream's headers, so this is likely not necessary. But
++ * we must never break our ABI so we keep these around to be 100% sure.
++ */
++#define VBG_IOCTL_VMMDEV_REQUEST_BIG_ALT _IOC(_IOC_READ | _IOC_WRITE, 'V', 3, 0)
++#define VBG_IOCTL_LOG_ALT(s)             _IOC(_IOC_READ | _IOC_WRITE, 'V', 9, s)
++
+ struct vbg_session;
+ 
+ /** VBox guest memory balloon. */
+--- a/drivers/virt/vboxguest/vboxguest_linux.c
++++ b/drivers/virt/vboxguest/vboxguest_linux.c
+@@ -131,7 +131,8 @@ static long vbg_misc_device_ioctl(struct
+ 	 * the need for a bounce-buffer and another copy later on.
+ 	 */
+ 	is_vmmdev_req = (req & ~IOCSIZE_MASK) == VBG_IOCTL_VMMDEV_REQUEST(0) ||
+-			 req == VBG_IOCTL_VMMDEV_REQUEST_BIG;
++			 req == VBG_IOCTL_VMMDEV_REQUEST_BIG ||
++			 req == VBG_IOCTL_VMMDEV_REQUEST_BIG_ALT;
+ 
+ 	if (is_vmmdev_req)
+ 		buf = vbg_req_alloc(size, VBG_IOCTL_HDR_TYPE_DEFAULT,
+--- a/include/uapi/linux/vboxguest.h
++++ b/include/uapi/linux/vboxguest.h
+@@ -103,7 +103,7 @@ VMMDEV_ASSERT_SIZE(vbg_ioctl_driver_vers
+ 
+ 
+ /* IOCTL to perform a VMM Device request larger then 1KB. */
+-#define VBG_IOCTL_VMMDEV_REQUEST_BIG	_IOC(_IOC_READ | _IOC_WRITE, 'V', 3, 0)
++#define VBG_IOCTL_VMMDEV_REQUEST_BIG	_IO('V', 3)
+ 
+ 
+ /** VBG_IOCTL_HGCM_CONNECT data structure. */
+@@ -198,7 +198,7 @@ struct vbg_ioctl_log {
+ 	} u;
+ };
+ 
+-#define VBG_IOCTL_LOG(s)		_IOC(_IOC_READ | _IOC_WRITE, 'V', 9, s)
++#define VBG_IOCTL_LOG(s)		_IO('V', 9)
+ 
+ 
+ /** VBG_IOCTL_WAIT_FOR_EVENTS data structure. */
 
 
