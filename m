@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 519E3226B73
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA77B226C09
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730048AbgGTPqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
+        id S1728911AbgGTPkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730624AbgGTPqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:13 -0400
+        id S1729649AbgGTPkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1B3A206E9;
-        Mon, 20 Jul 2020 15:46:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB11222B4E;
+        Mon, 20 Jul 2020 15:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259972;
-        bh=HiOwwL2PD7FMOr0KZzLMBCmQbQEHfWXdnGdrVeZt+Ic=;
+        s=default; t=1595259606;
+        bh=ggJg7U3GYywrFvqypLG0mz/qfbq9fBA8eTunN/7+FLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLIjisXL5utLz7idy2NoB6MpPZlx9eBU0ZI3q2mZpY+0frl+9/iIc6jIxwxhc+W1M
-         nfS/t+GvLkwrRVDhyoRiXrV3s+GRV4v5h/7MaqYjnN2FzRIjH6r/cFigjvVxvwbuIK
-         M05KwD4nEWLjIq4rvhAWE8JbXSPmESvEAwIRwQFc=
+        b=yGCIVmn1W1Soufrjuwajnj2Wj0mC5NWH5xEyzsATBjY89aLZzRa7C+FEVb+8gE8fl
+         sXgzYJIMSqHCH3APjdcDb9US+qbZb+EV2Cyy2G2o4NucIN9Grh4jwiPWoK7uvXIbp/
+         xlfo1b1Ekbknze/GyYxYkvkcO6FVnyNdwB7KpU7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.14 029/125] KVM: arm64: Fix definition of PAGE_HYP_DEVICE
-Date:   Mon, 20 Jul 2020 17:36:08 +0200
-Message-Id: <20200720152804.386719090@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 13/86] arm64: kgdb: Fix single-step exception handling oops
+Date:   Mon, 20 Jul 2020 17:36:09 +0200
+Message-Id: <20200720152753.794799631@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Wei Li <liwei391@huawei.com>
 
-commit 68cf617309b5f6f3a651165f49f20af1494753ae upstream.
+[ Upstream commit 8523c006264df65aac7d77284cc69aac46a6f842 ]
 
-PAGE_HYP_DEVICE is intended to encode attribute bits for an EL2 stage-1
-pte mapping a device. Unfortunately, it includes PROT_DEVICE_nGnRE which
-encodes attributes for EL1 stage-1 mappings such as UXN and nG, which are
-RES0 for EL2, and DBM which is meaningless as TCR_EL2.HD is not set.
+After entering kdb due to breakpoint, when we execute 'ss' or 'go' (will
+delay installing breakpoints, do single-step first), it won't work
+correctly, and it will enter kdb due to oops.
 
-Fix the definition of PAGE_HYP_DEVICE so that it doesn't set RES0 bits
-at EL2.
+It's because the reason gotten in kdb_stub() is not as expected, and it
+seems that the ex_vector for single-step should be 0, like what arch
+powerpc/sh/parisc has implemented.
 
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200708162546.26176-1-will@kernel.org
+Before the patch:
+Entering kdb (current=0xffff8000119e2dc0, pid 0) on processor 0 due to Keyboard Entry
+[0]kdb> bp printk
+Instruction(i) BP #0 at 0xffff8000101486cc (printk)
+    is enabled   addr at ffff8000101486cc, hardtype=0 installed=0
+
+[0]kdb> g
+
+/ # echo h > /proc/sysrq-trigger
+
+Entering kdb (current=0xffff0000fa878040, pid 266) on processor 3 due to Breakpoint @ 0xffff8000101486cc
+[3]kdb> ss
+
+Entering kdb (current=0xffff0000fa878040, pid 266) on processor 3 Oops: (null)
+due to oops @ 0xffff800010082ab8
+CPU: 3 PID: 266 Comm: sh Not tainted 5.7.0-rc4-13839-gf0e5ad491718 #6
+Hardware name: linux,dummy-virt (DT)
+pstate: 00000085 (nzcv daIf -PAN -UAO)
+pc : el1_irq+0x78/0x180
+lr : __handle_sysrq+0x80/0x190
+sp : ffff800015003bf0
+x29: ffff800015003d20 x28: ffff0000fa878040
+x27: 0000000000000000 x26: ffff80001126b1f0
+x25: ffff800011b6a0d8 x24: 0000000000000000
+x23: 0000000080200005 x22: ffff8000101486cc
+x21: ffff800015003d30 x20: 0000ffffffffffff
+x19: ffff8000119f2000 x18: 0000000000000000
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0000000000000000 x14: 0000000000000000
+x13: 0000000000000000 x12: 0000000000000000
+x11: 0000000000000000 x10: 0000000000000000
+x9 : 0000000000000000 x8 : ffff800015003e50
+x7 : 0000000000000002 x6 : 00000000380b9990
+x5 : ffff8000106e99e8 x4 : ffff0000fadd83c0
+x3 : 0000ffffffffffff x2 : ffff800011b6a0d8
+x1 : ffff800011b6a000 x0 : ffff80001130c9d8
+Call trace:
+ el1_irq+0x78/0x180
+ printk+0x0/0x84
+ write_sysrq_trigger+0xb0/0x118
+ proc_reg_write+0xb4/0xe0
+ __vfs_write+0x18/0x40
+ vfs_write+0xb0/0x1b8
+ ksys_write+0x64/0xf0
+ __arm64_sys_write+0x14/0x20
+ el0_svc_common.constprop.2+0xb0/0x168
+ do_el0_svc+0x20/0x98
+ el0_sync_handler+0xec/0x1a8
+ el0_sync+0x140/0x180
+
+[3]kdb>
+
+After the patch:
+Entering kdb (current=0xffff8000119e2dc0, pid 0) on processor 0 due to Keyboard Entry
+[0]kdb> bp printk
+Instruction(i) BP #0 at 0xffff8000101486cc (printk)
+    is enabled   addr at ffff8000101486cc, hardtype=0 installed=0
+
+[0]kdb> g
+
+/ # echo h > /proc/sysrq-trigger
+
+Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to Breakpoint @ 0xffff8000101486cc
+[0]kdb> g
+
+Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to Breakpoint @ 0xffff8000101486cc
+[0]kdb> ss
+
+Entering kdb (current=0xffff0000fa852bc0, pid 268) on processor 0 due to SS trap @ 0xffff800010082ab8
+[0]kdb>
+
+Fixes: 44679a4f142b ("arm64: KGDB: Add step debugging support")
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200509214159.19680-2-liwei391@huawei.com
 Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable-prot.h |    2 +-
+ arch/arm64/kernel/kgdb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/pgtable-prot.h
-+++ b/arch/arm64/include/asm/pgtable-prot.h
-@@ -65,7 +65,7 @@
- #define PAGE_HYP		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_HYP_XN)
- #define PAGE_HYP_EXEC		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY)
- #define PAGE_HYP_RO		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY | PTE_HYP_XN)
--#define PAGE_HYP_DEVICE		__pgprot(PROT_DEVICE_nGnRE | PTE_HYP)
-+#define PAGE_HYP_DEVICE		__pgprot(_PROT_DEFAULT | PTE_ATTRINDX(MT_DEVICE_nGnRE) | PTE_HYP | PTE_HYP_XN)
+diff --git a/arch/arm64/kernel/kgdb.c b/arch/arm64/kernel/kgdb.c
+index 72a660a74ff9d..44d757308e472 100644
+--- a/arch/arm64/kernel/kgdb.c
++++ b/arch/arm64/kernel/kgdb.c
+@@ -256,7 +256,7 @@ static int kgdb_step_brk_fn(struct pt_regs *regs, unsigned int esr)
+ 	if (user_mode(regs))
+ 		return DBG_HOOK_ERROR;
  
- #define PAGE_S2			__pgprot(_PROT_DEFAULT | PTE_S2_MEMATTR(MT_S2_NORMAL) | PTE_S2_RDONLY)
- #define PAGE_S2_DEVICE		__pgprot(_PROT_DEFAULT | PTE_S2_MEMATTR(MT_S2_DEVICE_nGnRE) | PTE_S2_RDONLY | PTE_UXN)
+-	kgdb_handle_exception(1, SIGTRAP, 0, regs);
++	kgdb_handle_exception(0, SIGTRAP, 0, regs);
+ 	return DBG_HOOK_HANDLED;
+ }
+ NOKPROBE_SYMBOL(kgdb_step_brk_fn);
+-- 
+2.25.1
+
 
 
