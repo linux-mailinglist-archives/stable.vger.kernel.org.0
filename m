@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A56922699B
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CB2226743
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:10:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388714AbgGTQ1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
+        id S2387630AbgGTQKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732279AbgGTP7k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:59:40 -0400
+        id S2387628AbgGTQKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90D0E20773;
-        Mon, 20 Jul 2020 15:59:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FA1320672;
+        Mon, 20 Jul 2020 16:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260780;
-        bh=ygbT07fEEpy7yNsw6HTbFoqbdxvS9+HLSl4J/2X+rKE=;
+        s=default; t=1595261409;
+        bh=BP5p3xvMdM2LHrjqsnq4+2Ifc19baMI8Cqa1u5Fe9vI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGO4gIrxV/a7YelbbaqRrhn6jm9vtE3K20yR/PY41/4PDfY/98AZD/225C67f9tgz
-         D+iiKoOp8kdJ3NrlE3fIlgQhyLg4pVoOMfudDvoZhPHMVpiPh2jsMmqFWCvjUanlih
-         xS8lXQ0UAGFcLJOS3zPABR2P89sQW6ovqat4fx4o=
+        b=Nd20TkyZau7HN2ZogBj8gCRXC6PB5EeKm2h/oS/P+4OPXow4IbBjIOug/UHtcQgvI
+         gJUPYqx9Jg1iP+CsVO7KKt/2HsJmTp0LrmWbeLwPvASut7SLA5tfughV61EpR8w6Y+
+         bNKKOcmILxEETTomW50HW2xVP85vZK5uDBHEKdxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoffer Nielsen <cn@obviux.dk>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/215] ALSA: usb-audio: Add registration quirk for Kingston HyperX Cloud Flight S
-Date:   Mon, 20 Jul 2020 17:36:14 +0200
-Message-Id: <20200720152824.584071352@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Aloni <dan@kernelim.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 104/244] xprtrdma: Fix recursion into rpcrdma_xprt_disconnect()
+Date:   Mon, 20 Jul 2020 17:36:15 +0200
+Message-Id: <20200720152830.777325100@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoffer Nielsen <cn@obviux.dk>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 73094608b8e214952444fb104651704c98a37aeb ]
+[ Upstream commit 4cf44be6f1e86da302085bf3e1dc2c86f3cdaaaa ]
 
-Similar to the Kingston HyperX AMP, the Kingston HyperX Cloud
-Alpha S (0951:0x16ea) uses two interfaces, but only the second
-interface contains the capture stream. This patch delays the
-registration until the second interface appears.
+Both Dan and I have observed two processes invoking
+rpcrdma_xprt_disconnect() concurrently. In my case:
 
-Signed-off-by: Christoffer Nielsen <cn@obviux.dk>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAOtG2YHOM3zy+ed9KS-J4HkZo_QGzcUG9MigSp4e4_-13r6B=Q@mail.gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+1. The connect worker invokes rpcrdma_xprt_disconnect(), which
+   drains the QP and waits for the final completion
+2. This causes the newly posted Receive to flush and invoke
+   xprt_force_disconnect()
+3. xprt_force_disconnect() sets CLOSE_WAIT and wakes up the RPC task
+   that is holding the transport lock
+4. The RPC task invokes xprt_connect(), which calls ->ops->close
+5. xprt_rdma_close() invokes rpcrdma_xprt_disconnect(), which tries
+   to destroy the QP.
+
+Deadlock.
+
+To prevent xprt_force_disconnect() from waking anything, handle the
+clean up after a failed connection attempt in the xprt's sndtask.
+
+The retry loop is removed from rpcrdma_xprt_connect() to ensure
+that the newly allocated ep and id are properly released before
+a REJECTED connection attempt can be retried.
+
+Reported-by: Dan Aloni <dan@kernelim.com>
+Fixes: e28ce90083f0 ("xprtrdma: kmalloc rpcrdma_ep separate from rpcrdma_xprt")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/xprtrdma/transport.c |  5 +++++
+ net/sunrpc/xprtrdma/verbs.c     | 10 ++--------
+ 2 files changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index e2b0de0473103..a8bb953cc4681 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1815,6 +1815,7 @@ struct registration_quirk {
- static const struct registration_quirk registration_quirks[] = {
- 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
- 	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
-+	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
- 	{ 0 }					/* terminator */
- };
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 659da37020a46..3b5fb1f57aeb7 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -249,6 +249,11 @@ xprt_rdma_connect_worker(struct work_struct *work)
+ 					   xprt->stat.connect_start;
+ 		xprt_set_connected(xprt);
+ 		rc = -EAGAIN;
++	} else {
++		/* Force a call to xprt_rdma_close to clean up */
++		spin_lock(&xprt->transport_lock);
++		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
++		spin_unlock(&xprt->transport_lock);
+ 	}
+ 	xprt_wake_pending_tasks(xprt, rc);
+ }
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 4cb91dde849b9..00ee62579137b 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -288,7 +288,7 @@ rpcrdma_cm_event_handler(struct rdma_cm_id *id, struct rdma_cm_event *event)
+ 			sap, rdma_reject_msg(id, event->status));
+ 		ep->re_connect_status = -ECONNREFUSED;
+ 		if (event->status == IB_CM_REJ_STALE_CONN)
+-			ep->re_connect_status = -EAGAIN;
++			ep->re_connect_status = -ENOTCONN;
+ 		goto disconnected;
+ 	case RDMA_CM_EVENT_DISCONNECTED:
+ 		ep->re_connect_status = -ECONNABORTED;
+@@ -519,8 +519,6 @@ int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt)
+ 	struct rpcrdma_ep *ep;
+ 	int rc;
  
+-retry:
+-	rpcrdma_xprt_disconnect(r_xprt);
+ 	rc = rpcrdma_ep_create(r_xprt);
+ 	if (rc)
+ 		return rc;
+@@ -549,17 +547,13 @@ int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt)
+ 	wait_event_interruptible(ep->re_connect_wait,
+ 				 ep->re_connect_status != 0);
+ 	if (ep->re_connect_status <= 0) {
+-		if (ep->re_connect_status == -EAGAIN)
+-			goto retry;
+ 		rc = ep->re_connect_status;
+ 		goto out;
+ 	}
+ 
+ 	rc = rpcrdma_reqs_setup(r_xprt);
+-	if (rc) {
+-		rpcrdma_xprt_disconnect(r_xprt);
++	if (rc)
+ 		goto out;
+-	}
+ 	rpcrdma_mrs_create(r_xprt);
+ 
+ out:
 -- 
 2.25.1
 
