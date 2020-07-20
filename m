@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64CB2226743
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3896722698E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387630AbgGTQKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48438 "EHLO mail.kernel.org"
+        id S2387994AbgGTQ1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387628AbgGTQKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:09 -0400
+        id S1732287AbgGTP7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FA1320672;
-        Mon, 20 Jul 2020 16:10:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D5F822BEF;
+        Mon, 20 Jul 2020 15:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261409;
-        bh=BP5p3xvMdM2LHrjqsnq4+2Ifc19baMI8Cqa1u5Fe9vI=;
+        s=default; t=1595260783;
+        bh=OrUqV8JJjkoxK8FuCM07uleGXeKVco3gz7e0rfHRBo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nd20TkyZau7HN2ZogBj8gCRXC6PB5EeKm2h/oS/P+4OPXow4IbBjIOug/UHtcQgvI
-         gJUPYqx9Jg1iP+CsVO7KKt/2HsJmTp0LrmWbeLwPvASut7SLA5tfughV61EpR8w6Y+
-         bNKKOcmILxEETTomW50HW2xVP85vZK5uDBHEKdxk=
+        b=0L3YDBptN8h1RGID9SxAOYrhicAsc9OUFIlqETxLVyvkR/QI+vMYnDl0HpahfxlPW
+         MxmgckBE/Y5jFXVcHJpoQB6HpQS5cofl/MyTIdl5S5qwCxJPKQCwO2uqHAnboP0TRa
+         jwTaIasCMYaZEaybs7CppkGB1xSlSIytXVqIFqbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan@kernelim.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 104/244] xprtrdma: Fix recursion into rpcrdma_xprt_disconnect()
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Andrew F. Davis" <afd@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 093/215] iio:health:afe4404 Fix timestamp alignment and prevent data leak.
 Date:   Mon, 20 Jul 2020 17:36:15 +0200
-Message-Id: <20200720152830.777325100@linuxfoundation.org>
+Message-Id: <20200720152824.632533390@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,99 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 4cf44be6f1e86da302085bf3e1dc2c86f3cdaaaa ]
+[ Upstream commit f88ecccac4be348bbcc6d056bdbc622a8955c04d ]
 
-Both Dan and I have observed two processes invoking
-rpcrdma_xprt_disconnect() concurrently. In my case:
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 40 byte array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak appart from previous readings.
 
-1. The connect worker invokes rpcrdma_xprt_disconnect(), which
-   drains the QP and waits for the final completion
-2. This causes the newly posted Receive to flush and invoke
-   xprt_force_disconnect()
-3. xprt_force_disconnect() sets CLOSE_WAIT and wakes up the RPC task
-   that is holding the transport lock
-4. The RPC task invokes xprt_connect(), which calls ->ops->close
-5. xprt_rdma_close() invokes rpcrdma_xprt_disconnect(), which tries
-   to destroy the QP.
-
-Deadlock.
-
-To prevent xprt_force_disconnect() from waking anything, handle the
-clean up after a failed connection attempt in the xprt's sndtask.
-
-The retry loop is removed from rpcrdma_xprt_connect() to ensure
-that the newly allocated ep and id are properly released before
-a REJECTED connection attempt can be retried.
-
-Reported-by: Dan Aloni <dan@kernelim.com>
-Fixes: e28ce90083f0 ("xprtrdma: kmalloc rpcrdma_ep separate from rpcrdma_xprt")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 87aec56e27ef ("iio: health: Add driver for the TI AFE4404 heart monitor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/transport.c |  5 +++++
- net/sunrpc/xprtrdma/verbs.c     | 10 ++--------
- 2 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/iio/health/afe4404.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index 659da37020a46..3b5fb1f57aeb7 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -249,6 +249,11 @@ xprt_rdma_connect_worker(struct work_struct *work)
- 					   xprt->stat.connect_start;
- 		xprt_set_connected(xprt);
- 		rc = -EAGAIN;
-+	} else {
-+		/* Force a call to xprt_rdma_close to clean up */
-+		spin_lock(&xprt->transport_lock);
-+		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+		spin_unlock(&xprt->transport_lock);
- 	}
- 	xprt_wake_pending_tasks(xprt, rc);
- }
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 4cb91dde849b9..00ee62579137b 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -288,7 +288,7 @@ rpcrdma_cm_event_handler(struct rdma_cm_id *id, struct rdma_cm_event *event)
- 			sap, rdma_reject_msg(id, event->status));
- 		ep->re_connect_status = -ECONNREFUSED;
- 		if (event->status == IB_CM_REJ_STALE_CONN)
--			ep->re_connect_status = -EAGAIN;
-+			ep->re_connect_status = -ENOTCONN;
- 		goto disconnected;
- 	case RDMA_CM_EVENT_DISCONNECTED:
- 		ep->re_connect_status = -ECONNABORTED;
-@@ -519,8 +519,6 @@ int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt)
- 	struct rpcrdma_ep *ep;
- 	int rc;
+diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
+index e728bbb21ca88..cebb1fd4d0b15 100644
+--- a/drivers/iio/health/afe4404.c
++++ b/drivers/iio/health/afe4404.c
+@@ -83,6 +83,7 @@ static const struct reg_field afe4404_reg_fields[] = {
+  * @regulator: Pointer to the regulator for the IC
+  * @trig: IIO trigger for this device
+  * @irq: ADC_RDY line interrupt number
++ * @buffer: Used to construct a scan to push to the iio buffer.
+  */
+ struct afe4404_data {
+ 	struct device *dev;
+@@ -91,6 +92,7 @@ struct afe4404_data {
+ 	struct regulator *regulator;
+ 	struct iio_trigger *trig;
+ 	int irq;
++	s32 buffer[10] __aligned(8);
+ };
  
--retry:
--	rpcrdma_xprt_disconnect(r_xprt);
- 	rc = rpcrdma_ep_create(r_xprt);
- 	if (rc)
- 		return rc;
-@@ -549,17 +547,13 @@ int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt)
- 	wait_event_interruptible(ep->re_connect_wait,
- 				 ep->re_connect_status != 0);
- 	if (ep->re_connect_status <= 0) {
--		if (ep->re_connect_status == -EAGAIN)
--			goto retry;
- 		rc = ep->re_connect_status;
- 		goto out;
+ enum afe4404_chan_id {
+@@ -328,17 +330,17 @@ static irqreturn_t afe4404_trigger_handler(int irq, void *private)
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+ 	int ret, bit, i = 0;
+-	s32 buffer[10];
+ 
+ 	for_each_set_bit(bit, indio_dev->active_scan_mask,
+ 			 indio_dev->masklength) {
+ 		ret = regmap_read(afe->regmap, afe4404_channel_values[bit],
+-				  &buffer[i++]);
++				  &afe->buffer[i++]);
+ 		if (ret)
+ 			goto err;
  	}
  
- 	rc = rpcrdma_reqs_setup(r_xprt);
--	if (rc) {
--		rpcrdma_xprt_disconnect(r_xprt);
-+	if (rc)
- 		goto out;
--	}
- 	rpcrdma_mrs_create(r_xprt);
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
++					   pf->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
  
- out:
 -- 
 2.25.1
 
