@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6ADC226615
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:00:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0EF226520
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731970AbgGTQAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:00:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32992 "EHLO mail.kernel.org"
+        id S1731188AbgGTPvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731840AbgGTQAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:00:08 -0400
+        id S1729864AbgGTPvE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:51:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3063020773;
-        Mon, 20 Jul 2020 16:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A2052065E;
+        Mon, 20 Jul 2020 15:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260807;
-        bh=61N1JrhVoGC69lHR01/ihGSNnZtEraMQ42MzNixm1v8=;
+        s=default; t=1595260263;
+        bh=m4gtIDFXrWLQ8g7latXn3rvipiUVHNA2h9iCYgBpJ7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNxU4OOFhBoc77wH8MIlYyaHlb7Gywr6EoZE62gWG2SQRUNzxarBQtQ6kYYvcEWiH
-         u273Me6HDVw6lLz7VGKNTVpYwj9z30sgy1tErnJf10sklTjnTFHTbT+QMIRzBSqxkU
-         7A8FTgSwv5XYD8hAXHCyOKm20f1eUMTic+kCKpiI=
+        b=lk7Ql9Ry7zTvzc9BszaWlYGpD54ZEjzX+/GXekJ1y2+W+5gsov8flkfQ5gv1H/TpH
+         wQJ0mxQz+bMMrzGl+cAtM4RcDzRYBi2O2OHigdp+PLLzUowL4a1bN9RjiChsDC6kCJ
+         O/t6fXrAijJWueEBNIFhk+dGV9gWPZN5ULMzOvqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 096/215] phy: sun4i-usb: fix dereference of pointer phy0 before it is null checked
-Date:   Mon, 20 Jul 2020 17:36:18 +0200
-Message-Id: <20200720152824.777983859@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 032/133] iio: mma8452: Add missed iio_device_unregister() call in mma8452_probe()
+Date:   Mon, 20 Jul 2020 17:36:19 +0200
+Message-Id: <20200720152805.282492452@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 38b1927e5bf9bcad4a2e33189ef1c5569f9599ba ]
+commit d7369ae1f4d7cffa7574d15e1f787dcca184c49d upstream.
 
-Currently pointer phy0 is being dereferenced via the assignment of
-phy on the call to phy_get_drvdata before phy0 is null checked, this
-can lead to a null pointer dereference. Fix this by performing the
-null check on phy0 before the call to phy_get_drvdata. Also replace
-the phy0 == NULL check with the more usual !phy0 idiom.
+The function iio_device_register() was called in mma8452_probe().
+But the function iio_device_unregister() was not called after
+a call of the function mma8452_set_freefall_mode() failed.
+Thus add the missed function call for one error case.
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: e6f32efb1b12 ("phy: sun4i-usb: Make sure to disable PHY0 passby for peripheral mode")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200625124428.83564-1-colin.king@canonical.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1a965d405fc6 ("drivers:iio:accel:mma8452: added cleanup provision in case of failure.")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/phy/allwinner/phy-sun4i-usb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/iio/accel/mma8452.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/allwinner/phy-sun4i-usb.c b/drivers/phy/allwinner/phy-sun4i-usb.c
-index 8569273822487..e5842e48a5e07 100644
---- a/drivers/phy/allwinner/phy-sun4i-usb.c
-+++ b/drivers/phy/allwinner/phy-sun4i-usb.c
-@@ -545,13 +545,14 @@ static void sun4i_usb_phy0_id_vbus_det_scan(struct work_struct *work)
- 	struct sun4i_usb_phy_data *data =
- 		container_of(work, struct sun4i_usb_phy_data, detect.work);
- 	struct phy *phy0 = data->phys[0].phy;
--	struct sun4i_usb_phy *phy = phy_get_drvdata(phy0);
-+	struct sun4i_usb_phy *phy;
- 	bool force_session_end, id_notify = false, vbus_notify = false;
- 	int id_det, vbus_det;
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1651,10 +1651,13 @@ static int mma8452_probe(struct i2c_clie
  
--	if (phy0 == NULL)
-+	if (!phy0)
- 		return;
+ 	ret = mma8452_set_freefall_mode(data, false);
+ 	if (ret < 0)
+-		goto buffer_cleanup;
++		goto unregister_device;
  
-+	phy = phy_get_drvdata(phy0);
- 	id_det = sun4i_usb_phy0_get_id_det(data);
- 	vbus_det = sun4i_usb_phy0_get_vbus_det(data);
+ 	return 0;
  
--- 
-2.25.1
-
++unregister_device:
++	iio_device_unregister(indio_dev);
++
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 
 
 
