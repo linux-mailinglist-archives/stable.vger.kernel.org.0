@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7E6226889
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 015772266D0
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732804AbgGTQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42704 "EHLO mail.kernel.org"
+        id S1733061AbgGTQG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732620AbgGTQGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:06:25 -0400
+        id S1733059AbgGTQG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:06:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC86F2064B;
-        Mon, 20 Jul 2020 16:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA42A2064B;
+        Mon, 20 Jul 2020 16:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261184;
-        bh=UrBuyJDEcb2P1q4yldNPXBc8+4qK4/umagj9wFiJm7c=;
+        s=default; t=1595261187;
+        bh=qoOvrOeyt3ESlHFHYWj3QOkoysAm1lPOWTCXiLF8O3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3dpSNIvA5gPYxrbdO9F+SB4JwTy8wS/yQmpswKdSAl/GnXIrCCjx4w9v7fPr41bn
-         8uusf3O2EjG03O56nCm9rue6EMtLrn1TV5uXG7BOPGbbKsPLJxS4GCei2MU8QcrfCb
-         omqQM2tlXLbocucZA/DMu0/jSX8O5D2BZFS0JS5g=
+        b=ESZfWsXvQ1Re/GNfUpalQ7D3Ol4VosPeOyaTFnaYAVR+25zuS2IrjL3tO5+lZe0QS
+         qHOy0d6/Pa5ocNzF3dlFm6JBWglbfm5B5TbFtt26FMzllefwahhkoHEDGI2B4UbzIU
+         SCSjQijFhafFJGdaTX75An/38hecFLxMOwcQXN8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 024/244] net: ipa: introduce ipa_cmd_tag_process()
-Date:   Mon, 20 Jul 2020 17:34:55 +0200
-Message-Id: <20200720152827.008366062@linuxfoundation.org>
+Subject: [PATCH 5.7 025/244] ip: Fix SO_MARK in RST, ACK and ICMP packets
+Date:   Mon, 20 Jul 2020 17:34:56 +0200
+Message-Id: <20200720152827.056191093@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,78 +44,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 6cb63ea6a39eac9640d109f274a237b34350c183 ]
+[ Upstream commit 0da7536fb47f51df89ccfcb1fa09f249d9accec5 ]
 
-Create a new function ipa_cmd_tag_process() that simply allocates a
-transaction, adds a tag process command to it to clear the hardware
-pipeline, and commits the transaction.
+When no full socket is available, skbs are sent over a per-netns
+control socket. Its sk_mark is temporarily adjusted to match that
+of the real (request or timewait) socket or to reflect an incoming
+skb, so that the outgoing skb inherits this in __ip_make_skb.
 
-Call it in from ipa_endpoint_suspend(), after suspending the modem
-endpoints but before suspending the AP command TX and AP LAN RX
-endpoints (which are used by the tag sequence).
+Introduction of the socket cookie mark field broke this. Now the
+skb is set through the cookie and cork:
 
-Signed-off-by: Alex Elder <elder@linaro.org>
+<caller>		# init sockc.mark from sk_mark or cmsg
+ip_append_data
+  ip_setup_cork		# convert sockc.mark to cork mark
+ip_push_pending_frames
+  ip_finish_skb
+    __ip_make_skb	# set skb->mark to cork mark
+
+But I missed these special control sockets. Update all callers of
+__ip(6)_make_skb that were originally missed.
+
+For IPv6, the same two icmp(v6) paths are affected. The third
+case is not, as commit 92e55f412cff ("tcp: don't annotate
+mark on control socket from tcp_v6_send_response()") replaced
+the ctl_sk->sk_mark with passing the mark field directly as a
+function argument. That commit predates the commit that
+introduced the bug.
+
+Fixes: c6af0c227a22 ("ip: support SO_MARK cmsg")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reported-by: Martin KaFai Lau <kafai@fb.com>
+Reviewed-by: Martin KaFai Lau <kafai@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_cmd.c      |   15 +++++++++++++++
- drivers/net/ipa/ipa_cmd.h      |    8 ++++++++
- drivers/net/ipa/ipa_endpoint.c |    2 ++
- 3 files changed, 25 insertions(+)
+ net/ipv4/icmp.c      |    4 ++--
+ net/ipv4/ip_output.c |    2 +-
+ net/ipv6/icmp.c      |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ipa/ipa_cmd.c
-+++ b/drivers/net/ipa/ipa_cmd.c
-@@ -645,6 +645,21 @@ u32 ipa_cmd_tag_process_count(void)
- 	return 4;
- }
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -427,7 +427,7 @@ static void icmp_reply(struct icmp_bxm *
  
-+void ipa_cmd_tag_process(struct ipa *ipa)
-+{
-+	u32 count = ipa_cmd_tag_process_count();
-+	struct gsi_trans *trans;
-+
-+	trans = ipa_cmd_trans_alloc(ipa, count);
-+	if (trans) {
-+		ipa_cmd_tag_process_add(trans);
-+		gsi_trans_commit_wait(trans);
-+	} else {
-+		dev_err(&ipa->pdev->dev,
-+			"error allocating %u entry tag transaction\n", count);
-+	}
-+}
-+
- static struct ipa_cmd_info *
- ipa_cmd_info_alloc(struct ipa_endpoint *endpoint, u32 tre_count)
- {
---- a/drivers/net/ipa/ipa_cmd.h
-+++ b/drivers/net/ipa/ipa_cmd.h
-@@ -183,6 +183,14 @@ void ipa_cmd_tag_process_add(struct gsi_
- u32 ipa_cmd_tag_process_count(void);
+ 	ipcm_init(&ipc);
+ 	inet->tos = ip_hdr(skb)->tos;
+-	sk->sk_mark = mark;
++	ipc.sockc.mark = mark;
+ 	daddr = ipc.addr = ip_hdr(skb)->saddr;
+ 	saddr = fib_compute_spec_dst(skb);
  
- /**
-+ * ipa_cmd_tag_process() - Perform a tag process
-+ *
-+ * @Return:	The number of elements to allocate in a transaction
-+ *		to hold tag process commands
-+ */
-+void ipa_cmd_tag_process(struct ipa *ipa);
-+
-+/**
-  * ipa_cmd_trans_alloc() - Allocate a transaction for the command TX endpoint
-  * @ipa:	IPA pointer
-  * @tre_count:	Number of elements in the transaction
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1485,6 +1485,8 @@ void ipa_endpoint_suspend(struct ipa *ip
- 	if (ipa->modem_netdev)
- 		ipa_modem_suspend(ipa->modem_netdev);
+@@ -710,10 +710,10 @@ void __icmp_send(struct sk_buff *skb_in,
+ 	icmp_param.skb	  = skb_in;
+ 	icmp_param.offset = skb_network_offset(skb_in);
+ 	inet_sk(sk)->tos = tos;
+-	sk->sk_mark = mark;
+ 	ipcm_init(&ipc);
+ 	ipc.addr = iph->saddr;
+ 	ipc.opt = &icmp_param.replyopts.opt;
++	ipc.sockc.mark = mark;
  
-+	ipa_cmd_tag_process(ipa);
-+
- 	ipa_endpoint_suspend_one(ipa->name_map[IPA_ENDPOINT_AP_LAN_RX]);
- 	ipa_endpoint_suspend_one(ipa->name_map[IPA_ENDPOINT_AP_COMMAND_TX]);
- }
+ 	rt = icmp_route_lookup(net, &fl4, skb_in, iph, saddr, tos, mark,
+ 			       type, code, &icmp_param);
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -1702,7 +1702,7 @@ void ip_send_unicast_reply(struct sock *
+ 	sk->sk_protocol = ip_hdr(skb)->protocol;
+ 	sk->sk_bound_dev_if = arg->bound_dev_if;
+ 	sk->sk_sndbuf = sysctl_wmem_default;
+-	sk->sk_mark = fl4.flowi4_mark;
++	ipc.sockc.mark = fl4.flowi4_mark;
+ 	err = ip_append_data(sk, &fl4, ip_reply_glue_bits, arg->iov->iov_base,
+ 			     len, 0, &ipc, &rt, MSG_DONTWAIT);
+ 	if (unlikely(err)) {
+--- a/net/ipv6/icmp.c
++++ b/net/ipv6/icmp.c
+@@ -566,7 +566,6 @@ static void icmp6_send(struct sk_buff *s
+ 	fl6.mp_hash = rt6_multipath_hash(net, &fl6, skb, NULL);
+ 	security_skb_classify_flow(skb, flowi6_to_flowi(&fl6));
+ 
+-	sk->sk_mark = mark;
+ 	np = inet6_sk(sk);
+ 
+ 	if (!icmpv6_xrlim_allow(sk, type, &fl6))
+@@ -583,6 +582,7 @@ static void icmp6_send(struct sk_buff *s
+ 		fl6.flowi6_oif = np->ucast_oif;
+ 
+ 	ipcm6_init_sk(&ipc6, np);
++	ipc6.sockc.mark = mark;
+ 	fl6.flowlabel = ip6_make_flowinfo(ipc6.tclass, fl6.flowlabel);
+ 
+ 	dst = icmpv6_route_lookup(net, skb, sk, &fl6);
+@@ -751,7 +751,6 @@ static void icmpv6_echo_reply(struct sk_
+ 	sk = icmpv6_xmit_lock(net);
+ 	if (!sk)
+ 		goto out_bh_enable;
+-	sk->sk_mark = mark;
+ 	np = inet6_sk(sk);
+ 
+ 	if (!fl6.flowi6_oif && ipv6_addr_is_multicast(&fl6.daddr))
+@@ -779,6 +778,7 @@ static void icmpv6_echo_reply(struct sk_
+ 	ipcm6_init_sk(&ipc6, np);
+ 	ipc6.hlimit = ip6_sk_dst_hoplimit(np, &fl6, dst);
+ 	ipc6.tclass = ipv6_get_dsfield(ipv6_hdr(skb));
++	ipc6.sockc.mark = mark;
+ 
+ 	if (ip6_append_data(sk, icmpv6_getfrag, &msg,
+ 			    skb->len + sizeof(struct icmp6hdr),
 
 
