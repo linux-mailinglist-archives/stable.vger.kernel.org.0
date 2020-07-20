@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D4C2268B2
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A56922699B
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732365AbgGTQKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48366 "EHLO mail.kernel.org"
+        id S2388714AbgGTQ1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387618AbgGTQKG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:06 -0400
+        id S1732279AbgGTP7k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A33AB20734;
-        Mon, 20 Jul 2020 16:10:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90D0E20773;
+        Mon, 20 Jul 2020 15:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261406;
-        bh=S+GbvqvYd5DQbyfyZrnVh7vsVEAGDL8ps5qUlMo54eQ=;
+        s=default; t=1595260780;
+        bh=ygbT07fEEpy7yNsw6HTbFoqbdxvS9+HLSl4J/2X+rKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgzGUYfyPwULE9TA8FWLSbPHV/M/AFv4CBGE4UUmOaxqAwAwblgpMcx27w2CGKLOh
-         wW83J2dzPvmJIuHcobb5d0LyHnp7O+GcFFn14101H1hRRgluO0klQp2jPuFeelMHi6
-         5aWQf+DF0AIcdqFTtj28GVOKH+4XTWaH/0bJb6Ms=
+        b=qGO4gIrxV/a7YelbbaqRrhn6jm9vtE3K20yR/PY41/4PDfY/98AZD/225C67f9tgz
+         D+iiKoOp8kdJ3NrlE3fIlgQhyLg4pVoOMfudDvoZhPHMVpiPh2jsMmqFWCvjUanlih
+         xS8lXQ0UAGFcLJOS3zPABR2P89sQW6ovqat4fx4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 103/244] xprtrdma: Fix double-free in rpcrdma_ep_create()
+        stable@vger.kernel.org, Christoffer Nielsen <cn@obviux.dk>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 092/215] ALSA: usb-audio: Add registration quirk for Kingston HyperX Cloud Flight S
 Date:   Mon, 20 Jul 2020 17:36:14 +0200
-Message-Id: <20200720152830.728589241@linuxfoundation.org>
+Message-Id: <20200720152824.584071352@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Christoffer Nielsen <cn@obviux.dk>
 
-[ Upstream commit 85bfd71bc34e20d9fadb745131f6314c36d0f75b ]
+[ Upstream commit 73094608b8e214952444fb104651704c98a37aeb ]
 
-In the error paths, there's no need to call kfree(ep) after calling
-rpcrdma_ep_put(ep).
+Similar to the Kingston HyperX AMP, the Kingston HyperX Cloud
+Alpha S (0951:0x16ea) uses two interfaces, but only the second
+interface contains the capture stream. This patch delays the
+registration until the second interface appears.
 
-Fixes: e28ce90083f0 ("xprtrdma: kmalloc rpcrdma_ep separate from rpcrdma_xprt")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Christoffer Nielsen <cn@obviux.dk>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAOtG2YHOM3zy+ed9KS-J4HkZo_QGzcUG9MigSp4e4_-13r6B=Q@mail.gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ sound/usb/quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index db0259c6467ef..4cb91dde849b9 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -404,8 +404,8 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 
- 	id = rpcrdma_create_id(r_xprt, ep);
- 	if (IS_ERR(id)) {
--		rc = PTR_ERR(id);
--		goto out_free;
-+		kfree(ep);
-+		return PTR_ERR(id);
- 	}
- 	__module_get(THIS_MODULE);
- 	device = id->device;
-@@ -504,9 +504,6 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- out_destroy:
- 	rpcrdma_ep_put(ep);
- 	rdma_destroy_id(id);
--out_free:
--	kfree(ep);
--	r_xprt->rx_ep = NULL;
- 	return rc;
- }
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index e2b0de0473103..a8bb953cc4681 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1815,6 +1815,7 @@ struct registration_quirk {
+ static const struct registration_quirk registration_quirks[] = {
+ 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
++	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
+ 	{ 0 }					/* terminator */
+ };
  
 -- 
 2.25.1
