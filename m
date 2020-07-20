@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C762C226A88
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BEEC226A08
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731556AbgGTQfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52828 "EHLO mail.kernel.org"
+        id S1731561AbgGTPyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:54:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730871AbgGTPyM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:54:12 -0400
+        id S1731349AbgGTPyY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:54:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9FCD2065E;
-        Mon, 20 Jul 2020 15:54:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0614F22D07;
+        Mon, 20 Jul 2020 15:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260452;
-        bh=eZusVHMwOTpgcMsBIQj4PYXuVUheo8UYetV/P3+E9Is=;
+        s=default; t=1595260463;
+        bh=G/TmM+Mtc3F1e23WZCTVRx94sH6YSaRpiEo7RY3ru5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBcBU5Snuiqvysp+czAqpTnIWh9KAAAU6Lq/OYMWEUTkopvzbcl8Hj7PKRKDKQ9Kp
-         VuwgVJtxrpdPxJKzCcVStadPR8mEPxBtK0YMutDDo0ZOA8IbX1T0EbQlO/b3xQ3XNP
-         J5iQQsFL4G7aakFL3LIw8H53WDqiEjfdsOM6Z9O8=
+        b=Xss6+yBDNZVBsdwWJYUWa7Y7+n3hob2Jv+Uk66hYgDSJUt92i5OMnlHq9Mfs6wxOb
+         C+GLfCyi9IGGkJU12OR3VC7mjmox0pJ+rqZX6O7pGrsxM28nwkESS5XjG5D/CyhGkh
+         PfP0tRMZlhklXu8m22CiTOTb63mej6s3WhfC/ExM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Whitcroft <apw@canonical.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.19 108/133] mei: bus: dont clean driver pointer
-Date:   Mon, 20 Jul 2020 17:37:35 +0200
-Message-Id: <20200720152808.954433337@linuxfoundation.org>
+        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 112/133] timer: Fix wheel index calculation on last level
+Date:   Mon, 20 Jul 2020 17:37:39 +0200
+Message-Id: <20200720152809.153182663@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
 References: <20200720152803.732195882@linuxfoundation.org>
@@ -44,50 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-commit e852c2c251ed9c23ae6e3efebc5ec49adb504207 upstream.
+commit e2a71bdea81690b6ef11f4368261ec6f5b6891aa upstream.
 
-It's not needed to set driver to NULL in mei_cl_device_remove()
-which is bus_type remove() handler as this is done anyway
-in __device_release_driver().
+When an expiration delta falls into the last level of the wheel, that delta
+has be compared against the maximum possible delay and reduced to fit in if
+necessary.
 
-Actually this is causing an endless loop in driver_detach()
-on ubuntu patched kernel, while removing (rmmod) the mei_hdcp module.
-The reason list_empty(&drv->p->klist_devices.k_list) is always not-empty.
-as the check is always true in  __device_release_driver()
-	if (dev->driver != drv)
-		return;
+However instead of comparing the delta against the maximum, the code
+compares the actual expiry against the maximum. Then instead of fixing the
+delta to fit in, it sets the maximum delta as the expiry value.
 
-The non upstream patch is causing this behavior, titled:
-'vfio -- release device lock before userspace requests'
+This can result in various undesired outcomes, the worst possible one
+being a timer expiring 15 days ahead to fire immediately.
 
-Nevertheless the fix is correct also for the upstream.
-
-Link: https://patchwork.ozlabs.org/project/ubuntu-kernel/patch/20180912085046.3401-2-apw@canonical.com/
-Cc: <stable@vger.kernel.org>
-Cc: Andy Whitcroft <apw@canonical.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200628225359.2185929-1-tomas.winkler@intel.com
+Fixes: 500462a9de65 ("timers: Switch to a non-cascading wheel")
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200717140551.29076-2-frederic@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/bus.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/time/timer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -755,9 +755,8 @@ static int mei_cl_device_remove(struct d
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -519,8 +519,8 @@ static int calc_wheel_index(unsigned lon
+ 		 * Force expire obscene large timeouts to expire at the
+ 		 * capacity limit of the wheel.
+ 		 */
+-		if (expires >= WHEEL_TIMEOUT_CUTOFF)
+-			expires = WHEEL_TIMEOUT_MAX;
++		if (delta >= WHEEL_TIMEOUT_CUTOFF)
++			expires = clk + WHEEL_TIMEOUT_MAX;
  
- 	mei_cl_bus_module_put(cldev);
- 	module_put(THIS_MODULE);
--	dev->driver = NULL;
--	return ret;
- 
-+	return ret;
- }
- 
- static ssize_t name_show(struct device *dev, struct device_attribute *a,
+ 		idx = calc_index(expires, LVL_DEPTH - 1);
+ 	}
 
 
