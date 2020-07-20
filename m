@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0581022649A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBC8226394
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730205AbgGTPqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41222 "EHLO mail.kernel.org"
+        id S1728773AbgGTPi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:38:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730193AbgGTPqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:32 -0400
+        id S1728435AbgGTPi1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:38:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCBE122CBB;
-        Mon, 20 Jul 2020 15:46:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D2A822CB2;
+        Mon, 20 Jul 2020 15:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259991;
-        bh=eVx2whG+iEhdi/wNAA8mHJvtFWijfFiSbn2YqjBTA2Q=;
+        s=default; t=1595259506;
+        bh=RAHLpt3HfUk8J/dPVuswzuUxY8jEpznTGdNieIWYCMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftgO3Vl4nFvcUaWz2or1HQzGYwARTZDrDY0Y+cCYuAZS1s4xPQlrzn2kGRTXS8fvl
-         Wi8fPLSmAimXowoWgITIpwtDJKmu0dEVnhegOV4nR0sBOVFdDjtQ+qtfdNKOp80tMc
-         LYbzLrLfRoSEdDTszfZhL2wK+MW529NGspHNHyiU=
+        b=DMYR2IzzjLm12cgrILbbqQix5Fx+/pHnyJfqa12EUD5urRk1ZAdfYpnFKXBHFFigQ
+         ddArB2XjhJy2XSZayBGjRioFKuPKWxfj0hZakTVR9OTHbAebRrHX1nwKEWHdnqhkj5
+         y+oarSxxPoOZZk7yEoHeu5TnB5LBii+mw83qUrlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.14 067/125] iio:pressure:ms5611 Fix buffer element alignment
-Date:   Mon, 20 Jul 2020 17:36:46 +0200
-Message-Id: <20200720152806.254762720@linuxfoundation.org>
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 32/58] Revert "usb/ohci-platform: Fix a warning when hibernating"
+Date:   Mon, 20 Jul 2020 17:36:48 +0200
+Message-Id: <20200720152748.754669910@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+This reverts commit 652def4c63b99029fe8b898740f97329c26a2fd3.
 
-commit 8db4afe163bbdd93dca6fcefbb831ef12ecc6b4d upstream.
+Eugeniu Rosca writes:
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-Here there is no data leak possibility so use an explicit structure
-on the stack to ensure alignment and nice readable fashion.
+On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
+>After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
+>Set PM runtime as active on resume") into downstream v4.14.x, we started
+>to consistently experience below panic [1] on every second s2ram of
+>R-Car H3 Salvator-X Renesas reference board.
+>
+>After some investigations, we concluded the following:
+> - the issue does not exist in vanilla v5.8-rc4+
+> - [bisecting shows that] the panic on v4.14.186 is caused by the lack
+>   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
+>   link support"). Getting evidence for that is easy. Reverting
+>   987351e1ea7772 in vanilla leads to a similar backtrace [2].
+>
+>Questions:
+> - Backporting 987351e1ea7772 ("phy: core: Add consumer device
+>   link support") to v4.14.187 looks challenging enough, so probably not
+>   worth it. Anybody to contradict this?
+> - Assuming no plans to backport the missing mainline commit to v4.14.x,
+>   should the following three v4.14.186 commits be reverted on v4.14.x?
+>   * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
+>   * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
+>   * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
 
-The forced alignment of ts isn't strictly necessary in this driver
-as the padding will be correct anyway (there isn't any).  However
-it is probably less fragile to have it there and it acts as
-documentation of the requirement.
-
-Fixes: 713bbb4efb9dc ("iio: pressure: ms5611: Add triggered buffer support")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/ms5611_core.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/usb/host/ohci-platform.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/iio/pressure/ms5611_core.c
-+++ b/drivers/iio/pressure/ms5611_core.c
-@@ -215,16 +215,21 @@ static irqreturn_t ms5611_trigger_handle
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct ms5611_state *st = iio_priv(indio_dev);
--	s32 buf[4]; /* s32 (pressure) + s32 (temp) + 2 * s32 (timestamp) */
-+	/* Ensure buffer elements are naturally aligned */
-+	struct {
-+		s32 channels[2];
-+		s64 ts __aligned(8);
-+	} scan;
- 	int ret;
+diff --git a/drivers/usb/host/ohci-platform.c b/drivers/usb/host/ohci-platform.c
+index 0e5580e6f35cb..c2669f185f658 100644
+--- a/drivers/usb/host/ohci-platform.c
++++ b/drivers/usb/host/ohci-platform.c
+@@ -339,11 +339,6 @@ static int ohci_platform_resume(struct device *dev)
+ 	}
  
- 	mutex_lock(&st->lock);
--	ret = ms5611_read_temp_and_pressure(indio_dev, &buf[1], &buf[0]);
-+	ret = ms5611_read_temp_and_pressure(indio_dev, &scan.channels[1],
-+					    &scan.channels[0]);
- 	mutex_unlock(&st->lock);
- 	if (ret < 0)
- 		goto err;
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
- 					   iio_get_time_ns(indio_dev));
- 
- err:
+ 	ohci_resume(hcd, false);
+-
+-	pm_runtime_disable(dev);
+-	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
+-
+ 	return 0;
+ }
+ #endif /* CONFIG_PM_SLEEP */
+-- 
+2.25.1
+
 
 
