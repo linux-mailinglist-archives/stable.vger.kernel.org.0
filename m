@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F825226479
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8AA32263D0
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729979AbgGTPp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:45:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
+        id S1729746AbgGTPko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730521AbgGTPp0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:26 -0400
+        id S1729758AbgGTPko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2139B2176B;
-        Mon, 20 Jul 2020 15:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31BCF20773;
+        Mon, 20 Jul 2020 15:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259924;
-        bh=2vApW5JUlJMlRJa7jZuxd6wCDd2X/ajJaP+KiAAYtU8=;
+        s=default; t=1595259643;
+        bh=Gnn04dSXI7aMIFI6xFMx15OTYSb1EJtcg0QvAL//x2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQ9Z9NwwJkZfZLn+0g+rkGzzaWUgEFHrPn1F/1BKw4S57Yhu731kvDhcrBDdu6SUH
-         stwERbafIhFahbd8LPflmCRdZXNb0o7UHiVjcFv2St/QviR9asjX+4aovGKympDxto
-         m/AbSuPrjDT1h4sPNlhJrRpNuty0dMfhvuL5SlwU=
+        b=yn0eKg7w6gsypyPEaIhN3RPwPSgfekkr31Jz+h9Yg5qmbBgGLpglGTaYq+MNt0we/
+         5epo17i4vuYzbelgZHwgw/YkoSpInoTIe0935FD7TfR8/QlBziSssH2DIG3KH7Uctb
+         vCBVLWEfW74O7vAZKNbO1qWIx8MZ9d93m3AnVDF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Wouters <pwouters@redhat.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 042/125] ipv4: fill fl4_icmp_{type,code} in ping_v4_sendmsg
-Date:   Mon, 20 Jul 2020 17:36:21 +0200
-Message-Id: <20200720152805.054817158@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.9 26/86] s390/mm: fix huge pte soft dirty copying
+Date:   Mon, 20 Jul 2020 17:36:22 +0200
+Message-Id: <20200720152754.467193788@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-[ Upstream commit 5eff06902394425c722f0a44d9545909a8800f79 ]
+commit 528a9539348a0234375dfaa1ca5dbbb2f8f8e8d2 upstream.
 
-IPv4 ping sockets don't set fl4.fl4_icmp_{type,code}, which leads to
-incomplete IPsec ACQUIRE messages being sent to userspace. Currently,
-both raw sockets and IPv6 ping sockets set those fields.
+If the pmd is soft dirty we must mark the pte as soft dirty (and not dirty).
+This fixes some cases for guest migration with huge page backings.
 
-Expected output of "ip xfrm monitor":
-    acquire proto esp
-      sel src 10.0.2.15/32 dst 8.8.8.8/32 proto icmp type 8 code 0 dev ens4
-      policy src 10.0.2.15/32 dst 8.8.8.8/32
-        <snip>
-
-Currently with ping sockets:
-    acquire proto esp
-      sel src 10.0.2.15/32 dst 8.8.8.8/32 proto icmp type 0 code 0 dev ens4
-      policy src 10.0.2.15/32 dst 8.8.8.8/32
-        <snip>
-
-The Libreswan test suite found this problem after Fedora changed the
-value for the sysctl net.ipv4.ping_group_range.
-
-Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
-Reported-by: Paul Wouters <pwouters@redhat.com>
-Tested-by: Paul Wouters <pwouters@redhat.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org> # 4.8
+Fixes: bc29b7ac1d9f ("s390/mm: clean up pte/pmd encoding")
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/ping.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -801,6 +801,9 @@ static int ping_v4_sendmsg(struct sock *
- 			   inet_sk_flowi_flags(sk), faddr, saddr, 0, 0,
- 			   sk->sk_uid);
- 
-+	fl4.fl4_icmp_type = user_icmph.type;
-+	fl4.fl4_icmp_code = user_icmph.code;
-+
- 	security_sk_classify_flow(sk, flowi4_to_flowi(&fl4));
- 	rt = ip_route_output_flow(net, &fl4, sk);
- 	if (IS_ERR(rt)) {
+---
+ arch/s390/mm/hugetlbpage.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/s390/mm/hugetlbpage.c
++++ b/arch/s390/mm/hugetlbpage.c
+@@ -111,7 +111,7 @@ static inline pte_t __rste_to_pte(unsign
+ 					     _PAGE_YOUNG);
+ #ifdef CONFIG_MEM_SOFT_DIRTY
+ 		pte_val(pte) |= move_set_bit(rste, _SEGMENT_ENTRY_SOFT_DIRTY,
+-					     _PAGE_DIRTY);
++					     _PAGE_SOFT_DIRTY);
+ #endif
+ 	} else
+ 		pte_val(pte) = _PAGE_INVALID;
 
 
