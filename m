@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0592268A1
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B099A2268A0
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732826AbgGTQIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387431AbgGTQIq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 20 Jul 2020 12:08:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46304 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387426AbgGTQIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:08:43 -0400
+        id S1730996AbgGTQIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:08:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97B422065E;
-        Mon, 20 Jul 2020 16:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77D5E20734;
+        Mon, 20 Jul 2020 16:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261323;
-        bh=PXoU2bDC76S87YcobBWMvvKjcfEsrThYdScmFKbPL8A=;
+        s=default; t=1595261326;
+        bh=bHelhK3clDn+qoCr3rSYuH+TCTiDqOABSBHwl2bweWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W10IIMOwZ4j/Rj/lBhlbrtdWX0Xcg5TYy/V7vRrTxrAVb+RbgzSiCGaTlUW32MfCC
-         TW4rJPRYAZhrWR+VvsWiJfJGwTyhROvSA7SzTcd7cJeRboOATo+6l3HKBUCdTZjWtR
-         gTnSZGNZ0VxxudH1vsVkLECqXayDFKQxE498PNac=
+        b=JVJXlGm1zfOaHe/lsS6Zn0lvluRXdhl/u3Tdo5CMBNnxdo8RXlJneqI9WgaamFqz7
+         3Mvd93ga4eCF5HOppapiVLGHI0cOhmnChYAT6/2krDEKiarlZBaNJlNGVf+T0JdAyQ
+         gqrmEHlItC5ZGSb48c7FrxsSw8bM/P4Y/fuBHO/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 044/244] dt-bindings: fix error in make clean after make dt_binding_check
-Date:   Mon, 20 Jul 2020 17:35:15 +0200
-Message-Id: <20200720152827.954271793@linuxfoundation.org>
+        stable@vger.kernel.org, Marshall Midden <marshallmidden@gmail.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 045/244] cifs: prevent truncation from long to int in wait_for_free_credits
+Date:   Mon, 20 Jul 2020 17:35:16 +0200
+Message-Id: <20200720152828.000688742@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,53 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit fa714cf58c7c09a454ff9fda2ee8318591128eb6 ]
+[ Upstream commit 19e888678bac8c82206eb915eaf72741b2a2615c ]
 
-We are having more and more schema files.
+The wait_event_... defines evaluate to long so we should not assign it an int as this may truncate
+the value.
 
-Commit 8b6b80218b01 ("dt-bindings: Fix command line length limit
-calling dt-mk-schema") fixed the 'Argument list too long' error of
-the schema checks, but the same error happens while cleaning too.
-
-'make clean' after 'make dt_binding_check' fails as follows:
-
-  $ make dt_binding_check
-    [ snip ]
-  $ make clean
-  make[2]: execvp: /bin/sh: Argument list too long
-  make[2]: *** [scripts/Makefile.clean:52: __clean] Error 127
-  make[1]: *** [scripts/Makefile.clean:66: Documentation/devicetree/bindings] Error 2
-  make: *** [Makefile:1763: _clean_Documentation] Error 2
-
-'make dt_binding_check' generates so many .example.dts, .dt.yaml files,
-which are passed to the 'rm' command when you run 'make clean'.
-
-I added a small hack to use the 'find' command to clean up most of the
-build artifacts before they are processed by scripts/Makefile.clean
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20200625170434.635114-2-masahiroy@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Reported-by: Marshall Midden <marshallmidden@gmail.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/cifs/transport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/Makefile b/Documentation/devicetree/bindings/Makefile
-index 7782d99850823..b03d58c6b072f 100644
---- a/Documentation/devicetree/bindings/Makefile
-+++ b/Documentation/devicetree/bindings/Makefile
-@@ -45,3 +45,8 @@ $(obj)/processed-schema.yaml: $(DT_SCHEMA_FILES) FORCE
- 	$(call if_changed,mk_schema)
- 
- extra-y += processed-schema.yaml
-+
-+# Hack: avoid 'Argument list too long' error for 'make clean'. Remove most of
-+# build artifacts here before they are processed by scripts/Makefile.clean
-+clean-files = $(shell find $(obj) \( -name '*.example.dts' -o \
-+			-name '*.example.dt.yaml' \) -delete 2>/dev/null)
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index c97570eb2c180..7fefd2bd111c4 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -528,7 +528,7 @@ wait_for_free_credits(struct TCP_Server_Info *server, const int num_credits,
+ 		      const int timeout, const int flags,
+ 		      unsigned int *instance)
+ {
+-	int rc;
++	long rc;
+ 	int *credits;
+ 	int optype;
+ 	long int t;
 -- 
 2.25.1
 
