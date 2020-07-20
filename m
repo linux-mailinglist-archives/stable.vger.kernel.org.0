@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 064652270C5
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 509F4227121
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728395AbgGTVjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S1728415AbgGTVjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728391AbgGTVjM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:12 -0400
+        id S1728393AbgGTVjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E4F722CF7;
-        Mon, 20 Jul 2020 21:39:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39D0822BF5;
+        Mon, 20 Jul 2020 21:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281151;
-        bh=kB41gXh/gK69Ub+thQTzV8vVMeVaJNEl8ZZLFyl95ZQ=;
+        s=default; t=1595281152;
+        bh=GGUUnrT70vCshPJghf6krsi3BKNCu8O77QYQpIvqC9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rH4yzy1O0XQ9lMJKN+65EnrxjxJ2gGKtiIZAn4WMR38YIDRB1WV5u864WYW+L2vD0
-         imBJH9LkJOVk6FOOx8/JaecNG15o2NDVILFdlcClAC8pyV+mMFdK1K+BdTfE6Tm7ET
-         kphsrzsnuCdGmL18BNNn2WF/mYqDPH+H9DB1Ocqg=
+        b=QpLciazkAdfgR7dOUbS+nFL1d/PUAbhcn+XmkuiBRdHyRebVLjSpKdAf95EEySc7o
+         q17iWBUiOOgDmzQ/xSr0zOuubzLkJoUF+u76pcVkP4oDIjZia31nwBJnAzuv2A1HIE
+         opp5xt0xgesYFj4c/e8j86Bg/hD+NUSAwPxgXMCU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+Cc:     Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 17/19] x86: math-emu: Fix up 'cmp' insn for clang ias
-Date:   Mon, 20 Jul 2020 17:38:48 -0400
-Message-Id: <20200720213851.407715-17-sashal@kernel.org>
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 18/19] RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
+Date:   Mon, 20 Jul 2020 17:38:49 -0400
+Message-Id: <20200720213851.407715-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213851.407715-1-sashal@kernel.org>
 References: <20200720213851.407715-1-sashal@kernel.org>
@@ -45,40 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Palmer Dabbelt <palmerdabbelt@google.com>
 
-[ Upstream commit 81e96851ea32deb2c921c870eecabf335f598aeb ]
+[ Upstream commit 38b7c2a3ffb1fce8358ddc6006cfe5c038ff9963 ]
 
-The clang integrated assembler requires the 'cmp' instruction to
-have a length prefix here:
+While digging through the recent mmiowb preemption issue it came up that
+we aren't actually preventing IO from crossing a scheduling boundary.
+While it's a bit ugly to overload smp_mb__after_spinlock() with this
+behavior, it's what PowerPC is doing so there's some precedent.
 
-arch/x86/math-emu/wm_sqrt.S:212:2: error: ambiguous instructions require an explicit suffix (could be 'cmpb', 'cmpw', or 'cmpl')
- cmp $0xffffffff,-24(%ebp)
- ^
-
-Make this a 32-bit comparison, which it was clearly meant to be.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lkml.kernel.org/r/20200527135352.1198078-1-arnd@arndb.de
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/math-emu/wm_sqrt.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/barrier.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/math-emu/wm_sqrt.S b/arch/x86/math-emu/wm_sqrt.S
-index f031c0e193565..515cdee90df72 100644
---- a/arch/x86/math-emu/wm_sqrt.S
-+++ b/arch/x86/math-emu/wm_sqrt.S
-@@ -209,7 +209,7 @@ sqrt_stage_2_finish:
+diff --git a/arch/riscv/include/asm/barrier.h b/arch/riscv/include/asm/barrier.h
+index d4628e4b3a5ea..f4c92c91aa047 100644
+--- a/arch/riscv/include/asm/barrier.h
++++ b/arch/riscv/include/asm/barrier.h
+@@ -69,8 +69,16 @@ do {									\
+  * The AQ/RL pair provides a RCpc critical section, but there's not really any
+  * way we can take advantage of that here because the ordering is only enforced
+  * on that one lock.  Thus, we're just doing a full fence.
++ *
++ * Since we allow writeX to be called from preemptive regions we need at least
++ * an "o" in the predecessor set to ensure device writes are visible before the
++ * task is marked as available for scheduling on a new hart.  While I don't see
++ * any concrete reason we need a full IO fence, it seems safer to just upgrade
++ * this in order to avoid any IO crossing a scheduling boundary.  In both
++ * instances the scheduler pairs this with an mb(), so nothing is necessary on
++ * the new hart.
+  */
+-#define smp_mb__after_spinlock()	RISCV_FENCE(rw,rw)
++#define smp_mb__after_spinlock()	RISCV_FENCE(iorw,iorw)
  
- #ifdef PARANOID
- /* It should be possible to get here only if the arg is ffff....ffff */
--	cmp	$0xffffffff,FPU_fsqrt_arg_1
-+	cmpl	$0xffffffff,FPU_fsqrt_arg_1
- 	jnz	sqrt_stage_2_error
- #endif /* PARANOID */
+ #include <asm-generic/barrier.h>
  
 -- 
 2.25.1
