@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 502F422682B
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A56E2268FC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387721AbgGTQRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:17:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56070 "EHLO mail.kernel.org"
+        id S1732685AbgGTQEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:04:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388353AbgGTQPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:15:17 -0400
+        id S1732907AbgGTQEy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0F0320684;
-        Mon, 20 Jul 2020 16:15:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C035020773;
+        Mon, 20 Jul 2020 16:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261716;
-        bh=lfLJuhKtX5oMhl9AFdM4aB72T2TyHglnow2I71FfRj4=;
+        s=default; t=1595261093;
+        bh=B84vW3i6LhYNV9Qy5YCm6lo1N980fOTbMc0xgJ0V5Wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ps0lP6qx1I6dJr+duF4KW3hOwDe/rAP9CBaxKcvFSn6umfZbaDmNadK5tXHfy/6gv
-         rYFDODX6lt+Gb4pLdbPUeik2GS3xlzNB/gZcC9mCtYC3ZCdT3UAiskZur2Dx8FAQ7E
-         LTKoQPDBXgj2Ndw0FmN418rfUfC/utJVA5OiTud4=
+        b=Ox4X0ztw0+ICUGCb92o8adJd0FPvOmxf/hlxPBKGLXxCMgS6uJV+JDAEP1QpkmN/f
+         LQtyHBJSE38H9elmXT5+5dIuyPRrV3X0LErcDUlUHhitKPsaDoYhV/mUjvHMAINqhr
+         Aj6WTYD5lVtMZGY8ATWasyC1/19QVNTTVBKoLJ/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Luis Machado <luis.machado@linaro.org>,
-        Keno Fischer <keno@juliacomputing.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.7 217/244] arm64: ptrace: Consistently use pseudo-singlestep exceptions
-Date:   Mon, 20 Jul 2020 17:38:08 +0200
-Message-Id: <20200720152836.166900890@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 207/215] block: fix splitting segments on boundary masks
+Date:   Mon, 20 Jul 2020 17:38:09 +0200
+Message-Id: <20200720152830.003114062@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,139 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit ac2081cdc4d99c57f219c1a6171526e0fa0a6fff upstream.
+commit 429120f3df2dba2bf3a4a19f4212a53ecefc7102 upstream.
 
-Although the arm64 single-step state machine can be fast-forwarded in
-cases where we wish to generate a SIGTRAP without actually executing an
-instruction, this has two major limitations outside of simply skipping
-an instruction due to emulation.
+We ran into a problem with a mpt3sas based controller, where we would
+see random (and hard to reproduce) file corruption). The issue seemed
+specific to this controller, but wasn't specific to the file system.
+After a lot of debugging, we find out that it's caused by segments
+spanning a 4G memory boundary. This shouldn't happen, as the default
+setting for segment boundary masks is 4G.
 
-1. Stepping out of a ptrace signal stop into a signal handler where
-   SIGTRAP is blocked. Fast-forwarding the stepping state machine in
-   this case will result in a forced SIGTRAP, with the handler reset to
-   SIG_DFL.
+Turns out there are two issues in get_max_segment_size():
 
-2. The hardware implicitly fast-forwards the state machine when executing
-   an SVC instruction for issuing a system call. This can interact badly
-   with subsequent ptrace stops signalled during the execution of the
-   system call (e.g. SYSCALL_EXIT or seccomp traps), as they may corrupt
-   the stepping state by updating the PSTATE for the tracee.
+1) The default segment boundary mask is bypassed
 
-Resolve both of these issues by injecting a pseudo-singlestep exception
-on entry to a signal handler and also on return to userspace following a
-system call.
+2) The segment start address isn't taken into account when checking
+   segment boundary limit
 
-Cc: <stable@vger.kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Luis Machado <luis.machado@linaro.org>
-Reported-by: Keno Fischer <keno@juliacomputing.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fix these two issues by removing the bypass of the segment boundary
+check even if the mask is set to the default value, and taking into
+account the actual start address of the request when checking if a
+segment needs splitting.
+
+Cc: stable@vger.kernel.org # v5.1+
+Reviewed-by: Chris Mason <clm@fb.com>
+Tested-by: Chris Mason <clm@fb.com>
+Fixes: dcebd755926b ("block: use bio_for_each_bvec() to compute multi-page bvec count")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/arm64/include/asm/thread_info.h |    1 +
- arch/arm64/kernel/ptrace.c           |   27 ++++++++++++++++++++-------
- arch/arm64/kernel/signal.c           |   11 ++---------
- arch/arm64/kernel/syscall.c          |    2 +-
- 4 files changed, 24 insertions(+), 17 deletions(-)
+Dropped const on the page pointer, ppc page_to_phys() doesn't mark the
+page as const...
 
---- a/arch/arm64/include/asm/thread_info.h
-+++ b/arch/arm64/include/asm/thread_info.h
-@@ -89,6 +89,7 @@ void arch_release_task_struct(struct tas
- #define _TIF_SYSCALL_EMU	(1 << TIF_SYSCALL_EMU)
- #define _TIF_UPROBE		(1 << TIF_UPROBE)
- #define _TIF_FSCHECK		(1 << TIF_FSCHECK)
-+#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
- #define _TIF_32BIT		(1 << TIF_32BIT)
- #define _TIF_SVE		(1 << TIF_SVE)
- 
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1819,12 +1819,23 @@ static void tracehook_report_syscall(str
- 	saved_reg = regs->regs[regno];
- 	regs->regs[regno] = dir;
- 
--	if (dir == PTRACE_SYSCALL_EXIT)
-+	if (dir == PTRACE_SYSCALL_ENTER) {
-+		if (tracehook_report_syscall_entry(regs))
-+			forget_syscall(regs);
-+		regs->regs[regno] = saved_reg;
-+	} else if (!test_thread_flag(TIF_SINGLESTEP)) {
- 		tracehook_report_syscall_exit(regs, 0);
--	else if (tracehook_report_syscall_entry(regs))
--		forget_syscall(regs);
--
--	regs->regs[regno] = saved_reg;
-+		regs->regs[regno] = saved_reg;
-+	} else {
-+		regs->regs[regno] = saved_reg;
-+
-+		/*
-+		 * Signal a pseudo-step exception since we are stepping but
-+		 * tracer modifications to the registers may have rewound the
-+		 * state machine.
-+		 */
-+		tracehook_report_syscall_exit(regs, 1);
-+	}
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+---
+ block/blk-merge.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -157,16 +157,14 @@ static inline unsigned get_max_io_size(s
+ 	return sectors & (lbs - 1);
  }
  
- int syscall_trace_enter(struct pt_regs *regs)
-@@ -1852,12 +1863,14 @@ int syscall_trace_enter(struct pt_regs *
- 
- void syscall_trace_exit(struct pt_regs *regs)
+-static unsigned get_max_segment_size(const struct request_queue *q,
+-				     unsigned offset)
++static inline unsigned get_max_segment_size(const struct request_queue *q,
++					    struct page *start_page,
++					    unsigned long offset)
  {
-+	unsigned long flags = READ_ONCE(current_thread_info()->flags);
-+
- 	audit_syscall_exit(regs);
+ 	unsigned long mask = queue_segment_boundary(q);
  
--	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
-+	if (flags & _TIF_SYSCALL_TRACEPOINT)
- 		trace_sys_exit(regs, regs_return_value(regs));
- 
--	if (test_thread_flag(TIF_SYSCALL_TRACE))
-+	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
- 
- 	rseq_syscall(regs);
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -784,7 +784,6 @@ static void setup_restart_syscall(struct
-  */
- static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
- {
--	struct task_struct *tsk = current;
- 	sigset_t *oldset = sigmask_to_save();
- 	int usig = ksig->sig;
- 	int ret;
-@@ -808,14 +807,8 @@ static void handle_signal(struct ksignal
- 	 */
- 	ret |= !valid_user_regs(&regs->user_regs, current);
- 
--	/*
--	 * Fast forward the stepping logic so we step into the signal
--	 * handler.
--	 */
--	if (!ret)
--		user_fastforward_single_step(tsk);
+-	/* default segment boundary mask means no boundary limit */
+-	if (mask == BLK_SEG_BOUNDARY_MASK)
+-		return queue_max_segment_size(q);
 -
--	signal_setup_done(ret, ksig, 0);
-+	/* Step into the signal handler if we are stepping */
-+	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLESTEP));
+-	return min_t(unsigned long, mask - (mask & offset) + 1,
++	offset = mask & (page_to_phys(start_page) + offset);
++	return min_t(unsigned long, mask - offset + 1,
+ 		     queue_max_segment_size(q));
  }
  
- /*
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -121,7 +121,7 @@ static void el0_svc_common(struct pt_reg
- 	if (!has_syscall_work(flags) && !IS_ENABLED(CONFIG_DEBUG_RSEQ)) {
- 		local_daif_mask();
- 		flags = current_thread_info()->flags;
--		if (!has_syscall_work(flags)) {
-+		if (!has_syscall_work(flags) && !(flags & _TIF_SINGLESTEP)) {
- 			/*
- 			 * We're off to userspace, where interrupts are
- 			 * always enabled after we restore the flags from
+@@ -201,7 +199,8 @@ static bool bvec_split_segs(const struct
+ 	unsigned seg_size = 0;
+ 
+ 	while (len && *nsegs < max_segs) {
+-		seg_size = get_max_segment_size(q, bv->bv_offset + total_len);
++		seg_size = get_max_segment_size(q, bv->bv_page,
++						bv->bv_offset + total_len);
+ 		seg_size = min(seg_size, len);
+ 
+ 		(*nsegs)++;
+@@ -404,7 +403,8 @@ static unsigned blk_bvec_map_sg(struct r
+ 
+ 	while (nbytes > 0) {
+ 		unsigned offset = bvec->bv_offset + total;
+-		unsigned len = min(get_max_segment_size(q, offset), nbytes);
++		unsigned len = min(get_max_segment_size(q, bvec->bv_page,
++					offset), nbytes);
+ 		struct page *page = bvec->bv_page;
+ 
+ 		/*
 
 
