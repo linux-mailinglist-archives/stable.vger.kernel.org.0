@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED0142266B3
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D9622681C
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732981AbgGTQF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:05:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40948 "EHLO mail.kernel.org"
+        id S2387943AbgGTQRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:17:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732972AbgGTQF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:05:27 -0400
+        id S2388143AbgGTQQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:16:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2C8122CBB;
-        Mon, 20 Jul 2020 16:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB2D42176B;
+        Mon, 20 Jul 2020 16:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261126;
-        bh=Ms+3FkzOFmLew0WXAZ8/70kiPuFJ5chwHNJSUeLslN4=;
+        s=default; t=1595261786;
+        bh=30CXrEdiYVz1AylAF1x57ZnlAb8SkFQ3PCeoPQOpcKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVzg8c2XH2tO6ns9hPZE64woUXujXHOzc/caP18oy/f1lZQVtorSnm4PeiGzd67QJ
-         TWCmziuX1jRbBtihWgguLWKsqeZFG2lr6x4AijNHg2WzNQusgnFrBXh9VBPAH5mKAf
-         MlQAAtMm6tjobc+lq10xocn9h8ndWwEoz9JGOS/E=
+        b=BNr274B41mELVgCk4w9Diw3SSkSIP4ZWm+t/SHtgm/XOQCouF0We/etZdlMogXEf9
+         yPLM6w/uDy+dQ0rbHF3q9XpJV1IQmqIVyG4NNVjLyjtJmXxSj2Q0oJdhkqMJtEMhoc
+         1zdVQRk9eJiRjpQ7lXVh1jgk5gNqgINsrE6tRwNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Luis Machado <luis.machado@linaro.org>,
-        Keno Fischer <keno@juliacomputing.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 200/215] arm64: ptrace: Consistently use pseudo-singlestep exceptions
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Alex Hung <alex.hung@canonical.com>
+Subject: [PATCH 5.7 211/244] thermal: int3403_thermal: Downgrade error message
 Date:   Mon, 20 Jul 2020 17:38:02 +0200
-Message-Id: <20200720152829.681467189@linuxfoundation.org>
+Message-Id: <20200720152835.889846161@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,139 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Alex Hung <alex.hung@canonical.com>
 
-commit ac2081cdc4d99c57f219c1a6171526e0fa0a6fff upstream.
+commit f3d7fb38976b1b0a8462ba1c7cbd404ddfaad086 upstream.
 
-Although the arm64 single-step state machine can be fast-forwarded in
-cases where we wish to generate a SIGTRAP without actually executing an
-instruction, this has two major limitations outside of simply skipping
-an instruction due to emulation.
+Downgrade "Unsupported event" message from dev_err to dev_dbg to avoid
+flooding with this message on some platforms.
 
-1. Stepping out of a ptrace signal stop into a signal handler where
-   SIGTRAP is blocked. Fast-forwarding the stepping state machine in
-   this case will result in a forced SIGTRAP, with the handler reset to
-   SIG_DFL.
-
-2. The hardware implicitly fast-forwards the state machine when executing
-   an SVC instruction for issuing a system call. This can interact badly
-   with subsequent ptrace stops signalled during the execution of the
-   system call (e.g. SYSCALL_EXIT or seccomp traps), as they may corrupt
-   the stepping state by updating the PSTATE for the tracee.
-
-Resolve both of these issues by injecting a pseudo-singlestep exception
-on entry to a signal handler and also on return to userspace following a
-system call.
-
-Cc: <stable@vger.kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Luis Machado <luis.machado@linaro.org>
-Reported-by: Keno Fischer <keno@juliacomputing.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org # v5.4+
+Suggested-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+[ rzhang: fix typo in changelog ]
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Link: https://lore.kernel.org/r/20200615223957.183153-1-alex.hung@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/thread_info.h |    1 +
- arch/arm64/kernel/ptrace.c           |   27 ++++++++++++++++++++-------
- arch/arm64/kernel/signal.c           |   11 ++---------
- arch/arm64/kernel/syscall.c          |    2 +-
- 4 files changed, 24 insertions(+), 17 deletions(-)
+ drivers/thermal/intel/int340x_thermal/int3403_thermal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/thread_info.h
-+++ b/arch/arm64/include/asm/thread_info.h
-@@ -91,6 +91,7 @@ void arch_release_task_struct(struct tas
- #define _TIF_SYSCALL_EMU	(1 << TIF_SYSCALL_EMU)
- #define _TIF_UPROBE		(1 << TIF_UPROBE)
- #define _TIF_FSCHECK		(1 << TIF_FSCHECK)
-+#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
- #define _TIF_32BIT		(1 << TIF_32BIT)
- #define _TIF_SVE		(1 << TIF_SVE)
- 
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1819,12 +1819,23 @@ static void tracehook_report_syscall(str
- 	saved_reg = regs->regs[regno];
- 	regs->regs[regno] = dir;
- 
--	if (dir == PTRACE_SYSCALL_EXIT)
-+	if (dir == PTRACE_SYSCALL_ENTER) {
-+		if (tracehook_report_syscall_entry(regs))
-+			forget_syscall(regs);
-+		regs->regs[regno] = saved_reg;
-+	} else if (!test_thread_flag(TIF_SINGLESTEP)) {
- 		tracehook_report_syscall_exit(regs, 0);
--	else if (tracehook_report_syscall_entry(regs))
--		forget_syscall(regs);
--
--	regs->regs[regno] = saved_reg;
-+		regs->regs[regno] = saved_reg;
-+	} else {
-+		regs->regs[regno] = saved_reg;
-+
-+		/*
-+		 * Signal a pseudo-step exception since we are stepping but
-+		 * tracer modifications to the registers may have rewound the
-+		 * state machine.
-+		 */
-+		tracehook_report_syscall_exit(regs, 1);
-+	}
+--- a/drivers/thermal/intel/int340x_thermal/int3403_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3403_thermal.c
+@@ -74,7 +74,7 @@ static void int3403_notify(acpi_handle h
+ 						   THERMAL_TRIP_CHANGED);
+ 		break;
+ 	default:
+-		dev_err(&priv->pdev->dev, "Unsupported event [0x%x]\n", event);
++		dev_dbg(&priv->pdev->dev, "Unsupported event [0x%x]\n", event);
+ 		break;
+ 	}
  }
- 
- int syscall_trace_enter(struct pt_regs *regs)
-@@ -1852,12 +1863,14 @@ int syscall_trace_enter(struct pt_regs *
- 
- void syscall_trace_exit(struct pt_regs *regs)
- {
-+	unsigned long flags = READ_ONCE(current_thread_info()->flags);
-+
- 	audit_syscall_exit(regs);
- 
--	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
-+	if (flags & _TIF_SYSCALL_TRACEPOINT)
- 		trace_sys_exit(regs, regs_return_value(regs));
- 
--	if (test_thread_flag(TIF_SYSCALL_TRACE))
-+	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
- 
- 	rseq_syscall(regs);
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -782,7 +782,6 @@ static void setup_restart_syscall(struct
-  */
- static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
- {
--	struct task_struct *tsk = current;
- 	sigset_t *oldset = sigmask_to_save();
- 	int usig = ksig->sig;
- 	int ret;
-@@ -806,14 +805,8 @@ static void handle_signal(struct ksignal
- 	 */
- 	ret |= !valid_user_regs(&regs->user_regs, current);
- 
--	/*
--	 * Fast forward the stepping logic so we step into the signal
--	 * handler.
--	 */
--	if (!ret)
--		user_fastforward_single_step(tsk);
--
--	signal_setup_done(ret, ksig, 0);
-+	/* Step into the signal handler if we are stepping */
-+	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLESTEP));
- }
- 
- /*
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -121,7 +121,7 @@ static void el0_svc_common(struct pt_reg
- 	if (!has_syscall_work(flags) && !IS_ENABLED(CONFIG_DEBUG_RSEQ)) {
- 		local_daif_mask();
- 		flags = current_thread_info()->flags;
--		if (!has_syscall_work(flags)) {
-+		if (!has_syscall_work(flags) && !(flags & _TIF_SINGLESTEP)) {
- 			/*
- 			 * We're off to userspace, where interrupts are
- 			 * always enabled after we restore the flags from
 
 
