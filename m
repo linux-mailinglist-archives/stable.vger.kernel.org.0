@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33060226983
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E6E2268B4
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730271AbgGTQ04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60816 "EHLO mail.kernel.org"
+        id S1732720AbgGTQKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732308AbgGTP7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:59:49 -0400
+        id S2387647AbgGTQKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CB6A22CE3;
-        Mon, 20 Jul 2020 15:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 367872064B;
+        Mon, 20 Jul 2020 16:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260788;
-        bh=63C2BzO4C1F7uvfStR458+NxPuILGJ2wLEBMtiBq4e4=;
+        s=default; t=1595261414;
+        bh=OrUqV8JJjkoxK8FuCM07uleGXeKVco3gz7e0rfHRBo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfAGVH4hC8evtYrs475y0N2Ign6Bz/NkvEZUu2fe46Rk0df4yqXyvSvmhbtX1WBCs
-         J3hK1IKW3V1Cq/BeotHPB/fvRYyepTPhoIDwAc8i4s8AD/ae2HKCHsGmhwmX/RF5NJ
-         nSr29gWEBNmlt34cLXQLYMSLf5qRhFVGCgmnc7Aw=
+        b=Dk+TabjISWf+jQvVHxUpUH4insW+w74SbeN3oj+FMUiaXcfU8GFCcu/xsJkDFZbL/
+         +ERkAvS1s0WWKz2NRidAvMqkjcLJETK1LRdX89b204LhWloEWgSydDUJbia5YCzbBn
+         oh+/2SCPuBbKWkzQewVDHs7euP32RWhyoTdmzuTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/215] ARM: OMAP4+: remove pdata quirks for omap4+ iommus
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Andrew F. Davis" <afd@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 077/244] iio:health:afe4404 Fix timestamp alignment and prevent data leak.
 Date:   Mon, 20 Jul 2020 17:35:48 +0200
-Message-Id: <20200720152823.349765045@linuxfoundation.org>
+Message-Id: <20200720152829.503117733@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit e4c4b540e1e6c21ff8b987e92b2bd170ee006a94 ]
+[ Upstream commit f88ecccac4be348bbcc6d056bdbc622a8955c04d ]
 
-IOMMU driver will be using ti-sysc bus driver for power management control
-going forward, and the pdata quirks are not needed for anything anymore.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 40 byte array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak appart from previous readings.
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 87aec56e27ef ("iio: health: Add driver for the TI AFE4404 heart monitor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/pdata-quirks.c | 14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/iio/health/afe4404.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
-index 247e3f8acffe6..5acd29cb8d749 100644
---- a/arch/arm/mach-omap2/pdata-quirks.c
-+++ b/arch/arm/mach-omap2/pdata-quirks.c
-@@ -311,16 +311,6 @@ static void __init omap3_pandora_legacy_init(void)
- }
- #endif /* CONFIG_ARCH_OMAP3 */
+diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
+index e728bbb21ca88..cebb1fd4d0b15 100644
+--- a/drivers/iio/health/afe4404.c
++++ b/drivers/iio/health/afe4404.c
+@@ -83,6 +83,7 @@ static const struct reg_field afe4404_reg_fields[] = {
+  * @regulator: Pointer to the regulator for the IC
+  * @trig: IIO trigger for this device
+  * @irq: ADC_RDY line interrupt number
++ * @buffer: Used to construct a scan to push to the iio buffer.
+  */
+ struct afe4404_data {
+ 	struct device *dev;
+@@ -91,6 +92,7 @@ struct afe4404_data {
+ 	struct regulator *regulator;
+ 	struct iio_trigger *trig;
+ 	int irq;
++	s32 buffer[10] __aligned(8);
+ };
  
--#if defined(CONFIG_ARCH_OMAP4) || defined(CONFIG_SOC_OMAP5)
--static struct iommu_platform_data omap4_iommu_pdata = {
--	.reset_name = "mmu_cache",
--	.assert_reset = omap_device_assert_hardreset,
--	.deassert_reset = omap_device_deassert_hardreset,
--	.device_enable = omap_device_enable,
--	.device_idle = omap_device_idle,
--};
--#endif
--
- #if defined(CONFIG_SOC_AM33XX) || defined(CONFIG_SOC_AM43XX)
- static struct wkup_m3_platform_data wkup_m3_data = {
- 	.reset_name = "wkup_m3",
-@@ -543,10 +533,6 @@ static struct of_dev_auxdata omap_auxdata_lookup[] = {
- 		       &wkup_m3_data),
- #endif
- #if defined(CONFIG_ARCH_OMAP4) || defined(CONFIG_SOC_OMAP5)
--	OF_DEV_AUXDATA("ti,omap4-iommu", 0x4a066000, "4a066000.mmu",
--		       &omap4_iommu_pdata),
--	OF_DEV_AUXDATA("ti,omap4-iommu", 0x55082000, "55082000.mmu",
--		       &omap4_iommu_pdata),
- 	OF_DEV_AUXDATA("ti,omap4-smartreflex-iva", 0x4a0db000,
- 		       "4a0db000.smartreflex", &omap_sr_pdata[OMAP_SR_IVA]),
- 	OF_DEV_AUXDATA("ti,omap4-smartreflex-core", 0x4a0dd000,
+ enum afe4404_chan_id {
+@@ -328,17 +330,17 @@ static irqreturn_t afe4404_trigger_handler(int irq, void *private)
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+ 	int ret, bit, i = 0;
+-	s32 buffer[10];
+ 
+ 	for_each_set_bit(bit, indio_dev->active_scan_mask,
+ 			 indio_dev->masklength) {
+ 		ret = regmap_read(afe->regmap, afe4404_channel_values[bit],
+-				  &buffer[i++]);
++				  &afe->buffer[i++]);
+ 		if (ret)
+ 			goto err;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
++					   pf->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 -- 
 2.25.1
 
