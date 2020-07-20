@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB657226911
+	by mail.lfdr.de (Postfix) with ESMTP id 4F79F226910
 	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732456AbgGTQDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37990 "EHLO mail.kernel.org"
+        id S1732371AbgGTQDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:03:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732454AbgGTQDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:36 -0400
+        id S1732435AbgGTQDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:03:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B2DC2176B;
-        Mon, 20 Jul 2020 16:03:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E27EE20672;
+        Mon, 20 Jul 2020 16:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261015;
-        bh=roEMoMNz0vgPEnIen9IPPcMgNc5MvflC4Ou3IoPYch4=;
+        s=default; t=1595261018;
+        bh=JYyFGr2sihVJhNKnw+8dfFwSjESjBDsGXBaTY60Qe+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7Qi+DOwunM0vT7AUPFjsmOeUHEjCEDfz4ELfBABb3eKXcwwupTRLpGl0ux8uQEML
-         qKgGdB/TdB0K1/mSudorDAgSkzbKIFISApRmLab20w7zk3pi0NWyk1+rgx7oWpaPYi
-         Pw5o6V/CAyJSk5Ill1MKw1NffaJS4dL2NpTUg0hk=
+        b=nBJaMAtXi8J2NOeivaPtys4AzeoGVLhFr1uTp2lam8lr/6Uvqoo4Fetfr9v/qmvzm
+         LBjE1rdffDROdvo1hfY5+FRWFhKbObeivjquJU5VZCnVCb+r6Fyw2QJhrn4khY+3pZ
+         98O7DDDRSaSoCI0X78uWyvee5mUqXQ4ikXldff8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wang <dave.wang@emc.com.tw>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.4 179/215] Input: elan_i2c - add more hardware ID for Lenovo laptops
-Date:   Mon, 20 Jul 2020 17:37:41 +0200
-Message-Id: <20200720152828.690157175@linuxfoundation.org>
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>
+Subject: [PATCH 5.4 180/215] uio_pdrv_genirq: Remove warning when irq is not specified
+Date:   Mon, 20 Jul 2020 17:37:42 +0200
+Message-Id: <20200720152828.737225131@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -43,40 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wang <dave.wang@emc.com.tw>
+From: Esben Haabendal <esben@geanix.com>
 
-commit a50ca29523b18baea548bdf5df9b4b923c2bb4f6 upstream.
+commit 324ac45f25e634eca6346953ae531e8da3e0c73d upstream.
 
-This adds more hardware IDs for Elan touchpads found in various Lenovo
-laptops.
+Since e3a3c3a20555 ("UIO: fix uio_pdrv_genirq with device tree but no
+interrupt"), the uio_pdrv_genirq has supported use without interrupt,
+so the change in 7723f4c5ecdb ("driver core: platform: Add an error
+message to") added false warnings for those cases.
 
-Signed-off-by: Dave Wang <dave.wang@emc.com.tw>
-Link: https://lore.kernel.org/r/000201d5a8bd$9fead3f0$dfc07bd0$@emc.com.tw
+Fixes: 7723f4c5ecdb ("driver core: platform: Add an error message to platform_get_irq*()")
+Signed-off-by: Esben Haabendal <esben@geanix.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20200701145659.3978-2-esben@geanix.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/input/elan-i2c-ids.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/uio/uio_pdrv_genirq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/input/elan-i2c-ids.h
-+++ b/include/linux/input/elan-i2c-ids.h
-@@ -67,8 +67,15 @@ static const struct acpi_device_id elan_
- 	{ "ELAN062B", 0 },
- 	{ "ELAN062C", 0 },
- 	{ "ELAN062D", 0 },
-+	{ "ELAN062E", 0 }, /* Lenovo V340 Whiskey Lake U */
-+	{ "ELAN062F", 0 }, /* Lenovo V340 Comet Lake U */
- 	{ "ELAN0631", 0 },
- 	{ "ELAN0632", 0 },
-+	{ "ELAN0633", 0 }, /* Lenovo S145 */
-+	{ "ELAN0634", 0 }, /* Lenovo V340 Ice lake */
-+	{ "ELAN0635", 0 }, /* Lenovo V1415-IIL */
-+	{ "ELAN0636", 0 }, /* Lenovo V1415-Dali */
-+	{ "ELAN0637", 0 }, /* Lenovo V1415-IGLR */
- 	{ "ELAN1000", 0 },
- 	{ }
- };
+--- a/drivers/uio/uio_pdrv_genirq.c
++++ b/drivers/uio/uio_pdrv_genirq.c
+@@ -152,7 +152,7 @@ static int uio_pdrv_genirq_probe(struct
+ 	priv->pdev = pdev;
+ 
+ 	if (!uioinfo->irq) {
+-		ret = platform_get_irq(pdev, 0);
++		ret = platform_get_irq_optional(pdev, 0);
+ 		uioinfo->irq = ret;
+ 		if (ret == -ENXIO && pdev->dev.of_node)
+ 			uioinfo->irq = UIO_IRQ_NONE;
 
 
