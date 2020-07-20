@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0005F2266E2
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:07:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E161B2268DC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732638AbgGTQHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S2387887AbgGTQWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:22:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733114AbgGTQHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:07:03 -0400
+        id S1731920AbgGTQHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:07:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40D8C20672;
-        Mon, 20 Jul 2020 16:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0A1D2064B;
+        Mon, 20 Jul 2020 16:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261222;
-        bh=GEJJCDdVm8pUbVjvqKgHBBMZkXtSqzUnyt6nkVra9C4=;
+        s=default; t=1595261225;
+        bh=jXwzaznj6HnmZcyrThYwe2ObKGTHQE4RcAMYcZSIg7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZazdAiGaow1MMrvf4Z6k2+kaUNhG4VbnJ1FUr2p0XxxWEbb2OrPhySRm/V36hNlc
-         KYjqVZc0OQa+auBfpTXUJ7FubXy7Gbki3rIkh9CC0YjyIff7OK6/q3azJ1itQgwFhO
-         vgsvvFj4fGXwgFwd6114AnYx4q/Rt9PjskkdaGQE=
+        b=v/JhooIa32d0PHO4uALZbJ1RoDXjXdRpScJpYmzY2JJfgUP98M065dubQ50+JsEeL
+         cqhvJlNZfNpz+vpcWhZCCdyONUPdX2DfPo4RL0vHlMME9pK/G2ZVpEJ6dLD3pr3NNF
+         fX19sy5Jo7gGKPgS+vuLsOisgIhM+aiYGMG2etZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petteri Aimonen <jpa@git.mail.kapsi.fi>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 036/244] x86/fpu: Reset MXCSR to default in kernel_fpu_begin()
-Date:   Mon, 20 Jul 2020 17:35:07 +0200
-Message-Id: <20200720152827.582799070@linuxfoundation.org>
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 037/244] thermal/drivers: imx: Fix missing of_node_put() at probe time
+Date:   Mon, 20 Jul 2020 17:35:08 +0200
+Message-Id: <20200720152827.623724274@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -43,64 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petteri Aimonen <jpa@git.mail.kapsi.fi>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 7ad816762f9bf89e940e618ea40c43138b479e10 ]
+[ Upstream commit b45fd13be340e4ed0a2a9673ba299eb2a71ba829 ]
 
-Previously, kernel floating point code would run with the MXCSR control
-register value last set by userland code by the thread that was active
-on the CPU core just before kernel call. This could affect calculation
-results if rounding mode was changed, or a crash if a FPU/SIMD exception
-was unmasked.
+After finishing using cpu node got from of_get_cpu_node(), of_node_put()
+needs to be called.
 
-Restore MXCSR to the kernel's default value.
-
- [ bp: Carve out from a bigger patch by Petteri, add feature check, add
-   FNINIT call too (amluto). ]
-
-Signed-off-by: Petteri Aimonen <jpa@git.mail.kapsi.fi>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207979
-Link: https://lkml.kernel.org/r/20200624114646.28953-2-bp@alien8.de
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/1585232945-23368-1-git-send-email-Anson.Huang@nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fpu/internal.h | 5 +++++
- arch/x86/kernel/fpu/core.c          | 6 ++++++
- 2 files changed, 11 insertions(+)
+ drivers/thermal/imx_thermal.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index 44c48e34d7994..00eac7f1529b0 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -619,6 +619,11 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
-  * MXCSR and XCR definitions:
-  */
+diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
+index e761c9b422179..1b84ea674edb7 100644
+--- a/drivers/thermal/imx_thermal.c
++++ b/drivers/thermal/imx_thermal.c
+@@ -649,7 +649,7 @@ MODULE_DEVICE_TABLE(of, of_imx_thermal_match);
+ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
+ {
+ 	struct device_node *np;
+-	int ret;
++	int ret = 0;
  
-+static inline void ldmxcsr(u32 mxcsr)
-+{
-+	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
-+}
-+
- extern unsigned int mxcsr_feature_mask;
- 
- #define XCR_XFEATURE_ENABLED_MASK	0x00000000
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 12c70840980e4..cd8839027f66d 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -101,6 +101,12 @@ void kernel_fpu_begin(void)
- 		copy_fpregs_to_fpstate(&current->thread.fpu);
+ 	data->policy = cpufreq_cpu_get(0);
+ 	if (!data->policy) {
+@@ -664,11 +664,12 @@ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
+ 		if (IS_ERR(data->cdev)) {
+ 			ret = PTR_ERR(data->cdev);
+ 			cpufreq_cpu_put(data->policy);
+-			return ret;
+ 		}
  	}
- 	__cpu_invalidate_fpregs_state();
-+
-+	if (boot_cpu_has(X86_FEATURE_XMM))
-+		ldmxcsr(MXCSR_DEFAULT);
-+
-+	if (boot_cpu_has(X86_FEATURE_FPU))
-+		asm volatile ("fninit");
- }
- EXPORT_SYMBOL_GPL(kernel_fpu_begin);
  
+-	return 0;
++	of_node_put(np);
++
++	return ret;
+ }
+ 
+ static void imx_thermal_unregister_legacy_cooling(struct imx_thermal_data *data)
 -- 
 2.25.1
 
