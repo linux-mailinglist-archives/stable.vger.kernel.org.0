@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B37382267DB
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9232268FE
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388388AbgGTQPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55994 "EHLO mail.kernel.org"
+        id S1730668AbgGTQXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387446AbgGTQPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:15:14 -0400
+        id S1732893AbgGTQEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7538B20734;
-        Mon, 20 Jul 2020 16:15:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F41C20734;
+        Mon, 20 Jul 2020 16:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261714;
-        bh=UHTBCsg/QqgvyNMNI2gyYcukzr/gTi8xEjWWr4Et+xA=;
+        s=default; t=1595261087;
+        bh=gY7M0vHhcIvdmRdJ5D1OZsFINYfqQm6+7Tw5ej3VREQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVfD2gPRYEDmTplHddp1ZNT06/E3fs4msOIdiKts9yXQG1V982Y8op26m8NOLtuxo
-         e0qVEhNIdG88CExn74MkPD6C/bwcS+RH8VFbWSYo6q+g78/iLElcy49GNmc9ByZaOx
-         hdMKhqVvpZIUGitnmS1d0p7v176TfonNAxOxSafI=
+        b=Uq5N5tSoHfZOw01btgiM11rZ/lLIRDmX5lJs8AGDYyf3Z/uJJdLdGRUnB+Rp8lt76
+         PupVg6Lu721wnyyy1P+5sJ7V2wvT0BUnaL0NAbmBzkO4sPU/z1D2FR4mxm5OCEojzj
+         3UDcQx9CQe5pjZOlZ43O31Z955Tw63yUkLkah5Eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Keno Fischer <keno@juliacomputing.com>,
-        Luis Machado <luis.machado@linaro.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.7 216/244] arm64: ptrace: Override SPSR.SS when single-stepping is enabled
+        stable@vger.kernel.org, Le Ma <le.ma@amd.com>,
+        Xiaojie Yuan <xiaojie.yuan@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 205/215] drm/amdgpu/sdma5: fix wptr overwritten in ->get_wptr()
 Date:   Mon, 20 Jul 2020 17:38:07 +0200
-Message-Id: <20200720152836.116413945@linuxfoundation.org>
+Message-Id: <20200720152829.915314645@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,110 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Xiaojie Yuan <xiaojie.yuan@amd.com>
 
-commit 3a5a4366cecc25daa300b9a9174f7fdd352b9068 upstream.
+commit 05051496b2622e4d12e2036b35165969aa502f89 upstream.
 
-Luis reports that, when reverse debugging with GDB, single-step does not
-function as expected on arm64:
+"u64 *wptr" points to the the wptr value in write back buffer and
+"*wptr = (*wptr) >> 2;" results in the value being overwritten each time
+when ->get_wptr() is called.
 
-  | I've noticed, under very specific conditions, that a PTRACE_SINGLESTEP
-  | request by GDB won't execute the underlying instruction. As a consequence,
-  | the PC doesn't move, but we return a SIGTRAP just like we would for a
-  | regular successful PTRACE_SINGLESTEP request.
+umr uses /sys/kernel/debug/dri/0/amdgpu_ring_sdma0 to get rptr/wptr and
+decode ring content and it is affected by this issue.
 
-The underlying problem is that when the CPU register state is restored
-as part of a reverse step, the SPSR.SS bit is cleared and so the hardware
-single-step state can transition to the "active-pending" state, causing
-an unexpected step exception to be taken immediately if a step operation
-is attempted.
+fix and simplify the logic similar as sdma_v4_0_ring_get_wptr().
 
-In hindsight, we probably shouldn't have exposed SPSR.SS in the pstate
-accessible by the GPR regset, but it's a bit late for that now. Instead,
-simply prevent userspace from configuring the bit to a value which is
-inconsistent with the TIF_SINGLESTEP state for the task being traced.
+v2: fix for sdma5.2 as well
+v3: drop sdma 5.2 changes for 5.8 and stable
 
-Cc: <stable@vger.kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Keno Fischer <keno@juliacomputing.com>
-Link: https://lore.kernel.org/r/1eed6d69-d53d-9657-1fc9-c089be07f98c@linaro.org
-Reported-by: Luis Machado <luis.machado@linaro.org>
-Tested-by: Luis Machado <luis.machado@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Suggested-by: Le Ma <le.ma@amd.com>
+Signed-off-by: Xiaojie Yuan <xiaojie.yuan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/debug-monitors.h |    2 ++
- arch/arm64/kernel/debug-monitors.c      |   20 ++++++++++++++++----
- arch/arm64/kernel/ptrace.c              |    4 ++--
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c |   26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
---- a/arch/arm64/include/asm/debug-monitors.h
-+++ b/arch/arm64/include/asm/debug-monitors.h
-@@ -109,6 +109,8 @@ void disable_debug_monitors(enum dbg_act
- 
- void user_rewind_single_step(struct task_struct *task);
- void user_fastforward_single_step(struct task_struct *task);
-+void user_regs_reset_single_step(struct user_pt_regs *regs,
-+				 struct task_struct *task);
- 
- void kernel_enable_single_step(struct pt_regs *regs);
- void kernel_disable_single_step(void);
---- a/arch/arm64/kernel/debug-monitors.c
-+++ b/arch/arm64/kernel/debug-monitors.c
-@@ -141,17 +141,20 @@ postcore_initcall(debug_monitors_init);
- /*
-  * Single step API and exception handling.
-  */
--static void set_regs_spsr_ss(struct pt_regs *regs)
-+static void set_user_regs_spsr_ss(struct user_pt_regs *regs)
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+@@ -286,30 +286,20 @@ static uint64_t sdma_v5_0_ring_get_rptr(
+ static uint64_t sdma_v5_0_ring_get_wptr(struct amdgpu_ring *ring)
  {
- 	regs->pstate |= DBG_SPSR_SS;
- }
--NOKPROBE_SYMBOL(set_regs_spsr_ss);
-+NOKPROBE_SYMBOL(set_user_regs_spsr_ss);
+ 	struct amdgpu_device *adev = ring->adev;
+-	u64 *wptr = NULL;
+-	uint64_t local_wptr = 0;
++	u64 wptr;
  
--static void clear_regs_spsr_ss(struct pt_regs *regs)
-+static void clear_user_regs_spsr_ss(struct user_pt_regs *regs)
- {
- 	regs->pstate &= ~DBG_SPSR_SS;
- }
--NOKPROBE_SYMBOL(clear_regs_spsr_ss);
-+NOKPROBE_SYMBOL(clear_user_regs_spsr_ss);
-+
-+#define set_regs_spsr_ss(r)	set_user_regs_spsr_ss(&(r)->user_regs)
-+#define clear_regs_spsr_ss(r)	clear_user_regs_spsr_ss(&(r)->user_regs)
+ 	if (ring->use_doorbell) {
+ 		/* XXX check if swapping is necessary on BE */
+-		wptr = ((u64 *)&adev->wb.wb[ring->wptr_offs]);
+-		DRM_DEBUG("wptr/doorbell before shift == 0x%016llx\n", *wptr);
+-		*wptr = (*wptr) >> 2;
+-		DRM_DEBUG("wptr/doorbell after shift == 0x%016llx\n", *wptr);
++		wptr = READ_ONCE(*((u64 *)&adev->wb.wb[ring->wptr_offs]));
++		DRM_DEBUG("wptr/doorbell before shift == 0x%016llx\n", wptr);
+ 	} else {
+-		u32 lowbit, highbit;
+-
+-		wptr = &local_wptr;
+-		lowbit = RREG32(sdma_v5_0_get_reg_offset(adev, ring->me, mmSDMA0_GFX_RB_WPTR)) >> 2;
+-		highbit = RREG32(sdma_v5_0_get_reg_offset(adev, ring->me, mmSDMA0_GFX_RB_WPTR_HI)) >> 2;
+-
+-		DRM_DEBUG("wptr [%i]high== 0x%08x low==0x%08x\n",
+-				ring->me, highbit, lowbit);
+-		*wptr = highbit;
+-		*wptr = (*wptr) << 32;
+-		*wptr |= lowbit;
++		wptr = RREG32(sdma_v5_0_get_reg_offset(adev, ring->me, mmSDMA0_GFX_RB_WPTR_HI));
++		wptr = wptr << 32;
++		wptr |= RREG32(sdma_v5_0_get_reg_offset(adev, ring->me, mmSDMA0_GFX_RB_WPTR));
++		DRM_DEBUG("wptr before shift [%i] wptr == 0x%016llx\n", ring->me, wptr);
+ 	}
  
- static DEFINE_SPINLOCK(debug_hook_lock);
- static LIST_HEAD(user_step_hook);
-@@ -404,6 +407,15 @@ void user_fastforward_single_step(struct
- 		clear_regs_spsr_ss(task_pt_regs(task));
+-	return *wptr;
++	return wptr >> 2;
  }
  
-+void user_regs_reset_single_step(struct user_pt_regs *regs,
-+				 struct task_struct *task)
-+{
-+	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
-+		set_user_regs_spsr_ss(regs);
-+	else
-+		clear_user_regs_spsr_ss(regs);
-+}
-+
- /* Kernel API */
- void kernel_enable_single_step(struct pt_regs *regs)
- {
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1935,8 +1935,8 @@ static int valid_native_regs(struct user
-  */
- int valid_user_regs(struct user_pt_regs *regs, struct task_struct *task)
- {
--	if (!test_tsk_thread_flag(task, TIF_SINGLESTEP))
--		regs->pstate &= ~DBG_SPSR_SS;
-+	/* https://lore.kernel.org/lkml/20191118131525.GA4180@willie-the-truck */
-+	user_regs_reset_single_step(regs, task);
- 
- 	if (is_compat_thread(task_thread_info(task)))
- 		return valid_compat_regs(regs);
+ /**
 
 
