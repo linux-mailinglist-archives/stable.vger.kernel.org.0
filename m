@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0D92265E6
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 434882265CE
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732050AbgGTP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:58:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58752 "EHLO mail.kernel.org"
+        id S1731192AbgGTP52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:57:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732047AbgGTP6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:58:31 -0400
+        id S1731669AbgGTP51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:57:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8139920734;
-        Mon, 20 Jul 2020 15:58:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27E2D20734;
+        Mon, 20 Jul 2020 15:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260711;
-        bh=XTUF+o5CIluzJxCVc/liIpiAQyJPlLkC0DzwQTYaWYY=;
+        s=default; t=1595260646;
+        bh=faaFtAwdn5ulgFqYuEGAZuBize4Fl3s5R+QYmSR16Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBc5o9365dXMvoQzbllGedCQcJjzFEtyCje2nXbp3QNtHpdLLrJFksRvcxNy1HCMy
-         p64+5cLDOxYwY9wEa7yb0ierRi/vU5JRSE6vmrc5mdTOfNmy2iJsgGkcZRdTRVBOzi
-         ggolMenSs3tga98gxNs1UkH1miC9FpDrmz1EE8DY=
+        b=o2VuWyjIqEzGRvYniSVzMjmd3AwWRUwIcQ9SpbqfcguLtjjnORA1b+vj7HMFkLT+B
+         AdOi+s6qEuh21E56XejQGf2+6L7fm9VB82V8fZlCsnTLzZAGj9SJKNgwGOfJ9N3l0X
+         gNMxEq8y8WAQXRrzW1Y5q1MxUl4srNN2Q49vP8xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Angelo Dureghello <angelo.dureghello@timesys.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/215] m68k: mm: fix node memblock init
-Date:   Mon, 20 Jul 2020 17:35:20 +0200
-Message-Id: <20200720152821.994807772@linuxfoundation.org>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 044/215] i2c: eg20t: Load module automatically if ID matches
+Date:   Mon, 20 Jul 2020 17:35:26 +0200
+Message-Id: <20200720152822.289970970@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -46,37 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Dureghello <angelo.dureghello@timesys.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit c43e55796dd4d13f4855971a4d7970ce2cd94db4 ]
+[ Upstream commit 5f90786b31fb7d1e199a8999d46c4e3aea672e11 ]
 
-After pulling 5.7.0 (linux-next merge), mcf5441x mmu boot was
-hanging silently.
+The driver can't be loaded automatically because it misses
+module alias to be provided. Add corresponding MODULE_DEVICE_TABLE()
+call to the driver.
 
-memblock_add() seems not appropriate, since using MAX_NUMNODES
-as node id, while memblock_add_node() sets up memory for node id 0.
-
-Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mm/mcfmmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-eg20t.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/mm/mcfmmu.c b/arch/m68k/mm/mcfmmu.c
-index 6cb1e41d58d00..70a5f55ea6647 100644
---- a/arch/m68k/mm/mcfmmu.c
-+++ b/arch/m68k/mm/mcfmmu.c
-@@ -164,7 +164,7 @@ void __init cf_bootmem_alloc(void)
- 	m68k_memory[0].addr = _rambase;
- 	m68k_memory[0].size = _ramend - _rambase;
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index bb810dee8fb5e..73f139690e4e5 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -180,6 +180,7 @@ static const struct pci_device_id pch_pcidev_id[] = {
+ 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), 1, },
+ 	{0,}
+ };
++MODULE_DEVICE_TABLE(pci, pch_pcidev_id);
  
--	memblock_add(m68k_memory[0].addr, m68k_memory[0].size);
-+	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0);
+ static irqreturn_t pch_i2c_handler(int irq, void *pData);
  
- 	/* compute total pages in system */
- 	num_pages = PFN_DOWN(_ramend - _rambase);
 -- 
 2.25.1
 
