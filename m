@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 392D3226663
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B194A2267A2
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728813AbgGTQCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:02:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36872 "EHLO mail.kernel.org"
+        id S1732824AbgGTQNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732372AbgGTQCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:02:49 -0400
+        id S2388096AbgGTQNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:13:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02D0320773;
-        Mon, 20 Jul 2020 16:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1527B20684;
+        Mon, 20 Jul 2020 16:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260968;
-        bh=bTZfeAWR2pBaRtAlL/mVt3xpRqcquaU//lEAkN+K/r4=;
+        s=default; t=1595261594;
+        bh=7P51UCwmsDPHCOOzmOfOEUc5JLZLUOM0bBwlUBhsPU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZR/A32xJgzcXca8yeS5vLIMXZm7Gi9/vV6KaLPerdNCN6Jkt/wkJlRCDplycZMqk
-         KfB69+nkYqS9Xo0w63dYbC8lsPpK79b3Qg21dsBlMJh1ei98la6eUJcLph4z2TEy+z
-         aWUZttBlFK5a+H0QszsHEzzFiYHcIui4mYIaO89U=
+        b=iuRKB7qvR+dN192UlolRUZf/P+iCYCO3UBRFe6+CvJDa1irPVFCD/65l98BDYTSqp
+         1lTmHunuzY/2kezP68G6gvGP6PFhSUS0CwQgE33/CKAx/KHUuljp2GDWZk0o98KABg
+         wOzNMXveOrPeTbrpD5lTB3mQXULkonh/m76EEqVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 160/215] USB: serial: cypress_m8: enable Simply Automated UPB PIM
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 5.7 171/244] Revert "tty: xilinx_uartps: Fix missing id assignment to the console"
 Date:   Mon, 20 Jul 2020 17:37:22 +0200
-Message-Id: <20200720152827.794324635@linuxfoundation.org>
+Message-Id: <20200720152833.968753698@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-commit 5c45d04c5081c1830d674f4d22d4400ea2083afe upstream.
+commit 76ed2e105796710cf5b8a4ba43c81eceed948b70 upstream.
 
-This is a UPB (Universal Powerline Bus) PIM (Powerline Interface Module)
-which allows for controlling multiple UPB compatible devices from Linux
-using the standard serial interface.
+This reverts commit 2ae11c46d5fdc46cb396e35911c713d271056d35.
 
-Based on vendor application source code there are two different models
-of USB based PIM devices in addition to a number of RS232 based PIM's.
+It turned out to break the ultra96-rev1, e.g., which uses uart1 as
+serial0 (and stdout-path = "serial0:115200n8").
 
-The vendor UPB application source contains the following USB ID's:
-
-	#define USB_PCS_VENDOR_ID 0x04b4
-	#define USB_PCS_PIM_PRODUCT_ID 0x5500
-
-	#define USB_SAI_VENDOR_ID 0x17dd
-	#define USB_SAI_PIM_PRODUCT_ID 0x5500
-
-The first set of ID's correspond to the PIM variant sold by Powerline
-Control Systems while the second corresponds to the Simply Automated
-Incorporated PIM. As the product ID for both of these match the default
-cypress HID->COM RS232 product ID it assumed that they both use an
-internal variant of this HID->COM RS232 converter hardware. However
-as the vendor ID for the Simply Automated variant is different we need
-to also add it to the cypress_M8 driver so that it is properly
-detected.
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200616220403.1807003-1-james.hilliard1@gmail.com
-Cc: stable@vger.kernel.org
-[ johan: amend VID define entry ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 2ae11c46d5fd ("tty: xilinx_uartps: Fix missing id assignment to the console")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com>
+Tested-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/f4092727-d8f5-5f91-2c9f-76643aace993@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/cypress_m8.c |    2 ++
- drivers/usb/serial/cypress_m8.h |    3 +++
- 2 files changed, 5 insertions(+)
+ drivers/tty/serial/xilinx_uartps.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/serial/cypress_m8.c
-+++ b/drivers/usb/serial/cypress_m8.c
-@@ -59,6 +59,7 @@ static const struct usb_device_id id_tab
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1459,7 +1459,6 @@ static int cdns_uart_probe(struct platfo
+ 		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+ 		cdns_uart_uart_driver.cons = &cdns_uart_console;
+-		cdns_uart_console.index = id;
+ #endif
  
- static const struct usb_device_id id_table_cyphidcomrs232[] = {
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ }						/* Terminating entry */
-@@ -73,6 +74,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
---- a/drivers/usb/serial/cypress_m8.h
-+++ b/drivers/usb/serial/cypress_m8.h
-@@ -25,6 +25,9 @@
- #define VENDOR_ID_CYPRESS		0x04b4
- #define PRODUCT_ID_CYPHIDCOM		0x5500
- 
-+/* Simply Automated HID->COM UPB PIM (using Cypress PID 0x5500) */
-+#define VENDOR_ID_SAI			0x17dd
-+
- /* FRWD Dongle - a GPS sports watch */
- #define VENDOR_ID_FRWD			0x6737
- #define PRODUCT_ID_CYPHIDCOM_FRWD	0x0001
+ 		rc = uart_register_driver(&cdns_uart_uart_driver);
 
 
