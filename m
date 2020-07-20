@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1783A226684
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E807226836
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732528AbgGTQDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38418 "EHLO mail.kernel.org"
+        id S2387638AbgGTQOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732786AbgGTQDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:52 -0400
+        id S2388247AbgGTQOS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB56620672;
-        Mon, 20 Jul 2020 16:03:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0907F2064B;
+        Mon, 20 Jul 2020 16:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261032;
+        s=default; t=1595261658;
         bh=5rXQzEYU2+gqpuTghtoF8F6v6J2dFvnYt0oGnr0YInE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsiGW5OEqnrL66X35PB2f0QZFagHhHN+1OG6TbSq+y/ecvUZzjxdV/4HMHy7jGUUf
-         hVBxZb3a2g58eDcAaL9qrmHRusxMApSlTw+PERiFNpJvXqJeo3jrVal3DFIP2wGy0X
-         8+kQUQHQrSxVeIXDWgFGuACw3IYJw6brN91mHiUQ=
+        b=x8vYR9mYs1HfqRm5V2PBrACeLpw78YHNvvgwaZJ2YdUCXL03ypkAaJIPgfTrs960K
+         duTX6D3n7++B4KnLdxO2AI7M7cnZUrpdTPTTcvTxp/aDF4v7eBdOYNuMKlEzAVmd25
+         7lE4AS/UwqJ6pnvGm0xwFbPOnumD2cVNkLH/PV40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 184/215] timer: Fix wheel index calculation on last level
+Subject: [PATCH 5.7 195/244] timer: Fix wheel index calculation on last level
 Date:   Mon, 20 Jul 2020 17:37:46 +0200
-Message-Id: <20200720152828.928409994@linuxfoundation.org>
+Message-Id: <20200720152835.122048387@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
