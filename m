@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 315652268B7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A8FB226723
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733266AbgGTQKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:10:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
+        id S2387478AbgGTQJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:09:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731840AbgGTQK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:28 -0400
+        id S2387469AbgGTQJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:09:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B48C02064B;
-        Mon, 20 Jul 2020 16:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A28DE22CB1;
+        Mon, 20 Jul 2020 16:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261428;
-        bh=u0ikDbyX9GOqbbaXAuuFaHnxV4s/a95o1MGijX8LtEs=;
+        s=default; t=1595261340;
+        bh=eoZ6aqVUpZt4bpJWl7G/xhI+5Tqx6a8wdxwhcKq1e40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0v46QKZVDQF0JjXUGKd+NpPB74F6SBLpP3WH5Bv60+3FgPdc3od23Nc65IhW7b0a
-         N1i92nWyTEmYQSGz/Ug4EvO6F0JfllfmFMzHTVVpKlYwl266UfXBJKkHyrSvJumnSy
-         c300lGDGjB7JNkf/EjZsE78dobPkRwwXhDivq2eE=
+        b=o5Lu6vleQTjBeFErHG+evzkY0utsmcCctqaCkMy5+Cb2GUFpFjZ0OMDWkcZGF8tO5
+         2Qyu9iuo1V+kWW7l7C0Tzk6sc/iEkawYZQBvkQ5X1XUpa6DiYavjrePJybhfBKNZAC
+         kdhS7wsi6Bx/q+J3Y15xQ5CEzYc2j29ltmsfInZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 072/244] net: ethernet: mvneta: Add back interface mode validation
-Date:   Mon, 20 Jul 2020 17:35:43 +0200
-Message-Id: <20200720152829.265726913@linuxfoundation.org>
+Subject: [PATCH 5.7 073/244] scsi: qla2xxx: make 1-bit bit-fields unsigned int
+Date:   Mon, 20 Jul 2020 17:35:44 +0200
+Message-Id: <20200720152829.316470169@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -45,79 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 41c2b6b4f0f807803bb49f65835d136941a70f85 ]
+[ Upstream commit 78b874b7cbf09fbfadfa5f18a347ebef7bbb49fe ]
 
-When writing the serdes configuration register was moved to
-mvneta_config_interface() the whole code block was removed from
-mvneta_port_power_up() in the assumption that its only purpose was to
-write the serdes configuration register. As mentioned by Russell King
-its purpose was also to check for valid interface modes early so that
-later in the driver we do not have to care for unexpected interface
-modes.
-Add back the test to let the driver bail out early on unhandled
-interface modes.
+The bitfields mpi_fw_dump_reading and mpi_fw_dumped are currently signed
+which is not recommended as the representation is an implementation defined
+behaviour.  Fix this by making the bit-fields unsigned ints.
 
-Fixes: b4748553f53f ("net: ethernet: mvneta: Fix Serdes configuration for SoCs without comphy")
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200428102013.1040598-1-colin.king@canonical.com
+Fixes: cbb01c2f2f63 ("scsi: qla2xxx: Fix MPI failure AEN (8200) handling")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 7faeb4bfc282e..b2da295e2fc01 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -5003,10 +5003,18 @@ static void mvneta_conf_mbus_windows(struct mvneta_port *pp,
- }
- 
- /* Power up the port */
--static void mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
-+static int mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
- {
- 	/* MAC Cause register should be cleared */
- 	mvreg_write(pp, MVNETA_UNIT_INTR_CAUSE, 0);
-+
-+	if (phy_mode != PHY_INTERFACE_MODE_QSGMII &&
-+	    phy_mode != PHY_INTERFACE_MODE_SGMII &&
-+	    !phy_interface_mode_is_8023z(phy_mode) &&
-+	    !phy_interface_mode_is_rgmii(phy_mode))
-+		return -EINVAL;
-+
-+	return 0;
- }
- 
- /* Device initialization routine */
-@@ -5192,7 +5200,11 @@ static int mvneta_probe(struct platform_device *pdev)
- 	if (err < 0)
- 		goto err_netdev;
- 
--	mvneta_port_power_up(pp, phy_mode);
-+	err = mvneta_port_power_up(pp, pp->phy_interface);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "can't power up port\n");
-+		return err;
-+	}
- 
- 	/* Armada3700 network controller does not support per-cpu
- 	 * operation, so only single NAPI should be initialized.
-@@ -5346,7 +5358,11 @@ static int mvneta_resume(struct device *device)
- 		}
- 	}
- 	mvneta_defaults_set(pp);
--	mvneta_port_power_up(pp, pp->phy_interface);
-+	err = mvneta_port_power_up(pp, pp->phy_interface);
-+	if (err < 0) {
-+		dev_err(device, "can't power up port\n");
-+		return err;
-+	}
- 
- 	netif_device_attach(dev);
- 
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index daa9e936887bb..172ea4e5887d9 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -4248,8 +4248,8 @@ struct qla_hw_data {
+ 	int		fw_dump_reading;
+ 	void		*mpi_fw_dump;
+ 	u32		mpi_fw_dump_len;
+-	int		mpi_fw_dump_reading:1;
+-	int		mpi_fw_dumped:1;
++	unsigned int	mpi_fw_dump_reading:1;
++	unsigned int	mpi_fw_dumped:1;
+ 	int		prev_minidump_failed;
+ 	dma_addr_t	eft_dma;
+ 	void		*eft;
 -- 
 2.25.1
 
