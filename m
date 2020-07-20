@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA17122666D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB42D22686D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732718AbgGTQDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37328 "EHLO mail.kernel.org"
+        id S2388259AbgGTQT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732419AbgGTQDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:08 -0400
+        id S2387912AbgGTQMI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:12:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EB7720672;
-        Mon, 20 Jul 2020 16:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76A4220684;
+        Mon, 20 Jul 2020 16:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260988;
-        bh=3DIIuFvolpU1ejUNjM2ZXn6NWLeSQpweIh1U63zDc4M=;
+        s=default; t=1595261528;
+        bh=dfcfgPEGeoofM/Nae4L2zZsbV2SUoApZ2mYywxFqS7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8y1E+mw5V1IiSF+LyBxTJ6sPij4VQz7fun6mYSwvqr+428XIqfUseKQKPqx46R1J
-         2rNsxB/b21uSmZbNiSNdMakC4K+BsmvBR4NDzNSPA7NDJs8Srm38JeMau4K6ZbDmHT
-         MnPaXPaqQJc+K4vkKdjcF+27ltFCf9juHrpjKQ+g=
+        b=IoZOX+kQpX49ptLXlsd7uES6dLcOvzmE9Ifpup/Rw3D6tzt8E70vaJn8iSdBrgmGS
+         4lCQTQ1+NdzLZ0nJTJ9jrgrQzCE736uHeAMMLhFoUUx20HTSyKTsuIw/WYA114nLLP
+         5aTz4R+jls1jgd8G67FaQSQvUpK2s4M7LmmrWBmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 138/215] mtd: rawnand: oxnas: Unregister all devices on error
+        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.7 149/244] HID: quirks: Always poll Obins Anne Pro 2 keyboard
 Date:   Mon, 20 Jul 2020 17:37:00 +0200
-Message-Id: <20200720152826.752938150@linuxfoundation.org>
+Message-Id: <20200720152832.940483679@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Sebastian Parschauer <s.parschauer@gmx.de>
 
-commit b60391eb17b2956ff2fc4c348e5a464da21ff9cb upstream.
+commit ca28aff0e1dc7dce9e12a7fd9276b7118ce5e73a upstream.
 
-On error, the oxnas probe path just frees the device which failed and
-aborts the probe, leaving unreleased resources.
+The Obins Anne Pro 2 keyboard (04d9:a293) disconnects after a few
+minutes of inactivity when using it wired and typing does not result
+in any input events any more. This is a common firmware flaw. So add
+the ALWAYS_POLL quirk for this device.
 
-Fix this situation by calling mtd_device_unregister()/nand_cleanup()
-on these.
+GitHub user Dietrich Moerman (dietrichm) tested the quirk and
+requested my help in my project
+https://github.com/sriemer/fix-linux-mouse issue 22 to provide
+this patch.
 
-Fixes: 668592492409 ("mtd: nand: Add OX820 NAND Support")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-38-miquel.raynal@bootlin.com
+Link: https://www.reddit.com/r/AnnePro/comments/gruzcb/anne_pro_2_linux_cant_type_after_inactivity/
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+Cc: stable@vger.kernel.org # v4.16+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/oxnas_nand.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-ids.h    |    1 +
+ drivers/hid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/mtd/nand/raw/oxnas_nand.c
-+++ b/drivers/mtd/nand/raw/oxnas_nand.c
-@@ -82,6 +82,7 @@ static int oxnas_nand_probe(struct platf
- 	struct resource *res;
- 	int count = 0;
- 	int err = 0;
-+	int i;
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -624,6 +624,7 @@
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
+ #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
++#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293	0xa293
  
- 	/* Allocate memory for the device structure (and zero it) */
- 	oxnas = devm_kzalloc(&pdev->dev, sizeof(*oxnas),
-@@ -161,6 +162,13 @@ err_cleanup_nand:
- 	nand_cleanup(chip);
- err_release_child:
- 	of_node_put(nand_np);
-+
-+	for (i = 0; i < oxnas->nchips; i++) {
-+		chip = oxnas->chips[i];
-+		WARN_ON(mtd_device_unregister(nand_to_mtd(chip)));
-+		nand_cleanup(chip);
-+	}
-+
- err_clk_unprepare:
- 	clk_disable_unprepare(oxnas->clk);
- 	return err;
+ #define USB_VENDOR_ID_IMATION		0x0718
+ #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -88,6 +88,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
 
 
