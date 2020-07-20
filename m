@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F128226484
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:45:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0FB5226617
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730562AbgGTPpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:45:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40208 "EHLO mail.kernel.org"
+        id S1731756AbgGTQAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:00:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730559AbgGTPpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:45 -0400
+        id S1731840AbgGTQAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:00:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 277342064B;
-        Mon, 20 Jul 2020 15:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2111722D00;
+        Mon, 20 Jul 2020 16:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259944;
-        bh=+fMBqmd+8jSPdbKzDkNB+4cM/uWpUcqZuRt8XevMLqY=;
+        s=default; t=1595260813;
+        bh=/29qPsw6MCZ0MhDodL6x0mL4qnnc1Ff9ruQ13MBKVRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWZHm0BIINBIGmBR8RvYQxHmhpRTsSrvSbGyIYinLrD5CkDYsyxvdk8vWnJnnrn77
-         HCklKSOzJWPxerNoCKybCMTcht1CjoFuxrPGl20JlESFUj67/K/QAqFq9tO/zFiv1p
-         hbqAIzOq15AKtrAdzszYpXexfrHN4hE9wZNHLN5s=
+        b=wtw8X/PYaFZxOodvjlsDc1DAtWA/Syz1FqKSIiOLrvcUQVtXqNiwpgxuElVYuNzdI
+         kxmz9DuieD0a0/3/iErRpXn7ncxlFJ/CxpQ9T/2OmnSu2bEjK1MhO2SSLEYWlXTYkg
+         5r8ByHqhXjvJ7xaqy2Qm0Gnf4RmAupiwZSqoJpvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 049/125] tcp: md5: allow changing MD5 keys in all socket states
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 106/215] usb: gadget: udc: atmel: fix uninitialized read in debug printk
 Date:   Mon, 20 Jul 2020 17:36:28 +0200
-Message-Id: <20200720152805.381418685@linuxfoundation.org>
+Message-Id: <20200720152825.247062770@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit 1ca0fafd73c5268e8fc4b997094b8bb2bfe8deea ]
+[ Upstream commit 30517ffeb3bff842e1355cbc32f1959d9dbb5414 ]
 
-This essentially reverts commit 721230326891 ("tcp: md5: reject TCP_MD5SIG
-or TCP_MD5SIG_EXT on established sockets")
+Fixed commit moved the assignment of 'req', but did not update a
+reference in the DBG() call. Use the argument as it was renamed.
 
-Mathieu reported that many vendors BGP implementations can
-actually switch TCP MD5 on established flows.
-
-Quoting Mathieu :
-   Here is a list of a few network vendors along with their behavior
-   with respect to TCP MD5:
-
-   - Cisco: Allows for password to be changed, but within the hold-down
-     timer (~180 seconds).
-   - Juniper: When password is initially set on active connection it will
-     reset, but after that any subsequent password changes no network
-     resets.
-   - Nokia: No notes on if they flap the tcp connection or not.
-   - Ericsson/RedBack: Allows for 2 password (old/new) to co-exist until
-     both sides are ok with new passwords.
-   - Meta-Switch: Expects the password to be set before a connection is
-     attempted, but no further info on whether they reset the TCP
-     connection on a change.
-   - Avaya: Disable the neighbor, then set password, then re-enable.
-   - Zebos: Would normally allow the change when socket connected.
-
-We can revert my prior change because commit 9424e2e7ad93 ("tcp: md5: fix potential
-overestimation of TCP option space") removed the leak of 4 kernel bytes to
-the wire that was the main reason for my patch.
-
-While doing my investigations, I found a bug when a MD5 key is changed, leading
-to these commits that stable teams want to consider before backporting this revert :
-
- Commit 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
- Commit e6ced831ef11 ("tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers")
-
-Fixes: 721230326891 "tcp: md5: reject TCP_MD5SIG or TCP_MD5SIG_EXT on established sockets"
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5fb694f96e7c ("usb: gadget: udc: atmel: fix possible oops when unloading module")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/usb/gadget/udc/atmel_usba_udc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2759,10 +2759,7 @@ static int do_tcp_setsockopt(struct sock
- #ifdef CONFIG_TCP_MD5SIG
- 	case TCP_MD5SIG:
- 	case TCP_MD5SIG_EXT:
--		if ((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN))
--			err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
--		else
--			err = -EINVAL;
-+		err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
- 		break;
- #endif
- 	case TCP_USER_TIMEOUT:
+diff --git a/drivers/usb/gadget/udc/atmel_usba_udc.c b/drivers/usb/gadget/udc/atmel_usba_udc.c
+index 58e5b015d40e6..bebe814f55e6a 100644
+--- a/drivers/usb/gadget/udc/atmel_usba_udc.c
++++ b/drivers/usb/gadget/udc/atmel_usba_udc.c
+@@ -870,7 +870,7 @@ static int usba_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+ 	u32 status;
+ 
+ 	DBG(DBG_GADGET | DBG_QUEUE, "ep_dequeue: %s, req %p\n",
+-			ep->ep.name, req);
++			ep->ep.name, _req);
+ 
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 
+-- 
+2.25.1
+
 
 
