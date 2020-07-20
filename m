@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A250222668A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C812E22682F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732809AbgGTQEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:04:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38722 "EHLO mail.kernel.org"
+        id S2388284AbgGTQOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732590AbgGTQEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:04 -0400
+        id S2388278AbgGTQOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D24CC20773;
-        Mon, 20 Jul 2020 16:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B98B5207DD;
+        Mon, 20 Jul 2020 16:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261043;
+        s=default; t=1595261672;
         bh=B3Bb4Lnno2qpjP9vt8hrDEQ574TUdIAISvH8Q5nSA0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4kskRoOaJ2LFJ6Zde2L5RfzwHe9GsigVXUaNreLFTkbWd/NDnVJQxFmnx46/vcBL
-         2qYsJv/KB2PCDl5IKQApht/xVr8CqdhMNi28x7gUjaAJO/vl/iOJdldnCx7l9iSLUi
-         0QGHRlrbeCZQPo3GV1eBLxJbHSVo+ETpB1HAOiNQ=
+        b=2Ken8zqCVGm7mI1taZdBDFEaGvoIlLxFiMLLxI1orSZ2KLTSpZohBhO9UIXTzPERq
+         0mHZj29t1st1/S+VniBGzMl9fnZg2yyyX9/9cMgS9wU+WLSw3eUPzovlBtvhewhlt2
+         32Et4Z5PrOoJ6/1ZdupBUKAJ48fV8o6Q9CsncnW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Laurent Dufour <ldufour@linux.ibm.com>,
         Thiago Jung Bauermann <bauerman@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 188/215] powerpc/pseries/svm: Fix incorrect check for shared_lppaca_size
-Date:   Mon, 20 Jul 2020 17:37:50 +0200
-Message-Id: <20200720152829.123258757@linuxfoundation.org>
+Subject: [PATCH 5.7 200/244] powerpc/pseries/svm: Fix incorrect check for shared_lppaca_size
+Date:   Mon, 20 Jul 2020 17:37:51 +0200
+Message-Id: <20200720152835.360523689@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
