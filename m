@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB6B226C00
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78406226BA6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgGTPjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:39:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59184 "EHLO mail.kernel.org"
+        id S1730015AbgGTPmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:42:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728518AbgGTPjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:39:54 -0400
+        id S1729391AbgGTPmG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:42:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 777AF22B4E;
-        Mon, 20 Jul 2020 15:39:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA94B20773;
+        Mon, 20 Jul 2020 15:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259594;
-        bh=Ii21Y4dB2dtPOuktMfoSercnM/W9406kERuSR4p265M=;
+        s=default; t=1595259725;
+        bh=PYcGYWEKJHL1xvHc6lIFXf1DqZyj0ZTcjXP8hIo7Ouk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KImI5IiPFeUaFpc0x84DI59NrEMTCFylIFDMSFO+c2GRVPlmGlT5Uti2dZZ9/B/l/
-         ELnOf5nDjog2Ti2J8odB/OK1N7AAG+BscJvJG5qUA1uGQBmoA0vL/c8WMR4TaMM9X3
-         HK7QJ8E/9ri+6iV/H5azOyDWQD7ZEjkGdLkKBAsk=
+        b=D+oiGUbYSnz6nmHlv7xe+jI2fgs2879BRY7j7DMO5V5o97FEiOrLkc7UBb5nguGPX
+         5NqOqz8UGe6TssXcOJaM1T7yNMKaYEl3MmGqAcis84vpjBjFXgm0fOsXaQ4rmeGFvD
+         H43UfkwnVeqGOvDHZ5MZqfy2f49+7XAXIc2c6P+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yariv <oigevald+kernel@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.4 37/58] HID: magicmouse: do not set up autorepeat
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 57/86] ARM: dts: socfpga: Align L2 cache-controller nodename with dtschema
 Date:   Mon, 20 Jul 2020 17:36:53 +0200
-Message-Id: <20200720152749.056128636@linuxfoundation.org>
+Message-Id: <20200720152756.026656813@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 6363d2065cd399cf9d6dc9d08c437f8658831100 upstream.
+[ Upstream commit d7adfe5ffed9faa05f8926223086b101e14f700d ]
 
-Neither the trackpad, nor the mouse want input core to generate autorepeat
-events for their buttons, so let's reset the bit (as hid-input sets it for
-these devices based on the usage vendor code).
+Fix dtschema validator warnings like:
+    l2-cache@fffff000: $nodename:0:
+        'l2-cache@fffff000' does not match '^(cache-controller|cpu)(@[0-9a-f,]+)*$'
 
-Cc: stable@vger.kernel.org
-Reported-by: Yariv <oigevald+kernel@gmail.com>
-Tested-by: Yariv <oigevald+kernel@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 475dc86d08de ("arm: dts: socfpga: Add a base DTSI for Altera's Arria10 SOC")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-magicmouse.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/socfpga.dtsi         | 2 +-
+ arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -451,6 +451,12 @@ static int magicmouse_setup_input(struct
- 		__set_bit(MSC_RAW, input->mscbit);
- 	}
+diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
+index f0702d8063d9b..9a2db3df5edef 100644
+--- a/arch/arm/boot/dts/socfpga.dtsi
++++ b/arch/arm/boot/dts/socfpga.dtsi
+@@ -676,7 +676,7 @@ ocram-ecc@ffd08144 {
+ 			};
+ 		};
  
-+	/*
-+	 * hid-input may mark device as using autorepeat, but neither
-+	 * the trackpad, nor the mouse actually want it.
-+	 */
-+	__clear_bit(EV_REP, input->evbit);
-+
- 	return 0;
- }
+-		L2: l2-cache@fffef000 {
++		L2: cache-controller@fffef000 {
+ 			compatible = "arm,pl310-cache";
+ 			reg = <0xfffef000 0x1000>;
+ 			interrupts = <0 38 0x04>;
+diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
+index f520cbff5e1c9..4d496479e1353 100644
+--- a/arch/arm/boot/dts/socfpga_arria10.dtsi
++++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
+@@ -567,7 +567,7 @@ sdr: sdr@ffc25000 {
+ 			reg = <0xffcfb100 0x80>;
+ 		};
  
+-		L2: l2-cache@fffff000 {
++		L2: cache-controller@fffff000 {
+ 			compatible = "arm,pl310-cache";
+ 			reg = <0xfffff000 0x1000>;
+ 			interrupts = <0 18 IRQ_TYPE_LEVEL_HIGH>;
+-- 
+2.25.1
+
 
 
