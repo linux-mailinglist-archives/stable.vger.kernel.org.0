@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CEC5226BA4
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00814226C38
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730032AbgGTPmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34986 "EHLO mail.kernel.org"
+        id S1728900AbgGTPhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:37:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730029AbgGTPmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:14 -0400
+        id S1726046AbgGTPhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:37:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 678CA20773;
-        Mon, 20 Jul 2020 15:42:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6318F22CB2;
+        Mon, 20 Jul 2020 15:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259734;
-        bh=9YWaCtlFaS/RkIpFOKgFAogxLs9r0cAjS2ySI6Xkhuw=;
+        s=default; t=1595259456;
+        bh=E08lDlh6V93dEvsOrYKLRfVWmdjojdaKLl2b2tVs94U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgG5Gi4a1/oholFu9zn0REtV0Ua/t7zuXzL/M47tmfrTas0BYifMXXaURVQ/NvD9N
-         afF49LpfDvERnAwBE0124GFGmKcSFQPmObpNhsH189fwi6LGt7Avbc/+dNQMdahfiA
-         +mbyg0/mSHc8gERFQOlSxutLu5F0x87rRpbgoeRg=
+        b=peSmDfjOsZ+hdzVi4xWMP1mmeVFHng8zjG3DB3r9WzuNW1FPkF2Q+vJDpiG1Z4z9Z
+         wVrrqDqSCeUdEo3E6dvBbYlPdjyRnKqUoaru4zc7S8TqsrAX1Reix94vBxsMsOTiCo
+         kTYZYCEJWsXoWXctZwpDu7qMcfBDn2UWpmC5dDHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Marco Elver <elver@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 33/86] tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers
-Date:   Mon, 20 Jul 2020 17:36:29 +0200
-Message-Id: <20200720152754.820313288@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Qiujun Huang <hqjagain@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 14/58] Revert "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb"
+Date:   Mon, 20 Jul 2020 17:36:30 +0200
+Message-Id: <20200720152747.854506724@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,90 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit e6ced831ef11a2a06e8d00aad9d4fc05b610bf38 ]
+This reverts commit 90ecba9f1041f436ed2b35ba7a970c7cc5d0df23 which is
+commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
 
-My prior fix went a bit too far, according to Herbert and Mathieu.
+It is being reverted upstream, just hasn't made it there yet and is
+causing lots of problems.
 
-Since we accept that concurrent TCP MD5 lookups might see inconsistent
-keys, we can use READ_ONCE()/WRITE_ONCE() instead of smp_rmb()/smp_wmb()
-
-Clearing all key->key[] is needed to avoid possible KMSAN reports,
-if key->keylen is increased. Since tcp_md5_do_add() is not fast path,
-using __GFP_ZERO to clear all struct tcp_md5sig_key is simpler.
-
-data_race() was added in linux-5.8 and will prevent KCSAN reports,
-this can safely be removed in stable backports, if data_race() is
-not yet backported.
-
-v2: use data_race() both in tcp_md5_hash_key() and tcp_md5_do_add()
-
-Fixes: 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Marco Elver <elver@google.com>
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Qiujun Huang <hqjagain@gmail.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c      |    6 +++---
- net/ipv4/tcp_ipv4.c |   14 ++++++++++----
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |   48 +++++++------------------------
+ drivers/net/wireless/ath/ath9k/hif_usb.h |    5 ---
+ 2 files changed, 11 insertions(+), 42 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3207,13 +3207,13 @@ EXPORT_SYMBOL(tcp_md5_hash_skb_data);
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -639,9 +639,9 @@ err:
  
- int tcp_md5_hash_key(struct tcp_md5sig_pool *hp, const struct tcp_md5sig_key *key)
+ static void ath9k_hif_usb_rx_cb(struct urb *urb)
  {
--	u8 keylen = key->keylen;
-+	u8 keylen = READ_ONCE(key->keylen); /* paired with WRITE_ONCE() in tcp_md5_do_add */
- 	struct scatterlist sg;
+-	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+-	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+-	struct sk_buff *skb = rx_buf->skb;
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
++	struct hif_device_usb *hif_dev =
++		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
  
--	smp_rmb(); /* paired with smp_wmb() in tcp_md5_do_add() */
--
- 	sg_init_one(&sg, key->key, keylen);
- 	ahash_request_set_crypt(hp->md5_req, &sg, NULL, keylen);
-+
-+	/* tcp_md5_do_add() might change key->key under us */
- 	return crypto_ahash_update(hp->md5_req);
+ 	if (!skb)
+@@ -681,15 +681,14 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
+-	kfree(rx_buf);
  }
- EXPORT_SYMBOL(tcp_md5_hash_key);
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -936,12 +936,18 @@ int tcp_md5_do_add(struct sock *sk, cons
  
- 	key = tcp_md5_do_lookup(sk, addr, family);
- 	if (key) {
--		/* Pre-existing entry - just update that one. */
-+		/* Pre-existing entry - just update that one.
-+		 * Note that the key might be used concurrently.
-+		 */
- 		memcpy(key->key, newkey, newkeylen);
+ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ {
+-	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+-	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+-	struct sk_buff *skb = rx_buf->skb;
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
+ 	struct sk_buff *nskb;
++	struct hif_device_usb *hif_dev =
++		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
  
--		smp_wmb(); /* pairs with smp_rmb() in tcp_md5_hash_key() */
-+		/* Pairs with READ_ONCE() in tcp_md5_hash_key().
-+		 * Also note that a reader could catch new key->keylen value
-+		 * but old key->key[], this is the reason we use __GFP_ZERO
-+		 * at sock_kmalloc() time below these lines.
-+		 */
-+		WRITE_ONCE(key->keylen, newkeylen);
+ 	if (!skb)
+@@ -747,7 +746,6 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
+-	kfree(rx_buf);
+ 	urb->context = NULL;
+ }
  
--		key->keylen = newkeylen;
- 		return 0;
- 	}
+@@ -793,7 +791,7 @@ static int ath9k_hif_usb_alloc_tx_urbs(s
+ 	init_usb_anchor(&hif_dev->mgmt_submitted);
  
-@@ -957,7 +963,7 @@ int tcp_md5_do_add(struct sock *sk, cons
- 		rcu_assign_pointer(tp->md5sig_info, md5sig);
- 	}
+ 	for (i = 0; i < MAX_TX_URB_NUM; i++) {
+-		tx_buf = kzalloc(sizeof(*tx_buf), GFP_KERNEL);
++		tx_buf = kzalloc(sizeof(struct tx_buf), GFP_KERNEL);
+ 		if (!tx_buf)
+ 			goto err;
  
--	key = sock_kmalloc(sk, sizeof(*key), gfp);
-+	key = sock_kmalloc(sk, sizeof(*key), gfp | __GFP_ZERO);
- 	if (!key)
- 		return -ENOMEM;
- 	if (!tcp_alloc_md5sig_pool()) {
+@@ -830,9 +828,8 @@ static void ath9k_hif_usb_dealloc_rx_urb
+ 
+ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct rx_buf *rx_buf = NULL;
+-	struct sk_buff *skb = NULL;
+ 	struct urb *urb = NULL;
++	struct sk_buff *skb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->rx_submitted);
+@@ -840,12 +837,6 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 
+ 	for (i = 0; i < MAX_RX_URB_NUM; i++) {
+ 
+-		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
+-		if (!rx_buf) {
+-			ret = -ENOMEM;
+-			goto err_rxb;
+-		}
+-
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -860,14 +851,11 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 			goto err_skb;
+ 		}
+ 
+-		rx_buf->hif_dev = hif_dev;
+-		rx_buf->skb = skb;
+-
+ 		usb_fill_bulk_urb(urb, hif_dev->udev,
+ 				  usb_rcvbulkpipe(hif_dev->udev,
+ 						  USB_WLAN_RX_PIPE),
+ 				  skb->data, MAX_RX_BUF_SIZE,
+-				  ath9k_hif_usb_rx_cb, rx_buf);
++				  ath9k_hif_usb_rx_cb, skb);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->rx_submitted);
+@@ -893,8 +881,6 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
+-	kfree(rx_buf);
+-err_rxb:
+ 	ath9k_hif_usb_dealloc_rx_urbs(hif_dev);
+ 	return ret;
+ }
+@@ -906,21 +892,14 @@ static void ath9k_hif_usb_dealloc_reg_in
+ 
+ static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct rx_buf *rx_buf = NULL;
+-	struct sk_buff *skb = NULL;
+ 	struct urb *urb = NULL;
++	struct sk_buff *skb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->reg_in_submitted);
+ 
+ 	for (i = 0; i < MAX_REG_IN_URB_NUM; i++) {
+ 
+-		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
+-		if (!rx_buf) {
+-			ret = -ENOMEM;
+-			goto err_rxb;
+-		}
+-
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -935,14 +914,11 @@ static int ath9k_hif_usb_alloc_reg_in_ur
+ 			goto err_skb;
+ 		}
+ 
+-		rx_buf->hif_dev = hif_dev;
+-		rx_buf->skb = skb;
+-
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				  usb_rcvintpipe(hif_dev->udev,
+ 						  USB_REG_IN_PIPE),
+ 				  skb->data, MAX_REG_IN_BUF_SIZE,
+-				  ath9k_hif_usb_reg_in_cb, rx_buf, 1);
++				  ath9k_hif_usb_reg_in_cb, skb, 1);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->reg_in_submitted);
+@@ -968,8 +944,6 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
+-	kfree(rx_buf);
+-err_rxb:
+ 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
+ 	return ret;
+ }
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.h
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
+@@ -84,11 +84,6 @@ struct tx_buf {
+ 	struct list_head list;
+ };
+ 
+-struct rx_buf {
+-	struct sk_buff *skb;
+-	struct hif_device_usb *hif_dev;
+-};
+-
+ #define HIF_USB_TX_STOP  BIT(0)
+ #define HIF_USB_TX_FLUSH BIT(1)
+ 
 
 
