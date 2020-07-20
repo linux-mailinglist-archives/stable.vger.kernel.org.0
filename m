@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD973226B72
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB9F226C04
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730634AbgGTPqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40770 "EHLO mail.kernel.org"
+        id S1728820AbgGTPkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730631AbgGTPqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:09 -0400
+        id S1729639AbgGTPkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F125722CB3;
-        Mon, 20 Jul 2020 15:46:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE3B522B4E;
+        Mon, 20 Jul 2020 15:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259969;
-        bh=ko0uM49NweAZFWVgp1NkQ10g5w/KsTKdbttdn0rNZKM=;
+        s=default; t=1595259601;
+        bh=Jyp0iV04bss9dplzNPxSuypxEU7OLp/Hfzwaz2Y45iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/jt2koloWUOkcgakjwhG+haa+42SYiO1EO/7z/s5bmlhmiR1bIGUITFe2BcQRC9V
-         ujYicSA4MPD+nfsY4l2X1GMKV1TdI002+nweVC6nIfEBNskRgmUshHJ9OTpqkMJs4x
-         4nKSAgBorJJGYaxE0TqyoezKamAgmpTveI4qJEIw=
+        b=hJEObodFE4e9bg/2VkRoTBT/ZAVKDPwNCJTDaL0VoHCTA66coypYgbk9/w/5/XqRp
+         9C5Pi5Eii3Z1a6RDCw89jlXfCe5egUVH9gb783QV08A2XHTUBXmjWax7i9MmF4HJk8
+         Icdm0+aoM674QuEIB+hqRXfnaFnczKFVN1ZWw8/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 028/125] ALSA: usb-audio: add quirk for MacroSilicon MS2109
+        stable@vger.kernel.org, Andre Edich <andre.edich@microchip.com>,
+        Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/86] smsc95xx: avoid memory leak in smsc95xx_bind
 Date:   Mon, 20 Jul 2020 17:36:07 +0200
-Message-Id: <20200720152804.344970506@linuxfoundation.org>
+Message-Id: <20200720152753.689396506@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Andre Edich <andre.edich@microchip.com>
 
-commit e337bf19f6af38d5c3fa6d06cd594e0f890ca1ac upstream.
+[ Upstream commit 3ed58f96a70b85ef646d5427258f677f1395b62f ]
 
-These devices claim to be 96kHz mono, but actually are 48kHz stereo with
-swapped channels and unaligned transfers.
+In a case where the ID_REV register read is failed, the memory for a
+private data structure has to be freed before returning error from the
+function smsc95xx_bind.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200702071433.237843-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: bbd9f9ee69242 ("smsc95xx: add wol support for more frame types")
+Signed-off-by: Andre Edich <andre.edich@microchip.com>
+Signed-off-by: Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks-table.h |   52 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ drivers/net/usb/smsc95xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3323,4 +3323,56 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
- 	}
- },
- 
-+/*
-+ * MacroSilicon MS2109 based HDMI capture cards
-+ *
-+ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
-+ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
-+ * they pretend to be 96kHz mono as a workaround for stereo being broken
-+ * by that...
-+ *
-+ * They also have swapped L-R channels, but that's for userspace to deal
-+ * with.
-+ */
-+{
-+	USB_DEVICE(0x534d, 0x2109),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "MacroSilicon",
-+		.product_name = "MS2109",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
-+			},
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_STANDARD_MIXER,
-+			},
-+			{
-+				.ifnum = 3,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+					.channels = 2,
-+					.iface = 3,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.attributes = 0,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_CONTINUOUS,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index 6ecae631a6307..3e6bf6bd0a684 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -1298,7 +1298,8 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	/* detect device revision as different features may be available */
+ 	ret = smsc95xx_read_reg(dev, ID_REV, &val);
+ 	if (ret < 0)
+-		return ret;
++		goto free_pdata;
 +
- #undef USB_DEVICE_VENDOR_SPEC
+ 	val >>= 16;
+ 	pdata->chip_id = val;
+ 	pdata->mdix_ctrl = get_mdix_status(dev->net);
+-- 
+2.25.1
+
 
 
