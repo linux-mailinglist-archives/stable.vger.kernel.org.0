@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6485F227111
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C45642270D7
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726907AbgGTVja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:39:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59178 "EHLO mail.kernel.org"
+        id S1728488AbgGTVjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:39:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728304AbgGTVj3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:29 -0400
+        id S1728479AbgGTVja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EAEA22D00;
-        Mon, 20 Jul 2020 21:39:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7364822CBB;
+        Mon, 20 Jul 2020 21:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281169;
-        bh=aIjyW+M058DpBCya0tZYEgwbUAAQDiFMmtFiuRbC7Xc=;
+        s=default; t=1595281170;
+        bh=kB41gXh/gK69Ub+thQTzV8vVMeVaJNEl8ZZLFyl95ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0QrhFZcdvbocvhhr4K1eO4qtvRdFkaq5fBxvSSv1it2rDchN+8L48M3h+VwVLzXL
-         ZyW1bgQHNJDMsLBHXvyzXRIb777jElwYzc170PuDRKWtRV9Akr2bOAPvBTqLy9m6Wv
-         tu4okmoAAuWiIB30+9P+HCvXHmrAfJ3BArwNjYjY=
+        b=QzaV/5Cn//U7bvjCp4E2bVZJpU7Eyd86OfPUkC8l+SQrbjlkOKTfjHwp2To6Ge7ah
+         TOrunyaXXWo5B0EXIuHLor7MpscS6CwdHGp4DAdeRhPX4u31J7+Tp1I8tNSSeadyFt
+         eXIRi2ew2wZrK63qTRuM1Xmya32MZz/RpJsmIf1U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 11/13] arm64: Use test_tsk_thread_flag() for checking TIF_SINGLESTEP
-Date:   Mon, 20 Jul 2020 17:39:12 -0400
-Message-Id: <20200720213914.407919-11-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 12/13] x86: math-emu: Fix up 'cmp' insn for clang ias
+Date:   Mon, 20 Jul 2020 17:39:13 -0400
+Message-Id: <20200720213914.407919-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213914.407919-1-sashal@kernel.org>
 References: <20200720213914.407919-1-sashal@kernel.org>
@@ -42,40 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5afc78551bf5d53279036e0bf63314e35631d79f ]
+[ Upstream commit 81e96851ea32deb2c921c870eecabf335f598aeb ]
 
-Rather than open-code test_tsk_thread_flag() at each callsite, simply
-replace the couple of offenders with calls to test_tsk_thread_flag()
-directly.
+The clang integrated assembler requires the 'cmp' instruction to
+have a length prefix here:
 
-Signed-off-by: Will Deacon <will@kernel.org>
+arch/x86/math-emu/wm_sqrt.S:212:2: error: ambiguous instructions require an explicit suffix (could be 'cmpb', 'cmpw', or 'cmpl')
+ cmp $0xffffffff,-24(%ebp)
+ ^
+
+Make this a 32-bit comparison, which it was clearly meant to be.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lkml.kernel.org/r/20200527135352.1198078-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/debug-monitors.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/math-emu/wm_sqrt.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/debug-monitors.c b/arch/arm64/kernel/debug-monitors.c
-index edb63bf2ac1ca..9cc11280b68c9 100644
---- a/arch/arm64/kernel/debug-monitors.c
-+++ b/arch/arm64/kernel/debug-monitors.c
-@@ -386,14 +386,14 @@ void user_rewind_single_step(struct task_struct *task)
- 	 * If single step is active for this thread, then set SPSR.SS
- 	 * to 1 to avoid returning to the active-pending state.
- 	 */
--	if (test_ti_thread_flag(task_thread_info(task), TIF_SINGLESTEP))
-+	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
- 		set_regs_spsr_ss(task_pt_regs(task));
- }
- NOKPROBE_SYMBOL(user_rewind_single_step);
+diff --git a/arch/x86/math-emu/wm_sqrt.S b/arch/x86/math-emu/wm_sqrt.S
+index f031c0e193565..515cdee90df72 100644
+--- a/arch/x86/math-emu/wm_sqrt.S
++++ b/arch/x86/math-emu/wm_sqrt.S
+@@ -209,7 +209,7 @@ sqrt_stage_2_finish:
  
- void user_fastforward_single_step(struct task_struct *task)
- {
--	if (test_ti_thread_flag(task_thread_info(task), TIF_SINGLESTEP))
-+	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
- 		clear_regs_spsr_ss(task_pt_regs(task));
- }
+ #ifdef PARANOID
+ /* It should be possible to get here only if the arg is ffff....ffff */
+-	cmp	$0xffffffff,FPU_fsqrt_arg_1
++	cmpl	$0xffffffff,FPU_fsqrt_arg_1
+ 	jnz	sqrt_stage_2_error
+ #endif /* PARANOID */
  
 -- 
 2.25.1
