@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9F2E22690D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5EC22682E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732801AbgGTQEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38628 "EHLO mail.kernel.org"
+        id S2388273AbgGTQOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:14:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732540AbgGTQEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:01 -0400
+        id S2388271AbgGTQOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:14:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CD8120672;
-        Mon, 20 Jul 2020 16:03:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F285320684;
+        Mon, 20 Jul 2020 16:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261040;
-        bh=cakMkwUssDNRGezxaxJHShMrS5+T/3cFdGtVNrDzmf8=;
+        s=default; t=1595261669;
+        bh=oCqEXrTFfYzvCucMV7gFfqEy+cvS22N40zuJ4tPIm1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNudYKCo/56+aizx/BosqjyEg/qJHrpI/YZ/VVQiaxL2NFPqnSEfKj6uyzUfQBwzT
-         FP6dlKkh5nN/GREW72USH1zZ+s6L/C14d3d13XFsZNCMKT2l7vJDBLE8k4KCbQbXVU
-         3L5E90nNPTJRqnZOilRNdYymqjP27oQ3rBRb6u/4=
+        b=2I9jtNlhYyv6FZUPlV43HD29UP0WL3ieIg5UM1193OilBbxbu+r2yPz6NyfZtdN/Y
+         bHJ4DxiK2yBXowbGxxmsVMLCpxAbfSPZp6Y0IOSyqDshdq4lzSZZY4EUiX7V956SEK
+         Nh5iX+QdSqmjUGaQcujxrVco4eQdSlaWXnls7CWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 187/215] powerpc/book3s64/pkeys: Fix pkey_access_permitted() for execute disable pkey
-Date:   Mon, 20 Jul 2020 17:37:49 +0200
-Message-Id: <20200720152829.075044632@linuxfoundation.org>
+Subject: [PATCH 5.7 199/244] powerpc/book3s64/pkeys: Fix pkey_access_permitted() for execute disable pkey
+Date:   Mon, 20 Jul 2020 17:37:50 +0200
+Message-Id: <20200720152835.310813986@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -174,7 +174,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/mm/book3s64/pkeys.c
 +++ b/arch/powerpc/mm/book3s64/pkeys.c
-@@ -367,12 +367,14 @@ static bool pkey_access_permitted(int pk
+@@ -357,12 +357,14 @@ static bool pkey_access_permitted(int pk
  		return true;
  
  	pkey_shift = pkeyshift(pkey);
