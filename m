@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00ED226493
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861C12263D8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730638AbgGTPqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40888 "EHLO mail.kernel.org"
+        id S1729044AbgGTPk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730004AbgGTPqP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:15 -0400
+        id S1729081AbgGTPkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D08822CB3;
-        Mon, 20 Jul 2020 15:46:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A02E720773;
+        Mon, 20 Jul 2020 15:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259975;
-        bh=JnzwTOSD0dOZ6oJQzFQMgryNk5uoLCeCyw24xgv3p0A=;
+        s=default; t=1595259653;
+        bh=lY5i/G1xFnqXCzRAHXjROM97QoklifLMJB3E/TZuJmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbPt6BRB4YPuzCY02tClw/lyEqKGUJUyQBJDvxYB3TbrRTNt6Wl4FivsZw9Q2ZBUj
-         FoyGvxkc3iuzF3nlmWFurZ4DqPp2DZsQ+iBUWeZg54Khg/sR6r12RfCb4/WzN9ympw
-         UrkKXTdIZfXm3J27RkAZlJiHcVXeY33hPlc7jk7s=
+        b=l0hKs0YnVcMPquNZSKSpSY0wOFhdOMFT3C3yoroL5+Ne4VA6XA5ZR+mgN6c0GykKu
+         tgDBV1K2NXGTORnQIYz8uoI3rJTYVIl/67Q14GJBy25lcc0Lj1ZxhTuDw/fGVt9h3F
+         W4/cS2AQitPtzahdaSxrLqtXNA3uzdHcuskvdxtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 020/125] ALSA: compress: fix partial_drain completion state
+Subject: [PATCH 4.9 03/86] spi: spidev: fix a race between spidev_release and spidev_remove
 Date:   Mon, 20 Jul 2020 17:35:59 +0200
-Message-Id: <20200720152803.961487729@linuxfoundation.org>
+Message-Id: <20200720152753.305614900@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-[ Upstream commit f79a732a8325dfbd570d87f1435019d7e5501c6d ]
+[ Upstream commit abd42781c3d2155868821f1b947ae45bbc33330d ]
 
-On partial_drain completion we should be in SNDRV_PCM_STATE_RUNNING
-state, so set that for partially draining streams in
-snd_compr_drain_notify() and use a flag for partially draining streams
+Imagine below scene, spidev is referenced after it's freed.
 
-While at it, add locks for stream state change in
-snd_compr_drain_notify() as well.
+spidev_release()                spidev_remove()
+...
+                                spin_lock_irq(&spidev->spi_lock);
+                                    spidev->spi = NULL;
+                                spin_unlock_irq(&spidev->spi_lock);
+mutex_lock(&device_list_lock);
+dofree = (spidev->spi == NULL);
+if (dofree)
+    kfree(spidev);
+mutex_unlock(&device_list_lock);
+                                mutex_lock(&device_list_lock);
+                                list_del(&spidev->device_entry);
+                                device_destroy(spidev_class, spidev->devt);
+                                clear_bit(MINOR(spidev->devt), minors);
+                                if (spidev->users == 0)
+                                    kfree(spidev);
+                                mutex_unlock(&device_list_lock);
 
-Fixes: f44f2a5417b2 ("ALSA: compress: fix drain calls blocking other compress functions (v6)")
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Tested-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20200629134737.105993-4-vkoul@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix it by resetting spidev->spi in device_list_lock's protection.
+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Link: https://lore.kernel.org/r/20200618032125.4650-1-zhenzhong.duan@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/compress_driver.h | 10 +++++++++-
- sound/core/compress_offload.c   |  4 ++++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/spi/spidev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
-index 33a07c3badf01..f58b8edf0371b 100644
---- a/include/sound/compress_driver.h
-+++ b/include/sound/compress_driver.h
-@@ -72,6 +72,7 @@ struct snd_compr_runtime {
-  * @direction: stream direction, playback/recording
-  * @metadata_set: metadata set flag, true when set
-  * @next_track: has userspace signal next track transition, true when set
-+ * @partial_drain: undergoing partial_drain for stream, true when set
-  * @private_data: pointer to DSP private data
-  */
- struct snd_compr_stream {
-@@ -83,6 +84,7 @@ struct snd_compr_stream {
- 	enum snd_compr_direction direction;
- 	bool metadata_set;
- 	bool next_track;
-+	bool partial_drain;
- 	void *private_data;
- };
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index a685c6114a8d5..67ad7e46da42d 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -809,13 +809,13 @@ static int spidev_remove(struct spi_device *spi)
+ {
+ 	struct spidev_data	*spidev = spi_get_drvdata(spi);
  
-@@ -186,7 +188,13 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
- 	if (snd_BUG_ON(!stream))
- 		return;
++	/* prevent new opens */
++	mutex_lock(&device_list_lock);
+ 	/* make sure ops on existing fds can abort cleanly */
+ 	spin_lock_irq(&spidev->spi_lock);
+ 	spidev->spi = NULL;
+ 	spin_unlock_irq(&spidev->spi_lock);
  
--	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-+	/* for partial_drain case we are back to running state on success */
-+	if (stream->partial_drain) {
-+		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
-+		stream->partial_drain = false; /* clear this flag as well */
-+	} else {
-+		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-+	}
- 
- 	wake_up(&stream->runtime->sleep);
- }
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 7ae8e24dc1e61..81624f6e3f330 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -723,6 +723,9 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
- 
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
- 	if (!retval) {
-+		/* clear flags and stop any drain wait */
-+		stream->partial_drain = false;
-+		stream->metadata_set = false;
- 		snd_compr_drain_notify(stream);
- 		stream->runtime->total_bytes_available = 0;
- 		stream->runtime->total_bytes_transferred = 0;
-@@ -880,6 +883,7 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- 	if (stream->next_track == false)
- 		return -EPERM;
- 
-+	stream->partial_drain = true;
- 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_PARTIAL_DRAIN);
- 	if (retval) {
- 		pr_debug("Partial drain returned failure\n");
+-	/* prevent new opens */
+-	mutex_lock(&device_list_lock);
+ 	list_del(&spidev->device_entry);
+ 	device_destroy(spidev_class, spidev->devt);
+ 	clear_bit(MINOR(spidev->devt), minors);
 -- 
 2.25.1
 
