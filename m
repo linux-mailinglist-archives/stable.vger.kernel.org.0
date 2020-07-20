@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FF7226A8C
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F80226BFB
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731505AbgGTPxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:53:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52380 "EHLO mail.kernel.org"
+        id S1729527AbgGTPji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731216AbgGTPxu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:50 -0400
+        id S1729541AbgGTPjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B7A52065E;
-        Mon, 20 Jul 2020 15:53:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B16D022CB2;
+        Mon, 20 Jul 2020 15:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260430;
-        bh=E1YLJeTAHOKxV6duE8EQ8GUhJyZBh/zZZ+584voQu5w=;
+        s=default; t=1595259576;
+        bh=4LYVKqyKN9xV8M9TBHUesmBHO5eygQaHSnBzaG4HhQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vme8vymLLhcu0WUP32im6qe6W3Ib/eSq0FwQd3HoTn2E0oWdGXo8rfdOHnoOrHCrM
-         kyZrt9B8GKXdOcXqyPHAm3b8HsL0I36q4SgHN3MsbiJx7/Y6G5a7X5B+BQ42Cs3EQg
-         ifo4RtSmNq1WTLEHqYUxjyLR3WITsEb3Eyfg8/I8=
+        b=AUi/DP00Ksp0MFTxjPRPw/0WNRIMClirTpdywylbrYU7sm8NtJeK5HnEjCDqhag2L
+         0brVbmV+9BWrdeYOdHDPLD+LKAV2JZ/sZzbQAwvKfb/uCGGgCQhw5TYURGXOsxkRfm
+         qcRbtsH0dCzmMgyWZIe2PAM7foMzhRO1myaCdDWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Salvatore <mike.salvatore@canonical.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 4.19 068/133] apparmor: ensure that dfa state tables have entries
-Date:   Mon, 20 Jul 2020 17:36:55 +0200
-Message-Id: <20200720152807.016384082@linuxfoundation.org>
+        syzbot+0f4ecfe6a2c322c81728@syzkaller.appspotmail.com,
+        syzbot+5f1d24c49c1d2c427497@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 40/58] ALSA: usb-audio: Fix race against the error recovery URB submission
+Date:   Mon, 20 Jul 2020 17:36:56 +0200
+Message-Id: <20200720152749.218145840@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c27c6bd2c4d6b6bb779f9b722d5607993e1d5e5c upstream.
+commit 9b7e5208a941e2e491a83eb5fa83d889e888fa2f upstream.
 
-Currently it is possible to specify a state machine table with 0 length,
-this is not valid as optional tables are specified by not defining
-the table as present. Further this allows by-passing the base tables
-range check against the next/check tables.
+USB MIDI driver has an error recovery mechanism to resubmit the URB in
+the delayed timer handler, and this may race with the standard start /
+stop operations.  Although both start and stop operations themselves
+don't race with each other due to the umidi->mutex protection, but
+this isn't applied to the timer handler.
 
-Fixes: d901d6a298dc ("apparmor: dfa split verification of table headers")
-Reported-by: Mike Salvatore <mike.salvatore@canonical.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+For fixing this potential race, the following changes are applied:
+
+- Since the timer handler can't use the mutex, we apply the
+  umidi->disc_lock protection at each input stream URB submission;
+  this also needs to change the GFP flag to GFP_ATOMIC
+- Add a check of the URB refcount and skip if already submitted
+- Move the timer cancel call at disconnection to the beginning of the
+  procedure; this assures the in-flight timer handler is gone properly
+  before killing all pending URBs
+
+Reported-by: syzbot+0f4ecfe6a2c322c81728@syzkaller.appspotmail.com
+Reported-by: syzbot+5f1d24c49c1d2c427497@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200710160656.16819-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/apparmor/match.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/usb/midi.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/security/apparmor/match.c
-+++ b/security/apparmor/match.c
-@@ -101,6 +101,9 @@ static struct table_header *unpack_table
- 	      th.td_flags == YYTD_DATA8))
- 		goto out;
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1475,6 +1475,8 @@ void snd_usbmidi_disconnect(struct list_
+ 	spin_unlock_irq(&umidi->disc_lock);
+ 	up_write(&umidi->disc_rwsem);
  
-+	/* if we have a table it must have some entries */
-+	if (th.td_lolen == 0)
-+		goto out;
- 	tsize = table_size(th.td_lolen, th.td_flags);
- 	if (bsize < tsize)
- 		goto out;
-@@ -202,6 +205,8 @@ static int verify_dfa(struct aa_dfa *dfa
++	del_timer_sync(&umidi->error_timer);
++
+ 	for (i = 0; i < MIDI_MAX_ENDPOINTS; ++i) {
+ 		struct snd_usb_midi_endpoint *ep = &umidi->endpoints[i];
+ 		if (ep->out)
+@@ -1501,7 +1503,6 @@ void snd_usbmidi_disconnect(struct list_
+ 			ep->in = NULL;
+ 		}
+ 	}
+-	del_timer_sync(&umidi->error_timer);
+ }
+ EXPORT_SYMBOL(snd_usbmidi_disconnect);
  
- 	state_count = dfa->tables[YYTD_ID_BASE]->td_lolen;
- 	trans_count = dfa->tables[YYTD_ID_NXT]->td_lolen;
-+	if (state_count == 0)
-+		goto out;
- 	for (i = 0; i < state_count; i++) {
- 		if (!(BASE_TABLE(dfa)[i] & MATCH_FLAG_DIFF_ENCODE) &&
- 		    (DEFAULT_TABLE(dfa)[i] >= state_count))
+@@ -2258,16 +2259,22 @@ void snd_usbmidi_input_stop(struct list_
+ }
+ EXPORT_SYMBOL(snd_usbmidi_input_stop);
+ 
+-static void snd_usbmidi_input_start_ep(struct snd_usb_midi_in_endpoint *ep)
++static void snd_usbmidi_input_start_ep(struct snd_usb_midi *umidi,
++				       struct snd_usb_midi_in_endpoint *ep)
+ {
+ 	unsigned int i;
++	unsigned long flags;
+ 
+ 	if (!ep)
+ 		return;
+ 	for (i = 0; i < INPUT_URBS; ++i) {
+ 		struct urb *urb = ep->urbs[i];
+-		urb->dev = ep->umidi->dev;
+-		snd_usbmidi_submit_urb(urb, GFP_KERNEL);
++		spin_lock_irqsave(&umidi->disc_lock, flags);
++		if (!atomic_read(&urb->use_count)) {
++			urb->dev = ep->umidi->dev;
++			snd_usbmidi_submit_urb(urb, GFP_ATOMIC);
++		}
++		spin_unlock_irqrestore(&umidi->disc_lock, flags);
+ 	}
+ }
+ 
+@@ -2283,7 +2290,7 @@ void snd_usbmidi_input_start(struct list
+ 	if (umidi->input_running || !umidi->opened[1])
+ 		return;
+ 	for (i = 0; i < MIDI_MAX_ENDPOINTS; ++i)
+-		snd_usbmidi_input_start_ep(umidi->endpoints[i].in);
++		snd_usbmidi_input_start_ep(umidi, umidi->endpoints[i].in);
+ 	umidi->input_running = 1;
+ }
+ EXPORT_SYMBOL(snd_usbmidi_input_start);
 
 
