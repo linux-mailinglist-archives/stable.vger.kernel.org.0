@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08573226649
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6F822683D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732309AbgGTQCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:02:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
+        id S2387959AbgGTQM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:12:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732605AbgGTQCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:02:02 -0400
+        id S2387958AbgGTQM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:12:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2874520773;
-        Mon, 20 Jul 2020 16:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A88922CBE;
+        Mon, 20 Jul 2020 16:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260921;
-        bh=u8VRUXvVJ4YORVGre7tonPT+taV2d0bTYimkyil+lt0=;
+        s=default; t=1595261547;
+        bh=+1yT4wI9uogjUjYhbmoxtxt/qG1w8c71JnCiYCEauSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nm4PFKXJr9F6ZHTpwMezY7BNB9Z1bCoOxMgUKMco0n5+FbU2D/aHihU/Z1DJ9vm3N
-         fIfNP0Z6CHOia/9OOTnRZlfWUuE+Ak1cTDKyzfkBgngKeheISDI4new58WVVjE/lHh
-         +I6fpQgcIzctR7HPpuOt/60iOFPOQDP8pWPgIwHA=
+        b=ws1KOZ96toHRpnkSiQ/kHKGRd4ksKV+hZtBHmmOd0esHyztC3maGEuSHIB6LjTYVW
+         FCOQlGNxJ7gqKxesM/Bmjw3GI0lT1VgQorR6bH51c+l66cfhNlrEienEf9VAX3u53i
+         a6T8Fy7RQ6KgDUqG1IGE2N6pRyf4ESZrKHIxydhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 145/215] HID: quirks: Always poll Obins Anne Pro 2 keyboard
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.7 156/244] ALSA: hda/realtek: Enable headset mic of Acer TravelMate B311R-31 with ALC256
 Date:   Mon, 20 Jul 2020 17:37:07 +0200
-Message-Id: <20200720152827.093812693@linuxfoundation.org>
+Message-Id: <20200720152833.273695772@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit ca28aff0e1dc7dce9e12a7fd9276b7118ce5e73a upstream.
+commit f50a121d2f32bccc1d6b94df925a1ce44ea7eff7 upstream.
 
-The Obins Anne Pro 2 keyboard (04d9:a293) disconnects after a few
-minutes of inactivity when using it wired and typing does not result
-in any input events any more. This is a common firmware flaw. So add
-the ALWAYS_POLL quirk for this device.
+The Acer TravelMate B311R-31 laptop's audio (1025:1430) with ALC256
+cannot detect the headset microphone until
+ALC256_FIXUP_ACER_MIC_NO_PRESENCE quirk maps the NID 0x19 as the headset
+mic pin.
 
-GitHub user Dietrich Moerman (dietrichm) tested the quirk and
-requested my help in my project
-https://github.com/sriemer/fix-linux-mouse issue 22 to provide
-this patch.
-
-Link: https://www.reddit.com/r/AnnePro/comments/gruzcb/anne_pro_2_linux_cant_type_after_inactivity/
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-Cc: stable@vger.kernel.org # v4.16+
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200713060421.62435-1-jian-hong@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -620,6 +620,7 @@
- #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
- #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
- #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
-+#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293	0xa293
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6118,6 +6118,7 @@ enum {
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
+ 	ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE,
+ 	ALC289_FIXUP_ASUS_G401,
++	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
+ };
  
- #define USB_VENDOR_ID_IMATION		0x0718
- #define USB_DEVICE_ID_DISC_STAKKA	0xd000
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -88,6 +88,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7332,6 +7333,15 @@ static const struct hda_fixup alc269_fix
+ 			{ }
+ 		},
+ 	},
++	[ALC256_FIXUP_ACER_MIC_NO_PRESENCE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x02a11120 }, /* use as headset mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7360,6 +7370,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x1308, "Acer Aspire Z24-890", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1330, "Acer TravelMate X514-51T", ALC255_FIXUP_ACER_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1025, 0x1430, "Acer TravelMate B311R-31", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0470, "Dell M101z", ALC269_FIXUP_DELL_M101Z),
+ 	SND_PCI_QUIRK(0x1028, 0x054b, "Dell XPS one 2710", ALC275_FIXUP_DELL_XPS),
+ 	SND_PCI_QUIRK(0x1028, 0x05bd, "Dell Latitude E6440", ALC292_FIXUP_DELL_E7X),
 
 
