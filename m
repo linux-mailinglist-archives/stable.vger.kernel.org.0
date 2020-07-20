@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5302264C7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7835B2264CB
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730866AbgGTPsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43598 "EHLO mail.kernel.org"
+        id S1730491AbgGTPsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:48:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729951AbgGTPsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:06 -0400
+        id S1730430AbgGTPsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:48:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DB742064B;
-        Mon, 20 Jul 2020 15:48:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFAA72064B;
+        Mon, 20 Jul 2020 15:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260086;
-        bh=mKAnN6wshqDhljgJ2o/PsmJw0PWkgYvZ6Jviu0X33z4=;
+        s=default; t=1595260094;
+        bh=HXaibJfa6wLVGPO1d4buUM+4zANypU133cG0yWbUnsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DY2/LWuWHm+6OyAniKbkQNpSiVY7h2x5SDLArxrw+hlzEh7yxljYMv0BEUS4F5Se
-         R3Ptu42ZXtrGxvzMU9NueAVYaGJPlOv+pQuiGihRiwYb+8uNLnwZD5ze8KYJbNmeGj
-         IJRLuirb+7fnsgPCtXlA2pTFa/qq4S13OSMHKaZc=
+        b=g3D48ZAPjm2FayhlB5QJL4aEFwj7OC3xMgA2DyBOAoAqlkhLykbPS86XbZhOcUC4k
+         MVfkdTZYBObvi3lH14BV6m9okbUdpVUnoBxiyrN1XsKtEmlylC10OE3HPDnzOaNBmy
+         Ex0umaiaIffz+72uwNAwJswQB0TGkOIPUzJCe2NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 102/125] USB: serial: cypress_m8: enable Simply Automated UPB PIM
-Date:   Mon, 20 Jul 2020 17:37:21 +0200
-Message-Id: <20200720152807.954044143@linuxfoundation.org>
+Subject: [PATCH 4.14 105/125] USB: serial: option: add Quectel EG95 LTE modem
+Date:   Mon, 20 Jul 2020 17:37:24 +0200
+Message-Id: <20200720152808.101065967@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
 References: <20200720152802.929969555@linuxfoundation.org>
@@ -43,75 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: AceLan Kao <acelan.kao@canonical.com>
 
-commit 5c45d04c5081c1830d674f4d22d4400ea2083afe upstream.
+commit da6902e5b6dbca9081e3d377f9802d4fd0c5ea59 upstream.
 
-This is a UPB (Universal Powerline Bus) PIM (Powerline Interface Module)
-which allows for controlling multiple UPB compatible devices from Linux
-using the standard serial interface.
+Add support for Quectel Wireless Solutions Co., Ltd. EG95 LTE modem
 
-Based on vendor application source code there are two different models
-of USB based PIM devices in addition to a number of RS232 based PIM's.
+T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  5 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0195 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
 
-The vendor UPB application source contains the following USB ID's:
-
-	#define USB_PCS_VENDOR_ID 0x04b4
-	#define USB_PCS_PIM_PRODUCT_ID 0x5500
-
-	#define USB_SAI_VENDOR_ID 0x17dd
-	#define USB_SAI_PIM_PRODUCT_ID 0x5500
-
-The first set of ID's correspond to the PIM variant sold by Powerline
-Control Systems while the second corresponds to the Simply Automated
-Incorporated PIM. As the product ID for both of these match the default
-cypress HID->COM RS232 product ID it assumed that they both use an
-internal variant of this HID->COM RS232 converter hardware. However
-as the vendor ID for the Simply Automated variant is different we need
-to also add it to the cypress_M8 driver so that it is properly
-detected.
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200616220403.1807003-1-james.hilliard1@gmail.com
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
 Cc: stable@vger.kernel.org
-[ johan: amend VID define entry ]
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/cypress_m8.c |    2 ++
- drivers/usb/serial/cypress_m8.h |    3 +++
- 2 files changed, 5 insertions(+)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/cypress_m8.c
-+++ b/drivers/usb/serial/cypress_m8.c
-@@ -63,6 +63,7 @@ static const struct usb_device_id id_tab
- 
- static const struct usb_device_id id_table_cyphidcomrs232[] = {
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ }						/* Terminating entry */
-@@ -77,6 +78,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
---- a/drivers/usb/serial/cypress_m8.h
-+++ b/drivers/usb/serial/cypress_m8.h
-@@ -25,6 +25,9 @@
- #define VENDOR_ID_CYPRESS		0x04b4
- #define PRODUCT_ID_CYPHIDCOM		0x5500
- 
-+/* Simply Automated HID->COM UPB PIM (using Cypress PID 0x5500) */
-+#define VENDOR_ID_SAI			0x17dd
-+
- /* FRWD Dongle - a GPS sports watch */
- #define VENDOR_ID_FRWD			0x6737
- #define PRODUCT_ID_CYPHIDCOM_FRWD	0x0001
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -248,6 +248,7 @@ static void option_instat_callback(struc
+ /* These Quectel products use Quectel's vendor ID */
+ #define QUECTEL_PRODUCT_EC21			0x0121
+ #define QUECTEL_PRODUCT_EC25			0x0125
++#define QUECTEL_PRODUCT_EG95			0x0195
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM12			0x0512
+@@ -1100,6 +1101,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
+ 	  .driver_info = RSVD(4) },
++	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95),
++	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
 
 
