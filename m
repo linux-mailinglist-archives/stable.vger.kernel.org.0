@@ -2,123 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74044225A0F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 10:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2784225A1A
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 10:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726666AbgGTIbH convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 20 Jul 2020 04:31:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56656 "EHLO
+        id S1727910AbgGTId6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 04:33:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726611AbgGTIbG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 04:31:06 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A153FC061794
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 01:31:06 -0700 (PDT)
-Received: from lupine.hi.pengutronix.de ([2001:67c:670:100:3ad5:47ff:feaf:1a17] helo=lupine)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1jxRCQ-0004GR-Fo; Mon, 20 Jul 2020 10:31:02 +0200
-Received: from pza by lupine with local (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1jxRCP-0000Bg-RP; Mon, 20 Jul 2020 10:31:01 +0200
-Message-ID: <dd59520cfcfd4c93ad9cb54116f0234a706a0bd5.camel@pengutronix.de>
-Subject: Re: [PATCH 2/2] media: coda: Add more H264 levels for CODA960
-From:   Philipp Zabel <p.zabel@pengutronix.de>
-To:     Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        linux-media@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Robert Beckett <bob.beckett@collabora.com>,
-        kernel@collabora.com, stable@vger.kernel.org
-Date:   Mon, 20 Jul 2020 10:31:01 +0200
-In-Reply-To: <f409d4ddad0a352ca7ec84699c94a64e5dbf0407.camel@collabora.com>
-References: <20200717034923.219524-1-ezequiel@collabora.com>
-         <20200717034923.219524-2-ezequiel@collabora.com>
-         <05184a7c923c7e2aacca9da2bafe338ff5a7c16d.camel@pengutronix.de>
-         <f409d4ddad0a352ca7ec84699c94a64e5dbf0407.camel@collabora.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.30.5-1.1 
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2001:67c:670:100:3ad5:47ff:feaf:1a17
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+        with ESMTP id S1727883AbgGTId5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 04:33:57 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB2DC0619D2
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 01:33:57 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id o2so24322034wmh.2
+        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 01:33:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=Jw8oYTOE5+FmaB1olMEI3hg+LM7MiO8WRk1wy4m9+B0=;
+        b=BNv3clhdJiptUfJITPPZsM7T6qY+qFQrZCdBNGPftPjP/wy5wC2A7l/4GRy70WQfe1
+         TiYLrNWdr2EWNDQMouVx16ipTTQ4ZCHUyEjf1su9I/eapo82I8fqq66I9ObX9rvcDELX
+         IHmlTbL/6hhJpNRZAf32+6jSDBrO+de534qcp2FRIjXv+h1gdkhyPLht2Cb4CVJraeCF
+         ul9cBOMNGv+mMESxhpZd7fH6+631fp/L693HjqglAnEjeACKR/wSw5J2xgx2wH8fGFrx
+         fuKG36ymFdU7GzlwVF5d7/RdTx9Pi9OnS41J9XWQHbGBgW5R17HABpGcx17MO3tFDZx3
+         v1Fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=Jw8oYTOE5+FmaB1olMEI3hg+LM7MiO8WRk1wy4m9+B0=;
+        b=q9t91SQG1EcH6/p9Bz/qDkTGqT0zmy33nXGYFJKMHINUdlJFwH6Xz4y6/ufqH0IDtP
+         1+Dmvkxs1IjL5cptMRb+QBIZKz0k1jDsdvr/8A3BjNeg0NQa3vpOvpTGgbx/g6I9vorl
+         bOPsw2uXdd8pCtw47bi7yI+dRuhCuRfp2Bgf5zGBtdUyQo9lLgAtpdCuXn0EbtTi565V
+         nexnYjNqNrDNeq4IJX780BD+glldY/h/lp6eHLWXA3EsPzcPvC2ApW7Kg8jUPcaF3/EB
+         CNjNGTIFnuDUjEMLAhxMc5yXekkcNMVNqqHoXTQtobN9BH2XaBYbQtQ88UOfIyK5pUMB
+         ATng==
+X-Gm-Message-State: AOAM532Y4jdUaFgGkGTVNg7LPm6OaRgdClphMr96/cjVkyC8Y73jS3uS
+        mKx5zzBcUXihgpzBGc2xT+sr0A==
+X-Google-Smtp-Source: ABdhPJxMevzjEd3r6udQLlC9T47NEWDvnrSpKsHVSp9SzXWAeTdwTtia8GnMb4hDRwtFxkhQV5dyVQ==
+X-Received: by 2002:a7b:c14a:: with SMTP id z10mr19793759wmi.19.1595234035983;
+        Mon, 20 Jul 2020 01:33:55 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:e0a:f:6020:7da7:684d:4a8a:3f66])
+        by smtp.gmail.com with ESMTPSA id s4sm23515200wre.53.2020.07.20.01.33.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jul 2020 01:33:54 -0700 (PDT)
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     valentin.schneider@arm.com, sashal@kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Subject: [PATCH 5.4] sched/fair: handle case of task_h_load() returning 0
+Date:   Mon, 20 Jul 2020 10:33:45 +0200
+Message-Id: <20200720083345.22101-1-vincent.guittot@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Nicolas,
+[ Upstream commit 01cfcde9c26d8555f0e6e9aea9d6049f87683998 ]
 
-On Fri, 2020-07-17 at 11:50 -0400, Nicolas Dufresne wrote:
-> Le vendredi 17 juillet 2020 à 09:48 +0200, Philipp Zabel a écrit :
-> > Hi Ezequiel, Nicolas,
-> > 
-> > On Fri, 2020-07-17 at 00:49 -0300, Ezequiel Garcia wrote:
-> > > From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-> > > 
-> > > This add H264 level 4.1, 4.2 and 5.0 to the list of supported formats.
-> > > While the hardware does not fully support these levels, it do support
-> > > most of them.
-> > 
-> > Could you clarify this? As far as I understand the hardware supports
-> > maximum frame size requirement for up to level 4.2 (8704 macroblocks),
-> > but not 5.0, and at least the implementation on i.MX6 does not support
-> > the max encoding speed requirements for levels 4.1 and higher.
-> > 
-> > I don't think the firmware ever produces any output with a level higher
-> > than 4.0 either, so what is the purpose of pretending otherwise?
+task_h_load() can return 0 in some situations like running stress-ng
+mmapfork, which forks thousands of threads, in a sched group on a 224 cores
+system. The load balance doesn't handle this correctly because
+env->imbalance never decreases and it will stop pulling tasks only after
+reaching loop_max, which can be equal to the number of running tasks of
+the cfs. Make sure that imbalance will be decreased by at least 1.
 
-I didn't see the decoder change, ^ this was just referring to the
-encoder level.
+misfit task is the other feature that doesn't handle correctly such
+situation although it's probably more difficult to face the problem
+because of the smaller number of CPUs and running tasks on heterogenous
+system.
 
-> The level is a combination of 3 contraints, frame size, raw bitrate and encoded
-> bitrate. We have a streams here the decode just fine, that reaches 5.0 for the
-> endoded bitrate, but is near 4.0 for everything else. This streams works just
-> fine with the 960.
+We can't simply ensure that task_h_load() returns at least one because it
+would imply to handle underflow in other places.
 
-You are right that the decoder, depending on the individual stream, may
-well be capable of playing back a higher level than officially
-supported. It is just not guaranteed that any stream of that unsupported
-level can play back smoothly.
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: <stable@vger.kernel.org> # v5.4
+cc: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20200710152426.16981-1-vincent.guittot@linaro.org
+---
+ kernel/sched/fair.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-I suppose on i.MX6 the bottleneck is more likely to be the macroblock
-processing rate than the encoded bitrate, especially if the memory bus
-is under load. I'm not sure we should increase the advertised level
-unless we can reach required MB/s as well. That being said, there is a
-kernel option in the i.MX6 vendor kernel that disables CPU and bus
-frequency scaling, keeps the SoC voltage high, and overclocks the VPU to
-352 MHz. So there might be some headroom left to actually support this.
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 2f81e4ae844e..9b16080093be 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3824,7 +3824,11 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 		return;
+ 	}
+ 
+-	rq->misfit_task_load = task_h_load(p);
++	/*
++	 * Make sure that misfit_task_load will not be null even if
++	 * task_h_load() returns 0.
++	 */
++	rq->misfit_task_load = max_t(unsigned long, task_h_load(p), 1);
+ }
+ 
+ #else /* CONFIG_SMP */
+@@ -7407,7 +7411,15 @@ static int detach_tasks(struct lb_env *env)
+ 		if (!can_migrate_task(p, env))
+ 			goto next;
+ 
+-		load = task_h_load(p);
++		/*
++		 * Depending of the number of CPUs and tasks and the
++		 * cgroup hierarchy, task_h_load() can return a null
++		 * value. Make sure that env->imbalance decreases
++		 * otherwise detach_tasks() will stop only after
++		 * detaching up to loop_max tasks.
++		 */
++		load = max_t(unsigned long, task_h_load(p), 1);
++
+ 
+ 		if (sched_feat(LB_MIN) && load < 16 && !env->sd->nr_balance_failed)
+ 			goto next;
+-- 
+2.17.1
 
-> I think the risk with this patch is that it now allow a stream to
-> underperform in raw bitrate, but that can be controlled otherwise by
-> the frame interval, so there is no need to limit it through levels.
-> I could be wrong.
->
-> But in public domain [0], Chips&Media seems to claim 4.2 decode, 4.0 encode. So
-> yes, claiming 5.0 is off track, we will reduce this to 4.2 in v2.
-> 
-> [0] https://www.chipsnmedia.com/fullhd
-
-I'm not sure the CODA960 VPU on i.MX6 at 264 MHz is as capable as the
-CODA966 mentioned on their website.
-
-> Considering how buggy and inconcistent this is going to be in decoder drivers,
-> I'm tempted to just drop that restriction in GStreamer v4l2 decoders (was added
-> by Philippe Normand from Igalia). Specially the bitrate limits, since it is
-> quite clear from testing that this limits is only related to real-time
-> performance, and that offline decoding should still be possible. Meanwhile, the
-> driver should still advertise 4.1 and 4.2 decoding. But we should check the
-> decoding/encoding levels are actually not the same, that I haven't checked, the
-> code is a bit ... kindly said ... hairy.
-
-I think negotiation is important for sources that can provide multiple
-levels, to choose the right level for the decoder. If there is a given
-stream with a fixed level, it might indeed be better to not fail
-negotiation (maybe have a warning instead) and just hope for the best,
-as for some streams it might just work.
-
-regards
-Philipp
