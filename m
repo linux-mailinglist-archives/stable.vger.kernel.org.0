@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D934226832
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C5122690A
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388321AbgGTQOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S1731909AbgGTQEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387612AbgGTQOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:14:47 -0400
+        id S1732301AbgGTQEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B16C2176B;
-        Mon, 20 Jul 2020 16:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86AF120773;
+        Mon, 20 Jul 2020 16:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261686;
-        bh=Np+j03ykyif20VWP1W2T8FI6kv/Xhb/bRgfjC8cnNxM=;
+        s=default; t=1595261060;
+        bh=8n6WyCnf4uOT8u/UC9lAYwFf3DIBEdlqg7odhu7VMNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HaogEOShVet0U9XJvZytsjpHhTa7jTL/8rypaNdEq6858Cg5Gkwi6s4cer4U/S6vS
-         m6I8SiD5VioyxjkhjSKm/qfpQEQgBoqCKJIz0JKzGD2CqJrN2sYbFNAYEgeMTL7Aay
-         SFjUgv42U3482ks49fIEdsYEVqGYuGvZNPQ69Qr8=
+        b=aBNINDO7yuEJaKzfckz/+qmf/4HOvI0QPUlPggB7b9iL2bp41hepfQH+EgbGrrX0a
+         37IwmKPEBNwdkXRJ9ni7Y+7KzDhjUq48spktQLiktOmBOZ+m/k5ezblJHCviycpFeq
+         mnpYYxGzNVPbUZdnDIRnCaJC4RJnKBhnoifezTeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Ammy Yi <ammy.yi@intel.com>
-Subject: [PATCH 5.7 204/244] intel_th: Fix a NULL dereference when hub driver is not loaded
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 193/215] dmaengine: fsl-edma: Fix NULL pointer exception in fsl_edma_tx_handler
 Date:   Mon, 20 Jul 2020 17:37:55 +0200
-Message-Id: <20200720152835.555247227@linuxfoundation.org>
+Message-Id: <20200720152829.362855569@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit e78e1fdb282726beaf88aa75943682217e6ded0e upstream.
+commit f5e5677c420346b4e9788051c2e4d750996c428c upstream.
 
-Connecting master to an output port when GTH driver module is not loaded
-triggers a NULL dereference:
+NULL pointer exception happens occasionally on serial output initiated
+by login timeout.  This was reproduced only if kernel was built with
+significant debugging options and EDMA driver is used with serial
+console.
 
-> RIP: 0010:intel_th_set_output+0x35/0x70 [intel_th]
-> Call Trace:
->  ? sth_stm_link+0x12/0x20 [intel_th_sth]
->  stm_source_link_store+0x164/0x270 [stm_core]
->  dev_attr_store+0x17/0x30
->  sysfs_kf_write+0x3e/0x50
->  kernfs_fop_write+0xda/0x1b0
->  __vfs_write+0x1b/0x40
->  vfs_write+0xb9/0x1a0
->  ksys_write+0x67/0xe0
->  __x64_sys_write+0x1a/0x20
->  do_syscall_64+0x57/0x1d0
->  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    col-vf50 login: root
+    Password:
+    Login timed out after 60 seconds.
+    Unable to handle kernel NULL pointer dereference at virtual address 00000044
+    Internal error: Oops: 5 [#1] ARM
+    CPU: 0 PID: 157 Comm: login Not tainted 5.7.0-next-20200610-dirty #4
+    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+      (fsl_edma_tx_handler) from [<8016eb10>] (__handle_irq_event_percpu+0x64/0x304)
+      (__handle_irq_event_percpu) from [<8016eddc>] (handle_irq_event_percpu+0x2c/0x7c)
+      (handle_irq_event_percpu) from [<8016ee64>] (handle_irq_event+0x38/0x5c)
+      (handle_irq_event) from [<801729e4>] (handle_fasteoi_irq+0xa4/0x160)
+      (handle_fasteoi_irq) from [<8016ddcc>] (generic_handle_irq+0x34/0x44)
+      (generic_handle_irq) from [<8016e40c>] (__handle_domain_irq+0x54/0xa8)
+      (__handle_domain_irq) from [<80508bc8>] (gic_handle_irq+0x4c/0x80)
+      (gic_handle_irq) from [<80100af0>] (__irq_svc+0x70/0x98)
+    Exception stack(0x8459fe80 to 0x8459fec8)
+    fe80: 72286b00 e3359f64 00000001 0000412d a0070013 85c98840 85c98840 a0070013
+    fea0: 8054e0d4 00000000 00000002 00000000 00000002 8459fed0 8081fbe8 8081fbec
+    fec0: 60070013 ffffffff
+      (__irq_svc) from [<8081fbec>] (_raw_spin_unlock_irqrestore+0x30/0x58)
+      (_raw_spin_unlock_irqrestore) from [<8056cb48>] (uart_flush_buffer+0x88/0xf8)
+      (uart_flush_buffer) from [<80554e60>] (tty_ldisc_hangup+0x38/0x1ac)
+      (tty_ldisc_hangup) from [<8054c7f4>] (__tty_hangup+0x158/0x2bc)
+      (__tty_hangup) from [<80557b90>] (disassociate_ctty.part.1+0x30/0x23c)
+      (disassociate_ctty.part.1) from [<8011fc18>] (do_exit+0x580/0xba0)
+      (do_exit) from [<801214f8>] (do_group_exit+0x3c/0xb4)
+      (do_group_exit) from [<80121580>] (__wake_up_parent+0x0/0x14)
 
-Make sure the module in question is loaded and return an error if not.
+Issue looks like race condition between interrupt handler fsl_edma_tx_handler()
+(called as result of fsl_edma_xfer_desc()) and terminating the transfer with
+fsl_edma_terminate_all().
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: 39f4034693b7c ("intel_th: Add driver infrastructure for Intel(R) Trace Hub devices")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Tested-by: Ammy Yi <ammy.yi@intel.com>
-Cc: stable@vger.kernel.org # v4.4
-Link: https://lore.kernel.org/r/20200706161339.55468-5-alexander.shishkin@linux.intel.com
+The fsl_edma_tx_handler() handles interrupt for a transfer with already freed
+edesc and idle==true.
+
+Fixes: d6be34fbd39b ("dma: Add Freescale eDMA engine driver support")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Robin Gong <yibin.gong@nxp.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1591877861-28156-2-git-send-email-krzk@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/core.c |   21 ++++++++++++++++++---
- drivers/hwtracing/intel_th/sth.c  |    4 +---
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ drivers/dma/fsl-edma.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/hwtracing/intel_th/core.c
-+++ b/drivers/hwtracing/intel_th/core.c
-@@ -1021,15 +1021,30 @@ int intel_th_set_output(struct intel_th_
- {
- 	struct intel_th_device *hub = to_intel_th_hub(thdev);
- 	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
-+	int ret;
+--- a/drivers/dma/fsl-edma.c
++++ b/drivers/dma/fsl-edma.c
+@@ -45,6 +45,13 @@ static irqreturn_t fsl_edma_tx_handler(i
+ 			fsl_chan = &fsl_edma->chans[ch];
  
- 	/* In host mode, this is up to the external debugger, do nothing. */
- 	if (hub->host_mode)
- 		return 0;
- 
--	if (!hubdrv->set_output)
--		return -ENOTSUPP;
-+	/*
-+	 * hub is instantiated together with the source device that
-+	 * calls here, so guaranteed to be present.
-+	 */
-+	hubdrv = to_intel_th_driver(hub->dev.driver);
-+	if (!hubdrv || !try_module_get(hubdrv->driver.owner))
-+		return -EINVAL;
- 
--	return hubdrv->set_output(hub, master);
-+	if (!hubdrv->set_output) {
-+		ret = -ENOTSUPP;
-+		goto out;
-+	}
+ 			spin_lock(&fsl_chan->vchan.lock);
 +
-+	ret = hubdrv->set_output(hub, master);
++			if (!fsl_chan->edesc) {
++				/* terminate_all called before */
++				spin_unlock(&fsl_chan->vchan.lock);
++				continue;
++			}
 +
-+out:
-+	module_put(hubdrv->driver.owner);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(intel_th_set_output);
- 
---- a/drivers/hwtracing/intel_th/sth.c
-+++ b/drivers/hwtracing/intel_th/sth.c
-@@ -161,9 +161,7 @@ static int sth_stm_link(struct stm_data
- {
- 	struct sth_device *sth = container_of(stm_data, struct sth_device, stm);
- 
--	intel_th_set_output(to_intel_th_device(sth->dev), master);
--
--	return 0;
-+	return intel_th_set_output(to_intel_th_device(sth->dev), master);
- }
- 
- static int intel_th_sw_init(struct sth_device *sth)
+ 			if (!fsl_chan->edesc->iscyclic) {
+ 				list_del(&fsl_chan->edesc->vdesc.node);
+ 				vchan_cookie_complete(&fsl_chan->edesc->vdesc);
 
 
