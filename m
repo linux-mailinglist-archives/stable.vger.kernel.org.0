@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5493E226ADC
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CFDB226BF8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731338AbgGTQg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:36:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
+        id S1729719AbgGTQq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731316AbgGTPwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:52:05 -0400
+        id S1729732AbgGTPkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E8042064B;
-        Mon, 20 Jul 2020 15:52:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C53BE2176B;
+        Mon, 20 Jul 2020 15:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260324;
-        bh=aaTkkjTThiK4kO48WcJTrCLmtM7O9Qdc/8N21SoD+Mk=;
+        s=default; t=1595259641;
+        bh=nbwn6TZZ0LFmygzzXGwmza/qSf14tzLEA/vC7zv4svw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1Z3fRe4mlAyQ7nd5hLQZbNcQ8lcLQ6CQM44tp3A+BYtHG1IshtgFm+3eJwzsqmlA
-         7DMDy9orKXjiki51MYk6/csOdp8dctTydYbgyxTNj2xtCCFanOnveNl8nn2UFMB1Dy
-         dYxqe75x9p0LS0cXJiVWDyc4sbJYonHiYmXLV1MM=
+        b=x4WFKYwaMLZTybuEypr94AuaQQAvB4ZuSg3H3jY1yQRRCTaUZRzWCpSDYTR35ddgC
+         7APhNlagQR34PNCSzarmWUqYQDexPR1Owrpcj/uUaKFxYJ1swMFLMMg5lq07UFiONn
+         G0l+AGFQRpjCoLfVMNZB9UVfJM7QE4bwotcVY9Hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.19 034/133] iio:humidity:hts221 Fix alignment and data leak issues
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.9 25/86] ARC: elf: use right ELF_ARCH
 Date:   Mon, 20 Jul 2020 17:36:21 +0200
-Message-Id: <20200720152805.365344523@linuxfoundation.org>
+Message-Id: <20200720152754.415928050@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +42,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit 5c49056ad9f3c786f7716da2dd47e4488fc6bd25 upstream.
+commit b7faf971081a4e56147f082234bfff55135305cb upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
-This data is allocated with kzalloc so no data can leak
-apart from previous readings.
-
-Explicit alignment of ts needed to ensure consistent padding
-on all architectures (particularly x86_32 with it's 4 byte alignment
-of s64)
-
-Fixes: e4a70e3e7d84 ("iio: humidity: add support to hts221 rh/temp combo device")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/humidity/hts221.h        |    7 +++++--
- drivers/iio/humidity/hts221_buffer.c |    9 +++++----
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ arch/arc/include/asm/elf.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/humidity/hts221.h
-+++ b/drivers/iio/humidity/hts221.h
-@@ -15,8 +15,6 @@
+--- a/arch/arc/include/asm/elf.h
++++ b/arch/arc/include/asm/elf.h
+@@ -26,7 +26,7 @@
+ #define  R_ARC_32_PCREL		0x31
  
- #include <linux/iio/iio.h>
+ /*to set parameters in the core dumps */
+-#define ELF_ARCH		EM_ARCOMPACT
++#define ELF_ARCH		EM_ARC_INUSE
+ #define ELF_CLASS		ELFCLASS32
  
--#define HTS221_DATA_SIZE	2
--
- enum hts221_sensor_type {
- 	HTS221_SENSOR_H,
- 	HTS221_SENSOR_T,
-@@ -40,6 +38,11 @@ struct hts221_hw {
- 
- 	bool enabled;
- 	u8 odr;
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		__le16 channels[2];
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- extern const struct dev_pm_ops hts221_pm_ops;
---- a/drivers/iio/humidity/hts221_buffer.c
-+++ b/drivers/iio/humidity/hts221_buffer.c
-@@ -163,7 +163,6 @@ static const struct iio_buffer_setup_ops
- 
- static irqreturn_t hts221_buffer_handler_thread(int irq, void *p)
- {
--	u8 buffer[ALIGN(2 * HTS221_DATA_SIZE, sizeof(s64)) + sizeof(s64)];
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *iio_dev = pf->indio_dev;
- 	struct hts221_hw *hw = iio_priv(iio_dev);
-@@ -173,18 +172,20 @@ static irqreturn_t hts221_buffer_handler
- 	/* humidity data */
- 	ch = &iio_dev->channels[HTS221_SENSOR_H];
- 	err = regmap_bulk_read(hw->regmap, ch->address,
--			       buffer, HTS221_DATA_SIZE);
-+			       &hw->scan.channels[0],
-+			       sizeof(hw->scan.channels[0]));
- 	if (err < 0)
- 		goto out;
- 
- 	/* temperature data */
- 	ch = &iio_dev->channels[HTS221_SENSOR_T];
- 	err = regmap_bulk_read(hw->regmap, ch->address,
--			       buffer + HTS221_DATA_SIZE, HTS221_DATA_SIZE);
-+			       &hw->scan.channels[1],
-+			       sizeof(hw->scan.channels[1]));
- 	if (err < 0)
- 		goto out;
- 
--	iio_push_to_buffers_with_timestamp(iio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(iio_dev, &hw->scan,
- 					   iio_get_time_ns(iio_dev));
- 
- out:
+ #ifdef CONFIG_CPU_BIG_ENDIAN
 
 
