@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2DDA226841
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23164226966
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387657AbgGTQMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:12:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52192 "EHLO mail.kernel.org"
+        id S1732586AbgGTQYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:24:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387985AbgGTQMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:12:36 -0400
+        id S1732617AbgGTQCN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:02:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B5C120684;
-        Mon, 20 Jul 2020 16:12:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51B092176B;
+        Mon, 20 Jul 2020 16:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261556;
-        bh=3DIIuFvolpU1ejUNjM2ZXn6NWLeSQpweIh1U63zDc4M=;
+        s=default; t=1595260932;
+        bh=xm9UZW9zAD+VA4H6R+EB34yC3IghtWXpFJKcdYMmkao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMPBrbVY40RBdcgE4vh3PmDgFO7xTex1VDtsdHScQ167nyAox1Cl5zrCV1vx0mCfp
-         KGxqyg0QK3lhGwFuGj2ePq1ygiUwKJIBBNOSk4KjFuwX3sflnfXG36K/knl2BtlUvS
-         rxQuW4PMdY0t46n/zaOLUJe1/qvvHrksVEREGZwA=
+        b=zLXMIAGTMo4EN4z3+6dRzeiwC+A3YhqiLYrHVAzicfNJQapShUx6yFdbKqO1bWp9f
+         IPeCq1ETWGd4XsKnlu4Y+jclB0eBl2a3hoQdCRp/LfLRVImUCJxBI8wnGpxT5EQ8+1
+         ZwNOOafUyUBgSBRSHuXQ+okw+jzRLcTwdddjoiIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.7 141/244] mtd: rawnand: oxnas: Unregister all devices on error
-Date:   Mon, 20 Jul 2020 17:36:52 +0200
-Message-Id: <20200720152832.559295181@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>
+Subject: [PATCH 5.4 131/215] mtd: rawnand: marvell: Fix the condition on a return code
+Date:   Mon, 20 Jul 2020 17:36:53 +0200
+Message-Id: <20200720152826.423586799@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit b60391eb17b2956ff2fc4c348e5a464da21ff9cb upstream.
+commit c27075772d1f1c8aaf276db9943b35adda8a8b65 upstream.
 
-On error, the oxnas probe path just frees the device which failed and
-aborts the probe, leaving unreleased resources.
+In a previous fix, I changed the condition on which the timeout of an
+IRQ is reached from:
 
-Fix this situation by calling mtd_device_unregister()/nand_cleanup()
-on these.
+    if (!ret)
 
-Fixes: 668592492409 ("mtd: nand: Add OX820 NAND Support")
+into:
+
+    if (ret && !pending)
+
+While having a non-zero return code is usual in the Linux kernel, here
+ret comes from a wait_for_completion_timeout() which returns 0 when
+the waiting period is too long.
+
+Hence, the revised condition should be:
+
+    if (!ret && !pending)
+
+The faulty patch did not produce any error because of the !pending
+condition so this change is finally purely cosmetic and does not
+change the actual driver behavior.
+
+Fixes: cafb56dd741e ("mtd: rawnand: marvell: prevent timeouts on a loaded machine")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-38-miquel.raynal@bootlin.com
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://lore.kernel.org/linux-mtd/20200424164501.26719-2-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/oxnas_nand.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mtd/nand/raw/marvell_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/oxnas_nand.c
-+++ b/drivers/mtd/nand/raw/oxnas_nand.c
-@@ -82,6 +82,7 @@ static int oxnas_nand_probe(struct platf
- 	struct resource *res;
- 	int count = 0;
- 	int err = 0;
-+	int i;
- 
- 	/* Allocate memory for the device structure (and zero it) */
- 	oxnas = devm_kzalloc(&pdev->dev, sizeof(*oxnas),
-@@ -161,6 +162,13 @@ err_cleanup_nand:
- 	nand_cleanup(chip);
- err_release_child:
- 	of_node_put(nand_np);
-+
-+	for (i = 0; i < oxnas->nchips; i++) {
-+		chip = oxnas->chips[i];
-+		WARN_ON(mtd_device_unregister(nand_to_mtd(chip)));
-+		nand_cleanup(chip);
-+	}
-+
- err_clk_unprepare:
- 	clk_disable_unprepare(oxnas->clk);
- 	return err;
+--- a/drivers/mtd/nand/raw/marvell_nand.c
++++ b/drivers/mtd/nand/raw/marvell_nand.c
+@@ -707,7 +707,7 @@ static int marvell_nfc_wait_op(struct na
+ 	 * In case the interrupt was not served in the required time frame,
+ 	 * check if the ISR was not served or if something went actually wrong.
+ 	 */
+-	if (ret && !pending) {
++	if (!ret && !pending) {
+ 		dev_err(nfc->dev, "Timeout waiting for RB signal\n");
+ 		return -ETIMEDOUT;
+ 	}
 
 
