@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 993832268BA
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E371226622
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387727AbgGTQLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49776 "EHLO mail.kernel.org"
+        id S1731754AbgGTQAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733271AbgGTQK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:10:59 -0400
+        id S1732425AbgGTQAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:00:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1F982065E;
-        Mon, 20 Jul 2020 16:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DCCE20672;
+        Mon, 20 Jul 2020 16:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261459;
-        bh=l3dUy7lUhgee3ydzzfEtI33EPmTQWil48PbmbYiKmsQ=;
+        s=default; t=1595260835;
+        bh=xn0D/tzDqjhKFWrjKYeEsuhHoeqsIK0mp/IoX8f0R+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhT4bdwYAJ8m4sQCBhdngZoREFe3Io6QWARVgCZcWAzz6AuU/loaRb9Eu8PEwYDYs
-         iQD2THUB/ybOaUgnX42JXZyJTFOwX/YCuD3UEZe5Gl88G3ZYppjoOtXUyxBYWsPLJX
-         R19D+vdGluMSOPVdWqIFsRM9GZw/WQ8RFiwu4K7I=
+        b=cdMSe71Y5RZG+pRCKATYzzJsl6CJPNA4PLhCyJX1Mq4R352KMNvE/PKrwijp3+DgZ
+         GKU8wirU5tMeKRO6dRQnBmVbMu05AReVpH/v0W2vCDIMPIEZZdUJjDc0mZ8CPiOOnx
+         u77aFRO5ruYn0rYFIMAGL4gGnBAUYIC7NhF2vvBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.7 124/244] PCI/PM: Call .bridge_d3() hook only if non-NULL
-Date:   Mon, 20 Jul 2020 17:36:35 +0200
-Message-Id: <20200720152831.735772926@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 114/215] xprtrdma: fix incorrect header size calculations
+Date:   Mon, 20 Jul 2020 17:36:36 +0200
+Message-Id: <20200720152825.622123745@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit c3aaf086701d05a82c8156ee8620af41e5a7d6fe upstream.
+[ Upstream commit 912288442cb2f431bf3c8cb097a5de83bc6dbac1 ]
 
-26ad34d510a8 ("PCI / ACPI: Whitelist D3 for more PCIe hotplug ports") added
-the struct pci_platform_pm_ops.bridge_d3() function pointer and
-platform_pci_bridge_d3() to use it.
+Currently the header size calculations are using an assignment
+operator instead of a += operator when accumulating the header
+size leading to incorrect sizes.  Fix this by using the correct
+operator.
 
-The .bridge_d3() op is implemented by acpi_pci_platform_pm, but not by
-mid_pci_platform_pm.  We don't expect platform_pci_bridge_d3() to be called
-on Intel MID platforms, but nothing in the code itself would prevent that.
-
-Check the .bridge_d3() pointer for NULL before calling it.
-
-Fixes: 26ad34d510a8 ("PCI / ACPI: Whitelist D3 for more PCIe hotplug ports")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Addresses-Coverity: ("Unused value")
+Fixes: 302d3deb2068 ("xprtrdma: Prevent inline overflow")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sunrpc/xprtrdma/rpc_rdma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -868,7 +868,9 @@ static inline bool platform_pci_need_res
+diff --git a/net/sunrpc/xprtrdma/rpc_rdma.c b/net/sunrpc/xprtrdma/rpc_rdma.c
+index c56e6cfc4a623..21970185485fc 100644
+--- a/net/sunrpc/xprtrdma/rpc_rdma.c
++++ b/net/sunrpc/xprtrdma/rpc_rdma.c
+@@ -71,7 +71,7 @@ static unsigned int rpcrdma_max_call_header_size(unsigned int maxsegs)
+ 	size = RPCRDMA_HDRLEN_MIN;
  
- static inline bool platform_pci_bridge_d3(struct pci_dev *dev)
- {
--	return pci_platform_pm ? pci_platform_pm->bridge_d3(dev) : false;
-+	if (pci_platform_pm && pci_platform_pm->bridge_d3)
-+		return pci_platform_pm->bridge_d3(dev);
-+	return false;
- }
+ 	/* Maximum Read list size */
+-	size = maxsegs * rpcrdma_readchunk_maxsz * sizeof(__be32);
++	size += maxsegs * rpcrdma_readchunk_maxsz * sizeof(__be32);
  
- /**
+ 	/* Minimal Read chunk size */
+ 	size += sizeof(__be32);	/* segment count */
+@@ -96,7 +96,7 @@ static unsigned int rpcrdma_max_reply_header_size(unsigned int maxsegs)
+ 	size = RPCRDMA_HDRLEN_MIN;
+ 
+ 	/* Maximum Write list size */
+-	size = sizeof(__be32);		/* segment count */
++	size += sizeof(__be32);		/* segment count */
+ 	size += maxsegs * rpcrdma_segment_maxsz * sizeof(__be32);
+ 	size += sizeof(__be32);	/* list discriminator */
+ 
+-- 
+2.25.1
+
 
 
