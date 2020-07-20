@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF294226524
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F0C22661B
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731211AbgGTPvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
+        id S1732385AbgGTQAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729686AbgGTPvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:51:12 -0400
+        id S1732380AbgGTQAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:00:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D7842064B;
-        Mon, 20 Jul 2020 15:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E09020578;
+        Mon, 20 Jul 2020 16:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260271;
-        bh=NBQwnVG2olcGqnEIA36AveyXcFU/IXivw+KEN1ps4S0=;
+        s=default; t=1595260818;
+        bh=v524NkExBB2dE3saBgiSvQ5ty8mbFAC4Cg1ZB04RqxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1AG0IlVG3SlaocEWLsia/PQ7h38nyMto+tbZWKbDprJ8DfubUPF+ItCu7o83dS1P
-         GliuKfDK7U1yDdy0Npr+3xtpNKPiHk8Ujm7u/uJ//ksiJoeeI4cx7XqhjCJHPwPnJD
-         P+Oz9FDUxzEFIjGNB2XZyruJld3mKt3RFpyr3Ow0=
+        b=zDSjJJZPTS7oDhKxyGOsYczCUM9E9rxGH2fcj2pUN1ExLrI1yn2UaeoXrQGpLFcpL
+         VYQ8Dey/0yhMm3Lm5HMFUURmj+SoUJFl9LUEwUv6n5CCog6gC8obOTT1f7eIZk5IoK
+         7RLL36OjMHeFs5hP/bVL7nUTc1UC01q37puilCKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/133] Revert "usb/ehci-platform: Set PM runtime as active on resume"
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 108/215] clk: mvebu: ARMADA_AP_CPU_CLK needs to select ARMADA_AP_CP_HELPER
 Date:   Mon, 20 Jul 2020 17:36:30 +0200
-Message-Id: <20200720152805.805310184@linuxfoundation.org>
+Message-Id: <20200720152825.338642575@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 71f660a1a74b2eae7896f18f31b68e9c4f4eaea3.
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-Eugeniu Rosca writes:
+[ Upstream commit 8e3709d7e3a67e2d3f42bd1fc2052353a5678944 ]
 
-On Thu, Jul 09, 2020 at 09:00:23AM +0200, Eugeniu Rosca wrote:
->After integrating v4.14.186 commit 5410d158ca2a50 ("usb/ehci-platform:
->Set PM runtime as active on resume") into downstream v4.14.x, we started
->to consistently experience below panic [1] on every second s2ram of
->R-Car H3 Salvator-X Renesas reference board.
->
->After some investigations, we concluded the following:
-> - the issue does not exist in vanilla v5.8-rc4+
-> - [bisecting shows that] the panic on v4.14.186 is caused by the lack
->   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
->   link support"). Getting evidence for that is easy. Reverting
->   987351e1ea7772 in vanilla leads to a similar backtrace [2].
->
->Questions:
-> - Backporting 987351e1ea7772 ("phy: core: Add consumer device
->   link support") to v4.14.187 looks challenging enough, so probably not
->   worth it. Anybody to contradict this?
-> - Assuming no plans to backport the missing mainline commit to v4.14.x,
->   should the following three v4.14.186 commits be reverted on v4.14.x?
->   * baef809ea497a4 ("usb/ohci-platform: Fix a warning when hibernating")
->   * 9f33eff4958885 ("usb/xhci-plat: Set PM runtime as active on resume")
->   * 5410d158ca2a50 ("usb/ehci-platform: Set PM runtime as active on resume")
+When building arm32 allmodconfig:
 
+ld.lld: error: undefined symbol: ap_cp_unique_name
+>>> referenced by ap-cpu-clk.c
+>>>               clk/mvebu/ap-cpu-clk.o:(ap_cpu_clock_probe) in archive drivers/built-in.a
+
+ap_cp_unique_name is only compiled into the kernel image when
+CONFIG_ARMADA_AP_CP_HELPER is selected (as it is not user selectable).
+However, CONFIG_ARMADA_AP_CPU_CLK does not select it.
+
+This has been a problem since the driver was added to the kernel but it
+was not built before commit c318ea261749 ("cpufreq: ap806: fix cpufreq
+driver needs ap cpu clk") so it was never noticed.
+
+Fixes: f756e362d938 ("clk: mvebu: add CPU clock driver for Armada 7K/8K")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20200701201128.2448427-1-natechancellor@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-platform.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/clk/mvebu/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/ehci-platform.c b/drivers/usb/host/ehci-platform.c
-index cbc45941a699d..8a45362155c5a 100644
---- a/drivers/usb/host/ehci-platform.c
-+++ b/drivers/usb/host/ehci-platform.c
-@@ -457,10 +457,6 @@ static int ehci_platform_resume(struct device *dev)
+diff --git a/drivers/clk/mvebu/Kconfig b/drivers/clk/mvebu/Kconfig
+index 415e6906a113f..76cd06f4ed62a 100644
+--- a/drivers/clk/mvebu/Kconfig
++++ b/drivers/clk/mvebu/Kconfig
+@@ -42,6 +42,7 @@ config ARMADA_AP806_SYSCON
  
- 	ehci_resume(hcd, priv->reset_on_resume);
+ config ARMADA_AP_CPU_CLK
+ 	bool
++	select ARMADA_AP_CP_HELPER
  
--	pm_runtime_disable(dev);
--	pm_runtime_set_active(dev);
--	pm_runtime_enable(dev);
--
- 	if (priv->quirk_poll)
- 		quirk_poll_init(priv);
- 
+ config ARMADA_CP110_SYSCON
+ 	bool
 -- 
 2.25.1
 
