@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE06F226B24
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C5C226C2E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730517AbgGTPsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43836 "EHLO mail.kernel.org"
+        id S1726076AbgGTPjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730089AbgGTPsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:17 -0400
+        id S1729363AbgGTPjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AB222064B;
-        Mon, 20 Jul 2020 15:48:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3002822CAF;
+        Mon, 20 Jul 2020 15:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260096;
-        bh=0vN9ldW4dl4UP1zx716nsKtBzsTg8JvdS54xIkDdDHE=;
+        s=default; t=1595259553;
+        bh=UFQESJFHqzaPnmS+Dqahl5WTHWoKJlV7XIsLTqYVWEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLpOz8pnWhAc0SQPh/m1YDd52fcedlpZHMbpMC9+qyD2ngK8m/ilTSbGml/WzLK0N
-         I6A3oPYEF9+JbHdVDfFDhEIu9F3WKnYmAvdSIudMM8IZQVQatrVFDeLqjFvpbGOMi4
-         wDV8z9MalK+PfcMB6gDYrstgd+4CHYs8lKJCNSPs=
+        b=C1f+qEk9sRofEab34rv+WOMFIYQhsdvdVSiWyK5bf3uqC6CwyMml5+UezBQsTzbL0
+         gD1hFGdC2lJ2rvPCpsjEXWVO2HXqElpkax/M8OJwZCTN+alX7Xnw6P/Qabs/lgJuLU
+         JUuwt9zr35MCTZwyhGhwZm+lntDS13i1+rMl2ZNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Buettner <kevinb@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Dave Airlie <airlied@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 088/125] copy_xstate_to_kernel: Fix typo which caused GDB regression
+        stable@vger.kernel.org, Andy Whitcroft <apw@canonical.com>,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.4 51/58] mei: bus: dont clean driver pointer
 Date:   Mon, 20 Jul 2020 17:37:07 +0200
-Message-Id: <20200720152807.272231710@linuxfoundation.org>
+Message-Id: <20200720152749.814682798@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Buettner <kevinb@redhat.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 5714ee50bb4375bd586858ad800b1d9772847452 upstream.
+commit e852c2c251ed9c23ae6e3efebc5ec49adb504207 upstream.
 
-This fixes a regression encountered while running the
-gdb.base/corefile.exp test in GDB's test suite.
+It's not needed to set driver to NULL in mei_cl_device_remove()
+which is bus_type remove() handler as this is done anyway
+in __device_release_driver().
 
-In my testing, the typo prevented the sw_reserved field of struct
-fxregs_state from being output to the kernel XSAVES area.  Thus the
-correct mask corresponding to XCR0 was not present in the core file for
-GDB to interrogate, resulting in the following behavior:
+Actually this is causing an endless loop in driver_detach()
+on ubuntu patched kernel, while removing (rmmod) the mei_hdcp module.
+The reason list_empty(&drv->p->klist_devices.k_list) is always not-empty.
+as the check is always true in  __device_release_driver()
+	if (dev->driver != drv)
+		return;
 
-   [kev@f32-1 gdb]$ ./gdb -q testsuite/outputs/gdb.base/corefile/corefile testsuite/outputs/gdb.base/corefile/corefile.core
-   Reading symbols from testsuite/outputs/gdb.base/corefile/corefile...
-   [New LWP 232880]
+The non upstream patch is causing this behavior, titled:
+'vfio -- release device lock before userspace requests'
 
-   warning: Unexpected size of section `.reg-xstate/232880' in core file.
+Nevertheless the fix is correct also for the upstream.
 
-With the typo fixed, the test works again as expected.
-
-Signed-off-by: Kevin Buettner <kevinb@redhat.com>
-Fixes: 9e4636545933 ("copy_xstate_to_kernel(): don't leave parts of destination uninitialized")
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Dave Airlie <airlied@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://patchwork.ozlabs.org/project/ubuntu-kernel/patch/20180912085046.3401-2-apw@canonical.com/
+Cc: <stable@vger.kernel.org>
+Cc: Andy Whitcroft <apw@canonical.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200628225359.2185929-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/fpu/xstate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/mei/bus.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1029,7 +1029,7 @@ int copy_xstate_to_kernel(void *kbuf, st
- 		copy_part(offsetof(struct fxregs_state, st_space), 128,
- 			  &xsave->i387.st_space, &kbuf, &offset_start, &count);
- 	if (header.xfeatures & XFEATURE_MASK_SSE)
--		copy_part(xstate_offsets[XFEATURE_MASK_SSE], 256,
-+		copy_part(xstate_offsets[XFEATURE_SSE], 256,
- 			  &xsave->i387.xmm_space, &kbuf, &offset_start, &count);
- 	/*
- 	 * Fill xsave->i387.sw_reserved value for ptrace frame:
+--- a/drivers/misc/mei/bus.c
++++ b/drivers/misc/mei/bus.c
+@@ -626,9 +626,8 @@ static int mei_cl_device_remove(struct d
+ 		ret = cldrv->remove(cldev);
+ 
+ 	module_put(THIS_MODULE);
+-	dev->driver = NULL;
+-	return ret;
+ 
++	return ret;
+ }
+ 
+ static ssize_t name_show(struct device *dev, struct device_attribute *a,
 
 
