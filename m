@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7819226BDA
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6922E226BD7
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729902AbgGTQov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:44:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
+        id S1729898AbgGTPlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729192AbgGTPl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:41:27 -0400
+        id S1729895AbgGTPla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:41:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3637122CB3;
-        Mon, 20 Jul 2020 15:41:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 066B322CF7;
+        Mon, 20 Jul 2020 15:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259686;
-        bh=WoJ9Kp9wfVkHFssvNRPNx8qVn3ktNbJH8Bpyp2GuEK8=;
+        s=default; t=1595259689;
+        bh=eVx2whG+iEhdi/wNAA8mHJvtFWijfFiSbn2YqjBTA2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GP2kgL1ND/4TiUgFOsVQMGPeB4j+JTuAEOqHEDCg/MQ5o5revYo5rlZTIP1lqsqdu
-         rmKchBGVJXh3ajjBxBqyZV8ruPAC2oxm5zzQ8tGajwTTPfHIcih1hZNYka673x+vu6
-         b/NYNmruSw4vL7iAJ88cIBxiqFqLxbU3wWXioWBA=
+        b=eosXuhfkhd9KI6B5CVtkAlxHOPYh3Bmuenz9MK785357xggTqwJksY9XRrmtn5nC8
+         OEb2fj+9S60BtMoQtjy7Q2KBgT7HCR315DoGIP5JvEygb5qTyMETgmWwtaKFqZuks0
+         +PMTVaLNxe5Jx4jLcl7gNixyM/HFDYzjinGxWCmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 44/86] iio: pressure: zpa2326: handle pm_runtime_get_sync failure
-Date:   Mon, 20 Jul 2020 17:36:40 +0200
-Message-Id: <20200720152755.387078188@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.9 45/86] iio:pressure:ms5611 Fix buffer element alignment
+Date:   Mon, 20 Jul 2020 17:36:41 +0200
+Message-Id: <20200720152755.428091647@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
 References: <20200720152753.138974850@linuxfoundation.org>
@@ -45,37 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit d88de040e1df38414fc1e4380be9d0e997ab4d58 upstream.
+commit 8db4afe163bbdd93dca6fcefbb831ef12ecc6b4d upstream.
 
-Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count. Call pm_runtime_put if
-pm_runtime_get_sync fails.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+Here there is no data leak possibility so use an explicit structure
+on the stack to ensure alignment and nice readable fashion.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Fixes: 03b262f2bbf4 ("iio:pressure: initial zpa2326 barometer support")
-Cc: <Stable@vger.kernel.org>
+The forced alignment of ts isn't strictly necessary in this driver
+as the padding will be correct anyway (there isn't any).  However
+it is probably less fragile to have it there and it acts as
+documentation of the requirement.
+
+Fixes: 713bbb4efb9dc ("iio: pressure: ms5611: Add triggered buffer support")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/pressure/zpa2326.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/pressure/ms5611_core.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/pressure/zpa2326.c
-+++ b/drivers/iio/pressure/zpa2326.c
-@@ -676,8 +676,10 @@ static int zpa2326_resume(const struct i
- 	int err;
+--- a/drivers/iio/pressure/ms5611_core.c
++++ b/drivers/iio/pressure/ms5611_core.c
+@@ -215,16 +215,21 @@ static irqreturn_t ms5611_trigger_handle
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+-	s32 buf[4]; /* s32 (pressure) + s32 (temp) + 2 * s32 (timestamp) */
++	/* Ensure buffer elements are naturally aligned */
++	struct {
++		s32 channels[2];
++		s64 ts __aligned(8);
++	} scan;
+ 	int ret;
  
- 	err = pm_runtime_get_sync(indio_dev->dev.parent);
--	if (err < 0)
-+	if (err < 0) {
-+		pm_runtime_put(indio_dev->dev.parent);
- 		return err;
-+	}
+ 	mutex_lock(&st->lock);
+-	ret = ms5611_read_temp_and_pressure(indio_dev, &buf[1], &buf[0]);
++	ret = ms5611_read_temp_and_pressure(indio_dev, &scan.channels[1],
++					    &scan.channels[0]);
+ 	mutex_unlock(&st->lock);
+ 	if (ret < 0)
+ 		goto err;
  
- 	if (err > 0) {
- 		/*
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf,
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
+ 					   iio_get_time_ns(indio_dev));
+ 
+ err:
 
 
