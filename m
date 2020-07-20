@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F37662266FD
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2A6226702
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733228AbgGTQH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45122 "EHLO mail.kernel.org"
+        id S1733233AbgGTQID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733224AbgGTQH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:07:56 -0400
+        id S1732564AbgGTQIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:08:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C1C02065E;
-        Mon, 20 Jul 2020 16:07:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5D3D20672;
+        Mon, 20 Jul 2020 16:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261276;
-        bh=faaFtAwdn5ulgFqYuEGAZuBize4Fl3s5R+QYmSR16Ts=;
+        s=default; t=1595261281;
+        bh=egxt+OqgdvW57MofFR/h1DolS9Q1TbBM33DDluq4gHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJ6FMO2/qmFYASjVPq+eSlLZr1emNZxoQj23D/WyDyAjUYFI0VRTJRek5bQt582f8
-         HXlwEBt9J/1uLuDTu9GfHKoh+LyevvpIXwZZ8tdlNhfOu7FVhGuiFgpI7TFeAoSFMz
-         peBu8G3w165ORc1dlBUNCm9rmrSVxxK6jDzAMJnY=
+        b=UM+wJmtFMBN0d0lbR+u06eY46LmlEnbGJ+BX0XGtNSyMV3xmPApSW/sIoNKqaNl5l
+         wFt5rYDeCQQtGW/FVYIL9qJO02Qcupe9Z2UbYx/nvSRI22x9q8kIdfBZl4j0v6dZAD
+         LNbDw08kpt0Xh3hP/5eAiRMeJpHZtEqhzEbcAMi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 058/244] i2c: eg20t: Load module automatically if ID matches
-Date:   Mon, 20 Jul 2020 17:35:29 +0200
-Message-Id: <20200720152828.614591695@linuxfoundation.org>
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 059/244] arm64/alternatives: dont patch up internal branches
+Date:   Mon, 20 Jul 2020 17:35:30 +0200
+Message-Id: <20200720152828.662608128@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -44,33 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 5f90786b31fb7d1e199a8999d46c4e3aea672e11 ]
+[ Upstream commit 5679b28142193a62f6af93249c0477be9f0c669b ]
 
-The driver can't be loaded automatically because it misses
-module alias to be provided. Add corresponding MODULE_DEVICE_TABLE()
-call to the driver.
+Commit f7b93d42945c ("arm64/alternatives: use subsections for replacement
+sequences") moved the alternatives replacement sequences into subsections,
+in order to keep the as close as possible to the code that they replace.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Unfortunately, this broke the logic in branch_insn_requires_update,
+which assumed that any branch into kernel executable code was a branch
+that required updating, which is no longer the case now that the code
+sequences that are patched in are in the same section as the patch site
+itself.
+
+So the only way to discriminate branches that require updating and ones
+that don't is to check whether the branch targets the replacement sequence
+itself, and so we can drop the call to kernel_text_address() entirely.
+
+Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
+Reported-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Link: https://lore.kernel.org/r/20200709125953.30918-1-ardb@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-eg20t.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/alternative.c | 16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index bb810dee8fb5e..73f139690e4e5 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -180,6 +180,7 @@ static const struct pci_device_id pch_pcidev_id[] = {
- 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), 1, },
- 	{0,}
- };
-+MODULE_DEVICE_TABLE(pci, pch_pcidev_id);
+diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
+index d1757ef1b1e74..73039949b5ce2 100644
+--- a/arch/arm64/kernel/alternative.c
++++ b/arch/arm64/kernel/alternative.c
+@@ -43,20 +43,8 @@ bool alternative_is_applied(u16 cpufeature)
+  */
+ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+ {
+-	unsigned long replptr;
+-
+-	if (kernel_text_address(pc))
+-		return true;
+-
+-	replptr = (unsigned long)ALT_REPL_PTR(alt);
+-	if (pc >= replptr && pc <= (replptr + alt->alt_len))
+-		return false;
+-
+-	/*
+-	 * Branching into *another* alternate sequence is doomed, and
+-	 * we're not even trying to fix it up.
+-	 */
+-	BUG();
++	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
++	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
+ }
  
- static irqreturn_t pch_i2c_handler(int irq, void *pData);
- 
+ #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
 -- 
 2.25.1
 
