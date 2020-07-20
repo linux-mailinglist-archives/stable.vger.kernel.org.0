@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A16BB227131
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DD732270C4
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728350AbgGTVmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
+        id S1728390AbgGTVjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:39:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728371AbgGTVjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728380AbgGTVjK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Jul 2020 17:39:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2189207FC;
-        Mon, 20 Jul 2020 21:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09CF022C9D;
+        Mon, 20 Jul 2020 21:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281149;
-        bh=SAMDObAPKgoZIXKFTKFMdIp+C1FyCwxF1h7AKrbE8qE=;
+        s=default; t=1595281150;
+        bh=wRgAKJCJkV7Q4az1cAhz2iFJt5bHLBdVWRTvN1inipk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hut9npUCWy6Ouqn6XcsLAWNqvMFv3x9unk5lOj0f0T7gWhuhPIKyVwOL3B3l1PL3+
-         nT8QYB6zJBAf+joQM4XCmfPAIvJ/vDOJlwK5Zpte4KwJXGfYI+jrstHjwq83BcVdGO
-         wBtRH++6Wx1BqsI7DJ4nT65xROQTYjptjKuD4dIE=
+        b=ImjiAMoONHUm+dctYuVrhYVxck6xBt/omRZ3lPKwBl4PQiwfEV4+3eX2aNtBb3Twf
+         f3EgTfC3Iq/uUlOnGoF/wjJ7U65ls45uTinWc7oSubjcBUC3kc83qsyitkLE53aaMC
+         XW23igRTT7+VC+RR98VaGBxBDxcp7skU7WoS1ijo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/19] hwmon: (scmi) Fix potential buffer overflow in scmi_hwmon_probe()
-Date:   Mon, 20 Jul 2020 17:38:46 -0400
-Message-Id: <20200720213851.407715-15-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 16/19] arm64: Use test_tsk_thread_flag() for checking TIF_SINGLESTEP
+Date:   Mon, 20 Jul 2020 17:38:47 -0400
+Message-Id: <20200720213851.407715-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213851.407715-1-sashal@kernel.org>
 References: <20200720213851.407715-1-sashal@kernel.org>
@@ -44,41 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 3ce17cd2b94907f6d91b81b32848044b84c97606 ]
+[ Upstream commit 5afc78551bf5d53279036e0bf63314e35631d79f ]
 
-SMATCH detected a potential buffer overflow in the manipulation of
-hwmon_attributes array inside the scmi_hwmon_probe function:
+Rather than open-code test_tsk_thread_flag() at each callsite, simply
+replace the couple of offenders with calls to test_tsk_thread_flag()
+directly.
 
-drivers/hwmon/scmi-hwmon.c:226
- scmi_hwmon_probe() error: buffer overflow 'hwmon_attributes' 6 <= 9
-
-Fix it by statically declaring the size of the array as the maximum
-possible as defined by hwmon_max define.
-
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Link: https://lore.kernel.org/r/20200715121338.GA18761@e119603-lin.cambridge.arm.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/scmi-hwmon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/debug-monitors.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/scmi-hwmon.c b/drivers/hwmon/scmi-hwmon.c
-index 91976b6ca3000..91bfecdb3f5ba 100644
---- a/drivers/hwmon/scmi-hwmon.c
-+++ b/drivers/hwmon/scmi-hwmon.c
-@@ -99,7 +99,7 @@ static enum hwmon_sensor_types scmi_types[] = {
- 	[ENERGY] = hwmon_energy,
- };
+diff --git a/arch/arm64/kernel/debug-monitors.c b/arch/arm64/kernel/debug-monitors.c
+index 262925b98f421..85bf560f363bd 100644
+--- a/arch/arm64/kernel/debug-monitors.c
++++ b/arch/arm64/kernel/debug-monitors.c
+@@ -389,14 +389,14 @@ void user_rewind_single_step(struct task_struct *task)
+ 	 * If single step is active for this thread, then set SPSR.SS
+ 	 * to 1 to avoid returning to the active-pending state.
+ 	 */
+-	if (test_ti_thread_flag(task_thread_info(task), TIF_SINGLESTEP))
++	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
+ 		set_regs_spsr_ss(task_pt_regs(task));
+ }
+ NOKPROBE_SYMBOL(user_rewind_single_step);
  
--static u32 hwmon_attributes[] = {
-+static u32 hwmon_attributes[hwmon_max] = {
- 	[hwmon_chip] = HWMON_C_REGISTER_TZ,
- 	[hwmon_temp] = HWMON_T_INPUT | HWMON_T_LABEL,
- 	[hwmon_in] = HWMON_I_INPUT | HWMON_I_LABEL,
+ void user_fastforward_single_step(struct task_struct *task)
+ {
+-	if (test_ti_thread_flag(task_thread_info(task), TIF_SINGLESTEP))
++	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
+ 		clear_regs_spsr_ss(task_pt_regs(task));
+ }
+ 
 -- 
 2.25.1
 
