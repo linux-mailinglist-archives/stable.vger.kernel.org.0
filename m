@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A549E226488
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B728B226619
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730575AbgGTPpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40326 "EHLO mail.kernel.org"
+        id S1731991AbgGTQAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:00:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbgGTPpu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:50 -0400
+        id S1732374AbgGTQAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:00:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8753C2064B;
-        Mon, 20 Jul 2020 15:45:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B535A20773;
+        Mon, 20 Jul 2020 16:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259950;
-        bh=GwgIP+ig8wbE/vDuBsQcjivBJySfzTgXP/rgU1Yd5/0=;
+        s=default; t=1595260816;
+        bh=lye9nEJslbJYSdaSkBheYwWegDQY9ewGWMpaayLWwxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JnQaVGIsPdXJmAuHB/uxAdmv54oGvVOjJmrWcGZowC3biqi/A+HYXPHVRADJSchmX
-         xQzn2jk1GSTf6SO+3lCWOX7juOqvlUR3MGQKtG920xh1E81Kf47v44EwpyrfzfUEJG
-         vfmjNFvRHyw9fOsV/RzBFdqiYnzePs3ALTWSjQNc=
+        b=gn3EdxzXbYjI/Dl3nHjkMygkex+yYWEC++HDLDeJqRBuzKJF2I0Fhj3TDfmhAUBPq
+         E+2a3wBbubvqENofivqIfxoow2QOcoATI7VKfZAfpbLc9x+pc9YXNgFFOdSO7VgRHi
+         5uxplFzaKaNCUAdfAWuTbCG0Aoa5W9ZdwvLgkh8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+d411cff6ab29cc2c311b@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 050/125] net_sched: fix a memory leak in atm_tc_init()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Ian Abbott <abbotti@mev.co.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 107/215] staging: comedi: verify array index is correct before using it
 Date:   Mon, 20 Jul 2020 17:36:29 +0200
-Message-Id: <20200720152805.430717873@linuxfoundation.org>
+Message-Id: <20200720152825.296852581@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 306381aec7c2b5a658eebca008c8a1b666536cba ]
+[ Upstream commit ef75e14a6c935eec82abac07ab68e388514e39bc ]
 
-When tcf_block_get() fails inside atm_tc_init(),
-atm_tc_put() is called to release the qdisc p->link.q.
-But the flow->ref prevents it to do so, as the flow->ref
-is still zero.
+This code reads from the array before verifying that "trig" is a valid
+index.  If the index is wildly out of bounds then reading from an
+invalid address could lead to an Oops.
 
-Fix this by moving the p->link.ref initialization before
-tcf_block_get().
-
-Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
-Reported-and-tested-by: syzbot+d411cff6ab29cc2c311b@syzkaller.appspotmail.com
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200709102936.GA20875@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_atm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/net/sched/sch_atm.c
-+++ b/net/sched/sch_atm.c
-@@ -545,15 +545,15 @@ static int atm_tc_init(struct Qdisc *sch
- 	if (!p->link.q)
- 		p->link.q = &noop_qdisc;
- 	pr_debug("atm_tc_init: link (%p) qdisc %p\n", &p->link, p->link.q);
-+	p->link.vcc = NULL;
-+	p->link.sock = NULL;
-+	p->link.common.classid = sch->handle;
-+	p->link.ref = 1;
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1500.c b/drivers/staging/comedi/drivers/addi_apci_1500.c
+index 45ad4ba92f94f..689acd69a1b9c 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -456,9 +456,9 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
+ 	unsigned int lo_mask = data[5] << shift;
+ 	unsigned int chan_mask = hi_mask | lo_mask;
+ 	unsigned int old_mask = (1 << shift) - 1;
+-	unsigned int pm = devpriv->pm[trig] & old_mask;
+-	unsigned int pt = devpriv->pt[trig] & old_mask;
+-	unsigned int pp = devpriv->pp[trig] & old_mask;
++	unsigned int pm;
++	unsigned int pt;
++	unsigned int pp;
  
- 	err = tcf_block_get(&p->link.block, &p->link.filter_list);
- 	if (err)
- 		return err;
+ 	if (trig > 1) {
+ 		dev_dbg(dev->class_dev,
+@@ -471,6 +471,10 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
+ 		return -EINVAL;
+ 	}
  
--	p->link.vcc = NULL;
--	p->link.sock = NULL;
--	p->link.common.classid = sch->handle;
--	p->link.ref = 1;
- 	tasklet_init(&p->task, sch_atm_dequeue, (unsigned long)sch);
- 	return 0;
- }
++	pm = devpriv->pm[trig] & old_mask;
++	pt = devpriv->pt[trig] & old_mask;
++	pp = devpriv->pp[trig] & old_mask;
++
+ 	switch (data[2]) {
+ 	case COMEDI_DIGITAL_TRIG_DISABLE:
+ 		/* clear trigger configuration */
+-- 
+2.25.1
+
 
 
