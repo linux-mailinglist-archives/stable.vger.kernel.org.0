@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20CCD226515
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1EB2263CC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbgGTPuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47272 "EHLO mail.kernel.org"
+        id S1729733AbgGTPkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731148AbgGTPum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:50:42 -0400
+        id S1729322AbgGTPkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D651E206E9;
-        Mon, 20 Jul 2020 15:50:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 721BA2064B;
+        Mon, 20 Jul 2020 15:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260241;
-        bh=bYcsp+lTAjYQXjg17ZAbSyfn2+pSwrVpblngizYvBnQ=;
+        s=default; t=1595259631;
+        bh=izjrBbcPacig1HJUfWaGdFHqBAsWwG7kbUdziTZVpQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsvGioOlssbVPZ78droZfVkvWIqqm1p58xHXC+B8uzbCVkzusX/TenLU18S+QyBUI
-         XBVgIUeixFGsdQp7WFlISI9gaBHnhJFSVD0ayENr1ieDUXUJWdXBvGfBzvc4wFa4vM
-         AKjjjjrGwt88uQvEvhW5PmbaukuKihOi1b4hkcDM=
+        b=trGGkDCWbsjb3zvgMdBwNR92jXhVAwy5V3NhzR4OiZAOMy2zqwB5mzmyNYFwzSs/L
+         PN0horKG1hMFDgDNaNQ2vDgukX0cC/R3uN0IaXq7/7EO04ktdvt9pIX5IRXLDpbjyS
+         vFstUzFchIW19kJclOsdqNOxC0MZUBBLie+wDCP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Alison Schofield <amsfield22@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.19 030/133] iio:humidity:hdc100x Fix alignment and data leak issues
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Qiujun Huang <hqjagain@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 21/86] Revert "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb"
 Date:   Mon, 20 Jul 2020 17:36:17 +0200
-Message-Id: <20200720152805.191228617@linuxfoundation.org>
+Message-Id: <20200720152754.210764551@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit ea5e7a7bb6205d24371373cd80325db1bc15eded upstream.
+This reverts commit 5317abc46279d900c7e63cc122682d819da658bd which is
+commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
-This data is allocated with kzalloc so no data can leak apart
-from previous readings.
+It is being reverted upstream, just hasn't made it there yet and is
+causing lots of problems.
 
-Fixes: 16bf793f86b2 ("iio: humidity: hdc100x: add triggered buffer support for HDC100X")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Cc: Alison Schofield <amsfield22@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Qiujun Huang <hqjagain@gmail.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iio/humidity/hdc100x.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |   48 +++++++------------------------
+ drivers/net/wireless/ath/ath9k/hif_usb.h |    5 ---
+ 2 files changed, 11 insertions(+), 42 deletions(-)
 
---- a/drivers/iio/humidity/hdc100x.c
-+++ b/drivers/iio/humidity/hdc100x.c
-@@ -38,6 +38,11 @@ struct hdc100x_data {
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -641,9 +641,9 @@ err:
  
- 	/* integration time of the sensor */
- 	int adc_int_us[2];
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		__be16 channels[2];
-+		s64 ts __aligned(8);
-+	} scan;
+ static void ath9k_hif_usb_rx_cb(struct urb *urb)
+ {
+-	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+-	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+-	struct sk_buff *skb = rx_buf->skb;
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
++	struct hif_device_usb *hif_dev =
++		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
+ 
+ 	if (!skb)
+@@ -683,15 +683,14 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
+-	kfree(rx_buf);
+ }
+ 
+ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ {
+-	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+-	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+-	struct sk_buff *skb = rx_buf->skb;
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
+ 	struct sk_buff *nskb;
++	struct hif_device_usb *hif_dev =
++		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
+ 
+ 	if (!skb)
+@@ -749,7 +748,6 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
+-	kfree(rx_buf);
+ 	urb->context = NULL;
+ }
+ 
+@@ -795,7 +793,7 @@ static int ath9k_hif_usb_alloc_tx_urbs(s
+ 	init_usb_anchor(&hif_dev->mgmt_submitted);
+ 
+ 	for (i = 0; i < MAX_TX_URB_NUM; i++) {
+-		tx_buf = kzalloc(sizeof(*tx_buf), GFP_KERNEL);
++		tx_buf = kzalloc(sizeof(struct tx_buf), GFP_KERNEL);
+ 		if (!tx_buf)
+ 			goto err;
+ 
+@@ -832,9 +830,8 @@ static void ath9k_hif_usb_dealloc_rx_urb
+ 
+ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct rx_buf *rx_buf = NULL;
+-	struct sk_buff *skb = NULL;
+ 	struct urb *urb = NULL;
++	struct sk_buff *skb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->rx_submitted);
+@@ -842,12 +839,6 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 
+ 	for (i = 0; i < MAX_RX_URB_NUM; i++) {
+ 
+-		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
+-		if (!rx_buf) {
+-			ret = -ENOMEM;
+-			goto err_rxb;
+-		}
+-
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -862,14 +853,11 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 			goto err_skb;
+ 		}
+ 
+-		rx_buf->hif_dev = hif_dev;
+-		rx_buf->skb = skb;
+-
+ 		usb_fill_bulk_urb(urb, hif_dev->udev,
+ 				  usb_rcvbulkpipe(hif_dev->udev,
+ 						  USB_WLAN_RX_PIPE),
+ 				  skb->data, MAX_RX_BUF_SIZE,
+-				  ath9k_hif_usb_rx_cb, rx_buf);
++				  ath9k_hif_usb_rx_cb, skb);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->rx_submitted);
+@@ -895,8 +883,6 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
+-	kfree(rx_buf);
+-err_rxb:
+ 	ath9k_hif_usb_dealloc_rx_urbs(hif_dev);
+ 	return ret;
+ }
+@@ -908,21 +894,14 @@ static void ath9k_hif_usb_dealloc_reg_in
+ 
+ static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct rx_buf *rx_buf = NULL;
+-	struct sk_buff *skb = NULL;
+ 	struct urb *urb = NULL;
++	struct sk_buff *skb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->reg_in_submitted);
+ 
+ 	for (i = 0; i < MAX_REG_IN_URB_NUM; i++) {
+ 
+-		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
+-		if (!rx_buf) {
+-			ret = -ENOMEM;
+-			goto err_rxb;
+-		}
+-
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -937,14 +916,11 @@ static int ath9k_hif_usb_alloc_reg_in_ur
+ 			goto err_skb;
+ 		}
+ 
+-		rx_buf->hif_dev = hif_dev;
+-		rx_buf->skb = skb;
+-
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				  usb_rcvintpipe(hif_dev->udev,
+ 						  USB_REG_IN_PIPE),
+ 				  skb->data, MAX_REG_IN_BUF_SIZE,
+-				  ath9k_hif_usb_reg_in_cb, rx_buf, 1);
++				  ath9k_hif_usb_reg_in_cb, skb, 1);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->reg_in_submitted);
+@@ -970,8 +946,6 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
+-	kfree(rx_buf);
+-err_rxb:
+ 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
+ 	return ret;
+ }
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.h
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
+@@ -84,11 +84,6 @@ struct tx_buf {
+ 	struct list_head list;
  };
  
- /* integration time in us */
-@@ -319,7 +324,6 @@ static irqreturn_t hdc100x_trigger_handl
- 	struct i2c_client *client = data->client;
- 	int delay = data->adc_int_us[0] + data->adc_int_us[1];
- 	int ret;
--	s16 buf[8];  /* 2x s16 + padding + 8 byte timestamp */
+-struct rx_buf {
+-	struct sk_buff *skb;
+-	struct hif_device_usb *hif_dev;
+-};
+-
+ #define HIF_USB_TX_STOP  BIT(0)
+ #define HIF_USB_TX_FLUSH BIT(1)
  
- 	/* dual read starts at temp register */
- 	mutex_lock(&data->lock);
-@@ -330,13 +334,13 @@ static irqreturn_t hdc100x_trigger_handl
- 	}
- 	usleep_range(delay, delay + 1000);
- 
--	ret = i2c_master_recv(client, (u8 *)buf, 4);
-+	ret = i2c_master_recv(client, (u8 *)data->scan.channels, 4);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "cannot read sensor data\n");
- 		goto err;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   iio_get_time_ns(indio_dev));
- err:
- 	mutex_unlock(&data->lock);
 
 
