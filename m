@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7938922691B
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA17122666D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:03:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731798AbgGTQYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:24:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
+        id S1732718AbgGTQDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729255AbgGTQDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:05 -0400
+        id S1732419AbgGTQDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:03:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C8D220672;
-        Mon, 20 Jul 2020 16:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EB7720672;
+        Mon, 20 Jul 2020 16:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260984;
-        bh=a5p/PGrgE3LfAzXMjOdE76SDBJjokvE6/Vgf84gvCjs=;
+        s=default; t=1595260988;
+        bh=3DIIuFvolpU1ejUNjM2ZXn6NWLeSQpweIh1U63zDc4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3le3MriIOzGU+3MVeFkLaZQS3l/hOyOh1/5JH86libA3mUOU96w4ODpY+I6d2TE3
-         agV5Qg4bzPtN6p5B3bOwvLPtYWR6k+NiPOkIO/o5ZiQ+CjPUyiFw2bEFU1NiJ96A6L
-         SFjkVL+pB27aepznXJZrobLK1vXXbEaEIQLWQoZ0=
+        b=n8y1E+mw5V1IiSF+LyBxTJ6sPij4VQz7fun6mYSwvqr+428XIqfUseKQKPqx46R1J
+         2rNsxB/b21uSmZbNiSNdMakC4K+BsmvBR4NDzNSPA7NDJs8Srm38JeMau4K6ZbDmHT
+         MnPaXPaqQJc+K4vkKdjcF+27ltFCf9juHrpjKQ+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 137/215] mtd: rawnand: oxnas: Keep track of registered devices
-Date:   Mon, 20 Jul 2020 17:36:59 +0200
-Message-Id: <20200720152826.713459485@linuxfoundation.org>
+Subject: [PATCH 5.4 138/215] mtd: rawnand: oxnas: Unregister all devices on error
+Date:   Mon, 20 Jul 2020 17:37:00 +0200
+Message-Id: <20200720152826.752938150@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -44,56 +44,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 383fc3f613e7eac9f2e3c13b6f9fb8c1f39cb9d5 upstream.
+commit b60391eb17b2956ff2fc4c348e5a464da21ff9cb upstream.
 
-All initialized and registered devices should be listed somewhere so
-that we can unregister/free them in the _remove() path.
+On error, the oxnas probe path just frees the device which failed and
+aborts the probe, leaving unreleased resources.
 
-This patch is not a fix per-se but is needed to apply three other
-fixes coming right after, explaining the Fixes/Cc: stable tags.
+Fix this situation by calling mtd_device_unregister()/nand_cleanup()
+on these.
 
 Fixes: 668592492409 ("mtd: nand: Add OX820 NAND Support")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-36-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-38-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/oxnas_nand.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/oxnas_nand.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 --- a/drivers/mtd/nand/raw/oxnas_nand.c
 +++ b/drivers/mtd/nand/raw/oxnas_nand.c
-@@ -32,6 +32,7 @@ struct oxnas_nand_ctrl {
- 	void __iomem *io_base;
- 	struct clk *clk;
- 	struct nand_chip *chips[OXNAS_NAND_MAX_CHIPS];
-+	unsigned int nchips;
- };
- 
- static uint8_t oxnas_nand_read_byte(struct nand_chip *chip)
-@@ -79,7 +80,6 @@ static int oxnas_nand_probe(struct platf
- 	struct nand_chip *chip;
- 	struct mtd_info *mtd;
+@@ -82,6 +82,7 @@ static int oxnas_nand_probe(struct platf
  	struct resource *res;
--	int nchips = 0;
  	int count = 0;
  	int err = 0;
++	int i;
  
-@@ -143,12 +143,12 @@ static int oxnas_nand_probe(struct platf
- 		if (err)
- 			goto err_cleanup_nand;
- 
--		oxnas->chips[nchips] = chip;
--		++nchips;
-+		oxnas->chips[oxnas->nchips] = chip;
-+		++oxnas->nchips;
- 	}
- 
- 	/* Exit if no chips found */
--	if (!nchips) {
-+	if (!oxnas->nchips) {
- 		err = -ENODEV;
- 		goto err_clk_unprepare;
- 	}
+ 	/* Allocate memory for the device structure (and zero it) */
+ 	oxnas = devm_kzalloc(&pdev->dev, sizeof(*oxnas),
+@@ -161,6 +162,13 @@ err_cleanup_nand:
+ 	nand_cleanup(chip);
+ err_release_child:
+ 	of_node_put(nand_np);
++
++	for (i = 0; i < oxnas->nchips; i++) {
++		chip = oxnas->chips[i];
++		WARN_ON(mtd_device_unregister(nand_to_mtd(chip)));
++		nand_cleanup(chip);
++	}
++
+ err_clk_unprepare:
+ 	clk_disable_unprepare(oxnas->clk);
+ 	return err;
 
 
