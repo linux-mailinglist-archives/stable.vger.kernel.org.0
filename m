@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C54226791
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CB06226653
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387691AbgGTQMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:12:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52414 "EHLO mail.kernel.org"
+        id S1732355AbgGTQCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388001AbgGTQMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:12:44 -0400
+        id S1732645AbgGTQCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:02:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82EA820684;
-        Mon, 20 Jul 2020 16:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B702720773;
+        Mon, 20 Jul 2020 16:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261564;
-        bh=rD/oQANo/tfWzhfMZw/pI/1zpyuP+YT4vSsGV6z3ILg=;
+        s=default; t=1595260938;
+        bh=8uQoqT5zUgLztGzMfxjnNS5IaFdpCmc2jC0iDhz27EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlvStWJivE+MWgj0I8yCTivADurj9/9XVBpJAOQRuh6u0QvPnWbAJ809I9SBUIv2F
-         RL3QMnH3eE7Rsyr7TE0SQSOAofU2VyVOW4OBBMbdT1tDvu+VLFNf+vwJv6GsOpwKGN
-         lEIrTqqrCKoWqMwoFd4HmuwqjW2VstYeSxvzPNik=
+        b=QHLeHXg59rT9z18HXSm577+myYO6E8w9RBvlmB2IA3O+CKTioDzXez26etQNVsolm
+         J7N8YFzF3jK/O6WvAMHyZBzJoK04RmugDXfDdY5YC5rlcNxzAjA7ULZje8M4V76jFV
+         4ZnRfz34aJVe3l9S7Hi+EGkBRMy0Gf7YW6pX7Nug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Mori Hess <fmh6jj@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Doug Anderson <dianders@chromium.org>,
-        Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.7 161/244] usb: dwc2: Fix shutdown callback in platform
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 150/215] ALSA: hda/realtek - change to suitable link model for ASUS platform
 Date:   Mon, 20 Jul 2020 17:37:12 +0200
-Message-Id: <20200720152833.503805470@linuxfoundation.org>
+Message-Id: <20200720152827.327998316@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 4fdf228cdf6925af45a2066d403821e0977bfddb upstream.
+commit ef9ddb9dc4f8b1da3b975918cd1fd98ec055b918 upstream.
 
-To avoid lot of interrupts from dwc2 core, which can be asserted in
-specific conditions need to disable interrupts on HW level instead of
-disable IRQs on Kernel level, because of IRQ can be shared between
-drivers.
+ASUS platform couldn't need to use Headset Mode model.
+It changes to the suitable model.
 
-Cc: stable@vger.kernel.org
-Fixes: a40a00318c7fc ("usb: dwc2: add shutdown callback to platform variant")
-Tested-by: Frank Mori Hess <fmh6jj@gmail.com>
-Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
-Reviewed-by: Doug Anderson <dianders@chromium.org>
-Reviewed-by: Frank Mori Hess <fmh6jj@gmail.com>
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/d05bcff170784ec7bb35023407148161@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc2/platform.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -342,7 +342,8 @@ static void dwc2_driver_shutdown(struct
- {
- 	struct dwc2_hsotg *hsotg = platform_get_drvdata(dev);
- 
--	disable_irq(hsotg->irq);
-+	dwc2_disable_global_interrupts(hsotg);
-+	synchronize_irq(hsotg->irq);
- }
- 
- /**
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7082,7 +7082,7 @@ static const struct hda_fixup alc269_fix
+ 			{ }
+ 		},
+ 		.chained = true,
+-		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
++		.chain_id = ALC269_FIXUP_HEADSET_MIC
+ 	},
+ 	[ALC294_FIXUP_ASUS_HEADSET_MIC] = {
+ 		.type = HDA_FIXUP_PINS,
+@@ -7091,7 +7091,7 @@ static const struct hda_fixup alc269_fix
+ 			{ }
+ 		},
+ 		.chained = true,
+-		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
++		.chain_id = ALC269_FIXUP_HEADSET_MIC
+ 	},
+ 	[ALC294_FIXUP_ASUS_SPK] = {
+ 		.type = HDA_FIXUP_VERBS,
 
 
