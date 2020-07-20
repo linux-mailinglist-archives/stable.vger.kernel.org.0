@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E18226A9A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47334226C25
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731133AbgGTPxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51500 "EHLO mail.kernel.org"
+        id S1729434AbgGTPjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731444AbgGTPxJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:09 -0400
+        id S1726426AbgGTPjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBCCF2065E;
-        Mon, 20 Jul 2020 15:53:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D76222CAF;
+        Mon, 20 Jul 2020 15:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260388;
-        bh=Aihqj2G1CcrclDKLANFP6p4KfviTl4EpP8X/Jv6kJzc=;
+        s=default; t=1595259563;
+        bh=Goq3gE73MFyJrQ8A7qmzhAcc5rjHku2kdxLwaQUMtBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLMwjeWFtLeCABgUyhITYye8GE3RdWyCYwTmdlrsKGqOsHRoJchSYRbcMPV3qTmbl
-         cn5nnfM4auGnzuAj9HgKYTTWD5JBT6rrKvvnaQwB8z5YZaOXrNoNIYogD2ApSYDOQe
-         xpw+U2H1DpDkl5479km98Cp9LQx1+tsnL9dns6uo=
+        b=KFyA5l8iFX8gySpwTv/Ej42Ocg2ydvgVnn0yh/Or3DUzIEVimctRfD3fMrBmg7Ozx
+         MWK+tzIgS2lZ1f6QwNX4TbkC6YthYV4vpzvKrbuzzRM3thDEpDAgGlHbAltiV9UO2M
+         +Pz+zaiXQqrIseT8imPApaeTIgYaX+y+eCff8zgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 084/133] HID: quirks: Ignore Simply Automated UPB PIM
+        stable@vger.kernel.org, Vishwas M <vishwas.reddy.vr@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 55/58] hwmon: (emc2103) fix unable to change fan pwm1_enable attribute
 Date:   Mon, 20 Jul 2020 17:37:11 +0200
-Message-Id: <20200720152807.766452953@linuxfoundation.org>
+Message-Id: <20200720152750.024884509@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Vishwas M <vishwas.reddy.vr@gmail.com>
 
-commit 1ee1369b46de1083238fced60ff718f59de4b8aa upstream.
+commit 14b0e83dc4f1e52b94acaeb85a18fd7fdd46d2dc upstream.
 
-As this is a cypress HID->COM RS232 style device that is handled
-by the cypress_M8 driver we also need to add it to the ignore list
-in hid-quirks.
+This patch fixes a bug which does not let FAN mode to be changed from
+sysfs(pwm1_enable). i.e pwm1_enable can not be set to 3, it will always
+remain at 0.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This is caused because the device driver handles the result of
+"read_u8_from_i2c(client, REG_FAN_CONF1, &conf_reg)" incorrectly. The
+driver thinks an error has occurred if the (result != 0). This has been
+fixed by changing the condition to (result < 0).
+
+Signed-off-by: Vishwas M <vishwas.reddy.vr@gmail.com>
+Link: https://lore.kernel.org/r/20200707142747.118414-1-vishwas.reddy.vr@gmail.com
+Fixes: 9df7305b5a86 ("hwmon: Add driver for SMSC EMC2103 temperature monitor and fan controller")
+Cc: stable@vger.kernel.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-ids.h    |    2 ++
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 3 insertions(+)
+ drivers/hwmon/emc2103.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -973,6 +973,8 @@
- #define USB_DEVICE_ID_ROCCAT_RYOS_MK_PRO	0x3232
- #define USB_DEVICE_ID_ROCCAT_SAVU	0x2d5a
+--- a/drivers/hwmon/emc2103.c
++++ b/drivers/hwmon/emc2103.c
+@@ -452,7 +452,7 @@ static ssize_t set_pwm_enable(struct dev
+ 	}
  
-+#define USB_VENDOR_ID_SAI		0x17dd
-+
- #define USB_VENDOR_ID_SAITEK		0x06a3
- #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
- #define USB_DEVICE_ID_SAITEK_PS1000	0x0621
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -876,6 +876,7 @@ static const struct hid_device_id hid_ig
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETZL, USB_DEVICE_ID_PETZL_HEADLAMP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAI, USB_DEVICE_ID_CYPRESS_HIDCOM) },
- #if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+ 	result = read_u8_from_i2c(client, REG_FAN_CONF1, &conf_reg);
+-	if (result) {
++	if (result < 0) {
+ 		count = result;
+ 		goto err;
+ 	}
 
 
