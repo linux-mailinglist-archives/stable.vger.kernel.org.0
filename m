@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB9F226C04
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62641226AC6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728820AbgGTPkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:40:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
+        id S1731108AbgGTPuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:50:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729639AbgGTPkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:40:01 -0400
+        id S1731117AbgGTPuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:50:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE3B522B4E;
-        Mon, 20 Jul 2020 15:40:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 409BB22CBE;
+        Mon, 20 Jul 2020 15:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259601;
-        bh=Jyp0iV04bss9dplzNPxSuypxEU7OLp/Hfzwaz2Y45iE=;
+        s=default; t=1595260213;
+        bh=e6MJ1jDkNLcWDBG1X6jjVt05hEmPTtGNPap9XM5tuuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJEObodFE4e9bg/2VkRoTBT/ZAVKDPwNCJTDaL0VoHCTA66coypYgbk9/w/5/XqRp
-         9C5Pi5Eii3Z1a6RDCw89jlXfCe5egUVH9gb783QV08A2XHTUBXmjWax7i9MmF4HJk8
-         Icdm0+aoM674QuEIB+hqRXfnaFnczKFVN1ZWw8/c=
+        b=vrUZ7/yKrYGT/VMbU21OrU8YTZEtVUTxQaW2tz7M+/IlUiAz92KJs9NRwkxmxECcv
+         Vc2WU9Y/U+nt1re31TsQYttym70vbOPI5Cvk6LItYefKJulAH4sXL8XW+CZ6iCxSXS
+         2C5h/Ym37vY6rKS82UXQk+QVtO7J0SueAaBnHtH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Edich <andre.edich@microchip.com>,
-        Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Inki Dae <inki.dae@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/86] smsc95xx: avoid memory leak in smsc95xx_bind
-Date:   Mon, 20 Jul 2020 17:36:07 +0200
-Message-Id: <20200720152753.689396506@linuxfoundation.org>
+Subject: [PATCH 4.19 021/133] drm/exynos: fix ref count leak in mic_pre_enable
+Date:   Mon, 20 Jul 2020 17:36:08 +0200
+Message-Id: <20200720152804.754029219@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Edich <andre.edich@microchip.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 3ed58f96a70b85ef646d5427258f677f1395b62f ]
+[ Upstream commit d4f5a095daf0d25f0b385e1ef26338608433a4c5 ]
 
-In a case where the ID_REV register read is failed, the memory for a
-private data structure has to be freed before returning error from the
-function smsc95xx_bind.
+in mic_pre_enable, pm_runtime_get_sync is called which
+increments the counter even in case of failure, leading to incorrect
+ref count. In case of failure, decrement the ref count before returning.
 
-Fixes: bbd9f9ee69242 ("smsc95xx: add wol support for more frame types")
-Signed-off-by: Andre Edich <andre.edich@microchip.com>
-Signed-off-by: Parthiban Veerasooran <Parthiban.Veerasooran@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/exynos/exynos_drm_mic.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 6ecae631a6307..3e6bf6bd0a684 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1298,7 +1298,8 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	/* detect device revision as different features may be available */
- 	ret = smsc95xx_read_reg(dev, ID_REV, &val);
- 	if (ret < 0)
--		return ret;
-+		goto free_pdata;
-+
- 	val >>= 16;
- 	pdata->chip_id = val;
- 	pdata->mdix_ctrl = get_mdix_status(dev->net);
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_mic.c b/drivers/gpu/drm/exynos/exynos_drm_mic.c
+index 2fd299a58297e..cd5530bbfe2e6 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_mic.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_mic.c
+@@ -267,8 +267,10 @@ static void mic_pre_enable(struct drm_bridge *bridge)
+ 		goto unlock;
+ 
+ 	ret = pm_runtime_get_sync(mic->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(mic->dev);
+ 		goto unlock;
++	}
+ 
+ 	mic_set_path(mic, 1);
+ 
 -- 
 2.25.1
 
