@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC3C2264D5
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B7A4226420
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730722AbgGTPrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41954 "EHLO mail.kernel.org"
+        id S1729271AbgGTPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730715AbgGTPrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:47:00 -0400
+        id S1730042AbgGTPmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:42:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A66062065E;
-        Mon, 20 Jul 2020 15:46:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EBBA2176B;
+        Mon, 20 Jul 2020 15:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260020;
-        bh=fBoNzMQzm3BsBq+QNOsWa2q+IQ389zXSjgJitdgmLCs=;
+        s=default; t=1595259736;
+        bh=Ii21Y4dB2dtPOuktMfoSercnM/W9406kERuSR4p265M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTrNlpRgvp1f8ldNP1nruBGL4GqFt3HWrcHvFqgDCN30Hu/3hLlQ/k8yruJe+28Dx
-         tAyjmqIU/dF0eduVIPYMbDJa2+a/00ou5C9DCqrWTma8kFy4enaPsXgMdwCWDNEUH9
-         nlJfLZYIAjwIFDpxG7qEFPnEUD7SbQdtF9t2ecTg=
+        b=o/TqHLLLbdeasWBOwtL5LOFu1m+3+tlivVvuw6nf9vBIuXtr/ohZJy0Qu7Q6KYDBe
+         uh8TeFQcCJwVtxPJluFMvpJ6zY3znq+M7J8q0VnV9Mgox60vKu/yRBOEfd62uOG8ZF
+         QapkVYeRFzeKsC6UHSYx5unEU2TOQcbxYJPGIMiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/125] mmc: sdhci: do not enable card detect interrupt for gpio cd type
+        stable@vger.kernel.org, Yariv <oigevald+kernel@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 60/86] HID: magicmouse: do not set up autorepeat
 Date:   Mon, 20 Jul 2020 17:36:56 +0200
-Message-Id: <20200720152806.723963127@linuxfoundation.org>
+Message-Id: <20200720152756.196264399@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit e65bb38824711559844ba932132f417bc5a355e2 ]
+commit 6363d2065cd399cf9d6dc9d08c437f8658831100 upstream.
 
-Except SDHCI_QUIRK_BROKEN_CARD_DETECTION and MMC_CAP_NONREMOVABLE,
-we also do not need to handle controller native card detect interrupt
-for gpio cd type.
-If we wrong enabled the card detect interrupt for gpio case, it will
-cause a lot of unexpected card detect interrupts during data transfer
-which should not happen.
+Neither the trackpad, nor the mouse want input core to generate autorepeat
+events for their buttons, so let's reset the bit (as hid-input sets it for
+these devices based on the usage vendor code).
 
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/1582100563-20555-2-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Yariv <oigevald+kernel@gmail.com>
+Tested-by: Yariv <oigevald+kernel@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/mmc/host/sdhci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-magicmouse.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 4f1c884c0b508..33028099d3a01 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -133,7 +133,7 @@ static void sdhci_set_card_detection(struct sdhci_host *host, bool enable)
- 	u32 present;
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -451,6 +451,12 @@ static int magicmouse_setup_input(struct
+ 		__set_bit(MSC_RAW, input->mscbit);
+ 	}
  
- 	if ((host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
--	    !mmc_card_is_removable(host->mmc))
-+	    !mmc_card_is_removable(host->mmc) || mmc_can_gpio_cd(host->mmc))
- 		return;
++	/*
++	 * hid-input may mark device as using autorepeat, but neither
++	 * the trackpad, nor the mouse actually want it.
++	 */
++	__clear_bit(EV_REP, input->evbit);
++
+ 	return 0;
+ }
  
- 	if (enable) {
--- 
-2.25.1
-
 
 
