@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2321226979
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2BE8226759
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbgGTQ0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:26:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33428 "EHLO mail.kernel.org"
+        id S2387719AbgGTQK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732396AbgGTQAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:00:25 -0400
+        id S1733271AbgGTQKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 151B622BEF;
-        Mon, 20 Jul 2020 16:00:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0855F2064B;
+        Mon, 20 Jul 2020 16:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260824;
-        bh=kH6fbPt0NnSdE1E+BpMMREw55a9Ko6ABoyRvPQ3X+k0=;
+        s=default; t=1595261453;
+        bh=uBsx4xn2wB3TkogGj6gfY1bvCpljOdc8F6CiyzGvaNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knh8Mxy0zzoEQ027urpS4+bE99V0vUMX33GOEMtLAvOkHSNBNc6MZy8AhUgfNzkXI
-         cZ5F8nSS42cIyIiueSBkHchk94DM5Zzu0kepsGRpYttTzHqx+Zy5pPhJgwoS5bQElg
-         G56SleIlNR7BiFzYm5joq45vR8gKgViyxFNVk2wk=
+        b=biLPc6ywp+FaLVKGQt0acjg1gQhnHo3/0HfK7Hyw00liQfV5Qlzv2yUrnFGTUVDTj
+         vdkoXxdJvfMFU8jWHtaASIZUrgjRRkc8jV/ZD3L1CE0CXDDtnZNFy5wGGDGYBsarZh
+         O39ctSGPE1t5AUL5JDZw8mZ7i9T68lYNjcdxIBzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/215] NFS: Fix interrupted slots by sending a solo SEQUENCE operation
-Date:   Mon, 20 Jul 2020 17:36:32 +0200
-Message-Id: <20200720152825.431046958@linuxfoundation.org>
+        stable@vger.kernel.org, Tomer Tayar <ttayar@habana.ai>,
+        Oded Gabbay <oded.gabbay@gmail.com>
+Subject: [PATCH 5.7 122/244] habanalabs: Align protection bits configuration of all TPCs
+Date:   Mon, 20 Jul 2020 17:36:33 +0200
+Message-Id: <20200720152831.640425995@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +43,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Tomer Tayar <ttayar@habana.ai>
 
-[ Upstream commit 913fadc5b105c3619d9e8d0fe8899ff1593cc737 ]
+commit 79c823c57e69d9e584a5ee4ee6406eb3854393ae upstream.
 
-We used to do this before 3453d5708b33, but this was changed to better
-handle the NFS4ERR_SEQ_MISORDERED error code. This commit fixed the slot
-re-use case when the server doesn't receive the interrupted operation,
-but if the server does receive the operation then it could still end up
-replying to the client with mis-matched operations from the reply cache.
+Align the protection bits configuration of all TPC cores to be as of TPC
+core 0.
 
-We can fix this by sending a SEQUENCE to the server while recovering from
-a SEQ_MISORDERED error when we detect that we are in an interrupted slot
-situation.
+Fixes: a513f9a7eca5 ("habanalabs: make tpc registers secured")
 
-Fixes: 3453d5708b33 (NFSv4.1: Avoid false retries when RPC calls are interrupted)
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tomer Tayar <ttayar@habana.ai>
+Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
+Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/nfs4proc.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ drivers/misc/habanalabs/goya/goya_security.c |   99 ++++++++++++++++++++++++++-
+ 1 file changed, 98 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 33c17c69aeaa3..1a1bd2fe6e98d 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -774,6 +774,14 @@ static void nfs4_slot_sequence_acked(struct nfs4_slot *slot,
- 	slot->seq_nr_last_acked = seqnr;
- }
+--- a/drivers/misc/habanalabs/goya/goya_security.c
++++ b/drivers/misc/habanalabs/goya/goya_security.c
+@@ -695,7 +695,6 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC0_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC0_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC0_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
+-	mask |= 1 << ((mmTPC0_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC0_CFG_TPC_STALL & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC0_CFG_MSS_CONFIG & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC0_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
+@@ -875,6 +874,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC1_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC1_WR_REGULATOR_BASE);
  
-+static void nfs4_probe_sequence(struct nfs_client *client, const struct cred *cred,
-+				struct nfs4_slot *slot)
-+{
-+	struct rpc_task *task = _nfs41_proc_sequence(client, cred, slot, true);
-+	if (!IS_ERR(task))
-+		rpc_put_task_async(task);
-+}
++	pb_addr = (mmTPC1_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC1_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
 +
- static int nfs41_sequence_process(struct rpc_task *task,
- 		struct nfs4_sequence_res *res)
- {
-@@ -790,6 +798,7 @@ static int nfs41_sequence_process(struct rpc_task *task,
- 		goto out;
++	mask = 1 << ((mmTPC1_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC1_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC1_CFG_CFG_BASE_ADDRESS_HIGH &
+ 			PROT_BITS_OFFS) >> 7) << 2;
+@@ -882,6 +891,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC1_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC1_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC1_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC1_CFG_TPC_INTR_MASK & 0x7F) >> 2);
  
- 	session = slot->table->session;
-+	clp = session->clp;
+ 	WREG32(pb_addr + word_offset, ~mask);
  
- 	trace_nfs4_sequence_done(session, res);
+@@ -1057,6 +1070,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC2_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC2_WR_REGULATOR_BASE);
  
-@@ -804,7 +813,6 @@ static int nfs41_sequence_process(struct rpc_task *task,
- 		nfs4_slot_sequence_acked(slot, slot->seq_nr);
- 		/* Update the slot's sequence and clientid lease timer */
- 		slot->seq_done = 1;
--		clp = session->clp;
- 		do_renew_lease(clp, res->sr_timestamp);
- 		/* Check sequence flags */
- 		nfs41_handle_sequence_flag_errors(clp, res->sr_status_flags,
-@@ -852,10 +860,18 @@ static int nfs41_sequence_process(struct rpc_task *task,
- 		/*
- 		 * Were one or more calls using this slot interrupted?
- 		 * If the server never received the request, then our
--		 * transmitted slot sequence number may be too high.
-+		 * transmitted slot sequence number may be too high. However,
-+		 * if the server did receive the request then it might
-+		 * accidentally give us a reply with a mismatched operation.
-+		 * We can sort this out by sending a lone sequence operation
-+		 * to the server on the same slot.
- 		 */
- 		if ((s32)(slot->seq_nr - slot->seq_nr_last_acked) > 1) {
- 			slot->seq_nr--;
-+			if (task->tk_msg.rpc_proc != &nfs4_procedures[NFSPROC4_CLNT_SEQUENCE]) {
-+				nfs4_probe_sequence(clp, task->tk_msg.rpc_cred, slot);
-+				res->sr_slot = NULL;
-+			}
- 			goto retry_nowait;
- 		}
- 		/*
--- 
-2.25.1
-
++	pb_addr = (mmTPC2_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC2_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
++
++	mask = 1 << ((mmTPC2_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC2_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC2_CFG_CFG_BASE_ADDRESS_HIGH &
+ 			PROT_BITS_OFFS) >> 7) << 2;
+@@ -1064,6 +1087,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC2_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC2_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC2_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC2_CFG_TPC_INTR_MASK & 0x7F) >> 2);
+ 
+ 	WREG32(pb_addr + word_offset, ~mask);
+ 
+@@ -1239,6 +1266,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC3_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC3_WR_REGULATOR_BASE);
+ 
++	pb_addr = (mmTPC3_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC3_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
++
++	mask = 1 << ((mmTPC3_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC3_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC3_CFG_CFG_BASE_ADDRESS_HIGH
+ 			& PROT_BITS_OFFS) >> 7) << 2;
+@@ -1246,6 +1283,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC3_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC3_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC3_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC3_CFG_TPC_INTR_MASK & 0x7F) >> 2);
+ 
+ 	WREG32(pb_addr + word_offset, ~mask);
+ 
+@@ -1421,6 +1462,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC4_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC4_WR_REGULATOR_BASE);
+ 
++	pb_addr = (mmTPC4_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC4_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
++
++	mask = 1 << ((mmTPC4_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC4_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC4_CFG_CFG_BASE_ADDRESS_HIGH &
+ 			PROT_BITS_OFFS) >> 7) << 2;
+@@ -1428,6 +1479,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC4_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC4_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC4_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC4_CFG_TPC_INTR_MASK & 0x7F) >> 2);
+ 
+ 	WREG32(pb_addr + word_offset, ~mask);
+ 
+@@ -1603,6 +1658,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC5_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC5_WR_REGULATOR_BASE);
+ 
++	pb_addr = (mmTPC5_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC5_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
++
++	mask = 1 << ((mmTPC5_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC5_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC5_CFG_CFG_BASE_ADDRESS_HIGH &
+ 			PROT_BITS_OFFS) >> 7) << 2;
+@@ -1610,6 +1675,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC5_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC5_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC5_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC5_CFG_TPC_INTR_MASK & 0x7F) >> 2);
+ 
+ 	WREG32(pb_addr + word_offset, ~mask);
+ 
+@@ -1785,6 +1854,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC6_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC6_WR_REGULATOR_BASE);
+ 
++	pb_addr = (mmTPC6_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC6_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
++
++	mask = 1 << ((mmTPC6_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC6_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) + PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC6_CFG_CFG_BASE_ADDRESS_HIGH &
+ 			PROT_BITS_OFFS) >> 7) << 2;
+@@ -1792,6 +1871,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC6_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC6_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC6_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC6_CFG_TPC_INTR_MASK & 0x7F) >> 2);
+ 
+ 	WREG32(pb_addr + word_offset, ~mask);
+ 
+@@ -1967,6 +2050,16 @@ static void goya_init_tpc_protection_bit
+ 	goya_pb_set_block(hdev, mmTPC7_RD_REGULATOR_BASE);
+ 	goya_pb_set_block(hdev, mmTPC7_WR_REGULATOR_BASE);
+ 
++	pb_addr = (mmTPC7_CFG_SEMAPHORE & ~0xFFF) + PROT_BITS_OFFS;
++	word_offset = ((mmTPC7_CFG_SEMAPHORE & PROT_BITS_OFFS) >> 7) << 2;
++
++	mask = 1 << ((mmTPC7_CFG_SEMAPHORE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_VFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_SFLAGS & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_STATUS & 0x7F) >> 2);
++
++	WREG32(pb_addr + word_offset, ~mask);
++
+ 	pb_addr = (mmTPC7_CFG_CFG_BASE_ADDRESS_HIGH & ~0xFFF) +	PROT_BITS_OFFS;
+ 	word_offset = ((mmTPC7_CFG_CFG_BASE_ADDRESS_HIGH &
+ 			PROT_BITS_OFFS) >> 7) << 2;
+@@ -1974,6 +2067,10 @@ static void goya_init_tpc_protection_bit
+ 	mask |= 1 << ((mmTPC7_CFG_CFG_SUBTRACT_VALUE & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC7_CFG_SM_BASE_ADDRESS_LOW & 0x7F) >> 2);
+ 	mask |= 1 << ((mmTPC7_CFG_SM_BASE_ADDRESS_HIGH & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_TPC_STALL & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_MSS_CONFIG & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_TPC_INTR_CAUSE & 0x7F) >> 2);
++	mask |= 1 << ((mmTPC7_CFG_TPC_INTR_MASK & 0x7F) >> 2);
+ 
+ 	WREG32(pb_addr + word_offset, ~mask);
+ 
 
 
