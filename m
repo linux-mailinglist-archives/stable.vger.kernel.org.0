@@ -2,97 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F792264A1
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EDEC226370
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729887AbgGTPqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41544 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730138AbgGTPqo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C6402065E;
-        Mon, 20 Jul 2020 15:46:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260004;
-        bh=wMn9wjQUD0rMUL4y+UmL4VufUkCmHW5CbQxVvrrPA8Y=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+CMufkJJZtzjJNELmJ+3CI8f7ZB7DukH5qCS/26NlnKkwJhPucU9q1i7koRV11hR
-         kf4EUaZ50NNEIumoGRnPQvXyY4M/VoThOvnENiuZgVk3GdSitNuDzqKGT2WkLu1iXz
-         p8wJZJvcY4xp1pLBR6pC8CiMS0GGH0iZbM7tqXUc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/125] of: of_mdio: Correct loop scanning logic
-Date:   Mon, 20 Jul 2020 17:36:51 +0200
-Message-Id: <20200720152806.477897543@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1726619AbgGTPg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:36:58 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:57142 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726546AbgGTPg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 11:36:57 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: nicolas)
+        with ESMTPSA id 0F608283D0A
+Message-ID: <1562ccc496b7c584a0bd0123ad4c804bc77fafd1.camel@collabora.com>
+Subject: Re: [PATCH 2/2] media: coda: Add more H264 levels for CODA960
+From:   Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reply-To: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+To:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        linux-media@vger.kernel.org
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Robert Beckett <bob.beckett@collabora.com>,
+        kernel@collabora.com, stable@vger.kernel.org
+Date:   Mon, 20 Jul 2020 11:36:52 -0400
+In-Reply-To: <dd59520cfcfd4c93ad9cb54116f0234a706a0bd5.camel@pengutronix.de>
+References: <20200717034923.219524-1-ezequiel@collabora.com>
+         <20200717034923.219524-2-ezequiel@collabora.com>
+         <05184a7c923c7e2aacca9da2bafe338ff5a7c16d.camel@pengutronix.de>
+         <f409d4ddad0a352ca7ec84699c94a64e5dbf0407.camel@collabora.com>
+         <dd59520cfcfd4c93ad9cb54116f0234a706a0bd5.camel@pengutronix.de>
+Organization: Collabora
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
+        boundary="=-/OtHpkQJH3tGpBJ0SOOf"
+User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 5a8d7f126c97d04d893f5e5be2b286437a0d01b0 ]
+--=-/OtHpkQJH3tGpBJ0SOOf
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Commit 209c65b61d94 ("drivers/of/of_mdio.c:fix of_mdiobus_register()")
-introduced a break of the loop on the premise that a successful
-registration should exit the loop. The premise is correct but not to
-code, because rc && rc != -ENODEV is just a special error condition,
-that means we would exit the loop even with rc == -ENODEV which is
-absolutely not correct since this is the error code to indicate to the
-MDIO bus layer that scanning should continue.
+Le lundi 20 juillet 2020 =C3=A0 10:31 +0200, Philipp Zabel a =C3=A9crit :
+> > Considering how buggy and inconcistent this is going to be in decoder d=
+rivers,
+> > I'm tempted to just drop that restriction in GStreamer v4l2 decoders (w=
+as added
+> > by Philippe Normand from Igalia). Specially the bitrate limits, since i=
+t is
+> > quite clear from testing that this limits is only related to real-time
+> > performance, and that offline decoding should still be possible. Meanwh=
+ile, the
+> > driver should still advertise 4.1 and 4.2 decoding. But we should check=
+ the
+> > decoding/encoding levels are actually not the same, that I haven't chec=
+ked, the
+> > code is a bit ... kindly said ... hairy.
+>=20
+>=20
+> I think negotiation is important for sources that can provide multiple
+> levels, to choose the right level for the decoder. If there is a given
+> stream with a fixed level, it might indeed be better to not fail
+> negotiation (maybe have a warning instead) and just hope for the best,
+> as for some streams it might just work.
 
-Fix this by explicitly checking for rc = 0 as the only valid condition
-to break out of the loop.
+Yes, agreed, but I didn't want to use the linux-media list to discuss
+GStreamer designs. I have a soltion for that, I'll send a MR and will
+CC you. For the general idea, I'll try and keep the levels as
+"preferred" capabilities while allowing any levels. Same mechanism used
+to proposed an unscaled display resolution, even though scaling might
+be supported.
 
-Fixes: 209c65b61d94 ("drivers/of/of_mdio.c:fix of_mdiobus_register()")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/of/of_mdio.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Nicolas
 
-diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
-index 69da2f6896dae..8b7d3e64b8cab 100644
---- a/drivers/of/of_mdio.c
-+++ b/drivers/of/of_mdio.c
-@@ -256,10 +256,15 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
- 				 child->name, addr);
- 
- 			if (of_mdiobus_child_is_phy(child)) {
-+				/* -ENODEV is the return code that PHYLIB has
-+				 * standardized on to indicate that bus
-+				 * scanning should continue.
-+				 */
- 				rc = of_mdiobus_register_phy(mdio, child, addr);
--				if (rc && rc != -ENODEV)
-+				if (!rc)
-+					break;
-+				if (rc != -ENODEV)
- 					goto unregister;
--				break;
- 			}
- 		}
- 	}
--- 
-2.25.1
+--=-/OtHpkQJH3tGpBJ0SOOf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
+-----BEGIN PGP SIGNATURE-----
 
+iF0EABECAB0WIQSScpfJiL+hb5vvd45xUwItrAaoHAUCXxW6FAAKCRBxUwItrAao
+HDB4AKDFGeV5l5ovPT+9eQY8NKo2pRZsfQCeKPBzYvH1phd7EITxcoFDH92mHLQ=
+=YJHS
+-----END PGP SIGNATURE-----
+
+--=-/OtHpkQJH3tGpBJ0SOOf--
 
