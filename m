@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EEFD226AB4
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3EED226A86
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731333AbgGTPwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:52:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49768 "EHLO mail.kernel.org"
+        id S1730552AbgGTPyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:54:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731331AbgGTPwK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:52:10 -0400
+        id S1731265AbgGTPyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:54:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAA7622482;
-        Mon, 20 Jul 2020 15:52:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 588FB2064B;
+        Mon, 20 Jul 2020 15:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260330;
-        bh=8zZTNXY8pmrk4LecvshwRC08JghCAfeXzBD9W5Vuuxg=;
+        s=default; t=1595260443;
+        bh=lye9nEJslbJYSdaSkBheYwWegDQY9ewGWMpaayLWwxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsS3tvtx2ixDofop+viW5moX2ocFg+oeujnDVZXn7bCmzBfzfj9gm+4TVCpuRZ77i
-         q3AJd8U/l2t2TkfTLqtYfplr0Q/ggq0PDQEuAZV0zmdfJ9F98P26KqdjNWipHL41RP
-         fZtU4yh8obD83wT2haBK5iXCsiPrJNKFzkxSrHNI=
+        b=LbuNc0MKgQJw3CKAe7WMcnhcRsISFbSHPJ83O7WhK0G25iluwmm/IbXa03lyp7iNK
+         DbtoMufk6wg5LmokPcrAITIKDDDvwiriW/AHJysYM/sIBg0zegI11I/EI5sSMytuS6
+         /FJ3i1pyF/jgLxfG0fhuOyd3pzsQO7ruZEFO1HyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/133] usb: gadget: udc: atmel: fix uninitialized read in debug printk
-Date:   Mon, 20 Jul 2020 17:36:49 +0200
-Message-Id: <20200720152806.729562549@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Ian Abbott <abbotti@mev.co.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 063/133] staging: comedi: verify array index is correct before using it
+Date:   Mon, 20 Jul 2020 17:36:50 +0200
+Message-Id: <20200720152806.781603649@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
 References: <20200720152803.732195882@linuxfoundation.org>
@@ -45,34 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 30517ffeb3bff842e1355cbc32f1959d9dbb5414 ]
+[ Upstream commit ef75e14a6c935eec82abac07ab68e388514e39bc ]
 
-Fixed commit moved the assignment of 'req', but did not update a
-reference in the DBG() call. Use the argument as it was renamed.
+This code reads from the array before verifying that "trig" is a valid
+index.  If the index is wildly out of bounds then reading from an
+invalid address could lead to an Oops.
 
-Fixes: 5fb694f96e7c ("usb: gadget: udc: atmel: fix possible oops when unloading module")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200709102936.GA20875@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/atmel_usba_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/atmel_usba_udc.c b/drivers/usb/gadget/udc/atmel_usba_udc.c
-index a4ab230335786..23691a32759fe 100644
---- a/drivers/usb/gadget/udc/atmel_usba_udc.c
-+++ b/drivers/usb/gadget/udc/atmel_usba_udc.c
-@@ -860,7 +860,7 @@ static int usba_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
- 	u32 status;
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1500.c b/drivers/staging/comedi/drivers/addi_apci_1500.c
+index 45ad4ba92f94f..689acd69a1b9c 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -456,9 +456,9 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
+ 	unsigned int lo_mask = data[5] << shift;
+ 	unsigned int chan_mask = hi_mask | lo_mask;
+ 	unsigned int old_mask = (1 << shift) - 1;
+-	unsigned int pm = devpriv->pm[trig] & old_mask;
+-	unsigned int pt = devpriv->pt[trig] & old_mask;
+-	unsigned int pp = devpriv->pp[trig] & old_mask;
++	unsigned int pm;
++	unsigned int pt;
++	unsigned int pp;
  
- 	DBG(DBG_GADGET | DBG_QUEUE, "ep_dequeue: %s, req %p\n",
--			ep->ep.name, req);
-+			ep->ep.name, _req);
+ 	if (trig > 1) {
+ 		dev_dbg(dev->class_dev,
+@@ -471,6 +471,10 @@ static int apci1500_di_cfg_trig(struct comedi_device *dev,
+ 		return -EINVAL;
+ 	}
  
- 	spin_lock_irqsave(&udc->lock, flags);
- 
++	pm = devpriv->pm[trig] & old_mask;
++	pt = devpriv->pt[trig] & old_mask;
++	pp = devpriv->pp[trig] & old_mask;
++
+ 	switch (data[2]) {
+ 	case COMEDI_DIGITAL_TRIG_DISABLE:
+ 		/* clear trigger configuration */
 -- 
 2.25.1
 
