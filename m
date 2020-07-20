@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E7E226679
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6AFC226852
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732071AbgGTQDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37870 "EHLO mail.kernel.org"
+        id S2387679AbgGTQN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:13:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732454AbgGTQDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:30 -0400
+        id S1729524AbgGTQN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:13:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2A6020672;
-        Mon, 20 Jul 2020 16:03:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E16F92065E;
+        Mon, 20 Jul 2020 16:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261010;
-        bh=U9A2yR2k6FkavOn/3+booMWwECu0863W08r20mMUvOs=;
+        s=default; t=1595261636;
+        bh=Tb3r2dEETnBP7FH0mcyRw1NaflXuvhI6D2TurD18Qs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05tJYp02qep/5JzwY3gxke4aL0R8LZxZrz/P88Wu5AqE296vqMhibn02QVCGrix7c
-         PEfKms3xxS4/karBPosqTWga++8NF14LI8tZ6YVzK5d6qmHs9hiz4j0HACNj9TLnUH
-         b1T0zmScgmsmP65xUTkNdqh2fcJRLR+GKp5m0MSQ=
+        b=p9a8yueD0OYCingwN1OmnsQQJ3DYMNYSXmXu7c/O+gd8vHrYgLcjf0+tIZi3p2Qj9
+         qqLPXGN1F6PymZPJCR5YFRe+PvqSi/3BouJ9ujg4vpFCPZQHfL+xEgjqmv8LXMQFcK
+         p+rnSedjhvaut0pDCpaYgGMkccS8BLnAEa3c/PAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Whitcroft <apw@canonical.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.4 177/215] mei: bus: dont clean driver pointer
+        stable@vger.kernel.org, David Pedersen <limero1337@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.7 188/244] Input: i8042 - add Lenovo XiaoXin Air 12 to i8042 nomux list
 Date:   Mon, 20 Jul 2020 17:37:39 +0200
-Message-Id: <20200720152828.589400176@linuxfoundation.org>
+Message-Id: <20200720152834.785124885@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: David Pedersen <limero1337@gmail.com>
 
-commit e852c2c251ed9c23ae6e3efebc5ec49adb504207 upstream.
+commit 17d51429da722cd8fc77a365a112f008abf4f8b3 upstream.
 
-It's not needed to set driver to NULL in mei_cl_device_remove()
-which is bus_type remove() handler as this is done anyway
-in __device_release_driver().
+This fixes two finger trackpad scroll on the Lenovo XiaoXin Air 12.
+Without nomux, the trackpad behaves as if only one finger is present and
+moves the cursor when trying to scroll.
 
-Actually this is causing an endless loop in driver_detach()
-on ubuntu patched kernel, while removing (rmmod) the mei_hdcp module.
-The reason list_empty(&drv->p->klist_devices.k_list) is always not-empty.
-as the check is always true in  __device_release_driver()
-	if (dev->driver != drv)
-		return;
-
-The non upstream patch is causing this behavior, titled:
-'vfio -- release device lock before userspace requests'
-
-Nevertheless the fix is correct also for the upstream.
-
-Link: https://patchwork.ozlabs.org/project/ubuntu-kernel/patch/20180912085046.3401-2-apw@canonical.com/
-Cc: <stable@vger.kernel.org>
-Cc: Andy Whitcroft <apw@canonical.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200628225359.2185929-1-tomas.winkler@intel.com
+Signed-off-by: David Pedersen <limero1337@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200625133754.291325-1-limero1337@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/bus.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -745,9 +745,8 @@ static int mei_cl_device_remove(struct d
- 
- 	mei_cl_bus_module_put(cldev);
- 	module_put(THIS_MODULE);
--	dev->driver = NULL;
--	return ret;
- 
-+	return ret;
- }
- 
- static ssize_t name_show(struct device *dev, struct device_attribute *a,
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -426,6 +426,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Lenovo XiaoXin Air 12 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "80UN"),
++		},
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
 
 
