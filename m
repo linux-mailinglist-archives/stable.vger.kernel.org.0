@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A75D3226381
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E33D3226386
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728939AbgGTPhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:37:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
+        id S1728650AbgGTPhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:37:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728966AbgGTPhu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:37:50 -0400
+        id S1728966AbgGTPhw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:37:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E103F22CB2;
-        Mon, 20 Jul 2020 15:37:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EC0D22CB3;
+        Mon, 20 Jul 2020 15:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259469;
-        bh=MoG130qKw2K0VYhIYMfKUqMrYbRavy5oYSw1eC9DEnA=;
+        s=default; t=1595259472;
+        bh=DJ1ilecmCb+OWeuhQTcrqgIMT3TIdepeMpd5ivd+l40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQV0eJDkxikcMyAOhkNzmWRPmiJJOgFkhGyMoOlwuRhs1Ro3gbk2dqxD0y9+qBPPd
-         LGmDhIAwSigdkGpqkSON/ch4MJrfmNPQ9G7DC5UoImQrd82wo4P8L3povqgBQAXEN5
-         sxaJ6O2pvGE61KbCQ/DLOtK8xRNUMLMdIpGBQG80=
+        b=Yb5RU0OIS/gxoQQyPa6n5VqsC8pWVdjgaS/Yt2wVZtJZTLu6HPXqGc3Ek9RDWhGR1
+         98em+apX43MnNoEhLP/g4NdBYfd5puY9xpdiccjXAiaQfKo4TtwyaKz/YxI/wLd1xM
+         Kgo5KNBAjsEbjVVIsTrLiOlo5Ow+td/OMd5ugFvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Liu <feliu@redhat.com>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Davide Caratti <dcaratti@redhat.com>,
+        stable@vger.kernel.org, Paul Wouters <pwouters@redhat.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 19/58] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
-Date:   Mon, 20 Jul 2020 17:36:35 +0200
-Message-Id: <20200720152748.099791825@linuxfoundation.org>
+Subject: [PATCH 4.4 20/58] ipv4: fill fl4_icmp_{type,code} in ping_v4_sendmsg
+Date:   Mon, 20 Jul 2020 17:36:36 +0200
+Message-Id: <20200720152748.151227677@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
 References: <20200720152747.127988571@linuxfoundation.org>
@@ -46,89 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit c8b1d7436045d3599bae56aef1682813ecccaad7 upstream.
+[ Upstream commit 5eff06902394425c722f0a44d9545909a8800f79 ]
 
-we need to set 'active_vfs' back to 0, if something goes wrong during the
-allocation of SR-IOV resources: otherwise, further VF configurations will
-wrongly assume that bp->pf.vf[x] are valid memory locations, and commands
-like the ones in the following sequence:
+IPv4 ping sockets don't set fl4.fl4_icmp_{type,code}, which leads to
+incomplete IPsec ACQUIRE messages being sent to userspace. Currently,
+both raw sockets and IPv6 ping sockets set those fields.
 
- # echo 2 >/sys/bus/pci/devices/${ADDR}/sriov_numvfs
- # ip link set dev ens1f0np0 up
- # ip link set dev ens1f0np0 vf 0 trust on
+Expected output of "ip xfrm monitor":
+    acquire proto esp
+      sel src 10.0.2.15/32 dst 8.8.8.8/32 proto icmp type 8 code 0 dev ens4
+      policy src 10.0.2.15/32 dst 8.8.8.8/32
+        <snip>
 
-will cause a kernel crash similar to this:
+Currently with ping sockets:
+    acquire proto esp
+      sel src 10.0.2.15/32 dst 8.8.8.8/32 proto icmp type 0 code 0 dev ens4
+      policy src 10.0.2.15/32 dst 8.8.8.8/32
+        <snip>
 
- bnxt_en 0000:3b:00.0: not enough MMIO resources for SR-IOV
- BUG: kernel NULL pointer dereference, address: 0000000000000014
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] SMP PTI
- CPU: 43 PID: 2059 Comm: ip Tainted: G          I       5.8.0-rc2.upstream+ #871
- Hardware name: Dell Inc. PowerEdge R740/08D89F, BIOS 2.2.11 06/13/2019
- RIP: 0010:bnxt_set_vf_trust+0x5b/0x110 [bnxt_en]
- Code: 44 24 58 31 c0 e8 f5 fb ff ff 85 c0 0f 85 b6 00 00 00 48 8d 1c 5b 41 89 c6 b9 0b 00 00 00 48 c1 e3 04 49 03 9c 24 f0 0e 00 00 <8b> 43 14 89 c2 83 c8 10 83 e2 ef 45 84 ed 49 89 e5 0f 44 c2 4c 89
- RSP: 0018:ffffac6246a1f570 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000000000b
- RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff98b28f538900
- RBP: ffff98b28f538900 R08: 0000000000000000 R09: 0000000000000008
- R10: ffffffffb9515be0 R11: ffffac6246a1f678 R12: ffff98b28f538000
- R13: 0000000000000001 R14: 0000000000000000 R15: ffffffffc05451e0
- FS:  00007fde0f688800(0000) GS:ffff98baffd40000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000014 CR3: 000000104bb0a003 CR4: 00000000007606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- PKRU: 55555554
- Call Trace:
-  do_setlink+0x994/0xfe0
-  __rtnl_newlink+0x544/0x8d0
-  rtnl_newlink+0x47/0x70
-  rtnetlink_rcv_msg+0x29f/0x350
-  netlink_rcv_skb+0x4a/0x110
-  netlink_unicast+0x21d/0x300
-  netlink_sendmsg+0x329/0x450
-  sock_sendmsg+0x5b/0x60
-  ____sys_sendmsg+0x204/0x280
-  ___sys_sendmsg+0x88/0xd0
-  __sys_sendmsg+0x5e/0xa0
-  do_syscall_64+0x47/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The Libreswan test suite found this problem after Fedora changed the
+value for the sysctl net.ipv4.ping_group_range.
 
-Fixes: c0c050c58d840 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Fei Liu <feliu@redhat.com>
-CC: Jonathan Toppins <jtoppins@redhat.com>
-CC: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Acked-by: Jonathan Toppins <jtoppins@redhat.com>
+Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
+Reported-by: Paul Wouters <pwouters@redhat.com>
+Tested-by: Paul Wouters <pwouters@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ping.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-@@ -295,6 +295,7 @@ static void bnxt_free_vf_resources(struc
- 		}
- 	}
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -802,6 +802,9 @@ static int ping_v4_sendmsg(struct sock *
+ 			   RT_SCOPE_UNIVERSE, sk->sk_protocol,
+ 			   inet_sk_flowi_flags(sk), faddr, saddr, 0, 0);
  
-+	bp->pf.active_vfs = 0;
- 	kfree(bp->pf.vf);
- 	bp->pf.vf = NULL;
- }
-@@ -535,7 +536,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
- 
- 	bnxt_free_vf_resources(bp);
- 
--	bp->pf.active_vfs = 0;
- 	bp->pf.max_pf_rx_rings = bp->pf.max_rx_rings;
- 	bp->pf.max_pf_tx_rings = bp->pf.max_tx_rings;
- }
++	fl4.fl4_icmp_type = user_icmph.type;
++	fl4.fl4_icmp_code = user_icmph.code;
++
+ 	security_sk_classify_flow(sk, flowi4_to_flowi(&fl4));
+ 	rt = ip_route_output_flow(net, &fl4, sk);
+ 	if (IS_ERR(rt)) {
 
 
