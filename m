@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3334226B95
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4E18226A9A
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729503AbgGTPm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36034 "EHLO mail.kernel.org"
+        id S1731133AbgGTPxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730143AbgGTPmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:54 -0400
+        id S1731444AbgGTPxJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:53:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 573EB2064B;
-        Mon, 20 Jul 2020 15:42:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBCCF2065E;
+        Mon, 20 Jul 2020 15:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259773;
-        bh=v5pzLyl2SJd1PntkNmxFPTeULXZvmlFGi3ShJso8gxc=;
+        s=default; t=1595260388;
+        bh=Aihqj2G1CcrclDKLANFP6p4KfviTl4EpP8X/Jv6kJzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQSvCNyB13Zq4fLSiZ0KQgdHTnq/iiqEJ1wFnPLCAyLm38cGyAh3QlpkwVA81BuKV
-         yOiLmDB2StDU1uWOXu1UIuyx4PASgaO5vnas2+jewNcsFe3FnpX6rU/qnd2E9937XU
-         Hz0OGUbgwnUgTSu4QB+2U6UYumaM576zN0lFl6cA=
+        b=fLMwjeWFtLeCABgUyhITYye8GE3RdWyCYwTmdlrsKGqOsHRoJchSYRbcMPV3qTmbl
+         cn5nnfM4auGnzuAj9HgKYTTWD5JBT6rrKvvnaQwB8z5YZaOXrNoNIYogD2ApSYDOQe
+         xpw+U2H1DpDkl5479km98Cp9LQx1+tsnL9dns6uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Whitcroft <apw@canonical.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.9 75/86] mei: bus: dont clean driver pointer
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 084/133] HID: quirks: Ignore Simply Automated UPB PIM
 Date:   Mon, 20 Jul 2020 17:37:11 +0200
-Message-Id: <20200720152756.978576850@linuxfoundation.org>
+Message-Id: <20200720152807.766452953@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-commit e852c2c251ed9c23ae6e3efebc5ec49adb504207 upstream.
+commit 1ee1369b46de1083238fced60ff718f59de4b8aa upstream.
 
-It's not needed to set driver to NULL in mei_cl_device_remove()
-which is bus_type remove() handler as this is done anyway
-in __device_release_driver().
+As this is a cypress HID->COM RS232 style device that is handled
+by the cypress_M8 driver we also need to add it to the ignore list
+in hid-quirks.
 
-Actually this is causing an endless loop in driver_detach()
-on ubuntu patched kernel, while removing (rmmod) the mei_hdcp module.
-The reason list_empty(&drv->p->klist_devices.k_list) is always not-empty.
-as the check is always true in  __device_release_driver()
-	if (dev->driver != drv)
-		return;
-
-The non upstream patch is causing this behavior, titled:
-'vfio -- release device lock before userspace requests'
-
-Nevertheless the fix is correct also for the upstream.
-
-Link: https://patchwork.ozlabs.org/project/ubuntu-kernel/patch/20180912085046.3401-2-apw@canonical.com/
-Cc: <stable@vger.kernel.org>
-Cc: Andy Whitcroft <apw@canonical.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200628225359.2185929-1-tomas.winkler@intel.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/bus.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/hid/hid-ids.h    |    2 ++
+ drivers/hid/hid-quirks.c |    1 +
+ 2 files changed, 3 insertions(+)
 
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -639,9 +639,8 @@ static int mei_cl_device_remove(struct d
- 		ret = cldrv->remove(cldev);
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -973,6 +973,8 @@
+ #define USB_DEVICE_ID_ROCCAT_RYOS_MK_PRO	0x3232
+ #define USB_DEVICE_ID_ROCCAT_SAVU	0x2d5a
  
- 	module_put(THIS_MODULE);
--	dev->driver = NULL;
--	return ret;
- 
-+	return ret;
- }
- 
- static ssize_t name_show(struct device *dev, struct device_attribute *a,
++#define USB_VENDOR_ID_SAI		0x17dd
++
+ #define USB_VENDOR_ID_SAITEK		0x06a3
+ #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
+ #define USB_DEVICE_ID_SAITEK_PS1000	0x0621
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -876,6 +876,7 @@ static const struct hid_device_id hid_ig
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETZL, USB_DEVICE_ID_PETZL_HEADLAMP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAI, USB_DEVICE_ID_CYPRESS_HIDCOM) },
+ #if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
 
 
