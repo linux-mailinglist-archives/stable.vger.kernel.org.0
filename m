@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFD9226A0F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A99226A5F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731427AbgGTPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54358 "EHLO mail.kernel.org"
+        id S1730609AbgGTQdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731657AbgGTPzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:55:16 -0400
+        id S1731722AbgGTPzr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19090206E9;
-        Mon, 20 Jul 2020 15:55:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F9E22065E;
+        Mon, 20 Jul 2020 15:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260515;
-        bh=FiL4nt4KgEVFyMuPNc8RelZhJklIIMpP0b6h4wVNgm0=;
+        s=default; t=1595260546;
+        bh=AsUrBXkIVT5XIYaVslnPRsWOY8kNyE24QKz/+E0bSwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6fLJcLTZDfN99TGpLIv/6xbNgjEZugxBh3oq7uAr7y6cqzpCiFQfe0hE3+TcOKaA
-         pyghK7Itje78I7hV26Qeehtidz0FcWW4vkJtKeWHZGDH+m5X5evTllfritDYClHCSa
-         +fp7DFADR3kBJI/mS2L2BgdxmwB+yq6wUU17IxjM=
+        b=aG3+YmXypFegF5KgMHgLIsago2y/hSSTWIbk0qsgRmcrVMwVTrnzlVLIyJ3czZ4r/
+         hS9v0OsEKgxrMeqkkP8vGdHKJ8egyzn3gZkGLQ32ySRjibLYcidZEU7Jx6JNVUfKzZ
+         iFduLJlobx2V0FNI2d9gk/cYcQ+PzCKdz3IzHPyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ali Saidi <alisaidi@amazon.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 129/133] genirq/affinity: Handle affinity setting on inactive interrupts correctly
-Date:   Mon, 20 Jul 2020 17:37:56 +0200
-Message-Id: <20200720152809.967613699@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Lech Perczak <l.perczak@camlintechnologies.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Jann Horn <jannh@google.com>, Petr Mladek <pmladek@suse.com>,
+        Theodore Tso <tytso@mit.edu>,
+        John Ogness <john.ogness@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 130/133] printk: queue wake_up_klogd irq_work only if per-CPU areas are ready
+Date:   Mon, 20 Jul 2020 17:37:57 +0200
+Message-Id: <20200720152810.011879475@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
 References: <20200720152803.732195882@linuxfoundation.org>
@@ -43,164 +48,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 
-commit baedb87d1b53532f81b4bd0387f83b05d4f7eb9a upstream.
+commit ab6f762f0f53162d41497708b33c9a3236d3609e upstream.
 
-Setting interrupt affinity on inactive interrupts is inconsistent when
-hierarchical irq domains are enabled. The core code should just store the
-affinity and not call into the irq chip driver for inactive interrupts
-because the chip drivers may not be in a state to handle such requests.
+printk_deferred(), similarly to printk_safe/printk_nmi, does not
+immediately attempt to print a new message on the consoles, avoiding
+calls into non-reentrant kernel paths, e.g. scheduler or timekeeping,
+which potentially can deadlock the system.
 
-X86 has a hacky workaround for that but all other irq chips have not which
-causes problems e.g. on GIC V3 ITS.
+Those printk() flavors, instead, rely on per-CPU flush irq_work to print
+messages from safer contexts.  For same reasons (recursive scheduler or
+timekeeping calls) printk() uses per-CPU irq_work in order to wake up
+user space syslog/kmsg readers.
 
-Instead of adding more ugly hacks all over the place, solve the problem in
-the core code. If the affinity is set on an inactive interrupt then:
+However, only printk_safe/printk_nmi do make sure that per-CPU areas
+have been initialised and that it's safe to modify per-CPU irq_work.
+This means that, for instance, should printk_deferred() be invoked "too
+early", that is before per-CPU areas are initialised, printk_deferred()
+will perform illegal per-CPU access.
 
-    - Store it in the irq descriptors affinity mask
-    - Update the effective affinity to reflect that so user space has
-      a consistent view
-    - Don't call into the irq chip driver
+Lech Perczak [0] reports that after commit 1b710b1b10ef ("char/random:
+silence a lockdep splat with printk()") user-space syslog/kmsg readers
+are not able to read new kernel messages.
 
-This is the core equivalent of the X86 workaround and works correctly
-because the affinity setting is established in the irq chip when the
-interrupt is activated later on.
+The reason is printk_deferred() being called too early (as was pointed
+out by Petr and John).
 
-Note, that this is only effective when hierarchical irq domains are enabled
-by the architecture. Doing it unconditionally would break legacy irq chip
-implementations.
+Fix printk_deferred() and do not queue per-CPU irq_work before per-CPU
+areas are initialized.
 
-For hierarchial irq domains this works correctly as none of the drivers can
-have a dependency on affinity setting in inactive state by design.
-
-Remove the X86 workaround as it is not longer required.
-
-Fixes: 02edee152d6e ("x86/apic/vector: Ignore set_affinity call for inactive interrupts")
-Reported-by: Ali Saidi <alisaidi@amazon.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Ali Saidi <alisaidi@amazon.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529015501.15771-1-alisaidi@amazon.com
-Link: https://lkml.kernel.org/r/877dv2rv25.fsf@nanos.tec.linutronix.de
+Link: https://lore.kernel.org/lkml/aa0732c6-5c4e-8a8b-a1c1-75ebe3dca05b@camlintechnologies.com/
+Reported-by: Lech Perczak <l.perczak@camlintechnologies.com>
+Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Tested-by: Jann Horn <jannh@google.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: John Ogness <john.ogness@linutronix.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/apic/vector.c |   22 +++++-----------------
- kernel/irq/manage.c           |   37 +++++++++++++++++++++++++++++++++++--
- 2 files changed, 40 insertions(+), 19 deletions(-)
+ include/linux/printk.h      |    5 -----
+ init/main.c                 |    1 -
+ kernel/printk/internal.h    |    5 +++++
+ kernel/printk/printk.c      |   34 ++++++++++++++++++++++++++++++++++
+ kernel/printk/printk_safe.c |   11 +----------
+ 5 files changed, 40 insertions(+), 16 deletions(-)
 
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -448,12 +448,10 @@ static int x86_vector_activate(struct ir
- 	trace_vector_activate(irqd->irq, apicd->is_managed,
- 			      apicd->can_reserve, reserve);
- 
--	/* Nothing to do for fixed assigned vectors */
--	if (!apicd->can_reserve && !apicd->is_managed)
--		return 0;
--
- 	raw_spin_lock_irqsave(&vector_lock, flags);
--	if (reserve || irqd_is_managed_and_shutdown(irqd))
-+	if (!apicd->can_reserve && !apicd->is_managed)
-+		assign_irq_vector_any_locked(irqd);
-+	else if (reserve || irqd_is_managed_and_shutdown(irqd))
- 		vector_assign_managed_shutdown(irqd);
- 	else if (apicd->is_managed)
- 		ret = activate_managed(irqd);
-@@ -771,20 +769,10 @@ void lapic_offline(void)
- static int apic_set_affinity(struct irq_data *irqd,
- 			     const struct cpumask *dest, bool force)
+--- a/include/linux/printk.h
++++ b/include/linux/printk.h
+@@ -206,7 +206,6 @@ __printf(1, 2) void dump_stack_set_arch_
+ void dump_stack_print_info(const char *log_lvl);
+ void show_regs_print_info(const char *log_lvl);
+ extern asmlinkage void dump_stack(void) __cold;
+-extern void printk_safe_init(void);
+ extern void printk_safe_flush(void);
+ extern void printk_safe_flush_on_panic(void);
+ #else
+@@ -273,10 +272,6 @@ static inline asmlinkage void dump_stack
  {
--	struct apic_chip_data *apicd = apic_chip_data(irqd);
- 	int err;
+ }
+ 
+-static inline void printk_safe_init(void)
+-{
+-}
+-
+ static inline void printk_safe_flush(void)
+ {
+ }
+--- a/init/main.c
++++ b/init/main.c
+@@ -641,7 +641,6 @@ asmlinkage __visible void __init start_k
+ 	softirq_init();
+ 	timekeeping_init();
+ 	time_init();
+-	printk_safe_init();
+ 	perf_event_init();
+ 	profile_init();
+ 	call_function_init();
+--- a/kernel/printk/internal.h
++++ b/kernel/printk/internal.h
+@@ -35,6 +35,9 @@ __printf(1, 0) int vprintk_func(const ch
+ void __printk_safe_enter(void);
+ void __printk_safe_exit(void);
+ 
++void printk_safe_init(void);
++bool printk_percpu_data_ready(void);
++
+ #define printk_safe_enter_irqsave(flags)	\
+ 	do {					\
+ 		local_irq_save(flags);		\
+@@ -76,4 +79,6 @@ __printf(1, 0) int vprintk_func(const ch
+ #define printk_safe_enter_irq() local_irq_disable()
+ #define printk_safe_exit_irq() local_irq_enable()
+ 
++static inline void printk_safe_init(void) { }
++static inline bool printk_percpu_data_ready(void) { return false; }
+ #endif /* CONFIG_PRINTK */
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -443,6 +443,18 @@ static char __log_buf[__LOG_BUF_LEN] __a
+ static char *log_buf = __log_buf;
+ static u32 log_buf_len = __LOG_BUF_LEN;
+ 
++/*
++ * We cannot access per-CPU data (e.g. per-CPU flush irq_work) before
++ * per_cpu_areas are initialised. This variable is set to true when
++ * it's safe to access per-CPU data.
++ */
++static bool __printk_percpu_data_ready __read_mostly;
++
++bool printk_percpu_data_ready(void)
++{
++	return __printk_percpu_data_ready;
++}
++
+ /* Return log buffer address */
+ char *log_buf_addr_get(void)
+ {
+@@ -1101,12 +1113,28 @@ static void __init log_buf_add_cpu(void)
+ static inline void log_buf_add_cpu(void) {}
+ #endif /* CONFIG_SMP */
+ 
++static void __init set_percpu_data_ready(void)
++{
++	printk_safe_init();
++	/* Make sure we set this flag only after printk_safe() init is done */
++	barrier();
++	__printk_percpu_data_ready = true;
++}
++
+ void __init setup_log_buf(int early)
+ {
+ 	unsigned long flags;
+ 	char *new_log_buf;
+ 	unsigned int free;
+ 
++	/*
++	 * Some archs call setup_log_buf() multiple times - first is very
++	 * early, e.g. from setup_arch(), and second - when percpu_areas
++	 * are initialised.
++	 */
++	if (!early)
++		set_percpu_data_ready();
++
+ 	if (log_buf != __log_buf)
+ 		return;
+ 
+@@ -2913,6 +2941,9 @@ static DEFINE_PER_CPU(struct irq_work, w
+ 
+ void wake_up_klogd(void)
+ {
++	if (!printk_percpu_data_ready())
++		return;
++
+ 	preempt_disable();
+ 	if (waitqueue_active(&log_wait)) {
+ 		this_cpu_or(printk_pending, PRINTK_PENDING_WAKEUP);
+@@ -2923,6 +2954,9 @@ void wake_up_klogd(void)
+ 
+ void defer_console_output(void)
+ {
++	if (!printk_percpu_data_ready())
++		return;
++
+ 	preempt_disable();
+ 	__this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
+ 	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
+--- a/kernel/printk/printk_safe.c
++++ b/kernel/printk/printk_safe.c
+@@ -39,7 +39,6 @@
+  * There are situations when we want to make sure that all buffers
+  * were handled or when IRQs are blocked.
+  */
+-static int printk_safe_irq_ready __read_mostly;
+ 
+ #define SAFE_LOG_BUF_LEN ((1 << CONFIG_PRINTK_SAFE_LOG_BUF_SHIFT) -	\
+ 				sizeof(atomic_t) -			\
+@@ -63,7 +62,7 @@ static DEFINE_PER_CPU(struct printk_safe
+ /* Get flushed in a more safe context. */
+ static void queue_flush_work(struct printk_safe_seq_buf *s)
+ {
+-	if (printk_safe_irq_ready)
++	if (printk_percpu_data_ready())
+ 		irq_work_queue(&s->work);
+ }
+ 
+@@ -414,14 +413,6 @@ void __init printk_safe_init(void)
+ #endif
+ 	}
  
 -	/*
--	 * Core code can call here for inactive interrupts. For inactive
--	 * interrupts which use managed or reservation mode there is no
--	 * point in going through the vector assignment right now as the
--	 * activation will assign a vector which fits the destination
--	 * cpumask. Let the core code store the destination mask and be
--	 * done with it.
+-	 * In the highly unlikely event that a NMI were to trigger at
+-	 * this moment. Make sure IRQ work is set up before this
+-	 * variable is set.
 -	 */
--	if (!irqd_is_activated(irqd) &&
--	    (apicd->is_managed || apicd->can_reserve))
--		return IRQ_SET_MASK_OK;
-+	if (WARN_ON_ONCE(!irqd_is_activated(irqd)))
-+		return -EIO;
- 
- 	raw_spin_lock(&vector_lock);
- 	cpumask_and(vector_searchmask, dest, cpu_online_mask);
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -194,9 +194,9 @@ void irq_set_thread_affinity(struct irq_
- 			set_bit(IRQTF_AFFINITY, &action->thread_flags);
+-	barrier();
+-	printk_safe_irq_ready = 1;
+-
+ 	/* Flush pending messages that did not have scheduled IRQ works. */
+ 	printk_safe_flush();
  }
- 
-+#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
- static void irq_validate_effective_affinity(struct irq_data *data)
- {
--#ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
- 	const struct cpumask *m = irq_data_get_effective_affinity_mask(data);
- 	struct irq_chip *chip = irq_data_get_irq_chip(data);
- 
-@@ -204,9 +204,19 @@ static void irq_validate_effective_affin
- 		return;
- 	pr_warn_once("irq_chip %s did not update eff. affinity mask of irq %u\n",
- 		     chip->name, data->irq);
--#endif
- }
- 
-+static inline void irq_init_effective_affinity(struct irq_data *data,
-+					       const struct cpumask *mask)
-+{
-+	cpumask_copy(irq_data_get_effective_affinity_mask(data), mask);
-+}
-+#else
-+static inline void irq_validate_effective_affinity(struct irq_data *data) { }
-+static inline void irq_init_effective_affinity(struct irq_data *data,
-+					       const struct cpumask *mask) { }
-+#endif
-+
- int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
- 			bool force)
- {
-@@ -264,6 +274,26 @@ static int irq_try_set_affinity(struct i
- 	return ret;
- }
- 
-+static bool irq_set_affinity_deactivated(struct irq_data *data,
-+					 const struct cpumask *mask, bool force)
-+{
-+	struct irq_desc *desc = irq_data_to_desc(data);
-+
-+	/*
-+	 * If the interrupt is not yet activated, just store the affinity
-+	 * mask and do not call the chip driver at all. On activation the
-+	 * driver has to make sure anyway that the interrupt is in a
-+	 * useable state so startup works.
-+	 */
-+	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
-+		return false;
-+
-+	cpumask_copy(desc->irq_common_data.affinity, mask);
-+	irq_init_effective_affinity(data, mask);
-+	irqd_set(data, IRQD_AFFINITY_SET);
-+	return true;
-+}
-+
- int irq_set_affinity_locked(struct irq_data *data, const struct cpumask *mask,
- 			    bool force)
- {
-@@ -274,6 +304,9 @@ int irq_set_affinity_locked(struct irq_d
- 	if (!chip || !chip->irq_set_affinity)
- 		return -EINVAL;
- 
-+	if (irq_set_affinity_deactivated(data, mask, force))
-+		return 0;
-+
- 	if (irq_can_move_pcntxt(data) && !irqd_is_setaffinity_pending(data)) {
- 		ret = irq_try_set_affinity(data, mask, force);
- 	} else {
 
 
