@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE91F226AAC
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA770226BB0
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730358AbgGTQgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:36:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50760 "EHLO mail.kernel.org"
+        id S1730016AbgGTQn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:43:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730826AbgGTPwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:52:33 -0400
+        id S1730006AbgGTPmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:42:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39A002064B;
-        Mon, 20 Jul 2020 15:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 271022064B;
+        Mon, 20 Jul 2020 15:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260352;
-        bh=myHCa524zoo1jw5NMVYDWu+Lc7xTCNOtw0THBRXeBHs=;
+        s=default; t=1595259722;
+        bh=e5xVXAy2cdWAHADLimp4bA2m13nEpKLUopdokuZdIJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDdbiggymn8+FSPWRZn04EsSIuoxZzSRHrkZ8Fdo/Crz70LbOJ+fqSFuUdSSKgETG
-         /buvwaqJIROCk7wfi8vD0/4v0QULxJwd64ko3+hO4W2HpC2osNO4+8FR5wTJIxckom
-         PYsaUW83Yu4cr09oCDJxcTX5Y2Yq3TEJprgs5vBw=
+        b=eRsGxiupYn1VmGpYqqI7zzdfSBmLrN/n8Ha389RLLVWfnVLiq4oVIjKp/MkYatUwJ
+         YLhtanDrZkhHhSmhp0ivccDhRJ0ZMmtxxOb62BXsZCZk5/enXHLrkQuIqTmgZQXBop
+         cci6tpIz2KvSV+BSRgjEOgmGsjc+tDw76looVZck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/133] Revert "thermal: mediatek: fix register index error"
-Date:   Mon, 20 Jul 2020 17:36:51 +0200
-Message-Id: <20200720152806.827799327@linuxfoundation.org>
+Subject: [PATCH 4.9 56/86] Revert "thermal: mediatek: fix register index error"
+Date:   Mon, 20 Jul 2020 17:36:52 +0200
+Message-Id: <20200720152755.974347231@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -145,10 +145,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/thermal/mtk_thermal.c b/drivers/thermal/mtk_thermal.c
-index f64643629d8b5..0691f260f6eab 100644
+index ea9558679634b..34169c32d4956 100644
 --- a/drivers/thermal/mtk_thermal.c
 +++ b/drivers/thermal/mtk_thermal.c
-@@ -431,8 +431,7 @@ static int mtk_thermal_bank_temperature(struct mtk_thermal_bank *bank)
+@@ -348,8 +348,7 @@ static int mtk_thermal_bank_temperature(struct mtk_thermal_bank *bank)
  	u32 raw;
  
  	for (i = 0; i < conf->bank_data[bank->id].num_sensors; i++) {
@@ -158,7 +158,7 @@ index f64643629d8b5..0691f260f6eab 100644
  
  		temp = raw_to_mcelsius(mt,
  				       conf->bank_data[bank->id].sensors[i],
-@@ -569,8 +568,7 @@ static void mtk_thermal_init_bank(struct mtk_thermal *mt, int num,
+@@ -486,8 +485,7 @@ static void mtk_thermal_init_bank(struct mtk_thermal *mt, int num,
  
  	for (i = 0; i < conf->bank_data[num].num_sensors; i++)
  		writel(conf->sensor_mux_values[conf->bank_data[num].sensors[i]],
