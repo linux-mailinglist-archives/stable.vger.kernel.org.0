@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0F52265B7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 762C52265B9
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731817AbgGTP4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:56:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56180 "EHLO mail.kernel.org"
+        id S1731584AbgGTP4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:56:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731357AbgGTP4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:56:36 -0400
+        id S1731825AbgGTP4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:56:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93BBE22BEF;
-        Mon, 20 Jul 2020 15:56:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0A302065E;
+        Mon, 20 Jul 2020 15:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260596;
-        bh=zfkmZazsiNFYPb41AvpLojFzYhefHY8dWGULRGKq0Qw=;
+        s=default; t=1595260604;
+        bh=EGhIgVIAG6evw4B0i/8BjerJYr4VaR5XyLTu0Dr1Er4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TmVs6T7gM01RBbFMdbSxjPYNH6ta+bpK5w6FXaZnATYUwJhiTwUMvrRNJjIzuoWOM
-         fgTRthGHR3f4gfBkkZLPtNdubu0jIdgUzlCyh7hrfyOph0l+CxNjJdQpUWvOHRgM5w
-         mqbIaU4Cru9qG+e+F8mybG9yNktg8UCIMOBwQdgY=
+        b=at6Lua5ttpAMofbWGNHUA5uCLWRuauH83SNgBHlHQ7BEgCdC9NS5Qf0BC2mwRHjFW
+         Ol+EbisnIhAI495LcQiNUNIOw8PD4ItXEAHdA9ZLASArwVokQ6mOaMRVMfRGJG+hEo
+         rcp9iWMJqOSeGUlt04wytn/eiFOll/XO68+MngKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 025/215] cgroup: Fix sock_cgroup_data on big-endian.
-Date:   Mon, 20 Jul 2020 17:35:07 +0200
-Message-Id: <20200720152821.377595176@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 028/215] arm64: arch_timer: Allow an workaround descriptor to disable compat vdso
+Date:   Mon, 20 Jul 2020 17:35:10 +0200
+Message-Id: <20200720152821.520281513@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -43,38 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 14b032b8f8fce03a546dcf365454bec8c4a58d7d ]
+commit c1fbec4ac0d701f350a581941d35643d5a9cd184 upstream.
 
-In order for no_refcnt and is_data to be the lowest order two
-bits in the 'val' we have to pad out the bitfield of the u8.
+As we are about to disable the vdso for compat tasks in some circumstances,
+let's allow a workaround descriptor to express exactly that.
 
-Fixes: ad0f75e5f57c ("cgroup: fix cgroup_sk_alloc() for sk_clone_lock()")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200706163802.1836732-3-maz@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/cgroup-defs.h |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/include/asm/arch_timer.h  |    1 +
+ drivers/clocksource/arm_arch_timer.c |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/include/linux/cgroup-defs.h
-+++ b/include/linux/cgroup-defs.h
-@@ -799,6 +799,7 @@ struct sock_cgroup_data {
- 		struct {
- 			u8	is_data : 1;
- 			u8	no_refcnt : 1;
-+			u8	unused : 6;
- 			u8	padding;
- 			u16	prioidx;
- 			u32	classid;
-@@ -808,6 +809,7 @@ struct sock_cgroup_data {
- 			u32	classid;
- 			u16	prioidx;
- 			u8	padding;
-+			u8	unused : 6;
- 			u8	no_refcnt : 1;
- 			u8	is_data : 1;
- 		} __packed;
+--- a/arch/arm64/include/asm/arch_timer.h
++++ b/arch/arm64/include/asm/arch_timer.h
+@@ -58,6 +58,7 @@ struct arch_timer_erratum_workaround {
+ 	u64 (*read_cntvct_el0)(void);
+ 	int (*set_next_event_phys)(unsigned long, struct clock_event_device *);
+ 	int (*set_next_event_virt)(unsigned long, struct clock_event_device *);
++	bool disable_compat_vdso;
+ };
+ 
+ DECLARE_PER_CPU(const struct arch_timer_erratum_workaround *,
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -562,6 +562,9 @@ void arch_timer_enable_workaround(const
+ 	if (wa->read_cntvct_el0) {
+ 		clocksource_counter.archdata.clock_mode = VDSO_CLOCKMODE_NONE;
+ 		vdso_default = VDSO_CLOCKMODE_NONE;
++	} else if (wa->disable_compat_vdso && vdso_default != VDSO_CLOCKMODE_NONE) {
++		vdso_default = VDSO_CLOCKMODE_ARCHTIMER_NOCOMPAT;
++		clocksource_counter.archdata.clock_mode = vdso_default;
+ 	}
+ }
+ 
 
 
