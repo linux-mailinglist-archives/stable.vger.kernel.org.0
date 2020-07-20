@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC1C2265D1
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BDC2265D6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:58:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731940AbgGTP5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57594 "EHLO mail.kernel.org"
+        id S1731690AbgGTP5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:57:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731939AbgGTP5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:57:38 -0400
+        id S1731948AbgGTP5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:57:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4172320734;
-        Mon, 20 Jul 2020 15:57:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7FD02176B;
+        Mon, 20 Jul 2020 15:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260657;
-        bh=PYHRM3/vuupAlPy3KFuJj1++LvMrnbsTNPrhIdDVqkQ=;
+        s=default; t=1595260671;
+        bh=gBJjacVL2m/4ejgMgslD8NKdAbwGMCJFnQvE0Zo+e6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBvK9dUbSY0T3imzKBuvClcSaSG1pp4ZqoYJrgQ6Lu9c0qjAABovWe8UMl3wlAFAd
-         QM2gEF0lFRtPKZsf60iFVmZcnV4JIJomX4sST9hH50pEmlybyRFPo1EEJ/0pelTURV
-         b9COqKXRrqw2R/NcJA+wbevBUVHO1CVxH03C3p90=
+        b=hPbYSGjp5vnrALz9T0RNTQfCjCR4elZHepOU47ACv0DNg5PET6CY+U8cMeu+qa8D6
+         KB1r98dU7nBaPRKg3ziYSJ7+vpYMFNz/zIuxr1QR52Bn3wJ/S3lOSlo7Vmi+t/oX15
+         m998H1IJ5hFZXBHjpXzV+G/2rdgwfKiZNf02AAKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 048/215] iio: magnetometer: ak8974: Fix runtime PM imbalance on error
-Date:   Mon, 20 Jul 2020 17:35:30 +0200
-Message-Id: <20200720152822.484939450@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.4 052/215] iio:humidity:hts221 Fix alignment and data leak issues
+Date:   Mon, 20 Jul 2020 17:35:34 +0200
+Message-Id: <20200720152822.680365104@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -45,90 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 0187294d227dfc42889e1da8f8ce1e44fc25f147 upstream.
+commit 5c49056ad9f3c786f7716da2dd47e4488fc6bd25 upstream.
 
-When devm_regmap_init_i2c() returns an error code, a pairing
-runtime PM usage counter decrement is needed to keep the
-counter balanced. For error paths after ak8974_set_power(),
-ak8974_detect() and ak8974_reset(), things are the same.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data.
+This data is allocated with kzalloc so no data can leak
+apart from previous readings.
 
-However, When iio_triggered_buffer_setup() returns an error
-code, there will be two PM usgae counter decrements.
+Explicit alignment of ts needed to ensure consistent padding
+on all architectures (particularly x86_32 with it's 4 byte alignment
+of s64)
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Fixes: 7c94a8b2ee8c ("iio: magn: add a driver for AK8974")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: <Stable@vger.kernel.org>
+Fixes: e4a70e3e7d84 ("iio: humidity: add support to hts221 rh/temp combo device")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/magnetometer/ak8974.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/iio/humidity/hts221.h        |    7 +++++--
+ drivers/iio/humidity/hts221_buffer.c |    9 +++++----
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/magnetometer/ak8974.c
-+++ b/drivers/iio/magnetometer/ak8974.c
-@@ -768,19 +768,21 @@ static int ak8974_probe(struct i2c_clien
- 	ak8974->map = devm_regmap_init_i2c(i2c, &ak8974_regmap_config);
- 	if (IS_ERR(ak8974->map)) {
- 		dev_err(&i2c->dev, "failed to allocate register map\n");
-+		pm_runtime_put_noidle(&i2c->dev);
-+		pm_runtime_disable(&i2c->dev);
- 		return PTR_ERR(ak8974->map);
- 	}
+--- a/drivers/iio/humidity/hts221.h
++++ b/drivers/iio/humidity/hts221.h
+@@ -14,8 +14,6 @@
  
- 	ret = ak8974_set_power(ak8974, AK8974_PWR_ON);
- 	if (ret) {
- 		dev_err(&i2c->dev, "could not power on\n");
--		goto power_off;
-+		goto disable_pm;
- 	}
+ #include <linux/iio/iio.h>
  
- 	ret = ak8974_detect(ak8974);
- 	if (ret) {
- 		dev_err(&i2c->dev, "neither AK8974 nor AMI30x found\n");
--		goto power_off;
-+		goto disable_pm;
- 	}
- 
- 	ret = ak8974_selftest(ak8974);
-@@ -790,14 +792,9 @@ static int ak8974_probe(struct i2c_clien
- 	ret = ak8974_reset(ak8974);
- 	if (ret) {
- 		dev_err(&i2c->dev, "AK8974 reset failed\n");
--		goto power_off;
-+		goto disable_pm;
- 	}
- 
--	pm_runtime_set_autosuspend_delay(&i2c->dev,
--					 AK8974_AUTOSUSPEND_DELAY);
--	pm_runtime_use_autosuspend(&i2c->dev);
--	pm_runtime_put(&i2c->dev);
+-#define HTS221_DATA_SIZE	2
 -
- 	indio_dev->dev.parent = &i2c->dev;
- 	indio_dev->channels = ak8974_channels;
- 	indio_dev->num_channels = ARRAY_SIZE(ak8974_channels);
-@@ -850,6 +847,11 @@ no_irq:
- 		goto cleanup_buffer;
- 	}
+ enum hts221_sensor_type {
+ 	HTS221_SENSOR_H,
+ 	HTS221_SENSOR_T,
+@@ -39,6 +37,11 @@ struct hts221_hw {
  
-+	pm_runtime_set_autosuspend_delay(&i2c->dev,
-+					 AK8974_AUTOSUSPEND_DELAY);
-+	pm_runtime_use_autosuspend(&i2c->dev);
-+	pm_runtime_put(&i2c->dev);
-+
- 	return 0;
+ 	bool enabled;
+ 	u8 odr;
++	/* Ensure natural alignment of timestamp */
++	struct {
++		__le16 channels[2];
++		s64 ts __aligned(8);
++	} scan;
+ };
  
- cleanup_buffer:
-@@ -858,7 +860,6 @@ disable_pm:
- 	pm_runtime_put_noidle(&i2c->dev);
- 	pm_runtime_disable(&i2c->dev);
- 	ak8974_set_power(ak8974, AK8974_PWR_OFF);
--power_off:
- 	regulator_bulk_disable(ARRAY_SIZE(ak8974->regs), ak8974->regs);
+ extern const struct dev_pm_ops hts221_pm_ops;
+--- a/drivers/iio/humidity/hts221_buffer.c
++++ b/drivers/iio/humidity/hts221_buffer.c
+@@ -162,7 +162,6 @@ static const struct iio_buffer_setup_ops
  
- 	return ret;
+ static irqreturn_t hts221_buffer_handler_thread(int irq, void *p)
+ {
+-	u8 buffer[ALIGN(2 * HTS221_DATA_SIZE, sizeof(s64)) + sizeof(s64)];
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *iio_dev = pf->indio_dev;
+ 	struct hts221_hw *hw = iio_priv(iio_dev);
+@@ -172,18 +171,20 @@ static irqreturn_t hts221_buffer_handler
+ 	/* humidity data */
+ 	ch = &iio_dev->channels[HTS221_SENSOR_H];
+ 	err = regmap_bulk_read(hw->regmap, ch->address,
+-			       buffer, HTS221_DATA_SIZE);
++			       &hw->scan.channels[0],
++			       sizeof(hw->scan.channels[0]));
+ 	if (err < 0)
+ 		goto out;
+ 
+ 	/* temperature data */
+ 	ch = &iio_dev->channels[HTS221_SENSOR_T];
+ 	err = regmap_bulk_read(hw->regmap, ch->address,
+-			       buffer + HTS221_DATA_SIZE, HTS221_DATA_SIZE);
++			       &hw->scan.channels[1],
++			       sizeof(hw->scan.channels[1]));
+ 	if (err < 0)
+ 		goto out;
+ 
+-	iio_push_to_buffers_with_timestamp(iio_dev, buffer,
++	iio_push_to_buffers_with_timestamp(iio_dev, &hw->scan,
+ 					   iio_get_time_ns(iio_dev));
+ 
+ out:
 
 
