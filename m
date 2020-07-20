@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD76F226698
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCD8226905
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731578AbgGTQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732549AbgGTQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 20 Jul 2020 12:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732834AbgGTQEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:04:31 -0400
+        id S1732368AbgGTQEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71E5920684;
-        Mon, 20 Jul 2020 16:04:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6522064B;
+        Mon, 20 Jul 2020 16:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261071;
-        bh=dL51J9ZjJIx7T182G+ExsZ/CAI778fDI4ysS9fKS0DU=;
+        s=default; t=1595261073;
+        bh=E1QkEjrG728q+aKZmD25tBYamtN2VrS2xZW5m+cyQ2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeJq/JyPCqoqr95iGTHFOjlc7dTwhm/SRaCTjsKKgdxDt/RHYmkVCl5QEk+YvB7hB
-         FDX0OYDnyvnUhWjHIAHHZ7KNWLuPFtrEguykfwxViMDEnxCQ0woBRkGIt/wh+4tWB9
-         LXQ1rT2mFU89HexxvIjpl5cYieP8ptKO/iLDJy5M=
+        b=UrUQpGE7A3thgl5PKKkikJeigE+7wN5wBzktQiNuU3qpFwvvMGr5U9TXBHSeqiyR/
+         n9OcJSjXXYmNHgQ86m3JxKrJE3s3RhW54ULhe1E1kciZrcKQ42pPxlsM7mDvI5nade
+         oLf+2+O6isRXr6CWxok/DMN3MS3uEMxLh7c78yN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH 5.4 168/215] serial: mxs-auart: add missed iounmap() in probe failure and remove
-Date:   Mon, 20 Jul 2020 17:37:30 +0200
-Message-Id: <20200720152828.162219093@linuxfoundation.org>
+        stable@vger.kernel.org, Fabian <godi.beat@gmx.net>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.4 169/215] ovl: fix regression with re-formatted lower squashfs
+Date:   Mon, 20 Jul 2020 17:37:31 +0200
+Message-Id: <20200720152828.210251105@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -42,76 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit d8edf8eb5f6e921fe6389f96d2cd05862730a6ff upstream.
+commit a888db310195400f050b89c47673f0f8babfbb41 upstream.
 
-This driver calls ioremap() in probe, but it misses calling iounmap() in
-probe's error handler and remove.
-Add the missed calls to fix it.
+Commit 9df085f3c9a2 ("ovl: relax requirement for non null uuid of lower
+fs") relaxed the requirement for non null uuid with single lower layer to
+allow enabling index and nfs_export features with single lower squashfs.
 
-Fixes: 47d37d6f94cc ("serial: Add auart driver for i.MX23/28")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200709135608.68290-1-hslester96@gmail.com
+Fabian reported a regression in a setup when overlay re-uses an existing
+upper layer and re-formats the lower squashfs image.  Because squashfs
+has no uuid, the origin xattr in upper layer are decoded from the new
+lower layer where they may resolve to a wrong origin file and user may
+get an ESTALE or EIO error on lookup.
+
+To avoid the reported regression while still allowing the new features
+with single lower squashfs, do not allow decoding origin with lower null
+uuid unless user opted-in to one of the new features that require
+following the lower inode of non-dir upper (index, xino, metacopy).
+
+Reported-by: Fabian <godi.beat@gmx.net>
+Link: https://lore.kernel.org/linux-unionfs/32532923.JtPX5UtSzP@fgdesktop/
+Fixes: 9df085f3c9a2 ("ovl: relax requirement for non null uuid of lower fs")
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/mxs-auart.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/mxs-auart.c
-+++ b/drivers/tty/serial/mxs-auart.c
-@@ -1701,21 +1701,21 @@ static int mxs_auart_probe(struct platfo
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		ret = irq;
--		goto out_disable_clks;
-+		goto out_iounmap;
- 	}
+---
+ fs/overlayfs/super.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1258,6 +1258,18 @@ static bool ovl_lower_uuid_ok(struct ovl
+ 	if (!ofs->config.nfs_export && !ofs->upper_mnt)
+ 		return true;
  
- 	s->port.irq = irq;
- 	ret = devm_request_irq(&pdev->dev, irq, mxs_auart_irq_handle, 0,
- 			       dev_name(&pdev->dev), s);
- 	if (ret)
--		goto out_disable_clks;
-+		goto out_iounmap;
- 
- 	platform_set_drvdata(pdev, s);
- 
- 	ret = mxs_auart_init_gpios(s, &pdev->dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize GPIOs.\n");
--		goto out_disable_clks;
-+		goto out_iounmap;
- 	}
- 
- 	/*
-@@ -1723,7 +1723,7 @@ static int mxs_auart_probe(struct platfo
- 	 */
- 	ret = mxs_auart_request_gpio_irq(s);
- 	if (ret)
--		goto out_disable_clks;
-+		goto out_iounmap;
- 
- 	auart_port[s->port.line] = s;
- 
-@@ -1749,6 +1749,9 @@ out_free_qpio_irq:
- 	mxs_auart_free_gpio_irq(s);
- 	auart_port[pdev->id] = NULL;
- 
-+out_iounmap:
-+	iounmap(s->port.membase);
++	/*
++	 * We allow using single lower with null uuid for index and nfs_export
++	 * for example to support those features with single lower squashfs.
++	 * To avoid regressions in setups of overlay with re-formatted lower
++	 * squashfs, do not allow decoding origin with lower null uuid unless
++	 * user opted-in to one of the new features that require following the
++	 * lower inode of non-dir upper.
++	 */
++	if (!ofs->config.index && !ofs->config.metacopy && !ofs->config.xino &&
++	    uuid_is_null(uuid))
++		return false;
 +
- out_disable_clks:
- 	if (is_asm9260_auart(s)) {
- 		clk_disable_unprepare(s->clk);
-@@ -1764,6 +1767,7 @@ static int mxs_auart_remove(struct platf
- 	uart_remove_one_port(&auart_driver, &s->port);
- 	auart_port[pdev->id] = NULL;
- 	mxs_auart_free_gpio_irq(s);
-+	iounmap(s->port.membase);
- 	if (is_asm9260_auart(s)) {
- 		clk_disable_unprepare(s->clk);
- 		clk_disable_unprepare(s->clk_ahb);
+ 	for (i = 0; i < ofs->numlowerfs; i++) {
+ 		/*
+ 		 * We use uuid to associate an overlay lower file handle with a
 
 
