@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76D92265A6
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2EB2265A8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731721AbgGTPzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:55:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55164 "EHLO mail.kernel.org"
+        id S1730651AbgGTPz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:55:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731732AbgGTPzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:55:52 -0400
+        id S1731242AbgGTPz6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD2892065E;
-        Mon, 20 Jul 2020 15:55:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8E2B2065E;
+        Mon, 20 Jul 2020 15:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260552;
-        bh=/8OZCy/0KMlUsqPtaxFSHndILlRwA5ZBFrl1lWVTsh4=;
+        s=default; t=1595260557;
+        bh=Q9qXXiXfX/4FtDiKA9sl9/ylFip6qmAIRaa9vyf9LS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBdeIFhuR1vFWlLrJpoGxBoYauZGttLVJ6oQlERYDGUhLFkqjUM33tU/ldXzSk5gy
-         0SWo5IFGsB3Fv/91xmgj6/bhTh3T8ssJjlAKMYjYOvEd4+LUC6J0eeQQg0zl+xdawR
-         tcJBaPdjcEzZRhx89kuQYUwH+Rg2PHTjiqazV9G8=
+        b=psm5/OLpxU96NgcIO+UsWhbFwj76X6lT1yPyhfsFr7fEgEH/EEnbLD+B0mYSoMOYa
+         T311DRGY0LqeW4Zs4Hca9bsWV5+M3elTWdJQRH4S7qenaRlGwumKsJt5Gz2txwkTJb
+         dV/hCqraHKRuIKDswYimH8wqXBdShOkuQuXK7X+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        James Chapman <jchapman@katalix.com>,
+        stable@vger.kernel.org,
+        Martin Varghese <martin.varghese@nokia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 010/215] l2tp: remove skb_dst_set() from l2tp_xmit_skb()
-Date:   Mon, 20 Jul 2020 17:34:52 +0200
-Message-Id: <20200720152820.654695945@linuxfoundation.org>
+Subject: [PATCH 5.4 012/215] net: Added pointer check for dst->ops->neigh_lookup in dst_neigh_lookup_skb
+Date:   Mon, 20 Jul 2020 17:34:54 +0200
+Message-Id: <20200720152820.750585777@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 References: <20200720152820.122442056@linuxfoundation.org>
@@ -45,60 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Martin Varghese <martin.varghese@nokia.com>
 
-[ Upstream commit 27d53323664c549b5bb2dfaaf6f7ad6e0376a64e ]
+[ Upstream commit 394de110a73395de2ca4516b0de435e91b11b604 ]
 
-In the tx path of l2tp, l2tp_xmit_skb() calls skb_dst_set() to set
-skb's dst. However, it will eventually call inet6_csk_xmit() or
-ip_queue_xmit() where skb's dst will be overwritten by:
+The packets from tunnel devices (eg bareudp) may have only
+metadata in the dst pointer of skb. Hence a pointer check of
+neigh_lookup is needed in dst_neigh_lookup_skb
 
-   skb_dst_set_noref(skb, dst);
+Kernel crashes when packets from bareudp device is processed in
+the kernel neighbour subsytem.
 
-without releasing the old dst in skb. Then it causes dst/dev refcnt leak:
+[  133.384484] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[  133.385240] #PF: supervisor instruction fetch in kernel mode
+[  133.385828] #PF: error_code(0x0010) - not-present page
+[  133.386603] PGD 0 P4D 0
+[  133.386875] Oops: 0010 [#1] SMP PTI
+[  133.387275] CPU: 0 PID: 5045 Comm: ping Tainted: G        W         5.8.0-rc2+ #15
+[  133.388052] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[  133.391076] RIP: 0010:0x0
+[  133.392401] Code: Bad RIP value.
+[  133.394029] RSP: 0018:ffffb79980003d50 EFLAGS: 00010246
+[  133.396656] RAX: 0000000080000102 RBX: ffff9de2fe0d6600 RCX: ffff9de2fe5e9d00
+[  133.399018] RDX: 0000000000000000 RSI: ffff9de2fe5e9d00 RDI: ffff9de2fc21b400
+[  133.399685] RBP: ffff9de2fe5e9d00 R08: 0000000000000000 R09: 0000000000000000
+[  133.400350] R10: ffff9de2fbc6be22 R11: ffff9de2fe0d6600 R12: ffff9de2fc21b400
+[  133.401010] R13: ffff9de2fe0d6628 R14: 0000000000000001 R15: 0000000000000003
+[  133.401667] FS:  00007fe014918740(0000) GS:ffff9de2fec00000(0000) knlGS:0000000000000000
+[  133.402412] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  133.402948] CR2: ffffffffffffffd6 CR3: 000000003bb72000 CR4: 00000000000006f0
+[  133.403611] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  133.404270] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  133.404933] Call Trace:
+[  133.405169]  <IRQ>
+[  133.405367]  __neigh_update+0x5a4/0x8f0
+[  133.405734]  arp_process+0x294/0x820
+[  133.406076]  ? __netif_receive_skb_core+0x866/0xe70
+[  133.406557]  arp_rcv+0x129/0x1c0
+[  133.406882]  __netif_receive_skb_one_core+0x95/0xb0
+[  133.407340]  process_backlog+0xa7/0x150
+[  133.407705]  net_rx_action+0x2af/0x420
+[  133.408457]  __do_softirq+0xda/0x2a8
+[  133.408813]  asm_call_on_stack+0x12/0x20
+[  133.409290]  </IRQ>
+[  133.409519]  do_softirq_own_stack+0x39/0x50
+[  133.410036]  do_softirq+0x50/0x60
+[  133.410401]  __local_bh_enable_ip+0x50/0x60
+[  133.410871]  ip_finish_output2+0x195/0x530
+[  133.411288]  ip_output+0x72/0xf0
+[  133.411673]  ? __ip_finish_output+0x1f0/0x1f0
+[  133.412122]  ip_send_skb+0x15/0x40
+[  133.412471]  raw_sendmsg+0x853/0xab0
+[  133.412855]  ? insert_pfn+0xfe/0x270
+[  133.413827]  ? vvar_fault+0xec/0x190
+[  133.414772]  sock_sendmsg+0x57/0x80
+[  133.415685]  __sys_sendto+0xdc/0x160
+[  133.416605]  ? syscall_trace_enter+0x1d4/0x2b0
+[  133.417679]  ? __audit_syscall_exit+0x1d9/0x280
+[  133.418753]  ? __prepare_exit_to_usermode+0x5d/0x1a0
+[  133.419819]  __x64_sys_sendto+0x24/0x30
+[  133.420848]  do_syscall_64+0x4d/0x90
+[  133.421768]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  133.422833] RIP: 0033:0x7fe013689c03
+[  133.423749] Code: Bad RIP value.
+[  133.424624] RSP: 002b:00007ffc7288f418 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+[  133.425940] RAX: ffffffffffffffda RBX: 000056151fc63720 RCX: 00007fe013689c03
+[  133.427225] RDX: 0000000000000040 RSI: 000056151fc63720 RDI: 0000000000000003
+[  133.428481] RBP: 00007ffc72890b30 R08: 000056151fc60500 R09: 0000000000000010
+[  133.429757] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000040
+[  133.431041] R13: 000056151fc636e0 R14: 000056151fc616bc R15: 0000000000000080
+[  133.432481] Modules linked in: mpls_iptunnel act_mirred act_tunnel_key cls_flower sch_ingress veth mpls_router ip_tunnel bareudp ip6_udp_tunnel udp_tunnel macsec udp_diag inet_diag unix_diag af_packet_diag netlink_diag binfmt_misc xt_MASQUERADE iptable_nat xt_addrtype xt_conntrack nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 br_netfilter bridge stp llc ebtable_filter ebtables overlay ip6table_filter ip6_tables iptable_filter sunrpc ext4 mbcache jbd2 pcspkr i2c_piix4 virtio_balloon joydev ip_tables xfs libcrc32c ata_generic qxl pata_acpi drm_ttm_helper ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm ata_piix libata virtio_net net_failover virtio_console failover virtio_blk i2c_core virtio_pci virtio_ring serio_raw floppy virtio dm_mirror dm_region_hash dm_log dm_mod
+[  133.444045] CR2: 0000000000000000
+[  133.445082] ---[ end trace f4aeee1958fd1638 ]---
+[  133.446236] RIP: 0010:0x0
+[  133.447180] Code: Bad RIP value.
+[  133.448152] RSP: 0018:ffffb79980003d50 EFLAGS: 00010246
+[  133.449363] RAX: 0000000080000102 RBX: ffff9de2fe0d6600 RCX: ffff9de2fe5e9d00
+[  133.450835] RDX: 0000000000000000 RSI: ffff9de2fe5e9d00 RDI: ffff9de2fc21b400
+[  133.452237] RBP: ffff9de2fe5e9d00 R08: 0000000000000000 R09: 0000000000000000
+[  133.453722] R10: ffff9de2fbc6be22 R11: ffff9de2fe0d6600 R12: ffff9de2fc21b400
+[  133.455149] R13: ffff9de2fe0d6628 R14: 0000000000000001 R15: 0000000000000003
+[  133.456520] FS:  00007fe014918740(0000) GS:ffff9de2fec00000(0000) knlGS:0000000000000000
+[  133.458046] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  133.459342] CR2: ffffffffffffffd6 CR3: 000000003bb72000 CR4: 00000000000006f0
+[  133.460782] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  133.462240] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  133.463697] Kernel panic - not syncing: Fatal exception in interrupt
+[  133.465226] Kernel Offset: 0xfa00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[  133.467025] ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
 
-  unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-
-This can be reproduced by simply running:
-
-  # modprobe l2tp_eth && modprobe l2tp_ip
-  # sh ./tools/testing/selftests/net/l2tp.sh
-
-So before going to inet6_csk_xmit() or ip_queue_xmit(), skb's dst
-should be dropped. This patch is to fix it by removing skb_dst_set()
-from l2tp_xmit_skb() and moving skb_dst_drop() into l2tp_xmit_core().
-
-Fixes: 3557baabf280 ("[L2TP]: PPP over L2TP driver core")
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: James Chapman <jchapman@katalix.com>
-Tested-by: James Chapman <jchapman@katalix.com>
+Fixes: aaa0c23cb901 ("Fix dst_neigh_lookup/dst_neigh_lookup_skb return value handling bug")
+Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/l2tp/l2tp_core.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ include/net/dst.h |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1030,6 +1030,7 @@ static void l2tp_xmit_core(struct l2tp_s
+--- a/include/net/dst.h
++++ b/include/net/dst.h
+@@ -401,7 +401,15 @@ static inline struct neighbour *dst_neig
+ static inline struct neighbour *dst_neigh_lookup_skb(const struct dst_entry *dst,
+ 						     struct sk_buff *skb)
+ {
+-	struct neighbour *n =  dst->ops->neigh_lookup(dst, skb, NULL);
++	struct neighbour *n = NULL;
++
++	/* The packets from tunnel devices (eg bareudp) may have only
++	 * metadata in the dst pointer of skb. Hence a pointer check of
++	 * neigh_lookup is needed.
++	 */
++	if (dst->ops->neigh_lookup)
++		n = dst->ops->neigh_lookup(dst, skb, NULL);
++
+ 	return IS_ERR(n) ? NULL : n;
+ }
  
- 	/* Queue the packet to IP for output */
- 	skb->ignore_df = 1;
-+	skb_dst_drop(skb);
- #if IS_ENABLED(CONFIG_IPV6)
- 	if (l2tp_sk_is_v6(tunnel->sock))
- 		error = inet6_csk_xmit(tunnel->sock, skb, NULL);
-@@ -1101,10 +1102,6 @@ int l2tp_xmit_skb(struct l2tp_session *s
- 		goto out_unlock;
- 	}
- 
--	/* Get routing info from the tunnel socket */
--	skb_dst_drop(skb);
--	skb_dst_set(skb, sk_dst_check(sk, 0));
--
- 	inet = inet_sk(sk);
- 	fl = &inet->cork.fl;
- 	switch (tunnel->encap) {
 
 
