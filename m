@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D318F226B4D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A9F226A8F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730255AbgGTPn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:43:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36814 "EHLO mail.kernel.org"
+        id S1730268AbgGTPxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:53:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729636AbgGTPn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:43:27 -0400
+        id S1731485AbgGTPxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:53:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97CD122CE3;
-        Mon, 20 Jul 2020 15:43:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 569A32064B;
+        Mon, 20 Jul 2020 15:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259806;
-        bh=R7PcGtApXb+A8urvYiYpVDWaNd2ykP9H4RWR7q5QJwc=;
+        s=default; t=1595260421;
+        bh=bTZfeAWR2pBaRtAlL/mVt3xpRqcquaU//lEAkN+K/r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPnSZKb+tBvzQyDsQ9lzjitvZnCuMnelAH6/JmaZnMcTr18ZDVLUtS7uMLT6Ai5xx
-         qEyqLHseCSMA51+dLuQWXL23PNvu0a5tysIFWCXPFQk7Rm19oPdflLYKdv48vSY/2n
-         Eh2EAf19a+L2T38jNTlf7O03HMTL/Zdn+CMfwcO4=
+        b=1vsset3CMIUeNPFlih7SIeKBc8B6Pyr9O2s9NsjCyn4mVtqxvuNdJK4EoNwo3DT9a
+         uKposAOBH0tm4lbcmUKh2yI9v4FMli5ZEuRbiuu3B9MTCWNXZtNqHqp+cUvKBsxSML
+         ubAsF2KvBthvgH4BghJfJGXYRWwFxTZxKMbpAUMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Suraj Jitindar Singh <surajjs@amazon.com>,
-        Samuel Mendoza-Jonas <samjonas@amazon.com>,
-        Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 4.9 86/86] x86/cpu: Move x86_cache_bits settings
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 095/133] USB: serial: cypress_m8: enable Simply Automated UPB PIM
 Date:   Mon, 20 Jul 2020 17:37:22 +0200
-Message-Id: <20200720152757.605261721@linuxfoundation.org>
+Message-Id: <20200720152808.317587045@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suraj Jitindar Singh <surajjs@amazon.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-This patch is to fix the backport of the upstream patch:
-cc51e5428ea5 x86/speculation/l1tf: Increase l1tf memory limit for Nehalem+
+commit 5c45d04c5081c1830d674f4d22d4400ea2083afe upstream.
 
-When this was backported to the 4.9 and 4.14 stable branches the line
-+       c->x86_cache_bits = c->x86_phys_bits;
-was applied in the wrong place, being added to the
-identify_cpu_without_cpuid() function instead of the get_cpu_cap()
-function which it was correctly applied to in the 4.4 backport.
+This is a UPB (Universal Powerline Bus) PIM (Powerline Interface Module)
+which allows for controlling multiple UPB compatible devices from Linux
+using the standard serial interface.
 
-This means that x86_cache_bits is not set correctly resulting in the
-following warning due to the cache bits being left uninitalised (zero).
+Based on vendor application source code there are two different models
+of USB based PIM devices in addition to a number of RS232 based PIM's.
 
- WARNING: CPU: 0 PID: 7566 at arch/x86/kvm/mmu.c:284 kvm_mmu_set_mmio_spte_mask+0x4e/0x60 [kvm
- Modules linked in: kvm_intel(+) kvm irqbypass ipv6 crc_ccitt binfmt_misc evdev lpc_ich mfd_core ioatdma pcc_cpufreq dca ena acpi_power_meter hwmon acpi_pad button ext4 crc16 mbcache jbd2 fscrypto nvme nvme_core dm_mirror dm_region_hash dm_log dm_mod dax
- Hardware name: Amazon EC2 i3.metal/Not Specified, BIOS 1.0 10/16/2017
- task: ffff88ff77704c00 task.stack: ffffc9000edac000
- RIP: 0010:kvm_mmu_set_mmio_spte_mask+0x4e/0x60 [kvm
- RSP: 0018:ffffc9000edafc60 EFLAGS: 00010206
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 00000000ffffff45
- RDX: 000000000000002e RSI: 0008000000000001 RDI: 0008000000000001
- RBP: ffffffffa036f000 R08: ffffffffffffff80 R09: ffffe8ffffccb3c0
- R10: 0000000000000038 R11: 0000000000000000 R12: 0000000000005b80
- R13: ffffffffa0370e40 R14: 0000000000000001 R15: ffff88bf7c0927e0
- FS:  00007fa316f24740(0000) GS:ffff88bf7f600000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fa316ea0000 CR3: 0000003f7e986004 CR4: 00000000003606f0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  kvm_mmu_module_init+0x166/0x230 [kvm
-  kvm_arch_init+0x5d/0x150 [kvm
-  kvm_init+0x1c/0x2d0 [kvm
-  ? hardware_setup+0x4a6/0x4a6 [kvm_intel
-  vmx_init+0x23/0x6aa [kvm_intel
-  ? hardware_setup+0x4a6/0x4a6 [kvm_intel
-  do_one_initcall+0x3e/0x15d
-  do_init_module+0x5b/0x1e5
-  load_module+0x19e6/0x1dc0
-  ? SYSC_init_module+0x13b/0x170
-  SYSC_init_module+0x13b/0x170
-  do_syscall_64+0x67/0x110
-  entry_SYSCALL_64_after_hwframe+0x41/0xa6
- RIP: 0033:0x7fa316828f3a
- RSP: 002b:00007ffc9d65c1f8 EFLAGS: 00000246 ORIG_RAX: 00000000000000af
- RAX: ffffffffffffffda RBX: 00007fa316b08849 RCX: 00007fa316828f3a
- RDX: 00007fa316b08849 RSI: 0000000000071328 RDI: 00007fa316e37000
- RBP: 0000000000b47e80 R08: 0000000000000003 R09: 0000000000000000
- R10: 00007fa316822dba R11: 0000000000000246 R12: 0000000000b46340
- R13: 0000000000b464c0 R14: 0000000000000000 R15: 0000000000040000
- Code: e9 65 06 00 75 25 48 b8 00 00 00 00 00 00 00 40 48 09 c6 48 09 c7 48 89 35 f8 65 06 00 48 89 3d f9 65 06 00 c3 0f 0b 0f 0b eb d2 <0f> 0b eb d7 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44
+The vendor UPB application source contains the following USB ID's:
 
-Fixes: 4.9.x  ef3d45c95764 x86/speculation/l1tf: Increase l1tf memory limit for Nehalem+
-Fixes: 4.14.x ec4034835eaf x86/speculation/l1tf: Increase l1tf memory limit for Nehalem+
-Cc: stable@vger.kernel.org # 4.9.x-4.14.x
-Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Reviewed-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-Reviewed-by: Frank van der Linden <fllinden@amazon.com>
+	#define USB_PCS_VENDOR_ID 0x04b4
+	#define USB_PCS_PIM_PRODUCT_ID 0x5500
+
+	#define USB_SAI_VENDOR_ID 0x17dd
+	#define USB_SAI_PIM_PRODUCT_ID 0x5500
+
+The first set of ID's correspond to the PIM variant sold by Powerline
+Control Systems while the second corresponds to the Simply Automated
+Incorporated PIM. As the product ID for both of these match the default
+cypress HID->COM RS232 product ID it assumed that they both use an
+internal variant of this HID->COM RS232 converter hardware. However
+as the vendor ID for the Simply Automated variant is different we need
+to also add it to the cypress_M8 driver so that it is properly
+detected.
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200616220403.1807003-1-james.hilliard1@gmail.com
+Cc: stable@vger.kernel.org
+[ johan: amend VID define entry ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/cypress_m8.c |    2 ++
+ drivers/usb/serial/cypress_m8.h |    3 +++
+ 2 files changed, 5 insertions(+)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -849,6 +849,7 @@ void get_cpu_cap(struct cpuinfo_x86 *c)
- 	else if (cpu_has(c, X86_FEATURE_PAE) || cpu_has(c, X86_FEATURE_PSE36))
- 		c->x86_phys_bits = 36;
- #endif
-+	c->x86_cache_bits = c->x86_phys_bits;
+--- a/drivers/usb/serial/cypress_m8.c
++++ b/drivers/usb/serial/cypress_m8.c
+@@ -59,6 +59,7 @@ static const struct usb_device_id id_tab
  
- 	if (c->extended_cpuid_level >= 0x8000000a)
- 		c->x86_capability[CPUID_8000_000A_EDX] = cpuid_edx(0x8000000a);
-@@ -888,7 +889,6 @@ static void identify_cpu_without_cpuid(s
- 			}
- 		}
- #endif
--	c->x86_cache_bits = c->x86_phys_bits;
- }
+ static const struct usb_device_id id_table_cyphidcomrs232[] = {
+ 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
++	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
+ 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
+ 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
+ 	{ }						/* Terminating entry */
+@@ -73,6 +74,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
+ 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
+ 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
++	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
+ 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
+ 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
+ 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
+--- a/drivers/usb/serial/cypress_m8.h
++++ b/drivers/usb/serial/cypress_m8.h
+@@ -25,6 +25,9 @@
+ #define VENDOR_ID_CYPRESS		0x04b4
+ #define PRODUCT_ID_CYPHIDCOM		0x5500
  
- #define NO_SPECULATION		BIT(0)
++/* Simply Automated HID->COM UPB PIM (using Cypress PID 0x5500) */
++#define VENDOR_ID_SAI			0x17dd
++
+ /* FRWD Dongle - a GPS sports watch */
+ #define VENDOR_ID_FRWD			0x6737
+ #define PRODUCT_ID_CYPHIDCOM_FRWD	0x0001
 
 
