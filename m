@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B0E226AD6
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4FCC226BDC
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730944AbgGTPvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:51:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48704 "EHLO mail.kernel.org"
+        id S1731516AbgGTQo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:44:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731264AbgGTPvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:51:40 -0400
+        id S1729878AbgGTPlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:41:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F34322CE3;
-        Mon, 20 Jul 2020 15:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DDF02064B;
+        Mon, 20 Jul 2020 15:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260299;
-        bh=PxcjmdLAieDHzQe830IT3vOxzVri0M4S4qCgYzYFp9Y=;
+        s=default; t=1595259684;
+        bh=qtLQF2L4PLhu5M/VlmHYnqF+xmNBY7OKRaBtkjH+mmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkZIpsyVwP7oiuE5+D0X988sh9yiKuAIB7HNQk4WLT0iyZ37Oy94pFSq7KMFGaNxx
-         AzqP+Rr4SpS0CvKiKdZmkBNZb1pTxok/ki2Ex4+7hYDzQ68wufmQ28bd7cV97ZsTGs
-         139kPGmrZXkEhxPKqJ/MSzuVO50j3ldZcEdVPRPU=
+        b=MY2WwImS1NtFq+foyoQhJ0V7zOUvOSgblWYUaq95/Tc44lHA45vwHjpaTd8lY2eWW
+         w30shNGr9ImatJoqRW0EDlVOPLyvaYuu5PigBR8Kvd8PtI3EkE70IBXyCMk8tEDNDV
+         XlJNjK1bdDadtC1A/fOqOr6SZFNtI8PD6UP7WVK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/133] ALSA: usb-audio: Rewrite registration quirk handling
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 43/86] iio: mma8452: Add missed iio_device_unregister() call in mma8452_probe()
 Date:   Mon, 20 Jul 2020 17:36:39 +0200
-Message-Id: <20200720152806.227067518@linuxfoundation.org>
+Message-Id: <20200720152755.332410679@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit d8695bc5b1fe88305396b1f788d3b5f218e28a30 ]
+commit d7369ae1f4d7cffa7574d15e1f787dcca184c49d upstream.
 
-A slight refactoring of the registration quirk code.  Now it uses the
-table lookup for easy additions in future.  Also the return type was
-changed to bool, and got a few more comments.
+The function iio_device_register() was called in mma8452_probe().
+But the function iio_device_unregister() was not called after
+a call of the function mma8452_set_freefall_mode() failed.
+Thus add the missed function call for one error case.
 
-Link: https://lore.kernel.org/r/20200325103322.2508-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1a965d405fc6 ("drivers:iio:accel:mma8452: added cleanup provision in case of failure.")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/usb/card.c   |  2 +-
- sound/usb/quirks.c | 40 ++++++++++++++++++++++++++++++----------
- sound/usb/quirks.h |  3 +--
- 3 files changed, 32 insertions(+), 13 deletions(-)
+ drivers/iio/accel/mma8452.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index 6615734d29911..ba096cb4a53e4 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -671,7 +671,7 @@ static int usb_audio_probe(struct usb_interface *intf,
- 	/* we are allowed to call snd_card_register() many times, but first
- 	 * check to see if a device needs to skip it or do anything special
- 	 */
--	if (snd_usb_registration_quirk(chip, ifnum) == 0) {
-+	if (!snd_usb_registration_quirk(chip, ifnum)) {
- 		err = snd_card_register(chip->card);
- 		if (err < 0)
- 			goto __error;
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index a95fbdbfbd05f..79c3787ad8fd8 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1509,16 +1509,36 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
- 	}
- }
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1576,10 +1576,13 @@ static int mma8452_probe(struct i2c_clie
  
--int snd_usb_registration_quirk(struct snd_usb_audio *chip,
--			       int iface)
-+/*
-+ * registration quirk:
-+ * the registration is skipped if a device matches with the given ID,
-+ * unless the interface reaches to the defined one.  This is for delaying
-+ * the registration until the last known interface, so that the card and
-+ * devices appear at the same time.
-+ */
-+
-+struct registration_quirk {
-+	unsigned int usb_id;	/* composed via USB_ID() */
-+	unsigned int interface;	/* the interface to trigger register */
-+};
-+
-+#define REG_QUIRK_ENTRY(vendor, product, iface) \
-+	{ .usb_id = USB_ID(vendor, product), .interface = (iface) }
-+
-+static const struct registration_quirk registration_quirks[] = {
-+	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
-+	{ 0 }					/* terminator */
-+};
-+
-+/* return true if skipping registration */
-+bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface)
- {
--	switch (chip->usb_id) {
--	case USB_ID(0x0951, 0x16d8): /* Kingston HyperX AMP */
--		/* Register only when we reach interface 2 so that streams can
--		 * merge correctly into PCMs from interface 0
--		 */
--		return (iface != 2);
--	}
-+	const struct registration_quirk *q;
-+
-+	for (q = registration_quirks; q->usb_id; q++)
-+		if (chip->usb_id == q->usb_id)
-+			return iface != q->interface;
-+
- 	/* Register as normal */
--	return 0;
-+	return false;
- }
-diff --git a/sound/usb/quirks.h b/sound/usb/quirks.h
-index dc02c9d80e991..1efa6c968532f 100644
---- a/sound/usb/quirks.h
-+++ b/sound/usb/quirks.h
-@@ -46,7 +46,6 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
- 					  struct audioformat *fp,
- 					  int stream);
+ 	ret = mma8452_set_freefall_mode(data, false);
+ 	if (ret < 0)
+-		goto buffer_cleanup;
++		goto unregister_device;
  
--int snd_usb_registration_quirk(struct snd_usb_audio *chip,
--			       int iface);
-+bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface);
+ 	return 0;
  
- #endif /* __USBAUDIO_QUIRKS_H */
--- 
-2.25.1
-
++unregister_device:
++	iio_device_unregister(indio_dev);
++
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 
 
 
