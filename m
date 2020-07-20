@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CF922716A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FE522715C
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727867AbgGTVnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 17:43:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57156 "EHLO mail.kernel.org"
+        id S1728185AbgGTVie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 17:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbgGTVic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:32 -0400
+        id S1728178AbgGTVie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:38:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5527B22BF5;
-        Mon, 20 Jul 2020 21:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C93522CAF;
+        Mon, 20 Jul 2020 21:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281112;
-        bh=z7Xsc4pAQnAXAS8z63rxjvWkR5v1ktjL8dfKflE2mQM=;
+        s=default; t=1595281113;
+        bh=oGUrR/3CifRJrhJzUDoT4zDQtGxfmbqA1TZdgk9HqjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQKG0v6qANqcJdqHramgk+/fGItdDn5TM2IUd919NupG7H9GeMeYTUDRF4Ebi0PtG
-         XIOTv1NSxzEMzQ37v6iZMAFrYNH0W8a41pQ5DnfSbXgK3jzbDPtyUXkepO3LcxNLFb
-         CTbb6aYzI+GVJ+Nqn6Rd2LZ/2be8p8KAQ+aTzjIU=
+        b=dt/Zcx5hAXics12s2KptXMk/N0LpFuM921zCOGgmsbcoDah1zUbINLAiwsIf7P0lF
+         qvywkYTABA6JG9pO2T6eahwcDNZtY1C2PbRob3p3JE1cs/QSQi6gflgb7OX9VYgLer
+         c6v20r7/FnTZOTKHrsXuOinRdWTBPwf1NOjEfpnA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chu Lin <linchuyuan@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/34] hwmon: (adm1275) Make sure we are reading enough data for different chips
-Date:   Mon, 20 Jul 2020 17:37:53 -0400
-Message-Id: <20200720213807.407380-20-sashal@kernel.org>
+Cc:     Jack Xiao <Jack.Xiao@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 21/34] drm/amdgpu/gfx10: fix race condition for kiq
+Date:   Mon, 20 Jul 2020 17:37:54 -0400
+Message-Id: <20200720213807.407380-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
 References: <20200720213807.407380-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,68 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chu Lin <linchuyuan@google.com>
+From: Jack Xiao <Jack.Xiao@amd.com>
 
-[ Upstream commit 6d1d41c075a1a54ba03370e268171fec20e06563 ]
+[ Upstream commit 7d65a577bb58d4f27a3398a4c0cb0b00ab7d0511 ]
 
-Issue:
-When PEC is enabled, binding adm1272 to the adm1275 would
-fail due to PEC error. See below:
-adm1275: probe of xxxx failed with error -74
+During preemption test for gfx10, it uses kiq to trigger
+gfx preemption, which would result in race condition
+with flushing TLB for kiq.
 
-Diagnosis:
-Per the datasheet of adm1272, adm1278, adm1293 and amd1294,
-PMON_CONFIG (0xd4) is 16bits wide. On the other hand,
-PMON_CONFIG (0xd4) for adm1275 is 8bits wide. The driver should not
-assume everything is 8bits wide and read only 8bits from it.
-
-Solution:
-If it is adm1272, adm1278, adm1293 and adm1294, use i2c_read_word.
-Else, use i2c_read_byte
-
-Testing:
-Binding adm1272 to the driver.
-The change is only tested on adm1272.
-
-Signed-off-by: Chu Lin <linchuyuan@google.com>
-Link: https://lore.kernel.org/r/20200709040612.3977094-1-linchuyuan@google.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jack Xiao <Jack.Xiao@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/adm1275.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/adm1275.c b/drivers/hwmon/pmbus/adm1275.c
-index 5caa37fbfc187..66b12e5ccbc65 100644
---- a/drivers/hwmon/pmbus/adm1275.c
-+++ b/drivers/hwmon/pmbus/adm1275.c
-@@ -454,6 +454,7 @@ MODULE_DEVICE_TABLE(i2c, adm1275_id);
- static int adm1275_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
-+	s32 (*config_read_fn)(const struct i2c_client *client, u8 reg);
- 	u8 block_buffer[I2C_SMBUS_BLOCK_MAX + 1];
- 	int config, device_config;
- 	int ret;
-@@ -499,11 +500,16 @@ static int adm1275_probe(struct i2c_client *client,
- 			   "Device mismatch: Configured %s, detected %s\n",
- 			   id->name, mid->name);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 6f118292e40fb..64d96eb0a2337 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -4683,12 +4683,17 @@ static int gfx_v10_0_ring_preempt_ib(struct amdgpu_ring *ring)
+ 	struct amdgpu_device *adev = ring->adev;
+ 	struct amdgpu_kiq *kiq = &adev->gfx.kiq;
+ 	struct amdgpu_ring *kiq_ring = &kiq->ring;
++	unsigned long flags;
  
--	config = i2c_smbus_read_byte_data(client, ADM1275_PMON_CONFIG);
-+	if (mid->driver_data == adm1272 || mid->driver_data == adm1278 ||
-+	    mid->driver_data == adm1293 || mid->driver_data == adm1294)
-+		config_read_fn = i2c_smbus_read_word_data;
-+	else
-+		config_read_fn = i2c_smbus_read_byte_data;
-+	config = config_read_fn(client, ADM1275_PMON_CONFIG);
- 	if (config < 0)
- 		return config;
+ 	if (!kiq->pmf || !kiq->pmf->kiq_unmap_queues)
+ 		return -EINVAL;
  
--	device_config = i2c_smbus_read_byte_data(client, ADM1275_DEVICE_CONFIG);
-+	device_config = config_read_fn(client, ADM1275_DEVICE_CONFIG);
- 	if (device_config < 0)
- 		return device_config;
+-	if (amdgpu_ring_alloc(kiq_ring, kiq->pmf->unmap_queues_size))
++	spin_lock_irqsave(&kiq->ring_lock, flags);
++
++	if (amdgpu_ring_alloc(kiq_ring, kiq->pmf->unmap_queues_size)) {
++		spin_unlock_irqrestore(&kiq->ring_lock, flags);
+ 		return -ENOMEM;
++	}
  
+ 	/* assert preemption condition */
+ 	amdgpu_ring_set_preempt_cond_exec(ring, false);
+@@ -4699,6 +4704,8 @@ static int gfx_v10_0_ring_preempt_ib(struct amdgpu_ring *ring)
+ 				   ++ring->trail_seq);
+ 	amdgpu_ring_commit(kiq_ring);
+ 
++	spin_unlock_irqrestore(&kiq->ring_lock, flags);
++
+ 	/* poll the trailing fence */
+ 	for (i = 0; i < adev->usec_timeout; i++) {
+ 		if (ring->trail_seq ==
 -- 
 2.25.1
 
