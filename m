@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0182267D9
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A31A522669E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388377AbgGTQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55896 "EHLO mail.kernel.org"
+        id S1732888AbgGTQEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:04:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388353AbgGTQPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:15:09 -0400
+        id S1732882AbgGTQEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4C8420684;
-        Mon, 20 Jul 2020 16:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 855182064B;
+        Mon, 20 Jul 2020 16:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261708;
-        bh=8n6WyCnf4uOT8u/UC9lAYwFf3DIBEdlqg7odhu7VMNA=;
+        s=default; t=1595261085;
+        bh=tZbcvL0Yom+uemumx//KXJkqlGT24AfbHXyZqMG8DTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXOU3XAXim3f1DYeXZLiJihWx77i9L7/SYKdiJk7LfbdjM7+fFfqBiNR65zSPLww3
-         F6Xg7qsaw09hzHbcIwj+8I4EvDgHYsxGHmKhDbBshpdircPgcGP2vn8Ts7DqeKSXU0
-         BDJFGtfLNzy/RICAyY7WbcrS6IdrM9xPtrNa8lC4=
+        b=0VN8r6BxjphBUiuVbAd3cxtJudvOaFaLfpnW5q0vfLRuUGggBajFjng/7eNT/7Y+3
+         zz7aXWUOphqz2bjLc5mA+WB51g8xl8NnXfLx5HXfRiBW0XFxGHo4+f+KMFOrEqFFk+
+         aEmXo/8kCfdzbcHCsmcL89yeIEjXi7ahls5OJEsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.7 206/244] dmaengine: fsl-edma: Fix NULL pointer exception in fsl_edma_tx_handler
-Date:   Mon, 20 Jul 2020 17:37:57 +0200
-Message-Id: <20200720152835.649076541@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH 5.4 196/215] misc: atmel-ssc: lock with mutex instead of spinlock
+Date:   Mon, 20 Jul 2020 17:37:58 +0200
+Message-Id: <20200720152829.495186822@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit f5e5677c420346b4e9788051c2e4d750996c428c upstream.
+commit b037d60a3b1d1227609fd858fa34321f41829911 upstream.
 
-NULL pointer exception happens occasionally on serial output initiated
-by login timeout.  This was reproduced only if kernel was built with
-significant debugging options and EDMA driver is used with serial
-console.
+Uninterruptible context is not needed in the driver and causes lockdep
+warning because of mutex taken in of_alias_get_id(). Convert the lock to
+mutex to avoid the issue.
 
-    col-vf50 login: root
-    Password:
-    Login timed out after 60 seconds.
-    Unable to handle kernel NULL pointer dereference at virtual address 00000044
-    Internal error: Oops: 5 [#1] ARM
-    CPU: 0 PID: 157 Comm: login Not tainted 5.7.0-next-20200610-dirty #4
-    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-      (fsl_edma_tx_handler) from [<8016eb10>] (__handle_irq_event_percpu+0x64/0x304)
-      (__handle_irq_event_percpu) from [<8016eddc>] (handle_irq_event_percpu+0x2c/0x7c)
-      (handle_irq_event_percpu) from [<8016ee64>] (handle_irq_event+0x38/0x5c)
-      (handle_irq_event) from [<801729e4>] (handle_fasteoi_irq+0xa4/0x160)
-      (handle_fasteoi_irq) from [<8016ddcc>] (generic_handle_irq+0x34/0x44)
-      (generic_handle_irq) from [<8016e40c>] (__handle_domain_irq+0x54/0xa8)
-      (__handle_domain_irq) from [<80508bc8>] (gic_handle_irq+0x4c/0x80)
-      (gic_handle_irq) from [<80100af0>] (__irq_svc+0x70/0x98)
-    Exception stack(0x8459fe80 to 0x8459fec8)
-    fe80: 72286b00 e3359f64 00000001 0000412d a0070013 85c98840 85c98840 a0070013
-    fea0: 8054e0d4 00000000 00000002 00000000 00000002 8459fed0 8081fbe8 8081fbec
-    fec0: 60070013 ffffffff
-      (__irq_svc) from [<8081fbec>] (_raw_spin_unlock_irqrestore+0x30/0x58)
-      (_raw_spin_unlock_irqrestore) from [<8056cb48>] (uart_flush_buffer+0x88/0xf8)
-      (uart_flush_buffer) from [<80554e60>] (tty_ldisc_hangup+0x38/0x1ac)
-      (tty_ldisc_hangup) from [<8054c7f4>] (__tty_hangup+0x158/0x2bc)
-      (__tty_hangup) from [<80557b90>] (disassociate_ctty.part.1+0x30/0x23c)
-      (disassociate_ctty.part.1) from [<8011fc18>] (do_exit+0x580/0xba0)
-      (do_exit) from [<801214f8>] (do_group_exit+0x3c/0xb4)
-      (do_group_exit) from [<80121580>] (__wake_up_parent+0x0/0x14)
-
-Issue looks like race condition between interrupt handler fsl_edma_tx_handler()
-(called as result of fsl_edma_xfer_desc()) and terminating the transfer with
-fsl_edma_terminate_all().
-
-The fsl_edma_tx_handler() handles interrupt for a transfer with already freed
-edesc and idle==true.
-
-Fixes: d6be34fbd39b ("dma: Add Freescale eDMA engine driver support")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Robin Gong <yibin.gong@nxp.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1591877861-28156-2-git-send-email-krzk@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 099343c64e16 ("ARM: at91: atmel-ssc: add device tree support")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Link: https://lore.kernel.org/r/50f0d7fa107f318296afb49477c3571e4d6978c5.1592998403.git.mirq-linux@rere.qmqm.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/fsl-edma.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/misc/atmel-ssc.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/dma/fsl-edma.c
-+++ b/drivers/dma/fsl-edma.c
-@@ -45,6 +45,13 @@ static irqreturn_t fsl_edma_tx_handler(i
- 			fsl_chan = &fsl_edma->chans[ch];
+--- a/drivers/misc/atmel-ssc.c
++++ b/drivers/misc/atmel-ssc.c
+@@ -10,7 +10,7 @@
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
+-#include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/atmel-ssc.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+@@ -20,7 +20,7 @@
+ #include "../../sound/soc/atmel/atmel_ssc_dai.h"
  
- 			spin_lock(&fsl_chan->vchan.lock);
-+
-+			if (!fsl_chan->edesc) {
-+				/* terminate_all called before */
-+				spin_unlock(&fsl_chan->vchan.lock);
-+				continue;
-+			}
-+
- 			if (!fsl_chan->edesc->iscyclic) {
- 				list_del(&fsl_chan->edesc->vdesc.node);
- 				vchan_cookie_complete(&fsl_chan->edesc->vdesc);
+ /* Serialize access to ssc_list and user count */
+-static DEFINE_SPINLOCK(user_lock);
++static DEFINE_MUTEX(user_lock);
+ static LIST_HEAD(ssc_list);
+ 
+ struct ssc_device *ssc_request(unsigned int ssc_num)
+@@ -28,7 +28,7 @@ struct ssc_device *ssc_request(unsigned
+ 	int ssc_valid = 0;
+ 	struct ssc_device *ssc;
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	list_for_each_entry(ssc, &ssc_list, list) {
+ 		if (ssc->pdev->dev.of_node) {
+ 			if (of_alias_get_id(ssc->pdev->dev.of_node, "ssc")
+@@ -44,18 +44,18 @@ struct ssc_device *ssc_request(unsigned
+ 	}
+ 
+ 	if (!ssc_valid) {
+-		spin_unlock(&user_lock);
++		mutex_unlock(&user_lock);
+ 		pr_err("ssc: ssc%d platform device is missing\n", ssc_num);
+ 		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	if (ssc->user) {
+-		spin_unlock(&user_lock);
++		mutex_unlock(&user_lock);
+ 		dev_dbg(&ssc->pdev->dev, "module busy\n");
+ 		return ERR_PTR(-EBUSY);
+ 	}
+ 	ssc->user++;
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	clk_prepare(ssc->clk);
+ 
+@@ -67,14 +67,14 @@ void ssc_free(struct ssc_device *ssc)
+ {
+ 	bool disable_clk = true;
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	if (ssc->user)
+ 		ssc->user--;
+ 	else {
+ 		disable_clk = false;
+ 		dev_dbg(&ssc->pdev->dev, "device already free\n");
+ 	}
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	if (disable_clk)
+ 		clk_unprepare(ssc->clk);
+@@ -237,9 +237,9 @@ static int ssc_probe(struct platform_dev
+ 		return -ENXIO;
+ 	}
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	list_add_tail(&ssc->list, &ssc_list);
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	platform_set_drvdata(pdev, ssc);
+ 
+@@ -258,9 +258,9 @@ static int ssc_remove(struct platform_de
+ 
+ 	ssc_sound_dai_remove(ssc);
+ 
+-	spin_lock(&user_lock);
++	mutex_lock(&user_lock);
+ 	list_del(&ssc->list);
+-	spin_unlock(&user_lock);
++	mutex_unlock(&user_lock);
+ 
+ 	return 0;
+ }
 
 
