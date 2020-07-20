@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18E0D226485
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5EA72263DD
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730567AbgGTPps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40270 "EHLO mail.kernel.org"
+        id S1729092AbgGTPlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730564AbgGTPps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:48 -0400
+        id S1729069AbgGTPlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:41:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C911322CAF;
-        Mon, 20 Jul 2020 15:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58DA420773;
+        Mon, 20 Jul 2020 15:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259947;
-        bh=bLNmMfzvaUeMIO/qEM2BJem3mvZR3NFVay6VRNPdbF0=;
+        s=default; t=1595259663;
+        bh=YTCTQWdpjhQ595I9mUzMFZlufhUKG+bLo2BPcRNmJPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxB6d3GqC6DpBAnXNZsUayMLxvwcPkqQXqv4Os5BTx32cy7XAPbSUVEBf7iqhgXAc
-         YP9JDIdBWqo2B17ijOa+bsCNfdfe0QpjyAJP2gBKrXshwIglGk9BPvEcMotb1yTPRE
-         /xb4WH2rIXe2r/x6zU45QRTs+mvgUZDP2pg1fZiA=
+        b=TbShGHRXwC3rkdPrC5L1LhHCg2fkQeO3UgQICNhWM6vnpd2A8Z2sIk76MTT7axwmS
+         GakAJvEAVXWreajxTmnahNIGcsRrCDTWR79Way1GA6GB7tfahO5lBrPpSkJSbgTHqX
+         AipmZ2m0fMpjo0s67vKKfCqYbyLPoSU6bUSHWoAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Liu <feliu@redhat.com>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 023/125] bnxt_en: fix NULL dereference in case SR-IOV configuration fails
-Date:   Mon, 20 Jul 2020 17:36:02 +0200
-Message-Id: <20200720152804.108300980@linuxfoundation.org>
+Subject: [PATCH 4.9 07/86] ARM: imx6: add missing put_device() call in imx6q_suspend_init()
+Date:   Mon, 20 Jul 2020 17:36:03 +0200
+Message-Id: <20200720152753.486641372@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit c8b1d7436045d3599bae56aef1682813ecccaad7 ]
+[ Upstream commit 4845446036fc9c13f43b54a65c9b757c14f5141b ]
 
-we need to set 'active_vfs' back to 0, if something goes wrong during the
-allocation of SR-IOV resources: otherwise, further VF configurations will
-wrongly assume that bp->pf.vf[x] are valid memory locations, and commands
-like the ones in the following sequence:
+if of_find_device_by_node() succeed, imx6q_suspend_init() doesn't have a
+corresponding put_device(). Thus add a jump target to fix the exception
+handling for this function implementation.
 
- # echo 2 >/sys/bus/pci/devices/${ADDR}/sriov_numvfs
- # ip link set dev ens1f0np0 up
- # ip link set dev ens1f0np0 vf 0 trust on
-
-will cause a kernel crash similar to this:
-
- bnxt_en 0000:3b:00.0: not enough MMIO resources for SR-IOV
- BUG: kernel NULL pointer dereference, address: 0000000000000014
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] SMP PTI
- CPU: 43 PID: 2059 Comm: ip Tainted: G          I       5.8.0-rc2.upstream+ #871
- Hardware name: Dell Inc. PowerEdge R740/08D89F, BIOS 2.2.11 06/13/2019
- RIP: 0010:bnxt_set_vf_trust+0x5b/0x110 [bnxt_en]
- Code: 44 24 58 31 c0 e8 f5 fb ff ff 85 c0 0f 85 b6 00 00 00 48 8d 1c 5b 41 89 c6 b9 0b 00 00 00 48 c1 e3 04 49 03 9c 24 f0 0e 00 00 <8b> 43 14 89 c2 83 c8 10 83 e2 ef 45 84 ed 49 89 e5 0f 44 c2 4c 89
- RSP: 0018:ffffac6246a1f570 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000000000b
- RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff98b28f538900
- RBP: ffff98b28f538900 R08: 0000000000000000 R09: 0000000000000008
- R10: ffffffffb9515be0 R11: ffffac6246a1f678 R12: ffff98b28f538000
- R13: 0000000000000001 R14: 0000000000000000 R15: ffffffffc05451e0
- FS:  00007fde0f688800(0000) GS:ffff98baffd40000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000014 CR3: 000000104bb0a003 CR4: 00000000007606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- PKRU: 55555554
- Call Trace:
-  do_setlink+0x994/0xfe0
-  __rtnl_newlink+0x544/0x8d0
-  rtnl_newlink+0x47/0x70
-  rtnetlink_rcv_msg+0x29f/0x350
-  netlink_rcv_skb+0x4a/0x110
-  netlink_unicast+0x21d/0x300
-  netlink_sendmsg+0x329/0x450
-  sock_sendmsg+0x5b/0x60
-  ____sys_sendmsg+0x204/0x280
-  ___sys_sendmsg+0x88/0xd0
-  __sys_sendmsg+0x5e/0xa0
-  do_syscall_64+0x47/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: c0c050c58d840 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Fei Liu <feliu@redhat.com>
-CC: Jonathan Toppins <jtoppins@redhat.com>
-CC: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Acked-by: Jonathan Toppins <jtoppins@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-imx/pm-imx6.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-index cef59b3b77a39..f0bc8f5246c0a 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-@@ -344,6 +344,7 @@ static void bnxt_free_vf_resources(struct bnxt *bp)
- 		}
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index dd9eb3f14f45c..6da26692f2fde 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -481,14 +481,14 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
  
-+	bp->pf.active_vfs = 0;
- 	kfree(bp->pf.vf);
- 	bp->pf.vf = NULL;
- }
-@@ -608,7 +609,6 @@ void bnxt_sriov_disable(struct bnxt *bp)
+ 	ocram_base = gen_pool_alloc(ocram_pool, MX6Q_SUSPEND_OCRAM_SIZE);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- 	bnxt_free_vf_resources(bp);
+ 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -511,7 +511,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	ret = imx6_pm_get_base(&pm_info->mmdc_base, socdata->mmdc_compat);
+ 	if (ret) {
+ 		pr_warn("%s: failed to get mmdc base %d!\n", __func__, ret);
+-		goto put_node;
++		goto put_device;
+ 	}
  
--	bp->pf.active_vfs = 0;
- 	/* Reclaim all resources for the PF. */
- 	rtnl_lock();
- 	bnxt_restore_pf_fw_resources(bp);
+ 	ret = imx6_pm_get_base(&pm_info->src_base, socdata->src_compat);
+@@ -558,7 +558,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 		&imx6_suspend,
+ 		MX6Q_SUSPEND_OCRAM_SIZE - sizeof(*pm_info));
+ 
+-	goto put_node;
++	goto put_device;
+ 
+ pl310_cache_map_failed:
+ 	iounmap(pm_info->gpc_base.vbase);
+@@ -568,6 +568,8 @@ iomuxc_map_failed:
+ 	iounmap(pm_info->src_base.vbase);
+ src_map_failed:
+ 	iounmap(pm_info->mmdc_base.vbase);
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
+ 
 -- 
 2.25.1
 
