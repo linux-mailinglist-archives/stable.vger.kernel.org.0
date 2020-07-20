@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6922E226BD7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5F1226AE6
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729898AbgGTPlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
+        id S1731756AbgGTQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:37:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729895AbgGTPla (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:41:30 -0400
+        id S1731272AbgGTPvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:51:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 066B322CF7;
-        Mon, 20 Jul 2020 15:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7D7D2065E;
+        Mon, 20 Jul 2020 15:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259689;
-        bh=eVx2whG+iEhdi/wNAA8mHJvtFWijfFiSbn2YqjBTA2Q=;
+        s=default; t=1595260305;
+        bh=gXd2bKTIRZQ5dzukdoEGDoUqIIkGPJUwCwsJrvbTHhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eosXuhfkhd9KI6B5CVtkAlxHOPYh3Bmuenz9MK785357xggTqwJksY9XRrmtn5nC8
-         OEb2fj+9S60BtMoQtjy7Q2KBgT7HCR315DoGIP5JvEygb5qTyMETgmWwtaKFqZuks0
-         +PMTVaLNxe5Jx4jLcl7gNixyM/HFDYzjinGxWCmo=
+        b=pv9StjLXPBB/oE0QWFHDh8WXGYC9gS5Sz0LKHJD7hYrt7EjJ0PmVmn03hhfV9nJ9s
+         7p54TQWrJK3aU12XBKYtk1nwNawWpYZ3Brp8gE/9zbY5Pt1JgNgCMqaa/Hk1J20rUZ
+         EbmoE4qPV3HV/t8eatiQrQBj6YGUQelluQHeZYDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.9 45/86] iio:pressure:ms5611 Fix buffer element alignment
+        stable@vger.kernel.org,
+        Emmanuel Pescosta <emmanuelpescosta099@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 054/133] ALSA: usb-audio: Add registration quirk for Kingston HyperX Cloud Alpha S
 Date:   Mon, 20 Jul 2020 17:36:41 +0200
-Message-Id: <20200720152755.428091647@linuxfoundation.org>
+Message-Id: <20200720152806.325546278@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
 
-commit 8db4afe163bbdd93dca6fcefbb831ef12ecc6b4d upstream.
+[ Upstream commit fd60e0683e8e9107e09cd2e4798f3e27e85d2705 ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-Here there is no data leak possibility so use an explicit structure
-on the stack to ensure alignment and nice readable fashion.
+Similar to the Kingston HyperX AMP, the Kingston HyperX Cloud
+Alpha S (0951:16d8) uses two interfaces, but only the second
+interface contains the capture stream. This patch delays the
+registration until the second interface appears.
 
-The forced alignment of ts isn't strictly necessary in this driver
-as the padding will be correct anyway (there isn't any).  However
-it is probably less fragile to have it there and it acts as
-documentation of the requirement.
-
-Fixes: 713bbb4efb9dc ("iio: pressure: ms5611: Add triggered buffer support")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
+Link: https://lore.kernel.org/r/20200404153843.9288-1-emmanuelpescosta099@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/ms5611_core.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ sound/usb/quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/pressure/ms5611_core.c
-+++ b/drivers/iio/pressure/ms5611_core.c
-@@ -215,16 +215,21 @@ static irqreturn_t ms5611_trigger_handle
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct ms5611_state *st = iio_priv(indio_dev);
--	s32 buf[4]; /* s32 (pressure) + s32 (temp) + 2 * s32 (timestamp) */
-+	/* Ensure buffer elements are naturally aligned */
-+	struct {
-+		s32 channels[2];
-+		s64 ts __aligned(8);
-+	} scan;
- 	int ret;
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 79c3787ad8fd8..15d7d1e92245c 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1527,6 +1527,7 @@ struct registration_quirk {
  
- 	mutex_lock(&st->lock);
--	ret = ms5611_read_temp_and_pressure(indio_dev, &buf[1], &buf[0]);
-+	ret = ms5611_read_temp_and_pressure(indio_dev, &scan.channels[1],
-+					    &scan.channels[0]);
- 	mutex_unlock(&st->lock);
- 	if (ret < 0)
- 		goto err;
+ static const struct registration_quirk registration_quirks[] = {
+ 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
++	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
+ 	{ 0 }					/* terminator */
+ };
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
- 					   iio_get_time_ns(indio_dev));
- 
- err:
+-- 
+2.25.1
+
 
 
