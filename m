@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC45B226376
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEBA2263A8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726389AbgGTPha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55576 "EHLO mail.kernel.org"
+        id S1729357AbgGTPjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:39:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728448AbgGTPh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:37:28 -0400
+        id S1729345AbgGTPi7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:38:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F00F22CB2;
-        Mon, 20 Jul 2020 15:37:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCF4322D05;
+        Mon, 20 Jul 2020 15:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259448;
-        bh=3AQAN1Qxu/m9Dtqgi0RZiG7hIv+XF0YYpsIK7Wz9AgQ=;
+        s=default; t=1595259538;
+        bh=HvLjSETqSGwPJTCtt7FAZ1rCHmOP8smwQD4IRxTnFBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SohF6jMqMXyCvT/WMA8rPuwD5FctOs2r5MsNe6RuK2bdNMTZwEMJ750fTIZ/2CZV1
-         JjSQLJR0hKXieyTAFFox5JP9gJTSySrViu2IKCs18hWXBeCzfsCefMMK1SPh1Vv2o9
-         7GdsLJRzJzfFukfLc+WttvhowiEEBo5t7jwVT+HQ=
+        b=Ar+viXEXEV2u0QGz3Jdn+RJoZY6SPq2JjCbhi6Q1ZSJd7jUK/spo4B6J9a6yWROVu
+         OjG/idS0d5V/g/IjZO9ZkLc5RJCI+9g8ds5Nvs805YAO6rMyiu633IZn1eHKHVjp1Q
+         xqzw6kKt9aeauTVcklBXNNp7wDnBE8qIV6/ws7iE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Stanislav Saner <ssaner@redhat.com>,
+        Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/58] spi: spidev: fix a potential use-after-free in spidev_release()
-Date:   Mon, 20 Jul 2020 17:36:19 +0200
-Message-Id: <20200720152747.297093674@linuxfoundation.org>
+Subject: [PATCH 4.4 04/58] scsi: mptscsih: Fix read sense data size
+Date:   Mon, 20 Jul 2020 17:36:20 +0200
+Message-Id: <20200720152747.357291006@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
 References: <20200720152747.127988571@linuxfoundation.org>
@@ -44,74 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit 06096cc6c5a84ced929634b0d79376b94c65a4bd ]
+[ Upstream commit afe89f115e84edbc76d316759e206580a06c6973 ]
 
-If an spi device is unbounded from the driver before the release
-process, there will be an NULL pointer reference when it's
-referenced in spi_slave_abort().
+The sense data buffer in sense_buf_pool is allocated with size of
+MPT_SENSE_BUFFER_ALLOC(64) (multiplied by req_depth) while SNS_LEN(sc)(96)
+is used when reading the data.  That may lead to a read from unallocated
+area, sometimes from another (unallocated) page.  To fix this, limit the
+read size to MPT_SENSE_BUFFER_ALLOC.
 
-Fix it by checking it's already freed before reference.
-
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Link: https://lore.kernel.org/r/20200618032125.4650-2-zhenzhong.duan@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200616150446.4840-1-thenzl@redhat.com
+Co-developed-by: Stanislav Saner <ssaner@redhat.com>
+Signed-off-by: Stanislav Saner <ssaner@redhat.com>
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/message/fusion/mptscsih.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 80beb8406f200..7969f5484aee8 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -635,15 +635,20 @@ err_find_dev:
- static int spidev_release(struct inode *inode, struct file *filp)
- {
- 	struct spidev_data	*spidev;
-+	int			dofree;
- 
- 	mutex_lock(&device_list_lock);
- 	spidev = filp->private_data;
- 	filp->private_data = NULL;
- 
-+	spin_lock_irq(&spidev->spi_lock);
-+	/* ... after we unbound from the underlying device? */
-+	dofree = (spidev->spi == NULL);
-+	spin_unlock_irq(&spidev->spi_lock);
-+
- 	/* last close? */
- 	spidev->users--;
- 	if (!spidev->users) {
--		int		dofree;
- 
- 		kfree(spidev->tx_buffer);
- 		spidev->tx_buffer = NULL;
-@@ -651,19 +656,14 @@ static int spidev_release(struct inode *inode, struct file *filp)
- 		kfree(spidev->rx_buffer);
- 		spidev->rx_buffer = NULL;
- 
--		spin_lock_irq(&spidev->spi_lock);
--		if (spidev->spi)
--			spidev->speed_hz = spidev->spi->max_speed_hz;
--
--		/* ... after we unbound from the underlying device? */
--		dofree = (spidev->spi == NULL);
--		spin_unlock_irq(&spidev->spi_lock);
--
- 		if (dofree)
- 			kfree(spidev);
-+		else
-+			spidev->speed_hz = spidev->spi->max_speed_hz;
- 	}
- #ifdef CONFIG_SPI_SLAVE
--	spi_slave_abort(spidev->spi);
-+	if (!dofree)
-+		spi_slave_abort(spidev->spi);
+diff --git a/drivers/message/fusion/mptscsih.c b/drivers/message/fusion/mptscsih.c
+index 6c9fc11efb872..e77185e143ab7 100644
+--- a/drivers/message/fusion/mptscsih.c
++++ b/drivers/message/fusion/mptscsih.c
+@@ -118,8 +118,6 @@ int 		mptscsih_suspend(struct pci_dev *pdev, pm_message_t state);
+ int 		mptscsih_resume(struct pci_dev *pdev);
  #endif
- 	mutex_unlock(&device_list_lock);
  
+-#define SNS_LEN(scp)	SCSI_SENSE_BUFFERSIZE
+-
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ /*
+@@ -2427,7 +2425,7 @@ mptscsih_copy_sense_data(struct scsi_cmnd *sc, MPT_SCSI_HOST *hd, MPT_FRAME_HDR
+ 		/* Copy the sense received into the scsi command block. */
+ 		req_index = le16_to_cpu(mf->u.frame.hwhdr.msgctxu.fld.req_idx);
+ 		sense_data = ((u8 *)ioc->sense_buf_pool + (req_index * MPT_SENSE_BUFFER_ALLOC));
+-		memcpy(sc->sense_buffer, sense_data, SNS_LEN(sc));
++		memcpy(sc->sense_buffer, sense_data, MPT_SENSE_BUFFER_ALLOC);
+ 
+ 		/* Log SMART data (asc = 0x5D, non-IM case only) if required.
+ 		 */
 -- 
 2.25.1
 
