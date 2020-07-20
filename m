@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59031226A99
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C66226ABF
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730505AbgGTPxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:53:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51568 "EHLO mail.kernel.org"
+        id S1730981AbgGTPtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:49:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730407AbgGTPxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:11 -0400
+        id S1729386AbgGTPtK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:49:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B29F62065E;
-        Mon, 20 Jul 2020 15:53:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33B1C206E9;
+        Mon, 20 Jul 2020 15:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260391;
-        bh=FvbEbj9zDmGUluItPBrqCuYmOC1pzcSCb26Tocy+TK8=;
+        s=default; t=1595260149;
+        bh=Ii21Y4dB2dtPOuktMfoSercnM/W9406kERuSR4p265M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydTvQTuH4DIMTer6QVWh+GrY8+ckhs+oOMGiiv1BazAjr1foyxLwKbO4+xKqwU9/m
-         sT3airLsC/8p7ZFmwbSrYoVsMwh07HomiTZLJCiIiMCdWU1uzlA1E1J2YZuLR3Er4r
-         u1kYT7hD+JEhBJlKfCiiWSLzyCDTo8Apc6vbXdQc=
+        b=ZEbaydjhJyAuZUP1r2VgqgIYFSkx36RWvIJWxTbwTZm82RRcddvUKvStVYKhV8ak7
+         tJ5Mzd/lrJlmgrDduB/ZLPMbHV9VOryMxnmQAXu29xwMK/YKmDckwt7c71icb350DB
+         O6w2YYm3+mx9JyK4c9UAIECHTxl+kyorraezLbS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c190f6858a04ea7fbc52@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 085/133] ALSA: line6: Perform sanity check for each URB creation
-Date:   Mon, 20 Jul 2020 17:37:12 +0200
-Message-Id: <20200720152807.819235827@linuxfoundation.org>
+        stable@vger.kernel.org, Yariv <oigevald+kernel@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 094/125] HID: magicmouse: do not set up autorepeat
+Date:   Mon, 20 Jul 2020 17:37:13 +0200
+Message-Id: <20200720152807.562768192@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 6e8a914ad619042c5f25a4feb663357c4170fd8d upstream.
+commit 6363d2065cd399cf9d6dc9d08c437f8658831100 upstream.
 
-LINE6 drivers create stream URBs with a fixed pipe without checking
-its validity, and this may lead to a kernel WARNING at the submission
-when a malformed USB descriptor is passed.
+Neither the trackpad, nor the mouse want input core to generate autorepeat
+events for their buttons, so let's reset the bit (as hid-input sets it for
+these devices based on the usage vendor code).
 
-For avoiding the kernel warning, perform the similar sanity checks for
-each pipe type at creating a URB.
-
-Reported-by: syzbot+c190f6858a04ea7fbc52@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/s5hv9iv4hq8.wl-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Reported-by: Yariv <oigevald+kernel@gmail.com>
+Tested-by: Yariv <oigevald+kernel@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/capture.c  |    2 ++
- sound/usb/line6/playback.c |    2 ++
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-magicmouse.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/sound/usb/line6/capture.c
-+++ b/sound/usb/line6/capture.c
-@@ -291,6 +291,8 @@ int line6_create_audio_in_urbs(struct sn
- 		urb->interval = LINE6_ISO_INTERVAL;
- 		urb->error_count = 0;
- 		urb->complete = audio_in_callback;
-+		if (usb_urb_ep_type_check(urb))
-+			return -EINVAL;
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -451,6 +451,12 @@ static int magicmouse_setup_input(struct
+ 		__set_bit(MSC_RAW, input->mscbit);
  	}
  
++	/*
++	 * hid-input may mark device as using autorepeat, but neither
++	 * the trackpad, nor the mouse actually want it.
++	 */
++	__clear_bit(EV_REP, input->evbit);
++
  	return 0;
---- a/sound/usb/line6/playback.c
-+++ b/sound/usb/line6/playback.c
-@@ -436,6 +436,8 @@ int line6_create_audio_out_urbs(struct s
- 		urb->interval = LINE6_ISO_INTERVAL;
- 		urb->error_count = 0;
- 		urb->complete = audio_out_callback;
-+		if (usb_urb_ep_type_check(urb))
-+			return -EINVAL;
- 	}
+ }
  
- 	return 0;
 
 
