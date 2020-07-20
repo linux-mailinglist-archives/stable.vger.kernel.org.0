@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68B082267EA
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA5272266AE
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387922AbgGTQPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:15:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56726 "EHLO mail.kernel.org"
+        id S1732960AbgGTQFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:05:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388452AbgGTQPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:15:45 -0400
+        id S1732417AbgGTQFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:05:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D96222064B;
-        Mon, 20 Jul 2020 16:15:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A393B206E9;
+        Mon, 20 Jul 2020 16:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261744;
-        bh=Uv5flyql7EogvRvn4rbLtyNvjWQ4u+X8dHYmaD+qbfA=;
+        s=default; t=1595261118;
+        bh=vLX9FaXwbX361xZKoxrNQ5wbHdFNkfiK2AFD3ea92PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyKTHbyK/6UrByCqx3a8OKN8KFoWZ0Fw3DTvXY7cgISH5Y6ChWEY97L0Nv7zJp3D9
-         HnEUq2aWiZvf6BWK5Av/vyIK0Z+ZVHTfMGcEvy9mofCfJZ7KD47/WOKkjBmMHYUZ3o
-         0zYMI7f+e2mp8due5owzC/967d2lYkUMy3mySXJc=
+        b=sus9yuXbuFXdJ+CCicfgw6dY7fj+pizYCl2g75MLyz+xakAU0sHvDhYgxoxo4OUiU
+         5/iPEK2MW1RBFjmQJmJwShqkm4Qm9x+RiOFpNJvHFySCHorohSSr5bPPTkaml8rDTc
+         jglM2gN5aHrNI8mhvoAUDJ4LmSBjC7OHDXuM7wjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josip Pavic <Josip.Pavic@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.7 226/244] drm/amd/display: handle failed allocation during stream construction
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.4 215/215] gpio: pca953x: disable regmap locking for automatic address incrementing
 Date:   Mon, 20 Jul 2020 17:38:17 +0200
-Message-Id: <20200720152836.603503000@linuxfoundation.org>
+Message-Id: <20200720152830.376869792@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josip Pavic <Josip.Pavic@amd.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit be73e608ae2711dc8a1ab8b9549d9e348061b2ee upstream.
+commit ec3decd21380081e3b5de4ba8d85d90a95f201a0 upstream.
 
-[Why]
-Failing to allocate a transfer function during stream construction leads
-to a null pointer dereference
+It's a repetition of the commit aa58a21ae378
+  ("gpio: pca953x: disable regmap locking")
+which states the following:
 
-[How]
-Handle the failed allocation by failing the stream construction
+  This driver uses its own locking but regmap silently uses
+  a mutex for all operations too. Add the option to disable
+  locking to the regmap config struct.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Josip Pavic <Josip.Pavic@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: bcf41dc480b1 ("gpio: pca953x: fix handling of automatic address incrementing")
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_stream.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-pca953x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-@@ -56,7 +56,7 @@ void update_stream_signal(struct dc_stre
- 	}
- }
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -398,6 +398,7 @@ static const struct regmap_config pca953
+ 	.writeable_reg = pca953x_writeable_register,
+ 	.volatile_reg = pca953x_volatile_register,
  
--static void dc_stream_construct(struct dc_stream_state *stream,
-+static bool dc_stream_construct(struct dc_stream_state *stream,
- 	struct dc_sink *dc_sink_data)
- {
- 	uint32_t i = 0;
-@@ -118,11 +118,17 @@ static void dc_stream_construct(struct d
- 	update_stream_signal(stream, dc_sink_data);
- 
- 	stream->out_transfer_func = dc_create_transfer_func();
-+	if (stream->out_transfer_func == NULL) {
-+		dc_sink_release(dc_sink_data);
-+		return false;
-+	}
- 	stream->out_transfer_func->type = TF_TYPE_BYPASS;
- 	stream->out_transfer_func->ctx = stream->ctx;
- 
- 	stream->stream_id = stream->ctx->dc_stream_id_count;
- 	stream->ctx->dc_stream_id_count++;
-+
-+	return true;
- }
- 
- static void dc_stream_destruct(struct dc_stream_state *stream)
-@@ -164,13 +170,20 @@ struct dc_stream_state *dc_create_stream
- 
- 	stream = kzalloc(sizeof(struct dc_stream_state), GFP_KERNEL);
- 	if (stream == NULL)
--		return NULL;
-+		goto alloc_fail;
- 
--	dc_stream_construct(stream, sink);
-+	if (dc_stream_construct(stream, sink) == false)
-+		goto construct_fail;
- 
- 	kref_init(&stream->refcount);
- 
- 	return stream;
-+
-+construct_fail:
-+	kfree(stream);
-+
-+alloc_fail:
-+	return NULL;
- }
- 
- struct dc_stream_state *dc_copy_stream(const struct dc_stream_state *stream)
++	.disable_locking = true,
+ 	.cache_type = REGCACHE_RBTREE,
+ 	.max_register = 0x7f,
+ };
 
 
