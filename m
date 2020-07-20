@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5EC22682E
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:18:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A250222668A
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388273AbgGTQOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:14:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
+        id S1732809AbgGTQEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388271AbgGTQOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:14:30 -0400
+        id S1732590AbgGTQEE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:04:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F285320684;
-        Mon, 20 Jul 2020 16:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D24CC20773;
+        Mon, 20 Jul 2020 16:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261669;
-        bh=oCqEXrTFfYzvCucMV7gFfqEy+cvS22N40zuJ4tPIm1I=;
+        s=default; t=1595261043;
+        bh=B3Bb4Lnno2qpjP9vt8hrDEQ574TUdIAISvH8Q5nSA0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2I9jtNlhYyv6FZUPlV43HD29UP0WL3ieIg5UM1193OilBbxbu+r2yPz6NyfZtdN/Y
-         bHJ4DxiK2yBXowbGxxmsVMLCpxAbfSPZp6Y0IOSyqDshdq4lzSZZY4EUiX7V956SEK
-         Nh5iX+QdSqmjUGaQcujxrVco4eQdSlaWXnls7CWo=
+        b=l4kskRoOaJ2LFJ6Zde2L5RfzwHe9GsigVXUaNreLFTkbWd/NDnVJQxFmnx46/vcBL
+         2qYsJv/KB2PCDl5IKQApht/xVr8CqdhMNi28x7gUjaAJO/vl/iOJdldnCx7l9iSLUi
+         0QGHRlrbeCZQPo3GV1eBLxJbHSVo+ETpB1HAOiNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 199/244] powerpc/book3s64/pkeys: Fix pkey_access_permitted() for execute disable pkey
+Subject: [PATCH 5.4 188/215] powerpc/pseries/svm: Fix incorrect check for shared_lppaca_size
 Date:   Mon, 20 Jul 2020 17:37:50 +0200
-Message-Id: <20200720152835.310813986@linuxfoundation.org>
+Message-Id: <20200720152829.123258757@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,155 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
 
-commit 192b6a780598976feb7321ff007754f8511a4129 upstream.
+commit b710d27bf72068b15b2f0305d825988183e2ff28 upstream.
 
-Even if the IAMR value denies execute access, the current code returns
-true from pkey_access_permitted() for an execute permission check, if
-the AMR read pkey bit is cleared.
+Early secure guest boot hits the below crash while booting with
+vcpus numbers aligned with page boundary for PAGE size of 64k
+and LPPACA size of 1k i.e 64, 128 etc.
 
-This results in repeated page fault loop with a test like below:
+  Partition configured for 64 cpus.
+  CPU maps initialized for 1 thread per core
+  ------------[ cut here ]------------
+  kernel BUG at arch/powerpc/kernel/paca.c:89!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
 
-  #define _GNU_SOURCE
-  #include <errno.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <signal.h>
-  #include <inttypes.h>
+This is due to the BUG_ON() for shared_lppaca_total_size equal to
+shared_lppaca_size. Instead the code should only BUG_ON() if we have
+exceeded the total_size, which indicates we've overflowed the array.
 
-  #include <assert.h>
-  #include <malloc.h>
-  #include <unistd.h>
-  #include <pthread.h>
-  #include <sys/mman.h>
-
-  #ifdef SYS_pkey_mprotect
-  #undef SYS_pkey_mprotect
-  #endif
-
-  #ifdef SYS_pkey_alloc
-  #undef SYS_pkey_alloc
-  #endif
-
-  #ifdef SYS_pkey_free
-  #undef SYS_pkey_free
-  #endif
-
-  #undef PKEY_DISABLE_EXECUTE
-  #define PKEY_DISABLE_EXECUTE	0x4
-
-  #define SYS_pkey_mprotect	386
-  #define SYS_pkey_alloc		384
-  #define SYS_pkey_free		385
-
-  #define PPC_INST_NOP		0x60000000
-  #define PPC_INST_BLR		0x4e800020
-  #define PROT_RWX		(PROT_READ | PROT_WRITE | PROT_EXEC)
-
-  static int sys_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
-  {
-  	return syscall(SYS_pkey_mprotect, addr, len, prot, pkey);
-  }
-
-  static int sys_pkey_alloc(unsigned long flags, unsigned long access_rights)
-  {
-  	return syscall(SYS_pkey_alloc, flags, access_rights);
-  }
-
-  static int sys_pkey_free(int pkey)
-  {
-  	return syscall(SYS_pkey_free, pkey);
-  }
-
-  static void do_execute(void *region)
-  {
-  	/* jump to region */
-  	asm volatile(
-  		"mtctr	%0;"
-  		"bctrl"
-  		: : "r"(region) : "ctr", "lr");
-  }
-
-  static void do_protect(void *region)
-  {
-  	size_t pgsize;
-  	int i, pkey;
-
-  	pgsize = getpagesize();
-
-  	pkey = sys_pkey_alloc(0, PKEY_DISABLE_EXECUTE);
-  	assert (pkey > 0);
-
-  	/* perform mprotect */
-  	assert(!sys_pkey_mprotect(region, pgsize, PROT_RWX, pkey));
-  	do_execute(region);
-
-  	/* free pkey */
-  	assert(!sys_pkey_free(pkey));
-
-  }
-
-  int main(int argc, char **argv)
-  {
-  	size_t pgsize, numinsns;
-  	unsigned int *region;
-  	int i;
-
-  	/* allocate memory region to protect */
-  	pgsize = getpagesize();
-  	region = memalign(pgsize, pgsize);
-  	assert(region != NULL);
-  	assert(!mprotect(region, pgsize, PROT_RWX));
-
-  	/* fill page with NOPs with a BLR at the end */
-  	numinsns = pgsize / sizeof(region[0]);
-  	for (i = 0; i < numinsns - 1; i++)
-  		region[i] = PPC_INST_NOP;
-  	region[i] = PPC_INST_BLR;
-
-  	do_protect(region);
-
-  	return EXIT_SUCCESS;
-  }
-
-The fix is to only check the IAMR for an execute check, the AMR value
-is not relevant.
-
-Fixes: f2407ef3ba22 ("powerpc: helper to validate key-access permissions of a pte")
-Cc: stable@vger.kernel.org # v4.16+
-Reported-by: Sandipan Das <sandipan@linux.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-[mpe: Add detail to change log, tweak wording & formatting]
+Fixes: bd104e6db6f0 ("powerpc/pseries/svm: Use shared memory for LPPACA structures")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
+Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+[mpe: Reword change log to clarify we're fixing not removing the check]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200712132047.1038594-1-aneesh.kumar@linux.ibm.com
+Link: https://lore.kernel.org/r/20200619070113.16696-1-sathnaga@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/book3s64/pkeys.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/paca.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/book3s64/pkeys.c
-+++ b/arch/powerpc/mm/book3s64/pkeys.c
-@@ -357,12 +357,14 @@ static bool pkey_access_permitted(int pk
- 		return true;
+--- a/arch/powerpc/kernel/paca.c
++++ b/arch/powerpc/kernel/paca.c
+@@ -86,7 +86,7 @@ static void *__init alloc_shared_lppaca(
+ 	 * This is very early in boot, so no harm done if the kernel crashes at
+ 	 * this point.
+ 	 */
+-	BUG_ON(shared_lppaca_size >= shared_lppaca_total_size);
++	BUG_ON(shared_lppaca_size > shared_lppaca_total_size);
  
- 	pkey_shift = pkeyshift(pkey);
--	if (execute && !(read_iamr() & (IAMR_EX_BIT << pkey_shift)))
--		return true;
-+	if (execute)
-+		return !(read_iamr() & (IAMR_EX_BIT << pkey_shift));
-+
-+	amr = read_amr();
-+	if (write)
-+		return !(amr & (AMR_WR_BIT << pkey_shift));
- 
--	amr = read_amr(); /* Delay reading amr until absolutely needed */
--	return ((!write && !(amr & (AMR_RD_BIT << pkey_shift))) ||
--		(write &&  !(amr & (AMR_WR_BIT << pkey_shift))));
-+	return !(amr & (AMR_RD_BIT << pkey_shift));
+ 	return ptr;
  }
- 
- bool arch_pte_access_permitted(u64 pte, bool write, bool execute)
 
 
