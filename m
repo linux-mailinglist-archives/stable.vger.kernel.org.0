@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC47422641D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC3C2264D5
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729391AbgGTPmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
+        id S1730722AbgGTPrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730022AbgGTPmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:42:11 -0400
+        id S1730715AbgGTPrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:47:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 482C122CF6;
-        Mon, 20 Jul 2020 15:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A66062065E;
+        Mon, 20 Jul 2020 15:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259730;
-        bh=aDXyZSup/tyHwbuuJAR296adUriUMYZPaAMIGGnLs5M=;
+        s=default; t=1595260020;
+        bh=fBoNzMQzm3BsBq+QNOsWa2q+IQ389zXSjgJitdgmLCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ul42pafqrVhjzo6uh1gmZHYWUfTzCWELJGD33i0NRP4lPZtq8QHSWJxAiewHFlgpa
-         0tVfGHDWdJpj+zmi2JKdqP4c9XXE8MEcSXHqZxnVkm52EdZhV/ZHrJFELHhUWVlUK6
-         IhpimV3R+2Ig72TwEu3NJf2LINrJVrcq1bB1bJBM=
+        b=DTrNlpRgvp1f8ldNP1nruBGL4GqFt3HWrcHvFqgDCN30Hu/3hLlQ/k8yruJe+28Dx
+         tAyjmqIU/dF0eduVIPYMbDJa2+a/00ou5C9DCqrWTma8kFy4enaPsXgMdwCWDNEUH9
+         nlJfLZYIAjwIFDpxG7qEFPnEUD7SbQdtF9t2ecTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.9 59/86] mtd: rawnand: brcmnand: fix CS0 layout
-Date:   Mon, 20 Jul 2020 17:36:55 +0200
-Message-Id: <20200720152756.132846580@linuxfoundation.org>
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 077/125] mmc: sdhci: do not enable card detect interrupt for gpio cd type
+Date:   Mon, 20 Jul 2020 17:36:56 +0200
+Message-Id: <20200720152806.723963127@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit 3d3fb3c5be9ce07fa85d8f67fb3922e4613b955b upstream.
+[ Upstream commit e65bb38824711559844ba932132f417bc5a355e2 ]
 
-Only v3.3-v5.0 have a different CS0 layout.
-Controllers before v3.3 use the same layout for every CS.
+Except SDHCI_QUIRK_BROKEN_CARD_DETECTION and MMC_CAP_NONREMOVABLE,
+we also do not need to handle controller native card detect interrupt
+for gpio cd type.
+If we wrong enabled the card detect interrupt for gpio case, it will
+cause a lot of unexpected card detect interrupts during data transfer
+which should not happen.
 
-Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200522121524.4161539-3-noltari@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/1582100563-20555-2-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/brcmnand/brcmnand.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/brcmnand/brcmnand.c
-@@ -491,8 +491,9 @@ static int brcmnand_revision_init(struct
- 	} else {
- 		ctrl->cs_offsets = brcmnand_cs_offsets;
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 4f1c884c0b508..33028099d3a01 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -133,7 +133,7 @@ static void sdhci_set_card_detection(struct sdhci_host *host, bool enable)
+ 	u32 present;
  
--		/* v5.0 and earlier has a different CS0 offset layout */
--		if (ctrl->nand_version <= 0x0500)
-+		/* v3.3-5.0 have a different CS0 offset layout */
-+		if (ctrl->nand_version >= 0x0303 &&
-+		    ctrl->nand_version <= 0x0500)
- 			ctrl->cs0_offsets = brcmnand_cs_offsets_cs0;
- 	}
+ 	if ((host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
+-	    !mmc_card_is_removable(host->mmc))
++	    !mmc_card_is_removable(host->mmc) || mmc_can_gpio_cd(host->mmc))
+ 		return;
  
+ 	if (enable) {
+-- 
+2.25.1
+
 
 
