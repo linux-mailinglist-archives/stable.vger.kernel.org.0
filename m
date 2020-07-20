@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C45642270D7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C00D2270D8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 23:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728488AbgGTVjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728493AbgGTVjc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 20 Jul 2020 17:39:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59228 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728479AbgGTVja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:30 -0400
+        id S1728483AbgGTVjc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7364822CBB;
-        Mon, 20 Jul 2020 21:39:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AED9922CF7;
+        Mon, 20 Jul 2020 21:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281170;
-        bh=kB41gXh/gK69Ub+thQTzV8vVMeVaJNEl8ZZLFyl95ZQ=;
+        s=default; t=1595281171;
+        bh=eD4zAKWlWfvLrHL1FEoXL3TH2eqc9KqDLJjKPzym2uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QzaV/5Cn//U7bvjCp4E2bVZJpU7Eyd86OfPUkC8l+SQrbjlkOKTfjHwp2To6Ge7ah
-         TOrunyaXXWo5B0EXIuHLor7MpscS6CwdHGp4DAdeRhPX4u31J7+Tp1I8tNSSeadyFt
-         eXIRi2ew2wZrK63qTRuM1Xmya32MZz/RpJsmIf1U=
+        b=TItpyXPII3ZKip6OZIsdVkAR5KBAKOMB+qs7CphCESLZNAOSQV+eiSeBM8ieSIS+W
+         bPuJzFYByn7KOmbRATHlE3Pfv9HCJav8GGaiA1M4jdNdQkzlczf3g69BkdhyGbXqKf
+         WRlujLNmDxbn8C6Rg/GToTeBagU3j7STMhX3Cju8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 12/13] x86: math-emu: Fix up 'cmp' insn for clang ias
-Date:   Mon, 20 Jul 2020 17:39:13 -0400
-Message-Id: <20200720213914.407919-12-sashal@kernel.org>
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 13/13] SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
+Date:   Mon, 20 Jul 2020 17:39:14 -0400
+Message-Id: <20200720213914.407919-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213914.407919-1-sashal@kernel.org>
 References: <20200720213914.407919-1-sashal@kernel.org>
@@ -45,41 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 81e96851ea32deb2c921c870eecabf335f598aeb ]
+[ Upstream commit 65caafd0d2145d1dd02072c4ced540624daeab40 ]
 
-The clang integrated assembler requires the 'cmp' instruction to
-have a length prefix here:
+Reverting commit d03727b248d0 "NFSv4 fix CLOSE not waiting for
+direct IO compeletion". This patch made it so that fput() by calling
+inode_dio_done() in nfs_file_release() would wait uninterruptably
+for any outstanding directIO to the file (but that wait on IO should
+be killable).
 
-arch/x86/math-emu/wm_sqrt.S:212:2: error: ambiguous instructions require an explicit suffix (could be 'cmpb', 'cmpw', or 'cmpl')
- cmp $0xffffffff,-24(%ebp)
- ^
+The problem the patch was also trying to address was REMOVE returning
+ERR_ACCESS because the file is still opened, is supposed to be resolved
+by server returning ERR_FILE_OPEN and not ERR_ACCESS.
 
-Make this a 32-bit comparison, which it was clearly meant to be.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lkml.kernel.org/r/20200527135352.1198078-1-arnd@arndb.de
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/math-emu/wm_sqrt.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/direct.c | 13 ++++---------
+ fs/nfs/file.c   |  1 -
+ 2 files changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/math-emu/wm_sqrt.S b/arch/x86/math-emu/wm_sqrt.S
-index f031c0e193565..515cdee90df72 100644
---- a/arch/x86/math-emu/wm_sqrt.S
-+++ b/arch/x86/math-emu/wm_sqrt.S
-@@ -209,7 +209,7 @@ sqrt_stage_2_finish:
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 3cef33b0f7e08..e6ea4511c41ce 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -396,6 +396,8 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
+ {
+ 	struct inode *inode = dreq->inode;
  
- #ifdef PARANOID
- /* It should be possible to get here only if the arg is ffff....ffff */
--	cmp	$0xffffffff,FPU_fsqrt_arg_1
-+	cmpl	$0xffffffff,FPU_fsqrt_arg_1
- 	jnz	sqrt_stage_2_error
- #endif /* PARANOID */
++	inode_dio_end(inode);
++
+ 	if (dreq->iocb) {
+ 		long res = (long) dreq->error;
+ 		if (dreq->count != 0) {
+@@ -407,10 +409,7 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
  
+ 	complete(&dreq->completion);
+ 
+-	igrab(inode);
+ 	nfs_direct_req_release(dreq);
+-	inode_dio_end(inode);
+-	iput(inode);
+ }
+ 
+ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
+@@ -540,10 +539,8 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		igrab(inode);
+-		nfs_direct_req_release(dreq);
+ 		inode_dio_end(inode);
+-		iput(inode);
++		nfs_direct_req_release(dreq);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+@@ -960,10 +957,8 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		igrab(inode);
+-		nfs_direct_req_release(dreq);
+ 		inode_dio_end(inode);
+-		iput(inode);
++		nfs_direct_req_release(dreq);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 7da2cea1e7a06..81cca49a83750 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -82,7 +82,6 @@ nfs_file_release(struct inode *inode, struct file *filp)
+ 	dprintk("NFS: release(%pD2)\n", filp);
+ 
+ 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
+-	inode_dio_wait(inode);
+ 	nfs_file_clear_open_context(filp);
+ 	return 0;
+ }
 -- 
 2.25.1
 
