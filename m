@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E2D226B3D
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B863A226B50
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728795AbgGTQkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:40:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42430 "EHLO mail.kernel.org"
+        id S1730239AbgGTPna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:43:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730752AbgGTPrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:47:19 -0400
+        id S1729711AbgGTPn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:43:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AFFF2065E;
-        Mon, 20 Jul 2020 15:47:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50C882176B;
+        Mon, 20 Jul 2020 15:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260038;
-        bh=6tjy0WJNNWDwPU1CTmUUpnIdSjE0etRp+xsOx3xzA50=;
+        s=default; t=1595259808;
+        bh=m681DT4o3aG8++UII+u8CSlUWPO3GIpQI3OqZ06SJLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBkUVgfWZg5CsRGWewMY0WnmA681nSmZpj0Q1lI9uS63HXtacD1OzBeKiMMWae6Ca
-         wHSOZehVDM2TxH7QUCX6EPIp0seSrshDOvqZdj94UHQIE1GKYUPtLSFQZQjVzuOJd5
-         nOKZf0B5/NBORQrVG4YvsztDe3kcVNoefg9nMgk4=
+        b=b0D1jjLxW2KCkClIhdCLfFLhIoLigBUW4W5puaCPfJvtMTr/V5zz4IRZvdKSSoGkB
+         fdxS84grpX2Ef6GA5dWQDU11h/UC2grwCMUdzMuFk8hLHcbHmyyOja7fFCDHFSqh4t
+         iGNj5Y9pGvgegb+2sqnhPyLtAW1PavpbM2ERZFFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Maxime Ripard <mripard@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/125] spi: spi-sun6i: sun6i_spi_transfer_one(): fix setting of clock rate
+        stable@vger.kernel.org,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.9 66/86] usb: chipidea: core: add wakeup support for extcon
 Date:   Mon, 20 Jul 2020 17:37:02 +0200
-Message-Id: <20200720152807.029149590@linuxfoundation.org>
+Message-Id: <20200720152756.491357480@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit ed7815db70d17b1741883f2da8e1d80bc2efe517 ]
+commit 876d4e1e8298ad1f94d9e9392fc90486755437b4 upstream.
 
-A SPI transfer defines the _maximum_ speed of the SPI transfer. However the
-driver doesn't take into account that the clock divider is always rounded down
-(due to integer arithmetics). This results in a too high clock rate for the SPI
-transfer.
+If wakeup event occurred by extcon event, it needs to call
+ci_irq again since the first ci_irq calling at extcon notifier
+only wakes up controller, but do noop for event handling,
+it causes the extcon use case can't work well from low power mode.
 
-E.g.: with a mclk_rate of 24 MHz and a SPI transfer speed of 10 MHz, the
-original code calculates a reg of "0", which results in a effective divider of
-"2" and a 12 MHz clock for the SPI transfer.
+Cc: <stable@vger.kernel.org>
+Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
+Reported-by: Philippe Schenker <philippe.schenker@toradex.com>
+Tested-by: Philippe Schenker <philippe.schenker@toradex.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200707060601.31907-2-peter.chen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This patch fixes the issue by using DIV_ROUND_UP() instead of a plain
-integer division.
-
-While there simplify the divider calculation for the CDR1 case, use
-order_base_2() instead of two ilog2() calculations.
-
-Fixes: 3558fe900e8a ("spi: sunxi: Add Allwinner A31 SPI controller driver")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Link: https://lore.kernel.org/r/20200706143443.9855-2-mkl@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-sun6i.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/usb/chipidea/core.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
-index 8533f4edd00af..21a22d42818c8 100644
---- a/drivers/spi/spi-sun6i.c
-+++ b/drivers/spi/spi-sun6i.c
-@@ -202,7 +202,7 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
- 				  struct spi_transfer *tfr)
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -1110,6 +1110,29 @@ static void ci_controller_suspend(struct
+ 	enable_irq(ci->irq);
+ }
+ 
++/*
++ * Handle the wakeup interrupt triggered by extcon connector
++ * We need to call ci_irq again for extcon since the first
++ * interrupt (wakeup int) only let the controller be out of
++ * low power mode, but not handle any interrupts.
++ */
++static void ci_extcon_wakeup_int(struct ci_hdrc *ci)
++{
++	struct ci_hdrc_cable *cable_id, *cable_vbus;
++	u32 otgsc = hw_read_otgsc(ci, ~0);
++
++	cable_id = &ci->platdata->id_extcon;
++	cable_vbus = &ci->platdata->vbus_extcon;
++
++	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
++		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
++		ci_irq(ci->irq, ci);
++
++	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
++		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
++		ci_irq(ci->irq, ci);
++}
++
+ static int ci_controller_resume(struct device *dev)
  {
- 	struct sun6i_spi *sspi = spi_master_get_devdata(master);
--	unsigned int mclk_rate, div, timeout;
-+	unsigned int mclk_rate, div, div_cdr1, div_cdr2, timeout;
- 	unsigned int start, end, tx_time;
- 	unsigned int trig_level;
- 	unsigned int tx_len = 0;
-@@ -291,14 +291,12 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
- 	 * First try CDR2, and if we can't reach the expected
- 	 * frequency, fall back to CDR1.
- 	 */
--	div = mclk_rate / (2 * tfr->speed_hz);
--	if (div <= (SUN6I_CLK_CTL_CDR2_MASK + 1)) {
--		if (div > 0)
--			div--;
--
--		reg = SUN6I_CLK_CTL_CDR2(div) | SUN6I_CLK_CTL_DRS;
-+	div_cdr1 = DIV_ROUND_UP(mclk_rate, tfr->speed_hz);
-+	div_cdr2 = DIV_ROUND_UP(div_cdr1, 2);
-+	if (div_cdr2 <= (SUN6I_CLK_CTL_CDR2_MASK + 1)) {
-+		reg = SUN6I_CLK_CTL_CDR2(div_cdr2 - 1) | SUN6I_CLK_CTL_DRS;
- 	} else {
--		div = ilog2(mclk_rate) - ilog2(tfr->speed_hz);
-+		div = min(SUN6I_CLK_CTL_CDR1_MASK, order_base_2(div_cdr1));
- 		reg = SUN6I_CLK_CTL_CDR1(div);
+ 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+@@ -1136,6 +1159,7 @@ static int ci_controller_resume(struct d
+ 		enable_irq(ci->irq);
+ 		if (ci_otg_is_fsm_mode(ci))
+ 			ci_otg_fsm_wakeup_by_srp(ci);
++		ci_extcon_wakeup_int(ci);
  	}
  
--- 
-2.25.1
-
+ 	return 0;
 
 
