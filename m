@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9FA4226956
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:30:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D366922676E
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732494AbgGTQBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34492 "EHLO mail.kernel.org"
+        id S1732946AbgGTQLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731099AbgGTQBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:01:11 -0400
+        id S2387810AbgGTQLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:11:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0858D20672;
-        Mon, 20 Jul 2020 16:01:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42E0B2064B;
+        Mon, 20 Jul 2020 16:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260871;
-        bh=1cKTQYmZkIm0/I/HoQVjC5LCdmtRY4Nu99Fyz0W9AE4=;
+        s=default; t=1595261497;
+        bh=i+3+PryJpfOp9qSe/SEHL8B1V+B5vk4u0MIU9vb2jN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhCN5WZGSXNAOxyb6NoBUscHya4+cs+FeyEj3W2C6nUd4rSbVnEEN8t56PxZfU1J+
-         6UyPlfqvf7gi+kicZs+Bc34raZKghDQSW5E+qrVFTQND2EL+9ZKQqTfRkT0wrrnZmv
-         ILxtrCYfn8QP2ja1GwRlMVmN7mE0HmJgBT4SR570=
+        b=m0i19Q2y07m7l8Uu6Fowh8pRJB8qH53g/1xTA6cCHHiHbXHSVOdY7lM7b3ecAKQTg
+         9+xj+ThQd340UPndz3YbJNC09HNLZHNl0BXq1fPJdX+anV+6+/N9Ji8WKqzpATPlVB
+         JrW4o7V1snhTbGasd6lgXjBSC7F8+CtCWmccQoUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 125/215] perf stat: Zero all the ena and run array slot stats for interval mode
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>
+Subject: [PATCH 5.7 136/244] mtd: rawnand: marvell: Fix probe error path
 Date:   Mon, 20 Jul 2020 17:36:47 +0200
-Message-Id: <20200720152826.148267271@linuxfoundation.org>
+Message-Id: <20200720152832.315497627@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 0e0bf1ea1147fcf74eab19c2d3c853cc3740a72f upstream.
+commit c525b7af96714f72e316c70781570a4a3e1c2856 upstream.
 
-As the code comments in perf_stat_process_counter() say, we calculate
-counter's data every interval, and the display code shows ps->res_stats
-avg value. We need to zero the stats for interval mode.
+Ensure all chips are deregistered and cleaned in case of error during
+the probe.
 
-But the current code only zeros the res_stats[0], it doesn't zero the
-res_stats[1] and res_stats[2], which are for ena and run of counter.
-
-This patch zeros the whole res_stats[] for interval mode.
-
-Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200409070755.17261-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 02f26ecf8c77 ("mtd: nand: add reworked Marvell NAND controller driver")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://lore.kernel.org/linux-mtd/20200424164501.26719-5-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/stat.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/marvell_nand.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/tools/perf/util/stat.c
-+++ b/tools/perf/util/stat.c
-@@ -367,8 +367,10 @@ int perf_stat_process_counter(struct per
- 	 * interval mode, otherwise overall avg running
- 	 * averages will be shown for each interval.
- 	 */
--	if (config->interval)
--		init_stats(ps->res_stats);
-+	if (config->interval) {
-+		for (i = 0; i < 3; i++)
-+			init_stats(&ps->res_stats[i]);
-+	}
+--- a/drivers/mtd/nand/raw/marvell_nand.c
++++ b/drivers/mtd/nand/raw/marvell_nand.c
+@@ -2673,6 +2673,16 @@ static int marvell_nand_chip_init(struct
+ 	return 0;
+ }
  
- 	if (counter->per_pkg)
- 		zero_per_pkg(counter);
++static void marvell_nand_chips_cleanup(struct marvell_nfc *nfc)
++{
++	struct marvell_nand_chip *entry, *temp;
++
++	list_for_each_entry_safe(entry, temp, &nfc->chips, node) {
++		nand_release(&entry->chip);
++		list_del(&entry->node);
++	}
++}
++
+ static int marvell_nand_chips_init(struct device *dev, struct marvell_nfc *nfc)
+ {
+ 	struct device_node *np = dev->of_node;
+@@ -2707,21 +2717,16 @@ static int marvell_nand_chips_init(struc
+ 		ret = marvell_nand_chip_init(dev, nfc, nand_np);
+ 		if (ret) {
+ 			of_node_put(nand_np);
+-			return ret;
++			goto cleanup_chips;
+ 		}
+ 	}
+ 
+ 	return 0;
+-}
+ 
+-static void marvell_nand_chips_cleanup(struct marvell_nfc *nfc)
+-{
+-	struct marvell_nand_chip *entry, *temp;
++cleanup_chips:
++	marvell_nand_chips_cleanup(nfc);
+ 
+-	list_for_each_entry_safe(entry, temp, &nfc->chips, node) {
+-		nand_release(&entry->chip);
+-		list_del(&entry->node);
+-	}
++	return ret;
+ }
+ 
+ static int marvell_nfc_init_dma(struct marvell_nfc *nfc)
 
 
