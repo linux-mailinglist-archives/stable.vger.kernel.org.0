@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD0D226B4B
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61EC3226B2C
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730218AbgGTPnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36480 "EHLO mail.kernel.org"
+        id S1730226AbgGTPr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:47:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730213AbgGTPnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:43:13 -0400
+        id S1730809AbgGTPr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:47:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F318C22CE3;
-        Mon, 20 Jul 2020 15:43:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D9E62065E;
+        Mon, 20 Jul 2020 15:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259792;
-        bh=VbUv8qOQ9jafQbIjEUGoA/6yOYZEFVr/tWrVVoeuZBk=;
+        s=default; t=1595260077;
+        bh=nmE6J2rbKqZMI1zJpo7syxM38l+rlHfylCr37UW50Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gP1Tm5B159Smi3ra8fdzJSlODpWKBYUAwGr1BvD9zmw9+cdHFsSlo+zY0sI3hxr3a
-         b9QsE0w/RCpVI2uD3S/4S/CUHcLyP5NYSHjWayMor/kvmAF71i/h0hBqjkvlhqEzaC
-         gNYxDRSHa4WuvLUZqUTCITledF8iorEG3GDq3uAg=
+        b=ZjK6jRvmDYB+qRu868jsd4qBdDHZqz2fscXYFnzZlKpgKxsfwq6VnDYNsuD4nrNOs
+         JkNvf6SiVGoFutVG6ER+nxB/BvKe//9IEq/AkvN4RCw+JjjN6Lq2ud4FlA2FfPwugH
+         p5HXHsMesR7DVI1YVRkOQRjA565T0v4P5TudxjqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 4.9 82/86] misc: atmel-ssc: lock with mutex instead of spinlock
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.14 099/125] usb: chipidea: core: add wakeup support for extcon
 Date:   Mon, 20 Jul 2020 17:37:18 +0200
-Message-Id: <20200720152757.401583600@linuxfoundation.org>
+Message-Id: <20200720152807.796985664@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
-References: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,115 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Peter Chen <peter.chen@nxp.com>
 
-commit b037d60a3b1d1227609fd858fa34321f41829911 upstream.
+commit 876d4e1e8298ad1f94d9e9392fc90486755437b4 upstream.
 
-Uninterruptible context is not needed in the driver and causes lockdep
-warning because of mutex taken in of_alias_get_id(). Convert the lock to
-mutex to avoid the issue.
+If wakeup event occurred by extcon event, it needs to call
+ci_irq again since the first ci_irq calling at extcon notifier
+only wakes up controller, but do noop for event handling,
+it causes the extcon use case can't work well from low power mode.
 
-Cc: stable@vger.kernel.org
-Fixes: 099343c64e16 ("ARM: at91: atmel-ssc: add device tree support")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/50f0d7fa107f318296afb49477c3571e4d6978c5.1592998403.git.mirq-linux@rere.qmqm.pl
+Cc: <stable@vger.kernel.org>
+Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
+Reported-by: Philippe Schenker <philippe.schenker@toradex.com>
+Tested-by: Philippe Schenker <philippe.schenker@toradex.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200707060601.31907-2-peter.chen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/atmel-ssc.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/usb/chipidea/core.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/drivers/misc/atmel-ssc.c
-+++ b/drivers/misc/atmel-ssc.c
-@@ -13,7 +13,7 @@
- #include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/io.h>
--#include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/atmel-ssc.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-@@ -21,7 +21,7 @@
- #include <linux/of.h>
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -1159,6 +1159,29 @@ static void ci_controller_suspend(struct
+ 	enable_irq(ci->irq);
+ }
  
- /* Serialize access to ssc_list and user count */
--static DEFINE_SPINLOCK(user_lock);
-+static DEFINE_MUTEX(user_lock);
- static LIST_HEAD(ssc_list);
- 
- struct ssc_device *ssc_request(unsigned int ssc_num)
-@@ -29,7 +29,7 @@ struct ssc_device *ssc_request(unsigned
- 	int ssc_valid = 0;
- 	struct ssc_device *ssc;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_for_each_entry(ssc, &ssc_list, list) {
- 		if (ssc->pdev->dev.of_node) {
- 			if (of_alias_get_id(ssc->pdev->dev.of_node, "ssc")
-@@ -45,18 +45,18 @@ struct ssc_device *ssc_request(unsigned
- 	}
- 
- 	if (!ssc_valid) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		pr_err("ssc: ssc%d platform device is missing\n", ssc_num);
- 		return ERR_PTR(-ENODEV);
- 	}
- 
- 	if (ssc->user) {
--		spin_unlock(&user_lock);
-+		mutex_unlock(&user_lock);
- 		dev_dbg(&ssc->pdev->dev, "module busy\n");
- 		return ERR_PTR(-EBUSY);
- 	}
- 	ssc->user++;
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	clk_prepare(ssc->clk);
- 
-@@ -68,14 +68,14 @@ void ssc_free(struct ssc_device *ssc)
++/*
++ * Handle the wakeup interrupt triggered by extcon connector
++ * We need to call ci_irq again for extcon since the first
++ * interrupt (wakeup int) only let the controller be out of
++ * low power mode, but not handle any interrupts.
++ */
++static void ci_extcon_wakeup_int(struct ci_hdrc *ci)
++{
++	struct ci_hdrc_cable *cable_id, *cable_vbus;
++	u32 otgsc = hw_read_otgsc(ci, ~0);
++
++	cable_id = &ci->platdata->id_extcon;
++	cable_vbus = &ci->platdata->vbus_extcon;
++
++	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
++		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
++		ci_irq(ci->irq, ci);
++
++	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
++		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
++		ci_irq(ci->irq, ci);
++}
++
+ static int ci_controller_resume(struct device *dev)
  {
- 	bool disable_clk = true;
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	if (ssc->user)
- 		ssc->user--;
- 	else {
- 		disable_clk = false;
- 		dev_dbg(&ssc->pdev->dev, "device already free\n");
+ 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+@@ -1191,6 +1214,7 @@ static int ci_controller_resume(struct d
+ 		enable_irq(ci->irq);
+ 		if (ci_otg_is_fsm_mode(ci))
+ 			ci_otg_fsm_wakeup_by_srp(ci);
++		ci_extcon_wakeup_int(ci);
  	}
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	if (disable_clk)
- 		clk_unprepare(ssc->clk);
-@@ -195,9 +195,9 @@ static int ssc_probe(struct platform_dev
- 		return -ENXIO;
- 	}
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_add_tail(&ssc->list, &ssc_list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
- 
- 	platform_set_drvdata(pdev, ssc);
- 
-@@ -211,9 +211,9 @@ static int ssc_remove(struct platform_de
- {
- 	struct ssc_device *ssc = platform_get_drvdata(pdev);
- 
--	spin_lock(&user_lock);
-+	mutex_lock(&user_lock);
- 	list_del(&ssc->list);
--	spin_unlock(&user_lock);
-+	mutex_unlock(&user_lock);
  
  	return 0;
- }
 
 
