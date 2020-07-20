@@ -2,212 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23FDD225E90
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0694225E94
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 14:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728224AbgGTMa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 08:30:28 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:36311 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727989AbgGTMa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:30:28 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id CF2321940EBE;
-        Mon, 20 Jul 2020 08:30:26 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 20 Jul 2020 08:30:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5vjAFI
-        bnooT7vZGhKDe8TDYE3tNxltCtSREPURVKON0=; b=fJpqnbAQ2spLo4SqPV0fQR
-        5YjCpUgLmq3yF6b0evTbDO8y7FVhC94T+VVn4IyTo58O1OITwdUqlg2OjmHWJuyA
-        TXsFgQG7P1Ocn2fGxlwgg3uN/negAWA6BMxcADRfhUu8ae62qM+zJrkbclh8b9HC
-        3FIWXMOkgY6AkeyFBh6USKHTR3WxUMVuOC7VE7gvo3CDQ8+nMYAL/FSBYO5ZhEin
-        okTtdNODjipDUUe9z43vSGmLHvyS3ue/F4JIpTCM/0nGFzQ3ppxgEUzc6X6wkSlC
-        jmhhUxd/jL4+TtCnLPOcJ1fvByxmZsWYrj7Wibk08auONbZ3IGxsLBc4zsi9P1Tg
-        ==
-X-ME-Sender: <xms:Yo4VXyl8Alxfu0kmdUm6VhidRxn2Tv1ReAy-RUAy5-AX7LINgWvKwA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeeggddvjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
-    fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
-    ucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Yo4VX53PXbR5yA09oHBMalwZtHQaR8GrPzGjEiKUEeltbOahkH3K6A>
-    <xmx:Yo4VXwrMlJZXGXtZU_TYLWQyjuLRgNA3JmQWPWL9phqpUL3bUyjBmA>
-    <xmx:Yo4VX2lIx9Z6VId4gOPR1mFMYsUtma_LuiRWewRIE7riRxdEPJb7gw>
-    <xmx:Yo4VX1-gp694mVHA2d1ymttA7ji2hBfoo6eMbN5BfzyjWVD3TauU5A>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7254130600B4;
-        Mon, 20 Jul 2020 08:30:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Move cec_notifier to" failed to apply to 4.19-stable tree
-To:     maarten.lankhorst@linux.intel.com, daniel.vetter@ffwll.ch,
-        jani.nikula@intel.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jul 2020 14:30:37 +0200
-Message-ID: <159524823711280@kroah.com>
+        id S1728412AbgGTMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 08:31:31 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:61634 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727989AbgGTMbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 08:31:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1595248291; x=1626784291;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   mime-version;
+  bh=B7TTGtY4SziIvCD/DMZj35NfyE0QefT2lQmcnjqpo5w=;
+  b=POK5hLCNbttnbjT1wls2qhw7omleDEKG2imqdJ7OS81wtZvUYiGxdcTy
+   r58is1c0aE5XzoXSv9E2fasFi9VXMLl1e7aRh21jz53fQRd45H25BxSwt
+   rvh/5SuUtTnmll8BClsqq0ffeqNJiiHXMicZWodD2gPozcPVbj/kiqY1Y
+   o=;
+IronPort-SDR: nu3nUjjlvEcBjuOaPn39TwfnSWSHlbTWknnyvAtHrbDeIJ2nM43GLqnEByLqXqOvA6QDpjY1Vu
+ 30oCyLl0FqdA==
+X-IronPort-AV: E=Sophos;i="5.75,375,1589241600"; 
+   d="scan'208";a="42783398"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2c-2225282c.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 20 Jul 2020 12:31:30 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2c-2225282c.us-west-2.amazon.com (Postfix) with ESMTPS id 15A6CA18C6;
+        Mon, 20 Jul 2020 12:31:27 +0000 (UTC)
+Received: from EX13D31EUA004.ant.amazon.com (10.43.165.161) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 20 Jul 2020 12:31:27 +0000
+Received: from u886c93fd17d25d.ant.amazon.com (10.43.162.73) by
+ EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 20 Jul 2020 12:31:24 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     SeongJae Park <sjpark@amazon.com>, <sashal@kernel.org>,
+        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Re: Upstream fixes not merged in 5.4.y
+Date:   Mon, 20 Jul 2020 14:31:07 +0200
+Message-ID: <20200720123107.22001-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200720121543.GA2984743@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.73]
+X-ClientProxiedBy: EX13D17UWB004.ant.amazon.com (10.43.161.132) To
+ EX13D31EUA004.ant.amazon.com (10.43.165.161)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 20 Jul 2020 14:15:43 +0200 Greg KH <gregkh@linuxfoundation.org> wrote:
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> On Mon, Jun 29, 2020 at 04:28:05PM +0200, SeongJae Park wrote:
+> > Hello,
+> > 
+> > 
+> > With my little script, I found below commits in the mainline tree are more than
+> > 1 week old and fixing commits that back-ported in v5.4..v5.4.49, but not merged
+> > in the stable/linux-5.4.y tree.  Are those need to be merged in but missed or
+> > dealyed?
+> > 
+> > 9210c075cef2 ("nvme-pci: avoid race between nvme_reap_pending_cqes() and nvme_poll()")
+> 
+> I tried this first patch, and it doesn't apply to the 5.4.y tree, so are
+> you sure you tried these yourself?
+> 
+> If so, please send a series of backported patches that you have
+> successfully tested, or if a patch applies cleanly, just the git id.
 
-thanks,
+Yes, I backported it on the latest 5.4.y before.  I will rebase it on the
+latest 5.4.y, test, and send the patch.  Nonetheless, please note that it might
+take some time (say, a couple of weeks?).
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
-
-From 6647e6cdba753e71170be7da2acfead7154f56d8 Mon Sep 17 00:00:00 2001
-From: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Date: Wed, 12 Feb 2020 14:54:45 +0100
-Subject: [PATCH] drm/i915: Move cec_notifier to
- intel_hdmi_connector_unregister, v2.
-
-This fixes the following KASAN splash on module reload:
-[  145.136327] ==================================================================
-[  145.136502] BUG: KASAN: use-after-free in intel_hdmi_destroy+0x74/0x80 [i915]
-[  145.136514] Read of size 8 at addr ffff888216641830 by task kworker/1:1/134
-
-[  145.136535] CPU: 1 PID: 134 Comm: kworker/1:1 Tainted: G     U          T 5.5.0-rc7-valkyria+ #5783
-[  145.136539] Hardware name: GIGABYTE GB-BKi3A-7100/MFLP3AP-00, BIOS F1 07/27/2016
-[  145.136546] Workqueue: events drm_connector_free_work_fn
-[  145.136551] Call Trace:
-[  145.136560]  dump_stack+0xa1/0xe0
-[  145.136571]  print_address_description.constprop.0+0x1e/0x210
-[  145.136639]  ? intel_hdmi_destroy+0x74/0x80 [i915]
-[  145.136703]  ? intel_hdmi_destroy+0x74/0x80 [i915]
-[  145.136710]  __kasan_report.cold+0x1b/0x37
-[  145.136790]  ? intel_hdmi_destroy+0x74/0x80 [i915]
-[  145.136863]  ? intel_hdmi_destroy+0x74/0x80 [i915]
-[  145.136870]  kasan_report+0x27/0x30
-[  145.136881]  __asan_report_load8_noabort+0x1c/0x20
-[  145.136946]  intel_hdmi_destroy+0x74/0x80 [i915]
-[  145.136954]  drm_connector_free_work_fn+0xd1/0x100
-[  145.136967]  process_one_work+0x86e/0x1610
-[  145.136987]  ? pwq_dec_nr_in_flight+0x2f0/0x2f0
-[  145.137004]  ? move_linked_works+0x128/0x2c0
-[  145.137021]  worker_thread+0x63e/0xc90
-[  145.137048]  kthread+0x2f6/0x3f0
-[  145.137054]  ? calculate_sigpending+0x81/0xa0
-[  145.137059]  ? process_one_work+0x1610/0x1610
-[  145.137064]  ? kthread_bind+0x40/0x40
-[  145.137075]  ret_from_fork+0x24/0x30
-
-[  145.137111] Allocated by task 0:
-[  145.137119] (stack is not available)
-
-[  145.137137] Freed by task 5053:
-[  145.137147]  save_stack+0x28/0x90
-[  145.137152]  __kasan_slab_free+0x136/0x180
-[  145.137157]  kasan_slab_free+0x26/0x30
-[  145.137161]  kfree+0xe6/0x350
-[  145.137242]  intel_ddi_encoder_destroy+0x60/0x80 [i915]
-[  145.137252]  drm_mode_config_cleanup+0x11d/0x8f0
-[  145.137329]  intel_modeset_driver_remove+0x1f5/0x350 [i915]
-[  145.137403]  i915_driver_remove+0xc4/0x130 [i915]
-[  145.137482]  i915_pci_remove+0x3e/0x90 [i915]
-[  145.137489]  pci_device_remove+0x108/0x2d0
-[  145.137494]  device_release_driver_internal+0x1e6/0x4a0
-[  145.137499]  driver_detach+0xcb/0x198
-[  145.137503]  bus_remove_driver+0xde/0x204
-[  145.137508]  driver_unregister+0x6d/0xa0
-[  145.137513]  pci_unregister_driver+0x2e/0x230
-[  145.137576]  i915_exit+0x1f/0x26 [i915]
-[  145.137157]  kasan_slab_free+0x26/0x30
-[  145.137161]  kfree+0xe6/0x350
-[  145.137242]  intel_ddi_encoder_destroy+0x60/0x80 [i915]
-[  145.137252]  drm_mode_config_cleanup+0x11d/0x8f0
-[  145.137329]  intel_modeset_driver_remove+0x1f5/0x350 [i915]
-[  145.137403]  i915_driver_remove+0xc4/0x130 [i915]
-[  145.137482]  i915_pci_remove+0x3e/0x90 [i915]
-[  145.137489]  pci_device_remove+0x108/0x2d0
-[  145.137494]  device_release_driver_internal+0x1e6/0x4a0
-[  145.137499]  driver_detach+0xcb/0x198
-[  145.137503]  bus_remove_driver+0xde/0x204
-[  145.137508]  driver_unregister+0x6d/0xa0
-[  145.137513]  pci_unregister_driver+0x2e/0x230
-[  145.137576]  i915_exit+0x1f/0x26 [i915]
-[  145.137581]  __x64_sys_delete_module+0x35b/0x470
-[  145.137586]  do_syscall_64+0x99/0x4e0
-[  145.137591]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-[  145.137606] The buggy address belongs to the object at ffff888216640000
-                which belongs to the cache kmalloc-8k of size 8192
-[  145.137618] The buggy address is located 6192 bytes inside of
-                8192-byte region [ffff888216640000, ffff888216642000)
-[  145.137630] The buggy address belongs to the page:
-[  145.137640] page:ffffea0008599000 refcount:1 mapcount:0 mapping:ffff888107c02a80 index:0xffff888216644000 compound_mapcount: 0
-[  145.137647] raw: 0200000000010200 0000000000000000 0000000100000001 ffff888107c02a80
-[  145.137652] raw: ffff888216644000 0000000080020001 00000001ffffffff 0000000000000000
-[  145.137656] page dumped because: kasan: bad access detected
-
-[  145.137668] Memory state around the buggy address:
-[  145.137678]  ffff888216641700: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  145.137687]  ffff888216641780: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  145.137697] >ffff888216641800: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  145.137706]                                      ^
-[  145.137715]  ffff888216641880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  145.137724]  ffff888216641900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  145.137733] ==================================================================
-[  145.137742] Disabling lock debugging due to kernel taint
-
-Changes since v1:
-- Add fixes tags.
-- Use early unregister.
-
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Fixes: 9c229127aee2 ("drm/i915: hdmi: add CEC notifier to intel_hdmi")
-Cc: <stable@vger.kernel.org> # v4.19+
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200212135445.1469133-1-maarten.lankhorst@linux.intel.com
-(cherry picked from commit a581483b1e5466d28fc50ff623fba31cea2cccb6)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
-index 010f37240710..95b6d9457910 100644
---- a/drivers/gpu/drm/i915/display/intel_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
-@@ -2867,19 +2867,13 @@ intel_hdmi_connector_register(struct drm_connector *connector)
- 	return ret;
- }
- 
--static void intel_hdmi_destroy(struct drm_connector *connector)
-+static void intel_hdmi_connector_unregister(struct drm_connector *connector)
- {
- 	struct cec_notifier *n = intel_attached_hdmi(to_intel_connector(connector))->cec_notifier;
- 
- 	cec_notifier_conn_unregister(n);
- 
--	intel_connector_destroy(connector);
--}
--
--static void intel_hdmi_connector_unregister(struct drm_connector *connector)
--{
- 	intel_hdmi_remove_i2c_symlink(connector);
--
- 	intel_connector_unregister(connector);
- }
- 
-@@ -2891,7 +2885,7 @@ static const struct drm_connector_funcs intel_hdmi_connector_funcs = {
- 	.atomic_set_property = intel_digital_connector_atomic_set_property,
- 	.late_register = intel_hdmi_connector_register,
- 	.early_unregister = intel_hdmi_connector_unregister,
--	.destroy = intel_hdmi_destroy,
-+	.destroy = intel_connector_destroy,
- 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
- 	.atomic_duplicate_state = intel_digital_connector_duplicate_state,
- };
-
+Thanks,
+SeongJae Park
