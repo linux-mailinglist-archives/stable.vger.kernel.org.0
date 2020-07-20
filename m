@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C66C226677
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE1322684F
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732366AbgGTQD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37744 "EHLO mail.kernel.org"
+        id S2388174AbgGTQNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:13:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732425AbgGTQDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:03:25 -0400
+        id S2387679AbgGTQNv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:13:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C7B220672;
-        Mon, 20 Jul 2020 16:03:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 753FD20734;
+        Mon, 20 Jul 2020 16:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261004;
-        bh=tC1G5VM5FfFophslm6pkzLu96fYci1vgWUsC2Z1iWhs=;
+        s=default; t=1595261631;
+        bh=U9A2yR2k6FkavOn/3+booMWwECu0863W08r20mMUvOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvuEvxl1Z0bvH72zUtoaHVyROhtjJ3X+7sPwthzf/UQkiS3jG+byZTJkYHp4Oapp+
-         Dj89oTC5nUE5rxeFxtg4okveJc7MpIMq7AHUOUNQxzAYzKYZQZoix8Svnhu9DIQ7h9
-         VJ75CAsI2BJAY1VxVCcWz7SRxhy+8dMthXEX4INU=
+        b=lnaa8zcnt3TsDmcsV681JcsAdTggpgeibQwpOQ/BKIT632/G7M5u8QW9LelqCGvrN
+         HOLq/BwEPkDqDGdSXnDf3OhkSFuXpCFAEdssg8gU0hUi+XL/BF52aBuQOblBTqDy2N
+         fjMm2/y+jwZmS15G4a0UOZPFmAT6YvBtcr1ti4eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chirantan Ekbote <chirantan@chromium.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 175/215] fuse: Fix parameter for FS_IOC_{GET,SET}FLAGS
+        stable@vger.kernel.org, Andy Whitcroft <apw@canonical.com>,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.7 186/244] mei: bus: dont clean driver pointer
 Date:   Mon, 20 Jul 2020 17:37:37 +0200
-Message-Id: <20200720152828.499753224@linuxfoundation.org>
+Message-Id: <20200720152834.688721482@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chirantan Ekbote <chirantan@chromium.org>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 31070f6ccec09f3bd4f1e28cd1e592fa4f3ba0b6 upstream.
+commit e852c2c251ed9c23ae6e3efebc5ec49adb504207 upstream.
 
-The ioctl encoding for this parameter is a long but the documentation says
-it should be an int and the kernel drivers expect it to be an int.  If the
-fuse driver treats this as a long it might end up scribbling over the stack
-of a userspace process that only allocated enough space for an int.
+It's not needed to set driver to NULL in mei_cl_device_remove()
+which is bus_type remove() handler as this is done anyway
+in __device_release_driver().
 
-This was previously discussed in [1] and a patch for fuse was proposed in
-[2].  From what I can tell the patch in [2] was nacked in favor of adding
-new, "fixed" ioctls and using those from userspace.  However there is still
-no "fixed" version of these ioctls and the fact is that it's sometimes
-infeasible to change all userspace to use the new one.
+Actually this is causing an endless loop in driver_detach()
+on ubuntu patched kernel, while removing (rmmod) the mei_hdcp module.
+The reason list_empty(&drv->p->klist_devices.k_list) is always not-empty.
+as the check is always true in  __device_release_driver()
+	if (dev->driver != drv)
+		return;
 
-Handling the ioctls specially in the fuse driver seems like the most
-pragmatic way for fuse servers to support them without causing crashes in
-userspace applications that call them.
+The non upstream patch is causing this behavior, titled:
+'vfio -- release device lock before userspace requests'
 
-[1]: https://lore.kernel.org/linux-fsdevel/20131126200559.GH20559@hall.aurel32.net/T/
-[2]: https://sourceforge.net/p/fuse/mailman/message/31771759/
+Nevertheless the fix is correct also for the upstream.
 
-Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
-Fixes: 59efec7b9039 ("fuse: implement ioctl support")
+Link: https://patchwork.ozlabs.org/project/ubuntu-kernel/patch/20180912085046.3401-2-apw@canonical.com/
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: Andy Whitcroft <apw@canonical.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200628225359.2185929-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/misc/mei/bus.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -18,6 +18,7 @@
- #include <linux/swap.h>
- #include <linux/falloc.h>
- #include <linux/uio.h>
-+#include <linux/fs.h>
+--- a/drivers/misc/mei/bus.c
++++ b/drivers/misc/mei/bus.c
+@@ -745,9 +745,8 @@ static int mei_cl_device_remove(struct d
  
- static struct page **fuse_pages_alloc(unsigned int npages, gfp_t flags,
- 				      struct fuse_page_desc **desc)
-@@ -2758,7 +2759,16 @@ long fuse_do_ioctl(struct file *file, un
- 		struct iovec *iov = iov_page;
+ 	mei_cl_bus_module_put(cldev);
+ 	module_put(THIS_MODULE);
+-	dev->driver = NULL;
+-	return ret;
  
- 		iov->iov_base = (void __user *)arg;
--		iov->iov_len = _IOC_SIZE(cmd);
-+
-+		switch (cmd) {
-+		case FS_IOC_GETFLAGS:
-+		case FS_IOC_SETFLAGS:
-+			iov->iov_len = sizeof(int);
-+			break;
-+		default:
-+			iov->iov_len = _IOC_SIZE(cmd);
-+			break;
-+		}
++	return ret;
+ }
  
- 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
- 			in_iov = iov;
+ static ssize_t name_show(struct device *dev, struct device_attribute *a,
 
 
