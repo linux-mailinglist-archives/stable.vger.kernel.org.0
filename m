@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20567226B27
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF3E226A68
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730876AbgGTPsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43736 "EHLO mail.kernel.org"
+        id S1732113AbgGTQeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:34:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730875AbgGTPsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:48:13 -0400
+        id S1730420AbgGTPzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:55:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 344702064B;
-        Mon, 20 Jul 2020 15:48:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C7162065E;
+        Mon, 20 Jul 2020 15:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260091;
-        bh=TCK5w7fTdQLOaabOKLWPQEwyASLL1+l3hXLhXgMfPLY=;
+        s=default; t=1595260535;
+        bh=KJc236Beqe715ZNP7qUMd5cLfYkrychBQiDwOL6cJeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCm3ewvHANs5cz//c5UsVqmGsDsoyPTber9l//8IxIwFYVJxeAz124CyBH47K1y+Z
-         0Nl2dHO9p0G7IK2zCQedDVBuF+lWTLrfO7aNNv4idKuiJrXSgLLIyTu4i6QQitVEUX
-         LYh+hhOV0V5RSKeyqpJ3uXuSosblmSXNv7PAw9KM=
+        b=mixajibxxjUzS6mN8LDrANCmuwYV1M9ypey+GaTK+6LIbgYkg6kXq/s3lw+t6epNL
+         c1Fywwou2zva9yxWxZT7JfVx+CP3eqm3FQoM/hefNMlJnSMwK29JU+XVAuUOXQa6Vk
+         rheXzsD3LRFp6WsZuOAS9yiGGjP7VtOl/elRT54Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 104/125] USB: serial: option: add GosunCn GM500 series
-Date:   Mon, 20 Jul 2020 17:37:23 +0200
-Message-Id: <20200720152808.051214169@linuxfoundation.org>
+Subject: [PATCH 4.19 097/133] USB: serial: option: add GosunCn GM500 series
+Date:   Mon, 20 Jul 2020 17:37:24 +0200
+Message-Id: <20200720152808.419655897@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -106,7 +106,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -2030,6 +2030,9 @@ static const struct usb_device_id option
+@@ -2028,6 +2028,9 @@ static const struct usb_device_id option
  	  .driver_info = RSVD(4) | RSVD(5) },
  	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
  	  .driver_info = RSVD(6) },
