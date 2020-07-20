@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6A9F226A8F
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DBA226B28
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730268AbgGTPxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:53:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
+        id S1730457AbgGTPsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:48:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731485AbgGTPxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:53:42 -0400
+        id S1729257AbgGTPsJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:48:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 569A32064B;
-        Mon, 20 Jul 2020 15:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8611F2065E;
+        Mon, 20 Jul 2020 15:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260421;
-        bh=bTZfeAWR2pBaRtAlL/mVt3xpRqcquaU//lEAkN+K/r4=;
+        s=default; t=1595260089;
+        bh=0haVu6E79fN+inhHE7UwUFEAmCPLSs7a/v4teHZpRfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vsset3CMIUeNPFlih7SIeKBc8B6Pyr9O2s9NsjCyn4mVtqxvuNdJK4EoNwo3DT9a
-         uKposAOBH0tm4lbcmUKh2yI9v4FMli5ZEuRbiuu3B9MTCWNXZtNqHqp+cUvKBsxSML
-         ubAsF2KvBthvgH4BghJfJGXYRWwFxTZxKMbpAUMs=
+        b=ZcdixK3h2yQgvHCtzTbrCdb4AnMdCc6GS+TSjqJijk66MWBYht+XP1rdKXaHv1/qt
+         fsBJktJxrGjUI3+uWoK1frCLpghfkldV9fcc/RVMlf7bI3nM0neC/DA01wdeiEFL5N
+         a0xKU5VJ4ZojHp/hrW1v0Z8LoT60AiJRErQlZPWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        stable@vger.kernel.org, Igor Moura <imphilippini@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 095/133] USB: serial: cypress_m8: enable Simply Automated UPB PIM
+Subject: [PATCH 4.14 103/125] USB: serial: ch341: add new Product ID for CH340
 Date:   Mon, 20 Jul 2020 17:37:22 +0200
-Message-Id: <20200720152808.317587045@linuxfoundation.org>
+Message-Id: <20200720152808.000930906@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-References: <20200720152803.732195882@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Igor Moura <imphilippini@gmail.com>
 
-commit 5c45d04c5081c1830d674f4d22d4400ea2083afe upstream.
+commit 5d0136f8e79f8287e6a36780601f0ce797cf11c2 upstream.
 
-This is a UPB (Universal Powerline Bus) PIM (Powerline Interface Module)
-which allows for controlling multiple UPB compatible devices from Linux
-using the standard serial interface.
+Add PID for CH340 that's found on some ESP8266 dev boards made by
+LilyGO. The specific device that contains such serial converter can be
+seen here: https://github.com/LilyGO/LILYGO-T-OI.
 
-Based on vendor application source code there are two different models
-of USB based PIM devices in addition to a number of RS232 based PIM's.
+Apparently, it's a regular CH340, but I've confirmed with others that
+also bought this board that the PID found on this device (0x7522)
+differs from other devices with the "same" converter (0x7523).
+Simply adding its PID to the driver and rebuilding it made it work
+as expected.
 
-The vendor UPB application source contains the following USB ID's:
-
-	#define USB_PCS_VENDOR_ID 0x04b4
-	#define USB_PCS_PIM_PRODUCT_ID 0x5500
-
-	#define USB_SAI_VENDOR_ID 0x17dd
-	#define USB_SAI_PIM_PRODUCT_ID 0x5500
-
-The first set of ID's correspond to the PIM variant sold by Powerline
-Control Systems while the second corresponds to the Simply Automated
-Incorporated PIM. As the product ID for both of these match the default
-cypress HID->COM RS232 product ID it assumed that they both use an
-internal variant of this HID->COM RS232 converter hardware. However
-as the vendor ID for the Simply Automated variant is different we need
-to also add it to the cypress_M8 driver so that it is properly
-detected.
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200616220403.1807003-1-james.hilliard1@gmail.com
+Signed-off-by: Igor Moura <imphilippini@gmail.com>
 Cc: stable@vger.kernel.org
-[ johan: amend VID define entry ]
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/cypress_m8.c |    2 ++
- drivers/usb/serial/cypress_m8.h |    3 +++
- 2 files changed, 5 insertions(+)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/cypress_m8.c
-+++ b/drivers/usb/serial/cypress_m8.c
-@@ -59,6 +59,7 @@ static const struct usb_device_id id_tab
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -84,6 +84,7 @@
  
- static const struct usb_device_id id_table_cyphidcomrs232[] = {
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ }						/* Terminating entry */
-@@ -73,6 +74,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
- 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
- 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
-+	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
- 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
- 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
- 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
---- a/drivers/usb/serial/cypress_m8.h
-+++ b/drivers/usb/serial/cypress_m8.h
-@@ -25,6 +25,9 @@
- #define VENDOR_ID_CYPRESS		0x04b4
- #define PRODUCT_ID_CYPHIDCOM		0x5500
- 
-+/* Simply Automated HID->COM UPB PIM (using Cypress PID 0x5500) */
-+#define VENDOR_ID_SAI			0x17dd
-+
- /* FRWD Dongle - a GPS sports watch */
- #define VENDOR_ID_FRWD			0x6737
- #define PRODUCT_ID_CYPHIDCOM_FRWD	0x0001
+ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(0x4348, 0x5523) },
++	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ },
 
 
