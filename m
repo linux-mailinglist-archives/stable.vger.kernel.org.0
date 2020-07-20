@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC37226B81
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3A9226C0D
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgGTQlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
+        id S1728994AbgGTPk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729669AbgGTPpG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:06 -0400
+        id S1729699AbgGTPkX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56A072065E;
-        Mon, 20 Jul 2020 15:45:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C66F2064B;
+        Mon, 20 Jul 2020 15:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259905;
-        bh=HG12eW/dZFTPyw195jb2c/+ESyq6oCsjWEDFCU2SWEE=;
+        s=default; t=1595259623;
+        bh=HiOwwL2PD7FMOr0KZzLMBCmQbQEHfWXdnGdrVeZt+Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKXTyRB+3rjpq5hBr30Vz+DHTL4s/d04GEwxuurXvsHAkxf2Dnxw3/fYz/C3mQK8F
-         a1bXXABv63tO0sBmdQi95c0gDaxq5tvVIdyEM0XRgzXFtwf9gxdBvI57hxX+rJpV1D
-         TwcpZFV2v0zNlkR02+HQOIcA4lOs5UcUaf1cYpO8=
+        b=qL3JQFq073QYFL3gJe7gj9Aahd4uFHAE5GdnHiglkjHswXp9SPnjhJPTIAstp+GJd
+         EA4umx3bm/RZkBkwR3coizFfkdPh0E4uKHKlVVmZ+Rx/ptpp50FioXx1UlyDcGdjvm
+         EuTZfvgtyaQHbNdy3rLy2Cx4pSlx4ah2yv5bz67o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.14 036/125] drm/radeon: fix double free
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.9 19/86] KVM: arm64: Fix definition of PAGE_HYP_DEVICE
 Date:   Mon, 20 Jul 2020 17:36:15 +0200
-Message-Id: <20200720152804.736244616@linuxfoundation.org>
+Message-Id: <20200720152754.101481172@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Will Deacon <will@kernel.org>
 
-commit 41855a898650803e24b284173354cc3e44d07725 upstream.
+commit 68cf617309b5f6f3a651165f49f20af1494753ae upstream.
 
-clang static analysis flags this error
+PAGE_HYP_DEVICE is intended to encode attribute bits for an EL2 stage-1
+pte mapping a device. Unfortunately, it includes PROT_DEVICE_nGnRE which
+encodes attributes for EL1 stage-1 mappings such as UXN and nG, which are
+RES0 for EL2, and DBM which is meaningless as TCR_EL2.HD is not set.
 
-drivers/gpu/drm/radeon/ci_dpm.c:5652:9: warning: Use of memory after it is freed [unix.Malloc]
-                kfree(rdev->pm.dpm.ps[i].ps_priv);
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/radeon/ci_dpm.c:5654:2: warning: Attempt to free released memory [unix.Malloc]
-        kfree(rdev->pm.dpm.ps);
-        ^~~~~~~~~~~~~~~~~~~~~~
+Fix the definition of PAGE_HYP_DEVICE so that it doesn't set RES0 bits
+at EL2.
 
-problem is reported in ci_dpm_fini, with these code blocks.
-
-	for (i = 0; i < rdev->pm.dpm.num_ps; i++) {
-		kfree(rdev->pm.dpm.ps[i].ps_priv);
-	}
-	kfree(rdev->pm.dpm.ps);
-
-The first free happens in ci_parse_power_table where it cleans up locally
-on a failure.  ci_dpm_fini also does a cleanup.
-
-	ret = ci_parse_power_table(rdev);
-	if (ret) {
-		ci_dpm_fini(rdev);
-		return ret;
-	}
-
-So remove the cleanup in ci_parse_power_table and
-move the num_ps calculation to inside the loop so ci_dpm_fini
-will know how many array elements to free.
-
-Fixes: cc8dbbb4f62a ("drm/radeon: add dpm support for CI dGPUs (v2)")
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200708162546.26176-1-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/radeon/ci_dpm.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/pgtable-prot.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/radeon/ci_dpm.c
-+++ b/drivers/gpu/drm/radeon/ci_dpm.c
-@@ -5551,6 +5551,7 @@ static int ci_parse_power_table(struct r
- 	if (!rdev->pm.dpm.ps)
- 		return -ENOMEM;
- 	power_state_offset = (u8 *)state_array->states;
-+	rdev->pm.dpm.num_ps = 0;
- 	for (i = 0; i < state_array->ucNumEntries; i++) {
- 		u8 *idx;
- 		power_state = (union pplib_power_state *)power_state_offset;
-@@ -5560,10 +5561,8 @@ static int ci_parse_power_table(struct r
- 		if (!rdev->pm.power_state[i].clock_info)
- 			return -EINVAL;
- 		ps = kzalloc(sizeof(struct ci_ps), GFP_KERNEL);
--		if (ps == NULL) {
--			kfree(rdev->pm.dpm.ps);
-+		if (ps == NULL)
- 			return -ENOMEM;
--		}
- 		rdev->pm.dpm.ps[i].ps_priv = ps;
- 		ci_parse_pplib_non_clock_info(rdev, &rdev->pm.dpm.ps[i],
- 					      non_clock_info,
-@@ -5585,8 +5584,8 @@ static int ci_parse_power_table(struct r
- 			k++;
- 		}
- 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
-+		rdev->pm.dpm.num_ps = i + 1;
- 	}
--	rdev->pm.dpm.num_ps = state_array->ucNumEntries;
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -65,7 +65,7 @@
+ #define PAGE_HYP		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_HYP_XN)
+ #define PAGE_HYP_EXEC		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY)
+ #define PAGE_HYP_RO		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY | PTE_HYP_XN)
+-#define PAGE_HYP_DEVICE		__pgprot(PROT_DEVICE_nGnRE | PTE_HYP)
++#define PAGE_HYP_DEVICE		__pgprot(_PROT_DEFAULT | PTE_ATTRINDX(MT_DEVICE_nGnRE) | PTE_HYP | PTE_HYP_XN)
  
- 	/* fill in the vce power states */
- 	for (i = 0; i < RADEON_MAX_VCE_LEVELS; i++) {
+ #define PAGE_S2			__pgprot(_PROT_DEFAULT | PTE_S2_MEMATTR(MT_S2_NORMAL) | PTE_S2_RDONLY)
+ #define PAGE_S2_DEVICE		__pgprot(_PROT_DEFAULT | PTE_S2_MEMATTR(MT_S2_DEVICE_nGnRE) | PTE_S2_RDONLY | PTE_UXN)
 
 
