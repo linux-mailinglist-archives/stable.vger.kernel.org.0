@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8D222661A
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F128226484
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732382AbgGTQAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33054 "EHLO mail.kernel.org"
+        id S1730562AbgGTPpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:45:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731769AbgGTQAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:00:11 -0400
+        id S1730559AbgGTPpp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:45:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B0FE20773;
-        Mon, 20 Jul 2020 16:00:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 277342064B;
+        Mon, 20 Jul 2020 15:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260810;
-        bh=RqVU8Df+lOK7unML23BC5+Sc36ZeTBM8k96AayuSAis=;
+        s=default; t=1595259944;
+        bh=+fMBqmd+8jSPdbKzDkNB+4cM/uWpUcqZuRt8XevMLqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jL+KYAHfu3BZbYGK/6S7g8EZGNqSTQ3A4/cY/aS9janiiy1545qEH/KRj7Wt2SGUp
-         j9J4mlCORNSR/IA7CC0RSnsKdbBbSf8kqLPFyAGYxs9QxA9ArMVTGedzpKXKFrnxbm
-         AwVPJHT7SBVxtfh5qOM6SWMnPcJ0oka5vwX4juT8=
+        b=CWZHm0BIINBIGmBR8RvYQxHmhpRTsSrvSbGyIYinLrD5CkDYsyxvdk8vWnJnnrn77
+         HCklKSOzJWPxerNoCKybCMTcht1CjoFuxrPGl20JlESFUj67/K/QAqFq9tO/zFiv1p
+         hbqAIzOq15AKtrAdzszYpXexfrHN4hE9wZNHLN5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Maxime Ripard <mripard@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/215] spi: spi-sun6i: sun6i_spi_transfer_one(): fix setting of clock rate
-Date:   Mon, 20 Jul 2020 17:36:27 +0200
-Message-Id: <20200720152825.204287142@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 049/125] tcp: md5: allow changing MD5 keys in all socket states
+Date:   Mon, 20 Jul 2020 17:36:28 +0200
+Message-Id: <20200720152805.381418685@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
+References: <20200720152802.929969555@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ed7815db70d17b1741883f2da8e1d80bc2efe517 ]
+[ Upstream commit 1ca0fafd73c5268e8fc4b997094b8bb2bfe8deea ]
 
-A SPI transfer defines the _maximum_ speed of the SPI transfer. However the
-driver doesn't take into account that the clock divider is always rounded down
-(due to integer arithmetics). This results in a too high clock rate for the SPI
-transfer.
+This essentially reverts commit 721230326891 ("tcp: md5: reject TCP_MD5SIG
+or TCP_MD5SIG_EXT on established sockets")
 
-E.g.: with a mclk_rate of 24 MHz and a SPI transfer speed of 10 MHz, the
-original code calculates a reg of "0", which results in a effective divider of
-"2" and a 12 MHz clock for the SPI transfer.
+Mathieu reported that many vendors BGP implementations can
+actually switch TCP MD5 on established flows.
 
-This patch fixes the issue by using DIV_ROUND_UP() instead of a plain
-integer division.
+Quoting Mathieu :
+   Here is a list of a few network vendors along with their behavior
+   with respect to TCP MD5:
 
-While there simplify the divider calculation for the CDR1 case, use
-order_base_2() instead of two ilog2() calculations.
+   - Cisco: Allows for password to be changed, but within the hold-down
+     timer (~180 seconds).
+   - Juniper: When password is initially set on active connection it will
+     reset, but after that any subsequent password changes no network
+     resets.
+   - Nokia: No notes on if they flap the tcp connection or not.
+   - Ericsson/RedBack: Allows for 2 password (old/new) to co-exist until
+     both sides are ok with new passwords.
+   - Meta-Switch: Expects the password to be set before a connection is
+     attempted, but no further info on whether they reset the TCP
+     connection on a change.
+   - Avaya: Disable the neighbor, then set password, then re-enable.
+   - Zebos: Would normally allow the change when socket connected.
 
-Fixes: 3558fe900e8a ("spi: sunxi: Add Allwinner A31 SPI controller driver")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Link: https://lore.kernel.org/r/20200706143443.9855-2-mkl@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We can revert my prior change because commit 9424e2e7ad93 ("tcp: md5: fix potential
+overestimation of TCP option space") removed the leak of 4 kernel bytes to
+the wire that was the main reason for my patch.
+
+While doing my investigations, I found a bug when a MD5 key is changed, leading
+to these commits that stable teams want to consider before backporting this revert :
+
+ Commit 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
+ Commit e6ced831ef11 ("tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers")
+
+Fixes: 721230326891 "tcp: md5: reject TCP_MD5SIG or TCP_MD5SIG_EXT on established sockets"
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-sun6i.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ net/ipv4/tcp.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
-index ec7967be9e2f5..956df79035d56 100644
---- a/drivers/spi/spi-sun6i.c
-+++ b/drivers/spi/spi-sun6i.c
-@@ -198,7 +198,7 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
- 				  struct spi_transfer *tfr)
- {
- 	struct sun6i_spi *sspi = spi_master_get_devdata(master);
--	unsigned int mclk_rate, div, timeout;
-+	unsigned int mclk_rate, div, div_cdr1, div_cdr2, timeout;
- 	unsigned int start, end, tx_time;
- 	unsigned int trig_level;
- 	unsigned int tx_len = 0;
-@@ -287,14 +287,12 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
- 	 * First try CDR2, and if we can't reach the expected
- 	 * frequency, fall back to CDR1.
- 	 */
--	div = mclk_rate / (2 * tfr->speed_hz);
--	if (div <= (SUN6I_CLK_CTL_CDR2_MASK + 1)) {
--		if (div > 0)
--			div--;
--
--		reg = SUN6I_CLK_CTL_CDR2(div) | SUN6I_CLK_CTL_DRS;
-+	div_cdr1 = DIV_ROUND_UP(mclk_rate, tfr->speed_hz);
-+	div_cdr2 = DIV_ROUND_UP(div_cdr1, 2);
-+	if (div_cdr2 <= (SUN6I_CLK_CTL_CDR2_MASK + 1)) {
-+		reg = SUN6I_CLK_CTL_CDR2(div_cdr2 - 1) | SUN6I_CLK_CTL_DRS;
- 	} else {
--		div = ilog2(mclk_rate) - ilog2(tfr->speed_hz);
-+		div = min(SUN6I_CLK_CTL_CDR1_MASK, order_base_2(div_cdr1));
- 		reg = SUN6I_CLK_CTL_CDR1(div);
- 	}
- 
--- 
-2.25.1
-
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2759,10 +2759,7 @@ static int do_tcp_setsockopt(struct sock
+ #ifdef CONFIG_TCP_MD5SIG
+ 	case TCP_MD5SIG:
+ 	case TCP_MD5SIG_EXT:
+-		if ((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN))
+-			err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
+-		else
+-			err = -EINVAL;
++		err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
+ 		break;
+ #endif
+ 	case TCP_USER_TIMEOUT:
 
 
