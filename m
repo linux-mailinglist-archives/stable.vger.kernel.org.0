@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F228226490
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8EF22265FE
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730609AbgGTPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:46:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40692 "EHLO mail.kernel.org"
+        id S1732179AbgGTP7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:59:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730624AbgGTPqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:46:07 -0400
+        id S1732167AbgGTP7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:59:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F22822CAF;
-        Mon, 20 Jul 2020 15:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DFC222CAF;
+        Mon, 20 Jul 2020 15:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259966;
-        bh=McmbKFlbqMpo8IxRkVL1jd3r9+7XGe4Z3H7+HxfRZRU=;
+        s=default; t=1595260755;
+        bh=PKJqW285Wyj9VDxoQk/MlK8bcvV3xkLNjAGN/bWGlpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fyCU0mURPgI3DQU0o4MbzNFCMshAOMwgCKw5pFj9qZv/3MiRSQ4L/KCu/SThOjX03
-         eISQC9XY9Lv8+Bu39aPeV6SaV21ZKl6FpVxZM90Ve+mfhuFKh1U3DCnHGuKlvkJRnl
-         M4CxlsFcqjuOqhkXzUlGuPnc3vK5FUTVj5OteXag=
+        b=bWMJJGgtQMuG4OCAup9ii3EelFawAYX+akAnjE6PoLNfhooravtpGTs975br2rrtO
+         /7o7Vo+A2KIZSl73SSgFY1LiuvfKhjyLu+5toAhlvOw+hqviCQQbQdRQ3k9TTWHIWk
+         42boah6oX5xIn6IsX4O57CtmRe9c+ok+taUbAhjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 027/125] ALSA: hda - let hs_mic be picked ahead of hp_mic
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 084/215] mmc: sdhci: do not enable card detect interrupt for gpio cd type
 Date:   Mon, 20 Jul 2020 17:36:06 +0200
-Message-Id: <20200720152804.296663793@linuxfoundation.org>
+Message-Id: <20200720152824.202443009@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit 6a6ca7881b1ab1c13fe0d70bae29211a65dd90de upstream.
+[ Upstream commit e65bb38824711559844ba932132f417bc5a355e2 ]
 
-We have a Dell AIO, there is neither internal speaker nor internal
-mic, only a multi-function audio jack on it.
+Except SDHCI_QUIRK_BROKEN_CARD_DETECTION and MMC_CAP_NONREMOVABLE,
+we also do not need to handle controller native card detect interrupt
+for gpio cd type.
+If we wrong enabled the card detect interrupt for gpio case, it will
+cause a lot of unexpected card detect interrupts during data transfer
+which should not happen.
 
-Users reported that after freshly installing the OS and plug
-a headset to the audio jack, the headset can't output sound. I
-reproduced this bug, at that moment, the Input Source is as below:
-Simple mixer control 'Input Source',0
-  Capabilities: cenum
-  Items: 'Headphone Mic' 'Headset Mic'
-  Item0: 'Headphone Mic'
-
-That is because the patch_realtek will set this audio jack as mic_in
-mode if Input Source's value is hp_mic.
-
-If it is not fresh installing, this issue will not happen since the
-systemd will run alsactl restore -f /var/lib/alsa/asound.state, this
-will set the 'Input Source' according to history value.
-
-If there is internal speaker or internal mic, this issue will not
-happen since there is valid sink/source in the pulseaudio, the PA will
-set the 'Input Source' according to active_port.
-
-To fix this issue, change the parser function to let the hs_mic be
-stored ahead of hp_mic.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200625083833.11264-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/1582100563-20555-2-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_auto_parser.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/host/sdhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_auto_parser.c
-+++ b/sound/pci/hda/hda_auto_parser.c
-@@ -76,6 +76,12 @@ static int compare_input_type(const void
- 	if (a->type != b->type)
- 		return (int)(a->type - b->type);
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 50514fedbc76f..136f9737713d8 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -152,7 +152,7 @@ static void sdhci_set_card_detection(struct sdhci_host *host, bool enable)
+ 	u32 present;
  
-+	/* If has both hs_mic and hp_mic, pick the hs_mic ahead of hp_mic. */
-+	if (a->is_headset_mic && b->is_headphone_mic)
-+		return -1; /* don't swap */
-+	else if (a->is_headphone_mic && b->is_headset_mic)
-+		return 1; /* swap */
-+
- 	/* In case one has boost and the other one has not,
- 	   pick the one with boost first. */
- 	return (int)(b->has_boost_on_pin - a->has_boost_on_pin);
+ 	if ((host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
+-	    !mmc_card_is_removable(host->mmc))
++	    !mmc_card_is_removable(host->mmc) || mmc_can_gpio_cd(host->mmc))
+ 		return;
+ 
+ 	if (enable) {
+-- 
+2.25.1
+
 
 
