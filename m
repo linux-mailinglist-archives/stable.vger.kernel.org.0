@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 589A0226B16
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4378226A81
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730960AbgGTQjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:39:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45614 "EHLO mail.kernel.org"
+        id S1731663AbgGTQfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:35:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731026AbgGTPt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:49:29 -0400
+        id S1731295AbgGTPye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:54:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B17E5206E9;
-        Mon, 20 Jul 2020 15:49:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9588D22482;
+        Mon, 20 Jul 2020 15:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260169;
-        bh=iUjDdbv2Y/n23mmUox5x/FmP5yHwFrC1cy3kp+kyGRU=;
+        s=default; t=1595260474;
+        bh=qt35y56Q9ltUGv8Vgju3aGakFWpJPRKM4Uteu2wSBWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTmd17pbNFHqUmAWmrjgTGztzak7lYJsIsP2PRlu5bRXxeDEcPJg+GEGIJG/k7SIP
-         jDqC4KU3+anQCLcGcvvE7LSin25MNGrh3V4Mu5VAlAyUmxOmnftsgA2ndfFMyC75pl
-         /PSCPkGlWw4RzYYdbjZ1jtBnU24QqakocQIzq5dc=
+        b=Nr+uW0Nc2b28qSjDEcf0G+JVEzE1n+Yvmj3pRrnIs1TtpFWhc9b/HYv95b0a9ZsqS
+         Q2jJqwHWggtoXz396V4AV/8IoAIwjX4p00gc608/OwdGrH+3jsuoAHj/lqh2Ox9mPw
+         3s+taBkl+mePYtgGL4VeuvBM9dN4doLePTQIfCmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 4.14 124/125] libceph: dont omit recovery_deletes in target_copy()
+        stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 116/133] powerpc/book3s64/pkeys: Fix pkey_access_permitted() for execute disable pkey
 Date:   Mon, 20 Jul 2020 17:37:43 +0200
-Message-Id: <20200720152809.061854551@linuxfoundation.org>
+Message-Id: <20200720152809.340038500@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
+References: <20200720152803.732195882@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 2f3fead62144002557f322c2a7c15e1255df0653 upstream.
+commit 192b6a780598976feb7321ff007754f8511a4129 upstream.
 
-Currently target_copy() is used only for sending linger pings, so
-this doesn't come up, but generally omitting recovery_deletes can
-result in unneeded resends (force_resend in calc_target()).
+Even if the IAMR value denies execute access, the current code returns
+true from pkey_access_permitted() for an execute permission check, if
+the AMR read pkey bit is cleared.
 
-Fixes: ae78dd8139ce ("libceph: make RECOVERY_DELETES feature create a new interval")
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+This results in repeated page fault loop with a test like below:
+
+  #define _GNU_SOURCE
+  #include <errno.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <signal.h>
+  #include <inttypes.h>
+
+  #include <assert.h>
+  #include <malloc.h>
+  #include <unistd.h>
+  #include <pthread.h>
+  #include <sys/mman.h>
+
+  #ifdef SYS_pkey_mprotect
+  #undef SYS_pkey_mprotect
+  #endif
+
+  #ifdef SYS_pkey_alloc
+  #undef SYS_pkey_alloc
+  #endif
+
+  #ifdef SYS_pkey_free
+  #undef SYS_pkey_free
+  #endif
+
+  #undef PKEY_DISABLE_EXECUTE
+  #define PKEY_DISABLE_EXECUTE	0x4
+
+  #define SYS_pkey_mprotect	386
+  #define SYS_pkey_alloc		384
+  #define SYS_pkey_free		385
+
+  #define PPC_INST_NOP		0x60000000
+  #define PPC_INST_BLR		0x4e800020
+  #define PROT_RWX		(PROT_READ | PROT_WRITE | PROT_EXEC)
+
+  static int sys_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
+  {
+  	return syscall(SYS_pkey_mprotect, addr, len, prot, pkey);
+  }
+
+  static int sys_pkey_alloc(unsigned long flags, unsigned long access_rights)
+  {
+  	return syscall(SYS_pkey_alloc, flags, access_rights);
+  }
+
+  static int sys_pkey_free(int pkey)
+  {
+  	return syscall(SYS_pkey_free, pkey);
+  }
+
+  static void do_execute(void *region)
+  {
+  	/* jump to region */
+  	asm volatile(
+  		"mtctr	%0;"
+  		"bctrl"
+  		: : "r"(region) : "ctr", "lr");
+  }
+
+  static void do_protect(void *region)
+  {
+  	size_t pgsize;
+  	int i, pkey;
+
+  	pgsize = getpagesize();
+
+  	pkey = sys_pkey_alloc(0, PKEY_DISABLE_EXECUTE);
+  	assert (pkey > 0);
+
+  	/* perform mprotect */
+  	assert(!sys_pkey_mprotect(region, pgsize, PROT_RWX, pkey));
+  	do_execute(region);
+
+  	/* free pkey */
+  	assert(!sys_pkey_free(pkey));
+
+  }
+
+  int main(int argc, char **argv)
+  {
+  	size_t pgsize, numinsns;
+  	unsigned int *region;
+  	int i;
+
+  	/* allocate memory region to protect */
+  	pgsize = getpagesize();
+  	region = memalign(pgsize, pgsize);
+  	assert(region != NULL);
+  	assert(!mprotect(region, pgsize, PROT_RWX));
+
+  	/* fill page with NOPs with a BLR at the end */
+  	numinsns = pgsize / sizeof(region[0]);
+  	for (i = 0; i < numinsns - 1; i++)
+  		region[i] = PPC_INST_NOP;
+  	region[i] = PPC_INST_BLR;
+
+  	do_protect(region);
+
+  	return EXIT_SUCCESS;
+  }
+
+The fix is to only check the IAMR for an execute check, the AMR value
+is not relevant.
+
+Fixes: f2407ef3ba22 ("powerpc: helper to validate key-access permissions of a pte")
+Cc: stable@vger.kernel.org # v4.16+
+Reported-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[mpe: Add detail to change log, tweak wording & formatting]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200712132047.1038594-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ceph/osd_client.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/mm/pkeys.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/net/ceph/osd_client.c
-+++ b/net/ceph/osd_client.c
-@@ -384,6 +384,7 @@ static void target_copy(struct ceph_osd_
- 	dest->size = src->size;
- 	dest->min_size = src->min_size;
- 	dest->sort_bitwise = src->sort_bitwise;
-+	dest->recovery_deletes = src->recovery_deletes;
+--- a/arch/powerpc/mm/pkeys.c
++++ b/arch/powerpc/mm/pkeys.c
+@@ -365,12 +365,14 @@ static bool pkey_access_permitted(int pk
+ 		return true;
  
- 	dest->flags = src->flags;
- 	dest->paused = src->paused;
+ 	pkey_shift = pkeyshift(pkey);
+-	if (execute && !(read_iamr() & (IAMR_EX_BIT << pkey_shift)))
+-		return true;
++	if (execute)
++		return !(read_iamr() & (IAMR_EX_BIT << pkey_shift));
++
++	amr = read_amr();
++	if (write)
++		return !(amr & (AMR_WR_BIT << pkey_shift));
+ 
+-	amr = read_amr(); /* Delay reading amr until absolutely needed */
+-	return ((!write && !(amr & (AMR_RD_BIT << pkey_shift))) ||
+-		(write &&  !(amr & (AMR_WR_BIT << pkey_shift))));
++	return !(amr & (AMR_RD_BIT << pkey_shift));
+ }
+ 
+ bool arch_pte_access_permitted(u64 pte, bool write, bool execute)
 
 
