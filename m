@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA52E2268E9
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 284BE226887
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388431AbgGTQWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
+        id S1731510AbgGTQGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:06:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732742AbgGTQGJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:06:09 -0400
+        id S1732568AbgGTQGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:06:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE52A22CB1;
-        Mon, 20 Jul 2020 16:06:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0D992065E;
+        Mon, 20 Jul 2020 16:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261168;
-        bh=gIRhl9opOJU5+qKIqIvykBBfc5EZJL8zkNp35h42d90=;
+        s=default; t=1595261171;
+        bh=pwKYZjnPPUY/xozZBqm/JjR/lvm2sqB8mwfojRtnjCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSOML9KP51unxyCzF8JTxlvdTJz5JuagWxT0LCh+14kMloT/7q6UfhBS/mkliBITq
-         tE1MVtdw+ryjz/CsMN2o79o1B05NF3sGv1C8C2cPzpGebjI9jfmQrqjTLD34nHNTnu
-         PWf5H9/0QN1GDY1+lIylaBtg6p15xuFAvC/z/UBA=
+        b=Ln5LCG5J2G9L/EofPbUfGAPBdvOhXg+1zVCPZ4cRyy2Bb9IYyvSXg1Jj7TAHft4ii
+         Cmm0fi4djrQKaAtIx6dpg0amf8zv+PKlXR0RYbOShpEIE+xfsFHPohivMIgXxQ2OYk
+         sCalFUAdCAsbFm/JLV9ZAh4UXcDOFfxn0UWaWvk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Marco Elver <elver@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 018/244] vlan: consolidate VLAN parsing code and limit max parsing depth
-Date:   Mon, 20 Jul 2020 17:34:49 +0200
-Message-Id: <20200720152826.744203618@linuxfoundation.org>
+Subject: [PATCH 5.7 019/244] tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers
+Date:   Mon, 20 Jul 2020 17:34:50 +0200
+Message-Id: <20200720152826.791128900@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
 References: <20200720152825.863040590@linuxfoundation.org>
@@ -46,136 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Toke Høiland-Jørgensen" <toke@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 469aceddfa3ed16e17ee30533fae45e90f62efd8 ]
+[ Upstream commit e6ced831ef11a2a06e8d00aad9d4fc05b610bf38 ]
 
-Toshiaki pointed out that we now have two very similar functions to extract
-the L3 protocol number in the presence of VLAN tags. And Daniel pointed out
-that the unbounded parsing loop makes it possible for maliciously crafted
-packets to loop through potentially hundreds of tags.
+My prior fix went a bit too far, according to Herbert and Mathieu.
 
-Fix both of these issues by consolidating the two parsing functions and
-limiting the VLAN tag parsing to a max depth of 8 tags. As part of this,
-switch over __vlan_get_protocol() to use skb_header_pointer() instead of
-pskb_may_pull(), to avoid the possible side effects of the latter and keep
-the skb pointer 'const' through all the parsing functions.
+Since we accept that concurrent TCP MD5 lookups might see inconsistent
+keys, we can use READ_ONCE()/WRITE_ONCE() instead of smp_rmb()/smp_wmb()
 
-v2:
-- Use limit of 8 tags instead of 32 (matching XMIT_RECURSION_LIMIT)
+Clearing all key->key[] is needed to avoid possible KMSAN reports,
+if key->keylen is increased. Since tcp_md5_do_add() is not fast path,
+using __GFP_ZERO to clear all struct tcp_md5sig_key is simpler.
 
-Reported-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Reported-by: Daniel Borkmann <daniel@iogearbox.net>
-Fixes: d7bf2ebebc2b ("sched: consistently handle layer3 header accesses in the presence of VLANs")
-Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
+data_race() was added in linux-5.8 and will prevent KCSAN reports,
+this can safely be removed in stable backports, if data_race() is
+not yet backported.
+
+v2: use data_race() both in tcp_md5_hash_key() and tcp_md5_do_add()
+
+Fixes: 6a2febec338d ("tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Marco Elver <elver@google.com>
+Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/if_vlan.h |   57 ++++++++++++++++++------------------------------
- 1 file changed, 22 insertions(+), 35 deletions(-)
+ net/ipv4/tcp.c      |    6 +++---
+ net/ipv4/tcp_ipv4.c |   14 ++++++++++----
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/include/linux/if_vlan.h
-+++ b/include/linux/if_vlan.h
-@@ -25,6 +25,8 @@
- #define VLAN_ETH_DATA_LEN	1500	/* Max. octets in payload	 */
- #define VLAN_ETH_FRAME_LEN	1518	/* Max. octets in frame sans FCS */
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3880,13 +3880,13 @@ EXPORT_SYMBOL(tcp_md5_hash_skb_data);
  
-+#define VLAN_MAX_DEPTH	8		/* Max. number of nested VLAN tags parsed */
+ int tcp_md5_hash_key(struct tcp_md5sig_pool *hp, const struct tcp_md5sig_key *key)
+ {
+-	u8 keylen = key->keylen;
++	u8 keylen = READ_ONCE(key->keylen); /* paired with WRITE_ONCE() in tcp_md5_do_add */
+ 	struct scatterlist sg;
+ 
+-	smp_rmb(); /* paired with smp_wmb() in tcp_md5_do_add() */
+-
+ 	sg_init_one(&sg, key->key, keylen);
+ 	ahash_request_set_crypt(hp->md5_req, &sg, NULL, keylen);
 +
- /*
-  * 	struct vlan_hdr - vlan header
-  * 	@h_vlan_TCI: priority and VLAN ID
-@@ -308,34 +310,6 @@ static inline bool eth_type_vlan(__be16
- 	}
++	/* tcp_md5_do_add() might change key->key under us */
+ 	return crypto_ahash_update(hp->md5_req);
  }
+ EXPORT_SYMBOL(tcp_md5_hash_key);
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1103,12 +1103,18 @@ int tcp_md5_do_add(struct sock *sk, cons
  
--/* A getter for the SKB protocol field which will handle VLAN tags consistently
-- * whether VLAN acceleration is enabled or not.
-- */
--static inline __be16 skb_protocol(const struct sk_buff *skb, bool skip_vlan)
--{
--	unsigned int offset = skb_mac_offset(skb) + sizeof(struct ethhdr);
--	__be16 proto = skb->protocol;
--
--	if (!skip_vlan)
--		/* VLAN acceleration strips the VLAN header from the skb and
--		 * moves it to skb->vlan_proto
--		 */
--		return skb_vlan_tag_present(skb) ? skb->vlan_proto : proto;
--
--	while (eth_type_vlan(proto)) {
--		struct vlan_hdr vhdr, *vh;
--
--		vh = skb_header_pointer(skb, offset, sizeof(vhdr), &vhdr);
--		if (!vh)
--			break;
--
--		proto = vh->h_vlan_encapsulated_proto;
--		offset += sizeof(vhdr);
--	}
--
--	return proto;
--}
--
- static inline bool vlan_hw_offload_capable(netdev_features_t features,
- 					   __be16 proto)
- {
-@@ -605,10 +579,10 @@ static inline int vlan_get_tag(const str
-  * Returns the EtherType of the packet, regardless of whether it is
-  * vlan encapsulated (normal or hardware accelerated) or not.
-  */
--static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
-+static inline __be16 __vlan_get_protocol(const struct sk_buff *skb, __be16 type,
- 					 int *depth)
- {
--	unsigned int vlan_depth = skb->mac_len;
-+	unsigned int vlan_depth = skb->mac_len, parse_depth = VLAN_MAX_DEPTH;
- 
- 	/* if type is 802.1Q/AD then the header should already be
- 	 * present at mac_len - VLAN_HLEN (if mac_len > 0), or at
-@@ -623,13 +597,12 @@ static inline __be16 __vlan_get_protocol
- 			vlan_depth = ETH_HLEN;
- 		}
- 		do {
--			struct vlan_hdr *vh;
-+			struct vlan_hdr vhdr, *vh;
- 
--			if (unlikely(!pskb_may_pull(skb,
--						    vlan_depth + VLAN_HLEN)))
-+			vh = skb_header_pointer(skb, vlan_depth, sizeof(vhdr), &vhdr);
-+			if (unlikely(!vh || !--parse_depth))
- 				return 0;
- 
--			vh = (struct vlan_hdr *)(skb->data + vlan_depth);
- 			type = vh->h_vlan_encapsulated_proto;
- 			vlan_depth += VLAN_HLEN;
- 		} while (eth_type_vlan(type));
-@@ -648,11 +621,25 @@ static inline __be16 __vlan_get_protocol
-  * Returns the EtherType of the packet, regardless of whether it is
-  * vlan encapsulated (normal or hardware accelerated) or not.
-  */
--static inline __be16 vlan_get_protocol(struct sk_buff *skb)
-+static inline __be16 vlan_get_protocol(const struct sk_buff *skb)
- {
- 	return __vlan_get_protocol(skb, skb->protocol, NULL);
- }
- 
-+/* A getter for the SKB protocol field which will handle VLAN tags consistently
-+ * whether VLAN acceleration is enabled or not.
-+ */
-+static inline __be16 skb_protocol(const struct sk_buff *skb, bool skip_vlan)
-+{
-+	if (!skip_vlan)
-+		/* VLAN acceleration strips the VLAN header from the skb and
-+		 * moves it to skb->vlan_proto
+ 	key = tcp_md5_do_lookup_exact(sk, addr, family, prefixlen, l3index);
+ 	if (key) {
+-		/* Pre-existing entry - just update that one. */
++		/* Pre-existing entry - just update that one.
++		 * Note that the key might be used concurrently.
 +		 */
-+		return skb_vlan_tag_present(skb) ? skb->vlan_proto : skb->protocol;
-+
-+	return vlan_get_protocol(skb);
-+}
-+
- static inline void vlan_set_encap_proto(struct sk_buff *skb,
- 					struct vlan_hdr *vhdr)
- {
+ 		memcpy(key->key, newkey, newkeylen);
+ 
+-		smp_wmb(); /* pairs with smp_rmb() in tcp_md5_hash_key() */
++		/* Pairs with READ_ONCE() in tcp_md5_hash_key().
++		 * Also note that a reader could catch new key->keylen value
++		 * but old key->key[], this is the reason we use __GFP_ZERO
++		 * at sock_kmalloc() time below these lines.
++		 */
++		WRITE_ONCE(key->keylen, newkeylen);
+ 
+-		key->keylen = newkeylen;
+ 		return 0;
+ 	}
+ 
+@@ -1124,7 +1130,7 @@ int tcp_md5_do_add(struct sock *sk, cons
+ 		rcu_assign_pointer(tp->md5sig_info, md5sig);
+ 	}
+ 
+-	key = sock_kmalloc(sk, sizeof(*key), gfp);
++	key = sock_kmalloc(sk, sizeof(*key), gfp | __GFP_ZERO);
+ 	if (!key)
+ 		return -ENOMEM;
+ 	if (!tcp_alloc_md5sig_pool()) {
 
 
