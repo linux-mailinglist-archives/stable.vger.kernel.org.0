@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2302267E7
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81DF52268F8
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388039AbgGTQPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:15:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56604 "EHLO mail.kernel.org"
+        id S1729962AbgGTQFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:05:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387763AbgGTQPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:15:39 -0400
+        id S1732365AbgGTQFP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:05:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 039052064B;
-        Mon, 20 Jul 2020 16:15:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E942064B;
+        Mon, 20 Jul 2020 16:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261738;
-        bh=brtp9yHjy3ziQVxTsjjgYfS8uVlOTxN4qyMt/fPozVw=;
+        s=default; t=1595261115;
+        bh=30CXrEdiYVz1AylAF1x57ZnlAb8SkFQ3PCeoPQOpcKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUVpN8EA9sWGJZZblJeA6E4cC9IRy9bnRxf8HtLq92h+nk5BRoM8UQ4UvK8xUx5kH
-         crefVUta74gUuUBpsZrAZiKHA9fsrF4dsr3dzuDRkIIhm6RUX0+KIX9jD9ms6NVYeW
-         Fk3Up9OfCBgZ8zG4kIBkhDVHyGSj98YRD6wreeHk=
+        b=NYjIoAdqbIyd68KGe+Bo+tyYILmG+U7XZ/KJDONGXU52XZNvsdpwD5P/3KGFDQKy0
+         zLeXYyFEi2H3k484crt/yvCA2RvjY9Ug3jKwiFyR6tQ9Z8s/psgfb4lFAUCEloZJJk
+         fDaL+/7BnB1iJqzi9xzVFXAlz2ZVXgjTK0JqfCn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.7 207/244] dmaengine: mcf-edma: Fix NULL pointer exception in mcf_edma_tx_handler
-Date:   Mon, 20 Jul 2020 17:37:58 +0200
-Message-Id: <20200720152835.693987804@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Alex Hung <alex.hung@canonical.com>
+Subject: [PATCH 5.4 197/215] thermal: int3403_thermal: Downgrade error message
+Date:   Mon, 20 Jul 2020 17:37:59 +0200
+Message-Id: <20200720152829.533853136@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
-References: <20200720152825.863040590@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
+References: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Alex Hung <alex.hung@canonical.com>
 
-commit 8995aa3d164ddd9200e6abcf25c449cf5298c858 upstream.
+commit f3d7fb38976b1b0a8462ba1c7cbd404ddfaad086 upstream.
 
-On Toradex Colibri VF50 (Vybrid VF5xx) with fsl-edma driver NULL pointer
-exception happens occasionally on serial output initiated by login
-timeout.
+Downgrade "Unsupported event" message from dev_err to dev_dbg to avoid
+flooding with this message on some platforms.
 
-This was reproduced only if kernel was built with significant debugging
-options and EDMA driver is used with serial console.
-
-Issue looks like a race condition between interrupt handler
-fsl_edma_tx_handler() (called as a result of fsl_edma_xfer_desc()) and
-terminating the transfer with fsl_edma_terminate_all().
-
-The fsl_edma_tx_handler() handles interrupt for a transfer with already
-freed edesc and idle==true.
-
-The mcf-edma driver shares design and lot of code with fsl-edma.  It
-looks like being affected by same problem.  Fix this pattern the same
-way as fix for fsl-edma driver.
-
-Fixes: e7a3ff92eaf1 ("dmaengine: fsl-edma: add ColdFire mcf5441x edma support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Robin Gong <yibin.gong@nxp.com>
-Link: https://lore.kernel.org/r/1591881665-25592-1-git-send-email-krzk@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: stable@vger.kernel.org # v5.4+
+Suggested-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+[ rzhang: fix typo in changelog ]
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Link: https://lore.kernel.org/r/20200615223957.183153-1-alex.hung@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/mcf-edma.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/thermal/intel/int340x_thermal/int3403_thermal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/mcf-edma.c
-+++ b/drivers/dma/mcf-edma.c
-@@ -35,6 +35,13 @@ static irqreturn_t mcf_edma_tx_handler(i
- 			mcf_chan = &mcf_edma->chans[ch];
- 
- 			spin_lock(&mcf_chan->vchan.lock);
-+
-+			if (!mcf_chan->edesc) {
-+				/* terminate_all called before */
-+				spin_unlock(&mcf_chan->vchan.lock);
-+				continue;
-+			}
-+
- 			if (!mcf_chan->edesc->iscyclic) {
- 				list_del(&mcf_chan->edesc->vdesc.node);
- 				vchan_cookie_complete(&mcf_chan->edesc->vdesc);
+--- a/drivers/thermal/intel/int340x_thermal/int3403_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3403_thermal.c
+@@ -74,7 +74,7 @@ static void int3403_notify(acpi_handle h
+ 						   THERMAL_TRIP_CHANGED);
+ 		break;
+ 	default:
+-		dev_err(&priv->pdev->dev, "Unsupported event [0x%x]\n", event);
++		dev_dbg(&priv->pdev->dev, "Unsupported event [0x%x]\n", event);
+ 		break;
+ 	}
+ }
 
 
