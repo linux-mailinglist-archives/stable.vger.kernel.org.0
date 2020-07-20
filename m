@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BB3226B69
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FAD7226BF7
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730506AbgGTPpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39698 "EHLO mail.kernel.org"
+        id S1728816AbgGTPkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730519AbgGTPpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:45:23 -0400
+        id S1729746AbgGTPkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50E222065E;
-        Mon, 20 Jul 2020 15:45:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19ACA22D04;
+        Mon, 20 Jul 2020 15:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259921;
-        bh=DzYUQoS5uyGFJFexsBXN7fhrCgOedKWp2/G6On1PhdE=;
+        s=default; t=1595259638;
+        bh=JS8ZQOSUM4qWSeqJVCG/LhsLW7f6uNGnyC/H3yHP2+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0Id0G2GKGKAWTbz2SMYF2EF14wQQ98HdCxxsiZLiM4JGM77xy7fzGmDAVPjbA5d2
-         cNeWN0Nh9Gm234XEKbmODI52FZktN441JUyPw0Za+lNJgHwBNo/TNMpUpj7mCESvVN
-         BBrQZsBiQqOlKrvtUxa1tVqviuiF2xbKGVS/f/o0=
+        b=SzexIeTx7S7mu+dUKXUisKxHLtzRFyX3ZRjuQqqLwJWekbgHcAdg7URpUom9eFNDW
+         hkUsAzEuUjLdZqwVuCEtf2vxfUrgtVl5Xk0daOGBlyNHh33JqcFbXBt/2GOjctS6Go
+         TUXH2p2xByKZfBGJ6c42HL8wubxyMpwoQbUlbjkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Sean Tranchetti <stranche@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 041/125] genetlink: remove genl_bind
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.9 24/86] ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE
 Date:   Mon, 20 Jul 2020 17:36:20 +0200
-Message-Id: <20200720152805.003269910@linuxfoundation.org>
+Message-Id: <20200720152754.367822689@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,134 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Tranchetti <stranche@codeaurora.org>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 1e82a62fec613844da9e558f3493540a5b7a7b67 ]
+commit 00fdec98d9881bf5173af09aebd353ab3b9ac729 upstream.
 
-A potential deadlock can occur during registering or unregistering a
-new generic netlink family between the main nl_table_lock and the
-cb_lock where each thread wants the lock held by the other, as
-demonstrated below.
+Trap handler for syscall tracing reads EFA (Exception Fault Address),
+in case strace wants PC of trap instruction (EFA is not part of pt_regs
+as of current code).
 
-1) Thread 1 is performing a netlink_bind() operation on a socket. As part
-   of this call, it will call netlink_lock_table(), incrementing the
-   nl_table_users count to 1.
-2) Thread 2 is registering (or unregistering) a genl_family via the
-   genl_(un)register_family() API. The cb_lock semaphore will be taken for
-   writing.
-3) Thread 1 will call genl_bind() as part of the bind operation to handle
-   subscribing to GENL multicast groups at the request of the user. It will
-   attempt to take the cb_lock semaphore for reading, but it will fail and
-   be scheduled away, waiting for Thread 2 to finish the write.
-4) Thread 2 will call netlink_table_grab() during the (un)registration
-   call. However, as Thread 1 has incremented nl_table_users, it will not
-   be able to proceed, and both threads will be stuck waiting for the
-   other.
+However this EFA read is racy as it happens after dropping to pure
+kernel mode (re-enabling interrupts). A taken interrupt could
+context-switch, trigger a different task's trap, clobbering EFA for this
+execution context.
 
-genl_bind() is a noop, unless a genl_family implements the mcast_bind()
-function to handle setting up family-specific multicast operations. Since
-no one in-tree uses this functionality as Cong pointed out, simply removing
-the genl_bind() function will remove the possibility for deadlock, as there
-is no attempt by Thread 1 above to take the cb_lock semaphore.
+Fix this by reading EFA early, before re-enabling interrupts. A slight
+side benefit is de-duplication of FAKE_RET_FROM_EXCPN in trap handler.
+The trap handler is common to both ARCompact and ARCv2 builds too.
 
-Fixes: c380d9a7afff ("genetlink: pass multicast bind/unbind to families")
-Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Johannes Berg <johannes.berg@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This just came out of code rework/review and no real problem was reported
+but is clearly a potential problem specially for strace.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/genetlink.h |    8 -------
- net/netlink/genetlink.c |   49 ------------------------------------------------
- 2 files changed, 57 deletions(-)
 
---- a/include/net/genetlink.h
-+++ b/include/net/genetlink.h
-@@ -34,12 +34,6 @@ struct genl_info;
-  *	do additional, common, filtering and return an error
-  * @post_doit: called after an operation's doit callback, it may
-  *	undo operations done by pre_doit, for example release locks
-- * @mcast_bind: a socket bound to the given multicast group (which
-- *	is given as the offset into the groups array)
-- * @mcast_unbind: a socket was unbound from the given multicast group.
-- *	Note that unbind() will not be called symmetrically if the
-- *	generic netlink family is removed while there are still open
-- *	sockets.
-  * @attrbuf: buffer to store parsed attributes (private)
-  * @mcgrps: multicast groups used by this family
-  * @n_mcgrps: number of multicast groups
-@@ -62,8 +56,6 @@ struct genl_family {
- 	void			(*post_doit)(const struct genl_ops *ops,
- 					     struct sk_buff *skb,
- 					     struct genl_info *info);
--	int			(*mcast_bind)(struct net *net, int group);
--	void			(*mcast_unbind)(struct net *net, int group);
- 	struct nlattr **	attrbuf;	/* private */
- 	const struct genl_ops *	ops;
- 	const struct genl_multicast_group *mcgrps;
---- a/net/netlink/genetlink.c
-+++ b/net/netlink/genetlink.c
-@@ -959,60 +959,11 @@ static struct genl_family genl_ctrl __ro
- 	.netnsok = true,
- };
+---
+ arch/arc/kernel/entry.S |   16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
+
+--- a/arch/arc/kernel/entry.S
++++ b/arch/arc/kernel/entry.S
+@@ -156,7 +156,6 @@ END(EV_Extension)
+ tracesys:
+ 	; save EFA in case tracer wants the PC of traced task
+ 	; using ERET won't work since next-PC has already committed
+-	lr  r12, [efa]
+ 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
+ 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
  
--static int genl_bind(struct net *net, int group)
--{
--	struct genl_family *f;
--	int err = -ENOENT;
--	unsigned int id;
+@@ -199,15 +198,9 @@ tracesys_exit:
+ ; Breakpoint TRAP
+ ; ---------------------------------------------
+ trap_with_param:
 -
--	down_read(&cb_lock);
--
--	idr_for_each_entry(&genl_fam_idr, f, id) {
--		if (group >= f->mcgrp_offset &&
--		    group < f->mcgrp_offset + f->n_mcgrps) {
--			int fam_grp = group - f->mcgrp_offset;
--
--			if (!f->netnsok && net != &init_net)
--				err = -ENOENT;
--			else if (f->mcast_bind)
--				err = f->mcast_bind(net, fam_grp);
--			else
--				err = 0;
--			break;
--		}
--	}
--	up_read(&cb_lock);
--
--	return err;
--}
--
--static void genl_unbind(struct net *net, int group)
--{
--	struct genl_family *f;
--	unsigned int id;
--
--	down_read(&cb_lock);
--
--	idr_for_each_entry(&genl_fam_idr, f, id) {
--		if (group >= f->mcgrp_offset &&
--		    group < f->mcgrp_offset + f->n_mcgrps) {
--			int fam_grp = group - f->mcgrp_offset;
--
--			if (f->mcast_unbind)
--				f->mcast_unbind(net, fam_grp);
--			break;
--		}
--	}
--	up_read(&cb_lock);
--}
--
- static int __net_init genl_pernet_init(struct net *net)
- {
- 	struct netlink_kernel_cfg cfg = {
- 		.input		= genl_rcv,
- 		.flags		= NL_CFG_F_NONROOT_RECV,
--		.bind		= genl_bind,
--		.unbind		= genl_unbind,
- 	};
+-	; stop_pc info by gdb needs this info
+-	lr  r0, [efa]
++	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
+ 	mov r1, sp
  
- 	/* we'll bump the group number right afterwards */
+-	; Now that we have read EFA, it is safe to do "fake" rtie
+-	;   and get out of CPU exception mode
+-	FAKE_RET_FROM_EXCPN
+-
+ 	; Save callee regs in case gdb wants to have a look
+ 	; SP will grow up by size of CALLEE Reg-File
+ 	; NOTE: clobbers r12
+@@ -234,6 +227,10 @@ ENTRY(EV_Trap)
+ 
+ 	EXCEPTION_PROLOGUE
+ 
++	lr  r12, [efa]
++
++	FAKE_RET_FROM_EXCPN
++
+ 	;============ TRAP 1   :breakpoints
+ 	; Check ECR for trap with arg (PROLOGUE ensures r9 has ECR)
+ 	bmsk.f 0, r9, 7
+@@ -241,9 +238,6 @@ ENTRY(EV_Trap)
+ 
+ 	;============ TRAP  (no param): syscall top level
+ 
+-	; First return from Exception to pure K mode (Exception/IRQs renabled)
+-	FAKE_RET_FROM_EXCPN
+-
+ 	; If syscall tracing ongoing, invoke pre-post-hooks
+ 	GET_CURR_THR_INFO_FLAGS   r10
+ 	btst r10, TIF_SYSCALL_TRACE
 
 
