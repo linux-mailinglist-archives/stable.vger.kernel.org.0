@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47E92268F4
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F87226805
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731755AbgGTQX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 12:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
+        id S2388569AbgGTQQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732644AbgGTQFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 12:05:35 -0400
+        id S2388565AbgGTQQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:16:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B5A2064B;
-        Mon, 20 Jul 2020 16:05:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBABB2064B;
+        Mon, 20 Jul 2020 16:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595261134;
-        bh=9fcM8UNcJIVaRWwp8+SdABCME/wG7n29B/fICmrFgRw=;
+        s=default; t=1595261794;
+        bh=ebxHgfFKVyhOruLi0OxNK2vq06D8LezsBVbx0iunYLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uao4MNRY0FK3yurvQKkMp0eNXoRFUkIY0SOCu9aaS1EJ0QKBc+z2DZpkKm6glRxV4
-         TZ+htyWveymbDOjNwcmQwhPabI2chlXkis4s5aqfYaMcy2eOW6S6KrniBtA8e7u8oE
-         Kx4U7Dy4Nc37JuJDC5gRqdI2Ye4/q1yUEkU7giWE=
+        b=dz2L13jR7136L8Oet2tCGyd9gcYRETat6ZtfJABYoFNS1V5xAcjBplo9uuETrKY+D
+         H9WiDBnHn92UKUwLkuFbWsk9aRXBTbYtrQeH2HVgQFJV1oSA8Ql7GKCkjofuYSMKDy
+         5IHRi07sZj6dBS34o5ilEGKGZdz7AESFmxYgrJRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>
-Subject: [PATCH 5.4 203/215] sched/fair: handle case of task_h_load() returning 0
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.7 214/244] arm64: dts: stratix10: add status to qspi dts node
 Date:   Mon, 20 Jul 2020 17:38:05 +0200
-Message-Id: <20200720152829.823407143@linuxfoundation.org>
+Message-Id: <20200720152836.026379867@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
-References: <20200720152820.122442056@linuxfoundation.org>
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+References: <20200720152825.863040590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit 01cfcde9c26d8555f0e6e9aea9d6049f87683998 upstream.
+commit 263a0269a59c0b4145829462a107fe7f7327105f upstream.
 
-task_h_load() can return 0 in some situations like running stress-ng
-mmapfork, which forks thousands of threads, in a sched group on a 224 cores
-system. The load balance doesn't handle this correctly because
-env->imbalance never decreases and it will stop pulling tasks only after
-reaching loop_max, which can be equal to the number of running tasks of
-the cfs. Make sure that imbalance will be decreased by at least 1.
+Add status = "okay" to QSPI node.
 
-misfit task is the other feature that doesn't handle correctly such
-situation although it's probably more difficult to face the problem
-because of the smaller number of CPUs and running tasks on heterogenous
-system.
-
-We can't simply ensure that task_h_load() returns at least one because it
-would imply to handle underflow in other places.
-
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: <stable@vger.kernel.org> # v4.4+
-Link: https://lkml.kernel.org/r/20200710152426.16981-1-vincent.guittot@linaro.org
+Fixes: 0cb140d07fc75 ("arm64: dts: stratix10: Add QSPI support for Stratix10")
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.6
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/fair.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts      |    1 +
+ arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3824,7 +3824,11 @@ static inline void update_misfit_status(
- 		return;
- 	}
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
+@@ -155,6 +155,7 @@
+ };
  
--	rq->misfit_task_load = task_h_load(p);
-+	/*
-+	 * Make sure that misfit_task_load will not be null even if
-+	 * task_h_load() returns 0.
-+	 */
-+	rq->misfit_task_load = max_t(unsigned long, task_h_load(p), 1);
- }
+ &qspi {
++	status = "okay";
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
+@@ -188,6 +188,7 @@
+ };
  
- #else /* CONFIG_SMP */
-@@ -7407,7 +7411,15 @@ static int detach_tasks(struct lb_env *e
- 		if (!can_migrate_task(p, env))
- 			goto next;
- 
--		load = task_h_load(p);
-+		/*
-+		 * Depending of the number of CPUs and tasks and the
-+		 * cgroup hierarchy, task_h_load() can return a null
-+		 * value. Make sure that env->imbalance decreases
-+		 * otherwise detach_tasks() will stop only after
-+		 * detaching up to loop_max tasks.
-+		 */
-+		load = max_t(unsigned long, task_h_load(p), 1);
-+
- 
- 		if (sched_feat(LB_MIN) && load < 16 && !env->sd->nr_balance_failed)
- 			goto next;
+ &qspi {
++	status = "okay";
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
 
 
