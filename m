@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C816226B3B
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069E2226C20
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 18:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730743AbgGTPrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:47:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42318 "EHLO mail.kernel.org"
+        id S1730002AbgGTQrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 12:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730738AbgGTPrO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:47:14 -0400
+        id S1729579AbgGTPjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:39:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2624C22BF3;
-        Mon, 20 Jul 2020 15:47:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BC1522CB2;
+        Mon, 20 Jul 2020 15:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595260033;
-        bh=OoESAnnsNphandLeCs8CakH27dQGYZJjXEuVriqzIbM=;
+        s=default; t=1595259588;
+        bh=ZJbHCFIdZH4X4ZBrUiUDxNPeZ/xp15aUJQ4HRBDeBgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otAkzqO5f8ZonqpyuJ0rxYRaOHDVW9nRn5pdgU0Shl1x308uEtY62wrKd76g6NzEi
-         ru5dOCAOBpY3M1RVWbxTLBx80OQuzpaVKyjJQn4Xnbx+CMvlCF7D45c9YTNB5AGkJA
-         Rob8jM2EEGmCb4+27hiHqp5eusRWjPijhfXJ7RfA=
+        b=KM7Gl0NV6G/zP5aIekXV0bDaw3QFFpMsmcC/1IFr9gDJUVqAhiwLYg/X3jM2Ht+7R
+         sDVy2vLNTmZHaK/Yl8bl+PhS/l57Z2i/OQ3oPZi/wf1k5FmpSYSVF4xDSuzllR8hOu
+         Ny+0vZU3JRVDc60F5elxpaX031LrbcBwBsvGiMzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 082/125] arm64: dts: meson: add missing gxl rng clock
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 45/58] USB: serial: cypress_m8: enable Simply Automated UPB PIM
 Date:   Mon, 20 Jul 2020 17:37:01 +0200
-Message-Id: <20200720152806.979464857@linuxfoundation.org>
+Message-Id: <20200720152749.488265934@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152802.929969555@linuxfoundation.org>
-References: <20200720152802.929969555@linuxfoundation.org>
+In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
+References: <20200720152747.127988571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 95ca6f06dd4827ff63be5154120c7a8511cd9a41 ]
+commit 5c45d04c5081c1830d674f4d22d4400ea2083afe upstream.
 
-The peripheral clock of the RNG is missing for gxl while it is present
-for gxbb.
+This is a UPB (Universal Powerline Bus) PIM (Powerline Interface Module)
+which allows for controlling multiple UPB compatible devices from Linux
+using the standard serial interface.
 
-Fixes: 1b3f6d148692 ("ARM64: dts: meson-gx: add clock CLKID_RNG0 to hwrng node")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20200617125346.1163527-1-jbrunet@baylibre.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Based on vendor application source code there are two different models
+of USB based PIM devices in addition to a number of RS232 based PIM's.
+
+The vendor UPB application source contains the following USB ID's:
+
+	#define USB_PCS_VENDOR_ID 0x04b4
+	#define USB_PCS_PIM_PRODUCT_ID 0x5500
+
+	#define USB_SAI_VENDOR_ID 0x17dd
+	#define USB_SAI_PIM_PRODUCT_ID 0x5500
+
+The first set of ID's correspond to the PIM variant sold by Powerline
+Control Systems while the second corresponds to the Simply Automated
+Incorporated PIM. As the product ID for both of these match the default
+cypress HID->COM RS232 product ID it assumed that they both use an
+internal variant of this HID->COM RS232 converter hardware. However
+as the vendor ID for the Simply Automated variant is different we need
+to also add it to the cypress_M8 driver so that it is properly
+detected.
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200616220403.1807003-1-james.hilliard1@gmail.com
+Cc: stable@vger.kernel.org
+[ johan: amend VID define entry ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/serial/cypress_m8.c |    2 ++
+ drivers/usb/serial/cypress_m8.h |    3 +++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
-index 3c30579449608..3ee6c4bae08f6 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
-@@ -245,6 +245,11 @@ clkc: clock-controller@0 {
- 	};
- };
+--- a/drivers/usb/serial/cypress_m8.c
++++ b/drivers/usb/serial/cypress_m8.c
+@@ -63,6 +63,7 @@ static const struct usb_device_id id_tab
  
-+&hwrng {
-+	clocks = <&clkc CLKID_RNG0>;
-+	clock-names = "core";
-+};
+ static const struct usb_device_id id_table_cyphidcomrs232[] = {
+ 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
++	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
+ 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
+ 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
+ 	{ }						/* Terminating entry */
+@@ -77,6 +78,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
+ 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
+ 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
++	{ USB_DEVICE(VENDOR_ID_SAI, PRODUCT_ID_CYPHIDCOM) },
+ 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
+ 	{ USB_DEVICE(VENDOR_ID_FRWD, PRODUCT_ID_CYPHIDCOM_FRWD) },
+ 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
+--- a/drivers/usb/serial/cypress_m8.h
++++ b/drivers/usb/serial/cypress_m8.h
+@@ -24,6 +24,9 @@
+ #define VENDOR_ID_CYPRESS		0x04b4
+ #define PRODUCT_ID_CYPHIDCOM		0x5500
+ 
++/* Simply Automated HID->COM UPB PIM (using Cypress PID 0x5500) */
++#define VENDOR_ID_SAI			0x17dd
 +
- &i2c_A {
- 	clocks = <&clkc CLKID_I2C>;
- };
--- 
-2.25.1
-
+ /* FRWD Dongle - a GPS sports watch */
+ #define VENDOR_ID_FRWD			0x6737
+ #define PRODUCT_ID_CYPHIDCOM_FRWD	0x0001
 
 
