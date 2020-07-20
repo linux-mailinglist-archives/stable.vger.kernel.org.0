@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A403122639E
-	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEA42263D5
+	for <lists+stable@lfdr.de>; Mon, 20 Jul 2020 17:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbgGTPio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 11:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57414 "EHLO mail.kernel.org"
+        id S1729793AbgGTPkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 11:40:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729264AbgGTPio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:38:44 -0400
+        id S1729786AbgGTPkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:40:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B64C22CB2;
-        Mon, 20 Jul 2020 15:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6533E22CB3;
+        Mon, 20 Jul 2020 15:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595259523;
-        bh=PdWIbI7vkbelWceLiDpR3vy41889LxRcLx+CKRmuGSI=;
+        s=default; t=1595259650;
+        bh=CJmmLoIlOe20HPYX9dqLE/ufDhQbzH3wrYt/RsjBqCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5jSHZu6ujA1e39gth/yoW61JtGDdiyGcsuTdDvravA1mODtLIIwv9aOixz1nTF2g
-         X9SKZEyUaqnV9izHDhByXuyg/k9kciapMmGaWxvwixcT+c9+wIZS7ejTte8AkzKZ9/
-         pZgx8WCTNCDgR+aBdPkuoOUgC9vvVGnIp959vks0=
+        b=R3qR028HB7UTmlNC9X2js1e5x+f2/ZAo7HRxamLruBSZdwMdGF4yPc5IcGeFHfLu7
+         5sZYIVUZS1A78gkPdJuzzEKIsPb2FnhEM9rbzHP3b/qOI52IuQVi08PgLhefAVtONd
+         yp44xbBpAm6l1PfPmUJ2G0/LLr+UyIt0lIjqUawg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/58] ALSA: compress: fix partial_drain completion state
-Date:   Mon, 20 Jul 2020 17:36:24 +0200
-Message-Id: <20200720152747.563143461@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 29/86] llc: make sure applications use ARPHRD_ETHER
+Date:   Mon, 20 Jul 2020 17:36:25 +0200
+Message-Id: <20200720152754.627486593@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200720152747.127988571@linuxfoundation.org>
-References: <20200720152747.127988571@linuxfoundation.org>
+In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+References: <20200720152753.138974850@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,90 +43,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit f79a732a8325dfbd570d87f1435019d7e5501c6d ]
+[ Upstream commit a9b1110162357689a34992d5c925852948e5b9fd ]
 
-On partial_drain completion we should be in SNDRV_PCM_STATE_RUNNING
-state, so set that for partially draining streams in
-snd_compr_drain_notify() and use a flag for partially draining streams
+syzbot was to trigger a bug by tricking AF_LLC with
+non sensible addr->sllc_arphrd
 
-While at it, add locks for stream state change in
-snd_compr_drain_notify() as well.
+It seems clear LLC requires an Ethernet device.
 
-Fixes: f44f2a5417b2 ("ALSA: compress: fix drain calls blocking other compress functions (v6)")
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Tested-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20200629134737.105993-4-vkoul@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Back in commit abf9d537fea2 ("llc: add support for SO_BINDTODEVICE")
+Octavian Purdila added possibility for application to use a zero
+value for sllc_arphrd, convert it to ARPHRD_ETHER to not cause
+regressions on existing applications.
+
+BUG: KASAN: use-after-free in __read_once_size include/linux/compiler.h:199 [inline]
+BUG: KASAN: use-after-free in list_empty include/linux/list.h:268 [inline]
+BUG: KASAN: use-after-free in waitqueue_active include/linux/wait.h:126 [inline]
+BUG: KASAN: use-after-free in wq_has_sleeper include/linux/wait.h:160 [inline]
+BUG: KASAN: use-after-free in skwq_has_sleeper include/net/sock.h:2092 [inline]
+BUG: KASAN: use-after-free in sock_def_write_space+0x642/0x670 net/core/sock.c:2813
+Read of size 8 at addr ffff88801e0b4078 by task ksoftirqd/3/27
+
+CPU: 3 PID: 27 Comm: ksoftirqd/3 Not tainted 5.5.0-rc1-syzkaller #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+ __kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:639
+ __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
+ __read_once_size include/linux/compiler.h:199 [inline]
+ list_empty include/linux/list.h:268 [inline]
+ waitqueue_active include/linux/wait.h:126 [inline]
+ wq_has_sleeper include/linux/wait.h:160 [inline]
+ skwq_has_sleeper include/net/sock.h:2092 [inline]
+ sock_def_write_space+0x642/0x670 net/core/sock.c:2813
+ sock_wfree+0x1e1/0x260 net/core/sock.c:1958
+ skb_release_head_state+0xeb/0x260 net/core/skbuff.c:652
+ skb_release_all+0x16/0x60 net/core/skbuff.c:663
+ __kfree_skb net/core/skbuff.c:679 [inline]
+ consume_skb net/core/skbuff.c:838 [inline]
+ consume_skb+0xfb/0x410 net/core/skbuff.c:832
+ __dev_kfree_skb_any+0xa4/0xd0 net/core/dev.c:2967
+ dev_kfree_skb_any include/linux/netdevice.h:3650 [inline]
+ e1000_unmap_and_free_tx_resource.isra.0+0x21b/0x3a0 drivers/net/ethernet/intel/e1000/e1000_main.c:1963
+ e1000_clean_tx_irq drivers/net/ethernet/intel/e1000/e1000_main.c:3854 [inline]
+ e1000_clean+0x4cc/0x1d10 drivers/net/ethernet/intel/e1000/e1000_main.c:3796
+ napi_poll net/core/dev.c:6532 [inline]
+ net_rx_action+0x508/0x1120 net/core/dev.c:6600
+ __do_softirq+0x262/0x98c kernel/softirq.c:292
+ run_ksoftirqd kernel/softirq.c:603 [inline]
+ run_ksoftirqd+0x8e/0x110 kernel/softirq.c:595
+ smpboot_thread_fn+0x6a3/0xa40 kernel/smpboot.c:165
+ kthread+0x361/0x430 kernel/kthread.c:255
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+
+Allocated by task 8247:
+ save_stack+0x23/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ __kasan_kmalloc mm/kasan/common.c:513 [inline]
+ __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:486
+ kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:521
+ slab_post_alloc_hook mm/slab.h:584 [inline]
+ slab_alloc mm/slab.c:3320 [inline]
+ kmem_cache_alloc+0x121/0x710 mm/slab.c:3484
+ sock_alloc_inode+0x1c/0x1d0 net/socket.c:240
+ alloc_inode+0x68/0x1e0 fs/inode.c:230
+ new_inode_pseudo+0x19/0xf0 fs/inode.c:919
+ sock_alloc+0x41/0x270 net/socket.c:560
+ __sock_create+0xc2/0x730 net/socket.c:1384
+ sock_create net/socket.c:1471 [inline]
+ __sys_socket+0x103/0x220 net/socket.c:1513
+ __do_sys_socket net/socket.c:1522 [inline]
+ __se_sys_socket net/socket.c:1520 [inline]
+ __ia32_sys_socket+0x73/0xb0 net/socket.c:1520
+ do_syscall_32_irqs_on arch/x86/entry/common.c:337 [inline]
+ do_fast_syscall_32+0x27b/0xe16 arch/x86/entry/common.c:408
+ entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
+
+Freed by task 17:
+ save_stack+0x23/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ kasan_set_free_info mm/kasan/common.c:335 [inline]
+ __kasan_slab_free+0x102/0x150 mm/kasan/common.c:474
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:483
+ __cache_free mm/slab.c:3426 [inline]
+ kmem_cache_free+0x86/0x320 mm/slab.c:3694
+ sock_free_inode+0x20/0x30 net/socket.c:261
+ i_callback+0x44/0x80 fs/inode.c:219
+ __rcu_reclaim kernel/rcu/rcu.h:222 [inline]
+ rcu_do_batch kernel/rcu/tree.c:2183 [inline]
+ rcu_core+0x570/0x1540 kernel/rcu/tree.c:2408
+ rcu_core_si+0x9/0x10 kernel/rcu/tree.c:2417
+ __do_softirq+0x262/0x98c kernel/softirq.c:292
+
+The buggy address belongs to the object at ffff88801e0b4000
+ which belongs to the cache sock_inode_cache of size 1152
+The buggy address is located 120 bytes inside of
+ 1152-byte region [ffff88801e0b4000, ffff88801e0b4480)
+The buggy address belongs to the page:
+page:ffffea0000782d00 refcount:1 mapcount:0 mapping:ffff88807aa59c40 index:0xffff88801e0b4ffd
+raw: 00fffe0000000200 ffffea00008e6c88 ffffea0000782d48 ffff88807aa59c40
+raw: ffff88801e0b4ffd ffff88801e0b4000 0000000100000003 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88801e0b3f00: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+ ffff88801e0b3f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88801e0b4000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                                                ^
+ ffff88801e0b4080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88801e0b4100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Fixes: abf9d537fea2 ("llc: add support for SO_BINDTODEVICE")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/compress_driver.h | 10 +++++++++-
- sound/core/compress_offload.c   |  4 ++++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ net/llc/af_llc.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
-index a5c6e6da3d3d4..57872c8f11512 100644
---- a/include/sound/compress_driver.h
-+++ b/include/sound/compress_driver.h
-@@ -71,6 +71,7 @@ struct snd_compr_runtime {
-  * @direction: stream direction, playback/recording
-  * @metadata_set: metadata set flag, true when set
-  * @next_track: has userspace signal next track transition, true when set
-+ * @partial_drain: undergoing partial_drain for stream, true when set
-  * @private_data: pointer to DSP private data
-  */
- struct snd_compr_stream {
-@@ -81,6 +82,7 @@ struct snd_compr_stream {
- 	enum snd_compr_direction direction;
- 	bool metadata_set;
- 	bool next_track;
-+	bool partial_drain;
- 	void *private_data;
- };
+--- a/net/llc/af_llc.c
++++ b/net/llc/af_llc.c
+@@ -271,6 +271,10 @@ static int llc_ui_autobind(struct socket
  
-@@ -178,7 +180,13 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
- 	if (snd_BUG_ON(!stream))
- 		return;
- 
--	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-+	/* for partial_drain case we are back to running state on success */
-+	if (stream->partial_drain) {
-+		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
-+		stream->partial_drain = false; /* clear this flag as well */
-+	} else {
-+		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-+	}
- 
- 	wake_up(&stream->runtime->sleep);
- }
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 07f5017cbea2a..e788c7e1929bd 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -699,6 +699,9 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
- 
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
- 	if (!retval) {
-+		/* clear flags and stop any drain wait */
-+		stream->partial_drain = false;
-+		stream->metadata_set = false;
- 		snd_compr_drain_notify(stream);
- 		stream->runtime->total_bytes_available = 0;
- 		stream->runtime->total_bytes_transferred = 0;
-@@ -809,6 +812,7 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- 	if (stream->next_track == false)
- 		return -EPERM;
- 
-+	stream->partial_drain = true;
- 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_PARTIAL_DRAIN);
- 	if (retval) {
- 		pr_debug("Partial drain returned failure\n");
--- 
-2.25.1
-
+ 	if (!sock_flag(sk, SOCK_ZAPPED))
+ 		goto out;
++	if (!addr->sllc_arphrd)
++		addr->sllc_arphrd = ARPHRD_ETHER;
++	if (addr->sllc_arphrd != ARPHRD_ETHER)
++		goto out;
+ 	rc = -ENODEV;
+ 	if (sk->sk_bound_dev_if) {
+ 		llc->dev = dev_get_by_index(&init_net, sk->sk_bound_dev_if);
+@@ -328,15 +332,15 @@ static int llc_ui_bind(struct socket *so
+ 	if (unlikely(!sock_flag(sk, SOCK_ZAPPED) || addrlen != sizeof(*addr)))
+ 		goto out;
+ 	rc = -EAFNOSUPPORT;
+-	if (unlikely(addr->sllc_family != AF_LLC))
++	if (!addr->sllc_arphrd)
++		addr->sllc_arphrd = ARPHRD_ETHER;
++	if (unlikely(addr->sllc_family != AF_LLC || addr->sllc_arphrd != ARPHRD_ETHER))
+ 		goto out;
+ 	rc = -ENODEV;
+ 	rcu_read_lock();
+ 	if (sk->sk_bound_dev_if) {
+ 		llc->dev = dev_get_by_index_rcu(&init_net, sk->sk_bound_dev_if);
+ 		if (llc->dev) {
+-			if (!addr->sllc_arphrd)
+-				addr->sllc_arphrd = llc->dev->type;
+ 			if (is_zero_ether_addr(addr->sllc_mac))
+ 				memcpy(addr->sllc_mac, llc->dev->dev_addr,
+ 				       IFHWADDRLEN);
 
 
