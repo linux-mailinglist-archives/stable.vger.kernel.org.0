@@ -2,77 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7322281BE
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 16:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E5E2281E1
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 16:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728362AbgGUORN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 10:17:13 -0400
-Received: from mga04.intel.com ([192.55.52.120]:29078 "EHLO mga04.intel.com"
+        id S1728153AbgGUOUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 10:20:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728153AbgGUORN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Jul 2020 10:17:13 -0400
-IronPort-SDR: Psbhnp0O3tlXXDxnsreZNhifxxbYrVK5qEj2zLFKVcqXs/NYGooxAR9LIKGlfHHiMXnU8FOZHz
- L5TsFxW0Dn6Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9688"; a="147632826"
-X-IronPort-AV: E=Sophos;i="5.75,379,1589266800"; 
-   d="scan'208";a="147632826"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2020 07:17:04 -0700
-IronPort-SDR: kUGuur520vYHG+MsEvUzPNTsy0P8FILd150pEgw4W2aUP/1TtgNEEq2xqkMVXbXHtjI4yDZJ/f
- VnIqoj7BHqUQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,379,1589266800"; 
-   d="scan'208";a="432011539"
-Received: from awvttdev-05.aw.intel.com ([10.228.212.156])
-  by orsmga004.jf.intel.com with ESMTP; 21 Jul 2020 07:17:03 -0700
-From:   "Michael J. Ruhl" <michael.j.ruhl@intel.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: [PATCH] io-mapping: Indicate mapping failure
-Date:   Tue, 21 Jul 2020 10:16:41 -0400
-Message-Id: <20200721141641.81112-2-michael.j.ruhl@intel.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20200721141641.81112-1-michael.j.ruhl@intel.com>
-References: <20200721141641.81112-1-michael.j.ruhl@intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726700AbgGUOUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 10:20:08 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 629D02064C;
+        Tue, 21 Jul 2020 14:20:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595341208;
+        bh=bMPYC0gZ0eNGnCJiMAOsEC/ZU7Ksgvb8HLWXo+1fi6g=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=kvwK9Xf0YMlsveS8meiduoYaEXEkgSHtyVwjfEcqd7dK+hZ1oNsvWlcYFiUHoCtMk
+         CcpCxGcJve2O5hB/nrixA2by4tp7FOvQjfP5+Cn5THIwpPA7jsSf/H4ghiXoN2PaKO
+         lrlwdj9PQ42HAtGTvP7tJm6R1zD55/VXvSy+mvF4=
+Date:   Tue, 21 Jul 2020 14:20:07 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>
+Cc:     Sam Ravnborg <sam@ravnborg.org>, od@zcrc.me
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v3 01/12] drm/ingenic: Fix incorrect assumption about plane->index
+In-Reply-To: <20200716163846.174790-1-paul@crapouillou.net>
+References: <20200716163846.174790-1-paul@crapouillou.net>
+Message-Id: <20200721142008.629D02064C@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sometimes it is good to know when your mapping failed.
+Hi
 
-Fixes: cafaf14a5d8f ("io-mapping: Always create a struct to hold metadata about the io-mapping"
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
----
- include/linux/io-mapping.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[This is an automated email]
 
-diff --git a/include/linux/io-mapping.h b/include/linux/io-mapping.h
-index 0beaa3eba155..5641e06cbcf7 100644
---- a/include/linux/io-mapping.h
-+++ b/include/linux/io-mapping.h
-@@ -118,7 +118,7 @@ io_mapping_init_wc(struct io_mapping *iomap,
- 	iomap->prot = pgprot_noncached(PAGE_KERNEL);
- #endif
- 
--	return iomap;
-+	return iomap->iomem ? iomap : NULL;
- }
- 
- static inline void
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs").
+
+The bot has tested the following trees: v5.7.9, v5.4.52.
+
+v5.4.52: Failed to apply! Possible dependencies:
+    52e4607dace1e ("gpu/drm: ingenic: Use the plane's src_[x,y] to configure DMA length")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
 -- 
-2.21.0
-
+Thanks
+Sasha
