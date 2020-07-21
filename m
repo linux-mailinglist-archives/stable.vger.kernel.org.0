@@ -2,125 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ABDB228A6B
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 23:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D05228B16
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 23:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730592AbgGUVN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 17:13:58 -0400
-Received: from mga01.intel.com ([192.55.52.88]:17248 "EHLO mga01.intel.com"
+        id S1731194AbgGUVYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 17:24:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726686AbgGUVN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Jul 2020 17:13:58 -0400
-IronPort-SDR: 0/8cvnYsacs+FpCbujs67hhvGkU/pXUo0cWOjaMlfcho5ZXMcEOjKqk4//ShNUIhxGyrbB8dld
- y9mMRFygdf8Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9689"; a="168377249"
-X-IronPort-AV: E=Sophos;i="5.75,380,1589266800"; 
-   d="scan'208";a="168377249"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2020 14:13:58 -0700
-IronPort-SDR: jfP3vxj61yHJHjlo5BFoMGLMIGVER/KB9BFhTq7pwA32SEp1fHghBmm3qZzbILTAlgK6CnJ7wY
- 4vXaZlScbvfA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,380,1589266800"; 
-   d="scan'208";a="270554953"
-Received: from otc-nc-03.jf.intel.com ([10.54.39.25])
-  by fmsmga007.fm.intel.com with ESMTP; 21 Jul 2020 14:13:58 -0700
-From:   Ashok Raj <ashok.raj@intel.com>
-To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     Ashok Raj <ashok.raj@intel.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
-Subject: [PATCH] PCI/ATS: PASID and PRI are only enumerated in PF devices.
-Date:   Tue, 21 Jul 2020 14:13:45 -0700
-Message-Id: <1595366025-239046-1-git-send-email-ashok.raj@intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S1731046AbgGUVYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 17:24:25 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A36D20717;
+        Tue, 21 Jul 2020 21:24:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595366664;
+        bh=F15VAIQ+YcMoi/vlFKHrDvp0zggcPKztBbuy29xhWTM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=fL7u260G4CO6iuAQXZToNhssS1mkJZOPhWIFmh7Dj9W+gyv+/B5fZSQN1ALuEZ+dI
+         tR8c5BcPe600k7in81VO97qkAk4/wg9fVNDvyZAAdgnWEkuIcSglP7YuYTQYxPZ//S
+         8ZjUlMKltIsIGQIWDb4q4U8YNe/Rjmiau8nIH5SE=
+Date:   Tue, 21 Jul 2020 14:24:24 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     "Ruhl, Michael J" <michael.j.ruhl@intel.com>
+Cc:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] io-mapping: Indicate mapping failure
+Message-Id: <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
+In-Reply-To: <14063C7AD467DE4B82DEDB5C278E866301245E046C@FMSMSX108.amr.corp.intel.com>
+References: <20200721171936.81563-1-michael.j.ruhl@intel.com>
+        <20200721135648.9603d924377825a7e6c0023b@linux-foundation.org>
+        <14063C7AD467DE4B82DEDB5C278E866301245E046C@FMSMSX108.amr.corp.intel.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PASID and PRI capabilities are only enumerated in PF devices. VF devices
-do not enumerate these capabilites. IOMMU drivers also need to enumerate
-them before enabling features in the IOMMU. Extending the same support as
-PASID feature discovery (pci_pasid_features) for PRI.
+On Tue, 21 Jul 2020 21:02:44 +0000 "Ruhl, Michael J" <michael.j.ruhl@intel.com> wrote:
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> >--- a/include/linux/io-mapping.h~io-mapping-indicate-mapping-failure-fix
+> >+++ a/include/linux/io-mapping.h
+> >@@ -107,9 +107,12 @@ io_mapping_init_wc(struct io_mapping *io
+> > 		   resource_size_t base,
+> > 		   unsigned long size)
+> > {
+> >+	iomap->iomem = ioremap_wc(base, size);
+> >+	if (!iomap->iomem)
+> >+		return NULL;
+> >+
+> 
+> This does make more sense.
+> 
+> I am confused by the two follow up emails I just got.
 
-v2: Fixed build failure from lkp when CONFIG_PRI=n
-    Almost all the PRI functions were called only when CONFIG_PASID is
-    set. Except the new pci_pri_supported().
+One was your original patch, the other is my suggested alteration.
 
-    previous version sent in error because i missed dry-run before recompile
-    :-(
+> Shall I resubmit, or is this path (if !iomap->iomem) return NULL)
+> now in the tree.
 
-To: Bjorn Helgaas <bhelgaas@google.com>
-To: Joerg Roedel <joro@8bytes.com>
-To: Lu Baolu <baolu.lu@intel.com>
-Cc: stable@vger.kernel.org
-Cc: linux-pci@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: iommu@lists.linux-foundation.org
----
- drivers/iommu/intel/iommu.c |  2 +-
- drivers/pci/ats.c           | 13 +++++++++++++
- include/linux/pci-ats.h     |  4 ++++
- 3 files changed, 18 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index d759e7234e98..276452f5e6a7 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2560,7 +2560,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
- 			}
- 
- 			if (info->ats_supported && ecap_prs(iommu->ecap) &&
--			    pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_PRI))
-+			    pci_pri_supported(pdev))
- 				info->pri_supported = 1;
- 		}
- 	}
-diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
-index b761c1f72f67..2e6cf0c700f7 100644
---- a/drivers/pci/ats.c
-+++ b/drivers/pci/ats.c
-@@ -325,6 +325,19 @@ int pci_prg_resp_pasid_required(struct pci_dev *pdev)
- 
- 	return pdev->pasid_required;
- }
-+
-+/**
-+ * pci_pri_supported - Check if PRI is supported.
-+ * @pdev: PCI device structure
-+ *
-+ * Returns true if PRI capability is present, false otherwise.
-+ */
-+bool pci_pri_supported(struct pci_dev *pdev)
-+{
-+	/* VFs share the PF PRI configuration */
-+	return !!(pci_physfn(pdev)->pri_cap);
-+}
-+EXPORT_SYMBOL_GPL(pci_pri_supported);
- #endif /* CONFIG_PCI_PRI */
- 
- #ifdef CONFIG_PCI_PASID
-diff --git a/include/linux/pci-ats.h b/include/linux/pci-ats.h
-index f75c307f346d..df54cd5b15db 100644
---- a/include/linux/pci-ats.h
-+++ b/include/linux/pci-ats.h
-@@ -28,6 +28,10 @@ int pci_enable_pri(struct pci_dev *pdev, u32 reqs);
- void pci_disable_pri(struct pci_dev *pdev);
- int pci_reset_pri(struct pci_dev *pdev);
- int pci_prg_resp_pasid_required(struct pci_dev *pdev);
-+bool pci_pri_supported(struct pci_dev *pdev);
-+#else
-+static inline bool pci_pri_supported(struct pci_dev *pdev)
-+{ return false; }
- #endif /* CONFIG_PCI_PRI */
- 
- #ifdef CONFIG_PCI_PASID
--- 
-2.7.4
+All is OK.  If my alteration is acceptable (and, preferably, tested!)
+then when the time comes, I'll fold it into the base patch, add a
+note indicating this change and shall then send it to Linus.
 
