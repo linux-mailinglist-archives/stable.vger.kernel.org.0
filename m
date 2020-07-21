@@ -2,145 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD312286E5
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 19:13:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE1322872A
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 19:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730099AbgGURN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 13:13:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51820 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728922AbgGURN0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 13:13:26 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88393C061794;
-        Tue, 21 Jul 2020 10:13:26 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id m8so9654544qvk.7;
-        Tue, 21 Jul 2020 10:13:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ZbVxqAmomsyhr+KEyYXdRet54/+siHxMMPFBRHCBS08=;
-        b=qSfMSUQJ6WOKHXfb5DjEHw/nGyKktRAx4kiJQxElRHQr7JrxnQ1k55a8eCxv2zv65G
-         gi7FoDOqHLECUyVllhxBYU6dyDEHKF6nNOUdK+p3K7mvrQzDLVrs6fiQfxMwh2mYaM/3
-         crgg0ElpbMgjPqzygn8RHPhdeWOU1Q8LSH2isbjB4ISibsZKPioFclPsXWcJbdoRwiU8
-         hSP4dbwmfHPPxD0xm4I5Hm6/41tMK1EXVkHKNH9gnP3goNxEG+SrNJlTYJ4Qu2vMVe1s
-         2v3JDCnB6TpVN2329tBqdlXAOSPflCvpfyC5+vhn1KIxkOyFQto2nlGvLhVyykpISLv9
-         tJRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ZbVxqAmomsyhr+KEyYXdRet54/+siHxMMPFBRHCBS08=;
-        b=m7kON/awyOc6Olsi3KDskbnyF1swhSnw2+0rDTQ3ClemhP5urgnA4zu/EpxDDz/nxw
-         lNSZfGcrA04r4gH6XXMnt3RRgefVeGaUROMdc2K/hSitQyuKF9cUmbVD7w9IsMo4hX4k
-         w+hinAOykKctWGiklcFsTcQ3nrD3a7F0XoVbW4ZSVniP0aAVsw6g0a2Dom60/RsBD3zf
-         MK63fpOu1Hfz5oNavwayYGy4yJI6wiCFiXPpJTuCQcooTFNQFgO7HNyjB20ONLTUP7hm
-         mYbxpuu3akpV8Bq0J2T3T7ofSTLHiHgEi9ndvslu0TfQYtgAy4jNga6hXo49uXzzAdc9
-         fgog==
-X-Gm-Message-State: AOAM532jg3pvlTGvIqXTrLNWN69DYAQB5lcuKHUrF7zkWYzrah0e8EPo
-        T0qJjTrFTxUp8xGyPuW4XKk=
-X-Google-Smtp-Source: ABdhPJwAmHphVXWVxGd+7+rFL1JmGpNvGLd7pHr/P7IGmOsp2TKbd5OE9jgZNJcO8pPTI/vq4UXQnA==
-X-Received: by 2002:a05:6214:851:: with SMTP id dg17mr27965377qvb.235.1595351605715;
-        Tue, 21 Jul 2020 10:13:25 -0700 (PDT)
-Received: from ubuntu-n2-xlarge-x86 ([2604:1380:45d1:2600::1])
-        by smtp.gmail.com with ESMTPSA id h124sm2938013qkd.84.2020.07.21.10.13.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2020 10:13:25 -0700 (PDT)
-Date:   Tue, 21 Jul 2020 10:13:23 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Sedat Dilek <sedat.dilek@gmail.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Fangrui Song <maskray@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>,
-        stable@vger.kernel.org, Jian Cai <jiancai@google.com>,
-        Bill Wendling <morbo@google.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: Re: [PATCH v2] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang
- cross compilation
-Message-ID: <20200721171323.GA3327914@ubuntu-n2-xlarge-x86>
-References: <20200721041940.4029552-1-maskray@google.com>
- <20200721104035.GC1676612@kroah.com>
- <CA+icZUW9JhZEEcXfL5bid7+M-Qtw22XzSm2x-JxW1bU15HJ6sA@mail.gmail.com>
+        id S1728368AbgGURTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 13:19:43 -0400
+Received: from mga14.intel.com ([192.55.52.115]:33363 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728306AbgGURTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 13:19:43 -0400
+IronPort-SDR: NK83jBbBRBvaPCgweqgTTRJuBmuQ8WIGPLEVOhNgcu9z2S1lT1mU6+SQc7zWjPAL7l/f6DWBaK
+ aKB8blZE1blQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9689"; a="149351506"
+X-IronPort-AV: E=Sophos;i="5.75,379,1589266800"; 
+   d="scan'208";a="149351506"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2020 10:19:42 -0700
+IronPort-SDR: BqgF9hrBfkHCAN1kY138RiDbd7aQA0SOW0mh9dByeLRCVIghw2e+cRDg6ng/tKzeFwM6zhShvq
+ yhYMIM8Ad1eg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,379,1589266800"; 
+   d="scan'208";a="287992446"
+Received: from awvttdev-05.aw.intel.com ([10.228.212.156])
+  by orsmga006.jf.intel.com with ESMTP; 21 Jul 2020 10:19:41 -0700
+From:   "Michael J. Ruhl" <michael.j.ruhl@intel.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: [PATCH v2] io-mapping: Indicate mapping failure
+Date:   Tue, 21 Jul 2020 13:19:36 -0400
+Message-Id: <20200721171936.81563-1-michael.j.ruhl@intel.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+icZUW9JhZEEcXfL5bid7+M-Qtw22XzSm2x-JxW1bU15HJ6sA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 04:52:56PM +0200, Sedat Dilek wrote:
-> On Tue, Jul 21, 2020 at 12:40 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Mon, Jul 20, 2020 at 09:19:38PM -0700, Fangrui Song wrote:
-> > > When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
-> > > $(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
-> > > GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
-> > > /usr/bin/ and Clang as of 11 will search for both
-> > > $(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
-> > >
-> > > GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
-> > > $(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
-> > > $(prefix)aarch64-linux-gnu/$needle rarely contains executables.
-> > >
-> > > To better model how GCC's -B/--prefix takes in effect in practice, newer
-> > > Clang (since
-> > > https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
-> > > only searches for $(prefix)$needle. Currently it will find /usr/bin/as
-> > > instead of /usr/bin/aarch64-linux-gnu-as.
-> > >
-> > > Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE)
-> > > (/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
-> > > appropriate cross compiling GNU as (when -no-integrated-as is in
-> > > effect).
-> > >
-> > > Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-> > > Signed-off-by: Fangrui Song <maskray@google.com>
-> > > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> > > Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-> > > Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-> > > Link: https://github.com/ClangBuiltLinux/linux/issues/1099
-> > > ---
-> > > Changes in v2:
-> > > * Updated description to add tags and the llvm-project commit link.
-> > > * Fixed a typo.
-> >
-> >
-> > <formletter>
-> >
-> > This is not the correct way to submit patches for inclusion in the
-> > stable kernel tree.  Please read:
-> >     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > for how to do this properly.
-> >
-> > </formletter>
-> >
-> 
-> Hi Fangrui,
-> 
-> your patch needs to be accepted first in Linus tree - among other
-> things to have a unique commit-id for inclusion into any affected
-> Linux-stable trees.
-> 
-> Regards,
-> - Sedat -
+The !ATOMIC_IOMAP version of io_maping_init_wc will always return
+success, even when the ioremap fails.
 
-You are not wrong but that is not what Greg's auto response is complaining
-about. It is that stable@vger.kernel.org was cc'd but there was no
+Since the ATOMIC_IOMAP version returns NULL when the init fails, and
+callers check for a NULL return on error this is unexpected.
 
+During a device probe, where the ioremap failed, a crash can look
+like this:
+
+BUG: unable to handle page fault for address: 0000000000210000
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ Oops: 0002 [#1] PREEMPT SMP
+ CPU: 0 PID: 177 Comm:
+ RIP: 0010:fill_page_dma [i915]
+  gen8_ppgtt_create [i915]
+  i915_ppgtt_create [i915]
+  intel_gt_init [i915]
+  i915_gem_init [i915]
+  i915_driver_probe [i915]
+  pci_device_probe
+  really_probe
+  driver_probe_device
+
+The remap failure occurred much earlier in the probe.  If it had
+been propagated, the driver would have exited with an error.
+
+Return NULL on ioremap failure.
+
+Fixes: cafaf14a5d8f ("io-mapping: Always create a struct to hold metadata about the io-mapping")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: stable@vger.kernel.org
+Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+---
+v2: reflect review comments
+---
+ include/linux/io-mapping.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-in the commit message, which is how patches get automatically picked up
-by Greg and Sasha once they hit Linus's tree.
+diff --git a/include/linux/io-mapping.h b/include/linux/io-mapping.h
+index 0beaa3eba155..5641e06cbcf7 100644
+--- a/include/linux/io-mapping.h
++++ b/include/linux/io-mapping.h
+@@ -118,7 +118,7 @@ io_mapping_init_wc(struct io_mapping *iomap,
+ 	iomap->prot = pgprot_noncached(PAGE_KERNEL);
+ #endif
+ 
+-	return iomap;
++	return iomap->iomem ? iomap : NULL;
+ }
+ 
+ static inline void
+-- 
+2.21.0
 
-That line should be added above my Reported-by tag. Fangrui, sorry for
-not being clear in my initial response :(
-
-Cheers,
-Nathan
