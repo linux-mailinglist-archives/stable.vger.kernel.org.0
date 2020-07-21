@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC1F227F94
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 14:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14101227F95
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 14:06:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728196AbgGUMF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 08:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36072 "EHLO mail.kernel.org"
+        id S1727043AbgGUMGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 08:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726266AbgGUMF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Jul 2020 08:05:56 -0400
+        id S1726266AbgGUMGE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 08:06:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9B6A20771;
-        Tue, 21 Jul 2020 12:05:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 462C72080D;
+        Tue, 21 Jul 2020 12:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595333155;
-        bh=kGkhwcKxerZDegHd9mW67g/82+hU4fEoctQiRLlBaMg=;
+        s=default; t=1595333163;
+        bh=MP4EBOzjaIRBiMaCTDMfHH+oIX5XMk5o4tBV3d1jwI0=;
         h=Subject:To:From:Date:From;
-        b=K0kQz08kW06wVP2B5mVhGJ51YAZVJbpCRalrI4fjf1mTa3MK31xipEMZVQfq0ex0j
-         LCiabQWmdJey/Jng2iM8dBwt1wRb5QsiAQtyMVL14yiDn6BbgQF6QmpXOE8arjdN8P
-         wPduxBOBNAjCzXkA7cp5BjXHE7d461MRKPxeMk6A=
-Subject: patch "usb: xhci-mtk: fix the failure of bandwidth allocation" added to usb-linus
-To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
+        b=ec8T192potPqzx0cKPSQGliTIC9YXMtUMaiQLGMcnt6KlLpxQtECIfCFu+7EnTJQr
+         QWpk/yeiC1YIIEbx9cq7AVqmyxuXgBobJTGac8w6va7/OVLTvyHXC3R43bEKEukh/U
+         +5g6/Z1MxTUF8Nq6+Cmoe+0F9f+j5nScMcpGtsfA=
+Subject: patch "usb: xhci: Fix ASM2142/ASM3142 DMA addressing" added to usb-linus
+To:     cyrozap@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Jul 2020 14:06:03 +0200
-Message-ID: <15953331637073@kroah.com>
+Date:   Tue, 21 Jul 2020 14:06:04 +0200
+Message-ID: <15953331649141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci-mtk: fix the failure of bandwidth allocation
+    usb: xhci: Fix ASM2142/ASM3142 DMA addressing
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,40 +55,38 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5ce1a24dd98c00a57a8fa13660648abf7e08e3ef Mon Sep 17 00:00:00 2001
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Fri, 10 Jul 2020 13:57:52 +0800
-Subject: usb: xhci-mtk: fix the failure of bandwidth allocation
+From dbb0897e805f2ab1b8bc358f6c3d878a376b8897 Mon Sep 17 00:00:00 2001
+From: Forest Crossman <cyrozap@gmail.com>
+Date: Fri, 17 Jul 2020 06:27:34 -0500
+Subject: usb: xhci: Fix ASM2142/ASM3142 DMA addressing
 
-The wMaxPacketSize field of endpoint descriptor may be zero
-as default value in alternate interface, and they are not
-actually selected when start stream, so skip them when try to
-allocate bandwidth.
+The ASM2142/ASM3142 (same PCI IDs) does not support full 64-bit DMA
+addresses, which can cause silent memory corruption or IOMMU errors on
+platforms that use the upper bits. Add the XHCI_NO_64BIT_SUPPORT quirk
+to fix this issue.
 
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Fixes: 0cbd4b34cda9 ("xhci: mediatek: support MTK xHCI host controller")
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1594360672-2076-1-git-send-email-chunfeng.yun@mediatek.com
+Link: https://lore.kernel.org/r/20200717112734.328432-1-cyrozap@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index fea555570ad4..45c54d56ecbd 100644
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -557,6 +557,10 @@ static bool need_bw_sch(struct usb_host_endpoint *ep,
- 	if (is_fs_or_ls(speed) && !has_tt)
- 		return false;
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index ef513c2fb843..9234c82e70e4 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -265,6 +265,9 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 			pdev->device == 0x1142)
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
++	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
++			pdev->device == 0x2142)
++		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
  
-+	/* skip endpoint with zero maxpkt */
-+	if (usb_endpoint_maxp(&ep->desc) == 0)
-+		return false;
-+
- 	return true;
- }
- 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
 -- 
 2.27.0
 
