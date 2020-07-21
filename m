@@ -2,68 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF8522889F
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 20:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15E12288AD
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 21:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728156AbgGUSzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 14:55:53 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:48108 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726658AbgGUSzx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 14:55:53 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: tonyk)
-        with ESMTPSA id DBA75290592
-From:   =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     kernel@collabora.com, linux-fsdevel@vger.kernel.org,
-        gregkh@linuxfoundation.org, sashal@kernel.org,
-        krisman@collabora.com,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
-        Nikolaus Rath <Nikolaus@rath.org>,
-        Hugh Dickins <hughd@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.7 1/1] fuse: fix weird page warning
-Date:   Tue, 21 Jul 2020 15:54:59 -0300
-Message-Id: <20200721185459.103445-1-andrealmeid@collabora.com>
-X-Mailer: git-send-email 2.27.0
+        id S1726960AbgGUTAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 15:00:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42362 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726602AbgGUTAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 15:00:12 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C88D2065F;
+        Tue, 21 Jul 2020 19:00:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595358011;
+        bh=9Y5zIvlkVVXABM97ulDy4pLmRGtaEvdheS+/3642Lzs=;
+        h=Subject:To:From:Date:From;
+        b=js1+YpyvpJN+bcrNM/WiRiWQu7BZQcdCtCk/Mcwt9KFWsLT6VlrIZctc0O158Y4Fg
+         QfEfHJ3f1nwQu15snjh42nZeL95+5fopeU2Y/UA+FFerdjEBZ/fgCNz1h4o4oCeG9Y
+         0M04Rvu/SM/yKBSfDk3jYKAJjqfrCEeq/C/fBBXQ=
+Subject: patch "serial: tegra: fix CREAD handling for PIO" added to tty-linus
+To:     johan@kernel.org, gregkh@linuxfoundation.org,
+        kyarlagadda@nvidia.com, smohammed@nvidia.com,
+        stable@vger.kernel.org, treding@nvidia.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 21 Jul 2020 21:00:18 +0200
+Message-ID: <159535801881236@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit a5005c3cda6eeb6b95645e6cc32f58dafeffc976 upstream.
+This is a note to let you know that I've just added the patch titled
 
-When PageWaiters was added, updating this check was missed.
+    serial: tegra: fix CREAD handling for PIO
 
-Reported-by: Nikolaus Rath <Nikolaus@rath.org>
-Reported-by: Hugh Dickins <hughd@google.com>
-Fixes: 62906027091f ("mm: add PageWaiters indicating tasks are waiting for a page bit")
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: André Almeida <andrealmeid@collabora.com>
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From b374c562ee7ab3f3a1daf959c01868bae761571c Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Fri, 10 Jul 2020 15:59:46 +0200
+Subject: serial: tegra: fix CREAD handling for PIO
+
+Commit 33ae787b74fc ("serial: tegra: add support to ignore read") added
+support for dropping input in case CREAD isn't set, but for PIO the
+ignore_status_mask wasn't checked until after the character had been
+put in the receive buffer.
+
+Note that the NULL tty-port test is bogus and will be removed by a
+follow-on patch.
+
+Fixes: 33ae787b74fc ("serial: tegra: add support to ignore read")
+Cc: stable <stable@vger.kernel.org>     # 5.4
+Cc: Shardar Shariff Md <smohammed@nvidia.com>
+Cc: Krishna Yarlagadda <kyarlagadda@nvidia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20200710135947.2737-2-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/dev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial-tegra.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 5c155437a455..ec02c3240176 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -771,7 +771,8 @@ static int fuse_check_page(struct page *page)
- 	       1 << PG_uptodate |
- 	       1 << PG_lru |
- 	       1 << PG_active |
--	       1 << PG_reclaim))) {
-+	       1 << PG_reclaim |
-+	       1 << PG_waiters))) {
- 		pr_warn("trying to steal weird page\n");
- 		pr_warn("  page=%p index=%li flags=%08lx, count=%i, mapcount=%i, mapping=%p\n", page, page->index, page->flags, page_count(page), page_mapcount(page), page->mapping);
- 		return 1;
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index 8de8bac9c6c7..b3bbee6b6702 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -653,11 +653,14 @@ static void tegra_uart_handle_rx_pio(struct tegra_uart_port *tup,
+ 		ch = (unsigned char) tegra_uart_read(tup, UART_RX);
+ 		tup->uport.icount.rx++;
+ 
+-		if (!uart_handle_sysrq_char(&tup->uport, ch) && tty)
+-			tty_insert_flip_char(tty, ch, flag);
++		if (uart_handle_sysrq_char(&tup->uport, ch))
++			continue;
+ 
+ 		if (tup->uport.ignore_status_mask & UART_LSR_DR)
+ 			continue;
++
++		if (tty)
++			tty_insert_flip_char(tty, ch, flag);
+ 	} while (1);
+ }
+ 
 -- 
 2.27.0
+
 
