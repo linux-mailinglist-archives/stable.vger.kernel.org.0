@@ -2,95 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9538C22807E
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 15:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDB5228091
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 15:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbgGUNCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 09:02:14 -0400
-Received: from sonic306-21.consmr.mail.ne1.yahoo.com ([66.163.189.83]:33931
-        "EHLO sonic306-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726687AbgGUNCO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 09:02:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1595336532; bh=DPYuw2gUpgtMJzJhlH/AVmRGu2wSKCY1C+f8nOCoxu0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=lgO7j86UUzMplSI2f0VcOy12WKkv0a/GG2wEN6iF1DguncLt9dpsJ8xhHQs1OGa/LLrDNXO8n+r69kTaPfIpo62JcirJmmQ/eP23U2+bOQhXBoK2fU79UAR8vDe+4S0kMH7cGFccl9ppEo8zNV3gHMSxA6+6Bf1fDdfo4tX9YiKictVHdFn2E/Fs56yDmTWRyMEYVP3MbvgWHigi0h2j2M1bwkBclRGrY1iB85XyxCRAed9IFONvNTqT6S2rmjxavqk1sHBKGj1kURBYWFEUB49F8Qq4WeEkNKfzU9w49hX85Jy+YDt+fOUQrjCQg1+YXPVVSeR/D4EKlhQ+iiMb8g==
-X-YMail-OSG: 8x35GZcVM1k3CcHa1ltRL_xX4cbGTLyKBNO4WBcTuNDD2ymzBw15ucYmwQAHp4M
- 7J7wsCa_f3He0HtRE4_gtbIft72vw3khWKqz8g95WRE3r3DeVh2YXB85SYvVNxrlwu4eBTmXbgIu
- i41wqxbXiJiOiGAv_oJLuc1bXJaY6GA1sV4yf_iEobnqHmwwZJsjX1IkJeoKclyqAAtSydUOoCoj
- Fg0XLS5asbhsKqNwUYy5SctWfoDKdiOciXVyXttSpZRK00.ysCTKGqre4LO2rzm8hJhfovNp5pFu
- ggxMfTudTZDbV.2eOHAjAlaDsCrsNBVDO8zxeG_7m8Y_l8_CEOGQ92953rRwVEjX1PQDrmqXgK3C
- H_rDRUcFYnlj6BDu2gwKAUH6qU26_Y6fk.GcQy_L2kgJCkA702fCnd_3cbX69XsdeNBUhmQIF9ZE
- gHOC9ZCfCxg9opUQePe2TOE4f1OrX.gGkamKN3iC4Y7PucglAVxe2_zfpwW5jKCLd1riQRzKTrPw
- XRjC7SHHuQm5NWFWfb1zGHMa8Ke6KMn7eWJ7QjVpDgO5U8Kh.fXHfhoGX39R1RXNr71gIViAdFvN
- qGQF49wVT0KMyToyNpuA2F..0kJy5ug3q2sKCsm10jCeh8aH1YP8m_KTrkJ6Y9DyFbNKqXlMAvu.
- 9B4pgKmQ65xcut9ylHHDqsC7NX.JWAKpVlmXgRLiyi89pqUjnCzif1PeKZXxbk57vITasMRMBTOu
- EDr9tjoYo.8QndB0Fq39a0HYFSMlkV0xfAYaBfjo8F_sT_o7nukAbYCmmeQtXBNwd64U5rY039es
- fCw2PyBN5SDe5uf_nuaj8sDpeqLhJKYVq3jHjV3Zwc4ciBJYh7aqTOAKKCJNsCtrM8e2HmAWzQhC
- Oe.Q3nK83rPg4OFlaf96Duf4roprW1zREe1vkjgVQx7IVTNKY.62lehhcvKto9EgkUhiF3SDncB7
- _oo3Nzs449OLAdkr5Ykv51lYiyjkdn50.2X_B1e22xRYZ71K4DW7KTENCVwHxoxUDQzkQaWyCIgA
- Sh0JzcYou4Sc9lQGdj9Lmv9Klt3LcK_hpLsMlhZ9AFRtOuHNHou4AlJruyqIuQZsgUqRfHZCuDlf
- b2YAkxqyjkckgKMROfaAj4Yjekl9zqDIxT319Wn12kZDwuQYVj729dUEolVH_MTpa820swQmusW6
- fqKp01mu5IyR9SVjTMQMxz1tiYYfUaQ3uUBj7RPLLbMEG2vMytGFA7OKilq63VJMxAlHmNrZL8tn
- 5XH3AjnLQP.MxtLH_l.H05HpiHK_d3mj731o0abDXabq9It6STpYH292VWPstl4AX0UIDXa_Ysg-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Tue, 21 Jul 2020 13:02:12 +0000
-Date:   Tue, 21 Jul 2020 13:02:08 +0000 (UTC)
-From:   "Mrs.A.Mina" <brunel.m@aol.com>
-Reply-To: brunelmrsminaa@gmail.com
-Message-ID: <1170937654.4837977.1595336528654@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1727972AbgGUNG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 09:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41498 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726673AbgGUNG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 09:06:58 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07495C061794;
+        Tue, 21 Jul 2020 06:06:58 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id n22so18640529ejy.3;
+        Tue, 21 Jul 2020 06:06:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=FNRQDpB/C0DSiAzcHNO6kb9FGeqlHGnvw2Idc2qF2xA=;
+        b=VP4XLs2WMesH3mwrJ2TWgXivOWcsMmLW8nE78luEosgHipsHAAZmHzYquXSDi7qvZY
+         ZciITN8ijBNwp9oCjrpCamOReyd3csPYMkf16WPfGk7zJaZxbaD3nOStP0QBGZnL0+Aq
+         aUTAkHpJTzKUHpRMerSv5vEwqXsdSIbPDYyIaWbYUab1ncX4clBtIqb1LAc+dk6jmmmg
+         4vcUyITofP9ibQhX7YgnE/TEPi1bvYMxRFVBFoXF68vzFaoLz1g2Y4FgU/nbU+ySnsFd
+         ptcENq+C6Pu04WPvsUiXu0p5XeExCRn1+NPCDjMmaaTIaeYst3/rIEN6rP/2Ce5bkwWC
+         y9Pw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=FNRQDpB/C0DSiAzcHNO6kb9FGeqlHGnvw2Idc2qF2xA=;
+        b=tLgza4K65xRzjuxE86bffSiIs9jzTnStz0fsUPOnHUnJBAdzkV7s1Vh6fBSQ7/y9CL
+         cuEAUwRXbSoPR45de6jxGnwsRdNs+oCy1FwMTrWkHFtWRzpcOp4+g1FLeKNHqRGfiqq4
+         WOJHYRe95bn/OKxguGO9THGGs9k7Nxyr5Oz9B0k2QCddDIpMJ12fVhKjtfT91CxHrxz4
+         NhaCmzlD+zmFUzzeSrGlPBp+5si86h0cdj4XgB9kyc2v4Paw1LRWqxQamrTEFkIMHOvR
+         iZchzk5Zg0mCCeBW/v2VpNZwNyv7bgeXrhqL+eK1cvcsh5kjTqIvCZuhEfoj2QPm0OUX
+         aThQ==
+X-Gm-Message-State: AOAM531wDxQNdRSNYV7//8RN/8FELWI6LMOTBIwOqkTpvR2aZBmdz2Z+
+        mWB6Evj+0endEjo8i6Z4FRQ=
+X-Google-Smtp-Source: ABdhPJwcf/sxQxk530R/py0pX12PmvV9iHPrBfHCQ+2PQNz834i+xPdHKN0AXZSBZ3aNgIp8dXvmzg==
+X-Received: by 2002:a17:906:cecf:: with SMTP id si15mr24731498ejb.508.1595336816764;
+        Tue, 21 Jul 2020 06:06:56 -0700 (PDT)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id j19sm17340714edt.44.2020.07.21.06.06.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2020 06:06:55 -0700 (PDT)
+Date:   Tue, 21 Jul 2020 15:06:52 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.7 000/244] 5.7.10-rc1 review
+Message-ID: <20200721130652.GA44604@ulmo>
+References: <20200720152825.863040590@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1170937654.4837977.1595336528654.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+In-Reply-To: <20200720152825.863040590@linuxfoundation.org>
+User-Agent: Mutt/1.14.4 (2020-06-18)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My Dear in the lord
+On Mon, Jul 20, 2020 at 05:34:31PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.10 release.
+> There are 244 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Wed, 22 Jul 2020 15:27:31 +0000.
+> Anything received after that time might be too late.
+>=20
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.10-=
+rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
+ linux-5.7.y
+> and the diffstat can be found below.
+>=20
+> thanks,
+>=20
+> greg k-h
 
+All tests are passing for Tegra ...
 
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
- gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
-ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
-on Euro) Eight million, Five hundred thousand Euros in a bank in Ouagadougo=
-u the capital city of of Burkina in West Africa. The money was from the sal=
-e of his company and death benefits payment and entitlements of my deceased=
- husband by his company.
+Test results for stable-v5.7:
+    11 builds:  11 pass, 0 fail
+    26 boots:   26 pass, 0 fail
+    56 tests:   56 pass, 0 fail
 
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
+Linux version:  5.7.10-rc1-gd3c98742b46c
+Boards tested:  tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
+Cheers,
+Thierry
 
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
+-----BEGIN PGP SIGNATURE-----
 
-Thanks
-Mrs. Mina A. Brunel
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl8W6FYACgkQ3SOs138+
+s6HL/g//Xv6WI4vKPskHudJHwPp1V1YJ2OZY1Y+ZcNgFkOL4gJS036ce4MFCiFn6
+73b9kGpAoc0WmgUUcc4J0e5zaRhSfxQMnH63BMk3FVlDVFoKL+Q2Km/TO0ys9hP3
+mpNc5UWDS/KyVRt4Wl7/YCz7Bg1eqQ79hLP+PgeGCahRa+tRJHIxQ4HHvPkHYinj
+DfHEekF7jindM1/Ghdrr5yR0qEmYp+KPGvNDYpNbmUauVNd1W/ovBw+zvrowbsrz
+3JeaYesRkkNYdhbLLb9USUOGkpQ4iBhiCNMFMJb2ZiN42w3D90LCglhQO/1BuuRC
+vFP+CoRUQUqBN0E+UmDbjbnYkWJuSi5VuA+FV8Js/g6MfC2dqpm9k2j9hrl2Sy/o
+n9ys8kWjqhRP9aresAT7F7/Rd1UBX7/3DUIAsLK05Ug4dUWgl3NUdgQW4BYnF3sV
+5N7twG8W8NemnLArWCLOW90sGgmY5XJJnMUduxW2Cz1AAP3L2ywP7zEh5In/Q3nm
+ejUkMeiNeoo7uCmDCWN8vz/H7895ZIWcYd+9LLLfqhMqOkvEx+I7qkmQMU32s1FN
+GW52Me+d2rNbQ5igGd886kBPvMeQmPahRANi7iTFyIPaVspuOdtAJLPx4OKxT9sw
+/l5bhUoD1nsKZnk/HsmyJBw2ybKLCQpHRCmIB/IfhTsKCe7IiLw=
+=AON/
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--
