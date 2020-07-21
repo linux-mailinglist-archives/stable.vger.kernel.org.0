@@ -2,123 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A43372282D1
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 16:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8432282DC
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 16:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbgGUOxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 10:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58042 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728064AbgGUOxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 10:53:08 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871C0C061794;
-        Tue, 21 Jul 2020 07:53:08 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id o3so16603829ilo.12;
-        Tue, 21 Jul 2020 07:53:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=gefT0usPwNpk++e6uaRtXlpKcI6kuzb4kMCCKqrFfP8=;
-        b=b4fbwZfv+f+CQ9FRW+4R1nY4ruQn7glFZMb4qq/JTveq+aXeE+zXcMmaJh2Vkk0c/Q
-         987BntmeC5ecl+70X0t4cfoLbLO87lOBiRyW5DwwBGFT3lfGPxcH1D9Fs1qMr23BCdb/
-         gSsZKQg77hQblYcYrDIMkSZF4RIZFIpVvbmCFGed9/MhnIIJHmEInyDHfVb8h52g257g
-         NcR29IgeofNpWEhP8+qwGfmQ46cV1A46cQM3D1aiWAN6MTNpRMxdBzTkma5XQJmULqgU
-         Tc4niZ+Ws6OiBLSS3M9kMmodmp8lyctXD/71ScwWam4HX4ereBTpCfG2qyZailXTOG9P
-         S1Mw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=gefT0usPwNpk++e6uaRtXlpKcI6kuzb4kMCCKqrFfP8=;
-        b=MyXPT9VZADq5xpnqEAJD5W94dMmisRcovpzoP2woMkXHuWc4CyD6LWQU2KouywHNl/
-         /mLpSP3x4W/JEkDv2vRPSEOHrzZRaV7/7XoboMzDDPjpz9TAtbBr7SW8XWIOnupKfRy4
-         6hXJmXQB+XKFKB9hp4BgDs1H2U8aGl84eKXlAq5+dgzuNh8OPbQ0xSVGo5we12kdglM2
-         5TsMqO3ETc2jJ7SLk/TLPkYX5g8EF1fKfk1GH01DbeycXaBqxGCddeGDFaYMl6kcde+q
-         R9DteryPJBTF709X8cArsufT8eA+ggSPumSSw+b4wHa+roIVogCcorDmRsIQvX/5llX2
-         /+XQ==
-X-Gm-Message-State: AOAM5318r2OUGSnpTOqnr8hTckU1blhTpSOK4y1Moel79v5DZGWxeiCb
-        Oyj5yHZ9iKfaCfv0yT+WmeR1duwM+Ua6p0GJEsQ=
-X-Google-Smtp-Source: ABdhPJw31yfOcTIu5NemOQg+BEwWwEa2rR/37X3QOEqy0M15pG5KgWNiEKxHOFs2dwz+hEByGN7QRUBYHSL246GMMt0=
-X-Received: by 2002:a92:dc09:: with SMTP id t9mr29451057iln.226.1595343187823;
- Tue, 21 Jul 2020 07:53:07 -0700 (PDT)
+        id S1728306AbgGUOyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 10:54:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42172 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727941AbgGUOyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 10:54:04 -0400
+Received: from localhost (mobile-166-175-191-139.mycingular.net [166.175.191.139])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4B2A20717;
+        Tue, 21 Jul 2020 14:54:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595343243;
+        bh=LGjn1NQByMAtiMquXEdKNSg+VZngPld+GQLBIyWGQFA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=gAurnN/EAgwhJYBOP3FVWZ8Q1zkaIbD9GyL/qucE1v0WOfPMfD1E/SruAJUQUtCD2
+         eKB082UD1rxcMa4I2M21vXYK/6rPiwMWBp72swxptXHA8FF2J5+wUiH2aOXG2E+mLf
+         +jHmuqyjPBGrCSjJIVSKSoqd/zQwOeif5EIzkaqQ=
+Date:   Tue, 21 Jul 2020 09:54:01 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Ashok Raj <ashok.raj@intel.com>
+Cc:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Joerg Roedel <joro@8bytes.org>, Lu Baolu <baolu.lu@intel.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux-foundation.org
+Subject: Re: [PATCH] PCI/ATS: PASID and PRI are only enumerated in PF devices.
+Message-ID: <20200721145401.GA1117318@bjorn-Precision-5520>
 MIME-Version: 1.0
-References: <20200721041940.4029552-1-maskray@google.com> <20200721104035.GC1676612@kroah.com>
-In-Reply-To: <20200721104035.GC1676612@kroah.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Tue, 21 Jul 2020 16:52:56 +0200
-Message-ID: <CA+icZUW9JhZEEcXfL5bid7+M-Qtw22XzSm2x-JxW1bU15HJ6sA@mail.gmail.com>
-Subject: Re: [PATCH v2] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Fangrui Song <maskray@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>,
-        stable@vger.kernel.org, Jian Cai <jiancai@google.com>,
-        Bill Wendling <morbo@google.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1595263380-209956-1-git-send-email-ashok.raj@intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 12:40 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Jul 20, 2020 at 09:19:38PM -0700, Fangrui Song wrote:
-> > When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
-> > $(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
-> > GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
-> > /usr/bin/ and Clang as of 11 will search for both
-> > $(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
-> >
-> > GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
-> > $(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
-> > $(prefix)aarch64-linux-gnu/$needle rarely contains executables.
-> >
-> > To better model how GCC's -B/--prefix takes in effect in practice, newer
-> > Clang (since
-> > https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
-> > only searches for $(prefix)$needle. Currently it will find /usr/bin/as
-> > instead of /usr/bin/aarch64-linux-gnu-as.
-> >
-> > Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE)
-> > (/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
-> > appropriate cross compiling GNU as (when -no-integrated-as is in
-> > effect).
-> >
-> > Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-> > Signed-off-by: Fangrui Song <maskray@google.com>
-> > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> > Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-> > Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Link: https://github.com/ClangBuiltLinux/linux/issues/1099
-> > ---
-> > Changes in v2:
-> > * Updated description to add tags and the llvm-project commit link.
-> > * Fixed a typo.
->
->
-> <formletter>
->
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
->
-> </formletter>
->
+On Mon, Jul 20, 2020 at 09:43:00AM -0700, Ashok Raj wrote:
+> PASID and PRI capabilities are only enumerated in PF devices. VF devices
+> do not enumerate these capabilites. IOMMU drivers also need to enumerate
+> them before enabling features in the IOMMU. Extending the same support as
+> PASID feature discovery (pci_pasid_features) for PRI.
+> 
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 
-Hi Fangrui,
+Hi Ashok,
 
-your patch needs to be accepted first in Linus tree - among other
-things to have a unique commit-id for inclusion into any affected
-Linux-stable trees.
+When you update this for the 0-day implicit declaration thing, can you
+update the subject to say what the patch *does*, as opposed to what it
+is solving?  Also, no need for a period at the end.
 
-Regards,
-- Sedat -
+Does this fix a regression?  Is it associated with a commit that we
+could add as a "Fixes:" tag so we know how far back to try to apply
+to stable kernels?
+
+> To: Bjorn Helgaas <bhelgaas@google.com>
+> To: Joerg Roedel <joro@8bytes.com>
+> To: Lu Baolu <baolu.lu@intel.com>
+> Cc: stable@vger.kernel.org
+> Cc: linux-pci@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: Ashok Raj <ashok.raj@intel.com>
+> Cc: iommu@lists.linux-foundation.org
+> ---
+>  drivers/iommu/intel/iommu.c |  2 +-
+>  drivers/pci/ats.c           | 14 ++++++++++++++
+>  include/linux/pci-ats.h     |  1 +
+>  3 files changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index d759e7234e98..276452f5e6a7 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -2560,7 +2560,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+>  			}
+>  
+>  			if (info->ats_supported && ecap_prs(iommu->ecap) &&
+> -			    pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_PRI))
+> +			    pci_pri_supported(pdev))
+>  				info->pri_supported = 1;
+>  		}
+>  	}
+> diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
+> index b761c1f72f67..ffb4de8c5a77 100644
+> --- a/drivers/pci/ats.c
+> +++ b/drivers/pci/ats.c
+> @@ -461,6 +461,20 @@ int pci_pasid_features(struct pci_dev *pdev)
+>  }
+>  EXPORT_SYMBOL_GPL(pci_pasid_features);
+>  
+> +/**
+> + * pci_pri_supported - Check if PRI is supported.
+> + * @pdev: PCI device structure
+> + *
+> + * Returns false when no PRI capability is present.
+> + * Returns true if PRI feature is supported and enabled
+> + */
+> +bool pci_pri_supported(struct pci_dev *pdev)
+> +{
+> +	/* VFs share the PF PRI configuration */
+> +	return !!(pci_physfn(pdev)->pri_cap);
+> +}
+> +EXPORT_SYMBOL_GPL(pci_pri_supported);
+> +
+>  #define PASID_NUMBER_SHIFT	8
+>  #define PASID_NUMBER_MASK	(0x1f << PASID_NUMBER_SHIFT)
+>  /**
+> diff --git a/include/linux/pci-ats.h b/include/linux/pci-ats.h
+> index f75c307f346d..073d57292445 100644
+> --- a/include/linux/pci-ats.h
+> +++ b/include/linux/pci-ats.h
+> @@ -28,6 +28,7 @@ int pci_enable_pri(struct pci_dev *pdev, u32 reqs);
+>  void pci_disable_pri(struct pci_dev *pdev);
+>  int pci_reset_pri(struct pci_dev *pdev);
+>  int pci_prg_resp_pasid_required(struct pci_dev *pdev);
+> +bool pci_pri_supported(struct pci_dev *pdev);
+>  #endif /* CONFIG_PCI_PRI */
+>  
+>  #ifdef CONFIG_PCI_PASID
+> -- 
+> 2.7.4
+> 
