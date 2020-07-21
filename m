@@ -2,89 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6312227F90
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 14:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC1F227F94
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 14:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726919AbgGUMFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 08:05:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726266AbgGUMFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 08:05:41 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B928C061794;
-        Tue, 21 Jul 2020 05:05:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=GCuQhEEo8GEQbOaZxwL8t/Vh128zAUVl6nyPuwjgwzQ=; b=OthHJd4Bgck5c0QD7mGU1EWZmD
-        goOXq0I1zCXHkr6wJ0kB6UMQXXO4pm6v4scGHQaN7AeeV+w32z06HpnWiLO+TsEfQhBXh5R0oHfhX
-        9miu46C6dSnClAK3MApHDZ3VMElnGeh2OXiW3uH1ZBjjwreH62IY3cRuzYcjvgbHH2S2gbck1xbi4
-        iWt1cH74w2TiGwcXSrTfi+KMz9n+7GEchsbDBFbXS/096k27ycmHX1I6++xPb8SzHHUp9Z1/ASPIy
-        S61ANqf8wXP0FmuF83ifHEVFLhhWV+/Oo0W55RkxbSV/z/UX76ABJl5RHPkMC1mXqNf4GjpQd4+R3
-        aUa7UqUQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jxr1Z-0001Eb-Vz; Tue, 21 Jul 2020 12:05:34 +0000
-Date:   Tue, 21 Jul 2020 13:05:33 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     js1304@gmail.com
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, kernel-team@lge.com,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Hellwig <hch@infradead.org>,
-        Roman Gushchin <guro@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mm/page_alloc: fix memalloc_nocma_{save/restore} APIs
-Message-ID: <20200721120533.GD15516@casper.infradead.org>
-References: <1595302129-23895-1-git-send-email-iamjoonsoo.kim@lge.com>
+        id S1728196AbgGUMF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 08:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36072 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726266AbgGUMF4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 08:05:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9B6A20771;
+        Tue, 21 Jul 2020 12:05:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595333155;
+        bh=kGkhwcKxerZDegHd9mW67g/82+hU4fEoctQiRLlBaMg=;
+        h=Subject:To:From:Date:From;
+        b=K0kQz08kW06wVP2B5mVhGJ51YAZVJbpCRalrI4fjf1mTa3MK31xipEMZVQfq0ex0j
+         LCiabQWmdJey/Jng2iM8dBwt1wRb5QsiAQtyMVL14yiDn6BbgQF6QmpXOE8arjdN8P
+         wPduxBOBNAjCzXkA7cp5BjXHE7d461MRKPxeMk6A=
+Subject: patch "usb: xhci-mtk: fix the failure of bandwidth allocation" added to usb-linus
+To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 21 Jul 2020 14:06:03 +0200
+Message-ID: <15953331637073@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1595302129-23895-1-git-send-email-iamjoonsoo.kim@lge.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 12:28:49PM +0900, js1304@gmail.com wrote:
-> +static inline unsigned int current_alloc_flags(gfp_t gfp_mask,
-> +					unsigned int alloc_flags)
-> +{
-> +#ifdef CONFIG_CMA
-> +	unsigned int pflags = current->flags;
-> +
-> +	if (!(pflags & PF_MEMALLOC_NOCMA) &&
-> +		gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
-> +		alloc_flags |= ALLOC_CMA;
 
-Please don't indent by one tab when splitting a line because it looks like
-the second line and third line are part of the same block.  Either do
-this:
+This is a note to let you know that I've just added the patch titled
 
-	if (!(pflags & PF_MEMALLOC_NOCMA) &&
-	    gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
-		alloc_flags |= ALLOC_CMA;
+    usb: xhci-mtk: fix the failure of bandwidth allocation
 
-or this:
-	if (!(pflags & PF_MEMALLOC_NOCMA) &&
-			gfp_migratetype(gfp_mask) == MIGRATE_MOVABLE)
-		alloc_flags |= ALLOC_CMA;
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-> @@ -4619,8 +4631,10 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
->  		wake_all_kswapds(order, gfp_mask, ac);
->  
->  	reserve_flags = __gfp_pfmemalloc_flags(gfp_mask);
-> -	if (reserve_flags)
-> +	if (reserve_flags) {
->  		alloc_flags = reserve_flags;
-> +		alloc_flags = current_alloc_flags(gfp_mask, alloc_flags);
-> +	}
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Is this right?  Shouldn't you be passing reserve_flags to
-current_alloc_flags() here?  Also, there's no need to add { } here.
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 5ce1a24dd98c00a57a8fa13660648abf7e08e3ef Mon Sep 17 00:00:00 2001
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Date: Fri, 10 Jul 2020 13:57:52 +0800
+Subject: usb: xhci-mtk: fix the failure of bandwidth allocation
+
+The wMaxPacketSize field of endpoint descriptor may be zero
+as default value in alternate interface, and they are not
+actually selected when start stream, so skip them when try to
+allocate bandwidth.
+
+Cc: stable <stable@vger.kernel.org>
+Fixes: 0cbd4b34cda9 ("xhci: mediatek: support MTK xHCI host controller")
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1594360672-2076-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/xhci-mtk-sch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index fea555570ad4..45c54d56ecbd 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -557,6 +557,10 @@ static bool need_bw_sch(struct usb_host_endpoint *ep,
+ 	if (is_fs_or_ls(speed) && !has_tt)
+ 		return false;
+ 
++	/* skip endpoint with zero maxpkt */
++	if (usb_endpoint_maxp(&ep->desc) == 0)
++		return false;
++
+ 	return true;
+ }
+ 
+-- 
+2.27.0
+
 
