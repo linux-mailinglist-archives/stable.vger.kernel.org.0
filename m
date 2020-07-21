@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4392D22809D
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 15:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328362280AF
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 15:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726993AbgGUNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 09:10:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
+        id S1727955AbgGUNMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 09:12:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726769AbgGUNKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 09:10:55 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8898C061794;
-        Tue, 21 Jul 2020 06:10:54 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id n26so21629655ejx.0;
-        Tue, 21 Jul 2020 06:10:54 -0700 (PDT)
+        with ESMTP id S1726993AbgGUNMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 09:12:32 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B842C061794;
+        Tue, 21 Jul 2020 06:12:32 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id a1so15223961edt.10;
+        Tue, 21 Jul 2020 06:12:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=UspCEUKKntGVrAvJln8sV8cJn+MtvW60MDv5uJ278pY=;
-        b=IsEuky7qsWKxla86BSugpUsvVOg8tmt3M1HDn+Uc6Xvv09+aAShmYBOI3mP05HPaxa
-         4JsJp9K8AzMlIF9enlA7JHgyTozRUYYoK7M8HJLzz8GR6o+hc9DlLLuhkl0dMC3DVP9Y
-         pX3gIA6VD/nHVnaNWVibRYZdJ35Qdm/SHiEcLIMM8ZrhAxG0ibMmQO0pDQwGiH0lo+tc
-         IG3Gkn8h0IOEDtPlxN7L0CZ1r4M6uWtPO+N5Jv3b2LljLUq/WiLcJaD/i3JwJRk7ab3Z
-         7JoPD9ycseeieEcmyLUtSJkuBitAEMd5+AYBS6tQcs9GEHmPLqJNunlV93a/ewEcNKpS
-         RfWA==
+        bh=nBossCmsWHPL8MggqjHAug4Bmu5ZUdQEBmNCEtFn8zM=;
+        b=or+3pvwTt1vOhuGz040GR32tZvLpKotZUd3iYPsgZS1wFzpE/enxKyLGRSXdqTApok
+         cvlOa9UFJjNGbP3FQHLDSsF2+iF8ugwDE8GS4sE9MI0rsicHyWklDjs4ik5ZXs21L7mL
+         Tjy+h1UFO8qF7sOS9DjA6W8wKpBIs5aEHkNwoLApZq04MQh77GZxQ1PaN1YjL6QzEIxw
+         bOxzCPTt+QGFK+nYhRJ/a8HN0xcS6eTqmDPNOyTDannpf9MuUsk/VH2ybEjTzVrXu+Tm
+         pWEqTetNc7k75CY08ockS2TlQ3RLS371uFCPvNgEcSCrm5VgpPZvM1T8hrSseHtfGFPJ
+         NzvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=UspCEUKKntGVrAvJln8sV8cJn+MtvW60MDv5uJ278pY=;
-        b=TXs8gwuaBNZeJYGmwfkjk8B9qyoysShQqJWHRWEFtEYiUSQ32txVrWr6XUTiAtQv0I
-         NMONghd3Lw+BVNE5BJNQ8nSdI3+jmOBDD9jVTBCmlzYPOxqc0f/uwlqS37RH7dBFmPOw
-         BWVYogFivUWCFCWtSgt5VGAnRlZbzm4rpTFCVO2Yi603H+OJfxw9xBP/1F3DZzbFf7M9
-         SGgxbyCrBdPwTMsZU4qY9GHv2II1Eae9w9/f4GUaSg2/AonL+qn8a/LdESqKI+kFDABD
-         wSJWc/unyfAFNaMoVVBepoZuvUowrjEVcCUYh75lKkDNmKnc2oF4H4ixyHQscyqNJtCn
-         5FZg==
-X-Gm-Message-State: AOAM530OQY5Q5QX0pUeqPey9UsdazVUepNr8nFFeBEUhrHm8mXSEtTin
-        UEa9yBV2FxoqjKA0OC3TK1g=
-X-Google-Smtp-Source: ABdhPJzcmF5L2aR3yjodBcFiE4f1TdBlzsDNXt6PtuYRZxeZtAC9eOAXkTNT1GQHOE8EE6OlgjjMnQ==
-X-Received: by 2002:a17:906:d963:: with SMTP id rp3mr24135477ejb.54.1595337053676;
-        Tue, 21 Jul 2020 06:10:53 -0700 (PDT)
+        bh=nBossCmsWHPL8MggqjHAug4Bmu5ZUdQEBmNCEtFn8zM=;
+        b=CKcn+hn9ESqN5rD+YP7Edbti4vvz8mGHb2HrczU/6MkuYhzaIi5PXOcZKfhb1y3184
+         VCMYEE64SDRnv5FcbwIXGZ1SMYp9gx+kTQjin13vA6z4mhIvRgB9b98fm+ZI/emcHQI6
+         BltgTkX0CNiBlioNqJw/0Pz5qs+X4tAPkC+tlXZ8lKbI56yWQxIqvkeDe2daJH0rZi/c
+         /rdYjzO05Nr0nKLivOE8kowcKuX14ZQCcAMKmAYJNch1MNzz81DCtGNmANP9mT3jVezd
+         LirgfJgL5JTd92no86ngSsIW4gxKBS/piB64P+SoYTaUwEHPtQPcPCEEGkTm4pL9UITz
+         UVRg==
+X-Gm-Message-State: AOAM532qFlaIQlX4ZpZ3927JpwrieeE7mIFBmqSmMch3X+glQf3JFvxk
+        M0F1lzI6oxkT4/QZk0ZQNQw=
+X-Google-Smtp-Source: ABdhPJyDkXpVtFsNCRmAEWk5XLwB2YGiXnrpKPXO/+POrQPjsQZh9RwMNFkINqkAeIXrnKXeHdk+Bg==
+X-Received: by 2002:a05:6402:b23:: with SMTP id bo3mr26500295edb.331.1595337150742;
+        Tue, 21 Jul 2020 06:12:30 -0700 (PDT)
 Received: from localhost ([62.96.65.119])
-        by smtp.gmail.com with ESMTPSA id q17sm16619830ejd.20.2020.07.21.06.10.51
+        by smtp.gmail.com with ESMTPSA id d23sm16287991ejj.74.2020.07.21.06.12.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2020 06:10:52 -0700 (PDT)
-Date:   Tue, 21 Jul 2020 15:10:51 +0200
+        Tue, 21 Jul 2020 06:12:29 -0700 (PDT)
+Date:   Tue, 21 Jul 2020 15:12:28 +0200
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 00/86] 4.9.231-rc1 review
-Message-ID: <20200721131051.GB44604@ulmo>
-References: <20200720152753.138974850@linuxfoundation.org>
+Subject: Re: [PATCH 5.4 000/215] 5.4.53-rc1 review
+Message-ID: <20200721131228.GC44604@ulmo>
+References: <20200720152820.122442056@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
+        protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
 Content-Disposition: inline
-In-Reply-To: <20200720152753.138974850@linuxfoundation.org>
+In-Reply-To: <20200720152820.122442056@linuxfoundation.org>
 User-Agent: Mutt/1.14.4 (2020-06-18)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -69,14 +69,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---aM3YZ0Iwxop3KEKx
+--Sr1nOIr3CvdE5hEN
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 20, 2020 at 05:35:56PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.231 release.
-> There are 86 patches in this series, all will be posted as a response
+On Mon, Jul 20, 2020 at 05:34:42PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.53 release.
+> There are 215 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >=20
@@ -84,11 +84,11 @@ On Mon, Jul 20, 2020 at 05:35:56PM +0200, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 >=20
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.231=
--rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.53-=
+rc1.gz
 > or in the git tree and branch at:
 > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
- linux-4.9.y
+ linux-5.4.y
 > and the diffstat can be found below.
 >=20
 > thanks,
@@ -97,36 +97,38 @@ On Mon, Jul 20, 2020 at 05:35:56PM +0200, Greg Kroah-Hartman wrote:
 
 All tests passing for Tegra ...
 
-Test results for stable-v4.9:
-    8 builds:   8 pass, 0 fail
-    16 boots:   16 pass, 0 fail
-    30 tests:   30 pass, 0 fail
+Test results for stable-v5.4:
+    11 builds:  11 pass, 0 fail
+    26 boots:   26 pass, 0 fail
+    56 tests:   56 pass, 0 fail
 
-Linux version:  4.9.231-rc1-g8c3f33eeb0cc
-Boards tested:  tegra124-jetson-tk1, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+Linux version:  5.4.53-rc1-g95f1079149bd
+Boards tested:  tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
 Cheers,
 Thierry
 
---aM3YZ0Iwxop3KEKx
+--Sr1nOIr3CvdE5hEN
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl8W6VsACgkQ3SOs138+
-s6EJnxAAnyshar2aayeddVUNnsWbYqvxeOqNzp6ukeoWExDBz7WVQNBa3mVf6yXN
-mAUvZaW2IR3k+xtjdaNk7f6ubaK3ec6GkfXssChc5PWic+eoVj+33JB6gmpmk8Yo
-N01+0woddAS6neXdaBYcwQliQmcduhx+x1Wwrvr6G7GuW8ELtBiipnMXXWuKo8ll
-KWueojmZncfd3Jy4bwTHb0ZDGS4H+GBYurM61ywiqceEZZ2opdjqV93n3AiMurdS
-Vg1umglEn0s859S+iZJ7rm5/aSMgVmvAp9UhbDs6XAIxCy7zNJb1g5s+Nb5acdI6
-FNylm39OHjqduQhkny/o5F+s80LMdo8LTjXdpvCxa3YEw5ZRzxrub7GOTn5KfdhR
-FJ9VV+aF6eChVUgeka/Aohf1J8+e+EYFW/pLMMi4EEszJB6RwVwCejAFJkitTsp+
-bGVtX4arOct+3Q5KUQrv1obbXzhMIu6ip9OT+OiPIRPEqrPy+E1QlgLBKHNdSPgN
-F3ZamUmCGqRuTYgXzXzmE/b5Smu85fRCUWz3lVSTabknWw2UfXyO2aJykIni5RsJ
-DpcaJG23h6DuaOpAM/LF3ensJBwGTXtYJQ84KT21dLO6oLIdk4iIHsurYAZmk9qc
-c2Xy4ELyHjNTZJj2sGzg+163ThH1VDaM86u8vBJ9KRfLCCiHL9A=
-=OJ4b
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl8W6bwACgkQ3SOs138+
+s6HPEhAArSagNcoTsjy+Qa6lyYFHrcbGEIlpHKO6hSLhXV6XywzCwfPgtWjg/Vgi
++3Pnd+rxfgjlx/OzU+UFN8QwNobVEO5TAajoNI+8nCqSTOyGFZkVXlaL6gdeMA8P
+SH/LSuSNmMsa6U28wEhyi5Eo5mmIkRg3+RP9B+CSZiAJn4CxBY5wlOtDd+qOzyMw
+8Fbph4GOGG+hrWl6L1bLJ1/RBLrybpXdOStHso+M7K0U2UYb80nz0BfBKAw0FebQ
+yrNE4lUhed50vWAtKdhnWQn6cvkPsOP71BgUOHd1EC1PzvHNFVX44+BqZ9aKCz4D
+Kj0UAiCI/OwhahMoLeCcv/b7rWboZG6ny2wWPzSnHvXGNKZ/jYfkfxHW04jrjXGH
+XMkmjzASbIqkQQyaXcRF7FQeSTCkgE1+mnsKvFj0IR6x/XQaX0f4EtCdwrlZAOWD
+B1ccmr/m3DgF1wXwy5nlPkZ0HYPlElBUzczRSTeBFum9Ib2FaOc4r3G1RCjJgDDj
+4HQdu7lszduPvilu62b36o9u24xmtIIa3vDvoOq74uso6UPQUNSSvcfnIzllxQTW
+p1Q907wEGflhNIrHKd1ux+UKLgAt7Q+w/ur6dX2L45EFWbOoZNqy/fJCLJx8VVVA
+keEZZ3gQHoXGhDmjUbvAr794d+l5IAuLSTD10Anth+OW4+5jEpU=
+=555I
 -----END PGP SIGNATURE-----
 
---aM3YZ0Iwxop3KEKx--
+--Sr1nOIr3CvdE5hEN--
