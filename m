@@ -2,131 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 840EE228986
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 21:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CC9228A26
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 22:49:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730639AbgGUTyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 15:54:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48732 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728683AbgGUTyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 15:54:45 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D7BBC061794;
-        Tue, 21 Jul 2020 12:54:45 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id t18so17484818ilh.2;
-        Tue, 21 Jul 2020 12:54:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=iseUsb4cwqFRjmEUZSESf/WmYPRnoCDuuKRyDEs9PoA=;
-        b=SenRoNEMiots8jEaKK0lgPbkx6jsvSyCzBfJzL/ibpa1bSd3B735SQ9uwjkrtV0adN
-         l4CKmFsuVAs1YML/DexjReCUFTlxH4w0WbvtU0iEtU865GcNwdqYwMmlTu/XHqPKrCsr
-         S1c6CpICb/yZd4W5IHK5E2SdVn9bWUWuKN11iwm5SWc0yXAS8+aRwRcKXOnrwFeOG1JD
-         YM/YtWjR6/j36XYMQoOg+8cAOLBHwtpqxGz+lscASuU8ngWBvDY8dvZg7dts7saQmt1g
-         AYcs9IwwYDrk8mhpb5x4T+nvHzLYm77xkUOgC6TNesAmMWk82NpASIAT468q1D+F4A0N
-         lzvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=iseUsb4cwqFRjmEUZSESf/WmYPRnoCDuuKRyDEs9PoA=;
-        b=rytEMGnERmaOP6NEA8ZoVLeVw57jj29RKN2UGcbOwIeOJKPwUEUj7nHUNt7K9MF3ba
-         KyeThaOcjzzL8SV0sBYf0xBKicAe1Co/Ol2B8EfKBPAIB9s0Uyaz6IQhuHcNQ6n3Ccdw
-         oFzQ9gpj9mWTczr4XRX7YOZuCMXjwbnRCEexwbPLPy3AqNYzpevQcWxRqgLz11DVVESe
-         oDHjj81YHdWJ+B/tcyoxjJfNfIIRUJo7DOV/ywujyfMl395B2tRWSaeC/vXjlHVfMvbq
-         D60hAZovLsytWwsW3aRQYf1rBx4Cei5uqQqXBATJ0j2D3/57z6JVqG0IFBP58uLjVijQ
-         s9DA==
-X-Gm-Message-State: AOAM531HxkrixLpo8MbOcZAD0gVNkgXXbRbU9m50wRLYSqleyKpoUz+J
-        vzEZjlXsk+mSZqDsiGMUi+KKmvWpCQnshueP6js=
-X-Google-Smtp-Source: ABdhPJxtro6L/mmZCFmnlQFdDMRf/sv/H0msP9fG8u/lWygvyq5Sr6L0XiZeKRoFTgHlstL3iaGrVobxkbpQTOqBzH0=
-X-Received: by 2002:a92:d843:: with SMTP id h3mr31183810ilq.255.1595361284863;
- Tue, 21 Jul 2020 12:54:44 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200721041940.4029552-1-maskray@google.com>
-In-Reply-To: <20200721041940.4029552-1-maskray@google.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Tue, 21 Jul 2020 21:54:33 +0200
-Message-ID: <CA+icZUU1npgQEp9-CK67ZnUQHapW9Q1xtsh2Sqtkup08MaKCyQ@mail.gmail.com>
-Subject: Re: [PATCH v2] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
-To:     Fangrui Song <maskray@google.com>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>,
-        stable@vger.kernel.org, Jian Cai <jiancai@google.com>,
-        Bill Wendling <morbo@google.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726506AbgGUUta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 16:49:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53724 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726029AbgGUUt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 16:49:29 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6B8E20717;
+        Tue, 21 Jul 2020 20:49:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595364568;
+        bh=sFDPbRrZ8r+/PiGLHBuN4i4zwMJ8TfW2SYocOT0d+RE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=2PqVVB+xfBifSjLmKdKcj2mAwvJ+ZifdX6HPKjgwSUQjU1rkxBsTNRZa9wdaRhIB/
+         HB9RYO4Y6yUO5uPjKyDGVBAh2BhBtGN8zfaI6PVfU/z9evfilJg4DUN7PPbMKfe8eA
+         cUKuUBdA1bMJcAl1dl+Jlmm1JRx24UzUe39N780Q=
+Date:   Tue, 21 Jul 2020 13:49:28 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     cai@lca.pw, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
+        peterz@infradead.org, stable@vger.kernel.org
+Subject:  + fork-silence-a-false-postive-warning-in-__mmdrop.patch
+ added to -mm tree
+Message-ID: <20200721204928.ScSj1rpgM%akpm@linux-foundation.org>
+In-Reply-To: <20200703151445.b6a0cfee402c7c5c4651f1b1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 6:20 AM 'Fangrui Song' via Clang Built Linux
-<clang-built-linux@googlegroups.com> wrote:
->
-> When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
-> $(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
-> GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
-> /usr/bin/ and Clang as of 11 will search for both
-> $(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
->
-> GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
-> $(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
-> $(prefix)aarch64-linux-gnu/$needle rarely contains executables.
->
-> To better model how GCC's -B/--prefix takes in effect in practice, newer
-> Clang (since
-> https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
-> only searches for $(prefix)$needle. Currently it will find /usr/bin/as
-> instead of /usr/bin/aarch64-linux-gnu-as.
->
-> Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE)
-> (/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
-> appropriate cross compiling GNU as (when -no-integrated-as is in
-> effect).
->
-> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-> Signed-off-by: Fangrui Song <maskray@google.com>
-> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1099
-> ---
-> Changes in v2:
-> * Updated description to add tags and the llvm-project commit link.
-> * Fixed a typo.
 
-Tested-by: Sedat Dilek <sedat.dilek@gmail,com>
+The patch titled
+     Subject: fork: silence a false postive warning in __mmdrop
+has been added to the -mm tree.  Its filename is
+     fork-silence-a-false-postive-warning-in-__mmdrop.patch
 
-- Sedat -
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/fork-silence-a-false-postive-warning-in-__mmdrop.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/fork-silence-a-false-postive-warning-in-__mmdrop.patch
 
-> ---
->  Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/Makefile b/Makefile
-> index 0b5f8538bde5..3ac83e375b61 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -567,7 +567,7 @@ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
->  ifneq ($(CROSS_COMPILE),)
->  CLANG_FLAGS    += --target=$(notdir $(CROSS_COMPILE:%-=%))
->  GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
-> -CLANG_FLAGS    += --prefix=$(GCC_TOOLCHAIN_DIR)
-> +CLANG_FLAGS    += --prefix=$(GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE)
->  GCC_TOOLCHAIN  := $(realpath $(GCC_TOOLCHAIN_DIR)/..)
->  endif
->  ifneq ($(GCC_TOOLCHAIN),)
-> --
-> 2.28.0.rc0.105.gf9edc3c819-goog
->
-> --
-> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20200721041940.4029552-1-maskray%40google.com.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Qian Cai <cai@lca.pw>
+Subject: fork: silence a false postive warning in __mmdrop
+
+commit bf2c59fce407 ("sched/core: Fix illegal RCU from offline CPUs")
+delayed,
+
+idle->active_mm = &init_mm;
+
+into finish_cpu() instead of idle_task_exit() which results in a false
+positive warning that was originally designed in the commit 3eda69c92d47
+("kernel/fork.c: detect early free of a live mm").
+
+ WARNING: CPU: 127 PID: 72976 at kernel/fork.c:697
+ __mmdrop+0x230/0x2c0
+ do_exit+0x424/0xfa0
+ Call Trace:
+ do_exit+0x424/0xfa0
+ do_group_exit+0x64/0xd0
+ sys_exit_group+0x24/0x30
+ system_call_exception+0x108/0x1d0
+ system_call_common+0xf0/0x278
+
+Link: http://lkml.kernel.org/r/20200604150344.1796-1-cai@lca.pw
+Fixes: bf2c59fce407 ("sched/core: Fix illegal RCU from offline CPUs")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ kernel/fork.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+--- a/kernel/fork.c~fork-silence-a-false-postive-warning-in-__mmdrop
++++ a/kernel/fork.c
+@@ -694,7 +694,6 @@ void __mmdrop(struct mm_struct *mm)
+ {
+ 	BUG_ON(mm == &init_mm);
+ 	WARN_ON_ONCE(mm == current->mm);
+-	WARN_ON_ONCE(mm == current->active_mm);
+ 	mm_free_pgd(mm);
+ 	destroy_context(mm);
+ 	mmu_notifier_subscriptions_destroy(mm);
+_
+
+Patches currently in -mm which might be from cai@lca.pw are
+
+fork-silence-a-false-postive-warning-in-__mmdrop.patch
+mm-page_alloc-silence-a-kasan-false-positive.patch
+mm-kmemleak-silence-kcsan-splats-in-checksum.patch
+mm-frontswap-mark-various-intentional-data-races.patch
+mm-page_io-mark-various-intentional-data-races.patch
+mm-page_io-mark-various-intentional-data-races-v2.patch
+mm-swap_state-mark-various-intentional-data-races.patch
+mm-swapfile-fix-and-annotate-various-data-races.patch
+mm-swapfile-fix-and-annotate-various-data-races-v2.patch
+mm-page_counter-fix-various-data-races-at-memsw.patch
+mm-memcontrol-fix-a-data-race-in-scan-count.patch
+mm-list_lru-fix-a-data-race-in-list_lru_count_one.patch
+mm-mempool-fix-a-data-race-in-mempool_free.patch
+mm-rmap-annotate-a-data-race-at-tlb_flush_batched.patch
+mm-swap-annotate-data-races-for-lru_rotate_pvecs.patch
+mm-annotate-a-data-race-in-page_zonenum.patch
+
