@@ -2,144 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 667C5228A55
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 23:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ABDB228A6B
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 23:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731041AbgGUVGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 17:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58462 "EHLO mail.kernel.org"
+        id S1730592AbgGUVN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 17:13:58 -0400
+Received: from mga01.intel.com ([192.55.52.88]:17248 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726658AbgGUVGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Jul 2020 17:06:55 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF4B220720;
-        Tue, 21 Jul 2020 21:06:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595365614;
-        bh=j88xDG5ZcNsXGw1qQwglXCQ1tuXFL/hEbx5gQSVtz2A=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=Uq4/sKHVNiEdSL5MJ87IIheswTZyZqBdCSYJ4ypUzTfnNf0gx+EMJvHaJQ8i0AWCd
-         vA9PSySnyjC51euNrx+2u2rlg5TsG2DTv6ukM/gg9X7LV4NXOaKLtjftzTLIvw7gFb
-         49IEs5Moeit6HVuAWvD3Xq27RbgzCGx29uItEHYE=
-Date:   Tue, 21 Jul 2020 14:06:53 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     axboe@kernel.dk, hch@lst.de, jannh@google.com,
-        keescook@chromium.org, luto@amacapital.net,
-        mathieu.desnoyers@efficios.com, mm-commits@vger.kernel.org,
-        npiggin@gmail.com, peterz@infradead.org, stable@vger.kernel.org,
-        will@kernel.org
-Subject:  + mm-fix-kthread_use_mm-vs-tlb-invalidate.patch added to
- -mm tree
-Message-ID: <20200721210653.mOWpKQDJQ%akpm@linux-foundation.org>
-In-Reply-To: <20200703151445.b6a0cfee402c7c5c4651f1b1@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726686AbgGUVN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jul 2020 17:13:58 -0400
+IronPort-SDR: 0/8cvnYsacs+FpCbujs67hhvGkU/pXUo0cWOjaMlfcho5ZXMcEOjKqk4//ShNUIhxGyrbB8dld
+ y9mMRFygdf8Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9689"; a="168377249"
+X-IronPort-AV: E=Sophos;i="5.75,380,1589266800"; 
+   d="scan'208";a="168377249"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2020 14:13:58 -0700
+IronPort-SDR: jfP3vxj61yHJHjlo5BFoMGLMIGVER/KB9BFhTq7pwA32SEp1fHghBmm3qZzbILTAlgK6CnJ7wY
+ 4vXaZlScbvfA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,380,1589266800"; 
+   d="scan'208";a="270554953"
+Received: from otc-nc-03.jf.intel.com ([10.54.39.25])
+  by fmsmga007.fm.intel.com with ESMTP; 21 Jul 2020 14:13:58 -0700
+From:   Ashok Raj <ashok.raj@intel.com>
+To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Joerg Roedel <joro@8bytes.org>
+Cc:     Ashok Raj <ashok.raj@intel.com>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
+Subject: [PATCH] PCI/ATS: PASID and PRI are only enumerated in PF devices.
+Date:   Tue, 21 Jul 2020 14:13:45 -0700
+Message-Id: <1595366025-239046-1-git-send-email-ashok.raj@intel.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+PASID and PRI capabilities are only enumerated in PF devices. VF devices
+do not enumerate these capabilites. IOMMU drivers also need to enumerate
+them before enabling features in the IOMMU. Extending the same support as
+PASID feature discovery (pci_pasid_features) for PRI.
 
-The patch titled
-     Subject: mm: fix kthread_use_mm() vs TLB invalidate
-has been added to the -mm tree.  Its filename is
-     mm-fix-kthread_use_mm-vs-tlb-invalidate.patch
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-fix-kthread_use_mm-vs-tlb-invalidate.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-kthread_use_mm-vs-tlb-invalidate.patch
+v2: Fixed build failure from lkp when CONFIG_PRI=n
+    Almost all the PRI functions were called only when CONFIG_PASID is
+    set. Except the new pci_pri_supported().
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+    previous version sent in error because i missed dry-run before recompile
+    :-(
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: mm: fix kthread_use_mm() vs TLB invalidate
-
-For SMP systems using IPI based TLB invalidation, looking at
-current->active_mm is entirely reasonable.  This then presents the
-following race condition:
-
-  CPU0			CPU1
-
-  flush_tlb_mm(mm)	use_mm(mm)
-    <send-IPI>
-			  tsk->active_mm = mm;
-			  <IPI>
-			    if (tsk->active_mm == mm)
-			      // flush TLBs
-			  </IPI>
-			  switch_mm(old_mm,mm,tsk);
-
-Where it is possible the IPI flushed the TLBs for @old_mm, not @mm,
-because the IPI lands before we actually switched.
-
-Avoid this by disabling IRQs across changing ->active_mm and switch_mm().
-
-[ There are all sorts of reasons this might be harmless for various
-architecture specific reasons, but best not leave the door open at all.  ]
-
-Link: http://lkml.kernel.org/r/20200721154106.GE10769@hirez.programming.kicks-ass.net
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reported-by: Andy Lutomirski <luto@amacapital.net>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+To: Bjorn Helgaas <bhelgaas@google.com>
+To: Joerg Roedel <joro@8bytes.com>
+To: Lu Baolu <baolu.lu@intel.com>
+Cc: stable@vger.kernel.org
+Cc: linux-pci@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: iommu@lists.linux-foundation.org
 ---
+ drivers/iommu/intel/iommu.c |  2 +-
+ drivers/pci/ats.c           | 13 +++++++++++++
+ include/linux/pci-ats.h     |  4 ++++
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
- kernel/kthread.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
---- a/kernel/kthread.c~mm-fix-kthread_use_mm-vs-tlb-invalidate
-+++ a/kernel/kthread.c
-@@ -1239,13 +1239,15 @@ void kthread_use_mm(struct mm_struct *mm
- 	WARN_ON_ONCE(tsk->mm);
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index d759e7234e98..276452f5e6a7 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -2560,7 +2560,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+ 			}
  
- 	task_lock(tsk);
-+	local_irq_disable();
- 	active_mm = tsk->active_mm;
- 	if (active_mm != mm) {
- 		mmgrab(mm);
- 		tsk->active_mm = mm;
+ 			if (info->ats_supported && ecap_prs(iommu->ecap) &&
+-			    pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_PRI))
++			    pci_pri_supported(pdev))
+ 				info->pri_supported = 1;
+ 		}
  	}
- 	tsk->mm = mm;
--	switch_mm(active_mm, mm, tsk);
-+	switch_mm_irqs_off(active_mm, mm, tsk);
-+	local_irq_enable();
- 	task_unlock(tsk);
- #ifdef finish_arch_post_lock_switch
- 	finish_arch_post_lock_switch();
-@@ -1274,9 +1276,11 @@ void kthread_unuse_mm(struct mm_struct *
+diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
+index b761c1f72f67..2e6cf0c700f7 100644
+--- a/drivers/pci/ats.c
++++ b/drivers/pci/ats.c
+@@ -325,6 +325,19 @@ int pci_prg_resp_pasid_required(struct pci_dev *pdev)
  
- 	task_lock(tsk);
- 	sync_mm_rss(mm);
-+	local_irq_disable();
- 	tsk->mm = NULL;
- 	/* active_mm is still 'mm' */
- 	enter_lazy_tlb(mm, tsk);
-+	local_irq_enable();
- 	task_unlock(tsk);
+ 	return pdev->pasid_required;
  }
- EXPORT_SYMBOL_GPL(kthread_unuse_mm);
-_
-
-Patches currently in -mm which might be from peterz@infradead.org are
-
-mm-fix-kthread_use_mm-vs-tlb-invalidate.patch
++
++/**
++ * pci_pri_supported - Check if PRI is supported.
++ * @pdev: PCI device structure
++ *
++ * Returns true if PRI capability is present, false otherwise.
++ */
++bool pci_pri_supported(struct pci_dev *pdev)
++{
++	/* VFs share the PF PRI configuration */
++	return !!(pci_physfn(pdev)->pri_cap);
++}
++EXPORT_SYMBOL_GPL(pci_pri_supported);
+ #endif /* CONFIG_PCI_PRI */
+ 
+ #ifdef CONFIG_PCI_PASID
+diff --git a/include/linux/pci-ats.h b/include/linux/pci-ats.h
+index f75c307f346d..df54cd5b15db 100644
+--- a/include/linux/pci-ats.h
++++ b/include/linux/pci-ats.h
+@@ -28,6 +28,10 @@ int pci_enable_pri(struct pci_dev *pdev, u32 reqs);
+ void pci_disable_pri(struct pci_dev *pdev);
+ int pci_reset_pri(struct pci_dev *pdev);
+ int pci_prg_resp_pasid_required(struct pci_dev *pdev);
++bool pci_pri_supported(struct pci_dev *pdev);
++#else
++static inline bool pci_pri_supported(struct pci_dev *pdev)
++{ return false; }
+ #endif /* CONFIG_PCI_PRI */
+ 
+ #ifdef CONFIG_PCI_PASID
+-- 
+2.7.4
 
