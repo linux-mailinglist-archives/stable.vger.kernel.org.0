@@ -2,123 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA74228965
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 21:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 840EE228986
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 21:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730928AbgGUTo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 15:44:26 -0400
-Received: from mga05.intel.com ([192.55.52.43]:59805 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730250AbgGUTo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Jul 2020 15:44:26 -0400
-IronPort-SDR: Et36MVXSNo2Pe1PHqxR9folC2OW/3NbidXbOwz4MjQHIIz35t98+C67eSbAvmPDJSDacy/cdh8
- JjZGsB50KdtA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9689"; a="235084359"
-X-IronPort-AV: E=Sophos;i="5.75,379,1589266800"; 
-   d="scan'208";a="235084359"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2020 12:44:25 -0700
-IronPort-SDR: LjU3Q2bNdiXBdGUjRgtcumpVhVHG2+Pn7mZ69Avb09AwR1PnNjOrmsKAOqmHOHlZ1Mqyk+jSut
- x0SwjbM3tfCQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,379,1589266800"; 
-   d="scan'208";a="327980667"
-Received: from otc-nc-03.jf.intel.com ([10.54.39.25])
-  by orsmga007.jf.intel.com with ESMTP; 21 Jul 2020 12:44:24 -0700
-From:   Ashok Raj <ashok.raj@intel.com>
-To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     Ashok Raj <ashok.raj@intel.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
-Subject: [PATCH] PCI/ATS: PASID and PRI are only enumerated in PF devices.
-Date:   Tue, 21 Jul 2020 12:44:20 -0700
-Message-Id: <1595360660-213129-1-git-send-email-ashok.raj@intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S1730639AbgGUTyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 15:54:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728683AbgGUTyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 15:54:45 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D7BBC061794;
+        Tue, 21 Jul 2020 12:54:45 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id t18so17484818ilh.2;
+        Tue, 21 Jul 2020 12:54:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=iseUsb4cwqFRjmEUZSESf/WmYPRnoCDuuKRyDEs9PoA=;
+        b=SenRoNEMiots8jEaKK0lgPbkx6jsvSyCzBfJzL/ibpa1bSd3B735SQ9uwjkrtV0adN
+         l4CKmFsuVAs1YML/DexjReCUFTlxH4w0WbvtU0iEtU865GcNwdqYwMmlTu/XHqPKrCsr
+         S1c6CpICb/yZd4W5IHK5E2SdVn9bWUWuKN11iwm5SWc0yXAS8+aRwRcKXOnrwFeOG1JD
+         YM/YtWjR6/j36XYMQoOg+8cAOLBHwtpqxGz+lscASuU8ngWBvDY8dvZg7dts7saQmt1g
+         AYcs9IwwYDrk8mhpb5x4T+nvHzLYm77xkUOgC6TNesAmMWk82NpASIAT468q1D+F4A0N
+         lzvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=iseUsb4cwqFRjmEUZSESf/WmYPRnoCDuuKRyDEs9PoA=;
+        b=rytEMGnERmaOP6NEA8ZoVLeVw57jj29RKN2UGcbOwIeOJKPwUEUj7nHUNt7K9MF3ba
+         KyeThaOcjzzL8SV0sBYf0xBKicAe1Co/Ol2B8EfKBPAIB9s0Uyaz6IQhuHcNQ6n3Ccdw
+         oFzQ9gpj9mWTczr4XRX7YOZuCMXjwbnRCEexwbPLPy3AqNYzpevQcWxRqgLz11DVVESe
+         oDHjj81YHdWJ+B/tcyoxjJfNfIIRUJo7DOV/ywujyfMl395B2tRWSaeC/vXjlHVfMvbq
+         D60hAZovLsytWwsW3aRQYf1rBx4Cei5uqQqXBATJ0j2D3/57z6JVqG0IFBP58uLjVijQ
+         s9DA==
+X-Gm-Message-State: AOAM531HxkrixLpo8MbOcZAD0gVNkgXXbRbU9m50wRLYSqleyKpoUz+J
+        vzEZjlXsk+mSZqDsiGMUi+KKmvWpCQnshueP6js=
+X-Google-Smtp-Source: ABdhPJxtro6L/mmZCFmnlQFdDMRf/sv/H0msP9fG8u/lWygvyq5Sr6L0XiZeKRoFTgHlstL3iaGrVobxkbpQTOqBzH0=
+X-Received: by 2002:a92:d843:: with SMTP id h3mr31183810ilq.255.1595361284863;
+ Tue, 21 Jul 2020 12:54:44 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200721041940.4029552-1-maskray@google.com>
+In-Reply-To: <20200721041940.4029552-1-maskray@google.com>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Tue, 21 Jul 2020 21:54:33 +0200
+Message-ID: <CA+icZUU1npgQEp9-CK67ZnUQHapW9Q1xtsh2Sqtkup08MaKCyQ@mail.gmail.com>
+Subject: Re: [PATCH v2] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
+To:     Fangrui Song <maskray@google.com>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>,
+        stable@vger.kernel.org, Jian Cai <jiancai@google.com>,
+        Bill Wendling <morbo@google.com>,
+        Manoj Gupta <manojgupta@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PASID and PRI capabilities are only enumerated in PF devices. VF devices
-do not enumerate these capabilites. IOMMU drivers also need to enumerate
-them before enabling features in the IOMMU. Extending the same support as
-PASID feature discovery (pci_pasid_features) for PRI.
+On Tue, Jul 21, 2020 at 6:20 AM 'Fangrui Song' via Clang Built Linux
+<clang-built-linux@googlegroups.com> wrote:
+>
+> When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
+> $(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
+> GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
+> /usr/bin/ and Clang as of 11 will search for both
+> $(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
+>
+> GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
+> $(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
+> $(prefix)aarch64-linux-gnu/$needle rarely contains executables.
+>
+> To better model how GCC's -B/--prefix takes in effect in practice, newer
+> Clang (since
+> https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
+> only searches for $(prefix)$needle. Currently it will find /usr/bin/as
+> instead of /usr/bin/aarch64-linux-gnu-as.
+>
+> Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE)
+> (/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
+> appropriate cross compiling GNU as (when -no-integrated-as is in
+> effect).
+>
+> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Signed-off-by: Fangrui Song <maskray@google.com>
+> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1099
+> ---
+> Changes in v2:
+> * Updated description to add tags and the llvm-project commit link.
+> * Fixed a typo.
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail,com>
 
-v2: Fixed build failure from lkp when CONFIG_PRI=n
-    Almost all the PRI functions were called only when CONFIG_PASID is
-    set. Except the new pci_pri_supported().
+- Sedat -
 
-To: Bjorn Helgaas <bhelgaas@google.com>
-To: Joerg Roedel <joro@8bytes.com>
-To: Lu Baolu <baolu.lu@intel.com>
-Cc: stable@vger.kernel.org
-Cc: linux-pci@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: iommu@lists.linux-foundation.org
----
- drivers/iommu/intel/iommu.c |  2 +-
- drivers/pci/ats.c           | 14 ++++++++++++++
- include/linux/pci-ats.h     |  4 ++++
- 3 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index d759e7234e98..276452f5e6a7 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2560,7 +2560,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
- 			}
- 
- 			if (info->ats_supported && ecap_prs(iommu->ecap) &&
--			    pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_PRI))
-+			    pci_pri_supported(pdev))
- 				info->pri_supported = 1;
- 		}
- 	}
-diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
-index b761c1f72f67..ffb4de8c5a77 100644
---- a/drivers/pci/ats.c
-+++ b/drivers/pci/ats.c
-@@ -461,6 +461,20 @@ int pci_pasid_features(struct pci_dev *pdev)
- }
- EXPORT_SYMBOL_GPL(pci_pasid_features);
- 
-+/**
-+ * pci_pri_supported - Check if PRI is supported.
-+ * @pdev: PCI device structure
-+ *
-+ * Returns false when no PRI capability is present.
-+ * Returns true if PRI feature is supported and enabled
-+ */
-+bool pci_pri_supported(struct pci_dev *pdev)
-+{
-+	/* VFs share the PF PRI configuration */
-+	return !!(pci_physfn(pdev)->pri_cap);
-+}
-+EXPORT_SYMBOL_GPL(pci_pri_supported);
-+
- #define PASID_NUMBER_SHIFT	8
- #define PASID_NUMBER_MASK	(0x1f << PASID_NUMBER_SHIFT)
- /**
-diff --git a/include/linux/pci-ats.h b/include/linux/pci-ats.h
-index f75c307f346d..fc989295daf3 100644
---- a/include/linux/pci-ats.h
-+++ b/include/linux/pci-ats.h
-@@ -28,6 +28,10 @@ int pci_enable_pri(struct pci_dev *pdev, u32 reqs);
- void pci_disable_pri(struct pci_dev *pdev);
- int pci_reset_pri(struct pci_dev *pdev);
- int pci_prg_resp_pasid_required(struct pci_dev *pdev);
-+bool pci_pri_supported(struct pci_dev *pdev);
-+#else
-+bool pci_pri_supported(struct pci_dev *pdev)
-+{ return false; }
- #endif /* CONFIG_PCI_PRI */
- 
- #ifdef CONFIG_PCI_PASID
--- 
-2.7.4
-
+> ---
+>  Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/Makefile b/Makefile
+> index 0b5f8538bde5..3ac83e375b61 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -567,7 +567,7 @@ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
+>  ifneq ($(CROSS_COMPILE),)
+>  CLANG_FLAGS    += --target=$(notdir $(CROSS_COMPILE:%-=%))
+>  GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+> -CLANG_FLAGS    += --prefix=$(GCC_TOOLCHAIN_DIR)
+> +CLANG_FLAGS    += --prefix=$(GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE)
+>  GCC_TOOLCHAIN  := $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+>  endif
+>  ifneq ($(GCC_TOOLCHAIN),)
+> --
+> 2.28.0.rc0.105.gf9edc3c819-goog
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20200721041940.4029552-1-maskray%40google.com.
