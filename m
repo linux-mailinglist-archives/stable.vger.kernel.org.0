@@ -2,120 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2767222737C
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 02:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 340072273BB
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 02:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726677AbgGUAJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jul 2020 20:09:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60884 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726535AbgGUAJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jul 2020 20:09:17 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A783C061794
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 17:09:17 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id k4so9439252pld.12
-        for <stable@vger.kernel.org>; Mon, 20 Jul 2020 17:09:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=XyeeuBb4z+YC9olaI6yGVkeHufy1HBv9NfWJeknHTmE=;
-        b=Edom+JmKbxO09F8Ip06AQJvmBu3YcIO6iuycmEI9XiIpOZb2KlYeWpLV5IxkrsdNiQ
-         8wzHgt5VeG2VpwvdHKI92XdRJLciwaIrEz6iILJqpCAtgGNHhQOa2mU/GxRYHbYIx7/v
-         68RukJmt4s/wxMfpjzj0HqJ90kfKHkqvpMMh+w+WDbGGA5tuA2ncMUZ/9y44GCXW7+no
-         oxSoGJ07grNYpJ91G3LRrnrztfxFdQapFSI9RWyLxa8C61flHkB1H9+YaA7cjM4lkgTl
-         yPpHQYkX2VoGHO3Y1fd4geSKcz/IeA270G7pJ4XgVYzoJFn3d0jQlb546NtRuTvEX9s7
-         ZNBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=XyeeuBb4z+YC9olaI6yGVkeHufy1HBv9NfWJeknHTmE=;
-        b=c9XGtGMvOu7iSYcNj49S/jI1RliKpaGYX6N5KfvBr1EHOksZYA4P7mMOjuHcSTuk6D
-         RvkU0GSglEgo9aJMgJAZviFXTD//JGFdqBn6tz2CMAS5nX/D7wy1IxH8P7CzU36qSSyT
-         J5Rc4cMFBQ6RmLQAyqgHGOvq4wdkADqPV8KirY3ZBfvK1a0k61cB5WqxO7cc3qGjHEjb
-         wVFg3VwQwkvQq2OaHAU3eI1P5Fs4yShNU3wAGPcMtQNBYbfO9/aga0+4j80bm9npTwLj
-         stw5nXW3kwUHqq3my/4TdYU7she9p7CR6zdMkVHPvJaw0XwLMUAH/dUPBAObJGkMa07R
-         BzLA==
-X-Gm-Message-State: AOAM530KbokfUy3rREASStDg3hUcPuQlt4Kw2V0o1shjC4djnSg+k5zD
-        tSL72Z85t9JqjiTPkmZ+Pvi2QZR4aIE=
-X-Google-Smtp-Source: ABdhPJw1UXqPMWs0JABaK9GBbp4ffIcGvfy904lkePI7apQf94XwjKMjNpMGT1Q1ARx2k7JUCsWtLg==
-X-Received: by 2002:a17:90a:26a4:: with SMTP id m33mr1950348pje.124.1595290156172;
-        Mon, 20 Jul 2020 17:09:16 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id gv16sm750887pjb.5.2020.07.20.17.09.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2020 17:09:15 -0700 (PDT)
-Message-ID: <5f16322b.1c69fb81.fdecd.2f6e@mx.google.com>
-Date:   Mon, 20 Jul 2020 17:09:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.188-126-g5b1e982af0f8
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 60 runs,
- 1 regressions (v4.14.188-126-g5b1e982af0f8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1728235AbgGUAWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jul 2020 20:22:14 -0400
+Received: from mga09.intel.com ([134.134.136.24]:58182 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728063AbgGUAWO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jul 2020 20:22:14 -0400
+IronPort-SDR: 8EZptw854+pJpmabfyAMqzghLBO1csS1ijMDXI9FEOvux/mjiVs34XYgxy1m9VzA17D2CnHtfk
+ ernyh7X8oqjw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9688"; a="151377917"
+X-IronPort-AV: E=Sophos;i="5.75,375,1589266800"; 
+   d="scan'208";a="151377917"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2020 17:22:13 -0700
+IronPort-SDR: YGNVZvEBQgpxioGzgLfEJ1vMMoK3rFYQVgVrEurwjX/NBTcMcM2yxNpd1v8UQp1hlu5tqECHgp
+ 38rTGIhJAlvQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,375,1589266800"; 
+   d="scan'208";a="392189693"
+Received: from allen-box.sh.intel.com ([10.239.159.139])
+  by fmsmga001.fm.intel.com with ESMTP; 20 Jul 2020 17:22:11 -0700
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     Koba Ko <koba.ko@canonical.com>, iommu@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Ashok Raj <ashok.raj@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/1] iommu/vt-d: Skip TE disabling on quirky gfx dedicated iommu
+Date:   Tue, 21 Jul 2020 08:17:13 +0800
+Message-Id: <20200721001713.24282-1-baolu.lu@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 60 runs, 1 regressions (v4.14.188-126-g5b1=
-e982af0f8)
+The VT-d spec requires (10.4.4 Global Command Register, TE field) that:
 
-Regressions Summary
--------------------
+Hardware implementations supporting DMA draining must drain any in-flight
+DMA read/write requests queued within the Root-Complex before completing
+the translation enable command and reflecting the status of the command
+through the TES field in the Global Status register.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+Unfortunately, some integrated graphic devices fail to do so after some
+kind of power state transition. As the result, the system might stuck in
+iommu_disable_translation(), waiting for the completion of TE transition.
 
+This provides a quirk list for those devices and skips TE disabling if
+the qurik hits.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.188-126-g5b1e982af0f8/plan/baseline/
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=208363
+Tested-by: Koba Ko <koba.ko@canonical.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+---
+ drivers/iommu/intel/dmar.c  |  1 +
+ drivers/iommu/intel/iommu.c | 27 +++++++++++++++++++++++++++
+ include/linux/dmar.h        |  1 +
+ include/linux/intel-iommu.h |  2 ++
+ 4 files changed, 31 insertions(+)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.188-126-g5b1e982af0f8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5b1e982af0f810358664827a6333affb4f5d8eb5 =
+diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
+index 683b812c5c47..16f47041f1bf 100644
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -1102,6 +1102,7 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
+ 	}
+ 
+ 	drhd->iommu = iommu;
++	iommu->drhd = drhd;
+ 
+ 	return 0;
+ 
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 98390a6d8113..11418b14cc3f 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -356,6 +356,7 @@ static int intel_iommu_strict;
+ static int intel_iommu_superpage = 1;
+ static int iommu_identity_mapping;
+ static int intel_no_bounce;
++static int iommu_skip_te_disable;
+ 
+ #define IDENTMAP_GFX		2
+ #define IDENTMAP_AZALIA		4
+@@ -1633,6 +1634,10 @@ static void iommu_disable_translation(struct intel_iommu *iommu)
+ 	u32 sts;
+ 	unsigned long flag;
+ 
++	if (iommu_skip_te_disable && iommu->drhd->gfx_dedicated &&
++	    (cap_read_drain(iommu->cap) || cap_write_drain(iommu->cap)))
++		return;
++
+ 	raw_spin_lock_irqsave(&iommu->register_lock, flag);
+ 	iommu->gcmd &= ~DMA_GCMD_TE;
+ 	writel(iommu->gcmd, iommu->reg + DMAR_GCMD_REG);
+@@ -4043,6 +4048,7 @@ static void __init init_no_remapping_devices(void)
+ 
+ 		/* This IOMMU has *only* gfx devices. Either bypass it or
+ 		   set the gfx_mapped flag, as appropriate */
++		drhd->gfx_dedicated = 1;
+ 		if (!dmar_map_gfx) {
+ 			drhd->ignored = 1;
+ 			for_each_active_dev_scope(drhd->devices,
+@@ -6160,6 +6166,27 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x0044, quirk_calpella_no_shadow_g
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x0062, quirk_calpella_no_shadow_gtt);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x006a, quirk_calpella_no_shadow_gtt);
+ 
++static void quirk_igfx_skip_te_disable(struct pci_dev *dev)
++{
++	unsigned short ver;
++
++	if (!IS_GFX_DEVICE(dev))
++		return;
++
++	ver = (dev->device >> 8) & 0xff;
++	if (ver != 0x45 && ver != 0x46 && ver != 0x4c &&
++	    ver != 0x4e && ver != 0x8a && ver != 0x98 &&
++	    ver != 0x9a)
++		return;
++
++	if (risky_device(dev))
++		return;
++
++	pci_info(dev, "Skip IOMMU disabling for graphics\n");
++	iommu_skip_te_disable = 1;
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_ANY_ID, quirk_igfx_skip_te_disable);
++
+ /* On Tylersburg chipsets, some BIOSes have been known to enable the
+    ISOCH DMAR unit for the Azalia sound device, but not give it any
+    TLB entries, which causes it to deadlock. Check for that.  We do
+diff --git a/include/linux/dmar.h b/include/linux/dmar.h
+index d7bf029df737..65565820328a 100644
+--- a/include/linux/dmar.h
++++ b/include/linux/dmar.h
+@@ -48,6 +48,7 @@ struct dmar_drhd_unit {
+ 	u16	segment;		/* PCI domain		*/
+ 	u8	ignored:1; 		/* ignore drhd		*/
+ 	u8	include_all:1;
++	u8	gfx_dedicated:1;	/* graphic dedicated	*/
+ 	struct intel_iommu *iommu;
+ };
+ 
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index bf6009a344f5..329629e1e9de 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -600,6 +600,8 @@ struct intel_iommu {
+ 	struct iommu_device iommu;  /* IOMMU core code handle */
+ 	int		node;
+ 	u32		flags;      /* Software defined flags */
++
++	struct dmar_drhd_unit *drhd;
+ };
+ 
+ /* PCI domain-device relationship */
+-- 
+2.17.1
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f15fece80543b71b185bb24
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-88-126-g5b1e982af0f8/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-88-126-g5b1e982af0f8/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f15fece80543b71b185b=
-b25
-      failing since 111 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23) =20
