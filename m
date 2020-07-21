@@ -2,84 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A83B3227D75
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 12:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7A9227EDB
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 13:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726942AbgGUKpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 06:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47700 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726919AbgGUKpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 06:45:06 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D004C061794
-        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 03:45:06 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id y22so16764436oie.8
-        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 03:45:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=rQKMQ1kqbR8Gl0+GJv0CY/jTM8wgLqzh+7PcecIdixo=;
-        b=khXquSx9kad+LbqYjv/cxfd5+q5e8aAEKKCbBHc4TJ8rxOBAlVCpoIRdoVBVQSgRlS
-         SWkVhWiin9wpmwUEdGIFpwPj2MEGEid0uP4PQN3OGPux6a2sizpky45WiGe7vbiMg25o
-         du9fCNZwoF1qTYkeUQeJ+/WCrkEYqXdOvLHYoo/xhXnOQmxCy1NrExGGZTLoILmnzRfV
-         3E4ZSt0L+2h28kNTgO4eVVYX/qXQPxHbjkqnG4cI7G3CGw3OJUxVE1wQ+yeA1EwRZ0yb
-         HSavPWoZzVXC1byFa01WHWBt6W+Fmn6XrQCkPMpKbwytXHusu68o1QvCXbwiDVtj52eS
-         stlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=rQKMQ1kqbR8Gl0+GJv0CY/jTM8wgLqzh+7PcecIdixo=;
-        b=crElf45dt7+IcBgS04HthbAhTuSoiv4lW8QbUtba6lG6rBLupd/cN00ReRfQnsPuIb
-         t9cuk2uuWtseEmT27P5d0a9T2m6aDm6Yq/Rx28jdjZMIaRght8ay/IoOwBuYo1kNHup0
-         jWW9MiVg9yCOYGfYXbhfwm/vUfgjYlwmqJMcNRqc4cSd/LEp5Wlsx6wH0Z6k/muBTCtz
-         KQnYVAWRZknpJ+yFbpgu9VKLl098sdZY6THny53wa8/nhEWxedzhicbxy4rePPHRcxm/
-         KO6bl/FjcGzoHI00e2cQwpCjez/fYbGbJvIp8mZuZIKMuQtG0En2hDgWgG/DH63i9atU
-         HBHA==
-X-Gm-Message-State: AOAM532IQZIMFRrjXj6h4ztiFcdp4Di47jk3RZV7A0GlgRkvI1dmpCya
-        LrpsNct24R1pvAs37GVU/CsvSwnq2LmzgDTp6ag=
-X-Google-Smtp-Source: ABdhPJxvXjv2hLTKIO+MO0nXGKfTFSWbyWM2jmHToUqppVA5dIPLJH4hu5mLs1Qoz15c0FeLFQPnttWg3YWCYALCB44=
-X-Received: by 2002:aca:b7d5:: with SMTP id h204mr2485178oif.62.1595328305330;
- Tue, 21 Jul 2020 03:45:05 -0700 (PDT)
+        id S1729658AbgGUL3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 07:29:11 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52022 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729568AbgGUL3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 07:29:11 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id D56031C0BE5; Tue, 21 Jul 2020 13:29:08 +0200 (CEST)
+Date:   Tue, 21 Jul 2020 13:29:08 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 041/133] Revert "usb/ohci-platform: Fix a warning
+ when hibernating"
+Message-ID: <20200721112908.GA17950@duo.ucw.cz>
+References: <20200720152803.732195882@linuxfoundation.org>
+ <20200720152805.704517976@linuxfoundation.org>
+ <20200720210722.GA11552@amd>
+ <20200721012943.GA406581@sasha-vm>
 MIME-Version: 1.0
-Received: by 2002:ac9:2f4b:0:0:0:0:0 with HTTP; Tue, 21 Jul 2020 03:45:04
- -0700 (PDT)
-Reply-To: robertandersonhappy1@gmail.com
-From:   robert <andersonrobertpass@gmail.com>
-Date:   Tue, 21 Jul 2020 03:45:04 -0700
-Message-ID: <CAP5+ZnSfwYsmHNtDca9QNW+jKKrKWGUcHeqtNSgeuONv+RXJyg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+Content-Disposition: inline
+In-Reply-To: <20200721012943.GA406581@sasha-vm>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day my good friend.
 
-How are you doing today? It has been long i hear from you, what is going on
-your side? Today i am very much happy to inform you about my success in
-getting those inheritance funds transferred under the co-operation of a new
-partner from India Asia. He is a Canadian but based in India, but presently
-i'm in India for investment projects with my own share of the total sum of
-millions dollars. meanwhile, i didn't forget your past efforts and attempts
-to assist me in transferring those inheritance funds despite that it failed
-us some how, i want you to contact my secretary in Lome Togo Republic West
-Africa, her name is solomon brand, this is he email address (
-solomonbrand003@gmail.com ), ask her to contact Ecobank were i
-kept the sum of $350,000.00, for your compensation, this compensation fund
-is for all the past efforts and attempts to assist me in the passed
-transaction. I appreciated your efforts at that time very much. so feel
-free and contact my secretary Mr solomon brand, and instruct her where
-Ecobank will transfer the total sum of $350,000.00.
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please do let me know immediately Ecobank transfer the fund $350.000.00
-into your own bank account, in the moment, I am too busy here because of
-the investment projects which i am having with my new partner at hand, so
-get in touch with Mr solomon brand on he email address, he will
-contact Ecobank on your behalf without any delay. Stay safe of Covid 19.
+Hi!
+
+> > > >After some investigations, we concluded the following:
+> > > > - the issue does not exist in vanilla v5.8-rc4+
+> > > > - [bisecting shows that] the panic on v4.14.186 is caused by the la=
+ck
+> > > >   of v5.6-rc1 commit 987351e1ea7772 ("phy: core: Add consumer device
+> > > >   link support"). Getting evidence for that is easy. Reverting
+> > > >   987351e1ea7772 in vanilla leads to a similar backtrace [2].
+> > > >
+> > > >Questions:
+> > > > - Backporting 987351e1ea7772 ("phy: core: Add consumer device
+> > > >   link support") to v4.14.187 looks challenging enough, so probably=
+ not
+> > > >   worth it. Anybody to contradict this?
+> >=20
+> > I'm not sure about v4.14.187, but backport to v4.19 is quite simple
+> > (just ignore single non-existing file) and passes basic testing.
+> >=20
+> > Would that be better solution for 4.19 and newer?
+>=20
+> If Eugeniu could confirm that doing so on 4.19+ works for him, sure.
+
+He did:
+
+Message-ID: <20200721065054.GA8290@lxhi-065.adit-jv.com>
+Technically yes. Backporting 987351e1ea7772 to v4.19.x avoids the panic.
+=2E..
+FWIW I confirm that:
+* setup [A] leads to the issue reported in [C]
+* setup [B] resolves the issue reported in [C]
+
+[A] v4.19 + 16bdc04cc98 + 1cb3b0095c3 + 79112cc3c29f
+[B] v4.19 + 16bdc04cc98 + 1cb3b0095c3 + 79112cc3c29f + 987351e1ea7
+[C] https://lore.kernel.org/linux-usb/20200709070023.GA18414@lxhi-065.adit-=
+jv.com/
+
 
 Best regards,
-Dr. robert anderson
+								Pavel
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--k1lZvvs/B4yU6o8G
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXxbRhAAKCRAw5/Bqldv6
+8hJ+AKDAFdFixJDxmhT3TZraQIz6vlnJBwCgwNhXgRjEqVH5eG8Xi+xbJOfHHvY=
+=6niu
+-----END PGP SIGNATURE-----
+
+--k1lZvvs/B4yU6o8G--
