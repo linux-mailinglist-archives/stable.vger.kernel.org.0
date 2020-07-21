@@ -2,180 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0278227A01
-	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 09:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A99227A4B
+	for <lists+stable@lfdr.de>; Tue, 21 Jul 2020 10:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726933AbgGUH7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 03:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50376 "EHLO
+        id S1726734AbgGUIOz convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 21 Jul 2020 04:14:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726749AbgGUH7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 03:59:47 -0400
-Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45097C0619D7
-        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 00:59:47 -0700 (PDT)
-Received: by mail-vk1-xa44.google.com with SMTP id 66so4313076vka.13
-        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 00:59:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=SWIa6RDnAdfYh5r4VEn+L/pQA+Y1z8voMzmTSWR1ugI=;
-        b=PYgoOUo5vcq8lHd0xl5pYA23FKFQFVYs9SQumPBaRaHg2mpGP/+TbaUVGMu+6gEcrY
-         YI3ecDt4/mWrHL9aUzrR1NQYhFvnd/0MRswMHDuKLSgrD9lY/SqaYUV0oKkHEn0Zqbff
-         uqR6v0eNWEpM8a3qCbbS3e6p0yYbJH9DnnZuLOiTRiLvPUyELymeh5Ve6vAIRih6IGkL
-         NLi6BUBI7c7Si6BE7tzpjQ5EmFQ8Vv6fnBdh/vkSLAI+ztbU2W4NpvEJsQDthMTJQFiw
-         I+1yaVi3Z+uTBRJDuK6f+sIBoHVCJpb+Ug6wBxcr/uC2yYHteJ+jd5k+/9MjcWKbf04s
-         rCmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SWIa6RDnAdfYh5r4VEn+L/pQA+Y1z8voMzmTSWR1ugI=;
-        b=fIjcl7SDBrOarji91BtGZ/TMr2h2pcMjvSFgtEwnys7OPrioP3jZTVTJ+ESLAxpzCg
-         BVp1m7N/mvYs+77GYhFZRGFIs2Ps8jo+dnll0XSE2pxO+OMBkFQzXNk1VB7jbpb58hJy
-         uTplibIvvOXEXN8lh06cWqPgY++2qh5uKPPv0cohY4AhQzKtFlIkuWMhc63FceZlAoUQ
-         NEcd2LQJPmU76zUkvlvpqzsPmJZlfq1R4kf9toVJIluLlST6M/+D4nBcfE9afa9B5Ihn
-         tbWaPupiRuSxHBbhiYYVFYuxGzvD2agPw7Yx5kKaNdHbfm0LArm2EDXBDFBGyyUCLlEu
-         WhyQ==
-X-Gm-Message-State: AOAM531ADcieDPVPrgXfzFQAE3GqzjCLUh2EGBw8J1jXRFpzDH+o6cqx
-        OdnyfL6NeMvb41bP4HqXYT+pkqx1qcxl8jXQieL1ejYiCwmzhQ==
-X-Google-Smtp-Source: ABdhPJzgJlsoXLsNf+VCbfPllKh7qbBkFUkMfd8hnNCsMdnhBZHdvj1TZ7JJOTsMJWz2afCr2IjVbxRUBdcnD37MdlU=
-X-Received: by 2002:a1f:16c3:: with SMTP id 186mr19778572vkw.16.1595318386008;
- Tue, 21 Jul 2020 00:59:46 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200720152803.732195882@linuxfoundation.org>
-In-Reply-To: <20200720152803.732195882@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Jul 2020 13:29:34 +0530
-Message-ID: <CA+G9fYvPG9o+3s2KwJHXcwdE4AUps29ePGSzRG7N8_RAr0_vug@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/133] 4.19.134-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        with ESMTP id S1726521AbgGUIOy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 04:14:54 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E90CC0619D7
+        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 01:14:54 -0700 (PDT)
+Received: from lupine.hi.pengutronix.de ([2001:67c:670:100:3ad5:47ff:feaf:1a17] helo=lupine)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1jxnQH-0000Ep-8p; Tue, 21 Jul 2020 10:14:49 +0200
+Received: from pza by lupine with local (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1jxnQG-0002ML-Aj; Tue, 21 Jul 2020 10:14:48 +0200
+Message-ID: <110980fea9c24ee449487b5d28822dccf7962494.camel@pengutronix.de>
+Subject: Re: [PATCH 2/2] media: coda: Add more H264 levels for CODA960
+From:   Philipp Zabel <p.zabel@pengutronix.de>
+To:     Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        linux-media@vger.kernel.org,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Robert Beckett <bob.beckett@collabora.com>,
+        kernel@collabora.com, stable@vger.kernel.org
+Date:   Tue, 21 Jul 2020 10:14:48 +0200
+In-Reply-To: <4fee7fb9ded19cb9dab58561396e6f30393e42fa.camel@collabora.com>
+References: <20200717034923.219524-1-ezequiel@collabora.com>
+         <20200717034923.219524-2-ezequiel@collabora.com>
+         <05184a7c923c7e2aacca9da2bafe338ff5a7c16d.camel@pengutronix.de>
+         <4fee7fb9ded19cb9dab58561396e6f30393e42fa.camel@collabora.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.30.5-1.1 
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: 2001:67c:670:100:3ad5:47ff:feaf:1a17
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Jul 2020 at 21:21, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.134 release.
-> There are 133 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Jul 2020 15:27:31 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.134-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi,
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+[adding Stanimir for some insight, venus also has a decoder h.264 level
+control]
 
-Summary
-------------------------------------------------------------------------
+On Mon, 2020-07-20 at 12:09 -0400, Nicolas Dufresne wrote:
+> Le vendredi 17 juillet 2020 à 09:48 +0200, Philipp Zabel a écrit :
+> > Hi Ezequiel, Nicolas,
+> > 
+> > On Fri, 2020-07-17 at 00:49 -0300, Ezequiel Garcia wrote:
+> > > From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+> > > 
+> > > This add H264 level 4.1, 4.2 and 5.0 to the list of supported formats.
+> > > While the hardware does not fully support these levels, it do support
+> > > most of them.
+> > 
+> > Could you clarify this? As far as I understand the hardware supports
+> > maximum frame size requirement for up to level 4.2 (8704 macroblocks),
+> > but not 5.0, and at least the implementation on i.MX6 does not support
+> > the max encoding speed requirements for levels 4.1 and higher.
+[...]
+> 
+> So do you have an opinion on the way forward ? Personally I like the
+> idea of giving the list of level_idc that won't cause the parser to
+> reject it, and leave it to the user to validate the
+> Resolution/Framerate seperatly, we have the V4L2 API for that. Let me
+> know, as we'll use that for V2.
 
-kernel: 4.19.134-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 9d319b54cc24b7800883e120b93d20d117181089
-git describe: v4.19.133-134-g9d319b54cc24
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.133-134-g9d319b54cc24
+My opinion was that for decoders the possible values of the
+V4L2_CID_MPEG_VIDEO_H264_LEVEL control should reflect the h.264 levels
+that the decoder can actually decode in real-time. Otherwise we are
+effectively ignoring the MaxMBPS and MaxBR properties of the level,
+which makes the control useless for negotiation.
 
-No regressions (compared to build v4.19.133)
+But I am beginning to think that I am wrong. The level control is set to
+the level of the stream after parsing the stream header, so arguably it
+must be possible to set it to anything that can be decoded at all, real-
+time or not.
 
-No fixes (compared to build v4.19.133)
+Further, the documentation says nothing about this. It doesn't even
+mention decoders:
+                                                                     
+  ``V4L2_CID_MPEG_VIDEO_H264_LEVEL``
+      (enum)
 
-Ran 34091 total tests in the following environments and test suites.
+  enum v4l2_mpeg_video_h264_level -
+      The level information for the H264 video elementary stream.
+      Applicable to the H264 encoder. Possible values are:
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
+  [...]
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* libhugetlbfs
-* linux-log-parser
-* ltp-containers-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
+So at the moment I would tend towards expanding the list of supported
+formats to 4.2, even though we can't decoder > 4.0 in real-time on
+i.MX6.
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Should we add a note to the V4L2_CID_MPEG_VIDEO_H264_LEVEL documentation
+that this is applicable to H264 decoders as well, set by the decoder
+after parsing the SPS, and that the list of levels this control can be
+set to does not guarantee real-time capability at each level?
+
+regards
+Philipp
