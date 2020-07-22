@@ -2,100 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E45228FA4
-	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 07:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AC5228FC9
+	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 07:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726669AbgGVF0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jul 2020 01:26:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
+        id S1728076AbgGVFfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jul 2020 01:35:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726161AbgGVF0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jul 2020 01:26:00 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E02BC061794
-        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 22:26:00 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id k22so849933oib.0
-        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 22:26:00 -0700 (PDT)
+        with ESMTP id S1728053AbgGVFe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jul 2020 01:34:58 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 594A9C0619DB
+        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 22:34:58 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id j20so581741pfe.5
+        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 22:34:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Dz0PNWvUyA5bVwawo9dRFrBcMuGComXjKBNRW57uQgg=;
-        b=gPtekxXwx5xoHX6xD+EB5QVJSdczVy9YPn9MQCfSKGHYw21MojiJ5s/CwN4esHCjaI
-         sUCaRRd37tWCDsHp5NAM788cBt4cCLM6mISCsVmTepQ3OInoRXDVmX8b9U5fjQ+oMITR
-         fwBFIOpWJ32fKnV4BAMojzUQn7DsFMGYuzPgg=
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=PmIwK4uHHxiwR6vWkfEn+UVqSIx9AzZysrf8JFFSTH0=;
+        b=x6mG0UxUYRnEEGsc/Q2cDlHN/Tuf3fHpzAp6uBD8RQniav+BShOs2iQP5UR0ISQ321
+         yMuXUrtUUJDDMxBVbm/QC3Zsc9CkyFqF7BHe/TNA2t9Ih/h4ghi/7nsfNdXALgSziOT4
+         i1KbsnMRS74/4aiJbA2vaBss0IdIkd+yoesbos7irAM0IX8RymW10ex1zyhBswuQKsMJ
+         pAJL57wDLxp7fPWBEhROZHb4I8tlDO28nCa1Xh0DqWDN94VvD0gz9hyBf+rY8qYsr12p
+         tiDMzY4UbobhT3mqQhQZ5l7vOn0+l8+gaciicSZJmKQGDMZIqSYYM7UlWzfs10QCn/bk
+         W3eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Dz0PNWvUyA5bVwawo9dRFrBcMuGComXjKBNRW57uQgg=;
-        b=EzqoFY15KCMNj7E8RUiRKc2tGJMOBBdotWv8+ebk8PdDt2fYsSUWrAv1FDtMvz3Eh6
-         jePh8Z8eVb8sncpg9ngPCRlWbwcTRC/ZU5FqntzZVt9K9F/wdesLgPAMf55LXgmdDjk+
-         pQIBJvJAzcm53Oz4LvrsrAaRHyQUn+0vxsaOFkDCYNehrmh765DQpJPjUsOnnztpQE0e
-         VhmG5zP+Hh+F+Ub/XI32xAm9nYPH7bE8yMiCgAajoxRThD1u5kWG3Q6boPDjUsrLlDGZ
-         jnNqr8MkG0/EOBKUvWAzBIV3L52qzr284b53FcQJ8RPQCgSjSNs3etuOIN8H8+63Vgq8
-         OOcA==
-X-Gm-Message-State: AOAM531D6E1BJcQOELt77Pv3e2TWr+YIfaOE0BagRoKv7foA2+SqT2s8
-        9CSeek2a5JnCrNhgxMIa5ycaaROfn9E1QodtPWfryQ==
-X-Google-Smtp-Source: ABdhPJycaRmTBcGABti42e3PKUTAQ34pmYikeYm6E7HWLcfVGdGx9DrGPj1mAOjJhuy0kvoLmA482wjfjEe6I5mW5iE=
-X-Received: by 2002:a05:6808:88:: with SMTP id s8mr5502429oic.101.1595395559971;
- Tue, 21 Jul 2020 22:25:59 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=PmIwK4uHHxiwR6vWkfEn+UVqSIx9AzZysrf8JFFSTH0=;
+        b=sjibD0aJBh/QlV0x91s2zpWhDeUgYD1LB+i0caRgoVYsqcJnR3jL9IBy+CzJ40aJUI
+         yMGrngn7MFUMYTAJwr6eYSaUhJDNAtlZaNJDZW15wASqDgwZ2V/JTh4yEGLG0CVplZFi
+         X3358axEjPHJztLFk3vgYALV6dwQSwuAqwHvYHcG5etRhQ0YYrF2pbEOPkCITI7Dcnk5
+         JuC8Wo4kDzbSneB3AnTltanMc28M5A2MQebYrkbM4WFmh4CGcKm9TosQS5wWFgBwvakf
+         Ct+ZjIM6Vlj5W2nTlXKq0wkCy9VpTiVFrVUEjPlIPB0SlyaopGngvjX9w95zkiiaGWod
+         /gHA==
+X-Gm-Message-State: AOAM533L954zxQBuVzGCGDbqIfmz1t2anMoS0WwfVS1gemAwcCBunVBn
+        7Yc3abzK7K8ityXgv9xiAtX0Mw==
+X-Google-Smtp-Source: ABdhPJxPmJgxOvlVvy+R9CPXupEfLpDpw2rAzf849OvVpE62QHXdQnC/+UvCAC+w7rdW5+ZAqB5lrA==
+X-Received: by 2002:a65:6916:: with SMTP id s22mr26088099pgq.128.1595396097809;
+        Tue, 21 Jul 2020 22:34:57 -0700 (PDT)
+Received: from localhost ([182.77.116.224])
+        by smtp.gmail.com with ESMTPSA id 137sm20210432pgg.72.2020.07.21.22.34.56
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 21 Jul 2020 22:34:56 -0700 (PDT)
+Date:   Wed, 22 Jul 2020 11:04:53 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Finley Xiao <finley.xiao@rock-chips.com>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: Re: [PATCH 4.19 123/133] thermal/drivers/cpufreq_cooling: Fix wrong
+ frequency converted from power
+Message-ID: <20200722053453.xmfcezyiabz2e2dd@vireshk-mac-ubuntu>
+References: <20200720152803.732195882@linuxfoundation.org>
+ <20200720152809.664822211@linuxfoundation.org>
+ <20200721114344.GC17778@duo.ucw.cz>
 MIME-Version: 1.0
-References: <20200721171936.81563-1-michael.j.ruhl@intel.com>
- <20200721135648.9603d924377825a7e6c0023b@linux-foundation.org>
- <14063C7AD467DE4B82DEDB5C278E866301245E046C@FMSMSX108.amr.corp.intel.com> <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
-In-Reply-To: <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Wed, 22 Jul 2020 07:25:48 +0200
-Message-ID: <CAKMK7uGNyEEZxsT8PB6X6-Ea-Z_oB498wuV4G8tO-b-ygNiwVQ@mail.gmail.com>
-Subject: Re: [PATCH v2] io-mapping: Indicate mapping failure
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     "Ruhl, Michael J" <michael.j.ruhl@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200721114344.GC17778@duo.ucw.cz>
+User-Agent: NeoMutt/20170609 (1.8.3)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 11:24 PM Andrew Morton
-<akpm@linux-foundation.org> wrote:
->
-> On Tue, 21 Jul 2020 21:02:44 +0000 "Ruhl, Michael J" <michael.j.ruhl@intel.com> wrote:
->
-> > >--- a/include/linux/io-mapping.h~io-mapping-indicate-mapping-failure-fix
-> > >+++ a/include/linux/io-mapping.h
-> > >@@ -107,9 +107,12 @@ io_mapping_init_wc(struct io_mapping *io
-> > >                resource_size_t base,
-> > >                unsigned long size)
-> > > {
-> > >+    iomap->iomem = ioremap_wc(base, size);
-> > >+    if (!iomap->iomem)
-> > >+            return NULL;
-> > >+
-> >
-> > This does make more sense.
-> >
-> > I am confused by the two follow up emails I just got.
->
-> One was your original patch, the other is my suggested alteration.
->
-> > Shall I resubmit, or is this path (if !iomap->iomem) return NULL)
-> > now in the tree.
->
-> All is OK.  If my alteration is acceptable (and, preferably, tested!)
-> then when the time comes, I'll fold it into the base patch, add a
-> note indicating this change and shall then send it to Linus.
+On 21-07-20, 13:43, Pavel Machek wrote:
+> On Mon 2020-07-20 17:37:50, Greg Kroah-Hartman wrote:
+> > From: Finley Xiao <finley.xiao@rock-chips.com>
+> > 
+> > commit 371a3bc79c11b707d7a1b7a2c938dc3cc042fffb upstream.
+> > 
+> > The function cpu_power_to_freq is used to find a frequency and set the
+> > cooling device to consume at most the power to be converted. For example,
+> > if the power to be converted is 80mW, and the em table is as follow.
+> > struct em_cap_state table[] = {
+> > 	/* KHz     mW */
+> > 	{ 1008000, 36, 0 },
+> > 	{ 1200000, 49, 0 },
+> > 	{ 1296000, 59, 0 },
+> > 	{ 1416000, 72, 0 },
+> > 	{ 1512000, 86, 0 },
+> > };
+> > The target frequency should be 1416000KHz, not 1512000KHz.
+> > 
+> > Fixes: 349d39dc5739 ("thermal: cpu_cooling: merge frequency and power tables")
+> 
+> Wow, this is completely different from the upstream patch.
 
-Your alternative also matches the other implementation of
-io_mapping_init_wc, I was kinda tempted to do that suggestion too just
-because of that. But then didn't send out that email.
--Daniel
+Right, I have mentioned this in the patch I sent for stable.
+
+https://lore.kernel.org/lkml/bc3978d0b7472c140e4d87f61138168a2a7b995c.1594194577.git.viresh.kumar@linaro.org/
+
+> There the
+> loops goes down, not up. The code does not match the changelog here.
+
+Yes, the order is different in earlier kernels but I would say that
+the changelog still matches as it doesn't necessarily talks about any
+ordering here.
+
+> > --- a/drivers/thermal/cpu_cooling.c
+> > +++ b/drivers/thermal/cpu_cooling.c
+> > @@ -278,11 +278,11 @@ static u32 cpu_power_to_freq(struct cpuf
+> >  	int i;
+> >  	struct freq_table *freq_table = cpufreq_cdev->freq_table;
+> >  
+> > -	for (i = 1; i <= cpufreq_cdev->max_level; i++)
+> > -		if (power > freq_table[i].power)
+> > +	for (i = 0; i < cpufreq_cdev->max_level; i++)
+> > +		if (power >= freq_table[i].power)
+> >  			break;
+> >  
+> > -	return freq_table[i - 1].frequency;
+> > +	return freq_table[i].frequency;
+> >  }
+> 
+> 
+> Something is very wrong here, if table is sorted like described in the
+> changelog, it will always break at i==0 or i==1... not working at all
+> in the old or the new version.
+
+As I understand from the other email you sent, this works fine now.
+Right ?
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+viresh
