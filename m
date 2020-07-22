@@ -2,106 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30E622978F
-	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 13:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879EA2297C1
+	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 13:54:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732023AbgGVLin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jul 2020 07:38:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726028AbgGVLim (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jul 2020 07:38:42 -0400
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8A5C0619DC
-        for <stable@vger.kernel.org>; Wed, 22 Jul 2020 04:38:42 -0700 (PDT)
-Received: by mail-yb1-xb41.google.com with SMTP id 2so835468ybr.13
-        for <stable@vger.kernel.org>; Wed, 22 Jul 2020 04:38:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=t0TLC5mt6zw20J38nO6UV1Kz+5E95WBtIXeRkoxQ4a0=;
-        b=l4kieIgAaSlvxgww6RXSI3+MDFwUny/4KPJ0Lx7f2LWB5xZE9BoxAYZkMECXjm+VWh
-         hEIe7YPrTTfZOToyXz5G835hjGVxaqOe/l3u1QexGQRNJB2/pkQMl01+wktVgOGZeVhx
-         fp4QHTPZrAkaa7zSC/Q0BA2arO9adv4I6aOHoTovQiOaQ4MZAOazsZpEZrRSO03Y7Md/
-         uCN5aB/KCSUKEOsNXkueVCP/vu1hc5ArPxE/DLEFjee81XhxDBHqwYRJeATrPAsihOLC
-         biNZFwPBl32kHZRBUlvliErXz7knbp2IP1ckV8OlUXUSN4I9295pci9qTpEo8iWpEja+
-         ckOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=t0TLC5mt6zw20J38nO6UV1Kz+5E95WBtIXeRkoxQ4a0=;
-        b=gHytPM/8T9fgMRjdtNFxvUkAkzjUDjBBAz48PTqFlqKWB5NllriC1KlSVa5tmK9doM
-         6cAl1Wv3XatUtdV/9FGaPfcK2deyLaOB+UotGr+621AkUnTQ2fEeYWRGaS6dqHg+PqWC
-         bm88DBNYaZTGfftftdmtbqjhO3nW4U7yfVigbr3RQ64vxLaF0U+07MHFOADtZ/zhlosX
-         Iokjmg8UuMOGjUy9bgeTvDHd8UvqlbPNQ7wXenRt07toDVPcixDOXVw8xir87DS2fbkh
-         cLZMqMsxsxJ3hsCEXGM+RU2CBMoNZZq339acTLN7+XOFKlvjs30KnTpuN5qvvOQk9Xzo
-         t9Gg==
-X-Gm-Message-State: AOAM531uPJYZzGD+1WBrbTzpKy0qf2xrxalZ4o3QYn6Uc6OAQWYCzLOM
-        4hRAoYWy26F/SpnjTPgnKsJu4Oa6SLIMFQXw/sU=
-X-Google-Smtp-Source: ABdhPJxTNpVEBLshLlGyR35CsX/PA8oMWYQELmUAwgoX0jB0jqCsmon/vI7nQIMvtFqalzA6wpDv7TrlRLUxjK3q0R0=
-X-Received: by 2002:a25:cb8a:: with SMTP id b132mr50538700ybg.370.1595417921548;
- Wed, 22 Jul 2020 04:38:41 -0700 (PDT)
+        id S1726334AbgGVLyN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 22 Jul 2020 07:54:13 -0400
+Received: from mga09.intel.com ([134.134.136.24]:27674 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726161AbgGVLyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jul 2020 07:54:12 -0400
+IronPort-SDR: EhYgcxrDuSEscA10hBeAw5AAPLnxPJTDYjyO3zohDZABW/EoNCr+K8YzvKI35aTaz92aDkWhzE
+ LU5R8TTFL5hw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9689"; a="151637675"
+X-IronPort-AV: E=Sophos;i="5.75,381,1589266800"; 
+   d="scan'208";a="151637675"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jul 2020 04:54:12 -0700
+IronPort-SDR: 1dhNdg6tFxJz5OyeVPYXA8AFhZu+Kgo5ui8HjuUXPejpnXII28N0r3Yhtrcnxf1XrdkclaGDvu
+ Qw+kCeWyUysw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,381,1589266800"; 
+   d="scan'208";a="318644138"
+Received: from fmsmsx103.amr.corp.intel.com ([10.18.124.201])
+  by orsmga008.jf.intel.com with ESMTP; 22 Jul 2020 04:54:12 -0700
+Received: from fmsmsx117.amr.corp.intel.com (10.18.116.17) by
+ FMSMSX103.amr.corp.intel.com (10.18.124.201) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Wed, 22 Jul 2020 04:54:11 -0700
+Received: from fmsmsx108.amr.corp.intel.com ([169.254.9.75]) by
+ fmsmsx117.amr.corp.intel.com ([169.254.3.66]) with mapi id 14.03.0439.000;
+ Wed, 22 Jul 2020 04:54:11 -0700
+From:   "Ruhl, Michael J" <michael.j.ruhl@intel.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2] io-mapping: Indicate mapping failure
+Thread-Topic: [PATCH v2] io-mapping: Indicate mapping failure
+Thread-Index: AQHWX4MfwzDEcHdlu02n3oFh4ZbooKkS+TgA//+K8vCAAHzEAIAAfQyA
+Date:   Wed, 22 Jul 2020 11:54:11 +0000
+Message-ID: <14063C7AD467DE4B82DEDB5C278E866301245E0ACA@FMSMSX108.amr.corp.intel.com>
+References: <20200721171936.81563-1-michael.j.ruhl@intel.com>
+        <20200721135648.9603d924377825a7e6c0023b@linux-foundation.org>
+        <14063C7AD467DE4B82DEDB5C278E866301245E046C@FMSMSX108.amr.corp.intel.com>
+ <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
+In-Reply-To: <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.1.200.108]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Reply-To: mrsanna.h.bruun119@gmail.com
-Received: by 2002:a05:7000:27d3:0:0:0:0 with HTTP; Wed, 22 Jul 2020 04:38:41
- -0700 (PDT)
-From:   "Mrs. Anna H. Bruun" <mrsanna.h.bruun119@gmail.com>
-Date:   Wed, 22 Jul 2020 04:38:41 -0700
-X-Google-Sender-Auth: kCZxd_DKdToUAFiZ_XFULOmHqKE
-Message-ID: <CAOubhsDHy-mpHj-QtqpF3TBSG=GrqjhcE83swSM2Gk4Cr3G2Zw@mail.gmail.com>
-Subject: My Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear
+>-----Original Message-----
+>From: Andrew Morton <akpm@linux-foundation.org>
+>Sent: Tuesday, July 21, 2020 5:24 PM
+>To: Ruhl, Michael J <michael.j.ruhl@intel.com>
+>Cc: dri-devel@lists.freedesktop.org; Mike Rapoport <rppt@linux.ibm.com>;
+>Andy Shevchenko <andriy.shevchenko@linux.intel.com>; Chris Wilson
+><chris@chris-wilson.co.uk>; stable@vger.kernel.org
+>Subject: Re: [PATCH v2] io-mapping: Indicate mapping failure
+>
+>On Tue, 21 Jul 2020 21:02:44 +0000 "Ruhl, Michael J"
+><michael.j.ruhl@intel.com> wrote:
+>
+>> >--- a/include/linux/io-mapping.h~io-mapping-indicate-mapping-failure-fix
+>> >+++ a/include/linux/io-mapping.h
+>> >@@ -107,9 +107,12 @@ io_mapping_init_wc(struct io_mapping *io
+>> > 		   resource_size_t base,
+>> > 		   unsigned long size)
+>> > {
+>> >+	iomap->iomem = ioremap_wc(base, size);
+>> >+	if (!iomap->iomem)
+>> >+		return NULL;
+>> >+
+>>
+>> This does make more sense.
+>>
+>> I am confused by the two follow up emails I just got.
+>
+>One was your original patch, the other is my suggested alteration.
+>
+>> Shall I resubmit, or is this path (if !iomap->iomem) return NULL)
+>> now in the tree.
+>
+>All is OK.  If my alteration is acceptable (and, preferably, tested!)
+>then when the time comes, I'll fold it into the base patch, add a
+>note indicating this change and shall then send it to Linus.
 
-My Name is Mrs. Anna H. Bruun, from Norway. I know that this message
-will be a surprise to you. Firstly, I am married to Mr. Patrick Bruun,
-A gold merchant who owns a small gold Mine in Burkina Faso; He died of
-Cardiovascular Disease in mid-March 2011. During his life time he
-deposited the sum of =E2=82=AC 8.5 Million Euro) Eight million, Five hundre=
-d
-thousand Euros in a bank in Ouagadougou the capital city of Burkina
-Faso. The deposited money was from the sale of the shares, death
-benefits payment and entitlements of my deceased husband by his
-company.
+I am good with the change and have tested it.
 
-I am sending this message to you praying that it will reach you in
-good health, since I am not in good health condition in which I sleep
-every night without knowing if I may be alive to see the next day. I
-am suffering from long time cancer and presently i am partially
-suffering from a stroke illness which has become almost impossible for
-me to move around. I am married to my late husband for over 4 years
-before he died and is unfortunately that we don't have a child, my
-doctor confided in me that i have less chance to live. Having known my
-health condition, I decided to contact you to claim the fund since I
-don't have any relation I grew up from the orphanage home,
+Instead of the system crashing I get:
 
-I have decided to donate what I have to you for the support of helping
-Motherless babies/Less privileged/Widows' because I am dying and
-diagnosed of cancer for about 2 years ago. I have been touched by God
-Almighty to donate from what I have inherited from my late husband to
-you for good work of God Almighty. I have asked Almighty God to
-forgive me and believe he has, because He is a Merciful God I will be
-going in for an operation surgery soon
+i915 0000:01:00.0: [drm] *ERROR* Failed to setup region(-5) type=1
+i915 0000:01:00.0: Device initialization failed (-5)
+i915: probe of 0000:01:00.0 failed with error -5
 
-This is the reason i need your services to stand as my next of kin or
-an executor to claim the funds for charity purposes. If this money
-remains unclaimed after my death, the bank executives or the
-government will take the money as unclaimed fund and maybe use it for
-selfish and worthless ventures, I need a very honest person who can
-claim this money and use it for Charity works, for orphanages, widows
-and also build schools for less privilege that will be named after my
-late husband and my name; I need your urgent answer to know if you
-will be able to execute this project, and I will give you more
-Information on how the fund will be transferred to your bank account.
+Which is the expected error.
 
-Thanks
-Mrs. Anna H.
+If you would like this for the updated patch:
+
+Tested-By: Michael J. Ruhl <michael.j.ruhl@intel.com>
+
+Thanks!
+
+Mike
+
