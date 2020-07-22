@@ -2,70 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31614228DCF
-	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 03:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D86CD228DEE
+	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 04:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731754AbgGVB7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 21:59:35 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:29639 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731621AbgGVB7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 21:59:35 -0400
-X-UUID: 507314be90494080be33d838767b4236-20200722
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=HBs3aJUcIVxX1irCDgPsr1t6Sr5uliFctbO3YQ/k1Z0=;
-        b=hCj36RiEwIWbCdUWFFXm6ZVLELzbf7n6NNUclkHRzM6SZFmO5xaTMdJxTgH3hLLiYPHydUdkMURVM7mxcweXJ15cclEAPYZB8931jNp9Zk48q37kGzSza8GfXZyGpQfmbYCkcZP9UpBjAu9KHYv7wuKnOT8LQ+5yOmWozy6OoB0=;
-X-UUID: 507314be90494080be33d838767b4236-20200722
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1814161564; Wed, 22 Jul 2020 09:59:31 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs08n1.mediatek.inc (172.21.101.55) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 22 Jul 2020 09:59:29 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 22 Jul 2020 09:59:29 +0800
-Message-ID: <1595383170.14937.2.camel@mtkswgap22>
-Subject: Re: [PATCH v2] usb: gadget: configfs: Fix use-after-free issue with
- udc_name
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Hung <eddie.hung@mediatek.com>, <stable@vger.kernel.org>,
-        "Mediatek WSD Upstream" <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul.lin@gmail.com>
-Date:   Wed, 22 Jul 2020 09:59:30 +0800
-In-Reply-To: <20200721113353.GA1686460@kroah.com>
-References: <1594881666-8843-1-git-send-email-macpaul.lin@mediatek.com>
-         <1595040303-23046-1-git-send-email-macpaul.lin@mediatek.com>
-         <1595041133.23887.4.camel@mtkswgap22> <20200721113353.GA1686460@kroah.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1731621AbgGVCTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jul 2020 22:19:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51804 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731595AbgGVCTp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jul 2020 22:19:45 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AABAC061794;
+        Tue, 21 Jul 2020 19:19:45 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id k27so397425pgm.2;
+        Tue, 21 Jul 2020 19:19:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7wV7qhzZv3sbD4+KlzCK0zK14sIgrZ5cvRZxkccSQFE=;
+        b=hs7r6WmJiGZaRzMcj/QB6p0Qh7iJvLcLJvjwlInb0zYm6qRskYLKwviZ8EiP/3mmWZ
+         fvn6G4N481ZG3jla5XGocLKM/bAtJaDD8K7dX3ADizZygeTZg23SrewAUvcwmeWYbQ9M
+         F08xMcrfmzxbPqMWY61CkRe0LfsO7+erliQ7+SLASCoaC75iptIUdfNtYalJVQkkjzb/
+         FWyujWLlOyNrpCdGKAHjo72HmWGifFoN7drdyhAcVKKlBWRUA2ZJcXIEm44PQuhgo4k+
+         /DIqEkq7nozbSbvS6rQm6IOsjX1jE2GOZ8RmWmqNglcm2n7sHcv5yPXq3EsQ+SkplbVr
+         EVYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7wV7qhzZv3sbD4+KlzCK0zK14sIgrZ5cvRZxkccSQFE=;
+        b=kqVL4Eml3DObIcl/PSbJyqXNwGBIN47b9qjPgXzNxT5vgZkkhLDHVlMxnQrH4mnHGn
+         8OX4J2AcaWNO50LkEedjX+lj03uwDt96Z9L9pY3elqadxAf/PW9xpgysZoOddMbckvPI
+         wY6Dv7QSiHKzj1TUqeqhC30RQUSmAJcFcBD3MceaMbX/dOMX9SylZOYllEwbzJVMFZsY
+         Ym2F2dgGahxqEa6zM3Df+LOYmpX0lX2i87Cef8qKUEmGbZg7PUA4PHAkjNL7KJO6kZf1
+         0u0w4Cr4T/0wLfcjZ2ufITTq0HIFweF5NQTPN/buTZI1UTh2qRN13wBcuPNk8mSbt6DJ
+         7TGg==
+X-Gm-Message-State: AOAM533XjOG77rogxIW2H7Bt9X5Rm88VlHmzoJt8syfDupnNaNVd9isY
+        ibTAcJl4DA11W+4eWp62dI1giizMom0=
+X-Google-Smtp-Source: ABdhPJwco5bqHMdH+WElYnXoVzzywA0mbkIqRlI/FiDiOZLhyQ1sx13ZUtCN1IGbQ2tIzggG4hRLhA==
+X-Received: by 2002:a63:6dc1:: with SMTP id i184mr24987085pgc.345.1595384384680;
+        Tue, 21 Jul 2020 19:19:44 -0700 (PDT)
+Received: from haswell.lan ([2604:3d09:e37f:fce0::d4a])
+        by smtp.gmail.com with ESMTPSA id n2sm344237pfq.140.2020.07.21.19.19.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2020 19:19:43 -0700 (PDT)
+From:   Robert Hancock <hancockrwd@gmail.com>
+To:     linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Robert Hancock <hancockrwd@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] PCI: Disallow ASPM on ASMedia ASM1083/1085 PCIe-PCI bridge
+Date:   Tue, 21 Jul 2020 20:18:03 -0600
+Message-Id: <20200722021803.17958-1-hancockrwd@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTA3LTIxIGF0IDEzOjMzICswMjAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
-dGU6DQo+IE9uIFNhdCwgSnVsIDE4LCAyMDIwIGF0IDEwOjU4OjUzQU0gKzA4MDAsIE1hY3BhdWwg
-TGluIHdyb3RlOg0KPiA+IE9uIFNhdCwgMjAyMC0wNy0xOCBhdCAxMDo0NSArMDgwMCwgTWFjcGF1
-bCBMaW4gd3JvdGU6DQo+ID4gPiBGcm9tOiBFZGRpZSBIdW5nIDxlZGRpZS5odW5nQG1lZGlhdGVr
-LmNvbT4NCj4gPiA+IA0KPiA+IA0KPiA+IFdlbGwsIGl0J3Mgc3RyYW5nZSwgSSBzaW1wbHkgcmVw
-bGFjZWQgdGhlIHVwbG9hZGVyJ3MgbmFtZSB0byBteQ0KPiA+IGNvbGxlYWd1ZSwgZ2l0IHNlbmQt
-ZW1haWwgcG9wIHVwIHRoaXMgbGluZSBhdXRvbWF0aWNhbGx5Lg0KPiA+IA0KPiA+IFNob3VsZG4n
-dCBJIGRvIHRoYXQga2luZCBvZiBjaGFuZ2UuIEl0IGRpZCBub3QgaGFwcGVuZWQgYmVmb3JlLg0K
-PiA+IERvIEkgbmVlZCB0byBjaGFuZ2UgaXQgYmFjayBhbmQgdXBkYXRlIHBhdGNoIHYzPw0KPiAN
-Cj4gV2hvIGlzIHRoZSByZWFsIGF1dGhvciBvZiB0aGlzLCBFZGRpZSBvciB5b3U/ICBJZiBFZGRp
-ZSwgdGhpcyBpcw0KPiBjb3JyZWN0LCBpZiB5b3UsIGl0IGlzIG5vdC4NCj4gDQo+IHRoYW5rcywN
-Cj4gDQo+IGdyZWcgay1oDQoNCkl0IGlzIEVkZGllISBJIGp1c3QgY2hhbmdlZCB0aGUgdXBsb2Fk
-ZXIgdG8gdGhlIGNvcnJlY3QgYXV0aG9yIGZyb20gbXkNCndvcmtpbmcgdHJlZSENClRoYW5rcyEN
-Cg0KUmVnYXJkcywNCk1hY3BhdWwgTGluDQoNCg==
+Recently ASPM handling was changed to no longer disable ASPM on all
+PCIe to PCI bridges. Unfortunately these ASMedia PCIe to PCI bridge
+devices don't seem to function properly with ASPM enabled, as they
+cause the parent PCIe root port to cause repeated AER timeout errors.
+In addition to flooding the kernel log, this also causes the machine
+to wake up immediately after suspend is initiated.
+
+Fixes: 66ff14e59e8a ("PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges")
+Cc: stable@vger.kernel.org
+Signed-off-by: Robert Hancock <hancockrwd@gmail.com>
+---
+ drivers/pci/quirks.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 812bfc32ecb8..e5713114f2ab 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -2330,6 +2330,19 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x10f1, quirk_disable_aspm_l0s);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x10f4, quirk_disable_aspm_l0s);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x1508, quirk_disable_aspm_l0s);
+ 
++static void quirk_disable_aspm_l0s_l1(struct pci_dev *dev)
++{
++	pci_info(dev, "Disabling ASPM L0s/L1\n");
++	pci_disable_link_state(dev, PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1);
++}
++
++/*
++ * ASM1083/1085 PCIe-PCI bridge devices cause AER timeout errors on the
++ * upstream PCIe root port when ASPM is enabled. At least L0s mode is affected,
++ * disable both L0s and L1 for now to be safe.
++ */
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x1080, quirk_disable_aspm_l0s_l1);
++
+ /*
+  * Some Pericom PCIe-to-PCI bridges in reverse mode need the PCIe Retrain
+  * Link bit cleared after starting the link retrain process to allow this
+-- 
+2.26.2
 
