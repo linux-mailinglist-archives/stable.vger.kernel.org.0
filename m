@@ -2,112 +2,270 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 835F8229887
-	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 14:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B747F22989A
+	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 14:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727825AbgGVMtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jul 2020 08:49:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46284 "EHLO mail.kernel.org"
+        id S1732291AbgGVMxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jul 2020 08:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726161AbgGVMts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jul 2020 08:49:48 -0400
+        id S1726841AbgGVMxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jul 2020 08:53:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E0CB206C1;
-        Wed, 22 Jul 2020 12:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD84F20729;
+        Wed, 22 Jul 2020 12:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595422187;
-        bh=9bO/CzlUBTjOYs2zyy1HJs8h4p36huP1Q1qYFobCpFE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R017QB32BaN0BRff70sDEikYHqmQ4xHZjQF0RpE552UGWlfJwzcxTozos7SDhsCqS
-         rGd9v4+sI0Pq/PzqzTI9UM3dH++mUbPzU/YeTRaOQftlGhI6eQze+RtLHuzN+5Na31
-         xTUN9qBJBvh1PFeNdGOxcGjKKe+WNOFDJlAG+4UE=
-Date:   Wed, 22 Jul 2020 14:49:53 +0200
+        s=default; t=1595422380;
+        bh=n+p7mFZVe6dKseesGq1A2JdA6erALcpxAlG04FYkquY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0N7KrUvAdfuiP+fTwouGMqO7ffDkR5BJZGr5y1kGvAmKDdsVJC4lPZMzC4QaR6eEn
+         YB2QSForqJ5QjL8fpiG4N9vT9zV/5NjnqVB3jRBOW197K53XtgSPKrtnWyBYb3dLFv
+         x+gICT6EI+QLvt8yXYwkPOZteuSy1jY6Erw7Ldrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        jolsa@redhat.com, Namhyung Kim <namhyung@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Basil Eljuse <Basil.Eljuse@arm.com>
-Subject: Re: [PATCH 5.7 000/243] 5.7.10-rc2 review
-Message-ID: <20200722124953.GE3155653@kroah.com>
-References: <20200720191523.845282610@linuxfoundation.org>
- <CA+G9fYuVJAHyXqPhhqtcdDstKrjb-TLu=d7DZTuQX3YuCsypHA@mail.gmail.com>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.231
+Date:   Wed, 22 Jul 2020 14:53:01 +0200
+Message-Id: <1595422380135209@kroah.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuVJAHyXqPhhqtcdDstKrjb-TLu=d7DZTuQX3YuCsypHA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 02:59:22PM +0530, Naresh Kamboju wrote:
-> On Tue, 21 Jul 2020 at 00:46, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.7.10 release.
-> > There are 243 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 22 Jul 2020 19:14:36 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.10-rc2.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> Regressions detected on arm and arm64 (Juno-r2)
-> We are bisecting this problem and get back to you soon.
-> 
-> perf test cases failed
->   perf:
->     * Track-with-sched_switch
->     * perf_record_test
->     * perf_report_test
-> 
-> Bad case:
-> [ perf record: Woken up 1 times to write data ]
-> [ perf record: Captured and wrote 0.002 MB perf-lava-test.data ]
-> 
-> when it was pass it prints number of samples like below,
-> Good case:
-> [ perf record: Woken up 1 times to write data ]
-> [ perf record: Captured and wrote 0.004 MB perf-lava-test.data (46 samples) ]
-> 
-> steps to reproduce:
-> # perf record -e cycles -o perf-lava-test.data ls -a  2>&1 | tee perf-record.log
-> 
-> Link to full test:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-5.7-oe/build/v5.7.9-244-g7d2e5723ce4a/testrun/2969482/suite/perf/test/perf_record_test/log
-> 
-> test case:
-> https://github.com/Linaro/test-definitions/blob/master/automated/linux/perf/perf.sh
+I'm announcing the release of the 4.4.231 kernel.
 
-Any hint by bisection as to what this problem is caused by?
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
 thanks,
 
 greg k-h
+
+------------
+
+ Makefile                                        |    2 
+ arch/arc/include/asm/elf.h                      |    2 
+ arch/arc/kernel/entry.S                         |   16 ++-----
+ arch/arm64/kernel/kgdb.c                        |    2 
+ arch/mips/kernel/time.c                         |   13 +-----
+ arch/s390/include/asm/kvm_host.h                |    8 +--
+ arch/x86/kvm/mmu.c                              |    2 
+ drivers/char/virtio_console.c                   |    3 -
+ drivers/dma/fsl-edma.c                          |    7 +++
+ drivers/gpu/drm/radeon/ci_dpm.c                 |    7 +--
+ drivers/hid/hid-magicmouse.c                    |    6 ++
+ drivers/hwmon/emc2103.c                         |    2 
+ drivers/i2c/busses/i2c-eg20t.c                  |    1 
+ drivers/input/serio/i8042-x86ia64io.h           |    7 +++
+ drivers/message/fusion/mptscsih.c               |    4 -
+ drivers/misc/atmel-ssc.c                        |   24 +++++------
+ drivers/misc/mei/bus.c                          |    3 -
+ drivers/mtd/nand/brcmnand/brcmnand.c            |    5 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c |    2 
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c      |    8 +--
+ drivers/net/usb/smsc95xx.c                      |    9 +++-
+ drivers/net/wireless/ath/ath9k/hif_usb.c        |   48 +++++-----------------
+ drivers/net/wireless/ath/ath9k/hif_usb.h        |    5 --
+ drivers/spi/spidev.c                            |   24 +++++------
+ drivers/staging/comedi/drivers/addi_apci_1500.c |   10 +++-
+ drivers/uio/uio_pdrv_genirq.c                   |    2 
+ drivers/usb/c67x00/c67x00-sched.c               |    2 
+ drivers/usb/chipidea/core.c                     |   24 +++++++++++
+ drivers/usb/core/urb.c                          |   30 ++++++++++++-
+ drivers/usb/gadget/function/f_uac1.c            |    2 
+ drivers/usb/gadget/udc/atmel_usba_udc.c         |    2 
+ drivers/usb/host/ehci-platform.c                |    5 --
+ drivers/usb/host/ohci-platform.c                |    5 --
+ drivers/usb/host/xhci-plat.c                    |   11 -----
+ drivers/usb/serial/ch341.c                      |    1 
+ drivers/usb/serial/cypress_m8.c                 |    2 
+ drivers/usb/serial/cypress_m8.h                 |    3 +
+ drivers/usb/serial/iuu_phoenix.c                |    8 ++-
+ drivers/usb/serial/option.c                     |    6 ++
+ fs/btrfs/extent_io.c                            |   40 +++++++++++-------
+ fs/fuse/file.c                                  |   12 +++++
+ include/linux/usb.h                             |    2 
+ include/net/dst.h                               |   10 ++++
+ include/net/genetlink.h                         |    8 ---
+ include/sound/compress_driver.h                 |   10 ++++
+ kernel/sched/fair.c                             |   10 ++++
+ net/ipv4/ping.c                                 |    3 +
+ net/ipv4/tcp.c                                  |   13 +++---
+ net/ipv4/tcp_cong.c                             |    2 
+ net/ipv4/tcp_ipv4.c                             |   15 +++++-
+ net/l2tp/l2tp_core.c                            |    5 --
+ net/llc/af_llc.c                                |   10 +++-
+ net/netlink/genetlink.c                         |   52 ------------------------
+ sound/core/compress_offload.c                   |    4 +
+ sound/drivers/opl3/opl3_synth.c                 |    2 
+ sound/pci/hda/hda_auto_parser.c                 |    6 ++
+ sound/usb/line6/capture.c                       |    2 
+ sound/usb/line6/playback.c                      |    2 
+ sound/usb/midi.c                                |   17 +++++--
+ sound/usb/quirks-table.h                        |   52 ++++++++++++++++++++++++
+ tools/perf/util/stat.c                          |    6 +-
+ 61 files changed, 357 insertions(+), 249 deletions(-)
+
+AceLan Kao (1):
+      USB: serial: option: add Quectel EG95 LTE modem
+
+Alexander Lobakin (1):
+      virtio: virtio_console: add missing MODULE_DEVICE_TABLE() for rproc serial
+
+Alexander Usyskin (1):
+      mei: bus: don't clean driver pointer
+
+Andre Edich (2):
+      smsc95xx: check return value of smsc95xx_reset
+      smsc95xx: avoid memory leak in smsc95xx_bind
+
+Andy Shevchenko (1):
+      i2c: eg20t: Load module automatically if ID matches
+
+Boris Burkov (1):
+      btrfs: fix fatal extent_buffer readahead vs releasepage race
+
+Chirantan Ekbote (1):
+      fuse: Fix parameter for FS_IOC_{GET,SET}FLAGS
+
+Christian Borntraeger (1):
+      KVM: s390: reduce number of IO pins to 1
+
+Christoph Paasch (1):
+      tcp: make sure listeners don't initialize congestion-control state
+
+Dan Carpenter (1):
+      staging: comedi: verify array index is correct before using it
+
+David Pedersen (1):
+      Input: i8042 - add Lenovo XiaoXin Air 12 to i8042 nomux list
+
+Davide Caratti (1):
+      bnxt_en: fix NULL dereference in case SR-IOV configuration fails
+
+Dmitry Torokhov (1):
+      HID: magicmouse: do not set up autorepeat
+
+Eric Dumazet (4):
+      llc: make sure applications use ARPHRD_ETHER
+      tcp: md5: add missing memory barriers in tcp_md5_do_add()/tcp_md5_hash_key()
+      tcp: md5: refine tcp_md5_do_add()/tcp_md5_hash_key() barriers
+      tcp: md5: allow changing MD5 keys in all socket states
+
+Esben Haabendal (1):
+      uio_pdrv_genirq: fix use without device tree and no interrupt
+
+Greg Kroah-Hartman (2):
+      Revert "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb"
+      Linux 4.4.231
+
+Hector Martin (1):
+      ALSA: usb-audio: add quirk for MacroSilicon MS2109
+
+Huacai Chen (1):
+      MIPS: Fix build for LTS kernel caused by backporting lpj adjustment
+
+Hui Wang (1):
+      ALSA: hda - let hs_mic be picked ahead of hp_mic
+
+Igor Moura (1):
+      USB: serial: ch341: add new Product ID for CH340
+
+James Hilliard (1):
+      USB: serial: cypress_m8: enable Simply Automated UPB PIM
+
+Jin Yao (1):
+      perf stat: Zero all the 'ena' and 'run' array slot stats for interval mode
+
+Johan Hovold (1):
+      USB: serial: iuu_phoenix: fix memory corruption
+
+Jörgen Storvist (1):
+      USB: serial: option: add GosunCn GM500 series
+
+Krzysztof Kozlowski (1):
+      dmaengine: fsl-edma: Fix NULL pointer exception in fsl_edma_tx_handler
+
+Li Heng (1):
+      net: cxgb4: fix return error value in t4_prep_fw
+
+Martin Varghese (1):
+      net: Added pointer check for dst->ops->neigh_lookup in dst_neigh_lookup_skb
+
+Michał Mirosław (2):
+      usb: gadget: udc: atmel: fix uninitialized read in debug printk
+      misc: atmel-ssc: lock with mutex instead of spinlock
+
+Paolo Bonzini (1):
+      KVM: x86: bit 8 of non-leaf PDPEs is not reserved
+
+Peter Chen (1):
+      usb: chipidea: core: add wakeup support for extcon
+
+Sabrina Dubroca (1):
+      ipv4: fill fl4_icmp_{type,code} in ping_v4_sendmsg
+
+Sasha Levin (3):
+      Revert "usb/ehci-platform: Set PM runtime as active on resume"
+      Revert "usb/xhci-plat: Set PM runtime as active on resume"
+      Revert "usb/ohci-platform: Fix a warning when hibernating"
+
+Sean Tranchetti (1):
+      genetlink: remove genl_bind
+
+Takashi Iwai (3):
+      usb: core: Add a helper function to check the validity of EP type in URB
+      ALSA: line6: Perform sanity check for each URB creation
+      ALSA: usb-audio: Fix race against the error recovery URB submission
+
+Tom Rix (2):
+      drm/radeon: fix double free
+      USB: c67x00: fix use after free in c67x00_giveback_urb
+
+Tomas Henzl (1):
+      scsi: mptscsih: Fix read sense data size
+
+Vincent Guittot (1):
+      sched/fair: handle case of task_h_load() returning 0
+
+Vineet Gupta (2):
+      ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE
+      ARC: elf: use right ELF_ARCH
+
+Vinod Koul (1):
+      ALSA: compress: fix partial_drain completion state
+
+Vishwas M (1):
+      hwmon: (emc2103) fix unable to change fan pwm1_enable attribute
+
+Wei Li (1):
+      arm64: kgdb: Fix single-step exception handling oops
+
+Xin Long (1):
+      l2tp: remove skb_dst_set() from l2tp_xmit_skb()
+
+Zhang Qiang (1):
+      usb: gadget: function: fix missing spinlock in f_uac1_legacy
+
+Zhenzhong Duan (2):
+      spi: spidev: fix a race between spidev_release and spidev_remove
+      spi: spidev: fix a potential use-after-free in spidev_release()
+
+xidongwang (1):
+      ALSA: opl3: fix infoleak in opl3
+
+Álvaro Fernández Rojas (1):
+      mtd: rawnand: brcmnand: fix CS0 layout
+
