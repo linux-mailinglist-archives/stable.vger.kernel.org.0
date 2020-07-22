@@ -2,80 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1827A2297E5
-	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 14:09:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42FCE229801
+	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 14:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732009AbgGVMJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jul 2020 08:09:33 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51102 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731563AbgGVMJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jul 2020 08:09:32 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E8F8C1C0BDA; Wed, 22 Jul 2020 14:09:30 +0200 (CEST)
-Date:   Wed, 22 Jul 2020 14:09:30 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 066/133] regmap: debugfs: Dont sleep while atomic
- for fast_io regmaps
-Message-ID: <20200722120930.GB25691@duo.ucw.cz>
-References: <20200720152803.732195882@linuxfoundation.org>
- <20200720152806.931980695@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
-Content-Disposition: inline
-In-Reply-To: <20200720152806.931980695@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1732154AbgGVMPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jul 2020 08:15:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58520 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726161AbgGVMPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jul 2020 08:15:09 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B6B520771;
+        Wed, 22 Jul 2020 12:15:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595420107;
+        bh=/mUvh5NImkU2UJ3Sh9DMgu2Xu22Q7ZJxc/TxL7JV3Yk=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
+         References:From;
+        b=llUoj7c2K2yx4ip5+cEsEfCUH1itxZWvqNyfDLD21iwE9bpM6XZ1GQUmBAccw2xcc
+         gxUBGtkXAq8eV14cBmEXckPyXZbJVYd63KBaHrNQHyyZ8X8Bat+4KkW8kBecHO4s/V
+         qTLTv1ClPPJUuzAr6mvW2fZu5KKGA/BP25eCwERM=
+Date:   Wed, 22 Jul 2020 12:15:06 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Dan Williams <dan.j.williams@intel.com>
+To:     linux-nvdimm@lists.01.org
+Cc:     Vishal Verma <vishal.l.verma@intel.com>
+Cc:     Vishal Verma <vishal.l.verma@intel.com>
+Cc:     Dave Jiang <dave.jiang@intel.com>
+Cc:     Ira Weiny <ira.weiny@intel.com>
+Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc:     Len Brown <lenb@kernel.org>
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v3 01/11] libnvdimm: Validate command family indices
+In-Reply-To: <159528284995.993790.5816012252622710464.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <159528284995.993790.5816012252622710464.stgit@dwillia2-desk3.amr.corp.intel.com>
+Message-Id: <20200722121507.5B6B520771@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi
 
---BwCQnh7xodEAoBMC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[This is an automated email]
 
-Hi!
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 31eca76ba2fc ("nfit, libnvdimm: limited/whitelisted dimm command marshaling mechanism").
 
-> From: Douglas Anderson <dianders@chromium.org>
->=20
-> [ Upstream commit 299632e54b2e692d2830af84be51172480dc1e26 ]
->
+The bot has tested the following trees: v5.7.9, v5.4.52, v4.19.133, v4.14.188, v4.9.230.
 
-> +	err =3D kstrtobool_from_user(user_buf, count, &new_val);
-> +	/* Ignore malforned data like debugfs_write_file_bool() */
+v5.7.9: Failed to apply! Possible dependencies:
+    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
 
-> +	err =3D kstrtobool_from_user(user_buf, count, &new_val);
-> +	/* Ignore malforned data like debugfs_write_file_bool() */
+v5.4.52: Failed to apply! Possible dependencies:
+    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
+    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
 
-I guess that should be "malformed" in both cases.
+v4.19.133: Failed to apply! Possible dependencies:
+    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
+    0ead11181fe0c ("acpi, nfit: Collect shutdown status")
+    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
+    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
+    b3ed2ce024c36 ("acpi/nfit: Add support for Intel DSM 1.8 commands")
+    b5beae5e224f1 ("powerpc/pseries: Add driver for PAPR SCM regions")
+    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
+    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
 
-Plus it would not be bad to share code between those two functions, as
-they are pretty much identical...
+v4.14.188: Failed to apply! Possible dependencies:
+    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
+    0e7f0741450b1 ("acpi, nfit: validate commands against the device type")
+    1194c4133195d ("nfit: Add Hyper-V NVDIMM DSM command set to white list")
+    11e1427016095 ("acpi, nfit: add support for NVDIMM_FAMILY_INTEL v1.6 DSMs")
+    466d1493ea830 ("acpi, nfit: rework NVDIMM leaf method detection")
+    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
+    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
+    b37b3fd33d034 ("acpi nfit: Enable to show what feature is supported via ND_CMD_CALL for nfit_test")
+    b9b1504d3c6d6 ("acpi, nfit: hide unknown commands from nmemX/commands")
+    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
 
-Best regards,
-								Pavel
+v4.9.230: Failed to apply! Possible dependencies:
+    095ab4b39f91b ("acpi, nfit: allow override of built-in bitmasks for nvdimm DSMs")
+    0f817ae696b04 ("usb: dwc3: pci: add a private driver structure")
+    36daf3aa399c0 ("usb: dwc3: pci: avoid build warning")
+    3f23df72dc351 ("mmc: sdhci-pci: Use ACPI to get max frequency for Intel NI byt sdio")
+    41c8bdb3ab10c ("acpi, nfit: Switch to use new generic UUID API")
+    42237e393f64d ("libnvdimm: allow a platform to force enable label support")
+    42b06496407c0 ("mmc: sdhci-pci: Add PCI ID for Intel NI byt sdio")
+    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
+    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
+    8f078b38dd382 ("libnvdimm: convert NDD_ flags to use bitops, introduce NDD_LOCKED")
+    94116f8126de9 ("ACPI: Switch to use generic guid_t in acpi_evaluate_dsm()")
+    9cecca75b5a0d ("usb: dwc3: pci: call _DSM for suspend/resume")
+    9d62ed9651182 ("libnvdimm: handle locked label storage areas")
+    b7fe92999a98a ("ACPI / extlog: Switch to use new generic UUID API")
+    b917078c1c107 ("net: hns: Add ACPI support to check SFP present")
+    ba650cfcf9409 ("acpi, nfit: allow specifying a default DSM family")
+    c959a6b00ff58 ("mmc: sdhci-pci: Don't re-tune with runtime pm for some Intel devices")
+    d2061f9cc32db ("usb: typec: add driver for Intel Whiskey Cove PMIC USB Type-C PHY")
+    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
+    fab9288428ec0 ("usb: USB Type-C connector class")
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
 
---BwCQnh7xodEAoBMC
-Content-Type: application/pgp-signature; name="signature.asc"
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
------BEGIN PGP SIGNATURE-----
+How should we proceed with this patch?
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXxgsegAKCRAw5/Bqldv6
-8jjKAJ9XM6BGEO5Sp5iv5rUAtHF9vjKwNACfY5+7HjeXDBXVMTH1O0t9/AmYp20=
-=XYw2
------END PGP SIGNATURE-----
-
---BwCQnh7xodEAoBMC--
+-- 
+Thanks
+Sasha
