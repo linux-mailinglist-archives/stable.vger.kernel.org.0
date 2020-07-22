@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42FCE229801
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3D1229800
 	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 14:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732154AbgGVMPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732161AbgGVMPK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 Jul 2020 08:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58520 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726161AbgGVMPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732154AbgGVMPJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 22 Jul 2020 08:15:09 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B6B520771;
-        Wed, 22 Jul 2020 12:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BF4520787;
+        Wed, 22 Jul 2020 12:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595420107;
-        bh=/mUvh5NImkU2UJ3Sh9DMgu2Xu22Q7ZJxc/TxL7JV3Yk=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
-         References:From;
-        b=llUoj7c2K2yx4ip5+cEsEfCUH1itxZWvqNyfDLD21iwE9bpM6XZ1GQUmBAccw2xcc
-         gxUBGtkXAq8eV14cBmEXckPyXZbJVYd63KBaHrNQHyyZ8X8Bat+4KkW8kBecHO4s/V
-         qTLTv1ClPPJUuzAr6mvW2fZu5KKGA/BP25eCwERM=
-Date:   Wed, 22 Jul 2020 12:15:06 +0000
+        s=default; t=1595420108;
+        bh=s9F70o+YVHAylQobk1Z1T7okng//DF/Q8/fYk4nXsVY=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=OvLlFsjXfF4zCTQuA/rg6KQ4f15pMkWZryxs64I6lHqYruftm6cSeJ9VLsWRK+sAL
+         8Gtw50PaFz36SOj3SJBciBvpXXCZuXWEViw1Ydk03V/e144PWrYFUQs6oZ/erScTAv
+         kgLWLHmsfrwI2c5u2r90sNx/4QxsZiT7QQhfyGrs=
+Date:   Wed, 22 Jul 2020 12:15:07 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-To:     linux-nvdimm@lists.01.org
-Cc:     Vishal Verma <vishal.l.verma@intel.com>
-Cc:     Vishal Verma <vishal.l.verma@intel.com>
-Cc:     Dave Jiang <dave.jiang@intel.com>
-Cc:     Ira Weiny <ira.weiny@intel.com>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Len Brown <lenb@kernel.org>
-Cc:     <stable@vger.kernel.org>
+To:     Lu Baolu <baolu.lu@linux.intel.com>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     Koba Ko <koba.ko@canonical.com>, iommu@lists.linux-foundation.org
+Cc:     Ashok Raj <ashok.raj@intel.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3 01/11] libnvdimm: Validate command family indices
-In-Reply-To: <159528284995.993790.5816012252622710464.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <159528284995.993790.5816012252622710464.stgit@dwillia2-desk3.amr.corp.intel.com>
-Message-Id: <20200722121507.5B6B520771@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] iommu/vt-d: Skip TE disabling on quirky gfx dedicated iommu
+In-Reply-To: <20200721001713.24282-1-baolu.lu@linux.intel.com>
+References: <20200721001713.24282-1-baolu.lu@linux.intel.com>
+Message-Id: <20200722121508.6BF4520787@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -51,60 +47,52 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 31eca76ba2fc ("nfit, libnvdimm: limited/whitelisted dimm command marshaling mechanism").
+fixing commit: .
 
-The bot has tested the following trees: v5.7.9, v5.4.52, v4.19.133, v4.14.188, v4.9.230.
+The bot has tested the following trees: v5.7.9, v5.4.52, v4.19.133, v4.14.188, v4.9.230, v4.4.230.
 
 v5.7.9: Failed to apply! Possible dependencies:
-    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
+    Unable to calculate
 
 v5.4.52: Failed to apply! Possible dependencies:
-    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
-    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
+    Unable to calculate
 
 v4.19.133: Failed to apply! Possible dependencies:
-    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
-    0ead11181fe0c ("acpi, nfit: Collect shutdown status")
-    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
-    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
-    b3ed2ce024c36 ("acpi/nfit: Add support for Intel DSM 1.8 commands")
-    b5beae5e224f1 ("powerpc/pseries: Add driver for PAPR SCM regions")
-    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
-    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
+    e5e04d051979d ("iommu/vt-d: Check whether device requires bounce buffer")
 
 v4.14.188: Failed to apply! Possible dependencies:
-    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
-    0e7f0741450b1 ("acpi, nfit: validate commands against the device type")
-    1194c4133195d ("nfit: Add Hyper-V NVDIMM DSM command set to white list")
-    11e1427016095 ("acpi, nfit: add support for NVDIMM_FAMILY_INTEL v1.6 DSMs")
-    466d1493ea830 ("acpi, nfit: rework NVDIMM leaf method detection")
-    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
-    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
-    b37b3fd33d034 ("acpi nfit: Enable to show what feature is supported via ND_CMD_CALL for nfit_test")
-    b9b1504d3c6d6 ("acpi, nfit: hide unknown commands from nmemX/commands")
-    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
+    85319dcc8955f ("iommu/vt-d: Add for_each_device_domain() helper")
+    9ddbfb42138d8 ("iommu/vt-d: Move device_domain_info to header")
+    e5e04d051979d ("iommu/vt-d: Check whether device requires bounce buffer")
 
 v4.9.230: Failed to apply! Possible dependencies:
-    095ab4b39f91b ("acpi, nfit: allow override of built-in bitmasks for nvdimm DSMs")
-    0f817ae696b04 ("usb: dwc3: pci: add a private driver structure")
-    36daf3aa399c0 ("usb: dwc3: pci: avoid build warning")
-    3f23df72dc351 ("mmc: sdhci-pci: Use ACPI to get max frequency for Intel NI byt sdio")
-    41c8bdb3ab10c ("acpi, nfit: Switch to use new generic UUID API")
-    42237e393f64d ("libnvdimm: allow a platform to force enable label support")
-    42b06496407c0 ("mmc: sdhci-pci: Add PCI ID for Intel NI byt sdio")
-    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
-    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
-    8f078b38dd382 ("libnvdimm: convert NDD_ flags to use bitops, introduce NDD_LOCKED")
-    94116f8126de9 ("ACPI: Switch to use generic guid_t in acpi_evaluate_dsm()")
-    9cecca75b5a0d ("usb: dwc3: pci: call _DSM for suspend/resume")
-    9d62ed9651182 ("libnvdimm: handle locked label storage areas")
-    b7fe92999a98a ("ACPI / extlog: Switch to use new generic UUID API")
-    b917078c1c107 ("net: hns: Add ACPI support to check SFP present")
-    ba650cfcf9409 ("acpi, nfit: allow specifying a default DSM family")
-    c959a6b00ff58 ("mmc: sdhci-pci: Don't re-tune with runtime pm for some Intel devices")
-    d2061f9cc32db ("usb: typec: add driver for Intel Whiskey Cove PMIC USB Type-C PHY")
-    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
-    fab9288428ec0 ("usb: USB Type-C connector class")
+    161b28aae1651 ("iommu/vt-d: Make sure IOMMUs are off when intel_iommu=off")
+    61012985eb132 ("iommu/vt-d: Use lo_hi_readq() / lo_hi_writeq()")
+    85319dcc8955f ("iommu/vt-d: Add for_each_device_domain() helper")
+    9ddbfb42138d8 ("iommu/vt-d: Move device_domain_info to header")
+    a7fdb6e648fb1 ("iommu/vt-d: Fix crash when accessing VT-d sysfs entries")
+    b0119e870837d ("iommu: Introduce new 'struct iommu_device'")
+    b316d02a13c3a ("iommu/vt-d: Unwrap __get_valid_domain_for_dev()")
+    bfd20f1cc8501 ("x86, iommu/vt-d: Add an option to disable Intel IOMMU force on")
+    e5e04d051979d ("iommu/vt-d: Check whether device requires bounce buffer")
+
+v4.4.230: Failed to apply! Possible dependencies:
+    0824c5920b16f ("iommu/vt-d: avoid dev iotlb logic for domains with no dev iotlbs")
+    161b28aae1651 ("iommu/vt-d: Make sure IOMMUs are off when intel_iommu=off")
+    314f1dc140844 ("iommu/vt-d: refactoring of deferred flush entries")
+    53c92d793395f ("iommu: of: enforce const-ness of struct iommu_ops")
+    57f98d2f61e19 ("iommu: Introduce iommu_fwspec")
+    592033790e827 ("iommu/vt-d: Check the return value of iommu_device_create()")
+    85319dcc8955f ("iommu/vt-d: Add for_each_device_domain() helper")
+    8d54d6c8b8f3e ("iommu/amd: Implement apply_dm_region call-back")
+    9ddbfb42138d8 ("iommu/vt-d: Move device_domain_info to header")
+    a7fdb6e648fb1 ("iommu/vt-d: Fix crash when accessing VT-d sysfs entries")
+    aa4732406e129 ("iommu/vt-d: per-cpu deferred invalidation queues")
+    b0119e870837d ("iommu: Introduce new 'struct iommu_device'")
+    b996444cf35e7 ("iommu/of: Handle iommu-map property for PCI")
+    bc8474549e94e ("iommu/vt-d: Fix up error handling in alloc_iommu")
+    bfd20f1cc8501 ("x86, iommu/vt-d: Add an option to disable Intel IOMMU force on")
+    e5e04d051979d ("iommu/vt-d: Check whether device requires bounce buffer")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
