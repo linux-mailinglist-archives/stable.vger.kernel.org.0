@@ -2,111 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29316228E85
-	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 05:18:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E45228FA4
+	for <lists+stable@lfdr.de>; Wed, 22 Jul 2020 07:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731859AbgGVDSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jul 2020 23:18:49 -0400
-Received: from mail5.windriver.com ([192.103.53.11]:47052 "EHLO mail5.wrs.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731793AbgGVDSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Jul 2020 23:18:48 -0400
-Received: from ALA-HCA.corp.ad.wrs.com (ala-hca.corp.ad.wrs.com [147.11.189.40])
-        by mail5.wrs.com (8.15.2/8.15.2) with ESMTPS id 06M3HNft004768
-        (version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL);
-        Tue, 21 Jul 2020 20:17:44 -0700
-Received: from [128.224.162.214] (128.224.162.214) by ALA-HCA.corp.ad.wrs.com
- (147.11.189.50) with Microsoft SMTP Server id 14.3.487.0; Tue, 21 Jul 2020
- 20:17:29 -0700
-Subject: Re: Subject: Re: [PATCH 1/1] iommu/vt-d: Skip TE disabling on quirky
- gfx dedicated iommu
-To:     Lu Baolu <baolu.lu@linux.intel.com>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <DM6PR11MB2587034DFBEDFB091CE9AAD58E790@DM6PR11MB2587.namprd11.prod.outlook.com>
- <0f4b6760-bb8f-ebd3-ab9d-4ecba819883c@linux.intel.com>
- <afb6b8d8-20b1-b00e-575e-0a4474f723b7@windriver.com>
- <d7627e6a-9984-3d73-79b5-36011da45bfb@linux.intel.com>
-From:   Jun Miao <jun.miao@windriver.com>
-Message-ID: <6cbf5b1e-93a5-c308-59ee-257676912d24@windriver.com>
-Date:   Wed, 22 Jul 2020 11:17:27 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1726669AbgGVF0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jul 2020 01:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726161AbgGVF0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jul 2020 01:26:00 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E02BC061794
+        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 22:26:00 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id k22so849933oib.0
+        for <stable@vger.kernel.org>; Tue, 21 Jul 2020 22:26:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Dz0PNWvUyA5bVwawo9dRFrBcMuGComXjKBNRW57uQgg=;
+        b=gPtekxXwx5xoHX6xD+EB5QVJSdczVy9YPn9MQCfSKGHYw21MojiJ5s/CwN4esHCjaI
+         sUCaRRd37tWCDsHp5NAM788cBt4cCLM6mISCsVmTepQ3OInoRXDVmX8b9U5fjQ+oMITR
+         fwBFIOpWJ32fKnV4BAMojzUQn7DsFMGYuzPgg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Dz0PNWvUyA5bVwawo9dRFrBcMuGComXjKBNRW57uQgg=;
+        b=EzqoFY15KCMNj7E8RUiRKc2tGJMOBBdotWv8+ebk8PdDt2fYsSUWrAv1FDtMvz3Eh6
+         jePh8Z8eVb8sncpg9ngPCRlWbwcTRC/ZU5FqntzZVt9K9F/wdesLgPAMf55LXgmdDjk+
+         pQIBJvJAzcm53Oz4LvrsrAaRHyQUn+0vxsaOFkDCYNehrmh765DQpJPjUsOnnztpQE0e
+         VhmG5zP+Hh+F+Ub/XI32xAm9nYPH7bE8yMiCgAajoxRThD1u5kWG3Q6boPDjUsrLlDGZ
+         jnNqr8MkG0/EOBKUvWAzBIV3L52qzr284b53FcQJ8RPQCgSjSNs3etuOIN8H8+63Vgq8
+         OOcA==
+X-Gm-Message-State: AOAM531D6E1BJcQOELt77Pv3e2TWr+YIfaOE0BagRoKv7foA2+SqT2s8
+        9CSeek2a5JnCrNhgxMIa5ycaaROfn9E1QodtPWfryQ==
+X-Google-Smtp-Source: ABdhPJycaRmTBcGABti42e3PKUTAQ34pmYikeYm6E7HWLcfVGdGx9DrGPj1mAOjJhuy0kvoLmA482wjfjEe6I5mW5iE=
+X-Received: by 2002:a05:6808:88:: with SMTP id s8mr5502429oic.101.1595395559971;
+ Tue, 21 Jul 2020 22:25:59 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <d7627e6a-9984-3d73-79b5-36011da45bfb@linux.intel.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20200721171936.81563-1-michael.j.ruhl@intel.com>
+ <20200721135648.9603d924377825a7e6c0023b@linux-foundation.org>
+ <14063C7AD467DE4B82DEDB5C278E866301245E046C@FMSMSX108.amr.corp.intel.com> <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
+In-Reply-To: <20200721142424.b8846cddf1efd48e45278a42@linux-foundation.org>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Wed, 22 Jul 2020 07:25:48 +0200
+Message-ID: <CAKMK7uGNyEEZxsT8PB6X6-Ea-Z_oB498wuV4G8tO-b-ygNiwVQ@mail.gmail.com>
+Subject: Re: [PATCH v2] io-mapping: Indicate mapping failure
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     "Ruhl, Michael J" <michael.j.ruhl@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        Mike Rapoport <rppt@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/22/20 11:07 AM, Lu Baolu wrote:
-> On 7/22/20 11:03 AM, Jun Miao wrote:
->> On 7/22/20 10:40 AM, Lu Baolu wrote:
->>> Hi Jun,
->>>
->>> On 7/22/20 10:26 AM, Miao, Jun wrote:
->>>>>> Kernel panic - not syncing: DMAR hardware is malfunctioning
->>>>>> CPU: 0 PID: 347 Comm: rtcwake Not tainted 5.4.0-yocto-standard #124
->>>>>> Hardware name: Intel Corporation Ice Lake Client Platform/IceLake 
->>>>>> U DDR4
->>>>>> SODIMM PD RVP TLC, BIOS ICLSFWR1.R00.3162.A00.1904162000 04/16/2019
->>>>>> Call Trace:
->>>>>>    dump_stack+0x59/0x75
->>>>>>    panic+0xff/0x2d4
->>>>>>    iommu_disable_translation+0x88/0x90
->>>>>>    iommu_suspend+0x12f/0x1b0
->>>>>>    syscore_suspend+0x6c/0x220
->>>>>>    suspend_devices_and_enter+0x313/0x840
->>>>>>    pm_suspend+0x30d/0x390
->>>>>>    state_store+0x82/0xf0
->>>>>>    kobj_attr_store+0x12/0x20
->>>>>>    sysfs_kf_write+0x3c/0x50
->>>>>>    kernfs_fop_write+0x11d/0x190
->>>>>>    __vfs_write+0x1b/0x40
->>>>>>    vfs_write+0xc6/0x1d0
->>>>>>    ksys_write+0x5e/0xe0
->>>>>>    __x64_sys_write+0x1a/0x20
->>>>>>    do_syscall_64+0x4d/0x150
->>>>>>    entry_SYSCALL_64_after_hwframe+0x44/0xa9
->>>>>> RIP: 0033:0x7f97b8080113
->>>>>> Code: 8b 15 81 bd 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 
->>>>>> 0f 1f 00
->>>>>> 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 01 00 00 00 0f 05 <48> 3d 
->>>>>> 00 f0 ff ff
->>>>>> 77 55 c3 0f 1f 40 00 48 83 ec 28 48 89 54 24 18
->>>>>> RSP: 002b:00007ffcfa6f48b8 EFLAGS: 00000246 ORIG_RAX: 
->>>>>> 0000000000000001
->>>>>> RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f97b8080113
->>>>>> RDX: 0000000000000004 RSI: 000055e7db03b700 RDI: 0000000000000004
->>>>>> RBP: 000055e7db03b700 R08: 000055e7db03b700 R09: 0000000000000004
->>>>>> R10: 0000000000000004 R11: 0000000000000246 R12: 0000000000000004
->>>>>> R13: 000055e7db039380 R14: 0000000000000004 R15: 00007f97b814d700
->>>>>> Kernel Offset: 0x38a00000 from 0xffffffff81000000 (relocation range:
->>>>>> 0xffffffff80000000-0xffffffffbfffffff)
->>>>>> ---[ end Kernel panic - not syncing: DMAR hardware is 
->>>>>> malfunctioning ]---
->>>>
->>>
->>> Do you mean that system hangs in iommu_disable_translation() without 
->>> this fix.
->>>
->> Yes ,From the call trace and i also read the DMARD_GCMD_RGS is wrong 
->> without this patch.
+On Tue, Jul 21, 2020 at 11:24 PM Andrew Morton
+<akpm@linux-foundation.org> wrote:
 >
-> Okay! Thanks a lot for confirming this.
+> On Tue, 21 Jul 2020 21:02:44 +0000 "Ruhl, Michael J" <michael.j.ruhl@intel.com> wrote:
 >
-> Best regards,
-> baolu
+> > >--- a/include/linux/io-mapping.h~io-mapping-indicate-mapping-failure-fix
+> > >+++ a/include/linux/io-mapping.h
+> > >@@ -107,9 +107,12 @@ io_mapping_init_wc(struct io_mapping *io
+> > >                resource_size_t base,
+> > >                unsigned long size)
+> > > {
+> > >+    iomap->iomem = ioremap_wc(base, size);
+> > >+    if (!iomap->iomem)
+> > >+            return NULL;
+> > >+
+> >
+> > This does make more sense.
+> >
+> > I am confused by the two follow up emails I just got.
 >
->>>> [S3 successfully with the patch]
->>>
->>> And, this failure disappeared after you applied this fix?
-YES     , the log is too long , only head and tail . this failure 
-disappereared.
->>>
->>> Best regards,
->>> baolu
+> One was your original patch, the other is my suggested alteration.
+>
+> > Shall I resubmit, or is this path (if !iomap->iomem) return NULL)
+> > now in the tree.
+>
+> All is OK.  If my alteration is acceptable (and, preferably, tested!)
+> then when the time comes, I'll fold it into the base patch, add a
+> note indicating this change and shall then send it to Linus.
+
+Your alternative also matches the other implementation of
+io_mapping_init_wc, I was kinda tempted to do that suggestion too just
+because of that. But then didn't send out that email.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
