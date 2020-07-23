@@ -2,126 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE4122AC36
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 12:11:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B77822AC4A
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 12:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728306AbgGWKKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 06:10:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37294 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728232AbgGWKKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 06:10:50 -0400
-Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DF8C0619E3
-        for <stable@vger.kernel.org>; Thu, 23 Jul 2020 03:10:49 -0700 (PDT)
-Received: by mail-ua1-x942.google.com with SMTP id n4so1618408uae.5
-        for <stable@vger.kernel.org>; Thu, 23 Jul 2020 03:10:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4yoJQz6lc93ZFuC1vSh5aTw5SRyF7ZD50XPwFhu/krQ=;
-        b=XCKk9hOqO0p5OWBU7kP/quBONyMD7A9N/NDx4dZesyLHCwi2Ujzv1+piwUlOI64CyA
-         NCUIU6xdnEDK0mKCCEPOLd7ehUPoq1Q0e2udZf/ZTrXxNOL0BQj5UnmvhPom8yiANGaV
-         kAMRAdu4YzM9tt1D2WRPKTpGCbjNTwTWEdLkok9I2O2mk/Ytx30jI1Y+UwQNEaIxcAJM
-         AZzWRLvS0J/nTOQc2co0+wkWhXLzjWZZ+NpgbgVZGFqcnbBpIecpenwYZMfmLjt7FSdP
-         c8h3VGbqmmoWIL54h1rS/XqozcfJljW7oM6ODqpZ90nsm16tGf6C9t/912+nio0BWIBH
-         PA4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4yoJQz6lc93ZFuC1vSh5aTw5SRyF7ZD50XPwFhu/krQ=;
-        b=TSCHhH5LjtDP0jfRKeFjwia9GvBeeXgo0HvGKbM7MHEvhdg6Cc8rEbx4inFB64bEAY
-         jIEAb75xRRi9lLcVRf0STvIa3yDOZUGbeXT2o2qGTEUQLV+rv1yAnByEmBAXmbjmVvTO
-         w/pUKHl6K1eF7fvIc8Tkxju6fn0G1mltDKPEKAWjxslc6j3OtI8KJnurLNaqEilwm3YG
-         EsXEnjc+H4cii+bhdcIW5XRwvrvOEIYc4rpnQjC+fE3nG1tL+fR9jHWoZOGeLgmzTnEN
-         DZvC0nJLYbUFoXxTiOCh6Zc9ac1egAcA+0kmp7vuj8M+MF2mGo7lXKJeObrHmlqXcsJ7
-         LXBQ==
-X-Gm-Message-State: AOAM531HygOqAKE2ccB7E3n1On+R9JeVc+51CHqQC/YJ+pkyZFGKZnUq
-        C2Phq+jEhLY16eYNRRT5L30LOw3+9iMVFsAtLEh4rw==
-X-Google-Smtp-Source: ABdhPJxxlPWeM9mTT10PFLdHevZKA9RcowuhyqKZiYf5pxjOTON0R9TbU9qezUZcD9P6HDAOYt8ORXwcxVMOt6xhnjU=
-X-Received: by 2002:a9f:236c:: with SMTP id 99mr3553006uae.14.1595499048751;
- Thu, 23 Jul 2020 03:10:48 -0700 (PDT)
+        id S1727996AbgGWKRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 06:17:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56964 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727940AbgGWKRY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jul 2020 06:17:24 -0400
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CC152065F;
+        Thu, 23 Jul 2020 10:17:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595499443;
+        bh=4ztxpVxuw3J+NpHwpRVfU/Jf180Pmhs4xnxPAm51wUs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=uNTuvWwqErBygQv3JeLNHv0IiQ3j9TdR4W3XzYel9D6a9dXijN7MY0nqEa0mh3RWh
+         63LPeEuUo9nR2EYp5S17wy3E+d02+h8aIrdiDxorrsmwUu1DIrm6jvOxJolSGB8/qI
+         uy0TfwnlvMz1mL3/TvzXf7eiKSwiAP5VPdd3z6EU=
+From:   Will Deacon <will@kernel.org>
+To:     kvmarm@lists.cs.columbia.edu
+Cc:     linux-arm-kernel@lists.infradead.org, james.morse@arm.com,
+        suzuki.poulose@arm.com, kernel-team@android.com,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>
+Subject: [PATCH v2] KVM: arm64: Don't inherit exec permission across page-table levels
+Date:   Thu, 23 Jul 2020 11:17:14 +0100
+Message-Id: <20200723101714.15873-1-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <CA+G9fYvGXOcsF=70FVwOxqVYOeGTUuzhUzh5od1cKV1hshsW_g@mail.gmail.com>
- <CAK8P3a1ReCDR8REM7AWMisiEJ_D45pC8dXaoYFFVG3aZj91e7Q@mail.gmail.com> <159549159798.3847286.18202724980881020289@swboyd.mtv.corp.google.com>
-In-Reply-To: <159549159798.3847286.18202724980881020289@swboyd.mtv.corp.google.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 23 Jul 2020 15:40:37 +0530
-Message-ID: <CA+G9fYte5U-D7fqps2qJga_LSuGrb6t9Y1rOvPCPzz46BwchyA@mail.gmail.com>
-Subject: Re: stable-rc 4.14: arm64: Internal error: Oops: clk_reparent
- __clk_set_parent_before on db410c
-To:     Stephen Boyd <sboyd@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        linux- stable <stable@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        freedreno <freedreno@lists.freedesktop.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
-        Michael Turquette <mturquette@baylibre.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Eric Anholt <eric@anholt.net>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>, Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        samuel@sholland.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 23 Jul 2020 at 13:36, Stephen Boyd <sboyd@kernel.org> wrote:
->
-> Quoting Arnd Bergmann (2020-07-21 02:51:32)
-> >                         __clk_set_parent_before(orphan, parent);
-> >
-> > None of the above have changed in stable kernels.
-> >
-> > > [    5.633668]  pll_28nm_register+0xa4/0x340 [msm]
-> > > [    5.637492]  msm_dsi_pll_28nm_init+0xc8/0x1d8 [msm]
-> > > [    5.642007]  msm_dsi_pll_init+0x34/0xe0 [msm]
-> > > [    5.646870]  dsi_phy_driver_probe+0x1cc/0x310 [msm]
-> >
-> > The only changes to the dsi driver in v4.14-stable were:
-> >
-> > 89e30bb46074 drm/msm/dsi: save pll state before dsi host is powered off
-> > 892afde0f4a1 drm: msm: Fix return type of dsi_mgr_connector_mode_valid for kCFI
-> > 35ff594b0da2 drm/msm/dsi: Implement reset correctly
-> > 5151a0c8d730 drm/msm/dsi: use correct enum in dsi_get_cmd_fmt
-> > e6bc3a4b0c23 clk: divider: fix incorrect usage of container_of
-> >
-> > None of these look suspicious to me.
-> >
->
-> It sounds like maybe you need this patch?
->
-> bdcf1dc25324 ("clk: Evict unregistered clks from parent caches")
+If a stage-2 page-table contains an executable, read-only mapping at the
+pte level (e.g. due to dirty logging being enabled), a subsequent write
+fault to the same page which tries to install a larger block mapping
+(e.g. due to dirty logging having been disabled) will erroneously inherit
+the exec permission and consequently skip I-cache invalidation for the
+rest of the block.
 
-Cherry-pick did not work on stable-rc 4.14
-this patch might need backporting.
-I am not sure.
+Ensure that exec permission is only inherited by write faults when the
+new mapping is of the same size as the existing one. A subsequent
+instruction abort will result in I-cache invalidation for the entire
+block mapping.
 
->
-> or
->
-> 4368a1539c6b ("drm/msm: Depopulate platform on probe failure")
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Quentin Perret <qperret@google.com>
+Tested-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+---
 
-This commit already is in stable-rc 4.14 branch.
-    drm/msm: Depopulate platform on probe failure
+v2: Fix pte size check and allow inheriting to smaller granule.
 
-    [ Upstream commit 4368a1539c6b41ac3cddc06f5a5117952998804c ]
+ arch/arm64/kvm/mmu.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-> I vaguelly recall that the display driver wasn't removing clks becaues
-> it wasn't removing devices when probe defer happened and then we had
-> dangling clks in the parent cache confusing things.
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index 8c0035cab6b6..31058e6e7c2a 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -1326,7 +1326,7 @@ static bool stage2_get_leaf_entry(struct kvm *kvm, phys_addr_t addr,
+ 	return true;
+ }
+ 
+-static bool stage2_is_exec(struct kvm *kvm, phys_addr_t addr)
++static bool stage2_is_exec(struct kvm *kvm, phys_addr_t addr, unsigned long sz)
+ {
+ 	pud_t *pudp;
+ 	pmd_t *pmdp;
+@@ -1338,11 +1338,11 @@ static bool stage2_is_exec(struct kvm *kvm, phys_addr_t addr)
+ 		return false;
+ 
+ 	if (pudp)
+-		return kvm_s2pud_exec(pudp);
++		return sz <= PUD_SIZE && kvm_s2pud_exec(pudp);
+ 	else if (pmdp)
+-		return kvm_s2pmd_exec(pmdp);
++		return sz <= PMD_SIZE && kvm_s2pmd_exec(pmdp);
+ 	else
+-		return kvm_s2pte_exec(ptep);
++		return sz == PAGE_SIZE && kvm_s2pte_exec(ptep);
+ }
+ 
+ static int stage2_set_pte(struct kvm *kvm, struct kvm_mmu_memory_cache *cache,
+@@ -1958,7 +1958,8 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
+ 	 * execute permissions, and we preserve whatever we have.
+ 	 */
+ 	needs_exec = exec_fault ||
+-		(fault_status == FSC_PERM && stage2_is_exec(kvm, fault_ipa));
++		(fault_status == FSC_PERM &&
++		 stage2_is_exec(kvm, fault_ipa, vma_pagesize));
+ 
+ 	if (vma_pagesize == PUD_SIZE) {
+ 		pud_t new_pud = kvm_pfn_pud(pfn, mem_type);
+-- 
+2.28.0.rc0.105.gf9edc3c819-goog
 
-Thanks for your email.
-
-- Naresh
