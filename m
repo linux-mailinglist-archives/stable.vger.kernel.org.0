@@ -2,75 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3E622ADD2
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 13:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCA922AE6E
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 13:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727769AbgGWLfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 07:35:41 -0400
-Received: from sonic307-56.consmr.mail.ne1.yahoo.com ([66.163.190.31]:34261
-        "EHLO sonic307-56.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725846AbgGWLfl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 07:35:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595504140; bh=dGwizWYnZGK91DDxdP+Qz2TpW7F6J5jDYhhs+LKiHMg=; h=Date:From:Reply-To:Subject:References:From:Subject; b=bI3AfobETvIO6FVT8UonmXgvR7+pIyEUfP+wmbwA6qnoUVVXXHxMtBvIPrRtIAFYsNPCa/bAYKXPmfO5s2mwi9NTMcCWTH7Sz/zD5/z7kIhSmRhw1x7mjaSvpS6jSMvvLGnOzoMdHtvG734ucyqQ/63YNVZkDQvXhPBR06wYeZ7ggECkKKRM+nOwJPLvR6iP17H1ggJEHyFW0Y4HtJjyoWzAytJUBopIhpwhSpZ9G8tnr3DL3+39lxfwhANl3p2vhVun5yjwBBfm5RAVi7OKTXaPmHUNEfFXJeHzkhc0vwVRBXukPv8uUWhfluuHELDPVGI+l7NUtLpFO0PAJkEkuA==
-X-YMail-OSG: ORolTugVM1kLbpgeRxpwro.eSLPG8VaebLvV_Po_E5aXX4GFwMw8J.Ga03UiqEV
- eWpCZ0nZVNPf1QPvCvEe.MpZMOlbAyfGsJwDsX8HRCvuwrzPwvQrnwpsE8Xp45SkE2i9GtzjIIC1
- PDig5YJIuBzLJDn61q6rajGhB_8.Lh_KfHvmqff3_5W4ua09d11dM49IP2MhQty0pxOX5CvxajK7
- V.LyezlFkAskXDhhi7BLvD2qIteSg.lKzfAHxHCsFnr8dEU2MFS28XB9iovRxE0RDJtOMcBmRujT
- ASLjbcUxQ4GmSf7ZrWEI8bTb14lWo_EAAIi6zlLokyTeXXDfOcmV8hKGAkJiBR_T48khLvisNgTN
- dEYK.xug8yEqUF_l1I88pPbE11celk2YsiPcws1wz2EGbmX648K8tp4r2cPZz33HzFnH4sf3rJO.
- KZrAd07eR6CGlQ1BWC8MneUUi9r6a32EL2qWTCcj4vlj.KBvJIb1sXUhCb1Z.xgVPxHYgU9elguh
- UtHrKyL1grqeU4WeSu.k.p5rby8ciqa94PQNhwf5j2z1uq4m1zxWxg_l4t2TDcOXkD3nNJKcmjk4
- O2RRWgJYfe3QeB5Z5ChyQ9d06lnVQR4JR81E.XV.JABeWItkSU.AYqhqu.dbs10HpRZiAoOcT6R1
- XEy8k_he7ZA8TxocwRgep3ESFEL21o2mepiU7vf8iQcVZaONHLNyxG8Rk7T2qjEoc5bJCQNvsHq8
- vFcvvIRr1PHwxfNKglhD4GorLCYIIZ9e5In70lwZZC0WQFHdWb0IxwHbML1ixutnJYHERcfMSxjk
- mhnzYchddi2bfRU2ENRQt097L3KXyheciLh27J9gnrrvzp_kxe.NvbV3jvZ.b8qcRcQo4GikdfWZ
- J.55ArJMuEI2ZW0ACnZ6f7ZO9vtJuMzZnsi8pkjNs2hhYdzFs3KfsxFCWqiTM6L9zpBl34zAGwft
- hTaTRJbv9kNh4HRorua88o744JtFOjGH0Q.P5yG5tX1Czwdews5F.Pch6ow_T1wZB8YtptElB55U
- 9YXRA_V5TEh5UA.f6Rw9PlRxB1G_iP21aSeqT.0wGr35DAPoWh10fQIOC9bBwCB_TIDyiL1GCu4.
- B27ICiIRwXYJUluJ3jFkSqBARMrRjw1x0XPzTIkRFUkCxuty_nNp7v2aHY1J9RBybIJpaRBV8T_F
- Q9lMEf._94mjDidNg1OXSwCQERmNjlSGv8Crl1WFQ97PtZVwyybUfhHSZ9XtEfeXF.bT2bO3xjna
- jAtBQQyYFVh__KCX3NeXniSh4xP.8LG.kMD23AQ1TsOj3NpMLWFoEsk6KIfD0r3apTVvvsNxql6t
- Cqg--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Thu, 23 Jul 2020 11:35:40 +0000
-Date:   Thu, 23 Jul 2020 11:35:35 +0000 (UTC)
-From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
-Reply-To: mrahmedmuzashah@gmail.com
-Message-ID: <1735501629.5976359.1595504135452@mail.yahoo.com>
-Subject: =?UTF-8?Q?Sch=C3=B6nen_Tag,?=
+        id S1728412AbgGWLwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 07:52:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:44500 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727940AbgGWLwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jul 2020 07:52:24 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 48C3AD6E;
+        Thu, 23 Jul 2020 04:52:23 -0700 (PDT)
+Received: from C02TD0UTHF1T.local (unknown [10.57.6.96])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3BAB13F718;
+        Thu, 23 Jul 2020 04:52:22 -0700 (PDT)
+Date:   Thu, 23 Jul 2020 12:52:16 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     gregory.herrero@oracle.com
+Cc:     linux-kernel@vger.kernel.org, rostedt@goodmis.org,
+        stable@vger.kernel.org, will@kernel.org, catalin.marinas@arm.com
+Subject: Re: [PATCH] recordmcount: only record relocation of type
+ R_AARCH64_CALL26 on arm64.
+Message-ID: <20200723115216.GA17032@C02TD0UTHF1T.local>
+References: <20200717143338.19302-1-gregory.herrero@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1735501629.5976359.1595504135452.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200717143338.19302-1-gregory.herrero@oracle.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sch=C3=B6nen Tag,
+Hi Gregory,
 
-Bitte entschuldigen Sie, dass Sie einen =C3=9Cberraschungsbrief geschrieben=
- haben. Ich bin Herr Ahmed Muzashah, Account Manager bei einer Investmentba=
-nk hier in Burkina Faso. Ich habe ein sehr wichtiges Gesch=C3=A4ft, das ich=
- mit Ihnen besprechen m=C3=B6chte. In meinem Konto ist ein Kontoentwurf er=
-=C3=B6ffnet Ich habe die M=C3=B6glichkeit, den verbleibenden Fonds (15,8 Mi=
-llionen US-Dollar) von f=C3=BCnfzehn Millionen achthunderttausend US-Dollar=
- eines meiner Bankkunden zu =C3=BCbertragen, der beim Zusammenbruch der Wel=
-t gestorben ist Handelszentrum in den Vereinigten Staaten am 11. September =
-2001.
+As a general thing, for patches affecting arm64 could you please Cc the
+linx-arm-kernel mailing list (linux-arm-kernel@lists.infradead.org).
+Some folk working on arm/arm64 aren't subscribed to LKML, and it means
+patches like this may get missed.
 
-Ich m=C3=B6chte diese Mittel investieren und Sie unserer Bank f=C3=BCr dies=
-en Deal vorstellen. Alles, was ich ben=C3=B6tige, ist Ihre ehrliche Zusamme=
-narbeit und ich garantiere Ihnen, dass dies unter einer legitimen Vereinbar=
-ung durchgef=C3=BChrt wird, die uns vor Gesetzesverst=C3=B6=C3=9Fen sch=C3=
-=BCtzt Ich bin damit einverstanden, dass 40% dieses Geldes f=C3=BCr Sie als=
- meinen ausl=C3=A4ndischen Partner, 50% f=C3=BCr mich und 10% f=C3=BCr die =
-Schaffung der Grundlage f=C3=BCr die weniger Privilegien in Ihrem Land best=
-immt sind. Wenn Sie wirklich an meinem Vorschlag interessiert sind, werden =
-weitere Einzelheiten der =C3=9Cbertragung ber=C3=BCcksichtigt Sie werden an=
- Sie weitergeleitet, sobald ich Ihre Bereitschaftsmail f=C3=BCr eine erfolg=
-reiche =C3=9Cberweisung erhalte.
+On Fri, Jul 17, 2020 at 04:33:38PM +0200, gregory.herrero@oracle.com wrote:
+> From: Gregory Herrero <gregory.herrero@oracle.com>
+> 
+> Currently, if a section has a relocation to '_mcount' symbol, a new
+> __mcount_loc entry will be added whatever the relocation type is.
+> This is problematic when a relocation to '_mcount' is in the middle of a
+> section and is not a call for ftrace use.
+> 
+> Such relocation could be generated with below code for example:
+>     bool is_mcount(unsigned long addr)
+>     {
+>         return (target == (unsigned long) &_mcount);
+>     }
+> 
+> With this snippet of code, ftrace will try to patch the mcount location
+> generated by this code on module load and fail with:
+> 
+>     Call trace:
+>      ftrace_bug+0xa0/0x28c
+>      ftrace_process_locs+0x2f4/0x430
+>      ftrace_module_init+0x30/0x38
+>      load_module+0x14f0/0x1e78
+>      __do_sys_finit_module+0x100/0x11c
+>      __arm64_sys_finit_module+0x28/0x34
+>      el0_svc_common+0x88/0x194
+>      el0_svc_handler+0x38/0x8c
+>      el0_svc+0x8/0xc
+>     ---[ end trace d828d06b36ad9d59 ]---
+>     ftrace failed to modify
+>     [<ffffa2dbf3a3a41c>] 0xffffa2dbf3a3a41c
+>      actual:   66:a9:3c:90
+>     Initializing ftrace call sites
+>     ftrace record flags: 2000000
+>      (0)
+>     expected tramp: ffffa2dc6cf66724
 
-Dein,
-Mr.Ahmed Muzashah,
+Which code specifically is this triggering for? Is this something in an
+upstream kernel, or out-of-tree patches?
+
+Can you say which toolchain you're using, too?
+
+> So Limit the relocation type to R_AARCH64_CALL26 as in perl version of
+> recordmcount.
+
+Given our patching code expects each callsite to be:
+
+	bl	_mcount
+
+... this looks sane to me, and I *think* that's sound for modules too.
+
+> Fixes: ed60453fa8f8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
+
+That's a 32-bit arm commit. I suspect that was meant to be:
+
+Fixes: af64d2aa872a1747 ("ftrace: Add arm64 support to recordmcount")
+
+> Signed-off-by: Gregory Herrero <gregory.herrero@oracle.com>
+> ---
+>  scripts/recordmcount.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
+> index 7225107a9aaf..e59022b3f125 100644
+> --- a/scripts/recordmcount.c
+> +++ b/scripts/recordmcount.c
+> @@ -434,6 +434,11 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
+>  	return 1;
+>  }
+>  
+> +static int arm64_is_fake_mcount(Elf64_Rel const *rp)
+> +{
+> +	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
+> +}
+> +
+>  /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
+>   * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
+>   * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
+> @@ -547,6 +552,7 @@ static int do_file(char const *const fname)
+>  		make_nop = make_nop_arm64;
+>  		rel_type_nop = R_AARCH64_NONE;
+>  		ideal_nop = ideal_nop4_arm64;
+> +		is_fake_mcount64 = arm64_is_fake_mcount;
+>  		break;
+
+As above, I think this is sound, but if you could answer my questions
+that'd be helpful.
+
+Thanks,
+Mark.
+
+>  	case EM_IA_64:	reltype = R_IA64_IMM64; break;
+>  	case EM_MIPS:	/* reltype: e_class    */ break;
+> -- 
+> 2.27.0
+> 
