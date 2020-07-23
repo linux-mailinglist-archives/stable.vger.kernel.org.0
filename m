@@ -2,155 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2D6122A70B
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 07:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD4A22A710
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 07:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725843AbgGWFqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 01:46:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45956 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725773AbgGWFqf (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Thu, 23 Jul 2020 01:46:35 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 846E720771;
-        Thu, 23 Jul 2020 05:46:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595483194;
-        bh=uxJ1AyAr06NrXjnfIHV+kaEUY+kcPNVKogb0aUdgc5w=;
-        h=Subject:To:From:Date:From;
-        b=F54DDeiaCU2VbrG6efdhohqlgciuY/WH55cfW+4UpHoAhQF35b5pnbSlUXKr7d7Eq
-         h9sTRGW9PhIpZZva0nHIolX/5WI+mbV56gOaJ7y0leuhH8VBnSWw1VGBEGZxE88F8C
-         oKFb1WftzuiXzV8/5Te/0BzdLw54cElY/UxdHqPw=
-Subject: patch "iio: imu: st_lsm6dsx: reset hw ts after resume" added to staging-next
-To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, sean@geanix.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 Jul 2020 07:44:01 +0200
-Message-ID: <159548304119074@kroah.com>
+        id S1725773AbgGWFsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 01:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725536AbgGWFsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 01:48:16 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E53C0619DC
+        for <stable@vger.kernel.org>; Wed, 22 Jul 2020 22:48:16 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id w2so2498898pgg.10
+        for <stable@vger.kernel.org>; Wed, 22 Jul 2020 22:48:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JwZkDrgGL/UksDPtmTihmYBA/5EqOYtVUrdjL5liovE=;
+        b=tlnU9J8lhxyvuLlMvi8OjiHErQ50eVT7Mcm3WYU3vCVa2lvn4H20ZwatOTfwg4+cnk
+         Wsg6oK27xZq1U/L/JOw7sWjv+Fn+zWsvWYddA1+qfY2YILT5eGAGYvZmKpNPVVPGuW+w
+         jBVBmCc+2VjoJNg0g49xm18pb85ixnHFdmMGhatvreM+XyRK6+2W9g9Zps+AO9O3O51F
+         uEKJ913ROjv/3kaObQXtjfTGMK0EmgAghGvJ1s0G/NzWrRYQHoREbWdD/sGFBKAYFNaU
+         z8SfR4zjuuOMCbiIPHuweHX0GGQ5Ksn/QninbrHHLzLQFJJKsk7FQjJk73SKj8UZL19M
+         8Wcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JwZkDrgGL/UksDPtmTihmYBA/5EqOYtVUrdjL5liovE=;
+        b=aa9PYGXUemHSZTOGwdRjanlA0fbBPokloyV5Kgri2nip9SPUnn4Xpc2uMkpPVMFyjB
+         /td3Hf7wqS6wXyyP5LbX/IRv0xpr0IkQCCldWKBqRp8k+f/7HKHcSQJi/bYGzmti2CJB
+         83TvOYPY1AyrJLQd8fJloQN9Czy9i1AuXRzhsMV2NXZGFSNojVjLq4mnwbO3EWzalXL3
+         +ckxaYkqx+N3enXQM0rYgT6FiItQGcYSCjU0PGWS5wTsAcgMv1gBGhMH67uJTVIxl4Hd
+         XzVcsT377YLyZS4NIkue1S27By//hPUsbMe2nM57jp+Hhp8dfs+7Qefz/wf0qRy+H0jg
+         mTPA==
+X-Gm-Message-State: AOAM530qTdXJnXPYk7okdAf43pnHLUDzwp1CM01wEnGnng6Yi86ZDJ9q
+        GqfU2263LCtYuZ95EPHVHEUOa7zz6t0=
+X-Google-Smtp-Source: ABdhPJxQuJbm9K0tf+WBtjVu5ZfIoOmbIKX2KRjT9TKXDMIf6bSLWVlJncEdCizu7U1et/jvCZ+o2A==
+X-Received: by 2002:a63:3e09:: with SMTP id l9mr2916290pga.235.1595483295327;
+        Wed, 22 Jul 2020 22:48:15 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 204sm1478087pfx.3.2020.07.22.22.48.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2020 22:48:14 -0700 (PDT)
+Message-ID: <5f19249e.1c69fb81.9599a.56c7@mx.google.com>
+Date:   Wed, 22 Jul 2020 22:48:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.189
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable/linux-4.14.y baseline: 155 runs, 1 regressions (v4.14.189)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.14.y baseline: 155 runs, 1 regressions (v4.14.189)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    iio: imu: st_lsm6dsx: reset hw ts after resume
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
 
 
-From a1bab9396c2d98c601ce81c27567159dfbc10c19 Mon Sep 17 00:00:00 2001
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Date: Mon, 13 Jul 2020 13:40:19 +0200
-Subject: iio: imu: st_lsm6dsx: reset hw ts after resume
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.189/plan/baseline/
 
-Reset hw time samples generator after system resume in order to avoid
-disalignment between system and device time reference since FIFO
-batching and time samples generator are disabled during suspend.
-
-Fixes: 213451076bd3 ("iio: imu: st_lsm6dsx: add hw timestamp support")
-Tested-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
----
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h       |  3 +--
- .../iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c    | 23 ++++++++++++-------
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c  |  2 +-
- 3 files changed, 17 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-index d82ec6398222..d80ba2e688ed 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-@@ -436,8 +436,7 @@ int st_lsm6dsx_update_watermark(struct st_lsm6dsx_sensor *sensor,
- 				u16 watermark);
- int st_lsm6dsx_update_fifo(struct st_lsm6dsx_sensor *sensor, bool enable);
- int st_lsm6dsx_flush_fifo(struct st_lsm6dsx_hw *hw);
--int st_lsm6dsx_set_fifo_mode(struct st_lsm6dsx_hw *hw,
--			     enum st_lsm6dsx_fifo_mode fifo_mode);
-+int st_lsm6dsx_resume_fifo(struct st_lsm6dsx_hw *hw);
- int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw);
- int st_lsm6dsx_read_tagged_fifo(struct st_lsm6dsx_hw *hw);
- int st_lsm6dsx_check_odr(struct st_lsm6dsx_sensor *sensor, u32 odr, u8 *val);
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-index afd00daeefb2..7de10bd636ea 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-@@ -184,8 +184,8 @@ static int st_lsm6dsx_update_decimators(struct st_lsm6dsx_hw *hw)
- 	return err;
- }
- 
--int st_lsm6dsx_set_fifo_mode(struct st_lsm6dsx_hw *hw,
--			     enum st_lsm6dsx_fifo_mode fifo_mode)
-+static int st_lsm6dsx_set_fifo_mode(struct st_lsm6dsx_hw *hw,
-+				    enum st_lsm6dsx_fifo_mode fifo_mode)
- {
- 	unsigned int data;
- 
-@@ -302,6 +302,18 @@ static int st_lsm6dsx_reset_hw_ts(struct st_lsm6dsx_hw *hw)
- 	return 0;
- }
- 
-+int st_lsm6dsx_resume_fifo(struct st_lsm6dsx_hw *hw)
-+{
-+	int err;
-+
-+	/* reset hw ts counter */
-+	err = st_lsm6dsx_reset_hw_ts(hw);
-+	if (err < 0)
-+		return err;
-+
-+	return st_lsm6dsx_set_fifo_mode(hw, ST_LSM6DSX_FIFO_CONT);
-+}
-+
- /*
-  * Set max bulk read to ST_LSM6DSX_MAX_WORD_LEN/ST_LSM6DSX_MAX_TAGGED_WORD_LEN
-  * in order to avoid a kmalloc for each bus access
-@@ -675,12 +687,7 @@ int st_lsm6dsx_update_fifo(struct st_lsm6dsx_sensor *sensor, bool enable)
- 		goto out;
- 
- 	if (fifo_mask) {
--		/* reset hw ts counter */
--		err = st_lsm6dsx_reset_hw_ts(hw);
--		if (err < 0)
--			goto out;
--
--		err = st_lsm6dsx_set_fifo_mode(hw, ST_LSM6DSX_FIFO_CONT);
-+		err = st_lsm6dsx_resume_fifo(hw);
- 		if (err < 0)
- 			goto out;
- 	}
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index c8ddeb3f48ff..346c24281d26 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -2457,7 +2457,7 @@ static int __maybe_unused st_lsm6dsx_resume(struct device *dev)
- 	}
- 
- 	if (hw->fifo_mask)
--		err = st_lsm6dsx_set_fifo_mode(hw, ST_LSM6DSX_FIFO_CONT);
-+		err = st_lsm6dsx_resume_fifo(hw);
- 
- 	return err;
- }
--- 
-2.27.0
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.189
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      69b94dd6dcd14d9bfcba35a492f5e27c15cf4d0a =
 
 
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f18bafd92cae881cd85bb1c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.189/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.189/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f18bafd92cae881cd85b=
+b1d
+      failing since 111 days (last pass: v4.14.172, first fail: v4.14.175) =
+=20
