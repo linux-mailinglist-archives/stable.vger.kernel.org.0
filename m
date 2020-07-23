@@ -2,103 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 936E122AAAD
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 10:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D5122AB21
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 10:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726025AbgGWIcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 04:32:41 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2512 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725846AbgGWIcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jul 2020 04:32:41 -0400
-Received: from lhreml710-chm.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id 55E98549604A8695FF83;
-        Thu, 23 Jul 2020 09:32:39 +0100 (IST)
-Received: from localhost (10.52.125.229) by lhreml710-chm.china.huawei.com
- (10.201.108.61) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Thu, 23 Jul
- 2020 09:32:38 +0100
-Date:   Thu, 23 Jul 2020 09:31:18 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Pavel Machek <pavel@denx.de>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        "Lars-Peter Clausen" <lars@metafoo.de>,
-        Lorenzo Bianconi <lorenzo@kernel.org>
-Subject: Re: [PATCH 4.19 034/133] iio:humidity:hts221 Fix alignment and data
- leak issues
-Message-ID: <20200723093118.00005572@Huawei.com>
-In-Reply-To: <20200722112835.GB22052@duo.ucw.cz>
-References: <20200720152803.732195882@linuxfoundation.org>
-        <20200720152805.365344523@linuxfoundation.org>
-        <20200722112835.GB22052@duo.ucw.cz>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; i686-w64-mingw32)
+        id S1726675AbgGWIwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 04:52:55 -0400
+Received: from esa5.hc3370-68.iphmx.com ([216.71.155.168]:62077 "EHLO
+        esa5.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726558AbgGWIwz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 04:52:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=citrix.com; s=securemail; t=1595494374;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=aDtTphrzz9VOwTJvjWtl31/5xlDEnj/EJHimWB6gA4o=;
+  b=D/VYZLdYjukNjmc8VFC5FBc7y42ygm3Nh39AlQpYXNIrLNjkTwxS4duP
+   kR1l4YFtT7mqybaw7VoP1NVKwbbokTQ4jfq7d2IJE8v7cUjzHycwK9Fhm
+   xkXu5z1Kcz+HQ8bPO63BQxy90Oj5TT7gto9RV3XyHzvHnCWdbBLHWOdoq
+   I=;
+Authentication-Results: esa5.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none
+IronPort-SDR: FWgaZAI6RoWQ6RqerM/hehVavtzAH7kBf/6J3Itw9DAyS7asko2A0WA2QUDT8/3hNJsqelSZhx
+ aGmvB+UAcjhoS8QAFOir6owrVHYiklIGssIJbF2bknAmpy3xPWKLguU8S9RRbMH3bf0+cva/3N
+ uWbogJ0Gm1FH42uL71Ft0fG/1RAiD2Rw7MHlwe8wv+Cn7R/dGiTSxubqWMgwlXk5nExHTGmjb4
+ pCwIbJGW/hdprKdJesLAO/DCcfjT/aOM9VhVGAf07YUdfu+XW0GCx/J8nODk0DNNXrGa4pMW2b
+ 11g=
+X-SBRS: 2.7
+X-MesageID: 23212752
+X-Ironport-Server: esa5.hc3370-68.iphmx.com
+X-Remote-IP: 162.221.158.21
+X-Policy: $RELAYED
+X-IronPort-AV: E=Sophos;i="5.75,386,1589256000"; 
+   d="scan'208";a="23212752"
+From:   Roger Pau Monne <roger.pau@citrix.com>
+To:     <linux-kernel@vger.kernel.org>
+CC:     Roger Pau Monne <roger.pau@citrix.com>, <stable@vger.kernel.org>,
+        "Boris Ostrovsky" <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        <xen-devel@lists.xenproject.org>
+Subject: [PATCH 1/3] xen/balloon: fix accounting in alloc_xenballooned_pages error path
+Date:   Thu, 23 Jul 2020 10:45:21 +0200
+Message-ID: <20200723084523.42109-2-roger.pau@citrix.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200723084523.42109-1-roger.pau@citrix.com>
+References: <20200723084523.42109-1-roger.pau@citrix.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.52.125.229]
-X-ClientProxiedBy: lhreml725-chm.china.huawei.com (10.201.108.76) To
- lhreml710-chm.china.huawei.com (10.201.108.61)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 22 Jul 2020 13:28:35 +0200
-Pavel Machek <pavel@denx.de> wrote:
+target_unpopulated is incremented with nr_pages at the start of the
+function, but the call to free_xenballooned_pages will only subtract
+pgno number of pages, and thus the rest need to be subtracted before
+returning or else accounting will be skewed.
 
-> Hi!
-> 
-> > From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > 
-> > commit 5c49056ad9f3c786f7716da2dd47e4488fc6bd25 upstream.
-> > 
-> > One of a class of bugs pointed out by Lars in a recent review.
-> > iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-> > to the size of the timestamp (8 bytes).  This is not guaranteed in
-> > this driver which uses an array of smaller elements on the stack.  
-> 
-> I don't see documentation explaining alignment issues with
-> iio_push_to_buffers_with_timestamp(). Perhaps comment near that
-> function should explain that?
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Cc: stable@vger.kernel.org
+---
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: xen-devel@lists.xenproject.org
+---
+ drivers/xen/balloon.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Hi Pavel,
-
-Agreed.  It's a subtle corner case (hence we missed it for years)
-so absolutely needs documenting.  The nasty part is that we don't
-control the expectations of the consumers who get the data from
-that interface.  They may make the reasonable assumption
-that they aren't getting unaligned data,  particularly given the
-effort we go to in ensuring natural alignment of elements within
-the buffer.  It's a moderately fast path so any tricks with realigning
-the data aren't sensible either.
-
-> 
-> And as it seems to be common problem, perhaps
-> iio_push_to_buffers_with_timestamp should check alignment of its
-> arguments?
-
-It should indeed check this.  But... The reality is that lots
-of platforms are fine with the alignment not being enforced.
-So far we have precisely one confirmed report of the issue.
-
-Until we have fixed all the users I'm not keen to add a check
-that will be seen to 'break' existing working systems.
-It's taking a while to get all these reviewed so I'm picking them
-up as they get sufficient eyes on them.  A few drivers are more
-fiddly to do so we don't yet have patches on the list.
-
-I was thinking to do the documentation update and a check enforcing
-it in one go, but perhaps given the slow nature of getting all the
-users fixed we should look to document now and enforce later?
-
-Jonathan
-
-
-> 
-> Thanks,
-> 								Pavel
-
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 77c57568e5d7..3cb10ed32557 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -630,6 +630,12 @@ int alloc_xenballooned_pages(int nr_pages, struct page **pages)
+  out_undo:
+ 	mutex_unlock(&balloon_mutex);
+ 	free_xenballooned_pages(pgno, pages);
++	/*
++	 * NB: free_xenballooned_pages will only subtract pgno pages, but since
++	 * target_unpopulated is incremented with nr_pages at the start we need
++	 * to remove the remaining ones also, or accounting will be screwed.
++	 */
++	balloon_stats.target_unpopulated -= nr_pages - pgno;
+ 	return ret;
+ }
+ EXPORT_SYMBOL(alloc_xenballooned_pages);
+-- 
+2.27.0
 
