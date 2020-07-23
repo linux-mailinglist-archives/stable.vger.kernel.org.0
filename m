@@ -2,133 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 287E422B51A
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 19:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D962022B58E
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 20:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729811AbgGWRoK convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 23 Jul 2020 13:44:10 -0400
-Received: from mga03.intel.com ([134.134.136.65]:47764 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726650AbgGWRoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jul 2020 13:44:09 -0400
-IronPort-SDR: 9iMua7AYLBX7MRkrUeqcPvJdRkhyTaWETbjFpmFO1GPRzh9Zu+EgoBuizONe+KMOLjGArPzK8w
- 9ysSPfu09vKw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9691"; a="150574565"
-X-IronPort-AV: E=Sophos;i="5.75,387,1589266800"; 
-   d="scan'208";a="150574565"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jul 2020 10:44:09 -0700
-IronPort-SDR: qoDZPp8xaBOFuq8BdYHacEb11LDbs/vj66/URjxsNfr5myN8nr/LqL2N4HUSA2SvLpJwgXlG9N
- 21tyO8bxADPg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,387,1589266800"; 
-   d="scan'208";a="328639284"
-Received: from orsmsx101.amr.corp.intel.com ([10.22.225.128])
-  by orsmga007.jf.intel.com with ESMTP; 23 Jul 2020 10:44:09 -0700
-Received: from orsmsx121.amr.corp.intel.com (10.22.225.226) by
- ORSMSX101.amr.corp.intel.com (10.22.225.128) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Thu, 23 Jul 2020 10:44:09 -0700
-Received: from orsmsx163.amr.corp.intel.com ([169.254.9.101]) by
- ORSMSX121.amr.corp.intel.com ([169.254.10.71]) with mapi id 14.03.0439.000;
- Thu, 23 Jul 2020 10:44:09 -0700
-From:   "Tang, CQ" <cq.tang@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "Vetter, Daniel" <daniel.vetter@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 2/3] drm/i915/gem: Move context decoupling from
- postclose to preclose
-Thread-Topic: [PATCH 2/3] drm/i915/gem: Move context decoupling from
- postclose to preclose
-Thread-Index: AQHWYRW0ju6h2xQdSEex8T/aQszD5akVbtQQ
-Date:   Thu, 23 Jul 2020 17:44:08 +0000
-Message-ID: <1D440B9B88E22A4ABEF89F9F1F81BC290117BC5431@ORSMSX163.amr.corp.intel.com>
-References: <20200723172119.17649-1-chris@chris-wilson.co.uk>
- <20200723172119.17649-2-chris@chris-wilson.co.uk>
-In-Reply-To: <20200723172119.17649-2-chris@chris-wilson.co.uk>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.139]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S1726953AbgGWSVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 14:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726617AbgGWSVp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 14:21:45 -0400
+Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC5EC0619DC
+        for <stable@vger.kernel.org>; Thu, 23 Jul 2020 11:21:44 -0700 (PDT)
+Received: by mail-ua1-x943.google.com with SMTP id q15so2139631uap.4
+        for <stable@vger.kernel.org>; Thu, 23 Jul 2020 11:21:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=4o58lpb/fyWWm5f0KMUFLrPPzAtQtY4+vzLKRalbKbE=;
+        b=lqCkLwpp/t4Xvo9Nu5ns3FWdkoG8S+h5695uorgyMPfnlfMJ9tfgNuuMmid9jop+vg
+         Sqm9WdsjHP22Vkl1xNr2UcszE9+7XXUiXgram3P8K0FeDJTNrvES1/HZyLsTyzd2gskk
+         Qw+FTR2fLpM2vNCEJLv99HmDbra057jet0YGcBGEjXrrG9ihN5/hEKl3GrzsNogBhkM0
+         YCWmeeCZ3pxb4a/Y/kjWAYJCzZaL2RZnKso//c0evqVRm7z+yYIRrQg1yj5i9gQuM8FT
+         fOK4FKv39qVRhxWrJNm995zdsP4jVme2AXQ0Q1xMyL0MRumC2Clbx5JkZ+k+NStNFzMZ
+         /Zug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=4o58lpb/fyWWm5f0KMUFLrPPzAtQtY4+vzLKRalbKbE=;
+        b=qo99x9BBc5NTz+NDTTHYQ5o8DmawwShCPquWSOomqDg42ef/KmEXA0AhAWDPEyTzCg
+         Li/ylp3YHmWP8ojHcSN+q8Lq70rz3vMZZU7xqzPwQTkt9/hJQZQxdgCPcd+1sdDiSInF
+         I3U+Nxvo1KRQTd+KQAY3ODMHmKn5kmvTbll0s6bZkVU/alveERdTKn183RvC8egCsxXj
+         XRbLeL8YCepueQtjFWVR4ORufNErcDGqOTXg89Ch8UxqMiGugZP0vHOTI8zIpKTeAd/d
+         fhRovsBpHPuUBWIUDV+1gWv7iQ6m5mslPj3PHzTF6wz00nGUev0dyUu6/pgz6L1sPoMf
+         RLdw==
+X-Gm-Message-State: AOAM5317K7cmQuG1iIYNRLIVm5prCNnZU9CktMdENuFPTYZNNondnwu8
+        Kqpo6gYcdwrmdmxppbTrWX6PmySGOZk2l3kgNfw=
+X-Google-Smtp-Source: ABdhPJzQ+L9HXgq4csewXqdoUZRh6GC1KMtFFsTHzWoIhie1n2KULubJBDVrTe3lg/DE1Qy8GCi9R0WzJl6Qi2guHKE=
+X-Received: by 2002:a9f:2407:: with SMTP id 7mr5312151uaq.80.1595528503996;
+ Thu, 23 Jul 2020 11:21:43 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a67:f84b:0:0:0:0:0 with HTTP; Thu, 23 Jul 2020 11:21:43
+ -0700 (PDT)
+Reply-To: rubelrahman910@gmail.com
+From:   ruhbel rahman <te.ahmed250@gmail.com>
+Date:   Thu, 23 Jul 2020 19:21:43 +0100
+Message-ID: <CA+H_zeMXYRVfV=pGkjBswgY33jWz8E61-k5QCumYKzFLxew-3w@mail.gmail.com>
+Subject: URGENT RESPOND
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+My name is Mr.  rubelrahman I am working with one of the prime banks
+in Burkina Faso. Here in this bank existed a dormant account for many
+years, which belong to one of our late foreign customer. The amount in
+this account stands at $13,300,000.00 (Thirteen Million Three Hundred
+Thousand USA Dollars).
 
-
-> -----Original Message-----
-> From: Chris Wilson <chris@chris-wilson.co.uk>
-> Sent: Thursday, July 23, 2020 10:21 AM
-> To: intel-gfx@lists.freedesktop.org
-> Cc: dri-devel@lists.freedesktop.org; Chris Wilson <chris@chris-wilson.co.uk>;
-> Tang, CQ <cq.tang@intel.com>; Vetter, Daniel <daniel.vetter@intel.com>;
-> stable@vger.kernel.org
-> Subject: [PATCH 2/3] drm/i915/gem: Move context decoupling from
-> postclose to preclose
-> 
-> Since the GEM contexts refer to other GEM state, we need to nerf those
-> pointers before that state is freed during drm_gem_release(). We need to
-> move i915_gem_context_close() from the postclose callback to the preclose.
-> 
-> In particular, debugfs likes to peek into the GEM contexts, and from there
-> peek at the drm core objects. If the context is closed during the peeking, we
-> may attempt to dereference a stale core object.
-> 
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: CQ Tang <cq.tang@intel.com>
-> Cc: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/i915/i915_drv.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/i915_drv.c
-> b/drivers/gpu/drm/i915/i915_drv.c index 5fd5af4bc855..15242a8c70f7 100644
-> --- a/drivers/gpu/drm/i915/i915_drv.c
-> +++ b/drivers/gpu/drm/i915/i915_drv.c
-> @@ -1114,11 +1114,15 @@ static void i915_driver_lastclose(struct
-> drm_device *dev)
->  	vga_switcheroo_process_delayed_switch();
->  }
-> 
-> +static void i915_driver_preclose(struct drm_device *dev, struct
-> +drm_file *file) {
-> +	i915_gem_context_close(file);
-> +}
-> +
->  static void i915_driver_postclose(struct drm_device *dev, struct drm_file
-> *file)  {
->  	struct drm_i915_file_private *file_priv = file->driver_priv;
-> 
-> -	i915_gem_context_close(file);
->  	i915_gem_release(dev, file);
-
-Now we separate i915_gem_context_close() from i915_gem_release() and other freeing code in postclose(), is there any side effect to allow code to run in between?
-Can we move all postclose() code into preclose()?
-
---CQ
-
-> 
->  	kfree_rcu(file_priv, rcu);
-> @@ -1850,6 +1854,7 @@ static struct drm_driver driver = {
->  	.release = i915_driver_release,
->  	.open = i915_driver_open,
->  	.lastclose = i915_driver_lastclose,
-> +	.preclose  = i915_driver_preclose,
->  	.postclose = i915_driver_postclose,
-> 
->  	.gem_close_object = i915_gem_close_object,
-> --
-> 2.20.1
-
+I want a foreign account where the bank will transfer this fund. I
+know you would be surprised to read this message, especially from
+someone relatively unknown to you. But, do not worry yourself so much.
+This is a genuine, risk free and legal business transaction.
+Reply back to me urgently,[ rubelrahman910@gmail.com]
