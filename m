@@ -2,105 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA47C22A4A7
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 03:38:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F22822A4D2
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 03:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387424AbgGWBi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jul 2020 21:38:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728914AbgGWBi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jul 2020 21:38:28 -0400
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5338C0619DC;
-        Wed, 22 Jul 2020 18:38:28 -0700 (PDT)
-Received: by mail-qk1-x743.google.com with SMTP id j187so3949592qke.11;
-        Wed, 22 Jul 2020 18:38:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=YZZc8tkRzFODbKr19PJHEkff/Ao3Y0B9UKvSStxkk20=;
-        b=WUAK93PyKvCgFkmf5Q+ixIMgxah07B/C0uAthIE/DzScCc+w8IR30LCq1mYDz6LfpH
-         1kOMw5ip73ylC2ovfZfd+IorBh3E0ezinrSrm4wUS7en6CApNbl5AAAuwlRjCNprNYjY
-         a2j+nVQyF8A7JHdd8vW4FkB7zykVjT7KL8/maqPetPanjWHbr4DnbEYBgGz3P4nmxTqh
-         L8dFReXq+kVNsAs1inGVG+sRoGzsbJ52VC0WXJzDum3MCFbF8XCYvBvXwtuNyG1BGlv7
-         PpFz9jK9CS75DEL9XdEfB64fm2wws0swbFGwiWoK0HFQvKV8GyQMrNFbb/ueYvmIKt+b
-         M3JA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YZZc8tkRzFODbKr19PJHEkff/Ao3Y0B9UKvSStxkk20=;
-        b=LLX+lvlSYy5bWaXoUlCSXzGKXRSucOcesvL19Tw8aN/dP64zI21lAUCIyDIgCP2v89
-         NLwtBruHw7cobbIExNPMPPMENfN8WxSX1RQIdx6lgoyKFLBbCyEvq3AR5tT0/2aZ0rHg
-         u8KJJpSenYVeTxdKHbfe5Qww91RzIE61VlZ1ehsKL7HDIqG+fGdD2gUFFPxh43aa0S00
-         mLdgrk1yx5o+744BvRBHEB+mWuP/T1UDRP5llaQ7OieYnjQtJM4YmnuUeTLiF2WOdxu4
-         YsNAeWvJuQn/Vbg3F12o3gnJpxOn2Q75kcMZIjX9F2yntwsXNzHeePs7cZKPijvvowgZ
-         9Mbg==
-X-Gm-Message-State: AOAM530hYpKL3n0hsXOIlPX01NS+1SCZ2A8UgEDwpZs7Ws1Qh/3kGi9k
-        2zV/OTJyDuJEsAB3WUf9oZ2N2rU3IzCITl4k1sQ=
-X-Google-Smtp-Source: ABdhPJzEPNS6XZft4HQw4J9+FY04X6wifZJcaeJ9gK+GPmo4Kkrtg1rJ0VNFEiFCXwfeMMXPSn2gWbM+MF4x+PinGKE=
-X-Received: by 2002:a37:6d2:: with SMTP id 201mr2771283qkg.187.1595468307797;
- Wed, 22 Jul 2020 18:38:27 -0700 (PDT)
+        id S1733271AbgGWBnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jul 2020 21:43:21 -0400
+Received: from mga06.intel.com ([134.134.136.31]:35136 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729198AbgGWBnU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jul 2020 21:43:20 -0400
+IronPort-SDR: vGmSKqUiAwiT79TdRlYfUEzhn+QRTigIexKiuE57WYP+IshVvcWoYnVTzDgoGbgKjQO/xC2qOB
+ qeV1kVAWmHJw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9690"; a="211994130"
+X-IronPort-AV: E=Sophos;i="5.75,383,1589266800"; 
+   d="scan'208";a="211994130"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jul 2020 18:43:20 -0700
+IronPort-SDR: qzEgg29TJShS4o3Yp4JnojIJki6kfZSSgbAjaUh16Ol/Mp5LoUetM0bF3whgosZFuwAEP/+n5K
+ rYuL/eygxALg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,383,1589266800"; 
+   d="scan'208";a="392853121"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.139]) ([10.239.159.139])
+  by fmsmga001.fm.intel.com with ESMTP; 22 Jul 2020 18:43:17 -0700
+Cc:     baolu.lu@linux.intel.com, Ashok Raj <ashok.raj@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Koba Ko <koba.ko@canonical.com>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        Christian Kellner <ckellner@redhat.com>
+Subject: Re: [PATCH 1/1] iommu/vt-d: Skip TE disabling on quirky gfx dedicated
+ iommu
+To:     "Limonciello, Mario" <Mario.Limonciello@dell.com>,
+        Joerg Roedel <joro@8bytes.org>
+References: <20200721001713.24282-1-baolu.lu@linux.intel.com>
+ <DM6PR19MB2636D1CC549743E2113C0EAFFA780@DM6PR19MB2636.namprd19.prod.outlook.com>
+ <d8548318-ee2e-ca3f-cb0a-e219ce23d471@linux.intel.com>
+ <DM6PR19MB263622CA8CAA7CDA3973E0DBFA780@DM6PR19MB2636.namprd19.prod.outlook.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <2695916e-0dfd-6c8a-d4e7-1f4da372e123@linux.intel.com>
+Date:   Thu, 23 Jul 2020 09:38:29 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <1595302129-23895-1-git-send-email-iamjoonsoo.kim@lge.com>
- <20200721120533.GD15516@casper.infradead.org> <4c484ce0-cfed-0c50-7a20-d1474ce9afee@suse.cz>
-In-Reply-To: <4c484ce0-cfed-0c50-7a20-d1474ce9afee@suse.cz>
-From:   Joonsoo Kim <js1304@gmail.com>
-Date:   Thu, 23 Jul 2020 10:38:16 +0900
-Message-ID: <CAAmzW4NZ3aG6ZOJ1oFxHrB9AK01=5Kt0LsAw3HT14g9L3yyxzQ@mail.gmail.com>
-Subject: Re: [PATCH] mm/page_alloc: fix memalloc_nocma_{save/restore} APIs
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>, kernel-team@lge.com,
-        Christoph Hellwig <hch@infradead.org>,
-        Roman Gushchin <guro@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <DM6PR19MB263622CA8CAA7CDA3973E0DBFA780@DM6PR19MB2636.namprd19.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2020=EB=85=84 7=EC=9B=94 21=EC=9D=BC (=ED=99=94) =EC=98=A4=ED=9B=84 9:39, V=
-lastimil Babka <vbabka@suse.cz>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
->
-> On 7/21/20 2:05 PM, Matthew Wilcox wrote:
-> > On Tue, Jul 21, 2020 at 12:28:49PM +0900, js1304@gmail.com wrote:
-> >> +static inline unsigned int current_alloc_flags(gfp_t gfp_mask,
-> >> +                                    unsigned int alloc_flags)
-> >> +{
-> >> +#ifdef CONFIG_CMA
-> >> +    unsigned int pflags =3D current->flags;
-> >> +
-> >> +    if (!(pflags & PF_MEMALLOC_NOCMA) &&
-> >> +            gfp_migratetype(gfp_mask) =3D=3D MIGRATE_MOVABLE)
-> >> +            alloc_flags |=3D ALLOC_CMA;
-> >
-> > Please don't indent by one tab when splitting a line because it looks l=
-ike
-> > the second line and third line are part of the same block.  Either do
-> > this:
-> >
-> >       if (!(pflags & PF_MEMALLOC_NOCMA) &&
-> >           gfp_migratetype(gfp_mask) =3D=3D MIGRATE_MOVABLE)
-> >               alloc_flags |=3D ALLOC_CMA;
-> >
-> > or this:
-> >       if (!(pflags & PF_MEMALLOC_NOCMA) &&
-> >                       gfp_migratetype(gfp_mask) =3D=3D MIGRATE_MOVABLE)
-> >               alloc_flags |=3D ALLOC_CMA;
->
-> Ah, good point.
+On 7/22/20 7:45 AM, Limonciello, Mario wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: Lu Baolu <baolu.lu@linux.intel.com>
+>> Sent: Tuesday, July 21, 2020 6:07 PM
+>> To: Limonciello, Mario; Joerg Roedel
+>> Cc: baolu.lu@linux.intel.com; Ashok Raj; linux-kernel@vger.kernel.org;
+>> stable@vger.kernel.org; Koba Ko; iommu@lists.linux-foundation.org
+>> Subject: Re: [PATCH 1/1] iommu/vt-d: Skip TE disabling on quirky gfx dedicated
+>> iommu
+>>
+>>
+>> [EXTERNAL EMAIL]
+>>
+>> Hi Limonciello,
+>>
+>> On 7/21/20 10:44 PM, Limonciello, Mario wrote:
+>>>> -----Original Message-----
+>>>> From: iommu<iommu-bounces@lists.linux-foundation.org>  On Behalf Of Lu
+>>>> Baolu
+>>>> Sent: Monday, July 20, 2020 7:17 PM
+>>>> To: Joerg Roedel
+>>>> Cc: Ashok Raj;linux-kernel@vger.kernel.org;stable@vger.kernel.org; Koba
+>>>> Ko;iommu@lists.linux-foundation.org
+>>>> Subject: [PATCH 1/1] iommu/vt-d: Skip TE disabling on quirky gfx dedicated
+>>>> iommu
+>>>>
+>>>> The VT-d spec requires (10.4.4 Global Command Register, TE field) that:
+>>>>
+>>>> Hardware implementations supporting DMA draining must drain any in-flight
+>>>> DMA read/write requests queued within the Root-Complex before completing
+>>>> the translation enable command and reflecting the status of the command
+>>>> through the TES field in the Global Status register.
+>>>>
+>>>> Unfortunately, some integrated graphic devices fail to do so after some
+>>>> kind of power state transition. As the result, the system might stuck in
+>>>> iommu_disable_translation(), waiting for the completion of TE transition.
+>>>>
+>>>> This provides a quirk list for those devices and skips TE disabling if
+>>>> the qurik hits.
+>>>>
+>>>> Fixes:https://bugzilla.kernel.org/show_bug.cgi?id=208363
+>>> That one is for TGL.
+>>>
+>>> I think you also want to add this one for ICL:
+>>> Fixes:https://bugzilla.kernel.org/show_bug.cgi?id=206571
+>>>
+>>
+>> Do you mean someone have tested that this patch also fixes the problem
+>> described in 206571?
+>>
+> 
+> Yes, confusingly https://bugzilla.kernel.org/show_bug.cgi?id=208363#c31 actually
+> is the XPS 9300 ICL system and issue.
+> 
+> I also have a private confirmation from another person that it resolves it for
+> them on another ICL platform.
+> 
 
-Will change it.
+Okay! Thank you very much! I just posted v2 with this tag added.
 
-Thanks.
+Best regards,
+baolu
