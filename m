@@ -2,87 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 931F722B595
-	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 20:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC84022B5C0
+	for <lists+stable@lfdr.de>; Thu, 23 Jul 2020 20:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbgGWSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 14:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44914 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726304AbgGWSX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jul 2020 14:23:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 568DE20792;
-        Thu, 23 Jul 2020 18:23:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595528638;
-        bh=+J2bMlsb58hbrdjz/HEQZUqeTCu60KQ8AfRmqqS4f88=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O8E3pztspP7jRL5lw3lPB2G3woBunQuhgvYubR8NIiSA4b7lwPeDTUD86XD2qfR6+
-         Jj/2qEW/6vye/p/omc3DOK7suXotaPHNMSMhleoGzDDwuPIf++77lotdrmTO9PD3ys
-         hmVAcsYN4X2urry/HyxJ1fm/g7NG5ajhvSe7XWQA=
-Date:   Thu, 23 Jul 2020 20:24:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Re: Patches to apply to stable releases [7/23/2020]
-Message-ID: <20200723182402.GB2960332@kroah.com>
-References: <20200723155708.5233-1-linux@roeck-us.net>
+        id S1726758AbgGWSdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 14:33:53 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:50865 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726500AbgGWSdx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 14:33:53 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21911333-1500050 
+        for multiple; Thu, 23 Jul 2020 19:33:50 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        CQ Tang <cq.tang@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gem: Delay tracking the GEM context until it is registered
+Date:   Thu, 23 Jul 2020 19:33:48 +0100
+Message-Id: <20200723183348.4037-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200723155708.5233-1-linux@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 23, 2020 at 08:57:08AM -0700, Guenter Roeck wrote:
-> Hi,
-> 
-> Please consider applying the following patches to the listed stable
-> releases.
-> 
-> The following patches were found to be missing in stable releases by the
-> Chrome OS missing patch robot. The patches meet the following criteria.
-> - The patch includes a Fixes: tag
->   Note that the Fixes: tag does not always point to the correct upstream
->   SHA. In that case the correct upstream SHA is listed below.
-> - The patch referenced in the Fixes: tag has been applied to the listed
->   stable release
-> - The patch has not been applied to that stable release
-> 
-> All patches have been applied to the listed stable releases and to at least
-> one Chrome OS branch. Resulting images have been build- and runtime-tested
-> (where applicable) on real hardware and with virtual hardware on
-> kerneltests.org.
-> 
-> Thanks,
-> Guenter
-> 
-> ---
-> Upstream commit 2aeb18835476 ("perf/core: Fix locking for children siblings group read")
->   upstream: v4.13-rc2
->     Fixes: ba5213ae6b88 ("perf/core: Correct event creation with PERF_FORMAT_GROUP")
->       in linux-4.4.y: a8dd3dfefcf5
->       in linux-4.9.y: 50fe37e83e14
->       upstream: v4.13-rc1
->     Affected branches:
->       linux-4.4.y
->       linux-4.9.y (already applied)
-> 
-> Upstream commit d41f36a6464a ("spi: spi-fsl-dspi: Exit the ISR with IRQ_NONE when it's not ours")
->   upstream: v5.4-rc1
->     Fixes: 13aed2392741 ("spi: spi-fsl-dspi: use IRQF_SHARED mode to request IRQ")
->       in linux-4.14.y: c75e886e1270
->       in linux-4.19.y: eb336b9003b1
->       upstream: v5.0-rc1
->     Affected branches:
->       linux-4.14.y
->       linux-4.19.y
+Avoid exposing a partially constructed context by deferring the
+list_add() from the initial construction to the end of registration.
+Otherwise, if we peek into the list of contexts from inside debugfs, we
+may see the partially constructed context and change down some dangling
+incomplete pointers.
 
-All now queued up, thanks!
+Reported-by: CQ Tang <cq.tang@intel.com>
+Fixes: b91715417244 ("drm/i915: Extend CONTEXT_CREATE to set parameters upon construction")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: CQ Tang <cq.tang@intel.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+---
+ drivers/gpu/drm/i915/gem/i915_gem_context.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-greg k-h
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+index d0bdb6d447ed..efc4ba34c06e 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -713,6 +713,7 @@ __create_context(struct drm_i915_private *i915)
+ 	ctx->i915 = i915;
+ 	ctx->sched.priority = I915_USER_PRIORITY(I915_PRIORITY_NORMAL);
+ 	mutex_init(&ctx->mutex);
++	INIT_LIST_HEAD(&ctx->link);
+ 
+ 	spin_lock_init(&ctx->stale.lock);
+ 	INIT_LIST_HEAD(&ctx->stale.engines);
+@@ -740,10 +741,6 @@ __create_context(struct drm_i915_private *i915)
+ 	for (i = 0; i < ARRAY_SIZE(ctx->hang_timestamp); i++)
+ 		ctx->hang_timestamp[i] = jiffies - CONTEXT_FAST_HANG_JIFFIES;
+ 
+-	spin_lock(&i915->gem.contexts.lock);
+-	list_add_tail(&ctx->link, &i915->gem.contexts.list);
+-	spin_unlock(&i915->gem.contexts.lock);
+-
+ 	return ctx;
+ 
+ err_free:
+@@ -931,6 +928,7 @@ static int gem_context_register(struct i915_gem_context *ctx,
+ 				struct drm_i915_file_private *fpriv,
+ 				u32 *id)
+ {
++	struct drm_i915_private *i915 = ctx->i915;
+ 	struct i915_address_space *vm;
+ 	int ret;
+ 
+@@ -949,8 +947,16 @@ static int gem_context_register(struct i915_gem_context *ctx,
+ 	/* And finally expose ourselves to userspace via the idr */
+ 	ret = xa_alloc(&fpriv->context_xa, id, ctx, xa_limit_32b, GFP_KERNEL);
+ 	if (ret)
+-		put_pid(fetch_and_zero(&ctx->pid));
++		goto err_pid;
++
++	spin_lock(&i915->gem.contexts.lock);
++	list_add_tail(&ctx->link, &i915->gem.contexts.list);
++	spin_unlock(&i915->gem.contexts.lock);
++
++	return 0;
+ 
++err_pid:
++	put_pid(fetch_and_zero(&ctx->pid));
+ 	return ret;
+ }
+ 
+-- 
+2.20.1
+
