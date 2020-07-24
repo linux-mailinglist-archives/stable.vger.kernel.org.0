@@ -2,93 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F50522BB91
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 03:34:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0282A22BBA8
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 03:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726381AbgGXBeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 21:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726259AbgGXBeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 21:34:06 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B963C0619D3;
-        Thu, 23 Jul 2020 18:34:06 -0700 (PDT)
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 156FB279;
-        Fri, 24 Jul 2020 03:34:04 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1595554444;
-        bh=bCDL+N0xmJi7u1Mqf0NQTk956HaMBsNCR+6/+d1EzGA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Oop5JKeXsXOOGdhHGzswQrxOrDD1QLbqGxixXuCZXJ9hQoBXKK+6jpim5N7ZhtZpF
-         2+4sibsjhUVNawQezmWA8pQwoZ6gv6vDP7EGT1iGjyZFWvbASoR7IefyE3u5+oW4X1
-         eCQEGzQanMmcoVw8YpZcLXpyaW6IYOOQ8uXedS/k=
-Date:   Fri, 24 Jul 2020 04:33:57 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        dri-devel@lists.freedesktop.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] drm: of: Fix double-free bug
-Message-ID: <20200724013357.GM21353@pendragon.ideasonboard.com>
-References: <1595502654-40595-1-git-send-email-biju.das.jz@bp.renesas.com>
+        id S1726437AbgGXBqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 21:46:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44372 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726430AbgGXBqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jul 2020 21:46:46 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id A3D19AE39;
+        Fri, 24 Jul 2020 01:46:52 +0000 (UTC)
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org, David Sterba <dsterba@suse.com>
+Subject: [PATCH] btrfs: reloc: clear DEAD_RELOC_TREE bit for orphan roots to prevent runaway balance
+Date:   Fri, 24 Jul 2020 09:46:40 +0800
+Message-Id: <20200724014640.20784-1-wqu@suse.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1595502654-40595-1-git-send-email-biju.das.jz@bp.renesas.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Biju,
+commit 1dae7e0e58b484eaa43d530f211098fdeeb0f404 upstream.
 
-Thank you for the patch.
+[BUG]
+There are several reported runaway balance, that balance is flooding the
+log with "found X extents" where the X never changes.
 
-On Thu, Jul 23, 2020 at 12:10:54PM +0100, Biju Das wrote:
-> Fix double-free bug in the error path.
-> 
-> Fixes: 6529007522de ("drm: of: Add drm_of_lvds_get_dual_link_pixel_order")
-> Reported-by: Pavel Machek <pavel@denx.de>
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-> Cc: stable@vger.kernel.org
+[CAUSE]
+Commit d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after
+merge_reloc_roots") introduced BTRFS_ROOT_DEAD_RELOC_TREE bit to
+indicate that one subvolume has finished its tree blocks swap with its
+reloc tree.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+However if balance is canceled or hits ENOSPC halfway, we didn't clear
+the BTRFS_ROOT_DEAD_RELOC_TREE bit, leaving that bit hanging forever
+until unmount.
 
-> ---
-> This patch is tested against drm-fixes and drm-next.
-> ---
->  drivers/gpu/drm/drm_of.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_of.c b/drivers/gpu/drm/drm_of.c
-> index fdb05fb..ca04c34 100644
-> --- a/drivers/gpu/drm/drm_of.c
-> +++ b/drivers/gpu/drm/drm_of.c
-> @@ -331,10 +331,8 @@ static int drm_of_lvds_get_remote_pixels_type(
->  		 * configurations by passing the endpoints explicitly to
->  		 * drm_of_lvds_get_dual_link_pixel_order().
->  		 */
-> -		if (!current_pt || pixels_type != current_pt) {
-> -			of_node_put(remote_port);
-> +		if (!current_pt || pixels_type != current_pt)
->  			return -EINVAL;
-> -		}
->  	}
->  
->  	return pixels_type;
+Any subvolume root with that bit, would cause backref cache to skip this
+tree block, as it has finished its tree block swap.  This would cause
+all tree blocks of that root be ignored by balance, leading to runaway
+balance.
 
+[FIX]
+Fix the problem by also clearing the BTRFS_ROOT_DEAD_RELOC_TREE bit for
+the original subvolume of orphan reloc root.
+
+Add an umount check for the stale bit still set.
+
+Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
+Cc: <stable@vger.kernel.org> # 5.7.x
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/disk-io.c    | 1 +
+ fs/btrfs/relocation.c | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index f71e4dbe1d8a..f00e64fee5dd 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1998,6 +1998,7 @@ void btrfs_put_root(struct btrfs_root *root)
+ 
+ 	if (refcount_dec_and_test(&root->refs)) {
+ 		WARN_ON(!RB_EMPTY_ROOT(&root->inode_tree));
++		WARN_ON(test_bit(BTRFS_ROOT_DEAD_RELOC_TREE, &root->state));
+ 		if (root->anon_dev)
+ 			free_anon_bdev(root->anon_dev);
+ 		btrfs_drew_lock_destroy(&root->snapshot_lock);
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 157452a5e110..f67d736c27a1 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -2642,6 +2642,8 @@ void merge_reloc_roots(struct reloc_control *rc)
+ 					root->reloc_root = NULL;
+ 					btrfs_put_root(reloc_root);
+ 				}
++				clear_bit(BTRFS_ROOT_DEAD_RELOC_TREE,
++					  &root->state);
+ 				btrfs_put_root(root);
+ 			}
+ 
 -- 
-Regards,
+2.27.0
 
-Laurent Pinchart
