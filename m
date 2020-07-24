@@ -2,84 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797C822BBCD
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 04:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F82622BBF4
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 04:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbgGXCAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 22:00:37 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46896 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726381AbgGXCAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jul 2020 22:00:37 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id CB33BB130;
-        Fri, 24 Jul 2020 02:00:43 +0000 (UTC)
-From:   Qu Wenruo <wqu@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org, David Sterba <dsterba@suse.com>
-Subject: [PATCH 2/2] btrfs: reloc: clear DEAD_RELOC_TREE bit for orphan roots to prevent runaway balance
-Date:   Fri, 24 Jul 2020 10:00:26 +0800
-Message-Id: <20200724020027.31751-2-wqu@suse.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200724020027.31751-1-wqu@suse.com>
-References: <20200724020027.31751-1-wqu@suse.com>
+        id S1726618AbgGXCYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 22:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47156 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726349AbgGXCYE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jul 2020 22:24:04 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96D8C0619D3;
+        Thu, 23 Jul 2020 19:24:03 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id j187so7379327qke.11;
+        Thu, 23 Jul 2020 19:24:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=e+jZCuU3Ve6QR85zz/PL3yFkpaft9ds9mBhO6o6ZpyY=;
+        b=U1hYBfMcnyvMs+MLC9D8LqGdUxOMlYQIWWNO0j8ynexGUjP4w9D5yMJm0Ntse7qcYn
+         rhFR3y42TEOVrgcYjwaM0PIanHcrRQtN7+woDWaFv3zniPgy/UFsBAShCXlqpCeUkX6R
+         3dIzHByqgNHdBVAgJXjdaVTRj/pGXLhTzO6aaUsr/PO6lr/SQn0SD4iFNZcAy5Bw703u
+         vrqhnFJF4Ymop7BnvwLL1XqVb/urs0FkxyGtFQRK0savf8JqkjIBf+imw/5bgQ18qGuq
+         dz2YutXRgfbuW7P45Bn8VpKiaVC8pAuv7JmCx4sXtL0iT9RAvhSy2UBieWoaVF+8c+XE
+         oN1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=e+jZCuU3Ve6QR85zz/PL3yFkpaft9ds9mBhO6o6ZpyY=;
+        b=W9Lvjr4rhF09Lzxs/AYDWpYS3huKiCRJMTB2LVh43dUCdzgJc04TU7rq9lvdBsZwZa
+         HkwNEWhbQZW02HRfl+QxMabiO791fIAJTA4xxZZLaxuvYUHb+1JYqmecZjq2v6Sqb+kr
+         4RZISDSo7/ky2kxVb8QDUEpRE7okOfm1IyPY82qfOEcNxSv5DcNIf2Hu1lbLD2TFv5CC
+         M8+IBQppBBuoC08Wjd0k22XwlxJ7TvKdADpKqPQjbyRL/7RkH1Q5+Ls+2lx8FhbGaEqJ
+         mONfbqkmBErZ6POm+1VP3yIBsEfAoc/ifYFA8qxTzjgfz+kJG/Am/Q+ems/m6vk3C45l
+         rNrg==
+X-Gm-Message-State: AOAM533+X9mpjMQaD/n+vgDhV7MWmszgIIU2D7RzBHng72WPKUP4vBM0
+        dfgxqSWysHBCMF4akX6c9RsCIRl/ofl2kP8Rvog=
+X-Google-Smtp-Source: ABdhPJxqsC3pLWE/fyOiunBBLjtuZ7bZwqLt4KjdFH0iouvpdDH+V0oGQljmm0q99xmB/mDs+Yfu5TStxwRowM6JPPc=
+X-Received: by 2002:a37:9b95:: with SMTP id d143mr7937124qke.272.1595557443029;
+ Thu, 23 Jul 2020 19:24:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <1595468942-29687-1-git-send-email-iamjoonsoo.kim@lge.com> <20200723180814.acde28b92ce6adc785a79120@linux-foundation.org>
+In-Reply-To: <20200723180814.acde28b92ce6adc785a79120@linux-foundation.org>
+From:   Joonsoo Kim <js1304@gmail.com>
+Date:   Fri, 24 Jul 2020 11:23:52 +0900
+Message-ID: <CAAmzW4N9Y4W7CHenWA=TYu9tttgpYR=ZN+ky1vmXPgUJcjitAw@mail.gmail.com>
+Subject: Re: [PATCH v2] mm/page_alloc: fix memalloc_nocma_{save/restore} APIs
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Linux Memory Management List <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>, kernel-team@lge.com,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Hellwig <hch@infradead.org>,
+        Roman Gushchin <guro@fb.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 1dae7e0e58b484eaa43d530f211098fdeeb0f404 upstream.
+2020=EB=85=84 7=EC=9B=94 24=EC=9D=BC (=EA=B8=88) =EC=98=A4=EC=A0=84 10:08, =
+Andrew Morton <akpm@linux-foundation.org>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=
+=B1:
+>
+> On Thu, 23 Jul 2020 10:49:02 +0900 js1304@gmail.com wrote:
+>
+> > From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> >
+> > Currently, memalloc_nocma_{save/restore} API that prevents CMA area
+> > in page allocation is implemented by using current_gfp_context(). Howev=
+er,
+> > there are two problems of this implementation.
+> >
+> > First, this doesn't work for allocation fastpath. In the fastpath,
+> > original gfp_mask is used since current_gfp_context() is introduced in
+> > order to control reclaim and it is on slowpath. So, CMA area can be
+> > allocated through the allocation fastpath even if
+> > memalloc_nocma_{save/restore} APIs are used.
+>
+> Whoops.
+>
+> > Currently, there is just
+> > one user for these APIs and it has a fallback method to prevent actual
+> > problem.
+>
+> Shouldn't the patch remove the fallback method?
 
-[BUG]
-There are several reported runaway balance, that balance is flooding the
-log with "found X extents" where the X never changes.
+It's not just the fallback but it also has its own functionality. So,
+we should not remove it.
 
-[CAUSE]
-Commit d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after
-merge_reloc_roots") introduced BTRFS_ROOT_DEAD_RELOC_TREE bit to
-indicate that one subvolume has finished its tree blocks swap with its
-reloc tree.
+> > Second, clearing __GFP_MOVABLE in current_gfp_context() has a side effe=
+ct
+> > to exclude the memory on the ZONE_MOVABLE for allocation target.
+>
+> More whoops.
+>
+> Could we please have a description of the end-user-visible effects of
+> this change?  Very much needed when proposing a -stable backport, I think=
+.
 
-However if balance is canceled or hits ENOSPC halfway, we didn't clear
-the BTRFS_ROOT_DEAD_RELOC_TREE bit, leaving that bit hanging forever
-until unmount.
+In fact, there is no noticeable end-user-visible effect since the fallback =
+would
+cover the problematic case. It's mentioned in the commit description. Perha=
+p,
+performance would be improved due to reduced retry and more available memor=
+y
+(we can use ZONE_MOVABLE with this patch) but it would be neglectable.
 
-Any subvolume root with that bit, would cause backref cache to skip this
-tree block, as it has finished its tree block swap.  This would cause
-all tree blocks of that root be ignored by balance, leading to runaway
-balance.
+> d7fefcc8de9147c is over a year old.  Why did we only just discover
+> this?  This makes one wonder how serious those end-user-visible effects
+> are?
 
-[FIX]
-Fix the problem by also clearing the BTRFS_ROOT_DEAD_RELOC_TREE bit for
-the original subvolume of orphan reloc root.
+As mentioned above, there is no visible problem to the end-user.
 
-Add an umount check for the stale bit still set.
-
-Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-[Manually solve the conflicts due to no btrfs root refs rework]
-Signed-off-by: David Sterba <dsterba@suse.com>
----
- fs/btrfs/relocation.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 3f8c706d75ee..1b087ee338cc 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -2540,6 +2540,8 @@ void merge_reloc_roots(struct reloc_control *rc)
- 			if (!IS_ERR(root)) {
- 				if (root->reloc_root == reloc_root)
- 					root->reloc_root = NULL;
-+				clear_bit(BTRFS_ROOT_DEAD_RELOC_TREE,
-+					  &root->state);
- 			}
- 
- 			list_del_init(&reloc_root->root_list);
--- 
-2.27.0
-
+Thanks.
