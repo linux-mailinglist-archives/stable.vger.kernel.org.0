@@ -2,122 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F42E22BD17
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 06:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C99522BDAB
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 07:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725929AbgGXEnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jul 2020 00:43:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40356 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725860AbgGXEm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 00:42:59 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14C6C0619D3
-        for <stable@vger.kernel.org>; Thu, 23 Jul 2020 21:42:59 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id x72so4421541pfc.6
-        for <stable@vger.kernel.org>; Thu, 23 Jul 2020 21:42:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=D8rKD0VEb6DT0xmrTWRbARXBC7EtUjFAsHc8KRe4YE4=;
-        b=UQClIkjcF2Knr6/mtwB+YGdc6ye5QTUZcVJH0wcSA2FZ9jC5O0n7YpEHNuqhTw90Mo
-         Oyq+FgZT+aQSypehFOY8tIfCnW9Pc1cSgzK2bRJDCWuocCfaM3Ob+D2+N0VIb03g7Mqe
-         3pkt5sDNtDie4rp3WU4+pV4WfXgOxn2S7UA2AZD3Lw/e3AOXQiU7Fwdqz9jsepFDNj4k
-         rZWd2uOCy9weO7svl+74mZENHcv/cHTZuR4O1eUNoi4umN96dSY2m5zvo9iI+yEZsoJb
-         VYS0ByLzxsOU/vyz4DWzPDWfNn3oG5827R5YmlrRT8Eajr7IgR99cmCnijdS+RAF9COJ
-         uy2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=D8rKD0VEb6DT0xmrTWRbARXBC7EtUjFAsHc8KRe4YE4=;
-        b=Nfw/8EQ5LmxC4bDeXTq+FiD+dQQ97KJBikDUxoVtxxLZUmvbnTGJS1Gc51uE+0HJtP
-         R0BT5GXaH5lwVxk3JsADKLcbg1NKeNQpxdhteyW23M0SLeuhoX6rqJwithw4N2QHsnMC
-         L+lHgnqijmZfT91XV3UULzUGvXevcwCvEp2DsSiZT7zQHjP37K1oVaGRoGu3kVnFHWuk
-         zX4Gw9cTuYYeM6Ge/9kSg6OaYGf5E1zaxTGu8b+lzCTVomDL1oVzpvX57eT2jlmhOM34
-         Z2NWk6P9nVQnE5+I38d+gHIV7ohmbfQQLuSECMbtOEfVkNbCchKLG97XajDOc2Rk+ECg
-         uExg==
-X-Gm-Message-State: AOAM5319bd8wjcLLVhQEPe6r1TcZFJDcdbapS41mqVf9j4CDtdB/KfOL
-        KQ11aBPNpCQznJT3ohwODkM/dlofqqA=
-X-Google-Smtp-Source: ABdhPJxmGbiIj09qI62AXgyzZ2604riXumkNO+DVRI8LzZhPVjq6NJzpzCrPx4wqbXd9adztwXiksQ==
-X-Received: by 2002:a63:b919:: with SMTP id z25mr7283432pge.416.1595565778491;
-        Thu, 23 Jul 2020 21:42:58 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s6sm4765043pfd.20.2020.07.23.21.42.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2020 21:42:56 -0700 (PDT)
-Message-ID: <5f1a66d0.1c69fb81.53441.059f@mx.google.com>
-Date:   Thu, 23 Jul 2020 21:42:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726280AbgGXFpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jul 2020 01:45:55 -0400
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:49278 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726277AbgGXFpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 01:45:55 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01358;MF=richard.weiyang@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0U3dvC2j_1595569548;
+Received: from localhost(mailfrom:richard.weiyang@linux.alibaba.com fp:SMTPD_---0U3dvC2j_1595569548)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 24 Jul 2020 13:45:48 +0800
+Date:   Fri, 24 Jul 2020 13:45:48 +0800
+From:   Wei Yang <richard.weiyang@linux.alibaba.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Wei Yang <richard.weiyang@linux.alibaba.com>,
+        David Hildenbrand <david@redhat.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Huang Ying <ying.huang@intel.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
+ don't read garbage memmaps
+Message-ID: <20200724054548.GA17189@L-31X9LVDL-1304.local>
+Reply-To: Wei Yang <richard.weiyang@linux.alibaba.com>
+References: <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
+ <20200622092221.GA96699@L-31X9LVDL-1304.local>
+ <34f36733-805e-cc61-38da-2ee578ae096c@redhat.com>
+ <20200622131003.GA98415@L-31X9LVDL-1304.local>
+ <0f4edc1f-1ce2-95b4-5866-5c4888db7c65@redhat.com>
+ <20200622215520.wa6gjr2hplurwy57@master>
+ <4b7ee49c-9bee-a905-3497-e3addd8896b8@redhat.com>
+ <c0b62330-11d3-e628-a811-b54789d8f182@redhat.com>
+ <20200623093018.GA6069@L-31X9LVDL-1304.local>
+ <20200723200846.768513d7c122ac11b6e73538@linux-foundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.53
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 186 runs, 1 regressions (v5.4.53)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200723200846.768513d7c122ac11b6e73538@linux-foundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 186 runs, 1 regressions (v5.4.53)
+On Thu, Jul 23, 2020 at 08:08:46PM -0700, Andrew Morton wrote:
+>On Tue, 23 Jun 2020 17:30:18 +0800 Wei Yang <richard.weiyang@linux.alibaba.com> wrote:
+>
+>> On Tue, Jun 23, 2020 at 09:55:43AM +0200, David Hildenbrand wrote:
+>> >On 23.06.20 09:39, David Hildenbrand wrote:
+>> >>> Hmm.. I thought this is the behavior for early section, while it looks current
+>> >>> code doesn't work like this:
+>> >>>
+>> >>>        if (section_is_early && memmap)
+>> >>>                free_map_bootmem(memmap);
+>> >>>        else
+>> >>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
+>> >>>
+>> >>> section_is_early is always "true" for early section, while memmap is not-NULL
+>> >>> only when sub-section map is empty.
+>> >>>
+>> >>> If my understanding is correct, when we remove a sub-section in early section,
+>> >>> the code would call depopulate_section_memmap(), which in turn free related
+>> >>> memmap. By removing the memmap, the return value from pfn_to_online_page() is
+>> >>> not a valid one.
+>> >> 
+>> >> I think you're right, and pfn_valid() would also return true, as it is
+>> >> an early section. This looks broken.
+>> >> 
+>> >>>
+>> >>> Maybe we want to write the code like this:
+>> >>>
+>> >>>        if (section_is_early)
+>> >>>                if (memmap)
+>> >>>                        free_map_bootmem(memmap);
+>> >>>        else
+>> >>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
+>> >>>
+>> >> 
+>> >> I guess that should be the way to go
+>> >> 
+>> >> @Dan, I think what Wei proposes here is correct, right? Or how does it
+>> >> work in the VMEMMAP case with early sections?
+>> >> 
+>> >
+>> >Especially, if you would re-hot-add, section_activate() would assume
+>> >there is a memmap, it must not be removed.
+>> >
+>> 
+>> You are right here. I didn't notice it.
+>> 
+>> >@Wei, can you send a patch?
+>> >
+>> 
+>> Sure, let me prepare for it.
+>
+>Still awaiting this, and the v3 patch was identical to this v2 patch.
+>
+>It's tagged for -stable, so there's some urgency.  Should we just go
+>ahead with the decently-tested v2?
 
-Regressions Summary
--------------------
+This message is to me right?
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+I thought the fix patch is merged, the patch link may be
+https://lkml.org/lkml/2020/6/23/380.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.53/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.53
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d811d29517d1ea05bc159579231652d3ca1c2a01 =
+If I missed something, just let me know.
 
 
 
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f1a3442eb40d27ed585bb20
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.53/=
-arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.53/=
-arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f1a3442eb40d27ed585b=
-b21
-      failing since 103 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
-il: v5.4.30-81-gf163418797b9) =20
+-- 
+Wei Yang
+Help you, Help me
