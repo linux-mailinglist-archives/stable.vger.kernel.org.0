@@ -2,148 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C5322C064
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 10:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B4222C08E
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 10:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727019AbgGXICZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jul 2020 04:02:25 -0400
-Received: from mailout2.samsung.com ([203.254.224.25]:23258 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726680AbgGXICX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 04:02:23 -0400
-Received: from epcas1p3.samsung.com (unknown [182.195.41.47])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20200724080221epoutp029bd54f4759fcd0187b4d9b94bd9e3909~koYBxmYSm3121931219epoutp02g
-        for <stable@vger.kernel.org>; Fri, 24 Jul 2020 08:02:21 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20200724080221epoutp029bd54f4759fcd0187b4d9b94bd9e3909~koYBxmYSm3121931219epoutp02g
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1595577741;
-        bh=hY9rpWUhx1P8mckQQzl9WKYfgD/JvNgWgM+Fv0pMqhE=;
-        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
-        b=t2x/2CGEfZtj2xq4QkiaTjtXnN6eiM1EwHtEgcBRzKACxTh2iuwmkQmLyOMJBx9h6
-         B+ZeTeMxmPchwl8Du18sSc4Ox8O/cyN03pgoeH8zo8Z0WE72PjUGloXpZhFZZym5KT
-         qCiyERja+JYDAUA0Imc1764ZPFca+k0YHYN8hWsk=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-        epcas1p4.samsung.com (KnoxPortal) with ESMTP id
-        20200724080220epcas1p443170d5346261ccbd17f9089c64afedd~koYBbg6y-0480704807epcas1p4f;
-        Fri, 24 Jul 2020 08:02:20 +0000 (GMT)
-Received: from epsmges1p1.samsung.com (unknown [182.195.40.156]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 4BChWG1pyBzMqYkV; Fri, 24 Jul
-        2020 08:02:18 +0000 (GMT)
-Received: from epcas1p2.samsung.com ( [182.195.41.46]) by
-        epsmges1p1.samsung.com (Symantec Messaging Gateway) with SMTP id
-        F2.A5.18978.F759A1F5; Fri, 24 Jul 2020 17:02:07 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20200724080207epcas1p125e12a249e629b1068223b16b9e07edf~koX0uHQQl2072320723epcas1p1G;
-        Fri, 24 Jul 2020 08:02:07 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20200724080207epsmtrp206d8e37a04ddd95a000789a6a2e8e708~koX0tfoc_1271612716epsmtrp2C;
-        Fri, 24 Jul 2020 08:02:07 +0000 (GMT)
-X-AuditID: b6c32a35-b8298a8000004a22-bc-5f1a957f216d
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        E2.9E.08303.E759A1F5; Fri, 24 Jul 2020 17:02:06 +0900 (KST)
-Received: from [10.113.221.102] (unknown [10.113.221.102]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20200724080206epsmtip152503e90280764acc12e5a815165880e~koX0fHojd1861618616epsmtip1t;
-        Fri, 24 Jul 2020 08:02:06 +0000 (GMT)
-Subject: Re: [PATCH] PM / devfrq: Fix indentaion of devfreq_summary debugfs
- node
-To:     Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     chanwoo@kernel.org, stable@vger.kernel.org
-From:   Chanwoo Choi <cw00.choi@samsung.com>
-Organization: Samsung Electronics
-Message-ID: <41a5d612-ac02-ff22-84ad-9e2138b53b43@samsung.com>
-Date:   Fri, 24 Jul 2020 17:13:54 +0900
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:59.0) Gecko/20100101
-        Thunderbird/59.0
+        id S1726437AbgGXIUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jul 2020 04:20:37 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:32041 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726617AbgGXIUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 04:20:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1595578834;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=OyYC9tZLltn2ymf26MTZQD1S0k8Nc9T/lMl10VCfjlY=;
+        b=IXsMb6/qUPzi158hQ3EHI1l3MIpKfBcjccL6nz6u7huzJZxEcISJojLF9c5x3qJs379F/a
+        OKuE5uLc6o3dWS7Ov+pJgs8zWNpQMa2THUgM5D6KTD/k+uX1xt1VGsE0AZpeWaK7BNfIEo
+        KanT2J56kta8KPcYFIWn3hi5Mjvgh10=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-347-58dvOyc-MRS6SZHGfgGzgg-1; Fri, 24 Jul 2020 04:20:29 -0400
+X-MC-Unique: 58dvOyc-MRS6SZHGfgGzgg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3FC7F10CE782;
+        Fri, 24 Jul 2020 08:20:27 +0000 (UTC)
+Received: from [10.36.113.94] (ovpn-113-94.ams2.redhat.com [10.36.113.94])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 511126FEFE;
+        Fri, 24 Jul 2020 08:20:24 +0000 (UTC)
+Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
+ don't read garbage memmaps
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc:     Wei Yang <richard.weiyang@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
+        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Huang Ying <ying.huang@intel.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Dan Williams <dan.j.williams@intel.com>
+References: <20200619125923.22602-2-david@redhat.com>
+ <20200622082635.GA93552@L-31X9LVDL-1304.local>
+ <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
+ <20200622092221.GA96699@L-31X9LVDL-1304.local>
+ <34f36733-805e-cc61-38da-2ee578ae096c@redhat.com>
+ <20200622131003.GA98415@L-31X9LVDL-1304.local>
+ <0f4edc1f-1ce2-95b4-5866-5c4888db7c65@redhat.com>
+ <20200622215520.wa6gjr2hplurwy57@master>
+ <4b7ee49c-9bee-a905-3497-e3addd8896b8@redhat.com>
+ <c0b62330-11d3-e628-a811-b54789d8f182@redhat.com>
+ <20200623093018.GA6069@L-31X9LVDL-1304.local>
+ <20200723200846.768513d7c122ac11b6e73538@linux-foundation.org>
+From:   David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat GmbH
+Message-ID: <d16a2f0f-6150-d41b-f44c-96e8497bee72@redhat.com>
+Date:   Fri, 24 Jul 2020 10:20:23 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-In-Reply-To: <20200717170847.F18AB207DD@mail.kernel.org>
+In-Reply-To: <20200723200846.768513d7c122ac11b6e73538@linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgk+LIzCtJLcpLzFFi42LZdlhTT7d+qlS8Qc90OYuJN66wWFzeNYfN
-        4nPvEUaLTWuusVks2PiI0YHVY9OqTjaPz5vkApiism0yUhNTUosUUvOS81My89JtlbyD453j
-        Tc0MDHUNLS3MlRTyEnNTbZVcfAJ03TJzgLYpKZQl5pQChQISi4uV9O1sivJLS1IVMvKLS2yV
-        UgtScgosC/SKE3OLS/PS9ZLzc60MDQyMTIEKE7Izprc1sRec56xoOjCRpYHxPHsXIyeHhICJ
-        xKRFB9i6GLk4hAR2MErc/ngDyvnEKPF1XgczhPOZUeJf43U2mJYDvftZIRK7GCXezngJ5bxn
-        lNi7dz/YYGGBIIldrxeA2SICsRJrF19nBLGZBfQkbvSvBIuzCWhJ7H9xA2wqv4CixNUfj8Fq
-        eAXsJH4fOwNmswioSjz4/5kZxBYVCJM4ua0FqkZQ4uTMJywgNqeAhcS7iVNZIOaLS9x6Mp8J
-        wpaX2P52DtgLEgJf2SV+vd3GDPGCi8TSmVOg3hGWeHV8CzQ0pCQ+v9sLFa+WWHnyCBtEcwej
-        xJb9F1ghEsYS+5dOBtrAAbRBU2L9Ln2IsKLEzt9zoZ7kk3j3tYcVpERCgFeio00IokRZ4vKD
-        u0wQtqTE4vZOtgmMSrOQvDMLyQuzkLwwC2HZAkaWVYxiqQXFuempxYYFhsjRvYkRnBS1THcw
-        Tnz7Qe8QIxMH4yFGCQ5mJRFeHUbxeCHelMTKqtSi/Pii0pzU4kOMpsAAnsgsJZqcD0zLeSXx
-        hqZGxsbGFiaGZqaGhkrivP/OsscLCaQnlqRmp6YWpBbB9DFxcEo1MAV/nn/ulWlZLq/hrO7J
-        T3Yv2/KsXuFsg8+kg2ZPouNu30pm37pxj6/rsbALO8se1P7cE572RJ/xTuEenQUTVc6fWLri
-        rPM3hiub50w7oDInu1jgwDu7WNUm1tvGtyRfMsx/JbKpwMPu35rympy+OZ7+O0qDHe8GpNYX
-        cOWpRcsznF9VZRDVeqlg5pp3ucHxc5mmHZzewx93oWnXTS4+xlXPjvyWNL3Gu+Dp4QN1OW/L
-        gnP2Nf30iG7+oVCVqjGdaxHPlpVqefoCxwuLrso7nqpRSJ6XPGlr35Eeszvvdl+5ZnKlSmua
-        gucr8Tld0/Y0Tc+RMpT69ee3g0ois0rZ/g1uB88HPpVqamVi0XQ4dluJpTgj0VCLuag4EQCu
-        Hwn/EwQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrJLMWRmVeSWpSXmKPExsWy7bCSnG7dVKl4g/nbzS0m3rjCYnF51xw2
-        i8+9RxgtNq25xmaxYOMjRgdWj02rOtk8Pm+SC2CK4rJJSc3JLEst0rdL4MqY3tbEXnCes6Lp
-        wESWBsbz7F2MnBwSAiYSB3r3s4LYQgI7GCWeHTOEiEtKTLt4lLmLkQPIFpY4fLi4i5ELqOQt
-        o8SLhw8ZQWqEBYIkdr1eADZHRCBWov3qK2YQm1lAT+JG/0p2iIbdjBJLr/1kA0mwCWhJ7H9x
-        A8zmF1CUuPrjMdggXgE7id/HzoDZLAKqEg/+fwYbJCoQJrFzyWMmiBpBiZMzn7CA2JwCFhLv
-        Jk5lgVimLvFn3iWoxeISt57MZ4Kw5SW2v53DPIFReBaS9llIWmYhaZmFpGUBI8sqRsnUguLc
-        9NxiwwKjvNRyveLE3OLSvHS95PzcTYzg2NDS2sG4Z9UHvUOMTByMhxglOJiVRHh1GMXjhXhT
-        EiurUovy44tKc1KLDzFKc7AoifN+nbUwTkggPbEkNTs1tSC1CCbLxMEp1cB0SY/xtdniCeKX
-        M/xlOR/WyVgsKmV5WeGp8TrgccGBKY9m6d223Pp6Q8keef5EGfsJs2brmt5PWc/ltlVzcuv/
-        Y6qL+Rf+skvZYtzE5lq5gNNrWvDM1M+sDM8s5z30fDbh+Wo2ORG5f0fMTj1Sy2VbKmSh0ZZ1
-        SXvhrOdegn57TX57LtU5HB+rJZXjy2o+jelf+6NLe6dYv7D8aTfxaIuAue2lor3RK1YIGiw9
-        G/TJTjao/AW3BdM0ztQ7euc3Zry+vrNE1HNCzWfBr3tSrOt7bL1nnA/MVfRa5sHdt/1W9tGg
-        /bar+XI9Vt1gd2Z6O6my1a1PWsjpHn/WN46JF/ftUo/5oiAvnSVXpRB1/rYSS3FGoqEWc1Fx
-        IgDQEy35/AIAAA==
-X-CMS-MailID: 20200724080207epcas1p125e12a249e629b1068223b16b9e07edf
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20200717170852epcas1p39bbb3c1e07c7a60c47f1dac2ee992a00
-References: <20200713073112.6297-1-cw00.choi@samsung.com>
-        <CGME20200717170852epcas1p39bbb3c1e07c7a60c47f1dac2ee992a00@epcas1p3.samsung.com>
-        <20200717170847.F18AB207DD@mail.kernel.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 24.07.20 05:08, Andrew Morton wrote:
+> On Tue, 23 Jun 2020 17:30:18 +0800 Wei Yang <richard.weiyang@linux.alibaba.com> wrote:
+> 
+>> On Tue, Jun 23, 2020 at 09:55:43AM +0200, David Hildenbrand wrote:
+>>> On 23.06.20 09:39, David Hildenbrand wrote:
+>>>>> Hmm.. I thought this is the behavior for early section, while it looks current
+>>>>> code doesn't work like this:
+>>>>>
+>>>>>        if (section_is_early && memmap)
+>>>>>                free_map_bootmem(memmap);
+>>>>>        else
+>>>>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
+>>>>>
+>>>>> section_is_early is always "true" for early section, while memmap is not-NULL
+>>>>> only when sub-section map is empty.
+>>>>>
+>>>>> If my understanding is correct, when we remove a sub-section in early section,
+>>>>> the code would call depopulate_section_memmap(), which in turn free related
+>>>>> memmap. By removing the memmap, the return value from pfn_to_online_page() is
+>>>>> not a valid one.
+>>>>
+>>>> I think you're right, and pfn_valid() would also return true, as it is
+>>>> an early section. This looks broken.
+>>>>
+>>>>>
+>>>>> Maybe we want to write the code like this:
+>>>>>
+>>>>>        if (section_is_early)
+>>>>>                if (memmap)
+>>>>>                        free_map_bootmem(memmap);
+>>>>>        else
+>>>>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
+>>>>>
+>>>>
+>>>> I guess that should be the way to go
+>>>>
+>>>> @Dan, I think what Wei proposes here is correct, right? Or how does it
+>>>> work in the VMEMMAP case with early sections?
+>>>>
+>>>
+>>> Especially, if you would re-hot-add, section_activate() would assume
+>>> there is a memmap, it must not be removed.
+>>>
+>>
+>> You are right here. I didn't notice it.
+>>
+>>> @Wei, can you send a patch?
+>>>
+>>
+>> Sure, let me prepare for it.
+> 
+> Still awaiting this, and the v3 patch was identical to this v2 patch.
+> 
+> It's tagged for -stable, so there's some urgency.  Should we just go
+> ahead with the decently-tested v2?
 
-On 7/18/20 2:08 AM, Sasha Levin wrote:
-> Hi
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag
-> fixing commit: 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"").
-> 
-> The bot has tested the following trees: v5.7.8, v5.4.51, v4.19.132, v4.14.188.
-> 
-> v5.7.8: Build OK!
-> v5.4.51: Failed to apply! Possible dependencies:
->     490a421bc575d ("PM / devfreq: Add debugfs support with devfreq_summary file")
-> 
-> v4.19.132: Failed to apply! Possible dependencies:
->     490a421bc575d ("PM / devfreq: Add debugfs support with devfreq_summary file")
-> 
-> v4.14.188: Failed to apply! Possible dependencies:
->     490a421bc575d ("PM / devfreq: Add debugfs support with devfreq_summary file")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-> 
-
-The fixes commit was merged to v5.6-rc4. As your test result,
-it was possible to build above v5.6. It is not problem. Thanks for your testing.
-- 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"").
+This patch (mm/shuffle: don't move pages between zones and don't read
+garbage memmaps) is good enough for upstream. While the issue reported
+by Wei was valid (and needs to be fixed), the user in this patch is just
+one of many affected users. Nothing special.
 
 -- 
-Best Regards,
-Chanwoo Choi
-Samsung Electronics
+Thanks,
+
+David / dhildenb
+
