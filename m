@@ -2,262 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 666A922D03F
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 23:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1346A22D113
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 23:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726411AbgGXVIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jul 2020 17:08:05 -0400
-Received: from mail-bn7nam10on2047.outbound.protection.outlook.com ([40.107.92.47]:44257
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726083AbgGXVIF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jul 2020 17:08:05 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LMGxvxPb0fyanu4A4WOyRb+hUD85w17g9egZHWu3sQhpHIDn6X/bN/RZst5I1VaRloAsb1LtQSeY/DSct8W/k9bbcm2izoCjeT7BOaj9aR2jXfZmS97+8uhYjWzaosjc5D/KZ6Xvea0KsNwak1jUfHlcOyIXYLvvxqJuFNVJ+E+azqyLWuVJCYrdNHPh/JAy/c/iWNOaaDuK34JcpXXsrSgZ9jqXS8LSwhMI2V3j2XtKw1q2A7rTXSWajFOyiYhL4QJJYLgknPBg0tHE+tNF5P8fnoJB7gHQZWk4uEnfHQacFkI4KsMgwNEn2sqE1CN6wAgWtEScQd3+Zd0MadNeOQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iVhYw8/cYHe6SyZ8+o4ERJO+rJ6KcgLU9mcGBR9P0JE=;
- b=Omp95yuIawtPWToplCh6ffYRAY6J0OTxIOu03rycu39I9ZMNVbSfhqyrleYeSTitK7VdD+kPtfi26RHkJlc+H+0sWqLT7Ub+kFji/vmx0Ya6P0Q3kf/OtTuTY8wUfUdkz76AD3gdEFV7oeqNai9l8BUxlz11JnJsBqZxkgsV/3zs0qJ8T/dRzBvKkwg3Bz919PHVrdT2zcXetkDZpCpg2VM+R1ddpTdxAqvhouKP7gLe2qkDEap+Pzqd+dHwYUH18L9Pee94zFutJBU2nEq7rSSGtJ4qGFItVeoU9dpNLr3S2o6FuLwuJjLbIJ6o8kS/Naw3PkxYLqIBuPc98JzHMA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=permerror action=none header.from=amd.com; dkim=none (message not
- signed); arc=none
+        id S1726861AbgGXVif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jul 2020 17:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726890AbgGXVgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 17:36:47 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53717C08C5CE
+        for <stable@vger.kernel.org>; Fri, 24 Jul 2020 14:36:47 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id k1so6119706pjt.5
+        for <stable@vger.kernel.org>; Fri, 24 Jul 2020 14:36:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iVhYw8/cYHe6SyZ8+o4ERJO+rJ6KcgLU9mcGBR9P0JE=;
- b=DugFD3iCeKzWRsbs4yE4a5arrRKozx/6lMZY2w5UwV+6qX2uRsLbUEQOoVKopDl5fcT+4tt3oFJYvMU8Wckb3WKTi6ssIgRr6/kbb/OnxAdr1qRfeTVMLiMeaMBve2uuyO1t+tyQ7Bn/IkvUu1I2I9M3rnGR/JXoZXj0yE/S6C0=
-Received: from BN4PR11CA0011.namprd11.prod.outlook.com (2603:10b6:403:1::21)
- by MN2PR12MB3968.namprd12.prod.outlook.com (2603:10b6:208:16f::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3216.20; Fri, 24 Jul
- 2020 21:08:01 +0000
-Received: from BN8NAM11FT032.eop-nam11.prod.protection.outlook.com
- (2603:10b6:403:1:cafe::87) by BN4PR11CA0011.outlook.office365.com
- (2603:10b6:403:1::21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3216.23 via Frontend
- Transport; Fri, 24 Jul 2020 21:08:01 +0000
-X-MS-Exchange-Authentication-Results: spf=none (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
- header.d=none;lists.freedesktop.org; dmarc=permerror action=none
- header.from=amd.com;
-Received-SPF: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-Received: from SATLEXMB01.amd.com (165.204.84.17) by
- BN8NAM11FT032.mail.protection.outlook.com (10.13.177.88) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.3216.10 via Frontend Transport; Fri, 24 Jul 2020 21:08:01 +0000
-Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB01.amd.com
- (10.181.40.142) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Fri, 24 Jul
- 2020 16:08:00 -0500
-Received: from localhost.localdomain (10.180.168.240) by SATLEXMB02.amd.com
- (10.181.40.143) with Microsoft SMTP Server id 15.1.1713.5 via Frontend
- Transport; Fri, 24 Jul 2020 16:07:54 -0500
-From:   Eryk Brol <eryk.brol@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
-        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
-        <Qingqing.Zhuo@amd.com>, <Eryk.Brol@amd.com>,
-        hersen wu <hersenxs.wu@amd.com>,
-        Stable <stable@vger.kernel.org>, Aric Cyr <Aric.Cyr@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>
-Subject: [PATCH 11/15] drm/amd/display: dchubbub p-state warning during surface planes switch
-Date:   Fri, 24 Jul 2020 17:06:14 -0400
-Message-ID: <20200724210618.2709738-12-eryk.brol@amd.com>
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=JyyC+ze79w5yy/5GZgduMt6jr2+u0ZDeBjstvpXzNxo=;
+        b=YiScMk/XWtUXVqYh5p1sBcHBoq+HKiwfKwQokdA4qc2uFvlvr8ibk4w/rEjwOvKZVY
+         Ef7qg3WQ69UMP03as9mRkf095U8s4WtfJWI565xJLRkXVYze/57p62D37j5EtVpML7qy
+         T0EL2Si3ru8lyGWzqcWFBA8owK3JVx8pMLKUY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=JyyC+ze79w5yy/5GZgduMt6jr2+u0ZDeBjstvpXzNxo=;
+        b=HZQsU743hzFIIj4wV3MX08T77vgTgu7X4cYG9CGn7YLNhUX/k1YuW6DokRqHfvGvQi
+         IAKOGTv/gRh5CxSx+MHMtAjUblWIDchr0DBp/Zulz8X+sPHsEofWdY2AMVdpOjaP8WL4
+         thtDd2+HISBWxUB0jqm2nfe3Pc0vncTi+2ZX87AVQPhqRxVLV5NKsZpW8khEaMFgWyJL
+         f/eHTh9pGI3mDv1gQN40Gzw56p5Kmz6QfVzPUJIge6SJvVVXTsdvalEaeWwtZrAv+W94
+         gCljfE8vHOcOqJgMU8KJSoWpRA5t5AmrPY6alIp7H6V3AvS7NTUrRD2nnXkacH6UiWe9
+         02RQ==
+X-Gm-Message-State: AOAM532b6oQmq6zAzcDtYnc0Kiq3o3woIAKWkUVzD2UT+1ceUzyDFMw4
+        i3pcA4uFDN02jGcaQotQKZON0Q==
+X-Google-Smtp-Source: ABdhPJyxsu62BcSNwCFWCj25rWr4izXVmF12tIRkYF1HLqnOMvTdzTKIxsfpP8hZUY20o+rsIAcniA==
+X-Received: by 2002:a17:90b:1b11:: with SMTP id nu17mr7081861pjb.182.1595626606832;
+        Fri, 24 Jul 2020 14:36:46 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id s14sm7180427pjl.14.2020.07.24.14.36.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Jul 2020 14:36:43 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Scott Branden <scott.branden@broadcom.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Jessica Yu <jeyu@kernel.org>, SeongJae Park <sjpark@amazon.de>,
+        KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v3 01/19] test_firmware: Test platform fw loading on non-EFI systems
+Date:   Fri, 24 Jul 2020 14:36:22 -0700
+Message-Id: <20200724213640.389191-2-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200724210618.2709738-1-eryk.brol@amd.com>
-References: <20200724210618.2709738-1-eryk.brol@amd.com>
+In-Reply-To: <20200724213640.389191-1-keescook@chromium.org>
+References: <20200724213640.389191-1-keescook@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6239269f-69e2-48bd-b8c1-08d83015a65c
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3968:
-X-Microsoft-Antispam-PRVS: <MN2PR12MB3968E1E7336862B04F62EC4FE5770@MN2PR12MB3968.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2582;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eLcjFcnPAuGq4tzyrYrUj5DL594WBswsOenC3jwITZaZmdjFVCsVRXyeR6HSxOV2XUt76k0dZCb/qztLbuSDbAXQeNzXayGQAfeHzJu3ibpQH+vsGcSJ0wDh56VUPty4OBvUiLX9pKcQhhy2dwB7kIMyxFjFB564U1m53/PHu4ZugukTw0k5XEYjXfVaB5j49tiwpyAYwuFwGbwdOeb7dFcIwWRK5yznqsZLNLjRDNnETMhMtiJdVB7KtOjsVhu5dLUKG0NkoFf0A8DsN9Q00yWWL9lzUB2UzLstV2Mbjl/g7MHXTuT8ScsHSuL/wwiIzV/57w79xv1JVDeeuHgLMrxh9zgVJpySEFviJBMwIxPbnCXQ/L5kngFg5g3AWWygGJVU8dWBQ7srcBIqFTAanA==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SATLEXMB01.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFTY:;SFS:(4636009)(346002)(376002)(136003)(396003)(39860400002)(46966005)(54906003)(83380400001)(8936002)(70586007)(86362001)(82310400002)(356005)(2906002)(70206006)(36756003)(1076003)(6666004)(478600001)(47076004)(316002)(2616005)(26005)(5660300002)(6916009)(186003)(44832011)(336012)(426003)(82740400003)(8676002)(81166007)(4326008);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jul 2020 21:08:01.6036
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6239269f-69e2-48bd-b8c1-08d83015a65c
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB01.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT032.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3968
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hersen wu <hersenxs.wu@amd.com>
+On non-EFI systems, it wasn't possible to test the platform firmware
+loader because it will have never set "checked_fw" during __init.
+Instead, allow the test code to override this check. Additionally split
+the declarations into a private header file so it there is greater
+enforcement of the symbol visibility.
 
-[Why]
-ramp_up_dispclk_with_dpp is to change dispclk, dppclk and dprefclk
-according to bandwidth requirement. call stack: rv1_update_clocks -->
-update_clocks --> dcn10_prepare_bandwidth / dcn10_optimize_bandwidth
---> prepare_bandwidth / optimize_bandwidth. before change dcn hw,
-prepare_bandwidth will be called first to allow enough clock,
-watermark for change, after end of dcn hw change, optimize_bandwidth
-is executed to lower clock to save power for new dcn hw settings.
-
-below is sequence of commit_planes_for_stream:
-step 1: prepare_bandwidth - raise clock to have enough bandwidth
-step 2: lock_doublebuffer_enable
-step 3: pipe_control_lock(true) - make dchubp register change will
-not take effect right way
-step 4: apply_ctx_for_surface - program dchubp
-step 5: pipe_control_lock(false) - dchubp register change take effect
-step 6: optimize_bandwidth --> dc_post_update_surfaces_to_stream
-for full_date, optimize clock to save power
-
-at end of step 1, dcn clocks (dprefclk, dispclk, dppclk) may be
-changed for new dchubp configuration. but real dcn hub dchubps are
-still running with old configuration until end of step 5. this need
-clocks settings at step 1 should not less than that before step 1.
-this is checked by two conditions: 1. if (should_set_clock(safe_to_lower
-, new_clocks->dispclk_khz, clk_mgr_base->clks.dispclk_khz) ||
-new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz)
-2. request_dpp_div = new_clocks->dispclk_khz > new_clocks->dppclk_khz
-
-the second condition is based on new dchubp configuration. dppclk
-for new dchubp may be different from dppclk before step 1.
-for example, before step 1, dchubps are as below:
-pipe 0: recout=(0,40,1920,980) viewport=(0,0,1920,979)
-pipe 1: recout=(0,0,1920,1080) viewport=(0,0,1920,1080)
-for dppclk for pipe0 need dppclk = dispclk
-
-new dchubp pipe split configuration:
-pipe 0: recout=(0,0,960,1080) viewport=(0,0,960,1080)
-pipe 1: recout=(960,0,960,1080) viewport=(960,0,960,1080)
-dppclk only needs dppclk = dispclk /2.
-
-dispclk, dppclk are not lock by otg master lock. they take effect
-after step 1. during this transition, dispclk are the same, but
-dppclk is changed to half of previous clock for old dchubp
-configuration between step 1 and step 6. This may cause p-state
-warning intermittently.
-
-[How]
-for new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz, we
-need make sure dppclk are not changed to less between step 1 and 6.
-for new_clocks->dispclk_khz > clk_mgr_base->clks.dispclk_khz,
-new display clock is raised, but we do not know ratio of
-new_clocks->dispclk_khz and clk_mgr_base->clks.dispclk_khz,
-new_clocks->dispclk_khz /2 does not guarantee equal or higher than
-old dppclk. we could ignore power saving different between
-dppclk = displck and dppclk = dispclk / 2 between step 1 and step 6.
-as long as safe_to_lower = false, set dpclk = dispclk to simplify
-condition check.
-
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
+Fixes: 548193cba2a7 ("test_firmware: add support for firmware_request_platform")
+Cc: stable@vger.kernel.org
+Acked-by: Scott Branden <scott.branden@broadcom.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- .../display/dc/clk_mgr/dcn10/rv1_clk_mgr.c    | 69 ++++++++++++++++++-
- 1 file changed, 67 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/embedded-firmware.c | 21 ++++++++++++++++-----
+ drivers/firmware/efi/embedded-firmware.h | 19 +++++++++++++++++++
+ include/linux/efi_embedded_fw.h          | 13 -------------
+ lib/test_firmware.c                      |  5 +++++
+ 4 files changed, 40 insertions(+), 18 deletions(-)
+ create mode 100644 drivers/firmware/efi/embedded-firmware.h
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c
-index 3fab9296918a..e133edc587d3 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c
-@@ -85,12 +85,77 @@ static int rv1_determine_dppclk_threshold(struct clk_mgr_internal *clk_mgr, stru
- 	return disp_clk_threshold;
+diff --git a/drivers/firmware/efi/embedded-firmware.c b/drivers/firmware/efi/embedded-firmware.c
+index a1b199de9006..0fb03cd0a5a2 100644
+--- a/drivers/firmware/efi/embedded-firmware.c
++++ b/drivers/firmware/efi/embedded-firmware.c
+@@ -14,11 +14,22 @@
+ #include <linux/vmalloc.h>
+ #include <crypto/sha.h>
+ 
++#include "embedded-firmware.h"
++
++#ifdef CONFIG_TEST_FIRMWARE
++# define EFI_EMBEDDED_FW_VISIBILITY
++#else
++# define EFI_EMBEDDED_FW_VISIBILITY static
++#endif
++
++EFI_EMBEDDED_FW_VISIBILITY LIST_HEAD(efi_embedded_fw_list);
++EFI_EMBEDDED_FW_VISIBILITY bool efi_embedded_fw_checked;
++
+ /* Exported for use by lib/test_firmware.c only */
+-LIST_HEAD(efi_embedded_fw_list);
++#ifdef CONFIG_TEST_FIRMWARE
+ EXPORT_SYMBOL_GPL(efi_embedded_fw_list);
+-
+-static bool checked_for_fw;
++EXPORT_SYMBOL_GPL(efi_embedded_fw_checked);
++#endif
+ 
+ static const struct dmi_system_id * const embedded_fw_table[] = {
+ #ifdef CONFIG_TOUCHSCREEN_DMI
+@@ -119,14 +130,14 @@ void __init efi_check_for_embedded_firmwares(void)
+ 		}
+ 	}
+ 
+-	checked_for_fw = true;
++	efi_embedded_fw_checked = true;
  }
  
--static void ramp_up_dispclk_with_dpp(struct clk_mgr_internal *clk_mgr, struct dc *dc, struct dc_clocks *new_clocks)
-+static void ramp_up_dispclk_with_dpp(
-+		struct clk_mgr_internal *clk_mgr,
-+		struct dc *dc,
-+		struct dc_clocks *new_clocks,
-+		bool safe_to_lower)
+ int efi_get_embedded_fw(const char *name, const u8 **data, size_t *size)
  {
- 	int i;
- 	int dispclk_to_dpp_threshold = rv1_determine_dppclk_threshold(clk_mgr, new_clocks);
- 	bool request_dpp_div = new_clocks->dispclk_khz > new_clocks->dppclk_khz;
+ 	struct efi_embedded_fw *iter, *fw = NULL;
  
-+	/* this function is to change dispclk, dppclk and dprefclk according to
-+	 * bandwidth requirement. Its call stack is rv1_update_clocks -->
-+	 * update_clocks --> dcn10_prepare_bandwidth / dcn10_optimize_bandwidth
-+	 * --> prepare_bandwidth / optimize_bandwidth. before change dcn hw,
-+	 * prepare_bandwidth will be called first to allow enough clock,
-+	 * watermark for change, after end of dcn hw change, optimize_bandwidth
-+	 * is executed to lower clock to save power for new dcn hw settings.
-+	 *
-+	 * below is sequence of commit_planes_for_stream:
-+	 *
-+	 * step 1: prepare_bandwidth - raise clock to have enough bandwidth
-+	 * step 2: lock_doublebuffer_enable
-+	 * step 3: pipe_control_lock(true) - make dchubp register change will
-+	 * not take effect right way
-+	 * step 4: apply_ctx_for_surface - program dchubp
-+	 * step 5: pipe_control_lock(false) - dchubp register change take effect
-+	 * step 6: optimize_bandwidth --> dc_post_update_surfaces_to_stream
-+	 * for full_date, optimize clock to save power
-+	 *
-+	 * at end of step 1, dcn clocks (dprefclk, dispclk, dppclk) may be
-+	 * changed for new dchubp configuration. but real dcn hub dchubps are
-+	 * still running with old configuration until end of step 5. this need
-+	 * clocks settings at step 1 should not less than that before step 1.
-+	 * this is checked by two conditions: 1. if (should_set_clock(safe_to_lower
-+	 * , new_clocks->dispclk_khz, clk_mgr_base->clks.dispclk_khz) ||
-+	 * new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz)
-+	 * 2. request_dpp_div = new_clocks->dispclk_khz > new_clocks->dppclk_khz
-+	 *
-+	 * the second condition is based on new dchubp configuration. dppclk
-+	 * for new dchubp may be different from dppclk before step 1.
-+	 * for example, before step 1, dchubps are as below:
-+	 * pipe 0: recout=(0,40,1920,980) viewport=(0,0,1920,979)
-+	 * pipe 1: recout=(0,0,1920,1080) viewport=(0,0,1920,1080)
-+	 * for dppclk for pipe0 need dppclk = dispclk
-+	 *
-+	 * new dchubp pipe split configuration:
-+	 * pipe 0: recout=(0,0,960,1080) viewport=(0,0,960,1080)
-+	 * pipe 1: recout=(960,0,960,1080) viewport=(960,0,960,1080)
-+	 * dppclk only needs dppclk = dispclk /2.
-+	 *
-+	 * dispclk, dppclk are not lock by otg master lock. they take effect
-+	 * after step 1. during this transition, dispclk are the same, but
-+	 * dppclk is changed to half of previous clock for old dchubp
-+	 * configuration between step 1 and step 6. This may cause p-state
-+	 * warning intermittently.
-+	 *
-+	 * for new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz, we
-+	 * need make sure dppclk are not changed to less between step 1 and 6.
-+	 * for new_clocks->dispclk_khz > clk_mgr_base->clks.dispclk_khz,
-+	 * new display clock is raised, but we do not know ratio of
-+	 * new_clocks->dispclk_khz and clk_mgr_base->clks.dispclk_khz,
-+	 * new_clocks->dispclk_khz /2 does not guarantee equal or higher than
-+	 * old dppclk. we could ignore power saving different between
-+	 * dppclk = displck and dppclk = dispclk / 2 between step 1 and step 6.
-+	 * as long as safe_to_lower = false, set dpclk = dispclk to simplify
-+	 * condition check.
-+	 * todo: review this change for other asic.
-+	 **/
-+	if (!safe_to_lower)
-+		request_dpp_div = false;
+-	if (!checked_for_fw) {
++	if (!efi_embedded_fw_checked) {
+ 		pr_warn("Warning %s called while we did not check for embedded fw\n",
+ 			__func__);
+ 		return -ENOENT;
+diff --git a/drivers/firmware/efi/embedded-firmware.h b/drivers/firmware/efi/embedded-firmware.h
+new file mode 100644
+index 000000000000..34113316d068
+--- /dev/null
++++ b/drivers/firmware/efi/embedded-firmware.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _EFI_EMBEDDED_FW_INTERNAL_H_
++#define _EFI_EMBEDDED_FW_INTERNAL_H_
 +
- 	/* set disp clk to dpp clk threshold */
++/*
++ * This struct and efi_embedded_fw_list are private to the efi-embedded fw
++ * implementation they only in separate header for use by lib/test_firmware.c.
++ */
++struct efi_embedded_fw {
++	struct list_head list;
++	const char *name;
++	const u8 *data;
++	size_t length;
++};
++
++extern struct list_head efi_embedded_fw_list;
++extern bool efi_embedded_fw_checked;
++
++#endif /* _EFI_EMBEDDED_FW_INTERNAL_H_ */
+diff --git a/include/linux/efi_embedded_fw.h b/include/linux/efi_embedded_fw.h
+index 57eac5241303..4ad5db9f5312 100644
+--- a/include/linux/efi_embedded_fw.h
++++ b/include/linux/efi_embedded_fw.h
+@@ -7,19 +7,6 @@
  
- 	clk_mgr->funcs->set_dispclk(clk_mgr, dispclk_to_dpp_threshold);
-@@ -209,7 +274,7 @@ static void rv1_update_clocks(struct clk_mgr *clk_mgr_base,
- 	/* program dispclk on = as a w/a for sleep resume clock ramping issues */
- 	if (should_set_clock(safe_to_lower, new_clocks->dispclk_khz, clk_mgr_base->clks.dispclk_khz)
- 			|| new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz) {
--		ramp_up_dispclk_with_dpp(clk_mgr, dc, new_clocks);
-+		ramp_up_dispclk_with_dpp(clk_mgr, dc, new_clocks, safe_to_lower);
- 		clk_mgr_base->clks.dispclk_khz = new_clocks->dispclk_khz;
- 		send_request_to_lower = true;
- 	}
+ #define EFI_EMBEDDED_FW_PREFIX_LEN		8
+ 
+-/*
+- * This struct and efi_embedded_fw_list are private to the efi-embedded fw
+- * implementation they are in this header for use by lib/test_firmware.c only!
+- */
+-struct efi_embedded_fw {
+-	struct list_head list;
+-	const char *name;
+-	const u8 *data;
+-	size_t length;
+-};
+-
+-extern struct list_head efi_embedded_fw_list;
+-
+ /**
+  * struct efi_embedded_fw_desc - This struct is used by the EFI embedded-fw
+  *                               code to search for embedded firmwares.
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index 9fee2b93a8d1..62af792e151c 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -489,6 +489,7 @@ static ssize_t trigger_request_store(struct device *dev,
+ static DEVICE_ATTR_WO(trigger_request);
+ 
+ #ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
++#include "../drivers/firmware/efi/embedded-firmware.h"
+ static ssize_t trigger_request_platform_store(struct device *dev,
+ 					      struct device_attribute *attr,
+ 					      const char *buf, size_t count)
+@@ -501,6 +502,7 @@ static ssize_t trigger_request_platform_store(struct device *dev,
+ 	};
+ 	struct efi_embedded_fw efi_embedded_fw;
+ 	const struct firmware *firmware = NULL;
++	bool saved_efi_embedded_fw_checked;
+ 	char *name;
+ 	int rc;
+ 
+@@ -513,6 +515,8 @@ static ssize_t trigger_request_platform_store(struct device *dev,
+ 	efi_embedded_fw.data = (void *)test_data;
+ 	efi_embedded_fw.length = sizeof(test_data);
+ 	list_add(&efi_embedded_fw.list, &efi_embedded_fw_list);
++	saved_efi_embedded_fw_checked = efi_embedded_fw_checked;
++	efi_embedded_fw_checked = true;
+ 
+ 	pr_info("loading '%s'\n", name);
+ 	rc = firmware_request_platform(&firmware, name, dev);
+@@ -530,6 +534,7 @@ static ssize_t trigger_request_platform_store(struct device *dev,
+ 	rc = count;
+ 
+ out:
++	efi_embedded_fw_checked = saved_efi_embedded_fw_checked;
+ 	release_firmware(firmware);
+ 	list_del(&efi_embedded_fw.list);
+ 	kfree(name);
 -- 
 2.25.1
 
