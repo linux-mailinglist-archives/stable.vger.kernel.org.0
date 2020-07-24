@@ -2,115 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7F322BC59
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 05:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 059BA22BC61
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 05:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726381AbgGXDIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jul 2020 23:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42484 "EHLO mail.kernel.org"
+        id S1726381AbgGXDOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jul 2020 23:14:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726178AbgGXDIr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jul 2020 23:08:47 -0400
+        id S1726178AbgGXDOG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jul 2020 23:14:06 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F134B20786;
-        Fri, 24 Jul 2020 03:08:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DDF220792;
+        Fri, 24 Jul 2020 03:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595560127;
-        bh=Mi81Uejk0h0q25VxMgNb+0huSyrbkp+jl5hwFhOM7Z0=;
+        s=default; t=1595560445;
+        bh=7Nn2vijdOpJYv5RRp0kMLo2D//KQ22IaqcB8VQUTtz4=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=BePtWmcWENl9v0Un95gA1NkIlo1AIrn4iCnulq4SWSlp3W7wd0wplS/5Z8Du5wfTv
-         4Bq8wsbGQI1eLG0tcA+Y8Bt0VjyZzx19HW5H1UcFQekAoV76WwecT7n0i6aA+R7Pgq
-         zMavmYb/bTO5zXpkM/5oaHTftWqqiqK88KfPBDmU=
-Date:   Thu, 23 Jul 2020 20:08:46 -0700
+        b=HlRbJgYKPEVZSsXegUjp/2v7/SwgSpMQYylFMhoicS2JzBa03usl8BoFyGcmB0z7B
+         n1RyZpC+bJY2hnWvW8bJMa6OVOAmq5NvlrrjyOpBEEthdHyI0RlDSmPeTj65hZZO8B
+         AcF2dBRPplDmW6/IEOxvQzpgoKWBdUIrGGEFs5xo=
+Date:   Thu, 23 Jul 2020 20:14:04 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
- don't read garbage memmaps
-Message-Id: <20200723200846.768513d7c122ac11b6e73538@linux-foundation.org>
-In-Reply-To: <20200623093018.GA6069@L-31X9LVDL-1304.local>
-References: <20200619125923.22602-2-david@redhat.com>
-        <20200622082635.GA93552@L-31X9LVDL-1304.local>
-        <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
-        <20200622092221.GA96699@L-31X9LVDL-1304.local>
-        <34f36733-805e-cc61-38da-2ee578ae096c@redhat.com>
-        <20200622131003.GA98415@L-31X9LVDL-1304.local>
-        <0f4edc1f-1ce2-95b4-5866-5c4888db7c65@redhat.com>
-        <20200622215520.wa6gjr2hplurwy57@master>
-        <4b7ee49c-9bee-a905-3497-e3addd8896b8@redhat.com>
-        <c0b62330-11d3-e628-a811-b54789d8f182@redhat.com>
-        <20200623093018.GA6069@L-31X9LVDL-1304.local>
+To:     Joonsoo Kim <js1304@gmail.com>
+Cc:     Linux Memory Management List <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>, kernel-team@lge.com,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Hellwig <hch@infradead.org>,
+        Roman Gushchin <guro@fb.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/page_alloc: fix memalloc_nocma_{save/restore}
+ APIs
+Message-Id: <20200723201404.f76ccd792c9e74f3ae8ec9f5@linux-foundation.org>
+In-Reply-To: <CAAmzW4NhY0iaE02vwf+2O+aeK66CoKG_-BvsgqpfwZv3Q-w8dA@mail.gmail.com>
+References: <1595468942-29687-1-git-send-email-iamjoonsoo.kim@lge.com>
+        <20200723180814.acde28b92ce6adc785a79120@linux-foundation.org>
+        <CAAmzW4N9Y4W7CHenWA=TYu9tttgpYR=ZN+ky1vmXPgUJcjitAw@mail.gmail.com>
+        <20200723193600.28e3eedd00925b22f7ca9780@linux-foundation.org>
+        <CAAmzW4NhY0iaE02vwf+2O+aeK66CoKG_-BvsgqpfwZv3Q-w8dA@mail.gmail.com>
 X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 23 Jun 2020 17:30:18 +0800 Wei Yang <richard.weiyang@linux.alibaba.com> wrote:
+On Fri, 24 Jul 2020 12:04:02 +0900 Joonsoo Kim <js1304@gmail.com> wrote:
 
-> On Tue, Jun 23, 2020 at 09:55:43AM +0200, David Hildenbrand wrote:
-> >On 23.06.20 09:39, David Hildenbrand wrote:
-> >>> Hmm.. I thought this is the behavior for early section, while it looks current
-> >>> code doesn't work like this:
-> >>>
-> >>>        if (section_is_early && memmap)
-> >>>                free_map_bootmem(memmap);
-> >>>        else
-> >>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
-> >>>
-> >>> section_is_early is always "true" for early section, while memmap is not-NULL
-> >>> only when sub-section map is empty.
-> >>>
-> >>> If my understanding is correct, when we remove a sub-section in early section,
-> >>> the code would call depopulate_section_memmap(), which in turn free related
-> >>> memmap. By removing the memmap, the return value from pfn_to_online_page() is
-> >>> not a valid one.
-> >> 
-> >> I think you're right, and pfn_valid() would also return true, as it is
-> >> an early section. This looks broken.
-> >> 
-> >>>
-> >>> Maybe we want to write the code like this:
-> >>>
-> >>>        if (section_is_early)
-> >>>                if (memmap)
-> >>>                        free_map_bootmem(memmap);
-> >>>        else
-> >>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
-> >>>
-> >> 
-> >> I guess that should be the way to go
-> >> 
-> >> @Dan, I think what Wei proposes here is correct, right? Or how does it
-> >> work in the VMEMMAP case with early sections?
-> >> 
+> 2020년 7월 24일 (금) 오전 11:36, Andrew Morton <akpm@linux-foundation.org>님이 작성:
 > >
-> >Especially, if you would re-hot-add, section_activate() would assume
-> >there is a memmap, it must not be removed.
+> > On Fri, 24 Jul 2020 11:23:52 +0900 Joonsoo Kim <js1304@gmail.com> wrote:
 > >
-> 
-> You are right here. I didn't notice it.
-> 
-> >@Wei, can you send a patch?
+> > > > > Second, clearing __GFP_MOVABLE in current_gfp_context() has a side effect
+> > > > > to exclude the memory on the ZONE_MOVABLE for allocation target.
+> > > >
+> > > > More whoops.
+> > > >
+> > > > Could we please have a description of the end-user-visible effects of
+> > > > this change?  Very much needed when proposing a -stable backport, I think.
+> > >
+> > > In fact, there is no noticeable end-user-visible effect since the fallback would
+> > > cover the problematic case. It's mentioned in the commit description. Perhap,
+> > > performance would be improved due to reduced retry and more available memory
+> > > (we can use ZONE_MOVABLE with this patch) but it would be neglectable.
+> > >
+> > > > d7fefcc8de9147c is over a year old.  Why did we only just discover
+> > > > this?  This makes one wonder how serious those end-user-visible effects
+> > > > are?
+> > >
+> > > As mentioned above, there is no visible problem to the end-user.
 > >
+> > OK, thanks.  In that case, I don't believe that a stable backport is
+> > appropriate?
+> >
+> > (Documentation/process/stable-kernel-rules.rst)
 > 
-> Sure, let me prepare for it.
+> Thanks for the pointer!
+> 
+> Hmm... I'm not sure the correct way to handle this patch. I thought that
+> memalloc_nocma_{save,restore} is an API that is callable from the module.
+> If it is true, it's better to regard this patch as the stable candidate since
+> out-of-tree modules could use it without the fallback and it would cause
+> a problem. But, yes, there is no visible problem to the end-user, at least,
+> within the mainline so it is possibly not a stable candidate.
+> 
+> Please share your opinion about this situation.
 
-Still awaiting this, and the v3 patch was identical to this v2 patch.
-
-It's tagged for -stable, so there's some urgency.  Should we just go
-ahead with the decently-tested v2?
+We tend not to care much about out-of-tree modules.  I don't think a
+theoretical concern for out-of-tree code justifies risking the
+stability of -stable kernels.
 
