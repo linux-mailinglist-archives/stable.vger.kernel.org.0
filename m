@@ -2,126 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E041322C750
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 16:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49DCD22C874
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 16:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbgGXOHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jul 2020 10:07:45 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:38424 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726424AbgGXOHp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 10:07:45 -0400
-Date:   Fri, 24 Jul 2020 14:07:41 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1595599662;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=opVcxPUv963ARJfix0eZv2oOhV48P3svftrMOGDWqj8=;
-        b=Kxppuj5TTDpiFKF4ZHBMFJpK6Pht52wYRbKRufDNKLNiwZ7r9X09Hy2Nms2jmnG4UilrIw
-        MJq8Vwyv7Ojf06h0fhaySfRJYKs7SPe5ahjvaqKIZ4VpBYPKoPBtv7Gek09iWraa81TX5E
-        AEBpJnOfGjJ6tqBf+p4jPQLKdhgOJSeJ3kk4BUOIMF6rGX94Z3R3RN0xvzBUDh+IKnBoBh
-        bFsE7zr8Zq7cxfCDJK3TT2lIqlVlk+XhiMvJREADmkoAMgMGTRwMx0gMpHXSUdVWwIhnqe
-        997+gLSNXBuHS6CW5clMJg+Czq7SoXhvBwAV8jVovMxnNI3PTEiP0hkeQ0mThQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1595599662;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=opVcxPUv963ARJfix0eZv2oOhV48P3svftrMOGDWqj8=;
-        b=CiLn/DBxHVCGgEFJq5bIqH0ItFramz0pFzYOWslczfSpDaiSliGK2AXrZkvbex8SFDUs22
-        7urxxbNSkRLvSwDw==
-From:   "tip-bot2 for Oleg Nesterov" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] uprobes: Change handle_swbp() to send SIGTRAP with
- si_code=SI_KERNEL, to fix GDB regression
-Cc:     Aaron Merey <amerey@redhat.com>, Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200723154420.GA32043@redhat.com>
-References: <20200723154420.GA32043@redhat.com>
+        id S1726890AbgGXOvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jul 2020 10:51:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726170AbgGXOvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jul 2020 10:51:42 -0400
+Received: from localhost (mobile-166-175-191-139.mycingular.net [166.175.191.139])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DEA720714;
+        Fri, 24 Jul 2020 14:51:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595602301;
+        bh=XLmYbBwV24gUrETh08x29QFfu+35Dz7G0spWwwMW+ms=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=XXzJ8ly1CBJgnsOXdvg3ig9+8cTGK8sNjtpbRjkWMlBH0AB/x6iWxZwYkrfzDI18f
+         WpVMDDj0oDj4fUvWZ69e7CKKzUkVT/DWdXkL6lRwRgzdDfsCK5bgYxvZA5n5PbfPOf
+         h6ViAD396LrvXZX3oebcBd5FEkVFy41LyFGUbae8=
+Date:   Fri, 24 Jul 2020 09:51:39 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Ashok Raj <ashok.raj@intel.com>
+Cc:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Joerg Roedel <joro@8bytes.org>, Lu Baolu <baolu.lu@intel.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux-foundation.org
+Subject: Re: [PATCH v3 1/1] PCI/ATS: Check PRI supported on the PF device
+ when SRIOV is enabled
+Message-ID: <20200724145139.GA1518290@bjorn-Precision-5520>
 MIME-Version: 1.0
-Message-ID: <159559966135.4006.10705285395851102706.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1595543849-19692-1-git-send-email-ashok.raj@intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
+On Thu, Jul 23, 2020 at 03:37:29PM -0700, Ashok Raj wrote:
+> PASID and PRI capabilities are only enumerated in PF devices. VF devices
+> do not enumerate these capabilites. IOMMU drivers also need to enumerate
+> them before enabling features in the IOMMU. Extending the same support as
+> PASID feature discovery (pci_pasid_features) for PRI.
+> 
+> Fixes: b16d0cb9e2fc ("iommu/vt-d: Always enable PASID/PRI PCI capabilities before ATS")
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 
-Commit-ID:     fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a
-Gitweb:        https://git.kernel.org/tip/fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a
-Author:        Oleg Nesterov <oleg@redhat.com>
-AuthorDate:    Thu, 23 Jul 2020 17:44:20 +02:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Fri, 24 Jul 2020 15:38:37 +02:00
+Applied with Baolu's reviewed-by and Joerg's ack to pci/virtualization
+for v5.9, thanks!
 
-uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
-
-If a tracee is uprobed and it hits int3 inserted by debugger, handle_swbp()
-does send_sig(SIGTRAP, current, 0) which means si_code == SI_USER. This used
-to work when this code was written, but then GDB started to validate si_code
-and now it simply can't use breakpoints if the tracee has an active uprobe:
-
-	# cat test.c
-	void unused_func(void)
-	{
-	}
-	int main(void)
-	{
-		return 0;
-	}
-
-	# gcc -g test.c -o test
-	# perf probe -x ./test -a unused_func
-	# perf record -e probe_test:unused_func gdb ./test -ex run
-	GNU gdb (GDB) 10.0.50.20200714-git
-	...
-	Program received signal SIGTRAP, Trace/breakpoint trap.
-	0x00007ffff7ddf909 in dl_main () from /lib64/ld-linux-x86-64.so.2
-	(gdb)
-
-The tracee hits the internal breakpoint inserted by GDB to monitor shared
-library events but GDB misinterprets this SIGTRAP and reports a signal.
-
-Change handle_swbp() to use force_sig(SIGTRAP), this matches do_int3_user()
-and fixes the problem.
-
-This is the minimal fix for -stable, arch/x86/kernel/uprobes.c is equally
-wrong; it should use send_sigtrap(TRAP_TRACE) instead of send_sig(SIGTRAP),
-but this doesn't confuse GDB and needs another x86-specific patch.
-
-Reported-by: Aaron Merey <amerey@redhat.com>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200723154420.GA32043@redhat.com
----
- kernel/events/uprobes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index bb08628..5f8b0c5 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -2199,7 +2199,7 @@ static void handle_swbp(struct pt_regs *regs)
- 	if (!uprobe) {
- 		if (is_swbp > 0) {
- 			/* No matching uprobe; signal SIGTRAP. */
--			send_sig(SIGTRAP, current, 0);
-+			force_sig(SIGTRAP);
- 		} else {
- 			/*
- 			 * Either we raced with uprobe_unregister() or we can't
+> To: Bjorn Helgaas <bhelgaas@google.com>
+> To: Joerg Roedel <joro@8bytes.com>
+> To: Lu Baolu <baolu.lu@intel.com>
+> Cc: stable@vger.kernel.org
+> Cc: linux-pci@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: Ashok Raj <ashok.raj@intel.com>
+> Cc: iommu@lists.linux-foundation.org
+> ---
+> v3: Added Fixes tag
+> v2: Fixed build failure reported from lkp when CONFIG_PRI=n
+> 
+>  drivers/iommu/intel/iommu.c |  2 +-
+>  drivers/pci/ats.c           | 13 +++++++++++++
+>  include/linux/pci-ats.h     |  4 ++++
+>  3 files changed, 18 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index d759e7234e98..276452f5e6a7 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -2560,7 +2560,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+>  			}
+>  
+>  			if (info->ats_supported && ecap_prs(iommu->ecap) &&
+> -			    pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_PRI))
+> +			    pci_pri_supported(pdev))
+>  				info->pri_supported = 1;
+>  		}
+>  	}
+> diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
+> index b761c1f72f67..2e6cf0c700f7 100644
+> --- a/drivers/pci/ats.c
+> +++ b/drivers/pci/ats.c
+> @@ -325,6 +325,19 @@ int pci_prg_resp_pasid_required(struct pci_dev *pdev)
+>  
+>  	return pdev->pasid_required;
+>  }
+> +
+> +/**
+> + * pci_pri_supported - Check if PRI is supported.
+> + * @pdev: PCI device structure
+> + *
+> + * Returns true if PRI capability is present, false otherwise.
+> + */
+> +bool pci_pri_supported(struct pci_dev *pdev)
+> +{
+> +	/* VFs share the PF PRI configuration */
+> +	return !!(pci_physfn(pdev)->pri_cap);
+> +}
+> +EXPORT_SYMBOL_GPL(pci_pri_supported);
+>  #endif /* CONFIG_PCI_PRI */
+>  
+>  #ifdef CONFIG_PCI_PASID
+> diff --git a/include/linux/pci-ats.h b/include/linux/pci-ats.h
+> index f75c307f346d..df54cd5b15db 100644
+> --- a/include/linux/pci-ats.h
+> +++ b/include/linux/pci-ats.h
+> @@ -28,6 +28,10 @@ int pci_enable_pri(struct pci_dev *pdev, u32 reqs);
+>  void pci_disable_pri(struct pci_dev *pdev);
+>  int pci_reset_pri(struct pci_dev *pdev);
+>  int pci_prg_resp_pasid_required(struct pci_dev *pdev);
+> +bool pci_pri_supported(struct pci_dev *pdev);
+> +#else
+> +static inline bool pci_pri_supported(struct pci_dev *pdev)
+> +{ return false; }
+>  #endif /* CONFIG_PCI_PRI */
+>  
+>  #ifdef CONFIG_PCI_PASID
+> -- 
+> 2.7.4
+> 
