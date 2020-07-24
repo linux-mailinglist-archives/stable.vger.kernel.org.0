@@ -2,97 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C56F22C6DD
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 15:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E041322C750
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 16:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbgGXNlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jul 2020 09:41:13 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:35990 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726235AbgGXNlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 09:41:12 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=alex.shi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0U3g0eqJ_1595598069;
-Received: from IT-FVFX43SYHV2H.lan(mailfrom:alex.shi@linux.alibaba.com fp:SMTPD_---0U3g0eqJ_1595598069)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 24 Jul 2020 21:41:10 +0800
-Subject: Re: [patch 06/15] mm/memcg: fix refcount error while moving and
- swapping
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        hannes@cmpxchg.org, hughd@google.com, linux-mm@kvack.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-References: <20200724041524.eAqB5zPs6%akpm@linux-foundation.org>
-From:   Alex Shi <alex.shi@linux.alibaba.com>
-Message-ID: <e22a1ccb-6b5a-d448-e3ff-3045e93e4f09@linux.alibaba.com>
-Date:   Fri, 24 Jul 2020 21:41:07 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.7.0
+        id S1726512AbgGXOHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jul 2020 10:07:45 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:38424 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726424AbgGXOHp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jul 2020 10:07:45 -0400
+Date:   Fri, 24 Jul 2020 14:07:41 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1595599662;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=opVcxPUv963ARJfix0eZv2oOhV48P3svftrMOGDWqj8=;
+        b=Kxppuj5TTDpiFKF4ZHBMFJpK6Pht52wYRbKRufDNKLNiwZ7r9X09Hy2Nms2jmnG4UilrIw
+        MJq8Vwyv7Ojf06h0fhaySfRJYKs7SPe5ahjvaqKIZ4VpBYPKoPBtv7Gek09iWraa81TX5E
+        AEBpJnOfGjJ6tqBf+p4jPQLKdhgOJSeJ3kk4BUOIMF6rGX94Z3R3RN0xvzBUDh+IKnBoBh
+        bFsE7zr8Zq7cxfCDJK3TT2lIqlVlk+XhiMvJREADmkoAMgMGTRwMx0gMpHXSUdVWwIhnqe
+        997+gLSNXBuHS6CW5clMJg+Czq7SoXhvBwAV8jVovMxnNI3PTEiP0hkeQ0mThQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1595599662;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=opVcxPUv963ARJfix0eZv2oOhV48P3svftrMOGDWqj8=;
+        b=CiLn/DBxHVCGgEFJq5bIqH0ItFramz0pFzYOWslczfSpDaiSliGK2AXrZkvbex8SFDUs22
+        7urxxbNSkRLvSwDw==
+From:   "tip-bot2 for Oleg Nesterov" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/urgent] uprobes: Change handle_swbp() to send SIGTRAP with
+ si_code=SI_KERNEL, to fix GDB regression
+Cc:     Aaron Merey <amerey@redhat.com>, Oleg Nesterov <oleg@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200723154420.GA32043@redhat.com>
+References: <20200723154420.GA32043@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200724041524.eAqB5zPs6%akpm@linux-foundation.org>
-Content-Type: text/plain; charset=gbk
-Content-Transfer-Encoding: 8bit
+Message-ID: <159559966135.4006.10705285395851102706.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the perf/urgent branch of tip:
 
+Commit-ID:     fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a
+Gitweb:        https://git.kernel.org/tip/fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a
+Author:        Oleg Nesterov <oleg@redhat.com>
+AuthorDate:    Thu, 23 Jul 2020 17:44:20 +02:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Fri, 24 Jul 2020 15:38:37 +02:00
 
-ÔÚ 2020/7/24 ÏÂÎç12:15, Andrew Morton Ð´µÀ:
-> From: Hugh Dickins <hughd@google.com>
-> Subject: mm/memcg: fix refcount error while moving and swapping
-> 
-> It was hard to keep a test running, moving tasks between memcgs with
-> move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
-> refcount is discovered to be 0 (supposedly impossible), so it is then
-> forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
-> succession, the test is at last put out of misery by being OOM killed.
-> 
-> This is because of the way moved_swap accounting was saved up until the
-> task move gets completed in __mem_cgroup_clear_mc(), deferred from when
-> mem_cgroup_move_swap_account() actually exchanged old and new ids. 
-> Concurrent activity can free up swap quicker than the task is scanned,
-> bringing id refcount down 0 (which should only be possible when
-> offlining).
-> 
-> Just skip that optimization: do that part of the accounting immediately.
-> 
-> Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
-> Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
-> Signed-off-by: Hugh Dickins <hughd@google.com>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Alex Shi <alex.shi@linux.alibaba.com>
-> Cc: Shakeel Butt <shakeelb@google.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> ---
+uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
 
-Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
+If a tracee is uprobed and it hits int3 inserted by debugger, handle_swbp()
+does send_sig(SIGTRAP, current, 0) which means si_code == SI_USER. This used
+to work when this code was written, but then GDB started to validate si_code
+and now it simply can't use breakpoints if the tracee has an active uprobe:
 
-> 
->  mm/memcontrol.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> --- a/mm/memcontrol.c~mm-memcg-fix-refcount-error-while-moving-and-swapping
-> +++ a/mm/memcontrol.c
-> @@ -5669,7 +5669,6 @@ static void __mem_cgroup_clear_mc(void)
->  		if (!mem_cgroup_is_root(mc.to))
->  			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
->  
-> -		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
->  		css_put_many(&mc.to->css, mc.moved_swap);
->  
->  		mc.moved_swap = 0;
-> @@ -5860,7 +5859,8 @@ put:			/* get_mctgt_type() gets the page
->  			ent = target.ent;
->  			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
->  				mc.precharge--;
-> -				/* we fixup refcnts and charges later. */
-> +				mem_cgroup_id_get_many(mc.to, 1);
-> +				/* we fixup other refcnts and charges later. */
->  				mc.moved_swap++;
->  			}
->  			break;
-> _
-> 
+	# cat test.c
+	void unused_func(void)
+	{
+	}
+	int main(void)
+	{
+		return 0;
+	}
+
+	# gcc -g test.c -o test
+	# perf probe -x ./test -a unused_func
+	# perf record -e probe_test:unused_func gdb ./test -ex run
+	GNU gdb (GDB) 10.0.50.20200714-git
+	...
+	Program received signal SIGTRAP, Trace/breakpoint trap.
+	0x00007ffff7ddf909 in dl_main () from /lib64/ld-linux-x86-64.so.2
+	(gdb)
+
+The tracee hits the internal breakpoint inserted by GDB to monitor shared
+library events but GDB misinterprets this SIGTRAP and reports a signal.
+
+Change handle_swbp() to use force_sig(SIGTRAP), this matches do_int3_user()
+and fixes the problem.
+
+This is the minimal fix for -stable, arch/x86/kernel/uprobes.c is equally
+wrong; it should use send_sigtrap(TRAP_TRACE) instead of send_sig(SIGTRAP),
+but this doesn't confuse GDB and needs another x86-specific patch.
+
+Reported-by: Aaron Merey <amerey@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200723154420.GA32043@redhat.com
+---
+ kernel/events/uprobes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
+index bb08628..5f8b0c5 100644
+--- a/kernel/events/uprobes.c
++++ b/kernel/events/uprobes.c
+@@ -2199,7 +2199,7 @@ static void handle_swbp(struct pt_regs *regs)
+ 	if (!uprobe) {
+ 		if (is_swbp > 0) {
+ 			/* No matching uprobe; signal SIGTRAP. */
+-			send_sig(SIGTRAP, current, 0);
++			force_sig(SIGTRAP);
+ 		} else {
+ 			/*
+ 			 * Either we raced with uprobe_unregister() or we can't
