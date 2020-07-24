@@ -2,129 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5921D22CB4A
-	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 18:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB96522CBC4
+	for <lists+stable@lfdr.de>; Fri, 24 Jul 2020 19:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726969AbgGXQqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jul 2020 12:46:08 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55270 "EHLO mx2.suse.de"
+        id S1726488AbgGXRRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jul 2020 13:17:15 -0400
+Received: from gecko.sbs.de ([194.138.37.40]:46960 "EHLO gecko.sbs.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726455AbgGXQqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jul 2020 12:46:07 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 7876AAF5B;
-        Fri, 24 Jul 2020 16:46:13 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-Subject: [PATCH] bcache: fix bio_{start,end}_io_acct with proper device
-Date:   Sat, 25 Jul 2020 00:45:58 +0800
-Message-Id: <20200724164558.87191-1-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
+        id S1726397AbgGXRRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jul 2020 13:17:15 -0400
+X-Greylist: delayed 571 seconds by postgrey-1.27 at vger.kernel.org; Fri, 24 Jul 2020 13:17:14 EDT
+Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
+        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 06OH7AVU029510
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 24 Jul 2020 19:07:10 +0200
+Received: from [139.22.112.247] ([139.22.112.247])
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 06OH76bs007058;
+        Fri, 24 Jul 2020 19:07:07 +0200
+Subject: Re: [PATCH 4.9 18/22] x86/fpu: Disable bottom halves while loading
+ FPU registers
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc:     stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        kvm ML <kvm@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Rik van Riel <riel@surriel.com>, x86-ml <x86@kernel.org>,
+        cip-dev <cip-dev@lists.cip-project.org>
+References: <20181228113126.144310132@linuxfoundation.org>
+ <20181228113127.414176417@linuxfoundation.org>
+From:   Jan Kiszka <jan.kiszka@siemens.com>
+Message-ID: <01857944-ce1a-c6cd-3666-1e9b6ca8cccc@siemens.com>
+Date:   Fri, 24 Jul 2020 19:07:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <20181228113127.414176417@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 85750aeb748f ("bcache: use bio_{start,end}_io_acct") moves the
-io account code to the location after bio_set_dev(bio, dc->bdev) in
-cached_dev_make_request(). Then the account is performed incorrectly on
-backing device, indeed the I/O should be counted to bcache device like
-/dev/bcache0.
+On 28.12.18 12:52, Greg Kroah-Hartman wrote:
+> 4.9-stable review patch.  If anyone has any objections, please let me know.
+> 
+> ------------------
+> 
+> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> 
+> commit 68239654acafe6aad5a3c1dc7237e60accfebc03 upstream.
+> 
+> The sequence
+> 
+>    fpu->initialized = 1;		/* step A */
+>    preempt_disable();		/* step B */
+>    fpu__restore(fpu);
+>    preempt_enable();
+> 
+> in __fpu__restore_sig() is racy in regard to a context switch.
+> 
+> For 32bit frames, __fpu__restore_sig() prepares the FPU state within
+> fpu->state. To ensure that a context switch (switch_fpu_prepare() in
+> particular) does not modify fpu->state it uses fpu__drop() which sets
+> fpu->initialized to 0.
+> 
+> After fpu->initialized is cleared, the CPU's FPU state is not saved
+> to fpu->state during a context switch. The new state is loaded via
+> fpu__restore(). It gets loaded into fpu->state from userland and
+> ensured it is sane. fpu->initialized is then set to 1 in order to avoid
+> fpu__initialize() doing anything (overwrite the new state) which is part
+> of fpu__restore().
+> 
+> A context switch between step A and B above would save CPU's current FPU
+> registers to fpu->state and overwrite the newly prepared state. This
+> looks like a tiny race window but the Kernel Test Robot reported this
+> back in 2016 while we had lazy FPU support. Borislav Petkov made the
+> link between that report and another patch that has been posted. Since
+> the removal of the lazy FPU support, this race goes unnoticed because
+> the warning has been removed.
+> 
+> Disable bottom halves around the restore sequence to avoid the race. BH
+> need to be disabled because BH is allowed to run (even with preemption
+> disabled) and might invoke kernel_fpu_begin() by doing IPsec.
+> 
+>   [ bp: massage commit message a bit. ]
+> 
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> Acked-by: Ingo Molnar <mingo@kernel.org>
+> Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+> Cc: kvm ML <kvm@vger.kernel.org>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Radim Krčmář <rkrcmar@redhat.com>
+> Cc: Rik van Riel <riel@surriel.com>
+> Cc: stable@vger.kernel.org
+> Cc: x86-ml <x86@kernel.org>
+> Link: http://lkml.kernel.org/r/20181120102635.ddv3fvavxajjlfqk@linutronix.de
+> Link: https://lkml.kernel.org/r/20160226074940.GA28911@pd.tnic
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>   arch/x86/kernel/fpu/signal.c |    4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- a/arch/x86/kernel/fpu/signal.c
+> +++ b/arch/x86/kernel/fpu/signal.c
+> @@ -342,10 +342,10 @@ static int __fpu__restore_sig(void __use
+>   			sanitize_restored_xstate(tsk, &env, xfeatures, fx_only);
+>   		}
+>   
+> +		local_bh_disable();
+>   		fpu->fpstate_active = 1;
+> -		preempt_disable();
+>   		fpu__restore(fpu);
+> -		preempt_enable();
+> +		local_bh_enable();
+>   
+>   		return err;
+>   	} else {
+> 
+> 
 
-With the mistaken I/O account, iostat does not display I/O counts for
-bcache device and all the numbers go to backing device. In writeback
-mode, the hard drive may have 340K+ IOPS which is impossible and wrong
-for spinning disk.
+Any reason why the backport stopped back than at 4.9? I just debugged 
+this out of a 4.4 kernel, and it is needed there as well. I'm happy to 
+propose a backport, would just appreciate a hint if the BH protection is 
+needed also there (my case was without BH).
 
-This patch introduces bch_bio_start_io_acct() and bch_bio_end_io_acct(),
-which switches bio->bi_disk to bcache device before calling
-bio_start_io_acct() or bio_end_io_acct(). Now the I/Os are counted to
-bcache device, and bcache device, cache device and backing device have
-their correct I/O count information back.
+Thanks,
+Jan
 
-Fixes: 85750aeb748f ("bcache: use bio_{start,end}_io_acct")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
----
- drivers/md/bcache/request.c | 31 +++++++++++++++++++++++++++----
- 1 file changed, 27 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-index 7acf024e99f3..8ea0f079c1d0 100644
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -617,6 +617,28 @@ static void cache_lookup(struct closure *cl)
- 
- /* Common code for the make_request functions */
- 
-+static inline void bch_bio_start_io_acct(struct gendisk *acct_bi_disk,
-+					 struct bio *bio,
-+					 unsigned long *start_time)
-+{
-+	struct gendisk *saved_bi_disk = bio->bi_disk;
-+
-+	bio->bi_disk = acct_bi_disk;
-+	*start_time = bio_start_io_acct(bio);
-+	bio->bi_disk = saved_bi_disk;
-+}
-+
-+static inline void bch_bio_end_io_acct(struct gendisk *acct_bi_disk,
-+				       struct bio *bio,
-+				       unsigned long start_time)
-+{
-+	struct gendisk *saved_bi_disk = bio->bi_disk;
-+
-+	bio->bi_disk = acct_bi_disk;
-+	bio_end_io_acct(bio, start_time);
-+	bio->bi_disk = saved_bi_disk;
-+}
-+
- static void request_endio(struct bio *bio)
- {
- 	struct closure *cl = bio->bi_private;
-@@ -668,7 +690,7 @@ static void backing_request_endio(struct bio *bio)
- static void bio_complete(struct search *s)
- {
- 	if (s->orig_bio) {
--		bio_end_io_acct(s->orig_bio, s->start_time);
-+		bch_bio_end_io_acct(s->d->disk, s->orig_bio, s->start_time);
- 		trace_bcache_request_end(s->d, s->orig_bio);
- 		s->orig_bio->bi_status = s->iop.status;
- 		bio_endio(s->orig_bio);
-@@ -728,7 +750,7 @@ static inline struct search *search_alloc(struct bio *bio,
- 	s->recoverable		= 1;
- 	s->write		= op_is_write(bio_op(bio));
- 	s->read_dirty_data	= 0;
--	s->start_time		= bio_start_io_acct(bio);
-+	bch_bio_start_io_acct(d->disk, bio, &s->start_time);
- 
- 	s->iop.c		= d->c;
- 	s->iop.bio		= NULL;
-@@ -1080,7 +1102,7 @@ static void detached_dev_end_io(struct bio *bio)
- 	bio->bi_end_io = ddip->bi_end_io;
- 	bio->bi_private = ddip->bi_private;
- 
--	bio_end_io_acct(bio, ddip->start_time);
-+	bch_bio_end_io_acct(ddip->d->disk, bio, ddip->start_time);
- 
- 	if (bio->bi_status) {
- 		struct cached_dev *dc = container_of(ddip->d,
-@@ -1105,7 +1127,8 @@ static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
- 	 */
- 	ddip = kzalloc(sizeof(struct detached_dev_io_private), GFP_NOIO);
- 	ddip->d = d;
--	ddip->start_time = bio_start_io_acct(bio);
-+	bch_bio_start_io_acct(d->disk, bio, &ddip->start_time);
-+
- 	ddip->bi_end_io = bio->bi_end_io;
- 	ddip->bi_private = bio->bi_private;
- 	bio->bi_end_io = detached_dev_end_io;
 -- 
-2.26.2
-
+Siemens AG, Corporate Technology, CT RDA IOT SES-DE
+Corporate Competence Center Embedded Linux
