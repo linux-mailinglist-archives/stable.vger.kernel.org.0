@@ -2,26 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B3122D72F
-	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 14:02:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFB222D739
+	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 14:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726926AbgGYMCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jul 2020 08:02:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:52068 "EHLO mx2.suse.de"
+        id S1726979AbgGYMC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jul 2020 08:02:57 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52232 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726583AbgGYMCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Jul 2020 08:02:42 -0400
+        id S1726583AbgGYMC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Jul 2020 08:02:56 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 5EA59AFBE;
-        Sat, 25 Jul 2020 12:02:50 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 3CEF7AB55;
+        Sat, 25 Jul 2020 12:03:04 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     axboe@kernel.dk
 Cc:     linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
-        Coly Li <colyli@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 02/25] bcache: allocate meta data pages as compound pages
-Date:   Sat, 25 Jul 2020 20:00:16 +0800
-Message-Id: <20200725120039.91071-3-colyli@suse.de>
+        Coly Li <colyli@suse.de>, Ken Raeburn <raeburn@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 07/25] bcache: avoid nr_stripes overflow in bcache_device_init()
+Date:   Sat, 25 Jul 2020 20:00:21 +0800
+Message-Id: <20200725120039.91071-8-colyli@suse.de>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200725120039.91071-1-colyli@suse.de>
 References: <20200725120039.91071-1-colyli@suse.de>
@@ -32,82 +33,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are some meta data of bcache are allocated by multiple pages,
-and they are used as bio bv_page for I/Os to the cache device. for
-example cache_set->uuids, cache->disk_buckets, journal_write->data,
-bset_tree->data.
+For some block devices which large capacity (e.g. 8TB) but small io_opt
+size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
+lated by,
+	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
+might be overflow to the unsigned int bcache_device->nr_stripes.
 
-For such meta data memory, all the allocated pages should be treated
-as a single memory block. Then the memory management and underlying I/O
-code can treat them more clearly.
+This patch uses the uint64_t variable to store DIV_ROUND_UP_ULL()
+and after the value is checked to be available in unsigned int range,
+sets it to bache_device->nr_stripes. Then the overflow is avoided.
 
-This patch adds __GFP_COMP flag to all the location allocating >0 order
-pages for the above mentioned meta data. Then their pages are treated
-as compound pages now.
-
+Reported-and-tested-by: Ken Raeburn <raeburn@redhat.com>
 Signed-off-by: Coly Li <colyli@suse.de>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783075
 Cc: stable@vger.kernel.org
 ---
- drivers/md/bcache/bset.c    | 2 +-
- drivers/md/bcache/btree.c   | 2 +-
- drivers/md/bcache/journal.c | 4 ++--
- drivers/md/bcache/super.c   | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/md/bcache/super.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/bcache/bset.c b/drivers/md/bcache/bset.c
-index 4995fcaefe29..67a2c47f4201 100644
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -322,7 +322,7 @@ int bch_btree_keys_alloc(struct btree_keys *b,
- 
- 	b->page_order = page_order;
- 
--	t->data = (void *) __get_free_pages(gfp, b->page_order);
-+	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
- 	if (!t->data)
- 		goto err;
- 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 6548a601edf0..dd116c83de80 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -785,7 +785,7 @@ int bch_btree_cache_alloc(struct cache_set *c)
- 	mutex_init(&c->verify_lock);
- 
- 	c->verify_ondisk = (void *)
--		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
-+		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
- 
- 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
- 
-diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index 90aac4e2333f..d8586b6ccb76 100644
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -999,8 +999,8 @@ int bch_journal_alloc(struct cache_set *c)
- 	j->w[1].c = c;
- 
- 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
--	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
--	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
-+	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
-+	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
- 		return -ENOMEM;
- 
- 	return 0;
 diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 38d79f66fde5..6db698b1739a 100644
+index 6db698b1739a..05ad1cd9f329 100644
 --- a/drivers/md/bcache/super.c
 +++ b/drivers/md/bcache/super.c
-@@ -1776,7 +1776,7 @@ void bch_cache_set_unregister(struct cache_set *c)
- }
+@@ -826,19 +826,19 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+ 	struct request_queue *q;
+ 	const size_t max_stripes = min_t(size_t, INT_MAX,
+ 					 SIZE_MAX / sizeof(atomic_t));
+-	size_t n;
++	uint64_t n;
+ 	int idx;
  
- #define alloc_bucket_pages(gfp, c)			\
--	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
-+	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
+ 	if (!d->stripe_size)
+ 		d->stripe_size = 1 << 31;
  
- struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
- {
+-	d->nr_stripes = DIV_ROUND_UP_ULL(sectors, d->stripe_size);
+-
+-	if (!d->nr_stripes || d->nr_stripes > max_stripes) {
+-		pr_err("nr_stripes too large or invalid: %u (start sector beyond end of disk?)\n",
+-			(unsigned int)d->nr_stripes);
++	n = DIV_ROUND_UP_ULL(sectors, d->stripe_size);
++	if (!n || n > max_stripes) {
++		pr_err("nr_stripes too large or invalid: %llu (start sector beyond end of disk?)\n",
++			n);
+ 		return -ENOMEM;
+ 	}
++	d->nr_stripes = n;
+ 
+ 	n = d->nr_stripes * sizeof(atomic_t);
+ 	d->stripe_sectors_dirty = kvzalloc(n, GFP_KERNEL);
 -- 
 2.26.2
 
