@@ -2,164 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5FE022D54C
-	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 07:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 089E322D554
+	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 08:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725874AbgGYF6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jul 2020 01:58:41 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:38159 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725825AbgGYF6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jul 2020 01:58:41 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1D6465C012D;
-        Sat, 25 Jul 2020 01:58:40 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sat, 25 Jul 2020 01:58:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=NAfg5uNULqdE3UVUsrBrauPhrY/
-        FhLHsqmtBKoZLlwg=; b=GaNj2KIxLCe52Jw8AKy/OJ1sv6K7Q7q01PTvS1ghZJr
-        i2Z1XapHlCs3qU1PvurQCf8NwMJVvwcPgviEDzhLppTxvbG/oDMIFwGGVduq7XIX
-        ZwqV4JyBsZtXTQaFMRrcnTSgF5jFTGFXRFOHFdYFfZ7MVnXVVsVrOi1EdwHGw4tA
-        5bYAxWNXfDmNWGBOdA73kwEaRrE2DZn5uIZhVQwbOr9/EONLwLxJ5SN3Xcmnxnd5
-        10LfnLBOs54LZyjW6zhBZgBCMfut6zJeIuV+YJmuAH86jO8ZVtgd/lM/s6k5eiUR
-        9EY4LMMKtJN9KTkizMS1CzyxqOtTurdXHCa4vZn7VHA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=NAfg5u
-        NULqdE3UVUsrBrauPhrY/FhLHsqmtBKoZLlwg=; b=Q35a7uux7NMSyNsRfymz9n
-        UGHVPAoC1MfBoV4exwo/ULhcV2LuKs9iYin1q4okMx91uUesMFB4gtjIG0t5WR+t
-        wddNmNGoN4BF8h5q2XNX7+zJZXZm5g3uD6PceLa7ohy550eeUdaf7Of5uTTlE3zm
-        vzQA79+pXkv7TbvaWSeoy0+cIYVbdmBuH1IvTZ+r3MAJBUETt0UWS7zPggMk8yWn
-        /q5XLddCLGugkUkJFl3K59o8CkiHdCK8LTFw2LWUjxdxU3ugObCZrbck9AT4TOXy
-        bTvNvskvUI0MF5IAJQQ0+TTc+yCrvSrI7QEwagyhuDGNf1KGEEiLKpOAFW2HxTTQ
-        ==
-X-ME-Sender: <xms:D8obX6HBDvjMtiuUweBe-Ml3dj_6FRm2JnRPt9GD2Oh1evk1lXgGJA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrheeggddutdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:D8obX7UzoUZ1U6Tg-PRv8GovlL3Z9hpGsdTIoPWugAX-SYWTmZaAFA>
-    <xmx:D8obX0L6U39-ZHMrVVUSGnr_MQyVfsqP8-RwXK2iSn5lcbH6UlXpfA>
-    <xmx:D8obX0FGVN-bsbO1vYdrhsoYEy4FWiFy0l5d4NLenixtgry01Q859w>
-    <xmx:EMobX6ezBcjugYPdC8kLFQD-o0wrAs_v4CRyVlpYO_HYdpfxhau1ag>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1C2223060067;
-        Sat, 25 Jul 2020 01:58:39 -0400 (EDT)
-Date:   Sat, 25 Jul 2020 07:58:40 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        'Eric Dumazet' <edumazet@google.com>,
-        'Willy Tarreau' <w@1wt.eu>,
-        Joseph Salisbury <Joseph.Salisbury@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>
-Subject: Re: UDP data corruption in v4.4
-Message-ID: <20200725055840.GD1047853@kroah.com>
-References: <KL1P15301MB028018F5C84C618BF7628045BF740@KL1P15301MB0280.APCP153.PROD.OUTLOOK.COM>
+        id S1726467AbgGYGEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jul 2020 02:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51472 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726273AbgGYGEk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jul 2020 02:04:40 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 930E6C0619D3;
+        Fri, 24 Jul 2020 23:04:40 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id 11so10762763qkn.2;
+        Fri, 24 Jul 2020 23:04:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8vmqEFkkhuc83ajpghYQrC7IIiCrJVCK+qai3kO/Nh0=;
+        b=n/Y556oHtWThq9k02J6p4NlstrrUlu24H0ROko8CgA1zXORv+Ci/GmaMf6LIhl6KJT
+         tStzU6gS7onMVs0zYdmAkRMkjoxtzI+UYPMb2XPiRBLwQzhuF24jWPtYhJhuX/9k1jv9
+         m8E0WdZ08rHy7tOA5SUNDFDCnA4mAHHgnSzSJP7iXMNmC5/PZEIVaalR0cgESK+xPALa
+         vUqaXhGHioWuxMjmTVY+n/GNmutb5z80yK2upN/VaqPXsFjNx4zmgTDxWXD/8KdLcW94
+         9O/Zmt5PAvkaeo3wWVfVv9yTNvk6vjKDm4y2CFJewiNzhD5VA3rtfttrnO4/t6opxFIa
+         K8+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8vmqEFkkhuc83ajpghYQrC7IIiCrJVCK+qai3kO/Nh0=;
+        b=C8+NG0Z9VWb2CItELS8+Mh2wGJSgwTBIXFow6SbIoVoKW5+YZ+LoplBUVkSGXrJ++b
+         JsgVK85t+uXrdU5KwTnYsmvxOVzv0RNSlTARhEPIosaOp83HQ3un2nSbxXgA70Cz8Z5R
+         GcndZpUOuHhCu3oRprC2s5njn314yShLkviPRPepNDFnzEJnnHKbUhvGuK0wPTwStz4q
+         yypXmAqpO5iMU6M7CW+3KhFf8J4qkrFv/iOzHRT68zZhHNgQMo49dvDkhpDUO4yQ+tGS
+         sX26hnpLX57bd0bbJ1JSQQJrOZBQnmxk7wYgKJrsxoLjO2rCcZJseH9V5XuCfo3ctBU/
+         DFXg==
+X-Gm-Message-State: AOAM533vbkZHx+FDRgkXaubElkNII3oIADdpzbw/b8BE1TTBhlwP8WHg
+        fUK2yqMZ24rM7NHOJEUFwFo=
+X-Google-Smtp-Source: ABdhPJwtnnHQ01RLq4pKY3XEJgGBDv5enPBTjDkFUg+CjpA0ZhCxkTrCrY0MA/XzPplnVHpP3xrmJQ==
+X-Received: by 2002:a05:620a:22b4:: with SMTP id p20mr13437598qkh.340.1595657079586;
+        Fri, 24 Jul 2020 23:04:39 -0700 (PDT)
+Received: from localhost.localdomain ([2604:1380:45d1:2600::1])
+        by smtp.gmail.com with ESMTPSA id 139sm9781548qkl.13.2020.07.24.23.04.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Jul 2020 23:04:38 -0700 (PDT)
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Minas Harutyunyan <hminas@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] usb: dwc2: Fix parameter type in function pointer prototype
+Date:   Fri, 24 Jul 2020 23:03:54 -0700
+Message-Id: <20200725060354.177009-1-natechancellor@gmail.com>
+X-Mailer: git-send-email 2.28.0.rc1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <KL1P15301MB028018F5C84C618BF7628045BF740@KL1P15301MB0280.APCP153.PROD.OUTLOOK.COM>
+X-Patchwork-Bot: notify
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 25, 2020 at 02:21:06AM +0000, Dexuan Cui wrote:
-> Hi,
-> The v4.4 stable kernel (currently it's v4.4.231) lacks this bugfix:
-> 327868212381 ("make skb_copy_datagram_msg() et.al. preserve ->msg_iter on error")
-> , as a result, the v4.4 kernel can deliver corrupt data to the application
-> when a corrupt UDP packet is closely followed by a valid UDP packet:
-> when the same invocation of the recvmsg() syscall delivers the corrupt
-> packet's UDP payload to the application's receive buffer, it provides the
-> UDP payload length and the "from IP/Port" of the valid packet to the 
-> application -- this mismatch makes the issue worse.
-> 
-> Details:
-> 
-> For a UDP packet longer than 76 bytes (see the v5.8-rc6 kernel's
-> include/linux/skbuff.h:3951), Linux delays the UDP checksum verification
-> until the application invokes the syscall recvmsg().
-> 
-> In the recvmsg() syscall handler, while Linux is copying the UDP payload
-> to the application's memory, it calculates the UDP checksum. If the
-> calculated checksum doesn't match the received checksum, Linux drops the
-> corrupt UDP packet, and then starts to process the next packet (if any),
-> and if the next packet is valid (i.e. the checksum is correct), Linux will
-> copy the valid UDP packet's payload to the application's receiver buffer.
-> 
-> The bug is: before Linux starts to copy the valid UDP packet, the data
-> structure used to track how many more bytes should be copied to the
-> application memory is not reset to what it was when the application just
-> entered the kernel by the syscall! Consequently, only a small portion or
-> none of the valid packet's payload is copied to the application's receive
-> buffer, and later when the application exits from the kernel, actually
-> most of the application's receive buffer contains the payload of the
-> corrupt packet while recvmsg() returns the length of the UDP payload of
-> the valid packet.
-> 
-> For the mainline kernel, the bug was fixed by Al Viro in the commit 
-> 327868212381, but unluckily the bugfix is only backported to the
-> upstream v4.9+ kernels. I hope the bugfix can be backported to the
-> v4.4 stable kernel, since it's a "longterm" kernel and is still used by
-> some Linux distros.
-> 
-> It turns out backporting 327868212381 to v4.4 means that some 
-> Supporting patches must be backported first, so the overall changes
-> are pretty big...
-> 
-> I made the below one-line workaround patch to force the recvmsg() syscall
-> handler to return to the userspace when Linux detects a corrupt UDP packet,
-> so the application will invoke the syscall again to receive the following valid
-> UDP packet (note: the patch may not work well with blocking sockets, for
-> which typically the application doesn't expect an error of -EAGAIN. I
-> guess it would be safer to return -EINTR instead?):
-> 
-> --- a/net/ipv4/udp.c
-> +++ b/net/ipv4/udp.c
-> @@ -1367,6 +1367,7 @@ csum_copy_err:
->         /* starting over for a new packet, but check if we need to yield */
->         cond_resched();
->         msg->msg_flags &= ~MSG_TRUNC;
-> +       return -EAGAIN;
->         goto try_again;
-> }
-> 
-> 
-> Eric Dumazet made an alternative that performs the csum validation earlier:
-> 
-> --- a/net/ipv4/udp.c
-> +++ b/net/ipv4/udp.c
-> @@ -1589,8 +1589,7 @@ int udp_queue_rcv_skb(struct sock *sk, struct
-> sk_buff *skb)
->                 }
->         }
-> 
-> -       if (rcu_access_pointer(sk->sk_filter) &&
-> -           udp_lib_checksum_complete(skb))
-> +       if (udp_lib_checksum_complete(skb))
->                 goto csum_error;
-> 
->         if (sk_rcvqueues_full(sk, sk->sk_rcvbuf)) {
-> 
-> I personally like Eric's fix and IMHO we'd better have it in v4.4 rather than
-> trying to backport 327868212381.
+When booting up on a Raspberry Pi 4 with Control Flow Integrity checking
+enabled, the following warning/panic happens:
 
-Does Eric's fix work with your testing?  If so, great, can you turn it
-into something I can apply to the 4.4.y stable tree and send it to
-stable@vger.kernel.org?
+[    1.626435] CFI failure (target: dwc2_set_bcm_params+0x0/0x4):
+[    1.632408] WARNING: CPU: 0 PID: 32 at kernel/cfi.c:30 __cfi_check_fail+0x54/0x5c
+[    1.640021] Modules linked in:
+[    1.643137] CPU: 0 PID: 32 Comm: kworker/0:1 Not tainted 5.8.0-rc6-next-20200724-00051-g89ba619726de #1
+[    1.652693] Hardware name: Raspberry Pi 4 Model B Rev 1.2 (DT)
+[    1.658637] Workqueue: events deferred_probe_work_func
+[    1.663870] pstate: 60000005 (nZCv daif -PAN -UAO BTYPE=--)
+[    1.669542] pc : __cfi_check_fail+0x54/0x5c
+[    1.673798] lr : __cfi_check_fail+0x54/0x5c
+[    1.678050] sp : ffff8000102bbaa0
+[    1.681419] x29: ffff8000102bbaa0 x28: ffffab09e21c7000
+[    1.686829] x27: 0000000000000402 x26: ffff0000f6e7c228
+[    1.692238] x25: 00000000fb7cdb0d x24: 0000000000000005
+[    1.697647] x23: ffffab09e2515000 x22: ffffab09e069a000
+[    1.703055] x21: 4c550309df1cf4c1 x20: ffffab09e2433c60
+[    1.708462] x19: ffffab09e160dc50 x18: ffff0000f6e8cc78
+[    1.713870] x17: 0000000000000041 x16: ffffab09e0bce6f8
+[    1.719278] x15: ffffab09e1c819b7 x14: 0000000000000003
+[    1.724686] x13: 00000000ffffefff x12: 0000000000000000
+[    1.730094] x11: 0000000000000000 x10: 00000000ffffffff
+[    1.735501] x9 : c932f7abfc4bc600 x8 : c932f7abfc4bc600
+[    1.740910] x7 : 077207610770075f x6 : ffff0000f6c38f00
+[    1.746317] x5 : 0000000000000000 x4 : 0000000000000000
+[    1.751723] x3 : 0000000000000000 x2 : 0000000000000000
+[    1.757129] x1 : ffff8000102bb7d8 x0 : 0000000000000032
+[    1.762539] Call trace:
+[    1.765030]  __cfi_check_fail+0x54/0x5c
+[    1.768938]  __cfi_check+0x5fa6c/0x66afc
+[    1.772932]  dwc2_init_params+0xd74/0xd78
+[    1.777012]  dwc2_driver_probe+0x484/0x6ec
+[    1.781180]  platform_drv_probe+0xb4/0x100
+[    1.785350]  really_probe+0x228/0x63c
+[    1.789076]  driver_probe_device+0x80/0xc0
+[    1.793247]  __device_attach_driver+0x114/0x160
+[    1.797857]  bus_for_each_drv+0xa8/0x128
+[    1.801851]  __device_attach.llvm.14901095709067289134+0xc0/0x170
+[    1.808050]  bus_probe_device+0x44/0x100
+[    1.812044]  deferred_probe_work_func+0x78/0xb8
+[    1.816656]  process_one_work+0x204/0x3c4
+[    1.820736]  worker_thread+0x2f0/0x4c4
+[    1.824552]  kthread+0x174/0x184
+[    1.827837]  ret_from_fork+0x10/0x18
 
-thanks,
+CFI validates that all indirect calls go to a function with the same
+exact function pointer prototype. In this case, dwc2_set_bcm_params
+is the target, which has a parameter of type 'struct dwc2_hsotg *',
+but it is being implicitly cast to have a parameter of type 'void *'
+because that is the set_params function pointer prototype. Make the
+function pointer protoype match the definitions so that there is no
+more violation.
 
-greg k-h
+Cc: stable@vger.kernel.org
+Fixes: 7de1debcd2de ("usb: dwc2: Remove platform static params")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1107
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ drivers/usb/dwc2/params.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc2/params.c b/drivers/usb/dwc2/params.c
+index ce736d67c7c3..fd73ddd8eb75 100644
+--- a/drivers/usb/dwc2/params.c
++++ b/drivers/usb/dwc2/params.c
+@@ -860,7 +860,7 @@ int dwc2_get_hwparams(struct dwc2_hsotg *hsotg)
+ int dwc2_init_params(struct dwc2_hsotg *hsotg)
+ {
+ 	const struct of_device_id *match;
+-	void (*set_params)(void *data);
++	void (*set_params)(struct dwc2_hsotg *data);
+ 
+ 	dwc2_set_default_params(hsotg);
+ 	dwc2_get_device_properties(hsotg);
+
+base-commit: 23ee3e4e5bd27bdbc0f1785eef7209ce872794c7
+-- 
+2.28.0.rc1
+
