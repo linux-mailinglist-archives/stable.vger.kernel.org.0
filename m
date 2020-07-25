@@ -2,95 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1826C22D781
-	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 14:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B3122D72F
+	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 14:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726613AbgGYM3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jul 2020 08:29:50 -0400
-Received: from gateway36.websitewelcome.com ([50.116.127.2]:39775 "EHLO
-        gateway36.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726583AbgGYM3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jul 2020 08:29:50 -0400
-X-Greylist: delayed 1505 seconds by postgrey-1.27 at vger.kernel.org; Sat, 25 Jul 2020 08:29:49 EDT
-Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
-        by gateway36.websitewelcome.com (Postfix) with ESMTP id 7E85B400CF0AA
-        for <stable@vger.kernel.org>; Sat, 25 Jul 2020 06:07:31 -0500 (CDT)
-Received: from cs2002.webhostbox.net ([162.241.85.127])
-        by cmsmtp with SMTP
-        id zIbEjffltRQIVzIbEjGMAb; Sat, 25 Jul 2020 06:44:20 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=abcd73.online; s=default; h=Content-Transfer-Encoding:Content-Type:
-        Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Sender:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=QJCktIq/b5aU2kPukKZvpjQfshYxArnZr3d7uGPQ508=; b=aGObecA0g/me4gnmUm0i2IJrF8
-        bkn1GOKP6joW5ZLNZIyzK+ZDoekUdUIQ7uz2q67wODoF3TIcuY73QtzVhbpjrGCOvuxlGuKUergbp
-        KHrv+tWDS4c4/fGEaj3MFPprqtk9tKcRgePKudoTYc3UKvFdGCYhh9D9ZjH11/WQyLthB3Cpwcu5+
-        gTdYmA1w/SnugviijvOSjN8CifbEJzqZNgcLV3nPiyZVh4KMGCEjGbzTKaZHMzD+l6eHpc5iifj24
-        n/X5pHqkLE2OMp7vtklOabP/QEUHn7WEJFmPe8Zy/B1ySZUJ0Upm8g7wNG1qR8vqGGnJR6yx32JDY
-        GeXh/Isg==;
-Received: from cs2002.webhostbox.net ([162.241.85.127]:38524)
-        by cs2002.webhostbox.net with esmtpa (Exim 4.93)
-        (envelope-from <ada@abcd73.online>)
-        id 1jzIau-000ijT-Kx; Sat, 25 Jul 2020 11:44:00 +0000
+        id S1726926AbgGYMCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jul 2020 08:02:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52068 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726583AbgGYMCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Jul 2020 08:02:42 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 5EA59AFBE;
+        Sat, 25 Jul 2020 12:02:50 +0000 (UTC)
+From:   Coly Li <colyli@suse.de>
+To:     axboe@kernel.dk
+Cc:     linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
+        Coly Li <colyli@suse.de>, stable@vger.kernel.org
+Subject: [PATCH 02/25] bcache: allocate meta data pages as compound pages
+Date:   Sat, 25 Jul 2020 20:00:16 +0800
+Message-Id: <20200725120039.91071-3-colyli@suse.de>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200725120039.91071-1-colyli@suse.de>
+References: <20200725120039.91071-1-colyli@suse.de>
 MIME-Version: 1.0
-Date:   Sat, 25 Jul 2020 06:43:59 -0500
-From:   Oxford Proofreading Company <ada@abcd73.online>
-To:     sswr@yahoo.com
-Subject: English Language Proofreading
-Reply-To: submission@academicproofreading.online
-Mail-Reply-To: submission@academicproofreading.online
-Message-ID: <8e2a82f96adcb5ba1f4331010fbc29e5@abcd73.online>
-X-Sender: ada@abcd73.online
-User-Agent: Roundcube Webmail/1.3.13
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cs2002.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - abcd73.online
-X-BWhitelist: no
-X-Source-IP: 162.241.85.127
-X-Source-L: No
-X-Exim-ID: 1jzIau-000ijT-Kx
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: cs2002.webhostbox.net [162.241.85.127]:38524
-X-Source-Auth: ada@abcd73.online
-X-Email-Count: 68
-X-Source-Cap: emVhbG85cnk7emVhbG85cnk7Y3MyMDAyLndlYmhvc3Rib3gubmV0
-X-Local-Domain: yes
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Oxford Academic Company has successfully assisted over 2 million authors 
-in over 125 countries. We have over 400+ universities and institutional 
-partners worldwide.
+There are some meta data of bcache are allocated by multiple pages,
+and they are used as bio bv_page for I/Os to the cache device. for
+example cache_set->uuids, cache->disk_buckets, journal_write->data,
+bset_tree->data.
 
-Send your documents to us at: submission@academicproofreading.online
+For such meta data memory, all the allocated pages should be treated
+as a single memory block. Then the memory management and underlying I/O
+code can treat them more clearly.
 
+This patch adds __GFP_COMP flag to all the location allocating >0 order
+pages for the above mentioned meta data. Then their pages are treated
+as compound pages now.
 
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+---
+ drivers/md/bcache/bset.c    | 2 +-
+ drivers/md/bcache/btree.c   | 2 +-
+ drivers/md/bcache/journal.c | 4 ++--
+ drivers/md/bcache/super.c   | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/md/bcache/bset.c b/drivers/md/bcache/bset.c
+index 4995fcaefe29..67a2c47f4201 100644
+--- a/drivers/md/bcache/bset.c
++++ b/drivers/md/bcache/bset.c
+@@ -322,7 +322,7 @@ int bch_btree_keys_alloc(struct btree_keys *b,
+ 
+ 	b->page_order = page_order;
+ 
+-	t->data = (void *) __get_free_pages(gfp, b->page_order);
++	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
+ 	if (!t->data)
+ 		goto err;
+ 
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 6548a601edf0..dd116c83de80 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -785,7 +785,7 @@ int bch_btree_cache_alloc(struct cache_set *c)
+ 	mutex_init(&c->verify_lock);
+ 
+ 	c->verify_ondisk = (void *)
+-		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
++		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
+ 
+ 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
+ 
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index 90aac4e2333f..d8586b6ccb76 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -999,8 +999,8 @@ int bch_journal_alloc(struct cache_set *c)
+ 	j->w[1].c = c;
+ 
+ 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
+-	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
+-	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
++	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
++	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
+ 		return -ENOMEM;
+ 
+ 	return 0;
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 38d79f66fde5..6db698b1739a 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1776,7 +1776,7 @@ void bch_cache_set_unregister(struct cache_set *c)
+ }
+ 
+ #define alloc_bucket_pages(gfp, c)			\
+-	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
++	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
+ 
+ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
+ {
+-- 
+2.26.2
 
-
-
-
-
-
-
-
-
-
-
-
-Best regards,
-
-Stephen Woods
-Oxford Academic Proofreading Company
