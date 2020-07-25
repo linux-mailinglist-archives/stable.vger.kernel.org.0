@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B565C22D73C
-	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 14:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B32922D761
+	for <lists+stable@lfdr.de>; Sat, 25 Jul 2020 14:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726990AbgGYMDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jul 2020 08:03:00 -0400
-Received: from mx2.suse.de ([195.135.220.15]:52272 "EHLO mx2.suse.de"
+        id S1727096AbgGYMDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jul 2020 08:03:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52864 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726583AbgGYMC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Jul 2020 08:02:59 -0400
+        id S1727085AbgGYMDq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Jul 2020 08:03:46 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 5373DAEAF;
-        Sat, 25 Jul 2020 12:03:07 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 96484AB55;
+        Sat, 25 Jul 2020 12:03:53 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     axboe@kernel.dk
 Cc:     linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
-        Coly Li <colyli@suse.de>, Ken Raeburn <raeburn@redhat.com>,
+        Coly Li <colyli@suse.de>, Christoph Hellwig <hch@lst.de>,
         stable@vger.kernel.org
-Subject: [PATCH 08/25] bcache: fix overflow in offset_to_stripe()
-Date:   Sat, 25 Jul 2020 20:00:22 +0800
-Message-Id: <20200725120039.91071-9-colyli@suse.de>
+Subject: [PATCH 25/25] bcache: fix bio_{start,end}_io_acct with proper device
+Date:   Sat, 25 Jul 2020 20:00:39 +0800
+Message-Id: <20200725120039.91071-26-colyli@suse.de>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200725120039.91071-1-colyli@suse.de>
 References: <20200725120039.91071-1-colyli@suse.de>
@@ -33,136 +33,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-offset_to_stripe() returns the stripe number (in type unsigned int) from
-an offset (in type uint64_t) by the following calculation,
-	do_div(offset, d->stripe_size);
-For large capacity backing device (e.g. 18TB) with small stripe size
-(e.g. 4KB), the result is 4831838208 and exceeds UINT_MAX. The actual
-returned value which caller receives is 536870912, due to the overflow.
+Commit 85750aeb748f ("bcache: use bio_{start,end}_io_acct") moves the
+io account code to the location after bio_set_dev(bio, dc->bdev) in
+cached_dev_make_request(). Then the account is performed incorrectly on
+backing device, indeed the I/O should be counted to bcache device like
+/dev/bcache0.
 
-Indeed in bcache_device_init(), bcache_device->nr_stripes is limited in
-range [1, INT_MAX]. Therefore all valid stripe numbers in bcache are
-in range [0, bcache_dev->nr_stripes - 1].
+With the mistaken I/O account, iostat does not display I/O counts for
+bcache device and all the numbers go to backing device. In writeback
+mode, the hard drive may have 340K+ IOPS which is impossible and wrong
+for spinning disk.
 
-This patch adds a upper limition check in offset_to_stripe(): the max
-valid stripe number should be less than bcache_device->nr_stripes. If
-the calculated stripe number from do_div() is equal to or larger than
-bcache_device->nr_stripe, -EINVAL will be returned. (Normally nr_stripes
-is less than INT_MAX, exceeding upper limitation doesn't mean overflow,
-therefore -EOVERFLOW is not used as error code.)
+This patch introduces bch_bio_start_io_acct() and bch_bio_end_io_acct(),
+which switches bio->bi_disk to bcache device before calling
+bio_start_io_acct() or bio_end_io_acct(). Now the I/Os are counted to
+bcache device, and bcache device, cache device and backing device have
+their correct I/O count information back.
 
-This patch also changes nr_stripes' type of struct bcache_device from
-'unsigned int' to 'int', and return value type of offset_to_stripe()
-from 'unsigned int' to 'int', to match their exact data ranges.
-
-All locations where bcache_device->nr_stripes and offset_to_stripe() are
-referenced also get updated for the above type change.
-
-Reported-and-tested-by: Ken Raeburn <raeburn@redhat.com>
+Fixes: 85750aeb748f ("bcache: use bio_{start,end}_io_acct")
 Signed-off-by: Coly Li <colyli@suse.de>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783075
+Cc: Christoph Hellwig <hch@lst.de>
 Cc: stable@vger.kernel.org
 ---
- drivers/md/bcache/bcache.h    |  2 +-
- drivers/md/bcache/writeback.c | 14 +++++++++-----
- drivers/md/bcache/writeback.h | 19 +++++++++++++++++--
- 3 files changed, 27 insertions(+), 8 deletions(-)
+ drivers/md/bcache/request.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
-index 221e0191b687..80e3c4813fb0 100644
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -264,7 +264,7 @@ struct bcache_device {
- #define BCACHE_DEV_UNLINK_DONE		2
- #define BCACHE_DEV_WB_RUNNING		3
- #define BCACHE_DEV_RATE_DW_RUNNING	4
--	unsigned int		nr_stripes;
-+	int			nr_stripes;
- 	unsigned int		stripe_size;
- 	atomic_t		*stripe_sectors_dirty;
- 	unsigned long		*full_dirty_stripes;
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index 5397a2c5d6cc..4f4ad6b3d43a 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -521,15 +521,19 @@ void bcache_dev_sectors_dirty_add(struct cache_set *c, unsigned int inode,
- 				  uint64_t offset, int nr_sectors)
- {
- 	struct bcache_device *d = c->devices[inode];
--	unsigned int stripe_offset, stripe, sectors_dirty;
-+	unsigned int stripe_offset, sectors_dirty;
-+	int stripe;
+diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
+index 7acf024e99f3..8ea0f079c1d0 100644
+--- a/drivers/md/bcache/request.c
++++ b/drivers/md/bcache/request.c
+@@ -617,6 +617,28 @@ static void cache_lookup(struct closure *cl)
  
- 	if (!d)
- 		return;
+ /* Common code for the make_request functions */
  
-+	stripe = offset_to_stripe(d, offset);
-+	if (stripe < 0)
-+		return;
++static inline void bch_bio_start_io_acct(struct gendisk *acct_bi_disk,
++					 struct bio *bio,
++					 unsigned long *start_time)
++{
++	struct gendisk *saved_bi_disk = bio->bi_disk;
 +
- 	if (UUID_FLASH_ONLY(&c->uuids[inode]))
- 		atomic_long_add(nr_sectors, &c->flash_dev_dirty_sectors);
- 
--	stripe = offset_to_stripe(d, offset);
- 	stripe_offset = offset & (d->stripe_size - 1);
- 
- 	while (nr_sectors) {
-@@ -569,12 +573,12 @@ static bool dirty_pred(struct keybuf *buf, struct bkey *k)
- static void refill_full_stripes(struct cached_dev *dc)
- {
- 	struct keybuf *buf = &dc->writeback_keys;
--	unsigned int start_stripe, stripe, next_stripe;
-+	unsigned int start_stripe, next_stripe;
-+	int stripe;
- 	bool wrapped = false;
- 
- 	stripe = offset_to_stripe(&dc->disk, KEY_OFFSET(&buf->last_scanned));
--
--	if (stripe >= dc->disk.nr_stripes)
-+	if (stripe < 0)
- 		stripe = 0;
- 
- 	start_stripe = stripe;
-diff --git a/drivers/md/bcache/writeback.h b/drivers/md/bcache/writeback.h
-index b029843ce5b6..3f1230e22de0 100644
---- a/drivers/md/bcache/writeback.h
-+++ b/drivers/md/bcache/writeback.h
-@@ -52,10 +52,22 @@ static inline uint64_t bcache_dev_sectors_dirty(struct bcache_device *d)
- 	return ret;
- }
- 
--static inline unsigned int offset_to_stripe(struct bcache_device *d,
-+static inline int offset_to_stripe(struct bcache_device *d,
- 					uint64_t offset)
- {
- 	do_div(offset, d->stripe_size);
++	bio->bi_disk = acct_bi_disk;
++	*start_time = bio_start_io_acct(bio);
++	bio->bi_disk = saved_bi_disk;
++}
 +
-+	/* d->nr_stripes is in range [1, INT_MAX] */
-+	if (unlikely(offset >= d->nr_stripes)) {
-+		pr_err("Invalid stripe %llu (>= nr_stripes %d).\n",
-+			offset, d->nr_stripes);
-+		return -EINVAL;
-+	}
++static inline void bch_bio_end_io_acct(struct gendisk *acct_bi_disk,
++				       struct bio *bio,
++				       unsigned long start_time)
++{
++	struct gendisk *saved_bi_disk = bio->bi_disk;
 +
-+	/*
-+	 * Here offset is definitly smaller than INT_MAX,
-+	 * return it as int will never overflow.
-+	 */
- 	return offset;
- }
- 
-@@ -63,7 +75,10 @@ static inline bool bcache_dev_stripe_dirty(struct cached_dev *dc,
- 					   uint64_t offset,
- 					   unsigned int nr_sectors)
++	bio->bi_disk = acct_bi_disk;
++	bio_end_io_acct(bio, start_time);
++	bio->bi_disk = saved_bi_disk;
++}
++
+ static void request_endio(struct bio *bio)
  {
--	unsigned int stripe = offset_to_stripe(&dc->disk, offset);
-+	int stripe = offset_to_stripe(&dc->disk, offset);
-+
-+	if (stripe < 0)
-+		return false;
+ 	struct closure *cl = bio->bi_private;
+@@ -668,7 +690,7 @@ static void backing_request_endio(struct bio *bio)
+ static void bio_complete(struct search *s)
+ {
+ 	if (s->orig_bio) {
+-		bio_end_io_acct(s->orig_bio, s->start_time);
++		bch_bio_end_io_acct(s->d->disk, s->orig_bio, s->start_time);
+ 		trace_bcache_request_end(s->d, s->orig_bio);
+ 		s->orig_bio->bi_status = s->iop.status;
+ 		bio_endio(s->orig_bio);
+@@ -728,7 +750,7 @@ static inline struct search *search_alloc(struct bio *bio,
+ 	s->recoverable		= 1;
+ 	s->write		= op_is_write(bio_op(bio));
+ 	s->read_dirty_data	= 0;
+-	s->start_time		= bio_start_io_acct(bio);
++	bch_bio_start_io_acct(d->disk, bio, &s->start_time);
  
- 	while (1) {
- 		if (atomic_read(dc->disk.stripe_sectors_dirty + stripe))
+ 	s->iop.c		= d->c;
+ 	s->iop.bio		= NULL;
+@@ -1080,7 +1102,7 @@ static void detached_dev_end_io(struct bio *bio)
+ 	bio->bi_end_io = ddip->bi_end_io;
+ 	bio->bi_private = ddip->bi_private;
+ 
+-	bio_end_io_acct(bio, ddip->start_time);
++	bch_bio_end_io_acct(ddip->d->disk, bio, ddip->start_time);
+ 
+ 	if (bio->bi_status) {
+ 		struct cached_dev *dc = container_of(ddip->d,
+@@ -1105,7 +1127,8 @@ static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
+ 	 */
+ 	ddip = kzalloc(sizeof(struct detached_dev_io_private), GFP_NOIO);
+ 	ddip->d = d;
+-	ddip->start_time = bio_start_io_acct(bio);
++	bch_bio_start_io_acct(d->disk, bio, &ddip->start_time);
++
+ 	ddip->bi_end_io = bio->bi_end_io;
+ 	ddip->bi_private = bio->bi_private;
+ 	bio->bi_end_io = detached_dev_end_io;
 -- 
 2.26.2
 
