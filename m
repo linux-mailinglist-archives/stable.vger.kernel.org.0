@@ -2,83 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F09422DF6F
-	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 15:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107FE22DF8E
+	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 15:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726858AbgGZNKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Jul 2020 09:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50732 "EHLO mail.kernel.org"
+        id S1727038AbgGZNwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Jul 2020 09:52:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40766 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726455AbgGZNKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Jul 2020 09:10:38 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 483B820714;
-        Sun, 26 Jul 2020 13:10:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595769037;
-        bh=ayUpVQk8ZsLsvjZoIjUZ6yNGeOkt4pSfgYTny10ZxuY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=F5VLAukEUGp+GQxx+sOVQ6fdeMs6gxJsgyBFljZ6yIAyVky3ctSGDAIWkyjke6Csu
-         lB17QejylBaP4FkslEo0arvYKg5aNa9F84GWytaqOWKbP48BbifcgA9XfRDdwBcXsh
-         YPh27PBJniDsdCjQE5wDC59O4Quv9nyxtpw+2rV0=
-Date:   Sun, 26 Jul 2020 15:10:35 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qu Wenruo <wqu@suse.com>
-Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>
-Subject: Re: Patch "btrfs: qgroup: fix data leak caused by race between
- writeback and truncate" has been added to the 4.14-stable tree
-Message-ID: <20200726131035.GA1640701@kroah.com>
-References: <15957672628285@kroah.com>
- <3b1eaf71-0b54-ae4d-0fd5-26103ee8ff3d@suse.com>
- <64ba52d0-04e6-63a8-28f8-36345a708b20@suse.com>
+        id S1725848AbgGZNwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Jul 2020 09:52:33 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id BD24FB64D;
+        Sun, 26 Jul 2020 13:52:41 +0000 (UTC)
+From:   Coly Li <colyli@suse.de>
+To:     sagi@grimberg.me, philipp.reisner@linbit.com,
+        linux-nvme@lists.infradead.org, linux-block@vger.kernel.org,
+        linux-bcache@vger.kernel.org, hch@lst.de
+Cc:     Coly Li <colyli@suse.de>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Hannes Reinecke <hare@suse.de>, Jan Kara <jack@suse.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
+        Vlastimil Babka <vbabka@suse.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] nvme-tcp: use sendpage_ok() to check page for kernel_sendpage()
+Date:   Sun, 26 Jul 2020 21:52:23 +0800
+Message-Id: <20200726135224.107516-1-colyli@suse.de>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <64ba52d0-04e6-63a8-28f8-36345a708b20@suse.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jul 26, 2020 at 08:54:29PM +0800, Qu Wenruo wrote:
-> 
-> 
-> On 2020/7/26 下午8:51, Qu Wenruo wrote:
-> > 
-> > 
-> > On 2020/7/26 下午8:41, gregkh@linuxfoundation.org wrote:
-> >>
-> >> This is a note to let you know that I've just added the patch titled
-> >>
-> >>     btrfs: qgroup: fix data leak caused by race between writeback and truncate
-> >>
-> >> to the 4.14-stable tree which can be found at:
-> >>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> >>
-> >> The filename of the patch is:
-> >>      btrfs-qgroup-fix-data-leak-caused-by-race-between-writeback-and-truncate.patch
-> >> and it can be found in the queue-4.14 subdirectory.
-> >>
-> >> If you, or anyone else, feels it should not be added to the stable tree,
-> >> please let <stable@vger.kernel.org> know about it.
-> > 
-> > Please don't merge this patch for any of the stable branches.
-> > 
-> > This patch needs one unmerged patch ("btrfs: change timing for qgroup
-> > reserved space for ordered extents to fix reserved space leak", already
-> > in maintainer's tree) as prerequisite.
-> 
-> Also add btrfs mail list to the discssusion.
-> 
-> > 
-> > The behavior without that patch could be problematic.
-> > 
-> > I should have noticed this earlier.
+Currently nvme_tcp_try_send_data() doesn't use kernel_sendpage() to
+send slab pages. But for pages allocated by __get_free_pages() without
+__GFP_COMP, which also have refcount as 0, they are still sent by
+kernel_sendpage() to remote end, this is problematic.
 
-No problem, now dropped from all stable queues.
+When bcache uses a remote NVMe SSD via nvme-over-tcp as its cache
+device, writing meta data e.g. cache_set->disk_buckets to remote SSD may
+trigger a kernel panic due to the above problem. Bcause the meta data
+pages for cache_set->disk_buckets are allocated by __get_free_pages()
+without __GFP_COMP.
 
-greg k-h
+This problem should be fixed both in upper layer driver (bcache) and
+nvme-over-tcp code. This patch fixes the nvme-over-tcp code by checking
+whether the page refcount is 0, if yes then don't use kernel_sendpage()
+and call sock_no_sendpage() to send the page into network stack.
+
+Such check is done by macro sendpage_ok() in this patch, which is defined
+in include/linux/net.h as,
+	(!PageSlab(page) && page_count(page) >= 1)
+If sendpage_ok() returns false, sock_no_sendpage() will handle the page
+other than kernel_sendpage().
+
+The code comments in this patch is copied and modified from drbd where
+the similar problem already gets solved by Philipp Reisner. This is the
+best code comment including my own version.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Jan Kara <jack@suse.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+Cc: Philipp Reisner <philipp.reisner@linbit.com>
+Cc: Sagi Grimberg <sagi@grimberg.me>
+Cc: Vlastimil Babka <vbabka@suse.com>
+Cc: stable@vger.kernel.org
+---
+Changelog:
+v3: introduce a more common name sendpage_ok() for the open coded check
+v2: fix typo in patch subject.
+v1: the initial version.
+
+ drivers/nvme/host/tcp.c | 13 +++++++++++--
+ include/linux/net.h     |  2 ++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 79ef2b8e2b3c..f9952f6d94b9 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -887,8 +887,17 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ 		else
+ 			flags |= MSG_MORE | MSG_SENDPAGE_NOTLAST;
+ 
+-		/* can't zcopy slab pages */
+-		if (unlikely(PageSlab(page))) {
++		/*
++		 * e.g. XFS meta- & log-data is in slab pages, or bcache meta
++		 * data pages, or other high order pages allocated by
++		 * __get_free_pages() without __GFP_COMP, which have a page_count
++		 * of 0 and/or have PageSlab() set. We cannot use send_page for
++		 * those, as that does get_page(); put_page(); and would cause
++		 * either a VM_BUG directly, or __page_cache_release a page that
++		 * would actually still be referenced by someone, leading to some
++		 * obscure delayed Oops somewhere else.
++		 */
++		if (unlikely(!sendpage_ok(page))) {
+ 			ret = sock_no_sendpage(queue->sock, page, offset, len,
+ 					flags);
+ 		} else {
+diff --git a/include/linux/net.h b/include/linux/net.h
+index 016a9c5faa34..41e5d2898e97 100644
+--- a/include/linux/net.h
++++ b/include/linux/net.h
+@@ -290,6 +290,8 @@ do {									\
+ #define net_get_random_once_wait(buf, nbytes)			\
+ 	get_random_once_wait((buf), (nbytes))
+ 
++#define sendpage_ok(page)	(!PageSlab(page) && page_count(page) >= 1)
++
+ int kernel_sendmsg(struct socket *sock, struct msghdr *msg, struct kvec *vec,
+ 		   size_t num, size_t len);
+ int kernel_sendmsg_locked(struct sock *sk, struct msghdr *msg,
+-- 
+2.26.2
+
