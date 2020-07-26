@@ -2,116 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AEA622E1CF
-	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 20:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9D122E207
+	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 20:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726072AbgGZSDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Jul 2020 14:03:21 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.54]:14981 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725972AbgGZSDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Jul 2020 14:03:21 -0400
-X-Greylist: delayed 716 seconds by postgrey-1.27 at vger.kernel.org; Sun, 26 Jul 2020 14:03:20 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1595786599;
-        s=strato-dkim-0002; d=gerhold.net;
-        h=In-Reply-To:References:Message-ID:Subject:Cc:To:From:Date:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=sgrIlsRu3tTV7/SFO/NsvidkS88USSPVoIq5RUCV9cY=;
-        b=mW6VxErJ1mnpiiI27BaRuU88RCUwcUqhIs/WtlBaHskpWsHRSn/Iwd26vAzEh5z+lE
-        7CH0C0yTJmR+004aAVMOdvUF5w8ij624ADgGP6mnDzfQtNOetboC/EPf9jz73dQnY8qA
-        ki/6nph3g+AQvKHOmk5UDnGjzyOyKpO0NoydrHoSI3g+cmtB3CXMHeG4uwSFRY1mg0hI
-        n3uCkZDoSjprfQ5fqm0duftrQNwWj/GL+Z1m+HF9dq68V2p0lf/0y2bMI3y04flxRboT
-        rPK7U015JYP+oi7ss6c3Vs2tQevlNjqGxJOFpoMzpJSoDAnkO6Nq31cgtZWmXW2JtFDC
-        JVBg==
-X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQ/OcYgojyw4j34+u26zEodhPgRDZ8j8IcjDBg=="
-X-RZG-CLASS-ID: mo00
-Received: from gerhold.net
-        by smtp.strato.de (RZmta 46.10.5 DYNA|AUTH)
-        with ESMTPSA id Y0939ew6QHpII7L
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Sun, 26 Jul 2020 19:51:18 +0200 (CEST)
-Date:   Sun, 26 Jul 2020 19:51:11 +0200
-From:   Stephan Gerhold <stephan@gerhold.net>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     dri-devel@lists.freedesktop.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Sean Paul <sean@poorly.run>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/mcde: Fix stability issue
-Message-ID: <20200726175111.GA5343@gerhold.net>
-References: <20200718233323.3407670-1-linus.walleij@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200718233323.3407670-1-linus.walleij@linaro.org>
+        id S1726717AbgGZShA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Jul 2020 14:37:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726072AbgGZSg7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Jul 2020 14:36:59 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF85EC0619D2
+        for <stable@vger.kernel.org>; Sun, 26 Jul 2020 11:36:59 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id mt12so524421pjb.4
+        for <stable@vger.kernel.org>; Sun, 26 Jul 2020 11:36:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JnUU93WKUKWrXbn9kgNlLm9JHar+29seJwT67nss/Ow=;
+        b=nG3iBDXv6+813nvKzqFi/7D1yujtCUMoArCy+DcXTmZ4I+ju4cUuNU7FW7uA5qY49Z
+         ahZqNfeUh/0ve0ztq5LULa1EdAVrpXYDBPr6fNriCImZTYtzcyey4UvcFxtlbUZhf6K+
+         dBMM/A/8iLFwllKgkA9vjtMBbEawjuQICs3wmlYinNGG/5h0dW1M5DxVk99vKXZn0XVy
+         ANwa+nPHlWm3+6Hw/FXfkx2MdNSxPUaAHqWd8lwl6ZvyE3dpmGdtRQ3AODmaQRqLyPtY
+         6lPlKthvNWbkEmlUgXvS6Y34a9+GTfX+QnlxmES6i6gOxi4ETMgasw0oEqkeVJZv4+jy
+         7hgQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
+         :mime-version:content-transfer-encoding;
+        bh=JnUU93WKUKWrXbn9kgNlLm9JHar+29seJwT67nss/Ow=;
+        b=UhkZhb5ul0eIAX6ymysyKfrHCwFmNMsxRUD4pLn4zVH0AFOpyg3F274g+okcsQWoga
+         3PD4rA81nBC/mM7bkWE+/RATQb3rQxZC6pZP7D4Kzzn23cTzyb78DFvqXwwJ6LposFGk
+         M1QxB+2BAEh6yZwf0TAn0vvhRUYdslZmlBGG0ny+/jfnPE6hgBY5jS4hvCIDuIUBDgyx
+         clryMJ3YYgIMOCt2USh6qGjuTjJwVP1aVwpHcdfmMd3gFSnCBKQLnnuFrp0ak+S0GyEZ
+         JxddKYCKkA/2KlLp73HmEh6B62SfFiVqiGwxTwsrGi8VbfDB9D7/1AzR0A2zruKwz5uy
+         GY7w==
+X-Gm-Message-State: AOAM5338/NRVU19QEHYh7G+vdFa/6F/PPmcgHgQQl90eXdw7CFvdDead
+        XttpFOuAE9CykB5A64zD7RWx+A==
+X-Google-Smtp-Source: ABdhPJx6qjIBH11BxaatM2ew4upUkR6JBUEegthI6NcPTsjsf+zkeU/A6V44/q74Th3YbWdN+FdGdQ==
+X-Received: by 2002:a17:90a:bf04:: with SMTP id c4mr2738242pjs.149.1595788619210;
+        Sun, 26 Jul 2020 11:36:59 -0700 (PDT)
+Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
+        by smtp.gmail.com with ESMTPSA id c125sm11977747pfa.119.2020.07.26.11.36.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Jul 2020 11:36:58 -0700 (PDT)
+Date:   Sun, 26 Jul 2020 11:36:58 -0700 (PDT)
+X-Google-Original-Date: Sun, 26 Jul 2020 10:59:11 PDT (-0700)
+Subject:     Re: [PATCH AUTOSEL 4.19 18/19] RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
+In-Reply-To: <20200720213851.407715-18-sashal@kernel.org>
+CC:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        sashal@kernel.org, linux-riscv@lists.infradead.org
+From:   Palmer Dabbelt <palmerdabbelt@google.com>
+To:     sashal@kernel.org
+Message-ID: <mhng-5bf9e67f-f6f9-4c9b-9d56-afd0a6e21cd6@palmerdabbelt-glaptop1>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jul 19, 2020 at 01:33:22AM +0200, Linus Walleij wrote:
-> Whenener a display update was sent, apart from updating
-> the memory base address we called mcde_display_send_one_frame()
-> which also sent a command to the display requesting the TE IRQ
-> and enabling the FIFO.
-> 
-> When continous updates are running this is wrong: we need
-> to only send this to start the flow to the display on
-> the very first update. This lead to the display pipeline
-> locking up and crashing.
-> 
-> Check if the flow is already running and in that case
-> do not call mcde_display_send_one_frame().
-> 
-> This fixes crashes on the Samsung GT-S7710 (Skomer).
-> 
-> Cc: Stephan Gerhold <stephan@gerhold.net>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+On Mon, 20 Jul 2020 14:38:49 PDT (-0700), sashal@kernel.org wrote:
+> From: Palmer Dabbelt <palmerdabbelt@google.com>
+>
+> [ Upstream commit 38b7c2a3ffb1fce8358ddc6006cfe5c038ff9963 ]
+>
+> While digging through the recent mmiowb preemption issue it came up that
+> we aren't actually preventing IO from crossing a scheduling boundary.
+> While it's a bit ugly to overload smp_mb__after_spinlock() with this
+> behavior, it's what PowerPC is doing so there's some precedent.
+>
+> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  drivers/gpu/drm/mcde/mcde_display.c | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/mcde/mcde_display.c b/drivers/gpu/drm/mcde/mcde_display.c
-> index 212aee60cf61..1d8ea8830a17 100644
-> --- a/drivers/gpu/drm/mcde/mcde_display.c
-> +++ b/drivers/gpu/drm/mcde/mcde_display.c
-> @@ -1086,9 +1086,14 @@ static void mcde_display_update(struct drm_simple_display_pipe *pipe,
->  	 */
->  	if (fb) {
->  		mcde_set_extsrc(mcde, drm_fb_cma_get_gem_addr(fb, pstate, 0));
-> -		if (!mcde->video_mode)
-> -			/* Send a single frame using software sync */
-> -			mcde_display_send_one_frame(mcde);
-> +		if (!mcde->video_mode) {
-> +			/*
-> +			 * Send a single frame using software sync if the flow
-> +			 * is not active yet.
-> +			 */
-> +			if (mcde->flow_active == 0)
-> +				mcde_display_send_one_frame(mcde);
-> +		}
+>  arch/riscv/include/asm/barrier.h | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/riscv/include/asm/barrier.h b/arch/riscv/include/asm/barrier.h
+> index d4628e4b3a5ea..f4c92c91aa047 100644
+> --- a/arch/riscv/include/asm/barrier.h
+> +++ b/arch/riscv/include/asm/barrier.h
+> @@ -69,8 +69,16 @@ do {									\
+>   * The AQ/RL pair provides a RCpc critical section, but there's not really any
+>   * way we can take advantage of that here because the ordering is only enforced
+>   * on that one lock.  Thus, we're just doing a full fence.
+> + *
+> + * Since we allow writeX to be called from preemptive regions we need at least
+> + * an "o" in the predecessor set to ensure device writes are visible before the
+> + * task is marked as available for scheduling on a new hart.  While I don't see
+> + * any concrete reason we need a full IO fence, it seems safer to just upgrade
+> + * this in order to avoid any IO crossing a scheduling boundary.  In both
+> + * instances the scheduler pairs this with an mb(), so nothing is necessary on
+> + * the new hart.
+>   */
+> -#define smp_mb__after_spinlock()	RISCV_FENCE(rw,rw)
+> +#define smp_mb__after_spinlock()	RISCV_FENCE(iorw,iorw)
+>
+>  #include <asm-generic/barrier.h>
 
-I think this makes sense as a fix for the issue you described, so FWIW:
-Acked-by: Stephan Gerhold <stephan@gerhold.net>
-
-While looking at this I had a few thoughts for potential future patches:
-
- - Clearly mcde_display_send_one_frame() does not only send a single
-   frame only in some cases (when te_sync = true), so maybe it should
-   be named differently?
-
- - I was a bit confused because with this change we also call
-   mcde_dsi_te_request() only once. Looking at the vendor driver the
-   nova_dsilink_te_request() function that is very similar is only
-   called within mcde_add_bta_te_oneshot_listener(), which is only
-   called for MCDE_SYNCSRC_BTA.
-
-   However, the rest of the MCDE code looks more similar to
-   MCDE_SYNCSRC_TE0, which does not call that function in the vendor
-   driver. I wonder if mcde_dsi_te_request() is needed at all?
-
-Thanks,
-Stephan
+While I don't think it hurts to have this, IIRC we didn't have the generic
+mmiowb spinlock stuff back then so it doesn't really fix the problem.  That
+said, I'm pretty sure 4.19 doesn't make it to userspace so backports are really
+an academic discussion at this point.  Whatever's less work for everyone is
+fine on my end for 4.19.
