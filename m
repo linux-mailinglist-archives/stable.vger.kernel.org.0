@@ -2,95 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B6222E197
-	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 19:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AEA622E1CF
+	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 20:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbgGZRKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Jul 2020 13:10:24 -0400
-Received: from asavdk4.altibox.net ([109.247.116.15]:52678 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726117AbgGZRKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Jul 2020 13:10:23 -0400
-Received: from ravnborg.org (unknown [188.228.123.71])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by asavdk4.altibox.net (Postfix) with ESMTPS id 679BA804D8;
-        Sun, 26 Jul 2020 19:10:20 +0200 (CEST)
-Date:   Sun, 26 Jul 2020 19:10:18 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        id S1726072AbgGZSDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Jul 2020 14:03:21 -0400
+Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.54]:14981 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725972AbgGZSDV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Jul 2020 14:03:21 -0400
+X-Greylist: delayed 716 seconds by postgrey-1.27 at vger.kernel.org; Sun, 26 Jul 2020 14:03:20 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1595786599;
+        s=strato-dkim-0002; d=gerhold.net;
+        h=In-Reply-To:References:Message-ID:Subject:Cc:To:From:Date:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=sgrIlsRu3tTV7/SFO/NsvidkS88USSPVoIq5RUCV9cY=;
+        b=mW6VxErJ1mnpiiI27BaRuU88RCUwcUqhIs/WtlBaHskpWsHRSn/Iwd26vAzEh5z+lE
+        7CH0C0yTJmR+004aAVMOdvUF5w8ij624ADgGP6mnDzfQtNOetboC/EPf9jz73dQnY8qA
+        ki/6nph3g+AQvKHOmk5UDnGjzyOyKpO0NoydrHoSI3g+cmtB3CXMHeG4uwSFRY1mg0hI
+        n3uCkZDoSjprfQ5fqm0duftrQNwWj/GL+Z1m+HF9dq68V2p0lf/0y2bMI3y04flxRboT
+        rPK7U015JYP+oi7ss6c3Vs2tQevlNjqGxJOFpoMzpJSoDAnkO6Nq31cgtZWmXW2JtFDC
+        JVBg==
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQ/OcYgojyw4j34+u26zEodhPgRDZ8j8IcjDBg=="
+X-RZG-CLASS-ID: mo00
+Received: from gerhold.net
+        by smtp.strato.de (RZmta 46.10.5 DYNA|AUTH)
+        with ESMTPSA id Y0939ew6QHpII7L
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Sun, 26 Jul 2020 19:51:18 +0200 (CEST)
+Date:   Sun, 26 Jul 2020 19:51:11 +0200
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     dri-devel@lists.freedesktop.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        dri-devel@lists.freedesktop.org,
-        Biju Das <biju.das@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] drm: of: Fix double-free bug
-Message-ID: <20200726171018.GF3275923@ravnborg.org>
-References: <1595502654-40595-1-git-send-email-biju.das.jz@bp.renesas.com>
+        Sean Paul <sean@poorly.run>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/mcde: Fix stability issue
+Message-ID: <20200726175111.GA5343@gerhold.net>
+References: <20200718233323.3407670-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1595502654-40595-1-git-send-email-biju.das.jz@bp.renesas.com>
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=aP3eV41m c=1 sm=1 tr=0
-        a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
-        a=kj9zAlcOel0A:10 a=yC-0_ovQAAAA:8 a=VwQbUJbxAAAA:8 a=e5mUnYsNAAAA:8
-        a=NBDvnfKliWK8pw6bCscA:9 a=CjuIK1q_8ugA:10 a=QsnFDINu91a9xkgZirup:22
-        a=AjGcO6oz07-iQ99wixmX:22 a=Vxmtnl_E_bksehYqCbjh:22
+In-Reply-To: <20200718233323.3407670-1-linus.walleij@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Biju
-
-On Thu, Jul 23, 2020 at 12:10:54PM +0100, Biju Das wrote:
-> Fix double-free bug in the error path.
+On Sun, Jul 19, 2020 at 01:33:22AM +0200, Linus Walleij wrote:
+> Whenener a display update was sent, apart from updating
+> the memory base address we called mcde_display_send_one_frame()
+> which also sent a command to the display requesting the TE IRQ
+> and enabling the FIFO.
 > 
-> Fixes: 6529007522de ("drm: of: Add drm_of_lvds_get_dual_link_pixel_order")
-> Reported-by: Pavel Machek <pavel@denx.de>
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+> When continous updates are running this is wrong: we need
+> to only send this to start the flow to the display on
+> the very first update. This lead to the display pipeline
+> locking up and crashing.
+> 
+> Check if the flow is already running and in that case
+> do not call mcde_display_send_one_frame().
+> 
+> This fixes crashes on the Samsung GT-S7710 (Skomer).
+> 
+> Cc: Stephan Gerhold <stephan@gerhold.net>
 > Cc: stable@vger.kernel.org
-
-Thanks, applied to drm-misc-fixes.
-
-	Sam
-
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
-> This patch is tested against drm-fixes and drm-next.
-> ---
->  drivers/gpu/drm/drm_of.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+>  drivers/gpu/drm/mcde/mcde_display.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/drm_of.c b/drivers/gpu/drm/drm_of.c
-> index fdb05fb..ca04c34 100644
-> --- a/drivers/gpu/drm/drm_of.c
-> +++ b/drivers/gpu/drm/drm_of.c
-> @@ -331,10 +331,8 @@ static int drm_of_lvds_get_remote_pixels_type(
->  		 * configurations by passing the endpoints explicitly to
->  		 * drm_of_lvds_get_dual_link_pixel_order().
->  		 */
-> -		if (!current_pt || pixels_type != current_pt) {
-> -			of_node_put(remote_port);
-> +		if (!current_pt || pixels_type != current_pt)
->  			return -EINVAL;
-> -		}
->  	}
->  
->  	return pixels_type;
-> -- 
-> 2.7.4
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> diff --git a/drivers/gpu/drm/mcde/mcde_display.c b/drivers/gpu/drm/mcde/mcde_display.c
+> index 212aee60cf61..1d8ea8830a17 100644
+> --- a/drivers/gpu/drm/mcde/mcde_display.c
+> +++ b/drivers/gpu/drm/mcde/mcde_display.c
+> @@ -1086,9 +1086,14 @@ static void mcde_display_update(struct drm_simple_display_pipe *pipe,
+>  	 */
+>  	if (fb) {
+>  		mcde_set_extsrc(mcde, drm_fb_cma_get_gem_addr(fb, pstate, 0));
+> -		if (!mcde->video_mode)
+> -			/* Send a single frame using software sync */
+> -			mcde_display_send_one_frame(mcde);
+> +		if (!mcde->video_mode) {
+> +			/*
+> +			 * Send a single frame using software sync if the flow
+> +			 * is not active yet.
+> +			 */
+> +			if (mcde->flow_active == 0)
+> +				mcde_display_send_one_frame(mcde);
+> +		}
+
+I think this makes sense as a fix for the issue you described, so FWIW:
+Acked-by: Stephan Gerhold <stephan@gerhold.net>
+
+While looking at this I had a few thoughts for potential future patches:
+
+ - Clearly mcde_display_send_one_frame() does not only send a single
+   frame only in some cases (when te_sync = true), so maybe it should
+   be named differently?
+
+ - I was a bit confused because with this change we also call
+   mcde_dsi_te_request() only once. Looking at the vendor driver the
+   nova_dsilink_te_request() function that is very similar is only
+   called within mcde_add_bta_te_oneshot_listener(), which is only
+   called for MCDE_SYNCSRC_BTA.
+
+   However, the rest of the MCDE code looks more similar to
+   MCDE_SYNCSRC_TE0, which does not call that function in the vendor
+   driver. I wonder if mcde_dsi_te_request() is needed at all?
+
+Thanks,
+Stephan
