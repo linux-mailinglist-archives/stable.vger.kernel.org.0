@@ -2,47 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5D1322DAA8
-	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 01:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3095F22DB56
+	for <lists+stable@lfdr.de>; Sun, 26 Jul 2020 04:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727921AbgGYX4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jul 2020 19:56:08 -0400
-Received: from sonic315-14.consmr.mail.bf2.yahoo.com ([74.6.134.124]:41138
-        "EHLO sonic315-14.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727789AbgGYX4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jul 2020 19:56:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595721366; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=iW4seRVtbnpvvyI5BHItPFy1aZfVH6YEEGKDWJo4vLtvBkhQSMfkl/bcii5CynYjXMGJacM4tIAfEazh3Y4A3eIetFngBrEbzi7l/W6+mB9gXzFJ1Di33B2ipRunLWVrOELl+ELyhxqYzGk7hLeczOJo0m4Aa6uix0vBv2n3eCgqxfvVFZEbcJvAI+J8+VMfhOAZXFvm4RIdCpwXq68OOUSUWg9gcrqEuqsFiB+fSsurpkn68caAXuXG73O1a1MQi6haAcsLu7siTG9kHL6P+SySWXIFzm+LbNetfr3TiwisRU0WGRPDrPToWsP1PXFJHaIRhtRSE0GVtgcf9UNmMA==
-X-YMail-OSG: eh3EeCwVM1kOxzwj9uvxR.g36_h5mRTBG0osEdUVI2ucvwKTbsERhTxSl7EdnVV
- iwjXSgaWW_ft91rhsILjZ86MDnKtwMvVQBDgwJKbhjcYatvS5HBX4d64w_0uxZuHgzGpd1u6Q56t
- 2MNmIIhzgrv.AeQ9wJ0F10EN2VoY18aDWWTNy75tX9eUnh7PN6ob80FacIJ7f.BAXLmNSP6PlfBi
- SzyiAVICbNtVATYB1wYjVnLaSPsSW3p0M3IYQBnBC0UdySF2iIYVJi0WYo2bK7obSmdVWY8jvti3
- 6nDc4baJXyFLkveD5jIe54AhnQgjYF8cYwFH55zlG8sR1b3mcsm18u3pG.3C9xfR0A5SjGbkkN8u
- mtUSsvSYVQxWh0uDfXH.UOXU1AbaNv.7ARsyPnf6VetSYb41Vd_RQs80g6KC1WQ.0imZ9uOIhpMe
- sNYboDDx3Uyf5ShszshXm_IaOyQV9Tvy5r6b59K67ZQEwFvunoBOUKfYVp81nAocG2mcuwRhYbuR
- ecAyHhzP2m5IcAL4HCBPVug.m31Rj450V8_rkPNb6gCmOIg5L9m5wt1oF16AH.5_Scfl7t4IP2pU
- 4NG4gC5dSOJBNXCYYJhuz28GzY7lsXhrdFGVsjAk0lyYQQth72kVeDVURtMmyiBSYpc6CikPE81M
- 4nGDSH.N4PQDmKputvMkOmyTsEmSaQUGYUNNMClqE3P_Zc.yEIItFznFJw5WkYpQ2xPLDgkleOPR
- 7DH.f7AewcrReHZh8C2Anrg4fcVYOV9NkmUnTwHEEYl2.ok7eVPOai7vZDxVsdYpGXyD9ZwtJkV7
- J8OGPhrGY7QHDoPxqS6VgcfCTfwyMIfapb8WGq_DKiYHO3OBVRaK53ZPOC98a4iUDduGTzdp8gxW
- LKfbyoDGdcxWXvGi4Yod3d_H5AxKlHnEqHKfrMcNKiUtxcgfCBYtLj191n8KFYwqJH9j8eMM4sPO
- 89.lm4QX5Fbwsvm7ZQKN5X3FmPzRPAsYXt7PR_4cotdm27xa.HfiNDtbDDbAEKJcX..sysgGMpDF
- GA9KHlRyrw4k09bEc2yVD5.nILOhFo.lKrnk1l7ZQmr8nszOrunvPcthyrfX2TdVk87TL.EDME60
- pZk6oryISAw7x.9nJDOSnbGvdscB2ysP1GhNuovX8jtOcxJ9mux7N3vQkfu7IlFivOWNYwu74qpo
- Z_fI9J7cnNujK0Jv_chHvVHXPxQyObTRBMKYt.EuVEY7gOEcveLM9n3xRqeAdvXjvEygYR3rgUoi
- b_7yrBorsuLIzT4gP54q1eJKHGpQOT_XnYikycdukXDfCIf2U9HW.8t3NmEN0EON2O1OSt9b_M0a
- 18GZIt8ViIw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Sat, 25 Jul 2020 23:56:06 +0000
-Date:   Sat, 25 Jul 2020 23:56:06 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <bmrsminaa4@gmail.com>
-Reply-To: amrsminaabrunel@gmail.com
-Message-ID: <2009430043.5047362.1595721366104@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1727101AbgGZCRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jul 2020 22:17:52 -0400
+Received: from relay5.mymailcheap.com ([159.100.241.64]:41079 "EHLO
+        relay5.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727009AbgGZCRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jul 2020 22:17:52 -0400
+Received: from relay4.mymailcheap.com (relay4.mymailcheap.com [137.74.199.117])
+        by relay5.mymailcheap.com (Postfix) with ESMTPS id A03E3200D8;
+        Sun, 26 Jul 2020 02:17:49 +0000 (UTC)
+Received: from filter2.mymailcheap.com (filter2.mymailcheap.com [91.134.140.82])
+        by relay4.mymailcheap.com (Postfix) with ESMTPS id 346913F162;
+        Sun, 26 Jul 2020 04:17:47 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by filter2.mymailcheap.com (Postfix) with ESMTP id E6C2F2A8B1;
+        Sun, 26 Jul 2020 04:17:46 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mymailcheap.com;
+        s=default; t=1595729866;
+        bh=Rd2U38tZCfZE/BTCcopKl6jh9hRKONeG5J+ZjOAzDHg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=wPJ+6jZ6UVGhiJ7cFyFwaJdo/U5BFKJKExq54RzUSixnP2iVtetCrSipkZVV7fXkK
+         e7tXhD8UwZxXApoxD9EpXlJXPDW7mU+3/A2Q9qmYI5XlVGEAf288HagUaJtLEc+kam
+         UgE+GSMoLi9QtkrZCT6lI0FGbDmnjL3WkFWZR5TI=
+X-Virus-Scanned: Debian amavisd-new at filter2.mymailcheap.com
+Received: from filter2.mymailcheap.com ([127.0.0.1])
+        by localhost (filter2.mymailcheap.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id Z7p6kHl8nAUu; Sun, 26 Jul 2020 04:17:45 +0200 (CEST)
+Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by filter2.mymailcheap.com (Postfix) with ESMTPS;
+        Sun, 26 Jul 2020 04:17:45 +0200 (CEST)
+Received: from [213.133.102.83] (ml.mymailcheap.com [213.133.102.83])
+        by mail20.mymailcheap.com (Postfix) with ESMTP id 9FD954130F;
+        Sun, 26 Jul 2020 02:17:41 +0000 (UTC)
+Authentication-Results: mail20.mymailcheap.com;
+        dkim=pass (1024-bit key; unprotected) header.d=flygoat.com header.i=@flygoat.com header.b="Ds9VUt4o";
+        dkim-atps=neutral
+AI-Spam-Status: Not processed
+Received: from [0.0.0.0] (li161-247.members.linode.com [173.230.151.247])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail20.mymailcheap.com (Postfix) with ESMTPSA id 6D3B2419C2;
+        Sun, 26 Jul 2020 02:17:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=flygoat.com;
+        s=default; t=1595729834;
+        bh=Rd2U38tZCfZE/BTCcopKl6jh9hRKONeG5J+ZjOAzDHg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Ds9VUt4oxPXC0hM8f0mmhyCCz+HqBe62Jlehb7nppApiodIQGbr5A98FjGAz0KFsa
+         nvgOeCAS7nU6/bhhmnpjcbpswlbvMXHLQILovaitBaq0hQCnfiuWSIHSlMM6lc1d5I
+         ywend8wQJfQd/WdIdZoSt4uq5Io1ZqGP1KFyFk1k=
+Subject: Re: [PATCH V2] MIPS: CPU#0 is not hotpluggable
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Huacai Chen <chenhuacai@gmail.com>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Zhangjin Wu <wuzhangjin@gmail.com>,
+        stable <stable@vger.kernel.org>
+References: <1594896024-16624-1-git-send-email-chenhc@lemote.com>
+ <CAAhV-H4QH-cyabcfYyNJv89LpOdpsXN+dpZBYy0gNKmSnsUsKA@mail.gmail.com>
+ <20200725064923.GA1059787@kroah.com>
+ <CAAhV-H7WgGy=NKZ-YwDTQ1HtNT--qp2J8m25RmxpsdUBbmm8oQ@mail.gmail.com>
+ <20200725074521.GA347597@kroah.com>
+ <CAAhV-H7C3-uro-UD6voeamcECQHo1PYNBiyGyHLPDyEAJUm98w@mail.gmail.com>
+ <20200725085748.GA394858@kroah.com>
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+Message-ID: <bf7c0881-a40f-6a35-40bb-96187129422a@flygoat.com>
+Date:   Sun, 26 Jul 2020 10:17:03 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <2009430043.5047362.1595721366104.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0
-To:     unlisted-recipients:; (no To-header on input)
+In-Reply-To: <20200725085748.GA394858@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Rspamd-Queue-Id: 9FD954130F
+X-Spamd-Result: default: False [-0.10 / 10.00];
+         RCVD_VIA_SMTP_AUTH(0.00)[];
+         ARC_NA(0.00)[];
+         R_DKIM_ALLOW(0.00)[flygoat.com:s=default];
+         HFILTER_HELO_BAREIP(3.00)[213.133.102.83,1];
+         FROM_HAS_DN(0.00)[];
+         FREEMAIL_ENVRCPT(0.00)[gmail.com];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         MIME_GOOD(-0.10)[text/plain];
+         R_SPF_SOFTFAIL(0.00)[~all];
+         ML_SERVERS(-3.10)[213.133.102.83];
+         TO_DN_ALL(0.00)[];
+         DKIM_TRACE(0.00)[flygoat.com:+];
+         RCPT_COUNT_SEVEN(0.00)[7];
+         RCVD_IN_DNSWL_NONE(0.00)[213.133.102.83:from];
+         DMARC_POLICY_ALLOW(0.00)[flygoat.com,none];
+         DMARC_POLICY_ALLOW_WITH_FAILURES(0.00)[];
+         FREEMAIL_TO(0.00)[linuxfoundation.org,gmail.com];
+         RCVD_NO_TLS_LAST(0.10)[];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         ASN(0.00)[asn:24940, ipnet:213.133.96.0/19, country:DE];
+         FREEMAIL_CC(0.00)[alpha.franken.de,vger.kernel.org,lemote.com,gmail.com];
+         MID_RHS_MATCH_FROM(0.00)[];
+         RCVD_COUNT_TWO(0.00)[2]
+X-Rspamd-Server: mail20.mymailcheap.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -50,47 +115,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-My Dear in the lord
+在 2020/7/25 下午4:57, Greg KH 写道:
+> On Sat, Jul 25, 2020 at 04:29:28PM +0800, Huacai Chen wrote:
+>> Hi, Greg,
+>>
+>> On Sat, Jul 25, 2020 at 3:45 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>>> On Sat, Jul 25, 2020 at 02:57:31PM +0800, Huacai Chen wrote:
+>>>> Hi Greg,
+>>>>
+>>>> On Sat, Jul 25, 2020 at 2:49 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>>>>> On Sat, Jul 25, 2020 at 02:37:52PM +0800, Huacai Chen wrote:
+>>>>>> Hi, Thomas,
+>>>>>>
+>>>>>> What do you think about this patch? Other archs also do the same thing
+>>>>>> except those support hotplug CPU#0.
+>>>>>>
+>>>>>> grep hotpluggable arch -rwI
+>>>>>> arch/riscv/kernel/setup.c:        cpu->hotpluggable = cpu_has_hotplug(i);
+>>>>>> arch/powerpc/kernel/sysfs.c:    BUG_ON(!c->hotpluggable);
+>>>>>> arch/powerpc/kernel/sysfs.c:            c->hotpluggable = 1;
+>>>>>> arch/powerpc/kernel/sysfs.c:        if (cpu_online(cpu) || c->hotpluggable) {
+>>>>>> arch/arm/kernel/setup.c:        cpuinfo->cpu.hotpluggable =
+>>>>>> platform_can_hotplug_cpu(cpu);
+>>>>>> arch/sh/kernel/topology.c:        c->hotpluggable = 1;
+>>>>>> arch/ia64/kernel/topology.c:     * CPEI target, then it is hotpluggable
+>>>>>> arch/ia64/kernel/topology.c:        sysfs_cpus[num].cpu.hotpluggable = 1;
+>>>>>> arch/xtensa/kernel/setup.c:        cpu->hotpluggable = !!i;
+>>>>>> arch/s390/kernel/smp.c:    c->hotpluggable = 1;
+>>>>>> arch/mips/kernel/topology.c:        c->hotpluggable = 1;
+>>>>>> arch/arm64/kernel/cpuinfo.c: * In case the boot CPU is hotpluggable,
+>>>>>> we record its initial state and
+>>>>>> arch/arm64/kernel/setup.c:        cpu->hotpluggable = cpu_can_disable(i);
+>>>>>> arch/x86/kernel/topology.c:        per_cpu(cpu_devices,
+>>>>>> num).cpu.hotpluggable = 1;
+>>>>>>
+>>>>>> On Thu, Jul 16, 2020 at 6:38 PM Huacai Chen <chenhc@lemote.com> wrote:
+>>>>>>> Now CPU#0 is not hotpluggable on MIPS, so prevent to create /sys/devices
+>>>>>>> /system/cpu/cpu0/online which confuses some user-space tools.
+>>>>> What userspace tools are confused by this?  They should be able to
+>>>>> handle a cpu not being able to be removed, right?
+>>>> It causes ltp's "hotplug" test fails, and ltp considers CPUs with a
+>>>> "online" node be hotpluggable.
+>>> Is that always true?
+>> Yes, someone who meet the same problem report a bug to LTP, and LTP
+>> maintainer said that this should be fixed in kernel.
+> So the action _always_ has to succeed and can never return an error?
+> That feels wrong even for normal systems.
 
-
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
-gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
-February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
-llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
-ugou the capital city of Burkina Faso in West Africa. The money was from th=
-e sale of his company and death benefits payment and entitlements of my dec=
-eased husband by his company.
-
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
+If that returns error then it means kernel's hotplug function is not 
+working as
+expected. Thus, LTP as a testsuit will consider the error as a indicator 
+of malfunction
+kernel.
 
 Thanks
-Mrs. Mina A. Brunel
+
+- Jiaxun
+
+
+>
+> thanks,
+>
+> greg k-h
