@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E76122F190
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D6922F222
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730947AbgG0OQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43966 "EHLO mail.kernel.org"
+        id S1729495AbgG0OMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730952AbgG0OQw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:16:52 -0400
+        id S1730182AbgG0OMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 495A720FC3;
-        Mon, 27 Jul 2020 14:16:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AA1C2173E;
+        Mon, 27 Jul 2020 14:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859411;
-        bh=SW9+HYcnTTFyJh5do9ig9OGS0aCJl6x8KPVUXY2iKAA=;
+        s=default; t=1595859135;
+        bh=3OHby8XDBx0VTjGkXODfmyS4uUhnDdD6Mf6sVeCoxnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxzGz3hqaLefiHUZUm88NTuMAJjjKck/0XqoVknviv+xn+2V/eFTPT5ZFARH/rrU3
-         OfUjcznXhgejaA3UTprmc+ZlwsP7vuvQ822M0v9tCOuxzLziPflgokFuaJs+CRw+4h
-         GwgKhUzvQWpBCBFPwAxp7EADh0YZCXfA/yOW8iP0=
+        b=Vv80Y1ahYxyBalsvrahQ5tIaeVbI6dbbaq7aSbRpk6Ov6MWB4yLhPZxBDXaOxWpx4
+         SejlHWd6m+tLoOfO+EYG7OtYletb4wUfMYYr3Ft0KiP32GonvPqXwS0Qu0/MYLo99Y
+         ZbVgvSwrNmfdV6lGBE12PoWY+Mn7y08u26F3APa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com.tw>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/138] ALSA: hda/realtek - fixup for yet another Intel reference board
-Date:   Mon, 27 Jul 2020 16:04:52 +0200
-Message-Id: <20200727134930.218253156@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Qiu Wenbo <qiuwenbo@phytium.com.cn>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 79/86] drm/amd/powerplay: fix a crash when overclocking Vega M
+Date:   Mon, 27 Jul 2020 16:04:53 +0200
+Message-Id: <20200727134918.363029745@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: PeiSen Hou <pshou@realtek.com.tw>
+From: Qiu Wenbo <qiuwenbo@phytium.com.cn>
 
-[ Upstream commit 5734e509d5d515c187f642937ef2de1e58d7715d ]
+commit 88bb16ad998a0395fe4b346b7d3f621aaa0a2324 upstream.
 
-Add headset_jack for the intel reference board support with
-10ec:1230.
+Avoid kernel crash when vddci_control is SMU7_VOLTAGE_CONTROL_NONE and
+vddci_voltage_table is empty. It has been tested on Intel Hades Canyon
+(i7-8809G).
 
-Signed-off-by: PeiSen Hou <pshou@realtek.com.tw>
-Link: https://lore.kernel.org/r/20200716090134.9811-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=208489
+Fixes: ac7822b0026f ("drm/amd/powerplay: add smumgr support for VEGAM (v2)")
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Qiu Wenbo <qiuwenbo@phytium.com.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 34d75102b596f..bf205621d7ac1 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7546,6 +7546,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x10cf, 0x1629, "Lifebook U7x7", ALC255_FIXUP_LIFEBOOK_U7x7_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x10cf, 0x1845, "Lifebook U904", ALC269_FIXUP_LIFEBOOK_EXTMIC),
- 	SND_PCI_QUIRK(0x10ec, 0x10f2, "Intel Reference board", ALC700_FIXUP_INTEL_REFERENCE),
-+	SND_PCI_QUIRK(0x10ec, 0x1230, "Intel Reference board", ALC225_FIXUP_HEADSET_JACK),
- 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
- 	SND_PCI_QUIRK(0x144d, 0xc109, "Samsung Ativ book 9 (NP900X3G)", ALC269_FIXUP_INV_DMIC),
- 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--- 
-2.25.1
-
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c
+@@ -643,9 +643,6 @@ static int vegam_get_dependency_volt_by_
+ 
+ 	/* sclk is bigger than max sclk in the dependence table */
+ 	*voltage |= (dep_table->entries[i - 1].vddc * VOLTAGE_SCALE) << VDDC_SHIFT;
+-	vddci = phm_find_closest_vddci(&(data->vddci_voltage_table),
+-			(dep_table->entries[i - 1].vddc -
+-					(uint16_t)VDDC_VDDCI_DELTA));
+ 
+ 	if (SMU7_VOLTAGE_CONTROL_NONE == data->vddci_control)
+ 		*voltage |= (data->vbios_boot_state.vddci_bootup_value *
+@@ -653,8 +650,13 @@ static int vegam_get_dependency_volt_by_
+ 	else if (dep_table->entries[i - 1].vddci)
+ 		*voltage |= (dep_table->entries[i - 1].vddci *
+ 				VOLTAGE_SCALE) << VDDC_SHIFT;
+-	else
++	else {
++		vddci = phm_find_closest_vddci(&(data->vddci_voltage_table),
++				(dep_table->entries[i - 1].vddc -
++						(uint16_t)VDDC_VDDCI_DELTA));
++
+ 		*voltage |= (vddci * VOLTAGE_SCALE) << VDDCI_SHIFT;
++	}
+ 
+ 	if (SMU7_VOLTAGE_CONTROL_NONE == data->mvdd_control)
+ 		*mvdd = data->vbios_boot_state.mvdd_bootup_value * VOLTAGE_SCALE;
 
 
