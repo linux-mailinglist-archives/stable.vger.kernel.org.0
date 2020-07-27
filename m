@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AAF022F08D
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D7822F0CB
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732449AbgG0OZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:25:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55566 "EHLO mail.kernel.org"
+        id S1732439AbgG0OZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:25:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732457AbgG0OZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:25:34 -0400
+        id S1732467AbgG0OZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:25:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47EB2207FC;
-        Mon, 27 Jul 2020 14:25:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 013BA2177B;
+        Mon, 27 Jul 2020 14:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859934;
-        bh=Hs1apUF6pzLa7pMZi6aK6zvEfY1TgSs8aSzgRfjS6aA=;
+        s=default; t=1595859936;
+        bh=ggkb6GNnAaJi1PDawlhwRfvMEN7RJxZwWjUYOHVfT6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CotbSERApdT6RVKYA5K149ts24DBJyJ+MDKHm7Hf26Sgkhcat3avA7eAdyp0iiR5D
-         vuZlAGZd+5hoAgku09HNOVpql8EomqytsdLVk+zq0SroNOaQLMujQHlpzkfxbdyu0y
-         IFrz3lqhnro3iWrDpqXG+bvxLrSmbNPGeE5xaCSs=
+        b=E3tEhvI1/riuJb/Co9smKlmg0cwUB+5cq1/QJor1AxLwNTuaUs3WyDKOdjzyuPlgn
+         Ypa+usFCWBNmwnfBce4V+9393KgMEFN4PNX4jMkiBFLfjv9Du9ruTj+0+c14Q4/ZkE
+         eyB0uex4AzCg6O2JGyHaGUqQv8shAzcf5kVN4rVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        stable@vger.kernel.org, Barry Song <song.bao.hua@hisilicon.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Roman Gushchin <guro@fb.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 162/179] mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
-Date:   Mon, 27 Jul 2020 16:05:37 +0200
-Message-Id: <20200727134940.558718371@linuxfoundation.org>
+Subject: [PATCH 5.7 163/179] mm/hugetlb: avoid hardcoding while checking if cma is enabled
+Date:   Mon, 27 Jul 2020 16:05:38 +0200
+Message-Id: <20200727134940.606780792@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -50,125 +47,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Barry Song <song.bao.hua@hisilicon.com>
 
-commit d38a2b7a9c939e6d7329ab92b96559ccebf7b135 upstream.
+commit dbda8feadfa46b3d8dd7a2304f84ccbc036effe9 upstream.
 
-If the kmem_cache refcount is greater than one, we should not mark the
-root kmem_cache as dying.  If we mark the root kmem_cache dying
-incorrectly, the non-root kmem_cache can never be destroyed.  It
-resulted in memory leak when memcg was destroyed.  We can use the
-following steps to reproduce.
+hugetlb_cma[0] can be NULL due to various reasons, for example, node0
+has no memory.  so NULL hugetlb_cma[0] doesn't necessarily mean cma is
+not enabled.  gigantic pages might have been reserved on other nodes.
+This patch fixes possible double reservation and CMA leak.
 
-  1) Use kmem_cache_create() to create a new kmem_cache named A.
-  2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
-     so the refcount of B is just increased.
-  3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
-     decrease the B's refcount but mark the B as dying.
-  4) Create a new memory cgroup and alloc memory from the kmem_cache
-     B. It leads to create a non-root kmem_cache for allocating memory.
-  5) When destroy the memory cgroup created in the step 4), the
-     non-root kmem_cache can never be destroyed.
+[akpm@linux-foundation.org: fix CONFIG_CMA=n warning]
+[sfr@canb.auug.org.au: better checks before using hugetlb_cma]
+  Link: http://lkml.kernel.org/r/20200721205716.6dbaa56b@canb.auug.org.au
 
-If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
-only when refcount reach zero, we mark the root kmem_cache as dying.
-
-Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Fixes: cf11e85fc08c ("mm: hugetlb: optionally allocate gigantic hugepages using cma")
+Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Jonathan Cameron <jonathan.cameron@huawei.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
+Link: http://lkml.kernel.org/r/20200710005726.36068-1-song.bao.hua@hisilicon.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 7 deletions(-)
+ mm/hugetlb.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -326,6 +326,14 @@ int slab_unmergeable(struct kmem_cache *
- 	if (s->refcount < 0)
- 		return 1;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -46,7 +46,10 @@ int hugetlb_max_hstate __read_mostly;
+ unsigned int default_hstate_idx;
+ struct hstate hstates[HUGE_MAX_HSTATE];
  
-+#ifdef CONFIG_MEMCG_KMEM
-+	/*
-+	 * Skip the dying kmem_cache.
-+	 */
-+	if (s->memcg_params.dying)
-+		return 1;
++#ifdef CONFIG_CMA
+ static struct cma *hugetlb_cma[MAX_NUMNODES];
 +#endif
-+
- 	return 0;
- }
++static unsigned long hugetlb_cma_size __initdata;
  
-@@ -886,12 +894,15 @@ static int shutdown_memcg_caches(struct
- 	return 0;
- }
- 
--static void flush_memcg_workqueue(struct kmem_cache *s)
-+static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
- {
- 	spin_lock_irq(&memcg_kmem_wq_lock);
- 	s->memcg_params.dying = true;
- 	spin_unlock_irq(&memcg_kmem_wq_lock);
-+}
- 
-+static void flush_memcg_workqueue(struct kmem_cache *s)
-+{
- 	/*
- 	 * SLAB and SLUB deactivate the kmem_caches through call_rcu. Make
- 	 * sure all registered rcu callbacks have been invoked.
-@@ -923,10 +934,6 @@ static inline int shutdown_memcg_caches(
- {
- 	return 0;
- }
--
--static inline void flush_memcg_workqueue(struct kmem_cache *s)
--{
--}
- #endif /* CONFIG_MEMCG_KMEM */
- 
- void slab_kmem_cache_release(struct kmem_cache *s)
-@@ -944,8 +951,6 @@ void kmem_cache_destroy(struct kmem_cach
- 	if (unlikely(!s))
+ /*
+  * Minimum page order among possible hugepage sizes, set to a proper value
+@@ -1236,9 +1239,10 @@ static void free_gigantic_page(struct pa
+ 	 * If the page isn't allocated using the cma allocator,
+ 	 * cma_release() returns false.
+ 	 */
+-	if (IS_ENABLED(CONFIG_CMA) &&
+-	    cma_release(hugetlb_cma[page_to_nid(page)], page, 1 << order))
++#ifdef CONFIG_CMA
++	if (cma_release(hugetlb_cma[page_to_nid(page)], page, 1 << order))
  		return;
- 
--	flush_memcg_workqueue(s);
--
- 	get_online_cpus();
- 	get_online_mems();
- 
-@@ -955,6 +960,22 @@ void kmem_cache_destroy(struct kmem_cach
- 	if (s->refcount)
- 		goto out_unlock;
- 
-+#ifdef CONFIG_MEMCG_KMEM
-+	memcg_set_kmem_cache_dying(s);
-+
-+	mutex_unlock(&slab_mutex);
-+
-+	put_online_mems();
-+	put_online_cpus();
-+
-+	flush_memcg_workqueue(s);
-+
-+	get_online_cpus();
-+	get_online_mems();
-+
-+	mutex_lock(&slab_mutex);
 +#endif
-+
- 	err = shutdown_memcg_caches(s);
- 	if (!err)
- 		err = shutdown_cache(s);
+ 
+ 	free_contig_range(page_to_pfn(page), 1 << order);
+ }
+@@ -1249,7 +1253,8 @@ static struct page *alloc_gigantic_page(
+ {
+ 	unsigned long nr_pages = 1UL << huge_page_order(h);
+ 
+-	if (IS_ENABLED(CONFIG_CMA)) {
++#ifdef CONFIG_CMA
++	{
+ 		struct page *page;
+ 		int node;
+ 
+@@ -1263,6 +1268,7 @@ static struct page *alloc_gigantic_page(
+ 				return page;
+ 		}
+ 	}
++#endif
+ 
+ 	return alloc_contig_pages(nr_pages, gfp_mask, nid, nodemask);
+ }
+@@ -2572,7 +2578,7 @@ static void __init hugetlb_hstate_alloc_
+ 
+ 	for (i = 0; i < h->max_huge_pages; ++i) {
+ 		if (hstate_is_gigantic(h)) {
+-			if (IS_ENABLED(CONFIG_CMA) && hugetlb_cma[0]) {
++			if (hugetlb_cma_size) {
+ 				pr_warn_once("HugeTLB: hugetlb_cma is enabled, skip boot time allocation\n");
+ 				break;
+ 			}
+@@ -5548,7 +5554,6 @@ void move_hugetlb_state(struct page *old
+ }
+ 
+ #ifdef CONFIG_CMA
+-static unsigned long hugetlb_cma_size __initdata;
+ static bool cma_reserve_called __initdata;
+ 
+ static int __init cmdline_parse_hugetlb_cma(char *p)
 
 
