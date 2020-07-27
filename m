@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3279122F1F7
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA1D22F14E
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729874AbgG0ONz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:13:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
+        id S1731599AbgG0OUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:20:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730434AbgG0ONw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:13:52 -0400
+        id S1731042AbgG0OUn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:20:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B9F320838;
-        Mon, 27 Jul 2020 14:13:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFFEE20775;
+        Mon, 27 Jul 2020 14:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859232;
-        bh=l9AV1UkaxXE9CswV9nnkL1KikVVLloY1b0TxvV7pcGw=;
+        s=default; t=1595859643;
+        bh=8uOWQna+xF+wALsfQe81pslny6LeDhpRhdbY+HKlN6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgSOTisPPH/rY58Iisk/85oULev1+/bLiS0OwCtlB8uXwF/Wuhf92yAZv1Mqu8v0S
-         W7QJ5kx0ef223Gz2/pK/VTTuU0ALsWM9w6Xloy3jLI/DnsvW9aOOUkeAG4KaJPhlI1
-         cUUyiBFqrSHs3S9Ul2C4+dLTmA35h2ojaEwmC3Tk=
+        b=B4KEfb+MhD/+8dIa9zdT8MCzj8fgcwDm7g86oHthV824sVY9elcIezQW2xXSVbFAH
+         LRFBr+kFCIUQUog9YSYp48Q/RV2siNq0G0DkvHgsgJiaRU0kK/dMEO57w/sa1SCKyA
+         fv2zBwIV5eTMNuMzLjdCVg0Z6WMShidsy6aCjwGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 028/138] btrfs: reloc: clear DEAD_RELOC_TREE bit for orphan roots to prevent runaway balance
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 048/179] hippi: Fix a size used in a pci_free_consistent() in an error handling path
 Date:   Mon, 27 Jul 2020 16:03:43 +0200
-Message-Id: <20200727134926.778733876@linuxfoundation.org>
+Message-Id: <20200727134935.008020495@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 1dae7e0e58b484eaa43d530f211098fdeeb0f404 upstream.
+[ Upstream commit 3195c4706b00106aa82c73acd28340fa8fc2bfc1 ]
 
-[BUG]
-There are several reported runaway balance, that balance is flooding the
-log with "found X extents" where the X never changes.
+The size used when calling 'pci_alloc_consistent()' and
+'pci_free_consistent()' should match.
 
-[CAUSE]
-Commit d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after
-merge_reloc_roots") introduced BTRFS_ROOT_DEAD_RELOC_TREE bit to
-indicate that one subvolume has finished its tree blocks swap with its
-reloc tree.
+Fix it and have it consistent with the corresponding call in 'rr_close()'.
 
-However if balance is canceled or hits ENOSPC halfway, we didn't clear
-the BTRFS_ROOT_DEAD_RELOC_TREE bit, leaving that bit hanging forever
-until unmount.
-
-Any subvolume root with that bit, would cause backref cache to skip this
-tree block, as it has finished its tree block swap.  This would cause
-all tree blocks of that root be ignored by balance, leading to runaway
-balance.
-
-[FIX]
-Fix the problem by also clearing the BTRFS_ROOT_DEAD_RELOC_TREE bit for
-the original subvolume of orphan reloc root.
-
-Add an umount check for the stale bit still set.
-
-Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[Manually solve the conflicts due to no btrfs root refs rework]
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/hippi/rrunner.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -2540,6 +2540,8 @@ again:
- 			if (!IS_ERR(root)) {
- 				if (root->reloc_root == reloc_root)
- 					root->reloc_root = NULL;
-+				clear_bit(BTRFS_ROOT_DEAD_RELOC_TREE,
-+					  &root->state);
- 			}
- 
- 			list_del_init(&reloc_root->root_list);
+diff --git a/drivers/net/hippi/rrunner.c b/drivers/net/hippi/rrunner.c
+index 2a6ec53949666..a4b3fce69ecd9 100644
+--- a/drivers/net/hippi/rrunner.c
++++ b/drivers/net/hippi/rrunner.c
+@@ -1242,7 +1242,7 @@ static int rr_open(struct net_device *dev)
+ 		rrpriv->info = NULL;
+ 	}
+ 	if (rrpriv->rx_ctrl) {
+-		pci_free_consistent(pdev, sizeof(struct ring_ctrl),
++		pci_free_consistent(pdev, 256 * sizeof(struct ring_ctrl),
+ 				    rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
+ 		rrpriv->rx_ctrl = NULL;
+ 	}
+-- 
+2.25.1
+
 
 
