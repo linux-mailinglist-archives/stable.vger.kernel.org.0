@@ -2,127 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1383322F91D
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 21:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F4B22F92E
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 21:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727816AbgG0Tc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 15:32:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57538 "EHLO
+        id S1728398AbgG0ThY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 15:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726861AbgG0Tc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 15:32:58 -0400
-Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6D1C061794
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 12:32:57 -0700 (PDT)
-Received: by mail-oo1-xc41.google.com with SMTP id n24so802165ooc.3
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 12:32:57 -0700 (PDT)
+        with ESMTP id S1726139AbgG0ThY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 15:37:24 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F99FC061794;
+        Mon, 27 Jul 2020 12:37:24 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id g67so10480031pgc.8;
+        Mon, 27 Jul 2020 12:37:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6ETs2U16dncoJaBw8eN+4tA+CAu6TySMWsZrptH76Wk=;
-        b=HXJ1Fvv8NEqid/NwrEv5F5ax5w5wgu6e51tF7nZSkJnm2Sz7teOJzWGv1sK9bsOvBW
-         qjrbnP4XLpkYHA0I8xx4T7Rnw8PlWFdZtWj+s0CcVJaItVLpnN9H+QORM89er09Wxv8F
-         4GbJw+AYRsQtefrUl/nQifaNeqkGKmVzT5FTs=
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2L+TQ66njkseoRALpENSKdBKaqcZldzm1sijdwKkLEY=;
+        b=JuZcSv5KcEHcRpMn3Sfg9eeVSCueFpQ8h/HTUrB51tAE6uau9HurS98P4mNy82WpFy
+         AjWu/QP+Tr9aE1XB8QTSwK3XgZXPFoc9wdJQ/MFHuW0oaZuel/nbWfTNzaKMsmlQ14GO
+         Ryw5O3rsSaaJt74eraIPH42EcjQSY7vXBTFUNfujQ42BcU+1YxiYuo+62kbOLeP9ji8v
+         /O9FwnCk0dsbZ0K2vSaG4fe219VfYfS1HD7WAUEfGb3mQzx/TaIy94qDHpIuzL69cn6U
+         tsa7FukW9ZxFDekRT48IymJYOFCiPIMmQUW9QqTTDAGCGbLBGArV/Y4hsj+bi03ZBr4u
+         cD5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6ETs2U16dncoJaBw8eN+4tA+CAu6TySMWsZrptH76Wk=;
-        b=dGSVhyv3lvLPHk9M8plcsh8hpnnwPsjtI9D/5PfVKJMDzMGKgXi19KpMuW8ru2bWpr
-         DutpOyTc3ZlOmmqbqVuVvsHIVY1yinJhXlD1g959JD3vbAkiIojjLR9pTeO37r1COc1c
-         z/F811sL7EN3MJmdl7+9P7r6djk5LghCxEEL82gjIxOs+qojK4cBolvw6B/pdB8p8jzB
-         FLUqxZDlN+IAGlZjJgaBoifmXJCNtC+GhXq33u9LAdT8fWwLPTXVxfxoxL7Q+R6Nt+ke
-         IUE4vDvoCRct4vH0ENGLYnXwzkXStzSyF7F1BICCb45H6w5dfRol6dMRTECrj5MbvGxP
-         0kJw==
-X-Gm-Message-State: AOAM5328LFiNKKTN4MdaxNVbV4xeZ1TrbXa+PP9po1SHRvRhycr0L/zn
-        PEqBpqN8+vYD03Q8EKSPe2Vup3V9VZ30HIyEAIJzUQ==
-X-Google-Smtp-Source: ABdhPJzIAgj5nNNhI/dMaqBJVapbHeMP3vhaPhVGgW8+zYd2O7m0Yzdx5AXpKBrMDoULF93Z/kpPOHO8Rh//wmbgim4=
-X-Received: by 2002:a4a:4949:: with SMTP id z70mr19062313ooa.85.1595878376847;
- Mon, 27 Jul 2020 12:32:56 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2L+TQ66njkseoRALpENSKdBKaqcZldzm1sijdwKkLEY=;
+        b=gJt0lX2Np7u68bCzmHc/vGg1TfwBFLYFyTgfJUHzgj8dcV9WIno63ymPMSqsIlijuz
+         317/d5hamTQlyHivnV2QbO/2ZcYQjH4/0+BRtg4S2+/WFRr7lIYxGd36bDCEL9AJZe1X
+         +DlCoo41hFVqyQGG7V9X9PyCha5MltTcna1WK1sxjlrrze3QQDtKLxR9Y0Z+s9inUhYd
+         TkulUkIhi8kqql8XG7r426TUKoUYhTQkM7AFegcdeCgw0/DmqXbKD5XRnV1CcaaJwa83
+         MaeckZolEU3avU3eHXbjbK27KS/HZi451MlDOebulf3fT/f1X8ZzZLQoqvQkKzG21fCO
+         kLhA==
+X-Gm-Message-State: AOAM531Nwzl6jUm2DqAdWiFHU4gMVtbVGAb1JA2yGmdi8xv1Uovx5c7H
+        RMDAe9f9MnGhyPjcFW/G0Ms=
+X-Google-Smtp-Source: ABdhPJzCSriqvByXiMJlX7vlc3TfHwPRuYltXmLIZpcamaogZIj3rIz6UBMx2BYSPvPUH3Vpp8mIJw==
+X-Received: by 2002:a63:e556:: with SMTP id z22mr21033754pgj.130.1595878643660;
+        Mon, 27 Jul 2020 12:37:23 -0700 (PDT)
+Received: from [10.1.10.11] (c-73-241-150-58.hsd1.ca.comcast.net. [73.241.150.58])
+        by smtp.gmail.com with ESMTPSA id lt17sm400055pjb.6.2020.07.27.12.37.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Jul 2020 12:37:23 -0700 (PDT)
+Subject: Re: UDP data corruption in v4.4
+To:     Dexuan Cui <decui@microsoft.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     Greg KH <greg@kroah.com>, Al Viro <viro@zeniv.linux.org.uk>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>, Willy Tarreau <w@1wt.eu>,
+        Joseph Salisbury <Joseph.Salisbury@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>
+References: <KL1P15301MB028018F5C84C618BF7628045BF740@KL1P15301MB0280.APCP153.PROD.OUTLOOK.COM>
+ <20200725055840.GD1047853@kroah.com>
+ <KL1P15301MB02800FAB6F40F03FD4349E0ABF720@KL1P15301MB0280.APCP153.PROD.OUTLOOK.COM>
+ <CANn89i+JPamwsU-22oBTU-8HC+e6oxtQU+QgiO=-S1ZmrkGvtg@mail.gmail.com>
+ <KL1P15301MB0280926949A1180B671CA516BF720@KL1P15301MB0280.APCP153.PROD.OUTLOOK.COM>
+From:   Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <5cbd979d-8e9e-804c-cb68-18c808e7e08e@gmail.com>
+Date:   Mon, 27 Jul 2020 12:37:21 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-References: <20200723172119.17649-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20200723172119.17649-1-chris@chris-wilson.co.uk>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Mon, 27 Jul 2020 21:32:45 +0200
-Message-ID: <CAKMK7uFt5ViekqBPqdBbJWN4FhfxvF57K58VW8hAZGZwjRDz0w@mail.gmail.com>
-Subject: Re: [PATCH 1/3] drm: Restore driver.preclose() for all to use
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Dave Airlie <airlied@redhat.com>
-Cc:     intel-gfx <intel-gfx@lists.freedesktop.org>,
-        stable <stable@vger.kernel.org>,
-        Gustavo Padovan <gustavo.padovan@collabora.com>,
-        CQ Tang <cq.tang@intel.com>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <KL1P15301MB0280926949A1180B671CA516BF720@KL1P15301MB0280.APCP153.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 23, 2020 at 7:21 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
->
-> An unfortunate sequence of events, but it turns out there is a valid
-> usecase for being able to free/decouple the driver objects before they
-> are freed by the DRM core. In particular, if we have a pointer into a
-> drm core object from inside a driver object, that pointer needs to be
-> nerfed *before* it is freed so that concurrent access (e.g. debugfs)
-> does not following the dangling pointer.
->
-> The legacy marker was adding in the code movement from drp_fops.c to
-> drm_file.c
-
-I might fumble a lot, but not this one:
-
-commit 45c3d213a400c952ab7119f394c5293bb6877e6b
-Author: Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Mon May 8 10:26:33 2017 +0200
-
-    drm: Nerf the preclose callback for modern drivers
-
-Also looking at the debugfs hook that has some rather adventurous
-stuff going on I think, feels a bit like a kitchensink with batteries
-included. If that's really all needed I'd say iterate the contexts by
-first going over files, then the ctx (which arent shared anyway) and
-the problem should also be gone.
--Daniel
-
-> References: 9acdac68bcdc ("drm: rename drm_fops.c to drm_file.c")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: Gustavo Padovan <gustavo.padovan@collabora.com>
-> Cc: CQ Tang <cq.tang@intel.com>
-> Cc: <stable@vger.kernel.org> # v4.12+
-> ---
->  drivers/gpu/drm/drm_file.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
-> index 0ac4566ae3f4..7b4258d6f7cc 100644
-> --- a/drivers/gpu/drm/drm_file.c
-> +++ b/drivers/gpu/drm/drm_file.c
-> @@ -258,8 +258,7 @@ void drm_file_free(struct drm_file *file)
->                   (long)old_encode_dev(file->minor->kdev->devt),
->                   atomic_read(&dev->open_count));
->
-> -       if (drm_core_check_feature(dev, DRIVER_LEGACY) &&
-> -           dev->driver->preclose)
-> +       if (dev->driver->preclose)
->                 dev->driver->preclose(dev, file);
->
->         if (drm_core_check_feature(dev, DRIVER_LEGACY))
-> --
-> 2.20.1
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
 
+On 7/27/20 11:57 AM, Dexuan Cui wrote:
+>> From: Eric Dumazet <edumazet@google.com>
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+> Oh, yes! :-) Thank you!
+> 
+> Eric, I'll add your Signed-off-by and mine. Please let me know in case
+> this is not ok.
+
+Sure, do not worry about this.
+
+> 
+> I'll do a little more testing with the patch and I plan to post the patch
+> to stable@vger.kernel.org and netdev@vger.kernel.org this afternoon,
+> i.e. in 3~4 hours or so. 
+> 
+> Thanks,
+> -- Dexuan
+> 
