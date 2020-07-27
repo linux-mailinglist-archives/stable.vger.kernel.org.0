@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6451822F0FE
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C417D22EF7F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:17:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732153AbgG0OXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
+        id S1730939AbgG0OQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:16:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732148AbgG0OXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:23:47 -0400
+        id S1730965AbgG0OQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:16:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CDCE22BF5;
-        Mon, 27 Jul 2020 14:23:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B322621744;
+        Mon, 27 Jul 2020 14:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859827;
-        bh=L+hvxD0ShNgRiW665zZgeC/VRcIF7HA/LgIxcg0wf7E=;
+        s=default; t=1595859414;
+        bh=z2IM2Mu9HSt9sLr6cNZQIScq87Wopxln51FoHO14OGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+XnPq4h4MHdOqH/dBFeU+bk0iDUQAwyaCMyazCLB4Tav2+t0PU4dzRtuvfjJeinw
-         C3/Gb5FHbNhSd5InpKOgJMtapwVjxhd5TMCb5E+lhvBvGk1ySbp9238AbgMDAu1hIz
-         1etTvRQMxvSlPqHLb2nEoTzsRSaOvJEaT3N6Wamo=
+        b=DcvO71Nx/jMNtw2C8aHTAKIFKhyl15OFLlgWvSqYPchfhLJTgTmIbv462xtCxXXVh
+         EX9zKNPnbIuNyB0uSBHpIZ7EUdiQjXohChzPAS9Tk4y7WrZdqe3IJ/5P3BwJkzsYnu
+         miP4zxDELbuQt2Hjui9z7FMAGw/UtovqLR/VNGSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 090/179] enetc: Remove the mdio bus on PF probe bailout
-Date:   Mon, 27 Jul 2020 16:04:25 +0200
-Message-Id: <20200727134937.059668605@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Federico Ricchiuto <fed.ricchiuto@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 071/138] HID: i2c-hid: add Mediacom FlexBook edge13 to descriptor override
+Date:   Mon, 27 Jul 2020 16:04:26 +0200
+Message-Id: <20200727134928.940783504@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Federico Ricchiuto <fed.ricchiuto@gmail.com>
 
-[ Upstream commit 26cb7085c8984e5b71d65c374a135134ed8cabb3 ]
+[ Upstream commit 43e666acb79f3d355dd89bf20f4d25d3b15da13e ]
 
-For ENETC ports that register an external MDIO bus,
-the bus doesn't get removed on the error bailout path
-of enetc_pf_probe().
+The Mediacom FlexBook edge13 uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-This issue became much more visible after recent:
-commit 07095c025ac2 ("net: enetc: Use DT protocol information to set up the ports")
-Before this commit, one could make probing fail on the error
-path only by having register_netdev() fail, which is unlikely.
-But after this commit, because it moved the enetc_of_phy_get()
-call up in the probing sequence, now we can trigger an mdiobus_free()
-bug just by forcing enetc_alloc_msix() to return error, i.e. with the
-'pci=nomsi' kernel bootarg (since ENETC relies on MSI support to work),
-as the calltrace below shows:
-
-kernel BUG at /home/eiz/work/enetc/net/drivers/net/phy/mdio_bus.c:648!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[...]
-Hardware name: LS1028A RDB Board (DT)
-pstate: 80000005 (Nzcv daif -PAN -UAO BTYPE=--)
-pc : mdiobus_free+0x50/0x58
-lr : devm_mdiobus_free+0x14/0x20
-[...]
-Call trace:
- mdiobus_free+0x50/0x58
- devm_mdiobus_free+0x14/0x20
- release_nodes+0x138/0x228
- devres_release_all+0x38/0x60
- really_probe+0x1c8/0x368
- driver_probe_device+0x5c/0xc0
- device_driver_attach+0x74/0x80
- __driver_attach+0x8c/0xd8
- bus_for_each_dev+0x7c/0xd8
- driver_attach+0x24/0x30
- bus_add_driver+0x154/0x200
- driver_register+0x64/0x120
- __pci_register_driver+0x44/0x50
- enetc_pf_driver_init+0x24/0x30
- do_one_initcall+0x60/0x1c0
- kernel_init_freeable+0x1fc/0x274
- kernel_init+0x14/0x110
- ret_from_fork+0x10/0x34
-
-Fixes: ebfcb23d62ab ("enetc: Add ENETC PF level external MDIO support")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Federico Ricchiuto <fed.ricchiuto@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_pf.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index 438648a06f2ae..041e19895adfa 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -919,6 +919,7 @@ static int enetc_pf_probe(struct pci_dev *pdev,
- 	return 0;
- 
- err_reg_netdev:
-+	enetc_mdio_remove(pf);
- 	enetc_of_put_phy(priv);
- 	enetc_free_msix(priv);
- err_alloc_msix:
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index ec142bc8c1daf..35f3bfc3e6f59 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -373,6 +373,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Mediacom FlexBook edge 13",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "FlexBook_edge13-M-FBE13"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{
+ 		.ident = "Odys Winbook 13",
+ 		.matches = {
 -- 
 2.25.1
 
