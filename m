@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0005922EF89
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A137922F130
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730085AbgG0ORL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:17:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44330 "EHLO mail.kernel.org"
+        id S1731920AbgG0OaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:30:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730996AbgG0ORH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:17:07 -0400
+        id S1731931AbgG0OWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:22:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8071220775;
-        Mon, 27 Jul 2020 14:17:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E3F22075A;
+        Mon, 27 Jul 2020 14:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859427;
-        bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
+        s=default; t=1595859755;
+        bh=XxeXK1ZqMAk6niV3nqN1IkP63mf7KUrh+w6xEhY77Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2DecQCL3a6U9Fz5DacX/jHCX61O/PdawjQ4kqSoL71dXUSkH38ZKKEallsTD5rkL
-         7Dqotk7HOlPx7JMw3BjvbW4SmE5XGdOS34HMEySXq2KOBPwyBFTEhiFZyAql6bPOFu
-         WgTXag/aSYE/aHwG4kAws4dZKPmeHG4AOxMox+Ag=
+        b=G3b1xWsLoZ1yTG3lvet8pZnWhFBsT3MAa32skPviJLaHOyoLX6ArdUXCUsLor27iC
+         pt0HQNLGW+HQhAIFG8iOqn84LhVZggxIvTMNOxrS7mYJ+88SZIMd+kEH48m8cdJQ+B
+         jVI2j8VcwdCIISIgDPjKv7vnbdCGES/Den06PgQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Siarhei Vishniakou <svv@google.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/138] HID: steam: fixes race in handling device list.
+        stable@vger.kernel.org, Beniamino Galvani <bgalvani@redhat.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+bbc3a11c4da63c1b74d6@syzkaller.appspotmail.com
+Subject: [PATCH 5.7 093/179] bonding: check return value of register_netdevice() in bond_newlink()
 Date:   Mon, 27 Jul 2020 16:04:28 +0200
-Message-Id: <20200727134929.042409852@linuxfoundation.org>
+Message-Id: <20200727134937.197793793@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 2d3f53a80e4eed078669853a178ed96d88f74143 ]
+[ Upstream commit c75d1d5248c0c97996051809ad0e9f154ba5d76e ]
 
-Using uhid and KASAN this driver crashed because it was getting
-several connection events where it only expected one. Then the
-device was added several times to the static device list and it got
-corrupted.
+Very similar to commit 544f287b8495
+("bonding: check error value of register_netdevice() immediately"),
+we should immediately check the return value of register_netdevice()
+before doing anything else.
 
-This patch checks if the device is already in the list before adding
-it.
-
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Tested-by: Siarhei Vishniakou <svv@google.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 005db31d5f5f ("bonding: set carrier off for devices created through netlink")
+Reported-and-tested-by: syzbot+bbc3a11c4da63c1b74d6@syzkaller.appspotmail.com
+Cc: Beniamino Galvani <bgalvani@redhat.com>
+Cc: Taehee Yoo <ap420073@gmail.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-steam.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_netlink.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 6286204d4c560..a3b151b29bd71 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -526,7 +526,8 @@ static int steam_register(struct steam_device *steam)
- 			steam_battery_register(steam);
+diff --git a/drivers/net/bonding/bond_netlink.c b/drivers/net/bonding/bond_netlink.c
+index b43b51646b11a..f0f9138e967f3 100644
+--- a/drivers/net/bonding/bond_netlink.c
++++ b/drivers/net/bonding/bond_netlink.c
+@@ -456,11 +456,10 @@ static int bond_newlink(struct net *src_net, struct net_device *bond_dev,
+ 		return err;
  
- 		mutex_lock(&steam_devices_lock);
--		list_add(&steam->list, &steam_devices);
-+		if (list_empty(&steam->list))
-+			list_add(&steam->list, &steam_devices);
- 		mutex_unlock(&steam_devices_lock);
+ 	err = register_netdevice(bond_dev);
+-
+-	netif_carrier_off(bond_dev);
+ 	if (!err) {
+ 		struct bonding *bond = netdev_priv(bond_dev);
+ 
++		netif_carrier_off(bond_dev);
+ 		bond_work_init_all(bond);
  	}
  
-@@ -552,7 +553,7 @@ static void steam_unregister(struct steam_device *steam)
- 		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
- 				steam->serial_no);
- 		mutex_lock(&steam_devices_lock);
--		list_del(&steam->list);
-+		list_del_init(&steam->list);
- 		mutex_unlock(&steam_devices_lock);
- 		steam->serial_no[0] = 0;
- 	}
-@@ -738,6 +739,7 @@ static int steam_probe(struct hid_device *hdev,
- 	mutex_init(&steam->mutex);
- 	steam->quirks = id->driver_data;
- 	INIT_WORK(&steam->work_connect, steam_work_connect_cb);
-+	INIT_LIST_HEAD(&steam->list);
- 
- 	steam->client_hdev = steam_create_client_hid(hdev);
- 	if (IS_ERR(steam->client_hdev)) {
 -- 
 2.25.1
 
