@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D153422F226
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D837C22F18F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730125AbgG0OMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:12:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36100 "EHLO mail.kernel.org"
+        id S1730928AbgG0OQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729192AbgG0OMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:12:05 -0400
+        id S1730918AbgG0OQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:16:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B17A2073E;
-        Mon, 27 Jul 2020 14:12:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DE8720FC3;
+        Mon, 27 Jul 2020 14:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859124;
-        bh=zrKBIjCnCmBPGY+wqL3lLsnjhyuLe5/lQbJwslNZXN8=;
+        s=default; t=1595859406;
+        bh=iBO41IItOf1SqfGhheAjtKbnoUPdrkRC8ORQw9SEKCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEZ9aW7ZlouApy4RLSpv8X/iFTiw7T6nR7e2KOouktUgJLTHzKUw9BMSFywO6vO9+
-         LEzy8tU0DS8xiThVMjToRNHcg0xec5VCc3RwruBrcRgF1CnWRqCr4PQEb+FZimrwGI
-         FeG57CBpRqH9prbk2FTGfValoaBGT9AARRJPRKMQ=
+        b=GBNyxA2EwVV4Xl/lRvaB4RlDuWZ/sa1cnWzIehWWp06D7G8CktvTgBxcoiEQZY7af
+         VAW8kS9xKOcaRVJ052xXlYID26G5TG2xDg2wIVjiFbONOZkZUU7mQDbbaShcTSbSA6
+         wDfi1Wvj9jeeYsSMCso3V59KqYM33wRKyVTN37mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 75/86] mm/memcg: fix refcount error while moving and swapping
-Date:   Mon, 27 Jul 2020 16:04:49 +0200
-Message-Id: <20200727134918.154511384@linuxfoundation.org>
+        stable@vger.kernel.org, Vasiliy Kupriakov <rublag-ns@yandex.ru>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 095/138] platform/x86: asus-wmi: allow BAT1 battery name
+Date:   Mon, 27 Jul 2020 16:04:50 +0200
+Message-Id: <20200727134930.128529717@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,61 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Vasiliy Kupriakov <rublag-ns@yandex.ru>
 
-commit 8d22a9351035ef2ff12ef163a1091b8b8cf1e49c upstream.
+[ Upstream commit 9a33e375d98ece5ea40c576eabd3257acb90c509 ]
 
-It was hard to keep a test running, moving tasks between memcgs with
-move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
-refcount is discovered to be 0 (supposedly impossible), so it is then
-forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
-succession, the test is at last put out of misery by being OOM killed.
+The battery on my laptop ASUS TUF Gaming FX706II is named BAT1.
+This patch allows battery extension to load.
 
-This is because of the way moved_swap accounting was saved up until the
-task move gets completed in __mem_cgroup_clear_mc(), deferred from when
-mem_cgroup_move_swap_account() actually exchanged old and new ids.
-Concurrent activity can free up swap quicker than the task is scanned,
-bringing id refcount down 0 (which should only be possible when
-offlining).
-
-Just skip that optimization: do that part of the accounting immediately.
-
-Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Vasiliy Kupriakov <rublag-ns@yandex.ru>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/asus-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -5147,7 +5147,6 @@ static void __mem_cgroup_clear_mc(void)
- 		if (!mem_cgroup_is_root(mc.to))
- 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index b1f4a31ba1ee5..ed83fb135bab3 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -424,6 +424,7 @@ static int asus_wmi_battery_add(struct power_supply *battery)
+ 	 * battery is named BATT.
+ 	 */
+ 	if (strcmp(battery->desc->name, "BAT0") != 0 &&
++	    strcmp(battery->desc->name, "BAT1") != 0 &&
+ 	    strcmp(battery->desc->name, "BATT") != 0)
+ 		return -ENODEV;
  
--		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
- 		css_put_many(&mc.to->css, mc.moved_swap);
- 
- 		mc.moved_swap = 0;
-@@ -5338,7 +5337,8 @@ put:			/* get_mctgt_type() gets the page
- 			ent = target.ent;
- 			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
- 				mc.precharge--;
--				/* we fixup refcnts and charges later. */
-+				mem_cgroup_id_get_many(mc.to, 1);
-+				/* we fixup other refcnts and charges later. */
- 				mc.moved_swap++;
- 			}
- 			break;
+-- 
+2.25.1
+
 
 
