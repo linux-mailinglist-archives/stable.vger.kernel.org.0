@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 732E522ED00
+	by mail.lfdr.de (Postfix) with ESMTP id DEBB922ED01
 	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 15:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728119AbgG0NSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727120AbgG0NSI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jul 2020 09:18:08 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:47853 "EHLO
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40111 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727120AbgG0NSH (ORCPT
+        by vger.kernel.org with ESMTP id S1727809AbgG0NSH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 09:18:07 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 412081941FF4;
-        Mon, 27 Jul 2020 09:18:05 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id AA8271941FF3;
+        Mon, 27 Jul 2020 09:18:06 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:18:05 -0400
+  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:18:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pva50u
-        BJm2CRO35xo8dl0s9eoWX9YFo/2Vh+qpz2rEI=; b=O96xzczqXlT3eb/2OWKfkc
-        2QIfFYT3mIfFKQEt2DGBi0q1F9Yz/vlor9/bcxXvMY0jXGarKw5hNQJgmGJreNuF
-        b9fNadXiqO32xKVi7PBdifcnynZhXCbvcnXd32/y/fxZkBB9ry5T//sxpD+f51Ci
-        uem3EmxQoVh4UiAahs9IigRGtw4d14ezagBFMDq7VjG5V4QvhCcTCOMqi4wul+5k
-        6iAL7UABJ8yZKIkMIbsUzqDBwS4o8mGVgane9f7H7wPnQQPxvJUS+R107RW6ERbJ
-        PLiB5f/6IgW5jTw7Tv0MhlY4FQinvOugeajgnOsqg+qdRNnAUUS0wOU7Doew5e5w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Y2X0vw
+        vez5xgfCUPh0YCs8OJM86EZ2xroRjHoe1HU2o=; b=meHa5eiJDx0w/HiJYOQOMp
+        RbcBDKxoVvjmBdaSPU6TZ1nBrYw/cxqQ33lxbEPFxI85eTM22WNaeZSz0F5fLR8y
+        B4dVPPKg7LNUGBKulh6CBtIgicil0u1OWiJ1dt6QtdugCEJXcTptvwrBEFIrwCh/
+        Eln8MGmmbjLNcmDMvJy23lWnhCkRbaxqFAO2QWzWmsB6ooVlNXvdA7kUMz4lRZQU
+        gKeHB+eu6BIKC7oYOrqgtGJcu7DRqJJ4Co+r0g5Lsf217F2MWhHAXjZ/l4NE2EPX
+        IbxBewhYocZ1LIVB1dd8Vd3d2hJmfMKYicgbJMQ6eBOTJ6fHUL/42flh+hflbTcA
         ==
-X-ME-Sender: <xms:DdQeX-8TGG1iWRxrXIfgCbxnSa7hDLhRfssGzt_NXOY82Lt3s8K1qg>
+X-ME-Sender: <xms:DtQeXxj7EgyiVEFVpIYJS3BOma45-aUXK2gsJc-EYsA5zdfJpUfsqg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeigecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeigecutefuodetggdote
     euteffgedvieeludevkeenucffohhmrghinhepghhithhhuhgsrdgtohhmpdhkvghrnhgv
     lhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivg
     eptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:DdQeX-tSc__ZapYx9iFNch3ne5NNzB5x9qBGOzAUlRDLTaRMZBRsVA>
-    <xmx:DdQeX0DInZKr0zs97hb8NsnNnyCUcPnUzgI4BqZZIoZUv1fS9bVLew>
-    <xmx:DdQeX2cv-45SdL9U1Z_s3X4whBwJZzfIFFH7QBoM7UvDyQ8MDzU7Uw>
-    <xmx:DdQeXybYGO_6pqB_NVKwETIYzYl2Zj-Jlw4VNQaMcagw7uKwWLGHvg>
+X-ME-Proxy: <xmx:DtQeX2CVwsOJJF4nyjj6zWwG0U4CWke0pPUYzz_y2pTP0TRXYZ51Kg>
+    <xmx:DtQeXxEy7hd0AO5x9zMYV47qkU7mwPVpxHmT9gctyQR9gTcjrf-3zw>
+    <xmx:DtQeX2QD9ls0eTLPpbPY95H2MR0yTfw-jaeR_My-NgS8mAj12C7K3w>
+    <xmx:DtQeXzsUgL2oXIo0MO5X1ALc_xEUpDEKBefCKSKvJBfogEUph9kSXg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D29D5328005E;
-        Mon, 27 Jul 2020 09:18:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: vdso32: Fix '--prefix=' value for newer versions of" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4A0223280059;
+        Mon, 27 Jul 2020 09:18:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: vdso32: Fix '--prefix=' value for newer versions of" failed to apply to 4.14-stable tree
 To:     natechancellor@gmail.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jul 2020 15:18:00 +0200
-Message-ID: <15958558801928@kroah.com>
+Date:   Mon, 27 Jul 2020 15:18:01 +0200
+Message-ID: <159585588154180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
