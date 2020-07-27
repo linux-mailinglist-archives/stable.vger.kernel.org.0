@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BF922FD21
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CC322FD27
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:25:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728649AbgG0XZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:25:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36884 "EHLO mail.kernel.org"
+        id S1726817AbgG0XZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:25:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728642AbgG0XZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:25:30 -0400
+        id S1726956AbgG0XZc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:25:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60A1D2173E;
-        Mon, 27 Jul 2020 23:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B372720A8B;
+        Mon, 27 Jul 2020 23:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892330;
-        bh=TWDigoraORtdaOlDXyjVv4Toh+tONPBihEAKNcMZ6/o=;
+        s=default; t=1595892331;
+        bh=putxGiY+5IfGT6KOGyXiieruCr/zyJjCepA4Vq/teIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUz/1Wzt8H3aiE1ckmBvcd55Nf8ydS7h7akq4epvKJMgF6cpLkDzX8lvfI3nR6kIC
-         4rEskOwPoFxgl+LUuZ13rp6SiAtueXfK4gdECD16jdcCsTNvlQw17lBaE3GEoR1sUr
-         4t3DLsuC8lPHV0FliiF2FxRCrOzY5Nw8JcQyQqM4=
+        b=OnSEb1WZ7bOR66Ehsu0+OAUn/cBdOk2yvp3MnPEUcSxYO8rflUEn8QAEDnt7H43UA
+         7HOO7KBmGdfgVTnCo1MCxxNKWsGWGtfJ8P9JfHQ2RsdpNehH8SI/B2wbwDFfx0nE1H
+         cCcqNBKu6S2tuaFt+XZVbee7rEVhchk7axJwI15Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 3/4] Revert "i2c: cadence: Fix the hold bit setting"
-Date:   Mon, 27 Jul 2020 19:25:24 -0400
-Message-Id: <20200727232525.718372-3-sashal@kernel.org>
+Cc:     Andrea Righi <andrea.righi@canonical.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 4/4] xen-netfront: fix potential deadlock in xennet_remove()
+Date:   Mon, 27 Jul 2020 19:25:25 -0400
+Message-Id: <20200727232525.718372-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232525.718372-1-sashal@kernel.org>
 References: <20200727232525.718372-1-sashal@kernel.org>
@@ -44,72 +44,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+From: Andrea Righi <andrea.righi@canonical.com>
 
-[ Upstream commit 0db9254d6b896b587759e2c844c277fb1a6da5b9 ]
+[ Upstream commit c2c633106453611be07821f53dff9e93a9d1c3f0 ]
 
-This reverts commit d358def706880defa4c9e87381c5bf086a97d5f9.
+There's a potential race in xennet_remove(); this is what the driver is
+doing upon unregistering a network device:
 
-There are two issues with "i2c: cadence: Fix the hold bit setting" commit.
+  1. state = read bus state
+  2. if state is not "Closed":
+  3.    request to set state to "Closing"
+  4.    wait for state to be set to "Closing"
+  5.    request to set state to "Closed"
+  6.    wait for state to be set to "Closed"
 
-1. In case of combined message request from user space, when the HOLD
-bit is cleared in cdns_i2c_mrecv function, a STOP condition is sent
-on the bus even before the last message is started. This is because when
-the HOLD bit is cleared, the FIFOS are empty and there is no pending
-transfer. The STOP condition should occur only after the last message
-is completed.
+If the state changes to "Closed" immediately after step 1 we are stuck
+forever in step 4, because the state will never go back from "Closed" to
+"Closing".
 
-2. The code added by the commit is redundant. Driver is handling the
-setting/clearing of HOLD bit in right way before the commit.
+Make sure to check also for state == "Closed" in step 4 to prevent the
+deadlock.
 
-The setting of HOLD bit based on 'bus_hold_flag' is taken care in
-cdns_i2c_master_xfer function even before cdns_i2c_msend/cdns_i2c_recv
-functions.
+Also add a 5 sec timeout any time we wait for the bus state to change,
+to avoid getting stuck forever in wait_event().
 
-The clearing of HOLD bit is taken care at the end of cdns_i2c_msend and
-cdns_i2c_recv functions based on bus_hold_flag and byte count.
-Since clearing of HOLD bit is done after the slave address is written to
-the register (writing to address register triggers the message transfer),
-it is ensured that STOP condition occurs at the right time after
-completion of the pending transfer (last message).
-
-Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/net/xen-netfront.c | 64 +++++++++++++++++++++++++-------------
+ 1 file changed, 42 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 6d32e6da3110d..84deed6571bdf 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -378,10 +378,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if ((id->recv_count > CDNS_I2C_FIFO_DEPTH)  || id->bus_hold_flag)
-+	if (id->recv_count > CDNS_I2C_FIFO_DEPTH)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
--	else
--		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 02b6a6c108400..7d4c0c46a889d 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -62,6 +62,8 @@ module_param_named(max_queues, xennet_max_queues, uint, 0644);
+ MODULE_PARM_DESC(max_queues,
+ 		 "Maximum number of queues per virtual interface");
  
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
++#define XENNET_TIMEOUT  (5 * HZ)
++
+ static const struct ethtool_ops xennet_ethtool_ops;
  
-@@ -438,11 +436,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if ((id->send_count > CDNS_I2C_FIFO_DEPTH) || id->bus_hold_flag)
-+	if (id->send_count > CDNS_I2C_FIFO_DEPTH)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
--	else
--		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
+ struct netfront_cb {
+@@ -1349,12 +1351,15 @@ static struct net_device *xennet_create_dev(struct xenbus_device *dev)
+ 
+ 	netif_carrier_off(netdev);
+ 
+-	xenbus_switch_state(dev, XenbusStateInitialising);
+-	wait_event(module_wq,
+-		   xenbus_read_driver_state(dev->otherend) !=
+-		   XenbusStateClosed &&
+-		   xenbus_read_driver_state(dev->otherend) !=
+-		   XenbusStateUnknown);
++	do {
++		xenbus_switch_state(dev, XenbusStateInitialising);
++		err = wait_event_timeout(module_wq,
++				 xenbus_read_driver_state(dev->otherend) !=
++				 XenbusStateClosed &&
++				 xenbus_read_driver_state(dev->otherend) !=
++				 XenbusStateUnknown, XENNET_TIMEOUT);
++	} while (!err);
++
+ 	return netdev;
+ 
+  exit:
+@@ -2166,28 +2171,43 @@ static const struct attribute_group xennet_dev_group = {
+ };
+ #endif /* CONFIG_SYSFS */
+ 
+-static int xennet_remove(struct xenbus_device *dev)
++static void xennet_bus_close(struct xenbus_device *dev)
+ {
+-	struct netfront_info *info = dev_get_drvdata(&dev->dev);
 -
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
+-	dev_dbg(&dev->dev, "%s\n", dev->nodename);
++	int ret;
  
- 	/* Clear the interrupts in interrupt status register. */
+-	if (xenbus_read_driver_state(dev->otherend) != XenbusStateClosed) {
++	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
++		return;
++	do {
+ 		xenbus_switch_state(dev, XenbusStateClosing);
+-		wait_event(module_wq,
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateClosing ||
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateUnknown);
++		ret = wait_event_timeout(module_wq,
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateClosing ||
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateClosed ||
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateUnknown,
++				   XENNET_TIMEOUT);
++	} while (!ret);
++
++	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
++		return;
+ 
++	do {
+ 		xenbus_switch_state(dev, XenbusStateClosed);
+-		wait_event(module_wq,
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateClosed ||
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateUnknown);
+-	}
++		ret = wait_event_timeout(module_wq,
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateClosed ||
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateUnknown,
++				   XENNET_TIMEOUT);
++	} while (!ret);
++}
++
++static int xennet_remove(struct xenbus_device *dev)
++{
++	struct netfront_info *info = dev_get_drvdata(&dev->dev);
+ 
++	xennet_bus_close(dev);
+ 	xennet_disconnect_backend(info);
+ 
+ 	if (info->netdev->reg_state == NETREG_REGISTERED)
 -- 
 2.25.1
 
