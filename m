@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E75C022F1E9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD0F22F29C
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730623AbgG0Ofg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40844 "EHLO mail.kernel.org"
+        id S1729426AbgG0OIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:08:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730612AbgG0OOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:14:52 -0400
+        id S1729436AbgG0OIe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:08:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63CA52083E;
-        Mon, 27 Jul 2020 14:14:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 686C42073E;
+        Mon, 27 Jul 2020 14:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859291;
-        bh=0aoN5vnzOfi4/zZOMSrC72yarZ1t0HY7wRVv0C0BNU8=;
+        s=default; t=1595858913;
+        bh=L3NAJFu9xgpy0+dpwkTodzwTIjTIyNZVPiBUh2hZEiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W77C7KYz78kQAr6mn9By8iHp/4EYOaXMOmm/F3m/otUFegq3lQdHkcioqzEJrvvVF
-         k+E5R+egLLh0wSEdHQgWPat6V9rSO8VN1rpJpbZrhfhUIv2Loai8Yh/UWywpzNnHen
-         FXG0XuYd6RsEkC8hymXXIT7ZZapYSw5AGXUPf99s=
+        b=EnIGxGliK5jZxhBGV9PIMLd2RHtGVJeyuPzR4jiMZVNc3EPct0tYUomX3DdjBCupE
+         g8Fs1x5xK/FjTpyGS+3L9rSGfceSPnXiH1Idyl/1iWlGyaKTDRlINavfeqzO5yCnuK
+         YW0ark9ZQzzyrnE5wuTqLmbo5FLVufiZZLrh8Dpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, zhouxudong <zhouxudong8@huawei.com>,
+        guodeqing <geffrey.guo@huawei.com>, Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/138] ionic: fix up filter locks and debug msgs
-Date:   Mon, 27 Jul 2020 16:04:07 +0200
-Message-Id: <20200727134927.963310779@linuxfoundation.org>
+Subject: [PATCH 4.14 29/64] ipvs: fix the connection sync failed in some cases
+Date:   Mon, 27 Jul 2020 16:04:08 +0200
+Message-Id: <20200727134912.596333202@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: guodeqing <geffrey.guo@huawei.com>
 
-[ Upstream commit cbec2153a9a68d011454960ba84887e46e40b37d ]
+[ Upstream commit 8210e344ccb798c672ab237b1a4f241bda08909b ]
 
-Add in a couple of forgotten spinlocks and fix up some of
-the debug messages around filter management.
+The sync_thread_backup only checks sk_receive_queue is empty or not,
+there is a situation which cannot sync the connection entries when
+sk_receive_queue is empty and sk_rmem_alloc is larger than sk_rcvbuf,
+the sync packets are dropped in __udp_enqueue_schedule_skb, this is
+because the packets in reader_queue is not read, so the rmem is
+not reclaimed.
 
-Fixes: c1e329ebec8d ("ionic: Add management of rx filters")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Here I add the check of whether the reader_queue of the udp sock is
+empty or not to solve this problem.
+
+Fixes: 2276f58ac589 ("udp: use a separate rx queue for packet reception")
+Reported-by: zhouxudong <zhouxudong8@huawei.com>
+Signed-off-by: guodeqing <geffrey.guo@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 17 +++++++----------
- .../ethernet/pensando/ionic/ionic_rx_filter.c   |  5 +++++
- 2 files changed, 12 insertions(+), 10 deletions(-)
+ net/netfilter/ipvs/ip_vs_sync.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index d5b0bf54f9610..c00ec9a020973 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -809,8 +809,7 @@ static int ionic_lif_addr_add(struct ionic_lif *lif, const u8 *addr)
- 	if (f)
- 		return 0;
+diff --git a/net/netfilter/ipvs/ip_vs_sync.c b/net/netfilter/ipvs/ip_vs_sync.c
+index b373e053ff9a3..90261055062ed 100644
+--- a/net/netfilter/ipvs/ip_vs_sync.c
++++ b/net/netfilter/ipvs/ip_vs_sync.c
+@@ -1726,6 +1726,8 @@ static int sync_thread_backup(void *data)
+ {
+ 	struct ip_vs_sync_thread_data *tinfo = data;
+ 	struct netns_ipvs *ipvs = tinfo->ipvs;
++	struct sock *sk = tinfo->sock->sk;
++	struct udp_sock *up = udp_sk(sk);
+ 	int len;
  
--	netdev_dbg(lif->netdev, "rx_filter add ADDR %pM (id %d)\n", addr,
--		   ctx.comp.rx_filter_add.filter_id);
-+	netdev_dbg(lif->netdev, "rx_filter add ADDR %pM\n", addr);
+ 	pr_info("sync thread started: state = BACKUP, mcast_ifn = %s, "
+@@ -1733,12 +1735,14 @@ static int sync_thread_backup(void *data)
+ 		ipvs->bcfg.mcast_ifn, ipvs->bcfg.syncid, tinfo->id);
  
- 	memcpy(ctx.cmd.rx_filter_add.mac.addr, addr, ETH_ALEN);
- 	err = ionic_adminq_post_wait(lif, &ctx);
-@@ -839,6 +838,9 @@ static int ionic_lif_addr_del(struct ionic_lif *lif, const u8 *addr)
- 		return -ENOENT;
- 	}
+ 	while (!kthread_should_stop()) {
+-		wait_event_interruptible(*sk_sleep(tinfo->sock->sk),
+-			 !skb_queue_empty(&tinfo->sock->sk->sk_receive_queue)
+-			 || kthread_should_stop());
++		wait_event_interruptible(*sk_sleep(sk),
++					 !skb_queue_empty_lockless(&sk->sk_receive_queue) ||
++					 !skb_queue_empty_lockless(&up->reader_queue) ||
++					 kthread_should_stop());
  
-+	netdev_dbg(lif->netdev, "rx_filter del ADDR %pM (id %d)\n",
-+		   addr, f->filter_id);
-+
- 	ctx.cmd.rx_filter_del.filter_id = cpu_to_le32(f->filter_id);
- 	ionic_rx_filter_free(lif, f);
- 	spin_unlock_bh(&lif->rx_filters.lock);
-@@ -847,9 +849,6 @@ static int ionic_lif_addr_del(struct ionic_lif *lif, const u8 *addr)
- 	if (err)
- 		return err;
- 
--	netdev_dbg(lif->netdev, "rx_filter del ADDR %pM (id %d)\n", addr,
--		   ctx.cmd.rx_filter_del.filter_id);
--
- 	return 0;
- }
- 
-@@ -1291,13 +1290,11 @@ static int ionic_vlan_rx_add_vid(struct net_device *netdev, __be16 proto,
- 	};
- 	int err;
- 
-+	netdev_dbg(netdev, "rx_filter add VLAN %d\n", vid);
- 	err = ionic_adminq_post_wait(lif, &ctx);
- 	if (err)
- 		return err;
- 
--	netdev_dbg(netdev, "rx_filter add VLAN %d (id %d)\n", vid,
--		   ctx.comp.rx_filter_add.filter_id);
--
- 	return ionic_rx_filter_save(lif, 0, IONIC_RXQ_INDEX_ANY, 0, &ctx);
- }
- 
-@@ -1322,8 +1319,8 @@ static int ionic_vlan_rx_kill_vid(struct net_device *netdev, __be16 proto,
- 		return -ENOENT;
- 	}
- 
--	netdev_dbg(netdev, "rx_filter del VLAN %d (id %d)\n", vid,
--		   le32_to_cpu(ctx.cmd.rx_filter_del.filter_id));
-+	netdev_dbg(netdev, "rx_filter del VLAN %d (id %d)\n",
-+		   vid, f->filter_id);
- 
- 	ctx.cmd.rx_filter_del.filter_id = cpu_to_le32(f->filter_id);
- 	ionic_rx_filter_free(lif, f);
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c b/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c
-index 7a093f148ee58..60cb77e2bab4c 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c
-@@ -36,10 +36,12 @@ int ionic_rx_filters_init(struct ionic_lif *lif)
- 
- 	spin_lock_init(&lif->rx_filters.lock);
- 
-+	spin_lock_bh(&lif->rx_filters.lock);
- 	for (i = 0; i < IONIC_RX_FILTER_HLISTS; i++) {
- 		INIT_HLIST_HEAD(&lif->rx_filters.by_hash[i]);
- 		INIT_HLIST_HEAD(&lif->rx_filters.by_id[i]);
- 	}
-+	spin_unlock_bh(&lif->rx_filters.lock);
- 
- 	return 0;
- }
-@@ -51,11 +53,13 @@ void ionic_rx_filters_deinit(struct ionic_lif *lif)
- 	struct hlist_node *tmp;
- 	unsigned int i;
- 
-+	spin_lock_bh(&lif->rx_filters.lock);
- 	for (i = 0; i < IONIC_RX_FILTER_HLISTS; i++) {
- 		head = &lif->rx_filters.by_id[i];
- 		hlist_for_each_entry_safe(f, tmp, head, by_id)
- 			ionic_rx_filter_free(lif, f);
- 	}
-+	spin_unlock_bh(&lif->rx_filters.lock);
- }
- 
- int ionic_rx_filter_save(struct ionic_lif *lif, u32 flow_id, u16 rxq_index,
-@@ -91,6 +95,7 @@ int ionic_rx_filter_save(struct ionic_lif *lif, u32 flow_id, u16 rxq_index,
- 	f->filter_id = le32_to_cpu(ctx->comp.rx_filter_add.filter_id);
- 	f->rxq_index = rxq_index;
- 	memcpy(&f->cmd, ac, sizeof(f->cmd));
-+	netdev_dbg(lif->netdev, "rx_filter add filter_id %d\n", f->filter_id);
- 
- 	INIT_HLIST_NODE(&f->by_hash);
- 	INIT_HLIST_NODE(&f->by_id);
+ 		/* do we have data now? */
+-		while (!skb_queue_empty(&(tinfo->sock->sk->sk_receive_queue))) {
++		while (!skb_queue_empty_lockless(&sk->sk_receive_queue) ||
++		       !skb_queue_empty_lockless(&up->reader_queue)) {
+ 			len = ip_vs_receive(tinfo->sock, tinfo->buf,
+ 					ipvs->bcfg.sync_maxlen);
+ 			if (len <= 0) {
 -- 
 2.25.1
 
