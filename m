@@ -2,83 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B88F222F3E2
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 17:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6767122F42F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 17:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729044AbgG0Pc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 11:32:28 -0400
-Received: from mailout10.rmx.de ([94.199.88.75]:34180 "EHLO mailout10.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728965AbgG0Pc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 11:32:28 -0400
-X-Greylist: delayed 1955 seconds by postgrey-1.27 at vger.kernel.org; Mon, 27 Jul 2020 11:32:27 EDT
-Received: from kdin01.retarus.com (kdin01.dmz1.retloc [172.19.17.48])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout10.rmx.de (Postfix) with ESMTPS id 4BFjdd30Rvz36nt;
-        Mon, 27 Jul 2020 16:59:49 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin01.retarus.com (Postfix) with ESMTPS id 4BFjd050Rmz2xFT;
-        Mon, 27 Jul 2020 16:59:16 +0200 (CEST)
-Received: from N95HX1G2.wgnetz.xx (192.168.54.121) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 27 Jul
- 2020 16:59:16 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Jonathan Cameron <jic23@kernel.org>
-CC:     Christian Eggers <ceggers@arri.de>, <stable@vger.kernel.org>,
-        "Hartmut Knaack" <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        "Peter Meerwald-Stadler" <pmeerw@pmeerw.net>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        <linux-iio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] iio: trigger: hrtimer: Disable irqs before calling iio_trigger_poll()
-Date:   Mon, 27 Jul 2020 16:58:59 +0200
-Message-ID: <20200727145900.4563-1-ceggers@arri.de>
-X-Mailer: git-send-email 2.26.2
+        id S1726814AbgG0P5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 11:57:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52270 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726278AbgG0P5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 11:57:48 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0990AC061794
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 08:57:48 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id r13so6443650ilt.6
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 08:57:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=dQZitrlwx6ip2rrYyl8DNyEdyZDEpSPBcMJHF4Yk58I=;
+        b=AMonIKZjGck80FxCqj3LNu3IPaXseToGdTq0QHz0BWXCkVlVLJzbsPIOzhxOYlsjMP
+         PVXgK53Jwr18JzyjoVLvoIm5CdfnnlLqS89IOlt8wpo4jUmaYW9mzvPyrGVrTArmlDra
+         959hu40MI4PJZfFo9YWht2odp0eeMm5ulQ3X4cguvNMwCKxltFUzj6fPrwsWEkhiXL+L
+         4YIN0NWGKB90DzFpu+QUkrTpc7D1p3ZIBIOpWa/n7oLHWEqwQw2EejleKDwN0B6jG1r3
+         hhS5v09bPd0HDUex+5XNJoy4U1CSTVJ1QlgZREh+tZlVsOmgUS38OrncfLDEVqk1jbst
+         RpTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=dQZitrlwx6ip2rrYyl8DNyEdyZDEpSPBcMJHF4Yk58I=;
+        b=gNfy31zUWmFjqVFlbkB/lGPS0D+iqOAZ6f0uZVG1sDxc2xr24/bhe0dEIoyWZAnyvr
+         MXqmkfmTzdj9Viel9VqPGoHk+NQ58pWfBof7HDFUwl07vO53WUKZOWeDl2lZR/xrb3Su
+         3s2aV7m0wOM1GwanKTSx5JFc76zeB2Q+Uwu7wJgmjEk+xy3P/CzZg4on+dVHD9N2oYk2
+         2lrapf+eLxa7xEllp3T+alzsNZZxQewMS7DEAdiIwrpGYTmJDpYbYM3YHvTJVbk4n99z
+         x0aCAHK8/tfSzCRglI1gZNNiVmLQK7k/OPx55Z9g7irZZ3D5EDm+FU/Ws3ZqXaWDcS0R
+         zZYg==
+X-Gm-Message-State: AOAM531p/C71MKZcPB9U+CKrBjKbg8G/Sc838jyFr6v+rmJLW22napCG
+        LmozOK2BlPdFU9n+lSfIMabiUyYFyniegc6AJLs=
+X-Google-Smtp-Source: ABdhPJyYwTaMLJtX/guj3XR3W2oUFh3oCz8v4lk2Qmg40M+bwdraevU4zNZj/r1EbRyMcEN/Rqy19soICKscY2QRK7U=
+X-Received: by 2002:a92:c912:: with SMTP id t18mr21338453ilp.186.1595865466747;
+ Mon, 27 Jul 2020 08:57:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [192.168.54.121]
-X-RMX-ID: 20200727-165916-4BFjd050Rmz2xFT-0@kdin01
-X-RMX-SOURCE: 217.111.95.66
+Received: by 2002:a05:6638:a56:0:0:0:0 with HTTP; Mon, 27 Jul 2020 08:57:46
+ -0700 (PDT)
+Reply-To: waxson.a@yahoo.com
+From:   "Mr.Dickson Nsebeh" <mr.elvisbi@gmail.com>
+Date:   Mon, 27 Jul 2020 08:57:46 -0700
+Message-ID: <CAK+AdvySi=v7EXPeZr++-qC_0aOBKzXBR2+eUN=Z3WN4hYixBw@mail.gmail.com>
+Subject: Your Urgent Assistance Needed Pls.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-iio_trigger_poll() calls generic_handle_irq(). This function expects to
-be run with local IRQs disabled.
+Dear Friend,
+I contact you with good reason.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Cc: stable@vger.kernel.org
----
- drivers/iio/trigger/iio-trig-hrtimer.c | 2 ++
- 1 file changed, 2 insertions(+)
+My name is Mr.Dickson Nsebeh, a banker by profession,  with position
+of ( Assistant Manager ) I will be going on retirement end of August
+2020.
 
-diff --git a/drivers/iio/trigger/iio-trig-hrtimer.c b/drivers/iio/trigger/iio-trig-hrtimer.c
-index f59bf8d58586..2fe8a5c1484e 100644
---- a/drivers/iio/trigger/iio-trig-hrtimer.c
-+++ b/drivers/iio/trigger/iio-trig-hrtimer.c
-@@ -89,7 +89,9 @@ static enum hrtimer_restart iio_hrtimer_trig_handler(struct hrtimer *timer)
- 	info = container_of(timer, struct iio_hrtimer_info, timer);
- 
- 	hrtimer_forward_now(timer, info->period);
-+	local_irq_disable();
- 	iio_trigger_poll(info->swt.trigger);
-+	local_irq_enable();
- 
- 	return HRTIMER_RESTART;
- }
--- 
-Christian Eggers
-Embedded software developer
+Please can i trust you to release the sum of $9.3 Million Dollars, to
+you for safe keeping in any account there in your country ?. You will
+have 40% as your share while 60% will be for me to move into any
+investment you will suggest for me.
+Please kindly reply me with your information as stated below for more
+details and how to execute this transfer to your provided account as
+soon as possible.
 
-Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
-Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
-Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
+Your Full Name...
+Your Age.......
+Your Home Address..
+Your Occupation...
+Your Country......
+Your Cellular N0...
 
+Am waiting for your response. God bless you.
+
+Mr.Dickson Nsebeh.
+Reply to> waxson.a@yahoo.com
