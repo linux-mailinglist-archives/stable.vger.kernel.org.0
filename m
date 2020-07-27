@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D2E22F150
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:31:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8EC22F286
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:40:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730660AbgG0OUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:20:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48494 "EHLO mail.kernel.org"
+        id S1728875AbgG0OJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:09:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730983AbgG0OUT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:20:19 -0400
+        id S1728852AbgG0OJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:09:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 063B72070A;
-        Mon, 27 Jul 2020 14:20:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F9FB2073E;
+        Mon, 27 Jul 2020 14:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859619;
-        bh=UbrhK8raAGl/tgRM7NvsEH1DQh0Hx4h2ZnCsXset6dY=;
+        s=default; t=1595858950;
+        bh=58KyAkNxzlfX9Tzbg4tc1CYwtIyYcUOiqkzipU7lwEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THfHzLVMSGiqdARziOxUMoZqpJFvfRvliUIvxN27TVrltCmAS8ztVf3gz8394H8+O
-         ftlaEuQO2SVrU60utsHwAUHTuXjx2/qBNxnnX8Na4eBM8e8tVA79RU9gLinKSK54NY
-         02VG13TVGhg3VH1eD43CdEr+wkv8Kl4JQI2gzw+Q=
+        b=sbaqLnG3vAa6l+CiMnc0TfaHNGL6q7ydqZT5zOGy0vE+UEvCs5/QyAdBFOtEwMbkL
+         TiBukCt8c7t2JiuFnJTkAxiho5tvQT7E5iVU7E/s4tVzBojLfbw0Sb2EFObiU30OvD
+         xDmZIqiECnoScCvI4/n+tZuOUTNah+9UrA9lcKk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        Robbie Ko <robbieko@synology.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 040/179] btrfs: fix page leaks after failure to lock page for delalloc
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Maulik Shah <mkshah@codeaurora.org>
+Subject: [PATCH 4.19 01/86] soc: qcom: rpmh: Dirt can only make you dirtier, not cleaner
 Date:   Mon, 27 Jul 2020 16:03:35 +0200
-Message-Id: <20200727134934.628527557@linuxfoundation.org>
+Message-Id: <20200727134914.387358933@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,38 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Ko <robbieko@synology.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 5909ca110b29aa16b23b52b8de8d3bb1035fd738 upstream.
+commit 35bb4b22f606c0cc8eedf567313adc18161b1af4 upstream.
 
-When locking pages for delalloc, we check if it's dirty and mapping still
-matches. If it does not match, we need to return -EAGAIN and release all
-pages. Only the current page was put though, iterate over all the
-remaining pages too.
+Adding an item into the cache should never be able to make the cache
+cleaner.  Use "|=" rather than "=" to update the dirty flag.
 
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Robbie Ko <robbieko@synology.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Maulik Shah <mkshah@codeaurora.org> Thanks, Maulik
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: bb7000677a1b ("soc: qcom: rpmh: Update dirty flag only when data changes")
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200417141531.1.Ia4b74158497213eabad7c3d474c50bfccb3f342e@changeid
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/rpmh.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -1999,7 +1999,8 @@ static int __process_pages_contig(struct
- 				if (!PageDirty(pages[i]) ||
- 				    pages[i]->mapping != mapping) {
- 					unlock_page(pages[i]);
--					put_page(pages[i]);
-+					for (; i < ret; i++)
-+						put_page(pages[i]);
- 					err = -EAGAIN;
- 					goto out;
- 				}
+--- a/drivers/soc/qcom/rpmh.c
++++ b/drivers/soc/qcom/rpmh.c
+@@ -150,10 +150,10 @@ existing:
+ 		break;
+ 	}
+ 
+-	ctrlr->dirty = (req->sleep_val != old_sleep_val ||
+-			req->wake_val != old_wake_val) &&
+-			req->sleep_val != UINT_MAX &&
+-			req->wake_val != UINT_MAX;
++	ctrlr->dirty |= (req->sleep_val != old_sleep_val ||
++			 req->wake_val != old_wake_val) &&
++			 req->sleep_val != UINT_MAX &&
++			 req->wake_val != UINT_MAX;
+ 
+ unlock:
+ 	spin_unlock_irqrestore(&ctrlr->cache_lock, flags);
 
 
