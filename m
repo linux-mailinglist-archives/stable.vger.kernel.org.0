@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 983DA22F17E
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1082622F17F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731222AbgG0OSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46048 "EHLO mail.kernel.org"
+        id S1730586AbgG0Ocw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:32:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731224AbgG0OSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:18:24 -0400
+        id S1731224AbgG0OS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:18:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DB6020825;
-        Mon, 27 Jul 2020 14:18:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5045F2070A;
+        Mon, 27 Jul 2020 14:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859503;
-        bh=WIIPYcX+La5dUgPvwyLCdvuORcDgdMxo2o+Zea3h6QU=;
+        s=default; t=1595859508;
+        bh=0ZJWlq1G8erVgH9EJ/RuAJrxn1aUU9FfBEqTpkzpFxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0o1Njx34uRkVnB2vDLcMVS6a2cqoninyQWEBrZ3qSAJyzRIyFYbnFeavCn25KrM1I
-         nacm5E8gPprDQ2BUwf4KrDzimZg/S6ZTdV96R7H4qXVP6kfvQ0pTDXyfLuAdlt4TfK
-         CFboaEAgzwt3fVYc5RP8sxaX5mW+ABBaFyrwEhQA=
+        b=DKMBjkNHoKRWaGZxXSKU2FVTDQqChUDaNEbz6HYI5w3Vi12lkLiklR+v0IEC0RMYE
+         1ehOKKYb33MQf51fNWZyRxSCAnRuRpA7c6HlZihLFxKneBNoK19jF94xIqEzNhDerr
+         fzprGb2iEDSVs3Tnr3xY0RX79Wrrmmd0wwFw1jxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.4 105/138] usb: xhci-mtk: fix the failure of bandwidth allocation
-Date:   Mon, 27 Jul 2020 16:05:00 +0200
-Message-Id: <20200727134930.719926915@linuxfoundation.org>
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Patrick Fernie <patrick.fernie@gmail.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Subject: [PATCH 5.4 107/138] Revert "cifs: Fix the target file was deleted when rename failed."
+Date:   Mon, 27 Jul 2020 16:05:02 +0200
+Message-Id: <20200727134930.819342802@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -42,37 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit 5ce1a24dd98c00a57a8fa13660648abf7e08e3ef upstream.
+commit 0e6705182d4e1b77248a93470d6d7b3013d59b30 upstream.
 
-The wMaxPacketSize field of endpoint descriptor may be zero
-as default value in alternate interface, and they are not
-actually selected when start stream, so skip them when try to
-allocate bandwidth.
+This reverts commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2.
 
-Cc: stable <stable@vger.kernel.org>
-Fixes: 0cbd4b34cda9 ("xhci: mediatek: support MTK xHCI host controller")
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1594360672-2076-1-git-send-email-chunfeng.yun@mediatek.com
+Upon additional testing with older servers, it was found that
+the original commit introduced a regression when using the old SMB1
+dialect and rsyncing over an existing file.
+
+The patch will need to be respun to address this, likely including
+a larger refactoring of the SMB1 and SMB3 rename code paths to make
+it less confusing and also to address some additional rename error
+cases that SMB3 may be able to workaround.
+
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Patrick Fernie <patrick.fernie@gmail.com>
+CC: Stable <stable@vger.kernel.org>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
+Acked-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-mtk-sch.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/cifs/inode.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -557,6 +557,10 @@ static bool need_bw_sch(struct usb_host_
- 	if (is_fs_or_ls(speed) && !has_tt)
- 		return false;
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1791,7 +1791,6 @@ cifs_rename2(struct inode *source_dir, s
+ 	FILE_UNIX_BASIC_INFO *info_buf_target;
+ 	unsigned int xid;
+ 	int rc, tmprc;
+-	bool new_target = d_really_is_negative(target_dentry);
  
-+	/* skip endpoint with zero maxpkt */
-+	if (usb_endpoint_maxp(&ep->desc) == 0)
-+		return false;
-+
- 	return true;
- }
+ 	if (flags & ~RENAME_NOREPLACE)
+ 		return -EINVAL;
+@@ -1868,13 +1867,8 @@ cifs_rename2(struct inode *source_dir, s
+ 	 */
  
+ unlink_target:
+-	/*
+-	 * If the target dentry was created during the rename, try
+-	 * unlinking it if it's not negative
+-	 */
+-	if (new_target &&
+-	    d_really_is_positive(target_dentry) &&
+-	    (rc == -EACCES || rc == -EEXIST)) {
++	/* Try unlinking the target dentry if it's not negative */
++	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
+ 		if (d_is_dir(target_dentry))
+ 			tmprc = cifs_rmdir(target_dir, target_dentry);
+ 		else
 
 
