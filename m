@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0800122EFA4
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3650B22F07B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731144AbgG0OSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
+        id S1732345AbgG0OY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730365AbgG0OR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:17:59 -0400
+        id S1732337AbgG0OYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:24:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 438362075A;
-        Mon, 27 Jul 2020 14:17:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6936F208E4;
+        Mon, 27 Jul 2020 14:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859478;
-        bh=Hs1apUF6pzLa7pMZi6aK6zvEfY1TgSs8aSzgRfjS6aA=;
+        s=default; t=1595859894;
+        bh=9IPoUjIl9rYUQoHwrqTKJT7UCqyqqU4r75Elw+Qpxr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTJlplefWeq1RP6qN/CNywq8oRKgirX0v3aOsKhmvw/uBTlR2FCaueMKor9Ca1XwZ
-         ijDLbN6sn9uqqrM43/aZSV/jbGPJDtBm4YEJMVq6F/fOvA72OptuGY6O2rOXkHh0us
-         +G0ExzpZ11wteflCOJxKc1ajTm+6R7htuWMA1nqs=
+        b=veIWri0MyObFTt9IfVdo6PFq2pwYN89p2y4plQ2RMTI9d7MDdwBNvAuMkTeLY5IwS
+         6lFzvt2xLMbHodjU5PQhZwvONa2HyWRWk7PdH7ws1ltYHXoOJkz2csnKmqetx44TR8
+         hjmfE4QoJOfUWIbJmmHupo2bVn5xwza2nxVOVdug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 124/138] mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
-Date:   Mon, 27 Jul 2020 16:05:19 +0200
-Message-Id: <20200727134931.631085643@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Jan Kiszka <jan.kiszka@web.de>,
+        Helmut Grohne <helmut.grohne@intenta.de>
+Subject: [PATCH 5.7 145/179] tty: xilinx_uartps: Really fix id assignment
+Date:   Mon, 27 Jul 2020 16:05:20 +0200
+Message-Id: <20200727134939.735741726@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,125 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Helmut Grohne <helmut.grohne@intenta.de>
 
-commit d38a2b7a9c939e6d7329ab92b96559ccebf7b135 upstream.
+commit 22a82fa7d6c3e16d56a036b1fa697a39b954adf0 upstream.
 
-If the kmem_cache refcount is greater than one, we should not mark the
-root kmem_cache as dying.  If we mark the root kmem_cache dying
-incorrectly, the non-root kmem_cache can never be destroyed.  It
-resulted in memory leak when memcg was destroyed.  We can use the
-following steps to reproduce.
+The problems started with the revert (18cc7ac8a28e28). The
+cdns_uart_console.index is statically assigned -1. When the port is
+registered, Linux assigns consecutive numbers to it. It turned out that
+when using ttyPS1 as console, the index is not updated as we are reusing
+the same cdns_uart_console instance for multiple ports. When registering
+ttyPS0, it gets updated from -1 to 0, but when registering ttyPS1, it
+already is 0 and not updated.
 
-  1) Use kmem_cache_create() to create a new kmem_cache named A.
-  2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
-     so the refcount of B is just increased.
-  3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
-     decrease the B's refcount but mark the B as dying.
-  4) Create a new memory cgroup and alloc memory from the kmem_cache
-     B. It leads to create a non-root kmem_cache for allocating memory.
-  5) When destroy the memory cgroup created in the step 4), the
-     non-root kmem_cache can never be destroyed.
+That led to 2ae11c46d5fdc4. It assigns the index prior to registering
+the uart_driver once. Unfortunately, that ended up breaking the
+situation where the probe order does not match the id order. When using
+the same device tree for both uboot and linux, it is important that the
+serial0 alias points to the console. So some boards reverse those
+aliases. This was reported by Jan Kiszka. The proposed fix was reverting
+the index assignment and going back to the previous iteration.
 
-If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
-only when refcount reach zero, we mark the root kmem_cache as dying.
+However such a reversed assignement (serial0 -> uart1, serial1 -> uart0)
+was already partially broken by the revert (18cc7ac8a28e28). While the
+ttyPS device works, the kmsg connection is already broken and kernel
+messages go missing. Reverting the id assignment does not fix this.
 
-Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+>From the xilinx_uartps driver pov (after reverting the refactoring
+commits), there can be only one console. This manifests in static
+variables console_pprt and cdns_uart_console. These variables are not
+properly linked and can go out of sync. The cdns_uart_console.index is
+important for uart_add_one_port. We call that function for each port -
+one of which hopefully is the console. If it isn't, the CON_ENABLED flag
+is not set and console_port is cleared. The next cdns_uart_probe call
+then tries to register the next port using that same cdns_uart_console.
+
+It is important that console_port and cdns_uart_console (and its index
+in particular) stay in sync. The index assignment implemented by
+Shubhrajyoti Datta is correct in principle. It just may have to happen a
+second time if the first cdns_uart_probe call didn't encounter the
+console device. And we shouldn't change the index once the console uart
+is registered.
+
+Reported-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Reported-by: Jan Kiszka <jan.kiszka@web.de>
+Link: https://lore.kernel.org/linux-serial/f4092727-d8f5-5f91-2c9f-76643aace993@siemens.com/
+Fixes: 18cc7ac8a28e28 ("Revert "serial: uartps: Register own uart console and driver structures"")
+Fixes: 2ae11c46d5fdc4 ("tty: xilinx_uartps: Fix missing id assignment to the console")
+Fixes: 76ed2e10579671 ("Revert "tty: xilinx_uartps: Fix missing id assignment to the console"")
+Signed-off-by: Helmut Grohne <helmut.grohne@intenta.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200713073227.GA3805@laureti-dev
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 7 deletions(-)
+ drivers/tty/serial/xilinx_uartps.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -326,6 +326,14 @@ int slab_unmergeable(struct kmem_cache *
- 	if (s->refcount < 0)
- 		return 1;
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1574,8 +1574,10 @@ static int cdns_uart_probe(struct platfo
+ 	 * If register_console() don't assign value, then console_port pointer
+ 	 * is cleanup.
+ 	 */
+-	if (!console_port)
++	if (!console_port) {
++		cdns_uart_console.index = id;
+ 		console_port = port;
++	}
+ #endif
  
-+#ifdef CONFIG_MEMCG_KMEM
-+	/*
-+	 * Skip the dying kmem_cache.
-+	 */
-+	if (s->memcg_params.dying)
-+		return 1;
-+#endif
-+
- 	return 0;
- }
+ 	rc = uart_add_one_port(&cdns_uart_uart_driver, port);
+@@ -1588,8 +1590,10 @@ static int cdns_uart_probe(struct platfo
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+ 	/* This is not port which is used for console that's why clean it up */
+ 	if (console_port == port &&
+-	    !(cdns_uart_uart_driver.cons->flags & CON_ENABLED))
++	    !(cdns_uart_uart_driver.cons->flags & CON_ENABLED)) {
+ 		console_port = NULL;
++		cdns_uart_console.index = -1;
++	}
+ #endif
  
-@@ -886,12 +894,15 @@ static int shutdown_memcg_caches(struct
- 	return 0;
- }
- 
--static void flush_memcg_workqueue(struct kmem_cache *s)
-+static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
- {
- 	spin_lock_irq(&memcg_kmem_wq_lock);
- 	s->memcg_params.dying = true;
- 	spin_unlock_irq(&memcg_kmem_wq_lock);
-+}
- 
-+static void flush_memcg_workqueue(struct kmem_cache *s)
-+{
- 	/*
- 	 * SLAB and SLUB deactivate the kmem_caches through call_rcu. Make
- 	 * sure all registered rcu callbacks have been invoked.
-@@ -923,10 +934,6 @@ static inline int shutdown_memcg_caches(
- {
- 	return 0;
- }
--
--static inline void flush_memcg_workqueue(struct kmem_cache *s)
--{
--}
- #endif /* CONFIG_MEMCG_KMEM */
- 
- void slab_kmem_cache_release(struct kmem_cache *s)
-@@ -944,8 +951,6 @@ void kmem_cache_destroy(struct kmem_cach
- 	if (unlikely(!s))
- 		return;
- 
--	flush_memcg_workqueue(s);
--
- 	get_online_cpus();
- 	get_online_mems();
- 
-@@ -955,6 +960,22 @@ void kmem_cache_destroy(struct kmem_cach
- 	if (s->refcount)
- 		goto out_unlock;
- 
-+#ifdef CONFIG_MEMCG_KMEM
-+	memcg_set_kmem_cache_dying(s);
-+
-+	mutex_unlock(&slab_mutex);
-+
-+	put_online_mems();
-+	put_online_cpus();
-+
-+	flush_memcg_workqueue(s);
-+
-+	get_online_cpus();
-+	get_online_mems();
-+
-+	mutex_lock(&slab_mutex);
-+#endif
-+
- 	err = shutdown_memcg_caches(s);
- 	if (!err)
- 		err = shutdown_cache(s);
+ 	cdns_uart_data->cts_override = of_property_read_bool(pdev->dev.of_node,
 
 
