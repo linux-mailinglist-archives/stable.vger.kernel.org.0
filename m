@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18EAF22F2C9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5838C22F1D6
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbgG0OHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:07:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56262 "EHLO mail.kernel.org"
+        id S1730672AbgG0OPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:15:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729249AbgG0OHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:07:30 -0400
+        id S1730669AbgG0OPN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:15:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4A432173E;
-        Mon, 27 Jul 2020 14:07:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B74A2073E;
+        Mon, 27 Jul 2020 14:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858849;
-        bh=gsPJusJ2WJfAmoKVDrtfaIh+MKZOfkh8nvK442dShYQ=;
+        s=default; t=1595859312;
+        bh=LNGoL3vc+lqXp9mFVWdXslKqRXleYCl6zUFQXak43GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BRPV3adfc2ITGcfK7Q+JGwIYkERbhAGHKRr36AkowY4VkyZyNJ7BJUo3tYDaqYA4
-         Aq/wyOctDaDWMHxVsA8AX8r6NEreLpHvEwQXg1eK1Bm+SXtG96mLox/KeFgPQ2EQIr
-         Xi60aX0kAvoWCGAFj8XxSjKI5oSosNmOPdcfHuSg=
+        b=bdAnwRNp8RYkLwy9S+O3sFy+yDdGPQPW/gRVgERuaAEAWTWucZ6UprcaC6N60d5Ef
+         Pz44tEgQmBkAVM54rSujpccOp859A6y38SpH9j198jUZrYg1jxQhthoUU5xUzEyJmo
+         oUy/vqpKXy1vkegWcOFpnO0mbZ+ZeTH9ZUJqEuVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joao Moreno <mail@joaomoreno.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/64] HID: apple: Disable Fn-key key-re-mapping on clone keyboards
+        stable@vger.kernel.org, zhouxudong <zhouxudong8@huawei.com>,
+        guodeqing <geffrey.guo@huawei.com>, Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 059/138] ipvs: fix the connection sync failed in some cases
 Date:   Mon, 27 Jul 2020 16:04:14 +0200
-Message-Id: <20200727134912.898242972@linuxfoundation.org>
+Message-Id: <20200727134928.358700395@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: guodeqing <geffrey.guo@huawei.com>
 
-[ Upstream commit a5d81646fa294eed57786a9310b06ca48902adf8 ]
+[ Upstream commit 8210e344ccb798c672ab237b1a4f241bda08909b ]
 
-The Maxxter KB-BT-001 Bluetooth keyboard, which looks somewhat like the
-Apple Wireless Keyboard, is using the vendor and product IDs (05AC:0239)
-of the Apple Wireless Keyboard (2009 ANSI version) <sigh>.
+The sync_thread_backup only checks sk_receive_queue is empty or not,
+there is a situation which cannot sync the connection entries when
+sk_receive_queue is empty and sk_rmem_alloc is larger than sk_rcvbuf,
+the sync packets are dropped in __udp_enqueue_schedule_skb, this is
+because the packets in reader_queue is not read, so the rmem is
+not reclaimed.
 
-But its F1 - F10 keys are marked as sending F1 - F10, not the special
-functions hid-apple.c maps them too; and since its descriptors do not
-contain the HID_UP_CUSTOM | 0x0003 usage apple-hid looks for for the
-Fn-key, apple_setup_input() never gets called, so F1 - F6 are mapped
-to key-codes which have not been set in the keybit array causing them
-to not send any events at all.
+Here I add the check of whether the reader_queue of the udp sock is
+empty or not to solve this problem.
 
-The lack of a usage code matching the Fn key in the clone is actually
-useful as this allows solving this problem in a generic way.
-
-This commits adds a fn_found flag and it adds a input_configured
-callback which checks if this flag is set once all usages have been
-mapped. If it is not set, then assume this is a clone and clear the
-quirks bitmap so that the hid-apple code does not add any special
-handling to this keyboard.
-
-This fixes F1 - F6 not sending anything at all and F7 - F12 sending
-the wrong codes on the Maxxter KB-BT-001 Bluetooth keyboard and on
-similar clones.
-
-Cc: Joao Moreno <mail@joaomoreno.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 2276f58ac589 ("udp: use a separate rx queue for packet reception")
+Reported-by: zhouxudong <zhouxudong8@huawei.com>
+Signed-off-by: guodeqing <geffrey.guo@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ net/netfilter/ipvs/ip_vs_sync.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 8ab8f2350bbcd..b58ab769aa7b3 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -57,6 +57,7 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
-+	unsigned int fn_found;
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
- };
- 
-@@ -342,12 +343,15 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
+diff --git a/net/netfilter/ipvs/ip_vs_sync.c b/net/netfilter/ipvs/ip_vs_sync.c
+index 8dc892a9dc91a..0c1bc654245c0 100644
+--- a/net/netfilter/ipvs/ip_vs_sync.c
++++ b/net/netfilter/ipvs/ip_vs_sync.c
+@@ -1717,6 +1717,8 @@ static int sync_thread_backup(void *data)
  {
-+	struct apple_sc *asc = hid_get_drvdata(hdev);
-+
- 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
- 			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
- 			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
- 		/* The fn key on Apple USB keyboards */
- 		set_bit(EV_REP, hi->input->evbit);
- 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
-+		asc->fn_found = true;
- 		apple_setup_input(hi->input);
- 		return 1;
- 	}
-@@ -374,6 +378,19 @@ static int apple_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
+ 	struct ip_vs_sync_thread_data *tinfo = data;
+ 	struct netns_ipvs *ipvs = tinfo->ipvs;
++	struct sock *sk = tinfo->sock->sk;
++	struct udp_sock *up = udp_sk(sk);
+ 	int len;
  
-+static int apple_input_configured(struct hid_device *hdev,
-+		struct hid_input *hidinput)
-+{
-+	struct apple_sc *asc = hid_get_drvdata(hdev);
-+
-+	if ((asc->quirks & APPLE_HAS_FN) && !asc->fn_found) {
-+		hid_info(hdev, "Fn key not found (Apple Wireless Keyboard clone?), disabling Fn key handling\n");
-+		asc->quirks = 0;
-+	}
-+
-+	return 0;
-+}
-+
- static int apple_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
-@@ -588,6 +605,7 @@ static struct hid_driver apple_driver = {
- 	.event = apple_event,
- 	.input_mapping = apple_input_mapping,
- 	.input_mapped = apple_input_mapped,
-+	.input_configured = apple_input_configured,
- };
- module_hid_driver(apple_driver);
+ 	pr_info("sync thread started: state = BACKUP, mcast_ifn = %s, "
+@@ -1724,12 +1726,14 @@ static int sync_thread_backup(void *data)
+ 		ipvs->bcfg.mcast_ifn, ipvs->bcfg.syncid, tinfo->id);
  
+ 	while (!kthread_should_stop()) {
+-		wait_event_interruptible(*sk_sleep(tinfo->sock->sk),
+-			 !skb_queue_empty(&tinfo->sock->sk->sk_receive_queue)
+-			 || kthread_should_stop());
++		wait_event_interruptible(*sk_sleep(sk),
++					 !skb_queue_empty_lockless(&sk->sk_receive_queue) ||
++					 !skb_queue_empty_lockless(&up->reader_queue) ||
++					 kthread_should_stop());
+ 
+ 		/* do we have data now? */
+-		while (!skb_queue_empty(&(tinfo->sock->sk->sk_receive_queue))) {
++		while (!skb_queue_empty_lockless(&sk->sk_receive_queue) ||
++		       !skb_queue_empty_lockless(&up->reader_queue)) {
+ 			len = ip_vs_receive(tinfo->sock, tinfo->buf,
+ 					ipvs->bcfg.sync_maxlen);
+ 			if (len <= 0) {
 -- 
 2.25.1
 
