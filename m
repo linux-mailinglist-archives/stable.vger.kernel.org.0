@@ -2,227 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B3122EA4B
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 12:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9D722EAFD
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 13:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728269AbgG0Kq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 06:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728258AbgG0Kq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 06:46:56 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6870FC061794
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 03:46:55 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id 184so14273653wmb.0
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 03:46:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=jEXz4XHYIboeUYM649x1ewNgKPhYYWsfFCIkAjX0d70=;
-        b=lShWZxM3LDqR2O1xn0+a7LGDoh7eK+PDPO63q57eAiebNglZPUbhlfd29jUyhO4vTT
-         Re6keLI9fN1FdvOSulAYMA2yMPyU7y3M84OoSdSOF2HggzKFJegEpiycUH8vWhLcE9Oj
-         qCLxYw8+CBCBV9BLOHdbmqZ6w3fMSKw7JSN0Y=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=jEXz4XHYIboeUYM649x1ewNgKPhYYWsfFCIkAjX0d70=;
-        b=jp2I35TtwyiAo3d2psd6HwruK/QM3jmbrmikmbH7PslDqdivoZb5zlE3gO5OlqUGEP
-         d50JTLQUGs++E824mRG8vmE12Ht+BCUEn9zFdsobJbEc4zQK7lfHiUH+NpkZOhe84Q1v
-         Ibc0cJAGdHd1ahiK7jGCdC3qJqLpSFZd1alVX18B7g9kCHb2cmQOiYFupp6IhxZh3CGB
-         /Kgr+sxQb7hj0FMgOpoXq0jC0jtGwg0o2oRunPFLb5gsAcV1chaYkl/ZIQwnnHIZ1T+j
-         JlUwxmMwEj7EmA08ULL7/DTaK/Q5Wst/1Zzg6pD0oIiHEhXW5+yvO89rZ/hqa3AuqTdR
-         kyWw==
-X-Gm-Message-State: AOAM532MclQE9OR7Mr2jdhHAu9Ob9BtveU+Ebuzqq9AB3uJ2KB97c56n
-        vNBy8PrMvMTLpV/o8yIF1pRa/A==
-X-Google-Smtp-Source: ABdhPJwkEgX6Rpv2WvYFmrujAQBDVT6alrcLllmhBgp57MUMLwy6O+9ie28bbQUOBfipbi6PW40dQg==
-X-Received: by 2002:a05:600c:25cc:: with SMTP id 12mr3608461wml.120.1595846813826;
-        Mon, 27 Jul 2020 03:46:53 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id o2sm11791068wrj.21.2020.07.27.03.46.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2020 03:46:53 -0700 (PDT)
-Date:   Mon, 27 Jul 2020 12:46:51 +0200
-From:   daniel@ffwll.ch
-Cc:     airlied@redhat.com, daniel@ffwll.ch, sam@ravnborg.org,
-        kraxel@redhat.com, emil.l.velikov@gmail.com,
-        dri-devel@lists.freedesktop.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        "Y.C. Chen" <yc_chen@aspeedtech.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 3/3] drm/ast: Disable cursor while switching display modes
-Message-ID: <20200727104651.GW6419@phenom.ffwll.local>
-References: <20200727073707.21097-1-tzimmermann@suse.de>
- <20200727073707.21097-4-tzimmermann@suse.de>
+        id S1726817AbgG0LRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 07:17:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726269AbgG0LRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 07:17:20 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC46C2074F;
+        Mon, 27 Jul 2020 11:17:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595848640;
+        bh=0u+juZ1paCGO3QIXuSOqLg5vER7plRphH0fbzrbUTZs=;
+        h=Subject:To:From:Date:From;
+        b=ELOex9OTlzIB6bqy510Muba78Q9MeOrSHjHxmwiB/sGq6QOTJ4z50Ph4I31ZL4sFb
+         oovYai8+CJijYOjix9wh0i26XQ1pfRHA3moz8OxiXrQHekybAMlsiYHZWGN9gYXsUl
+         KduyV3okmDuJcyspzxAqzLIiQeAHJs85jkRTJgIg=
+Subject: patch "usb: cdns3: gadget: always zeroed TRB buffer when enable endpoint" added to usb-testing
+To:     peter.chen@nxp.com, balbi@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Jul 2020 13:16:53 +0200
+Message-ID: <1595848613115224@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200727073707.21097-4-tzimmermann@suse.de>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 27, 2020 at 09:37:07AM +0200, Thomas Zimmermann wrote:
-> The ast's HW cursor requires the primary plane and CRTC to display
-> at a correct mode and format. This is not the case while switching
-> display modes, which can lead to the screen turing permanently dark.
-> 
-> As a workaround, the ast driver now disables active HW cursors while
-> the mode switch takes place. It also synchronizes with the vertical
-> refresh to give HW cursor and primary plane some time to catch up on
-> each other.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: 4961eb60f145 ("drm/ast: Enable atomic modesetting")
 
-Since you already do modeset when changing primary plane I think the much
-cleaner solution is to use drm_atomic_helper_disable_planes_on_crtc() and
-drm_atomic_helper_commit_planes() with flags =
-DRM_PLANE_COMMIT_ACTIVE_ONLY or so, with corresponding changes in
-atomic_commit_tail. Much cleaner instead of hand-rolling this all in
-callbacks.
+This is a note to let you know that I've just added the patch titled
 
-Note that with atomic helpers it is _very_ much encouraged to throw the
-helper structure into the wind and write your own stuff, this thing is
-intentionally very modular. This is to avoid incomprehensible drivers that
-are forced to hack around the helper midlayer in their callbacks like the
-below very much looks like.
--Daniel
+    usb: cdns3: gadget: always zeroed TRB buffer when enable endpoint
 
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Emil Velikov <emil.l.velikov@gmail.com>
-> Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
-> Cc: <stable@vger.kernel.org> # v5.6+
-> ---
->  drivers/gpu/drm/ast/ast_drv.h  |  2 ++
->  drivers/gpu/drm/ast/ast_mode.c | 53 +++++++++++++++++++++++++++++++++-
->  2 files changed, 54 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
-> index 57414b429db3..564670b5d2ee 100644
-> --- a/drivers/gpu/drm/ast/ast_drv.h
-> +++ b/drivers/gpu/drm/ast/ast_drv.h
-> @@ -162,6 +162,8 @@ void ast_driver_unload(struct drm_device *dev);
->  
->  #define AST_IO_MM_OFFSET		(0x380)
->  
-> +#define AST_IO_VGAIR1_VREFRESH		BIT(3)
-> +
->  #define __ast_read(x) \
->  static inline u##x ast_read##x(struct ast_private *ast, u32 reg) { \
->  u##x val = 0;\
-> diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-> index 5b2b39c93033..e18365bbc08c 100644
-> --- a/drivers/gpu/drm/ast/ast_mode.c
-> +++ b/drivers/gpu/drm/ast/ast_mode.c
-> @@ -514,6 +514,17 @@ static void ast_set_start_address_crt1(struct ast_private *ast,
->  
->  }
->  
-> +static void ast_wait_for_vretrace(struct ast_private *ast)
-> +{
-> +	unsigned long timeout = jiffies + HZ;
-> +	u8 vgair1;
-> +
-> +	do {
-> +		vgair1 = ast_io_read8(ast, AST_IO_INPUT_STATUS1_READ);
-> +	} while (!(vgair1 & AST_IO_VGAIR1_VREFRESH) &&
-> +		 time_before(jiffies, timeout));
-> +}
-> +
->  /*
->   * Primary plane
->   */
-> @@ -666,6 +677,14 @@ static int ast_cursor_plane_helper_atomic_check(struct drm_plane *plane,
->  	return 0;
->  }
->  
-> +static bool ast_disable_cursor_during_modeset(struct drm_plane *cursor_plane)
-> +{
-> +	const struct drm_plane_state *cursor_state = cursor_plane->state;
-> +
-> +	return cursor_state && cursor_state->visible && cursor_state->crtc &&
-> +	       drm_atomic_crtc_needs_modeset(cursor_state->crtc->state);
-> +}
-> +
->  static void
->  ast_cursor_plane_helper_atomic_update(struct drm_plane *plane,
->  				      struct drm_plane_state *old_state)
-> @@ -678,7 +697,12 @@ ast_cursor_plane_helper_atomic_update(struct drm_plane *plane,
->  		ast_cursor_page_flip(ast);
->  	}
->  
-> -	ast_cursor_show(ast, state->crtc_x, state->crtc_y);
-> +	/*
-> +	 * For modesets, delay show() until end of atomic_flush(). See the
-> +	 * atomic_begin() helper for more information.
-> +	 */
-> +	if (!ast_disable_cursor_during_modeset(plane))
-> +		ast_cursor_show(ast, state->crtc_x, state->crtc_y);
->  }
->  
->  static void
-> @@ -764,6 +788,22 @@ static void ast_crtc_helper_atomic_begin(struct drm_crtc *crtc,
->  	struct ast_private *ast = to_ast_private(crtc->dev);
->  
->  	ast_open_key(ast);
-> +
-> +	/*
-> +	 * HW cursors require the underlying primary plane and CRTC to
-> +	 * display a valid mode and image. This is not the case during
-> +	 * full modeset operations. So we temporarily disable any active
-> +	 * HW cursor and re-enable it at the end of the atomic_flush()
-> +	 * helper. The busy waiting allows the code to sync with the
-> +	 * vertical refresh.
-> +	 *
-> +	 * We only do this during *full* modesets. It does not affect
-> +	 * simple pageflips on the planes.
-> +	 */
-> +	if (ast_disable_cursor_during_modeset(&ast->cursor_plane)) {
-> +		ast_cursor_hide(ast);
-> +		ast_wait_for_vretrace(ast);
-> +	}
->  }
->  
->  static void ast_crtc_helper_atomic_flush(struct drm_crtc *crtc,
-> @@ -771,6 +811,7 @@ static void ast_crtc_helper_atomic_flush(struct drm_crtc *crtc,
->  {
->  	struct drm_device *dev = crtc->dev;
->  	struct ast_private *ast = to_ast_private(dev);
-> +	struct drm_plane_state *cursor_state = ast->cursor_plane.state;
->  	struct ast_crtc_state *ast_state;
->  	const struct drm_format_info *format;
->  	struct ast_vbios_mode_info *vbios_mode_info;
-> @@ -799,6 +840,16 @@ static void ast_crtc_helper_atomic_flush(struct drm_crtc *crtc,
->  	ast_set_dclk_reg(ast, adjusted_mode, vbios_mode_info);
->  	ast_set_crtthd_reg(ast);
->  	ast_set_sync_reg(ast, adjusted_mode, vbios_mode_info);
-> +
-> +	/*
-> +	 * Re-enabling the HW cursor; if any. See the atomic_begin() helper
-> +	 * for more information.
-> +	 */
-> +	if (ast_disable_cursor_during_modeset(&ast->cursor_plane)) {
-> +		ast_wait_for_vretrace(ast);
-> +		ast_cursor_show(ast, cursor_state->crtc_x,
-> +				cursor_state->crtc_y);
-> +	}
->  }
->  
->  static void
-> -- 
-> 2.27.0
-> 
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 95f5acfc4f58f01a22b66d8c9c0ffb72aa96271c Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@nxp.com>
+Date: Wed, 22 Jul 2020 11:06:19 +0800
+Subject: usb: cdns3: gadget: always zeroed TRB buffer when enable endpoint
+
+During the endpoint dequeue operation, it changes dequeued TRB as link
+TRB, when the endpoint is disabled and re-enabled, the DMA fetches the
+TRB before the link TRB, after it handles current TRB, the DMA pointer
+will advance to the TRB after link TRB, but enqueue and dequene
+variables don't know it due to no hardware interrupt at the time, when
+the next TRB is added to link TRB position, the DMA will not handle
+this TRB due to its pointer is already at the next TRB. See the trace
+log like below:
+
+file-storage-675   [001] d..1    86.585657: usb_ep_queue: ep0: req 00000000df9b3a4f length 0/0 sgs 0/0 stream 0 zsI status 0 --> 0
+file-storage-675   [001] d..1    86.585663: cdns3_ep_queue: ep1out: req: 000000002ebce364, req buff 00000000f5bc96b4, length: 0/1024 zsi, status: -115, trb: [start:0, end:0: virt addr (null)], flags:0 SID: 0
+file-storage-675   [001] d..1    86.585671: cdns3_prepare_trb: ep1out: trb 000000007f770303, dma buf: 0xbd195800, size: 1024, burst: 128 ctrl: 0x00000425 (C=1, T=0, ISP, IOC, Normal) SID:0 LAST_SID:0
+file-storage-675   [001] d..1    86.585676: cdns3_ring:
+            Ring contents for ep1out:
+            Ring deq index: 0, trb: 000000007f770303 (virt), 0xc4003000 (dma)
+            Ring enq index: 1, trb: 0000000049c1ba21 (virt), 0xc400300c (dma)
+            free trbs: 38, CCS=1, PCS=1
+            @0x00000000c4003000 bd195800 80020400 00000425
+            @0x00000000c400300c c4003018 80020400 00001811
+            @0x00000000c4003018 bcfcc000 0000001f 00000426
+            @0x00000000c4003024 bcfce800 0000001f 00000426
+
+	    ...
+
+ irq/144-5b13000-698   [000] d...    87.619286: usb_gadget_giveback_request: ep1in: req 0000000031b832eb length 13/13 sgs 0/0 stream 0 zsI status 0 --> 0
+    file-storage-675   [001] d..1    87.619287: cdns3_ep_queue: ep1out: req: 000000002ebce364, req buff 00000000f5bc96b4, length: 0/1024 zsi, status: -115, trb: [start:0, end:0: virt addr 0x80020400c400300c], flags:0 SID: 0
+    file-storage-675   [001] d..1    87.619294: cdns3_prepare_trb: ep1out: trb 0000000049c1ba21, dma buf: 0xbd198000, size: 1024, burst: 128 ctrl: 0x00000425 (C=1, T=0, ISP, IOC, Normal) SID:0 LAST_SID:0
+    file-storage-675   [001] d..1    87.619297: cdns3_ring:
+                Ring contents for ep1out:
+                Ring deq index: 1, trb: 0000000049c1ba21 (virt), 0xc400300c (dma)
+                Ring enq index: 2, trb: 0000000059b34b67 (virt), 0xc4003018 (dma)
+                free trbs: 38, CCS=1, PCS=1
+                @0x00000000c4003000 bd195800 0000001f 00000427
+                @0x00000000c400300c bd198000 80020400 00000425
+                @0x00000000c4003018 bcfcc000 0000001f 00000426
+                @0x00000000c4003024 bcfce800 0000001f 00000426
+		...
+
+    file-storage-675   [001] d..1    87.619305: cdns3_doorbell_epx: ep1out, ep_trbaddr c4003018
+    file-storage-675   [001] ....    87.619308: usb_ep_queue: ep1out: req 000000002ebce364 length 0/1024 sgs 0/0 stream 0 zsI status -115 --> 0
+ irq/144-5b13000-698   [000] d..1    87.619315: cdns3_epx_irq: IRQ for ep1out: 01000c80 TRBERR , ep_traddr: c4003018 ep_last_sid: 00000000 use_streams: 0
+ irq/144-5b13000-698   [000] d..1    87.619395: cdns3_usb_irq: IRQ 00000008 = Hot Reset
+
+Fixes: f616c3bda47e ("usb: cdns3: Fix dequeue implementation")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+---
+ drivers/usb/cdns3/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
+index 5b4b16bf4164..65a154d47f8e 100644
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -242,9 +242,10 @@ int cdns3_allocate_trb_pool(struct cdns3_endpoint *priv_ep)
+ 			return -ENOMEM;
+ 
+ 		priv_ep->alloc_ring_size = ring_size;
+-		memset(priv_ep->trb_pool, 0, ring_size);
+ 	}
+ 
++	memset(priv_ep->trb_pool, 0, ring_size);
++
+ 	priv_ep->num_trbs = num_trbs;
+ 
+ 	if (!priv_ep->num)
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.27.0
+
+
