@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 230EA22EEB5
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D24522EE58
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbgG0OKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60766 "EHLO mail.kernel.org"
+        id S1729114AbgG0OHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:07:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729743AbgG0OKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:10:02 -0400
+        id S1729111AbgG0OHB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:07:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1D1B208E4;
-        Mon, 27 Jul 2020 14:10:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96731207FC;
+        Mon, 27 Jul 2020 14:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859002;
+        s=default; t=1595858821;
         bh=ZlkBZRpRZouPucAK8to0nNZMYP7bbrHIinNn677J9D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GElU7A8jvnaSkrLhQNpH1Rx82P7b4P/QXMJjtW0iifg5oVhRg5+R4MqK9TPWnpsFD
-         2ie4IUyi2Pq9H3dxHCQOGzFNhRYOpS1g7QNhb3mTMnLbANIG+7XgaItmtK+WekoF3g
-         +w779XaquDcuUIusw7d+TWWs22Ym7LsoBD0opYsU=
+        b=kIGpeZW9+LgWBChtlIeAkcJ7LGUJBEE5jhVhXxpLuECXpZwGyRuY4MEXwN68Q20Po
+         SPmUr3wC58aq2FpFyBGzmpIxqvKdx5sw8BNFV6bL7Viawf1jxjFhv0aXlR+2Tu8N8e
+         g07Gk6ZfasW09Xxzj67wsQjwHi3TsftAGd45Bch4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot+4cd84f527bf4a10fc9c1@syzkaller.appspotmail.com,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/86] ax88172a: fix ax88172a_unbind() failures
+Subject: [PATCH 4.14 23/64] ax88172a: fix ax88172a_unbind() failures
 Date:   Mon, 27 Jul 2020 16:04:02 +0200
-Message-Id: <20200727134915.862491789@linuxfoundation.org>
+Message-Id: <20200727134912.290183202@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
