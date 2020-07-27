@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DEE022EE76
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B06122F139
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729302AbgG0OH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56994 "EHLO mail.kernel.org"
+        id S1731776AbgG0OVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgG0OHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:07:55 -0400
+        id S1730258AbgG0OVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:21:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5364B2073E;
-        Mon, 27 Jul 2020 14:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 170EA2070B;
+        Mon, 27 Jul 2020 14:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858874;
-        bh=deAweHWo/9uso7c0xjr/l67++4cZ+yJjx2ZpWpma110=;
+        s=default; t=1595859703;
+        bh=OdLkRB2xOGe8mEdYlFzHbiS2fJS4dERxvM6LXLy6FXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5JlD2cXEJ2B/S6ZkTSaCrBOQOJTPjIeoIz4p9PgVXO7hYCSvdwoVmb5P2g5lZZQd
-         Q3PhZ0xsxyfJjnrWDtmZorM/a9W9XHSIgv3+gvZ1iZhjAwUkA9gxetBZc7Gl6tSgbI
-         p5zdZQ3eb8nlKyUQdH5/V1WVkjSbJvs0tftRw//o=
+        b=GCPJoEkqNZ+32x9Kkxi7djg9E0d6gIsxRDCAwl9qBO3Pn+aLBkVmjno+cXr769LU3
+         9p/ILJkahKZSgAfnl/QBVAhTpONGKwLqnGJ7os/dFrlWyQApGK/xDa48la5fnHvftB
+         V1NYUMtXrxBOnxIeKu5kML+BvpHd3y0+cDfPo5uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/64] bonding: check error value of register_netdevice() immediately
-Date:   Mon, 27 Jul 2020 16:04:06 +0200
-Message-Id: <20200727134912.496357926@linuxfoundation.org>
+Subject: [PATCH 5.7 072/179] ionic: update filter id after replay
+Date:   Mon, 27 Jul 2020 16:04:07 +0200
+Message-Id: <20200727134936.194813700@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 544f287b84959203367cd29e16e772717612fab4 ]
+[ Upstream commit cc4428c4de8c31f12e4690d0409e0432fe05702f ]
 
-If register_netdevice() is failed, net_device should not be used
-because variables are uninitialized or freed.
-So, the routine should be stopped immediately.
-But, bond_create() doesn't check return value of register_netdevice()
-immediately. That will result in a panic because of using uninitialized
-or freed memory.
+When we replay the rx filters after a fw-upgrade we get new
+filter_id values from the FW, which we need to save and update
+in our local filter list.  This allows us to delete the filters
+with the correct filter_id when we're done.
 
-Test commands:
-    modprobe netdev-notifier-error-inject
-    echo -22 > /sys/kernel/debug/notifier-error-inject/netdev/\
-actions/NETDEV_REGISTER/error
-    modprobe bonding max_bonds=3
-
-Splat looks like:
-[  375.028492][  T193] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b6b6b: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-[  375.033207][  T193] CPU: 2 PID: 193 Comm: kworker/2:2 Not tainted 5.8.0-rc4+ #645
-[  375.036068][  T193] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-[  375.039673][  T193] Workqueue: events linkwatch_event
-[  375.041557][  T193] RIP: 0010:dev_activate+0x4a/0x340
-[  375.043381][  T193] Code: 40 a8 04 0f 85 db 00 00 00 8b 83 08 04 00 00 85 c0 0f 84 0d 01 00 00 31 d2 89 d0 48 8d 04 40 48 c1 e0 07 48 03 83 00 04 00 00 <48> 8b 48 10 f6 41 10 01 75 08 f0 80 a1 a0 01 00 00 fd 48 89 48 08
-[  375.050267][  T193] RSP: 0018:ffff9f8facfcfdd8 EFLAGS: 00010202
-[  375.052410][  T193] RAX: 6b6b6b6b6b6b6b6b RBX: ffff9f8fae6ea000 RCX: 0000000000000006
-[  375.055178][  T193] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9f8fae6ea000
-[  375.057762][  T193] RBP: ffff9f8fae6ea000 R08: 0000000000000000 R09: 0000000000000000
-[  375.059810][  T193] R10: 0000000000000001 R11: 0000000000000000 R12: ffff9f8facfcfe08
-[  375.061892][  T193] R13: ffffffff883587e0 R14: 0000000000000000 R15: ffff9f8fae6ea580
-[  375.063931][  T193] FS:  0000000000000000(0000) GS:ffff9f8fbae00000(0000) knlGS:0000000000000000
-[  375.066239][  T193] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  375.067841][  T193] CR2: 00007f2f542167a0 CR3: 000000012cee6002 CR4: 00000000003606e0
-[  375.069657][  T193] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  375.071471][  T193] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  375.073269][  T193] Call Trace:
-[  375.074005][  T193]  linkwatch_do_dev+0x4d/0x50
-[  375.075052][  T193]  __linkwatch_run_queue+0x10b/0x200
-[  375.076244][  T193]  linkwatch_event+0x21/0x30
-[  375.077274][  T193]  process_one_work+0x252/0x600
-[  375.078379][  T193]  ? process_one_work+0x600/0x600
-[  375.079518][  T193]  worker_thread+0x3c/0x380
-[  375.080534][  T193]  ? process_one_work+0x600/0x600
-[  375.081668][  T193]  kthread+0x139/0x150
-[  375.082567][  T193]  ? kthread_park+0x90/0x90
-[  375.083567][  T193]  ret_from_fork+0x22/0x30
-
-Fixes: e826eafa65c6 ("bonding: Call netif_carrier_off after register_netdevice")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: 7e4d47596b68 ("ionic: replay filters after fw upgrade")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ .../ethernet/pensando/ionic/ionic_rx_filter.c | 24 +++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index fef599eb822b6..1f867e275408e 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4773,15 +4773,19 @@ int bond_create(struct net *net, const char *name)
- 	bond_dev->rtnl_link_ops = &bond_link_ops;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c b/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c
+index fb9d828812bd2..cd0076fc3044e 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_rx_filter.c
+@@ -21,13 +21,16 @@ void ionic_rx_filter_free(struct ionic_lif *lif, struct ionic_rx_filter *f)
+ void ionic_rx_filter_replay(struct ionic_lif *lif)
+ {
+ 	struct ionic_rx_filter_add_cmd *ac;
++	struct hlist_head new_id_list;
+ 	struct ionic_admin_ctx ctx;
+ 	struct ionic_rx_filter *f;
+ 	struct hlist_head *head;
+ 	struct hlist_node *tmp;
++	unsigned int key;
+ 	unsigned int i;
+ 	int err;
  
- 	res = register_netdevice(bond_dev);
-+	if (res < 0) {
-+		free_netdev(bond_dev);
-+		rtnl_unlock();
++	INIT_HLIST_HEAD(&new_id_list);
+ 	ac = &ctx.cmd.rx_filter_add;
+ 
+ 	for (i = 0; i < IONIC_RX_FILTER_HLISTS; i++) {
+@@ -58,9 +61,30 @@ void ionic_rx_filter_replay(struct ionic_lif *lif)
+ 						    ac->mac.addr);
+ 					break;
+ 				}
++				spin_lock_bh(&lif->rx_filters.lock);
++				ionic_rx_filter_free(lif, f);
++				spin_unlock_bh(&lif->rx_filters.lock);
 +
-+		return res;
++				continue;
+ 			}
++
++			/* remove from old id list, save new id in tmp list */
++			spin_lock_bh(&lif->rx_filters.lock);
++			hlist_del(&f->by_id);
++			spin_unlock_bh(&lif->rx_filters.lock);
++			f->filter_id = le32_to_cpu(ctx.comp.rx_filter_add.filter_id);
++			hlist_add_head(&f->by_id, &new_id_list);
+ 		}
+ 	}
++
++	/* rebuild the by_id hash lists with the new filter ids */
++	spin_lock_bh(&lif->rx_filters.lock);
++	hlist_for_each_entry_safe(f, tmp, &new_id_list, by_id) {
++		key = f->filter_id & IONIC_RX_FILTER_HLISTS_MASK;
++		head = &lif->rx_filters.by_id[key];
++		hlist_add_head(&f->by_id, head);
 +	}
- 
- 	netif_carrier_off(bond_dev);
- 
- 	bond_work_init_all(bond);
- 
- 	rtnl_unlock();
--	if (res < 0)
--		free_netdev(bond_dev);
--	return res;
-+	return 0;
++	spin_unlock_bh(&lif->rx_filters.lock);
  }
  
- static int __net_init bond_net_init(struct net *net)
+ int ionic_rx_filters_init(struct ionic_lif *lif)
 -- 
 2.25.1
 
