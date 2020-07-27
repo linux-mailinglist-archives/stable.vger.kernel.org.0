@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA9B22FD22
+	by mail.lfdr.de (Postfix) with ESMTP id 09BF922FD21
 	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:25:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728659AbgG0XZc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728649AbgG0XZc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jul 2020 19:25:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36844 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728637AbgG0XZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:25:29 -0400
+        id S1728642AbgG0XZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:25:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6C40208E4;
-        Mon, 27 Jul 2020 23:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60A1D2173E;
+        Mon, 27 Jul 2020 23:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892328;
-        bh=5lM8KCwnYSYrdF78ZiUyZHdioymTZ03frSXpaWniM2Y=;
+        s=default; t=1595892330;
+        bh=TWDigoraORtdaOlDXyjVv4Toh+tONPBihEAKNcMZ6/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ln3UTP+g/478T6BpUGK2EHtBKjoqEkb2MHm/gR3TDv1qOGirbPmx+AAxvOWV9AWil
-         LhiiUJRoJT6I31FlcFANvX74Klk8O4XHnaj9TQxOG3SUIrtSoeFiGUXtRrQALJwCHY
-         8jNePnOadVbU9FI5L9wP19SfHWVKERRn674523kk=
+        b=YUz/1Wzt8H3aiE1ckmBvcd55Nf8ydS7h7akq4epvKJMgF6cpLkDzX8lvfI3nR6kIC
+         4rEskOwPoFxgl+LUuZ13rp6SiAtueXfK4gdECD16jdcCsTNvlQw17lBaE3GEoR1sUr
+         4t3DLsuC8lPHV0FliiF2FxRCrOzY5Nw8JcQyQqM4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Dirk Behme <dirk.behme@de.bosch.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 2/4] net: ethernet: ravb: exit if re-initialization fails in tx timeout
-Date:   Mon, 27 Jul 2020 19:25:23 -0400
-Message-Id: <20200727232525.718372-2-sashal@kernel.org>
+Cc:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 3/4] Revert "i2c: cadence: Fix the hold bit setting"
+Date:   Mon, 27 Jul 2020 19:25:24 -0400
+Message-Id: <20200727232525.718372-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232525.718372-1-sashal@kernel.org>
 References: <20200727232525.718372-1-sashal@kernel.org>
@@ -46,89 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 
-[ Upstream commit 015c5d5e6aa3523c758a70eb87b291cece2dbbb4 ]
+[ Upstream commit 0db9254d6b896b587759e2c844c277fb1a6da5b9 ]
 
-According to the report of [1], this driver is possible to cause
-the following error in ravb_tx_timeout_work().
+This reverts commit d358def706880defa4c9e87381c5bf086a97d5f9.
 
-ravb e6800000.ethernet ethernet: failed to switch device to config mode
+There are two issues with "i2c: cadence: Fix the hold bit setting" commit.
 
-This error means that the hardware could not change the state
-from "Operation" to "Configuration" while some tx and/or rx queue
-are operating. After that, ravb_config() in ravb_dmac_init() will fail,
-and then any descriptors will be not allocaled anymore so that NULL
-pointer dereference happens after that on ravb_start_xmit().
+1. In case of combined message request from user space, when the HOLD
+bit is cleared in cdns_i2c_mrecv function, a STOP condition is sent
+on the bus even before the last message is started. This is because when
+the HOLD bit is cleared, the FIFOS are empty and there is no pending
+transfer. The STOP condition should occur only after the last message
+is completed.
 
-To fix the issue, the ravb_tx_timeout_work() should check
-the return values of ravb_stop_dma() and ravb_dmac_init().
-If ravb_stop_dma() fails, ravb_tx_timeout_work() re-enables TX and RX
-and just exits. If ravb_dmac_init() fails, just exits.
+2. The code added by the commit is redundant. Driver is handling the
+setting/clearing of HOLD bit in right way before the commit.
 
-[1]
-https://lore.kernel.org/linux-renesas-soc/20200518045452.2390-1-dirk.behme@de.bosch.com/
+The setting of HOLD bit based on 'bus_hold_flag' is taken care in
+cdns_i2c_master_xfer function even before cdns_i2c_msend/cdns_i2c_recv
+functions.
 
-Reported-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The clearing of HOLD bit is taken care at the end of cdns_i2c_msend and
+cdns_i2c_recv functions based on bus_hold_flag and byte count.
+Since clearing of HOLD bit is done after the slave address is written to
+the register (writing to address register triggers the message transfer),
+it is ensured that STOP condition occurs at the right time after
+completion of the pending transfer (last message).
+
+Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 26 ++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-cadence.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 5b6320f9c935f..460b29ac5fd86 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1291,6 +1291,7 @@ static void ravb_tx_timeout_work(struct work_struct *work)
- 	struct ravb_private *priv = container_of(work, struct ravb_private,
- 						 work);
- 	struct net_device *ndev = priv->ndev;
-+	int error;
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 6d32e6da3110d..84deed6571bdf 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -378,10 +378,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+ 	 * Check for the message size against FIFO depth and set the
+ 	 * 'hold bus' bit if it is greater than FIFO depth.
+ 	 */
+-	if ((id->recv_count > CDNS_I2C_FIFO_DEPTH)  || id->bus_hold_flag)
++	if (id->recv_count > CDNS_I2C_FIFO_DEPTH)
+ 		ctrl_reg |= CDNS_I2C_CR_HOLD;
+-	else
+-		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
  
- 	netif_tx_stop_all_queues(ndev);
+ 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
  
-@@ -1298,15 +1299,36 @@ static void ravb_tx_timeout_work(struct work_struct *work)
- 	ravb_ptp_stop(ndev);
+@@ -438,11 +436,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
+ 	 * Check for the message size against FIFO depth and set the
+ 	 * 'hold bus' bit if it is greater than FIFO depth.
+ 	 */
+-	if ((id->send_count > CDNS_I2C_FIFO_DEPTH) || id->bus_hold_flag)
++	if (id->send_count > CDNS_I2C_FIFO_DEPTH)
+ 		ctrl_reg |= CDNS_I2C_CR_HOLD;
+-	else
+-		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
+-
+ 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
  
- 	/* Wait for DMA stopping */
--	ravb_stop_dma(ndev);
-+	if (ravb_stop_dma(ndev)) {
-+		/* If ravb_stop_dma() fails, the hardware is still operating
-+		 * for TX and/or RX. So, this should not call the following
-+		 * functions because ravb_dmac_init() is possible to fail too.
-+		 * Also, this should not retry ravb_stop_dma() again and again
-+		 * here because it's possible to wait forever. So, this just
-+		 * re-enables the TX and RX and skip the following
-+		 * re-initialization procedure.
-+		 */
-+		ravb_rcv_snd_enable(ndev);
-+		goto out;
-+	}
- 
- 	ravb_ring_free(ndev, RAVB_BE);
- 	ravb_ring_free(ndev, RAVB_NC);
- 
- 	/* Device init */
--	ravb_dmac_init(ndev);
-+	error = ravb_dmac_init(ndev);
-+	if (error) {
-+		/* If ravb_dmac_init() fails, descriptors are freed. So, this
-+		 * should return here to avoid re-enabling the TX and RX in
-+		 * ravb_emac_init().
-+		 */
-+		netdev_err(ndev, "%s: ravb_dmac_init() failed, error %d\n",
-+			   __func__, error);
-+		return;
-+	}
- 	ravb_emac_init(ndev);
- 
-+out:
- 	/* Initialise PTP Clock driver */
- 	ravb_ptp_init(ndev, priv->pdev);
- 
+ 	/* Clear the interrupts in interrupt status register. */
 -- 
 2.25.1
 
