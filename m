@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5338122F037
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3135322EED8
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731922AbgG0OWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51670 "EHLO mail.kernel.org"
+        id S1729387AbgG0OLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731047AbgG0OWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:42 -0400
+        id S1729993AbgG0OLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:11:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1442B2070B;
-        Mon, 27 Jul 2020 14:22:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83C07208E4;
+        Mon, 27 Jul 2020 14:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859760;
-        bh=zJ6iDxmgPMyeACGKiEcG9JS+5pkhHpQ/PRhePC2Mmdk=;
+        s=default; t=1595859074;
+        bh=7/bT1ObWFc0vmB+DUQCMp5JYvmyrsUL+aA9T/8le4Dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1p/XtQb9B7ln4gtglNlMCTi7ZpkDaUlAfS1DwN+WKojqYonNWLtZJ7UMeMeFscLb
-         TkaceOI7BHJ9Qd4xg/axBkZEpixJKpzPo76mznH5QNrK5c2CA5Mjof+FcHzfNmmGDS
-         GO4LhBYcGv1y1qJ2UMzt3+VU1cimJ4Yoi/KjFC/U=
+        b=Eqif9O2KLQKysbk2esvvEg+B9udQBYOB+xl2dnuoYrng6BiJ27Us6y5Di5FXdOGD7
+         13ijE9ZA1CCu7vc/XUoNWUxlHyM7WoIwZ3LYOoQe+bg7uYSzQHV9fnaC4gj/zZSJyP
+         9JOSjQDQQgKh88d8Kd/XPQhKEsjOYqZcBkcQ/5ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthew Howell <matthew.howell@sealevel.com>,
+        stable@vger.kernel.org, Chu Lin <linchuyuan@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 095/179] serial: exar: Fix GPIO configuration for Sealevel cards based on XR17V35X
+Subject: [PATCH 4.19 56/86] hwmon: (adm1275) Make sure we are reading enough data for different chips
 Date:   Mon, 27 Jul 2020 16:04:30 +0200
-Message-Id: <20200727134937.294102349@linuxfoundation.org>
+Message-Id: <20200727134917.225251026@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Howell <matthew.howell@sealevel.com>
+From: Chu Lin <linchuyuan@google.com>
 
-[ Upstream commit 5fdbe136ae19ab751daaa4d08d9a42f3e30d17f9 ]
+[ Upstream commit 6d1d41c075a1a54ba03370e268171fec20e06563 ]
 
-Sealevel XR17V35X based devices are inoperable on kernel versions
-4.11 and above due to a change in the GPIO preconfiguration introduced in
-commit
-7dea8165f1d. This patch fixes this by preconfiguring the GPIO on Sealevel
-cards to the value (0x00) used prior to commit 7dea8165f1d
+Issue:
+When PEC is enabled, binding adm1272 to the adm1275 would
+fail due to PEC error. See below:
+adm1275: probe of xxxx failed with error -74
 
-With GPIOs preconfigured as per commit 7dea8165f1d all ports on
-Sealevel XR17V35X based devices become stuck in high impedance
-mode, regardless of dip-switch or software configuration. This
-causes the device to become effectively unusable. This patch (in
-various forms) has been distributed to our customers and no issues
-related to it have been reported.
+Diagnosis:
+Per the datasheet of adm1272, adm1278, adm1293 and amd1294,
+PMON_CONFIG (0xd4) is 16bits wide. On the other hand,
+PMON_CONFIG (0xd4) for adm1275 is 8bits wide. The driver should not
+assume everything is 8bits wide and read only 8bits from it.
 
-Fixes: 7dea8165f1d6 ("serial: exar: Preconfigure xr17v35x MPIOs as output")
-Signed-off-by: Matthew Howell <matthew.howell@sealevel.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2007221605270.13247@tstest-VirtualBox
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Solution:
+If it is adm1272, adm1278, adm1293 and adm1294, use i2c_read_word.
+Else, use i2c_read_byte
+
+Testing:
+Binding adm1272 to the driver.
+The change is only tested on adm1272.
+
+Signed-off-by: Chu Lin <linchuyuan@google.com>
+Link: https://lore.kernel.org/r/20200709040612.3977094-1-linchuyuan@google.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_exar.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/hwmon/pmbus/adm1275.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_exar.c b/drivers/tty/serial/8250/8250_exar.c
-index 59449b6500cd6..9b5da1d43332f 100644
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -326,7 +326,17 @@ static void setup_gpio(struct pci_dev *pcidev, u8 __iomem *p)
- 	 * devices will export them as GPIOs, so we pre-configure them safely
- 	 * as inputs.
- 	 */
--	u8 dir = pcidev->vendor == PCI_VENDOR_ID_EXAR ? 0xff : 0x00;
-+
-+	u8 dir = 0x00;
-+
-+	if  ((pcidev->vendor == PCI_VENDOR_ID_EXAR) &&
-+		(pcidev->subsystem_vendor != PCI_VENDOR_ID_SEALEVEL)) {
-+		// Configure GPIO as inputs for Commtech adapters
-+		dir = 0xff;
-+	} else {
-+		// Configure GPIO as outputs for SeaLevel adapters
-+		dir = 0x00;
-+	}
+diff --git a/drivers/hwmon/pmbus/adm1275.c b/drivers/hwmon/pmbus/adm1275.c
+index 13600fa79e7f3..a19cf9052fc6d 100644
+--- a/drivers/hwmon/pmbus/adm1275.c
++++ b/drivers/hwmon/pmbus/adm1275.c
+@@ -364,6 +364,7 @@ MODULE_DEVICE_TABLE(i2c, adm1275_id);
+ static int adm1275_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
++	s32 (*config_read_fn)(const struct i2c_client *client, u8 reg);
+ 	u8 block_buffer[I2C_SMBUS_BLOCK_MAX + 1];
+ 	int config, device_config;
+ 	int ret;
+@@ -408,11 +409,16 @@ static int adm1275_probe(struct i2c_client *client,
+ 			   "Device mismatch: Configured %s, detected %s\n",
+ 			   id->name, mid->name);
  
- 	writeb(0x00, p + UART_EXAR_MPIOINT_7_0);
- 	writeb(0x00, p + UART_EXAR_MPIOLVL_7_0);
+-	config = i2c_smbus_read_byte_data(client, ADM1275_PMON_CONFIG);
++	if (mid->driver_data == adm1272 || mid->driver_data == adm1278 ||
++	    mid->driver_data == adm1293 || mid->driver_data == adm1294)
++		config_read_fn = i2c_smbus_read_word_data;
++	else
++		config_read_fn = i2c_smbus_read_byte_data;
++	config = config_read_fn(client, ADM1275_PMON_CONFIG);
+ 	if (config < 0)
+ 		return config;
+ 
+-	device_config = i2c_smbus_read_byte_data(client, ADM1275_DEVICE_CONFIG);
++	device_config = config_read_fn(client, ADM1275_DEVICE_CONFIG);
+ 	if (device_config < 0)
+ 		return device_config;
+ 
 -- 
 2.25.1
 
