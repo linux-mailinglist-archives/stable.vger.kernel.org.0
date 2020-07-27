@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 708DD22F21B
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D96822F1B3
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732820AbgG0Ohb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36820 "EHLO mail.kernel.org"
+        id S1730850AbgG0OQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:16:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730207AbgG0OMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:12:30 -0400
+        id S1730846AbgG0OQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:16:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4E472083E;
-        Mon, 27 Jul 2020 14:12:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0A8820825;
+        Mon, 27 Jul 2020 14:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859150;
-        bh=5MbtI0ihvkEoxI9SWcTbrLH2vIzaHkcSMuxKD1ckyRM=;
+        s=default; t=1595859380;
+        bh=o0bUSa9r+WlA838mzYXVW27gR8YIWsM5ux2NTn9EUyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2oCgmDBuruF3efKtxjRZuLaM0VzEEigoN07TioAXvwipStmSN5WU2GBPzBa5bWNs
-         FuCzyfooVupvcPnDz6FBhBX8OqLv6jSjaVrFrHoijTYd3b3ypxlEy+Y/yTyYVxh6eF
-         wW3HDaCZZeyuAfnsdPFzRsvFcxAzjq7JcZZlDfb8=
+        b=k9QUaX9tU1rQmqhsPONVxvfqxBQ7TABXPW17JJsu8OmCFySTsvicZcOtBMsedhY0V
+         iU6bg8npcflj1kdTu+DIt0dCaCWoyW503ziIwHokL+hgyQxaijOPp07+Kfmk4ixm9E
+         HE3AwnaredNKO8bU7J7og0DSfTzTcY4T1HB3KWIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 65/86] staging: wlan-ng: properly check endpoint types
-Date:   Mon, 27 Jul 2020 16:04:39 +0200
-Message-Id: <20200727134917.687322916@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 086/138] usb: dwc3: pci: add support for the Intel Jasper Lake
+Date:   Mon, 27 Jul 2020 16:04:41 +0200
+Message-Id: <20200727134929.669025996@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit faaff9765664009c1c7c65551d32e9ed3b1dda8f upstream.
+[ Upstream commit e25d1e8532c3d84f075deca1580a7d61e0f43ce6 ]
 
-As syzkaller detected, wlan-ng driver does not do sanity check of
-endpoints in prism2sta_probe_usb(), add check for xfer direction and type
+This patch adds the necessary PCI ID for Intel Jasper Lake
+devices.
 
-Reported-and-tested-by: syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=c2a1fa67c02faa0de723
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722161052.999754-1-rkovhaev@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wlan-ng/prism2usb.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/staging/wlan-ng/prism2usb.c
-+++ b/drivers/staging/wlan-ng/prism2usb.c
-@@ -61,11 +61,25 @@ static int prism2sta_probe_usb(struct us
- 			       const struct usb_device_id *id)
- {
- 	struct usb_device *dev;
--
-+	const struct usb_endpoint_descriptor *epd;
-+	const struct usb_host_interface *iface_desc = interface->cur_altsetting;
- 	struct wlandevice *wlandev = NULL;
- 	struct hfa384x *hw = NULL;
- 	int result = 0;
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index 47b7e83d90626..139474c3e77b1 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -39,6 +39,7 @@
+ #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
+ #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
+ #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
++#define PCI_DEVICE_ID_INTEL_JSP			0x4dee
  
-+	if (iface_desc->desc.bNumEndpoints != 2) {
-+		result = -ENODEV;
-+		goto failed;
-+	}
+ #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
+ #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
+@@ -362,6 +363,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPH),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+ 
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
++	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
 +
-+	result = -EINVAL;
-+	epd = &iface_desc->endpoint[1].desc;
-+	if (!usb_endpoint_is_bulk_in(epd))
-+		goto failed;
-+	epd = &iface_desc->endpoint[2].desc;
-+	if (!usb_endpoint_is_bulk_out(epd))
-+		goto failed;
-+
- 	dev = interface_to_usbdev(interface);
- 	wlandev = create_wlan();
- 	if (!wlandev) {
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
+ 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
+ 	{  }	/* Terminating Entry */
+-- 
+2.25.1
+
 
 
