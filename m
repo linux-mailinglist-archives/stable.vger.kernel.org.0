@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C249122F026
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A88EB22EE44
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731317AbgG0OWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51164 "EHLO mail.kernel.org"
+        id S1728741AbgG0OG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:06:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731838AbgG0OWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:17 -0400
+        id S1726222AbgG0OG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:06:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B41AA2070A;
-        Mon, 27 Jul 2020 14:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AD492073E;
+        Mon, 27 Jul 2020 14:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859735;
-        bh=zRyeNmoL3wHIHCpZmIbNx0rdAsjMnQGiXt97sJtg14w=;
+        s=default; t=1595858786;
+        bh=sUDEn7GagDK4kW0p4laX8fT0RuspkOi4kAvCBwbQnLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yl7mdC1cZNyQYYaJdojpqQezHcpQcf/pC2fsE+IMv54dxUx89fB7kpsLr/qlsjVgJ
-         btwV7T/EmZ8kNsUA711MpJV4OP+52/rzJBuLjrPx6vuMtdLVrDv1+XEbxvQ7QZ71cj
-         /4cA0YBVr5NibZ8FtX9DASvALbi3xCL57UeNddjY=
+        b=Vv0s7Htr4ytQh4p0d3Lg251fteWyQStkdK3K8av+aBOL7xvTLs2F3+uao47jvW1LV
+         /konK7BQDDoL8DtVqwuSyqkLnaVnXdgiD/5HyFqDK8wv8SzjJX5cib0JX+V1tbVRYP
+         rNAI16R7sfL+RamUhBnSgXs9G8h83oWhwJQ2foUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 054/179] RDMA/core: Fix race in rdma_alloc_commit_uobject()
-Date:   Mon, 27 Jul 2020 16:03:49 +0200
-Message-Id: <20200727134935.301622638@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/64] irqdomain/treewide: Keep firmware node unconditionally allocated
+Date:   Mon, 27 Jul 2020 16:03:50 +0200
+Message-Id: <20200727134911.596769409@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +46,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 0d1fd39bb27e479fb1de3dd4b4c247c7c9a1fabf ]
+[ Upstream commit e3beca48a45b5e0e6e6a4e0124276b8248dcc9bb ]
 
-The FD should not be installed until all of the setup is completed as the
-fd_install() transfers ownership of the kref to the FD table. A thread can
-race a close() and trigger concurrent rdma_alloc_commit_uobject() and
-uverbs_uobject_fd_release() which, at least, triggers a safety WARN_ON:
+Quite some non OF/ACPI users of irqdomains allocate firmware nodes of type
+IRQCHIP_FWNODE_NAMED or IRQCHIP_FWNODE_NAMED_ID and free them right after
+creating the irqdomain. The only purpose of these FW nodes is to convey
+name information. When this was introduced the core code did not store the
+pointer to the node in the irqdomain. A recent change stored the firmware
+node pointer in irqdomain for other reasons and missed to notice that the
+usage sites which do the alloc_fwnode/create_domain/free_fwnode sequence
+are broken by this. Storing a dangling pointer is dangerous itself, but in
+case that the domain is destroyed later on this leads to a double free.
 
-  WARNING: CPU: 4 PID: 6913 at drivers/infiniband/core/rdma_core.c:768 uverbs_uobject_fd_release+0x202/0x230
-  Kernel panic - not syncing: panic_on_warn set ...
-  CPU: 4 PID: 6913 Comm: syz-executor.3 Not tainted 5.7.0-rc2 #22
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  [..]
-  RIP: 0010:uverbs_uobject_fd_release+0x202/0x230
-  Code: fe 4c 89 e7 e8 af 23 fe ff e9 2a ff ff ff e8 c5 fa 61 fe be 03 00 00 00 4c 89 e7 e8 68 eb f5 fe e9 13 ff ff ff e8 ae fa 61 fe <0f> 0b eb ac e8 e5 aa 3c fe e8 50 2b 86 fe e9 6a fe ff ff e8 46 2b
-  RSP: 0018:ffffc90008117d88 EFLAGS: 00010293
-  RAX: ffff88810e146580 RBX: 1ffff92001022fb1 RCX: ffffffff82d5b902
-  RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff88811951b040
-  RBP: ffff88811951b000 R08: ffffed10232a3609 R09: ffffed10232a3609
-  R10: ffff88811951b043 R11: 0000000000000001 R12: ffff888100a7c600
-  R13: ffff888100a7c650 R14: ffffc90008117da8 R15: ffffffff82d5b700
-   ? __uverbs_cleanup_ufile+0x270/0x270
-   ? uverbs_uobject_fd_release+0x202/0x230
-   ? uverbs_uobject_fd_release+0x202/0x230
-   ? __uverbs_cleanup_ufile+0x270/0x270
-   ? locks_remove_file+0x282/0x3d0
-   ? security_file_free+0xaa/0xd0
-   __fput+0x2be/0x770
-   task_work_run+0x10e/0x1b0
-   exit_to_usermode_loop+0x145/0x170
-   do_syscall_64+0x2d0/0x390
-   ? prepare_exit_to_usermode+0x17a/0x230
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x414da7
-  Code: 00 00 0f 05 48 3d 00 f0 ff ff 77 3f f3 c3 0f 1f 44 00 00 53 89 fb 48 83 ec 10 e8 f4 fb ff ff 89 df 89 c2 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 2b 89 d7 89 44 24 0c e8 36 fc ff ff 8b 44 24
-  RSP: 002b:00007fff39d379d0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-  RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000414da7
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000003
-  RBP: 00007fff39d37a3c R08: 0000000400000000 R09: 0000000400000000
-  R10: 00007fff39d37910 R11: 0000000000000293 R12: 0000000000000001
-  R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000003
+Remove the freeing of the firmware node after creating the irqdomain from
+all affected call sites to cure this.
 
-Reorder so that fd_install() is the last thing done in
-rdma_alloc_commit_uobject().
-
-Fixes: aba94548c9e4 ("IB/uverbs: Move the FD uobj type struct file allocation to alloc_commit")
-Link: https://lore.kernel.org/r/20200716102059.1420681-1-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 711419e504eb ("irqdomain: Add the missing assignment of domain->fwnode for named fwnode")
+Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/873661qakd.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/rdma_core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/apic/io_apic.c      | 10 +++++-----
+ arch/x86/kernel/apic/msi.c          | 16 +++++++++++-----
+ arch/x86/kernel/apic/vector.c       |  1 -
+ arch/x86/platform/uv/uv_irq.c       |  3 ++-
+ drivers/iommu/amd_iommu.c           |  5 +++--
+ drivers/iommu/intel_irq_remapping.c |  2 +-
+ drivers/pci/host/vmd.c              |  5 +++--
+ 7 files changed, 25 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
-index 75bcbc625616e..3ab84fcbaadec 100644
---- a/drivers/infiniband/core/rdma_core.c
-+++ b/drivers/infiniband/core/rdma_core.c
-@@ -638,9 +638,6 @@ void rdma_alloc_commit_uobject(struct ib_uobject *uobj,
- {
- 	struct ib_uverbs_file *ufile = attrs->ufile;
+diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
+index 2271adbc3c42a..b5652233e6745 100644
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -2233,12 +2233,12 @@ static int mp_irqdomain_create(int ioapic)
+ 	ip->irqdomain = irq_domain_create_linear(fn, hwirqs, cfg->ops,
+ 						 (void *)(long)ioapic);
  
--	/* alloc_commit consumes the uobj kref */
--	uobj->uapi_object->type_class->alloc_commit(uobj);
+-	/* Release fw handle if it was allocated above */
+-	if (!cfg->dev)
+-		irq_domain_free_fwnode(fn);
 -
- 	/* kref is held so long as the uobj is on the uobj list. */
- 	uverbs_uobject_get(uobj);
- 	spin_lock_irq(&ufile->uobjects_lock);
-@@ -650,6 +647,9 @@ void rdma_alloc_commit_uobject(struct ib_uobject *uobj,
- 	/* matches atomic_set(-1) in alloc_uobj */
- 	atomic_set(&uobj->usecnt, 0);
+-	if (!ip->irqdomain)
++	if (!ip->irqdomain) {
++		/* Release fw handle if it was allocated above */
++		if (!cfg->dev)
++			irq_domain_free_fwnode(fn);
+ 		return -ENOMEM;
++	}
  
-+	/* alloc_commit consumes the uobj kref */
-+	uobj->uapi_object->type_class->alloc_commit(uobj);
-+
- 	/* Matches the down_read in rdma_alloc_begin_uobject */
- 	up_read(&ufile->hw_destroy_rwsem);
+ 	ip->irqdomain->parent = parent;
+ 
+diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
+index f10e7f93b0e2c..8c102d62b8596 100644
+--- a/arch/x86/kernel/apic/msi.c
++++ b/arch/x86/kernel/apic/msi.c
+@@ -149,10 +149,11 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
+ 		msi_default_domain =
+ 			pci_msi_create_irq_domain(fn, &pci_msi_domain_info,
+ 						  parent);
+-		irq_domain_free_fwnode(fn);
+ 	}
+-	if (!msi_default_domain)
++	if (!msi_default_domain) {
++		irq_domain_free_fwnode(fn);
+ 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
++	}
  }
+ 
+ #ifdef CONFIG_IRQ_REMAP
+@@ -185,7 +186,8 @@ struct irq_domain *arch_create_remap_msi_irq_domain(struct irq_domain *parent,
+ 	if (!fn)
+ 		return NULL;
+ 	d = pci_msi_create_irq_domain(fn, &pci_msi_ir_domain_info, parent);
+-	irq_domain_free_fwnode(fn);
++	if (!d)
++		irq_domain_free_fwnode(fn);
+ 	return d;
+ }
+ #endif
+@@ -248,7 +250,8 @@ static struct irq_domain *dmar_get_irq_domain(void)
+ 	if (fn) {
+ 		dmar_domain = msi_create_irq_domain(fn, &dmar_msi_domain_info,
+ 						    x86_vector_domain);
+-		irq_domain_free_fwnode(fn);
++		if (!dmar_domain)
++			irq_domain_free_fwnode(fn);
+ 	}
+ out:
+ 	mutex_unlock(&dmar_lock);
+@@ -373,7 +376,10 @@ struct irq_domain *hpet_create_irq_domain(int hpet_id)
+ 	}
+ 
+ 	d = msi_create_irq_domain(fn, domain_info, parent);
+-	irq_domain_free_fwnode(fn);
++	if (!d) {
++		irq_domain_free_fwnode(fn);
++		kfree(domain_info);
++	}
+ 	return d;
+ }
+ 
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index b958082c74a77..36cd34524ac19 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -457,7 +457,6 @@ int __init arch_early_irq_init(void)
+ 	x86_vector_domain = irq_domain_create_tree(fn, &x86_vector_domain_ops,
+ 						   NULL);
+ 	BUG_ON(x86_vector_domain == NULL);
+-	irq_domain_free_fwnode(fn);
+ 	irq_set_default_host(x86_vector_domain);
+ 
+ 	arch_init_msi_domain(x86_vector_domain);
+diff --git a/arch/x86/platform/uv/uv_irq.c b/arch/x86/platform/uv/uv_irq.c
+index 03fc397335b74..c9fc725a1dcf4 100644
+--- a/arch/x86/platform/uv/uv_irq.c
++++ b/arch/x86/platform/uv/uv_irq.c
+@@ -171,9 +171,10 @@ static struct irq_domain *uv_get_irq_domain(void)
+ 		goto out;
+ 
+ 	uv_domain = irq_domain_create_tree(fn, &uv_domain_ops, NULL);
+-	irq_domain_free_fwnode(fn);
+ 	if (uv_domain)
+ 		uv_domain->parent = x86_vector_domain;
++	else
++		irq_domain_free_fwnode(fn);
+ out:
+ 	mutex_unlock(&uv_lock);
+ 
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 778f167be2d35..494caaa265af0 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -4394,9 +4394,10 @@ int amd_iommu_create_irq_domain(struct amd_iommu *iommu)
+ 	if (!fn)
+ 		return -ENOMEM;
+ 	iommu->ir_domain = irq_domain_create_tree(fn, &amd_ir_domain_ops, iommu);
+-	irq_domain_free_fwnode(fn);
+-	if (!iommu->ir_domain)
++	if (!iommu->ir_domain) {
++		irq_domain_free_fwnode(fn);
+ 		return -ENOMEM;
++	}
+ 
+ 	iommu->ir_domain->parent = arch_get_ir_parent_domain();
+ 	iommu->msi_domain = arch_create_remap_msi_irq_domain(iommu->ir_domain,
+diff --git a/drivers/iommu/intel_irq_remapping.c b/drivers/iommu/intel_irq_remapping.c
+index 25842b566c39c..154949a499c21 100644
+--- a/drivers/iommu/intel_irq_remapping.c
++++ b/drivers/iommu/intel_irq_remapping.c
+@@ -536,8 +536,8 @@ static int intel_setup_irq_remapping(struct intel_iommu *iommu)
+ 					    0, INTR_REMAP_TABLE_ENTRIES,
+ 					    fn, &intel_ir_domain_ops,
+ 					    iommu);
+-	irq_domain_free_fwnode(fn);
+ 	if (!iommu->ir_domain) {
++		irq_domain_free_fwnode(fn);
+ 		pr_err("IR%d: failed to allocate irqdomain\n", iommu->seq_id);
+ 		goto out_free_bitmap;
+ 	}
+diff --git a/drivers/pci/host/vmd.c b/drivers/pci/host/vmd.c
+index af6d5da10ea5f..05f191ae0ff1b 100644
+--- a/drivers/pci/host/vmd.c
++++ b/drivers/pci/host/vmd.c
+@@ -638,9 +638,10 @@ static int vmd_enable_domain(struct vmd_dev *vmd)
+ 
+ 	vmd->irq_domain = pci_msi_create_irq_domain(fn, &vmd_msi_domain_info,
+ 						    x86_vector_domain);
+-	irq_domain_free_fwnode(fn);
+-	if (!vmd->irq_domain)
++	if (!vmd->irq_domain) {
++		irq_domain_free_fwnode(fn);
+ 		return -ENODEV;
++	}
+ 
+ 	pci_add_resource(&resources, &vmd->resources[0]);
+ 	pci_add_resource(&resources, &vmd->resources[1]);
 -- 
 2.25.1
 
