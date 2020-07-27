@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E480822F2B2
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D6D22F22C
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731024AbgG0Olh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
+        id S1729321AbgG0OLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgG0OIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:00 -0400
+        id S1729439AbgG0OLG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:11:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78D4A207FC;
-        Mon, 27 Jul 2020 14:07:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FE8D2073E;
+        Mon, 27 Jul 2020 14:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858880;
-        bh=MvE8PBdhmj1aPuM+2+7Ys0uzDZuPAyzzJmWgWV9775M=;
+        s=default; t=1595859065;
+        bh=cG/2WH/UY49/aXW0Api1LLFDIEPIklWAnsPDhfemt+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnAtT4i4VkAHLWTCbIUIQ7KLqVkCbtYJ7HN1RzroHRaHK1K09Qh0ghe3S4KQ4YK45
-         MJOlt4C0v7HQOUd2WvJ3gKDTgkeWqYoqpxShCC8fjaxIlTeu7GL1f2KvBmlpWV2TSW
-         7zG9+UzgcZMvnHTEWkZ9RRUCfW6M1k8TGJoz+YGI=
+        b=ktIlJDte7+usTnrJVbtUaI4WRC6C81GPW/aGmh+cWcoBWWBkcago425WvtA0CX8Gc
+         E4jaAcChoq5pVb2r/gH8ANG22fCgphvX/lp30QDL909HyEI2pspEeycMW1urhPLrro
+         ERPsLRy2d97yEVQdGmWRPAybpxr8IL6s82JKgJuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>,
-        syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Michal Hocko <mhocko@suse.com>, Todd Kjos <tkjos@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 4.14 46/64] binder: Dont use mmput() from shrinker function.
-Date:   Mon, 27 Jul 2020 16:04:25 +0200
-Message-Id: <20200727134913.470444240@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Katsnelson <me@0upti.me>,
+        Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 53/86] Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+Date:   Mon, 27 Jul 2020 16:04:27 +0200
+Message-Id: <20200727134917.076837731@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Ilya Katsnelson <me@0upti.me>
 
-commit f867c771f98891841c217fa8459244ed0dd28921 upstream.
+[ Upstream commit dcb00fc799dc03fd320e123e4c81b3278c763ea5 ]
 
-syzbot is reporting that mmput() from shrinker function has a risk of
-deadlock [1], for delayed_uprobe_add() from update_ref_ctr() calls
-kzalloc(GFP_KERNEL) with delayed_uprobe_lock held, and
-uprobe_clear_state() from __mmput() also holds delayed_uprobe_lock.
+Tested on my own laptop, touchpad feels slightly more responsive with
+this on, though it might just be placebo.
 
-Commit a1b2289cef92ef0e ("android: binder: drop lru lock in isolate
-callback") replaced mmput() with mmput_async() in order to avoid sleeping
-with spinlock held. But this patch replaces mmput() with mmput_async() in
-order not to start __mmput() from shrinker context.
-
-[1] https://syzkaller.appspot.com/bug?id=bc9e7303f537c41b2b0cc2dfcea3fc42964c2d45
-
-Reported-by: syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Todd Kjos <tkjos@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4ba9adb2-43f5-2de0-22de-f6075c1fab50@i-love.sakura.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ilya Katsnelson <me@0upti.me>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://lore.kernel.org/r/20200703143457.132373-1-me@0upti.me
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -968,7 +968,7 @@ enum lru_status binder_alloc_free_page(s
- 		trace_binder_unmap_user_end(alloc, index);
- 	}
- 	up_read(&mm->mmap_sem);
--	mmput(mm);
-+	mmput_async(mm);
- 
- 	trace_binder_unmap_kernel_start(alloc, index);
- 
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 671e018eb363a..c6d393114502d 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -182,6 +182,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
++	"LEN0099", /* X1 Extreme 1st */
+ 	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
+ 	"LEN2044", /* L470  */
+-- 
+2.25.1
+
 
 
