@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 937D122F2D2
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F079322F1F2
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729221AbgG0OHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:07:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55990 "EHLO mail.kernel.org"
+        id S1729935AbgG0OON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:14:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728780AbgG0OHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:07:22 -0400
+        id S1730490AbgG0OOL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6170D20775;
-        Mon, 27 Jul 2020 14:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81E962078E;
+        Mon, 27 Jul 2020 14:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858842;
-        bh=ZBjwUVbaiLu8cbZf0dieYqykVNN/NZ6iX7h+k5LliDg=;
+        s=default; t=1595859251;
+        bh=qCDLhlhkFegasnlzwVfmv02VbyBzY+ZJq3EAce/cSaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVqQpYf8m1oMzFJeZU/JtWnkU5NSuFmQg0/8jNsEt7wHXy3a2J52YRGKr+BZkKk+5
-         B8UJ1DkT2+CUo5mBMu9hOWbvjGxDi0TL8R5hJldEqdQ4Qd0amB/s+DO3KCWthSfmdd
-         rrkS+y4umZZFgEMzb9NBMVHlmgdbBGQDIfOyfNAQ=
+        b=VSQqyDjyku8QDRDbx+V0qsQftUJnL1UaGPBBdgfvTxv7voHT/1ixgCoN0VA14LsG9
+         XOG/WFMyUiJtkRvWxdZGoM5ow2bc7bS7fnwI3Mw8voCzsSH3GsfP2qgfyIF3wLTSGo
+         6JCoH+Q8BUrpyRoTEIe/DauTI33BQ1Sff8l7I1rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/64] net: sky2: initialize return of gm_phy_read
-Date:   Mon, 27 Jul 2020 16:03:48 +0200
-Message-Id: <20200727134911.497957172@linuxfoundation.org>
+        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 034/138] btrfs: fix mount failure caused by race with umount
+Date:   Mon, 27 Jul 2020 16:03:49 +0200
+Message-Id: <20200727134927.080881996@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Boris Burkov <boris@bur.io>
 
-[ Upstream commit 28b18e4eb515af7c6661c3995c6e3c34412c2874 ]
+commit 48cfa61b58a1fee0bc49eef04f8ccf31493b7cdd upstream.
 
-clang static analysis flags this garbage return
+It is possible to cause a btrfs mount to fail by racing it with a slow
+umount. The crux of the sequence is generic_shutdown_super not yet
+calling sop->put_super before btrfs_mount_root calls btrfs_open_devices.
+If that occurs, btrfs_open_devices will decide the opened counter is
+non-zero, increment it, and skip resetting fs_devices->total_rw_bytes to
+0. From here, mount will call sget which will result in grab_super
+trying to take the super block umount semaphore. That semaphore will be
+held by the slow umount, so mount will block. Before up-ing the
+semaphore, umount will delete the super block, resulting in mount's sget
+reliably allocating a new one, which causes the mount path to dutifully
+fill it out, and increment total_rw_bytes a second time, which causes
+the mount to fail, as we see double the expected bytes.
 
-drivers/net/ethernet/marvell/sky2.c:208:2: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-        return v;
-        ^~~~~~~~
+Here is the sequence laid out in greater detail:
 
-static inline u16 gm_phy_read( ...
-{
-	u16 v;
-	__gm_phy_read(hw, port, reg, &v);
-	return v;
-}
+CPU0                                                    CPU1
+down_write sb->s_umount
+btrfs_kill_super
+  kill_anon_super(sb)
+    generic_shutdown_super(sb);
+      shrink_dcache_for_umount(sb);
+      sync_filesystem(sb);
+      evict_inodes(sb); // SLOW
 
-__gm_phy_read can return without setting v.
+                                              btrfs_mount_root
+                                                btrfs_scan_one_device
+                                                fs_devices = device->fs_devices
+                                                fs_info->fs_devices = fs_devices
+                                                // fs_devices-opened makes this a no-op
+                                                btrfs_open_devices(fs_devices, mode, fs_type)
+                                                s = sget(fs_type, test, set, flags, fs_info);
+                                                  find sb in s_instances
+                                                  grab_super(sb);
+                                                    down_write(&s->s_umount); // blocks
 
-So handle similar to skge.c's gm_phy_read, initialize v.
+      sop->put_super(sb)
+        // sb->fs_devices->opened == 2; no-op
+      spin_lock(&sb_lock);
+      hlist_del_init(&sb->s_instances);
+      spin_unlock(&sb_lock);
+      up_write(&sb->s_umount);
+                                                    return 0;
+                                                  retry lookup
+                                                  don't find sb in s_instances (deleted by CPU0)
+                                                  s = alloc_super
+                                                  return s;
+                                                btrfs_fill_super(s, fs_devices, data)
+                                                  open_ctree // fs_devices total_rw_bytes improperly set!
+                                                    btrfs_read_chunk_tree
+                                                      read_one_dev // increment total_rw_bytes again!!
+                                                      super_total_bytes < fs_devices->total_rw_bytes // ERROR!!!
 
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix this, we clear total_rw_bytes from within btrfs_read_chunk_tree
+before the calls to read_one_dev, while holding the sb umount semaphore
+and the uuid mutex.
+
+To reproduce, it is sufficient to dirty a decent number of inodes, then
+quickly umount and mount.
+
+  for i in $(seq 0 500)
+  do
+    dd if=/dev/zero of="/mnt/foo/$i" bs=1M count=1
+  done
+  umount /mnt/foo&
+  mount /mnt/foo
+
+does the trick for me.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Boris Burkov <boris@bur.io>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/marvell/sky2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/volumes.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
-index 5046efdad5390..34ae4bf6e7162 100644
---- a/drivers/net/ethernet/marvell/sky2.c
-+++ b/drivers/net/ethernet/marvell/sky2.c
-@@ -215,7 +215,7 @@ io_error:
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7270,6 +7270,14 @@ int btrfs_read_chunk_tree(struct btrfs_f
+ 	mutex_lock(&fs_info->chunk_mutex);
  
- static inline u16 gm_phy_read(struct sky2_hw *hw, unsigned port, u16 reg)
- {
--	u16 v;
-+	u16 v = 0;
- 	__gm_phy_read(hw, port, reg, &v);
- 	return v;
- }
--- 
-2.25.1
-
+ 	/*
++	 * It is possible for mount and umount to race in such a way that
++	 * we execute this code path, but open_fs_devices failed to clear
++	 * total_rw_bytes. We certainly want it cleared before reading the
++	 * device items, so clear it here.
++	 */
++	fs_info->fs_devices->total_rw_bytes = 0;
++
++	/*
+ 	 * Read all device items, and then all the chunk items. All
+ 	 * device items are found before any chunk item (their object id
+ 	 * is smaller than the lowest possible object id for a chunk
 
 
