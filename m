@@ -2,63 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C371122E99A
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 11:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E66422EA51
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 12:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727905AbgG0Jye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 05:54:34 -0400
-Received: from sonic310-23.consmr.mail.ne1.yahoo.com ([66.163.186.204]:36999
-        "EHLO sonic310-23.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727813AbgG0Jye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 05:54:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595843673; bh=V09D8a1N75lUFkJxVR9aVpVPFU2IfPbM8afoyzXI9EQ=; h=Date:From:Reply-To:Subject:References:From:Subject; b=fKBfIOCDpSOecUjnKZ65n+q2JpUxG83QuqgwxwD8n3fvX7tFAnmBC7ABIcK5W9nc8NgoMZMzJwUS4JMlx8Yz/G408omog/GZGsjpvlQT2exHk0LXv6Slriz5BJTPCQskYoeXHWmcfaOBzcRjQqajIUIlBLHBorPwm/VUtP3PrrQS9obBsqxcZ1jIm+NEvJg/5EiI5qNNK8OWNTyA7N5j1sq1WaaFCKzPUZVUQUuAVhOWicWuzju78ykVhkujmDeOIPrE9gtfVhxE+7k0I1lOJWiCZnZrDQrhu6hN81RdEfFLADNOVtcddXPpsjT/a5i0xLZa3lqrOjG6OTfTknyYBw==
-X-YMail-OSG: vI0Aqn0VM1mbp7VY5YPBhO3KMW_7zB9vRQ04iiQs9OfwizrJa8F1vMpNrX4T.zR
- NmSjtzJ8K7uiMeH6yY3rhTq7zmyFfKmA56Cy71ui6zV6r9nYyZg9PV0eXPBbGoY1c1ljFeUb.cJb
- ylQbW3Pnl4kM0cxlcRRWcdJ4DgS4LRWoqHvq35mfIePnRE1Hd4e_JJdUjCaQB7U_yDoXYOKWWEvQ
- ghVMe2wkh7iHZi5hw.0fF2iDyZAcDCFFwPrv3RlcaqZfn9kxhtgrylImINBVJ1ZNCrg2LTiY0.bZ
- v9ZSLs1k9rKTA4yaYTdHXdzxD4pYNblWhwtlKkjGUfK39.jybL3gfoGD.kP3hdcYpjWIJVQ_ywoi
- wQGyP3QUXpvMqwoA8DJINY0x.VM0koj5f5WoijbugrsWCFvDYaY0u0zByz.kirudjLLWJ3zC2K5W
- AugLjyHRoJakvgJzAT2RX8886ViaVS2PHlSTDILf77Z05.kB2R7Tt1cWNCH9_Mg58nnxX..6zIU7
- 9qdqvyyLm8js7XULAMod1Tbvra.kmUNAhDIIxgaBugwjEBqkX0c2yBpPjBnjZcnTRSs_qlsuk75C
- QXFH4tRTBDDCKcBZkOqgHE3EqMFoc9O__A6tN02cTsBTR5JOk4..SkS4i.Nq9cMNuVypzbmNaCnY
- 9x6HuDZQ8o5Ws9Yd4nyqA6oqrn0WPkn96.7rQy58VVHkiUS.1mfz9o0dOeNAqLiK0AUHfZ6oU30F
- QLiyTSVWZOnFmCzb2EzZ2xmxm5vPA_2qM_wplas3e8.UqM1X9jWTJQljotLnJ_CcpRR176RIPVhk
- .Mtdfmk10DrE_kLGM4xWkHfvbKUBwSSEzEnUKUk01WwEQWidLWmbH3STyrGbuZIUdYM.63PtvJgD
- tvGfg7cW_ISkuP6gNYtAVGc2RYX1vm5dlF7auTuiLMKQGMTEkYr7qo4p62NrCseD4Ry4q4gzvD2m
- WGMNvscYjkm8TvxspdABpCCHgPsO3Pt1aOeb1.kXBZh3HnHcs7.BWdJPGrCZovN7zTXbopT75N3p
- 36dzeZtpaZ45t3SrZUf45gfj8CqI_cWKWf0caIhupR6SwBx8saRomh1TN6Lo2QZcU4WAqanQwV8M
- qFRqTP0yQJaUPBHKpjOkYGEwb5HLmu7n.rIMniYJP8OSExKMXf5HXE87S3POCfVcUVV2WPE5t95d
- N5DLpALP9Fel30nppH2Fm0jaZM1.2ftgMO._vdaVu8ZaN_lKarKhk1ibQ012e95jzBxFpPca_dhn
- iepsy3UWPtQHdTd70Rimf_oxctkfERhW.45kB4yyIDsjCv1IO5Wtk3.b8URrWU4NaYwOKaaMJXw-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Mon, 27 Jul 2020 09:54:33 +0000
-Date:   Mon, 27 Jul 2020 09:54:32 +0000 (UTC)
-From:   Ahmed <mrahmedoue@gmail.com>
-Reply-To: ouedraogoahmed@outlook.com
-Message-ID: <496677502.7604989.1595843672866@mail.yahoo.com>
-Subject: HELLO .
+        id S1726794AbgG0KrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 06:47:18 -0400
+Received: from mailout07.rmx.de ([94.199.90.95]:38535 "EHLO mailout07.rmx.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726475AbgG0KrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 06:47:18 -0400
+X-Greylist: delayed 1817 seconds by postgrey-1.27 at vger.kernel.org; Mon, 27 Jul 2020 06:47:16 EDT
+Received: from kdin01.retarus.com (kdin01.dmz1.retloc [172.19.17.48])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mailout07.rmx.de (Postfix) with ESMTPS id 4BFbMD11YnzBwPs;
+        Mon, 27 Jul 2020 12:16:56 +0200 (CEST)
+Received: from mta.arri.de (unknown [217.111.95.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by kdin01.retarus.com (Postfix) with ESMTPS id 4BFbLR2TMWz2xFJ;
+        Mon, 27 Jul 2020 12:16:15 +0200 (CEST)
+Received: from N95HX1G2.wgnetz.xx (192.168.54.121) by mta.arri.de
+ (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 27 Jul
+ 2020 12:16:15 +0200
+From:   Christian Eggers <ceggers@arri.de>
+To:     Rob Herring <robh+dt@kernel.org>
+CC:     <devicetree@vger.kernel.org>, <linux-iio@vger.kernel.org>,
+        Peter Rosin <peda@axentia.se>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        "Peter Meerwald-Stadler" <pmeerw@pmeerw.net>,
+        Jiri Kosina <trivial@kernel.org>,
+        Christian Eggers <ceggers@arri.de>, <stable@vger.kernel.org>
+Subject: [PATCH] dt-bindings: iio: io-channel-mux: Fix compatible string in example code
+Date:   Mon, 27 Jul 2020 12:16:05 +0200
+Message-ID: <20200727101605.24384-1-ceggers@arri.de>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <496677502.7604989.1595843672866.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:74.0) Gecko/20100101 Firefox/74.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [192.168.54.121]
+X-RMX-ID: 20200727-121615-4BFbLR2TMWz2xFJ-0@kdin01
+X-RMX-SOURCE: 217.111.95.66
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The correct compatible string is "gpio-mux" (see
+bindings/mux/gpio-mux.txt).
 
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Cc: stable@vger.kernel.org
+---
+ .../devicetree/bindings/iio/multiplexer/io-channel-mux.txt      | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Dear Friend,
+diff --git a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
+index c82794002595..89647d714387 100644
+--- a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
++++ b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
+@@ -21,7 +21,7 @@ controller state. The mux controller state is described in
+ 
+ Example:
+ 	mux: mux-controller {
+-		compatible = "mux-gpio";
++		compatible = "gpio-mux";
+ 		#mux-control-cells = <0>;
+ 
+ 		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+-- 
+Christian Eggers
+Embedded software developer
 
-I know that this mail will come to you as a surprise as we have never met before, but need not to worry as I am contacting you independently of my investigation and no one is informed of this communication. I need your urgent assistance in transferring the sum of $11.3million immediately to your private account.The money has been here in our Bank lying dormant for years now without anybody coming for the claim of it.
+Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
+Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
+Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
+Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
 
-I want to release the money to you as the relative to our deceased customer (the account owner) who died a long with his supposed Next Of Kin since 16th October 2005. The Banking laws here does not allow such money to stay more than 15 years, because the money will be recalled to the Bank treasury account as unclaimed fund.
-
-By indicating your interest I will send you the full details on how the business will be executed.
-
-Please respond urgently and delete if you are not interested.
-
-Best Regards,
-Ahmed Ouedraogo.
