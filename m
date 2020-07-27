@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 172FC22F1F9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F226F22F151
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730417AbgG0ONq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38814 "EHLO mail.kernel.org"
+        id S1731564AbgG0OUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730400AbgG0ONl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:13:41 -0400
+        id S1731556AbgG0OUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:20:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11BE62073E;
-        Mon, 27 Jul 2020 14:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDD6A2070A;
+        Mon, 27 Jul 2020 14:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859220;
-        bh=eAee0Yhy+tSpMqQhl+nq7bZftpMdrjnGQy79r86fn+g=;
+        s=default; t=1595859630;
+        bh=AjMYgoWuwLdnddB2k/SjLHWHh4EXgQvwQv/pxzTpU/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GdJQTsYiXWRKvs25wTfwuh2tSTvq3rr5Kq9YaTu7XmnCPu27g4XK9691kHdNGJZwN
-         SVbejhBXOLqj7B8RzY4DUMyNyKHPYOUmJ50uZ/Kd2vC3EGDdSf5HY4QF3b/Ed+dvyz
-         1c1KtKkZ4pBKCTnaj5AcptWN1bkcCjtl6zUyMSLQ=
+        b=0X2CU7cXDG4GMj/Ggo7QUbUI9Y5TOik/aoMCW7iqgw+6YRu4uHkT4zYuoWf32Pd0i
+         qmzBMG6wGu+Tta+IzsKffaydGpl6SMbq06LBzW55HwURCQV695PHpCN+xvn41CoEbz
+         JX600RXCtTcqorOeHqRJR5voMXws5LuVBLLq6ilc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 024/138] dm mpath: pass IO start time to path selector
+Subject: [PATCH 5.7 044/179] bnxt_en: Init ethtool link settings after reading updated PHY configuration.
 Date:   Mon, 27 Jul 2020 16:03:39 +0200
-Message-Id: <20200727134926.568755096@linuxfoundation.org>
+Message-Id: <20200727134934.826510479@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,132 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 087615bf3acdafd0ba7c7c9ed5286e7b7c80fe1b ]
+[ Upstream commit ca0c753815fe4786b79a80abf0412eb5d52090b8 ]
 
-The HST path selector needs this information to perform path
-prediction. For request-based mpath, struct request's io_start_time_ns
-is used, while for bio-based, use the start_time stored in dm_io.
+In a shared port PHY configuration, async event is received when any of the
+port modifies the configuration. Ethtool link settings should be
+initialised after updated PHY configuration from firmware.
 
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: b1613e78e98d ("bnxt_en: Add async. event logic for PHY configuration changes.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c         | 9 ++++++---
- drivers/md/dm-path-selector.h | 2 +-
- drivers/md/dm-queue-length.c  | 2 +-
- drivers/md/dm-service-time.c  | 2 +-
- drivers/md/dm.c               | 9 +++++++++
- include/linux/device-mapper.h | 2 ++
- 6 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index f2de4c73cc8fa..d7ebed50895f0 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -558,7 +558,8 @@ static void multipath_release_clone(struct request *clone,
- 		if (pgpath && pgpath->pg->ps.type->end_io)
- 			pgpath->pg->ps.type->end_io(&pgpath->pg->ps,
- 						    &pgpath->path,
--						    mpio->nr_bytes);
-+						    mpio->nr_bytes,
-+						    clone->io_start_time_ns);
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index b6fb5a1709c01..198bca9c1e2df 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -10362,15 +10362,15 @@ static void bnxt_sp_task(struct work_struct *work)
+ 				       &bp->sp_event))
+ 			bnxt_hwrm_phy_qcaps(bp);
  
- 	blk_put_request(clone);
-@@ -1560,7 +1561,8 @@ static int multipath_end_io(struct dm_target *ti, struct request *clone,
- 		struct path_selector *ps = &pgpath->pg->ps;
- 
- 		if (ps->type->end_io)
--			ps->type->end_io(ps, &pgpath->path, mpio->nr_bytes);
-+			ps->type->end_io(ps, &pgpath->path, mpio->nr_bytes,
-+					 clone->io_start_time_ns);
- 	}
- 
- 	return r;
-@@ -1604,7 +1606,8 @@ static int multipath_end_io_bio(struct dm_target *ti, struct bio *clone,
- 		struct path_selector *ps = &pgpath->pg->ps;
- 
- 		if (ps->type->end_io)
--			ps->type->end_io(ps, &pgpath->path, mpio->nr_bytes);
-+			ps->type->end_io(ps, &pgpath->path, mpio->nr_bytes,
-+					 dm_start_time_ns_from_clone(clone));
- 	}
- 
- 	return r;
-diff --git a/drivers/md/dm-path-selector.h b/drivers/md/dm-path-selector.h
-index b6eb5365b1a46..c47bc0e20275b 100644
---- a/drivers/md/dm-path-selector.h
-+++ b/drivers/md/dm-path-selector.h
-@@ -74,7 +74,7 @@ struct path_selector_type {
- 	int (*start_io) (struct path_selector *ps, struct dm_path *path,
- 			 size_t nr_bytes);
- 	int (*end_io) (struct path_selector *ps, struct dm_path *path,
--		       size_t nr_bytes);
-+		       size_t nr_bytes, u64 start_time);
- };
- 
- /* Register a path selector */
-diff --git a/drivers/md/dm-queue-length.c b/drivers/md/dm-queue-length.c
-index 969c4f1a36336..5fd018d184187 100644
---- a/drivers/md/dm-queue-length.c
-+++ b/drivers/md/dm-queue-length.c
-@@ -227,7 +227,7 @@ static int ql_start_io(struct path_selector *ps, struct dm_path *path,
- }
- 
- static int ql_end_io(struct path_selector *ps, struct dm_path *path,
--		     size_t nr_bytes)
-+		     size_t nr_bytes, u64 start_time)
- {
- 	struct path_info *pi = path->pscontext;
- 
-diff --git a/drivers/md/dm-service-time.c b/drivers/md/dm-service-time.c
-index f006a9005593b..9cfda665e9ebd 100644
---- a/drivers/md/dm-service-time.c
-+++ b/drivers/md/dm-service-time.c
-@@ -309,7 +309,7 @@ static int st_start_io(struct path_selector *ps, struct dm_path *path,
- }
- 
- static int st_end_io(struct path_selector *ps, struct dm_path *path,
--		     size_t nr_bytes)
-+		     size_t nr_bytes, u64 start_time)
- {
- 	struct path_info *pi = path->pscontext;
- 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 3cf5b354568e5..1e7ad2ad48295 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -649,6 +649,15 @@ static bool md_in_flight(struct mapped_device *md)
- 		return md_in_flight_bios(md);
- }
- 
-+u64 dm_start_time_ns_from_clone(struct bio *bio)
-+{
-+	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
-+	struct dm_io *io = tio->io;
+-		if (test_and_clear_bit(BNXT_LINK_CFG_CHANGE_SP_EVENT,
+-				       &bp->sp_event))
+-			bnxt_init_ethtool_link_settings(bp);
+-
+ 		rc = bnxt_update_link(bp, true);
+-		mutex_unlock(&bp->link_lock);
+ 		if (rc)
+ 			netdev_err(bp->dev, "SP task can't update link (rc: %x)\n",
+ 				   rc);
 +
-+	return jiffies_to_nsecs(io->start_time);
-+}
-+EXPORT_SYMBOL_GPL(dm_start_time_ns_from_clone);
-+
- static void start_io_acct(struct dm_io *io)
- {
- 	struct mapped_device *md = io->md;
-diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
-index 399ad86323568..ec19222f67666 100644
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -328,6 +328,8 @@ void *dm_per_bio_data(struct bio *bio, size_t data_size);
- struct bio *dm_bio_from_per_bio_data(void *data, size_t data_size);
- unsigned dm_bio_get_target_bio_nr(const struct bio *bio);
- 
-+u64 dm_start_time_ns_from_clone(struct bio *bio);
-+
- int dm_register_target(struct target_type *t);
- void dm_unregister_target(struct target_type *t);
- 
++		if (test_and_clear_bit(BNXT_LINK_CFG_CHANGE_SP_EVENT,
++				       &bp->sp_event))
++			bnxt_init_ethtool_link_settings(bp);
++		mutex_unlock(&bp->link_lock);
+ 	}
+ 	if (test_and_clear_bit(BNXT_UPDATE_PHY_SP_EVENT, &bp->sp_event)) {
+ 		int rc;
 -- 
 2.25.1
 
