@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F421722ECC1
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 15:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3716422ECD8
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 15:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728328AbgG0NEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 09:04:00 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:48851 "EHLO
+        id S1728480AbgG0NHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 09:07:19 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:52731 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728286AbgG0ND7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 09:03:59 -0400
+        by vger.kernel.org with ESMTP id S1728393AbgG0NHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 09:07:17 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7DC691940918;
-        Mon, 27 Jul 2020 09:03:58 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id CC5961941D7E;
+        Mon, 27 Jul 2020 09:07:15 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:03:58 -0400
+  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:07:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Q3aoGR
-        wuAUkpg5VxL8Mq1bI3A/MnYt4a5jHeb8mpLKI=; b=RoFi9Tthmn76U0Dm/UblAp
-        Wih/bqAMyzHTbUF2MF/j8tGXXl87jTNNiNrNhxsDbEM9yd0e9bZanZcaSwQ1N8Gg
-        RQ0pPna8a3b19Xf7D4qYZr8tEg+WmltCneDwNBaRaT0x06gjU+3QfWpZy3M3Y89O
-        shh0il1PDZuE0+DvOZwSOA6XuHWnGaF5GSgV+P0hBGmqE5pFfPJUQHUuZHQQ5jer
-        63Ac8R79RPcdTdagbnlXMCiUm3TkfXMMxm1mXGeBrDy+YIL1B/D3cA3IMX5qfarA
-        aGsJ1Js4VorZAo9sg6cqi3vZQmU0tQCalffcPnWq5CeMjwzqt/YLZ7aLIZ34KVWg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=n2pdog
+        f08+XG4MCy4gxUys3EdxSg38lfnfiEGzQzyeI=; b=lOSVft8Sv03AvceRbpsjrX
+        gM3wiKOG7hFzmL/lMuNIrKFkIkKmhYxCgYRbzsO9OaOZjtBbcDRpOxRJ1w/3T20c
+        wNp6CA1dtdVoQHLlQd1Y1/yB+Ly9KVhCZi/vguW2ryrsysYuA3iPXlMc0j/ebCif
+        ESZxcOSFr1oIMEG6g4CiMzMwxCf6H8eiuCG0F3sltS+w5tvWjoQmoNUoALyS3D9a
+        iwJXEzJb3IckzBaysvftYxqfa3iBYUkXrbLAo54TgQGMmrKxCsEAdtKpIjusoL2r
+        TQ7I21s8SGQ/+lHeIkECd9oyy7oLEQCRbW29CDiqKjrzTh2bi0IymDGgaLhIY+Fw
         ==
-X-ME-Sender: <xms:vtAeX5NIBSIBx_n6f4zpzSAp1rpipDVnvOMMrcPMEes5hiUQNcRj5A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeitdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:g9EeX-9v5eIiYkI6uITWMBd_bcE2qR262UeeGLmCr3M99XTs2k4zGQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeiudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecuogfuuhhsphgvtghtffhomhgrihhnucdlgeelmdenuc
     fjughrpefuvffhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhhes
     lhhinhhugihfohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepfeegue
     eggeekffefgeekveeggeffgeeljeekjeekleeuffegheefieduffekuefhnecuffhomhgr
     ihhnpegrphhpshhpohhtrdgtohhmpdhkvghrnhgvlhdrohhrghenucfkphepkeefrdekie
-    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhf
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
     rhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:vtAeX78U7uRpi22efAb3YZ0XmQhUTsHuvVK0vgAGwgYRBO4t5fKPGg>
-    <xmx:vtAeX4THdhkoMkZSAO2W59Im2VkbJgf-zDgtNYxZ-SzAmOV6EPLwbw>
-    <xmx:vtAeX1v3ZjkhjpGGA1Y79uS1eDVakEbhbKGUCbxnwPblbZp_Bbrm5Q>
-    <xmx:vtAeXxFzZbqb6MZcB__EqV7FU3C5H8jXDOVL13lGn6YLJ-I8ErQlXw>
+X-ME-Proxy: <xmx:g9EeX-t-i3iuF26oEcbtNEBMzpkvymE3qa8nfefWmY_gBaRWLZktfQ>
+    <xmx:g9EeX0CEcGl9rt7jV9AE4LW2BErLNkIaERGYMCN6HdAsJ6e7VmpAUw>
+    <xmx:g9EeX2c7natMQw9Q_83lpsyW6KwiaqrWsOWJs_udp4eID6vgmYYcTQ>
+    <xmx:g9EeX1XpMX_5Crpw1fUSVfyista_OKCb6v7WGOFS83f1Mt77Ou0qCA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 127C7306005F;
-        Mon, 27 Jul 2020 09:03:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] fbdev: Detect integer underflow at "struct" failed to apply to 4.4-stable tree
-To:     penguin-kernel@I-love.SAKURA.ne.jp, daniel.vetter@ffwll.ch,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2081930600B1;
+        Mon, 27 Jul 2020 09:07:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] vt: Reject zero-sized screen buffer size." failed to apply to 4.4-stable tree
+To:     penguin-kernel@I-love.SAKURA.ne.jp, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org,
+        syzbot+017265e8553724e514e8@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jul 2020 15:03:46 +0200
-Message-ID: <15958550262981@kroah.com>
+Date:   Mon, 27 Jul 2020 15:07:11 +0200
+Message-ID: <1595855231337@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -72,148 +72,143 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 033724d6864245a11f8e04c066002e6ad22b3fd0 Mon Sep 17 00:00:00 2001
+From ce684552a266cb1c7cc2f7e623f38567adec6653 Mon Sep 17 00:00:00 2001
 From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Wed, 15 Jul 2020 10:51:02 +0900
-Subject: [PATCH] fbdev: Detect integer underflow at "struct
- fbcon_ops"->clear_margins.
+Date: Sun, 12 Jul 2020 20:10:12 +0900
+Subject: [PATCH] vt: Reject zero-sized screen buffer size.
 
-syzbot is reporting general protection fault in bitfill_aligned() [1]
-caused by integer underflow in bit_clear_margins(). The cause of this
-problem is when and how do_vc_resize() updates vc->vc_{cols,rows}.
+syzbot is reporting general protection fault in do_con_write() [1] caused
+by vc->vc_screenbuf == ZERO_SIZE_PTR caused by vc->vc_screenbuf_size == 0
+caused by vc->vc_cols == vc->vc_rows == vc->vc_size_row == 0 caused by
+fb_set_var() from ioctl(FBIOPUT_VSCREENINFO) on /dev/fb0 , for
+gotoxy(vc, 0, 0) from reset_terminal() from vc_init() from vc_allocate()
+ from con_install() from tty_init_dev() from tty_open() on such console
+causes vc->vc_pos == 0x10000000e due to
+((unsigned long) ZERO_SIZE_PTR) + -1U * 0 + (-1U << 1).
 
-If vc_do_resize() fails (e.g. kzalloc() fails) when var.xres or var.yres
-is going to shrink, vc->vc_{cols,rows} will not be updated. This allows
-bit_clear_margins() to see info->var.xres < (vc->vc_cols * cw) or
-info->var.yres < (vc->vc_rows * ch). Unexpectedly large rw or bh will
-try to overrun the __iomem region and causes general protection fault.
-
-Also, vc_resize(vc, 0, 0) does not set vc->vc_{cols,rows} = 0 due to
+I don't think that a console with 0 column or 0 row makes sense. And it
+seems that vc_do_resize() does not intend to allow resizing a console to
+0 column or 0 row due to
 
   new_cols = (cols ? cols : vc->vc_cols);
   new_rows = (lines ? lines : vc->vc_rows);
 
-exception. Since cols and lines are calculated as
+exception.
 
-  cols = FBCON_SWAP(ops->rotate, info->var.xres, info->var.yres);
-  rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
-  cols /= vc->vc_font.width;
-  rows /= vc->vc_font.height;
-  vc_resize(vc, cols, rows);
+Theoretically, cols and rows can be any range as long as
+0 < cols * rows * 2 <= KMALLOC_MAX_SIZE is satisfied (e.g.
+cols == 1048576 && rows == 2 is possible) because of
 
-in fbcon_modechanged(), var.xres < vc->vc_font.width makes cols = 0
-and var.yres < vc->vc_font.height makes rows = 0. This means that
+  vc->vc_size_row = vc->vc_cols << 1;
+  vc->vc_screenbuf_size = vc->vc_rows * vc->vc_size_row;
 
-  const int fd = open("/dev/fb0", O_ACCMODE);
-  struct fb_var_screeninfo var = { };
-  ioctl(fd, FBIOGET_VSCREENINFO, &var);
-  var.xres = var.yres = 1;
-  ioctl(fd, FBIOPUT_VSCREENINFO, &var);
+in visual_init() and kzalloc(vc->vc_screenbuf_size) in vc_allocate().
 
-easily reproduces integer underflow bug explained above.
+Since we can detect cols == 0 or rows == 0 via screenbuf_size = 0 in
+visual_init(), we can reject kzalloc(0). Then, vc_allocate() will return
+an error, and con_write() will not be called on a console with 0 column
+or 0 row.
 
-Of course, callers of vc_resize() are not handling vc_do_resize() failure
-is bad. But we can't avoid vc_resize(vc, 0, 0) which returns 0. Therefore,
-as a band-aid workaround, this patch checks integer underflow in
-"struct fbcon_ops"->clear_margins call, assuming that
-vc->vc_cols * vc->vc_font.width and vc->vc_rows * vc->vc_font.heigh do not
-cause integer overflow.
+We need to make sure that integer overflow in visual_init() won't happen.
+Since vc_do_resize() restricts cols <= 32767 and rows <= 32767, applying
+1 <= cols <= 32767 and 1 <= rows <= 32767 restrictions to vc_allocate()
+will be practically fine.
 
-[1] https://syzkaller.appspot.com/bug?id=a565882df74fa76f10d3a6fec4be31098dbb37c6
+This patch does not touch con_init(), for returning -EINVAL there
+does not help when we are not returning -ENOMEM.
 
-Reported-and-tested-by: syzbot <syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com>
+[1] https://syzkaller.appspot.com/bug?extid=017265e8553724e514e8
+
+Reported-and-tested-by: syzbot <syzbot+017265e8553724e514e8@syzkaller.appspotmail.com>
 Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200715015102.3814-1-penguin-kernel@I-love.SAKURA.ne.jp
+Link: https://lore.kernel.org/r/20200712111013.11881-1-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/video/fbdev/core/bitblit.c b/drivers/video/fbdev/core/bitblit.c
-index ca935c09a261..35ebeeccde4d 100644
---- a/drivers/video/fbdev/core/bitblit.c
-+++ b/drivers/video/fbdev/core/bitblit.c
-@@ -216,7 +216,7 @@ static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = color;
- 	region.rop = ROP_COPY;
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index 48a8199f7845..42d8c67a481f 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1092,10 +1092,19 @@ static const struct tty_port_operations vc_port_ops = {
+ 	.destruct = vc_port_destruct,
+ };
  
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dx = info->var.xoffset + rs;
- 		region.dy = 0;
- 		region.width = rw;
-@@ -224,7 +224,7 @@ static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
++/*
++ * Change # of rows and columns (0 means unchanged/the size of fg_console)
++ * [this is to be used together with some user program
++ * like resize that changes the hardware videomode]
++ */
++#define VC_MAXCOL (32767)
++#define VC_MAXROW (32767)
++
+ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ {
+ 	struct vt_notifier_param param;
+ 	struct vc_data *vc;
++	int err;
  
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dx = info->var.xoffset;
- 		region.dy = info->var.yoffset + bs;
- 		region.width = rs;
-diff --git a/drivers/video/fbdev/core/fbcon_ccw.c b/drivers/video/fbdev/core/fbcon_ccw.c
-index dfa9a8aa4509..78f3a5621478 100644
---- a/drivers/video/fbdev/core/fbcon_ccw.c
-+++ b/drivers/video/fbdev/core/fbcon_ccw.c
-@@ -201,7 +201,7 @@ static void ccw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = color;
- 	region.rop = ROP_COPY;
+ 	WARN_CONSOLE_UNLOCKED();
  
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dx = 0;
- 		region.dy = info->var.yoffset;
- 		region.height = rw;
-@@ -209,7 +209,7 @@ static void ccw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
+@@ -1125,6 +1134,11 @@ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ 	if (!*vc->vc_uni_pagedir_loc)
+ 		con_set_default_unimap(vc);
  
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dx = info->var.xoffset + bs;
- 		region.dy = 0;
-                 region.height = info->var.yres_virtual;
-diff --git a/drivers/video/fbdev/core/fbcon_cw.c b/drivers/video/fbdev/core/fbcon_cw.c
-index ce08251bfd38..fd098ff17574 100644
---- a/drivers/video/fbdev/core/fbcon_cw.c
-+++ b/drivers/video/fbdev/core/fbcon_cw.c
-@@ -184,7 +184,7 @@ static void cw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = color;
- 	region.rop = ROP_COPY;
++	err = -EINVAL;
++	if (vc->vc_cols > VC_MAXCOL || vc->vc_rows > VC_MAXROW ||
++	    vc->vc_screenbuf_size > KMALLOC_MAX_SIZE || !vc->vc_screenbuf_size)
++		goto err_free;
++	err = -ENOMEM;
+ 	vc->vc_screenbuf = kzalloc(vc->vc_screenbuf_size, GFP_KERNEL);
+ 	if (!vc->vc_screenbuf)
+ 		goto err_free;
+@@ -1143,7 +1157,7 @@ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ 	visual_deinit(vc);
+ 	kfree(vc);
+ 	vc_cons[currcons].d = NULL;
+-	return -ENOMEM;
++	return err;
+ }
  
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dx = 0;
- 		region.dy = info->var.yoffset + rs;
- 		region.height = rw;
-@@ -192,7 +192,7 @@ static void cw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
+ static inline int resize_screen(struct vc_data *vc, int width, int height,
+@@ -1158,14 +1172,6 @@ static inline int resize_screen(struct vc_data *vc, int width, int height,
+ 	return err;
+ }
  
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dx = info->var.xoffset;
- 		region.dy = info->var.yoffset;
-                 region.height = info->var.yres;
-diff --git a/drivers/video/fbdev/core/fbcon_ud.c b/drivers/video/fbdev/core/fbcon_ud.c
-index 1936afc78fec..e165a3fad29a 100644
---- a/drivers/video/fbdev/core/fbcon_ud.c
-+++ b/drivers/video/fbdev/core/fbcon_ud.c
-@@ -231,7 +231,7 @@ static void ud_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = color;
- 	region.rop = ROP_COPY;
+-/*
+- * Change # of rows and columns (0 means unchanged/the size of fg_console)
+- * [this is to be used together with some user program
+- * like resize that changes the hardware videomode]
+- */
+-#define VC_RESIZE_MAXCOL (32767)
+-#define VC_RESIZE_MAXROW (32767)
+-
+ /**
+  *	vc_do_resize	-	resizing method for the tty
+  *	@tty: tty being resized
+@@ -1201,7 +1207,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	user = vc->vc_resize_user;
+ 	vc->vc_resize_user = 0;
  
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dy = 0;
- 		region.dx = info->var.xoffset;
- 		region.width  = rw;
-@@ -239,7 +239,7 @@ static void ud_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
+-	if (cols > VC_RESIZE_MAXCOL || lines > VC_RESIZE_MAXROW)
++	if (cols > VC_MAXCOL || lines > VC_MAXROW)
+ 		return -EINVAL;
  
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dy = info->var.yoffset;
- 		region.dx = info->var.xoffset;
-                 region.height  = bh;
+ 	new_cols = (cols ? cols : vc->vc_cols);
+@@ -1212,7 +1218,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+ 		return 0;
+ 
+-	if (new_screen_size > KMALLOC_MAX_SIZE)
++	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
+ 		return -EINVAL;
+ 	newscreen = kzalloc(new_screen_size, GFP_USER);
+ 	if (!newscreen)
+@@ -3393,6 +3399,7 @@ static int __init con_init(void)
+ 		INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
+ 		tty_port_init(&vc->port);
+ 		visual_init(vc, currcons, 1);
++		/* Assuming vc->vc_{cols,rows,screenbuf_size} are sane here. */
+ 		vc->vc_screenbuf = kzalloc(vc->vc_screenbuf_size, GFP_NOWAIT);
+ 		vc_init(vc, vc->vc_rows, vc->vc_cols,
+ 			currcons || !vc->vc_sw->con_save_screen);
 
