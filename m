@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 051F322F124
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE1422EF4D
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:15:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730937AbgG0OWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
+        id S1730678AbgG0OPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:15:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731833AbgG0OWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:05 -0400
+        id S1730673AbgG0OPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:15:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C9C721775;
-        Mon, 27 Jul 2020 14:22:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B435522C9E;
+        Mon, 27 Jul 2020 14:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859724;
-        bh=UB1WFAH0LsvRP3pR4wMVX8K7pSEkfAz9uaGlQBD04b8=;
+        s=default; t=1595859315;
+        bh=LvnyYxvjXdHcMbft6ooLrDkrVOamx3GpTTFhktluOso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LC4zaScf3dgloaNBJ1HMfoaXusieb9iA1avXkfVSYaQUvBk1+yso08XiAnMUIHuLF
-         +TKx3S3C9CidhXYgS751lKZanJioVHk2IXIeHIUaLqPwusPlodIVX3MElQPehMfMfN
-         e8vwi/TcJu3Krls0P9rk/XCyskJ8+Gp794oq9xi4=
+        b=MsuiE6l7O1PEdg9YlGkC/SDIUQWgCXIHh9EUbin5p3bfV7nud5kCjIM1iayrx8NRl
+         nEuIEbGsIzZBlnGdDQKYr7tjMP055a8BCQbAgaU2e3644Emu6/XfYNKyk6VXaM+M82
+         AVl8B7Le8q3xh7t4gWIPoMiBJSZUCYkUXtnmmxZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 079/179] net: hns3: fix error handling for desc filling
-Date:   Mon, 27 Jul 2020 16:04:14 +0200
-Message-Id: <20200727134936.531272429@linuxfoundation.org>
+Subject: [PATCH 5.4 060/138] net: ethernet: ave: Fix error returns in ave_init
+Date:   Mon, 27 Jul 2020 16:04:15 +0200
+Message-Id: <20200727134928.410814754@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 8ceca59fb3ed48a693171bd571c4fcbd555b7f1f ]
+[ Upstream commit 1264d7fa3a64d8bea7aebb77253f917947ffda25 ]
 
-The content of the TX desc is automatically cleared by the HW
-when the HW has sent out the packet to the wire. When desc filling
-fails in hns3_nic_net_xmit(), it will call hns3_clear_desc() to do
-the error handling, which miss zeroing of the TX desc and the
-checking if a unmapping is needed.
+When regmap_update_bits failed in ave_init(), calls of the functions
+reset_control_assert() and clk_disable_unprepare() were missed.
+Add goto out_reset_assert to do this.
 
-So add the zeroing and checking in hns3_clear_desc() to avoid the
-above problem. Also add DESC_TYPE_UNKNOWN to indicate the info in
-desc_cb is not valid, because hns3_nic_reclaim_desc() may treat
-the desc_cb->type of zero as packet and add to the sent pkt
-statistics accordingly.
-
-Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Fixes: 57878f2f4697 ("net: ethernet: ave: add support for phy-mode setting of system controller")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hnae3.h     | 1 +
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/net/ethernet/socionext/sni_ave.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-index 5587605d6deb2..cc45662f77f04 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-@@ -77,6 +77,7 @@
- 	((ring)->p = ((ring)->p - 1 + (ring)->desc_num) % (ring)->desc_num)
+diff --git a/drivers/net/ethernet/socionext/sni_ave.c b/drivers/net/ethernet/socionext/sni_ave.c
+index 38d39c4b5ac83..603d54f83399c 100644
+--- a/drivers/net/ethernet/socionext/sni_ave.c
++++ b/drivers/net/ethernet/socionext/sni_ave.c
+@@ -1191,7 +1191,7 @@ static int ave_init(struct net_device *ndev)
+ 	ret = regmap_update_bits(priv->regmap, SG_ETPINMODE,
+ 				 priv->pinmode_mask, priv->pinmode_val);
+ 	if (ret)
+-		return ret;
++		goto out_reset_assert;
  
- enum hns_desc_type {
-+	DESC_TYPE_UNKNOWN,
- 	DESC_TYPE_SKB,
- 	DESC_TYPE_FRAGLIST_SKB,
- 	DESC_TYPE_PAGE,
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 5dab84aa3afd5..df1cb0441183c 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -1351,6 +1351,10 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
- 	unsigned int i;
- 
- 	for (i = 0; i < ring->desc_num; i++) {
-+		struct hns3_desc *desc = &ring->desc[ring->next_to_use];
-+
-+		memset(desc, 0, sizeof(*desc));
-+
- 		/* check if this is where we started */
- 		if (ring->next_to_use == next_to_use_orig)
- 			break;
-@@ -1358,6 +1362,9 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
- 		/* rollback one */
- 		ring_ptr_move_bw(ring, next_to_use);
- 
-+		if (!ring->desc_cb[ring->next_to_use].dma)
-+			continue;
-+
- 		/* unmap the descriptor dma address */
- 		if (ring->desc_cb[ring->next_to_use].type == DESC_TYPE_SKB ||
- 		    ring->desc_cb[ring->next_to_use].type ==
-@@ -1374,6 +1381,7 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
- 
- 		ring->desc_cb[ring->next_to_use].length = 0;
- 		ring->desc_cb[ring->next_to_use].dma = 0;
-+		ring->desc_cb[ring->next_to_use].type = DESC_TYPE_UNKNOWN;
- 	}
- }
+ 	ave_global_reset(ndev);
  
 -- 
 2.25.1
