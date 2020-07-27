@@ -2,106 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD95E22EB26
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 13:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0E322EB2A
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 13:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728141AbgG0LYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 07:24:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37356 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbgG0LYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 07:24:11 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20276C0619D2
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 04:24:11 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id q4so8618425edv.13
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 04:24:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=8WExgmjzhkJIIdgRhNcx1DWzg/HnrNSynjBxi/uh2bI=;
-        b=PDt2zaNgpsoJOPHz6lDUOcyEJ3ubM9QOXJ795vKIcgnRxiLhBkaoXQWMwouzkcneWy
-         g7hx0bAik6R1rl9gm0pMgb54kGpA/wCmxAlU+LcUrZ67xGIe5eptlmCJ9AaKcwSr6UB/
-         OzwiwqvNXD/I7LIRk4+DdKdXXgvwUrq6v6bN4ch3tPFN5mN5yPHjG497hosZf34ZsZJ8
-         Isl8JvV1413hKAPlh5zoynb65YRtDNUf7fQLR7DJ7cIESTAQiyI9spNhMXdGmY12sZgt
-         zBAXMYSTYWW61apTLwBZA49xQMgMFIPUorILsKbnuc5H1PR3kZUrYfoE278j5YzFblo4
-         KMHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=8WExgmjzhkJIIdgRhNcx1DWzg/HnrNSynjBxi/uh2bI=;
-        b=nxmvj4h0eXHbO8vQ8OUAWoNZld0I1qNTgq01JaKWadGsfAFMc3Szy2CvDFbMzi0zUy
-         CDEy/JP6rvOMvcF8O9+9Sf0IOZQmBLogFDorWMQSrgfKc0azhyq715mH8lcgyRd5iPvS
-         z7lijeMa37KWIaTmJguSU3QnKA1HlP92Mlv+7HbvqkVU5SiHJshptpCMy0J28aWYab8h
-         U7Zu1z3Yig3sm0OxMN12hklPCBdc8zaWe5n0UUxNAGC6iRcs4DYREjXgSfA3cGlWGIfd
-         RbuoQT9yi/W8O2n2NuXeKwC8p7/ZU/+tkoLJwb9ZzCqKtC327IPfunF5zQ3F9HxrGrHG
-         0U5A==
-X-Gm-Message-State: AOAM530PWk43U/fzt4jjc02kBRmisZkjklLqHM88hHWId4UZ/AXAwug9
-        oN35UNiAsmdloiKRUtQpt8g+2oL4jkkEJMHzj7k=
-X-Google-Smtp-Source: ABdhPJxb/4clygCvjCiO88XYG/sbJ6RKoH2Z8xrd10Kb85V7ZjADycyDpSdncP2GPDXnJ5FshMib0fbA5Tgo6BLdO9c=
-X-Received: by 2002:a50:9fc9:: with SMTP id c67mr9960008edf.69.1595849049765;
- Mon, 27 Jul 2020 04:24:09 -0700 (PDT)
+        id S1728139AbgG0LYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 07:24:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59186 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726967AbgG0LYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 07:24:40 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id ED973AB3E;
+        Mon, 27 Jul 2020 11:24:48 +0000 (UTC)
+Subject: Re: [PATCH 1/3] drm/ast: Do full modeset if the primary plane's
+ format changes
+To:     daniel@ffwll.ch
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>, emil.l.velikov@gmail.com,
+        dri-devel@lists.freedesktop.org, kraxel@redhat.com,
+        airlied@redhat.com, stable@vger.kernel.org, sam@ravnborg.org
+References: <20200727073707.21097-1-tzimmermann@suse.de>
+ <20200727073707.21097-2-tzimmermann@suse.de>
+ <20200727104043.GU6419@phenom.ffwll.local>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <857217a7-aadc-f6c9-c713-679e390f2537@suse.de>
+Date:   Mon, 27 Jul 2020 13:24:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Reply-To: evanaprso@gmail.com
-Received: by 2002:a54:2b90:0:0:0:0:0 with HTTP; Mon, 27 Jul 2020 04:24:09
- -0700 (PDT)
-From:   EVANA PRSO <rm2568590@gmail.com>
-Date:   Mon, 27 Jul 2020 13:24:09 +0200
-X-Google-Sender-Auth: GGKkRaxdo0XqH9l5mVosQBXE4ug
-Message-ID: <CADxkk6Upufr_-B3PQs+YRwxShFTnxXYpi8yym6O_qv3gii-NYQ@mail.gmail.com>
-Subject: Please co-operate with me
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200727104043.GU6419@phenom.ffwll.local>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="dKorrhmu4IyqY5vo6cPS0bOF752rVEhyK"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-my Dear friend,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--dKorrhmu4IyqY5vo6cPS0bOF752rVEhyK
+Content-Type: multipart/mixed; boundary="g0fikKUUyV1yl0ce5bgH3lBmGcTG93ywI";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: daniel@ffwll.ch
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, emil.l.velikov@gmail.com,
+ dri-devel@lists.freedesktop.org, kraxel@redhat.com, airlied@redhat.com,
+ stable@vger.kernel.org, sam@ravnborg.org
+Message-ID: <857217a7-aadc-f6c9-c713-679e390f2537@suse.de>
+Subject: Re: [PATCH 1/3] drm/ast: Do full modeset if the primary plane's
+ format changes
+References: <20200727073707.21097-1-tzimmermann@suse.de>
+ <20200727073707.21097-2-tzimmermann@suse.de>
+ <20200727104043.GU6419@phenom.ffwll.local>
+In-Reply-To: <20200727104043.GU6419@phenom.ffwll.local>
 
-My Name is Mrs. Anna H. Bruun, from Norway. I know that this message
-will be a surprise to you. Firstly, I am married to Mr. Patrick
-Bruun.A gold merchant who owns a small gold Mine in Syria; He died of
-Cardiovascular Disease in mid-March 2011. During his life time he
-deposited the sum of (=E2=82=AC16.1 Million Euro) sixteen million, one hund=
-red
-thousand Euros in a bank in Ouagadougou the capital city of Burkina
-Faso in West Africa. The deposited money was from the sale of the
-shares, death benefits payment and entitlements of my deceased husband
-by his company. I am sending this message to you praying that it will
-reach you in good health, since I am not in good health condition in
-which I sleep every night without knowing if I may be alive to see the
-next day.
+--g0fikKUUyV1yl0ce5bgH3lBmGcTG93ywI
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
- I am suffering from long time cancer and presently i am partially
-suffering from a stroke illness which has become almost impossible for
-me to move around. I am married to my late husband for over 4 years
-before he died and is unfortunately that we don't have a child, my
-doctor confinded in me that i have less chance to live. Having known
-my health condition, I decided to contact you to claim the fund since
-I don't have any relation I grew up from the orphanage home, I have
-decided to donate what I have to you for the support of helping
-Motherless babies/Less privileged/Widows' because I am dying and
-diagnosed of cancer for about 2 years ago. I have been touched by God
-almighty to donate from what I have inherited from my late husband to
-you for good work of God Almighty. I have asked Almighty God to
-forgive me and believe he has, because He is a Merciful God I will be
-going in for an operation surgery soon.
+Hi
 
- This is the reason i need your services to stand as my next of kin or
-an executor to claim the funds for charity purposes. If this money
-remains unclaimed after my death, the bank executives or the
-government will take the money as unclaimed fund and maybe use it for
-selfish and worthless ventures, I need a very honest person who can
-claim this money and use it for Charity works, for orphanages, widows
-and also build schools for less privilege that will be named after my
-late husband and my name; I need your urgent answer to know if you
-will be able to execute this project, and I will give you more
-information on how the fund will be transferred to your bank account.
+Am 27.07.20 um 12:40 schrieb daniel@ffwll.ch:
+> On Mon, Jul 27, 2020 at 09:37:05AM +0200, Thomas Zimmermann wrote:
+>> The atomic modesetting code tried to distinguish format changes from
+>> full modesetting operations. In practice, this was buggy and the forma=
+t
+>> registers were often updated even for simple pageflips.
+>=20
+> Nah it's not buggy, it's intentional. Most hw can update formats in a f=
+lip
+> withouth having to shut down the hw to do so.
+
+Admittedly it was intentional when I write it, but it never really
+worked. I think it might have even updated these color registers on each
+frame.
+
+>=20
+>=20
+>> Instead do a full modeset if the primary plane changes formats. It's
+>> just as rare as an actual mode change, so there will be no performance=
+
+>> penalty.
+>>
+>> The patch also replaces a reference to drm_crtc_state.allow_modeset wi=
+th
+>> the correct call to drm_atomic_crtc_needs_modeset().
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Fixes: 4961eb60f145 ("drm/ast: Enable atomic modesetting")
+>> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+>> Cc: Gerd Hoffmann <kraxel@redhat.com>
+>> Cc: Dave Airlie <airlied@redhat.com>
+>> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+>> Cc: Sam Ravnborg <sam@ravnborg.org>
+>> Cc: Emil Velikov <emil.l.velikov@gmail.com>
+>> Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
+>> Cc: <stable@vger.kernel.org> # v5.6+
+>> ---
+>>  drivers/gpu/drm/ast/ast_mode.c | 23 ++++++++++++++++-------
+>>  1 file changed, 16 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_=
+mode.c
+>> index 154cd877d9d1..3680a000b812 100644
+>> --- a/drivers/gpu/drm/ast/ast_mode.c
+>> +++ b/drivers/gpu/drm/ast/ast_mode.c
+>> @@ -527,8 +527,8 @@ static const uint32_t ast_primary_plane_formats[] =
+=3D {
+>>  static int ast_primary_plane_helper_atomic_check(struct drm_plane *pl=
+ane,
+>>  						 struct drm_plane_state *state)
+>>  {
+>> -	struct drm_crtc_state *crtc_state;
+>> -	struct ast_crtc_state *ast_crtc_state;
+>> +	struct drm_crtc_state *crtc_state, *old_crtc_state;
+>> +	struct ast_crtc_state *ast_crtc_state, *old_ast_crtc_state;
+>>  	int ret;
+>> =20
+>>  	if (!state->crtc)
+>> @@ -550,6 +550,15 @@ static int ast_primary_plane_helper_atomic_check(=
+struct drm_plane *plane,
+>> =20
+>>  	ast_crtc_state->format =3D state->fb->format;
+>> =20
+>> +	old_crtc_state =3D drm_atomic_get_old_crtc_state(state->state, state=
+->crtc);
+>> +	if (!old_crtc_state)
+>> +		return 0;
+>> +	old_ast_crtc_state =3D to_ast_crtc_state(old_crtc_state);
+>> +	if (!old_ast_crtc_state)
+>=20
+> The above two if checks should never fail, I'd wrap them in a WARN_ON.
+
+Really? But what's the old state when the first mode is being programmed?=
 
 
-Thanks,
-Mrs. Evana Prso.
+>=20
+>> +		return 0;
+>> +	if (ast_crtc_state->format !=3D old_ast_crtc_state->format)
+>> +		crtc_state->mode_changed =3D true;
+>> +
+>>  	return 0;
+>>  }
+>> =20
+>> @@ -775,18 +784,18 @@ static void ast_crtc_helper_atomic_flush(struct =
+drm_crtc *crtc,
+>> =20
+>>  	ast_state =3D to_ast_crtc_state(crtc->state);
+>> =20
+>> -	format =3D ast_state->format;
+>> -	if (!format)
+>> +	if (!drm_atomic_crtc_needs_modeset(crtc->state))
+>>  		return;
+>> =20
+>> +	format =3D ast_state->format;
+>> +	if (drm_WARN_ON_ONCE(dev, !format))
+>> +		return; /* BUG: We didn't set format in primary check(). */
+>=20
+> Hm that entire ast_state->format machinery looks kinda strange, can't y=
+ou
+> just look up the primary plane state everywhere and that's it?
+> drm_framebuffer are fully invariant and refcounted to the state, so the=
+re
+> really shouldn't be any need to copy format around.
+
+ast_state->format is the format that has to be programmed in
+atomic_flush(). If it's NULL, the current format was used. Updating the
+primary plane's format also requires the vbios info, which depends on
+CRTC state. So it's collected in the CRTC's atomic_check().
+
+It felt natural to use the various atomic_check() functions to collect
+and store and store away these structures, and later use them in
+atomic_flush().
+
+I'd prefer to keep the current design. It's the one that worked best
+while writing the atomic-modesetting support for ast.
+
+Best regard
+Thomas
+
+>=20
+> But that's maybe for a next patch. With the commit message clarified th=
+at
+> everything works as designed, and maybe the two WARN_ON added:
+>=20
+> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+>=20
+>> +
+>>  	vbios_mode_info =3D &ast_state->vbios_mode_info;
+>> =20
+>>  	ast_set_color_reg(ast, format);
+>>  	ast_set_vbios_color_reg(ast, format, vbios_mode_info);
+>> =20
+>> -	if (!crtc->state->mode_changed)
+>> -		return;
+>> -
+>>  	adjusted_mode =3D &crtc->state->adjusted_mode;
+>> =20
+>>  	ast_set_vbios_mode_reg(ast, adjusted_mode, vbios_mode_info);
+>> --=20
+>> 2.27.0
+>>
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--g0fikKUUyV1yl0ce5bgH3lBmGcTG93ywI--
+
+--dKorrhmu4IyqY5vo6cPS0bOF752rVEhyK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFIBAEBCAAyFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl8euXYUHHR6aW1tZXJt
+YW5uQHN1c2UuZGUACgkQaA3BHVMLeiM96Af+Kz854zR9o3aAzG8U/PWfY6VAv+qc
+B6Ix0FiDF0J1jeMs4EM5liJV3xYfCaAOiIJ4uMI4RSMdK3fh9/WYhHb7bTVk9wKZ
+vTWw2yWM38bQ3sUUMYty6LOVkRuJeZ+s/FT7hQ8SA4wtk6Mz7q0wt93i5B3eLCJm
+lhfMX/FTkd8zhLbd9dHLMWwcSyYNon+oaSX/zzXCDrvUZ30nH8NmNxH8YxNjr+Xr
+RRGu3jwC9CZjXfrizBVB1fEoxVaqYHzDIZAlaHAiE6nskUiV9EKqQ2ITgTsEHDBj
+yENLSbfjCykgNod4aicOgEn5+bMcYF0TY3aaqm4B5FO79FVpPwvoRZZLIQ==
+=RsKO
+-----END PGP SIGNATURE-----
+
+--dKorrhmu4IyqY5vo6cPS0bOF752rVEhyK--
