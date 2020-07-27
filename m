@@ -2,174 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0CC322FD27
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:25:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3554522FDB8
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbgG0XZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36934 "EHLO mail.kernel.org"
+        id S1728835AbgG0X3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726956AbgG0XZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:25:32 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1728053AbgG0X33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:29:29 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B372720A8B;
-        Mon, 27 Jul 2020 23:25:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26B70208E4;
+        Mon, 27 Jul 2020 23:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892331;
-        bh=putxGiY+5IfGT6KOGyXiieruCr/zyJjCepA4Vq/teIA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnSEb1WZ7bOR66Ehsu0+OAUn/cBdOk2yvp3MnPEUcSxYO8rflUEn8QAEDnt7H43UA
-         7HOO7KBmGdfgVTnCo1MCxxNKWsGWGtfJ8P9JfHQ2RsdpNehH8SI/B2wbwDFfx0nE1H
-         cCcqNBKu6S2tuaFt+XZVbee7rEVhchk7axJwI15Y=
+        s=default; t=1595892569;
+        bh=2RNa96Lx3KsNfqNDjq9god52tZ1VPKcA7xclquJSil4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uE0PAjHgPjzoetbsN/6so4DPgozOnmyKNvHU8W2xZw6FpPzgAAQTixICEsmfB9X0z
+         hT+Q5UWXeUeetlHHpvTj1A9d2BBPGqq5Yr41q+ubCL8d4VERacmJcX0x7TL1JyzQ4m
+         yit/0ZEtGmME0foyMvstdUdNlbtlw0cKb/mR7tkU=
+Date:   Mon, 27 Jul 2020 19:29:28 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Righi <andrea.righi@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 4/4] xen-netfront: fix potential deadlock in xennet_remove()
-Date:   Mon, 27 Jul 2020 19:25:25 -0400
-Message-Id: <20200727232525.718372-4-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200727232525.718372-1-sashal@kernel.org>
-References: <20200727232525.718372-1-sashal@kernel.org>
+To:     "dbasehore ." <dbasehore@chromium.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 54/86] Input: elan_i2c - only increment wakeup count
+ on touch
+Message-ID: <20200727232928.GK406581@sasha-vm>
+References: <20200727134914.312934924@linuxfoundation.org>
+ <20200727134917.124943291@linuxfoundation.org>
+ <20200727212933.pkt6kgescdz7akht@duo.ucw.cz>
+ <20200727220112.GV1665100@dtor-ws>
+ <CAGAzgsrTBm0UWM5QwxzePRrpz2xOUsJ4cuyj28q=ik++OQ-dkw@mail.gmail.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAGAzgsrTBm0UWM5QwxzePRrpz2xOUsJ4cuyj28q=ik++OQ-dkw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+On Mon, Jul 27, 2020 at 03:18:06PM -0700, dbasehore . wrote:
+>On Mon, Jul 27, 2020 at 3:01 PM Dmitry Torokhov
+><dmitry.torokhov@gmail.com> wrote:
+>>
+>> On Mon, Jul 27, 2020 at 11:29:33PM +0200, Pavel Machek wrote:
+>> > Hi!
+>> >
+>> > > From: Derek Basehore <dbasehore@chromium.org>
+>> > >
+>> > > [ Upstream commit 966334dfc472bdfa67bed864842943b19755d192 ]
+>> > >
+>> > > This moves the wakeup increment for elan devices to the touch report.
+>> > > This prevents the drivers from incorrectly reporting a wakeup when the
+>> > > resume callback resets then device, which causes an interrupt to
+>> > > occur.
+>> >
+>> > Contrary to the changelog, this does not move anything... unlike
+>> > mainline, it simply adds two pm_wakeup_events.
+>> >
+>> > It may still be correct, but maybe someone wants to double-check?
+>>
+>> Good catch, I believe the backport is busted.
+>
+>I don't believe it will break anything, but the backport isn't needed
+>in 4.19 since "Input: elan_i2c - increment wakeup count if wake
+>source" wasn't merged into 4.19. It's probably best to drop the
+>backport.
 
-[ Upstream commit c2c633106453611be07821f53dff9e93a9d1c3f0 ]
+Hm, I wonder how this happened. It was just a cherry pick in this case
+:/
 
-There's a potential race in xennet_remove(); this is what the driver is
-doing upon unregistering a network device:
+Either way, I've dropped it from 4.19, thanks!
 
-  1. state = read bus state
-  2. if state is not "Closed":
-  3.    request to set state to "Closing"
-  4.    wait for state to be set to "Closing"
-  5.    request to set state to "Closed"
-  6.    wait for state to be set to "Closed"
-
-If the state changes to "Closed" immediately after step 1 we are stuck
-forever in step 4, because the state will never go back from "Closed" to
-"Closing".
-
-Make sure to check also for state == "Closed" in step 4 to prevent the
-deadlock.
-
-Also add a 5 sec timeout any time we wait for the bus state to change,
-to avoid getting stuck forever in wait_event().
-
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/xen-netfront.c | 64 +++++++++++++++++++++++++-------------
- 1 file changed, 42 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 02b6a6c108400..7d4c0c46a889d 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -62,6 +62,8 @@ module_param_named(max_queues, xennet_max_queues, uint, 0644);
- MODULE_PARM_DESC(max_queues,
- 		 "Maximum number of queues per virtual interface");
- 
-+#define XENNET_TIMEOUT  (5 * HZ)
-+
- static const struct ethtool_ops xennet_ethtool_ops;
- 
- struct netfront_cb {
-@@ -1349,12 +1351,15 @@ static struct net_device *xennet_create_dev(struct xenbus_device *dev)
- 
- 	netif_carrier_off(netdev);
- 
--	xenbus_switch_state(dev, XenbusStateInitialising);
--	wait_event(module_wq,
--		   xenbus_read_driver_state(dev->otherend) !=
--		   XenbusStateClosed &&
--		   xenbus_read_driver_state(dev->otherend) !=
--		   XenbusStateUnknown);
-+	do {
-+		xenbus_switch_state(dev, XenbusStateInitialising);
-+		err = wait_event_timeout(module_wq,
-+				 xenbus_read_driver_state(dev->otherend) !=
-+				 XenbusStateClosed &&
-+				 xenbus_read_driver_state(dev->otherend) !=
-+				 XenbusStateUnknown, XENNET_TIMEOUT);
-+	} while (!err);
-+
- 	return netdev;
- 
-  exit:
-@@ -2166,28 +2171,43 @@ static const struct attribute_group xennet_dev_group = {
- };
- #endif /* CONFIG_SYSFS */
- 
--static int xennet_remove(struct xenbus_device *dev)
-+static void xennet_bus_close(struct xenbus_device *dev)
- {
--	struct netfront_info *info = dev_get_drvdata(&dev->dev);
--
--	dev_dbg(&dev->dev, "%s\n", dev->nodename);
-+	int ret;
- 
--	if (xenbus_read_driver_state(dev->otherend) != XenbusStateClosed) {
-+	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
-+		return;
-+	do {
- 		xenbus_switch_state(dev, XenbusStateClosing);
--		wait_event(module_wq,
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateClosing ||
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateUnknown);
-+		ret = wait_event_timeout(module_wq,
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateClosing ||
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateClosed ||
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateUnknown,
-+				   XENNET_TIMEOUT);
-+	} while (!ret);
-+
-+	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
-+		return;
- 
-+	do {
- 		xenbus_switch_state(dev, XenbusStateClosed);
--		wait_event(module_wq,
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateClosed ||
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateUnknown);
--	}
-+		ret = wait_event_timeout(module_wq,
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateClosed ||
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateUnknown,
-+				   XENNET_TIMEOUT);
-+	} while (!ret);
-+}
-+
-+static int xennet_remove(struct xenbus_device *dev)
-+{
-+	struct netfront_info *info = dev_get_drvdata(&dev->dev);
- 
-+	xennet_bus_close(dev);
- 	xennet_disconnect_backend(info);
- 
- 	if (info->netdev->reg_state == NETREG_REGISTERED)
 -- 
-2.25.1
-
+Thanks,
+Sasha
