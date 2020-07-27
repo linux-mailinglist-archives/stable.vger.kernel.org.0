@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 934D222FDC5
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C934B22FDC4
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728031AbgG0X3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34880 "EHLO mail.kernel.org"
+        id S1728281AbgG0X3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:29:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727957AbgG0XYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:24:02 -0400
+        id S1728031AbgG0XYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:24:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A5920FC3;
-        Mon, 27 Jul 2020 23:24:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0BD720786;
+        Mon, 27 Jul 2020 23:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892241;
-        bh=O8sbMn7Pvn99MTZ61vvAbPtt75NieU4YRkG3Qh3NqLU=;
+        s=default; t=1595892242;
+        bh=cW0MevAFt8H5njALXBT6v761SRuxFMSBRNmZHnFg2CY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADMVAtkyNTFjYb8aufIGF544EHZr0f9MKN4vbzqS5ZzOwVAr66aqW0HbU9zM/Frxo
-         cxtAOH5p1pPg/ImotE0GVvAiIYGB5DKSTEVAxfZ3eCZjTbj0ASae4g7MBhxDDf9H4s
-         T9JKK4b3q/4EUgLr2LEzBf8l5SL6iSmX2J0OOTVg=
+        b=YZXRdeOd2cSNfODRUMEjB7x3qUctZYdsepvCzjTc2ZK3U/ZhvQ99UULwr4iwwQrzh
+         XjJ+rgoGAW+eHeh/o13omclNBkomgc8qCrUYLnEvlZBdVTmn5ruxuj/5pI0LXhsXSp
+         qjIRxyRazBHa3Ug435lVEarHB7UXmpeFGXH1sVOs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Chen <vincent.chen@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 11/25] riscv: kasan: use local_tlb_flush_all() to avoid uninitialized __sbi_rfence
-Date:   Mon, 27 Jul 2020 19:23:31 -0400
-Message-Id: <20200727232345.717432-11-sashal@kernel.org>
+Cc:     Liam Beguin <liambeguin@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 12/25] parisc: add support for cmpxchg on u8 pointers
+Date:   Mon, 27 Jul 2020 19:23:32 -0400
+Message-Id: <20200727232345.717432-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232345.717432-1-sashal@kernel.org>
 References: <20200727232345.717432-1-sashal@kernel.org>
@@ -44,47 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
+From: Liam Beguin <liambeguin@gmail.com>
 
-[ Upstream commit 4cb699d0447be8e0906539f93cbe41e19598ee5a ]
+[ Upstream commit b344d6a83d01c52fddbefa6b3b4764da5b1022a0 ]
 
-It fails to boot the v5.8-rc4 kernel with CONFIG_KASAN because kasan_init
-and kasan_early_init use uninitialized __sbi_rfence as executing the
-tlb_flush_all(). Actually, at this moment, only the CPU which is
-responsible for the system initialization enables the MMU. Other CPUs are
-parking at the .Lsecondary_start. Hence the tlb_flush_all() is able to be
-replaced by local_tlb_flush_all() to avoid using uninitialized
-__sbi_rfence.
+The kernel test bot reported[1] that using set_mask_bits on a u8 causes
+the following issue on parisc:
 
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+	hppa-linux-ld: drivers/phy/ti/phy-tusb1210.o: in function `tusb1210_probe':
+	>> (.text+0x2f4): undefined reference to `__cmpxchg_called_with_bad_pointer'
+	>> hppa-linux-ld: (.text+0x324): undefined reference to `__cmpxchg_called_with_bad_pointer'
+	hppa-linux-ld: (.text+0x354): undefined reference to `__cmpxchg_called_with_bad_pointer'
+
+Add support for cmpxchg on u8 pointers.
+
+[1] https://lore.kernel.org/patchwork/patch/1272617/#1468946
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Tested-by: Dave Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/kasan_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/cmpxchg.h |  2 ++
+ arch/parisc/lib/bitops.c          | 12 ++++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/arch/riscv/mm/kasan_init.c b/arch/riscv/mm/kasan_init.c
-index ec0ca90dd9000..7a580c8ad6034 100644
---- a/arch/riscv/mm/kasan_init.c
-+++ b/arch/riscv/mm/kasan_init.c
-@@ -44,7 +44,7 @@ asmlinkage void __init kasan_early_init(void)
- 				(__pa(((uintptr_t) kasan_early_shadow_pmd))),
- 				__pgprot(_PAGE_TABLE)));
+diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
+index ab5c215cf46c3..0689585758717 100644
+--- a/arch/parisc/include/asm/cmpxchg.h
++++ b/arch/parisc/include/asm/cmpxchg.h
+@@ -60,6 +60,7 @@ extern void __cmpxchg_called_with_bad_pointer(void);
+ extern unsigned long __cmpxchg_u32(volatile unsigned int *m, unsigned int old,
+ 				   unsigned int new_);
+ extern u64 __cmpxchg_u64(volatile u64 *ptr, u64 old, u64 new_);
++extern u8 __cmpxchg_u8(volatile u8 *ptr, u8 old, u8 new_);
  
--	flush_tlb_all();
-+	local_flush_tlb_all();
+ /* don't worry...optimizer will get rid of most of this */
+ static inline unsigned long
+@@ -71,6 +72,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new_, int size)
+ #endif
+ 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
+ 				     (unsigned int)old, (unsigned int)new_);
++	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
+ 	}
+ 	__cmpxchg_called_with_bad_pointer();
+ 	return old;
+diff --git a/arch/parisc/lib/bitops.c b/arch/parisc/lib/bitops.c
+index 70ffbcf889b8e..2e4d1f05a9264 100644
+--- a/arch/parisc/lib/bitops.c
++++ b/arch/parisc/lib/bitops.c
+@@ -79,3 +79,15 @@ unsigned long __cmpxchg_u32(volatile unsigned int *ptr, unsigned int old, unsign
+ 	_atomic_spin_unlock_irqrestore(ptr, flags);
+ 	return (unsigned long)prev;
  }
- 
- static void __init populate(void *start, void *end)
-@@ -79,7 +79,7 @@ static void __init populate(void *start, void *end)
- 			pfn_pgd(PFN_DOWN(__pa(&pmd[offset])),
- 				__pgprot(_PAGE_TABLE)));
- 
--	flush_tlb_all();
-+	local_flush_tlb_all();
- 	memset(start, 0, end - start);
- }
- 
++
++u8 __cmpxchg_u8(volatile u8 *ptr, u8 old, u8 new)
++{
++	unsigned long flags;
++	u8 prev;
++
++	_atomic_spin_lock_irqsave(ptr, flags);
++	if ((prev = *ptr) == old)
++		*ptr = new;
++	_atomic_spin_unlock_irqrestore(ptr, flags);
++	return prev;
++}
 -- 
 2.25.1
 
