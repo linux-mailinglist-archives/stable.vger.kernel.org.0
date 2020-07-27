@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657D122F1AF
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C237B22F220
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731759AbgG0OeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:34:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44146 "EHLO mail.kernel.org"
+        id S1730197AbgG0OMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730980AbgG0OQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:16:59 -0400
+        id S1730189AbgG0OMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08F57208E4;
-        Mon, 27 Jul 2020 14:16:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2F6A20838;
+        Mon, 27 Jul 2020 14:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859419;
-        bh=8gj+gLcINm454lhIuhKjsm+FVsjMo2Q6mwn60Q42hKs=;
+        s=default; t=1595859140;
+        bh=dc5GIlP5hZ2l58dr+lnG1k9qkoosoB/+ERd84z3QCqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyRt51NYcaZt1kFHq74+RYxIp/BOVlcb+q7QbJywRmmRJxHPin6dVe08nEvyL2z6j
-         vmQnEqQIwY6tip/3Plwg8lecylQfV8ZGWWoSUDcREb8u3fND+4wtNfwJpIH9b3tU/2
-         G1eBrd3xCeXn0iXhHEHKo0XCuY34P4R/xyctGMmk=
+        b=b6mciHwcRd9ypKEBZMSPBA0aQO/6t+yYCX+LXaCpMrMOYmq1IPdtQVJAvk/V1cE5x
+         x3aybnaAHR+XrXkcn7NZfGTCqHkWm+u4iziPYOqdOht8Ds7sdHcjSYsKDZIM1sfU74
+         b3h6C6xR8dF/wGjp3YKKCJ005TBcAaZ/3kXEShJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/138] arm64: Use test_tsk_thread_flag() for checking TIF_SINGLESTEP
-Date:   Mon, 27 Jul 2020 16:04:54 +0200
-Message-Id: <20200727134930.321109260@linuxfoundation.org>
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 81/86] x86, vmlinux.lds: Page-align end of ..page_aligned sections
+Date:   Mon, 27 Jul 2020 16:04:55 +0200
+Message-Id: <20200727134918.465504233@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 5afc78551bf5d53279036e0bf63314e35631d79f ]
+commit de2b41be8fcccb2f5b6c480d35df590476344201 upstream.
 
-Rather than open-code test_tsk_thread_flag() at each callsite, simply
-replace the couple of offenders with calls to test_tsk_thread_flag()
-directly.
+On x86-32 the idt_table with 256 entries needs only 2048 bytes. It is
+page-aligned, but the end of the .bss..page_aligned section is not
+guaranteed to be page-aligned.
 
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As a result, objects from other .bss sections may end up on the same 4k
+page as the idt_table, and will accidentially get mapped read-only during
+boot, causing unexpected page-faults when the kernel writes to them.
+
+This could be worked around by making the objects in the page aligned
+sections page sized, but that's wrong.
+
+Explicit sections which store only page aligned objects have an implicit
+guarantee that the object is alone in the page in which it is placed. That
+works for all objects except the last one. That's inconsistent.
+
+Enforcing page sized objects for these sections would wreckage memory
+sanitizers, because the object becomes artificially larger than it should
+be and out of bound access becomes legit.
+
+Align the end of the .bss..page_aligned and .data..page_aligned section on
+page-size so all objects places in these sections are guaranteed to have
+their own page.
+
+[ tglx: Amended changelog ]
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200721093448.10417-1-joro@8bytes.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/kernel/debug-monitors.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/vmlinux.lds.S     |    1 +
+ include/asm-generic/vmlinux.lds.h |    5 ++++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/debug-monitors.c b/arch/arm64/kernel/debug-monitors.c
-index 7569deb1eac17..d64a3c1e1b6ba 100644
---- a/arch/arm64/kernel/debug-monitors.c
-+++ b/arch/arm64/kernel/debug-monitors.c
-@@ -396,14 +396,14 @@ void user_rewind_single_step(struct task_struct *task)
- 	 * If single step is active for this thread, then set SPSR.SS
- 	 * to 1 to avoid returning to the active-pending state.
- 	 */
--	if (test_ti_thread_flag(task_thread_info(task), TIF_SINGLESTEP))
-+	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
- 		set_regs_spsr_ss(task_pt_regs(task));
- }
- NOKPROBE_SYMBOL(user_rewind_single_step);
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -372,6 +372,7 @@ SECTIONS
+ 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {
+ 		__bss_start = .;
+ 		*(.bss..page_aligned)
++		. = ALIGN(PAGE_SIZE);
+ 		*(BSS_MAIN)
+ 		BSS_DECRYPTED
+ 		. = ALIGN(PAGE_SIZE);
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -279,7 +279,8 @@
  
- void user_fastforward_single_step(struct task_struct *task)
- {
--	if (test_ti_thread_flag(task_thread_info(task), TIF_SINGLESTEP))
-+	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
- 		clear_regs_spsr_ss(task_pt_regs(task));
- }
+ #define PAGE_ALIGNED_DATA(page_align)					\
+ 	. = ALIGN(page_align);						\
+-	*(.data..page_aligned)
++	*(.data..page_aligned)						\
++	. = ALIGN(page_align);
  
--- 
-2.25.1
-
+ #define READ_MOSTLY_DATA(align)						\
+ 	. = ALIGN(align);						\
+@@ -650,7 +651,9 @@
+ 	. = ALIGN(bss_align);						\
+ 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {				\
+ 		BSS_FIRST_SECTIONS					\
++		. = ALIGN(PAGE_SIZE);					\
+ 		*(.bss..page_aligned)					\
++		. = ALIGN(PAGE_SIZE);					\
+ 		*(.dynbss)						\
+ 		*(BSS_MAIN)						\
+ 		*(COMMON)						\
 
 
