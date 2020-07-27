@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C8722F075
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0800122EFA4
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732324AbgG0OYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:24:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54510 "EHLO mail.kernel.org"
+        id S1731144AbgG0OSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:18:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730619AbgG0OYt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:24:49 -0400
+        id S1730365AbgG0OR7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:17:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF361208E4;
-        Mon, 27 Jul 2020 14:24:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 438362075A;
+        Mon, 27 Jul 2020 14:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859889;
-        bh=JfB1Zl1taTnjxsD1iQ0MHKt1q1YqdCcsz0pQJBK6fDE=;
+        s=default; t=1595859478;
+        bh=Hs1apUF6pzLa7pMZi6aK6zvEfY1TgSs8aSzgRfjS6aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmaz4fp7xE4eKKnvNW3oP/FUjIyaRsOjcCO/u6lXu6SduUUuHJI/tEJXTBz8MnW9K
-         aaXTRIbCXh6S4cL26/cc8Ml8W6rvMVyuqlOoYpjqrCYYN2wrO8XaehfaXMnT7hrY+F
-         nFtFi8gML9afHGezD2OQuaHf4Sgm+42KJKYa8A10=
+        b=kTJlplefWeq1RP6qN/CNywq8oRKgirX0v3aOsKhmvw/uBTlR2FCaueMKor9Ca1XwZ
+         ijDLbN6sn9uqqrM43/aZSV/jbGPJDtBm4YEJMVq6F/fOvA72OptuGY6O2rOXkHh0us
+         +G0ExzpZ11wteflCOJxKc1ajTm+6R7htuWMA1nqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.7 144/179] iwlwifi: mvm: dont call iwl_mvm_free_inactive_queue() under RCU
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 124/138] mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
 Date:   Mon, 27 Jul 2020 16:05:19 +0200
-Message-Id: <20200727134939.661424853@linuxfoundation.org>
+Message-Id: <20200727134931.631085643@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +50,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit fbb1461ad1d6eacca9beb69a2f3ce1b5398d399b upstream.
+commit d38a2b7a9c939e6d7329ab92b96559ccebf7b135 upstream.
 
-iwl_mvm_free_inactive_queue() will sleep in synchronize_net() under
-some circumstances, so don't call it under RCU. There doesn't appear
-to be a need for RCU protection around this particular call.
+If the kmem_cache refcount is greater than one, we should not mark the
+root kmem_cache as dying.  If we mark the root kmem_cache dying
+incorrectly, the non-root kmem_cache can never be destroyed.  It
+resulted in memory leak when memcg was destroyed.  We can use the
+following steps to reproduce.
 
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20200403112332.0f49448c133d.I17fd308bc4a9491859c9b112f4eb5d2c3fc18d7d@changeid
+  1) Use kmem_cache_create() to create a new kmem_cache named A.
+  2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
+     so the refcount of B is just increased.
+  3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
+     decrease the B's refcount but mark the B as dying.
+  4) Create a new memory cgroup and alloc memory from the kmem_cache
+     B. It leads to create a non-root kmem_cache for allocating memory.
+  5) When destroy the memory cgroup created in the step 4), the
+     non-root kmem_cache can never be destroyed.
+
+If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
+only when refcount reach zero, we mark the root kmem_cache as dying.
+
+Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -1184,17 +1184,15 @@ static int iwl_mvm_inactivity_check(stru
- 	for_each_set_bit(i, &changetid_queues, IWL_MAX_HW_QUEUES)
- 		iwl_mvm_change_queue_tid(mvm, i);
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -326,6 +326,14 @@ int slab_unmergeable(struct kmem_cache *
+ 	if (s->refcount < 0)
+ 		return 1;
  
-+	rcu_read_unlock();
++#ifdef CONFIG_MEMCG_KMEM
++	/*
++	 * Skip the dying kmem_cache.
++	 */
++	if (s->memcg_params.dying)
++		return 1;
++#endif
 +
- 	if (free_queue >= 0 && alloc_for_sta != IWL_MVM_INVALID_STA) {
- 		ret = iwl_mvm_free_inactive_queue(mvm, free_queue, queue_owner,
- 						  alloc_for_sta);
--		if (ret) {
--			rcu_read_unlock();
-+		if (ret)
- 			return ret;
--		}
- 	}
- 
--	rcu_read_unlock();
--
- 	return free_queue;
+ 	return 0;
  }
  
+@@ -886,12 +894,15 @@ static int shutdown_memcg_caches(struct
+ 	return 0;
+ }
+ 
+-static void flush_memcg_workqueue(struct kmem_cache *s)
++static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
+ {
+ 	spin_lock_irq(&memcg_kmem_wq_lock);
+ 	s->memcg_params.dying = true;
+ 	spin_unlock_irq(&memcg_kmem_wq_lock);
++}
+ 
++static void flush_memcg_workqueue(struct kmem_cache *s)
++{
+ 	/*
+ 	 * SLAB and SLUB deactivate the kmem_caches through call_rcu. Make
+ 	 * sure all registered rcu callbacks have been invoked.
+@@ -923,10 +934,6 @@ static inline int shutdown_memcg_caches(
+ {
+ 	return 0;
+ }
+-
+-static inline void flush_memcg_workqueue(struct kmem_cache *s)
+-{
+-}
+ #endif /* CONFIG_MEMCG_KMEM */
+ 
+ void slab_kmem_cache_release(struct kmem_cache *s)
+@@ -944,8 +951,6 @@ void kmem_cache_destroy(struct kmem_cach
+ 	if (unlikely(!s))
+ 		return;
+ 
+-	flush_memcg_workqueue(s);
+-
+ 	get_online_cpus();
+ 	get_online_mems();
+ 
+@@ -955,6 +960,22 @@ void kmem_cache_destroy(struct kmem_cach
+ 	if (s->refcount)
+ 		goto out_unlock;
+ 
++#ifdef CONFIG_MEMCG_KMEM
++	memcg_set_kmem_cache_dying(s);
++
++	mutex_unlock(&slab_mutex);
++
++	put_online_mems();
++	put_online_cpus();
++
++	flush_memcg_workqueue(s);
++
++	get_online_cpus();
++	get_online_mems();
++
++	mutex_lock(&slab_mutex);
++#endif
++
+ 	err = shutdown_memcg_caches(s);
+ 	if (!err)
+ 		err = shutdown_cache(s);
 
 
