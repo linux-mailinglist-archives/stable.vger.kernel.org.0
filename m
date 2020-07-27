@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A7922F2A3
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3505B22F1BE
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729416AbgG0OIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57892 "EHLO mail.kernel.org"
+        id S1730797AbgG0OQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:16:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbgG0OI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:27 -0400
+        id S1730218AbgG0OQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:16:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4E3A2073E;
-        Mon, 27 Jul 2020 14:08:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97C8F2070A;
+        Mon, 27 Jul 2020 14:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858906;
-        bh=p/kmzlezXh0j8FdfaVp7CxMlXOuU9TqE/KqdV7WUn+c=;
+        s=default; t=1595859366;
+        bh=WuELeavyDRx8mw9ik3oLaPzKVsJbeveplcMAf2xPW3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+3QQrLpeIGkT+nASSjtdeOyHXw5THQq8kyVDZHM5arcyiei3Mmv1Ixqfgxdc4Tyl
-         2mSQyH8tiPbd2K4HJDRszpMebA4aNVcmjYGEfficQYqtlQRDxa2pVwdyuGbKFMvr0U
-         imW33e4dUzRYglRZMQb06EWaEirk0SEpRWInxUz4=
+        b=ingegwo326Mqgtf7VZWZuh5qyKzuE6UYoXp3DTayMxvf4YTuvwBiz5HQ/+lsjHhhv
+         Ww5x9l/nxL/lF0OrMoOCygiJDyjP2fxAM4pHWEnnib4GHKcGs5u9enp1WTKTN8Rr6Q
+         gIMr5eUFsLUUj+E3Sq4V9uswJF3KOKWQ7NBVNzTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>
-Subject: [PATCH 4.14 55/64] serial: 8250: fix null-ptr-deref in serial8250_start_tx()
-Date:   Mon, 27 Jul 2020 16:04:34 +0200
-Message-Id: <20200727134913.893539507@linuxfoundation.org>
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 080/138] hwmon: (aspeed-pwm-tacho) Avoid possible buffer overflow
+Date:   Mon, 27 Jul 2020 16:04:35 +0200
+Message-Id: <20200727134929.378074280@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-commit f4c23a140d80ef5e6d3d1f8f57007649014b60fa upstream.
+[ Upstream commit bc4071aafcf4d0535ee423b69167696d6c03207d ]
 
-I got null-ptr-deref in serial8250_start_tx():
+aspeed_create_fan() reads a pwm_port value using of_property_read_u32().
+If pwm_port will be more than ARRAY_SIZE(pwm_port_params), there will be
+a buffer overflow in
+aspeed_create_pwm_port()->aspeed_set_pwm_port_enable(). The patch fixes
+the potential buffer overflow.
 
-[   78.114630] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[   78.123778] Mem abort info:
-[   78.126560]   ESR = 0x86000007
-[   78.129603]   EC = 0x21: IABT (current EL), IL = 32 bits
-[   78.134891]   SET = 0, FnV = 0
-[   78.137933]   EA = 0, S1PTW = 0
-[   78.141064] user pgtable: 64k pages, 48-bit VAs, pgdp=00000027d41a8600
-[   78.147562] [0000000000000000] pgd=00000027893f0003, p4d=00000027893f0003, pud=00000027893f0003, pmd=00000027c9a20003, pte=0000000000000000
-[   78.160029] Internal error: Oops: 86000007 [#1] SMP
-[   78.164886] Modules linked in: sunrpc vfat fat aes_ce_blk crypto_simd cryptd aes_ce_cipher crct10dif_ce ghash_ce sha2_ce sha256_arm64 sha1_ce ses enclosure sg sbsa_gwdt ipmi_ssif spi_dw_mmio sch_fq_codel vhost_net tun vhost vhost_iotlb tap ip_tables ext4 mbcache jbd2 ahci hisi_sas_v3_hw libahci hisi_sas_main libsas hns3 scsi_transport_sas hclge libata megaraid_sas ipmi_si hnae3 ipmi_devintf ipmi_msghandler br_netfilter bridge stp llc nvme nvme_core xt_sctp sctp libcrc32c dm_mod nbd
-[   78.207383] CPU: 11 PID: 23258 Comm: null-ptr Not tainted 5.8.0-rc6+ #48
-[   78.214056] Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 CS V3.B210.01 03/12/2020
-[   78.222888] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
-[   78.228435] pc : 0x0
-[   78.230618] lr : serial8250_start_tx+0x160/0x260
-[   78.235215] sp : ffff800062eefb80
-[   78.238517] x29: ffff800062eefb80 x28: 0000000000000fff
-[   78.243807] x27: ffff800062eefd80 x26: ffff202fd83b3000
-[   78.249098] x25: ffff800062eefd80 x24: ffff202fd83b3000
-[   78.254388] x23: ffff002fc5e50be8 x22: 0000000000000002
-[   78.259679] x21: 0000000000000001 x20: 0000000000000000
-[   78.264969] x19: ffffa688827eecc8 x18: 0000000000000000
-[   78.270259] x17: 0000000000000000 x16: 0000000000000000
-[   78.275550] x15: ffffa68881bc67a8 x14: 00000000000002e6
-[   78.280841] x13: ffffa68881bc67a8 x12: 000000000000c539
-[   78.286131] x11: d37a6f4de9bd37a7 x10: ffffa68881cccff0
-[   78.291421] x9 : ffffa68881bc6000 x8 : ffffa688819daa88
-[   78.296711] x7 : ffffa688822a0f20 x6 : ffffa688819e0000
-[   78.302002] x5 : ffff800062eef9d0 x4 : ffffa68881e707a8
-[   78.307292] x3 : 0000000000000000 x2 : 0000000000000002
-[   78.312582] x1 : 0000000000000001 x0 : ffffa688827eecc8
-[   78.317873] Call trace:
-[   78.320312]  0x0
-[   78.322147]  __uart_start.isra.9+0x64/0x78
-[   78.326229]  uart_start+0xb8/0x1c8
-[   78.329620]  uart_flush_chars+0x24/0x30
-[   78.333442]  n_tty_receive_buf_common+0x7b0/0xc30
-[   78.338128]  n_tty_receive_buf+0x44/0x2c8
-[   78.342122]  tty_ioctl+0x348/0x11f8
-[   78.345599]  ksys_ioctl+0xd8/0xf8
-[   78.348903]  __arm64_sys_ioctl+0x2c/0xc8
-[   78.352812]  el0_svc_common.constprop.2+0x88/0x1b0
-[   78.357583]  do_el0_svc+0x44/0xd0
-[   78.360887]  el0_sync_handler+0x14c/0x1d0
-[   78.364880]  el0_sync+0x140/0x180
-[   78.368185] Code: bad PC value
+Found by Linux Driver Verification project (linuxtesting.org).
 
-SERIAL_PORT_DFNS is not defined on each arch, if it's not defined,
-serial8250_set_defaults() won't be called in serial8250_isa_init_ports(),
-so the p->serial_in pointer won't be initialized, and it leads a null-ptr-deref.
-Fix this problem by calling serial8250_set_defaults() after init uart port.
-
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200721143852.4058352-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Link: https://lore.kernel.org/r/20200703111518.9644-1-novikov@ispras.ru
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/aspeed-pwm-tacho.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -534,6 +534,7 @@ static void __init serial8250_isa_init_p
- 		 */
- 		up->mcr_mask = ~ALPHA_KLUDGE_MCR;
- 		up->mcr_force = ALPHA_KLUDGE_MCR;
-+		serial8250_set_defaults(up);
- 	}
+diff --git a/drivers/hwmon/aspeed-pwm-tacho.c b/drivers/hwmon/aspeed-pwm-tacho.c
+index 40c489be62eaa..40f3139f1e028 100644
+--- a/drivers/hwmon/aspeed-pwm-tacho.c
++++ b/drivers/hwmon/aspeed-pwm-tacho.c
+@@ -851,6 +851,8 @@ static int aspeed_create_fan(struct device *dev,
+ 	ret = of_property_read_u32(child, "reg", &pwm_port);
+ 	if (ret)
+ 		return ret;
++	if (pwm_port >= ARRAY_SIZE(pwm_port_params))
++		return -EINVAL;
+ 	aspeed_create_pwm_port(priv, (u8)pwm_port);
  
- 	/* chain base port ops to support Remote Supervisor Adapter */
-@@ -557,7 +558,6 @@ static void __init serial8250_isa_init_p
- 		port->membase  = old_serial_port[i].iomem_base;
- 		port->iotype   = old_serial_port[i].io_type;
- 		port->regshift = old_serial_port[i].iomem_reg_shift;
--		serial8250_set_defaults(up);
- 
- 		port->irqflags |= irqflag;
- 		if (serial8250_isa_config != NULL)
+ 	ret = of_property_count_u8_elems(child, "cooling-levels");
+-- 
+2.25.1
+
 
 
