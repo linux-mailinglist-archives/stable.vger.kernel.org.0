@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C55D722EE90
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF85E22EF41
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729491AbgG0OIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58510 "EHLO mail.kernel.org"
+        id S1730600AbgG0OOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:14:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729472AbgG0OIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:50 -0400
+        id S1730551AbgG0OOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95D382073E;
-        Mon, 27 Jul 2020 14:08:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 061592083E;
+        Mon, 27 Jul 2020 14:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858930;
-        bh=hb73mPjW7aVbKLsg8JZT+XC20KzbazBLqYgGJO10gww=;
+        s=default; t=1595859286;
+        bh=HlMBUHKc/l//FkPc/NhomJaFxEY5jBPEamb9bIqqRe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppjSW5SJ2TGWw00VRZVF1bfv46zDVWjFXNd002lcpuJuLUZ/aO4q4k8PEjgFMf10Y
-         ZgP689s/fo3MRupUIhP1sUyff/PWz18GO2D/q+KD1tnrKtZYYp0CgP7eqIdTv2wNSE
-         al60BKYj8Y5clr21/GmMXoNVhIm5G9hphwITpc6o=
+        b=CUNs4l8Pn2aazf98LHAZ/DAX6UejqrJLzD6ABBjcSJd2Vb6U8ErxFTDjFyp83sMmX
+         Vqw1TZ9MLu0rFuqYhZ2vm37BJV0XZLOmq0aBNue1KCqERP3CMafUaP30TswbgvUqWd
+         ollY1MSvOeZacqsZfVl+XP3js3EFGyQpOKokGzzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Mans Rullgard <mans@mansr.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/64] drm: sun4i: hdmi: Fix inverted HPD result
-Date:   Mon, 27 Jul 2020 16:04:04 +0200
-Message-Id: <20200727134912.397758711@linuxfoundation.org>
+Subject: [PATCH 5.4 050/138] mlxsw: destroy workqueue when trap_register in mlxsw_emad_init
+Date:   Mon, 27 Jul 2020 16:04:05 +0200
+Message-Id: <20200727134927.858611020@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit baa1841eb797eadce6c907bdaed7cd6f01815404 ]
+[ Upstream commit 5dbaeb87f2b309936be0aeae00cbc9e7f20ab296 ]
 
-When the extra HPD polling in sun4i_hdmi was removed, the result of
-HPD was accidentally inverted.
+When mlxsw_core_trap_register fails in mlxsw_emad_init,
+destroy_workqueue() shouled be called to destroy mlxsw_core->emad_wq.
 
-Fix this by inverting the check.
-
-Fixes: bda8eaa6dee7 ("drm: sun4i: hdmi: Remove extra HPD polling")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Tested-by: Mans Rullgard <mans@mansr.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200711011030.21997-1-wens@kernel.org
+Fixes: d965465b60ba ("mlxsw: core: Fix possible deadlock")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-index 82cb939351889..c9f1a8cd5f2ac 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-@@ -215,7 +215,7 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 	unsigned long reg;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/core.c b/drivers/net/ethernet/mellanox/mlxsw/core.c
+index 0a0884d86d44d..1b204ce30ee42 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/core.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
+@@ -592,7 +592,7 @@ static int mlxsw_emad_init(struct mlxsw_core *mlxsw_core)
+ 	err = mlxsw_core_trap_register(mlxsw_core, &mlxsw_emad_rx_listener,
+ 				       mlxsw_core);
+ 	if (err)
+-		return err;
++		goto err_trap_register;
  
- 	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
--	if (reg & SUN4I_HDMI_HPD_HIGH) {
-+	if (!(reg & SUN4I_HDMI_HPD_HIGH)) {
- 		cec_phys_addr_invalidate(hdmi->cec_adap);
- 		return connector_status_disconnected;
- 	}
+ 	err = mlxsw_core->driver->basic_trap_groups_set(mlxsw_core);
+ 	if (err)
+@@ -604,6 +604,7 @@ static int mlxsw_emad_init(struct mlxsw_core *mlxsw_core)
+ err_emad_trap_set:
+ 	mlxsw_core_trap_unregister(mlxsw_core, &mlxsw_emad_rx_listener,
+ 				   mlxsw_core);
++err_trap_register:
+ 	destroy_workqueue(mlxsw_core->emad_wq);
+ 	return err;
+ }
 -- 
 2.25.1
 
