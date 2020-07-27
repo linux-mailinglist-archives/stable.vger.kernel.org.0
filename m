@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90AC222F22F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0ADE22F1D5
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729550AbgG0OiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35490 "EHLO mail.kernel.org"
+        id S1730647AbgG0OPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730052AbgG0OLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:11:43 -0400
+        id S1730646AbgG0OPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:15:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBF6C20838;
-        Mon, 27 Jul 2020 14:11:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FB442078E;
+        Mon, 27 Jul 2020 14:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859102;
-        bh=Qb3Yka2/IeIPcDQaic+p51nTe+lyDnURNMqDIRwMQDE=;
+        s=default; t=1595859304;
+        bh=fdJBcHhe5Y0lEAqNrc+DepWq3JAQJpBhn8tEIoaSXVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pr2eLdUQkxe0VyptdA/PpZ4HErYiLFrK8wkn6jlaEPK/YGO+Tm8iGjjv1w2GMozK3
-         gLvbvW/LfBrLjR28nITZerFq3tXCFd6BNRuSayGXlGaZPS8W7+wsM+MZL/rjJshhig
-         s0xHGZCfuL/kCFckX0t2o19i35BRXR+dwRGL9bcs=
+        b=DTQpkrB4W8hgLkZMqrRH6+SGNSDANbDYMyynwTPzmnb/8TPpDDB3Yv0atzigc61Ql
+         Y1aRHLP/z5llmx2gE7rOjyt7daJBV1r455k0WxLlLr1f4h88fdcgR084MsKc7dyBJe
+         3OHp4OP0PmgNg3VXEqzBtm78hFWicj3mQx8CxqAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhouxudong <zhouxudong8@huawei.com>,
-        guodeqing <geffrey.guo@huawei.com>, Julian Anastasov <ja@ssi.bg>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/86] ipvs: fix the connection sync failed in some cases
-Date:   Mon, 27 Jul 2020 16:04:10 +0200
-Message-Id: <20200727134916.247315499@linuxfoundation.org>
+Subject: [PATCH 5.4 056/138] netdevsim: fix unbalaced locking in nsim_create()
+Date:   Mon, 27 Jul 2020 16:04:11 +0200
+Message-Id: <20200727134928.210346069@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: guodeqing <geffrey.guo@huawei.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 8210e344ccb798c672ab237b1a4f241bda08909b ]
+[ Upstream commit 2c9d8e01f0c6017317eee7638496173d4a64e6bc ]
 
-The sync_thread_backup only checks sk_receive_queue is empty or not,
-there is a situation which cannot sync the connection entries when
-sk_receive_queue is empty and sk_rmem_alloc is larger than sk_rcvbuf,
-the sync packets are dropped in __udp_enqueue_schedule_skb, this is
-because the packets in reader_queue is not read, so the rmem is
-not reclaimed.
+In the nsim_create(), rtnl_lock() is called before nsim_bpf_init().
+If nsim_bpf_init() is failed, rtnl_unlock() should be called,
+but it isn't called.
+So, unbalanced locking would occur.
 
-Here I add the check of whether the reader_queue of the udp sock is
-empty or not to solve this problem.
-
-Fixes: 2276f58ac589 ("udp: use a separate rx queue for packet reception")
-Reported-by: zhouxudong <zhouxudong8@huawei.com>
-Signed-off-by: guodeqing <geffrey.guo@huawei.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e05b2d141fef ("netdevsim: move netdev creation/destruction to dev probe")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_sync.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/netdevsim/netdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_sync.c b/net/netfilter/ipvs/ip_vs_sync.c
-index 5acd99f83166b..f6af13c16cf57 100644
---- a/net/netfilter/ipvs/ip_vs_sync.c
-+++ b/net/netfilter/ipvs/ip_vs_sync.c
-@@ -1717,6 +1717,8 @@ static int sync_thread_backup(void *data)
- {
- 	struct ip_vs_sync_thread_data *tinfo = data;
- 	struct netns_ipvs *ipvs = tinfo->ipvs;
-+	struct sock *sk = tinfo->sock->sk;
-+	struct udp_sock *up = udp_sk(sk);
- 	int len;
+diff --git a/drivers/net/netdevsim/netdev.c b/drivers/net/netdevsim/netdev.c
+index 55f57f76d01bb..a6bbe93f29ef6 100644
+--- a/drivers/net/netdevsim/netdev.c
++++ b/drivers/net/netdevsim/netdev.c
+@@ -301,7 +301,7 @@ nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port)
+ 	rtnl_lock();
+ 	err = nsim_bpf_init(ns);
+ 	if (err)
+-		goto err_free_netdev;
++		goto err_rtnl_unlock;
  
- 	pr_info("sync thread started: state = BACKUP, mcast_ifn = %s, "
-@@ -1724,12 +1726,14 @@ static int sync_thread_backup(void *data)
- 		ipvs->bcfg.mcast_ifn, ipvs->bcfg.syncid, tinfo->id);
+ 	nsim_ipsec_init(ns);
  
- 	while (!kthread_should_stop()) {
--		wait_event_interruptible(*sk_sleep(tinfo->sock->sk),
--			 !skb_queue_empty(&tinfo->sock->sk->sk_receive_queue)
--			 || kthread_should_stop());
-+		wait_event_interruptible(*sk_sleep(sk),
-+					 !skb_queue_empty_lockless(&sk->sk_receive_queue) ||
-+					 !skb_queue_empty_lockless(&up->reader_queue) ||
-+					 kthread_should_stop());
- 
- 		/* do we have data now? */
--		while (!skb_queue_empty(&(tinfo->sock->sk->sk_receive_queue))) {
-+		while (!skb_queue_empty_lockless(&sk->sk_receive_queue) ||
-+		       !skb_queue_empty_lockless(&up->reader_queue)) {
- 			len = ip_vs_receive(tinfo->sock, tinfo->buf,
- 					ipvs->bcfg.sync_maxlen);
- 			if (len <= 0) {
+@@ -315,8 +315,8 @@ nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port)
+ err_ipsec_teardown:
+ 	nsim_ipsec_teardown(ns);
+ 	nsim_bpf_uninit(ns);
++err_rtnl_unlock:
+ 	rtnl_unlock();
+-err_free_netdev:
+ 	free_netdev(dev);
+ 	return ERR_PTR(err);
+ }
 -- 
 2.25.1
 
