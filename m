@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E92822FD8D
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57CF622FD8F
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728265AbgG0XYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:24:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
+        id S1728104AbgG0X23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:28:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728258AbgG0XYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:24:31 -0400
+        id S1728263AbgG0XYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:24:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F140B22B40;
-        Mon, 27 Jul 2020 23:24:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78434208E4;
+        Mon, 27 Jul 2020 23:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892269;
-        bh=fli9BB9wXWbNaizd57fZ7B9u6zDs9BY1kleIiBJzss0=;
+        s=default; t=1595892271;
+        bh=cW0MevAFt8H5njALXBT6v761SRuxFMSBRNmZHnFg2CY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abIFjlywKqxecxQsd2dGFPr/9+rRLnkjSbqe1fuDmQktwqtRYhyJ2b8EPAMkDjpGH
-         vBi43GXhXIvqAMFEaWC3PG7LOpRyIj6i5w8rBfuRLJUnQr5MIo5bFA/bqw8rFiqr3D
-         JjtDgL3t8RVir2fIkmALZRoj2Fz6VdQMj8W8LncM=
+        b=FDzpR+5idfp90EOGHWZeYJ0giYUM3rOgTgphftqvGPHT+uTqH/m4qm2rmMELlcFG6
+         LeIEvTyqGxEj4Lk/DWUOlGciZPTW4uzO6ZiLBOpUllRGouWgxOEKuVNX20m/xjcNuE
+         CqiaN33S3XjuqWnXR3X3iz7AR6xSoSNVLjvCj8sA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/17] scsi: core: Run queue in case of I/O resource contention failure
-Date:   Mon, 27 Jul 2020 19:24:10 -0400
-Message-Id: <20200727232420.717684-7-sashal@kernel.org>
+Cc:     Liam Beguin <liambeguin@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/17] parisc: add support for cmpxchg on u8 pointers
+Date:   Mon, 27 Jul 2020 19:24:11 -0400
+Message-Id: <20200727232420.717684-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232420.717684-1-sashal@kernel.org>
 References: <20200727232420.717684-1-sashal@kernel.org>
@@ -45,102 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Liam Beguin <liambeguin@gmail.com>
 
-[ Upstream commit 3f0dcfbcd2e162fc0a11c1f59b7acd42ee45f126 ]
+[ Upstream commit b344d6a83d01c52fddbefa6b3b4764da5b1022a0 ]
 
-I/O requests may be held in scheduler queue because of resource contention.
-The starvation scenario was handled properly in the regular completion
-path but we failed to account for it during I/O submission. This lead to
-the hang captured below. Make sure we run the queue when resource
-contention is encountered in the submission path.
+The kernel test bot reported[1] that using set_mask_bits on a u8 causes
+the following issue on parisc:
 
-[   39.054963] scsi 13:0:0:0: rejecting I/O to dead device
-[   39.058700] scsi 13:0:0:0: rejecting I/O to dead device
-[   39.087855] sd 13:0:0:1: [sdd] Synchronizing SCSI cache
-[   39.088909] scsi 13:0:0:1: rejecting I/O to dead device
-[   39.095351] scsi 13:0:0:1: rejecting I/O to dead device
-[   39.096962] scsi 13:0:0:1: rejecting I/O to dead device
-[  247.021859] INFO: task scsi-stress-rem:813 blocked for more than 122 seconds.
-[  247.023258]       Not tainted 5.8.0-rc2 #8
-[  247.024069] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  247.025331] scsi-stress-rem D    0   813    802 0x00004000
-[  247.025334] Call Trace:
-[  247.025354]  __schedule+0x504/0x55f
-[  247.027987]  schedule+0x72/0xa8
-[  247.027991]  blk_mq_freeze_queue_wait+0x63/0x8c
-[  247.027994]  ? do_wait_intr_irq+0x7a/0x7a
-[  247.027996]  blk_cleanup_queue+0x4b/0xc9
-[  247.028000]  __scsi_remove_device+0xf6/0x14e
-[  247.028002]  scsi_remove_device+0x21/0x2b
-[  247.029037]  sdev_store_delete+0x58/0x7c
-[  247.029041]  kernfs_fop_write+0x10d/0x14f
-[  247.031281]  vfs_write+0xa2/0xdf
-[  247.032670]  ksys_write+0x6b/0xb3
-[  247.032673]  do_syscall_64+0x56/0x82
-[  247.034053]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  247.034059] RIP: 0033:0x7f69f39e9008
-[  247.036330] Code: Bad RIP value.
-[  247.036331] RSP: 002b:00007ffdd8116498 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[  247.037613] RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f69f39e9008
-[  247.039714] RDX: 0000000000000002 RSI: 000055cde92a0ab0 RDI: 0000000000000001
-[  247.039715] RBP: 000055cde92a0ab0 R08: 000000000000000a R09: 00007f69f3a79e80
-[  247.039716] R10: 000000000000000a R11: 0000000000000246 R12: 00007f69f3abb780
-[  247.039717] R13: 0000000000000002 R14: 00007f69f3ab6740 R15: 0000000000000002
+	hppa-linux-ld: drivers/phy/ti/phy-tusb1210.o: in function `tusb1210_probe':
+	>> (.text+0x2f4): undefined reference to `__cmpxchg_called_with_bad_pointer'
+	>> hppa-linux-ld: (.text+0x324): undefined reference to `__cmpxchg_called_with_bad_pointer'
+	hppa-linux-ld: (.text+0x354): undefined reference to `__cmpxchg_called_with_bad_pointer'
 
-Link: https://lore.kernel.org/r/20200720025435.812030-1-ming.lei@redhat.com
-Cc: linux-block@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Add support for cmpxchg on u8 pointers.
+
+[1] https://lore.kernel.org/patchwork/patch/1272617/#1468946
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Tested-by: Dave Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_lib.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/parisc/include/asm/cmpxchg.h |  2 ++
+ arch/parisc/lib/bitops.c          | 12 ++++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 206c9f53e9e7a..e6944e1cba2ba 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -568,6 +568,15 @@ static void scsi_mq_uninit_cmd(struct scsi_cmnd *cmd)
- 	scsi_del_cmd_from_list(cmd);
- }
+diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
+index ab5c215cf46c3..0689585758717 100644
+--- a/arch/parisc/include/asm/cmpxchg.h
++++ b/arch/parisc/include/asm/cmpxchg.h
+@@ -60,6 +60,7 @@ extern void __cmpxchg_called_with_bad_pointer(void);
+ extern unsigned long __cmpxchg_u32(volatile unsigned int *m, unsigned int old,
+ 				   unsigned int new_);
+ extern u64 __cmpxchg_u64(volatile u64 *ptr, u64 old, u64 new_);
++extern u8 __cmpxchg_u8(volatile u8 *ptr, u8 old, u8 new_);
  
-+static void scsi_run_queue_async(struct scsi_device *sdev)
-+{
-+	if (scsi_target(sdev)->single_lun ||
-+	    !list_empty(&sdev->host->starved_list))
-+		kblockd_schedule_work(&sdev->requeue_work);
-+	else
-+		blk_mq_run_hw_queues(sdev->request_queue, true);
-+}
-+
- /* Returns false when no more bytes to process, true if there are more */
- static bool scsi_end_request(struct request *req, blk_status_t error,
- 		unsigned int bytes)
-@@ -612,11 +621,7 @@ static bool scsi_end_request(struct request *req, blk_status_t error,
- 
- 	__blk_mq_end_request(req, error);
- 
--	if (scsi_target(sdev)->single_lun ||
--	    !list_empty(&sdev->host->starved_list))
--		kblockd_schedule_work(&sdev->requeue_work);
--	else
--		blk_mq_run_hw_queues(q, true);
-+	scsi_run_queue_async(sdev);
- 
- 	percpu_ref_put(&q->q_usage_counter);
- 	return false;
-@@ -1729,6 +1734,7 @@ static blk_status_t scsi_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		 */
- 		if (req->rq_flags & RQF_DONTPREP)
- 			scsi_mq_uninit_cmd(cmd);
-+		scsi_run_queue_async(sdev);
- 		break;
+ /* don't worry...optimizer will get rid of most of this */
+ static inline unsigned long
+@@ -71,6 +72,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new_, int size)
+ #endif
+ 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
+ 				     (unsigned int)old, (unsigned int)new_);
++	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
  	}
- 	return ret;
+ 	__cmpxchg_called_with_bad_pointer();
+ 	return old;
+diff --git a/arch/parisc/lib/bitops.c b/arch/parisc/lib/bitops.c
+index 70ffbcf889b8e..2e4d1f05a9264 100644
+--- a/arch/parisc/lib/bitops.c
++++ b/arch/parisc/lib/bitops.c
+@@ -79,3 +79,15 @@ unsigned long __cmpxchg_u32(volatile unsigned int *ptr, unsigned int old, unsign
+ 	_atomic_spin_unlock_irqrestore(ptr, flags);
+ 	return (unsigned long)prev;
+ }
++
++u8 __cmpxchg_u8(volatile u8 *ptr, u8 old, u8 new)
++{
++	unsigned long flags;
++	u8 prev;
++
++	_atomic_spin_lock_irqsave(ptr, flags);
++	if ((prev = *ptr) == old)
++		*ptr = new;
++	_atomic_spin_unlock_irqrestore(ptr, flags);
++	return prev;
++}
 -- 
 2.25.1
 
