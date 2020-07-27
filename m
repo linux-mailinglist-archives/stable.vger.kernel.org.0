@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC8F22F004
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5F922EE4C
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731678AbgG0OVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
+        id S1728922AbgG0OGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:06:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731638AbgG0OVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:21:10 -0400
+        id S1728731AbgG0OGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:06:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 310492070B;
-        Mon, 27 Jul 2020 14:21:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 466CA2250E;
+        Mon, 27 Jul 2020 14:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859669;
-        bh=TecO03OPduOUqsycocBSfTknmGQEVs9nwM8nTt4HnO0=;
+        s=default; t=1595858798;
+        bh=N9rfu8Rm9dG6SIRtmK83SO4PfCqaxsXzeswlY0y/zTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1Gfzg5YoPpNOoKms/o9WqI6WXSUcLABU96sVFUr0SQOgVdZhHPvkoxFu3s1UPXqM
-         xdOJxD7iY9fr/JG1k7sTh8gTSgbvcfMH5EolNsyfv5TNccdXw8KL4TID9aHnr9ap/y
-         eTluKDLtHnPNwhnN5lImYz0lxHxmMP9awFXP6FA8=
+        b=wMUKSiJlc0XtDSOKo454tU23IvRMAypJh1vpVVzODLms2dIuUKfMQSRZ+Ky1YUJGP
+         DyCFh0prWtFd+Fr7cCZ/XS8TCElcM6qaoobTwnuAnBJHfEJdMKirQMPiexgMM4tnnA
+         vRtX+r8tDMC/q93+SuxGKpdBdB4FHTaAfXz4YwMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Mans Rullgard <mans@mansr.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 060/179] drm: sun4i: hdmi: Fix inverted HPD result
+        stable@vger.kernel.org,
+        syzbot+e42d0746c3c3699b6061@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 16/64] ALSA: info: Drop WARN_ON() from buffer NULL sanity check
 Date:   Mon, 27 Jul 2020 16:03:55 +0200
-Message-Id: <20200727134935.594677480@linuxfoundation.org>
+Message-Id: <20200727134911.833341128@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit baa1841eb797eadce6c907bdaed7cd6f01815404 ]
+commit 60379ba08532eca861e933b389526a4dc89e0c42 upstream.
 
-When the extra HPD polling in sun4i_hdmi was removed, the result of
-HPD was accidentally inverted.
+snd_info_get_line() has a sanity check of NULL buffer -- both buffer
+itself being NULL and buffer->buffer being NULL.  Basically both
+checks are valid and necessary, but the problem is that it's with
+snd_BUG_ON() macro that triggers WARN_ON().  The latter condition
+(NULL buffer->buffer) can be met arbitrarily by user since the buffer
+is allocated at the first write, so it means that user can trigger
+WARN_ON() at will.
 
-Fix this by inverting the check.
+This patch addresses it by simply moving buffer->buffer NULL check out
+of snd_BUG_ON() so that spurious WARNING is no longer triggered.
 
-Fixes: bda8eaa6dee7 ("drm: sun4i: hdmi: Remove extra HPD polling")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Tested-by: Mans Rullgard <mans@mansr.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200711011030.21997-1-wens@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+e42d0746c3c3699b6061@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200717084023.5928-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/info.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-index f07e0c32b93a2..4c5072a578bf2 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-@@ -263,7 +263,7 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 	unsigned long reg;
+--- a/sound/core/info.c
++++ b/sound/core/info.c
+@@ -634,7 +634,9 @@ int snd_info_get_line(struct snd_info_bu
+ {
+ 	int c = -1;
  
- 	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
--	if (reg & SUN4I_HDMI_HPD_HIGH) {
-+	if (!(reg & SUN4I_HDMI_HPD_HIGH)) {
- 		cec_phys_addr_invalidate(hdmi->cec_adap);
- 		return connector_status_disconnected;
- 	}
--- 
-2.25.1
-
+-	if (snd_BUG_ON(!buffer || !buffer->buffer))
++	if (snd_BUG_ON(!buffer))
++		return 1;
++	if (!buffer->buffer)
+ 		return 1;
+ 	if (len <= 0 || buffer->stop || buffer->error)
+ 		return 1;
 
 
