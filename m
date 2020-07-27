@@ -2,378 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C79922E39E
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 03:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6567722E3F5
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 04:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726636AbgG0BXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Jul 2020 21:23:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57794 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726107AbgG0BXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Jul 2020 21:23:35 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A6CC0619D2
-        for <stable@vger.kernel.org>; Sun, 26 Jul 2020 18:23:35 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id t10so1857489plz.10
-        for <stable@vger.kernel.org>; Sun, 26 Jul 2020 18:23:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=axtens.net; s=google;
-        h=from:to:cc:subject:in-reply-to:references:date:message-id
-         :mime-version;
-        bh=x822DSVHChVEDiEoSvgPYXY6VksLzra/KyOxpKv+Pdk=;
-        b=YvOpo08QkmlIDkf+MeBi9QhKBsQ7B+gKyC6uL0Ry4mxkeJMWq4ivaeNxXySI9KNwDV
-         OBu9yK112QEAkRmNZWJGu1ziS5HRGRIVldyX+oVZIezZhRwED5H0VYOh+eW/8hYEEe1U
-         6QCnxwwdGsnm9xE47FpES3l7QFhtnW0D/xn34=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version;
-        bh=x822DSVHChVEDiEoSvgPYXY6VksLzra/KyOxpKv+Pdk=;
-        b=B01+queVK27Jj4ddurTYulDJrL5R3LbkhRZU1ilEcRYMJQ57MRU+AAii4ob6jFzo/K
-         vTnJvWO3IR9UHfOD2ZmjERJfL9USaf6dWSs+u3iJOhvhGoZQYMy44+Z/CVvQ1wppxYS8
-         nntejJ88OJBLnnzYr75OnhG8DXbjkbtMRuxW1jVYWEJk6lFQaiA4+8BZQF9vWq3v4V7S
-         75ttiD0Mk99GABhIUS3dnZjvAWYI373tV1SuyjoKfHEaPVYuXXS4gO7F10LTRrl+2qNM
-         ni+H2THqmQD73WJfFkAOdC9u8MICVOiX6Wq8p0IAhl3hZJGinVXO0c5wUP8dKKeUB/ki
-         5H8w==
-X-Gm-Message-State: AOAM531BgQl8WFvxuGbdiH4W7yz8P+RTOVdlBJEGOctVBDyX+1J8OTi1
-        66a6mZgn+z+zfIz4OYzUkk0YLg==
-X-Google-Smtp-Source: ABdhPJxa+cFORcY8TQVuiyCFcPfLdmUSZxOYmMHAy3LOiAJI4F95XYIJEndHQwmgMu8GuZfrtEpqIA==
-X-Received: by 2002:a17:90b:1b11:: with SMTP id nu17mr15739017pjb.182.1595813015076;
-        Sun, 26 Jul 2020 18:23:35 -0700 (PDT)
-Received: from localhost (2001-44b8-111e-5c00-e189-1479-1117-2b11.static.ipv6.internode.on.net. [2001:44b8:111e:5c00:e189:1479:1117:2b11])
-        by smtp.gmail.com with ESMTPSA id a19sm12698142pfn.136.2020.07.26.18.23.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Jul 2020 18:23:34 -0700 (PDT)
-From:   Daniel Axtens <dja@axtens.net>
-To:     Andrew Donnellan <ajd@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org
-Cc:     leobras.c@gmail.com, nathanl@linux.ibm.com, stable@vger.kernel.org
-Subject: Re: [PATCH] powerpc/rtas: Restrict RTAS requests from userspace
-In-Reply-To: <20200702161932.18176-1-ajd@linux.ibm.com>
-References: <20200702161932.18176-1-ajd@linux.ibm.com>
-Date:   Mon, 27 Jul 2020 11:23:30 +1000
-Message-ID: <87365du4x9.fsf@dja-thinkpad.axtens.net>
+        id S1726800AbgG0CTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Jul 2020 22:19:04 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:34676 "EHLO
+        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726706AbgG0CTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Jul 2020 22:19:04 -0400
+Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20200727021900epoutp01fab7a55c961fed304107a8487965e217~leoG3Ja-F2517325173epoutp01M
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 02:19:00 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20200727021900epoutp01fab7a55c961fed304107a8487965e217~leoG3Ja-F2517325173epoutp01M
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1595816340;
+        bh=7V53jiR43hfWpIhdINTRe9CgtKWNsaYeYzzDH0xnzfk=;
+        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
+        b=Y6LHgZUmA/ywJ50L7sApnmxKwk8OIH4sPOE6+n2gDbdES96zoVTM4bfDYOJRinWwv
+         L4bc5fEFk1EyOGbci+ktgidQAcG/J/HnKzAcXSCn4yEUG8uVuPO6ILHtu9G9hVm7my
+         yHYmbEnCnu9jcBWQh41uH6LUxfmd+QuiIT+BsUtk=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20200727021859epcas1p158344ab0304d521fb6486123834e360b~leoF3fVaj0501105011epcas1p1l;
+        Mon, 27 Jul 2020 02:18:59 +0000 (GMT)
+Received: from epsmges1p3.samsung.com (unknown [182.195.40.153]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4BFNlj0nktzMqYlp; Mon, 27 Jul
+        2020 02:18:57 +0000 (GMT)
+Received: from epcas1p4.samsung.com ( [182.195.41.48]) by
+        epsmges1p3.samsung.com (Symantec Messaging Gateway) with SMTP id
+        BD.EE.29173.0993E1F5; Mon, 27 Jul 2020 11:18:56 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas1p2.samsung.com (KnoxPortal) with ESMTPA id
+        20200727021855epcas1p228cc1cd17deca91c98b98c2ffef6b509~leoB7PaAO1164811648epcas1p23;
+        Mon, 27 Jul 2020 02:18:55 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20200727021855epsmtrp2f792b19cde9b5d40da49933b102a6822~leoB6f-P42362523625epsmtrp2S;
+        Mon, 27 Jul 2020 02:18:55 +0000 (GMT)
+X-AuditID: b6c32a37-9cdff700000071f5-d6-5f1e39907ed0
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        12.B9.08303.E893E1F5; Mon, 27 Jul 2020 11:18:55 +0900 (KST)
+Received: from [10.113.221.102] (unknown [10.113.221.102]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20200727021854epsmtip1a941e554ce7469aaeced0da7d6ac2dcf~leoBpzmrm1960419604epsmtip1B;
+        Mon, 27 Jul 2020 02:18:54 +0000 (GMT)
+Subject: Re: [PATCH] PM / devfrq: Fix indentaion of devfreq_summary debugfs
+ node
+To:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     chanwoo@kernel.org, myungjoo.ham@samsung.com,
+        kyungmin.park@samsung.com, stable@vger.kernel.org
+From:   Chanwoo Choi <cw00.choi@samsung.com>
+Organization: Samsung Electronics
+Message-ID: <f36a3413-74b7-74f6-e87d-b19d000cb3e0@samsung.com>
+Date:   Mon, 27 Jul 2020 11:30:39 +0900
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:59.0) Gecko/20100101
+        Thunderbird/59.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20200713073112.6297-1-cw00.choi@samsung.com>
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpjk+LIzCtJLcpLzFFi42LZdljTQHeCpVy8wZKLQhYTb1xhsTjb9Ibd
+        4vKuOWwWn3uPMFrcblzBZrFg4yNGBzaPTas62Tz6tqxi9Pi8SS6AOSrbJiM1MSW1SCE1Lzk/
+        JTMv3VbJOzjeOd7UzMBQ19DSwlxJIS8xN9VWycUnQNctMwdor5JCWWJOKVAoILG4WEnfzqYo
+        v7QkVSEjv7jEVim1ICWnwLJArzgxt7g0L10vOT/XytDAwMgUqDAhO+PJy7iC26oVG3ofsTQw
+        /hXvYuTkkBAwkdi24TxbFyMXh5DADkaJ7Yc72UESQgKfGCW6VwRAJD4zSnw8soodpmPhzDao
+        ol2MEocOsUMUvWeUuDnxJRNIQlggSGLX6wVgRSICVhKn/3cwg9jMAqkSX28sBYuzCWhJ7H9x
+        gw3E5hdQlLj64zEjiM0rYCcxYeZysDksAqoSE259BbNFBcIkTm5rgaoRlDg58wkLiM0JNH/d
+        umUsEPPFJW49mc8EYctLbH87hxnkOAmBRg6J7/uOAS3mAHJcJK6tU4Z4Rlji1fEtUI9JSXx+
+        t5cNwq6WWHnyCBtEbwejxJb9F1ghEsYS+5dOZgKZwyygKbF+lz5EWFFi5++5jBB7+STefe1h
+        hVjFK9HRJgRRoixx+cFdJghbUmJxeyfbBEalWUi+mYXkg1lIPpiFsGwBI8sqRrHUguLc9NRi
+        wwJj5KjexAhOkFrmOxinvf2gd4iRiYPxEKMEB7OSCC+3qEy8EG9KYmVValF+fFFpTmrxIUZT
+        YPhOZJYSTc4Hpui8knhDUyNjY2MLE0MzU0NDJXHef2fZ44UE0hNLUrNTUwtSi2D6mDg4pRqY
+        wmrDNRRudB8PXVSRrZ9p9kN4a+Zc5axgj7s/V93VWFUh+CUpbqb6bhtnyzt77fu635333ipz
+        oN3Q9nlVk3eZteShwootWfldS9PyghYlS7Kkc+jsbn1uLbs6S08movTl6rbEfd72TLNi3Dao
+        9rw+xvhh0xf7bZ9vfj0yWeyT8XsuzkOeqm+YzKKSLz7cltEh9lOyrWvJ5+qfZ3Zv1+C317wX
+        e67OWMW+Utp8bvq+GU9TZ6raneDRtODettWuXWrOqdiNHh2u7UttOpPeawfk7vn/Mu74zdpq
+        7xkWbbOEV5ttqxdLzvUxS9Vq/vs3OlPmgsQlvgzRu+VZG39dFfrp3fWW28om5lhsUKzXbyWW
+        4oxEQy3mouJEAJmdyBIZBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrELMWRmVeSWpSXmKPExsWy7bCSnG6/pVy8waXLzBYTb1xhsTjb9Ibd
+        4vKuOWwWn3uPMFrcblzBZrFg4yNGBzaPTas62Tz6tqxi9Pi8SS6AOYrLJiU1J7MstUjfLoEr
+        48nLuILbqhUbeh+xNDD+Fe9i5OSQEDCRWDizjR3EFhLYwSix8hYvRFxSYtrFo8xdjBxAtrDE
+        4cPFXYxcQCVvGSWebd7ABFIjLBAksev1ArBeEQEridP/O5hBbGaBVIk5q+axQjT0Mkpc37IM
+        rIhNQEti/4sbbCA2v4CixNUfjxlBbF4BO4kJM5eDDWURUJWYcOsrmC0qECaxc8ljJogaQYmT
+        M5+wgNicQMvWrVvGArFMXeLPvEtQi8Ulbj2ZzwRhy0tsfzuHeQKj8Cwk7bOQtMxC0jILScsC
+        RpZVjJKpBcW56bnFhgVGeanlesWJucWleel6yfm5mxjB0aKltYNxz6oPeocYmTgYDzFKcDAr
+        ifByi8rEC/GmJFZWpRblxxeV5qQWH2KU5mBREuf9OmthnJBAemJJanZqakFqEUyWiYNTqoFp
+        w7l4lZe3Xy/5Ei4XbFCv8fe5y80Q1s/T1h9yuXGkiK06csVX/emzfLtC6z0yvcuWMNR8K7zz
+        YT7bkrblrYrpdyZWPmY8FbbFhlNoi9yjswf+PguKVfj1k71LLfAg0woBJ4Gta28E1n+KFV3V
+        +dX2r/zppo3aJxjFefdoRxb/bHDhUby4SbPyqP+z6FShWcEZuTGfdvrvtd29TdfE5/6mrTfK
+        d57cc/Oe3amS0r2pv7snnH2a9KZgtlRIpIjuxI6jplaM/7R2iZQ71u+KO+vvP+NmyKHnV1cF
+        vrzebRR65bzhm0Ph2Qf/TpJ1OCRaVZiVLnmzfFr9hbI1Rxe0X0+c3X3p5is27jn9fXe2e7q6
+        K7EUZyQaajEXFScCAB4VPbAFAwAA
+X-CMS-MailID: 20200727021855epcas1p228cc1cd17deca91c98b98c2ffef6b509
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82
+References: <CGME20200713071942epcas1p14a9a1d2017e2e5005f7146f5bed09c82@epcas1p1.samsung.com>
+        <20200713073112.6297-1-cw00.choi@samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Andrew Donnellan <ajd@linux.ibm.com> writes:
-
-> A number of userspace utilities depend on making calls to RTAS to retrieve
-> information and update various things.
->
-> The existing API through which we expose RTAS to userspace exposes more
-> RTAS functionality than we actually need, through the sys_rtas syscall,
-> which allows root (or anyone with CAP_SYS_ADMIN) to make any RTAS call they
-> want with arbitrary arguments.
->
-> Many RTAS calls take the address of a buffer as an argument, and it's up to
-> the caller to specify the physical address of the buffer as an argument. We
-> allocate a buffer (the "RMO buffer") in the Real Memory Area that RTAS can
-> access, and then expose the physical address and size of this buffer in
-> /proc/powerpc/rtas/rmo_buffer. Userspace is expected to read this address,
-> poke at the buffer using /dev/mem, and pass an address in the RMO buffer to
-> the RTAS call.
->
-> However, there's nothing stopping the caller from specifying whatever
-> address they want in the RTAS call, and it's easy to construct a series of
-> RTAS calls that can overwrite arbitrary bytes (even without /dev/mem
-> access).
->
-> Additionally, there are some RTAS calls that do potentially dangerous
-> things and for which there are no legitimate userspace use cases.
->
-> In the past, this would not have been a particularly big deal as it was
-> assumed that root could modify all system state freely, but with Secure
-> Boot and lockdown we need to care about this.
->
-> We can't fundamentally change the ABI at this point, however we can address
-> this by implementing a filter that checks RTAS calls against a list
-> of permitted calls and forces the caller to use addresses within the RMO
-> buffer.
->
-> The list is based off the list of calls that are used by the librtas
-> userspace library, and has been tested with a number of existing userspace
-> RTAS utilities. For compatibility with any applications we are not aware of
-> that require other calls, the filter can be turned off at build time.
->
-> Reported-by: Daniel Axtens <dja@axtens.net>
+On 7/13/20 4:31 PM, Chanwoo Choi wrote:
+> The commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name
+> as devfreq(X) for sysfs"") roll back the device name from 'devfreqX'
+> to device name explained in DT. After applied commit 66d0e797bf09,
+> the indentation of devfreq_summary debugfs node was broken.
+> 
+> So, fix indentaion of devfreq_summary debugfs node as following:
+> 
+> For example on Exynos5422-based Odroid-XU3 board,
+> $ cat /sys/kernel/debug/devfreq/devfreq_summary
+> dev                            parent_dev                     governor        polling_ms  cur_freq_Hz  min_freq_Hz  max_freq_Hz
+> ------------------------------ ------------------------------ --------------- ---------- ------------ ------------ ------------
+> 10c20000.memory-controller     null                           simple_ondemand          0    413000000    165000000    825000000
+> soc:bus_wcore                  null                           simple_ondemand         50     88700000     88700000    532000000
+> soc:bus_noc                    soc:bus_wcore                  passive                  0     66600000     66600000    111000000
+> soc:bus_fsys_apb               soc:bus_wcore                  passive                  0    111000000    111000000    222000000
+> soc:bus_fsys                   soc:bus_wcore                  passive                  0     75000000     75000000    200000000
+> soc:bus_fsys2                  soc:bus_wcore                  passive                  0     75000000     75000000    200000000
+> soc:bus_mfc                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
+> soc:bus_gen                    soc:bus_wcore                  passive                  0     88700000     88700000    266000000
+> soc:bus_peri                   soc:bus_wcore                  passive                  0     66600000     66600000     66600000
+> soc:bus_g2d                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
+> soc:bus_g2d_acp                soc:bus_wcore                  passive                  0            0     66500000    266000000
+> soc:bus_jpeg                   soc:bus_wcore                  passive                  0            0     75000000    300000000
+> soc:bus_jpeg_apb               soc:bus_wcore                  passive                  0            0     83250000    166500000
+> soc:bus_disp1_fimd             soc:bus_wcore                  passive                  0            0    120000000    200000000
+> soc:bus_disp1                  soc:bus_wcore                  passive                  0            0    120000000    300000000
+> soc:bus_gscl_scaler            soc:bus_wcore                  passive                  0            0    150000000    300000000
+> soc:bus_mscl                   soc:bus_wcore                  passive                  0            0     84000000    666000000
+> 
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+> Fixes: commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"")
+> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 > ---
->  arch/powerpc/Kconfig       |  13 +++
->  arch/powerpc/kernel/rtas.c | 198 +++++++++++++++++++++++++++++++++++++
->  2 files changed, 211 insertions(+)
->
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index 9fa23eb320ff..0e2dfe497357 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -973,6 +973,19 @@ config PPC_SECVAR_SYSFS
->  	  read/write operations on these variables. Say Y if you have
->  	  secure boot enabled and want to expose variables to userspace.
+>  drivers/devfreq/devfreq.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+> index ce82bdb5fa5c..2ff35ec1b53b 100644
+> --- a/drivers/devfreq/devfreq.c
+> +++ b/drivers/devfreq/devfreq.c
+> @@ -1839,8 +1839,7 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+>  	unsigned long cur_freq, min_freq, max_freq;
+>  	unsigned int polling_ms;
 >  
-> +config PPC_RTAS_FILTER
-> +	bool "Enable filtering of RTAS syscalls"
-> +	default y
-> +	depends on PPC_RTAS
-> +	help
-> +	  The RTAS syscall API has security issues that could be used to
-> +	  compromise system integrity. This option enforces restrictions on the
-> +	  RTAS calls and arguments passed by userspace programs to mitigate
-> +	  these issues.
-> +
-> +	  Say Y unless you know what you are doing and the filter is causing
-> +	  problems for you.
-> +
->  endmenu
+> -	seq_printf(s, "%-30s %-10s %-10s %-15s %10s %12s %12s %12s\n",
+> -			"dev_name",
+> +	seq_printf(s, "%-30s %-30s %-15s %10s %12s %12s %12s\n",
+>  			"dev",
+>  			"parent_dev",
+>  			"governor",
+> @@ -1848,10 +1847,9 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+>  			"cur_freq_Hz",
+>  			"min_freq_Hz",
+>  			"max_freq_Hz");
+> -	seq_printf(s, "%30s %10s %10s %15s %10s %12s %12s %12s\n",
+> +	seq_printf(s, "%30s %30s %15s %10s %12s %12s %12s\n",
+> +			"------------------------------",
+>  			"------------------------------",
+> -			"----------",
+> -			"----------",
+>  			"---------------",
+>  			"----------",
+>  			"------------",
+> @@ -1880,8 +1878,7 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+>  		mutex_unlock(&devfreq->lock);
 >  
->  config ISA_DMA_API
-> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-> index a09eba03f180..ec1cae52d8bd 100644
-> --- a/arch/powerpc/kernel/rtas.c
-> +++ b/arch/powerpc/kernel/rtas.c
-> @@ -324,6 +324,23 @@ int rtas_token(const char *service)
->  }
->  EXPORT_SYMBOL(rtas_token);
->  
-> +#ifdef CONFIG_PPC_RTAS_FILTER
-> +
-> +static char *rtas_token_name(int token)
-> +{
-> +	struct property *prop;
-> +
-> +	for_each_property_of_node(rtas.dev, prop) {
-> +		const __be32 *tokp = prop->value;
-> +
-> +		if (tokp && be32_to_cpu(*tokp) == token)
-> +			return prop->name;
-> +	}
-> +	return NULL;
-> +}
-> +
-> +#endif /* CONFIG_PPC_RTAS_FILTER */
-> +
->  int rtas_service_present(const char *service)
->  {
->  	return rtas_token(service) != RTAS_UNKNOWN_SERVICE;
-> @@ -1110,6 +1127,184 @@ struct pseries_errorlog *get_pseries_errorlog(struct rtas_error_log *log,
->  	return NULL;
->  }
->  
-> +#ifdef CONFIG_PPC_RTAS_FILTER
-> +
-> +/*
-> + * The sys_rtas syscall, as originally designed, allows root to pass
-> + * arbitrary physical addresses to RTAS calls. A number of RTAS calls
-> + * can be abused to write to arbitrary memory and do other things that
-> + * are potentially harmful to system integrity, and thus should only
-> + * be used inside the kernel and not exposed to userspace.
-> + *
-> + * All known legitimate users of the sys_rtas syscall will only ever
-> + * pass addresses that fall within the RMO buffer, and use a known
-> + * subset of RTAS calls.
-> + *
-> + * Accordingly, we filter RTAS requests to check that the call is
-> + * permitted, and that provided pointers fall within the RMO buffer.
-> + * The rtas_filters list contains an entry for each permitted call,
-> + * with the indexes of the parameters which are expected to contain
-> + * addresses and sizes of buffers allocated inside the RMO buffer.
-> + */
-> +struct rtas_filter {
-> +	const char name[32];
-> +
-> +	/* Indexes into the args buffer, -1 if not used */
-> +	int rmo_buf_idx1;
-> +	int rmo_size_idx1;
-> +	int rmo_buf_idx2;
-> +	int rmo_size_idx2;
-> +};
-> +
-> +struct rtas_filter rtas_filters[] = {
-> +	{ "ibm,activate-firmware", -1, -1, -1, -1 },
-> +	{ "ibm,configure-connector", 0, -1, 1, -1 },	/* Special cased, size 4096 */
-> +	{ "display-character", -1, -1, -1, -1 },
-> +	{ "ibm,display-message", 0, -1, -1, -1 },
-> +	{ "ibm,errinjct", 2, -1, -1, -1 },		/* Fixed size of 1024 */
-> +	{ "ibm,close-errinjct", -1, -1, -1, -1 },
-> +	{ "ibm,open-errinct", -1, -1, -1, -1 },
-> +	{ "ibm,get-config-addr-info2", -1, -1, -1, -1 },
-> +	{ "ibm,get-dynamic-sensor-state", 1, -1, -1, -1 },
-> +	{ "ibm,get-indices", 2, 3, -1, -1 },
-> +	{ "get-power-level", -1, -1, -1, -1 },
-> +	{ "get-sensor-state", -1, -1, -1, -1 },
-> +	{ "ibm,get-system-parameter", 1, 2, -1, -1 },
-> +	{ "get-time-of-day", -1, -1, -1, -1 },
-> +	{ "ibm,get-vpd", 0, -1, 1, 2 },
-> +	{ "ibm,lpar-perftools", 2, 3, -1, -1 },
-> +	{ "ibm,platform-dump", 4, 5, -1, -1 },
-> +	{ "ibm,read-slot-reset-state", -1, -1, -1, -1 },
-> +	{ "ibm,scan-log-dump", 0, 1, -1, -1 },
-> +	{ "ibm,set-dynamic-indicator", 2, -1, -1, -1 },
-> +	{ "ibm,set-eeh-option", -1, -1, -1, -1 },
-> +	{ "set-indicator", -1, -1, -1, -1 },
-> +	{ "set-power-level", -1, -1, -1, -1 },
-> +	{ "set-time-for-power-on", -1, -1, -1, -1 },
-> +	{ "ibm,set-system-parameter", 1, -1, -1, -1 },
-> +	{ "set-time-of-day", -1, -1, -1, -1 },
-> +	{ "ibm,suspend-me", -1, -1, -1, -1 },
-> +	{ "ibm,update-nodes", 0, -1, -1, -1 },		/* Fixed size of 4096 */
-> +	{ "ibm,update-properties", 0, -1, -1, -1 },	/* Fixed size of 4096 */
-> +	{ "ibm,physical-attestation", 0, 1, -1, -1 },
-> +};
-> +
-> +static void dump_rtas_params(int token, int nargs, int nret,
-> +			     struct rtas_args *args)
-> +{
-> +	int i;
-> +	char *token_name = rtas_token_name(token);
-> +
-> +	pr_err_ratelimited("sys_rtas: token=0x%x (%s), nargs=%d, nret=%d (called by %s)\n",
-> +			   token, token_name ? token_name : "unknown", nargs,
-> +			   nret, current->comm);
-> +	pr_err_ratelimited("sys_rtas: args: ");
-> +
-> +	for (i = 0; i < nargs; i++) {
+>  		seq_printf(s,
+> -			"%-30s %-10s %-10s %-15s %10d %12ld %12ld %12ld\n",
+> -			dev_name(devfreq->dev.parent),
+> +			"%-30s %-30s %-15s %10d %12ld %12ld %12ld\n",
+>  			dev_name(&devfreq->dev),
+>  			p_devfreq ? dev_name(&p_devfreq->dev) : "null",
+>  			devfreq->governor_name,
+> 
 
-I wondered if it was possible for me to specify nargs == 0x7fffffff, but
-the syscall definition in rtas.c limits nargs to 16.
+Applied it. Thanks.
 
-Other than that, I checked:
- - NULL return values from rtas_token_name were properly handled. 
-
- - the math around in_rmo_buf. It might be simpler to pass (addr, size)
-   rather than (start, end), but I think it's called correctly atm.
-
- - I did a brief read-over of the basic logic, which makes sense to me.
-
-I did not go through and compare the RTAS paramemter numbering with the
-PAPR.
-
-On that basis,
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-
-Kind regards,
-Daniel
-
-> +		u32 arg = be32_to_cpu(args->args[i]);
-> +
-> +		pr_cont("%08x ", arg);
-> +		if (arg >= rtas_rmo_buf &&
-> +		    arg < (rtas_rmo_buf + RTAS_RMOBUF_MAX))
-> +			pr_cont("(buf+0x%lx) ", arg - rtas_rmo_buf);
-> +	}
-> +
-> +	pr_cont("\n");
-> +}
-> +
-> +static bool in_rmo_buf(u32 base, u32 end)
-> +{
-> +	return base >= rtas_rmo_buf &&
-> +		base < (rtas_rmo_buf + RTAS_RMOBUF_MAX) &&
-> +		base <= end &&
-> +		end >= rtas_rmo_buf &&
-> +		end < (rtas_rmo_buf + RTAS_RMOBUF_MAX);
-> +}
-> +
-> +static bool block_rtas_call(int token, int nargs,
-> +			    struct rtas_args *args)
-> +{
-> +	int i;
-> +	const char *reason;
-> +	char *token_name = rtas_token_name(token);
-> +
-> +	if (!token_name)
-> +		goto err_notpermitted;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++) {
-> +		struct rtas_filter *f = &rtas_filters[i];
-> +		u32 base, size, end;
-> +
-> +		if (strcmp(token_name, f->name))
-> +			continue;
-> +
-> +		if (f->rmo_buf_idx1 != -1) {
-> +			base = be32_to_cpu(args->args[f->rmo_buf_idx1]);
-> +			if (f->rmo_size_idx1 != -1)
-> +				size = be32_to_cpu(args->args[f->rmo_size_idx1]);
-> +			else if (!strcmp(token_name, "ibm,errinjct"))
-> +				size = 1024;
-> +			else if (!strcmp(token_name, "ibm,update-nodes") ||
-> +				 !strcmp(token_name, "ibm,update-properties") ||
-> +				 !strcmp(token_name, "ibm,configure-connector"))
-> +				size = 4096;
-> +			else
-> +				size = 1;
-> +
-> +			end = base + size - 1;
-> +			if (!in_rmo_buf(base, end)) {
-> +				reason = "address pair 1 out of range";
-> +				goto err;
-> +			}
-> +		}
-> +
-> +		if (f->rmo_buf_idx2 != -1) {
-> +			base = be32_to_cpu(args->args[f->rmo_buf_idx2]);
-> +			if (f->rmo_size_idx2 != -1)
-> +				size = be32_to_cpu(args->args[f->rmo_size_idx2]);
-> +			else if (!strcmp(token_name, "ibm,configure-connector"))
-> +				size = 4096;
-> +			else
-> +				size = 1;
-> +			end = base + size - 1;
-> +
-> +			/*
-> +			 * Special case for ibm,configure-connector where the
-> +			 * address can be 0
-> +			 */
-> +			if (!strcmp(token_name, "ibm,configure-connector") &&
-> +			    base == 0)
-> +				return false;
-> +
-> +			if (!in_rmo_buf(base, end)) {
-> +				reason = "address pair 2 out of range";
-> +				goto err;
-> +			}
-> +		}
-> +
-> +		return false;
-> +	}
-> +
-> +err_notpermitted:
-> +	reason = "call not permitted";
-> +
-> +err:
-> +	pr_err_ratelimited("sys_rtas: RTAS call blocked - exploit attempt? (%s)\n",
-> +			   reason);
-> +	dump_rtas_params(token, nargs, 0, args);
-> +	return true;
-> +}
-> +
-> +#else
-> +
-> +static bool block_rtas_call(int token, int nargs,
-> +			    struct rtas_args *args)
-> +{
-> +	return false;
-> +}
-> +
-> +#endif /* CONFIG_PPC_RTAS_FILTER */
-> +
->  /* We assume to be passed big endian arguments */
->  SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
->  {
-> @@ -1147,6 +1342,9 @@ SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
->  	args.rets = &args.args[nargs];
->  	memset(args.rets, 0, nret * sizeof(rtas_arg_t));
->  
-> +	if (block_rtas_call(token, nargs, &args))
-> +		return -EINVAL;
-> +
->  	/* Need to handle ibm,suspend_me call specially */
->  	if (token == ibm_suspend_me_token) {
->  
-> -- 
-> 2.20.1
+-- 
+Best Regards,
+Chanwoo Choi
+Samsung Electronics
