@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C35B22F03E
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F7F22EF0B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731977AbgG0OW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51976 "EHLO mail.kernel.org"
+        id S1730274AbgG0OMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731961AbgG0OWz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:55 -0400
+        id S1730262AbgG0OMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D19472070A;
-        Mon, 27 Jul 2020 14:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 531962078E;
+        Mon, 27 Jul 2020 14:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859775;
-        bh=K/QnzBnxSz8nRtmvwhBj2GIp+N4PtdWh0qolEym6wG4=;
+        s=default; t=1595859167;
+        bh=a6m3CaFs3ZpZE6yhHIWFLQwpvXISeqScorYP/Ei9aqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efL7B7GKO/trxLOncScPXlQOK0OfB1/7c/HQfVoxVM3NgNs9elqWPo7HyRwsyN9V3
-         9ABu8O2SO3ivu+HbGHJffE8w3zX/cju3SYhUFPky4euxf17d8y4n6IZCKUtsIJqUBs
-         XxIRwuE8R6MU0HixYzFRhVZ41+Pn/p43T8dDK8yo=
+        b=18d3VvfFDRBqaNjFSQ6BOGGjvFsfs0eO+ebLgfy94e5vnzqZ3W2TtXupTdklJsJOx
+         O+ccyB2Rv0QCQBkybLag0vqgHfD6WVZ34xgF15MQVMZStK2rXLNw79b+cIsilPz/jR
+         e3gZN0OItV5Zc+znw8FwwgbH1X+laZY2LZr3t7Jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Caiyuan Xie <caiyuan.xie@cn.alps.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 101/179] HID: alps: support devices with report id 2
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 4.19 62/86] usb: xhci-mtk: fix the failure of bandwidth allocation
 Date:   Mon, 27 Jul 2020 16:04:36 +0200
-Message-Id: <20200727134937.573191176@linuxfoundation.org>
+Message-Id: <20200727134917.538468116@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caiyuan Xie <caiyuan.xie@cn.alps.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit aa3c439c144f0a465ed1f28f11c772886fb02b35 ]
+commit 5ce1a24dd98c00a57a8fa13660648abf7e08e3ef upstream.
 
-Add support for devices which that have reports with id == 2
+The wMaxPacketSize field of endpoint descriptor may be zero
+as default value in alternate interface, and they are not
+actually selected when start stream, so skip them when try to
+allocate bandwidth.
 
-Signed-off-by: Caiyuan Xie <caiyuan.xie@cn.alps.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 0cbd4b34cda9 ("xhci: mediatek: support MTK xHCI host controller")
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1594360672-2076-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hid-alps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-mtk-sch.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index b2ad319a74b9a..d33f5abc8f64d 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -25,6 +25,7 @@
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -275,6 +275,10 @@ static bool need_bw_sch(struct usb_host_
+ 	if (is_fs_or_ls(speed) && !has_tt)
+ 		return false;
  
- #define U1_MOUSE_REPORT_ID			0x01 /* Mouse data ReportID */
- #define U1_ABSOLUTE_REPORT_ID		0x03 /* Absolute data ReportID */
-+#define U1_ABSOLUTE_REPORT_ID_SECD  0x02 /* FW-PTP Absolute data ReportID */
- #define U1_FEATURE_REPORT_ID		0x05 /* Feature ReportID */
- #define U1_SP_ABSOLUTE_REPORT_ID	0x06 /* Feature ReportID */
++	/* skip endpoint with zero maxpkt */
++	if (usb_endpoint_maxp(&ep->desc) == 0)
++		return false;
++
+ 	return true;
+ }
  
-@@ -368,6 +369,7 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 	case U1_FEATURE_REPORT_ID:
- 		break;
- 	case U1_ABSOLUTE_REPORT_ID:
-+	case U1_ABSOLUTE_REPORT_ID_SECD:
- 		for (i = 0; i < hdata->max_fingers; i++) {
- 			u8 *contact = &data[i * 5];
- 
--- 
-2.25.1
-
 
 
