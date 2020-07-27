@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D0522F245
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3279122F1F7
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729790AbgG0OKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33050 "EHLO mail.kernel.org"
+        id S1729874AbgG0ONz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:13:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729825AbgG0OKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:10:20 -0400
+        id S1730434AbgG0ONw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:13:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 641112083E;
-        Mon, 27 Jul 2020 14:10:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B9F320838;
+        Mon, 27 Jul 2020 14:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859019;
-        bh=qCrRnVRA5KhdFuJB9e1HF7uBLgDqdl/68XqOah8yMvo=;
+        s=default; t=1595859232;
+        bh=l9AV1UkaxXE9CswV9nnkL1KikVVLloY1b0TxvV7pcGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tks4YwskOhFeyBpYcLFYw1L4KQmmAdxneSOwhwwNzKwlGPbjeqWI4NE6tbqLDFzKv
-         JdGaR+VVe7Go/H1/P40ANz2kJ3JC8Vgmit5xdpeI5pTGXQHLqEnKblf6VjXSa57xUA
-         NsH/qnJMLHhZx86nkr92vB8Ty7VxXrpcDl0qsKXE=
+        b=xgSOTisPPH/rY58Iisk/85oULev1+/bLiS0OwCtlB8uXwF/Wuhf92yAZv1Mqu8v0S
+         W7QJ5kx0ef223Gz2/pK/VTTuU0ALsWM9w6Xloy3jLI/DnsvW9aOOUkeAG4KaJPhlI1
+         cUUyiBFqrSHs3S9Ul2C4+dLTmA35h2ojaEwmC3Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/86] drivers/net/wan/lapbether: Fixed the value of hard_header_len
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 028/138] btrfs: reloc: clear DEAD_RELOC_TREE bit for orphan roots to prevent runaway balance
 Date:   Mon, 27 Jul 2020 16:03:43 +0200
-Message-Id: <20200727134914.807480516@linuxfoundation.org>
+Message-Id: <20200727134926.778733876@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 9dc829a135fb5927f1519de11286e2bbb79f5b66 ]
+commit 1dae7e0e58b484eaa43d530f211098fdeeb0f404 upstream.
 
-When this driver transmits data,
-  first this driver will remove a pseudo header of 1 byte,
-  then the lapb module will prepend the LAPB header of 2 or 3 bytes,
-  then this driver will prepend a length field of 2 bytes,
-  then the underlying Ethernet device will prepend its own header.
+[BUG]
+There are several reported runaway balance, that balance is flooding the
+log with "found X extents" where the X never changes.
 
-So, the header length required should be:
-  -1 + 3 + 2 + "the header length needed by the underlying device".
+[CAUSE]
+Commit d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after
+merge_reloc_roots") introduced BTRFS_ROOT_DEAD_RELOC_TREE bit to
+indicate that one subvolume has finished its tree blocks swap with its
+reloc tree.
 
-This patch fixes kernel panic when this driver is used with AF_PACKET
-SOCK_DGRAM sockets.
+However if balance is canceled or hits ENOSPC halfway, we didn't clear
+the BTRFS_ROOT_DEAD_RELOC_TREE bit, leaving that bit hanging forever
+until unmount.
 
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Any subvolume root with that bit, would cause backref cache to skip this
+tree block, as it has finished its tree block swap.  This would cause
+all tree blocks of that root be ignored by balance, leading to runaway
+balance.
+
+[FIX]
+Fix the problem by also clearing the BTRFS_ROOT_DEAD_RELOC_TREE bit for
+the original subvolume of orphan reloc root.
+
+Add an umount check for the stale bit still set.
+
+Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[Manually solve the conflicts due to no btrfs root refs rework]
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wan/lapbether.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/btrfs/relocation.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 0e3f8ed84660e..ac34257e9f203 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -308,7 +308,6 @@ static void lapbeth_setup(struct net_device *dev)
- 	dev->netdev_ops	     = &lapbeth_netdev_ops;
- 	dev->needs_free_netdev = true;
- 	dev->type            = ARPHRD_X25;
--	dev->hard_header_len = 3;
- 	dev->mtu             = 1000;
- 	dev->addr_len        = 0;
- }
-@@ -329,6 +328,14 @@ static int lapbeth_new_device(struct net_device *dev)
- 	if (!ndev)
- 		goto out;
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -2540,6 +2540,8 @@ again:
+ 			if (!IS_ERR(root)) {
+ 				if (root->reloc_root == reloc_root)
+ 					root->reloc_root = NULL;
++				clear_bit(BTRFS_ROOT_DEAD_RELOC_TREE,
++					  &root->state);
+ 			}
  
-+	/* When transmitting data:
-+	 * first this driver removes a pseudo header of 1 byte,
-+	 * then the lapb module prepends an LAPB header of at most 3 bytes,
-+	 * then this driver prepends a length field of 2 bytes,
-+	 * then the underlying Ethernet device prepends its own header.
-+	 */
-+	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
-+
- 	lapbeth = netdev_priv(ndev);
- 	lapbeth->axdev = ndev;
- 
--- 
-2.25.1
-
+ 			list_del_init(&reloc_root->root_list);
 
 
