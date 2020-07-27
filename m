@@ -2,70 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DD722EB1F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 13:23:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD95E22EB26
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 13:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726916AbgG0LXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 07:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37208 "EHLO
+        id S1728141AbgG0LYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 07:24:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbgG0LXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 07:23:13 -0400
-Received: from mout1.freenet.de (mout1.freenet.de [IPv6:2001:748:100:40::2:3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A449CC061794;
-        Mon, 27 Jul 2020 04:23:13 -0700 (PDT)
-Received: from [195.4.92.163] (helo=mjail0.freenet.de)
-        by mout1.freenet.de with esmtpa (ID viktor.jaegerskuepper@freenet.de) (port 25) (Exim 4.92 #3)
-        id 1k01Dm-0005jy-Pt; Mon, 27 Jul 2020 13:23:06 +0200
-Received: from localhost ([::1]:46310 helo=mjail0.freenet.de)
-        by mjail0.freenet.de with esmtpa (ID viktor.jaegerskuepper@freenet.de) (Exim 4.92 #3)
-        id 1k01Dm-0004lS-ND; Mon, 27 Jul 2020 13:23:06 +0200
-Received: from sub4.freenet.de ([195.4.92.123]:57894)
-        by mjail0.freenet.de with esmtpa (ID viktor.jaegerskuepper@freenet.de) (Exim 4.92 #3)
-        id 1k01B3-0002eG-2V; Mon, 27 Jul 2020 13:20:17 +0200
-Received: from p200300e707499d00609b6223302c0355.dip0.t-ipconnect.de ([2003:e7:749:9d00:609b:6223:302c:355]:53622 helo=[127.0.0.1])
-        by sub4.freenet.de with esmtpsa (ID viktor.jaegerskuepper@freenet.de) (TLSv1.2:ECDHE-RSA-CHACHA20-POLY1305:256) (port 465) (Exim 4.92 #3)
-        id 1k01B2-0000V7-Vs; Mon, 27 Jul 2020 13:20:17 +0200
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
-        ath9k-devel@qca.qualcomm.com, linux-wireless@vger.kernel.org,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Mark O'Donovan <shiftee@posteo.net>,
-        Roman Mamedov <rm@romanrm.net>
-From:   =?UTF-8?B?VmlrdG9yIErDpGdlcnNrw7xwcGVy?= 
-        <viktor_jaegerskuepper@freenet.de>
-Subject: Please apply "ath9k: Fix general protection fault in
- ath9k_hif_usb_rx_cb" and the corresponding fix to all stable kernels
-Message-ID: <81f07366-59e4-bfc9-c7a6-95c8e686c5e1@freenet.de>
-Date:   Mon, 27 Jul 2020 13:20:11 +0200
+        with ESMTP id S1726269AbgG0LYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 07:24:11 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20276C0619D2
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 04:24:11 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id q4so8618425edv.13
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 04:24:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=8WExgmjzhkJIIdgRhNcx1DWzg/HnrNSynjBxi/uh2bI=;
+        b=PDt2zaNgpsoJOPHz6lDUOcyEJ3ubM9QOXJ795vKIcgnRxiLhBkaoXQWMwouzkcneWy
+         g7hx0bAik6R1rl9gm0pMgb54kGpA/wCmxAlU+LcUrZ67xGIe5eptlmCJ9AaKcwSr6UB/
+         OzwiwqvNXD/I7LIRk4+DdKdXXgvwUrq6v6bN4ch3tPFN5mN5yPHjG497hosZf34ZsZJ8
+         Isl8JvV1413hKAPlh5zoynb65YRtDNUf7fQLR7DJ7cIESTAQiyI9spNhMXdGmY12sZgt
+         zBAXMYSTYWW61apTLwBZA49xQMgMFIPUorILsKbnuc5H1PR3kZUrYfoE278j5YzFblo4
+         KMHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=8WExgmjzhkJIIdgRhNcx1DWzg/HnrNSynjBxi/uh2bI=;
+        b=nxmvj4h0eXHbO8vQ8OUAWoNZld0I1qNTgq01JaKWadGsfAFMc3Szy2CvDFbMzi0zUy
+         CDEy/JP6rvOMvcF8O9+9Sf0IOZQmBLogFDorWMQSrgfKc0azhyq715mH8lcgyRd5iPvS
+         z7lijeMa37KWIaTmJguSU3QnKA1HlP92Mlv+7HbvqkVU5SiHJshptpCMy0J28aWYab8h
+         U7Zu1z3Yig3sm0OxMN12hklPCBdc8zaWe5n0UUxNAGC6iRcs4DYREjXgSfA3cGlWGIfd
+         RbuoQT9yi/W8O2n2NuXeKwC8p7/ZU/+tkoLJwb9ZzCqKtC327IPfunF5zQ3F9HxrGrHG
+         0U5A==
+X-Gm-Message-State: AOAM530PWk43U/fzt4jjc02kBRmisZkjklLqHM88hHWId4UZ/AXAwug9
+        oN35UNiAsmdloiKRUtQpt8g+2oL4jkkEJMHzj7k=
+X-Google-Smtp-Source: ABdhPJxb/4clygCvjCiO88XYG/sbJ6RKoH2Z8xrd10Kb85V7ZjADycyDpSdncP2GPDXnJ5FshMib0fbA5Tgo6BLdO9c=
+X-Received: by 2002:a50:9fc9:: with SMTP id c67mr9960008edf.69.1595849049765;
+ Mon, 27 Jul 2020 04:24:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US-large
-Content-Transfer-Encoding: 7bit
-X-Originated-At: 2003:e7:749:9d00:609b:6223:302c:355!53622
+Reply-To: evanaprso@gmail.com
+Received: by 2002:a54:2b90:0:0:0:0:0 with HTTP; Mon, 27 Jul 2020 04:24:09
+ -0700 (PDT)
+From:   EVANA PRSO <rm2568590@gmail.com>
+Date:   Mon, 27 Jul 2020 13:24:09 +0200
+X-Google-Sender-Auth: GGKkRaxdo0XqH9l5mVosQBXE4ug
+Message-ID: <CADxkk6Upufr_-B3PQs+YRwxShFTnxXYpi8yym6O_qv3gii-NYQ@mail.gmail.com>
+Subject: Please co-operate with me
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg, Sasha and all the others,
+my Dear friend,
 
-Hans de Goede requested to revert "ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb"
-from all stable and longterm kernels because this commit broke certain devices
-with Atheros 9271 and at that time it seemed that reverting the commit would be
-done in the mainline kernel. The revert was done in kernel 5.7.9 etc., however
-Mark O'Donovan found a fix for the original commit - which avoided the revert in
-the mainline kernel - and this fix is now included in 5.8-rc7 with commit
+My Name is Mrs. Anna H. Bruun, from Norway. I know that this message
+will be a surprise to you. Firstly, I am married to Mr. Patrick
+Bruun.A gold merchant who owns a small gold Mine in Syria; He died of
+Cardiovascular Disease in mid-March 2011. During his life time he
+deposited the sum of (=E2=82=AC16.1 Million Euro) sixteen million, one hund=
+red
+thousand Euros in a bank in Ouagadougou the capital city of Burkina
+Faso in West Africa. The deposited money was from the sale of the
+shares, death benefits payment and entitlements of my deceased husband
+by his company. I am sending this message to you praying that it will
+reach you in good health, since I am not in good health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day.
 
-92f53e2fda8bb9a559ad61d57bfb397ce67ed0ab ("ath9k: Fix regression with Atheros 9271").
+ I am suffering from long time cancer and presently i am partially
+suffering from a stroke illness which has become almost impossible for
+me to move around. I am married to my late husband for over 4 years
+before he died and is unfortunately that we don't have a child, my
+doctor confinded in me that i have less chance to live. Having known
+my health condition, I decided to contact you to claim the fund since
+I don't have any relation I grew up from the orphanage home, I have
+decided to donate what I have to you for the support of helping
+Motherless babies/Less privileged/Widows' because I am dying and
+diagnosed of cancer for about 2 years ago. I have been touched by God
+almighty to donate from what I have inherited from my late husband to
+you for good work of God Almighty. I have asked Almighty God to
+forgive me and believe he has, because He is a Merciful God I will be
+going in for an operation surgery soon.
 
-To be consistent with the mainline kernel, please apply the original commit
-again (or re-revert it, whatever is appropriate for stable kernels) and then
-apply Mark's fix. I have tested this with the current 5.7.10 kernel to confirm
-that it works because I was affected by the bug.
+ This is the reason i need your services to stand as my next of kin or
+an executor to claim the funds for charity purposes. If this money
+remains unclaimed after my death, the bank executives or the
+government will take the money as unclaimed fund and maybe use it for
+selfish and worthless ventures, I need a very honest person who can
+claim this money and use it for Charity works, for orphanages, widows
+and also build schools for less privilege that will be named after my
+late husband and my name; I need your urgent answer to know if you
+will be able to execute this project, and I will give you more
+information on how the fund will be transferred to your bank account.
 
-All relevant people are CC'ed if someone wants to object.
 
 Thanks,
-Viktor
+Mrs. Evana Prso.
