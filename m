@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F83C22EF74
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 128E322F04F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730145AbgG0OQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
+        id S1732104AbgG0OXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:23:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730909AbgG0OQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:16:39 -0400
+        id S1732070AbgG0OXb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:23:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABD512070A;
-        Mon, 27 Jul 2020 14:16:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3166E2083E;
+        Mon, 27 Jul 2020 14:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859399;
-        bh=QSI+nFYT3BU7ERKo1L3AE5VUAt/RWgJY17WCjL8DwpA=;
+        s=default; t=1595859810;
+        bh=8UMyjt/AzFGIS1GD45TwNQmUI/lsxAFHKcAG7o84BZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ngp9lU3U/ouGMnd35UlVKAoP5FUX15A/xnmmGRjWbkD+oWBFqOKF1QyM65Dkad21
-         3U1YQv/7nUbf9wQEf5C07TjHjwtOWh5Sdnb3Ck1OwGeHG/EVHfVsxJnlfrtIuGCBWf
-         A352IsDvNm6OljcWhd52+i3otz/gpYFtGUNeZnf4=
+        b=xWvsPcEvdoDwJ5GnhwxB1zSZQMrYDwVG2sbAJKmdggbowNhc0pzrRd3jvNy+Q5i6Q
+         +VUhcDPFLuh+SLGP9VXtgg+p/3WSQPBm6cJH2ZaTF2KY7VWfUrxShbzsjeFfS+ZcGm
+         l66Xy33aujTBk18+7bGV+LWTdQ7fr7yA+dL55+S4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Xiao <Jack.Xiao@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/138] drm/amdgpu: fix preemption unit test
-Date:   Mon, 27 Jul 2020 16:04:47 +0200
-Message-Id: <20200727134929.965823747@linuxfoundation.org>
+Subject: [PATCH 5.7 113/179] regmap: dev_get_regmap_match(): fix string comparison
+Date:   Mon, 27 Jul 2020 16:04:48 +0200
+Message-Id: <20200727134938.158461781@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xiao <Jack.Xiao@amd.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit d845a2051b6b673fab4229b920ea04c7c4352b51 ]
+[ Upstream commit e84861fec32dee8a2e62bbaa52cded6b05a2a456 ]
 
-Remove signaled jobs from job list and ensure the
-job was indeed preempted.
+This function is used by dev_get_regmap() to retrieve a regmap for the
+specified device. If the device has more than one regmap, the name parameter
+can be used to specify one.
 
-Signed-off-by: Jack Xiao <Jack.Xiao@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The code here uses a pointer comparison to check for equal strings. This
+however will probably always fail, as the regmap->name is allocated via
+kstrdup_const() from the regmap's config->name.
+
+Fix this by using strcmp() instead.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20200703103315.267996-1-mkl@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/base/regmap/regmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-index 1e25ca34d876c..700e26b69abca 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-@@ -990,27 +990,37 @@ static void amdgpu_ib_preempt_job_recovery(struct drm_gpu_scheduler *sched)
- static void amdgpu_ib_preempt_mark_partial_job(struct amdgpu_ring *ring)
- {
- 	struct amdgpu_job *job;
--	struct drm_sched_job *s_job;
-+	struct drm_sched_job *s_job, *tmp;
- 	uint32_t preempt_seq;
- 	struct dma_fence *fence, **ptr;
- 	struct amdgpu_fence_driver *drv = &ring->fence_drv;
- 	struct drm_gpu_scheduler *sched = &ring->sched;
-+	bool preempted = true;
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 320d23de02c29..927ebde1607be 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1363,7 +1363,7 @@ static int dev_get_regmap_match(struct device *dev, void *res, void *data)
  
- 	if (ring->funcs->type != AMDGPU_RING_TYPE_GFX)
- 		return;
- 
- 	preempt_seq = le32_to_cpu(*(drv->cpu_addr + 2));
--	if (preempt_seq <= atomic_read(&drv->last_seq))
--		return;
-+	if (preempt_seq <= atomic_read(&drv->last_seq)) {
-+		preempted = false;
-+		goto no_preempt;
-+	}
- 
- 	preempt_seq &= drv->num_fences_mask;
- 	ptr = &drv->fences[preempt_seq];
- 	fence = rcu_dereference_protected(*ptr, 1);
- 
-+no_preempt:
- 	spin_lock(&sched->job_list_lock);
--	list_for_each_entry(s_job, &sched->ring_mirror_list, node) {
-+	list_for_each_entry_safe(s_job, tmp, &sched->ring_mirror_list, node) {
-+		if (dma_fence_is_signaled(&s_job->s_fence->finished)) {
-+			/* remove job from ring_mirror_list */
-+			list_del_init(&s_job->node);
-+			sched->ops->free_job(s_job);
-+			continue;
-+		}
- 		job = to_amdgpu_job(s_job);
--		if (job->fence == fence)
-+		if (preempted && job->fence == fence)
- 			/* mark the job as preempted */
- 			job->preemption_status |= AMDGPU_IB_PREEMPTED;
- 	}
+ 	/* If the user didn't specify a name match any */
+ 	if (data)
+-		return (*r)->name == data;
++		return !strcmp((*r)->name, data);
+ 	else
+ 		return 1;
+ }
 -- 
 2.25.1
 
