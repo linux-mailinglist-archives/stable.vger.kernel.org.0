@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492FF22F129
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A06722EE49
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:06:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731886AbgG0OW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51364 "EHLO mail.kernel.org"
+        id S1728816AbgG0OGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:06:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731879AbgG0OWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:25 -0400
+        id S1728731AbgG0OGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:06:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7B3B2173E;
-        Mon, 27 Jul 2020 14:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B14152078E;
+        Mon, 27 Jul 2020 14:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859745;
-        bh=XJuEidlReUIBMXF0vMRweVd7zH9eejVPBgUWArVlU2U=;
+        s=default; t=1595858796;
+        bh=shIKid6cw6jYyOMlV06L01pOqhOTRO7eh6ZaGm2irg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Srqe6jTM2AQA3BvcN4nSlpeX10H2Pn2dGuD88LaOANSB/bTIskzUsi6ETAF0tP3/5
-         rh8lWh/E1NzILNLs0Tg4JX3cFNcja9Yz5CNM6eNl5W+s/8TJrDBkP81CKufCJc0/bx
-         CakUNdJqV8Xcp/thPkAAK7aaqkVsj2kyx3UKsVUc=
+        b=ILcZEikIj8qL0TbUb7NT4khqWZwSjFnip9eXv7xBHOwDAJ+2fLBzOOZbTYGRrhSPP
+         RbhZT3pPQL4i1daNFbC0QF9xlAqSLOHhbNl3fdTscwWD1F4QbeBwWmTZRXoGYskQBt
+         HLSqf1XLgEYJ6jnsqGQay/zqJFw0OygzyBQtx1dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 058/179] net: dp83640: fix SIOCSHWTSTAMP to update the struct with actual configuration
-Date:   Mon, 27 Jul 2020 16:03:53 +0200
-Message-Id: <20200727134935.497840503@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Merey <amerey@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Subject: [PATCH 4.14 15/64] uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
+Date:   Mon, 27 Jul 2020 16:03:54 +0200
+Message-Id: <20200727134911.786692606@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Organov <sorganov@gmail.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-[ Upstream commit 473309fb8372365ad211f425bca760af800e10a7 ]
+commit fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a upstream.
 
->From Documentation/networking/timestamping.txt:
+If a tracee is uprobed and it hits int3 inserted by debugger, handle_swbp()
+does send_sig(SIGTRAP, current, 0) which means si_code == SI_USER. This used
+to work when this code was written, but then GDB started to validate si_code
+and now it simply can't use breakpoints if the tracee has an active uprobe:
 
-  A driver which supports hardware time stamping shall update the
-  struct with the actual, possibly more permissive configuration.
+	# cat test.c
+	void unused_func(void)
+	{
+	}
+	int main(void)
+	{
+		return 0;
+	}
 
-Do update the struct passed when we upscale the requested time
-stamping mode.
+	# gcc -g test.c -o test
+	# perf probe -x ./test -a unused_func
+	# perf record -e probe_test:unused_func gdb ./test -ex run
+	GNU gdb (GDB) 10.0.50.20200714-git
+	...
+	Program received signal SIGTRAP, Trace/breakpoint trap.
+	0x00007ffff7ddf909 in dl_main () from /lib64/ld-linux-x86-64.so.2
+	(gdb)
 
-Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
-Signed-off-by: Sergey Organov <sorganov@gmail.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The tracee hits the internal breakpoint inserted by GDB to monitor shared
+library events but GDB misinterprets this SIGTRAP and reports a signal.
+
+Change handle_swbp() to use force_sig(SIGTRAP), this matches do_int3_user()
+and fixes the problem.
+
+This is the minimal fix for -stable, arch/x86/kernel/uprobes.c is equally
+wrong; it should use send_sigtrap(TRAP_TRACE) instead of send_sig(SIGTRAP),
+but this doesn't confuse GDB and needs another x86-specific patch.
+
+Reported-by: Aaron Merey <amerey@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200723154420.GA32043@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/phy/dp83640.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/events/uprobes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83640.c b/drivers/net/phy/dp83640.c
-index ecbd5e0d685cf..acb0aae607558 100644
---- a/drivers/net/phy/dp83640.c
-+++ b/drivers/net/phy/dp83640.c
-@@ -1260,6 +1260,7 @@ static int dp83640_hwtstamp(struct mii_timestamper *mii_ts, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4;
- 		dp83640->version = PTP_CLASS_V1;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
-@@ -1267,6 +1268,7 @@ static int dp83640_hwtstamp(struct mii_timestamper *mii_ts, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
-@@ -1274,6 +1276,7 @@ static int dp83640_hwtstamp(struct mii_timestamper *mii_ts, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L2;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_SYNC:
-@@ -1281,6 +1284,7 @@ static int dp83640_hwtstamp(struct mii_timestamper *mii_ts, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4 | PTP_CLASS_L2;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 		break;
- 	default:
- 		return -ERANGE;
--- 
-2.25.1
-
+--- a/kernel/events/uprobes.c
++++ b/kernel/events/uprobes.c
+@@ -1893,7 +1893,7 @@ static void handle_swbp(struct pt_regs *
+ 	if (!uprobe) {
+ 		if (is_swbp > 0) {
+ 			/* No matching uprobe; signal SIGTRAP. */
+-			send_sig(SIGTRAP, current, 0);
++			force_sig(SIGTRAP, current);
+ 		} else {
+ 			/*
+ 			 * Either we raced with uprobe_unregister() or we can't
 
 
