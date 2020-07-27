@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F079322F1F2
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E28522F26A
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:40:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729935AbgG0OON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
+        id S1728464AbgG0Ojz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:39:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730490AbgG0OOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:14:11 -0400
+        id S1729642AbgG0OJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:09:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81E962078E;
-        Mon, 27 Jul 2020 14:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0C762073E;
+        Mon, 27 Jul 2020 14:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859251;
-        bh=qCDLhlhkFegasnlzwVfmv02VbyBzY+ZJq3EAce/cSaM=;
+        s=default; t=1595858966;
+        bh=x1s/2p+KvPZkzbfRIAgGC9u8uVmW31LjrBx0xw9o7uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSQqyDjyku8QDRDbx+V0qsQftUJnL1UaGPBBdgfvTxv7voHT/1ixgCoN0VA14LsG9
-         XOG/WFMyUiJtkRvWxdZGoM5ow2bc7bS7fnwI3Mw8voCzsSH3GsfP2qgfyIF3wLTSGo
-         6JCoH+Q8BUrpyRoTEIe/DauTI33BQ1Sff8l7I1rc=
+        b=e9Ah6VaGMms3SbGnvnaoZ8XzOkKx7OutuDx91XWuJ0Nkr8Wt2yCA54LisnSN0dzUA
+         cnFdVS083p7GTn5OmbSVWbyfzMcmh6NRc1P2OLxuuSFq8ELYLmBlHwFLlcw8XaCC30
+         U5PNtrMl3afmQRWarZ+G6rEqUc3ZmM1JIJEojdc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 034/138] btrfs: fix mount failure caused by race with umount
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.19 15/86] SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
 Date:   Mon, 27 Jul 2020 16:03:49 +0200
-Message-Id: <20200727134927.080881996@linuxfoundation.org>
+Message-Id: <20200727134915.109074546@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit 48cfa61b58a1fee0bc49eef04f8ccf31493b7cdd upstream.
+commit 65caafd0d2145d1dd02072c4ced540624daeab40 upstream.
 
-It is possible to cause a btrfs mount to fail by racing it with a slow
-umount. The crux of the sequence is generic_shutdown_super not yet
-calling sop->put_super before btrfs_mount_root calls btrfs_open_devices.
-If that occurs, btrfs_open_devices will decide the opened counter is
-non-zero, increment it, and skip resetting fs_devices->total_rw_bytes to
-0. From here, mount will call sget which will result in grab_super
-trying to take the super block umount semaphore. That semaphore will be
-held by the slow umount, so mount will block. Before up-ing the
-semaphore, umount will delete the super block, resulting in mount's sget
-reliably allocating a new one, which causes the mount path to dutifully
-fill it out, and increment total_rw_bytes a second time, which causes
-the mount to fail, as we see double the expected bytes.
+Reverting commit d03727b248d0 "NFSv4 fix CLOSE not waiting for
+direct IO compeletion". This patch made it so that fput() by calling
+inode_dio_done() in nfs_file_release() would wait uninterruptably
+for any outstanding directIO to the file (but that wait on IO should
+be killable).
 
-Here is the sequence laid out in greater detail:
+The problem the patch was also trying to address was REMOVE returning
+ERR_ACCESS because the file is still opened, is supposed to be resolved
+by server returning ERR_FILE_OPEN and not ERR_ACCESS.
 
-CPU0                                                    CPU1
-down_write sb->s_umount
-btrfs_kill_super
-  kill_anon_super(sb)
-    generic_shutdown_super(sb);
-      shrink_dcache_for_umount(sb);
-      sync_filesystem(sb);
-      evict_inodes(sb); // SLOW
-
-                                              btrfs_mount_root
-                                                btrfs_scan_one_device
-                                                fs_devices = device->fs_devices
-                                                fs_info->fs_devices = fs_devices
-                                                // fs_devices-opened makes this a no-op
-                                                btrfs_open_devices(fs_devices, mode, fs_type)
-                                                s = sget(fs_type, test, set, flags, fs_info);
-                                                  find sb in s_instances
-                                                  grab_super(sb);
-                                                    down_write(&s->s_umount); // blocks
-
-      sop->put_super(sb)
-        // sb->fs_devices->opened == 2; no-op
-      spin_lock(&sb_lock);
-      hlist_del_init(&sb->s_instances);
-      spin_unlock(&sb_lock);
-      up_write(&sb->s_umount);
-                                                    return 0;
-                                                  retry lookup
-                                                  don't find sb in s_instances (deleted by CPU0)
-                                                  s = alloc_super
-                                                  return s;
-                                                btrfs_fill_super(s, fs_devices, data)
-                                                  open_ctree // fs_devices total_rw_bytes improperly set!
-                                                    btrfs_read_chunk_tree
-                                                      read_one_dev // increment total_rw_bytes again!!
-                                                      super_total_bytes < fs_devices->total_rw_bytes // ERROR!!!
-
-To fix this, we clear total_rw_bytes from within btrfs_read_chunk_tree
-before the calls to read_one_dev, while holding the sb umount semaphore
-and the uuid mutex.
-
-To reproduce, it is sufficient to dirty a decent number of inodes, then
-quickly umount and mount.
-
-  for i in $(seq 0 500)
-  do
-    dd if=/dev/zero of="/mnt/foo/$i" bs=1M count=1
-  done
-  umount /mnt/foo&
-  mount /mnt/foo
-
-does the trick for me.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Boris Burkov <boris@bur.io>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/nfs/direct.c |   13 ++++---------
+ fs/nfs/file.c   |    1 -
+ 2 files changed, 4 insertions(+), 10 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -7270,6 +7270,14 @@ int btrfs_read_chunk_tree(struct btrfs_f
- 	mutex_lock(&fs_info->chunk_mutex);
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -396,6 +396,8 @@ static void nfs_direct_complete(struct n
+ {
+ 	struct inode *inode = dreq->inode;
  
- 	/*
-+	 * It is possible for mount and umount to race in such a way that
-+	 * we execute this code path, but open_fs_devices failed to clear
-+	 * total_rw_bytes. We certainly want it cleared before reading the
-+	 * device items, so clear it here.
-+	 */
-+	fs_info->fs_devices->total_rw_bytes = 0;
++	inode_dio_end(inode);
 +
-+	/*
- 	 * Read all device items, and then all the chunk items. All
- 	 * device items are found before any chunk item (their object id
- 	 * is smaller than the lowest possible object id for a chunk
+ 	if (dreq->iocb) {
+ 		long res = (long) dreq->error;
+ 		if (dreq->count != 0) {
+@@ -407,10 +409,7 @@ static void nfs_direct_complete(struct n
+ 
+ 	complete(&dreq->completion);
+ 
+-	igrab(inode);
+ 	nfs_direct_req_release(dreq);
+-	inode_dio_end(inode);
+-	iput(inode);
+ }
+ 
+ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
+@@ -540,10 +539,8 @@ static ssize_t nfs_direct_read_schedule_
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		igrab(inode);
+-		nfs_direct_req_release(dreq);
+ 		inode_dio_end(inode);
+-		iput(inode);
++		nfs_direct_req_release(dreq);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+@@ -960,10 +957,8 @@ static ssize_t nfs_direct_write_schedule
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		igrab(inode);
+-		nfs_direct_req_release(dreq);
+ 		inode_dio_end(inode);
+-		iput(inode);
++		nfs_direct_req_release(dreq);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -82,7 +82,6 @@ nfs_file_release(struct inode *inode, st
+ 	dprintk("NFS: release(%pD2)\n", filp);
+ 
+ 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
+-	inode_dio_wait(inode);
+ 	nfs_file_clear_open_context(filp);
+ 	return 0;
+ }
 
 
