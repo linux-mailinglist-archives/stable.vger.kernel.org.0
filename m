@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E8F22F23F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0A022F205
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729841AbgG0OKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33136 "EHLO mail.kernel.org"
+        id S1729475AbgG0ONb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:13:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729805AbgG0OKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:10:23 -0400
+        id S1730366AbgG0ONY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:13:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDDB92083E;
-        Mon, 27 Jul 2020 14:10:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96BB520838;
+        Mon, 27 Jul 2020 14:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859022;
-        bh=xcYsMyLGK9hkkMPHuzxdbpQbs7gRSQH9CsL4BHhnvDk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=KcbFT5HOuh+G2krQW2T8SeEnROSLq4y3KcVlmcnUNAmXU7zFOAh5YHeqxSvvlVZJV
-         hEjdxcZ3k/P/M45efgxOEwXSdYNb9NOwQNfoBrutmtpeq8coFKbI/BtSFWL7oMjEnt
-         CxhBHCd8RH3dJfxjtZujcqXbrQb+qShaha4CxlDU=
+        s=default; t=1595859204;
+        bh=G3i6iGU3bJFkuLykyvT/z8Vxm7YbomAOaZm1OgA3BMo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JSumDUl1DnrSdg5tcuNh3nQjUHe9ahmNgVRfBaZ0l1YEEtLK69cg/6JYiczYEgPP4
+         y7XENPYHMn09KEFflGYdNoLNe00gKpwLTRzVqmMdtP7yovaI9TdPBIp9jZVX4UV6XW
+         cvXeFsbvJr8PtxVowlrSzjhTVD3ZeO1sDPOFPlRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/86] 4.19.135-rc1 review
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 019/138] irqdomain/treewide: Keep firmware node unconditionally allocated
 Date:   Mon, 27 Jul 2020 16:03:34 +0200
-Message-Id: <20200727134914.312934924@linuxfoundation.org>
+Message-Id: <20200727134926.277413003@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.135-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.135-rc1
-X-KernelTest-Deadline: 2020-07-29T13:49+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,399 +46,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.135 release.
-There are 86 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Thomas Gleixner <tglx@linutronix.de>
+
+[ Upstream commit e3beca48a45b5e0e6e6a4e0124276b8248dcc9bb ]
+
+Quite some non OF/ACPI users of irqdomains allocate firmware nodes of type
+IRQCHIP_FWNODE_NAMED or IRQCHIP_FWNODE_NAMED_ID and free them right after
+creating the irqdomain. The only purpose of these FW nodes is to convey
+name information. When this was introduced the core code did not store the
+pointer to the node in the irqdomain. A recent change stored the firmware
+node pointer in irqdomain for other reasons and missed to notice that the
+usage sites which do the alloc_fwnode/create_domain/free_fwnode sequence
+are broken by this. Storing a dangling pointer is dangerous itself, but in
+case that the domain is destroyed later on this leads to a double free.
+
+Remove the freeing of the firmware node after creating the irqdomain from
+all affected call sites to cure this.
+
+Fixes: 711419e504eb ("irqdomain: Add the missing assignment of domain->fwnode for named fwnode")
+Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/873661qakd.fsf@nanos.tec.linutronix.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/mips/pci/pci-xtalk-bridge.c    |  5 +++--
+ arch/x86/kernel/apic/io_apic.c      | 10 +++++-----
+ arch/x86/kernel/apic/msi.c          | 18 ++++++++++++------
+ arch/x86/kernel/apic/vector.c       |  1 -
+ arch/x86/platform/uv/uv_irq.c       |  3 ++-
+ drivers/iommu/amd_iommu.c           |  5 +++--
+ drivers/iommu/hyperv-iommu.c        |  5 ++++-
+ drivers/iommu/intel_irq_remapping.c |  2 +-
+ drivers/pci/controller/vmd.c        |  5 +++--
+ 9 files changed, 33 insertions(+), 21 deletions(-)
+
+diff --git a/arch/mips/pci/pci-xtalk-bridge.c b/arch/mips/pci/pci-xtalk-bridge.c
+index 30017d5945bc2..6ce76b18186e5 100644
+--- a/arch/mips/pci/pci-xtalk-bridge.c
++++ b/arch/mips/pci/pci-xtalk-bridge.c
+@@ -444,9 +444,10 @@ static int bridge_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	domain = irq_domain_create_hierarchy(parent, 0, 8, fn,
+ 					     &bridge_domain_ops, NULL);
+-	irq_domain_free_fwnode(fn);
+-	if (!domain)
++	if (!domain) {
++		irq_domain_free_fwnode(fn);
+ 		return -ENOMEM;
++	}
+ 
+ 	pci_set_flags(PCI_PROBE_ONLY);
+ 
+diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
+index f0262cb5657a7..16699101fd2fe 100644
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -2329,12 +2329,12 @@ static int mp_irqdomain_create(int ioapic)
+ 	ip->irqdomain = irq_domain_create_linear(fn, hwirqs, cfg->ops,
+ 						 (void *)(long)ioapic);
+ 
+-	/* Release fw handle if it was allocated above */
+-	if (!cfg->dev)
+-		irq_domain_free_fwnode(fn);
+-
+-	if (!ip->irqdomain)
++	if (!ip->irqdomain) {
++		/* Release fw handle if it was allocated above */
++		if (!cfg->dev)
++			irq_domain_free_fwnode(fn);
+ 		return -ENOMEM;
++	}
+ 
+ 	ip->irqdomain->parent = parent;
+ 
+diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
+index 159bd0cb85486..a20873bbbed67 100644
+--- a/arch/x86/kernel/apic/msi.c
++++ b/arch/x86/kernel/apic/msi.c
+@@ -262,12 +262,13 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
+ 		msi_default_domain =
+ 			pci_msi_create_irq_domain(fn, &pci_msi_domain_info,
+ 						  parent);
+-		irq_domain_free_fwnode(fn);
+ 	}
+-	if (!msi_default_domain)
++	if (!msi_default_domain) {
++		irq_domain_free_fwnode(fn);
+ 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
+-	else
++	} else {
+ 		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
++	}
+ }
+ 
+ #ifdef CONFIG_IRQ_REMAP
+@@ -300,7 +301,8 @@ struct irq_domain *arch_create_remap_msi_irq_domain(struct irq_domain *parent,
+ 	if (!fn)
+ 		return NULL;
+ 	d = pci_msi_create_irq_domain(fn, &pci_msi_ir_domain_info, parent);
+-	irq_domain_free_fwnode(fn);
++	if (!d)
++		irq_domain_free_fwnode(fn);
+ 	return d;
+ }
+ #endif
+@@ -363,7 +365,8 @@ static struct irq_domain *dmar_get_irq_domain(void)
+ 	if (fn) {
+ 		dmar_domain = msi_create_irq_domain(fn, &dmar_msi_domain_info,
+ 						    x86_vector_domain);
+-		irq_domain_free_fwnode(fn);
++		if (!dmar_domain)
++			irq_domain_free_fwnode(fn);
+ 	}
+ out:
+ 	mutex_unlock(&dmar_lock);
+@@ -488,7 +491,10 @@ struct irq_domain *hpet_create_irq_domain(int hpet_id)
+ 	}
+ 
+ 	d = msi_create_irq_domain(fn, domain_info, parent);
+-	irq_domain_free_fwnode(fn);
++	if (!d) {
++		irq_domain_free_fwnode(fn);
++		kfree(domain_info);
++	}
+ 	return d;
+ }
+ 
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index 18c0dca081633..df4d5385e6ddd 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -701,7 +701,6 @@ int __init arch_early_irq_init(void)
+ 	x86_vector_domain = irq_domain_create_tree(fn, &x86_vector_domain_ops,
+ 						   NULL);
+ 	BUG_ON(x86_vector_domain == NULL);
+-	irq_domain_free_fwnode(fn);
+ 	irq_set_default_host(x86_vector_domain);
+ 
+ 	arch_init_msi_domain(x86_vector_domain);
+diff --git a/arch/x86/platform/uv/uv_irq.c b/arch/x86/platform/uv/uv_irq.c
+index fc13cbbb2dce2..abb6075397f05 100644
+--- a/arch/x86/platform/uv/uv_irq.c
++++ b/arch/x86/platform/uv/uv_irq.c
+@@ -167,9 +167,10 @@ static struct irq_domain *uv_get_irq_domain(void)
+ 		goto out;
+ 
+ 	uv_domain = irq_domain_create_tree(fn, &uv_domain_ops, NULL);
+-	irq_domain_free_fwnode(fn);
+ 	if (uv_domain)
+ 		uv_domain->parent = x86_vector_domain;
++	else
++		irq_domain_free_fwnode(fn);
+ out:
+ 	mutex_unlock(&uv_lock);
+ 
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 32de8e7bb8b45..3a7094f4813f2 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -4575,9 +4575,10 @@ int amd_iommu_create_irq_domain(struct amd_iommu *iommu)
+ 	if (!fn)
+ 		return -ENOMEM;
+ 	iommu->ir_domain = irq_domain_create_tree(fn, &amd_ir_domain_ops, iommu);
+-	irq_domain_free_fwnode(fn);
+-	if (!iommu->ir_domain)
++	if (!iommu->ir_domain) {
++		irq_domain_free_fwnode(fn);
+ 		return -ENOMEM;
++	}
+ 
+ 	iommu->ir_domain->parent = arch_get_ir_parent_domain();
+ 	iommu->msi_domain = arch_create_remap_msi_irq_domain(iommu->ir_domain,
+diff --git a/drivers/iommu/hyperv-iommu.c b/drivers/iommu/hyperv-iommu.c
+index a386b83e0e34b..f0fe5030acd36 100644
+--- a/drivers/iommu/hyperv-iommu.c
++++ b/drivers/iommu/hyperv-iommu.c
+@@ -155,7 +155,10 @@ static int __init hyperv_prepare_irq_remapping(void)
+ 				0, IOAPIC_REMAPPING_ENTRY, fn,
+ 				&hyperv_ir_domain_ops, NULL);
+ 
+-	irq_domain_free_fwnode(fn);
++	if (!ioapic_ir_domain) {
++		irq_domain_free_fwnode(fn);
++		return -ENOMEM;
++	}
+ 
+ 	/*
+ 	 * Hyper-V doesn't provide irq remapping function for
+diff --git a/drivers/iommu/intel_irq_remapping.c b/drivers/iommu/intel_irq_remapping.c
+index 81e43c1df7ecb..982d796b686b8 100644
+--- a/drivers/iommu/intel_irq_remapping.c
++++ b/drivers/iommu/intel_irq_remapping.c
+@@ -563,8 +563,8 @@ static int intel_setup_irq_remapping(struct intel_iommu *iommu)
+ 					    0, INTR_REMAP_TABLE_ENTRIES,
+ 					    fn, &intel_ir_domain_ops,
+ 					    iommu);
+-	irq_domain_free_fwnode(fn);
+ 	if (!iommu->ir_domain) {
++		irq_domain_free_fwnode(fn);
+ 		pr_err("IR%d: failed to allocate irqdomain\n", iommu->seq_id);
+ 		goto out_free_bitmap;
+ 	}
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index 87348ecfe3fcf..7c24c0aedad4a 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -680,9 +680,10 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 
+ 	vmd->irq_domain = pci_msi_create_irq_domain(fn, &vmd_msi_domain_info,
+ 						    x86_vector_domain);
+-	irq_domain_free_fwnode(fn);
+-	if (!vmd->irq_domain)
++	if (!vmd->irq_domain) {
++		irq_domain_free_fwnode(fn);
+ 		return -ENODEV;
++	}
+ 
+ 	pci_add_resource(&resources, &vmd->resources[0]);
+ 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
+-- 
+2.25.1
 
-Responses should be made by Wed, 29 Jul 2020 13:48:51 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.135-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.135-rc1
-
-Mark O'Donovan <shiftee@posteo.net>
-    ath9k: Fix regression with Atheros 9271
-
-Qiujun Huang <hqjagain@gmail.com>
-    ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm integrity: fix integrity recalculation that is improperly skipped
-
-Geert Uytterhoeven <geert@linux-m68k.org>
-    ASoC: qcom: Drop HAS_DMA dependency to fix link failure
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: rt5670: Add new gpio1_is_ext_spk_en quirk and enable it on the Lenovo Miix 2 10
-
-Joerg Roedel <jroedel@suse.de>
-    x86, vmlinux.lds: Page-align end of ..page_aligned sections
-
-John David Anglin <dave.anglin@bell.net>
-    parisc: Add atomic64_set_release() define to avoid CPU soft lockups
-
-Qiu Wenbo <qiuwenbo@phytium.com.cn>
-    drm/amd/powerplay: fix a crash when overclocking Vega M
-
-Paweł Gronowski <me@woland.xyz>
-    drm/amdgpu: Fix NULL dereference in dpm sysfs handlers
-
-Michael J. Ruhl <michael.j.ruhl@intel.com>
-    io-mapping: indicate mapping failure
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
-
-Hugh Dickins <hughd@google.com>
-    mm/memcg: fix refcount error while moving and swapping
-
-Fangrui Song <maskray@google.com>
-    Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    vt: Reject zero-sized screen buffer size.
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    fbdev: Detect integer underflow at "struct fbcon_ops"->clear_margins.
-
-Serge Semin <Sergey.Semin@baikalelectronics.ru>
-    serial: 8250_mtk: Fix high-speed baud rates clamping
-
-Yang Yingliang <yangyingliang@huawei.com>
-    serial: 8250: fix null-ptr-deref in serial8250_start_tx()
-
-Ian Abbott <abbotti@mev.co.uk>
-    staging: comedi: addi_apci_1564: check INSN_CONFIG_DIGITAL_TRIG shift
-
-Ian Abbott <abbotti@mev.co.uk>
-    staging: comedi: addi_apci_1500: check INSN_CONFIG_DIGITAL_TRIG shift
-
-Ian Abbott <abbotti@mev.co.uk>
-    staging: comedi: ni_6527: fix INSN_CONFIG_DIGITAL_TRIG support
-
-Ian Abbott <abbotti@mev.co.uk>
-    staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
-
-Rustam Kovhaev <rkovhaev@gmail.com>
-    staging: wlan-ng: properly check endpoint types
-
-Steve French <stfrench@microsoft.com>
-    Revert "cifs: Fix the target file was deleted when rename failed."
-
-Forest Crossman <cyrozap@gmail.com>
-    usb: xhci: Fix ASM2142/ASM3142 DMA addressing
-
-Chunfeng Yun <chunfeng.yun@mediatek.com>
-    usb: xhci-mtk: fix the failure of bandwidth allocation
-
-Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-    binder: Don't use mmput() from shrinker function.
-
-Palmer Dabbelt <palmerdabbelt@google.com>
-    RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
-
-Arnd Bergmann <arnd@arndb.de>
-    x86: math-emu: Fix up 'cmp' insn for clang ias
-
-Will Deacon <will@kernel.org>
-    arm64: Use test_tsk_thread_flag() for checking TIF_SINGLESTEP
-
-Cristian Marussi <cristian.marussi@arm.com>
-    hwmon: (scmi) Fix potential buffer overflow in scmi_hwmon_probe()
-
-Chu Lin <linchuyuan@google.com>
-    hwmon: (adm1275) Make sure we are reading enough data for different chips
-
-Evgeny Novikov <novikov@ispras.ru>
-    usb: gadget: udc: gr_udc: fix memleak on error handling path in gr_ep_init()
-
-Derek Basehore <dbasehore@chromium.org>
-    Input: elan_i2c - only increment wakeup count on touch
-
-Ilya Katsnelson <me@0upti.me>
-    Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
-
-Leonid Ravich <Leonid.Ravich@emc.com>
-    dmaengine: ioat setting ioat timeout as module parameter
-
-Evgeny Novikov <novikov@ispras.ru>
-    hwmon: (aspeed-pwm-tacho) Avoid possible buffer overflow
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    regmap: dev_get_regmap_match(): fix string comparison
-
-leilk.liu <leilk.liu@mediatek.com>
-    spi: mediatek: use correct SPI_CFG2_REG MACRO
-
-Merlijn Wajer <merlijn@wizzup.org>
-    Input: add `SW_MACHINE_COVER`
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    dmaengine: tegra210-adma: Fix runtime PM imbalance on error
-
-Hans de Goede <hdegoede@redhat.com>
-    HID: apple: Disable Fn-key key-re-mapping on clone keyboards
-
-Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-    HID: steam: fixes race in handling device list.
-
-Caiyuan Xie <caiyuan.xie@cn.alps.com>
-    HID: alps: support devices with report id 2
-
-Federico Ricchiuto <fed.ricchiuto@gmail.com>
-    HID: i2c-hid: add Mediacom FlexBook edge13 to descriptor override
-
-Stefano Garzarella <sgarzare@redhat.com>
-    scripts/gdb: fix lx-symbols 'gdb.error' while loading modules
-
-Pi-Hsun Shih <pihsun@chromium.org>
-    scripts/decode_stacktrace: strip basepath from all paths
-
-Matthew Howell <matthew.howell@sealevel.com>
-    serial: exar: Fix GPIO configuration for Sealevel cards based on XR17V35X
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    bonding: check return value of register_netdevice() in bond_newlink()
-
-Wolfram Sang <wsa+renesas@sang-engineering.com>
-    i2c: rcar: always clear ICSAR to avoid side effects
-
-Wang Hai <wanghai38@huawei.com>
-    net: ethernet: ave: Fix error returns in ave_init
-
-guodeqing <geffrey.guo@huawei.com>
-    ipvs: fix the connection sync failed in some cases
-
-Alexander Lobakin <alobakin@marvell.com>
-    qed: suppress "don't support RoCE & iWARP" flooding on HW init
-
-Liu Jian <liujian56@huawei.com>
-    mlxsw: destroy workqueue when trap_register in mlxsw_emad_init
-
-Taehee Yoo <ap420073@gmail.com>
-    bonding: check error value of register_netdevice() immediately
-
-Wang Hai <wanghai38@huawei.com>
-    net: smc91x: Fix possible memory leak in smc_drv_probe()
-
-Chen-Yu Tsai <wens@csie.org>
-    drm: sun4i: hdmi: Fix inverted HPD result
-
-Liu Jian <liujian56@huawei.com>
-    ieee802154: fix one possible memleak in adf7242_probe
-
-Sergey Organov <sorganov@gmail.com>
-    net: dp83640: fix SIOCSHWTSTAMP to update the struct with actual configuration
-
-George Kennedy <george.kennedy@oracle.com>
-    ax88172a: fix ax88172a_unbind() failures
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    hippi: Fix a size used in a 'pci_free_consistent()' in an error handling path
-
-Matthew Gerlach <matthew.gerlach@linux.intel.com>
-    fpga: dfl: fix bug in port reset handshake
-
-Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-    bnxt_en: Fix race when modifying pause settings.
-
-Robbie Ko <robbieko@synology.com>
-    btrfs: fix page leaks after failure to lock page for delalloc
-
-Boris Burkov <boris@bur.io>
-    btrfs: fix mount failure caused by race with umount
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix double free on ulist after backref resolution failure
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: rt5670: Correct RT5670_LDO_SEL_MASK
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: info: Drop WARN_ON() from buffer NULL sanity check
-
-Oleg Nesterov <oleg@redhat.com>
-    uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
-
-Yang Yingliang <yangyingliang@huawei.com>
-    IB/umem: fix reference count leak in ib_umem_odp_get()
-
-Jon Maloy <jon.maloy@ericsson.com>
-    tipc: clean up skb list lock handling on send path
-
-Vladimir Oltean <olteanv@gmail.com>
-    spi: spi-fsl-dspi: Exit the ISR with IRQ_NONE when it's not ours
-
-Olga Kornievskaia <kolga@netapp.com>
-    SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
-
-Thomas Gleixner <tglx@linutronix.de>
-    irqdomain/treewide: Keep firmware node unconditionally allocated
-
-Miklos Szeredi <mszeredi@redhat.com>
-    fuse: fix weird page warning
-
-Gavin Shan <gshan@redhat.com>
-    drivers/firmware/psci: Fix memory leakage in alloc_init_cpu_groups()
-
-Ben Skeggs <bskeggs@redhat.com>
-    drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
-
-Tom Rix <trix@redhat.com>
-    net: sky2: initialize return of gm_phy_read
-
-Xie He <xie.he.0141@gmail.com>
-    drivers/net/wan/lapbether: Fixed the value of hard_header_len
-
-Max Filippov <jcmvbkbc@gmail.com>
-    xtensa: update *pos in cpuinfo_op.next
-
-Max Filippov <jcmvbkbc@gmail.com>
-    xtensa: fix __sync_fetch_and_{and,or}_4 declarations
-
-Tom Rix <trix@redhat.com>
-    scsi: scsi_transport_spi: Fix function pointer check
-
-Markus Theil <markus.theil@tu-ilmenau.de>
-    mac80211: allow rx of mesh eapol frames with default rx key
-
-Jacky Hu <hengqing.hu@gmail.com>
-    pinctrl: amd: fix npins for uart0 in kerncz_groups
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    gpio: arizona: put pm_runtime in case of failure
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    gpio: arizona: handle pm_runtime_get_sync failure case
-
-Douglas Anderson <dianders@chromium.org>
-    soc: qcom: rpmh: Dirt can only make you dirtier, not cleaner
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  6 +-
- arch/arm64/kernel/debug-monitors.c                 |  4 +-
- arch/parisc/include/asm/atomic.h                   |  2 +
- arch/riscv/include/asm/barrier.h                   | 10 ++-
- arch/x86/kernel/apic/io_apic.c                     | 10 +--
- arch/x86/kernel/apic/msi.c                         | 18 ++++--
- arch/x86/kernel/apic/vector.c                      |  1 -
- arch/x86/kernel/vmlinux.lds.S                      |  1 +
- arch/x86/math-emu/wm_sqrt.S                        |  2 +-
- arch/x86/platform/uv/uv_irq.c                      |  3 +-
- arch/xtensa/kernel/setup.c                         |  3 +-
- arch/xtensa/kernel/xtensa_ksyms.c                  |  4 +-
- drivers/android/binder_alloc.c                     |  2 +-
- drivers/base/regmap/regmap.c                       |  2 +-
- drivers/dma/ioat/dma.c                             | 12 ++++
- drivers/dma/ioat/dma.h                             |  2 -
- drivers/dma/tegra210-adma.c                        |  5 +-
- drivers/firmware/psci_checker.c                    |  5 +-
- drivers/fpga/dfl-afu-main.c                        |  3 +-
- drivers/gpio/gpio-arizona.c                        |  7 ++-
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c             |  9 +--
- .../gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c    | 10 +--
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   |  4 +-
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c |  4 +-
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c             |  2 +-
- drivers/hid/hid-alps.c                             |  2 +
- drivers/hid/hid-apple.c                            | 18 ++++++
- drivers/hid/hid-steam.c                            |  6 +-
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |  8 +++
- drivers/hwmon/aspeed-pwm-tacho.c                   |  2 +
- drivers/hwmon/pmbus/adm1275.c                      | 10 ++-
- drivers/hwmon/scmi-hwmon.c                         |  2 +-
- drivers/i2c/busses/i2c-rcar.c                      |  3 +
- drivers/infiniband/core/umem_odp.c                 |  3 +-
- drivers/input/mouse/elan_i2c_core.c                |  7 ++-
- drivers/input/mouse/synaptics.c                    |  1 +
- drivers/iommu/amd_iommu.c                          |  5 +-
- drivers/iommu/intel_irq_remapping.c                |  2 +-
- drivers/md/dm-integrity.c                          |  4 +-
- drivers/md/dm.c                                    | 17 ++++++
- drivers/net/bonding/bond_main.c                    | 10 ++-
- drivers/net/bonding/bond_netlink.c                 |  3 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c  |  5 +-
- drivers/net/ethernet/marvell/sky2.c                |  2 +-
- drivers/net/ethernet/mellanox/mlxsw/core.c         |  3 +-
- drivers/net/ethernet/qlogic/qed/qed_cxt.c          |  4 +-
- drivers/net/ethernet/smsc/smc91x.c                 |  4 +-
- drivers/net/ethernet/socionext/sni_ave.c           |  2 +-
- drivers/net/hippi/rrunner.c                        |  2 +-
- drivers/net/ieee802154/adf7242.c                   |  4 +-
- drivers/net/phy/dp83640.c                          |  4 ++
- drivers/net/usb/ax88172a.c                         |  1 +
- drivers/net/wan/lapbether.c                        |  9 ++-
- drivers/net/wireless/ath/ath9k/hif_usb.c           | 52 ++++++++++++----
- drivers/net/wireless/ath/ath9k/hif_usb.h           |  5 ++
- drivers/pci/controller/vmd.c                       |  5 +-
- drivers/pinctrl/pinctrl-amd.h                      |  2 +-
- drivers/scsi/scsi_transport_spi.c                  |  2 +-
- drivers/soc/qcom/rpmh.c                            |  8 +--
- drivers/spi/spi-fsl-dspi.c                         |  4 +-
- drivers/spi/spi-mt65xx.c                           | 15 ++---
- drivers/staging/comedi/drivers/addi_apci_1032.c    | 20 ++++--
- drivers/staging/comedi/drivers/addi_apci_1500.c    | 24 ++++++--
- drivers/staging/comedi/drivers/addi_apci_1564.c    | 20 ++++--
- drivers/staging/comedi/drivers/ni_6527.c           |  2 +-
- drivers/staging/wlan-ng/prism2usb.c                | 16 ++++-
- drivers/tty/serial/8250/8250_core.c                |  2 +-
- drivers/tty/serial/8250/8250_exar.c                | 12 +++-
- drivers/tty/serial/8250/8250_mtk.c                 | 18 ++++++
- drivers/tty/vt/vt.c                                | 29 +++++----
- drivers/usb/gadget/udc/gr_udc.c                    |  7 ++-
- drivers/usb/host/xhci-mtk-sch.c                    |  4 ++
- drivers/usb/host/xhci-pci.c                        |  3 +
- drivers/video/fbdev/core/bitblit.c                 |  4 +-
- drivers/video/fbdev/core/fbcon_ccw.c               |  4 +-
- drivers/video/fbdev/core/fbcon_cw.c                |  4 +-
- drivers/video/fbdev/core/fbcon_ud.c                |  4 +-
- fs/btrfs/backref.c                                 |  1 +
- fs/btrfs/extent_io.c                               |  3 +-
- fs/btrfs/volumes.c                                 |  8 +++
- fs/cifs/inode.c                                    | 10 +--
- fs/fuse/dev.c                                      |  3 +-
- fs/nfs/direct.c                                    | 13 ++--
- fs/nfs/file.c                                      |  1 -
- include/asm-generic/vmlinux.lds.h                  |  5 +-
- include/linux/device-mapper.h                      |  1 +
- include/linux/io-mapping.h                         |  5 +-
- include/linux/mod_devicetable.h                    |  2 +-
- include/sound/rt5670.h                             |  1 +
- include/uapi/linux/input-event-codes.h             |  3 +-
- kernel/events/uprobes.c                            |  2 +-
- mm/memcontrol.c                                    |  4 +-
- mm/slab_common.c                                   | 35 ++++++++---
- net/mac80211/rx.c                                  | 26 ++++++++
- net/netfilter/ipvs/ip_vs_sync.c                    | 12 ++--
- net/tipc/bcast.c                                   |  8 +--
- net/tipc/group.c                                   |  4 +-
- net/tipc/link.c                                    | 12 ++--
- net/tipc/node.c                                    |  7 ++-
- net/tipc/socket.c                                  | 12 ++--
- scripts/decode_stacktrace.sh                       |  4 +-
- scripts/gdb/linux/symbols.py                       |  2 +-
- sound/core/info.c                                  |  4 +-
- sound/soc/codecs/rt5670.c                          | 71 +++++++++++++++++-----
- sound/soc/codecs/rt5670.h                          |  2 +-
- sound/soc/qcom/Kconfig                             |  2 +-
- 106 files changed, 578 insertions(+), 225 deletions(-)
 
 
