@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5000222EF38
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F9E22EF3B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:14:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgG0OOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:14:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40246 "EHLO mail.kernel.org"
+        id S1730567AbgG0OOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730551AbgG0OOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:14:34 -0400
+        id S1730562AbgG0OOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35F2A2173E;
-        Mon, 27 Jul 2020 14:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1AD721883;
+        Mon, 27 Jul 2020 14:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859273;
-        bh=NTugThViFGiRXib5CKtPHuNzlpLklsHlIJrixb5zji8=;
+        s=default; t=1595859276;
+        bh=XQDfGytVTpKeb+agTuSXemU8hW+k5+3VzA9zL6czwig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpTb/2QgajEvvizXyqH7dHIHrjTf2fkxrc5MCoRTmX19VY98wsxs4QhkSlA3LtW0F
-         /+bCUl4iJkMzPUtU4fWtdFVj0D1JnvlfaZ0CIsazPjtCI6+e+Nkb4eKKIwuyO+5jZw
-         1OtXzkRH/7N+LIJGfZzQXJTmRCKI0jjeLOX37FrQ=
+        b=RvCn3OZPhDRhIazH7veEXW/5xE1iRMyO3hReXW5VNbmHUbkk6YzaSGZeEooIwMRQk
+         Oa8j1SoXca39bVAhq/66s3M/2u/4QpprAinOp460xpf5qRXwzyOn8WUpVW1oSS8LSs
+         99KpGhLgXMe9GVAITBPsCw5eaqqt4bSNUVZqIPno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/138] net: dp83640: fix SIOCSHWTSTAMP to update the struct with actual configuration
-Date:   Mon, 27 Jul 2020 16:04:00 +0200
-Message-Id: <20200727134927.618938911@linuxfoundation.org>
+Subject: [PATCH 5.4 046/138] ieee802154: fix one possible memleak in adf7242_probe
+Date:   Mon, 27 Jul 2020 16:04:01 +0200
+Message-Id: <20200727134927.663862553@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -45,63 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Organov <sorganov@gmail.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 473309fb8372365ad211f425bca760af800e10a7 ]
+[ Upstream commit 66673f96f0f968b991dc38be06102246919c663c ]
 
->From Documentation/networking/timestamping.txt:
+When probe fail, we should destroy the workqueue.
 
-  A driver which supports hardware time stamping shall update the
-  struct with the actual, possibly more permissive configuration.
-
-Do update the struct passed when we upscale the requested time
-stamping mode.
-
-Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
-Signed-off-by: Sergey Organov <sorganov@gmail.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2795e8c25161 ("net: ieee802154: fix a potential NULL pointer dereference")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Link: https://lore.kernel.org/r/20200717090121.2143-1-liujian56@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83640.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ieee802154/adf7242.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83640.c b/drivers/net/phy/dp83640.c
-index 1c75b2627ca87..7d845117abb02 100644
---- a/drivers/net/phy/dp83640.c
-+++ b/drivers/net/phy/dp83640.c
-@@ -1348,6 +1348,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4;
- 		dp83640->version = PTP_CLASS_V1;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
-@@ -1355,6 +1356,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
-@@ -1362,6 +1364,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L2;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_SYNC:
-@@ -1369,6 +1372,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4 | PTP_CLASS_L2;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 		break;
- 	default:
- 		return -ERANGE;
+diff --git a/drivers/net/ieee802154/adf7242.c b/drivers/net/ieee802154/adf7242.c
+index 5a37514e42347..8dbccec6ac866 100644
+--- a/drivers/net/ieee802154/adf7242.c
++++ b/drivers/net/ieee802154/adf7242.c
+@@ -1262,7 +1262,7 @@ static int adf7242_probe(struct spi_device *spi)
+ 					     WQ_MEM_RECLAIM);
+ 	if (unlikely(!lp->wqueue)) {
+ 		ret = -ENOMEM;
+-		goto err_hw_init;
++		goto err_alloc_wq;
+ 	}
+ 
+ 	ret = adf7242_hw_init(lp);
+@@ -1294,6 +1294,8 @@ static int adf7242_probe(struct spi_device *spi)
+ 	return ret;
+ 
+ err_hw_init:
++	destroy_workqueue(lp->wqueue);
++err_alloc_wq:
+ 	mutex_destroy(&lp->bmux);
+ 	ieee802154_free_hw(lp->hw);
+ 
 -- 
 2.25.1
 
