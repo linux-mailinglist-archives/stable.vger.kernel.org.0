@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E6222FDA9
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861CE22FDA3
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726433AbgG0XYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35234 "EHLO mail.kernel.org"
+        id S1727905AbgG0X26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728148AbgG0XYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:24:19 -0400
+        id S1728156AbgG0XYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:24:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 872B820786;
-        Mon, 27 Jul 2020 23:24:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D30C420A8B;
+        Mon, 27 Jul 2020 23:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892258;
-        bh=gPzvdbozJ0ICpL+L9dDFWMeYQ9kM7Eph6uJlVPy/Fe4=;
+        s=default; t=1595892259;
+        bh=khXc0PSnnR6Npc3HWD8WDMk3xlt4pTF7I/aNk6Z3DTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+A29UBS1enfeCQIULUiNGLYaQvHcj5Dd6IFDPiGBXevD7Iq4lyAZUpF/73c8pj1j
-         fDRRBCqDSJS5nQD7UYxazZA687Vz90GIhZg2RVC2DklqXL0t+QIs796ZJOzXv8kpmz
-         Sle1wJmO3EQtPq/7OIOy8RUksOXzMEiOaR+mpZqo=
+        b=X6uXejaXggZwECBMGK8JLzzRf3bGkRzqMETJCtryktaAenOpiLaw+Cly1e1AegqGI
+         SF1WuVTD13DjWICBMcOzGFH5Fm+hCpEkfmE0vyaFceviM/5GlSp6igp5WQT5HVUBqT
+         xkC6iewMiBKN9YuQubjzDkME9I4dtOTm68VuN+uU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie He <xie.he.0141@gmail.com>, Eric Dumazet <edumazet@google.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 24/25] drivers/net/wan: lapb: Corrected the usage of skb_cow
-Date:   Mon, 27 Jul 2020 19:23:44 -0400
-Message-Id: <20200727232345.717432-24-sashal@kernel.org>
+Cc:     Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 25/25] riscv: Parse all memory blocks to remove unusable memory
+Date:   Mon, 27 Jul 2020 19:23:45 -0400
+Message-Id: <20200727232345.717432-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232345.717432-1-sashal@kernel.org>
 References: <20200727232345.717432-1-sashal@kernel.org>
@@ -44,81 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-[ Upstream commit 8754e1379e7089516a449821f88e1fe1ebbae5e1 ]
+[ Upstream commit fa5a198359053c8e21dcc2b39c0e13871059bc9f ]
 
-This patch fixed 2 issues with the usage of skb_cow in LAPB drivers
-"lapbether" and "hdlc_x25":
+Currently, maximum physical memory allowed is equal to -PAGE_OFFSET.
+That's why we remove any memory blocks spanning beyond that size. However,
+it is done only for memblock containing linux kernel which will not work
+if there are multiple memblocks.
 
-1) After skb_cow fails, kfree_skb should be called to drop a reference
-to the skb. But in both drivers, kfree_skb is not called.
+Process all memory blocks to figure out how much memory needs to be removed
+and remove at the end instead of updating the memblock list in place.
 
-2) skb_cow should be called before skb_push so that is can ensure the
-safety of skb_push. But in "lapbether", it is incorrectly called after
-skb_push.
-
-More details about these 2 issues:
-
-1) The behavior of calling kfree_skb on failure is also the behavior of
-netif_rx, which is called by this function with "return netif_rx(skb);".
-So this function should follow this behavior, too.
-
-2) In "lapbether", skb_cow is called after skb_push. This results in 2
-logical issues:
-   a) skb_push is not protected by skb_cow;
-   b) An extra headroom of 1 byte is ensured after skb_push. This extra
-      headroom has no use in this function. It also has no use in the
-      upper-layer function that this function passes the skb to
-      (x25_lapb_receive_frame in net/x25/x25_dev.c).
-So logically skb_cow should instead be called before skb_push.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_x25.c  | 4 +++-
- drivers/net/wan/lapbether.c | 8 +++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ arch/riscv/mm/init.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index c84536b03aa84..f70336bb6f524 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -71,8 +71,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 753f2cdbeab8f..5e3dccf74ca92 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -125,26 +125,29 @@ void __init setup_bootmem(void)
  {
- 	unsigned char *ptr;
+ 	struct memblock_region *reg;
+ 	phys_addr_t mem_size = 0;
++	phys_addr_t total_mem = 0;
++	phys_addr_t mem_start, end = 0;
+ 	phys_addr_t vmlinux_end = __pa_symbol(&_end);
+ 	phys_addr_t vmlinux_start = __pa_symbol(&_start);
  
--	if (skb_cow(skb, 1))
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
- 		return NET_RX_DROP;
-+	}
- 
- 	skb_push(skb, 1);
- 	skb_reset_network_header(skb);
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index e30d91a38cfb6..b73b347ed731d 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -128,10 +128,12 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
- 	unsigned char *ptr;
- 
--	skb_push(skb, 1);
+ 	/* Find the memory region containing the kernel */
+ 	for_each_memblock(memory, reg) {
+-		phys_addr_t end = reg->base + reg->size;
 -
--	if (skb_cow(skb, 1))
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
- 		return NET_RX_DROP;
-+	}
+-		if (reg->base <= vmlinux_start && vmlinux_end <= end) {
+-			mem_size = min(reg->size, (phys_addr_t)-PAGE_OFFSET);
+-
+-			/*
+-			 * Remove memblock from the end of usable area to the
+-			 * end of region
+-			 */
+-			if (reg->base + mem_size < end)
+-				memblock_remove(reg->base + mem_size,
+-						end - reg->base - mem_size);
+-		}
++		end = reg->base + reg->size;
++		if (!total_mem)
++			mem_start = reg->base;
++		if (reg->base <= vmlinux_start && vmlinux_end <= end)
++			BUG_ON(reg->size == 0);
++		total_mem = total_mem + reg->size;
+ 	}
+-	BUG_ON(mem_size == 0);
 +
-+	skb_push(skb, 1);
++	/*
++	 * Remove memblock from the end of usable area to the
++	 * end of region
++	 */
++	mem_size = min(total_mem, (phys_addr_t)-PAGE_OFFSET);
++	if (mem_start + mem_size < end)
++		memblock_remove(mem_start + mem_size,
++				end - mem_start - mem_size);
  
- 	ptr  = skb->data;
- 	*ptr = X25_IFACE_DATA;
+ 	/* Reserve from the start of the kernel to the end of the kernel */
+ 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
 -- 
 2.25.1
 
