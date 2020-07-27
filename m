@@ -2,85 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B099A22FAC3
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 22:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E50722FB3F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 23:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726091AbgG0U4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 16:56:37 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:48848 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgG0U4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 16:56:37 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0A38E1C0BEC; Mon, 27 Jul 2020 22:56:36 +0200 (CEST)
-Date:   Mon, 27 Jul 2020 22:56:35 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: Re: [PATCH 4.19 84/86] dm integrity: fix integrity recalculation
- that is improperly skipped
-Message-ID: <20200727205635.t23z72lkdofoewi3@duo.ucw.cz>
-References: <20200727134914.312934924@linuxfoundation.org>
- <20200727134918.614819996@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="c2ffx63o2i5ruzqb"
-Content-Disposition: inline
-In-Reply-To: <20200727134918.614819996@linuxfoundation.org>
-User-Agent: NeoMutt/20180716
+        id S1726237AbgG0VYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 17:24:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49482 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726139AbgG0VYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 17:24:37 -0400
+Received: from localhost (unknown [13.85.75.251])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03103207BB;
+        Mon, 27 Jul 2020 21:24:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595885076;
+        bh=MLbhfNhfEWUuWMxtsosQROgke8OOlnnRmKKhop1HBKY=;
+        h=Date:From:To:To:To:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:
+         In-Reply-To:References:From;
+        b=lOC8em/eCe10ZWbtq336EyzrF6MJarubmtalkuk7A+eJVealxhety4YlWrNkMSRbV
+         T5yV6wzz0HcRXeKz/6FOlBj2qy2sUDkEVs+23uRDZhFmNDf2ih2pPwj+FH5ykICsad
+         Yko9Iea0KyNLNC58GVk/GamNr6usT5YQcpjDthE0=
+Date:   Mon, 27 Jul 2020 21:24:35 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Ashok Raj <ashok.raj@intel.com>
+To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>
+To:     Joerg Roedel <joro@8bytes.com>
+To:     Lu Baolu <baolu.lu@intel.com>
+Cc:     Ashok Raj <ashok.raj@intel.com>, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     linux-pci@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org
+Cc:     Ashok Raj <ashok.raj@intel.com>
+Cc:     iommu@lists.linux-foundation.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/1] PCI/ATS: Check PRI supported on the PF device when SRIOV is enabled
+In-Reply-To: <1595543849-19692-1-git-send-email-ashok.raj@intel.com>
+References: <1595543849-19692-1-git-send-email-ashok.raj@intel.com>
+Message-Id: <20200727212436.03103207BB@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi
 
---c2ffx63o2i5ruzqb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[This is an automated email]
 
-Hi!
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: b16d0cb9e2fc ("iommu/vt-d: Always enable PASID/PRI PCI capabilities before ATS").
 
-> From: Mikulas Patocka <mpatocka@redhat.com>
->=20
-> commit 5df96f2b9f58a5d2dc1f30fe7de75e197f2c25f2 upstream.
->=20
-> Commit adc0daad366b62ca1bce3e2958a40b0b71a8b8b3 ("dm: report suspended
-> device during destroy") broke integrity recalculation.
->=20
-> The problem is dm_suspended() returns true not only during suspend,
-> but also during resume. So this race condition could occur:
-> 1. dm_integrity_resume calls queue_work(ic->recalc_wq, &ic->recalc_work)
-> 2. integrity_recalc (&ic->recalc_work) preempts the current thread
-> 3. integrity_recalc calls if (unlikely(dm_suspended(ic->ti))) goto unlock=
-_ret;
-> 4. integrity_recalc exits and no recalculating is done.
->=20
-> To fix this race condition, add a function dm_post_suspending that is
-> only true during the postsuspend phase and use it instead of
-> dm_suspended().
->=20
-> Signed-off-by: Mikulas Patocka <mpatocka redhat com>
+The bot has tested the following trees: v5.7.10, v5.4.53, v4.19.134, v4.14.189, v4.9.231, v4.4.231.
 
-Something is wrong with signoff here...
+v5.7.10: Build OK!
+v5.4.53: Failed to apply! Possible dependencies:
+    2b0ae7cc3bfc ("PCI/ATS: Handle sharing of PF PASID Capability with all VFs")
+    751035b8dc06 ("PCI/ATS: Cache PASID Capability offset")
+    8cbb8a9374a2 ("PCI/ATS: Move pci_prg_resp_pasid_required() to CONFIG_PCI_PRI")
+    9bf49e36d718 ("PCI/ATS: Handle sharing of PF PRI Capability with all VFs")
+    c065190bbcd4 ("PCI/ATS: Cache PRI Capability offset")
+    e5adf79a1d80 ("PCI/ATS: Cache PRI PRG Response PASID Required bit")
 
-Best regards,
-									Pavel
+v4.19.134: Failed to apply! Possible dependencies:
+    2b0ae7cc3bfc ("PCI/ATS: Handle sharing of PF PASID Capability with all VFs")
+    4f802170a861 ("PCI/DPC: Save and restore config state")
+    6e1ffbb7c2ab ("PCI: Move ATS declarations outside of CONFIG_PCI")
+    751035b8dc06 ("PCI/ATS: Cache PASID Capability offset")
+    8c938ddc6df3 ("PCI/ATS: Add pci_ats_page_aligned() interface")
+    8cbb8a9374a2 ("PCI/ATS: Move pci_prg_resp_pasid_required() to CONFIG_PCI_PRI")
+    9bf49e36d718 ("PCI/ATS: Handle sharing of PF PRI Capability with all VFs")
+    9c2120090586 ("PCI: Provide pci_match_id() with CONFIG_PCI=n")
+    b92b512a435d ("PCI: Make pci_ats_init() private")
+    c065190bbcd4 ("PCI/ATS: Cache PRI Capability offset")
+    e5567f5f6762 ("PCI/ATS: Add pci_prg_resp_pasid_required() interface.")
+    e5adf79a1d80 ("PCI/ATS: Cache PRI PRG Response PASID Required bit")
+    fff42928ade5 ("PCI/ATS: Add inline to pci_prg_resp_pasid_required()")
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+v4.14.189: Failed to apply! Possible dependencies:
+    1b79c5284439 ("PCI: cadence: Add host driver for Cadence PCIe controller")
+    1e4511604dfa ("PCI/AER: Expose internal API for obtaining AER information")
+    3133e6dd07ed ("PCI: Tidy Makefiles")
+    37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
+    4696b828ca37 ("PCI/AER: Hoist aerdrv.c, aer_inject.c up to drivers/pci/pcie/")
+    4f802170a861 ("PCI/DPC: Save and restore config state")
+    8c938ddc6df3 ("PCI/ATS: Add pci_ats_page_aligned() interface")
+    8cbb8a9374a2 ("PCI/ATS: Move pci_prg_resp_pasid_required() to CONFIG_PCI_PRI")
+    9bf49e36d718 ("PCI/ATS: Handle sharing of PF PRI Capability with all VFs")
+    9de0eec29c07 ("PCI: Regroup all PCI related entries into drivers/pci/Makefile")
+    b92b512a435d ("PCI: Make pci_ats_init() private")
+    c065190bbcd4 ("PCI/ATS: Cache PRI Capability offset")
+    d3252ace0bc6 ("PCI: Restore resized BAR state on resume")
+    e5567f5f6762 ("PCI/ATS: Add pci_prg_resp_pasid_required() interface.")
+    e5adf79a1d80 ("PCI/ATS: Cache PRI PRG Response PASID Required bit")
+    fff42928ade5 ("PCI/ATS: Add inline to pci_prg_resp_pasid_required()")
 
---c2ffx63o2i5ruzqb
-Content-Type: application/pgp-signature; name="signature.asc"
+v4.9.231: Failed to apply! Possible dependencies:
+    4ebeb1ec56d4 ("PCI: Restore PRI and PASID state after Function-Level Reset")
+    8c938ddc6df3 ("PCI/ATS: Add pci_ats_page_aligned() interface")
+    8cbb8a9374a2 ("PCI/ATS: Move pci_prg_resp_pasid_required() to CONFIG_PCI_PRI")
+    9bf49e36d718 ("PCI/ATS: Handle sharing of PF PRI Capability with all VFs")
+    a4f4fa681add ("PCI: Cache PRI and PASID bits in pci_dev")
+    c065190bbcd4 ("PCI/ATS: Cache PRI Capability offset")
+    e5567f5f6762 ("PCI/ATS: Add pci_prg_resp_pasid_required() interface.")
+    e5adf79a1d80 ("PCI/ATS: Cache PRI PRG Response PASID Required bit")
+    fff42928ade5 ("PCI/ATS: Add inline to pci_prg_resp_pasid_required()")
 
------BEGIN PGP SIGNATURE-----
+v4.4.231: Failed to apply! Possible dependencies:
+    2a2aca316aed ("PCI: Include <asm/dma.h> for isa_dma_bridge_buggy")
+    4d3f13845957 ("PCI: Add pci_unmap_iospace() to unmap I/O resources")
+    4ebeb1ec56d4 ("PCI: Restore PRI and PASID state after Function-Level Reset")
+    8cbb8a9374a2 ("PCI/ATS: Move pci_prg_resp_pasid_required() to CONFIG_PCI_PRI")
+    9bf49e36d718 ("PCI/ATS: Handle sharing of PF PRI Capability with all VFs")
+    a4f4fa681add ("PCI: Cache PRI and PASID bits in pci_dev")
+    c5076cfe7689 ("PCI, of: Move PCI I/O space management to PCI core code")
+    e5567f5f6762 ("PCI/ATS: Add pci_prg_resp_pasid_required() interface.")
 
-iF0EARECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXx8/gwAKCRAw5/Bqldv6
-8tdoAJ491zLI5+qrKuaseLHCAYS45lbfPgCeO+xsnnL50rvpSSMij8DKb/4Izbg=
-=l0en
------END PGP SIGNATURE-----
 
---c2ffx63o2i5ruzqb--
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
