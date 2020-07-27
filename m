@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD9E22EEB3
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5000222EF38
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729751AbgG0OKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60612 "EHLO mail.kernel.org"
+        id S1730556AbgG0OOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:14:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729743AbgG0OJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:09:57 -0400
+        id S1730551AbgG0OOe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E5B720838;
-        Mon, 27 Jul 2020 14:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35F2A2173E;
+        Mon, 27 Jul 2020 14:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858997;
-        bh=KZrWMhpETOvjPpLc1CgHzf86C/y6r++ck0qVo8CAzxk=;
+        s=default; t=1595859273;
+        bh=NTugThViFGiRXib5CKtPHuNzlpLklsHlIJrixb5zji8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0l19B0RP127R6ZSN+BnyaVPpqHX79n2hgIKL6pBeuun1HPz+PG6zHfT3Gs1DC4SJw
-         eeNuPjOPqMSjzA6V/PZsFkN/qzKt/Nu+27u9+Oc9mfSTBSa/2vMaCBcssBw2AWHE9a
-         S0cmyUoMvakh/ELsX6TC3PkbQnGWRX8+XY17bpQs=
+        b=qpTb/2QgajEvvizXyqH7dHIHrjTf2fkxrc5MCoRTmX19VY98wsxs4QhkSlA3LtW0F
+         /+bCUl4iJkMzPUtU4fWtdFVj0D1JnvlfaZ0CIsazPjtCI6+e+Nkb4eKKIwuyO+5jZw
+         1OtXzkRH/7N+LIJGfZzQXJTmRCKI0jjeLOX37FrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthew Gerlach <matthew.gerlach@linux.intel.com>,
-        Xu Yilun <yilun.xu@intel.com>, Wu Hao <hao.wu@intel.com>,
-        Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
+        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/86] fpga: dfl: fix bug in port reset handshake
+Subject: [PATCH 5.4 045/138] net: dp83640: fix SIOCSHWTSTAMP to update the struct with actual configuration
 Date:   Mon, 27 Jul 2020 16:04:00 +0200
-Message-Id: <20200727134915.766651196@linuxfoundation.org>
+Message-Id: <20200727134927.618938911@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Gerlach <matthew.gerlach@linux.intel.com>
+From: Sergey Organov <sorganov@gmail.com>
 
-[ Upstream commit 8614afd689df59d9ce019439389be20bd788a897 ]
+[ Upstream commit 473309fb8372365ad211f425bca760af800e10a7 ]
 
-When putting the port in reset, driver must wait for the soft reset
-acknowledgment bit instead of the soft reset bit.
+>From Documentation/networking/timestamping.txt:
 
-Fixes: 47c1b19c160f (fpga: dfl: afu: add port ops support)
-Signed-off-by: Matthew Gerlach <matthew.gerlach@linux.intel.com>
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
-Acked-by: Wu Hao <hao.wu@intel.com>
-Reviewed-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
+  A driver which supports hardware time stamping shall update the
+  struct with the actual, possibly more permissive configuration.
+
+Do update the struct passed when we upscale the requested time
+stamping mode.
+
+Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Signed-off-by: Sergey Organov <sorganov@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/dfl-afu-main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/dp83640.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/fpga/dfl-afu-main.c b/drivers/fpga/dfl-afu-main.c
-index 02baa6a227c0c..fc048f9a99b19 100644
---- a/drivers/fpga/dfl-afu-main.c
-+++ b/drivers/fpga/dfl-afu-main.c
-@@ -79,7 +79,8 @@ static int port_disable(struct platform_device *pdev)
- 	 * on this port and minimum soft reset pulse width has elapsed.
- 	 * Driver polls port_soft_reset_ack to determine if reset done by HW.
- 	 */
--	if (readq_poll_timeout(base + PORT_HDR_CTRL, v, v & PORT_CTRL_SFTRST,
-+	if (readq_poll_timeout(base + PORT_HDR_CTRL, v,
-+			       v & PORT_CTRL_SFTRST_ACK,
- 			       RST_POLL_INVL, RST_POLL_TIMEOUT)) {
- 		dev_err(&pdev->dev, "timeout, fail to reset device\n");
- 		return -ETIMEDOUT;
+diff --git a/drivers/net/phy/dp83640.c b/drivers/net/phy/dp83640.c
+index 1c75b2627ca87..7d845117abb02 100644
+--- a/drivers/net/phy/dp83640.c
++++ b/drivers/net/phy/dp83640.c
+@@ -1348,6 +1348,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
+ 		dp83640->hwts_rx_en = 1;
+ 		dp83640->layer = PTP_CLASS_L4;
+ 		dp83640->version = PTP_CLASS_V1;
++		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
+ 		break;
+ 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
+ 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+@@ -1355,6 +1356,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
+ 		dp83640->hwts_rx_en = 1;
+ 		dp83640->layer = PTP_CLASS_L4;
+ 		dp83640->version = PTP_CLASS_V2;
++		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
+ 		break;
+ 	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
+ 	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
+@@ -1362,6 +1364,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
+ 		dp83640->hwts_rx_en = 1;
+ 		dp83640->layer = PTP_CLASS_L2;
+ 		dp83640->version = PTP_CLASS_V2;
++		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+ 		break;
+ 	case HWTSTAMP_FILTER_PTP_V2_EVENT:
+ 	case HWTSTAMP_FILTER_PTP_V2_SYNC:
+@@ -1369,6 +1372,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
+ 		dp83640->hwts_rx_en = 1;
+ 		dp83640->layer = PTP_CLASS_L4 | PTP_CLASS_L2;
+ 		dp83640->version = PTP_CLASS_V2;
++		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
+ 		break;
+ 	default:
+ 		return -ERANGE;
 -- 
 2.25.1
 
