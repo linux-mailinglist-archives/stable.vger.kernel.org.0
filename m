@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B95622EEF5
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C94722F069
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730144AbgG0OML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:12:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36292 "EHLO mail.kernel.org"
+        id S1732251AbgG0OYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:24:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730138AbgG0OMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:12:10 -0400
+        id S1732202AbgG0OYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:24:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB38121775;
-        Mon, 27 Jul 2020 14:12:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F05921744;
+        Mon, 27 Jul 2020 14:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859130;
-        bh=29cjQnjSC+wuvHtG+20VVuSfXqeNY9zwFB/jMOukLSE=;
+        s=default; t=1595859863;
+        bh=kOVhulJk+pdwU88duSZrqzaEiuBdYU+NRWyGSP6HyBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGzB/uurOdrp52J/izWLlqdoh9PYXKjgSXoD/lEmq4IHbt+ihIzwRQ4hRhpTzVzBK
-         bVa8hV5h3wYM05EYpvOwFgDlDdQ7vjllJ/dq9ahreOy1ns6ZV5B2aSBtOWWgsYjg7s
-         peuHZJyKxZB6Dsoy8XnZ9QuMDkhApnjApBKQRNwY=
+        b=RdYBmobozHhgvZ94mBOR+2fGXTnsO7D7AqDC4qQ7EPzaI8PGTxJvF7it/bjDXlzdX
+         Bqokrk5ZWyOa2KR3+dX1yQTR0E6drso+t3y0HCKMfQ3skQyq6ZE3ZnqIIEcX9LqmZu
+         ekVktbKBYv7A6lVlSxYjxWK6zxH8ooae4KbDn1rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 77/86] io-mapping: indicate mapping failure
-Date:   Mon, 27 Jul 2020 16:04:51 +0200
-Message-Id: <20200727134918.255432367@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Katsnelson <me@0upti.me>,
+        Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 117/179] Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+Date:   Mon, 27 Jul 2020 16:04:52 +0200
+Message-Id: <20200727134938.354419325@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,73 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael J. Ruhl <michael.j.ruhl@intel.com>
+From: Ilya Katsnelson <me@0upti.me>
 
-commit e0b3e0b1a04367fc15c07f44e78361545b55357c upstream.
+[ Upstream commit dcb00fc799dc03fd320e123e4c81b3278c763ea5 ]
 
-The !ATOMIC_IOMAP version of io_maping_init_wc will always return
-success, even when the ioremap fails.
+Tested on my own laptop, touchpad feels slightly more responsive with
+this on, though it might just be placebo.
 
-Since the ATOMIC_IOMAP version returns NULL when the init fails, and
-callers check for a NULL return on error this is unexpected.
-
-During a device probe, where the ioremap failed, a crash can look like
-this:
-
-    BUG: unable to handle page fault for address: 0000000000210000
-     #PF: supervisor write access in kernel mode
-     #PF: error_code(0x0002) - not-present page
-     Oops: 0002 [#1] PREEMPT SMP
-     CPU: 0 PID: 177 Comm:
-     RIP: 0010:fill_page_dma [i915]
-       gen8_ppgtt_create [i915]
-       i915_ppgtt_create [i915]
-       intel_gt_init [i915]
-       i915_gem_init [i915]
-       i915_driver_probe [i915]
-       pci_device_probe
-       really_probe
-       driver_probe_device
-
-The remap failure occurred much earlier in the probe.  If it had been
-propagated, the driver would have exited with an error.
-
-Return NULL on ioremap failure.
-
-[akpm@linux-foundation.org: detect ioremap_wc() errors earlier]
-
-Fixes: cafaf14a5d8f ("io-mapping: Always create a struct to hold metadata about the io-mapping")
-Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200721171936.81563-1-michael.j.ruhl@intel.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ilya Katsnelson <me@0upti.me>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://lore.kernel.org/r/20200703143457.132373-1-me@0upti.me
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/io-mapping.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/io-mapping.h
-+++ b/include/linux/io-mapping.h
-@@ -120,9 +120,12 @@ io_mapping_init_wc(struct io_mapping *io
- 		   resource_size_t base,
- 		   unsigned long size)
- {
-+	iomap->iomem = ioremap_wc(base, size);
-+	if (!iomap->iomem)
-+		return NULL;
-+
- 	iomap->base = base;
- 	iomap->size = size;
--	iomap->iomem = ioremap_wc(base, size);
- #if defined(pgprot_noncached_wc) /* archs can't agree on a name ... */
- 	iomap->prot = pgprot_noncached_wc(PAGE_KERNEL);
- #elif defined(pgprot_writecombine)
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 758dae8d65006..4b81b2d0fe067 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
++	"LEN0099", /* X1 Extreme 1st */
+ 	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
+ 	"LEN2044", /* L470  */
+-- 
+2.25.1
+
 
 
