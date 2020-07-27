@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5877022EFBF
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B876B22F0B6
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730726AbgG0OS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46714 "EHLO mail.kernel.org"
+        id S1732616AbgG0O0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731321AbgG0OSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:18:55 -0400
+        id S1731829AbgG0O0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:26:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D4D82070A;
-        Mon, 27 Jul 2020 14:18:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBA1F20663;
+        Mon, 27 Jul 2020 14:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859535;
-        bh=iJirAemF/CyfoWmMvNgo2psWOY/TmoreBsRJ3IibRUk=;
+        s=default; t=1595859990;
+        bh=/YydLRvkoKVz03blHEasLvIRqIOV/wARQ1buAMOoUk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+2KRSy7Wfm8BdYtazLeCyPVZtSAOG1vuirzopj7tjB2vz20763xd1YTDwGYEO0Wj
-         k10DN8lkBmkA0fCCflrWOK3KUQErBopUnTgzM1AeBN8ALelKXF4oTfZBvRGiP3lx+S
-         hdJsX8WquZzIL90rFrUUXR3+5Cq5ZFNxXbunFHeA=
+        b=XOinYIGH0TxejZFEArTRZc5z1Csk2ekPT3qgsI9JRtGISvMWJdXgeYiU0gm8cmsLP
+         eDTP+3HSn2e67GwQOOMT2em/Nfd/6zVPai1evt4NwkkMFTIfkgPPMxQ2qZF+m5txlA
+         jvILjc/1sebIDSMtE1m9mmZkbzKU/bwRZDnKDHCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 136/138] dm integrity: fix integrity recalculation that is improperly skipped
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        syzbot <syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com>
+Subject: [PATCH 5.7 156/179] fbdev: Detect integer underflow at "struct fbcon_ops"->clear_margins.
 Date:   Mon, 27 Jul 2020 16:05:31 +0200
-Message-Id: <20200727134932.209189611@linuxfoundation.org>
+Message-Id: <20200727134940.273282559@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,128 +45,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 5df96f2b9f58a5d2dc1f30fe7de75e197f2c25f2 upstream.
+commit 033724d6864245a11f8e04c066002e6ad22b3fd0 upstream.
 
-Commit adc0daad366b62ca1bce3e2958a40b0b71a8b8b3 ("dm: report suspended
-device during destroy") broke integrity recalculation.
+syzbot is reporting general protection fault in bitfill_aligned() [1]
+caused by integer underflow in bit_clear_margins(). The cause of this
+problem is when and how do_vc_resize() updates vc->vc_{cols,rows}.
 
-The problem is dm_suspended() returns true not only during suspend,
-but also during resume. So this race condition could occur:
-1. dm_integrity_resume calls queue_work(ic->recalc_wq, &ic->recalc_work)
-2. integrity_recalc (&ic->recalc_work) preempts the current thread
-3. integrity_recalc calls if (unlikely(dm_suspended(ic->ti))) goto unlock_ret;
-4. integrity_recalc exits and no recalculating is done.
+If vc_do_resize() fails (e.g. kzalloc() fails) when var.xres or var.yres
+is going to shrink, vc->vc_{cols,rows} will not be updated. This allows
+bit_clear_margins() to see info->var.xres < (vc->vc_cols * cw) or
+info->var.yres < (vc->vc_rows * ch). Unexpectedly large rw or bh will
+try to overrun the __iomem region and causes general protection fault.
 
-To fix this race condition, add a function dm_post_suspending that is
-only true during the postsuspend phase and use it instead of
-dm_suspended().
+Also, vc_resize(vc, 0, 0) does not set vc->vc_{cols,rows} = 0 due to
 
-Signed-off-by: Mikulas Patocka <mpatocka redhat com>
-Fixes: adc0daad366b ("dm: report suspended device during destroy")
-Cc: stable vger kernel org # v4.18+
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+  new_cols = (cols ? cols : vc->vc_cols);
+  new_rows = (lines ? lines : vc->vc_rows);
+
+exception. Since cols and lines are calculated as
+
+  cols = FBCON_SWAP(ops->rotate, info->var.xres, info->var.yres);
+  rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
+  cols /= vc->vc_font.width;
+  rows /= vc->vc_font.height;
+  vc_resize(vc, cols, rows);
+
+in fbcon_modechanged(), var.xres < vc->vc_font.width makes cols = 0
+and var.yres < vc->vc_font.height makes rows = 0. This means that
+
+  const int fd = open("/dev/fb0", O_ACCMODE);
+  struct fb_var_screeninfo var = { };
+  ioctl(fd, FBIOGET_VSCREENINFO, &var);
+  var.xres = var.yres = 1;
+  ioctl(fd, FBIOPUT_VSCREENINFO, &var);
+
+easily reproduces integer underflow bug explained above.
+
+Of course, callers of vc_resize() are not handling vc_do_resize() failure
+is bad. But we can't avoid vc_resize(vc, 0, 0) which returns 0. Therefore,
+as a band-aid workaround, this patch checks integer underflow in
+"struct fbcon_ops"->clear_margins call, assuming that
+vc->vc_cols * vc->vc_font.width and vc->vc_rows * vc->vc_font.heigh do not
+cause integer overflow.
+
+[1] https://syzkaller.appspot.com/bug?id=a565882df74fa76f10d3a6fec4be31098dbb37c6
+
+Reported-and-tested-by: syzbot <syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200715015102.3814-1-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-integrity.c     |    4 ++--
- drivers/md/dm.c               |   17 +++++++++++++++++
- include/linux/device-mapper.h |    1 +
- 3 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/bitblit.c   |    4 ++--
+ drivers/video/fbdev/core/fbcon_ccw.c |    4 ++--
+ drivers/video/fbdev/core/fbcon_cw.c  |    4 ++--
+ drivers/video/fbdev/core/fbcon_ud.c  |    4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2298,7 +2298,7 @@ static void integrity_writer(struct work
- 	unsigned prev_free_sectors;
+--- a/drivers/video/fbdev/core/bitblit.c
++++ b/drivers/video/fbdev/core/bitblit.c
+@@ -216,7 +216,7 @@ static void bit_clear_margins(struct vc_
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
  
- 	/* the following test is not needed, but it tests the replay code */
--	if (unlikely(dm_suspended(ic->ti)) && !ic->meta_dev)
-+	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
- 		return;
- 
- 	spin_lock_irq(&ic->endio_wait.lock);
-@@ -2359,7 +2359,7 @@ static void integrity_recalc(struct work
- 
- next_chunk:
- 
--	if (unlikely(dm_suspended(ic->ti)))
-+	if (unlikely(dm_post_suspending(ic->ti)))
- 		goto unlock_ret;
- 
- 	range.logical_sector = le64_to_cpu(ic->sb->recalc_sector);
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -141,6 +141,7 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_
- #define DMF_NOFLUSH_SUSPENDING 5
- #define DMF_DEFERRED_REMOVE 6
- #define DMF_SUSPENDED_INTERNALLY 7
-+#define DMF_POST_SUSPENDING 8
- 
- #define DM_NUMA_NODE NUMA_NO_NODE
- static int dm_numa_node = DM_NUMA_NODE;
-@@ -2377,6 +2378,7 @@ static void __dm_destroy(struct mapped_d
- 	if (!dm_suspended_md(md)) {
- 		dm_table_presuspend_targets(map);
- 		set_bit(DMF_SUSPENDED, &md->flags);
-+		set_bit(DMF_POST_SUSPENDING, &md->flags);
- 		dm_table_postsuspend_targets(map);
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dx = info->var.xoffset + rs;
+ 		region.dy = 0;
+ 		region.width = rw;
+@@ -224,7 +224,7 @@ static void bit_clear_margins(struct vc_
+ 		info->fbops->fb_fillrect(info, &region);
  	}
- 	/* dm_put_live_table must be before msleep, otherwise deadlock is possible */
-@@ -2735,7 +2737,9 @@ retry:
- 	if (r)
- 		goto out_unlock;
  
-+	set_bit(DMF_POST_SUSPENDING, &md->flags);
- 	dm_table_postsuspend_targets(map);
-+	clear_bit(DMF_POST_SUSPENDING, &md->flags);
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dx = info->var.xoffset;
+ 		region.dy = info->var.yoffset + bs;
+ 		region.width = rs;
+--- a/drivers/video/fbdev/core/fbcon_ccw.c
++++ b/drivers/video/fbdev/core/fbcon_ccw.c
+@@ -201,7 +201,7 @@ static void ccw_clear_margins(struct vc_
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
  
- out_unlock:
- 	mutex_unlock(&md->suspend_lock);
-@@ -2832,7 +2836,9 @@ static void __dm_internal_suspend(struct
- 	(void) __dm_suspend(md, map, suspend_flags, TASK_UNINTERRUPTIBLE,
- 			    DMF_SUSPENDED_INTERNALLY);
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dx = 0;
+ 		region.dy = info->var.yoffset;
+ 		region.height = rw;
+@@ -209,7 +209,7 @@ static void ccw_clear_margins(struct vc_
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
  
-+	set_bit(DMF_POST_SUSPENDING, &md->flags);
- 	dm_table_postsuspend_targets(map);
-+	clear_bit(DMF_POST_SUSPENDING, &md->flags);
- }
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dx = info->var.xoffset + bs;
+ 		region.dy = 0;
+                 region.height = info->var.yres_virtual;
+--- a/drivers/video/fbdev/core/fbcon_cw.c
++++ b/drivers/video/fbdev/core/fbcon_cw.c
+@@ -184,7 +184,7 @@ static void cw_clear_margins(struct vc_d
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
  
- static void __dm_internal_resume(struct mapped_device *md)
-@@ -2993,6 +2999,11 @@ int dm_suspended_md(struct mapped_device
- 	return test_bit(DMF_SUSPENDED, &md->flags);
- }
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dx = 0;
+ 		region.dy = info->var.yoffset + rs;
+ 		region.height = rw;
+@@ -192,7 +192,7 @@ static void cw_clear_margins(struct vc_d
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
  
-+static int dm_post_suspending_md(struct mapped_device *md)
-+{
-+	return test_bit(DMF_POST_SUSPENDING, &md->flags);
-+}
-+
- int dm_suspended_internally_md(struct mapped_device *md)
- {
- 	return test_bit(DMF_SUSPENDED_INTERNALLY, &md->flags);
-@@ -3009,6 +3020,12 @@ int dm_suspended(struct dm_target *ti)
- }
- EXPORT_SYMBOL_GPL(dm_suspended);
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dx = info->var.xoffset;
+ 		region.dy = info->var.yoffset;
+                 region.height = info->var.yres;
+--- a/drivers/video/fbdev/core/fbcon_ud.c
++++ b/drivers/video/fbdev/core/fbcon_ud.c
+@@ -231,7 +231,7 @@ static void ud_clear_margins(struct vc_d
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
  
-+int dm_post_suspending(struct dm_target *ti)
-+{
-+	return dm_post_suspending_md(dm_table_get_md(ti->table));
-+}
-+EXPORT_SYMBOL_GPL(dm_post_suspending);
-+
- int dm_noflush_suspending(struct dm_target *ti)
- {
- 	return __noflush_suspending(dm_table_get_md(ti->table));
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -422,6 +422,7 @@ const char *dm_device_name(struct mapped
- int dm_copy_name_and_uuid(struct mapped_device *md, char *name, char *uuid);
- struct gendisk *dm_disk(struct mapped_device *md);
- int dm_suspended(struct dm_target *ti);
-+int dm_post_suspending(struct dm_target *ti);
- int dm_noflush_suspending(struct dm_target *ti);
- void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors);
- void dm_remap_zone_report(struct dm_target *ti, sector_t start,
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dy = 0;
+ 		region.dx = info->var.xoffset;
+ 		region.width  = rw;
+@@ -239,7 +239,7 @@ static void ud_clear_margins(struct vc_d
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
+ 
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dy = info->var.yoffset;
+ 		region.dx = info->var.xoffset;
+                 region.height  = bh;
 
 
