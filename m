@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C40D22EF0A
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D463322EF0D
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729673AbgG0OMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37402 "EHLO mail.kernel.org"
+        id S1729697AbgG0OM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730253AbgG0OMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:12:51 -0400
+        id S1730288AbgG0OM4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0149D2073E;
-        Mon, 27 Jul 2020 14:12:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 280EA2073E;
+        Mon, 27 Jul 2020 14:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859170;
-        bh=8wXXxADqXaaZgqAKLyTwE1DwlttSQ4Rgji0QihoDSZ8=;
+        s=default; t=1595859175;
+        bh=GA44kHr1uHOcIhyuj8ab60+o5lfmvjI8RRbla3WfXHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkO8j+4+nobyYeuhJh4y4F0N+OBkTC80l4KZF1e348w1LfTBjxt4Ic1fpcK8rdURw
-         DGfCYZnAsPVuukkcs4hxPA4cGHBci/LS0Sx4Z9YqOkKT21Vefx6eXfvzGq/gaQqjIz
-         NChTAU8GUrgn1nmzOndVbH6bJ0grEqhoy3DIG+48=
+        b=qMS8MxYj8IAprZW1QH+MECMiqVssPANVJmOtUbK8CFM/kjf6Wio1j8iUSQTXsfban
+         nPjbKq9KTs5P4lOypBGMDbRLAZH084OiiTe0I2Dg1rlPGnC4hHcbHt2V8UH6IoN+ZX
+         IOueAJJ8Nl297XpzADzCeA4GNu1Q3ohy45xuHbQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 84/86] dm integrity: fix integrity recalculation that is improperly skipped
-Date:   Mon, 27 Jul 2020 16:04:58 +0200
-Message-Id: <20200727134918.614819996@linuxfoundation.org>
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        =?UTF-8?q?Viktor=20J=C3=A4gersk=C3=BCpper?= 
+        <viktor_jaegerskuepper@freenet.de>,
+        syzbot+40d5d2e8a4680952f042@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 85/86] ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
+Date:   Mon, 27 Jul 2020 16:04:59 +0200
+Message-Id: <20200727134918.664168092@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
 References: <20200727134914.312934924@linuxfoundation.org>
@@ -42,128 +46,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 5df96f2b9f58a5d2dc1f30fe7de75e197f2c25f2 upstream.
+commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
 
-Commit adc0daad366b62ca1bce3e2958a40b0b71a8b8b3 ("dm: report suspended
-device during destroy") broke integrity recalculation.
+In ath9k_hif_usb_rx_cb interface number is assumed to be 0.
+usb_ifnum_to_if(urb->dev, 0)
+But it isn't always true.
 
-The problem is dm_suspended() returns true not only during suspend,
-but also during resume. So this race condition could occur:
-1. dm_integrity_resume calls queue_work(ic->recalc_wq, &ic->recalc_work)
-2. integrity_recalc (&ic->recalc_work) preempts the current thread
-3. integrity_recalc calls if (unlikely(dm_suspended(ic->ti))) goto unlock_ret;
-4. integrity_recalc exits and no recalculating is done.
+The case reported by syzbot:
+https://lore.kernel.org/linux-usb/000000000000666c9c05a1c05d12@google.com
+usb 2-1: new high-speed USB device number 2 using dummy_hcd
+usb 2-1: config 1 has an invalid interface number: 2 but max is 0
+usb 2-1: config 1 has no interface number 0
+usb 2-1: New USB device found, idVendor=0cf3, idProduct=9271, bcdDevice=
+1.08
+usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+general protection fault, probably for non-canonical address
+0xdffffc0000000015: 0000 [#1] SMP KASAN
+KASAN: null-ptr-deref in range [0x00000000000000a8-0x00000000000000af]
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.0-rc5-syzkaller #0
 
-To fix this race condition, add a function dm_post_suspending that is
-only true during the postsuspend phase and use it instead of
-dm_suspended().
+Call Trace
+__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
+usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
+dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
+call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
+expire_timers kernel/time/timer.c:1449 [inline]
+__run_timers kernel/time/timer.c:1773 [inline]
+__run_timers kernel/time/timer.c:1740 [inline]
+run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
+__do_softirq+0x21e/0x950 kernel/softirq.c:292
+invoke_softirq kernel/softirq.c:373 [inline]
+irq_exit+0x178/0x1a0 kernel/softirq.c:413
+exiting_irq arch/x86/include/asm/apic.h:546 [inline]
+smp_apic_timer_interrupt+0x141/0x540 arch/x86/kernel/apic/apic.c:1146
+apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:829
 
-Signed-off-by: Mikulas Patocka <mpatocka redhat com>
-Fixes: adc0daad366b ("dm: report suspended device during destroy")
-Cc: stable vger kernel org # v4.18+
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-and-tested-by: syzbot+40d5d2e8a4680952f042@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200404041838.10426-6-hqjagain@gmail.com
+Cc: Viktor Jägersküpper <viktor_jaegerskuepper@freenet.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-integrity.c     |    4 ++--
- drivers/md/dm.c               |   17 +++++++++++++++++
- include/linux/device-mapper.h |    1 +
- 3 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |   48 +++++++++++++++++++++++--------
+ drivers/net/wireless/ath/ath9k/hif_usb.h |    5 +++
+ 2 files changed, 42 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2068,7 +2068,7 @@ static void integrity_writer(struct work
- 	unsigned prev_free_sectors;
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -643,9 +643,9 @@ err:
  
- 	/* the following test is not needed, but it tests the replay code */
--	if (unlikely(dm_suspended(ic->ti)) && !ic->meta_dev)
-+	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
- 		return;
- 
- 	spin_lock_irq(&ic->endio_wait.lock);
-@@ -2127,7 +2127,7 @@ static void integrity_recalc(struct work
- 
- next_chunk:
- 
--	if (unlikely(dm_suspended(ic->ti)))
-+	if (unlikely(dm_post_suspending(ic->ti)))
- 		goto unlock_ret;
- 
- 	range.logical_sector = le64_to_cpu(ic->sb->recalc_sector);
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -141,6 +141,7 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_
- #define DMF_NOFLUSH_SUSPENDING 5
- #define DMF_DEFERRED_REMOVE 6
- #define DMF_SUSPENDED_INTERNALLY 7
-+#define DMF_POST_SUSPENDING 8
- 
- #define DM_NUMA_NODE NUMA_NO_NODE
- static int dm_numa_node = DM_NUMA_NODE;
-@@ -2355,6 +2356,7 @@ static void __dm_destroy(struct mapped_d
- 	if (!dm_suspended_md(md)) {
- 		dm_table_presuspend_targets(map);
- 		set_bit(DMF_SUSPENDED, &md->flags);
-+		set_bit(DMF_POST_SUSPENDING, &md->flags);
- 		dm_table_postsuspend_targets(map);
- 	}
- 	/* dm_put_live_table must be before msleep, otherwise deadlock is possible */
-@@ -2680,7 +2682,9 @@ retry:
- 	if (r)
- 		goto out_unlock;
- 
-+	set_bit(DMF_POST_SUSPENDING, &md->flags);
- 	dm_table_postsuspend_targets(map);
-+	clear_bit(DMF_POST_SUSPENDING, &md->flags);
- 
- out_unlock:
- 	mutex_unlock(&md->suspend_lock);
-@@ -2777,7 +2781,9 @@ static void __dm_internal_suspend(struct
- 	(void) __dm_suspend(md, map, suspend_flags, TASK_UNINTERRUPTIBLE,
- 			    DMF_SUSPENDED_INTERNALLY);
- 
-+	set_bit(DMF_POST_SUSPENDING, &md->flags);
- 	dm_table_postsuspend_targets(map);
-+	clear_bit(DMF_POST_SUSPENDING, &md->flags);
- }
- 
- static void __dm_internal_resume(struct mapped_device *md)
-@@ -2938,6 +2944,11 @@ int dm_suspended_md(struct mapped_device
- 	return test_bit(DMF_SUSPENDED, &md->flags);
- }
- 
-+static int dm_post_suspending_md(struct mapped_device *md)
-+{
-+	return test_bit(DMF_POST_SUSPENDING, &md->flags);
-+}
-+
- int dm_suspended_internally_md(struct mapped_device *md)
+ static void ath9k_hif_usb_rx_cb(struct urb *urb)
  {
- 	return test_bit(DMF_SUSPENDED_INTERNALLY, &md->flags);
-@@ -2954,6 +2965,12 @@ int dm_suspended(struct dm_target *ti)
- }
- EXPORT_SYMBOL_GPL(dm_suspended);
+-	struct sk_buff *skb = (struct sk_buff *) urb->context;
+-	struct hif_device_usb *hif_dev =
+-		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
++	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
++	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
++	struct sk_buff *skb = rx_buf->skb;
+ 	int ret;
  
-+int dm_post_suspending(struct dm_target *ti)
-+{
-+	return dm_post_suspending_md(dm_table_get_md(ti->table));
-+}
-+EXPORT_SYMBOL_GPL(dm_post_suspending);
-+
- int dm_noflush_suspending(struct dm_target *ti)
+ 	if (!skb)
+@@ -685,14 +685,15 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
++	kfree(rx_buf);
+ }
+ 
+ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
  {
- 	return __noflush_suspending(dm_table_get_md(ti->table));
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -419,6 +419,7 @@ const char *dm_device_name(struct mapped
- int dm_copy_name_and_uuid(struct mapped_device *md, char *name, char *uuid);
- struct gendisk *dm_disk(struct mapped_device *md);
- int dm_suspended(struct dm_target *ti);
-+int dm_post_suspending(struct dm_target *ti);
- int dm_noflush_suspending(struct dm_target *ti);
- void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors);
- void dm_remap_zone_report(struct dm_target *ti, struct bio *bio,
+-	struct sk_buff *skb = (struct sk_buff *) urb->context;
++	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
++	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
++	struct sk_buff *skb = rx_buf->skb;
+ 	struct sk_buff *nskb;
+-	struct hif_device_usb *hif_dev =
+-		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
+ 	int ret;
+ 
+ 	if (!skb)
+@@ -750,6 +751,7 @@ resubmit:
+ 	return;
+ free:
+ 	kfree_skb(skb);
++	kfree(rx_buf);
+ 	urb->context = NULL;
+ }
+ 
+@@ -795,7 +797,7 @@ static int ath9k_hif_usb_alloc_tx_urbs(s
+ 	init_usb_anchor(&hif_dev->mgmt_submitted);
+ 
+ 	for (i = 0; i < MAX_TX_URB_NUM; i++) {
+-		tx_buf = kzalloc(sizeof(struct tx_buf), GFP_KERNEL);
++		tx_buf = kzalloc(sizeof(*tx_buf), GFP_KERNEL);
+ 		if (!tx_buf)
+ 			goto err;
+ 
+@@ -832,8 +834,9 @@ static void ath9k_hif_usb_dealloc_rx_urb
+ 
+ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct urb *urb = NULL;
++	struct rx_buf *rx_buf = NULL;
+ 	struct sk_buff *skb = NULL;
++	struct urb *urb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->rx_submitted);
+@@ -841,6 +844,12 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 
+ 	for (i = 0; i < MAX_RX_URB_NUM; i++) {
+ 
++		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
++		if (!rx_buf) {
++			ret = -ENOMEM;
++			goto err_rxb;
++		}
++
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -855,11 +864,14 @@ static int ath9k_hif_usb_alloc_rx_urbs(s
+ 			goto err_skb;
+ 		}
+ 
++		rx_buf->hif_dev = hif_dev;
++		rx_buf->skb = skb;
++
+ 		usb_fill_bulk_urb(urb, hif_dev->udev,
+ 				  usb_rcvbulkpipe(hif_dev->udev,
+ 						  USB_WLAN_RX_PIPE),
+ 				  skb->data, MAX_RX_BUF_SIZE,
+-				  ath9k_hif_usb_rx_cb, skb);
++				  ath9k_hif_usb_rx_cb, rx_buf);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->rx_submitted);
+@@ -885,6 +897,8 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
++	kfree(rx_buf);
++err_rxb:
+ 	ath9k_hif_usb_dealloc_rx_urbs(hif_dev);
+ 	return ret;
+ }
+@@ -896,14 +910,21 @@ static void ath9k_hif_usb_dealloc_reg_in
+ 
+ static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
+ {
+-	struct urb *urb = NULL;
++	struct rx_buf *rx_buf = NULL;
+ 	struct sk_buff *skb = NULL;
++	struct urb *urb = NULL;
+ 	int i, ret;
+ 
+ 	init_usb_anchor(&hif_dev->reg_in_submitted);
+ 
+ 	for (i = 0; i < MAX_REG_IN_URB_NUM; i++) {
+ 
++		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
++		if (!rx_buf) {
++			ret = -ENOMEM;
++			goto err_rxb;
++		}
++
+ 		/* Allocate URB */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (urb == NULL) {
+@@ -918,11 +939,14 @@ static int ath9k_hif_usb_alloc_reg_in_ur
+ 			goto err_skb;
+ 		}
+ 
++		rx_buf->hif_dev = hif_dev;
++		rx_buf->skb = skb;
++
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				  usb_rcvintpipe(hif_dev->udev,
+ 						  USB_REG_IN_PIPE),
+ 				  skb->data, MAX_REG_IN_BUF_SIZE,
+-				  ath9k_hif_usb_reg_in_cb, skb, 1);
++				  ath9k_hif_usb_reg_in_cb, rx_buf, 1);
+ 
+ 		/* Anchor URB */
+ 		usb_anchor_urb(urb, &hif_dev->reg_in_submitted);
+@@ -948,6 +972,8 @@ err_submit:
+ err_skb:
+ 	usb_free_urb(urb);
+ err_urb:
++	kfree(rx_buf);
++err_rxb:
+ 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
+ 	return ret;
+ }
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.h
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
+@@ -86,6 +86,11 @@ struct tx_buf {
+ 	struct list_head list;
+ };
+ 
++struct rx_buf {
++	struct sk_buff *skb;
++	struct hif_device_usb *hif_dev;
++};
++
+ #define HIF_USB_TX_STOP  BIT(0)
+ #define HIF_USB_TX_FLUSH BIT(1)
+ 
 
 
