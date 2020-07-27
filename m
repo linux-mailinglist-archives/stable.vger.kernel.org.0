@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B66222F0DF
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F345122F06C
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:24:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731656AbgG0OY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:24:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53992 "EHLO mail.kernel.org"
+        id S1732273AbgG0OYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:24:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732202AbgG0OY1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:24:27 -0400
+        id S1732276AbgG0OYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:24:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D50A22083E;
-        Mon, 27 Jul 2020 14:24:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96EDF22B3F;
+        Mon, 27 Jul 2020 14:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859866;
-        bh=dVQ0hwlWWpDvG5Xm+0dZcSPdLlPaxjOtR+QNtoShlzE=;
+        s=default; t=1595859869;
+        bh=n4T85vKu6U7O9nXJo9g5DTcybApjszNsDHc7XO0HUnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWJjs17rYgn+KyBYTFj4MGS/ClJeoMS4ZCg9f/LumRexPwz8TlmJZ1WJDYk28BATa
-         Ggn0lMdBKoUxp8flnZwZ5gEov89RGx8gmvIxez9yeQrtmtctXhceBgbxdnFOS3syMF
-         SIQs4WU/aARn6vu/sy/kIf0Yzgt7bn8TvXBTn8x0=
+        b=tdz3k4AkcK3UAqOqUhA3a5ngWZlT0Rs71ksFXln5rpzxQH34wcDfDz4nCuH62C7zp
+         OMwI/l904OG0AcTIWzIHfmAwxfP9I5Jz0vQwz1oBqHQ6DBRrL1fTcYrprTHCZkwCa/
+         bfOCJsfdm59MIIFbo+5trYWxHgyBCKpkds7drdAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Guo Ren <guoren@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Qi Liu <liuqi115@huawei.com>,
+        John Garry <john.garry@huawei.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 135/179] asm-generic/mmiowb: Allow mmiowb_set_pending() when preemptible()
-Date:   Mon, 27 Jul 2020 16:05:10 +0200
-Message-Id: <20200727134939.225631465@linuxfoundation.org>
+Subject: [PATCH 5.7 136/179] drivers/perf: Prevent forced unbinding of PMU drivers
+Date:   Mon, 27 Jul 2020 16:05:11 +0200
+Message-Id: <20200727134939.264163443@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -49,83 +44,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Qi Liu <liuqi115@huawei.com>
 
-[ Upstream commit bd024e82e4cd95c7f1a475a55f99871936c2b2db ]
+[ Upstream commit f32ed8eb0e3f0d0ef4ddb854554d60ca5863a9f9 ]
 
-Although mmiowb() is concerned only with serialising MMIO writes occuring
-in contexts where a spinlock is held, the call to mmiowb_set_pending()
-from the MMIO write accessors can occur in preemptible contexts, such
-as during driver probe() functions where ordering between CPUs is not
-usually a concern, assuming that the task migration path provides the
-necessary ordering guarantees.
+Forcefully unbinding PMU drivers during perf sampling will lead to
+a kernel panic, because the perf upper-layer framework call a NULL
+pointer in this situation.
 
-Unfortunately, the default implementation of mmiowb_set_pending() is not
-preempt-safe, as it makes use of a a per-cpu variable to track its
-internal state. This has been reported to generate the following splat
-on riscv:
+To solve this issue, "suppress_bind_attrs" should be set to true, so
+that bind/unbind can be disabled via sysfs and prevent unbinding PMU
+drivers during perf sampling.
 
- | BUG: using smp_processor_id() in preemptible [00000000] code: swapper/0/1
- | caller is regmap_mmio_write32le+0x1c/0x46
- | CPU: 3 PID: 1 Comm: swapper/0 Not tainted 5.8.0-rc3-hfu+ #1
- | Call Trace:
- |  walk_stackframe+0x0/0x7a
- |  dump_stack+0x6e/0x88
- |  regmap_mmio_write32le+0x18/0x46
- |  check_preemption_disabled+0xa4/0xaa
- |  regmap_mmio_write32le+0x18/0x46
- |  regmap_mmio_write+0x26/0x44
- |  regmap_write+0x28/0x48
- |  sifive_gpio_probe+0xc0/0x1da
-
-Although it's possible to fix the driver in this case, other splats have
-been seen from other drivers, including the infamous 8250 UART, and so
-it's better to address this problem in the mmiowb core itself.
-
-Fix mmiowb_set_pending() by using the raw_cpu_ptr() to get at the mmiowb
-state and then only updating the 'mmiowb_pending' field if we are not
-preemptible (i.e. we have a non-zero nesting count).
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Reported-by: Palmer Dabbelt <palmer@dabbelt.com>
-Reported-by: Emil Renner Berthing <kernel@esmil.dk>
-Tested-by: Emil Renner Berthing <kernel@esmil.dk>
-Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Link: https://lore.kernel.org/r/20200716112816.7356-1-will@kernel.org
+Signed-off-by: Qi Liu <liuqi115@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/1594975763-32966-1-git-send-email-liuqi115@huawei.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/mmiowb.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/perf/arm-cci.c                        | 1 +
+ drivers/perf/arm-ccn.c                        | 1 +
+ drivers/perf/arm_dsu_pmu.c                    | 1 +
+ drivers/perf/arm_smmuv3_pmu.c                 | 1 +
+ drivers/perf/arm_spe_pmu.c                    | 1 +
+ drivers/perf/fsl_imx8_ddr_perf.c              | 1 +
+ drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c | 1 +
+ drivers/perf/hisilicon/hisi_uncore_hha_pmu.c  | 1 +
+ drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c  | 1 +
+ drivers/perf/qcom_l2_pmu.c                    | 1 +
+ drivers/perf/qcom_l3_pmu.c                    | 1 +
+ drivers/perf/thunderx2_pmu.c                  | 1 +
+ drivers/perf/xgene_pmu.c                      | 1 +
+ 13 files changed, 13 insertions(+)
 
-diff --git a/include/asm-generic/mmiowb.h b/include/asm-generic/mmiowb.h
-index 9439ff037b2d1..5698fca3bf560 100644
---- a/include/asm-generic/mmiowb.h
-+++ b/include/asm-generic/mmiowb.h
-@@ -27,7 +27,7 @@
- #include <asm/smp.h>
+diff --git a/drivers/perf/arm-cci.c b/drivers/perf/arm-cci.c
+index 1b8e337a29cac..87c4be9dd4125 100644
+--- a/drivers/perf/arm-cci.c
++++ b/drivers/perf/arm-cci.c
+@@ -1718,6 +1718,7 @@ static struct platform_driver cci_pmu_driver = {
+ 	.driver = {
+ 		   .name = DRIVER_NAME,
+ 		   .of_match_table = arm_cci_pmu_matches,
++		   .suppress_bind_attrs = true,
+ 		  },
+ 	.probe = cci_pmu_probe,
+ 	.remove = cci_pmu_remove,
+diff --git a/drivers/perf/arm-ccn.c b/drivers/perf/arm-ccn.c
+index d50edef91f59b..7b7d23f257139 100644
+--- a/drivers/perf/arm-ccn.c
++++ b/drivers/perf/arm-ccn.c
+@@ -1545,6 +1545,7 @@ static struct platform_driver arm_ccn_driver = {
+ 	.driver = {
+ 		.name = "arm-ccn",
+ 		.of_match_table = arm_ccn_match,
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = arm_ccn_probe,
+ 	.remove = arm_ccn_remove,
+diff --git a/drivers/perf/arm_dsu_pmu.c b/drivers/perf/arm_dsu_pmu.c
+index 70968c8c09d7f..4594e2ed13d59 100644
+--- a/drivers/perf/arm_dsu_pmu.c
++++ b/drivers/perf/arm_dsu_pmu.c
+@@ -759,6 +759,7 @@ static struct platform_driver dsu_pmu_driver = {
+ 	.driver = {
+ 		.name	= DRVNAME,
+ 		.of_match_table = of_match_ptr(dsu_pmu_of_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = dsu_pmu_device_probe,
+ 	.remove = dsu_pmu_device_remove,
+diff --git a/drivers/perf/arm_smmuv3_pmu.c b/drivers/perf/arm_smmuv3_pmu.c
+index 90caba56dfbc1..4cdb35d166acc 100644
+--- a/drivers/perf/arm_smmuv3_pmu.c
++++ b/drivers/perf/arm_smmuv3_pmu.c
+@@ -860,6 +860,7 @@ static void smmu_pmu_shutdown(struct platform_device *pdev)
+ static struct platform_driver smmu_pmu_driver = {
+ 	.driver = {
+ 		.name = "arm-smmu-v3-pmcg",
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = smmu_pmu_probe,
+ 	.remove = smmu_pmu_remove,
+diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
+index b72c048525990..c5418fd3122c2 100644
+--- a/drivers/perf/arm_spe_pmu.c
++++ b/drivers/perf/arm_spe_pmu.c
+@@ -1228,6 +1228,7 @@ static struct platform_driver arm_spe_pmu_driver = {
+ 	.driver	= {
+ 		.name		= DRVNAME,
+ 		.of_match_table	= of_match_ptr(arm_spe_pmu_of_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe	= arm_spe_pmu_device_probe,
+ 	.remove	= arm_spe_pmu_device_remove,
+diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
+index 2aed2d96f8ae7..397540a4b799c 100644
+--- a/drivers/perf/fsl_imx8_ddr_perf.c
++++ b/drivers/perf/fsl_imx8_ddr_perf.c
+@@ -707,6 +707,7 @@ static struct platform_driver imx_ddr_pmu_driver = {
+ 	.driver         = {
+ 		.name   = "imx-ddr-pmu",
+ 		.of_match_table = imx_ddr_pmu_dt_ids,
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe          = ddr_perf_probe,
+ 	.remove         = ddr_perf_remove,
+diff --git a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+index c65da06abb041..3418527366408 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_ddrc_pmu.c
+@@ -417,6 +417,7 @@ static struct platform_driver hisi_ddrc_pmu_driver = {
+ 	.driver = {
+ 		.name = "hisi_ddrc_pmu",
+ 		.acpi_match_table = ACPI_PTR(hisi_ddrc_pmu_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = hisi_ddrc_pmu_probe,
+ 	.remove = hisi_ddrc_pmu_remove,
+diff --git a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+index ee6e6a1c390a0..375c4737a088a 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_hha_pmu.c
+@@ -429,6 +429,7 @@ static struct platform_driver hisi_hha_pmu_driver = {
+ 	.driver = {
+ 		.name = "hisi_hha_pmu",
+ 		.acpi_match_table = ACPI_PTR(hisi_hha_pmu_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = hisi_hha_pmu_probe,
+ 	.remove = hisi_hha_pmu_remove,
+diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+index c8b98d3a8432a..44e8a660c5f52 100644
+--- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
++++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
+@@ -419,6 +419,7 @@ static struct platform_driver hisi_l3c_pmu_driver = {
+ 	.driver = {
+ 		.name = "hisi_l3c_pmu",
+ 		.acpi_match_table = ACPI_PTR(hisi_l3c_pmu_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = hisi_l3c_pmu_probe,
+ 	.remove = hisi_l3c_pmu_remove,
+diff --git a/drivers/perf/qcom_l2_pmu.c b/drivers/perf/qcom_l2_pmu.c
+index 21d6991dbe0ba..4da37f650f983 100644
+--- a/drivers/perf/qcom_l2_pmu.c
++++ b/drivers/perf/qcom_l2_pmu.c
+@@ -1028,6 +1028,7 @@ static struct platform_driver l2_cache_pmu_driver = {
+ 	.driver = {
+ 		.name = "qcom-l2cache-pmu",
+ 		.acpi_match_table = ACPI_PTR(l2_cache_pmu_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = l2_cache_pmu_probe,
+ 	.remove = l2_cache_pmu_remove,
+diff --git a/drivers/perf/qcom_l3_pmu.c b/drivers/perf/qcom_l3_pmu.c
+index 656e830798d9e..9ddb577c542b5 100644
+--- a/drivers/perf/qcom_l3_pmu.c
++++ b/drivers/perf/qcom_l3_pmu.c
+@@ -814,6 +814,7 @@ static struct platform_driver qcom_l3_cache_pmu_driver = {
+ 	.driver = {
+ 		.name = "qcom-l3cache-pmu",
+ 		.acpi_match_table = ACPI_PTR(qcom_l3_cache_pmu_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = qcom_l3_cache_pmu_probe,
+ };
+diff --git a/drivers/perf/thunderx2_pmu.c b/drivers/perf/thunderx2_pmu.c
+index 51b31d6ff2c4c..aac9823b0c6bb 100644
+--- a/drivers/perf/thunderx2_pmu.c
++++ b/drivers/perf/thunderx2_pmu.c
+@@ -1017,6 +1017,7 @@ static struct platform_driver tx2_uncore_driver = {
+ 	.driver = {
+ 		.name		= "tx2-uncore-pmu",
+ 		.acpi_match_table = ACPI_PTR(tx2_uncore_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = tx2_uncore_probe,
+ 	.remove = tx2_uncore_remove,
+diff --git a/drivers/perf/xgene_pmu.c b/drivers/perf/xgene_pmu.c
+index 46ee6807d533a..edac28cd25ddc 100644
+--- a/drivers/perf/xgene_pmu.c
++++ b/drivers/perf/xgene_pmu.c
+@@ -1975,6 +1975,7 @@ static struct platform_driver xgene_pmu_driver = {
+ 		.name		= "xgene-pmu",
+ 		.of_match_table = xgene_pmu_of_match,
+ 		.acpi_match_table = ACPI_PTR(xgene_pmu_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ };
  
- DECLARE_PER_CPU(struct mmiowb_state, __mmiowb_state);
--#define __mmiowb_state()	this_cpu_ptr(&__mmiowb_state)
-+#define __mmiowb_state()	raw_cpu_ptr(&__mmiowb_state)
- #else
- #define __mmiowb_state()	arch_mmiowb_state()
- #endif	/* arch_mmiowb_state */
-@@ -35,7 +35,9 @@ DECLARE_PER_CPU(struct mmiowb_state, __mmiowb_state);
- static inline void mmiowb_set_pending(void)
- {
- 	struct mmiowb_state *ms = __mmiowb_state();
--	ms->mmiowb_pending = ms->nesting_count;
-+
-+	if (likely(ms->nesting_count))
-+		ms->mmiowb_pending = ms->nesting_count;
- }
- 
- static inline void mmiowb_spin_lock(void)
 -- 
 2.25.1
 
