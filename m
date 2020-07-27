@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE4922EE8C
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 801CC22EEE9
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729082AbgG0OIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
+        id S1729405AbgG0OLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729472AbgG0OIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:42 -0400
+        id S1730054AbgG0OLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:11:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 973732083E;
-        Mon, 27 Jul 2020 14:08:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1C2721775;
+        Mon, 27 Jul 2020 14:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858922;
-        bh=bkASIU+tcHNYr4Je/uAYwATeDov4hpolKUnT+rpI18o=;
+        s=default; t=1595859105;
+        bh=g/k/+eebFLLg+bq8uWIyE9YLJLGd/5lTSjMBtr8d9EE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXdG92NdjLEur3fUcO8BtQ7iO+bBu5qkvwluBhMJQng4+yPTfbMwPq6JUGiWCeoe0
-         M1/GLxgmBbr7WK6cKiexBlS+0J/cAXESp7wDMOKZzz9Z5BQTL6wt/TEdRDICbGiLZT
-         hxoP4pwvfThGjJyyZ7PdIvP6oSpEn0hY7zuD43FA=
+        b=Dz/FFmjuJtS7LHYwHKsexp2a4fUFSX9/tq4ST7l4WNyp4GFt3k3RgDYAEWa3McqbK
+         6CiIiXSBpet5Smrf9KxP+SFkNE2tZcJuwsHx2BhqobovWelgt6st8HpZeLidw3inGu
+         lbc4qMhsYi38y06wvDVZAhr8ZRiavVj89jD2cB/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthew Howell <matthew.howell@sealevel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 32/64] serial: exar: Fix GPIO configuration for Sealevel cards based on XR17V35X
+Subject: [PATCH 4.19 37/86] net: ethernet: ave: Fix error returns in ave_init
 Date:   Mon, 27 Jul 2020 16:04:11 +0200
-Message-Id: <20200727134912.750933479@linuxfoundation.org>
+Message-Id: <20200727134916.293591334@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Howell <matthew.howell@sealevel.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 5fdbe136ae19ab751daaa4d08d9a42f3e30d17f9 ]
+[ Upstream commit 1264d7fa3a64d8bea7aebb77253f917947ffda25 ]
 
-Sealevel XR17V35X based devices are inoperable on kernel versions
-4.11 and above due to a change in the GPIO preconfiguration introduced in
-commit
-7dea8165f1d. This patch fixes this by preconfiguring the GPIO on Sealevel
-cards to the value (0x00) used prior to commit 7dea8165f1d
+When regmap_update_bits failed in ave_init(), calls of the functions
+reset_control_assert() and clk_disable_unprepare() were missed.
+Add goto out_reset_assert to do this.
 
-With GPIOs preconfigured as per commit 7dea8165f1d all ports on
-Sealevel XR17V35X based devices become stuck in high impedance
-mode, regardless of dip-switch or software configuration. This
-causes the device to become effectively unusable. This patch (in
-various forms) has been distributed to our customers and no issues
-related to it have been reported.
-
-Fixes: 7dea8165f1d6 ("serial: exar: Preconfigure xr17v35x MPIOs as output")
-Signed-off-by: Matthew Howell <matthew.howell@sealevel.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2007221605270.13247@tstest-VirtualBox
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 57878f2f4697 ("net: ethernet: ave: add support for phy-mode setting of system controller")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_exar.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/socionext/sni_ave.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_exar.c b/drivers/tty/serial/8250/8250_exar.c
-index 899f36b59af79..ed81128bb42e0 100644
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -229,7 +229,17 @@ static void setup_gpio(struct pci_dev *pcidev, u8 __iomem *p)
- 	 * devices will export them as GPIOs, so we pre-configure them safely
- 	 * as inputs.
- 	 */
--	u8 dir = pcidev->vendor == PCI_VENDOR_ID_EXAR ? 0xff : 0x00;
-+
-+	u8 dir = 0x00;
-+
-+	if  ((pcidev->vendor == PCI_VENDOR_ID_EXAR) &&
-+		(pcidev->subsystem_vendor != PCI_VENDOR_ID_SEALEVEL)) {
-+		// Configure GPIO as inputs for Commtech adapters
-+		dir = 0xff;
-+	} else {
-+		// Configure GPIO as outputs for SeaLevel adapters
-+		dir = 0x00;
-+	}
+diff --git a/drivers/net/ethernet/socionext/sni_ave.c b/drivers/net/ethernet/socionext/sni_ave.c
+index c309accc6797e..01cde5f27eade 100644
+--- a/drivers/net/ethernet/socionext/sni_ave.c
++++ b/drivers/net/ethernet/socionext/sni_ave.c
+@@ -1196,7 +1196,7 @@ static int ave_init(struct net_device *ndev)
+ 	ret = regmap_update_bits(priv->regmap, SG_ETPINMODE,
+ 				 priv->pinmode_mask, priv->pinmode_val);
+ 	if (ret)
+-		return ret;
++		goto out_reset_assert;
  
- 	writeb(0x00, p + UART_EXAR_MPIOINT_7_0);
- 	writeb(0x00, p + UART_EXAR_MPIOLVL_7_0);
+ 	ave_global_reset(ndev);
+ 
 -- 
 2.25.1
 
