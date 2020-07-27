@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0A022F205
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A315222F15B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729475AbgG0ONb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:13:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38376 "EHLO mail.kernel.org"
+        id S1732239AbgG0Obi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:31:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730366AbgG0ONY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:13:24 -0400
+        id S1731526AbgG0OUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:20:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96BB520838;
-        Mon, 27 Jul 2020 14:13:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E73520775;
+        Mon, 27 Jul 2020 14:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859204;
-        bh=G3i6iGU3bJFkuLykyvT/z8Vxm7YbomAOaZm1OgA3BMo=;
+        s=default; t=1595859615;
+        bh=M4XB6A0Or7ENzp2Ogu+rq/XEJ+qLF4cqMriz9m8WTfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSumDUl1DnrSdg5tcuNh3nQjUHe9ahmNgVRfBaZ0l1YEEtLK69cg/6JYiczYEgPP4
-         y7XENPYHMn09KEFflGYdNoLNe00gKpwLTRzVqmMdtP7yovaI9TdPBIp9jZVX4UV6XW
-         cvXeFsbvJr8PtxVowlrSzjhTVD3ZeO1sDPOFPlRA=
+        b=r26xTxCMXMnXc1rPKAW/XbbTKMJI0xhuXvrYExk59dRavBfxapkhU183nh1ZFjFdP
+         XEVGwCPA+s/2kPPHUNy2dGjX/cePqznR+wYFeMxNDaAfGZyG+2en5feW9X40Slw7zQ
+         r1BLQfKH2OXZOC8Ii7LslRxZ6PdBSj4NcnwnyLk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/138] irqdomain/treewide: Keep firmware node unconditionally allocated
+        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.7 039/179] btrfs: fix mount failure caused by race with umount
 Date:   Mon, 27 Jul 2020 16:03:34 +0200
-Message-Id: <20200727134926.277413003@linuxfoundation.org>
+Message-Id: <20200727134934.579218640@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,229 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Boris Burkov <boris@bur.io>
 
-[ Upstream commit e3beca48a45b5e0e6e6a4e0124276b8248dcc9bb ]
+commit 48cfa61b58a1fee0bc49eef04f8ccf31493b7cdd upstream.
 
-Quite some non OF/ACPI users of irqdomains allocate firmware nodes of type
-IRQCHIP_FWNODE_NAMED or IRQCHIP_FWNODE_NAMED_ID and free them right after
-creating the irqdomain. The only purpose of these FW nodes is to convey
-name information. When this was introduced the core code did not store the
-pointer to the node in the irqdomain. A recent change stored the firmware
-node pointer in irqdomain for other reasons and missed to notice that the
-usage sites which do the alloc_fwnode/create_domain/free_fwnode sequence
-are broken by this. Storing a dangling pointer is dangerous itself, but in
-case that the domain is destroyed later on this leads to a double free.
+It is possible to cause a btrfs mount to fail by racing it with a slow
+umount. The crux of the sequence is generic_shutdown_super not yet
+calling sop->put_super before btrfs_mount_root calls btrfs_open_devices.
+If that occurs, btrfs_open_devices will decide the opened counter is
+non-zero, increment it, and skip resetting fs_devices->total_rw_bytes to
+0. From here, mount will call sget which will result in grab_super
+trying to take the super block umount semaphore. That semaphore will be
+held by the slow umount, so mount will block. Before up-ing the
+semaphore, umount will delete the super block, resulting in mount's sget
+reliably allocating a new one, which causes the mount path to dutifully
+fill it out, and increment total_rw_bytes a second time, which causes
+the mount to fail, as we see double the expected bytes.
 
-Remove the freeing of the firmware node after creating the irqdomain from
-all affected call sites to cure this.
+Here is the sequence laid out in greater detail:
 
-Fixes: 711419e504eb ("irqdomain: Add the missing assignment of domain->fwnode for named fwnode")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/873661qakd.fsf@nanos.tec.linutronix.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU0                                                    CPU1
+down_write sb->s_umount
+btrfs_kill_super
+  kill_anon_super(sb)
+    generic_shutdown_super(sb);
+      shrink_dcache_for_umount(sb);
+      sync_filesystem(sb);
+      evict_inodes(sb); // SLOW
+
+                                              btrfs_mount_root
+                                                btrfs_scan_one_device
+                                                fs_devices = device->fs_devices
+                                                fs_info->fs_devices = fs_devices
+                                                // fs_devices-opened makes this a no-op
+                                                btrfs_open_devices(fs_devices, mode, fs_type)
+                                                s = sget(fs_type, test, set, flags, fs_info);
+                                                  find sb in s_instances
+                                                  grab_super(sb);
+                                                    down_write(&s->s_umount); // blocks
+
+      sop->put_super(sb)
+        // sb->fs_devices->opened == 2; no-op
+      spin_lock(&sb_lock);
+      hlist_del_init(&sb->s_instances);
+      spin_unlock(&sb_lock);
+      up_write(&sb->s_umount);
+                                                    return 0;
+                                                  retry lookup
+                                                  don't find sb in s_instances (deleted by CPU0)
+                                                  s = alloc_super
+                                                  return s;
+                                                btrfs_fill_super(s, fs_devices, data)
+                                                  open_ctree // fs_devices total_rw_bytes improperly set!
+                                                    btrfs_read_chunk_tree
+                                                      read_one_dev // increment total_rw_bytes again!!
+                                                      super_total_bytes < fs_devices->total_rw_bytes // ERROR!!!
+
+To fix this, we clear total_rw_bytes from within btrfs_read_chunk_tree
+before the calls to read_one_dev, while holding the sb umount semaphore
+and the uuid mutex.
+
+To reproduce, it is sufficient to dirty a decent number of inodes, then
+quickly umount and mount.
+
+  for i in $(seq 0 500)
+  do
+    dd if=/dev/zero of="/mnt/foo/$i" bs=1M count=1
+  done
+  umount /mnt/foo&
+  mount /mnt/foo
+
+does the trick for me.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Boris Burkov <boris@bur.io>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/mips/pci/pci-xtalk-bridge.c    |  5 +++--
- arch/x86/kernel/apic/io_apic.c      | 10 +++++-----
- arch/x86/kernel/apic/msi.c          | 18 ++++++++++++------
- arch/x86/kernel/apic/vector.c       |  1 -
- arch/x86/platform/uv/uv_irq.c       |  3 ++-
- drivers/iommu/amd_iommu.c           |  5 +++--
- drivers/iommu/hyperv-iommu.c        |  5 ++++-
- drivers/iommu/intel_irq_remapping.c |  2 +-
- drivers/pci/controller/vmd.c        |  5 +++--
- 9 files changed, 33 insertions(+), 21 deletions(-)
+ fs/btrfs/volumes.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/mips/pci/pci-xtalk-bridge.c b/arch/mips/pci/pci-xtalk-bridge.c
-index 30017d5945bc2..6ce76b18186e5 100644
---- a/arch/mips/pci/pci-xtalk-bridge.c
-+++ b/arch/mips/pci/pci-xtalk-bridge.c
-@@ -444,9 +444,10 @@ static int bridge_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	domain = irq_domain_create_hierarchy(parent, 0, 8, fn,
- 					     &bridge_domain_ops, NULL);
--	irq_domain_free_fwnode(fn);
--	if (!domain)
-+	if (!domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
- 
- 	pci_set_flags(PCI_PROBE_ONLY);
- 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index f0262cb5657a7..16699101fd2fe 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2329,12 +2329,12 @@ static int mp_irqdomain_create(int ioapic)
- 	ip->irqdomain = irq_domain_create_linear(fn, hwirqs, cfg->ops,
- 						 (void *)(long)ioapic);
- 
--	/* Release fw handle if it was allocated above */
--	if (!cfg->dev)
--		irq_domain_free_fwnode(fn);
--
--	if (!ip->irqdomain)
-+	if (!ip->irqdomain) {
-+		/* Release fw handle if it was allocated above */
-+		if (!cfg->dev)
-+			irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
- 
- 	ip->irqdomain->parent = parent;
- 
-diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
-index 159bd0cb85486..a20873bbbed67 100644
---- a/arch/x86/kernel/apic/msi.c
-+++ b/arch/x86/kernel/apic/msi.c
-@@ -262,12 +262,13 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
- 		msi_default_domain =
- 			pci_msi_create_irq_domain(fn, &pci_msi_domain_info,
- 						  parent);
--		irq_domain_free_fwnode(fn);
- 	}
--	if (!msi_default_domain)
-+	if (!msi_default_domain) {
-+		irq_domain_free_fwnode(fn);
- 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
--	else
-+	} else {
- 		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
-+	}
- }
- 
- #ifdef CONFIG_IRQ_REMAP
-@@ -300,7 +301,8 @@ struct irq_domain *arch_create_remap_msi_irq_domain(struct irq_domain *parent,
- 	if (!fn)
- 		return NULL;
- 	d = pci_msi_create_irq_domain(fn, &pci_msi_ir_domain_info, parent);
--	irq_domain_free_fwnode(fn);
-+	if (!d)
-+		irq_domain_free_fwnode(fn);
- 	return d;
- }
- #endif
-@@ -363,7 +365,8 @@ static struct irq_domain *dmar_get_irq_domain(void)
- 	if (fn) {
- 		dmar_domain = msi_create_irq_domain(fn, &dmar_msi_domain_info,
- 						    x86_vector_domain);
--		irq_domain_free_fwnode(fn);
-+		if (!dmar_domain)
-+			irq_domain_free_fwnode(fn);
- 	}
- out:
- 	mutex_unlock(&dmar_lock);
-@@ -488,7 +491,10 @@ struct irq_domain *hpet_create_irq_domain(int hpet_id)
- 	}
- 
- 	d = msi_create_irq_domain(fn, domain_info, parent);
--	irq_domain_free_fwnode(fn);
-+	if (!d) {
-+		irq_domain_free_fwnode(fn);
-+		kfree(domain_info);
-+	}
- 	return d;
- }
- 
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index 18c0dca081633..df4d5385e6ddd 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -701,7 +701,6 @@ int __init arch_early_irq_init(void)
- 	x86_vector_domain = irq_domain_create_tree(fn, &x86_vector_domain_ops,
- 						   NULL);
- 	BUG_ON(x86_vector_domain == NULL);
--	irq_domain_free_fwnode(fn);
- 	irq_set_default_host(x86_vector_domain);
- 
- 	arch_init_msi_domain(x86_vector_domain);
-diff --git a/arch/x86/platform/uv/uv_irq.c b/arch/x86/platform/uv/uv_irq.c
-index fc13cbbb2dce2..abb6075397f05 100644
---- a/arch/x86/platform/uv/uv_irq.c
-+++ b/arch/x86/platform/uv/uv_irq.c
-@@ -167,9 +167,10 @@ static struct irq_domain *uv_get_irq_domain(void)
- 		goto out;
- 
- 	uv_domain = irq_domain_create_tree(fn, &uv_domain_ops, NULL);
--	irq_domain_free_fwnode(fn);
- 	if (uv_domain)
- 		uv_domain->parent = x86_vector_domain;
-+	else
-+		irq_domain_free_fwnode(fn);
- out:
- 	mutex_unlock(&uv_lock);
- 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 32de8e7bb8b45..3a7094f4813f2 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -4575,9 +4575,10 @@ int amd_iommu_create_irq_domain(struct amd_iommu *iommu)
- 	if (!fn)
- 		return -ENOMEM;
- 	iommu->ir_domain = irq_domain_create_tree(fn, &amd_ir_domain_ops, iommu);
--	irq_domain_free_fwnode(fn);
--	if (!iommu->ir_domain)
-+	if (!iommu->ir_domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
- 
- 	iommu->ir_domain->parent = arch_get_ir_parent_domain();
- 	iommu->msi_domain = arch_create_remap_msi_irq_domain(iommu->ir_domain,
-diff --git a/drivers/iommu/hyperv-iommu.c b/drivers/iommu/hyperv-iommu.c
-index a386b83e0e34b..f0fe5030acd36 100644
---- a/drivers/iommu/hyperv-iommu.c
-+++ b/drivers/iommu/hyperv-iommu.c
-@@ -155,7 +155,10 @@ static int __init hyperv_prepare_irq_remapping(void)
- 				0, IOAPIC_REMAPPING_ENTRY, fn,
- 				&hyperv_ir_domain_ops, NULL);
- 
--	irq_domain_free_fwnode(fn);
-+	if (!ioapic_ir_domain) {
-+		irq_domain_free_fwnode(fn);
-+		return -ENOMEM;
-+	}
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7056,6 +7056,14 @@ int btrfs_read_chunk_tree(struct btrfs_f
+ 	mutex_lock(&fs_info->chunk_mutex);
  
  	/*
- 	 * Hyper-V doesn't provide irq remapping function for
-diff --git a/drivers/iommu/intel_irq_remapping.c b/drivers/iommu/intel_irq_remapping.c
-index 81e43c1df7ecb..982d796b686b8 100644
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -563,8 +563,8 @@ static int intel_setup_irq_remapping(struct intel_iommu *iommu)
- 					    0, INTR_REMAP_TABLE_ENTRIES,
- 					    fn, &intel_ir_domain_ops,
- 					    iommu);
--	irq_domain_free_fwnode(fn);
- 	if (!iommu->ir_domain) {
-+		irq_domain_free_fwnode(fn);
- 		pr_err("IR%d: failed to allocate irqdomain\n", iommu->seq_id);
- 		goto out_free_bitmap;
- 	}
-diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
-index 87348ecfe3fcf..7c24c0aedad4a 100644
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -680,9 +680,10 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
- 
- 	vmd->irq_domain = pci_msi_create_irq_domain(fn, &vmd_msi_domain_info,
- 						    x86_vector_domain);
--	irq_domain_free_fwnode(fn);
--	if (!vmd->irq_domain)
-+	if (!vmd->irq_domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENODEV;
-+	}
- 
- 	pci_add_resource(&resources, &vmd->resources[0]);
- 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
--- 
-2.25.1
-
++	 * It is possible for mount and umount to race in such a way that
++	 * we execute this code path, but open_fs_devices failed to clear
++	 * total_rw_bytes. We certainly want it cleared before reading the
++	 * device items, so clear it here.
++	 */
++	fs_info->fs_devices->total_rw_bytes = 0;
++
++	/*
+ 	 * Read all device items, and then all the chunk items. All
+ 	 * device items are found before any chunk item (their object id
+ 	 * is smaller than the lowest possible object id for a chunk
 
 
