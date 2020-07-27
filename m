@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C36C422EEAE
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C745522EF5B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729723AbgG0OJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:09:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
+        id S1730747AbgG0OPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729710AbgG0OJu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:09:50 -0400
+        id S1730728AbgG0OPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:15:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28D792250E;
-        Mon, 27 Jul 2020 14:09:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E11DF2075A;
+        Mon, 27 Jul 2020 14:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858989;
-        bh=zEVmAW/mzx/dAhVV09yGCqrIDf46DtJJOMXi6z63jn0=;
+        s=default; t=1595859346;
+        bh=JVcg40KCAIVGOUqk7jxprV9uUf20pIVXqryx1r5Hsc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZ8hlrXxqazehSFQMMAypN7CEPSPKXxfoTLV07Dp4MGGbYrBxhkpwfO6AU7a1WM3H
-         OsuGHLGH9EOAhIjSi6iqebAre/ZsFIFEb/YVhnG09+N9U/uRfrTlGQwVI6MeEyi3UB
-         Aiq8cML6EgddJNKfqLQpRTB/4+gv5BUV/EqIbmDY=
+        b=gXTrFshs8Pdo9r25+iXE1X2nIUU0ktHqH+60xGZomFFOBWdkyqMVlA/hiyBhGzRph
+         5C05HhYFa3Zy0NkW3Z9QFNm3lIvwRG+aFetU4BfEoqvbB89QK063cwBmTiqzg9ynuW
+         UXuf0UkS3KybwyVxS8lFaE+y6bD8ovonnBqT267Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 23/86] btrfs: fix mount failure caused by race with umount
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        syzbot+4cd84f527bf4a10fc9c1@syzkaller.appspotmail.com,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 042/138] ax88172a: fix ax88172a_unbind() failures
 Date:   Mon, 27 Jul 2020 16:03:57 +0200
-Message-Id: <20200727134915.517999274@linuxfoundation.org>
+Message-Id: <20200727134927.465697597@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 48cfa61b58a1fee0bc49eef04f8ccf31493b7cdd upstream.
+[ Upstream commit c28d9a285668c799eeae2f7f93e929a6028a4d6d ]
 
-It is possible to cause a btrfs mount to fail by racing it with a slow
-umount. The crux of the sequence is generic_shutdown_super not yet
-calling sop->put_super before btrfs_mount_root calls btrfs_open_devices.
-If that occurs, btrfs_open_devices will decide the opened counter is
-non-zero, increment it, and skip resetting fs_devices->total_rw_bytes to
-0. From here, mount will call sget which will result in grab_super
-trying to take the super block umount semaphore. That semaphore will be
-held by the slow umount, so mount will block. Before up-ing the
-semaphore, umount will delete the super block, resulting in mount's sget
-reliably allocating a new one, which causes the mount path to dutifully
-fill it out, and increment total_rw_bytes a second time, which causes
-the mount to fail, as we see double the expected bytes.
+If ax88172a_unbind() fails, make sure that the return code is
+less than zero so that cleanup is done properly and avoid UAF.
 
-Here is the sequence laid out in greater detail:
-
-CPU0                                                    CPU1
-down_write sb->s_umount
-btrfs_kill_super
-  kill_anon_super(sb)
-    generic_shutdown_super(sb);
-      shrink_dcache_for_umount(sb);
-      sync_filesystem(sb);
-      evict_inodes(sb); // SLOW
-
-                                              btrfs_mount_root
-                                                btrfs_scan_one_device
-                                                fs_devices = device->fs_devices
-                                                fs_info->fs_devices = fs_devices
-                                                // fs_devices-opened makes this a no-op
-                                                btrfs_open_devices(fs_devices, mode, fs_type)
-                                                s = sget(fs_type, test, set, flags, fs_info);
-                                                  find sb in s_instances
-                                                  grab_super(sb);
-                                                    down_write(&s->s_umount); // blocks
-
-      sop->put_super(sb)
-        // sb->fs_devices->opened == 2; no-op
-      spin_lock(&sb_lock);
-      hlist_del_init(&sb->s_instances);
-      spin_unlock(&sb_lock);
-      up_write(&sb->s_umount);
-                                                    return 0;
-                                                  retry lookup
-                                                  don't find sb in s_instances (deleted by CPU0)
-                                                  s = alloc_super
-                                                  return s;
-                                                btrfs_fill_super(s, fs_devices, data)
-                                                  open_ctree // fs_devices total_rw_bytes improperly set!
-                                                    btrfs_read_chunk_tree
-                                                      read_one_dev // increment total_rw_bytes again!!
-                                                      super_total_bytes < fs_devices->total_rw_bytes // ERROR!!!
-
-To fix this, we clear total_rw_bytes from within btrfs_read_chunk_tree
-before the calls to read_one_dev, while holding the sb umount semaphore
-and the uuid mutex.
-
-To reproduce, it is sufficient to dirty a decent number of inodes, then
-quickly umount and mount.
-
-  for i in $(seq 0 500)
-  do
-    dd if=/dev/zero of="/mnt/foo/$i" bs=1M count=1
-  done
-  umount /mnt/foo&
-  mount /mnt/foo
-
-does the trick for me.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Boris Burkov <boris@bur.io>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a9a51bd727d1 ("ax88172a: fix information leak on short answers")
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reported-by: syzbot+4cd84f527bf4a10fc9c1@syzkaller.appspotmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/usb/ax88172a.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6935,6 +6935,14 @@ int btrfs_read_chunk_tree(struct btrfs_f
- 	mutex_lock(&fs_info->chunk_mutex);
- 
- 	/*
-+	 * It is possible for mount and umount to race in such a way that
-+	 * we execute this code path, but open_fs_devices failed to clear
-+	 * total_rw_bytes. We certainly want it cleared before reading the
-+	 * device items, so clear it here.
-+	 */
-+	fs_info->fs_devices->total_rw_bytes = 0;
-+
-+	/*
- 	 * Read all device items, and then all the chunk items. All
- 	 * device items are found before any chunk item (their object id
- 	 * is smaller than the lowest possible object id for a chunk
+diff --git a/drivers/net/usb/ax88172a.c b/drivers/net/usb/ax88172a.c
+index af3994e0853b5..6101d82102e79 100644
+--- a/drivers/net/usb/ax88172a.c
++++ b/drivers/net/usb/ax88172a.c
+@@ -198,6 +198,7 @@ static int ax88172a_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	ret = asix_read_cmd(dev, AX_CMD_READ_NODE_ID, 0, 0, ETH_ALEN, buf, 0);
+ 	if (ret < ETH_ALEN) {
+ 		netdev_err(dev->net, "Failed to read MAC address: %d\n", ret);
++		ret = -EIO;
+ 		goto free;
+ 	}
+ 	memcpy(dev->net->dev_addr, buf, ETH_ALEN);
+-- 
+2.25.1
+
 
 
