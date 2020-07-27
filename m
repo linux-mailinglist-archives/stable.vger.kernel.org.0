@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC54122EE96
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C47F722F048
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729546AbgG0OJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58814 "EHLO mail.kernel.org"
+        id S1732035AbgG0OXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:23:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729472AbgG0OJB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:09:01 -0400
+        id S1732027AbgG0OXO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:23:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD0142073E;
-        Mon, 27 Jul 2020 14:08:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D043C2070A;
+        Mon, 27 Jul 2020 14:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858940;
-        bh=dDYMeLZjX3Mk7vDyttfKXiLA3J946CdDW0KeqIMbSuI=;
+        s=default; t=1595859793;
+        bh=9FOnQYGHVN4dOx8fmzyzmZVhYjbLjfdb9/yh2ELR+Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tw/wVKyvt1o5nOZdt+woflBAccn7AbnMPIBWwWQoqfS5GYO7hHHnLlwSy47SBsxvS
-         cABSTlHIMt8MzUROIIwXogLNVS1eRViP8EZvOCwbMqqplmTQnlQDWCs63UIjEJ5NoO
-         ZhYFKGaWAq0lBtGcKlpreODziz7geQsbRWVqN/f0=
+        b=pPsJpn+g3b1H1y1MRd/pH+Qtnz7NCFtEEPQVuUnBbj4ueqQ/WxvsU2z3GaVv7Nwx9
+         AQPVJ3UarEONynDuBL+ojp4LwrHwM95Vpa5JR5uhrb7DqVEUSd/VLoqT2thpF7hgaX
+         P0kYll2PrBuDsGypLIMj4My5L5iz4t5FcRBDBhCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 62/64] parisc: Add atomic64_set_release() define to avoid CPU soft lockups
-Date:   Mon, 27 Jul 2020 16:04:41 +0200
-Message-Id: <20200727134914.255710806@linuxfoundation.org>
+        stable@vger.kernel.org, Joao Moreno <mail@joaomoreno.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 107/179] HID: apple: Disable Fn-key key-re-mapping on clone keyboards
+Date:   Mon, 27 Jul 2020 16:04:42 +0200
+Message-Id: <20200727134937.863144249@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit be6577af0cef934ccb036445314072e8cb9217b9 upstream.
+[ Upstream commit a5d81646fa294eed57786a9310b06ca48902adf8 ]
 
-Stalls are quite frequent with recent kernels. I enabled
-CONFIG_SOFTLOCKUP_DETECTOR and I caught the following stall:
+The Maxxter KB-BT-001 Bluetooth keyboard, which looks somewhat like the
+Apple Wireless Keyboard, is using the vendor and product IDs (05AC:0239)
+of the Apple Wireless Keyboard (2009 ANSI version) <sigh>.
 
-watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [cc1:22803]
-CPU: 0 PID: 22803 Comm: cc1 Not tainted 5.6.17+ #3
-Hardware name: 9000/800/rp3440
- IAOQ[0]: d_alloc_parallel+0x384/0x688
- IAOQ[1]: d_alloc_parallel+0x388/0x688
- RP(r2): d_alloc_parallel+0x134/0x688
-Backtrace:
- [<000000004036974c>] __lookup_slow+0xa4/0x200
- [<0000000040369fc8>] walk_component+0x288/0x458
- [<000000004036a9a0>] path_lookupat+0x88/0x198
- [<000000004036e748>] filename_lookup+0xa0/0x168
- [<000000004036e95c>] user_path_at_empty+0x64/0x80
- [<000000004035d93c>] vfs_statx+0x104/0x158
- [<000000004035dfcc>] __do_sys_lstat64+0x44/0x80
- [<000000004035e5a0>] sys_lstat64+0x20/0x38
- [<0000000040180054>] syscall_exit+0x0/0x14
+But its F1 - F10 keys are marked as sending F1 - F10, not the special
+functions hid-apple.c maps them too; and since its descriptors do not
+contain the HID_UP_CUSTOM | 0x0003 usage apple-hid looks for for the
+Fn-key, apple_setup_input() never gets called, so F1 - F6 are mapped
+to key-codes which have not been set in the keybit array causing them
+to not send any events at all.
 
-The code was stuck in this loop in d_alloc_parallel:
+The lack of a usage code matching the Fn key in the clone is actually
+useful as this allows solving this problem in a generic way.
 
-    4037d414:   0e 00 10 dc     ldd 0(r16),ret0
-    4037d418:   c7 fc 5f ed     bb,< ret0,1f,4037d414 <d_alloc_parallel+0x384>
-    4037d41c:   08 00 02 40     nop
+This commits adds a fn_found flag and it adds a input_configured
+callback which checks if this flag is set once all usages have been
+mapped. If it is not set, then assume this is a clone and clear the
+quirks bitmap so that the hid-apple code does not add any special
+handling to this keyboard.
 
-This is the inner loop of bit_spin_lock which is called by hlist_bl_unlock in
-d_alloc_parallel:
+This fixes F1 - F6 not sending anything at all and F7 - F12 sending
+the wrong codes on the Maxxter KB-BT-001 Bluetooth keyboard and on
+similar clones.
 
-static inline void bit_spin_lock(int bitnum, unsigned long *addr)
-{
-        /*
-         * Assuming the lock is uncontended, this never enters
-         * the body of the outer loop. If it is contended, then
-         * within the inner loop a non-atomic test is used to
-         * busywait with less bus contention for a good time to
-         * attempt to acquire the lock bit.
-         */
-        preempt_disable();
-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-        while (unlikely(test_and_set_bit_lock(bitnum, addr))) {
-                preempt_enable();
-                do {
-                        cpu_relax();
-                } while (test_bit(bitnum, addr));
-                preempt_disable();
-        }
-#endif
-        __acquire(bitlock);
-}
-
-After consideration, I realized that we must be losing bit unlocks.
-Then, I noticed that we missed defining atomic64_set_release().
-Adding this define fixes the stalls in bit operations.
-
-Signed-off-by: Dave Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Joao Moreno <mail@joaomoreno.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/atomic.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-apple.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/arch/parisc/include/asm/atomic.h
-+++ b/arch/parisc/include/asm/atomic.h
-@@ -258,6 +258,8 @@ atomic64_set(atomic64_t *v, s64 i)
- 	_atomic_spin_unlock_irqrestore(v, flags);
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index d732d1d10cafb..6909c045fece1 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -54,6 +54,7 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
+ struct apple_sc {
+ 	unsigned long quirks;
+ 	unsigned int fn_on;
++	unsigned int fn_found;
+ 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+ };
+ 
+@@ -339,12 +340,15 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	struct apple_sc *asc = hid_get_drvdata(hdev);
++
+ 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
+ 			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
+ 			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
+ 		/* The fn key on Apple USB keyboards */
+ 		set_bit(EV_REP, hi->input->evbit);
+ 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
++		asc->fn_found = true;
+ 		apple_setup_input(hi->input);
+ 		return 1;
+ 	}
+@@ -371,6 +375,19 @@ static int apple_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 	return 0;
  }
  
-+#define atomic64_set_release(v, i)	atomic64_set((v), (i))
++static int apple_input_configured(struct hid_device *hdev,
++		struct hid_input *hidinput)
++{
++	struct apple_sc *asc = hid_get_drvdata(hdev);
 +
- static __inline__ s64
- atomic64_read(const atomic64_t *v)
++	if ((asc->quirks & APPLE_HAS_FN) && !asc->fn_found) {
++		hid_info(hdev, "Fn key not found (Apple Wireless Keyboard clone?), disabling Fn key handling\n");
++		asc->quirks = 0;
++	}
++
++	return 0;
++}
++
+ static int apple_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
  {
+@@ -585,6 +602,7 @@ static struct hid_driver apple_driver = {
+ 	.event = apple_event,
+ 	.input_mapping = apple_input_mapping,
+ 	.input_mapped = apple_input_mapped,
++	.input_configured = apple_input_configured,
+ };
+ module_hid_driver(apple_driver);
+ 
+-- 
+2.25.1
+
 
 
