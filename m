@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8252122F1AD
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B8D22F2AD
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731027AbgG0Od4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S1729833AbgG0OlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:41:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731013AbgG0ORQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:17:16 -0400
+        id S1729383AbgG0OIT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:08:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EBA4208E4;
-        Mon, 27 Jul 2020 14:17:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68F732073E;
+        Mon, 27 Jul 2020 14:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859434;
-        bh=T91JMT8+ATmHZgGTjTGeIrl+abx5KOHBjY+EUmJFlaQ=;
+        s=default; t=1595858898;
+        bh=9tz4CidWw9o+Gpp59fBPlYhlBDzhpP4SJWGqTHQVUNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/gF1gkGcd6A5DxxdF27YkDCCZceoY7ZmIwcSxRYMx9b+lZqNZwfViBfPdCguMmuO
-         aTOh8JQHSsJ9VTTYBG1Ap2p1jLh/b95F1T3vtV05Q/TJ/44TdZsFzSUjygJDFovTh7
-         9CWqt0huDee7ML6kJEwJYAnTfRLcCPOHYIbh0YCk=
+        b=ljIRkimzwk67YG3CyIMmP8juzqB5Jayr4c2dJiQ3C1U9MRQl9INcpxGgeFx4LK/e5
+         NO6iUVQspgDg4F4pne/sMKfzYgzDqvARTQtEsKEY3WlINVO83PAHbadOJ900hbwcTG
+         +Zxl6MmPrfPslOZE3v3YVI8sAGoRa7nHzHtMMb5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/138] Input: add `SW_MACHINE_COVER`
-Date:   Mon, 27 Jul 2020 16:04:31 +0200
-Message-Id: <20200727134929.185115628@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 53/64] staging: comedi: addi_apci_1500: check INSN_CONFIG_DIGITAL_TRIG shift
+Date:   Mon, 27 Jul 2020 16:04:32 +0200
+Message-Id: <20200727134913.795271919@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Merlijn Wajer <merlijn@wizzup.org>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit c463bb2a8f8d7d97aa414bf7714fc77e9d3b10df ]
+commit fc846e9db67c7e808d77bf9e2ef3d49e3820ce5d upstream.
 
-This event code represents the state of a removable cover of a device.
-Value 0 means that the cover is open or removed, value 1 means that the
-cover is closed.
+The `INSN_CONFIG` comedi instruction with sub-instruction code
+`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
+used as a right shift amount for other bitmask values without being
+checked.  Shift amounts greater than or equal to 32 will result in
+undefined behavior.  Add code to deal with this, adjusting the checks
+for invalid channels so that enabled channel bits that would have been
+lost by shifting are also checked for validity.  Only channels 0 to 15
+are valid.
 
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
-Link: https://lore.kernel.org/r/20200612125402.18393-2-merlijn@wizzup.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a8c66b684efaf ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Cc: <stable@vger.kernel.org> #4.0+: ef75e14a6c93: staging: comedi: verify array index is correct before using it
+Cc: <stable@vger.kernel.org> #4.0+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200717145257.112660-5-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/mod_devicetable.h        | 2 +-
- include/uapi/linux/input-event-codes.h | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c |   24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 953d7ca01eb60..4c56404e53a76 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -318,7 +318,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
- #define INPUT_DEVICE_ID_FF_MAX		0x7f
--#define INPUT_DEVICE_ID_SW_MAX		0x0f
-+#define INPUT_DEVICE_ID_SW_MAX		0x10
- #define INPUT_DEVICE_ID_PROP_MAX	0x1f
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -461,13 +461,14 @@ static int apci1500_di_cfg_trig(struct c
+ 	struct apci1500_private *devpriv = dev->private;
+ 	unsigned int trig = data[1];
+ 	unsigned int shift = data[3];
+-	unsigned int hi_mask = data[4] << shift;
+-	unsigned int lo_mask = data[5] << shift;
+-	unsigned int chan_mask = hi_mask | lo_mask;
+-	unsigned int old_mask = (1 << shift) - 1;
++	unsigned int hi_mask;
++	unsigned int lo_mask;
++	unsigned int chan_mask;
++	unsigned int old_mask;
+ 	unsigned int pm;
+ 	unsigned int pt;
+ 	unsigned int pp;
++	unsigned int invalid_chan;
  
- #define INPUT_DEVICE_ID_MATCH_BUS	1
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 85387c76c24f3..472cd5bc55676 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -808,7 +808,8 @@
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
- #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
- #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
--#define SW_MAX			0x0f
-+#define SW_MACHINE_COVER	0x10  /* set = cover closed */
-+#define SW_MAX			0x10
- #define SW_CNT			(SW_MAX+1)
+ 	if (trig > 1) {
+ 		dev_dbg(dev->class_dev,
+@@ -475,7 +476,20 @@ static int apci1500_di_cfg_trig(struct c
+ 		return -EINVAL;
+ 	}
  
- /*
--- 
-2.25.1
-
+-	if (chan_mask > 0xffff) {
++	if (shift <= 16) {
++		hi_mask = data[4] << shift;
++		lo_mask = data[5] << shift;
++		old_mask = (1U << shift) - 1;
++		invalid_chan = (data[4] | data[5]) >> (16 - shift);
++	} else {
++		hi_mask = 0;
++		lo_mask = 0;
++		old_mask = 0xffff;
++		invalid_chan = data[4] | data[5];
++	}
++	chan_mask = hi_mask | lo_mask;
++
++	if (invalid_chan) {
+ 		dev_dbg(dev->class_dev, "invalid digital trigger channel\n");
+ 		return -EINVAL;
+ 	}
 
 
