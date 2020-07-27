@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2E922F1DE
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A909022F1D9
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731465AbgG0OfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:35:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42016 "EHLO mail.kernel.org"
+        id S1730120AbgG0OPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:15:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730718AbgG0OPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:15:33 -0400
+        id S1730728AbgG0OPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:15:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BE9F2083B;
-        Mon, 27 Jul 2020 14:15:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E0C22078E;
+        Mon, 27 Jul 2020 14:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859333;
-        bh=XxeXK1ZqMAk6niV3nqN1IkP63mf7KUrh+w6xEhY77Ys=;
+        s=default; t=1595859335;
+        bh=vDf3I3nHui18X9VZnDQ3p+uCLmyiMQGiKmwqcvdIqN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4mDrDxTNlEAhssdDf8CrqPgYqYrIET1pQVMWnenBzRRAUHjkEddnJq01A70NLFpN
-         /ajy5kQ1CQchHF5Su2Xtz7wENHaxwqW966R5ZB1ygInTFIcEkJgp150yc+RsPl311U
-         8lYXz6gVG7d/y1HgCDcI5JL9Ei02GfDhXNriPffc=
+        b=xFOgPPDCi0+3nzuvZt5pzxYW64hafYGaBi/xamaidgZl6bGCgXlgTYAVuD7RTVYIW
+         n3ACjQx08mu7xM4o/OeCShVP7Xn/UA739kMpjqCC4wAAE8PqU+uaQfMW81iB16QMvO
+         oeXvpNEn/gSL8by7+PBB0bH4vz1mTPbB/DkQxHWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Beniamino Galvani <bgalvani@redhat.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+7ebc2e088af5e4c0c9fa@syzkaller.appspotmail.com,
+        Sabrina Dubroca <sd@queasysnail.net>,
         Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+bbc3a11c4da63c1b74d6@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 066/138] bonding: check return value of register_netdevice() in bond_newlink()
-Date:   Mon, 27 Jul 2020 16:04:21 +0200
-Message-Id: <20200727134928.703628296@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/138] geneve: fix an uninitialized value in geneve_changelink()
+Date:   Mon, 27 Jul 2020 16:04:22 +0200
+Message-Id: <20200727134928.746526420@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -50,41 +49,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit c75d1d5248c0c97996051809ad0e9f154ba5d76e ]
+[ Upstream commit 32818c075c54bb0cae44dd6f7ab00b01c52b8372 ]
 
-Very similar to commit 544f287b8495
-("bonding: check error value of register_netdevice() immediately"),
-we should immediately check the return value of register_netdevice()
-before doing anything else.
+geneve_nl2info() sets 'df' conditionally, so we have to
+initialize it by copying the value from existing geneve
+device in geneve_changelink().
 
-Fixes: 005db31d5f5f ("bonding: set carrier off for devices created through netlink")
-Reported-and-tested-by: syzbot+bbc3a11c4da63c1b74d6@syzkaller.appspotmail.com
-Cc: Beniamino Galvani <bgalvani@redhat.com>
-Cc: Taehee Yoo <ap420073@gmail.com>
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Fixes: 56c09de347e4 ("geneve: allow changing DF behavior after creation")
+Reported-by: syzbot+7ebc2e088af5e4c0c9fa@syzkaller.appspotmail.com
+Cc: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_netlink.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/geneve.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_netlink.c b/drivers/net/bonding/bond_netlink.c
-index b43b51646b11a..f0f9138e967f3 100644
---- a/drivers/net/bonding/bond_netlink.c
-+++ b/drivers/net/bonding/bond_netlink.c
-@@ -456,11 +456,10 @@ static int bond_newlink(struct net *src_net, struct net_device *bond_dev,
- 		return err;
- 
- 	err = register_netdevice(bond_dev);
--
--	netif_carrier_off(bond_dev);
- 	if (!err) {
- 		struct bonding *bond = netdev_priv(bond_dev);
- 
-+		netif_carrier_off(bond_dev);
- 		bond_work_init_all(bond);
- 	}
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index 19d9d78a6df2c..adfdf6260b269 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -1615,11 +1615,11 @@ static int geneve_changelink(struct net_device *dev, struct nlattr *tb[],
+ 			     struct netlink_ext_ack *extack)
+ {
+ 	struct geneve_dev *geneve = netdev_priv(dev);
++	enum ifla_geneve_df df = geneve->df;
+ 	struct geneve_sock *gs4, *gs6;
+ 	struct ip_tunnel_info info;
+ 	bool metadata;
+ 	bool use_udp6_rx_checksums;
+-	enum ifla_geneve_df df;
+ 	bool ttl_inherit;
+ 	int err;
  
 -- 
 2.25.1
