@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 024DE22F122
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 051F322F124
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731273AbgG0OWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50800 "EHLO mail.kernel.org"
+        id S1730937AbgG0OWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:22:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731818AbgG0OWA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:00 -0400
+        id S1731833AbgG0OWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:22:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D36C42173E;
-        Mon, 27 Jul 2020 14:21:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C9C721775;
+        Mon, 27 Jul 2020 14:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859719;
-        bh=oSzFurCyrGQjX0jPXdIDKNdb710vTtsvKMsBnEcvLW0=;
+        s=default; t=1595859724;
+        bh=UB1WFAH0LsvRP3pR4wMVX8K7pSEkfAz9uaGlQBD04b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3EBrMq6txtARYDSihjBJV9RlX6II1NnK0qiQSQAluvxNroRiasLiYbCS/JgFezYw
-         VESK5yN9uxrnp0eNbIQQbe/6lTt8LR1AZJEZULVHvwn+okeQ8PfWt7Qp9mnxkrI+iX
-         UK9IHlOhqm8dt/L+zzuNAg1IPVrlw1TNQkRx6L8o=
+        b=LC4zaScf3dgloaNBJ1HMfoaXusieb9iA1avXkfVSYaQUvBk1+yso08XiAnMUIHuLF
+         +TKx3S3C9CidhXYgS751lKZanJioVHk2IXIeHIUaLqPwusPlodIVX3MElQPehMfMfN
+         e8vwi/TcJu3Krls0P9rk/XCyskJ8+Gp794oq9xi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 078/179] net: hns3: fix for not calculating TX BD send size correctly
-Date:   Mon, 27 Jul 2020 16:04:13 +0200
-Message-Id: <20200727134936.483910343@linuxfoundation.org>
+Subject: [PATCH 5.7 079/179] net: hns3: fix error handling for desc filling
+Date:   Mon, 27 Jul 2020 16:04:14 +0200
+Message-Id: <20200727134936.531272429@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -47,56 +47,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit 48ae74c9d89f827b39b5c07a1f02fc13637a3cd6 ]
+[ Upstream commit 8ceca59fb3ed48a693171bd571c4fcbd555b7f1f ]
 
-With GRO and fraglist support, the SKB can be aggregated to
-a total size of 65535, and when that SKB is forwarded through
-a bridge, the size of the SKB may be pushed to exceed the size
-of 65535 when br_dev_queue_push_xmit() is called.
+The content of the TX desc is automatically cleared by the HW
+when the HW has sent out the packet to the wire. When desc filling
+fails in hns3_nic_net_xmit(), it will call hns3_clear_desc() to do
+the error handling, which miss zeroing of the TX desc and the
+checking if a unmapping is needed.
 
-The max send size of BD supported by the HW is 65535, when a SKB
-with a headlen of over 65535 is sent to the driver, the driver
-needs to use multi BD to send the linear data, and the send size
-of the last BD is calculated incorrectly by the driver who is
-using '&' operation, which causes a TX error.
+So add the zeroing and checking in hns3_clear_desc() to avoid the
+above problem. Also add DESC_TYPE_UNKNOWN to indicate the info in
+desc_cb is not valid, because hns3_nic_reclaim_desc() may treat
+the desc_cb->type of zero as packet and add to the sent pkt
+statistics accordingly.
 
-Use '%' operation to fix this problem.
-
-Fixes: 3fe13ed95dd3 ("net: hns3: avoid mult + div op in critical data path")
+Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
 Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 2 +-
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.h | 2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h     | 1 +
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 5587605d6deb2..cc45662f77f04 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -77,6 +77,7 @@
+ 	((ring)->p = ((ring)->p - 1 + (ring)->desc_num) % (ring)->desc_num)
+ 
+ enum hns_desc_type {
++	DESC_TYPE_UNKNOWN,
+ 	DESC_TYPE_SKB,
+ 	DESC_TYPE_FRAGLIST_SKB,
+ 	DESC_TYPE_PAGE,
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 3003eecd5263b..5dab84aa3afd5 100644
+index 5dab84aa3afd5..df1cb0441183c 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -1140,7 +1140,7 @@ static int hns3_fill_desc(struct hns3_enet_ring *ring, void *priv,
+@@ -1351,6 +1351,10 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < ring->desc_num; i++) {
++		struct hns3_desc *desc = &ring->desc[ring->next_to_use];
++
++		memset(desc, 0, sizeof(*desc));
++
+ 		/* check if this is where we started */
+ 		if (ring->next_to_use == next_to_use_orig)
+ 			break;
+@@ -1358,6 +1362,9 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ 		/* rollback one */
+ 		ring_ptr_move_bw(ring, next_to_use);
+ 
++		if (!ring->desc_cb[ring->next_to_use].dma)
++			continue;
++
+ 		/* unmap the descriptor dma address */
+ 		if (ring->desc_cb[ring->next_to_use].type == DESC_TYPE_SKB ||
+ 		    ring->desc_cb[ring->next_to_use].type ==
+@@ -1374,6 +1381,7 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ 
+ 		ring->desc_cb[ring->next_to_use].length = 0;
+ 		ring->desc_cb[ring->next_to_use].dma = 0;
++		ring->desc_cb[ring->next_to_use].type = DESC_TYPE_UNKNOWN;
  	}
- 
- 	frag_buf_num = hns3_tx_bd_count(size);
--	sizeoflast = size & HNS3_TX_LAST_SIZE_M;
-+	sizeoflast = size % HNS3_MAX_BD_SIZE;
- 	sizeoflast = sizeoflast ? sizeoflast : HNS3_MAX_BD_SIZE;
- 
- 	/* When frag size is bigger than hardware limit, split this frag */
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-index abefd7a179f7b..e6b29a35cdb24 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-@@ -186,8 +186,6 @@ enum hns3_nic_state {
- #define HNS3_TXD_MSS_S				0
- #define HNS3_TXD_MSS_M				(0x3fff << HNS3_TXD_MSS_S)
- 
--#define HNS3_TX_LAST_SIZE_M			0xffff
--
- #define HNS3_VECTOR_TX_IRQ			BIT_ULL(0)
- #define HNS3_VECTOR_RX_IRQ			BIT_ULL(1)
+ }
  
 -- 
 2.25.1
