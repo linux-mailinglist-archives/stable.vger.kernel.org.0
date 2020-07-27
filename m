@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB1522F221
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 229F522F298
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729624AbgG0OMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:12:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
+        id S1729527AbgG0OI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:08:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730194AbgG0OMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:12:23 -0400
+        id S1729524AbgG0OIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:08:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60F202083E;
-        Mon, 27 Jul 2020 14:12:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6CBF2073E;
+        Mon, 27 Jul 2020 14:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859142;
-        bh=oKGghECnOuCDtNH1ZYo2vmubxt0MKgCDi77vFnlNNIE=;
+        s=default; t=1595858935;
+        bh=0ZB1inq6G3mEXC1hC6A8lpXD+S8c6wP75Jh/MvwT8Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDn7OvqbBzyySU4Bfs9KQtCJLsXjPu4trjMUpnvqz8ibRwyFgRfEEbVdeeLKgI/YQ
-         14VNLmRu0tGcJ5NF4KxUVdjyeHaK2EPbcUm6GXG7aTlQ/YkBtlUf/jo6CzobjxymhP
-         jJeDjgtMfSHQPohwGMgOecZaezoe7B/6uK+U9BSE=
+        b=QJclpbQGXiA2Mf2k6RvcjF1uAMKe0tNb2P4QoL58xplTqHqoLpDemRPRE996/pwal
+         s76ALPs4qiQwuMxdL8TxNPXk5LqcCEmtQB6ojcCqiTHP7O8USSjfv+UAU+hSNWkDcE
+         pRtjLMwHbhYO36CTL0II80Vb0iQTeD+oDt6rMhYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Patrick Fernie <patrick.fernie@gmail.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Subject: [PATCH 4.19 64/86] Revert "cifs: Fix the target file was deleted when rename failed."
-Date:   Mon, 27 Jul 2020 16:04:38 +0200
-Message-Id: <20200727134917.638089035@linuxfoundation.org>
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alex Shi <alex.shi@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 60/64] mm/memcg: fix refcount error while moving and swapping
+Date:   Mon, 27 Jul 2020 16:04:39 +0200
+Message-Id: <20200727134914.144811936@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit 0e6705182d4e1b77248a93470d6d7b3013d59b30 upstream.
+commit 8d22a9351035ef2ff12ef163a1091b8b8cf1e49c upstream.
 
-This reverts commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2.
+It was hard to keep a test running, moving tasks between memcgs with
+move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
+refcount is discovered to be 0 (supposedly impossible), so it is then
+forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
+succession, the test is at last put out of misery by being OOM killed.
 
-Upon additional testing with older servers, it was found that
-the original commit introduced a regression when using the old SMB1
-dialect and rsyncing over an existing file.
+This is because of the way moved_swap accounting was saved up until the
+task move gets completed in __mem_cgroup_clear_mc(), deferred from when
+mem_cgroup_move_swap_account() actually exchanged old and new ids.
+Concurrent activity can free up swap quicker than the task is scanned,
+bringing id refcount down 0 (which should only be possible when
+offlining).
 
-The patch will need to be respun to address this, likely including
-a larger refactoring of the SMB1 and SMB3 rename code paths to make
-it less confusing and also to address some additional rename error
-cases that SMB3 may be able to workaround.
+Just skip that optimization: do that part of the accounting immediately.
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reported-by: Patrick Fernie <patrick.fernie@gmail.com>
-CC: Stable <stable@vger.kernel.org>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
-Acked-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/inode.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ mm/memcontrol.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1783,7 +1783,6 @@ cifs_rename2(struct inode *source_dir, s
- 	FILE_UNIX_BASIC_INFO *info_buf_target;
- 	unsigned int xid;
- 	int rc, tmprc;
--	bool new_target = d_really_is_negative(target_dentry);
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -4883,7 +4883,6 @@ static void __mem_cgroup_clear_mc(void)
+ 		if (!mem_cgroup_is_root(mc.to))
+ 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
  
- 	if (flags & ~RENAME_NOREPLACE)
- 		return -EINVAL;
-@@ -1860,13 +1859,8 @@ cifs_rename2(struct inode *source_dir, s
- 	 */
+-		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
+ 		css_put_many(&mc.to->css, mc.moved_swap);
  
- unlink_target:
--	/*
--	 * If the target dentry was created during the rename, try
--	 * unlinking it if it's not negative
--	 */
--	if (new_target &&
--	    d_really_is_positive(target_dentry) &&
--	    (rc == -EACCES || rc == -EEXIST)) {
-+	/* Try unlinking the target dentry if it's not negative */
-+	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
- 		if (d_is_dir(target_dentry))
- 			tmprc = cifs_rmdir(target_dir, target_dentry);
- 		else
+ 		mc.moved_swap = 0;
+@@ -5074,7 +5073,8 @@ put:			/* get_mctgt_type() gets the page
+ 			ent = target.ent;
+ 			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
+ 				mc.precharge--;
+-				/* we fixup refcnts and charges later. */
++				mem_cgroup_id_get_many(mc.to, 1);
++				/* we fixup other refcnts and charges later. */
+ 				mc.moved_swap++;
+ 			}
+ 			break;
 
 
