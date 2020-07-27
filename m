@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1B9F22F183
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B5022F214
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729840AbgG0OSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45884 "EHLO mail.kernel.org"
+        id S1730276AbgG0OMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729781AbgG0OSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:18:16 -0400
+        id S1730273AbgG0OMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ADFF2070A;
-        Mon, 27 Jul 2020 14:18:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FECF2078E;
+        Mon, 27 Jul 2020 14:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859495;
-        bh=n3RbqFT8KAWFA1dTxPYGZH156V8HwXIVPBz/LrIGyoE=;
+        s=default; t=1595859173;
+        bh=sDEnlAlhFB/QP2r2vRPVPqWMEAb7Ot7M+9SnlkSmfxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gg4JZRcEcHhiXEhEP07f5Ti/HYj+zqK7OTIQzgu33q5kTT4QAPj+lFdIB9lqb4tIv
-         0cjfnXDMYWRsvN6rnTpdBH+klft4eR+3ivtzQwEfzUgj4uwK0cvIStwMRytstX/jUZ
-         qZ/pAvWqZK9smefU7hz+TLBJjARqbL43BbgR+zQg=
+        b=KRTIRep8fhX9FnMTOzu2CcTq4bh/uxtm9H39l1ZnsR8lukAKGTBdQhFoxBTNBurJA
+         Dd+jQqOU5BY7zRGXHU+7WHWkhsnDVF29ehS60B7YcVAybpDfxwQ1ISBpc4JdjVd51T
+         pq4XfnbylbOUifHCvqc5LqFACtGSJT8Tx4njJ5K0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>,
-        syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Michal Hocko <mhocko@suse.com>, Todd Kjos <tkjos@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.4 104/138] binder: Dont use mmput() from shrinker function.
-Date:   Mon, 27 Jul 2020 16:04:59 +0200
-Message-Id: <20200727134930.671211807@linuxfoundation.org>
+        stable@vger.kernel.org, Mark ODonovan <shiftee@posteo.net>,
+        Roman Mamedov <rm@romanrm.net>,
+        =?UTF-8?q?Viktor=20J=C3=A4gersk=C3=BCpper?= 
+        <viktor_jaegerskuepper@freenet.de>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 86/86] ath9k: Fix regression with Atheros 9271
+Date:   Mon, 27 Jul 2020 16:05:00 +0200
+Message-Id: <20200727134918.713749319@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Mark O'Donovan <shiftee@posteo.net>
 
-commit f867c771f98891841c217fa8459244ed0dd28921 upstream.
+commit 92f53e2fda8bb9a559ad61d57bfb397ce67ed0ab upstream.
 
-syzbot is reporting that mmput() from shrinker function has a risk of
-deadlock [1], for delayed_uprobe_add() from update_ref_ctr() calls
-kzalloc(GFP_KERNEL) with delayed_uprobe_lock held, and
-uprobe_clear_state() from __mmput() also holds delayed_uprobe_lock.
+This fix allows ath9k_htc modules to connect to WLAN once again.
 
-Commit a1b2289cef92ef0e ("android: binder: drop lru lock in isolate
-callback") replaced mmput() with mmput_async() in order to avoid sleeping
-with spinlock held. But this patch replaces mmput() with mmput_async() in
-order not to start __mmput() from shrinker context.
-
-[1] https://syzkaller.appspot.com/bug?id=bc9e7303f537c41b2b0cc2dfcea3fc42964c2d45
-
-Reported-by: syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Todd Kjos <tkjos@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4ba9adb2-43f5-2de0-22de-f6075c1fab50@i-love.sakura.ne.jp
+Fixes: 2bbcaaee1fcb ("ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208251
+Signed-off-by: Mark O'Donovan <shiftee@posteo.net>
+Reported-by: Roman Mamedov <rm@romanrm.net>
+Tested-by: Viktor Jägersküpper <viktor_jaegerskuepper@freenet.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200711043324.8079-1-shiftee@posteo.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -948,7 +948,7 @@ enum lru_status binder_alloc_free_page(s
- 		trace_binder_unmap_user_end(alloc, index);
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -733,11 +733,13 @@ static void ath9k_hif_usb_reg_in_cb(stru
+ 			return;
+ 		}
+ 
++		rx_buf->skb = nskb;
++
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				 usb_rcvintpipe(hif_dev->udev,
+ 						 USB_REG_IN_PIPE),
+ 				 nskb->data, MAX_REG_IN_BUF_SIZE,
+-				 ath9k_hif_usb_reg_in_cb, nskb, 1);
++				 ath9k_hif_usb_reg_in_cb, rx_buf, 1);
  	}
- 	up_read(&mm->mmap_sem);
--	mmput(mm);
-+	mmput_async(mm);
  
- 	trace_binder_unmap_kernel_start(alloc, index);
- 
+ resubmit:
 
 
