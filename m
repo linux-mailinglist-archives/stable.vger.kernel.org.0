@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1EC22F197
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B9F22F183
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731119AbgG0ORu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45210 "EHLO mail.kernel.org"
+        id S1729840AbgG0OSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:18:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728918AbgG0ORt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:17:49 -0400
+        id S1729781AbgG0OSQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:18:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 603A12070A;
-        Mon, 27 Jul 2020 14:17:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ADFF2070A;
+        Mon, 27 Jul 2020 14:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859468;
-        bh=MutjSMAafDXjPRebpjYD2MZe+oGnDIbyaCZJHeddI8Y=;
+        s=default; t=1595859495;
+        bh=n3RbqFT8KAWFA1dTxPYGZH156V8HwXIVPBz/LrIGyoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4Bww8XEVgqzYLz79okILBeKru30ZszUlDVpQzkYsZSiCj7lui7E0f9Fymb4Ye/fb
-         okfVPIVaWUfHM1Amxpv07eB35nbcpinL7W74B3BlhyYXexPngRmf9sniuvHa2U4iNO
-         Rw6VBMrtlhQUvK3W/FSEIEooEHJ5eikCl0aOISJw=
+        b=Gg4JZRcEcHhiXEhEP07f5Ti/HYj+zqK7OTIQzgu33q5kTT4QAPj+lFdIB9lqb4tIv
+         0cjfnXDMYWRsvN6rnTpdBH+klft4eR+3ivtzQwEfzUgj4uwK0cvIStwMRytstX/jUZ
+         qZ/pAvWqZK9smefU7hz+TLBJjARqbL43BbgR+zQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/138] RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
-Date:   Mon, 27 Jul 2020 16:04:58 +0200
-Message-Id: <20200727134930.622406151@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>,
+        syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Michal Hocko <mhocko@suse.com>, Todd Kjos <tkjos@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 5.4 104/138] binder: Dont use mmput() from shrinker function.
+Date:   Mon, 27 Jul 2020 16:04:59 +0200
+Message-Id: <20200727134930.671211807@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -43,45 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmerdabbelt@google.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 38b7c2a3ffb1fce8358ddc6006cfe5c038ff9963 ]
+commit f867c771f98891841c217fa8459244ed0dd28921 upstream.
 
-While digging through the recent mmiowb preemption issue it came up that
-we aren't actually preventing IO from crossing a scheduling boundary.
-While it's a bit ugly to overload smp_mb__after_spinlock() with this
-behavior, it's what PowerPC is doing so there's some precedent.
+syzbot is reporting that mmput() from shrinker function has a risk of
+deadlock [1], for delayed_uprobe_add() from update_ref_ctr() calls
+kzalloc(GFP_KERNEL) with delayed_uprobe_lock held, and
+uprobe_clear_state() from __mmput() also holds delayed_uprobe_lock.
 
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Commit a1b2289cef92ef0e ("android: binder: drop lru lock in isolate
+callback") replaced mmput() with mmput_async() in order to avoid sleeping
+with spinlock held. But this patch replaces mmput() with mmput_async() in
+order not to start __mmput() from shrinker context.
+
+[1] https://syzkaller.appspot.com/bug?id=bc9e7303f537c41b2b0cc2dfcea3fc42964c2d45
+
+Reported-by: syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Todd Kjos <tkjos@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/4ba9adb2-43f5-2de0-22de-f6075c1fab50@i-love.sakura.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/riscv/include/asm/barrier.h | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/android/binder_alloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/barrier.h b/arch/riscv/include/asm/barrier.h
-index 3f1737f301ccb..d0e24aaa2aa06 100644
---- a/arch/riscv/include/asm/barrier.h
-+++ b/arch/riscv/include/asm/barrier.h
-@@ -58,8 +58,16 @@ do {									\
-  * The AQ/RL pair provides a RCpc critical section, but there's not really any
-  * way we can take advantage of that here because the ordering is only enforced
-  * on that one lock.  Thus, we're just doing a full fence.
-+ *
-+ * Since we allow writeX to be called from preemptive regions we need at least
-+ * an "o" in the predecessor set to ensure device writes are visible before the
-+ * task is marked as available for scheduling on a new hart.  While I don't see
-+ * any concrete reason we need a full IO fence, it seems safer to just upgrade
-+ * this in order to avoid any IO crossing a scheduling boundary.  In both
-+ * instances the scheduler pairs this with an mb(), so nothing is necessary on
-+ * the new hart.
-  */
--#define smp_mb__after_spinlock()	RISCV_FENCE(rw,rw)
-+#define smp_mb__after_spinlock()	RISCV_FENCE(iorw,iorw)
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -948,7 +948,7 @@ enum lru_status binder_alloc_free_page(s
+ 		trace_binder_unmap_user_end(alloc, index);
+ 	}
+ 	up_read(&mm->mmap_sem);
+-	mmput(mm);
++	mmput_async(mm);
  
- #include <asm-generic/barrier.h>
+ 	trace_binder_unmap_kernel_start(alloc, index);
  
--- 
-2.25.1
-
 
 
