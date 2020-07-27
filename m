@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9F522F164
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E8F22F23F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732246AbgG0Obs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
+        id S1729841AbgG0OKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:10:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731521AbgG0OUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:20:14 -0400
+        id S1729805AbgG0OKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA73D2070A;
-        Mon, 27 Jul 2020 14:20:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDDB92083E;
+        Mon, 27 Jul 2020 14:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859613;
-        bh=Gi/1matADbQoQnGQPaHeo0DvP+h85YZ9Z5NkcxJSnx8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WYhQ4BXwFqnEUXBlq53J4yKi5u8foItPSSSaBYaoeX5avgm/zAgonHrNX6XIXtyUF
-         t3zxEWHhDm4eS9uBR4/j1B++Wf5fL0WJ7aW06BB2nbS/a4jKlyVjgJx/1Q7fRcStgv
-         jSVgW4NXJxpix4RE2rzc08FXp+Nd7Xy/yf6DKsEQ=
+        s=default; t=1595859022;
+        bh=xcYsMyLGK9hkkMPHuzxdbpQbs7gRSQH9CsL4BHhnvDk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KcbFT5HOuh+G2krQW2T8SeEnROSLq4y3KcVlmcnUNAmXU7zFOAh5YHeqxSvvlVZJV
+         hEjdxcZ3k/P/M45efgxOEwXSdYNb9NOwQNfoBrutmtpeq8coFKbI/BtSFWL7oMjEnt
+         CxhBHCd8RH3dJfxjtZujcqXbrQb+qShaha4CxlDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 038/179] btrfs: fix double free on ulist after backref resolution failure
-Date:   Mon, 27 Jul 2020 16:03:33 +0200
-Message-Id: <20200727134934.528531421@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.19 00/86] 4.19.135-rc1 review
+Date:   Mon, 27 Jul 2020 16:03:34 +0200
+Message-Id: <20200727134914.312934924@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.135-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.135-rc1
+X-KernelTest-Deadline: 2020-07-29T13:49+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -44,159 +51,399 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+This is the start of the stable review cycle for the 4.19.135 release.
+There are 86 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 580c079b5766ac706f56eec5c79aee4bf929fef6 upstream.
+Responses should be made by Wed, 29 Jul 2020 13:48:51 +0000.
+Anything received after that time might be too late.
 
-At btrfs_find_all_roots_safe() we allocate a ulist and set the **roots
-argument to point to it. However if later we fail due to an error returned
-by find_parent_nodes(), we free that ulist but leave a dangling pointer in
-the **roots argument. Upon receiving the error, a caller of this function
-can attempt to free the same ulist again, resulting in an invalid memory
-access.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.135-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-One such scenario is during qgroup accounting:
+thanks,
 
-btrfs_qgroup_account_extents()
+greg k-h
 
- --> calls btrfs_find_all_roots() passes &new_roots (a stack allocated
-     pointer) to btrfs_find_all_roots()
+-------------
+Pseudo-Shortlog of commits:
 
-   --> btrfs_find_all_roots() just calls btrfs_find_all_roots_safe()
-       passing &new_roots to it
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.135-rc1
 
-     --> allocates ulist and assigns its address to **roots (which
-         points to new_roots from btrfs_qgroup_account_extents())
+Mark O'Donovan <shiftee@posteo.net>
+    ath9k: Fix regression with Atheros 9271
 
-     --> find_parent_nodes() returns an error, so we free the ulist
-         and leave **roots pointing to it after returning
+Qiujun Huang <hqjagain@gmail.com>
+    ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
 
- --> btrfs_qgroup_account_extents() sees btrfs_find_all_roots() returned
-     an error and jumps to the label 'cleanup', which just tries to
-     free again the same ulist
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: fix integrity recalculation that is improperly skipped
 
-Stack trace example:
+Geert Uytterhoeven <geert@linux-m68k.org>
+    ASoC: qcom: Drop HAS_DMA dependency to fix link failure
 
- ------------[ cut here ]------------
- BTRFS: tree first key check failed
- WARNING: CPU: 1 PID: 1763215 at fs/btrfs/disk-io.c:422 btrfs_verify_level_key+0xe0/0x180 [btrfs]
- Modules linked in: dm_snapshot dm_thin_pool (...)
- CPU: 1 PID: 1763215 Comm: fsstress Tainted: G        W         5.8.0-rc3-btrfs-next-64 #1
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- RIP: 0010:btrfs_verify_level_key+0xe0/0x180 [btrfs]
- Code: 28 5b 5d (...)
- RSP: 0018:ffffb89b473779a0 EFLAGS: 00010286
- RAX: 0000000000000000 RBX: ffff90397759bf08 RCX: 0000000000000000
- RDX: 0000000000000001 RSI: 0000000000000027 RDI: 00000000ffffffff
- RBP: ffff9039a419c000 R08: 0000000000000000 R09: 0000000000000000
- R10: 0000000000000000 R11: ffffb89b43301000 R12: 000000000000005e
- R13: ffffb89b47377a2e R14: ffffb89b473779af R15: 0000000000000000
- FS:  00007fc47e1e1000(0000) GS:ffff9039ac200000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fc47e1df000 CR3: 00000003d9e4e001 CR4: 00000000003606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  read_block_for_search+0xf6/0x350 [btrfs]
-  btrfs_next_old_leaf+0x242/0x650 [btrfs]
-  resolve_indirect_refs+0x7cf/0x9e0 [btrfs]
-  find_parent_nodes+0x4ea/0x12c0 [btrfs]
-  btrfs_find_all_roots_safe+0xbf/0x130 [btrfs]
-  btrfs_qgroup_account_extents+0x9d/0x390 [btrfs]
-  btrfs_commit_transaction+0x4f7/0xb20 [btrfs]
-  btrfs_sync_file+0x3d4/0x4d0 [btrfs]
-  do_fsync+0x38/0x70
-  __x64_sys_fdatasync+0x13/0x20
-  do_syscall_64+0x5c/0xe0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7fc47e2d72e3
- Code: Bad RIP value.
- RSP: 002b:00007fffa32098c8 EFLAGS: 00000246 ORIG_RAX: 000000000000004b
- RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fc47e2d72e3
- RDX: 00007fffa3209830 RSI: 00007fffa3209830 RDI: 0000000000000003
- RBP: 000000000000072e R08: 0000000000000001 R09: 0000000000000003
- R10: 0000000000000000 R11: 0000000000000246 R12: 00000000000003e8
- R13: 0000000051eb851f R14: 00007fffa3209970 R15: 00005607c4ac8b50
- irq event stamp: 0
- hardirqs last  enabled at (0): [<0000000000000000>] 0x0
- hardirqs last disabled at (0): [<ffffffffb8eb5e85>] copy_process+0x755/0x1eb0
- softirqs last  enabled at (0): [<ffffffffb8eb5e85>] copy_process+0x755/0x1eb0
- softirqs last disabled at (0): [<0000000000000000>] 0x0
- ---[ end trace 8639237550317b48 ]---
- BTRFS error (device sdc): tree first key mismatch detected, bytenr=62324736 parent_transid=94 key expected=(262,108,1351680) has=(259,108,1921024)
- general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b6b6b: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
- CPU: 2 PID: 1763215 Comm: fsstress Tainted: G        W         5.8.0-rc3-btrfs-next-64 #1
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- RIP: 0010:ulist_release+0x14/0x60 [btrfs]
- Code: c7 07 00 (...)
- RSP: 0018:ffffb89b47377d60 EFLAGS: 00010282
- RAX: 6b6b6b6b6b6b6b6b RBX: ffff903959b56b90 RCX: 0000000000000000
- RDX: 0000000000000001 RSI: 0000000000270024 RDI: ffff9036e2adc840
- RBP: ffff9036e2adc848 R08: 0000000000000000 R09: 0000000000000000
- R10: 0000000000000000 R11: 0000000000000000 R12: ffff9036e2adc840
- R13: 0000000000000015 R14: ffff9039a419ccf8 R15: ffff90395d605840
- FS:  00007fc47e1e1000(0000) GS:ffff9039ac600000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f8c1c0a51c8 CR3: 00000003d9e4e004 CR4: 00000000003606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  ulist_free+0x13/0x20 [btrfs]
-  btrfs_qgroup_account_extents+0xf3/0x390 [btrfs]
-  btrfs_commit_transaction+0x4f7/0xb20 [btrfs]
-  btrfs_sync_file+0x3d4/0x4d0 [btrfs]
-  do_fsync+0x38/0x70
-  __x64_sys_fdatasync+0x13/0x20
-  do_syscall_64+0x5c/0xe0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7fc47e2d72e3
- Code: Bad RIP value.
- RSP: 002b:00007fffa32098c8 EFLAGS: 00000246 ORIG_RAX: 000000000000004b
- RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fc47e2d72e3
- RDX: 00007fffa3209830 RSI: 00007fffa3209830 RDI: 0000000000000003
- RBP: 000000000000072e R08: 0000000000000001 R09: 0000000000000003
- R10: 0000000000000000 R11: 0000000000000246 R12: 00000000000003e8
- R13: 0000000051eb851f R14: 00007fffa3209970 R15: 00005607c4ac8b50
- Modules linked in: dm_snapshot dm_thin_pool (...)
- ---[ end trace 8639237550317b49 ]---
- RIP: 0010:ulist_release+0x14/0x60 [btrfs]
- Code: c7 07 00 (...)
- RSP: 0018:ffffb89b47377d60 EFLAGS: 00010282
- RAX: 6b6b6b6b6b6b6b6b RBX: ffff903959b56b90 RCX: 0000000000000000
- RDX: 0000000000000001 RSI: 0000000000270024 RDI: ffff9036e2adc840
- RBP: ffff9036e2adc848 R08: 0000000000000000 R09: 0000000000000000
- R10: 0000000000000000 R11: 0000000000000000 R12: ffff9036e2adc840
- R13: 0000000000000015 R14: ffff9039a419ccf8 R15: ffff90395d605840
- FS:  00007fc47e1e1000(0000) GS:ffff9039ad200000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f6a776f7d40 CR3: 00000003d9e4e002 CR4: 00000000003606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Hans de Goede <hdegoede@redhat.com>
+    ASoC: rt5670: Add new gpio1_is_ext_spk_en quirk and enable it on the Lenovo Miix 2 10
 
-Fix this by making btrfs_find_all_roots_safe() set *roots to NULL after
-it frees the ulist.
+Joerg Roedel <jroedel@suse.de>
+    x86, vmlinux.lds: Page-align end of ..page_aligned sections
 
-Fixes: 8da6d5815c592b ("Btrfs: added btrfs_find_all_roots()")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+John David Anglin <dave.anglin@bell.net>
+    parisc: Add atomic64_set_release() define to avoid CPU soft lockups
 
----
- fs/btrfs/backref.c |    1 +
- 1 file changed, 1 insertion(+)
+Qiu Wenbo <qiuwenbo@phytium.com.cn>
+    drm/amd/powerplay: fix a crash when overclocking Vega M
 
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -1465,6 +1465,7 @@ static int btrfs_find_all_roots_safe(str
- 		if (ret < 0 && ret != -ENOENT) {
- 			ulist_free(tmp);
- 			ulist_free(*roots);
-+			*roots = NULL;
- 			return ret;
- 		}
- 		node = ulist_next(tmp, &uiter);
+Paweł Gronowski <me@woland.xyz>
+    drm/amdgpu: Fix NULL dereference in dpm sysfs handlers
+
+Michael J. Ruhl <michael.j.ruhl@intel.com>
+    io-mapping: indicate mapping failure
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: memcg/slab: fix memory leak at non-root kmem_cache destroy
+
+Hugh Dickins <hughd@google.com>
+    mm/memcg: fix refcount error while moving and swapping
+
+Fangrui Song <maskray@google.com>
+    Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    vt: Reject zero-sized screen buffer size.
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    fbdev: Detect integer underflow at "struct fbcon_ops"->clear_margins.
+
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    serial: 8250_mtk: Fix high-speed baud rates clamping
+
+Yang Yingliang <yangyingliang@huawei.com>
+    serial: 8250: fix null-ptr-deref in serial8250_start_tx()
+
+Ian Abbott <abbotti@mev.co.uk>
+    staging: comedi: addi_apci_1564: check INSN_CONFIG_DIGITAL_TRIG shift
+
+Ian Abbott <abbotti@mev.co.uk>
+    staging: comedi: addi_apci_1500: check INSN_CONFIG_DIGITAL_TRIG shift
+
+Ian Abbott <abbotti@mev.co.uk>
+    staging: comedi: ni_6527: fix INSN_CONFIG_DIGITAL_TRIG support
+
+Ian Abbott <abbotti@mev.co.uk>
+    staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
+
+Rustam Kovhaev <rkovhaev@gmail.com>
+    staging: wlan-ng: properly check endpoint types
+
+Steve French <stfrench@microsoft.com>
+    Revert "cifs: Fix the target file was deleted when rename failed."
+
+Forest Crossman <cyrozap@gmail.com>
+    usb: xhci: Fix ASM2142/ASM3142 DMA addressing
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: xhci-mtk: fix the failure of bandwidth allocation
+
+Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+    binder: Don't use mmput() from shrinker function.
+
+Palmer Dabbelt <palmerdabbelt@google.com>
+    RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
+
+Arnd Bergmann <arnd@arndb.de>
+    x86: math-emu: Fix up 'cmp' insn for clang ias
+
+Will Deacon <will@kernel.org>
+    arm64: Use test_tsk_thread_flag() for checking TIF_SINGLESTEP
+
+Cristian Marussi <cristian.marussi@arm.com>
+    hwmon: (scmi) Fix potential buffer overflow in scmi_hwmon_probe()
+
+Chu Lin <linchuyuan@google.com>
+    hwmon: (adm1275) Make sure we are reading enough data for different chips
+
+Evgeny Novikov <novikov@ispras.ru>
+    usb: gadget: udc: gr_udc: fix memleak on error handling path in gr_ep_init()
+
+Derek Basehore <dbasehore@chromium.org>
+    Input: elan_i2c - only increment wakeup count on touch
+
+Ilya Katsnelson <me@0upti.me>
+    Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+
+Leonid Ravich <Leonid.Ravich@emc.com>
+    dmaengine: ioat setting ioat timeout as module parameter
+
+Evgeny Novikov <novikov@ispras.ru>
+    hwmon: (aspeed-pwm-tacho) Avoid possible buffer overflow
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    regmap: dev_get_regmap_match(): fix string comparison
+
+leilk.liu <leilk.liu@mediatek.com>
+    spi: mediatek: use correct SPI_CFG2_REG MACRO
+
+Merlijn Wajer <merlijn@wizzup.org>
+    Input: add `SW_MACHINE_COVER`
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    dmaengine: tegra210-adma: Fix runtime PM imbalance on error
+
+Hans de Goede <hdegoede@redhat.com>
+    HID: apple: Disable Fn-key key-re-mapping on clone keyboards
+
+Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+    HID: steam: fixes race in handling device list.
+
+Caiyuan Xie <caiyuan.xie@cn.alps.com>
+    HID: alps: support devices with report id 2
+
+Federico Ricchiuto <fed.ricchiuto@gmail.com>
+    HID: i2c-hid: add Mediacom FlexBook edge13 to descriptor override
+
+Stefano Garzarella <sgarzare@redhat.com>
+    scripts/gdb: fix lx-symbols 'gdb.error' while loading modules
+
+Pi-Hsun Shih <pihsun@chromium.org>
+    scripts/decode_stacktrace: strip basepath from all paths
+
+Matthew Howell <matthew.howell@sealevel.com>
+    serial: exar: Fix GPIO configuration for Sealevel cards based on XR17V35X
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    bonding: check return value of register_netdevice() in bond_newlink()
+
+Wolfram Sang <wsa+renesas@sang-engineering.com>
+    i2c: rcar: always clear ICSAR to avoid side effects
+
+Wang Hai <wanghai38@huawei.com>
+    net: ethernet: ave: Fix error returns in ave_init
+
+guodeqing <geffrey.guo@huawei.com>
+    ipvs: fix the connection sync failed in some cases
+
+Alexander Lobakin <alobakin@marvell.com>
+    qed: suppress "don't support RoCE & iWARP" flooding on HW init
+
+Liu Jian <liujian56@huawei.com>
+    mlxsw: destroy workqueue when trap_register in mlxsw_emad_init
+
+Taehee Yoo <ap420073@gmail.com>
+    bonding: check error value of register_netdevice() immediately
+
+Wang Hai <wanghai38@huawei.com>
+    net: smc91x: Fix possible memory leak in smc_drv_probe()
+
+Chen-Yu Tsai <wens@csie.org>
+    drm: sun4i: hdmi: Fix inverted HPD result
+
+Liu Jian <liujian56@huawei.com>
+    ieee802154: fix one possible memleak in adf7242_probe
+
+Sergey Organov <sorganov@gmail.com>
+    net: dp83640: fix SIOCSHWTSTAMP to update the struct with actual configuration
+
+George Kennedy <george.kennedy@oracle.com>
+    ax88172a: fix ax88172a_unbind() failures
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    hippi: Fix a size used in a 'pci_free_consistent()' in an error handling path
+
+Matthew Gerlach <matthew.gerlach@linux.intel.com>
+    fpga: dfl: fix bug in port reset handshake
+
+Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+    bnxt_en: Fix race when modifying pause settings.
+
+Robbie Ko <robbieko@synology.com>
+    btrfs: fix page leaks after failure to lock page for delalloc
+
+Boris Burkov <boris@bur.io>
+    btrfs: fix mount failure caused by race with umount
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix double free on ulist after backref resolution failure
+
+Hans de Goede <hdegoede@redhat.com>
+    ASoC: rt5670: Correct RT5670_LDO_SEL_MASK
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: info: Drop WARN_ON() from buffer NULL sanity check
+
+Oleg Nesterov <oleg@redhat.com>
+    uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
+
+Yang Yingliang <yangyingliang@huawei.com>
+    IB/umem: fix reference count leak in ib_umem_odp_get()
+
+Jon Maloy <jon.maloy@ericsson.com>
+    tipc: clean up skb list lock handling on send path
+
+Vladimir Oltean <olteanv@gmail.com>
+    spi: spi-fsl-dspi: Exit the ISR with IRQ_NONE when it's not ours
+
+Olga Kornievskaia <kolga@netapp.com>
+    SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
+
+Thomas Gleixner <tglx@linutronix.de>
+    irqdomain/treewide: Keep firmware node unconditionally allocated
+
+Miklos Szeredi <mszeredi@redhat.com>
+    fuse: fix weird page warning
+
+Gavin Shan <gshan@redhat.com>
+    drivers/firmware/psci: Fix memory leakage in alloc_init_cpu_groups()
+
+Ben Skeggs <bskeggs@redhat.com>
+    drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
+
+Tom Rix <trix@redhat.com>
+    net: sky2: initialize return of gm_phy_read
+
+Xie He <xie.he.0141@gmail.com>
+    drivers/net/wan/lapbether: Fixed the value of hard_header_len
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: update *pos in cpuinfo_op.next
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: fix __sync_fetch_and_{and,or}_4 declarations
+
+Tom Rix <trix@redhat.com>
+    scsi: scsi_transport_spi: Fix function pointer check
+
+Markus Theil <markus.theil@tu-ilmenau.de>
+    mac80211: allow rx of mesh eapol frames with default rx key
+
+Jacky Hu <hengqing.hu@gmail.com>
+    pinctrl: amd: fix npins for uart0 in kerncz_groups
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    gpio: arizona: put pm_runtime in case of failure
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    gpio: arizona: handle pm_runtime_get_sync failure case
+
+Douglas Anderson <dianders@chromium.org>
+    soc: qcom: rpmh: Dirt can only make you dirtier, not cleaner
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  6 +-
+ arch/arm64/kernel/debug-monitors.c                 |  4 +-
+ arch/parisc/include/asm/atomic.h                   |  2 +
+ arch/riscv/include/asm/barrier.h                   | 10 ++-
+ arch/x86/kernel/apic/io_apic.c                     | 10 +--
+ arch/x86/kernel/apic/msi.c                         | 18 ++++--
+ arch/x86/kernel/apic/vector.c                      |  1 -
+ arch/x86/kernel/vmlinux.lds.S                      |  1 +
+ arch/x86/math-emu/wm_sqrt.S                        |  2 +-
+ arch/x86/platform/uv/uv_irq.c                      |  3 +-
+ arch/xtensa/kernel/setup.c                         |  3 +-
+ arch/xtensa/kernel/xtensa_ksyms.c                  |  4 +-
+ drivers/android/binder_alloc.c                     |  2 +-
+ drivers/base/regmap/regmap.c                       |  2 +-
+ drivers/dma/ioat/dma.c                             | 12 ++++
+ drivers/dma/ioat/dma.h                             |  2 -
+ drivers/dma/tegra210-adma.c                        |  5 +-
+ drivers/firmware/psci_checker.c                    |  5 +-
+ drivers/fpga/dfl-afu-main.c                        |  3 +-
+ drivers/gpio/gpio-arizona.c                        |  7 ++-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c             |  9 +--
+ .../gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c    | 10 +--
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   |  4 +-
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c |  4 +-
+ drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c             |  2 +-
+ drivers/hid/hid-alps.c                             |  2 +
+ drivers/hid/hid-apple.c                            | 18 ++++++
+ drivers/hid/hid-steam.c                            |  6 +-
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |  8 +++
+ drivers/hwmon/aspeed-pwm-tacho.c                   |  2 +
+ drivers/hwmon/pmbus/adm1275.c                      | 10 ++-
+ drivers/hwmon/scmi-hwmon.c                         |  2 +-
+ drivers/i2c/busses/i2c-rcar.c                      |  3 +
+ drivers/infiniband/core/umem_odp.c                 |  3 +-
+ drivers/input/mouse/elan_i2c_core.c                |  7 ++-
+ drivers/input/mouse/synaptics.c                    |  1 +
+ drivers/iommu/amd_iommu.c                          |  5 +-
+ drivers/iommu/intel_irq_remapping.c                |  2 +-
+ drivers/md/dm-integrity.c                          |  4 +-
+ drivers/md/dm.c                                    | 17 ++++++
+ drivers/net/bonding/bond_main.c                    | 10 ++-
+ drivers/net/bonding/bond_netlink.c                 |  3 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c  |  5 +-
+ drivers/net/ethernet/marvell/sky2.c                |  2 +-
+ drivers/net/ethernet/mellanox/mlxsw/core.c         |  3 +-
+ drivers/net/ethernet/qlogic/qed/qed_cxt.c          |  4 +-
+ drivers/net/ethernet/smsc/smc91x.c                 |  4 +-
+ drivers/net/ethernet/socionext/sni_ave.c           |  2 +-
+ drivers/net/hippi/rrunner.c                        |  2 +-
+ drivers/net/ieee802154/adf7242.c                   |  4 +-
+ drivers/net/phy/dp83640.c                          |  4 ++
+ drivers/net/usb/ax88172a.c                         |  1 +
+ drivers/net/wan/lapbether.c                        |  9 ++-
+ drivers/net/wireless/ath/ath9k/hif_usb.c           | 52 ++++++++++++----
+ drivers/net/wireless/ath/ath9k/hif_usb.h           |  5 ++
+ drivers/pci/controller/vmd.c                       |  5 +-
+ drivers/pinctrl/pinctrl-amd.h                      |  2 +-
+ drivers/scsi/scsi_transport_spi.c                  |  2 +-
+ drivers/soc/qcom/rpmh.c                            |  8 +--
+ drivers/spi/spi-fsl-dspi.c                         |  4 +-
+ drivers/spi/spi-mt65xx.c                           | 15 ++---
+ drivers/staging/comedi/drivers/addi_apci_1032.c    | 20 ++++--
+ drivers/staging/comedi/drivers/addi_apci_1500.c    | 24 ++++++--
+ drivers/staging/comedi/drivers/addi_apci_1564.c    | 20 ++++--
+ drivers/staging/comedi/drivers/ni_6527.c           |  2 +-
+ drivers/staging/wlan-ng/prism2usb.c                | 16 ++++-
+ drivers/tty/serial/8250/8250_core.c                |  2 +-
+ drivers/tty/serial/8250/8250_exar.c                | 12 +++-
+ drivers/tty/serial/8250/8250_mtk.c                 | 18 ++++++
+ drivers/tty/vt/vt.c                                | 29 +++++----
+ drivers/usb/gadget/udc/gr_udc.c                    |  7 ++-
+ drivers/usb/host/xhci-mtk-sch.c                    |  4 ++
+ drivers/usb/host/xhci-pci.c                        |  3 +
+ drivers/video/fbdev/core/bitblit.c                 |  4 +-
+ drivers/video/fbdev/core/fbcon_ccw.c               |  4 +-
+ drivers/video/fbdev/core/fbcon_cw.c                |  4 +-
+ drivers/video/fbdev/core/fbcon_ud.c                |  4 +-
+ fs/btrfs/backref.c                                 |  1 +
+ fs/btrfs/extent_io.c                               |  3 +-
+ fs/btrfs/volumes.c                                 |  8 +++
+ fs/cifs/inode.c                                    | 10 +--
+ fs/fuse/dev.c                                      |  3 +-
+ fs/nfs/direct.c                                    | 13 ++--
+ fs/nfs/file.c                                      |  1 -
+ include/asm-generic/vmlinux.lds.h                  |  5 +-
+ include/linux/device-mapper.h                      |  1 +
+ include/linux/io-mapping.h                         |  5 +-
+ include/linux/mod_devicetable.h                    |  2 +-
+ include/sound/rt5670.h                             |  1 +
+ include/uapi/linux/input-event-codes.h             |  3 +-
+ kernel/events/uprobes.c                            |  2 +-
+ mm/memcontrol.c                                    |  4 +-
+ mm/slab_common.c                                   | 35 ++++++++---
+ net/mac80211/rx.c                                  | 26 ++++++++
+ net/netfilter/ipvs/ip_vs_sync.c                    | 12 ++--
+ net/tipc/bcast.c                                   |  8 +--
+ net/tipc/group.c                                   |  4 +-
+ net/tipc/link.c                                    | 12 ++--
+ net/tipc/node.c                                    |  7 ++-
+ net/tipc/socket.c                                  | 12 ++--
+ scripts/decode_stacktrace.sh                       |  4 +-
+ scripts/gdb/linux/symbols.py                       |  2 +-
+ sound/core/info.c                                  |  4 +-
+ sound/soc/codecs/rt5670.c                          | 71 +++++++++++++++++-----
+ sound/soc/codecs/rt5670.h                          |  2 +-
+ sound/soc/qcom/Kconfig                             |  2 +-
+ 106 files changed, 578 insertions(+), 225 deletions(-)
 
 
