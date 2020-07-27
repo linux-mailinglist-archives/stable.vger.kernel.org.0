@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 060CE22F206
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9603D22F16A
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730475AbgG0Ogd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
+        id S1731433AbgG0OcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730386AbgG0ONf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:13:35 -0400
+        id S1731427AbgG0OTk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:19:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D95120838;
-        Mon, 27 Jul 2020 14:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E6352070A;
+        Mon, 27 Jul 2020 14:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859214;
-        bh=Nnja+LHhundbZRtUoZNYR6xqJHf/eWzAviu2i5bqXdM=;
+        s=default; t=1595859579;
+        bh=W5hJfN9Y40bj2uQePclR1+xZKsHiNxXy/7bYaeb6BKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3JlsrU9OIRfVl5C0kIzVcx6bmeknUfJfWVaenHmc6gCeI10ZQoLUqt6TcZ+2iHvn
-         AAGbD6C8ureOMDVO2Cj7DWNUpZ0BgT4kF/RDuOfrJoUrpXqG66Z0QJMITSzImWvOmB
-         700T2RWlM0Rjm1Pns4CzWYZVAr4ah8dQ0iW3TOCI=
+        b=2HAU+HTsvNXyGqGEEuphtMWZq3u9HzyvIISdyAwH8KAnJ7WynBBTrE/JnMWqocs2d
+         vipK8vXMBaFKeOJEb33+Ntt0Oui22Wp36f2Ww6LBwQLSOhQauFFRwTzC1GXDMTy8Zm
+         2YndeBgo5vbgc3ipayrx2sKW9KxlNly5EneJBXD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 005/138] mac80211: allow rx of mesh eapol frames with default rx key
-Date:   Mon, 27 Jul 2020 16:03:20 +0200
-Message-Id: <20200727134925.509009180@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.7 026/179] SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
+Date:   Mon, 27 Jul 2020 16:03:21 +0200
+Message-Id: <20200727134933.943922332@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 0b467b63870d9c05c81456aa9bfee894ab2db3b6 ]
+commit 65caafd0d2145d1dd02072c4ced540624daeab40 upstream.
 
-Without this patch, eapol frames cannot be received in mesh
-mode, when 802.1X should be used. Initially only a MGTK is
-defined, which is found and set as rx->key, when there are
-no other keys set. ieee80211_drop_unencrypted would then
-drop these eapol frames, as they are data frames without
-encryption and there exists some rx->key.
+Reverting commit d03727b248d0 "NFSv4 fix CLOSE not waiting for
+direct IO compeletion". This patch made it so that fput() by calling
+inode_dio_done() in nfs_file_release() would wait uninterruptably
+for any outstanding directIO to the file (but that wait on IO should
+be killable).
 
-Fix this by differentiating between mesh eapol frames and
-other data frames with existing rx->key. Allow mesh mesh
-eapol frames only if they are for our vif address.
+The problem the patch was also trying to address was REMOVE returning
+ERR_ACCESS because the file is still opened, is supposed to be resolved
+by server returning ERR_FILE_OPEN and not ERR_ACCESS.
 
-With this patch in-place, ieee80211_rx_h_mesh_fwding continues
-after the ieee80211_drop_unencrypted check and notices, that
-these eapol frames have to be delivered locally, as they should.
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20200625104214.50319-1-markus.theil@tu-ilmenau.de
-[small code cleanups]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ fs/nfs/direct.c |   13 ++++---------
+ fs/nfs/file.c   |    1 -
+ 2 files changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 69429c8df7b30..e5fb9002d3147 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2305,6 +2305,7 @@ static int ieee80211_802_1x_port_control(struct ieee80211_rx_data *rx)
- 
- static int ieee80211_drop_unencrypted(struct ieee80211_rx_data *rx, __le16 fc)
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -267,6 +267,8 @@ static void nfs_direct_complete(struct n
  {
-+	struct ieee80211_hdr *hdr = (void *)rx->skb->data;
- 	struct sk_buff *skb = rx->skb;
- 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+ 	struct inode *inode = dreq->inode;
  
-@@ -2315,6 +2316,31 @@ static int ieee80211_drop_unencrypted(struct ieee80211_rx_data *rx, __le16 fc)
- 	if (status->flag & RX_FLAG_DECRYPTED)
- 		return 0;
++	inode_dio_end(inode);
++
+ 	if (dreq->iocb) {
+ 		long res = (long) dreq->error;
+ 		if (dreq->count != 0) {
+@@ -278,10 +280,7 @@ static void nfs_direct_complete(struct n
  
-+	/* check mesh EAPOL frames first */
-+	if (unlikely(rx->sta && ieee80211_vif_is_mesh(&rx->sdata->vif) &&
-+		     ieee80211_is_data(fc))) {
-+		struct ieee80211s_hdr *mesh_hdr;
-+		u16 hdr_len = ieee80211_hdrlen(fc);
-+		u16 ethertype_offset;
-+		__be16 ethertype;
-+
-+		if (!ether_addr_equal(hdr->addr1, rx->sdata->vif.addr))
-+			goto drop_check;
-+
-+		/* make sure fixed part of mesh header is there, also checks skb len */
-+		if (!pskb_may_pull(rx->skb, hdr_len + 6))
-+			goto drop_check;
-+
-+		mesh_hdr = (struct ieee80211s_hdr *)(skb->data + hdr_len);
-+		ethertype_offset = hdr_len + ieee80211_get_mesh_hdrlen(mesh_hdr) +
-+				   sizeof(rfc1042_header);
-+
-+		if (skb_copy_bits(rx->skb, ethertype_offset, &ethertype, 2) == 0 &&
-+		    ethertype == rx->sdata->control_port_protocol)
-+			return 0;
-+	}
-+
-+drop_check:
- 	/* Drop unencrypted frames if key is set. */
- 	if (unlikely(!ieee80211_has_protected(fc) &&
- 		     !ieee80211_is_any_nullfunc(fc) &&
--- 
-2.25.1
-
+ 	complete(&dreq->completion);
+ 
+-	igrab(inode);
+ 	nfs_direct_req_release(dreq);
+-	inode_dio_end(inode);
+-	iput(inode);
+ }
+ 
+ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
+@@ -411,10 +410,8 @@ static ssize_t nfs_direct_read_schedule_
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		igrab(inode);
+-		nfs_direct_req_release(dreq);
+ 		inode_dio_end(inode);
+-		iput(inode);
++		nfs_direct_req_release(dreq);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+@@ -867,10 +864,8 @@ static ssize_t nfs_direct_write_schedule
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		igrab(inode);
+-		nfs_direct_req_release(dreq);
+ 		inode_dio_end(inode);
+-		iput(inode);
++		nfs_direct_req_release(dreq);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -83,7 +83,6 @@ nfs_file_release(struct inode *inode, st
+ 	dprintk("NFS: release(%pD2)\n", filp);
+ 
+ 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
+-	inode_dio_wait(inode);
+ 	nfs_file_clear_open_context(filp);
+ 	return 0;
+ }
 
 
