@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B71D22EFA9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:18:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BEB22F0A8
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:26:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731171AbgG0OSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45656 "EHLO mail.kernel.org"
+        id S1729371AbgG0O0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731170AbgG0OSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:18:06 -0400
+        id S1732623AbgG0O0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:26:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA4DB2070A;
-        Mon, 27 Jul 2020 14:18:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DAD520663;
+        Mon, 27 Jul 2020 14:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859486;
-        bh=aH9N2X8cK9yWknxgS/kGhUdLd4Tp5DOTt7iEgW0I6Q0=;
+        s=default; t=1595859993;
+        bh=JGHlMZQJ1xpEdottcTaPnLzS+nCY083XoLYz11gR/Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktsnJ8EqCkXMVOH7MpGQGjU5iDSvQq/PaKWJM0df9Dtymt4etSHLP4cIs6muT9J50
-         ep9C5IyTYeogaaH5I37deqOftU0CriliBY3XeBwZp8StL/5K7cyi1U62mmUwctjAsF
-         mvHg0oG/7Mz5YUx2M7pxr6HunLcS9Tix9ginayZQ=
+        b=TsVCFZ6YISYvLsjE1s3UtosvQyoIGK2XNDw0C3t/7aKdVxN4uO7Ubnk23a53QDLbv
+         /1E5RN8LkRHvNDD1CKhQVgJ7HonCzsDNv0eVkqA2uZAa6kHXiNJOyeWbW7Nvu3oNjJ
+         yTS0ovtZ7bC5I2dJhYOBh9ywrXZe8GsQHChzYnLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 127/138] mmc: sdhci-of-aspeed: Fix clock divider calculation
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.7 147/179] staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
 Date:   Mon, 27 Jul 2020 16:05:22 +0200
-Message-Id: <20200727134931.778827641@linuxfoundation.org>
+Message-Id: <20200727134939.828869275@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit ebd4050c6144b38098d8eed34df461e5e3fa82a9 upstream.
+commit 0bd0db42a030b75c20028c7ba6e327b9cb554116 upstream.
 
-When calculating the clock divider, start dividing at 2 instead of 1.
-The divider is divided by two at the end of the calculation, so starting
-at 1 may result in a divider of 0, which shouldn't happen.
+The `INSN_CONFIG` comedi instruction with sub-instruction code
+`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
+used as a right shift amount for other bitmask values without being
+checked.  Shift amounts greater than or equal to 32 will result in
+undefined behavior.  Add code to deal with this.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Acked-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20200709195706.12741-3-eajames@linux.ibm.com
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 33cdce6293dcc ("staging: comedi: addi_apci_1032: conform to new INSN_CONFIG_DIGITAL_TRIG")
+Cc: <stable@vger.kernel.org> #3.8+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200717145257.112660-3-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-aspeed.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/addi_apci_1032.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-aspeed.c
-+++ b/drivers/mmc/host/sdhci-of-aspeed.c
-@@ -68,7 +68,7 @@ static void aspeed_sdhci_set_clock(struc
- 	if (WARN_ON(clock > host->max_clk))
- 		clock = host->max_clk;
+--- a/drivers/staging/comedi/drivers/addi_apci_1032.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
+@@ -106,14 +106,22 @@ static int apci1032_cos_insn_config(stru
+ 				    unsigned int *data)
+ {
+ 	struct apci1032_private *devpriv = dev->private;
+-	unsigned int shift, oldmask;
++	unsigned int shift, oldmask, himask, lomask;
  
--	for (div = 1; div < 256; div *= 2) {
-+	for (div = 2; div < 256; div *= 2) {
- 		if ((parent / div) <= clock)
+ 	switch (data[0]) {
+ 	case INSN_CONFIG_DIGITAL_TRIG:
+ 		if (data[1] != 0)
+ 			return -EINVAL;
+ 		shift = data[3];
+-		oldmask = (1U << shift) - 1;
++		if (shift < 32) {
++			oldmask = (1U << shift) - 1;
++			himask = data[4] << shift;
++			lomask = data[5] << shift;
++		} else {
++			oldmask = 0xffffffffu;
++			himask = 0;
++			lomask = 0;
++		}
+ 		switch (data[2]) {
+ 		case COMEDI_DIGITAL_TRIG_DISABLE:
+ 			devpriv->ctrl = 0;
+@@ -136,8 +144,8 @@ static int apci1032_cos_insn_config(stru
+ 				devpriv->mode2 &= oldmask;
+ 			}
+ 			/* configure specified channels */
+-			devpriv->mode1 |= data[4] << shift;
+-			devpriv->mode2 |= data[5] << shift;
++			devpriv->mode1 |= himask;
++			devpriv->mode2 |= lomask;
  			break;
- 	}
+ 		case COMEDI_DIGITAL_TRIG_ENABLE_LEVELS:
+ 			if (devpriv->ctrl != (APCI1032_CTRL_INT_ENA |
+@@ -154,8 +162,8 @@ static int apci1032_cos_insn_config(stru
+ 				devpriv->mode2 &= oldmask;
+ 			}
+ 			/* configure specified channels */
+-			devpriv->mode1 |= data[4] << shift;
+-			devpriv->mode2 |= data[5] << shift;
++			devpriv->mode1 |= himask;
++			devpriv->mode2 |= lomask;
+ 			break;
+ 		default:
+ 			return -EINVAL;
 
 
