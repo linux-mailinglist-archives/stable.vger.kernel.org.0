@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1003322EE3F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:06:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0467522EE52
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728446AbgG0OGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:06:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54194 "EHLO mail.kernel.org"
+        id S1728970AbgG0OGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726222AbgG0OGV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:06:21 -0400
+        id S1728731AbgG0OGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:06:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BA352073E;
-        Mon, 27 Jul 2020 14:06:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B0452073E;
+        Mon, 27 Jul 2020 14:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858781;
-        bh=9V3jjgTzpelnI6wTA+g02EGTVUqj+7Cr04JWKXdlAQQ=;
+        s=default; t=1595858809;
+        bh=XEytakMRbTXVdAm6n/F8+1DevYQ/bp7DXiBxFb2pgbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QbSV2YK+BV/jqVGp2XpKeCqC/p5AOqaBBPIluwbi/GsAURAYnejS2vWOiWtekyDX+
-         q/yWM1nGmqzhCQdR+R5TjKoIZ3kruLRWhkAxWcR6C4SfZsysfa0xC565FCTZcHBYc5
-         e3Y9Cp/8uc9U9tTTKjJ2/szaCE0T9prnOLK6Loao=
+        b=yAycUviy6s8PcQUVGkwxOve8HkmpgaCnS9Srh0K/QwdILZ6iuYEYYwaasGlHqlmC9
+         w9izq/z+Jx1E3fK8jHhLswJIHW4n6SCaJjBqZA3/pMWxLukjF/o/IQFfyPbgNtrGOK
+         WRyzLeSuMPMw9nmnetK7fJzf3rXMZevVgt2rx3+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,15 +31,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Charles Keepax <ckeepax@opensource.cirrus.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/64] gpio: arizona: handle pm_runtime_get_sync failure case
-Date:   Mon, 27 Jul 2020 16:03:40 +0200
-Message-Id: <20200727134911.103438365@linuxfoundation.org>
+Subject: [PATCH 4.14 02/64] gpio: arizona: put pm_runtime in case of failure
+Date:   Mon, 27 Jul 2020 16:03:41 +0200
+Message-Id: <20200727134911.151317072@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
 References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,33 +48,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit e6f390a834b56583e6fc0949822644ce92fbb107 ]
+[ Upstream commit 861254d826499944cb4d9b5a15f5a794a6b99a69 ]
 
 Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count. Call pm_runtime_put if
-pm_runtime_get_sync fails.
+failure, causing incorrect ref count if pm_runtime_put is not called in
+error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
 
 Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
 Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200605025207.65719-1-navid.emamdoost@gmail.com
+Link: https://lore.kernel.org/r/20200605030052.78235-1-navid.emamdoost@gmail.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-arizona.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpio-arizona.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpio/gpio-arizona.c b/drivers/gpio/gpio-arizona.c
-index d4e6ba0301bc3..e09834b91ea52 100644
+index e09834b91ea52..694674dfbf82a 100644
 --- a/drivers/gpio/gpio-arizona.c
 +++ b/drivers/gpio/gpio-arizona.c
-@@ -111,6 +111,7 @@ static int arizona_gpio_direction_out(struct gpio_chip *chip,
+@@ -69,6 +69,7 @@ static int arizona_gpio_get(struct gpio_chip *chip, unsigned offset)
  		ret = pm_runtime_get_sync(chip->parent);
  		if (ret < 0) {
  			dev_err(chip->parent, "Failed to resume: %d\n", ret);
-+			pm_runtime_put(chip->parent);
++			pm_runtime_put_autosuspend(chip->parent);
  			return ret;
  		}
- 	}
+ 
+@@ -77,12 +78,15 @@ static int arizona_gpio_get(struct gpio_chip *chip, unsigned offset)
+ 		if (ret < 0) {
+ 			dev_err(chip->parent, "Failed to drop cache: %d\n",
+ 				ret);
++			pm_runtime_put_autosuspend(chip->parent);
+ 			return ret;
+ 		}
+ 
+ 		ret = regmap_read(arizona->regmap, reg, &val);
+-		if (ret < 0)
++		if (ret < 0) {
++			pm_runtime_put_autosuspend(chip->parent);
+ 			return ret;
++		}
+ 
+ 		pm_runtime_mark_last_busy(chip->parent);
+ 		pm_runtime_put_autosuspend(chip->parent);
 -- 
 2.25.1
 
