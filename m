@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF9D22EEC9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7071622F040
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729906AbgG0OKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33818 "EHLO mail.kernel.org"
+        id S1731995AbgG0OW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:22:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729266AbgG0OKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:10:43 -0400
+        id S1731989AbgG0OW6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:22:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1832B2173E;
-        Mon, 27 Jul 2020 14:10:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4216720775;
+        Mon, 27 Jul 2020 14:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859042;
-        bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
+        s=default; t=1595859777;
+        bh=8GWiwIqvkE4dJReinRavzUd3Vi9BD68A8VuSrWzkGdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCAScgS9cyVcwL9vYITVj34LyWdA45XvFaKJ4XNI/J2lKjHkNfWltMZuN3gLa/Rza
-         mW85b6L2HCOGVdr65XvVIrSInb+G/Vi1KIAU4NigzTSMhvcr2/IiAqdz/LZ5bv6IP4
-         AdH0EqejJUQOvpRHAaCa+jAcRoca0lgsMYKYIZUM=
+        b=NtZx6dUs6FRYR8a1ZwYJH6SjAMCelonuMNmSmk1vvGceDMBUONdtXdIuC1Yyu1FZA
+         U/jg2gddp3KmTsT/DU1t9Ztc5zfhG6DdQ6NIN2HWnvE4oQl5ZdZ9ORbcPltu7e7WUG
+         iH6C9M+afYa7TpvgI6vEYeOwsiqIu4y2a3VZKyQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Siarhei Vishniakou <svv@google.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 45/86] HID: steam: fixes race in handling device list.
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 084/179] qed: suppress false-positives interrupt error messages on HW init
 Date:   Mon, 27 Jul 2020 16:04:19 +0200
-Message-Id: <20200727134916.683187544@linuxfoundation.org>
+Message-Id: <20200727134936.778071007@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +46,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit 2d3f53a80e4eed078669853a178ed96d88f74143 ]
+[ Upstream commit eb61c2d69903e977ffa2b80b1da9d1f758cf228d ]
 
-Using uhid and KASAN this driver crashed because it was getting
-several connection events where it only expected one. Then the
-device was added several times to the static device list and it got
-corrupted.
+It was found that qed_pglueb_rbc_attn_handler() can produce a lot of
+false-positive error detections on driver load/reload (especially after
+crashes/recoveries) and spam the kernel log:
 
-This patch checks if the device is already in the list before adding
-it.
+[    4.958275] [qed_pglueb_rbc_attn_handler:324()]ICPL error - 00d00ff0
+[ 2079.146764] [qed_pglueb_rbc_attn_handler:324()]ICPL error - 00d80ff0
+[ 2116.374631] [qed_pglueb_rbc_attn_handler:324()]ICPL error - 00d80ff0
+[ 2135.250564] [qed_pglueb_rbc_attn_handler:324()]ICPL error - 00d80ff0
+[...]
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Tested-by: Siarhei Vishniakou <svv@google.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reduce the logging level of two false-positive prone error messages from
+notice to verbose on initialization (only) to not mix it with real error
+attentions while debugging.
+
+Fixes: 666db4862f2d ("qed: Revise load sequence to avoid PCI errors")
+Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-steam.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c |  2 +-
+ drivers/net/ethernet/qlogic/qed/qed_int.c | 50 +++++++++++++----------
+ drivers/net/ethernet/qlogic/qed/qed_int.h |  4 +-
+ 3 files changed, 32 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 6286204d4c560..a3b151b29bd71 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -526,7 +526,8 @@ static int steam_register(struct steam_device *steam)
- 			steam_battery_register(steam);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index 58913fe4f3457..0629dd4e18d97 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -3096,7 +3096,7 @@ int qed_hw_init(struct qed_dev *cdev, struct qed_hw_init_params *p_params)
+ 		}
  
- 		mutex_lock(&steam_devices_lock);
--		list_add(&steam->list, &steam_devices);
-+		if (list_empty(&steam->list))
-+			list_add(&steam->list, &steam_devices);
- 		mutex_unlock(&steam_devices_lock);
+ 		/* Log and clear previous pglue_b errors if such exist */
+-		qed_pglueb_rbc_attn_handler(p_hwfn, p_hwfn->p_main_ptt);
++		qed_pglueb_rbc_attn_handler(p_hwfn, p_hwfn->p_main_ptt, true);
+ 
+ 		/* Enable the PF's internal FID_enable in the PXP */
+ 		rc = qed_pglueb_set_pfid_enable(p_hwfn, p_hwfn->p_main_ptt,
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index 9f5113639eaf0..8d106063e9275 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -256,9 +256,10 @@ out:
+ #define PGLUE_ATTENTION_ZLR_VALID		(1 << 25)
+ #define PGLUE_ATTENTION_ILT_VALID		(1 << 23)
+ 
+-int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn,
+-				struct qed_ptt *p_ptt)
++int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
++				bool hw_init)
+ {
++	char msg[256];
+ 	u32 tmp;
+ 
+ 	tmp = qed_rd(p_hwfn, p_ptt, PGLUE_B_REG_TX_ERR_WR_DETAILS2);
+@@ -272,22 +273,23 @@ int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn,
+ 		details = qed_rd(p_hwfn, p_ptt,
+ 				 PGLUE_B_REG_TX_ERR_WR_DETAILS);
+ 
+-		DP_NOTICE(p_hwfn,
+-			  "Illegal write by chip to [%08x:%08x] blocked.\n"
+-			  "Details: %08x [PFID %02x, VFID %02x, VF_VALID %02x]\n"
+-			  "Details2 %08x [Was_error %02x BME deassert %02x FID_enable deassert %02x]\n",
+-			  addr_hi, addr_lo, details,
+-			  (u8)GET_FIELD(details, PGLUE_ATTENTION_DETAILS_PFID),
+-			  (u8)GET_FIELD(details, PGLUE_ATTENTION_DETAILS_VFID),
+-			  GET_FIELD(details,
+-				    PGLUE_ATTENTION_DETAILS_VF_VALID) ? 1 : 0,
+-			  tmp,
+-			  GET_FIELD(tmp,
+-				    PGLUE_ATTENTION_DETAILS2_WAS_ERR) ? 1 : 0,
+-			  GET_FIELD(tmp,
+-				    PGLUE_ATTENTION_DETAILS2_BME) ? 1 : 0,
+-			  GET_FIELD(tmp,
+-				    PGLUE_ATTENTION_DETAILS2_FID_EN) ? 1 : 0);
++		snprintf(msg, sizeof(msg),
++			 "Illegal write by chip to [%08x:%08x] blocked.\n"
++			 "Details: %08x [PFID %02x, VFID %02x, VF_VALID %02x]\n"
++			 "Details2 %08x [Was_error %02x BME deassert %02x FID_enable deassert %02x]",
++			 addr_hi, addr_lo, details,
++			 (u8)GET_FIELD(details, PGLUE_ATTENTION_DETAILS_PFID),
++			 (u8)GET_FIELD(details, PGLUE_ATTENTION_DETAILS_VFID),
++			 !!GET_FIELD(details, PGLUE_ATTENTION_DETAILS_VF_VALID),
++			 tmp,
++			 !!GET_FIELD(tmp, PGLUE_ATTENTION_DETAILS2_WAS_ERR),
++			 !!GET_FIELD(tmp, PGLUE_ATTENTION_DETAILS2_BME),
++			 !!GET_FIELD(tmp, PGLUE_ATTENTION_DETAILS2_FID_EN));
++
++		if (hw_init)
++			DP_VERBOSE(p_hwfn, NETIF_MSG_INTR, "%s\n", msg);
++		else
++			DP_NOTICE(p_hwfn, "%s\n", msg);
  	}
  
-@@ -552,7 +553,7 @@ static void steam_unregister(struct steam_device *steam)
- 		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
- 				steam->serial_no);
- 		mutex_lock(&steam_devices_lock);
--		list_del(&steam->list);
-+		list_del_init(&steam->list);
- 		mutex_unlock(&steam_devices_lock);
- 		steam->serial_no[0] = 0;
+ 	tmp = qed_rd(p_hwfn, p_ptt, PGLUE_B_REG_TX_ERR_RD_DETAILS2);
+@@ -320,8 +322,14 @@ int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn,
  	}
-@@ -738,6 +739,7 @@ static int steam_probe(struct hid_device *hdev,
- 	mutex_init(&steam->mutex);
- 	steam->quirks = id->driver_data;
- 	INIT_WORK(&steam->work_connect, steam_work_connect_cb);
-+	INIT_LIST_HEAD(&steam->list);
  
- 	steam->client_hdev = steam_create_client_hid(hdev);
- 	if (IS_ERR(steam->client_hdev)) {
+ 	tmp = qed_rd(p_hwfn, p_ptt, PGLUE_B_REG_TX_ERR_WR_DETAILS_ICPL);
+-	if (tmp & PGLUE_ATTENTION_ICPL_VALID)
+-		DP_NOTICE(p_hwfn, "ICPL error - %08x\n", tmp);
++	if (tmp & PGLUE_ATTENTION_ICPL_VALID) {
++		snprintf(msg, sizeof(msg), "ICPL error - %08x", tmp);
++
++		if (hw_init)
++			DP_VERBOSE(p_hwfn, NETIF_MSG_INTR, "%s\n", msg);
++		else
++			DP_NOTICE(p_hwfn, "%s\n", msg);
++	}
+ 
+ 	tmp = qed_rd(p_hwfn, p_ptt, PGLUE_B_REG_MASTER_ZLR_ERR_DETAILS);
+ 	if (tmp & PGLUE_ATTENTION_ZLR_VALID) {
+@@ -360,7 +368,7 @@ int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn,
+ 
+ static int qed_pglueb_rbc_attn_cb(struct qed_hwfn *p_hwfn)
+ {
+-	return qed_pglueb_rbc_attn_handler(p_hwfn, p_hwfn->p_dpc_ptt);
++	return qed_pglueb_rbc_attn_handler(p_hwfn, p_hwfn->p_dpc_ptt, false);
+ }
+ 
+ #define QED_DORQ_ATTENTION_REASON_MASK  (0xfffff)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.h b/drivers/net/ethernet/qlogic/qed/qed_int.h
+index 9ad568d93ae65..defb0d1bc45a2 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.h
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.h
+@@ -431,7 +431,7 @@ int qed_int_set_timer_res(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
+ 
+ #define QED_MAPPING_MEMORY_SIZE(dev)	(NUM_OF_SBS(dev))
+ 
+-int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn,
+-				struct qed_ptt *p_ptt);
++int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
++				bool hw_init);
+ 
+ #endif
 -- 
 2.25.1
 
