@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2D022F174
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77B322F162
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730861AbgG0Oc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46824 "EHLO mail.kernel.org"
+        id S1729607AbgG0OTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:19:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731334AbgG0OTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:19:00 -0400
+        id S1731349AbgG0OTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:19:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 128BA2070A;
-        Mon, 27 Jul 2020 14:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D59E121744;
+        Mon, 27 Jul 2020 14:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859540;
-        bh=E9kOmYvx3YB9KGGH3MDEv+MFY5zgfWQoOjXQAr6Pwbo=;
+        s=default; t=1595859545;
+        bh=LWaLMwzvuoFyZldcrj7VKEFScyM7rT9jYz4eGj0RDXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcBlrFhxWlkSHBUcpT58Z8jGw68PrJSDjzW5bFAufGO2J446J63v9+tbov0iVgXQG
-         GMOqHN5+o6eKsO8GC0+iLjyvuvbRdhjHe1eqa8KLB0YkTdDWSKjT6fjNfz0FdXHUkK
-         p+R2iSBYnDa/Tapw62SEP2eXDV91E3WlpQn+CdQY=
+        b=qEubt/CGchLPGFMvZJ0tTdnNO74LiUxpw68Yjy9wTrLLlHGAfFEuAsezZoSlLmJnO
+         eWR71T99GfBWfED+TgTLTbqKrwHHeN//HjVS9uw8xIKhJ7X39HwCS620YokRyVDrNS
+         bXbb1q6eyieS1C0YWG7ZrAuJIBb4ujohw1HkNhb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 010/179] scsi: mpt3sas: Fix unlock imbalance
-Date:   Mon, 27 Jul 2020 16:03:05 +0200
-Message-Id: <20200727134933.176852512@linuxfoundation.org>
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 012/179] ALSA: hda/hdmi: fix failures at PCM open on Intel ICL and later
+Date:   Mon, 27 Jul 2020 16:03:07 +0200
+Message-Id: <20200727134933.275357681@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -47,80 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit cb551b8dc079d2ef189145782627c99cb68c0255 ]
+[ Upstream commit 56275036d8185f92eceac7479d48b858ee3dab84 ]
 
-In BRM_status_show(), if the condition "!ioc->is_warpdrive" tested on entry
-to the function is true, a "goto out" is called. This results in unlocking
-ioc->pci_access_mutex without this mutex lock being taken.  This generates
-the following splat:
+When HDMI PCM devices are opened in a specific order, with at least one
+HDMI/DP receiver connected, ALSA PCM open fails to -EBUSY on the
+connected monitor, on recent Intel platforms (ICL/JSL and newer). While
+this is not a typical sequence, at least Pulseaudio does this every time
+when it is started, to discover the available PCMs.
 
-[ 1148.539883] mpt3sas_cm2: BRM_status_show: BRM attribute is only for warpdrive
-[ 1148.547184]
-[ 1148.548708] =====================================
-[ 1148.553501] WARNING: bad unlock balance detected!
-[ 1148.558277] 5.8.0-rc3+ #827 Not tainted
-[ 1148.562183] -------------------------------------
-[ 1148.566959] cat/5008 is trying to release lock (&ioc->pci_access_mutex) at:
-[ 1148.574035] [<ffffffffc070b7a3>] BRM_status_show+0xd3/0x100 [mpt3sas]
-[ 1148.580574] but there are no more locks to release!
-[ 1148.585524]
-[ 1148.585524] other info that might help us debug this:
-[ 1148.599624] 3 locks held by cat/5008:
-[ 1148.607085]  #0: ffff92aea3e392c0 (&p->lock){+.+.}-{3:3}, at: seq_read+0x34/0x480
-[ 1148.618509]  #1: ffff922ef14c4888 (&of->mutex){+.+.}-{3:3}, at: kernfs_seq_start+0x2a/0xb0
-[ 1148.630729]  #2: ffff92aedb5d7310 (kn->active#224){.+.+}-{0:0}, at: kernfs_seq_start+0x32/0xb0
-[ 1148.643347]
-[ 1148.643347] stack backtrace:
-[ 1148.655259] CPU: 73 PID: 5008 Comm: cat Not tainted 5.8.0-rc3+ #827
-[ 1148.665309] Hardware name: HGST H4060-S/S2600STB, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
-[ 1148.678394] Call Trace:
-[ 1148.684750]  dump_stack+0x78/0xa0
-[ 1148.691802]  lock_release.cold+0x45/0x4a
-[ 1148.699451]  __mutex_unlock_slowpath+0x35/0x270
-[ 1148.707675]  BRM_status_show+0xd3/0x100 [mpt3sas]
-[ 1148.716092]  dev_attr_show+0x19/0x40
-[ 1148.723664]  sysfs_kf_seq_show+0x87/0x100
-[ 1148.731193]  seq_read+0xbc/0x480
-[ 1148.737882]  vfs_read+0xa0/0x160
-[ 1148.744514]  ksys_read+0x58/0xd0
-[ 1148.751129]  do_syscall_64+0x4c/0xa0
-[ 1148.757941]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1148.766240] RIP: 0033:0x7f1230566542
-[ 1148.772957] Code: Bad RIP value.
-[ 1148.779206] RSP: 002b:00007ffeac1bcac8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-[ 1148.790063] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007f1230566542
-[ 1148.800284] RDX: 0000000000020000 RSI: 00007f1223460000 RDI: 0000000000000003
-[ 1148.810474] RBP: 00007f1223460000 R08: 00007f122345f010 R09: 0000000000000000
-[ 1148.820641] R10: 0000000000000022 R11: 0000000000000246 R12: 0000000000000000
-[ 1148.830728] R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+The rootcause is an invalid assumption in hdmi_add_pin(), where the
+total number of converters is assumed to be known at the time the
+function is called. On older Intel platforms this held true, but after
+ICL/JSL, the order how pins and converters are in the subnode list as
+returned by snd_hda_get_sub_nodes(), was changed. As a result,
+information for some converters was not stored to per_pin->mux_nids.
+And this means some pins cannot be connected to all converters, and
+application instead gets -EBUSY instead at open.
 
-Fix this by returning immediately instead of jumping to the out label.
+The assumption that converters are always before pins in the subnode
+list, is not really a valid one. Fix the problem in hdmi_parse_codec()
+by introducing separate loops for discovering converters and pins.
 
-Link: https://lore.kernel.org/r/20200701085254.51740-1-damien.lemoal@wdc.com
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+BugLink: https://github.com/thesofproject/linux/issues/1978
+BugLink: https://github.com/thesofproject/linux/issues/2216
+BugLink: https://github.com/thesofproject/linux/issues/2217
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200703153818.2808592-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_ctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c | 36 +++++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-index 62e552838565f..e94e72de2fc68 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-@@ -3145,7 +3145,7 @@ BRM_status_show(struct device *cdev, struct device_attribute *attr,
- 	if (!ioc->is_warpdrive) {
- 		ioc_err(ioc, "%s: BRM attribute is only for warpdrive\n",
- 			__func__);
--		goto out;
-+		return 0;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 137d655fed8f8..e821c9df81070 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1804,33 +1804,43 @@ static int hdmi_add_cvt(struct hda_codec *codec, hda_nid_t cvt_nid)
+ 
+ static int hdmi_parse_codec(struct hda_codec *codec)
+ {
+-	hda_nid_t nid;
++	hda_nid_t start_nid;
++	unsigned int caps;
+ 	int i, nodes;
+ 
+-	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &nid);
+-	if (!nid || nodes < 0) {
++	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &start_nid);
++	if (!start_nid || nodes < 0) {
+ 		codec_warn(codec, "HDMI: failed to get afg sub nodes\n");
+ 		return -EINVAL;
  	}
- 	/* pci_access_mutex lock acquired by sysfs show path */
- 	mutex_lock(&ioc->pci_access_mutex);
+ 
+-	for (i = 0; i < nodes; i++, nid++) {
+-		unsigned int caps;
+-		unsigned int type;
++	/*
++	 * hdmi_add_pin() assumes total amount of converters to
++	 * be known, so first discover all converters
++	 */
++	for (i = 0; i < nodes; i++) {
++		hda_nid_t nid = start_nid + i;
+ 
+ 		caps = get_wcaps(codec, nid);
+-		type = get_wcaps_type(caps);
+ 
+ 		if (!(caps & AC_WCAP_DIGITAL))
+ 			continue;
+ 
+-		switch (type) {
+-		case AC_WID_AUD_OUT:
++		if (get_wcaps_type(caps) == AC_WID_AUD_OUT)
+ 			hdmi_add_cvt(codec, nid);
+-			break;
+-		case AC_WID_PIN:
++	}
++
++	/* discover audio pins */
++	for (i = 0; i < nodes; i++) {
++		hda_nid_t nid = start_nid + i;
++
++		caps = get_wcaps(codec, nid);
++
++		if (!(caps & AC_WCAP_DIGITAL))
++			continue;
++
++		if (get_wcaps_type(caps) == AC_WID_PIN)
+ 			hdmi_add_pin(codec, nid);
+-			break;
+-		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
