@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A909022F1D9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A50EC22F2B9
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730120AbgG0OPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S1731819AbgG0Oly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730728AbgG0OPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:15:35 -0400
+        id S1729310AbgG0OHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:07:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E0C22078E;
-        Mon, 27 Jul 2020 14:15:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52CC92083E;
+        Mon, 27 Jul 2020 14:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859335;
-        bh=vDf3I3nHui18X9VZnDQ3p+uCLmyiMQGiKmwqcvdIqN4=;
+        s=default; t=1595858869;
+        bh=3Ntu81l2iPqRZi+s6BEQIwuKCV0gzsZOWwcMMWUJBYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFOgPPDCi0+3nzuvZt5pzxYW64hafYGaBi/xamaidgZl6bGCgXlgTYAVuD7RTVYIW
-         n3ACjQx08mu7xM4o/OeCShVP7Xn/UA739kMpjqCC4wAAE8PqU+uaQfMW81iB16QMvO
-         oeXvpNEn/gSL8by7+PBB0bH4vz1mTPbB/DkQxHWs=
+        b=DFT/Qog/pu9kU2sYn85Lje43PVAGZTZjmRFh+jzWUZ08YdaEVbZC/6ke2YE3Ec/1B
+         EwACnhoYs5CzdhMruI6ksQ5jvictGm3aGi5df4DT5kUkisfi4ScuieVgzdBjxZZmlw
+         qhnpj717LgY79kB0FHau+0oOvB02Mo2gOjvvIgtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7ebc2e088af5e4c0c9fa@syzkaller.appspotmail.com,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/138] geneve: fix an uninitialized value in geneve_changelink()
+Subject: [PATCH 4.14 43/64] usb: gadget: udc: gr_udc: fix memleak on error handling path in gr_ep_init()
 Date:   Mon, 27 Jul 2020 16:04:22 +0200
-Message-Id: <20200727134928.746526420@linuxfoundation.org>
+Message-Id: <20200727134913.315062511@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 32818c075c54bb0cae44dd6f7ab00b01c52b8372 ]
+[ Upstream commit c8f8529e2c4141afa2ebb487ad48e8a6ec3e8c99 ]
 
-geneve_nl2info() sets 'df' conditionally, so we have to
-initialize it by copying the value from existing geneve
-device in geneve_changelink().
+gr_ep_init() does not assign the allocated request anywhere if allocation
+of memory for the buffer fails. This is a memory leak fixed by the given
+patch.
 
-Fixes: 56c09de347e4 ("geneve: allow changing DF behavior after creation")
-Reported-by: syzbot+7ebc2e088af5e4c0c9fa@syzkaller.appspotmail.com
-Cc: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/geneve.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/gr_udc.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index 19d9d78a6df2c..adfdf6260b269 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -1615,11 +1615,11 @@ static int geneve_changelink(struct net_device *dev, struct nlattr *tb[],
- 			     struct netlink_ext_ack *extack)
- {
- 	struct geneve_dev *geneve = netdev_priv(dev);
-+	enum ifla_geneve_df df = geneve->df;
- 	struct geneve_sock *gs4, *gs6;
- 	struct ip_tunnel_info info;
- 	bool metadata;
- 	bool use_udp6_rx_checksums;
--	enum ifla_geneve_df df;
- 	bool ttl_inherit;
- 	int err;
+diff --git a/drivers/usb/gadget/udc/gr_udc.c b/drivers/usb/gadget/udc/gr_udc.c
+index feb73a1c42ef9..be094f4e116b1 100644
+--- a/drivers/usb/gadget/udc/gr_udc.c
++++ b/drivers/usb/gadget/udc/gr_udc.c
+@@ -2000,9 +2000,12 @@ static int gr_ep_init(struct gr_udc *dev, int num, int is_in, u32 maxplimit)
+ 
+ 	if (num == 0) {
+ 		_req = gr_alloc_request(&ep->ep, GFP_ATOMIC);
++		if (!_req)
++			return -ENOMEM;
++
+ 		buf = devm_kzalloc(dev->dev, PAGE_SIZE, GFP_DMA | GFP_ATOMIC);
+-		if (!_req || !buf) {
+-			/* possible _req freed by gr_probe via gr_remove */
++		if (!buf) {
++			gr_free_request(&ep->ep, _req);
+ 			return -ENOMEM;
+ 		}
  
 -- 
 2.25.1
