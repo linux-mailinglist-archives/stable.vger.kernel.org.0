@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86FF22EF52
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF9D22EEC9
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:10:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730706AbgG0OP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:15:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41786 "EHLO mail.kernel.org"
+        id S1729906AbgG0OKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729477AbgG0OP0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:15:26 -0400
+        id S1729266AbgG0OKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F03B82078E;
-        Mon, 27 Jul 2020 14:15:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1832B2173E;
+        Mon, 27 Jul 2020 14:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859325;
-        bh=/0e8zbtjZG5O2Hxxhu69ogYtwdJgBKk1ewlVZTJgiZE=;
+        s=default; t=1595859042;
+        bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPlHDUWhdwfnzhK78110hYsE2FaP8SmMXHIz2WtpNJqeWb2kPvivhLH50MFIuhJKs
-         hcII7lK+quhvSAITDfZn+3nq5D6y20C7vy7jThdH1L+bc7mVMUx4AxWf0aB1t4PHbg
-         01ZWzKW+CmWPWXPDgdkncWDvxcWUPN7WCedyUFn4=
+        b=wCAScgS9cyVcwL9vYITVj34LyWdA45XvFaKJ4XNI/J2lKjHkNfWltMZuN3gLa/Rza
+         mW85b6L2HCOGVdr65XvVIrSInb+G/Vi1KIAU4NigzTSMhvcr2/IiAqdz/LZ5bv6IP4
+         AdH0EqejJUQOvpRHAaCa+jAcRoca0lgsMYKYIZUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/138] i2c: rcar: always clear ICSAR to avoid side effects
+        Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
+        Siarhei Vishniakou <svv@google.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 45/86] HID: steam: fixes race in handling device list.
 Date:   Mon, 27 Jul 2020 16:04:19 +0200
-Message-Id: <20200727134928.605270271@linuxfoundation.org>
+Message-Id: <20200727134916.683187544@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 
-[ Upstream commit eb01597158ffb1853a7a7fc2c57d4c844640f75e ]
+[ Upstream commit 2d3f53a80e4eed078669853a178ed96d88f74143 ]
 
-On R-Car Gen2, we get a timeout when reading from the address set in
-ICSAR, even though the slave interface is disabled. Clearing it fixes
-this situation. Note that Gen3 is not affected.
+Using uhid and KASAN this driver crashed because it was getting
+several connection events where it only expected one. Then the
+device was added several times to the static device list and it got
+corrupted.
 
-To reproduce: bind and undbind an I2C slave on some bus, run
-'i2cdetect' on that bus.
+This patch checks if the device is already in the list before adding
+it.
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Tested-by: Siarhei Vishniakou <svv@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-steam.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 531c01100b560..36af8fdb66586 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -865,6 +865,7 @@ static int rcar_unreg_slave(struct i2c_client *slave)
- 	/* disable irqs and ensure none is running before clearing ptr */
- 	rcar_i2c_write(priv, ICSIER, 0);
- 	rcar_i2c_write(priv, ICSCR, 0);
-+	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index 6286204d4c560..a3b151b29bd71 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -526,7 +526,8 @@ static int steam_register(struct steam_device *steam)
+ 			steam_battery_register(steam);
  
- 	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
-@@ -971,6 +972,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto out_pm_put;
+ 		mutex_lock(&steam_devices_lock);
+-		list_add(&steam->list, &steam_devices);
++		if (list_empty(&steam->list))
++			list_add(&steam->list, &steam_devices);
+ 		mutex_unlock(&steam_devices_lock);
+ 	}
  
-+	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
-+
- 	if (priv->devtype == I2C_RCAR_GEN3) {
- 		priv->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
- 		if (!IS_ERR(priv->rstc)) {
+@@ -552,7 +553,7 @@ static void steam_unregister(struct steam_device *steam)
+ 		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
+ 				steam->serial_no);
+ 		mutex_lock(&steam_devices_lock);
+-		list_del(&steam->list);
++		list_del_init(&steam->list);
+ 		mutex_unlock(&steam_devices_lock);
+ 		steam->serial_no[0] = 0;
+ 	}
+@@ -738,6 +739,7 @@ static int steam_probe(struct hid_device *hdev,
+ 	mutex_init(&steam->mutex);
+ 	steam->quirks = id->driver_data;
+ 	INIT_WORK(&steam->work_connect, steam_work_connect_cb);
++	INIT_LIST_HEAD(&steam->list);
+ 
+ 	steam->client_hdev = steam_create_client_hid(hdev);
+ 	if (IS_ERR(steam->client_hdev)) {
 -- 
 2.25.1
 
