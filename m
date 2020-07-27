@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A27822EFF0
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABB022EF21
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:13:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731554AbgG0OUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
+        id S1730369AbgG0ONj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731548AbgG0OU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:20:27 -0400
+        id S1730393AbgG0ONi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:13:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D19DC208E4;
-        Mon, 27 Jul 2020 14:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18FB92073E;
+        Mon, 27 Jul 2020 14:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859627;
-        bh=O9Z9tiqTm9cnKbRq09/xuN1LzIH51JT2PRH3U8rB0eU=;
+        s=default; t=1595859217;
+        bh=n20vUVyaRvsUd/t9DuMuWWnuh8R37KmCQ7mLLzqKSB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PlkGHAFU5hZO7IZVRY8nSLMwTsHdW/tHvQ2Ng20241QwISejDrM9KBbflS2YksQIj
-         AMzggPMNdYnu7+L/hzJROuNfNNNX10rGlL+d+Tkdij6Epd8zX1uR6X2Io2tjZbsIGb
-         WJj5sAlOMq8JzIOJhf/xjgMkH7cQgjCAhTiUbq8w=
+        b=xuxsxxtjuejGOAxLQTdtiCFiz8z6m+rIX0WILgnEdUHC9gzfVH+Mz8YPHhjenkyrZ
+         +Q9nOcivAQ6JX22JgAPYpVb42uCcCjkCe2m7id91DiWY8NBQe0Hi8SR+JOjKnDgdvs
+         +NvQPUHvXJmNhdRIhpI/9qwMPaX7fNJth1I3fHjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "Jerry (Fangzhi) Zuo" <Jerry.Zuo@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 043/179] bnxt_en: Fix race when modifying pause settings.
+Subject: [PATCH 5.4 023/138] drm/amd/display: Check DMCU Exists Before Loading
 Date:   Mon, 27 Jul 2020 16:03:38 +0200
-Message-Id: <20200727134934.779055697@linuxfoundation.org>
+Message-Id: <20200727134926.508432798@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
 
-[ Upstream commit 163e9ef63641a02de4c95cd921577265c52e1ce2 ]
+[ Upstream commit 17bdb4a82fe5014c8aa5b2103c80c5729744a096 ]
 
-The driver was modified to not rely on rtnl lock to protect link
-settings about 2 years ago.  The pause setting was missed when
-making that change.  Fix it by acquiring link_lock mutex before
-calling bnxt_hwrm_set_pause().
-
-Fixes: e2dc9b6e38fa ("bnxt_en: Don't use rtnl lock to protect link change logic in workqueue.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
+Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 360f9a95c1d50..21cc2bd127603 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1687,8 +1687,11 @@ static int bnxt_set_pauseparam(struct net_device *dev,
- 	if (epause->tx_pause)
- 		link_info->req_flow_ctrl |= BNXT_LINK_PAUSE_TX;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 4fad0b603b3ab..c7d8edf450d3c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -928,9 +928,14 @@ static int dm_late_init(void *handle)
+ 	struct dmcu_iram_parameters params;
+ 	unsigned int linear_lut[16];
+ 	int i;
+-	struct dmcu *dmcu = adev->dm.dc->res_pool->dmcu;
++	struct dmcu *dmcu = NULL;
+ 	bool ret;
  
--	if (netif_running(dev))
-+	if (netif_running(dev)) {
-+		mutex_lock(&bp->link_lock);
- 		rc = bnxt_hwrm_set_pause(bp);
-+		mutex_unlock(&bp->link_lock);
-+	}
- 	return rc;
- }
++	if (!adev->dm.fw_dmcu)
++		return detect_mst_link_for_all_connectors(adev->ddev);
++
++	dmcu = adev->dm.dc->res_pool->dmcu;
++
+ 	for (i = 0; i < 16; i++)
+ 		linear_lut[i] = 0xFFFF * i / 15;
  
 -- 
 2.25.1
