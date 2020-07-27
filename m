@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E73E22F2B5
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D58F322F236
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729329AbgG0Oln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:41:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57056 "EHLO mail.kernel.org"
+        id S1729946AbgG0OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729334AbgG0OH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:07:57 -0400
+        id S1729943AbgG0OLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:11:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07E1F2073E;
-        Mon, 27 Jul 2020 14:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5022520838;
+        Mon, 27 Jul 2020 14:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858877;
-        bh=kB41gXh/gK69Ub+thQTzV8vVMeVaJNEl8ZZLFyl95ZQ=;
+        s=default; t=1595859060;
+        bh=404mlOwBRprthN1mkVirySgS0S2bS+wvcYx3rW8zKHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNWzhqBPxe59EsOFZTNU2HeEv02g1Y8nSMZM528JIRss416N6bQHI7I/QXxYyV3h2
-         k8ykFDw1s7EWrBNZt0njA23bMJgrW8zfi2VlfoKJgp58Tn/dlOxCv7vfhrB15u36hz
-         eEpRng3niaZbguabCl7Hn+d9KkVozKswQ+s4rcV4=
+        b=rKWCkPJ0xS6U465/hGnh4MdpCqzYcUuD6sJzy24DHL5Lwe5yuuE36nyPbJr4zd/Wu
+         OY7M+cljOsyGkPoCrxFSuqeNb8QOI+xXlyGy5SKN1DpEehllwg4ROKU1suGn3QANEz
+         UeF7F8Xz14kV+SqT5gQ7UfPlsvtkbu6HNZtp7xus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 45/64] x86: math-emu: Fix up cmp insn for clang ias
-Date:   Mon, 27 Jul 2020 16:04:24 +0200
-Message-Id: <20200727134913.420317670@linuxfoundation.org>
+Subject: [PATCH 4.19 51/86] hwmon: (aspeed-pwm-tacho) Avoid possible buffer overflow
+Date:   Mon, 27 Jul 2020 16:04:25 +0200
+Message-Id: <20200727134916.977587429@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 81e96851ea32deb2c921c870eecabf335f598aeb ]
+[ Upstream commit bc4071aafcf4d0535ee423b69167696d6c03207d ]
 
-The clang integrated assembler requires the 'cmp' instruction to
-have a length prefix here:
+aspeed_create_fan() reads a pwm_port value using of_property_read_u32().
+If pwm_port will be more than ARRAY_SIZE(pwm_port_params), there will be
+a buffer overflow in
+aspeed_create_pwm_port()->aspeed_set_pwm_port_enable(). The patch fixes
+the potential buffer overflow.
 
-arch/x86/math-emu/wm_sqrt.S:212:2: error: ambiguous instructions require an explicit suffix (could be 'cmpb', 'cmpw', or 'cmpl')
- cmp $0xffffffff,-24(%ebp)
- ^
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Make this a 32-bit comparison, which it was clearly meant to be.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lkml.kernel.org/r/20200527135352.1198078-1-arnd@arndb.de
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Link: https://lore.kernel.org/r/20200703111518.9644-1-novikov@ispras.ru
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/math-emu/wm_sqrt.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/aspeed-pwm-tacho.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/math-emu/wm_sqrt.S b/arch/x86/math-emu/wm_sqrt.S
-index f031c0e193565..515cdee90df72 100644
---- a/arch/x86/math-emu/wm_sqrt.S
-+++ b/arch/x86/math-emu/wm_sqrt.S
-@@ -209,7 +209,7 @@ sqrt_stage_2_finish:
+diff --git a/drivers/hwmon/aspeed-pwm-tacho.c b/drivers/hwmon/aspeed-pwm-tacho.c
+index 5e449eac788a1..a43fa730a513b 100644
+--- a/drivers/hwmon/aspeed-pwm-tacho.c
++++ b/drivers/hwmon/aspeed-pwm-tacho.c
+@@ -880,6 +880,8 @@ static int aspeed_create_fan(struct device *dev,
+ 	ret = of_property_read_u32(child, "reg", &pwm_port);
+ 	if (ret)
+ 		return ret;
++	if (pwm_port >= ARRAY_SIZE(pwm_port_params))
++		return -EINVAL;
+ 	aspeed_create_pwm_port(priv, (u8)pwm_port);
  
- #ifdef PARANOID
- /* It should be possible to get here only if the arg is ffff....ffff */
--	cmp	$0xffffffff,FPU_fsqrt_arg_1
-+	cmpl	$0xffffffff,FPU_fsqrt_arg_1
- 	jnz	sqrt_stage_2_error
- #endif /* PARANOID */
- 
+ 	ret = of_property_count_u8_elems(child, "cooling-levels");
 -- 
 2.25.1
 
