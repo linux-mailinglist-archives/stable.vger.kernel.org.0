@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8627B22F058
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84ABB22EECE
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732143AbgG0OXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53000 "EHLO mail.kernel.org"
+        id S1729944AbgG0OK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:10:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732118AbgG0OXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:23:42 -0400
+        id S1729943AbgG0OK4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27E3B2083E;
-        Mon, 27 Jul 2020 14:23:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3315120838;
+        Mon, 27 Jul 2020 14:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859821;
-        bh=uTzKu8227IvK2neuOEG36qM3bzCod7rBoHzbc5aDt0M=;
+        s=default; t=1595859055;
+        bh=l6uFOSzGbUaaNsdDAOVOSCGbrlf+F2+bnOottOD+KvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYWYLx8joNRlyI0EhMj2UZ+dCnMcbtJUCQFYsrpudh5l5v4YJN3BP9zF/JhizKKIn
-         vkDa15bJQIVz2wgPzng+tjT0KjIrUWgkdPHXaNerfDqVzPYRwrE7hEqUIGFsHxFgDW
-         f7tQ2ij21APG3TA2MoO1RXaKt1UllQOLylP+5Iz4=
+        b=cDzhT5eTvKHefkVNbQOauMmn5abk5DuAtC5kHv/hl1qRPl+WCZ1JkC7YD597JBUjo
+         gdDlrRnIJ5kTydBWQlQXzGjQ1dVhgJRZHKefHxAevQUEw9IJHRHY9Y1puFYfWnmEFz
+         qeL3FljtqFaLsjW3Wh6Km/N3jqsq+LHF1H0/BqMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Volkerding <volkerdi@gmail.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, "leilk.liu" <leilk.liu@mediatek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 088/179] Revert "PCI/PM: Assume ports without DLL Link Active train links in 100 ms"
+Subject: [PATCH 4.19 49/86] spi: mediatek: use correct SPI_CFG2_REG MACRO
 Date:   Mon, 27 Jul 2020 16:04:23 +0200
-Message-Id: <20200727134936.962434071@linuxfoundation.org>
+Message-Id: <20200727134916.872633718@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: leilk.liu <leilk.liu@mediatek.com>
 
-[ Upstream commit d08c30d7a0d1826f771f16cde32bd86e48401791 ]
+[ Upstream commit 44b37eb79e16a56cb30ba55b2da452396b941e7a ]
 
-This reverts commit ec411e02b7a2e785a4ed9ed283207cd14f48699d.
+this patch use correct SPI_CFG2_REG offset.
 
-Patrick reported that this commit broke hybrid graphics on a ThinkPad X1
-Extreme 2nd with Intel UHD Graphics 630 and NVIDIA GeForce GTX 1650 Mobile:
-
-  nouveau 0000:01:00.0: fifo: PBDMA0: 01000000 [] ch 0 [00ff992000 DRM] subc 0 mthd 0008 data 00000000
-
-Karol reported that this commit broke Nouveau firmware loading on a Lenovo
-P1G2 with Intel UHD Graphics 630 and NVIDIA TU117GLM [Quadro T1000 Mobile]:
-
-  nouveau 0000:01:00.0: acr: AHESASC binary failed
-
-In both cases, reverting ec411e02b7a2 solved the problem.  Unfortunately,
-this revert will reintroduce the "Thunderbolt bridges take long time to
-resume from D3cold" problem:
-https://bugzilla.kernel.org/show_bug.cgi?id=206837
-
-Link: https://lore.kernel.org/r/CAErSpo5sTeK_my1dEhWp7aHD0xOp87+oHYWkTjbL7ALgDbXo-Q@mail.gmail.com
-Link: https://lore.kernel.org/r/CACO55tsAEa5GXw5oeJPG=mcn+qxNvspXreJYWDJGZBy5v82JDA@mail.gmail.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=208597
-Reported-by: Patrick Volkerding <volkerdi@gmail.com>
-Reported-by: Karol Herbst <kherbst@redhat.com>
-Fixes: ec411e02b7a2 ("PCI/PM: Assume ports without DLL Link Active train links in 100 ms")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: leilk.liu <leilk.liu@mediatek.com>
+Link: https://lore.kernel.org/r/20200701090020.7935-1-leilk.liu@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 30 +++++++++---------------------
- 1 file changed, 9 insertions(+), 21 deletions(-)
+ drivers/spi/spi-mt65xx.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d4758518a97bd..a4efc7e0061f5 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4662,8 +4662,7 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
-  * pcie_wait_for_link_delay - Wait until link is active or inactive
-  * @pdev: Bridge device
-  * @active: waiting for active or inactive?
-- * @delay: Delay to wait after link has become active (in ms). Specify %0
-- *	   for no delay.
-+ * @delay: Delay to wait after link has become active (in ms)
-  *
-  * Use this to wait till link becomes active or inactive.
-  */
-@@ -4704,7 +4703,7 @@ static bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active,
- 		msleep(10);
- 		timeout -= 10;
- 	}
--	if (active && ret && delay)
-+	if (active && ret)
- 		msleep(delay);
- 	else if (ret != active)
- 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
-@@ -4825,28 +4824,17 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 	if (!pcie_downstream_port(dev))
- 		return;
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index 0c2867deb36fc..da28c52c9da19 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -41,7 +41,6 @@
+ #define SPI_CFG0_SCK_LOW_OFFSET           8
+ #define SPI_CFG0_CS_HOLD_OFFSET           16
+ #define SPI_CFG0_CS_SETUP_OFFSET          24
+-#define SPI_ADJUST_CFG0_SCK_LOW_OFFSET    16
+ #define SPI_ADJUST_CFG0_CS_HOLD_OFFSET    0
+ #define SPI_ADJUST_CFG0_CS_SETUP_OFFSET   16
  
--	/*
--	 * Per PCIe r5.0, sec 6.6.1, for downstream ports that support
--	 * speeds > 5 GT/s, we must wait for link training to complete
--	 * before the mandatory delay.
--	 *
--	 * We can only tell when link training completes via DLL Link
--	 * Active, which is required for downstream ports that support
--	 * speeds > 5 GT/s (sec 7.5.3.6).  Unfortunately some common
--	 * devices do not implement Link Active reporting even when it's
--	 * required, so we'll check for that directly instead of checking
--	 * the supported link speed.  We assume devices without Link Active
--	 * reporting can train in 100 ms regardless of speed.
--	 */
--	if (dev->link_active_reporting) {
--		pci_dbg(dev, "waiting for link to train\n");
--		if (!pcie_wait_for_link_delay(dev, true, 0)) {
-+	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
-+		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
-+		msleep(delay);
-+	} else {
-+		pci_dbg(dev, "waiting %d ms for downstream link, after activation\n",
-+			delay);
-+		if (!pcie_wait_for_link_delay(dev, true, delay)) {
- 			/* Did not train, no need to wait any further */
- 			return;
- 		}
- 	}
--	pci_dbg(child, "waiting %d ms to become accessible\n", delay);
--	msleep(delay);
+@@ -53,6 +52,8 @@
+ #define SPI_CFG1_CS_IDLE_MASK             0xff
+ #define SPI_CFG1_PACKET_LOOP_MASK         0xff00
+ #define SPI_CFG1_PACKET_LENGTH_MASK       0x3ff0000
++#define SPI_CFG2_SCK_HIGH_OFFSET          0
++#define SPI_CFG2_SCK_LOW_OFFSET           16
  
- 	if (!pci_device_is_present(child)) {
- 		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
+ #define SPI_CMD_ACT                  BIT(0)
+ #define SPI_CMD_RESUME               BIT(1)
+@@ -259,7 +260,7 @@ static void mtk_spi_set_cs(struct spi_device *spi, bool enable)
+ static void mtk_spi_prepare_transfer(struct spi_master *master,
+ 				     struct spi_transfer *xfer)
+ {
+-	u32 spi_clk_hz, div, sck_time, cs_time, reg_val = 0;
++	u32 spi_clk_hz, div, sck_time, cs_time, reg_val;
+ 	struct mtk_spi *mdata = spi_master_get_devdata(master);
+ 
+ 	spi_clk_hz = clk_get_rate(mdata->spi_clk);
+@@ -272,18 +273,18 @@ static void mtk_spi_prepare_transfer(struct spi_master *master,
+ 	cs_time = sck_time * 2;
+ 
+ 	if (mdata->dev_comp->enhance_timing) {
++		reg_val = (((sck_time - 1) & 0xffff)
++			   << SPI_CFG2_SCK_HIGH_OFFSET);
+ 		reg_val |= (((sck_time - 1) & 0xffff)
+-			   << SPI_CFG0_SCK_HIGH_OFFSET);
+-		reg_val |= (((sck_time - 1) & 0xffff)
+-			   << SPI_ADJUST_CFG0_SCK_LOW_OFFSET);
++			   << SPI_CFG2_SCK_LOW_OFFSET);
+ 		writel(reg_val, mdata->base + SPI_CFG2_REG);
+-		reg_val |= (((cs_time - 1) & 0xffff)
++		reg_val = (((cs_time - 1) & 0xffff)
+ 			   << SPI_ADJUST_CFG0_CS_HOLD_OFFSET);
+ 		reg_val |= (((cs_time - 1) & 0xffff)
+ 			   << SPI_ADJUST_CFG0_CS_SETUP_OFFSET);
+ 		writel(reg_val, mdata->base + SPI_CFG0_REG);
+ 	} else {
+-		reg_val |= (((sck_time - 1) & 0xff)
++		reg_val = (((sck_time - 1) & 0xff)
+ 			   << SPI_CFG0_SCK_HIGH_OFFSET);
+ 		reg_val |= (((sck_time - 1) & 0xff) << SPI_CFG0_SCK_LOW_OFFSET);
+ 		reg_val |= (((cs_time - 1) & 0xff) << SPI_CFG0_CS_HOLD_OFFSET);
 -- 
 2.25.1
 
