@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A72E22EE62
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CAB222EF29
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:14:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729192AbgG0OHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:07:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55756 "EHLO mail.kernel.org"
+        id S1730445AbgG0ON7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:13:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729181AbgG0OHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:07:15 -0400
+        id S1730032AbgG0ON6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:13:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 214F720775;
-        Mon, 27 Jul 2020 14:07:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 112FD2083E;
+        Mon, 27 Jul 2020 14:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858834;
-        bh=/oDceVRvBcZtcSeouwu1wm8VWD2sKbRTIpY4H/q1V0g=;
+        s=default; t=1595859237;
+        bh=iINv9F84Bgoo99yjFob1WezwwZvaTlQYEjVwF0s72S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNVgRiT+2dU0OaxcEDCGnQjIlDFYdrLiwY3UM0Khdbk65wgA+Oj334PhEIfnqIkKu
-         O2ms6Mac4LMep1qvOLSMsrsWBsbU3oae9B0bpjyY5XDsboJlzyD3/ASR+nZGgxD/fh
-         k7CeXVtWPZqkbY7QseY9cdJ0Qx4obUj4b+h2JrbY=
+        b=oiBnAK/3rAbuP7/gIFAurk2IeWzu990t6IvzslhK+822sv3UPNEa3Z2bpAOULYR9V
+         CgfqSu89EZyjhdAPSvQfLR4UKcBMOUc9y81jnuylz6kZSLIHt7v7SwT10koMcDarMf
+         XMeMo8akTBTDTWfYA9YrwbKc2I19imfXrWkaHDR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/64] xtensa: fix __sync_fetch_and_{and,or}_4 declarations
+        stable@vger.kernel.org, Joonho Wohn <doomsheart@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 030/138] ALSA: hda/realtek: Fixed ALC298 sound bug by adding quirk for Samsung Notebook Pen S
 Date:   Mon, 27 Jul 2020 16:03:45 +0200
-Message-Id: <20200727134911.349920934@linuxfoundation.org>
+Message-Id: <20200727134926.878102514@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Joonho Wohn <doomsheart@gmail.com>
 
-[ Upstream commit 73f9941306d5ce030f3ffc7db425c7b2a798cf8e ]
+commit 568e4e82128aac2c62c2c359ebebb6007fd794f9 upstream.
 
-Building xtensa kernel with gcc-10 produces the following warnings:
-  arch/xtensa/kernel/xtensa_ksyms.c:90:15: warning: conflicting types
-    for built-in function ‘__sync_fetch_and_and_4’;
-    expected ‘unsigned int(volatile void *, unsigned int)’
-    [-Wbuiltin-declaration-mismatch]
-  arch/xtensa/kernel/xtensa_ksyms.c:96:15: warning: conflicting types
-    for built-in function ‘__sync_fetch_and_or_4’;
-    expected ‘unsigned int(volatile void *, unsigned int)’
-    [-Wbuiltin-declaration-mismatch]
+Fixed no headphone sound bug on laptop Samsung Notebook Pen S
+(950SBE-951SBE), by using existing patch in Linus' tree, commit
+14425f1f521f (ALSA: hda/realtek: Add quirk for Samsung Notebook).
+This laptop uses the same ALC298 but different subsystem id 0x144dc812.
+I added SND_PCI_QUIRK at sound/pci/hda/patch_realtek.c
 
-Fix declarations of these functions to avoid the warning.
+Signed-off-by: Joonho Wohn <doomsheart@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAHcbMh291aWDKiWSZoxXB4-Eru6OYRwGA4AVEdCZeYmVLo5ZxQ@mail.gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/xtensa_ksyms.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/xtensa/kernel/xtensa_ksyms.c b/arch/xtensa/kernel/xtensa_ksyms.c
-index dc7b470a423a6..58b79e2ea569c 100644
---- a/arch/xtensa/kernel/xtensa_ksyms.c
-+++ b/arch/xtensa/kernel/xtensa_ksyms.c
-@@ -82,13 +82,13 @@ void __xtensa_libgcc_window_spill(void)
- }
- EXPORT_SYMBOL(__xtensa_libgcc_window_spill);
- 
--unsigned long __sync_fetch_and_and_4(unsigned long *p, unsigned long v)
-+unsigned int __sync_fetch_and_and_4(volatile void *p, unsigned int v)
- {
- 	BUG();
- }
- EXPORT_SYMBOL(__sync_fetch_and_and_4);
- 
--unsigned long __sync_fetch_and_or_4(unsigned long *p, unsigned long v)
-+unsigned int __sync_fetch_and_or_4(volatile void *p, unsigned int v)
- {
- 	BUG();
- }
--- 
-2.25.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7551,6 +7551,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
++	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
 
 
