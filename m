@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 179E422F057
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFB122EED0
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732106AbgG0OXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:23:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53070 "EHLO mail.kernel.org"
+        id S1729954AbgG0OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732139AbgG0OXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:23:44 -0400
+        id S1729439AbgG0OK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A466A2075A;
-        Mon, 27 Jul 2020 14:23:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C81BF208E4;
+        Mon, 27 Jul 2020 14:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859824;
-        bh=AffMlMTKO4zKS4T/9efGfxZ+ta1j6Jw3kXv1B/QFf7Y=;
+        s=default; t=1595859058;
+        bh=xAwsdarEG2CBrklf9ot9VZhvrow2vneesuNuCyiKZP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MeJtpgDayWF8oy8xDAqujdbtS0xRWLWtguuhCp2agQ77Dno2rUXatQhVlvunAFxo+
-         nGjEzx27Sw4YUB6xBNW+s/htmXnlmuuvtyKFo4WzJ+OdlHDCxPzPISimShMsBNrvHv
-         JWfK0IRsqWrCbSuU8nyIvoh6ljxZ4dXvmmiqW27A=
+        b=wPDOtVnfgKP1Fq30y340Hm9YewH/sAD/KVIf+rQ827/6VFY3AZ3fUSxzHePzlkXej
+         dmEih1wKe5LS03CZFpurE/Kv5GdxAZZvKAGQfYrJ3Fn9pg1g8GG1eb2ISbgmiGGruA
+         emTPG/crhqe5ju2V9LdnaGViSIgJWqg4huESCmEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 089/179] nfsd4: fix NULL dereference in nfsd/clients display code
+Subject: [PATCH 4.19 50/86] regmap: dev_get_regmap_match(): fix string comparison
 Date:   Mon, 27 Jul 2020 16:04:24 +0200
-Message-Id: <20200727134937.011848345@linuxfoundation.org>
+Message-Id: <20200727134916.919700195@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 9affa435817711861d774f5626c393c80f16d044 ]
+[ Upstream commit e84861fec32dee8a2e62bbaa52cded6b05a2a456 ]
 
-We hold the cl_lock here, and that's enough to keep stateid's from going
-away, but it's not enough to prevent the files they point to from going
-away.  Take fi_lock and a reference and check for NULL, as we do in
-other code.
+This function is used by dev_get_regmap() to retrieve a regmap for the
+specified device. If the device has more than one regmap, the name parameter
+can be used to specify one.
 
-Reported-by: NeilBrown <neilb@suse.de>
-Fixes: 78599c42ae3c ("nfsd4: add file to display list of client's opens")
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+The code here uses a pointer comparison to check for equal strings. This
+however will probably always fail, as the regmap->name is allocated via
+kstrdup_const() from the regmap's config->name.
+
+Fix this by using strcmp() instead.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20200703103315.267996-1-mkl@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/base/regmap/regmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index bdfae3ba39539..0a201bb074b0e 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -509,6 +509,17 @@ find_any_file(struct nfs4_file *f)
- 	return ret;
- }
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index c7d946b745efe..d26b485ccc7d0 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1343,7 +1343,7 @@ static int dev_get_regmap_match(struct device *dev, void *res, void *data)
  
-+static struct nfsd_file *find_deleg_file(struct nfs4_file *f)
-+{
-+	struct nfsd_file *ret = NULL;
-+
-+	spin_lock(&f->fi_lock);
-+	if (f->fi_deleg_file)
-+		ret = nfsd_file_get(f->fi_deleg_file);
-+	spin_unlock(&f->fi_lock);
-+	return ret;
-+}
-+
- static atomic_long_t num_delegations;
- unsigned long max_delegations;
- 
-@@ -2436,6 +2447,8 @@ static int nfs4_show_open(struct seq_file *s, struct nfs4_stid *st)
- 	oo = ols->st_stateowner;
- 	nf = st->sc_file;
- 	file = find_any_file(nf);
-+	if (!file)
-+		return 0;
- 
- 	seq_printf(s, "- 0x%16phN: { type: open, ", &st->sc_stateid);
- 
-@@ -2469,6 +2482,8 @@ static int nfs4_show_lock(struct seq_file *s, struct nfs4_stid *st)
- 	oo = ols->st_stateowner;
- 	nf = st->sc_file;
- 	file = find_any_file(nf);
-+	if (!file)
-+		return 0;
- 
- 	seq_printf(s, "- 0x%16phN: { type: lock, ", &st->sc_stateid);
- 
-@@ -2497,7 +2512,9 @@ static int nfs4_show_deleg(struct seq_file *s, struct nfs4_stid *st)
- 
- 	ds = delegstateid(st);
- 	nf = st->sc_file;
--	file = nf->fi_deleg_file;
-+	file = find_deleg_file(nf);
-+	if (!file)
-+		return 0;
- 
- 	seq_printf(s, "- 0x%16phN: { type: deleg, ", &st->sc_stateid);
- 
-@@ -2509,6 +2526,7 @@ static int nfs4_show_deleg(struct seq_file *s, struct nfs4_stid *st)
- 
- 	nfs4_show_superblock(s, file);
- 	seq_printf(s, " }\n");
-+	nfsd_file_put(file);
- 
- 	return 0;
+ 	/* If the user didn't specify a name match any */
+ 	if (data)
+-		return (*r)->name == data;
++		return !strcmp((*r)->name, data);
+ 	else
+ 		return 1;
  }
 -- 
 2.25.1
