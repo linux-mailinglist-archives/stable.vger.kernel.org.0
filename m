@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD87922F29D
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7D522F1E7
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729441AbgG0OIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58140 "EHLO mail.kernel.org"
+        id S1732135AbgG0Ofa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:35:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729451AbgG0OIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:37 -0400
+        id S1730623AbgG0OO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2419620838;
-        Mon, 27 Jul 2020 14:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE95922BF3;
+        Mon, 27 Jul 2020 14:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858916;
-        bh=E4hMhv9MnCUG4J4l+0OHGK6Kd2A7ToIE1oU1Q6qAS5s=;
+        s=default; t=1595859297;
+        bh=dJE+l1eHpIiqSZ8hIQ0F+3RMgRXM7p2Z2ofSXFjcXQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsBxG7zkOK2U6DnwrdXJQZD4B0/BN3V9x9FRMe3UYF3oNvq+GlFXwfm2T/k61g9WH
-         acMOQ0JlSwUiZkijmo5AylfKQyU/1Oeq2KBOq0XtPaSSpbne4KIQTJbXvIXwMCTdnH
-         qp4xF8wlS+UzpO5R02RwFVph6hogrjyXWcY0jWCc=
+        b=vpIz3nWX8gtZ8nKVGC9SB8sh5UMJca/NOevOeN79EOWuD3RJyJlA0IJaQLwRug2U+
+         hT2NFu8P8ga2vQg+6jqkM9PqaFP8avdVaNPdxKTZ56vu7uWDaU6NlokEuQsDNSwZ3w
+         mqKSfRzFaSEUMxDPn0eTo+mSR+pPGSjODuvkRC8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/64] i2c: rcar: always clear ICSAR to avoid side effects
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 054/138] net: hns3: fix error handling for desc filling
 Date:   Mon, 27 Jul 2020 16:04:09 +0200
-Message-Id: <20200727134912.650137861@linuxfoundation.org>
+Message-Id: <20200727134928.056032643@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit eb01597158ffb1853a7a7fc2c57d4c844640f75e ]
+[ Upstream commit 8ceca59fb3ed48a693171bd571c4fcbd555b7f1f ]
 
-On R-Car Gen2, we get a timeout when reading from the address set in
-ICSAR, even though the slave interface is disabled. Clearing it fixes
-this situation. Note that Gen3 is not affected.
+The content of the TX desc is automatically cleared by the HW
+when the HW has sent out the packet to the wire. When desc filling
+fails in hns3_nic_net_xmit(), it will call hns3_clear_desc() to do
+the error handling, which miss zeroing of the TX desc and the
+checking if a unmapping is needed.
 
-To reproduce: bind and undbind an I2C slave on some bus, run
-'i2cdetect' on that bus.
+So add the zeroing and checking in hns3_clear_desc() to avoid the
+above problem. Also add DESC_TYPE_UNKNOWN to indicate the info in
+desc_cb is not valid, because hns3_nic_reclaim_desc() may treat
+the desc_cb->type of zero as packet and add to the sent pkt
+statistics accordingly.
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h     | 1 +
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 132c4a405bf83..db9ca8e926ca7 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -817,6 +817,7 @@ static int rcar_unreg_slave(struct i2c_client *slave)
- 	/* disable irqs and ensure none is running before clearing ptr */
- 	rcar_i2c_write(priv, ICSIER, 0);
- 	rcar_i2c_write(priv, ICSCR, 0);
-+	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index a0998937727d8..0db835d87d09d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -77,6 +77,7 @@
+ 	((ring)->p = ((ring)->p - 1 + (ring)->desc_num) % (ring)->desc_num)
  
- 	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
-@@ -914,6 +915,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto out_pm_put;
+ enum hns_desc_type {
++	DESC_TYPE_UNKNOWN,
+ 	DESC_TYPE_SKB,
+ 	DESC_TYPE_PAGE,
+ };
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 37537c3020806..506381224559f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1292,6 +1292,10 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ 	unsigned int i;
  
-+	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+ 	for (i = 0; i < ring->desc_num; i++) {
++		struct hns3_desc *desc = &ring->desc[ring->next_to_use];
 +
- 	if (priv->devtype == I2C_RCAR_GEN3) {
- 		priv->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
- 		if (!IS_ERR(priv->rstc)) {
++		memset(desc, 0, sizeof(*desc));
++
+ 		/* check if this is where we started */
+ 		if (ring->next_to_use == next_to_use_orig)
+ 			break;
+@@ -1299,6 +1303,9 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ 		/* rollback one */
+ 		ring_ptr_move_bw(ring, next_to_use);
+ 
++		if (!ring->desc_cb[ring->next_to_use].dma)
++			continue;
++
+ 		/* unmap the descriptor dma address */
+ 		if (ring->desc_cb[ring->next_to_use].type == DESC_TYPE_SKB)
+ 			dma_unmap_single(dev,
+@@ -1313,6 +1320,7 @@ static void hns3_clear_desc(struct hns3_enet_ring *ring, int next_to_use_orig)
+ 
+ 		ring->desc_cb[ring->next_to_use].length = 0;
+ 		ring->desc_cb[ring->next_to_use].dma = 0;
++		ring->desc_cb[ring->next_to_use].type = DESC_TYPE_UNKNOWN;
+ 	}
+ }
+ 
 -- 
 2.25.1
 
