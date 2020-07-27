@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB9E022FDB5
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32F722FDBD
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728815AbgG0X3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728267AbgG0X3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jul 2020 19:29:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35042 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728037AbgG0XYJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:24:09 -0400
+        id S1728069AbgG0XYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:24:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 434B620A8B;
-        Mon, 27 Jul 2020 23:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC76920786;
+        Mon, 27 Jul 2020 23:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892248;
-        bh=a0aA7H454nVXzBEArJP4nn7zlql2SBq6llZ2FXcTWZI=;
+        s=default; t=1595892249;
+        bh=wU/TN71rTvgaJrmEbzOri9vKXRrQfz4CqDUk8J6+y90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KCHyZefAVx27JG385LOyENrFcP3ivZk8gbcqkEby7+TBaV0cF1jq5OBaw6lCK8+up
-         SQdJOAkpB9faJaKTMUTHhyczK9QbgaDNEPmHNJsOBuZxw6ygR+oFnfqkFHZHlRE2Sp
-         4XEnHNTvwdfuSDPnIsjzUQ9CdRPvvC+13b67gfSY=
+        b=epI28L6CIfTtm1ZwEbu/JpzBWlSCB2//QWnTfT271GNbvpJZkRMJMD0y+AxNCc6Je
+         F/DSRYQ3YcPiFMNLwW4+0hHOw8tFMN7VeH3rIHDghq/DURqb404Pp4RuZ4HGeJInhk
+         hVSTUc1ysdNpVxPpraI5sI6263MC1G++leRNtEvY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
         Michal Simek <michal.simek@xilinx.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 16/25] Revert "i2c: cadence: Fix the hold bit setting"
-Date:   Mon, 27 Jul 2020 19:23:36 -0400
-Message-Id: <20200727232345.717432-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 17/25] i2c: cadence: Clear HOLD bit at correct time in Rx path
+Date:   Mon, 27 Jul 2020 19:23:37 -0400
+Message-Id: <20200727232345.717432-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232345.717432-1-sashal@kernel.org>
 References: <20200727232345.717432-1-sashal@kernel.org>
@@ -46,70 +46,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 
-[ Upstream commit 0db9254d6b896b587759e2c844c277fb1a6da5b9 ]
+[ Upstream commit 12d4d9ec5eeecd712c73772e422b6d082e66b046 ]
 
-This reverts commit d358def706880defa4c9e87381c5bf086a97d5f9.
+There are few issues on Zynq SOC observed in the stress tests causing
+timeout errors. Even though all the data is received, timeout error
+is thrown. This is due to an IP bug in which the COMP bit in ISR is
+not set at end of transfer and completion interrupt is not generated.
 
-There are two issues with "i2c: cadence: Fix the hold bit setting" commit.
+This bug is seen on Zynq platforms when the following condition occurs:
+Master read & HOLD bit set & Transfer size register reaches '0'.
 
-1. In case of combined message request from user space, when the HOLD
-bit is cleared in cdns_i2c_mrecv function, a STOP condition is sent
-on the bus even before the last message is started. This is because when
-the HOLD bit is cleared, the FIFOS are empty and there is no pending
-transfer. The STOP condition should occur only after the last message
-is completed.
+One workaround is to clear the HOLD bit before the transfer size
+register reaches '0'. The current implementation checks for this at
+the start of the loop and also only for less than FIFO DEPTH case
+(ignoring the equal to case).
 
-2. The code added by the commit is redundant. Driver is handling the
-setting/clearing of HOLD bit in right way before the commit.
-
-The setting of HOLD bit based on 'bus_hold_flag' is taken care in
-cdns_i2c_master_xfer function even before cdns_i2c_msend/cdns_i2c_recv
-functions.
-
-The clearing of HOLD bit is taken care at the end of cdns_i2c_msend and
-cdns_i2c_recv functions based on bus_hold_flag and byte count.
-Since clearing of HOLD bit is done after the slave address is written to
-the register (writing to address register triggers the message transfer),
-it is ensured that STOP condition occurs at the right time after
-completion of the pending transfer (last message).
+So clear the HOLD bit when the data yet to receive is less than or
+equal to the FIFO DEPTH. This avoids the IP bug condition.
 
 Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 Acked-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-cadence.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 89d58f7d2a253..97a0bd6ea31f1 100644
+index 97a0bd6ea31f1..1efdabb5adca0 100644
 --- a/drivers/i2c/busses/i2c-cadence.c
 +++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -382,10 +382,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if ((id->recv_count > CDNS_I2C_FIFO_DEPTH)  || id->bus_hold_flag)
-+	if (id->recv_count > CDNS_I2C_FIFO_DEPTH)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
--	else
--		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
- 
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
- 
-@@ -442,11 +440,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if ((id->send_count > CDNS_I2C_FIFO_DEPTH) || id->bus_hold_flag)
-+	if (id->send_count > CDNS_I2C_FIFO_DEPTH)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
--	else
--		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
+@@ -230,20 +230,21 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 		/* Read data if receive data valid is set */
+ 		while (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) &
+ 		       CDNS_I2C_SR_RXDV) {
+-			/*
+-			 * Clear hold bit that was set for FIFO control if
+-			 * RX data left is less than FIFO depth, unless
+-			 * repeated start is selected.
+-			 */
+-			if ((id->recv_count < CDNS_I2C_FIFO_DEPTH) &&
+-			    !id->bus_hold_flag)
+-				cdns_i2c_clear_bus_hold(id);
 -
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
- 
- 	/* Clear the interrupts in interrupt status register. */
+ 			if (id->recv_count > 0) {
+ 				*(id->p_recv_buf)++ =
+ 					cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
+ 				id->recv_count--;
+ 				id->curr_recv_count--;
++
++				/*
++				 * Clear hold bit that was set for FIFO control
++				 * if RX data left is less than or equal to
++				 * FIFO DEPTH unless repeated start is selected
++				 */
++				if (id->recv_count <= CDNS_I2C_FIFO_DEPTH &&
++				    !id->bus_hold_flag)
++					cdns_i2c_clear_bus_hold(id);
++
+ 			} else {
+ 				dev_err(id->adap.dev.parent,
+ 					"xfer_size reg rollover. xfer aborted!\n");
 -- 
 2.25.1
 
