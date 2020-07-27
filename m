@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E7C22EE93
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3CE22F116
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729517AbgG0OIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58600 "EHLO mail.kernel.org"
+        id S1731130AbgG0OXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:23:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729501AbgG0OIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:53 -0400
+        id S1732004AbgG0OXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:23:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E2AB20838;
-        Mon, 27 Jul 2020 14:08:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6194D2070A;
+        Mon, 27 Jul 2020 14:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858932;
-        bh=biPPC4FOwAOBUCib4uH65eXmJpEkTdAaFUzPoJlHoXs=;
+        s=default; t=1595859782;
+        bh=e9V3lPrkqDvI9PpIFRoLbKwiPOAE5nFcLwbfsSfpGZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fL3x+eBeReAEdz3DdryE/5vqO4TVqcXw43hZqs4g9tW0J3Akj5B/tl4jlXl0IlaWJ
-         4RGGmrZS93/6FZAUdp1DnWaPc8NV1A5/ZgFBE8tglL8rvOnqH2iDVfDjF1eyDLInU4
-         Qp6oTpm0Zz2DoXlDEqmd+41AtdBvDJnNTeVWMvY0=
+        b=i9QdEFmXUUaCw6pViwV10r5Ua79rEAQW1nyOgAxHxOfUxcuNImnNa2s4tC+f5g/kt
+         Lxo3JqQwB8vKfsicL7N5Z4fYAToo6BpZkXB9A64NjIOtzJqdKbCUUgMTWigaQsrN5C
+         dA+rZzofdLT+Bk0heXmYXbr1LSebAIzErqI+XpCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.14 59/64] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 103/179] dmaengine: ti: k3-udma: Fix the running channel handling in alloc_chan_resources
 Date:   Mon, 27 Jul 2020 16:04:38 +0200
-Message-Id: <20200727134914.103631971@linuxfoundation.org>
+Message-Id: <20200727134937.668966561@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-commit ca9b31f6bb9c6aa9b4e5f0792f39a97bbffb8c51 upstream.
+[ Upstream commit b5b0180c2f767e90b4a6a885a0a2abaab6e3d48d ]
 
-When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
-$(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
-GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
-/usr/bin/ and Clang as of 11 will search for both
-$(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
+In the unlikely case when the channel is running (RT enabled) during
+alloc_chan_resources then we should use udma_reset_chan() and not
+udma_stop() as the later is trying to initiate a teardown on the channel,
+which is not valid at this point.
 
-GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
-$(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
-$(prefix)aarch64-linux-gnu/$needle rarely contains executables.
-
-To better model how GCC's -B/--prefix takes in effect in practice, newer
-Clang (since
-https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
-only searches for $(prefix)$needle. Currently it will find /usr/bin/as
-instead of /usr/bin/aarch64-linux-gnu-as.
-
-Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
-(/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
-appropriate cross compiling GNU as (when -no-integrated-as is in
-effect).
-
-Cc: stable@vger.kernel.org
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1099
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200527070612.636-3-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    2 +-
+ drivers/dma/ti/k3-udma.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -482,7 +482,7 @@ ifeq ($(cc-name),clang)
- ifneq ($(CROSS_COMPILE),)
- CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
- GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
--CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
-+CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
- GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
- endif
- ifneq ($(GCC_TOOLCHAIN),)
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index 35f54a1af29d8..b777f1924968f 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -1868,7 +1868,7 @@ static int udma_alloc_chan_resources(struct dma_chan *chan)
+ 
+ 	if (udma_is_chan_running(uc)) {
+ 		dev_warn(ud->dev, "chan%d: is running!\n", uc->id);
+-		udma_stop(uc);
++		udma_reset_chan(uc, false);
+ 		if (udma_is_chan_running(uc)) {
+ 			dev_err(ud->dev, "chan%d: won't stop!\n", uc->id);
+ 			goto err_res_free;
+-- 
+2.25.1
+
 
 
