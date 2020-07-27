@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D47A22FCEC
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:24:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BE4822FDCD
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgG0XYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727997AbgG0XYB (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jul 2020 19:24:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34774 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726171AbgG0XX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:23:58 -0400
+        id S1727977AbgG0XX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:23:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C514720A8B;
-        Mon, 27 Jul 2020 23:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E456B2173E;
+        Mon, 27 Jul 2020 23:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892237;
-        bh=ZDt/Zl6117SPnQ8nKwlwPrgsijr9OdQmhrm1hTPLeCU=;
+        s=default; t=1595892238;
+        bh=2lk5uht8HIRYz3UwO/2cD6dc8jKUN8zbECfiXqIVzu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcxjJViFXsnSAba3p980fhLk4uQaDfAvOYpe/YaVCZfqAna7vd++h8xz+tAnM2eEc
-         JBOJ1iT7zLHfOyqYiqS47I6XK4tRmtJLj6oew8s2Xqd0T0PcOuQ6lKn5GCb1k4/9DW
-         FHDUZU9YcqQvt5bW9so5Ku5ls4y5xg7UYWjzWbEg=
+        b=piJAQTQA24wKRgpgdp95mEazTRdEb+3MCVqPsveWwpAK1CgmSjAoWAqCzqFakpe9w
+         AvoxrSa5NjiBTCILEfb3ydl/qQ3xaDPepLoY0dgWW/QJrylQK9kyFLN+2dZ7l/iArp
+         k5719aLxq9o3fpXNyaSo0XiyS1FxqlkPQBGxJ/5s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oded Gabbay <oded.gabbay@gmail.com>,
-        Tomer Tayar <ttayar@habana.ai>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 08/25] habanalabs: prevent possible out-of-bounds array access
-Date:   Mon, 27 Jul 2020 19:23:28 -0400
-Message-Id: <20200727232345.717432-8-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-nfc@lists.01.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 09/25] nfc: s3fwrn5: add missing release on skb in s3fwrn5_recv_frame
+Date:   Mon, 27 Jul 2020 19:23:29 -0400
+Message-Id: <20200727232345.717432-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232345.717432-1-sashal@kernel.org>
 References: <20200727232345.717432-1-sashal@kernel.org>
@@ -42,47 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <oded.gabbay@gmail.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit cea7a0449ea3fa4883bf5dc8397f000d6b67d6cd ]
+[ Upstream commit 1e8fd3a97f2d83a7197876ceb4f37b4c2b00a0f3 ]
 
-Queue index is received from the user. Therefore, we must validate it
-before using it to access the queue props array.
+The implementation of s3fwrn5_recv_frame() is supposed to consume skb on
+all execution paths. Release skb before returning -ENODEV.
 
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
-Reviewed-by: Tomer Tayar <ttayar@habana.ai>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/command_submission.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/nfc/s3fwrn5/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/habanalabs/command_submission.c b/drivers/misc/habanalabs/command_submission.c
-index 409276b6374d7..e7c8e7473226f 100644
---- a/drivers/misc/habanalabs/command_submission.c
-+++ b/drivers/misc/habanalabs/command_submission.c
-@@ -425,11 +425,19 @@ static int validate_queue_index(struct hl_device *hdev,
- 	struct asic_fixed_properties *asic = &hdev->asic_prop;
- 	struct hw_queue_properties *hw_queue_prop;
- 
-+	/* This must be checked here to prevent out-of-bounds access to
-+	 * hw_queues_props array
-+	 */
-+	if (chunk->queue_index >= HL_MAX_QUEUES) {
-+		dev_err(hdev->dev, "Queue index %d is invalid\n",
-+			chunk->queue_index);
-+		return -EINVAL;
-+	}
-+
- 	hw_queue_prop = &asic->hw_queues_props[chunk->queue_index];
- 
--	if ((chunk->queue_index >= HL_MAX_QUEUES) ||
--			(hw_queue_prop->type == QUEUE_TYPE_NA)) {
--		dev_err(hdev->dev, "Queue index %d is invalid\n",
-+	if (hw_queue_prop->type == QUEUE_TYPE_NA) {
-+		dev_err(hdev->dev, "Queue index %d is not applicable\n",
- 			chunk->queue_index);
- 		return -EINVAL;
+diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
+index 91d4d5b28a7d9..ba6c486d64659 100644
+--- a/drivers/nfc/s3fwrn5/core.c
++++ b/drivers/nfc/s3fwrn5/core.c
+@@ -198,6 +198,7 @@ int s3fwrn5_recv_frame(struct nci_dev *ndev, struct sk_buff *skb,
+ 	case S3FWRN5_MODE_FW:
+ 		return s3fwrn5_fw_recv_frame(ndev, skb);
+ 	default:
++		kfree_skb(skb);
+ 		return -ENODEV;
  	}
+ }
 -- 
 2.25.1
 
