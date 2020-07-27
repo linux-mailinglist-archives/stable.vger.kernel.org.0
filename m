@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E4522EE5C
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B392E22EF26
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729145AbgG0OHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:07:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55500 "EHLO mail.kernel.org"
+        id S1730433AbgG0ONw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:13:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729138AbgG0OHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:07:06 -0400
+        id S1730425AbgG0ONu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AAE92073E;
-        Mon, 27 Jul 2020 14:07:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FC9E2073E;
+        Mon, 27 Jul 2020 14:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858826;
-        bh=8xLuIv/ZcOpNQLBrRzcPKJ+UEJZ4BOGUQtZowR3pxc0=;
+        s=default; t=1595859229;
+        bh=pZ9p5vYRMnQqpRbmmkgXAAt2K9yoZbNpms4wRamUaqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgiqV6rcoZN1V28LiJu+4A8FbaT09SAuho3LfOTVGl7/XJA6A0HyBiLND9j8unswZ
-         Q2XPETcmtRFDItywGkVM8gQWcazyO3VHBLTq4YlLofwB0rJAl1fBkLXN1thQ8a2JHu
-         uL2fvxs6b8C6kwrNfD9e7YWBNiEy/+ajenzZdlXQ=
+        b=oVDYxOHcPK+aEhyECOZ22AMDIPHbAWvNYL153NsZQAegWq+pabf2ZruQKu+GvDprT
+         HAAZoCbcGFNrGrOrmosHjvexnAmoV+8xYuEQY8N1LRs82ESl4l+3xKK5PFXpz4Fwu8
+         zD1NLHTH1S8nmoUw6XbtsgSgkaxFNMqVdhM6V3Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Hu <hengqing.hu@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/64] pinctrl: amd: fix npins for uart0 in kerncz_groups
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 027/138] btrfs: reloc: fix reloc root leak and NULL pointer dereference
 Date:   Mon, 27 Jul 2020 16:03:42 +0200
-Message-Id: <20200727134911.204394507@linuxfoundation.org>
+Message-Id: <20200727134926.726501281@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacky Hu <hengqing.hu@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 69339d083dfb7786b0e0b3fc19eaddcf11fabdfb ]
+commit 51415b6c1b117e223bc083e30af675cb5c5498f3 upstream.
 
-uart0_pins is defined as:
-static const unsigned uart0_pins[] = {135, 136, 137, 138, 139};
+[BUG]
+When balance is canceled, there is a pretty high chance that unmounting
+the fs can lead to lead the NULL pointer dereference:
 
-which npins is wronly specified as 9 later
-	{
-		.name = "uart0",
-		.pins = uart0_pins,
-		.npins = 9,
-	},
+  BTRFS warning (device dm-3): page private not zero on page 223158272
+  ...
+  BTRFS warning (device dm-3): page private not zero on page 223162368
+  BTRFS error (device dm-3): leaked root 18446744073709551608-304 refcount 1
+  BUG: kernel NULL pointer dereference, address: 0000000000000168
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 2 PID: 5793 Comm: umount Tainted: G           O      5.7.0-rc5-custom+ #53
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:__lock_acquire+0x5dc/0x24c0
+  Call Trace:
+   lock_acquire+0xab/0x390
+   _raw_spin_lock+0x39/0x80
+   btrfs_release_extent_buffer_pages+0xd7/0x200 [btrfs]
+   release_extent_buffer+0xb2/0x170 [btrfs]
+   free_extent_buffer+0x66/0xb0 [btrfs]
+   btrfs_put_root+0x8e/0x130 [btrfs]
+   btrfs_check_leaked_roots.cold+0x5/0x5d [btrfs]
+   btrfs_free_fs_info+0xe5/0x120 [btrfs]
+   btrfs_kill_super+0x1f/0x30 [btrfs]
+   deactivate_locked_super+0x3b/0x80
+   deactivate_super+0x3e/0x50
+   cleanup_mnt+0x109/0x160
+   __cleanup_mnt+0x12/0x20
+   task_work_run+0x67/0xa0
+   exit_to_usermode_loop+0xc5/0xd0
+   syscall_return_slowpath+0x205/0x360
+   do_syscall_64+0x6e/0xb0
+   entry_SYSCALL_64_after_hwframe+0x49/0xb3
+  RIP: 0033:0x7fd028ef740b
 
-npins should be 5 instead of 9 according to the definition.
+[CAUSE]
+When balance is canceled, all reloc roots are marked as orphan, and
+orphan reloc roots are going to be cleaned up.
 
-Signed-off-by: Jacky Hu <hengqing.hu@gmail.com>
-Link: https://lore.kernel.org/r/20200616015024.287683-1-hengqing.hu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However for orphan reloc roots and merged reloc roots, their lifespan
+are quite different:
+
+	Merged reloc roots	|	Orphan reloc roots by cancel
+--------------------------------------------------------------------
+create_reloc_root()		| create_reloc_root()
+|- refs == 1			| |- refs == 1
+				|
+btrfs_grab_root(reloc_root);	| btrfs_grab_root(reloc_root);
+|- refs == 2			| |- refs == 2
+				|
+root->reloc_root = reloc_root;	| root->reloc_root = reloc_root;
+		>>> No difference so far <<<
+				|
+prepare_to_merge()		| prepare_to_merge()
+|- btrfs_set_root_refs(item, 1);| |- if (!err) (err == -EINTR)
+				|
+merge_reloc_roots()		| merge_reloc_roots()
+|- merge_reloc_root()		| |- Doing nothing to put reloc root
+   |- insert_dirty_subvol()	| |- refs == 2
+      |- __del_reloc_root()	|
+         |- btrfs_put_root()	|
+            |- refs == 1	|
+		>>> Now orphan reloc roots still have refs 2 <<<
+				|
+clean_dirty_subvols()		| clean_dirty_subvols()
+|- btrfs_drop_snapshot()	| |- btrfS_drop_snapshot()
+   |- reloc_root get freed	|    |- reloc_root still has refs 2
+				|	related ebs get freed, but
+				|	reloc_root still recorded in
+				|	allocated_roots
+btrfs_check_leaked_roots()	| btrfs_check_leaked_roots()
+|- No leaked roots		| |- Leaked reloc_roots detected
+				| |- btrfs_put_root()
+				|    |- free_extent_buffer(root->node);
+				|       |- eb already freed, caused NULL
+				|	   pointer dereference
+
+[FIX]
+The fix is to clear fs_root->reloc_root and put it at
+merge_reloc_roots() time, so that we won't leak reloc roots.
+
+Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
+CC: stable@vger.kernel.org # 5.1+
+Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[Manually solve the conflicts due to no btrfs root refs rework]
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pinctrl/pinctrl-amd.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/relocation.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.h b/drivers/pinctrl/pinctrl-amd.h
-index 8fa453a59da5e..884f48f7a6a36 100644
---- a/drivers/pinctrl/pinctrl-amd.h
-+++ b/drivers/pinctrl/pinctrl-amd.h
-@@ -252,7 +252,7 @@ static const struct amd_pingroup kerncz_groups[] = {
- 	{
- 		.name = "uart0",
- 		.pins = uart0_pins,
--		.npins = 9,
-+		.npins = 5,
- 	},
- 	{
- 		.name = "uart1",
--- 
-2.25.1
-
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -2525,12 +2525,10 @@ again:
+ 		reloc_root = list_entry(reloc_roots.next,
+ 					struct btrfs_root, root_list);
+ 
++		root = read_fs_root(fs_info, reloc_root->root_key.offset);
+ 		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
+-			root = read_fs_root(fs_info,
+-					    reloc_root->root_key.offset);
+ 			BUG_ON(IS_ERR(root));
+ 			BUG_ON(root->reloc_root != reloc_root);
+-
+ 			ret = merge_reloc_root(rc, root);
+ 			if (ret) {
+ 				if (list_empty(&reloc_root->root_list))
+@@ -2539,6 +2537,11 @@ again:
+ 				goto out;
+ 			}
+ 		} else {
++			if (!IS_ERR(root)) {
++				if (root->reloc_root == reloc_root)
++					root->reloc_root = NULL;
++			}
++
+ 			list_del_init(&reloc_root->root_list);
+ 			/* Don't forget to queue this reloc root for cleanup */
+ 			list_add_tail(&reloc_root->reloc_dirty_list,
 
 
