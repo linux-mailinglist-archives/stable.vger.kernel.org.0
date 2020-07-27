@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DFF922F0E7
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9EF122EEFA
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732320AbgG0O2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:28:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54586 "EHLO mail.kernel.org"
+        id S1730182AbgG0OMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730619AbgG0OYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:24:52 -0400
+        id S1730154AbgG0OMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE99E2075A;
-        Mon, 27 Jul 2020 14:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3955421883;
+        Mon, 27 Jul 2020 14:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859892;
-        bh=qR3qR1P8zCZPBL7I5aiHn7cQAkCbUrhl/7b8QvE1Xlo=;
+        s=default; t=1595859137;
+        bh=yDL8Vv8k1NbW6bGeTuxpjBDJNb81nTSEttoBN0jtCZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRYnqueRcJF8vRC1yL9uF4spC10xtdBFN+876DhC3HE9bKuczX85ZsNJH4Smos52k
-         u2OfBRBgHZvNM64dS3eAb9rIqU34mFzJZQyyxM8pE6poruv+Kjb/+RUkvTsNkTZuVt
-         96qRYxTTR2yWmX7bFcA351fbkcPimxdplPwrD3+Y=
+        b=bNY9j0FABERsUb+yT7KmTPTBq5lBrmOhJq3y/ZSzfMIkI79uoAGLzBx7wvh7HhORn
+         NJ3hCzU/bC8GGT2q9WzxZ4ZasXaPiWnwY/f3R04Y6z6qBkJBfoqAD+baWGzFkB+CzT
+         by6fqFH+VdKgUGH2sY8Wt4KhXzfw25k3WseC6To4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Basehore <dbasehore@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 118/179] Input: elan_i2c - only increment wakeup count on touch
-Date:   Mon, 27 Jul 2020 16:04:53 +0200
-Message-Id: <20200727134938.403057177@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 80/86] parisc: Add atomic64_set_release() define to avoid CPU soft lockups
+Date:   Mon, 27 Jul 2020 16:04:54 +0200
+Message-Id: <20200727134918.421854766@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Basehore <dbasehore@chromium.org>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit 966334dfc472bdfa67bed864842943b19755d192 ]
+commit be6577af0cef934ccb036445314072e8cb9217b9 upstream.
 
-This moves the wakeup increment for elan devices to the touch report.
-This prevents the drivers from incorrectly reporting a wakeup when the
-resume callback resets then device, which causes an interrupt to
-occur.
+Stalls are quite frequent with recent kernels. I enabled
+CONFIG_SOFTLOCKUP_DETECTOR and I caught the following stall:
 
-Signed-off-by: Derek Basehore <dbasehore@chromium.org>
-Link: https://lore.kernel.org/r/20200706235046.1984283-1-dbasehore@chromium.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [cc1:22803]
+CPU: 0 PID: 22803 Comm: cc1 Not tainted 5.6.17+ #3
+Hardware name: 9000/800/rp3440
+ IAOQ[0]: d_alloc_parallel+0x384/0x688
+ IAOQ[1]: d_alloc_parallel+0x388/0x688
+ RP(r2): d_alloc_parallel+0x134/0x688
+Backtrace:
+ [<000000004036974c>] __lookup_slow+0xa4/0x200
+ [<0000000040369fc8>] walk_component+0x288/0x458
+ [<000000004036a9a0>] path_lookupat+0x88/0x198
+ [<000000004036e748>] filename_lookup+0xa0/0x168
+ [<000000004036e95c>] user_path_at_empty+0x64/0x80
+ [<000000004035d93c>] vfs_statx+0x104/0x158
+ [<000000004035dfcc>] __do_sys_lstat64+0x44/0x80
+ [<000000004035e5a0>] sys_lstat64+0x20/0x38
+ [<0000000040180054>] syscall_exit+0x0/0x14
+
+The code was stuck in this loop in d_alloc_parallel:
+
+    4037d414:   0e 00 10 dc     ldd 0(r16),ret0
+    4037d418:   c7 fc 5f ed     bb,< ret0,1f,4037d414 <d_alloc_parallel+0x384>
+    4037d41c:   08 00 02 40     nop
+
+This is the inner loop of bit_spin_lock which is called by hlist_bl_unlock in
+d_alloc_parallel:
+
+static inline void bit_spin_lock(int bitnum, unsigned long *addr)
+{
+        /*
+         * Assuming the lock is uncontended, this never enters
+         * the body of the outer loop. If it is contended, then
+         * within the inner loop a non-atomic test is used to
+         * busywait with less bus contention for a good time to
+         * attempt to acquire the lock bit.
+         */
+        preempt_disable();
+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+        while (unlikely(test_and_set_bit_lock(bitnum, addr))) {
+                preempt_enable();
+                do {
+                        cpu_relax();
+                } while (test_bit(bitnum, addr));
+                preempt_disable();
+        }
+#endif
+        __acquire(bitlock);
+}
+
+After consideration, I realized that we must be losing bit unlocks.
+Then, I noticed that we missed defining atomic64_set_release().
+Adding this define fixes the stalls in bit operations.
+
+Signed-off-by: Dave Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/mouse/elan_i2c_core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/parisc/include/asm/atomic.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 8719da5403834..196e8505dd8d7 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -951,6 +951,8 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 	u8 hover_info = packet[ETP_HOVER_INFO_OFFSET];
- 	bool contact_valid, hover_event;
+--- a/arch/parisc/include/asm/atomic.h
++++ b/arch/parisc/include/asm/atomic.h
+@@ -212,6 +212,8 @@ atomic64_set(atomic64_t *v, s64 i)
+ 	_atomic_spin_unlock_irqrestore(v, flags);
+ }
  
-+	pm_wakeup_event(&data->client->dev, 0);
++#define atomic64_set_release(v, i)	atomic64_set((v), (i))
 +
- 	hover_event = hover_info & 0x40;
- 	for (i = 0; i < ETP_MAX_FINGERS; i++) {
- 		contact_valid = tp_info & (1U << (3 + i));
-@@ -974,6 +976,8 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
- 	u8 *packet = &report[ETP_REPORT_ID_OFFSET + 1];
- 	int x, y;
- 
-+	pm_wakeup_event(&data->client->dev, 0);
-+
- 	if (!data->tp_input) {
- 		dev_warn_once(&data->client->dev,
- 			      "received a trackpoint report while no trackpoint device has been created. Please report upstream.\n");
-@@ -998,7 +1002,6 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
- static irqreturn_t elan_isr(int irq, void *dev_id)
+ static __inline__ s64
+ atomic64_read(const atomic64_t *v)
  {
- 	struct elan_tp_data *data = dev_id;
--	struct device *dev = &data->client->dev;
- 	int error;
- 	u8 report[ETP_MAX_REPORT_LEN];
- 
-@@ -1016,8 +1019,6 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- 	if (error)
- 		goto out;
- 
--	pm_wakeup_event(dev, 0);
--
- 	switch (report[ETP_REPORT_ID_OFFSET]) {
- 	case ETP_REPORT_ID:
- 		elan_report_absolute(data, report);
-@@ -1026,7 +1027,7 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- 		elan_report_trackpoint(data, report);
- 		break;
- 	default:
--		dev_err(dev, "invalid report id data (%x)\n",
-+		dev_err(&data->client->dev, "invalid report id data (%x)\n",
- 			report[ETP_REPORT_ID_OFFSET]);
- 	}
- 
--- 
-2.25.1
-
 
 
