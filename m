@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B99722F2D1
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF23D22F1ED
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729089AbgG0OHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55232 "EHLO mail.kernel.org"
+        id S1729966AbgG0Oft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:35:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729064AbgG0OG6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:06:58 -0400
+        id S1730583AbgG0OOm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E5C22078E;
-        Mon, 27 Jul 2020 14:06:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 002DE21744;
+        Mon, 27 Jul 2020 14:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858818;
-        bh=ZGHLr7kALoPqFwJLj/tZqPaw1QXVTJmEq/VIiu3n9H8=;
+        s=default; t=1595859281;
+        bh=YKVuAkV0eYJPZqvXHyFJPRi0u2KKXdveNpN4N5vQAjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1egwd68DsjfVZGRWu6P0Ro5kQ4ZyUvH8a7MsQ9df+gSVHAOUgOJgrJ1wat1VEbNI3
-         59x+0MqZe0JM5uwx/RiJxtBi+zqksS6dpc4/QXJyjFemkRDSbTeDFdizvGYIkFZ8eC
-         VQAdWr7YLa/r3vGlP/QqyNF2AlvkUkU+EjB+Jhc4=
+        b=EMBoOo3Mq8eQbWbC8JG/o8i734tW1XhWvGzeVzCFegYzT4o7xLxqpmXBH/QaYGlG5
+         zPWRWcSUVhw8vw53Z4KqJZo09gefnPR/ajw4W5zYUnnmQxzUI83I1btH8Z88gHi7R1
+         ppIr9z5LOnmaNfRvIx0vEYYYBNqAzrTnhCVXpuxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/64] hippi: Fix a size used in a pci_free_consistent() in an error handling path
-Date:   Mon, 27 Jul 2020 16:04:01 +0200
-Message-Id: <20200727134912.240928673@linuxfoundation.org>
+Subject: [PATCH 5.4 048/138] net: smc91x: Fix possible memory leak in smc_drv_probe()
+Date:   Mon, 27 Jul 2020 16:04:03 +0200
+Message-Id: <20200727134927.757640108@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 3195c4706b00106aa82c73acd28340fa8fc2bfc1 ]
+[ Upstream commit bca9749b1aa23d964d3ab930938af66dbf887f15 ]
 
-The size used when calling 'pci_alloc_consistent()' and
-'pci_free_consistent()' should match.
+If try_toggle_control_gpio() failed in smc_drv_probe(), free_netdev(ndev)
+should be called to free the ndev created earlier. Otherwise, a memleak
+will occur.
 
-Fix it and have it consistent with the corresponding call in 'rr_close()'.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 7d2911c43815 ("net: smc91x: Fix gpios for device tree based booting")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hippi/rrunner.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/smsc/smc91x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/hippi/rrunner.c b/drivers/net/hippi/rrunner.c
-index d7ba2b813effc..40ef4aeb0ef04 100644
---- a/drivers/net/hippi/rrunner.c
-+++ b/drivers/net/hippi/rrunner.c
-@@ -1250,7 +1250,7 @@ static int rr_open(struct net_device *dev)
- 		rrpriv->info = NULL;
- 	}
- 	if (rrpriv->rx_ctrl) {
--		pci_free_consistent(pdev, sizeof(struct ring_ctrl),
-+		pci_free_consistent(pdev, 256 * sizeof(struct ring_ctrl),
- 				    rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
- 		rrpriv->rx_ctrl = NULL;
- 	}
+diff --git a/drivers/net/ethernet/smsc/smc91x.c b/drivers/net/ethernet/smsc/smc91x.c
+index 3a6761131f4c2..2248d26746124 100644
+--- a/drivers/net/ethernet/smsc/smc91x.c
++++ b/drivers/net/ethernet/smsc/smc91x.c
+@@ -2274,7 +2274,7 @@ static int smc_drv_probe(struct platform_device *pdev)
+ 		ret = try_toggle_control_gpio(&pdev->dev, &lp->power_gpio,
+ 					      "power", 0, 0, 100);
+ 		if (ret)
+-			return ret;
++			goto out_free_netdev;
+ 
+ 		/*
+ 		 * Optional reset GPIO configured? Minimum 100 ns reset needed
+@@ -2283,7 +2283,7 @@ static int smc_drv_probe(struct platform_device *pdev)
+ 		ret = try_toggle_control_gpio(&pdev->dev, &lp->reset_gpio,
+ 					      "reset", 0, 0, 100);
+ 		if (ret)
+-			return ret;
++			goto out_free_netdev;
+ 
+ 		/*
+ 		 * Need to wait for optional EEPROM to load, max 750 us according
 -- 
 2.25.1
 
