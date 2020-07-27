@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D4B22FD8A
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B7722FD83
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbgG0X2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:28:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35688 "EHLO mail.kernel.org"
+        id S1728300AbgG0X2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:28:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728275AbgG0XYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:24:34 -0400
+        id S1728291AbgG0XYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:24:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A7AA2177B;
-        Mon, 27 Jul 2020 23:24:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A60512173E;
+        Mon, 27 Jul 2020 23:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892274;
-        bh=NHZ08oRQujbVFK+Fjzy48Flntos+lIZJ5tS94wU6v68=;
+        s=default; t=1595892275;
+        bh=+J6fOoLK985RugK/lghNk9b0GLsZJS34xZ+SIvL3Gdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtueRZJXT8objMn8kWm2cSfg4t23Oa8v0RiWhmvmeXuceYcz6h3t0jDIhR5F6j7Of
-         4k5B8coKQ74r/rzz5nyMFOvwGH0hAruAguYViQn3MAb3n7zWUfRVBJbpJuWbkf+t3Z
-         AjTad4PiHxlNqOl2YFKa52MRHhdq1o5tvr3Q4kS8=
+        b=CIlnm/BGpsR2r4jHFhTzm93BWTKDMoqDUAowxJSXzh0ZwF0fhPLUC6LPQOWcNpa/u
+         mzlJCtBQLGqFfBNZOeoa1MPbI96x6GgZd7ISqhN7DCO9sQ2ZXSHqQTciqxGF2wtmLJ
+         QLleUULIZ9E2UfEa174glVh5dtgXlwOBxq7o4B2o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie He <xie.he.0141@gmail.com>, Eric Dumazet <edumazet@google.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/17] drivers/net/wan/x25_asy: Fix to make it work
-Date:   Mon, 27 Jul 2020 19:24:13 -0400
-Message-Id: <20200727232420.717684-10-sashal@kernel.org>
+Cc:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/17] Revert "i2c: cadence: Fix the hold bit setting"
+Date:   Mon, 27 Jul 2020 19:24:14 -0400
+Message-Id: <20200727232420.717684-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232420.717684-1-sashal@kernel.org>
 References: <20200727232420.717684-1-sashal@kernel.org>
@@ -44,105 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 
-[ Upstream commit 8fdcabeac39824fe67480fd9508d80161c541854 ]
+[ Upstream commit 0db9254d6b896b587759e2c844c277fb1a6da5b9 ]
 
-This driver is not working because of problems of its receiving code.
-This patch fixes it to make it work.
+This reverts commit d358def706880defa4c9e87381c5bf086a97d5f9.
 
-When the driver receives an LAPB frame, it should first pass the frame
-to the LAPB module to process. After processing, the LAPB module passes
-the data (the packet) back to the driver, the driver should then add a
-one-byte pseudo header and pass the data to upper layers.
+There are two issues with "i2c: cadence: Fix the hold bit setting" commit.
 
-The changes to the "x25_asy_bump" function and the
-"x25_asy_data_indication" function are to correctly implement this
-procedure.
+1. In case of combined message request from user space, when the HOLD
+bit is cleared in cdns_i2c_mrecv function, a STOP condition is sent
+on the bus even before the last message is started. This is because when
+the HOLD bit is cleared, the FIFOS are empty and there is no pending
+transfer. The STOP condition should occur only after the last message
+is completed.
 
-Also, the "x25_asy_unesc" function ignores any frame that is shorter
-than 3 bytes. However the shortest frames are 2-byte long. So we need
-to change it to allow 2-byte frames to pass.
+2. The code added by the commit is redundant. Driver is handling the
+setting/clearing of HOLD bit in right way before the commit.
 
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Reviewed-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The setting of HOLD bit based on 'bus_hold_flag' is taken care in
+cdns_i2c_master_xfer function even before cdns_i2c_msend/cdns_i2c_recv
+functions.
+
+The clearing of HOLD bit is taken care at the end of cdns_i2c_msend and
+cdns_i2c_recv functions based on bus_hold_flag and byte count.
+Since clearing of HOLD bit is done after the slave address is written to
+the register (writing to address register triggers the message transfer),
+it is ensured that STOP condition occurs at the right time after
+completion of the pending transfer (last message).
+
+Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/x25_asy.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-cadence.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wan/x25_asy.c b/drivers/net/wan/x25_asy.c
-index 914be58473866..cdcc380b4c268 100644
---- a/drivers/net/wan/x25_asy.c
-+++ b/drivers/net/wan/x25_asy.c
-@@ -183,7 +183,7 @@ static inline void x25_asy_unlock(struct x25_asy *sl)
- 	netif_wake_queue(sl->dev);
- }
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 9d71ce15db050..a51d3b7957701 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -377,10 +377,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+ 	 * Check for the message size against FIFO depth and set the
+ 	 * 'hold bus' bit if it is greater than FIFO depth.
+ 	 */
+-	if ((id->recv_count > CDNS_I2C_FIFO_DEPTH)  || id->bus_hold_flag)
++	if (id->recv_count > CDNS_I2C_FIFO_DEPTH)
+ 		ctrl_reg |= CDNS_I2C_CR_HOLD;
+-	else
+-		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
  
--/* Send one completely decapsulated IP datagram to the IP layer. */
-+/* Send an LAPB frame to the LAPB module to process. */
+ 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
  
- static void x25_asy_bump(struct x25_asy *sl)
- {
-@@ -195,13 +195,12 @@ static void x25_asy_bump(struct x25_asy *sl)
- 	count = sl->rcount;
- 	dev->stats.rx_bytes += count;
+@@ -437,11 +435,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
+ 	 * Check for the message size against FIFO depth and set the
+ 	 * 'hold bus' bit if it is greater than FIFO depth.
+ 	 */
+-	if ((id->send_count > CDNS_I2C_FIFO_DEPTH) || id->bus_hold_flag)
++	if (id->send_count > CDNS_I2C_FIFO_DEPTH)
+ 		ctrl_reg |= CDNS_I2C_CR_HOLD;
+-	else
+-		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
+-
+ 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
  
--	skb = dev_alloc_skb(count+1);
-+	skb = dev_alloc_skb(count);
- 	if (skb == NULL) {
- 		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
- 		dev->stats.rx_dropped++;
- 		return;
- 	}
--	skb_push(skb, 1);	/* LAPB internal control */
- 	skb_put_data(skb, sl->rbuff, count);
- 	skb->protocol = x25_type_trans(skb, sl->dev);
- 	err = lapb_data_received(skb->dev, skb);
-@@ -209,7 +208,6 @@ static void x25_asy_bump(struct x25_asy *sl)
- 		kfree_skb(skb);
- 		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
- 	} else {
--		netif_rx(skb);
- 		dev->stats.rx_packets++;
- 	}
- }
-@@ -356,12 +354,21 @@ static netdev_tx_t x25_asy_xmit(struct sk_buff *skb,
-  */
- 
- /*
-- *	Called when I frame data arrives. We did the work above - throw it
-- *	at the net layer.
-+ *	Called when I frame data arrive. We add a pseudo header for upper
-+ *	layers and pass it to upper layers.
-  */
- 
- static int x25_asy_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
-+		return NET_RX_DROP;
-+	}
-+	skb_push(skb, 1);
-+	skb->data[0] = X25_IFACE_DATA;
-+
-+	skb->protocol = x25_type_trans(skb, dev);
-+
- 	return netif_rx(skb);
- }
- 
-@@ -657,7 +664,7 @@ static void x25_asy_unesc(struct x25_asy *sl, unsigned char s)
- 	switch (s) {
- 	case X25_END:
- 		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
--		    sl->rcount > 2)
-+		    sl->rcount >= 2)
- 			x25_asy_bump(sl);
- 		clear_bit(SLF_ESCAPE, &sl->flags);
- 		sl->rcount = 0;
+ 	/* Clear the interrupts in interrupt status register. */
 -- 
 2.25.1
 
