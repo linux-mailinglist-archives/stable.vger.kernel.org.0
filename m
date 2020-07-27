@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E7D22F07F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD7C22EF84
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732337AbgG0OZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
+        id S1730376AbgG0ORC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:17:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731766AbgG0OZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:25:03 -0400
+        id S1730987AbgG0ORC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:17:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 406E0208E4;
-        Mon, 27 Jul 2020 14:25:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 776602177B;
+        Mon, 27 Jul 2020 14:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859902;
-        bh=o0bUSa9r+WlA838mzYXVW27gR8YIWsM5ux2NTn9EUyw=;
+        s=default; t=1595859422;
+        bh=kB41gXh/gK69Ub+thQTzV8vVMeVaJNEl8ZZLFyl95ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIbseOZwME5GsAa3aZxt3bEDHeoafEFJo863GzobiC/YgUOzsOFsnG57GN5ZH9+4k
-         sE5x4v8eJBeDztrG+eOZf3+flEFtg+g12XyFGzffeqMWSNze5oBBQRWsvoedN1fzkh
-         TFvfdToZQ4whhDCmlx1CI8CDKeZRAODebiVNo4rI=
+        b=N1dJV1cJw8MRG0U+1IaNdHybmeYpXJSrop5ojdXEKdsvlquQRV2OMJYIR1cNHRXNV
+         d/Pp42VSd5/Pu5yn5jmRW+bzxnrHG5sYjmC8i0L9nTUQ4WSiN7Qcc46cjcVxyXjQ1d
+         ToZj/B4Z7oJ6uobwnx7Ci6TdbcdEzG1t5WZB3b4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 120/179] usb: dwc3: pci: add support for the Intel Jasper Lake
+Subject: [PATCH 5.4 100/138] x86: math-emu: Fix up cmp insn for clang ias
 Date:   Mon, 27 Jul 2020 16:04:55 +0200
-Message-Id: <20200727134938.497772289@linuxfoundation.org>
+Message-Id: <20200727134930.369651374@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e25d1e8532c3d84f075deca1580a7d61e0f43ce6 ]
+[ Upstream commit 81e96851ea32deb2c921c870eecabf335f598aeb ]
 
-This patch adds the necessary PCI ID for Intel Jasper Lake
-devices.
+The clang integrated assembler requires the 'cmp' instruction to
+have a length prefix here:
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+arch/x86/math-emu/wm_sqrt.S:212:2: error: ambiguous instructions require an explicit suffix (could be 'cmpb', 'cmpw', or 'cmpl')
+ cmp $0xffffffff,-24(%ebp)
+ ^
+
+Make this a 32-bit comparison, which it was clearly meant to be.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lkml.kernel.org/r/20200527135352.1198078-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/math-emu/wm_sqrt.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 47b7e83d90626..139474c3e77b1 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -39,6 +39,7 @@
- #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
- #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
- #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
-+#define PCI_DEVICE_ID_INTEL_JSP			0x4dee
+diff --git a/arch/x86/math-emu/wm_sqrt.S b/arch/x86/math-emu/wm_sqrt.S
+index f031c0e193565..515cdee90df72 100644
+--- a/arch/x86/math-emu/wm_sqrt.S
++++ b/arch/x86/math-emu/wm_sqrt.S
+@@ -209,7 +209,7 @@ sqrt_stage_2_finish:
  
- #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
- #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
-@@ -362,6 +363,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPH),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+ #ifdef PARANOID
+ /* It should be possible to get here only if the arg is ffff....ffff */
+-	cmp	$0xffffffff,FPU_fsqrt_arg_1
++	cmpl	$0xffffffff,FPU_fsqrt_arg_1
+ 	jnz	sqrt_stage_2_error
+ #endif /* PARANOID */
  
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
-+
- 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
- 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
- 	{  }	/* Terminating Entry */
 -- 
 2.25.1
 
