@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E7D22EEE4
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A86222EEE7
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729417AbgG0OLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:11:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35316 "EHLO mail.kernel.org"
+        id S1729473AbgG0OLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729462AbgG0OLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:11:37 -0400
+        id S1729239AbgG0OLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:11:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65FFE20838;
-        Mon, 27 Jul 2020 14:11:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3AFE2083E;
+        Mon, 27 Jul 2020 14:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859096;
-        bh=xktWI9fCSwXjPxNTjhqPpZdgrshtIPyzhmM3HwvBRKA=;
+        s=default; t=1595859099;
+        bh=QeYImvGnpz91Ee2T2NshMXtxBus8Lw1i2ipm1jF76UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWLEP6upG5Dz/q1hcPwQII5uF100NQ0CTyzlP0fppA32+k6/ypBuuxcyN0h8NBYzs
-         y/58vo040o74iEOadBZK2E9uofibE/vntFmDAR816ATBrRza34NUTlb8ptNN0JCcqi
-         6CkMKkc/iB19In2jkad1QHeyq1g2t1vB2EU7Ur0w=
+        b=m2+HnHS+Vst38t+bCX9UHDMfWHAj+G0skcboekOTVXU191NXeynOZ9y2lAwfheD+E
+         DRAEL6BvJaEOytAlsUNldyuqOg1xjKAAmUDjHx8bh7mrPYE8aW68T3AAWGLHXvHqSP
+         jrj3ym+ulA5qmGxQRj3HU6hi/NnMmAkpz2FUtNIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/86] mlxsw: destroy workqueue when trap_register in mlxsw_emad_init
-Date:   Mon, 27 Jul 2020 16:04:08 +0200
-Message-Id: <20200727134916.147556225@linuxfoundation.org>
+Subject: [PATCH 4.19 35/86] qed: suppress "dont support RoCE & iWARP" flooding on HW init
+Date:   Mon, 27 Jul 2020 16:04:09 +0200
+Message-Id: <20200727134916.195608026@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
 References: <20200727134914.312934924@linuxfoundation.org>
@@ -45,43 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit 5dbaeb87f2b309936be0aeae00cbc9e7f20ab296 ]
+[ Upstream commit 1ea999039fe7c7953da2fbb7ca7c3ef00064d328 ]
 
-When mlxsw_core_trap_register fails in mlxsw_emad_init,
-destroy_workqueue() shouled be called to destroy mlxsw_core->emad_wq.
+Change the verbosity of the "don't support RoCE & iWARP simultaneously"
+warning to debug level to stop flooding on driver/hardware initialization:
 
-Fixes: d965465b60ba ("mlxsw: core: Fix possible deadlock")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Reviewed-by: Ido Schimmel <idosch@mellanox.com>
+[    4.783230] qede 01:00.00: Storm FW 8.37.7.0, Management FW 8.52.9.0
+[MBI 15.10.6] [eth0]
+[    4.810020] [qed_rdma_set_pf_params:2076()]Current day drivers don't
+support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only
+[    4.861186] qede 01:00.01: Storm FW 8.37.7.0, Management FW 8.52.9.0
+[MBI 15.10.6] [eth1]
+[    4.893311] [qed_rdma_set_pf_params:2076()]Current day drivers don't
+support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only
+[    5.181713] qede a1:00.00: Storm FW 8.37.7.0, Management FW 8.52.9.0
+[MBI 15.10.6] [eth2]
+[    5.224740] [qed_rdma_set_pf_params:2076()]Current day drivers don't
+support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only
+[    5.276449] qede a1:00.01: Storm FW 8.37.7.0, Management FW 8.52.9.0
+[MBI 15.10.6] [eth3]
+[    5.318671] [qed_rdma_set_pf_params:2076()]Current day drivers don't
+support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only
+[    5.369548] qede a1:00.02: Storm FW 8.37.7.0, Management FW 8.52.9.0
+[MBI 15.10.6] [eth4]
+[    5.411645] [qed_rdma_set_pf_params:2076()]Current day drivers don't
+support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only
+
+Fixes: e0a8f9de16fc ("qed: Add iWARP enablement support")
+Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_cxt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core.c b/drivers/net/ethernet/mellanox/mlxsw/core.c
-index 2e6df5804b356..e180ec4f1a248 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
-@@ -587,7 +587,7 @@ static int mlxsw_emad_init(struct mlxsw_core *mlxsw_core)
- 	err = mlxsw_core_trap_register(mlxsw_core, &mlxsw_emad_rx_listener,
- 				       mlxsw_core);
- 	if (err)
--		return err;
-+		goto err_trap_register;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_cxt.c b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
+index f3d7c38f539a8..734462f8d881c 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_cxt.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
+@@ -2074,8 +2074,8 @@ static void qed_rdma_set_pf_params(struct qed_hwfn *p_hwfn,
+ 	num_srqs = min_t(u32, QED_RDMA_MAX_SRQS, p_params->num_srqs);
  
- 	err = mlxsw_core->driver->basic_trap_groups_set(mlxsw_core);
- 	if (err)
-@@ -599,6 +599,7 @@ static int mlxsw_emad_init(struct mlxsw_core *mlxsw_core)
- err_emad_trap_set:
- 	mlxsw_core_trap_unregister(mlxsw_core, &mlxsw_emad_rx_listener,
- 				   mlxsw_core);
-+err_trap_register:
- 	destroy_workqueue(mlxsw_core->emad_wq);
- 	return err;
- }
+ 	if (p_hwfn->mcp_info->func_info.protocol == QED_PCI_ETH_RDMA) {
+-		DP_NOTICE(p_hwfn,
+-			  "Current day drivers don't support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only\n");
++		DP_VERBOSE(p_hwfn, QED_MSG_SP,
++			   "Current day drivers don't support RoCE & iWARP simultaneously on the same PF. Default to RoCE-only\n");
+ 		p_hwfn->hw_info.personality = QED_PCI_ETH_ROCE;
+ 	}
+ 
 -- 
 2.25.1
 
