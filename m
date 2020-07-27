@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A06722EE49
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C4022F002
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbgG0OGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:06:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54618 "EHLO mail.kernel.org"
+        id S1731671AbgG0OVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728731AbgG0OGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:06:36 -0400
+        id S1731638AbgG0OVH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:21:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B14152078E;
-        Mon, 27 Jul 2020 14:06:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6C22070A;
+        Mon, 27 Jul 2020 14:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858796;
-        bh=shIKid6cw6jYyOMlV06L01pOqhOTRO7eh6ZaGm2irg0=;
+        s=default; t=1595859666;
+        bh=XQDfGytVTpKeb+agTuSXemU8hW+k5+3VzA9zL6czwig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILcZEikIj8qL0TbUb7NT4khqWZwSjFnip9eXv7xBHOwDAJ+2fLBzOOZbTYGRrhSPP
-         RbhZT3pPQL4i1daNFbC0QF9xlAqSLOHhbNl3fdTscwWD1F4QbeBwWmTZRXoGYskQBt
-         HLSqf1XLgEYJ6jnsqGQay/zqJFw0OygzyBQtx1dU=
+        b=PKupiYhceYfqkN7aiWz7u4BtA9LJj1hp5mUgv9FBn9/JviRa0NAkUogzGLBWwSP74
+         yxk7CE8stMMqaInIo3A1sgl4P4ZJ+6DhKGa1LGaOGD9MFzB02ruAVozM6MBRV7KP3W
+         1FM9Epa/2SVdacz92E2jw3ihdMMo9xTI4JpqLofg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Merey <amerey@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Subject: [PATCH 4.14 15/64] uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 059/179] ieee802154: fix one possible memleak in adf7242_probe
 Date:   Mon, 27 Jul 2020 16:03:54 +0200
-Message-Id: <20200727134911.786692606@linuxfoundation.org>
+Message-Id: <20200727134935.545552337@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a upstream.
+[ Upstream commit 66673f96f0f968b991dc38be06102246919c663c ]
 
-If a tracee is uprobed and it hits int3 inserted by debugger, handle_swbp()
-does send_sig(SIGTRAP, current, 0) which means si_code == SI_USER. This used
-to work when this code was written, but then GDB started to validate si_code
-and now it simply can't use breakpoints if the tracee has an active uprobe:
+When probe fail, we should destroy the workqueue.
 
-	# cat test.c
-	void unused_func(void)
-	{
-	}
-	int main(void)
-	{
-		return 0;
-	}
-
-	# gcc -g test.c -o test
-	# perf probe -x ./test -a unused_func
-	# perf record -e probe_test:unused_func gdb ./test -ex run
-	GNU gdb (GDB) 10.0.50.20200714-git
-	...
-	Program received signal SIGTRAP, Trace/breakpoint trap.
-	0x00007ffff7ddf909 in dl_main () from /lib64/ld-linux-x86-64.so.2
-	(gdb)
-
-The tracee hits the internal breakpoint inserted by GDB to monitor shared
-library events but GDB misinterprets this SIGTRAP and reports a signal.
-
-Change handle_swbp() to use force_sig(SIGTRAP), this matches do_int3_user()
-and fixes the problem.
-
-This is the minimal fix for -stable, arch/x86/kernel/uprobes.c is equally
-wrong; it should use send_sigtrap(TRAP_TRACE) instead of send_sig(SIGTRAP),
-but this doesn't confuse GDB and needs another x86-specific patch.
-
-Reported-by: Aaron Merey <amerey@redhat.com>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200723154420.GA32043@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2795e8c25161 ("net: ieee802154: fix a potential NULL pointer dereference")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Link: https://lore.kernel.org/r/20200717090121.2143-1-liujian56@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/uprobes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ieee802154/adf7242.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -1893,7 +1893,7 @@ static void handle_swbp(struct pt_regs *
- 	if (!uprobe) {
- 		if (is_swbp > 0) {
- 			/* No matching uprobe; signal SIGTRAP. */
--			send_sig(SIGTRAP, current, 0);
-+			force_sig(SIGTRAP, current);
- 		} else {
- 			/*
- 			 * Either we raced with uprobe_unregister() or we can't
+diff --git a/drivers/net/ieee802154/adf7242.c b/drivers/net/ieee802154/adf7242.c
+index 5a37514e42347..8dbccec6ac866 100644
+--- a/drivers/net/ieee802154/adf7242.c
++++ b/drivers/net/ieee802154/adf7242.c
+@@ -1262,7 +1262,7 @@ static int adf7242_probe(struct spi_device *spi)
+ 					     WQ_MEM_RECLAIM);
+ 	if (unlikely(!lp->wqueue)) {
+ 		ret = -ENOMEM;
+-		goto err_hw_init;
++		goto err_alloc_wq;
+ 	}
+ 
+ 	ret = adf7242_hw_init(lp);
+@@ -1294,6 +1294,8 @@ static int adf7242_probe(struct spi_device *spi)
+ 	return ret;
+ 
+ err_hw_init:
++	destroy_workqueue(lp->wqueue);
++err_alloc_wq:
+ 	mutex_destroy(&lp->bmux);
+ 	ieee802154_free_hw(lp->hw);
+ 
+-- 
+2.25.1
+
 
 
