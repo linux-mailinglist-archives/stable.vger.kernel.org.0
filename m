@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC7222F051
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C9C22F0D5
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732113AbgG0OXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
+        id S1731549AbgG0O1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732106AbgG0OXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:23:33 -0400
+        id S1730881AbgG0OZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:25:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADF942070A;
-        Mon, 27 Jul 2020 14:23:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1075D22B43;
+        Mon, 27 Jul 2020 14:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859813;
-        bh=Fdxxx/6s/07AQaFKa9HaHxd0Er/Fjo+qamSOf3sgGZI=;
+        s=default; t=1595859915;
+        bh=myRiqgsrgu8L7BwSvXexwZdTgvqMXP0UprAQ0a3Razo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqTHJ1WTEUp4OcDKrvPp/cbz+RPsDPm0Au2OqLDr7/jxrNubHYgGS0NYHEyoPRdD+
-         LZZrUgpI0XVVpYAitAIrXhV/gt3wzbAJqiFJdrzF8VQERFNp1rFRfTsGwIkI5CMQzZ
-         Q2HcSRT7mtPAZtarws06+IJjY2ZPEWw4wHfGc7IM=
+        b=HlZ/kfucsHTK+a/XTARJpGkz36EQCd8gU4nRAoT9J0BnX/noIU2VQShJdzD6a9xQ0
+         xFxkqptTRVoEJzvrQfRRGuKQxH2dWFCkc/JewPQNoyiCgo/sYScUGPnhVfwxwj5iX3
+         1kjdecElzoIgJU/q58Wyy5MXkH7ouxtfsWy0RcbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 114/179] hwmon: (aspeed-pwm-tacho) Avoid possible buffer overflow
-Date:   Mon, 27 Jul 2020 16:04:49 +0200
-Message-Id: <20200727134938.207084422@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Angelo Dureghello <angelo.dureghello@timesys.com>,
+        kbuild test robot <lkp@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 115/179] dmaengine: fsl-edma: fix wrong tcd endianness for big-endian cpu
+Date:   Mon, 27 Jul 2020 16:04:50 +0200
+Message-Id: <20200727134938.256828085@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -44,39 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Angelo Dureghello <angelo.dureghello@timesys.com>
 
-[ Upstream commit bc4071aafcf4d0535ee423b69167696d6c03207d ]
+[ Upstream commit 8678c71c17721e0f771f135967ef0cce8f69ce9a ]
 
-aspeed_create_fan() reads a pwm_port value using of_property_read_u32().
-If pwm_port will be more than ARRAY_SIZE(pwm_port_params), there will be
-a buffer overflow in
-aspeed_create_pwm_port()->aspeed_set_pwm_port_enable(). The patch fixes
-the potential buffer overflow.
+Due to recent fixes in m68k arch-specific I/O accessor macros, this
+driver is not working anymore for ColdFire. Fix wrong tcd endianness
+removing additional swaps, since edma_writex() functions should already
+take care of any eventual swap if needed.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Note, i could only test the change in ColdFire mcf54415 and Vybrid
+vf50 / Colibri where i don't see any issue. So, every feedback and
+test for all other SoCs involved is really appreciated.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Link: https://lore.kernel.org/r/20200703111518.9644-1-novikov@ispras.ru
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20200701225205.1674463-1-angelo.dureghello@timesys.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/aspeed-pwm-tacho.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/fsl-edma-common.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/hwmon/aspeed-pwm-tacho.c b/drivers/hwmon/aspeed-pwm-tacho.c
-index 33fb54845bf6d..3d8239fd66ed6 100644
---- a/drivers/hwmon/aspeed-pwm-tacho.c
-+++ b/drivers/hwmon/aspeed-pwm-tacho.c
-@@ -851,6 +851,8 @@ static int aspeed_create_fan(struct device *dev,
- 	ret = of_property_read_u32(child, "reg", &pwm_port);
- 	if (ret)
- 		return ret;
-+	if (pwm_port >= ARRAY_SIZE(pwm_port_params))
-+		return -EINVAL;
- 	aspeed_create_pwm_port(priv, (u8)pwm_port);
+diff --git a/drivers/dma/fsl-edma-common.c b/drivers/dma/fsl-edma-common.c
+index 5697c3622699b..9285884758b27 100644
+--- a/drivers/dma/fsl-edma-common.c
++++ b/drivers/dma/fsl-edma-common.c
+@@ -352,26 +352,28 @@ static void fsl_edma_set_tcd_regs(struct fsl_edma_chan *fsl_chan,
+ 	/*
+ 	 * TCD parameters are stored in struct fsl_edma_hw_tcd in little
+ 	 * endian format. However, we need to load the TCD registers in
+-	 * big- or little-endian obeying the eDMA engine model endian.
++	 * big- or little-endian obeying the eDMA engine model endian,
++	 * and this is performed from specific edma_write functions
+ 	 */
+ 	edma_writew(edma, 0,  &regs->tcd[ch].csr);
+-	edma_writel(edma, le32_to_cpu(tcd->saddr), &regs->tcd[ch].saddr);
+-	edma_writel(edma, le32_to_cpu(tcd->daddr), &regs->tcd[ch].daddr);
  
- 	ret = of_property_count_u8_elems(child, "cooling-levels");
+-	edma_writew(edma, le16_to_cpu(tcd->attr), &regs->tcd[ch].attr);
+-	edma_writew(edma, le16_to_cpu(tcd->soff), &regs->tcd[ch].soff);
++	edma_writel(edma, (s32)tcd->saddr, &regs->tcd[ch].saddr);
++	edma_writel(edma, (s32)tcd->daddr, &regs->tcd[ch].daddr);
+ 
+-	edma_writel(edma, le32_to_cpu(tcd->nbytes), &regs->tcd[ch].nbytes);
+-	edma_writel(edma, le32_to_cpu(tcd->slast), &regs->tcd[ch].slast);
++	edma_writew(edma, (s16)tcd->attr, &regs->tcd[ch].attr);
++	edma_writew(edma, tcd->soff, &regs->tcd[ch].soff);
+ 
+-	edma_writew(edma, le16_to_cpu(tcd->citer), &regs->tcd[ch].citer);
+-	edma_writew(edma, le16_to_cpu(tcd->biter), &regs->tcd[ch].biter);
+-	edma_writew(edma, le16_to_cpu(tcd->doff), &regs->tcd[ch].doff);
++	edma_writel(edma, (s32)tcd->nbytes, &regs->tcd[ch].nbytes);
++	edma_writel(edma, (s32)tcd->slast, &regs->tcd[ch].slast);
+ 
+-	edma_writel(edma, le32_to_cpu(tcd->dlast_sga),
++	edma_writew(edma, (s16)tcd->citer, &regs->tcd[ch].citer);
++	edma_writew(edma, (s16)tcd->biter, &regs->tcd[ch].biter);
++	edma_writew(edma, (s16)tcd->doff, &regs->tcd[ch].doff);
++
++	edma_writel(edma, (s32)tcd->dlast_sga,
+ 			&regs->tcd[ch].dlast_sga);
+ 
+-	edma_writew(edma, le16_to_cpu(tcd->csr), &regs->tcd[ch].csr);
++	edma_writew(edma, (s16)tcd->csr, &regs->tcd[ch].csr);
+ }
+ 
+ static inline
 -- 
 2.25.1
 
