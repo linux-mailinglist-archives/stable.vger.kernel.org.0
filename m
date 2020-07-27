@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A4C22FB4F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 23:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A72222FB54
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 23:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726890AbgG0VYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 17:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49864 "EHLO mail.kernel.org"
+        id S1726859AbgG0VYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 17:24:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726863AbgG0VYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 17:24:44 -0400
+        id S1726846AbgG0VYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 17:24:45 -0400
 Received: from localhost (unknown [13.85.75.251])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77B4620A8B;
-        Mon, 27 Jul 2020 21:24:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6300320809;
+        Mon, 27 Jul 2020 21:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595885083;
-        bh=Jkej5hTuT8wUPO2QxOTs/AV6JefaRokjUvxxqW5U/5s=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=pwsvxqwmmRVhWRjQV8ZN8cTf6yvuN88nH6rBr2L2M0BpXetrMJG243s0usJz/OTdh
-         LrCCd6NqsgfjPIEiwTg15mwUR5rnKy6bBPpMzd3OUaXGHKkmxzK6vOK7mojW5Mz31L
-         HuOIeMIv7b89497XrzOSJqlv3u3M4Xq1IW7hDhM8=
-Date:   Mon, 27 Jul 2020 21:24:42 +0000
+        s=default; t=1595885084;
+        bh=iZs/YNdw8Qu+Yk7iYYu8kLcOVP0Gfdc/QojMyHdgvC0=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=FQuXrMUdM2g5+U5CphrPkQNG49cMF5W8a7Euj3BuP0HaYDu/lyNYtq1A5cs1SKV9G
+         l/dNYzpfUs2yJLmEUtsE+32mdJMbxFVAJHoHqkOzxN2LleQbMZVD49hNwukty8BxOg
+         EZNPynY4H49QsIU9+Nb7fvfb4Dqjw8Akj1ECNTvk=
+Date:   Mon, 27 Jul 2020 21:24:43 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Coly Li <colyli@suse.de>
-To:     axboe@kernel.dk
-Cc:     linux-block@vger.kernel.org, linux-bcache@vger.kernel.org
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org
+Cc:     CQ Tang <cq.tang@intel.com>
+Cc:     Daniel Vetter <daniel.vetter@intel.com>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 07/25] bcache: avoid nr_stripes overflow in bcache_device_init()
-In-Reply-To: <20200725120039.91071-8-colyli@suse.de>
-References: <20200725120039.91071-8-colyli@suse.de>
-Message-Id: <20200727212443.77B4620A8B@mail.kernel.org>
+Subject: Re: [PATCH 3/3] drm/i915/gem: Serialise debugfs i915_gem_objects with ctx->mutex
+In-Reply-To: <20200723172119.17649-3-chris@chris-wilson.co.uk>
+References: <20200723172119.17649-3-chris@chris-wilson.co.uk>
+Message-Id: <20200727212444.6300320809@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -49,89 +52,76 @@ The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.7.10, v5.4.53, v4.19.134, v4.14.189, v4.9.231, v4.4.231.
 
-v5.7.10: Failed to apply! Possible dependencies:
-    46f5aa8806e3 ("bcache: Convert pr_<level> uses to a more typical style")
-
+v5.7.10: Build OK!
 v5.4.53: Failed to apply! Possible dependencies:
-    253a99d95d5b ("bcache: move macro btree() and btree_root() into btree.h")
-    46f5aa8806e3 ("bcache: Convert pr_<level> uses to a more typical style")
-    49d08d596e85 ("bcache: check return value of prio_read()")
-    8e7102273f59 ("bcache: make bch_btree_check() to be multithreaded")
-    aaf8dbeab586 ("bcache: add more accurate error messages in read_super()")
-    b144e45fc576 ("bcache: make bch_sectors_dirty_init() to be multithreaded")
-    feac1a70b806 ("bcache: add bcache_ prefix to btree_root() and btree() macros")
+    061489c65ff5 ("drm/i915/dsb: single register write function for DSB.")
+    11988e393813 ("drm/i915/execlists: Try rearranging breadcrumb flush")
+    2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
+    5a90606df7cb ("drm/i915: Replace obj->pin_global with obj->frontbuffer")
+    67f3b58f3bac ("drm/i915/dsb: DSB context creation.")
+    8a9a982767b7 ("drm/i915: use a separate context for gpu relocs")
+    a4e7ccdac38e ("drm/i915: Move context management under GEM")
+    b27a96ad72fd ("drm/i915/dsb: Indexed register write function for DSB.")
+    bb120e1171a9 ("drm/i915: Show the logical context ring state on dumping")
+    c210e85b8f33 ("drm/i915/tgl: Extend MI_SEMAPHORE_WAIT")
+    d19d71fc2b15 ("drm/i915: Mark i915_request.timeline as a volatile, rcu pointer")
+    e8f6b4952ec5 ("drm/i915/execlists: Flush the post-sync breadcrumb write harder")
 
 v4.19.134: Failed to apply! Possible dependencies:
-    0b13efecf5f2 ("bcache: add return value check to bch_cached_dev_run()")
-    253a99d95d5b ("bcache: move macro btree() and btree_root() into btree.h")
-    2aa8c529387c ("bcache: avoid unnecessary btree nodes flushing in btree_flush_write()")
-    46f5aa8806e3 ("bcache: Convert pr_<level> uses to a more typical style")
-    49d08d596e85 ("bcache: check return value of prio_read()")
-    4b6efb4bdbce ("bcache: more detailed error message to bcache_device_link()")
-    4e361e020e72 ("bcache: update comment in sysfs.c")
-    5d9e06d60eee ("bcache: fix possible memory leak in bch_cached_dev_run()")
-    792732d9852c ("bcache: use kmemdup_nul for CACHED_LABEL buffer")
-    88c12d42d2bb ("bcache: add error check for calling register_bdev()")
-    89e0341af082 ("bcache: use sysfs_match_string() instead of __sysfs_match_string()")
-    8e7102273f59 ("bcache: make bch_btree_check() to be multithreaded")
-    91be66e1318f ("bcache: performance improvement for btree_flush_write()")
-    aaf8dbeab586 ("bcache: add more accurate error messages in read_super()")
-    cb07ad63682f ("bcache: introduce force_wake_up_gc()")
-    e0faa3d7f79f ("bcache: improve error message in bch_cached_dev_run()")
-    f54478c6e226 ("bcache: fix input integer overflow of congested threshold")
-    feac1a70b806 ("bcache: add bcache_ prefix to btree_root() and btree() macros")
+    0258404f9d38 ("drm/i915: start moving runtime device info to a separate struct")
+    026844460743 ("drm/i915: Remove intel_context.active_link")
+    07d805721938 ("drm/i915: Introduce intel_runtime_pm_disable to pair intel_runtime_pm_enable")
+    13f1bfd3b332 ("drm/i915: Make object/vma allocation caches global")
+    1c71bc565cdb ("drm/i915/perf: simplify configure all context function")
+    2cc8376fd350 ("drm/i915: rename dev_priv info to __info to avoid usage")
+    2cd9a689e97b ("drm/i915: Refactor intel_display_set_init_power() logic")
+    37d7c9cc2eb6 ("drm/i915: Check engine->default_state mapping on module load")
+    55ac5a1614f9 ("drm/i915: Attach the pci match data to the device upon creation")
+    666424abfb86 ("drm/i915/execlists: Use coherent writes into the context image")
+    6dfc4a8f134f ("drm/i915: Verify power domains after enabling them")
+    722f3de39e03 ("i915/oa: Simplify updating contexts")
+    900ccf30f9e1 ("drm/i915: Only force GGTT coherency w/a on required chipsets")
+    c4d52feb2c46 ("drm/i915: Move over to intel_context_lookup()")
+    f6e8aa387171 ("drm/i915: Report the number of closed vma held by each context in debugfs")
+    fa9f668141f4 ("drm/i915: Export intel_context_instance()")
 
 v4.14.189: Failed to apply! Possible dependencies:
-    1d316e658374 ("bcache: implement PI controller for writeback rate")
-    1dbe32ad0a82 ("bcache: rewrite multiple partitions support")
-    25d8be77e192 ("block: move bio_alloc_pages() to bcache")
-    27a40ab9269e ("bcache: add backing_request_endio() for bi_end_io")
-    3b304d24a718 ("bcache: convert cached_dev.count from atomic_t to refcount_t")
-    3fd47bfe55b0 ("bcache: stop dc->writeback_rate_update properly")
-    46f5aa8806e3 ("bcache: Convert pr_<level> uses to a more typical style")
-    5138ac6748e3 ("bcache: fix misleading error message in bch_count_io_errors()")
-    539d39eb2708 ("bcache: fix wrong return value in bch_debug_init()")
-    5f2b18ec8e16 ("bcache: Fix a compiler warning in bcache_device_init()")
-    6ae63e3501c4 ("bcache: replace printk() by pr_*() routines")
-    6f10f7d1b02b ("bcache: style fix to replace 'unsigned' by 'unsigned int'")
-    771f393e8ffc ("bcache: add CACHE_SET_IO_DISABLE to struct cache_set flags")
-    804f3c6981f5 ("bcache: fix cached_dev->count usage for bch_cache_set_error()")
-    b1092c9af9ed ("bcache: allow quick writeback when backing idle")
-    d19936a26658 ("bcache: convert to bioset_init()/mempool_init()")
-    d44c2f9e7cc0 ("bcache: update bucket_in_use in real time")
+    3bd4073524fa ("drm/i915: Consolidate get_fence with pin_fence")
+    465c403cb508 ("drm/i915: introduce simple gemfs")
+    66df1014efba ("drm/i915: Keep a small stash of preallocated WC pages")
+    67b48040255b ("drm/i915: Assert that the handle->vma lut is empty on object close")
+    73ebd503034c ("drm/i915: make mappable struct resource centric")
+    7789422665f5 ("drm/i915: make dsm struct resource centric")
+    82ad6443a55e ("drm/i915/gtt: Rename i915_hw_ppgtt base member")
+    969b0950a188 ("drm/i915: Add interface to reserve fence registers for vGPU")
+    a65adaf8a834 ("drm/i915: Track user GTT faulting per-vma")
+    b4563f595ed4 ("drm/i915: Pin fence for iomap")
+    e91ef99b9543 ("drm/i915/selftests: Remember to create the fake preempt context")
+    f6e8aa387171 ("drm/i915: Report the number of closed vma held by each context in debugfs")
+    f773568b6ff8 ("drm/i915: nuke the duplicated stolen discovery")
 
 v4.9.231: Failed to apply! Possible dependencies:
-    011067b05668 ("blk: replace bioset_create_nobvec() with a flags arg to bioset_create()")
-    10273170fd56 ("md: fail if mddev->bio_set can't be created")
-    109e37653033 ("md: add block tracing for bio_remapping")
-    1dbe32ad0a82 ("bcache: rewrite multiple partitions support")
-    2e52d449bcec ("md/raid1: add failfast handling for reads.")
-    3b046a97cbd3 ("md/raid1: Refactor raid1_make_request")
-    47e0fb461fca ("blk: make the bioset rescue_workqueue optional.")
-    578b54ade8a5 ("md/raid1, raid10: add blktrace records when IO is delayed")
-    5e2c7a361197 ("md/raid1: abort delayed writes when device fails.")
-    5f2b18ec8e16 ("bcache: Fix a compiler warning in bcache_device_init()")
-    b8c0d911ac52 ("bcache: partition support: add 16 minors per bcacheN device")
-    c230e7e53526 ("md/raid1: simplify the splitting of requests.")
-    f2c771a65504 ("md/raid1: fix: IO can block resync indefinitely")
-    fd76863e37fe ("RAID1: a new I/O barrier implementation to remove resync window")
+    0e70447605f4 ("drm/i915: Move common code out of i915_gpu_error.c")
+    1b36595ffb35 ("drm/i915: Show RING registers through debugfs")
+    28a60dee2ce6 ("drm/i915/gvt: vGPU HW resource management")
+    3b3f1650b1ca ("drm/i915: Allocate intel_engine_cs structure only for the enabled engines")
+    82ad6443a55e ("drm/i915/gtt: Rename i915_hw_ppgtt base member")
+    85fd4f58d7ef ("drm/i915: Mark all non-vma being inserted into the address spaces")
+    9c870d03674f ("drm/i915: Use RPM as the barrier for controlling user mmap access")
+    bb6dc8d96b68 ("drm/i915: Implement pread without struct-mutex")
+    d636951ec01b ("drm/i915: Cleanup instdone collection")
+    e007b19d7ba7 ("drm/i915: Use the MRU stack search after evicting")
+    f6e8aa387171 ("drm/i915: Report the number of closed vma held by each context in debugfs")
+    f9e613728090 ("drm/i915: Try to print INSTDONE bits for all slice/subslice")
 
 v4.4.231: Failed to apply! Possible dependencies:
-    011067b05668 ("blk: replace bioset_create_nobvec() with a flags arg to bioset_create()")
-    0e5313e2d4ef ("raid10: improve random reads performance")
-    10273170fd56 ("md: fail if mddev->bio_set can't be created")
-    1dbe32ad0a82 ("bcache: rewrite multiple partitions support")
-    2c97cf138527 ("md-cluser: make resync_finish only called after pers->sync_request")
-    41a9a0dcf895 ("md-cluster: change resync lock from asynchronous to synchronous")
-    47e0fb461fca ("blk: make the bioset rescue_workqueue optional.")
-    578b54ade8a5 ("md/raid1, raid10: add blktrace records when IO is delayed")
-    5f2b18ec8e16 ("bcache: Fix a compiler warning in bcache_device_init()")
-    81baf90af2dc ("bcache: Remove deprecated create_workqueue")
-    85ad1d13ee9b ("md: set MD_CHANGE_PENDING in a atomic region")
-    b8c0d911ac52 ("bcache: partition support: add 16 minors per bcacheN device")
-    c230e7e53526 ("md/raid1: simplify the splitting of requests.")
-    fc974ee2bffd ("md: convert to use the generic badblocks code")
-    fd76863e37fe ("RAID1: a new I/O barrier implementation to remove resync window")
+    1b683729e7ac ("drm/i915: Remove redundant check in i915_gem_obj_to_vma")
+    1c7f4bca5a6f ("drm/i915: Rename vma->*_list to *_link for consistency")
+    3272db53136f ("drm/i915: Combine all i915_vma bitfields into a single set of flags")
+    596c5923197b ("drm/i915: Reduce the pointer dance of i915_is_ggtt()")
+    c1a415e261aa ("drm/i915: Disable shrinker for non-swapped backed objects")
+    d0710abbcd88 ("drm/i915: Set the map-and-fenceable flag for preallocated objects")
+    f6e8aa387171 ("drm/i915: Report the number of closed vma held by each context in debugfs")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
