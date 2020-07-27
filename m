@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D3222F1B7
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 708DD22F21B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730257AbgG0OQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:16:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43134 "EHLO mail.kernel.org"
+        id S1732820AbgG0Ohb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:37:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730826AbgG0OQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:16:16 -0400
+        id S1730207AbgG0OMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFF520825;
-        Mon, 27 Jul 2020 14:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E472083E;
+        Mon, 27 Jul 2020 14:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859375;
-        bh=qR3qR1P8zCZPBL7I5aiHn7cQAkCbUrhl/7b8QvE1Xlo=;
+        s=default; t=1595859150;
+        bh=5MbtI0ihvkEoxI9SWcTbrLH2vIzaHkcSMuxKD1ckyRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MyY17lBT7IgI5NjcK1Gf0jF1RKOqafN/uvMvBLBQQgRcm7IaLlDmz7mmB6dD16hjm
-         Nz8DDRoXAWir3/dqa6x0MMpr5iKNN0GIkcWb8d1HIzR7VFpqvEPu4qWakDK2Wr3atW
-         t6/VbL0kJKQ3GCgQNj12sYJiMdu8DA06kSEVp+4Q=
+        b=Y2oCgmDBuruF3efKtxjRZuLaM0VzEEigoN07TioAXvwipStmSN5WU2GBPzBa5bWNs
+         FuCzyfooVupvcPnDz6FBhBX8OqLv6jSjaVrFrHoijTYd3b3ypxlEy+Y/yTyYVxh6eF
+         wW3HDaCZZeyuAfnsdPFzRsvFcxAzjq7JcZZlDfb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Basehore <dbasehore@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/138] Input: elan_i2c - only increment wakeup count on touch
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 65/86] staging: wlan-ng: properly check endpoint types
 Date:   Mon, 27 Jul 2020 16:04:39 +0200
-Message-Id: <20200727134929.572518147@linuxfoundation.org>
+Message-Id: <20200727134917.687322916@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Basehore <dbasehore@chromium.org>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 966334dfc472bdfa67bed864842943b19755d192 ]
+commit faaff9765664009c1c7c65551d32e9ed3b1dda8f upstream.
 
-This moves the wakeup increment for elan devices to the touch report.
-This prevents the drivers from incorrectly reporting a wakeup when the
-resume callback resets then device, which causes an interrupt to
-occur.
+As syzkaller detected, wlan-ng driver does not do sanity check of
+endpoints in prism2sta_probe_usb(), add check for xfer direction and type
 
-Signed-off-by: Derek Basehore <dbasehore@chromium.org>
-Link: https://lore.kernel.org/r/20200706235046.1984283-1-dbasehore@chromium.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=c2a1fa67c02faa0de723
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722161052.999754-1-rkovhaev@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/mouse/elan_i2c_core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/staging/wlan-ng/prism2usb.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 8719da5403834..196e8505dd8d7 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -951,6 +951,8 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 	u8 hover_info = packet[ETP_HOVER_INFO_OFFSET];
- 	bool contact_valid, hover_event;
- 
-+	pm_wakeup_event(&data->client->dev, 0);
-+
- 	hover_event = hover_info & 0x40;
- 	for (i = 0; i < ETP_MAX_FINGERS; i++) {
- 		contact_valid = tp_info & (1U << (3 + i));
-@@ -974,6 +976,8 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
- 	u8 *packet = &report[ETP_REPORT_ID_OFFSET + 1];
- 	int x, y;
- 
-+	pm_wakeup_event(&data->client->dev, 0);
-+
- 	if (!data->tp_input) {
- 		dev_warn_once(&data->client->dev,
- 			      "received a trackpoint report while no trackpoint device has been created. Please report upstream.\n");
-@@ -998,7 +1002,6 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
- static irqreturn_t elan_isr(int irq, void *dev_id)
+--- a/drivers/staging/wlan-ng/prism2usb.c
++++ b/drivers/staging/wlan-ng/prism2usb.c
+@@ -61,11 +61,25 @@ static int prism2sta_probe_usb(struct us
+ 			       const struct usb_device_id *id)
  {
- 	struct elan_tp_data *data = dev_id;
--	struct device *dev = &data->client->dev;
- 	int error;
- 	u8 report[ETP_MAX_REPORT_LEN];
- 
-@@ -1016,8 +1019,6 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- 	if (error)
- 		goto out;
- 
--	pm_wakeup_event(dev, 0);
+ 	struct usb_device *dev;
 -
- 	switch (report[ETP_REPORT_ID_OFFSET]) {
- 	case ETP_REPORT_ID:
- 		elan_report_absolute(data, report);
-@@ -1026,7 +1027,7 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- 		elan_report_trackpoint(data, report);
- 		break;
- 	default:
--		dev_err(dev, "invalid report id data (%x)\n",
-+		dev_err(&data->client->dev, "invalid report id data (%x)\n",
- 			report[ETP_REPORT_ID_OFFSET]);
- 	}
++	const struct usb_endpoint_descriptor *epd;
++	const struct usb_host_interface *iface_desc = interface->cur_altsetting;
+ 	struct wlandevice *wlandev = NULL;
+ 	struct hfa384x *hw = NULL;
+ 	int result = 0;
  
--- 
-2.25.1
-
++	if (iface_desc->desc.bNumEndpoints != 2) {
++		result = -ENODEV;
++		goto failed;
++	}
++
++	result = -EINVAL;
++	epd = &iface_desc->endpoint[1].desc;
++	if (!usb_endpoint_is_bulk_in(epd))
++		goto failed;
++	epd = &iface_desc->endpoint[2].desc;
++	if (!usb_endpoint_is_bulk_out(epd))
++		goto failed;
++
+ 	dev = interface_to_usbdev(interface);
+ 	wlandev = create_wlan();
+ 	if (!wlandev) {
 
 
