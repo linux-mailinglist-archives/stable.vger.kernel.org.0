@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 229F522F298
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D3222F1B7
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729527AbgG0OI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
+        id S1730257AbgG0OQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:16:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729524AbgG0OIz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:55 -0400
+        id S1730826AbgG0OQQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:16:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6CBF2073E;
-        Mon, 27 Jul 2020 14:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BFF520825;
+        Mon, 27 Jul 2020 14:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858935;
-        bh=0ZB1inq6G3mEXC1hC6A8lpXD+S8c6wP75Jh/MvwT8Ts=;
+        s=default; t=1595859375;
+        bh=qR3qR1P8zCZPBL7I5aiHn7cQAkCbUrhl/7b8QvE1Xlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJclpbQGXiA2Mf2k6RvcjF1uAMKe0tNb2P4QoL58xplTqHqoLpDemRPRE996/pwal
-         s76ALPs4qiQwuMxdL8TxNPXk5LqcCEmtQB6ojcCqiTHP7O8USSjfv+UAU+hSNWkDcE
-         pRtjLMwHbhYO36CTL0II80Vb0iQTeD+oDt6rMhYQ=
+        b=MyY17lBT7IgI5NjcK1Gf0jF1RKOqafN/uvMvBLBQQgRcm7IaLlDmz7mmB6dD16hjm
+         Nz8DDRoXAWir3/dqa6x0MMpr5iKNN0GIkcWb8d1HIzR7VFpqvEPu4qWakDK2Wr3atW
+         t6/VbL0kJKQ3GCgQNj12sYJiMdu8DA06kSEVp+4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 60/64] mm/memcg: fix refcount error while moving and swapping
+        stable@vger.kernel.org, Derek Basehore <dbasehore@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 084/138] Input: elan_i2c - only increment wakeup count on touch
 Date:   Mon, 27 Jul 2020 16:04:39 +0200
-Message-Id: <20200727134914.144811936@linuxfoundation.org>
+Message-Id: <20200727134929.572518147@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,61 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Derek Basehore <dbasehore@chromium.org>
 
-commit 8d22a9351035ef2ff12ef163a1091b8b8cf1e49c upstream.
+[ Upstream commit 966334dfc472bdfa67bed864842943b19755d192 ]
 
-It was hard to keep a test running, moving tasks between memcgs with
-move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
-refcount is discovered to be 0 (supposedly impossible), so it is then
-forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
-succession, the test is at last put out of misery by being OOM killed.
+This moves the wakeup increment for elan devices to the touch report.
+This prevents the drivers from incorrectly reporting a wakeup when the
+resume callback resets then device, which causes an interrupt to
+occur.
 
-This is because of the way moved_swap accounting was saved up until the
-task move gets completed in __mem_cgroup_clear_mc(), deferred from when
-mem_cgroup_move_swap_account() actually exchanged old and new ids.
-Concurrent activity can free up swap quicker than the task is scanned,
-bringing id refcount down 0 (which should only be possible when
-offlining).
-
-Just skip that optimization: do that part of the accounting immediately.
-
-Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Derek Basehore <dbasehore@chromium.org>
+Link: https://lore.kernel.org/r/20200706235046.1984283-1-dbasehore@chromium.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -4883,7 +4883,6 @@ static void __mem_cgroup_clear_mc(void)
- 		if (!mem_cgroup_is_root(mc.to))
- 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 8719da5403834..196e8505dd8d7 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -951,6 +951,8 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
+ 	u8 hover_info = packet[ETP_HOVER_INFO_OFFSET];
+ 	bool contact_valid, hover_event;
  
--		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
- 		css_put_many(&mc.to->css, mc.moved_swap);
++	pm_wakeup_event(&data->client->dev, 0);
++
+ 	hover_event = hover_info & 0x40;
+ 	for (i = 0; i < ETP_MAX_FINGERS; i++) {
+ 		contact_valid = tp_info & (1U << (3 + i));
+@@ -974,6 +976,8 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
+ 	u8 *packet = &report[ETP_REPORT_ID_OFFSET + 1];
+ 	int x, y;
  
- 		mc.moved_swap = 0;
-@@ -5074,7 +5073,8 @@ put:			/* get_mctgt_type() gets the page
- 			ent = target.ent;
- 			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
- 				mc.precharge--;
--				/* we fixup refcnts and charges later. */
-+				mem_cgroup_id_get_many(mc.to, 1);
-+				/* we fixup other refcnts and charges later. */
- 				mc.moved_swap++;
- 			}
- 			break;
++	pm_wakeup_event(&data->client->dev, 0);
++
+ 	if (!data->tp_input) {
+ 		dev_warn_once(&data->client->dev,
+ 			      "received a trackpoint report while no trackpoint device has been created. Please report upstream.\n");
+@@ -998,7 +1002,6 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
+ static irqreturn_t elan_isr(int irq, void *dev_id)
+ {
+ 	struct elan_tp_data *data = dev_id;
+-	struct device *dev = &data->client->dev;
+ 	int error;
+ 	u8 report[ETP_MAX_REPORT_LEN];
+ 
+@@ -1016,8 +1019,6 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
+ 	if (error)
+ 		goto out;
+ 
+-	pm_wakeup_event(dev, 0);
+-
+ 	switch (report[ETP_REPORT_ID_OFFSET]) {
+ 	case ETP_REPORT_ID:
+ 		elan_report_absolute(data, report);
+@@ -1026,7 +1027,7 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
+ 		elan_report_trackpoint(data, report);
+ 		break;
+ 	default:
+-		dev_err(dev, "invalid report id data (%x)\n",
++		dev_err(&data->client->dev, "invalid report id data (%x)\n",
+ 			report[ETP_REPORT_ID_OFFSET]);
+ 	}
+ 
+-- 
+2.25.1
+
 
 
