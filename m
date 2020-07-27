@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F0922F0F9
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3191222EF07
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732058AbgG0OXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        id S1729371AbgG0OMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732047AbgG0OXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:23:20 -0400
+        id S1730253AbgG0OMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A154421D95;
-        Mon, 27 Jul 2020 14:23:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9A232073E;
+        Mon, 27 Jul 2020 14:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859798;
-        bh=iwmpauxY7ye7TKgOjmLPiQNamZ32rwVmIfVlNHkDXnk=;
+        s=default; t=1595859165;
+        bh=fDDFY8It2TGktthmAacBh2/DZrA7MmSualpCudu0cWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkrtcbIDrjXhLaki8H6HlcAL28MAQUvTejM3DdsWwBkt5Q+QrIcCZbQXRdgRYD3IQ
-         1g4FMU7ub00omtnQ69VkcMq/7GFay66D8bqcPNzEphewCHlqzI/oMi+miDSIfryP8d
-         4YFA/AhLBSg2S0MnSaFRtfwyprGCYhX/MWSfYqDk=
+        b=r0m/KmFja61hFkXyoF81yY83sUibV1OiLvPQL7Um8rH+G+RSDA632AUTmNREjzE37
+         zlVPWVxYJtCEzoRUvuup0fAIFw6DBDMnRLqKv9qPZKVCzo6clQHmpky3VXxOSyZYOF
+         zKlwVT1Wno/5mBNUVp0DOax3TwLJ6EB2zxaJ3Kes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 109/179] soc: amlogic: meson-gx-socinfo: Fix S905X3 and S905D3 IDs
-Date:   Mon, 27 Jul 2020 16:04:44 +0200
-Message-Id: <20200727134937.964032133@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Winkler <danielwinkler@google.com>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Claire Chang <tientzu@chromium.org>
+Subject: [PATCH 4.19 71/86] serial: 8250_mtk: Fix high-speed baud rates clamping
+Date:   Mon, 27 Jul 2020 16:04:45 +0200
+Message-Id: <20200727134917.979893845@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit d16d0481e6bab5a916450e4ef0e1c958b550880c ]
+commit 551e553f0d4ab623e2a6f424ab5834f9c7b5229c upstream.
 
-Correct the SoC revision and package bits/mask values for S905D3/X3 to detect
-a wider range of observed SoC IDs, and tweak sort order for A311D/S922X.
+Commit 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250
+port") fixed limits of a baud rate setting for a generic 8250 port.
+In other words since that commit the baud rate has been permitted to be
+within [uartclk / 16 / UART_DIV_MAX; uartclk / 16], which is absolutely
+normal for a standard 8250 UART port. But there are custom 8250 ports,
+which provide extended baud rate limits. In particular the Mediatek 8250
+port can work with baud rates up to "uartclk" speed.
 
-S905X3 05 0000 0101  (SEI610 initial devices)
-S905X3 10 0001 0000  (ODROID-C4 and recent Android boxes)
-S905X3 50 0101 0000  (SEI610 later revisions)
-S905D3 04 0000 0100  (VIM3L devices in kernelci)
-S905D3 b0 1011 0000  (VIM3L initial production)
+Normally that and any other peculiarity is supposed to be handled in a
+custom set_termios() callback implemented in the vendor-specific
+8250-port glue-driver. Currently that is how it's done for the most of
+the vendor-specific 8250 ports, but for some reason for Mediatek a
+solution has been spread out to both the glue-driver and to the generic
+8250-port code. Due to that a bug has been introduced, which permitted the
+extended baud rate limit for all even for standard 8250-ports. The bug
+has been fixed by the commit 7b668c064ec3 ("serial: 8250: Fix max baud
+limit in generic 8250 port") by narrowing the baud rates limit back down to
+the normal bounds. Unfortunately by doing so we also broke the
+Mediatek-specific extended bauds feature.
 
-Fixes commit c9cc9bec36d0 ("soc: amlogic: meson-gx-socinfo: Add SM1 and S905X3 IDs")
+A fix of the problem described above is twofold. First since we can't get
+back the extended baud rate limits feature to the generic set_termios()
+function and that method supports only a standard baud rates range, the
+requested baud rate must be locally stored before calling it and then
+restored back to the new termios structure after the generic set_termios()
+finished its magic business. By doing so we still use the
+serial8250_do_set_termios() method to set the LCR/MCR/FCR/etc. registers,
+while the extended baud rate setting procedure will be performed later in
+the custom Mediatek-specific set_termios() callback. Second since a true
+baud rate is now fully calculated in the custom set_termios() method we
+need to locally update the port timeout by calling the
+uart_update_timeout() function. After the fixes described above are
+implemented in the 8250_mtk.c driver, the Mediatek 8250-port should
+get back to normally working with extended baud rates.
 
-Suggested-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20200609081318.28023-1-christianshewitt@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-serial/20200701211337.3027448-1-danielwinkler@google.com
+
+Fixes: 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250 port")
+Reported-by: Daniel Winkler <danielwinkler@google.com>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Claire Chang <tientzu@chromium.org>
+Link: https://lore.kernel.org/r/20200714124113.20918-1-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/soc/amlogic/meson-gx-socinfo.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_mtk.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/soc/amlogic/meson-gx-socinfo.c b/drivers/soc/amlogic/meson-gx-socinfo.c
-index 01fc0d20a70db..6f54bd832c8b8 100644
---- a/drivers/soc/amlogic/meson-gx-socinfo.c
-+++ b/drivers/soc/amlogic/meson-gx-socinfo.c
-@@ -66,10 +66,12 @@ static const struct meson_gx_package_id {
- 	{ "A113D", 0x25, 0x22, 0xff },
- 	{ "S905D2", 0x28, 0x10, 0xf0 },
- 	{ "S905X2", 0x28, 0x40, 0xf0 },
--	{ "S922X", 0x29, 0x40, 0xf0 },
- 	{ "A311D", 0x29, 0x10, 0xf0 },
--	{ "S905X3", 0x2b, 0x5, 0xf },
--	{ "S905D3", 0x2b, 0xb0, 0xf0 },
-+	{ "S922X", 0x29, 0x40, 0xf0 },
-+	{ "S905D3", 0x2b, 0x4, 0xf5 },
-+	{ "S905X3", 0x2b, 0x5, 0xf5 },
-+	{ "S905X3", 0x2b, 0x10, 0x3f },
-+	{ "S905D3", 0x2b, 0x30, 0x3f },
- 	{ "A113L", 0x2c, 0x0, 0xf8 },
- };
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -36,8 +36,21 @@ mtk8250_set_termios(struct uart_port *po
+ 	unsigned long flags;
+ 	unsigned int baud, quot;
  
--- 
-2.25.1
-
++	/*
++	 * Store the requested baud rate before calling the generic 8250
++	 * set_termios method. Standard 8250 port expects bauds to be
++	 * no higher than (uartclk / 16) so the baud will be clamped if it
++	 * gets out of that bound. Mediatek 8250 port supports speed
++	 * higher than that, therefore we'll get original baud rate back
++	 * after calling the generic set_termios method and recalculate
++	 * the speed later in this method.
++	 */
++	baud = tty_termios_baud_rate(termios);
++
+ 	serial8250_do_set_termios(port, termios, old);
+ 
++	tty_termios_encode_baud_rate(termios, baud, baud);
++
+ 	/*
+ 	 * Mediatek UARTs use an extra highspeed register (UART_MTK_HIGHS)
+ 	 *
+@@ -76,6 +89,11 @@ mtk8250_set_termios(struct uart_port *po
+ 	 */
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
++	/*
++	 * Update the per-port timeout.
++	 */
++	uart_update_timeout(port, termios->c_cflag, baud);
++
+ 	/* set DLAB we have cval saved in up->lcr from the call to the core */
+ 	serial_port_out(port, UART_LCR, up->lcr | UART_LCR_DLAB);
+ 	serial_dl_write(up, quot);
 
 
