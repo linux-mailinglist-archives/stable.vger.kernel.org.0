@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB51D22F21E
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E1EC22F197
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730207AbgG0Ohk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:37:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36720 "EHLO mail.kernel.org"
+        id S1731119AbgG0ORu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:17:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730202AbgG0OM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:12:27 -0400
+        id S1728918AbgG0ORt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:17:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DACE720838;
-        Mon, 27 Jul 2020 14:12:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 603A12070A;
+        Mon, 27 Jul 2020 14:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859145;
-        bh=1tjzgcHsU7Yc2ql1ucZGHJ6s+Wj3INa3jsaTYSwcXCk=;
+        s=default; t=1595859468;
+        bh=MutjSMAafDXjPRebpjYD2MZe+oGnDIbyaCZJHeddI8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwD5CERkrGpBP/KiSpfCPpkZt41Kra6Ob+ShnkbpgdXF1qU44e0cWA7TNeazq3xv0
-         cGN+hBS+TqTkjkcFV9aC8OuGGOGr6I+MrTfIpbDsQOy/h91hf9Sy0CbgskgkpplzoV
-         Hj1o3vgYFtxRxPVSpRFduM41PgswM4Zpq2G6k1XE=
+        b=M4Bww8XEVgqzYLz79okILBeKru30ZszUlDVpQzkYsZSiCj7lui7E0f9Fymb4Ye/fb
+         okfVPIVaWUfHM1Amxpv07eB35nbcpinL7W74B3BlhyYXexPngRmf9sniuvHa2U4iNO
+         Rw6VBMrtlhQUvK3W/FSEIEooEHJ5eikCl0aOISJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 82/86] ASoC: rt5670: Add new gpio1_is_ext_spk_en quirk and enable it on the Lenovo Miix 2 10
-Date:   Mon, 27 Jul 2020 16:04:56 +0200
-Message-Id: <20200727134918.513635702@linuxfoundation.org>
+        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 103/138] RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
+Date:   Mon, 27 Jul 2020 16:04:58 +0200
+Message-Id: <20200727134930.622406151@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,166 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Palmer Dabbelt <palmerdabbelt@google.com>
 
-commit 85ca6b17e2bb96b19caac3b02c003d670b66de96 upstream.
+[ Upstream commit 38b7c2a3ffb1fce8358ddc6006cfe5c038ff9963 ]
 
-The Lenovo Miix 2 10 has a keyboard dock with extra speakers in the dock.
-Rather then the ACL5672's GPIO1 pin being used as IRQ to the CPU, it is
-actually used to enable the amplifier for these speakers
-(the IRQ to the CPU comes directly from the jack-detect switch).
+While digging through the recent mmiowb preemption issue it came up that
+we aren't actually preventing IO from crossing a scheduling boundary.
+While it's a bit ugly to overload smp_mb__after_spinlock() with this
+behavior, it's what PowerPC is doing so there's some precedent.
 
-Add a quirk for having an ext speaker-amplifier enable pin on GPIO1
-and replace the Lenovo Miix 2 10's dmi_system_id table entry's wrong
-GPIO_DEV quirk (which needs to be renamed to GPIO1_IS_IRQ) with the
-new RT5670_GPIO1_IS_EXT_SPK_EN quirk, so that we enable the external
-speaker-amplifier as necessary.
-
-Also update the ident field for the dmi_system_id table entry, the
-Miix models are not Thinkpads.
-
-Fixes: 67e03ff3f32f ("ASoC: codecs: rt5670: add Thinkpad Tablet 10 quirk")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1786723
-Link: https://lore.kernel.org/r/20200628155231.71089-4-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/rt5670.h    |    1 
- sound/soc/codecs/rt5670.c |   71 ++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 57 insertions(+), 15 deletions(-)
+ arch/riscv/include/asm/barrier.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/include/sound/rt5670.h
-+++ b/include/sound/rt5670.h
-@@ -15,6 +15,7 @@ struct rt5670_platform_data {
- 	int jd_mode;
- 	bool in2_diff;
- 	bool dev_gpio;
-+	bool gpio1_is_ext_spk_en;
+diff --git a/arch/riscv/include/asm/barrier.h b/arch/riscv/include/asm/barrier.h
+index 3f1737f301ccb..d0e24aaa2aa06 100644
+--- a/arch/riscv/include/asm/barrier.h
++++ b/arch/riscv/include/asm/barrier.h
+@@ -58,8 +58,16 @@ do {									\
+  * The AQ/RL pair provides a RCpc critical section, but there's not really any
+  * way we can take advantage of that here because the ordering is only enforced
+  * on that one lock.  Thus, we're just doing a full fence.
++ *
++ * Since we allow writeX to be called from preemptive regions we need at least
++ * an "o" in the predecessor set to ensure device writes are visible before the
++ * task is marked as available for scheduling on a new hart.  While I don't see
++ * any concrete reason we need a full IO fence, it seems safer to just upgrade
++ * this in order to avoid any IO crossing a scheduling boundary.  In both
++ * instances the scheduler pairs this with an mb(), so nothing is necessary on
++ * the new hart.
+  */
+-#define smp_mb__after_spinlock()	RISCV_FENCE(rw,rw)
++#define smp_mb__after_spinlock()	RISCV_FENCE(iorw,iorw)
  
- 	bool dmic_en;
- 	unsigned int dmic1_data_pin;
---- a/sound/soc/codecs/rt5670.c
-+++ b/sound/soc/codecs/rt5670.c
-@@ -34,18 +34,19 @@
- #include "rt5670.h"
- #include "rt5670-dsp.h"
+ #include <asm-generic/barrier.h>
  
--#define RT5670_DEV_GPIO     BIT(0)
--#define RT5670_IN2_DIFF     BIT(1)
--#define RT5670_DMIC_EN      BIT(2)
--#define RT5670_DMIC1_IN2P   BIT(3)
--#define RT5670_DMIC1_GPIO6  BIT(4)
--#define RT5670_DMIC1_GPIO7  BIT(5)
--#define RT5670_DMIC2_INR    BIT(6)
--#define RT5670_DMIC2_GPIO8  BIT(7)
--#define RT5670_DMIC3_GPIO5  BIT(8)
--#define RT5670_JD_MODE1     BIT(9)
--#define RT5670_JD_MODE2     BIT(10)
--#define RT5670_JD_MODE3     BIT(11)
-+#define RT5670_DEV_GPIO			BIT(0)
-+#define RT5670_IN2_DIFF			BIT(1)
-+#define RT5670_DMIC_EN			BIT(2)
-+#define RT5670_DMIC1_IN2P		BIT(3)
-+#define RT5670_DMIC1_GPIO6		BIT(4)
-+#define RT5670_DMIC1_GPIO7		BIT(5)
-+#define RT5670_DMIC2_INR		BIT(6)
-+#define RT5670_DMIC2_GPIO8		BIT(7)
-+#define RT5670_DMIC3_GPIO5		BIT(8)
-+#define RT5670_JD_MODE1			BIT(9)
-+#define RT5670_JD_MODE2			BIT(10)
-+#define RT5670_JD_MODE3			BIT(11)
-+#define RT5670_GPIO1_IS_EXT_SPK_EN	BIT(12)
- 
- static unsigned long rt5670_quirk;
- static unsigned int quirk_override;
-@@ -1504,6 +1505,33 @@ static int rt5670_hp_event(struct snd_so
- 	return 0;
- }
- 
-+static int rt5670_spk_event(struct snd_soc_dapm_widget *w,
-+	struct snd_kcontrol *kcontrol, int event)
-+{
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
-+	struct rt5670_priv *rt5670 = snd_soc_component_get_drvdata(component);
-+
-+	if (!rt5670->pdata.gpio1_is_ext_spk_en)
-+		return 0;
-+
-+	switch (event) {
-+	case SND_SOC_DAPM_POST_PMU:
-+		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
-+				   RT5670_GP1_OUT_MASK, RT5670_GP1_OUT_HI);
-+		break;
-+
-+	case SND_SOC_DAPM_PRE_PMD:
-+		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
-+				   RT5670_GP1_OUT_MASK, RT5670_GP1_OUT_LO);
-+		break;
-+
-+	default:
-+		return 0;
-+	}
-+
-+	return 0;
-+}
-+
- static int rt5670_bst1_event(struct snd_soc_dapm_widget *w,
- 	struct snd_kcontrol *kcontrol, int event)
- {
-@@ -1917,7 +1945,9 @@ static const struct snd_soc_dapm_widget
- };
- 
- static const struct snd_soc_dapm_widget rt5672_specific_dapm_widgets[] = {
--	SND_SOC_DAPM_PGA("SPO Amp", SND_SOC_NOPM, 0, 0, NULL, 0),
-+	SND_SOC_DAPM_PGA_E("SPO Amp", SND_SOC_NOPM, 0, 0, NULL, 0,
-+			   rt5670_spk_event, SND_SOC_DAPM_PRE_PMD |
-+			   SND_SOC_DAPM_POST_PMU),
- 	SND_SOC_DAPM_OUTPUT("SPOLP"),
- 	SND_SOC_DAPM_OUTPUT("SPOLN"),
- 	SND_SOC_DAPM_OUTPUT("SPORP"),
-@@ -2901,14 +2931,14 @@ static const struct dmi_system_id dmi_pl
- 	},
- 	{
- 		.callback = rt5670_quirk_cb,
--		.ident = "Lenovo Thinkpad Tablet 10",
-+		.ident = "Lenovo Miix 2 10",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Miix 2 10"),
- 		},
- 		.driver_data = (unsigned long *)(RT5670_DMIC_EN |
- 						 RT5670_DMIC1_IN2P |
--						 RT5670_DEV_GPIO |
-+						 RT5670_GPIO1_IS_EXT_SPK_EN |
- 						 RT5670_JD_MODE2),
- 	},
- 	{
-@@ -2956,6 +2986,10 @@ static int rt5670_i2c_probe(struct i2c_c
- 		rt5670->pdata.dev_gpio = true;
- 		dev_info(&i2c->dev, "quirk dev_gpio\n");
- 	}
-+	if (rt5670_quirk & RT5670_GPIO1_IS_EXT_SPK_EN) {
-+		rt5670->pdata.gpio1_is_ext_spk_en = true;
-+		dev_info(&i2c->dev, "quirk GPIO1 is external speaker enable\n");
-+	}
- 	if (rt5670_quirk & RT5670_IN2_DIFF) {
- 		rt5670->pdata.in2_diff = true;
- 		dev_info(&i2c->dev, "quirk IN2_DIFF\n");
-@@ -3054,6 +3088,13 @@ static int rt5670_i2c_probe(struct i2c_c
- 		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
- 				   RT5670_GP1_PF_MASK, RT5670_GP1_PF_OUT);
- 	}
-+
-+	if (rt5670->pdata.gpio1_is_ext_spk_en) {
-+		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL1,
-+				   RT5670_GP1_PIN_MASK, RT5670_GP1_PIN_GPIO1);
-+		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
-+				   RT5670_GP1_PF_MASK, RT5670_GP1_PF_OUT);
-+	}
- 
- 	if (rt5670->pdata.jd_mode) {
- 		regmap_update_bits(rt5670->regmap, RT5670_GLB_CLK,
+-- 
+2.25.1
+
 
 
