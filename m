@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC2122EFC6
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 077C922EFD7
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728314AbgG0OTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47034 "EHLO mail.kernel.org"
+        id S1730854AbgG0OTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730389AbgG0OTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:19:10 -0400
+        id S1731406AbgG0OTh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:19:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78A782083E;
-        Mon, 27 Jul 2020 14:19:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 216F320825;
+        Mon, 27 Jul 2020 14:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859550;
-        bh=Nq5QR3iG8Cr3ox2BQ3/zYb67ZQcxz9425Pv2U2LcgGI=;
+        s=default; t=1595859576;
+        bh=TRh+4gzYuKIy2BqkB2gH3yL1Ae8c0trDVyJ/lwGZ8aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4leshEv4j31eTuIP1m7PQX9SwXafozh0TTKHKm4tcML31ygnH7o2MfKIFBbA2ukk
-         iaNeMR8k1P9/bVb+QVvGYEYraStkfiQmm2/t2hKBvx9DDUmZzUf2hS5CNMzlsIZ96w
-         XUgB4Lq7S7X72Uhs9FYTHXf1UXeo2ePKsUw5I69U=
+        b=MZpvEY1l3SL2nFx626BL9ZTpgv/PjCwtmWWpYD4/qQXwmbdo6BHyGjdyqBMBjqLz/
+         9DgaG/bTov0zI02f12yK4bcxGxeaWtNURW5fVTfPjXsaspYMc7jtCwRUzEcPhtSKrJ
+         Ks81UwekFIL5/a3O/FTlTlcHmwa8fhgib0GKT/ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 014/179] drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
-Date:   Mon, 27 Jul 2020 16:03:09 +0200
-Message-Id: <20200727134933.368447190@linuxfoundation.org>
+Subject: [PATCH 5.7 017/179] dm: use bio_uninit instead of bio_disassociate_blkg
+Date:   Mon, 27 Jul 2020 16:03:12 +0200
+Message-Id: <20200727134933.511961229@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -43,54 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 0156e76d388310a490aeb0f2fbb5b284ded3aecc ]
+[ Upstream commit 382761dc6312965a11f82f2217e16ec421bf17ae ]
 
-Tegra TRM says worst-case reply time is 1216us, and this should fix some
-spurious timeouts that have been popping up.
+bio_uninit is the proper API to clean up a BIO that has been allocated
+on stack or inside a structure that doesn't come from the BIO allocator.
+Switch dm to use that instead of bio_disassociate_blkg, which really is
+an implementation detail.  Note that the bio_uninit calls are also moved
+to the two callers of __send_empty_flush, so that they better pair with
+the bio_init calls used to initialize them.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   | 4 ++--
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/dm.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-index c8ab1b5741a3e..db7769cb33eba 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-@@ -118,10 +118,10 @@ g94_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 05333fc2f8d2b..9793b04e9ff3b 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1446,9 +1446,6 @@ static int __send_empty_flush(struct clone_info *ci)
+ 	BUG_ON(bio_has_data(ci->bio));
+ 	while ((ti = dm_table_get_target(ci->map, target_nr++)))
+ 		__send_duplicate_bios(ci, ti, ti->num_flush_bios, NULL);
+-
+-	bio_disassociate_blkg(ci->bio);
+-
+ 	return 0;
+ }
  
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00e4e4 + base, 0x00010000 | ctrl);
- 
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00e4e4 + base);
- 			udelay(1);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-index 7ef60895f43a7..edb6148cbca04 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-@@ -118,10 +118,10 @@ gm200_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
- 
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00d954 + base, 0x00010000 | ctrl);
- 
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00d954 + base);
- 			udelay(1);
+@@ -1636,6 +1633,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
+ 		ci.bio = &flush_bio;
+ 		ci.sector_count = 0;
+ 		error = __send_empty_flush(&ci);
++		bio_uninit(ci.bio);
+ 		/* dec_pending submits any data associated with flush */
+ 	} else if (op_is_zone_mgmt(bio_op(bio))) {
+ 		ci.bio = bio;
+@@ -1710,6 +1708,7 @@ static blk_qc_t __process_bio(struct mapped_device *md, struct dm_table *map,
+ 		ci.bio = &flush_bio;
+ 		ci.sector_count = 0;
+ 		error = __send_empty_flush(&ci);
++		bio_uninit(ci.bio);
+ 		/* dec_pending submits any data associated with flush */
+ 	} else {
+ 		struct dm_target_io *tio;
 -- 
 2.25.1
 
