@@ -2,103 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CFD22F442
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 18:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B3C22F44C
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 18:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727788AbgG0QDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 12:03:52 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:33424 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726265AbgG0QDw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 12:03:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1595865830;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=PzdX7wVbIx8ObG6INsApXS+qCsher40rhMpcw3UMWXc=;
-        b=fRWep9/eDzx7Ww6z4zN62m+rTnXBNTYCOg7UuWVuOsuPf17ojus0npnfFNslirEqNBp0GD
-        DhxnNcqh91EVD4gIY0ZAV6TvzGjcDazOfwHY04iqlTfr5Sai/0tcf0mS75P2YPjXMjF7BH
-        12Xh1PcEEYssn4/Mk/n9R2d6eyic8TA=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-275-1VsM7tZ3NsOtp7knTyBMaw-1; Mon, 27 Jul 2020 12:03:48 -0400
-X-MC-Unique: 1VsM7tZ3NsOtp7knTyBMaw-1
-Received: by mail-wr1-f71.google.com with SMTP id z12so4109155wrl.16
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 09:03:48 -0700 (PDT)
+        id S1727978AbgG0QG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 12:06:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53606 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726662AbgG0QG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 12:06:26 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B690C061794
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 09:06:26 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id t6so2798276qvw.1
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 09:06:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=PcrstqUpq9nlkeFBw0gWGbZYMfJbHQE2gCXLy9ozsXk=;
+        b=klicSDPN8Eb/8wZaWClo7E/zGmfFo8vl2cEIyobjNG47IwNP7rtRcGzs6fO3QrsSUa
+         zwIVcakdL6bQSNq5jbaGsZimaTE/VTYBW9dbRmkj4JVLwO+qVr3cUGogw/RHz4qVdxUs
+         rt+wJKhYu75IMmpdFlPkA1vu9CNLkrySKu9Prx5kYLjpo45G8pVJHZkQ0YwVxvGiZ/Tn
+         xjC6zxdP2SlDxY9ZYak4UCaWT9R9jywy6akbSt/nQumWVDpRlQEJpLR9ORr8MlFediYg
+         QktGZdYXGu/8rfiChJDe6cOQQsLFvZYj1olnI6q5qWETZ+owTaeW7F0TCqqXaToG1EnC
+         bMZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=PzdX7wVbIx8ObG6INsApXS+qCsher40rhMpcw3UMWXc=;
-        b=sreKTqti0CVLObPKdLdLcud0764oG6MXUTKY9Y7+Kl8u2Am+5gFa8+NyCmDsyAODWF
-         T/+z6PWGihbny/utKDnv7C33R18vSamO/KmuklUCRHaNqTVsW7tG5Y3S8K+j1EygunN2
-         nuF5aC80KOWxHBK1JOPqRfI+RCJV40+jddZG4jXa6zcjyWp+0oIbQ5o7lR0ZHgktJmKR
-         aLeUaVthomTDybB9f0AbaTWS+jZtzIbLiVtCTkfRxXdvN1bPaPJGJwTDiXdP6BrNymqv
-         PCnLw3EJ7muWJAb1gZyr7SE3F8/tvcvoSrCWFh317W6KW6zp7QZGBuLOuiL6O15eaGh2
-         vqTQ==
-X-Gm-Message-State: AOAM532gJXZqDWbBNgrhXVN/O5YuzMDU9pqbIjlvEmNAE/d3pMBEkxDR
-        9wRuPk2RS2950rcT4Iy3iDNUHY3+ifNCznG9efZaVZNlBcxK821zTEspA+NnjyLiKcmA1gjgHZz
-        6W1EMqPkHP2xmgqHw
-X-Received: by 2002:adf:b1cf:: with SMTP id r15mr22476409wra.118.1595865827365;
-        Mon, 27 Jul 2020 09:03:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz7Ef1D9xDtsNFK+f9eP9IKT0MLwb1s7S8Er/1M1xlErxN9gFMzZ7/LwGj3k9MKPcujJZ0e8g==
-X-Received: by 2002:adf:b1cf:: with SMTP id r15mr22476396wra.118.1595865827149;
-        Mon, 27 Jul 2020 09:03:47 -0700 (PDT)
-Received: from redhat.com ([192.117.173.58])
-        by smtp.gmail.com with ESMTPSA id z63sm111712wmb.2.2020.07.27.09.03.45
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=PcrstqUpq9nlkeFBw0gWGbZYMfJbHQE2gCXLy9ozsXk=;
+        b=syO4YoNeePerhRmIuloJTL4n0TGet8i2yqv9QsPocvy3CBORB2yE3sMbmMLlXLLoof
+         k/CDUh6qDZ+CrJ5yjYn+1vrRmsfDqbgKTcS/bHTn3hcsbN0XawIkkeBMFz6bQdGa5whq
+         /jVl/ArHFFQxmzSGm/8sSMq5N6AZ25MpiMXg35PiqD+6l5b/izvB0S+ZkOg8UrmUEa3c
+         Fix1Oav++F7viza9/v0Cx4UXPhJGt8ijlOog6TFwRl766dYcjZxKxfm+4SH7W7Q8WydG
+         iItzghSxyZzh2cr5dwekChcLwZVXW3xA2CdM4vgKYSg8chQ6JE5ejNmdRsoK5lWKnnQ6
+         Jjsw==
+X-Gm-Message-State: AOAM530DUK8Mri6pX3pjtmOqNoXczWft0tukcT3sj0jnc9AwlZ7dAeq7
+        0GDcWeyC4fqo1g4S8Uw1DAA=
+X-Google-Smtp-Source: ABdhPJxrLe9zg1jRKVcq0u1NIHh6gPEjib84fO0r1Ha5WAzAcAjmRsMre7lmBVPn+EJ+u4G+6mICKw==
+X-Received: by 2002:ad4:4e6e:: with SMTP id ec14mr22432117qvb.79.1595865968011;
+        Mon, 27 Jul 2020 09:06:08 -0700 (PDT)
+Received: from ubuntu-n2-xlarge-x86 ([2604:1380:45d1:2600::1])
+        by smtp.gmail.com with ESMTPSA id h55sm16114349qte.16.2020.07.27.09.06.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2020 09:03:46 -0700 (PDT)
-Date:   Mon, 27 Jul 2020 12:03:43 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Liang Li <liang.z.li@intel.com>,
-        Wei Wang <wei.w.wang@intel.com>,
-        virtualization@lists.linux-foundation.org,
-        Alexander Duyck <alexander.duyck@gmail.com>
-Subject: [PATCH] virtio_balloon: fix up endian-ness for free cmd id
-Message-ID: <20200727160310.102494-1-mst@redhat.com>
+        Mon, 27 Jul 2020 09:06:00 -0700 (PDT)
+Date:   Mon, 27 Jul 2020 09:05:59 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     maskray@google.com, masahiroy@kernel.org, ndesaulniers@google.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] Makefile: Fix GCC_TOOLCHAIN_DIR prefix
+ for Clang cross" failed to apply to 4.4-stable tree
+Message-ID: <20200727160559.GA1386610@ubuntu-n2-xlarge-x86>
+References: <159585527713469@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="Qxx1br4bt0+wmkIi"
 Content-Disposition: inline
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
+In-Reply-To: <159585527713469@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-free cmd id is read using virtio endian, spec says all fields
-in balloon are LE. Fix it up.
 
-Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Jul 27, 2020 at 03:07:57PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From ca9b31f6bb9c6aa9b4e5f0792f39a97bbffb8c51 Mon Sep 17 00:00:00 2001
+> From: Fangrui Song <maskray@google.com>
+> Date: Tue, 21 Jul 2020 10:31:23 -0700
+> Subject: [PATCH] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross
+>  compilation
+> 
+> When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
+> $(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
+> GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
+> /usr/bin/ and Clang as of 11 will search for both
+> $(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
+> 
+> GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
+> $(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
+> $(prefix)aarch64-linux-gnu/$needle rarely contains executables.
+> 
+> To better model how GCC's -B/--prefix takes in effect in practice, newer
+> Clang (since
+> https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
+> only searches for $(prefix)$needle. Currently it will find /usr/bin/as
+> instead of /usr/bin/aarch64-linux-gnu-as.
+> 
+> Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
+> (/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
+> appropriate cross compiling GNU as (when -no-integrated-as is in
+> effect).
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Signed-off-by: Fangrui Song <maskray@google.com>
+> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1099
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> 
+> diff --git a/Makefile b/Makefile
+> index 676f1cfb1d56..9d9d4166c0be 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -567,7 +567,7 @@ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
+>  ifneq ($(CROSS_COMPILE),)
+>  CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
+>  GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+> -CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
+> +CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
+>  GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+>  endif
+>  ifneq ($(GCC_TOOLCHAIN),)
+> 
+
+Patch attached.
+
+Cheers,
+Nathan
+
+--Qxx1br4bt0+wmkIi
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-Makefile-Fix-GCC_TOOLCHAIN_DIR-prefix-for-Clang-cros.patch"
+
+From daab2c7d8578f450e6f96b72f01c85abcb46e525 Mon Sep 17 00:00:00 2001
+From: Fangrui Song <maskray@google.com>
+Date: Tue, 21 Jul 2020 10:31:23 -0700
+Subject: [PATCH 4.4] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross
+ compilation
+
+commit ca9b31f6bb9c6aa9b4e5f0792f39a97bbffb8c51 upstream.
+
+When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
+$(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
+GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
+/usr/bin/ and Clang as of 11 will search for both
+$(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
+
+GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
+$(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
+$(prefix)aarch64-linux-gnu/$needle rarely contains executables.
+
+To better model how GCC's -B/--prefix takes in effect in practice, newer
+Clang (since
+https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
+only searches for $(prefix)$needle. Currently it will find /usr/bin/as
+instead of /usr/bin/aarch64-linux-gnu-as.
+
+Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
+(/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
+appropriate cross compiling GNU as (when -no-integrated-as is in
+effect).
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1099
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nc: Adjust context, CLANG_FLAGS does not exist in 4.4]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- drivers/virtio/virtio_balloon.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 774deb65a9bb..798ec304fe3e 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -578,10 +578,14 @@ static int init_vqs(struct virtio_balloon *vb)
- static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
- {
- 	if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
--			       &vb->config_read_bitmap))
-+			       &vb->config_read_bitmap)) {
- 		virtio_cread(vb->vdev, struct virtio_balloon_config,
- 			     free_page_hint_cmd_id,
- 			     &vb->cmd_id_received_cache);
-+		/* Legacy balloon config space is LE, unlike all other devices. */
-+		if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
-+			vb->cmd_id_received_cache = le32_to_cpu((__force __le32)vb->cmd_id_received_cache);
-+	}
- 
- 	return vb->cmd_id_received_cache;
- }
+diff --git a/Makefile b/Makefile
+index 46178c83906c..de97963888fc 100644
+--- a/Makefile
++++ b/Makefile
+@@ -607,7 +607,7 @@ ifeq ($(cc-name),clang)
+ ifneq ($(CROSS_COMPILE),)
+ CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
+ GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+-CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)
++CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
+ GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+ endif
+ ifneq ($(GCC_TOOLCHAIN),)
+
+base-commit: 554bbfc0d87fcbc842a18997c2a11a772dc3f003
 -- 
-MST
+2.28.0.rc1
 
+
+--Qxx1br4bt0+wmkIi--
