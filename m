@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A9022EFE1
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:20:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D834022EFE6
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731486AbgG0OUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:20:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48202 "EHLO mail.kernel.org"
+        id S1731517AbgG0OUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:20:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731489AbgG0OUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:20:02 -0400
+        id S1731489AbgG0OUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:20:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08B9F2070A;
-        Mon, 27 Jul 2020 14:20:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61F2620775;
+        Mon, 27 Jul 2020 14:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859602;
-        bh=pNZ5dqteI6Mnoc1TUKncTKofJ2ZiWdSCFdqSL3JX16o=;
+        s=default; t=1595859607;
+        bh=YZnLq741nuBq9qjJB7z7uTuxh27wOPHBavzsDj+frRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MAkOnfsZ5878g1X0ORc6Eyn5rnQafwF9kEigScEPgBxsLwBwhJeDNitp9HQJ6O96I
-         2y2nbouHpyvyigEFyz70kiVX6X+cq9iyZsZ6Gr2ZYII+qyr/waylGjR7z+NcCUuAxm
-         plGS1HR0gH7MyZR8VEc059Hwaf91/VmCL23TkaLE=
+        b=DJY+g84KCZekxxQCWf2crSo0C2F3sXy3VKAFb9cqUV0+C5mqj2F0GDvnhGzAZ/JFb
+         E97mZPUD98b58OBRolq7X3xMIDAxw/GG6V/W25u5QgvI3hQkEyxcc6qLym7HiDWe/z
+         0rXQ0P8KaESXa5mkS//faEJHgbqVDmdl7dMyYuAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.7 035/179] ASoC: rt5670: Correct RT5670_LDO_SEL_MASK
-Date:   Mon, 27 Jul 2020 16:03:30 +0200
-Message-Id: <20200727134934.379751379@linuxfoundation.org>
+Subject: [PATCH 5.7 036/179] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S 2 channel
+Date:   Mon, 27 Jul 2020 16:03:31 +0200
+Message-Id: <20200727134934.429451982@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -45,40 +45,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit 5cacc6f5764e94fa753b2c1f5f7f1f3f74286e82 upstream.
+commit 0ceb8a36d023d4bb4ffca3474a452fb1dfaa0ef2 upstream.
 
-The RT5670_PWR_ANLG1 register has 3 bits to select the LDO voltage,
-so the correct mask is 0x7 not 0x3.
+The default mode for SSP configuration is TDM 4 slot and so far we were
+using this for the bus format on cht-bsw-rt56732 boards.
 
-Because of this wrong mask we were programming the ldo bits
-to a setting of binary 001 (0x05 & 0x03) instead of binary 101
-when moving to SND_SOC_BIAS_PREPARE.
+One board, the Lenovo Miix 2 10 uses not 1 but 2 codecs connected to SSP2.
+The second piggy-backed, output-only codec is inside the keyboard-dock
+(which has extra speakers). Unlike the main rt5672 codec, we cannot
+configure this codec, it is hard coded to use 2 channel 24 bit I2S.
 
-According to the datasheet 001 is a reserved value, so no idea
-what it did, since the driver was working fine before I guess we
-got lucky and it does something which is ok.
+Using 4 channel TDM leads to the dock speakers codec (which listens in on
+the data send from the SSP to the rt5672 codec) emiting horribly distorted
+sound.
 
-Fixes: 5e8351de740d ("ASoC: add RT5670 CODEC driver")
+Since we only support 2 channels anyways, there is no need for TDM on any
+cht-bsw-rt5672 designs. So we can simply use I2S 2ch everywhere.
+
+This commit fixes the Lenovo Miix 2 10 dock speakers issue by changing
+the bus format set in cht_codec_fixup() to I2S 2 channel.
+
+This change has been tested on the following devices with a rt5672 codec:
+
+Lenovo Miix 2 10
+Lenovo Thinkpad 8
+Lenovo Thinkpad 10 (gen 1)
+
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200628155231.71089-3-hdegoede@redhat.com
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1786723
+Link: https://lore.kernel.org/r/20200628155231.71089-2-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/rt5670.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/cht_bsw_rt5672.c |   23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
---- a/sound/soc/codecs/rt5670.h
-+++ b/sound/soc/codecs/rt5670.h
-@@ -757,7 +757,7 @@
- #define RT5670_PWR_VREF2_BIT			4
- #define RT5670_PWR_FV2				(0x1 << 3)
- #define RT5670_PWR_FV2_BIT			3
--#define RT5670_LDO_SEL_MASK			(0x3)
-+#define RT5670_LDO_SEL_MASK			(0x7)
- #define RT5670_LDO_SEL_SFT			0
+--- a/sound/soc/intel/boards/cht_bsw_rt5672.c
++++ b/sound/soc/intel/boards/cht_bsw_rt5672.c
+@@ -253,21 +253,20 @@ static int cht_codec_fixup(struct snd_so
+ 	params_set_format(params, SNDRV_PCM_FORMAT_S24_LE);
  
- /* Power Management for Analog 2 (0x64) */
+ 	/*
+-	 * Default mode for SSP configuration is TDM 4 slot
++	 * Default mode for SSP configuration is TDM 4 slot. One board/design,
++	 * the Lenovo Miix 2 10 uses not 1 but 2 codecs connected to SSP2. The
++	 * second piggy-backed, output-only codec is inside the keyboard-dock
++	 * (which has extra speakers). Unlike the main rt5672 codec, we cannot
++	 * configure this codec, it is hard coded to use 2 channel 24 bit I2S.
++	 * Since we only support 2 channels anyways, there is no need for TDM
++	 * on any cht-bsw-rt5672 designs. So we simply use I2S 2ch everywhere.
+ 	 */
+-	ret = snd_soc_dai_set_fmt(asoc_rtd_to_codec(rtd, 0),
+-				  SND_SOC_DAIFMT_DSP_B |
+-				  SND_SOC_DAIFMT_IB_NF |
++	ret = snd_soc_dai_set_fmt(asoc_rtd_to_cpu(rtd, 0),
++				  SND_SOC_DAIFMT_I2S     |
++				  SND_SOC_DAIFMT_NB_NF   |
+ 				  SND_SOC_DAIFMT_CBS_CFS);
+ 	if (ret < 0) {
+-		dev_err(rtd->dev, "can't set format to TDM %d\n", ret);
+-		return ret;
+-	}
+-
+-	/* TDM 4 slots 24 bit, set Rx & Tx bitmask to 4 active slots */
+-	ret = snd_soc_dai_set_tdm_slot(asoc_rtd_to_codec(rtd, 0), 0xF, 0xF, 4, 24);
+-	if (ret < 0) {
+-		dev_err(rtd->dev, "can't set codec TDM slot %d\n", ret);
++		dev_err(rtd->dev, "can't set format to I2S, err %d\n", ret);
+ 		return ret;
+ 	}
+ 
 
 
