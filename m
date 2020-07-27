@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 352B222F12F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA3A22EE7F
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731929AbgG0OWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:22:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51728 "EHLO mail.kernel.org"
+        id S1729396AbgG0OIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:08:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731924AbgG0OWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:22:43 -0400
+        id S1729391AbgG0OIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:08:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7209A2075A;
-        Mon, 27 Jul 2020 14:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6340207FC;
+        Mon, 27 Jul 2020 14:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859762;
-        bh=5zQqoD96yDS07C+kDyvDQ1xSEMfj4vIcSvr/g+YgXR4=;
+        s=default; t=1595858896;
+        bh=Ox1LBgxq2BbH8C3xaLYweJKjWUPcht9asvvNmBpt6Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCF5PukcNzZJ3Nx3rbonF5NgvVk3nZOmteAaiQD4dWwf6de9tsfoCIIOQ0RZjR2bm
-         oe81dipJkFJeNJ2xPR2c/eN+gthUm1k9FLc2iXZgeCEGfCSpPpl1tIyTNdT/9WEGqU
-         jLxzbJAQ5OcgLI0ziuDadsuGrISsEnJ3lTgxXZao=
+        b=H1y2SihgloGDhOcdpwfm4/v2YAT2HsNQf0pc67UJ8/dUqfQIKwrXPl2gJusRWKouW
+         xZ0P0TR4i381JQkU5U/H+HJauq/tPnWgLx8gSeAfNpTSHVGNUVGJDxRFtyj0blPrvX
+         vPq6Bszd+Zgph7ETLWoFivL/YAAlVB/6QsEYhits=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
-        Shik Chen <shik@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 096/179] scripts/decode_stacktrace: strip basepath from all paths
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 52/64] staging: comedi: ni_6527: fix INSN_CONFIG_DIGITAL_TRIG support
 Date:   Mon, 27 Jul 2020 16:04:31 +0200
-Message-Id: <20200727134937.343746664@linuxfoundation.org>
+Message-Id: <20200727134913.742804293@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,49 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pi-Hsun Shih <pihsun@chromium.org>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit d178770d8d21489abf5bafefcbb6d5243b482e9a ]
+commit f07804ec77d77f8a9dcf570a24154e17747bc82f upstream.
 
-Currently the basepath is removed only from the beginning of the string.
-When the symbol is inlined and there's multiple line outputs of
-addr2line, only the first line would have basepath removed.
+`ni6527_intr_insn_config()` processes `INSN_CONFIG` comedi instructions
+for the "interrupt" subdevice.  When `data[0]` is
+`INSN_CONFIG_DIGITAL_TRIG` it is configuring the digital trigger.  When
+`data[2]` is `COMEDI_DIGITAL_TRIG_ENABLE_EDGES` it is configuring rising
+and falling edge detection for the digital trigger, using a base channel
+number (or shift amount) in `data[3]`, a rising edge bitmask in
+`data[4]` and falling edge bitmask in `data[5]`.
 
-Change to remove the basepath prefix from all lines.
+If the base channel number (shift amount) is greater than or equal to
+the number of channels (24) of the digital input subdevice, there are no
+changes to the rising and falling edges, so the mask of channels to be
+changed can be set to 0, otherwise the mask of channels to be changed,
+and the rising and falling edge bitmasks are shifted by the base channel
+number before calling `ni6527_set_edge_detection()` to change the
+appropriate registers.  Unfortunately, the code is comparing the base
+channel (shift amount) to the interrupt subdevice's number of channels
+(1) instead of the digital input subdevice's number of channels (24).
+Fix it by comparing to 32 because all shift amounts for an `unsigned
+int` must be less than that and everything from bit 24 upwards is
+ignored by `ni6527_set_edge_detection()` anyway.
 
-Fixes: 31013836a71e ("scripts/decode_stacktrace: match basepath using shell prefix operator, not regex")
-Co-developed-by: Shik Chen <shik@chromium.org>
-Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
-Signed-off-by: Shik Chen <shik@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Jiri Slaby <jslaby@suse.cz>
-Link: http://lkml.kernel.org/r/20200720082709.252805-1-pihsun@chromium.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 110f9e687c1a8 ("staging: comedi: ni_6527: support INSN_CONFIG_DIGITAL_TRIG")
+Cc: <stable@vger.kernel.org> # 3.17+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200717145257.112660-2-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- scripts/decode_stacktrace.sh | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/ni_6527.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
-index 13e5fbafdf2f7..fe7076fdac8a3 100755
---- a/scripts/decode_stacktrace.sh
-+++ b/scripts/decode_stacktrace.sh
-@@ -84,8 +84,8 @@ parse_symbol() {
- 		return
- 	fi
- 
--	# Strip out the base of the path
--	code=${code#$basepath/}
-+	# Strip out the base of the path on each line
-+	code=$(while read -r line; do echo "${line#$basepath/}"; done <<< "$code")
- 
- 	# In the case of inlines, move everything to same line
- 	code=${code//$'\n'/' '}
--- 
-2.25.1
-
+--- a/drivers/staging/comedi/drivers/ni_6527.c
++++ b/drivers/staging/comedi/drivers/ni_6527.c
+@@ -341,7 +341,7 @@ static int ni6527_intr_insn_config(struc
+ 		case COMEDI_DIGITAL_TRIG_ENABLE_EDGES:
+ 			/* check shift amount */
+ 			shift = data[3];
+-			if (shift >= s->n_chan) {
++			if (shift >= 32) {
+ 				mask = 0;
+ 				rising = 0;
+ 				falling = 0;
 
 
