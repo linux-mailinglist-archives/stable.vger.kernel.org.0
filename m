@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D58F322F236
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E480822F2B2
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729946AbgG0OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34322 "EHLO mail.kernel.org"
+        id S1731024AbgG0Olh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:41:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729943AbgG0OLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:11:01 -0400
+        id S1729326AbgG0OIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:08:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5022520838;
-        Mon, 27 Jul 2020 14:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78D4A207FC;
+        Mon, 27 Jul 2020 14:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859060;
-        bh=404mlOwBRprthN1mkVirySgS0S2bS+wvcYx3rW8zKHA=;
+        s=default; t=1595858880;
+        bh=MvE8PBdhmj1aPuM+2+7Ys0uzDZuPAyzzJmWgWV9775M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKWCkPJ0xS6U465/hGnh4MdpCqzYcUuD6sJzy24DHL5Lwe5yuuE36nyPbJr4zd/Wu
-         OY7M+cljOsyGkPoCrxFSuqeNb8QOI+xXlyGy5SKN1DpEehllwg4ROKU1suGn3QANEz
-         UeF7F8Xz14kV+SqT5gQ7UfPlsvtkbu6HNZtp7xus=
+        b=SnAtT4i4VkAHLWTCbIUIQ7KLqVkCbtYJ7HN1RzroHRaHK1K09Qh0ghe3S4KQ4YK45
+         MJOlt4C0v7HQOUd2WvJ3gKDTgkeWqYoqpxShCC8fjaxIlTeu7GL1f2KvBmlpWV2TSW
+         7zG9+UzgcZMvnHTEWkZ9RRUCfW6M1k8TGJoz+YGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/86] hwmon: (aspeed-pwm-tacho) Avoid possible buffer overflow
+        stable@vger.kernel.org,
+        syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>,
+        syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Michal Hocko <mhocko@suse.com>, Todd Kjos <tkjos@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 4.14 46/64] binder: Dont use mmput() from shrinker function.
 Date:   Mon, 27 Jul 2020 16:04:25 +0200
-Message-Id: <20200727134916.977587429@linuxfoundation.org>
+Message-Id: <20200727134913.470444240@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit bc4071aafcf4d0535ee423b69167696d6c03207d ]
+commit f867c771f98891841c217fa8459244ed0dd28921 upstream.
 
-aspeed_create_fan() reads a pwm_port value using of_property_read_u32().
-If pwm_port will be more than ARRAY_SIZE(pwm_port_params), there will be
-a buffer overflow in
-aspeed_create_pwm_port()->aspeed_set_pwm_port_enable(). The patch fixes
-the potential buffer overflow.
+syzbot is reporting that mmput() from shrinker function has a risk of
+deadlock [1], for delayed_uprobe_add() from update_ref_ctr() calls
+kzalloc(GFP_KERNEL) with delayed_uprobe_lock held, and
+uprobe_clear_state() from __mmput() also holds delayed_uprobe_lock.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Commit a1b2289cef92ef0e ("android: binder: drop lru lock in isolate
+callback") replaced mmput() with mmput_async() in order to avoid sleeping
+with spinlock held. But this patch replaces mmput() with mmput_async() in
+order not to start __mmput() from shrinker context.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Link: https://lore.kernel.org/r/20200703111518.9644-1-novikov@ispras.ru
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://syzkaller.appspot.com/bug?id=bc9e7303f537c41b2b0cc2dfcea3fc42964c2d45
+
+Reported-by: syzbot <syzbot+1068f09c44d151250c33@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+e5344baa319c9a96edec@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Todd Kjos <tkjos@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/4ba9adb2-43f5-2de0-22de-f6075c1fab50@i-love.sakura.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hwmon/aspeed-pwm-tacho.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/android/binder_alloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/aspeed-pwm-tacho.c b/drivers/hwmon/aspeed-pwm-tacho.c
-index 5e449eac788a1..a43fa730a513b 100644
---- a/drivers/hwmon/aspeed-pwm-tacho.c
-+++ b/drivers/hwmon/aspeed-pwm-tacho.c
-@@ -880,6 +880,8 @@ static int aspeed_create_fan(struct device *dev,
- 	ret = of_property_read_u32(child, "reg", &pwm_port);
- 	if (ret)
- 		return ret;
-+	if (pwm_port >= ARRAY_SIZE(pwm_port_params))
-+		return -EINVAL;
- 	aspeed_create_pwm_port(priv, (u8)pwm_port);
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -968,7 +968,7 @@ enum lru_status binder_alloc_free_page(s
+ 		trace_binder_unmap_user_end(alloc, index);
+ 	}
+ 	up_read(&mm->mmap_sem);
+-	mmput(mm);
++	mmput_async(mm);
  
- 	ret = of_property_count_u8_elems(child, "cooling-levels");
--- 
-2.25.1
-
+ 	trace_binder_unmap_kernel_start(alloc, index);
+ 
 
 
