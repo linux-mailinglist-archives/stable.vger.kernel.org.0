@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 390A922F1E1
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F3E22F238
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731938AbgG0OfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:35:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41920 "EHLO mail.kernel.org"
+        id S1729919AbgG0Oi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:38:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730714AbgG0OPc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:15:32 -0400
+        id S1729410AbgG0OKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 005462075A;
-        Mon, 27 Jul 2020 14:15:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD5ED2083E;
+        Mon, 27 Jul 2020 14:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859330;
-        bh=UCOxlc3N3+YpQEkmFbMqkpiiW5ae3DTQ3TBmeMyYHrc=;
+        s=default; t=1595859048;
+        bh=iEtFf7QMN19S5dmrOUJonugb+EIs3TYktwEmUKejVvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wa2VlZ7TM40mPx9K12rno3KKZzs/j7iqTpprPFpAT0mrGexWt85fXBVd88h9OCJ5K
-         L82flWMXFBGcU1M6dLu95400r4b6vF4eTUhN9lulWgBzIePakvx6VGvuQEVG+McZr2
-         Svj1MIAF/675V/BMXDDJB/1LY0X/+Hpei2+nEO0E=
+        b=CauK4a8jiVCT6HzTR5p3IcMMq+iKd6PXjHTtbFUsvSL8pwDLeaQlrB+5x6fHaM1U7
+         DL3LJxn3E895ZKdb4n//84zYTnGPLd1QgJNz1fKgaEpjwzaqSGSbHqLQtAExK0Ji2A
+         7j+3Rx66S2xJleP7dBbdmv5v+AwRTwvf3wII3lSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Akash Asthana <akashast@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mukesh Kumar Savaliya <msavaliy@codeaurora.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/138] i2c: i2c-qcom-geni: Fix DMA transfer race
-Date:   Mon, 27 Jul 2020 16:04:20 +0200
-Message-Id: <20200727134928.655687260@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 47/86] dmaengine: tegra210-adma: Fix runtime PM imbalance on error
+Date:   Mon, 27 Jul 2020 16:04:21 +0200
+Message-Id: <20200727134916.775045097@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 02b9aec59243c6240fc42884acc958602146ddf6 ]
+[ Upstream commit 5b78fac4b1ba731cf4177fdbc1e3a4661521bcd0 ]
 
-When I have KASAN enabled on my kernel and I start stressing the
-touchscreen my system tends to hang.  The touchscreen is one of the
-only things that does a lot of big i2c transfers and ends up hitting
-the DMA paths in the geni i2c driver.  It appears that KASAN adds
-enough delay in my system to tickle a race condition in the DMA setup
-code.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced.
 
-When the system hangs, I found that it was running the geni_i2c_irq()
-over and over again.  It had these:
-
-m_stat   = 0x04000080
-rx_st    = 0x30000011
-dm_tx_st = 0x00000000
-dm_rx_st = 0x00000000
-dma      = 0x00000001
-
-Notably we're in DMA mode but are getting M_RX_IRQ_EN and
-M_RX_FIFO_WATERMARK_EN over and over again.
-
-Putting some traces in geni_i2c_rx_one_msg() showed that when we
-failed we were getting to the start of geni_i2c_rx_one_msg() but were
-never executing geni_se_rx_dma_prep().
-
-I believe that the problem here is that we are starting the geni
-command before we run geni_se_rx_dma_prep().  If a transfer makes it
-far enough before we do that then we get into the state I have
-observed.  Let's change the order, which seems to work fine.
-
-Although problems were seen on the RX path, code inspection suggests
-that the TX should be changed too.  Change it as well.
-
-Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Reviewed-by: Akash Asthana <akashast@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Mukesh Kumar Savaliya <msavaliy@codeaurora.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20200624064626.19855-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/dma/tegra210-adma.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 17abf60c94aeb..aafc76ee93e02 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -368,7 +368,6 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		geni_se_select_mode(se, GENI_SE_FIFO);
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index 045351f3549c1..86b45198fb962 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -583,6 +583,7 @@ static int tegra_adma_alloc_chan_resources(struct dma_chan *dc)
  
- 	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
--	geni_se_setup_m_cmd(se, I2C_READ, m_param);
- 
- 	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
- 		geni_se_select_mode(se, GENI_SE_FIFO);
-@@ -376,6 +375,8 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		dma_buf = NULL;
+ 	ret = pm_runtime_get_sync(tdc2dev(tdc));
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(tdc2dev(tdc));
+ 		free_irq(tdc->irq, tdc);
+ 		return ret;
  	}
+@@ -764,8 +765,10 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
  
-+	geni_se_setup_m_cmd(se, I2C_READ, m_param);
-+
- 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
- 	if (!time_left)
- 		geni_i2c_abort_xfer(gi2c);
-@@ -409,7 +410,6 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		geni_se_select_mode(se, GENI_SE_FIFO);
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(&pdev->dev);
+ 		goto rpm_disable;
++	}
  
- 	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
--	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
- 
- 	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
- 		geni_se_select_mode(se, GENI_SE_FIFO);
-@@ -417,6 +417,8 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		dma_buf = NULL;
- 	}
- 
-+	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
-+
- 	if (!dma_buf) /* Get FIFO IRQ */
- 		writel_relaxed(1, se->base + SE_GENI_TX_WATERMARK_REG);
- 
+ 	ret = tegra_adma_init(tdma);
+ 	if (ret)
 -- 
 2.25.1
 
