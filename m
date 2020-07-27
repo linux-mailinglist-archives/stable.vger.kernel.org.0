@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0508622EF87
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A79F22EE7C
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730341AbgG0ORG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:17:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44266 "EHLO mail.kernel.org"
+        id S1729367AbgG0OIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:08:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730989AbgG0ORE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:17:04 -0400
+        id S1729375AbgG0OII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:08:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F82B208E4;
-        Mon, 27 Jul 2020 14:17:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D53A52073E;
+        Mon, 27 Jul 2020 14:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859424;
-        bh=K/QnzBnxSz8nRtmvwhBj2GIp+N4PtdWh0qolEym6wG4=;
+        s=default; t=1595858888;
+        bh=1krdMMCgu2EhWpI5PXJAaTOqyzYFC6r2SVugadVwagU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNGKnwj9oixifS5GZa1FPdEPXjDh9QbvN1x2p/XS249/yIqiyxtxq0jm7cnUp0J23
-         SHaLIVwGZmNV+RbwkVHXMTFs/i0LK5/6F9xU+Ve8GqbshHL+V6FAYgdfnqV9BgeyMl
-         5q9IAEuAT94H/ZlsSX37kOcFnMpK4ZwfCFSkJf7g=
+        b=zNP2vazWLfFsXwvPq7mp/pSW5f6LQfViFnB9MONEpUov5VbuL20JO0Hr3YvvgSZ6Y
+         eM7W5A1og5J1F58O0H1FENE8pwWpiaNMepDdkT8BDh/ZG2oPPeye2nyiOkd/o4Lr80
+         WR7gMgrkK8Lkw7SmupbSid/zH0KELURkzsD0ukXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Caiyuan Xie <caiyuan.xie@cn.alps.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/138] HID: alps: support devices with report id 2
-Date:   Mon, 27 Jul 2020 16:04:27 +0200
-Message-Id: <20200727134928.990050862@linuxfoundation.org>
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Patrick Fernie <patrick.fernie@gmail.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Subject: [PATCH 4.14 49/64] Revert "cifs: Fix the target file was deleted when rename failed."
+Date:   Mon, 27 Jul 2020 16:04:28 +0200
+Message-Id: <20200727134913.606900997@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caiyuan Xie <caiyuan.xie@cn.alps.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit aa3c439c144f0a465ed1f28f11c772886fb02b35 ]
+commit 0e6705182d4e1b77248a93470d6d7b3013d59b30 upstream.
 
-Add support for devices which that have reports with id == 2
+This reverts commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2.
 
-Signed-off-by: Caiyuan Xie <caiyuan.xie@cn.alps.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Upon additional testing with older servers, it was found that
+the original commit introduced a regression when using the old SMB1
+dialect and rsyncing over an existing file.
+
+The patch will need to be respun to address this, likely including
+a larger refactoring of the SMB1 and SMB3 rename code paths to make
+it less confusing and also to address some additional rename error
+cases that SMB3 may be able to workaround.
+
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Patrick Fernie <patrick.fernie@gmail.com>
+CC: Stable <stable@vger.kernel.org>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
+Acked-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hid-alps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/inode.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index b2ad319a74b9a..d33f5abc8f64d 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -25,6 +25,7 @@
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1778,7 +1778,6 @@ cifs_rename2(struct inode *source_dir, s
+ 	FILE_UNIX_BASIC_INFO *info_buf_target;
+ 	unsigned int xid;
+ 	int rc, tmprc;
+-	bool new_target = d_really_is_negative(target_dentry);
  
- #define U1_MOUSE_REPORT_ID			0x01 /* Mouse data ReportID */
- #define U1_ABSOLUTE_REPORT_ID		0x03 /* Absolute data ReportID */
-+#define U1_ABSOLUTE_REPORT_ID_SECD  0x02 /* FW-PTP Absolute data ReportID */
- #define U1_FEATURE_REPORT_ID		0x05 /* Feature ReportID */
- #define U1_SP_ABSOLUTE_REPORT_ID	0x06 /* Feature ReportID */
+ 	if (flags & ~RENAME_NOREPLACE)
+ 		return -EINVAL;
+@@ -1855,13 +1854,8 @@ cifs_rename2(struct inode *source_dir, s
+ 	 */
  
-@@ -368,6 +369,7 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 	case U1_FEATURE_REPORT_ID:
- 		break;
- 	case U1_ABSOLUTE_REPORT_ID:
-+	case U1_ABSOLUTE_REPORT_ID_SECD:
- 		for (i = 0; i < hdata->max_fingers; i++) {
- 			u8 *contact = &data[i * 5];
- 
--- 
-2.25.1
-
+ unlink_target:
+-	/*
+-	 * If the target dentry was created during the rename, try
+-	 * unlinking it if it's not negative
+-	 */
+-	if (new_target &&
+-	    d_really_is_positive(target_dentry) &&
+-	    (rc == -EACCES || rc == -EEXIST)) {
++	/* Try unlinking the target dentry if it's not negative */
++	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
+ 		if (d_is_dir(target_dentry))
+ 			tmprc = cifs_rmdir(target_dir, target_dentry);
+ 		else
 
 
