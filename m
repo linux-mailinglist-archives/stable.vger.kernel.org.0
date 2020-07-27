@@ -2,250 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB92222EB4D
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 13:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 335ED22ECC0
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 15:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727026AbgG0Lhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 07:37:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40154 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726885AbgG0Lhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 07:37:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 748D5ADB5;
-        Mon, 27 Jul 2020 11:37:53 +0000 (UTC)
-Subject: Re: [PATCH 2/3] drm/ast: Store image size in HW cursor info
-To:     daniel@ffwll.ch
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>, emil.l.velikov@gmail.com,
-        dri-devel@lists.freedesktop.org, kraxel@redhat.com,
-        airlied@redhat.com, stable@vger.kernel.org, sam@ravnborg.org
-References: <20200727073707.21097-1-tzimmermann@suse.de>
- <20200727073707.21097-3-tzimmermann@suse.de>
- <20200727104250.GV6419@phenom.ffwll.local>
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <8c92a1c5-59b8-6b36-5c45-20783b5435eb@suse.de>
-Date:   Mon, 27 Jul 2020 13:37:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728480AbgG0NDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 09:03:51 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:53643 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728367AbgG0NDv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 09:03:51 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6D4D81940716;
+        Mon, 27 Jul 2020 09:03:49 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:03:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=86PBBI
+        DOU71EqeI0/AM/4UzjhOhArIw9uG7nuUWDLRM=; b=aL5hNpqcBkXiI8XSJfJ02e
+        ygpAo26ble7aA8lHA+RzG2qL/2nGT2If8z+fcNjQm4QIAVuBw2I1M6REkBFGAj/N
+        bBhqiatSjLFWFHkhE42BJmEGZ9MPLh2qpSwZHwxgN6hRlY07RPwp/KIHBtmq8i8a
+        qaBBs/BEGSfHmfz+aPq+XbDpRmmcxG7ubf7Y3ROrWmKjfkhLLzWtU9bWPNcEu61q
+        vsCL7nJF61NMwZE1bd6LBsTK80EvTROZrT4gIW8uRjqNhfQ+vlI7r6GNRIgESUCu
+        BsHuM5UL1FzG9cq0xYae71ctmRN3ojhYFaUfGg4SEJ5TLRBlbeo2sR/N2y2KUO1w
+        ==
+X-ME-Sender: <xms:tNAeX0MhjOIh0Rf4boXJHNq71o1Cts5lf8lQwYiB4hzGlLAhCVWFqQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeitdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecuogfuuhhsphgvtghtffhomhgrihhnucdlgeelmdenuc
+    fjughrpefuvffhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhhes
+    lhhinhhugihfohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepfeegue
+    eggeekffefgeekveeggeffgeeljeekjeekleeuffegheefieduffekuefhnecuffhomhgr
+    ihhnpegrphhpshhpohhtrdgtohhmpdhkvghrnhgvlhdrohhrghenucfkphepkeefrdekie
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:tNAeX693RmeyCLSbit6pMZxxu0vD59ZSsztpynq4ATf3SafAbg6qnQ>
+    <xmx:tNAeX7SHPFeJQ1SUb-0Uoz4ZSiya-Wh9kL64nJbk_1lunJsGl9QX6A>
+    <xmx:tNAeX8vrhP1zOj3Qd3RxWA0LXPtKP7AdIGCJK7WfCo5QayO7cwgNag>
+    <xmx:tdAeX4GFQ4H9g0kWUTX54kGxVRxQsPM-4gROkpKEfXEdp8roz4pEtA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7B1853280068;
+        Mon, 27 Jul 2020 09:03:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] fbdev: Detect integer underflow at "struct" failed to apply to 4.9-stable tree
+To:     penguin-kernel@I-love.SAKURA.ne.jp, daniel.vetter@ffwll.ch,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Jul 2020 15:03:44 +0200
+Message-ID: <1595855024210244@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200727104250.GV6419@phenom.ffwll.local>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="CmuSZk7dK7cCWP7ppEw3yAZs6wc1aPuGD"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---CmuSZk7dK7cCWP7ppEw3yAZs6wc1aPuGD
-Content-Type: multipart/mixed; boundary="moSum8Rl9rGkQ40nN1I6ufdPQr9ySwFxF";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: daniel@ffwll.ch
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, emil.l.velikov@gmail.com,
- dri-devel@lists.freedesktop.org, kraxel@redhat.com, airlied@redhat.com,
- stable@vger.kernel.org, sam@ravnborg.org
-Message-ID: <8c92a1c5-59b8-6b36-5c45-20783b5435eb@suse.de>
-Subject: Re: [PATCH 2/3] drm/ast: Store image size in HW cursor info
-References: <20200727073707.21097-1-tzimmermann@suse.de>
- <20200727073707.21097-3-tzimmermann@suse.de>
- <20200727104250.GV6419@phenom.ffwll.local>
-In-Reply-To: <20200727104250.GV6419@phenom.ffwll.local>
 
---moSum8Rl9rGkQ40nN1I6ufdPQr9ySwFxF
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Hi
+thanks,
 
-Am 27.07.20 um 12:42 schrieb daniel@ffwll.ch:
-> On Mon, Jul 27, 2020 at 09:37:06AM +0200, Thomas Zimmermann wrote:
->> Store the image size as part of the HW cursor info, so that the
->> cursor show function doesn't require the information from the
->> caller. No functional changes.
->=20
-> Uh just pass the state structure and done? All these "store random stuf=
-f
-> in private structures" (they're not even atomic state structures, it's =
-the
-> driver private thing even!) is very non-atomic. And I see zero reasons =
-why
-> you have to do this, the cursor stays around.
+greg k-h
 
-It's not random stuff. Ast cannot use ARGB8888 for cursors. Anything in
-ast_private.cursor represents cursor hardware state (not DRM state);
-duplicated for double buffering.
+------------------ original commit in Linus's tree ------------------
 
- * gbo: two perma-pinned GEM objects at the end of VRAM. It's the HW
-cursor buffer in ARGB4444 format. The userspace's cursor image is
-converted to ARGB4444 and copied into the current backbuffer.
+From 033724d6864245a11f8e04c066002e6ad22b3fd0 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date: Wed, 15 Jul 2020 10:51:02 +0900
+Subject: [PATCH] fbdev: Detect integer underflow at "struct
+ fbcon_ops"->clear_margins.
 
- * vaddr: A mapping of the gbo's into kernel address space. We don't
-want to map the gbo on each update, so they are mapped once and the
-kernel address is stored in vaddr.
+syzbot is reporting general protection fault in bitfill_aligned() [1]
+caused by integer underflow in bit_clear_margins(). The cause of this
+problem is when and how do_vc_resize() updates vc->vc_{cols,rows}.
 
- * size: the size of each HW buffer. We could use the value in the fb,
-but storing this as well makes the cursor code self-contained.
+If vc_do_resize() fails (e.g. kzalloc() fails) when var.xres or var.yres
+is going to shrink, vc->vc_{cols,rows} will not be updated. This allows
+bit_clear_margins() to see info->var.xres < (vc->vc_cols * cw) or
+info->var.yres < (vc->vc_rows * ch). Unexpectedly large rw or bh will
+try to overrun the __iomem region and causes general protection fault.
 
-Best regards
-Thomas
+Also, vc_resize(vc, 0, 0) does not set vc->vc_{cols,rows} = 0 due to
 
-> -Daniel
->=20
->>
->> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->> Fixes: 4961eb60f145 ("drm/ast: Enable atomic modesetting")
->> Cc: Thomas Zimmermann <tzimmermann@suse.de>
->> Cc: Gerd Hoffmann <kraxel@redhat.com>
->> Cc: Dave Airlie <airlied@redhat.com>
->> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
->> Cc: Sam Ravnborg <sam@ravnborg.org>
->> Cc: Emil Velikov <emil.l.velikov@gmail.com>
->> Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
->> Cc: <stable@vger.kernel.org> # v5.6+
->> ---
->>  drivers/gpu/drm/ast/ast_cursor.c | 13 +++++++++++--
->>  drivers/gpu/drm/ast/ast_drv.h    |  7 +++++--
->>  drivers/gpu/drm/ast/ast_mode.c   |  8 +-------
->>  3 files changed, 17 insertions(+), 11 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/ast/ast_cursor.c b/drivers/gpu/drm/ast/as=
-t_cursor.c
->> index acf0d23514e8..8642a0ce9da6 100644
->> --- a/drivers/gpu/drm/ast/ast_cursor.c
->> +++ b/drivers/gpu/drm/ast/ast_cursor.c
->> @@ -87,6 +87,8 @@ int ast_cursor_init(struct ast_private *ast)
->> =20
->>  		ast->cursor.gbo[i] =3D gbo;
->>  		ast->cursor.vaddr[i] =3D vaddr;
->> +		ast->cursor.size[i].width =3D 0;
->> +		ast->cursor.size[i].height =3D 0;
->>  	}
->> =20
->>  	return drmm_add_action_or_reset(dev, ast_cursor_release, NULL);
->> @@ -194,6 +196,9 @@ int ast_cursor_blit(struct ast_private *ast, struc=
-t drm_framebuffer *fb)
->>  	/* do data transfer to cursor BO */
->>  	update_cursor_image(dst, src, fb->width, fb->height);
->> =20
->> +	ast->cursor.size[ast->cursor.next_index].width =3D fb->width;
->> +	ast->cursor.size[ast->cursor.next_index].height =3D fb->height;
->> +
->>  	drm_gem_vram_vunmap(gbo, src);
->>  	drm_gem_vram_unpin(gbo);
->> =20
->> @@ -249,14 +254,18 @@ static void ast_cursor_set_location(struct ast_p=
-rivate *ast, u16 x, u16 y,
->>  	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xc7, y1);
->>  }
->> =20
->> -void ast_cursor_show(struct ast_private *ast, int x, int y,
->> -		     unsigned int offset_x, unsigned int offset_y)
->> +void ast_cursor_show(struct ast_private *ast, int x, int y)
->>  {
->> +	unsigned int offset_x, offset_y;
->>  	u8 x_offset, y_offset;
->>  	u8 __iomem *dst, __iomem *sig;
->>  	u8 jreg;
->> =20
->>  	dst =3D ast->cursor.vaddr[ast->cursor.next_index];
->> +	offset_x =3D AST_MAX_HWC_WIDTH -
->> +		   ast->cursor.size[ast->cursor.next_index].width;
->> +	offset_y =3D AST_MAX_HWC_HEIGHT -
->> +		   ast->cursor.size[ast->cursor.next_index].height;
->> =20
->>  	sig =3D dst + AST_HWC_SIZE;
->>  	writel(x, sig + AST_HWC_SIGNATURE_X);
->> diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_d=
-rv.h
->> index e3a264ac7ee2..57414b429db3 100644
->> --- a/drivers/gpu/drm/ast/ast_drv.h
->> +++ b/drivers/gpu/drm/ast/ast_drv.h
->> @@ -116,6 +116,10 @@ struct ast_private {
->>  	struct {
->>  		struct drm_gem_vram_object *gbo[AST_DEFAULT_HWC_NUM];
->>  		void __iomem *vaddr[AST_DEFAULT_HWC_NUM];
->> +		struct {
->> +			unsigned int width;
->> +			unsigned int height;
->> +		} size[AST_DEFAULT_HWC_NUM];
->>  		unsigned int next_index;
->>  	} cursor;
->> =20
->> @@ -311,8 +315,7 @@ void ast_release_firmware(struct drm_device *dev);=
+  new_cols = (cols ? cols : vc->vc_cols);
+  new_rows = (lines ? lines : vc->vc_rows);
 
->>  int ast_cursor_init(struct ast_private *ast);
->>  int ast_cursor_blit(struct ast_private *ast, struct drm_framebuffer *=
-fb);
->>  void ast_cursor_page_flip(struct ast_private *ast);
->> -void ast_cursor_show(struct ast_private *ast, int x, int y,
->> -		     unsigned int offset_x, unsigned int offset_y);
->> +void ast_cursor_show(struct ast_private *ast, int x, int y);
->>  void ast_cursor_hide(struct ast_private *ast);
->> =20
->>  #endif
->> diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_=
-mode.c
->> index 3680a000b812..5b2b39c93033 100644
->> --- a/drivers/gpu/drm/ast/ast_mode.c
->> +++ b/drivers/gpu/drm/ast/ast_mode.c
->> @@ -671,20 +671,14 @@ ast_cursor_plane_helper_atomic_update(struct drm=
-_plane *plane,
->>  				      struct drm_plane_state *old_state)
->>  {
->>  	struct drm_plane_state *state =3D plane->state;
->> -	struct drm_framebuffer *fb =3D state->fb;
->>  	struct ast_private *ast =3D plane->dev->dev_private;
->> -	unsigned int offset_x, offset_y;
->> -
->> -	offset_x =3D AST_MAX_HWC_WIDTH - fb->width;
->> -	offset_y =3D AST_MAX_HWC_WIDTH - fb->height;
->> =20
->>  	if (state->fb !=3D old_state->fb) {
->>  		/* A new cursor image was installed. */
->>  		ast_cursor_page_flip(ast);
->>  	}
->> =20
->> -	ast_cursor_show(ast, state->crtc_x, state->crtc_y,
->> -			offset_x, offset_y);
->> +	ast_cursor_show(ast, state->crtc_x, state->crtc_y);
->>  }
->> =20
->>  static void
->> --=20
->> 2.27.0
->>
->=20
+exception. Since cols and lines are calculated as
 
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+  cols = FBCON_SWAP(ops->rotate, info->var.xres, info->var.yres);
+  rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
+  cols /= vc->vc_font.width;
+  rows /= vc->vc_font.height;
+  vc_resize(vc, cols, rows);
 
+in fbcon_modechanged(), var.xres < vc->vc_font.width makes cols = 0
+and var.yres < vc->vc_font.height makes rows = 0. This means that
 
---moSum8Rl9rGkQ40nN1I6ufdPQr9ySwFxF--
+  const int fd = open("/dev/fb0", O_ACCMODE);
+  struct fb_var_screeninfo var = { };
+  ioctl(fd, FBIOGET_VSCREENINFO, &var);
+  var.xres = var.yres = 1;
+  ioctl(fd, FBIOPUT_VSCREENINFO, &var);
 
---CmuSZk7dK7cCWP7ppEw3yAZs6wc1aPuGD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+easily reproduces integer underflow bug explained above.
 
------BEGIN PGP SIGNATURE-----
+Of course, callers of vc_resize() are not handling vc_do_resize() failure
+is bad. But we can't avoid vc_resize(vc, 0, 0) which returns 0. Therefore,
+as a band-aid workaround, this patch checks integer underflow in
+"struct fbcon_ops"->clear_margins call, assuming that
+vc->vc_cols * vc->vc_font.width and vc->vc_rows * vc->vc_font.heigh do not
+cause integer overflow.
 
-iQFIBAEBCAAyFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl8evIMUHHR6aW1tZXJt
-YW5uQHN1c2UuZGUACgkQaA3BHVMLeiOaewf/Td1IsttQNF4KERc+23/KgYJuRF6A
-jZeW2ilwy1wROmTGi3mCDMMt/puu1MYJU7tP3RErO/n6y7HK2UVDkoX/g55JThdt
-fopg2FZYmqXMNzEQAdgMHPrhv3fwSGtwhp+yp1Kcp2Hecu72Fkzqzmj/2d9Uz00x
-VimEC7GsmAFkQwdlI+X+RuHaHHugXctFVwQBH8TZuxdPRVRsLuaQkTc/AXX9nH3j
-Wf56Ce5dBzcTWfdJhBmZjFAkFsEnOTj11rAgzhzEJhSbG3A0TW/s1c0dbi0ga31o
-MN0i5/m74tIXFaGn5N6ftwOUsgz1jy8IYjsYJdZWcMLbbupJJJt5sUFhzw==
-=IeIN
------END PGP SIGNATURE-----
+[1] https://syzkaller.appspot.com/bug?id=a565882df74fa76f10d3a6fec4be31098dbb37c6
 
---CmuSZk7dK7cCWP7ppEw3yAZs6wc1aPuGD--
+Reported-and-tested-by: syzbot <syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200715015102.3814-1-penguin-kernel@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/video/fbdev/core/bitblit.c b/drivers/video/fbdev/core/bitblit.c
+index ca935c09a261..35ebeeccde4d 100644
+--- a/drivers/video/fbdev/core/bitblit.c
++++ b/drivers/video/fbdev/core/bitblit.c
+@@ -216,7 +216,7 @@ static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
+ 
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dx = info->var.xoffset + rs;
+ 		region.dy = 0;
+ 		region.width = rw;
+@@ -224,7 +224,7 @@ static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
+ 
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dx = info->var.xoffset;
+ 		region.dy = info->var.yoffset + bs;
+ 		region.width = rs;
+diff --git a/drivers/video/fbdev/core/fbcon_ccw.c b/drivers/video/fbdev/core/fbcon_ccw.c
+index dfa9a8aa4509..78f3a5621478 100644
+--- a/drivers/video/fbdev/core/fbcon_ccw.c
++++ b/drivers/video/fbdev/core/fbcon_ccw.c
+@@ -201,7 +201,7 @@ static void ccw_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
+ 
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dx = 0;
+ 		region.dy = info->var.yoffset;
+ 		region.height = rw;
+@@ -209,7 +209,7 @@ static void ccw_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
+ 
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dx = info->var.xoffset + bs;
+ 		region.dy = 0;
+                 region.height = info->var.yres_virtual;
+diff --git a/drivers/video/fbdev/core/fbcon_cw.c b/drivers/video/fbdev/core/fbcon_cw.c
+index ce08251bfd38..fd098ff17574 100644
+--- a/drivers/video/fbdev/core/fbcon_cw.c
++++ b/drivers/video/fbdev/core/fbcon_cw.c
+@@ -184,7 +184,7 @@ static void cw_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
+ 
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dx = 0;
+ 		region.dy = info->var.yoffset + rs;
+ 		region.height = rw;
+@@ -192,7 +192,7 @@ static void cw_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
+ 
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dx = info->var.xoffset;
+ 		region.dy = info->var.yoffset;
+                 region.height = info->var.yres;
+diff --git a/drivers/video/fbdev/core/fbcon_ud.c b/drivers/video/fbdev/core/fbcon_ud.c
+index 1936afc78fec..e165a3fad29a 100644
+--- a/drivers/video/fbdev/core/fbcon_ud.c
++++ b/drivers/video/fbdev/core/fbcon_ud.c
+@@ -231,7 +231,7 @@ static void ud_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 	region.color = color;
+ 	region.rop = ROP_COPY;
+ 
+-	if (rw && !bottom_only) {
++	if ((int) rw > 0 && !bottom_only) {
+ 		region.dy = 0;
+ 		region.dx = info->var.xoffset;
+ 		region.width  = rw;
+@@ -239,7 +239,7 @@ static void ud_clear_margins(struct vc_data *vc, struct fb_info *info,
+ 		info->fbops->fb_fillrect(info, &region);
+ 	}
+ 
+-	if (bh) {
++	if ((int) bh > 0) {
+ 		region.dy = info->var.yoffset;
+ 		region.dx = info->var.xoffset;
+                 region.height  = bh;
+
