@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D6322F249
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6E9522F24B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729775AbgG0OKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32822 "EHLO mail.kernel.org"
+        id S1729796AbgG0OKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729790AbgG0OKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:10:12 -0400
+        id S1729146AbgG0OKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B384A2083E;
-        Mon, 27 Jul 2020 14:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1577520838;
+        Mon, 27 Jul 2020 14:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859012;
-        bh=hhuOWuHf7e1hRbr1agT3ODhnh3OFAi7Fw/8QD9fmEfE=;
+        s=default; t=1595859014;
+        bh=cqwlgHyPsfPuA8z4WrenfxsuVzf4oQ5bGA82xRt0E4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zthnJBfeEiRVB5yEy4i97T6BobtqnCIMI1vtCimZx2gMVspI74JlDUWgc7XLx0Rl8
-         r6pzcGHFpi4S8L7+Wo72OqzYsbea0RgSanfamZNjnjP3Duq2Bu1Qn+zzvSqNPwhAhE
-         r50hnM8P7WlVp9Cz1dNwpUiL55b+yjdwYMAcSF6A=
+        b=g/cmzO+O42bAtRc2QQU2K2uPilixwpnFikEUHPPihIoMQtFS2aoPmcm1pbfr2p21G
+         Ip75HiiEYgJ3iPwWuaTHx2WcvhZRRW7SQv2BFw8BlbuGqfSHF3oLucvD8Udvp8zkdd
+         h5REMNwBmVW6eGKV1D4gT0Z/NhGGR5gD78NtBn24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Bottomley <jejb@linux.ibm.com>,
-        Tom Rix <trix@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/86] scsi: scsi_transport_spi: Fix function pointer check
-Date:   Mon, 27 Jul 2020 16:03:40 +0200
-Message-Id: <20200727134914.661970189@linuxfoundation.org>
+Subject: [PATCH 4.19 07/86] xtensa: fix __sync_fetch_and_{and,or}_4 declarations
+Date:   Mon, 27 Jul 2020 16:03:41 +0200
+Message-Id: <20200727134914.712708685@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
 References: <20200727134914.312934924@linuxfoundation.org>
@@ -45,48 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 5aee52c44d9170591df65fafa1cd408acc1225ce ]
+[ Upstream commit 73f9941306d5ce030f3ffc7db425c7b2a798cf8e ]
 
-clang static analysis flags several null function pointer problems.
+Building xtensa kernel with gcc-10 produces the following warnings:
+  arch/xtensa/kernel/xtensa_ksyms.c:90:15: warning: conflicting types
+    for built-in function ‘__sync_fetch_and_and_4’;
+    expected ‘unsigned int(volatile void *, unsigned int)’
+    [-Wbuiltin-declaration-mismatch]
+  arch/xtensa/kernel/xtensa_ksyms.c:96:15: warning: conflicting types
+    for built-in function ‘__sync_fetch_and_or_4’;
+    expected ‘unsigned int(volatile void *, unsigned int)’
+    [-Wbuiltin-declaration-mismatch]
 
-drivers/scsi/scsi_transport_spi.c:374:1: warning: Called function pointer is null (null dereference) [core.CallAndMessage]
-spi_transport_max_attr(offset, "%d\n");
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fix declarations of these functions to avoid the warning.
 
-Reviewing the store_spi_store_max macro
-
-	if (i->f->set_##field)
-		return -EINVAL;
-
-should be
-
-	if (!i->f->set_##field)
-		return -EINVAL;
-
-Link: https://lore.kernel.org/r/20200627133242.21618-1-trix@redhat.com
-Reviewed-by: James Bottomley <jejb@linux.ibm.com>
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/kernel/xtensa_ksyms.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
-index 40b85b752b794..69213842e63e0 100644
---- a/drivers/scsi/scsi_transport_spi.c
-+++ b/drivers/scsi/scsi_transport_spi.c
-@@ -352,7 +352,7 @@ store_spi_transport_##field(struct device *dev, 			\
- 	struct spi_transport_attrs *tp					\
- 		= (struct spi_transport_attrs *)&starget->starget_data;	\
- 									\
--	if (i->f->set_##field)						\
-+	if (!i->f->set_##field)						\
- 		return -EINVAL;						\
- 	val = simple_strtoul(buf, NULL, 0);				\
- 	if (val > tp->max_##field)					\
+diff --git a/arch/xtensa/kernel/xtensa_ksyms.c b/arch/xtensa/kernel/xtensa_ksyms.c
+index 4092555828b13..24cf6972eacea 100644
+--- a/arch/xtensa/kernel/xtensa_ksyms.c
++++ b/arch/xtensa/kernel/xtensa_ksyms.c
+@@ -87,13 +87,13 @@ void __xtensa_libgcc_window_spill(void)
+ }
+ EXPORT_SYMBOL(__xtensa_libgcc_window_spill);
+ 
+-unsigned long __sync_fetch_and_and_4(unsigned long *p, unsigned long v)
++unsigned int __sync_fetch_and_and_4(volatile void *p, unsigned int v)
+ {
+ 	BUG();
+ }
+ EXPORT_SYMBOL(__sync_fetch_and_and_4);
+ 
+-unsigned long __sync_fetch_and_or_4(unsigned long *p, unsigned long v)
++unsigned int __sync_fetch_and_or_4(volatile void *p, unsigned int v)
+ {
+ 	BUG();
+ }
 -- 
 2.25.1
 
