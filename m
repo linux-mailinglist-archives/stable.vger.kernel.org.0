@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6168822F1CA
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44DE122F1CC
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730519AbgG0OOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:14:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39890 "EHLO mail.kernel.org"
+        id S1729962AbgG0OO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:14:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730515AbgG0OOV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:14:21 -0400
+        id S1730528AbgG0OOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:14:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA60021744;
-        Mon, 27 Jul 2020 14:14:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 467C3208E4;
+        Mon, 27 Jul 2020 14:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859261;
-        bh=8UlBsW1v3tfZ3Y34/kCWH8FukhJMIanc5NRLM/MI7/M=;
+        s=default; t=1595859263;
+        bh=CDgSlUqKPGmQBQWGQKwaip8LlKp+TzgJr12FOTDVWuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/chggdrN6cqMmJB/p02GiaWHtBU8sFfDJN9sybr7XdzUJbblGAqFJG78fH4nvODI
-         v2Hi8neug5UNRwAkDXrN1OaNlQwhK3x6cr6nlas6kvw1Sjj8eKWeFFogNeWQrxwR27
-         Ij8mNo8tTxPNBB6ix1xptcYeHLOpCD5wFLt2pd+4=
+        b=OiNT2d3MRfy8ezfXapoWD/ut8riLrpthFB9bTa16MlBBH0k/+O9/F2IqbceiwKRZZ
+         uHd5o6jMwTsLllw7mj8GqnbqzB7vzucQdWzav361NnTu19SC+vWVoYs7chF45wQZ6i
+         +TVQT8gThctze53HHiHkw5XzSejk8pH1AtAEdU7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/138] drivers/net/wan/lapbether: Fixed the value of hard_header_len
-Date:   Mon, 27 Jul 2020 16:03:25 +0200
-Message-Id: <20200727134925.756313009@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 011/138] ALSA: hda/hdmi: fix failures at PCM open on Intel ICL and later
+Date:   Mon, 27 Jul 2020 16:03:26 +0200
+Message-Id: <20200727134925.807460273@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -44,56 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 9dc829a135fb5927f1519de11286e2bbb79f5b66 ]
+[ Upstream commit 56275036d8185f92eceac7479d48b858ee3dab84 ]
 
-When this driver transmits data,
-  first this driver will remove a pseudo header of 1 byte,
-  then the lapb module will prepend the LAPB header of 2 or 3 bytes,
-  then this driver will prepend a length field of 2 bytes,
-  then the underlying Ethernet device will prepend its own header.
+When HDMI PCM devices are opened in a specific order, with at least one
+HDMI/DP receiver connected, ALSA PCM open fails to -EBUSY on the
+connected monitor, on recent Intel platforms (ICL/JSL and newer). While
+this is not a typical sequence, at least Pulseaudio does this every time
+when it is started, to discover the available PCMs.
 
-So, the header length required should be:
-  -1 + 3 + 2 + "the header length needed by the underlying device".
+The rootcause is an invalid assumption in hdmi_add_pin(), where the
+total number of converters is assumed to be known at the time the
+function is called. On older Intel platforms this held true, but after
+ICL/JSL, the order how pins and converters are in the subnode list as
+returned by snd_hda_get_sub_nodes(), was changed. As a result,
+information for some converters was not stored to per_pin->mux_nids.
+And this means some pins cannot be connected to all converters, and
+application instead gets -EBUSY instead at open.
 
-This patch fixes kernel panic when this driver is used with AF_PACKET
-SOCK_DGRAM sockets.
+The assumption that converters are always before pins in the subnode
+list, is not really a valid one. Fix the problem in hdmi_parse_codec()
+by introducing separate loops for discovering converters and pins.
 
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://github.com/thesofproject/linux/issues/1978
+BugLink: https://github.com/thesofproject/linux/issues/2216
+BugLink: https://github.com/thesofproject/linux/issues/2217
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200703153818.2808592-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c | 36 +++++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 0f1217b506ad2..5a6f27298b90f 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -303,7 +303,6 @@ static void lapbeth_setup(struct net_device *dev)
- 	dev->netdev_ops	     = &lapbeth_netdev_ops;
- 	dev->needs_free_netdev = true;
- 	dev->type            = ARPHRD_X25;
--	dev->hard_header_len = 3;
- 	dev->mtu             = 1000;
- 	dev->addr_len        = 0;
- }
-@@ -324,6 +323,14 @@ static int lapbeth_new_device(struct net_device *dev)
- 	if (!ndev)
- 		goto out;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index e78c4367b6c86..820f534a67b1c 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1817,33 +1817,43 @@ static int hdmi_add_cvt(struct hda_codec *codec, hda_nid_t cvt_nid)
  
-+	/* When transmitting data:
-+	 * first this driver removes a pseudo header of 1 byte,
-+	 * then the lapb module prepends an LAPB header of at most 3 bytes,
-+	 * then this driver prepends a length field of 2 bytes,
-+	 * then the underlying Ethernet device prepends its own header.
+ static int hdmi_parse_codec(struct hda_codec *codec)
+ {
+-	hda_nid_t nid;
++	hda_nid_t start_nid;
++	unsigned int caps;
+ 	int i, nodes;
+ 
+-	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &nid);
+-	if (!nid || nodes < 0) {
++	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &start_nid);
++	if (!start_nid || nodes < 0) {
+ 		codec_warn(codec, "HDMI: failed to get afg sub nodes\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	for (i = 0; i < nodes; i++, nid++) {
+-		unsigned int caps;
+-		unsigned int type;
++	/*
++	 * hdmi_add_pin() assumes total amount of converters to
++	 * be known, so first discover all converters
 +	 */
-+	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
-+
- 	lapbeth = netdev_priv(ndev);
- 	lapbeth->axdev = ndev;
++	for (i = 0; i < nodes; i++) {
++		hda_nid_t nid = start_nid + i;
  
+ 		caps = get_wcaps(codec, nid);
+-		type = get_wcaps_type(caps);
+ 
+ 		if (!(caps & AC_WCAP_DIGITAL))
+ 			continue;
+ 
+-		switch (type) {
+-		case AC_WID_AUD_OUT:
++		if (get_wcaps_type(caps) == AC_WID_AUD_OUT)
+ 			hdmi_add_cvt(codec, nid);
+-			break;
+-		case AC_WID_PIN:
++	}
++
++	/* discover audio pins */
++	for (i = 0; i < nodes; i++) {
++		hda_nid_t nid = start_nid + i;
++
++		caps = get_wcaps(codec, nid);
++
++		if (!(caps & AC_WCAP_DIGITAL))
++			continue;
++
++		if (get_wcaps_type(caps) == AC_WID_PIN)
+ 			hdmi_add_pin(codec, nid);
+-			break;
+-		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
