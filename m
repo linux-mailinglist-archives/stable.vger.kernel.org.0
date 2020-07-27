@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F130A22F0A6
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5877022EFBF
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732029AbgG0O0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56718 "EHLO mail.kernel.org"
+        id S1730726AbgG0OS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732592AbgG0O02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:26:28 -0400
+        id S1731321AbgG0OSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:18:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6405D2070A;
-        Mon, 27 Jul 2020 14:26:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D4D82070A;
+        Mon, 27 Jul 2020 14:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859987;
-        bh=W+aZnU5vNg9bWZKBSUOjo0QnhgEt+zvcWQNSDiewMUg=;
+        s=default; t=1595859535;
+        bh=iJirAemF/CyfoWmMvNgo2psWOY/TmoreBsRJ3IibRUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcONdk9zduLmDFq1eTHumMdy6mL6mjfF2QkNG36aTMXCy5nh7KFbyZqTA04G1iKXy
-         zSId63I0iLMXZj+2XkNjHmEMN0Zg6Qzwm7KBG+LO0XVhjqmUWVq+QYN7Ratof6WnQ8
-         l2R+7Yrc90Xi0+JbEFdC7YYxCG9Fh1tuN8UMFU8k=
+        b=B+2KRSy7Wfm8BdYtazLeCyPVZtSAOG1vuirzopj7tjB2vz20763xd1YTDwGYEO0Wj
+         k10DN8lkBmkA0fCCflrWOK3KUQErBopUnTgzM1AeBN8ALelKXF4oTfZBvRGiP3lx+S
+         hdJsX8WquZzIL90rFrUUXR3+5Cq5ZFNxXbunFHeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Russell King <linux@arm.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.7 155/179] /dev/mem: Add missing memory barriers for devmem_inode
-Date:   Mon, 27 Jul 2020 16:05:30 +0200
-Message-Id: <20200727134940.222949527@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 136/138] dm integrity: fix integrity recalculation that is improperly skipped
+Date:   Mon, 27 Jul 2020 16:05:31 +0200
+Message-Id: <20200727134932.209189611@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,66 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit b34e7e298d7a5ed76b3aa327c240c29f1ef6dd22 upstream.
+commit 5df96f2b9f58a5d2dc1f30fe7de75e197f2c25f2 upstream.
 
-WRITE_ONCE() isn't the correct way to publish a pointer to a data
-structure, since it doesn't include a write memory barrier.  Therefore
-other tasks may see that the pointer has been set but not see that the
-pointed-to memory has finished being initialized yet.  Instead a
-primitive with "release" semantics is needed.
+Commit adc0daad366b62ca1bce3e2958a40b0b71a8b8b3 ("dm: report suspended
+device during destroy") broke integrity recalculation.
 
-Use smp_store_release() for this.
+The problem is dm_suspended() returns true not only during suspend,
+but also during resume. So this race condition could occur:
+1. dm_integrity_resume calls queue_work(ic->recalc_wq, &ic->recalc_work)
+2. integrity_recalc (&ic->recalc_work) preempts the current thread
+3. integrity_recalc calls if (unlikely(dm_suspended(ic->ti))) goto unlock_ret;
+4. integrity_recalc exits and no recalculating is done.
 
-The use of READ_ONCE() on the read side is still potentially correct if
-there's no control dependency, i.e. if all memory being "published" is
-transitively reachable via the pointer itself.  But this pairing is
-somewhat confusing and error-prone.  So just upgrade the read side to
-smp_load_acquire() so that it clearly pairs with smp_store_release().
+To fix this race condition, add a function dm_post_suspending that is
+only true during the postsuspend phase and use it instead of
+dm_suspended().
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims the region")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
-Link: https://lore.kernel.org/r/20200716060553.24618-1-ebiggers@kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka redhat com>
+Fixes: adc0daad366b ("dm: report suspended device during destroy")
+Cc: stable vger kernel org # v4.18+
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/mem.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/md/dm-integrity.c     |    4 ++--
+ drivers/md/dm.c               |   17 +++++++++++++++++
+ include/linux/device-mapper.h |    1 +
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -814,7 +814,8 @@ static struct inode *devmem_inode;
- #ifdef CONFIG_IO_STRICT_DEVMEM
- void revoke_devmem(struct resource *res)
- {
--	struct inode *inode = READ_ONCE(devmem_inode);
-+	/* pairs with smp_store_release() in devmem_init_inode() */
-+	struct inode *inode = smp_load_acquire(&devmem_inode);
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2298,7 +2298,7 @@ static void integrity_writer(struct work
+ 	unsigned prev_free_sectors;
  
- 	/*
- 	 * Check that the initialization has completed. Losing the race
-@@ -1028,8 +1029,11 @@ static int devmem_init_inode(void)
- 		return rc;
+ 	/* the following test is not needed, but it tests the replay code */
+-	if (unlikely(dm_suspended(ic->ti)) && !ic->meta_dev)
++	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
+ 		return;
+ 
+ 	spin_lock_irq(&ic->endio_wait.lock);
+@@ -2359,7 +2359,7 @@ static void integrity_recalc(struct work
+ 
+ next_chunk:
+ 
+-	if (unlikely(dm_suspended(ic->ti)))
++	if (unlikely(dm_post_suspending(ic->ti)))
+ 		goto unlock_ret;
+ 
+ 	range.logical_sector = le64_to_cpu(ic->sb->recalc_sector);
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -141,6 +141,7 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_
+ #define DMF_NOFLUSH_SUSPENDING 5
+ #define DMF_DEFERRED_REMOVE 6
+ #define DMF_SUSPENDED_INTERNALLY 7
++#define DMF_POST_SUSPENDING 8
+ 
+ #define DM_NUMA_NODE NUMA_NO_NODE
+ static int dm_numa_node = DM_NUMA_NODE;
+@@ -2377,6 +2378,7 @@ static void __dm_destroy(struct mapped_d
+ 	if (!dm_suspended_md(md)) {
+ 		dm_table_presuspend_targets(map);
+ 		set_bit(DMF_SUSPENDED, &md->flags);
++		set_bit(DMF_POST_SUSPENDING, &md->flags);
+ 		dm_table_postsuspend_targets(map);
  	}
+ 	/* dm_put_live_table must be before msleep, otherwise deadlock is possible */
+@@ -2735,7 +2737,9 @@ retry:
+ 	if (r)
+ 		goto out_unlock;
  
--	/* publish /dev/mem initialized */
--	WRITE_ONCE(devmem_inode, inode);
-+	/*
-+	 * Publish /dev/mem initialized.
-+	 * Pairs with smp_load_acquire() in revoke_devmem().
-+	 */
-+	smp_store_release(&devmem_inode, inode);
++	set_bit(DMF_POST_SUSPENDING, &md->flags);
+ 	dm_table_postsuspend_targets(map);
++	clear_bit(DMF_POST_SUSPENDING, &md->flags);
  
- 	return 0;
+ out_unlock:
+ 	mutex_unlock(&md->suspend_lock);
+@@ -2832,7 +2836,9 @@ static void __dm_internal_suspend(struct
+ 	(void) __dm_suspend(md, map, suspend_flags, TASK_UNINTERRUPTIBLE,
+ 			    DMF_SUSPENDED_INTERNALLY);
+ 
++	set_bit(DMF_POST_SUSPENDING, &md->flags);
+ 	dm_table_postsuspend_targets(map);
++	clear_bit(DMF_POST_SUSPENDING, &md->flags);
  }
+ 
+ static void __dm_internal_resume(struct mapped_device *md)
+@@ -2993,6 +2999,11 @@ int dm_suspended_md(struct mapped_device
+ 	return test_bit(DMF_SUSPENDED, &md->flags);
+ }
+ 
++static int dm_post_suspending_md(struct mapped_device *md)
++{
++	return test_bit(DMF_POST_SUSPENDING, &md->flags);
++}
++
+ int dm_suspended_internally_md(struct mapped_device *md)
+ {
+ 	return test_bit(DMF_SUSPENDED_INTERNALLY, &md->flags);
+@@ -3009,6 +3020,12 @@ int dm_suspended(struct dm_target *ti)
+ }
+ EXPORT_SYMBOL_GPL(dm_suspended);
+ 
++int dm_post_suspending(struct dm_target *ti)
++{
++	return dm_post_suspending_md(dm_table_get_md(ti->table));
++}
++EXPORT_SYMBOL_GPL(dm_post_suspending);
++
+ int dm_noflush_suspending(struct dm_target *ti)
+ {
+ 	return __noflush_suspending(dm_table_get_md(ti->table));
+--- a/include/linux/device-mapper.h
++++ b/include/linux/device-mapper.h
+@@ -422,6 +422,7 @@ const char *dm_device_name(struct mapped
+ int dm_copy_name_and_uuid(struct mapped_device *md, char *name, char *uuid);
+ struct gendisk *dm_disk(struct mapped_device *md);
+ int dm_suspended(struct dm_target *ti);
++int dm_post_suspending(struct dm_target *ti);
+ int dm_noflush_suspending(struct dm_target *ti);
+ void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors);
+ void dm_remap_zone_report(struct dm_target *ti, sector_t start,
 
 
