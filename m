@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ABB022EF21
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9159B22EEB8
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730369AbgG0ONj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38726 "EHLO mail.kernel.org"
+        id S1729781AbgG0OKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:10:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730393AbgG0ONi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:13:38 -0400
+        id S1729775AbgG0OKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:10:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18FB92073E;
-        Mon, 27 Jul 2020 14:13:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4390F20838;
+        Mon, 27 Jul 2020 14:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859217;
-        bh=n20vUVyaRvsUd/t9DuMuWWnuh8R37KmCQ7mLLzqKSB4=;
+        s=default; t=1595859009;
+        bh=yOHQNzrKgO5dGVzNFGwRdnu5BdnGHjIkXX7aoTeoJXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuxsxxtjuejGOAxLQTdtiCFiz8z6m+rIX0WILgnEdUHC9gzfVH+Mz8YPHhjenkyrZ
-         +Q9nOcivAQ6JX22JgAPYpVb42uCcCjkCe2m7id91DiWY8NBQe0Hi8SR+JOjKnDgdvs
-         +NvQPUHvXJmNhdRIhpI/9qwMPaX7fNJth1I3fHjc=
+        b=t32iJKlFmO5TvgI8a1wfQ4JEdKHnt2VkL5uPg9pTvfZsCVsY2WlgtI3gAN/LsJz4q
+         8zb7+d9FVAy/qwcl/jwybufWmcyZhTjSRaIUotbQiUu17DRnBz1MCuFzH/OVrqAFfY
+         vkATBqCXGIVH0maaulqDVI9B8kzbN31hTG25fM+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jerry (Fangzhi) Zuo" <Jerry.Zuo@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/138] drm/amd/display: Check DMCU Exists Before Loading
-Date:   Mon, 27 Jul 2020 16:03:38 +0200
-Message-Id: <20200727134926.508432798@linuxfoundation.org>
+Subject: [PATCH 4.19 05/86] mac80211: allow rx of mesh eapol frames with default rx key
+Date:   Mon, 27 Jul 2020 16:03:39 +0200
+Message-Id: <20200727134914.615975164@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-[ Upstream commit 17bdb4a82fe5014c8aa5b2103c80c5729744a096 ]
+[ Upstream commit 0b467b63870d9c05c81456aa9bfee894ab2db3b6 ]
 
-Signed-off-by: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Without this patch, eapol frames cannot be received in mesh
+mode, when 802.1X should be used. Initially only a MGTK is
+defined, which is found and set as rx->key, when there are
+no other keys set. ieee80211_drop_unencrypted would then
+drop these eapol frames, as they are data frames without
+encryption and there exists some rx->key.
+
+Fix this by differentiating between mesh eapol frames and
+other data frames with existing rx->key. Allow mesh mesh
+eapol frames only if they are for our vif address.
+
+With this patch in-place, ieee80211_rx_h_mesh_fwding continues
+after the ieee80211_drop_unencrypted check and notices, that
+these eapol frames have to be delivered locally, as they should.
+
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20200625104214.50319-1-markus.theil@tu-ilmenau.de
+[small code cleanups]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/mac80211/rx.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 4fad0b603b3ab..c7d8edf450d3c 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -928,9 +928,14 @@ static int dm_late_init(void *handle)
- 	struct dmcu_iram_parameters params;
- 	unsigned int linear_lut[16];
- 	int i;
--	struct dmcu *dmcu = adev->dm.dc->res_pool->dmcu;
-+	struct dmcu *dmcu = NULL;
- 	bool ret;
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index c17e148e06e71..5e56719f999c4 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2230,6 +2230,7 @@ static int ieee80211_802_1x_port_control(struct ieee80211_rx_data *rx)
  
-+	if (!adev->dm.fw_dmcu)
-+		return detect_mst_link_for_all_connectors(adev->ddev);
-+
-+	dmcu = adev->dm.dc->res_pool->dmcu;
-+
- 	for (i = 0; i < 16; i++)
- 		linear_lut[i] = 0xFFFF * i / 15;
+ static int ieee80211_drop_unencrypted(struct ieee80211_rx_data *rx, __le16 fc)
+ {
++	struct ieee80211_hdr *hdr = (void *)rx->skb->data;
+ 	struct sk_buff *skb = rx->skb;
+ 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
  
+@@ -2240,6 +2241,31 @@ static int ieee80211_drop_unencrypted(struct ieee80211_rx_data *rx, __le16 fc)
+ 	if (status->flag & RX_FLAG_DECRYPTED)
+ 		return 0;
+ 
++	/* check mesh EAPOL frames first */
++	if (unlikely(rx->sta && ieee80211_vif_is_mesh(&rx->sdata->vif) &&
++		     ieee80211_is_data(fc))) {
++		struct ieee80211s_hdr *mesh_hdr;
++		u16 hdr_len = ieee80211_hdrlen(fc);
++		u16 ethertype_offset;
++		__be16 ethertype;
++
++		if (!ether_addr_equal(hdr->addr1, rx->sdata->vif.addr))
++			goto drop_check;
++
++		/* make sure fixed part of mesh header is there, also checks skb len */
++		if (!pskb_may_pull(rx->skb, hdr_len + 6))
++			goto drop_check;
++
++		mesh_hdr = (struct ieee80211s_hdr *)(skb->data + hdr_len);
++		ethertype_offset = hdr_len + ieee80211_get_mesh_hdrlen(mesh_hdr) +
++				   sizeof(rfc1042_header);
++
++		if (skb_copy_bits(rx->skb, ethertype_offset, &ethertype, 2) == 0 &&
++		    ethertype == rx->sdata->control_port_protocol)
++			return 0;
++	}
++
++drop_check:
+ 	/* Drop unencrypted frames if key is set. */
+ 	if (unlikely(!ieee80211_has_protected(fc) &&
+ 		     !ieee80211_is_any_nullfunc(fc) &&
 -- 
 2.25.1
 
