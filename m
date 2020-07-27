@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2014C22F198
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD8322F19A
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731138AbgG0OR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
+        id S1731154AbgG0OSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731135AbgG0OR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:17:57 -0400
+        id S1731147AbgG0OSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:18:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03FE420775;
-        Mon, 27 Jul 2020 14:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 992EC2070A;
+        Mon, 27 Jul 2020 14:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859476;
-        bh=0+6B4XYsrE6LKZe512g1y/6Ot1mgwwu8QP5iQFqgLDk=;
+        s=default; t=1595859481;
+        bh=6rrJ4vF0KkOU6fgx8VcLlGCgvhfHnsigbaZGsxfaHaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzAfNOa9cIncsNzhGoYYL7kQRPRXJ59Q+896CLkPppJGgi0m8CR9KnkSSfC4aakhp
-         beQz3KzPtljgDU07NczqJvBpVN7sRMeaNJvJGTQqgSQlfvtV21pbMq7BeQqcUsTCP2
-         oDOSZd1u0DHC8qanjHiB36mnMuZFbu8bh5hGA4WY=
+        b=Go7Bi6U2igMkDFDUgkc+qgrrJPttQEacVoR+swfDqMUXqtD67/64oZWMZTmGKL8bj
+         IslHqP3UkQ0E2l757VI+83Kgi2VKEh4fFhFL41dhaun5RViSJrYxlkLqKttJCKrSvq
+         LF6jRJ8Xk+a5KIYYIFPVChVhP4oyQEskLxex9qN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        stable@vger.kernel.org,
+        syzbot+ed318e8b790ca72c5ad0@syzkaller.appspotmail.com,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 123/138] mm/memcg: fix refcount error while moving and swapping
-Date:   Mon, 27 Jul 2020 16:05:18 +0200
-Message-Id: <20200727134931.583282832@linuxfoundation.org>
+Subject: [PATCH 5.4 125/138] khugepaged: fix null-pointer dereference due to race
+Date:   Mon, 27 Jul 2020 16:05:20 +0200
+Message-Id: <20200727134931.680601862@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -48,61 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-commit 8d22a9351035ef2ff12ef163a1091b8b8cf1e49c upstream.
+commit 594cced14ad3903166c8b091ff96adac7552f0b3 upstream.
 
-It was hard to keep a test running, moving tasks between memcgs with
-move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
-refcount is discovered to be 0 (supposedly impossible), so it is then
-forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
-succession, the test is at last put out of misery by being OOM killed.
+khugepaged has to drop mmap lock several times while collapsing a page.
+The situation can change while the lock is dropped and we need to
+re-validate that the VMA is still in place and the PMD is still subject
+for collapse.
 
-This is because of the way moved_swap accounting was saved up until the
-task move gets completed in __mem_cgroup_clear_mc(), deferred from when
-mem_cgroup_move_swap_account() actually exchanged old and new ids.
-Concurrent activity can free up swap quicker than the task is scanned,
-bringing id refcount down 0 (which should only be possible when
-offlining).
+But we miss one corner case: while collapsing an anonymous pages the VMA
+could be replaced with file VMA.  If the file VMA doesn't have any
+private pages we get NULL pointer dereference:
 
-Just skip that optimization: do that part of the accounting immediately.
+	general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
+	KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+	anon_vma_lock_write include/linux/rmap.h:120 [inline]
+	collapse_huge_page mm/khugepaged.c:1110 [inline]
+	khugepaged_scan_pmd mm/khugepaged.c:1349 [inline]
+	khugepaged_scan_mm_slot mm/khugepaged.c:2110 [inline]
+	khugepaged_do_scan mm/khugepaged.c:2193 [inline]
+	khugepaged+0x3bba/0x5a10 mm/khugepaged.c:2238
 
-Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
-Signed-off-by: Hugh Dickins <hughd@google.com>
+The fix is to make sure that the VMA is anonymous in
+hugepage_vma_revalidate().  The helper is only used for collapsing
+anonymous pages.
+
+Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+Reported-by: syzbot+ed318e8b790ca72c5ad0@syzkaller.appspotmail.com
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
+Link: http://lkml.kernel.org/r/20200722121439.44328-1-kirill.shutemov@linux.intel.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/khugepaged.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -5770,7 +5770,6 @@ static void __mem_cgroup_clear_mc(void)
- 		if (!mem_cgroup_is_root(mc.to))
- 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -876,6 +876,9 @@ static int hugepage_vma_revalidate(struc
+ 		return SCAN_ADDRESS_RANGE;
+ 	if (!hugepage_vma_check(vma, vma->vm_flags))
+ 		return SCAN_VMA_CHECK;
++	/* Anon VMA expected */
++	if (!vma->anon_vma || vma->vm_ops)
++		return SCAN_VMA_CHECK;
+ 	return 0;
+ }
  
--		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
- 		css_put_many(&mc.to->css, mc.moved_swap);
- 
- 		mc.moved_swap = 0;
-@@ -5961,7 +5960,8 @@ put:			/* get_mctgt_type() gets the page
- 			ent = target.ent;
- 			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
- 				mc.precharge--;
--				/* we fixup refcnts and charges later. */
-+				mem_cgroup_id_get_many(mc.to, 1);
-+				/* we fixup other refcnts and charges later. */
- 				mc.moved_swap++;
- 			}
- 			break;
 
 
