@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98EBE22EECC
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8627B22F058
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729923AbgG0OKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34038 "EHLO mail.kernel.org"
+        id S1732143AbgG0OXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729921AbgG0OKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:10:51 -0400
+        id S1732118AbgG0OXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:23:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53A2A2173E;
-        Mon, 27 Jul 2020 14:10:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27E3B2083E;
+        Mon, 27 Jul 2020 14:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859050;
-        bh=YtDnHAVbA9/a5sdIs/kcn/Sqz1wweEJKvU0Wv/lqQr8=;
+        s=default; t=1595859821;
+        bh=uTzKu8227IvK2neuOEG36qM3bzCod7rBoHzbc5aDt0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZp0zrg0KKNwdiVe9wwWeIiopG5NvovxWnPOj1PQ4amf9Tsv0Voh1LVGJVy82nwBI
-         9jmdHMg1UfrVKc+P9V5Eql9x/HpPxvygyNkGpq+JgBTLgJcTf0P7kEqLbD2BpjK5WY
-         /TN7lUgemyrnqD7ZfNQr+UspI2TTPdUv3nzxCT/0=
+        b=vYWYLx8joNRlyI0EhMj2UZ+dCnMcbtJUCQFYsrpudh5l5v4YJN3BP9zF/JhizKKIn
+         vkDa15bJQIVz2wgPzng+tjT0KjIrUWgkdPHXaNerfDqVzPYRwrE7hEqUIGFsHxFgDW
+         f7tQ2ij21APG3TA2MoO1RXaKt1UllQOLylP+5Iz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Patrick Volkerding <volkerdi@gmail.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/86] Input: add `SW_MACHINE_COVER`
-Date:   Mon, 27 Jul 2020 16:04:22 +0200
-Message-Id: <20200727134916.823991118@linuxfoundation.org>
+Subject: [PATCH 5.7 088/179] Revert "PCI/PM: Assume ports without DLL Link Active train links in 100 ms"
+Date:   Mon, 27 Jul 2020 16:04:23 +0200
+Message-Id: <20200727134936.962434071@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,52 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Merlijn Wajer <merlijn@wizzup.org>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit c463bb2a8f8d7d97aa414bf7714fc77e9d3b10df ]
+[ Upstream commit d08c30d7a0d1826f771f16cde32bd86e48401791 ]
 
-This event code represents the state of a removable cover of a device.
-Value 0 means that the cover is open or removed, value 1 means that the
-cover is closed.
+This reverts commit ec411e02b7a2e785a4ed9ed283207cd14f48699d.
 
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
-Link: https://lore.kernel.org/r/20200612125402.18393-2-merlijn@wizzup.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Patrick reported that this commit broke hybrid graphics on a ThinkPad X1
+Extreme 2nd with Intel UHD Graphics 630 and NVIDIA GeForce GTX 1650 Mobile:
+
+  nouveau 0000:01:00.0: fifo: PBDMA0: 01000000 [] ch 0 [00ff992000 DRM] subc 0 mthd 0008 data 00000000
+
+Karol reported that this commit broke Nouveau firmware loading on a Lenovo
+P1G2 with Intel UHD Graphics 630 and NVIDIA TU117GLM [Quadro T1000 Mobile]:
+
+  nouveau 0000:01:00.0: acr: AHESASC binary failed
+
+In both cases, reverting ec411e02b7a2 solved the problem.  Unfortunately,
+this revert will reintroduce the "Thunderbolt bridges take long time to
+resume from D3cold" problem:
+https://bugzilla.kernel.org/show_bug.cgi?id=206837
+
+Link: https://lore.kernel.org/r/CAErSpo5sTeK_my1dEhWp7aHD0xOp87+oHYWkTjbL7ALgDbXo-Q@mail.gmail.com
+Link: https://lore.kernel.org/r/CACO55tsAEa5GXw5oeJPG=mcn+qxNvspXreJYWDJGZBy5v82JDA@mail.gmail.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208597
+Reported-by: Patrick Volkerding <volkerdi@gmail.com>
+Reported-by: Karol Herbst <kherbst@redhat.com>
+Fixes: ec411e02b7a2 ("PCI/PM: Assume ports without DLL Link Active train links in 100 ms")
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mod_devicetable.h        | 2 +-
- include/uapi/linux/input-event-codes.h | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/pci/pci.c | 30 +++++++++---------------------
+ 1 file changed, 9 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 84e4e20352d9f..610cdf8082f2e 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -299,7 +299,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
- #define INPUT_DEVICE_ID_FF_MAX		0x7f
--#define INPUT_DEVICE_ID_SW_MAX		0x0f
-+#define INPUT_DEVICE_ID_SW_MAX		0x10
- #define INPUT_DEVICE_ID_PROP_MAX	0x1f
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index d4758518a97bd..a4efc7e0061f5 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -4662,8 +4662,7 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
+  * pcie_wait_for_link_delay - Wait until link is active or inactive
+  * @pdev: Bridge device
+  * @active: waiting for active or inactive?
+- * @delay: Delay to wait after link has become active (in ms). Specify %0
+- *	   for no delay.
++ * @delay: Delay to wait after link has become active (in ms)
+  *
+  * Use this to wait till link becomes active or inactive.
+  */
+@@ -4704,7 +4703,7 @@ static bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active,
+ 		msleep(10);
+ 		timeout -= 10;
+ 	}
+-	if (active && ret && delay)
++	if (active && ret)
+ 		msleep(delay);
+ 	else if (ret != active)
+ 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
+@@ -4825,28 +4824,17 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
+ 	if (!pcie_downstream_port(dev))
+ 		return;
  
- #define INPUT_DEVICE_ID_MATCH_BUS	1
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 61a5799b440b9..c3e84f7c8261a 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -795,7 +795,8 @@
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
- #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
- #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
--#define SW_MAX			0x0f
-+#define SW_MACHINE_COVER	0x10  /* set = cover closed */
-+#define SW_MAX			0x10
- #define SW_CNT			(SW_MAX+1)
+-	/*
+-	 * Per PCIe r5.0, sec 6.6.1, for downstream ports that support
+-	 * speeds > 5 GT/s, we must wait for link training to complete
+-	 * before the mandatory delay.
+-	 *
+-	 * We can only tell when link training completes via DLL Link
+-	 * Active, which is required for downstream ports that support
+-	 * speeds > 5 GT/s (sec 7.5.3.6).  Unfortunately some common
+-	 * devices do not implement Link Active reporting even when it's
+-	 * required, so we'll check for that directly instead of checking
+-	 * the supported link speed.  We assume devices without Link Active
+-	 * reporting can train in 100 ms regardless of speed.
+-	 */
+-	if (dev->link_active_reporting) {
+-		pci_dbg(dev, "waiting for link to train\n");
+-		if (!pcie_wait_for_link_delay(dev, true, 0)) {
++	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
++		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
++		msleep(delay);
++	} else {
++		pci_dbg(dev, "waiting %d ms for downstream link, after activation\n",
++			delay);
++		if (!pcie_wait_for_link_delay(dev, true, delay)) {
+ 			/* Did not train, no need to wait any further */
+ 			return;
+ 		}
+ 	}
+-	pci_dbg(child, "waiting %d ms to become accessible\n", delay);
+-	msleep(delay);
  
- /*
+ 	if (!pci_device_is_present(child)) {
+ 		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
 -- 
 2.25.1
 
