@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD8322F19A
+	by mail.lfdr.de (Postfix) with ESMTP id E6F0A22F19C
 	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731154AbgG0OSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45548 "EHLO mail.kernel.org"
+        id S1728710AbgG0OdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731147AbgG0OSB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:18:01 -0400
+        id S1731175AbgG0OSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:18:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 992EC2070A;
-        Mon, 27 Jul 2020 14:18:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 178DA2177B;
+        Mon, 27 Jul 2020 14:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859481;
-        bh=6rrJ4vF0KkOU6fgx8VcLlGCgvhfHnsigbaZGsxfaHaU=;
+        s=default; t=1595859488;
+        bh=L4T2+3ROUy7Jc2kE2LVhOT1dUpleqA6JyPuFcdEiiDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Go7Bi6U2igMkDFDUgkc+qgrrJPttQEacVoR+swfDqMUXqtD67/64oZWMZTmGKL8bj
-         IslHqP3UkQ0E2l757VI+83Kgi2VKEh4fFhFL41dhaun5RViSJrYxlkLqKttJCKrSvq
-         LF6jRJ8Xk+a5KIYYIFPVChVhP4oyQEskLxex9qN4=
+        b=yp9EK8IMC2OXHS7rwtbmYarxXhGh6cAHWQyo5Fo5Q0inzjOPU258cDR8wlcicJncR
+         n6R+NpjZ7roRHHhkRHb/Qs3aTAxN0B8tild9gvOmXPCUF/YYStAJ7U2gT2PW6GC6pY
+         rDuUo2B+Vduh1sZEkNqkyBIgSrMaHpWi2gSPgtD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ed318e8b790ca72c5ad0@syzkaller.appspotmail.com,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 125/138] khugepaged: fix null-pointer dereference due to race
-Date:   Mon, 27 Jul 2020 16:05:20 +0200
-Message-Id: <20200727134931.680601862@linuxfoundation.org>
+        =?UTF-8?q?Pawe=C5=82=20Gronowski?= <me@woland.xyz>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 128/138] drm/amdgpu: Fix NULL dereference in dpm sysfs handlers
+Date:   Mon, 27 Jul 2020 16:05:23 +0200
+Message-Id: <20200727134931.829986832@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -48,58 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+From: Paweł Gronowski <me@woland.xyz>
 
-commit 594cced14ad3903166c8b091ff96adac7552f0b3 upstream.
+commit 38e0c89a19fd13f28d2b4721035160a3e66e270b upstream.
 
-khugepaged has to drop mmap lock several times while collapsing a page.
-The situation can change while the lock is dropped and we need to
-re-validate that the VMA is still in place and the PMD is still subject
-for collapse.
+NULL dereference occurs when string that is not ended with space or
+newline is written to some dpm sysfs interface (for example pp_dpm_sclk).
+This happens because strsep replaces the tmp with NULL if the delimiter
+is not present in string, which is then dereferenced by tmp[0].
 
-But we miss one corner case: while collapsing an anonymous pages the VMA
-could be replaced with file VMA.  If the file VMA doesn't have any
-private pages we get NULL pointer dereference:
+Reproduction example:
+sudo sh -c 'echo -n 1 > /sys/class/drm/card0/device/pp_dpm_sclk'
 
-	general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-	KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-	anon_vma_lock_write include/linux/rmap.h:120 [inline]
-	collapse_huge_page mm/khugepaged.c:1110 [inline]
-	khugepaged_scan_pmd mm/khugepaged.c:1349 [inline]
-	khugepaged_scan_mm_slot mm/khugepaged.c:2110 [inline]
-	khugepaged_do_scan mm/khugepaged.c:2193 [inline]
-	khugepaged+0x3bba/0x5a10 mm/khugepaged.c:2238
-
-The fix is to make sure that the VMA is anonymous in
-hugepage_vma_revalidate().  The helper is only used for collapsing
-anonymous pages.
-
-Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
-Reported-by: syzbot+ed318e8b790ca72c5ad0@syzkaller.appspotmail.com
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200722121439.44328-1-kirill.shutemov@linux.intel.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Paweł Gronowski <me@woland.xyz>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/khugepaged.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -876,6 +876,9 @@ static int hugepage_vma_revalidate(struc
- 		return SCAN_ADDRESS_RANGE;
- 	if (!hugepage_vma_check(vma, vma->vm_flags))
- 		return SCAN_VMA_CHECK;
-+	/* Anon VMA expected */
-+	if (!vma->anon_vma || vma->vm_ops)
-+		return SCAN_VMA_CHECK;
- 	return 0;
- }
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+@@ -691,8 +691,7 @@ static ssize_t amdgpu_set_pp_od_clk_volt
+ 		tmp_str++;
+ 	while (isspace(*++tmp_str));
  
+-	while (tmp_str[0]) {
+-		sub_str = strsep(&tmp_str, delimiter);
++	while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
+ 		ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
+ 		if (ret)
+ 			return -EINVAL;
+@@ -883,8 +882,7 @@ static ssize_t amdgpu_read_mask(const ch
+ 	memcpy(buf_cpy, buf, bytes);
+ 	buf_cpy[bytes] = '\0';
+ 	tmp = buf_cpy;
+-	while (tmp[0]) {
+-		sub_str = strsep(&tmp, delimiter);
++	while ((sub_str = strsep(&tmp, delimiter)) != NULL) {
+ 		if (strlen(sub_str)) {
+ 			ret = kstrtol(sub_str, 0, &level);
+ 			if (ret)
+@@ -1300,8 +1298,7 @@ static ssize_t amdgpu_set_pp_power_profi
+ 			i++;
+ 		memcpy(buf_cpy, buf, count-i);
+ 		tmp_str = buf_cpy;
+-		while (tmp_str[0]) {
+-			sub_str = strsep(&tmp_str, delimiter);
++		while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
+ 			ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
+ 			if (ret) {
+ 				count = -EINVAL;
 
 
