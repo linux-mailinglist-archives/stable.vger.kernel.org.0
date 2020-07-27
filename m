@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC7422EFB3
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374A222F05E
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731241AbgG0OSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:18:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46118 "EHLO mail.kernel.org"
+        id S1732197AbgG0OYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:24:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731229AbgG0OS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:18:26 -0400
+        id S1732195AbgG0OYC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:24:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBF9720825;
-        Mon, 27 Jul 2020 14:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE9832075A;
+        Mon, 27 Jul 2020 14:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859506;
-        bh=N1qsdZkVZAZPDuNUk4mKrFEbtKcn95AWfSjOjhwaCH8=;
+        s=default; t=1595859842;
+        bh=KHiEmeSDHEk36Ap081u5lxBnesPSBOC4MwK1QNOPB98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W86SqpXyDx4yR1YzxlQ8cf9u0t4vT0Ye2MkVvHvBWoQ66ZNLOGOMZ+BXPPQw5g5oQ
-         HowuuZt1MvpEXpz4+pJy28I89nLvKxR6A81tBGAunlbtZEiTYXh2NJ67o46HPOuBrp
-         bKz81YWfU2YK5eAV5DTSr4qGjBhN9JGgOPA8/iwg=
+        b=kz8Bu13D4wcymZ+eawTMcUX7uW8EKyueGNrhucID9xSBZ3JAYw7Lh2EmhYy3zyJyv
+         sF4PTjxzfD3oWh31uZ6YrwM2MD3VUsGl0WFunMZS2zGwHq95XoWeuhiQy6odILtyD0
+         zfBGAdpQhVuvMfWnxhEbjIzPUAQSZPnnIWgW5esQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Forest Crossman <cyrozap@gmail.com>
-Subject: [PATCH 5.4 106/138] usb: xhci: Fix ASM2142/ASM3142 DMA addressing
-Date:   Mon, 27 Jul 2020 16:05:01 +0200
-Message-Id: <20200727134930.769999735@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Dietrich <roots@gmx.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 127/179] hwmon: (nct6775) Accept PECI Calibration as temperature source for NCT6798D
+Date:   Mon, 27 Jul 2020 16:05:02 +0200
+Message-Id: <20200727134938.836226027@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Forest Crossman <cyrozap@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit dbb0897e805f2ab1b8bc358f6c3d878a376b8897 upstream.
+[ Upstream commit 8a03746c8baf82e1616f05a1a716d34378dcf780 ]
 
-The ASM2142/ASM3142 (same PCI IDs) does not support full 64-bit DMA
-addresses, which can cause silent memory corruption or IOMMU errors on
-platforms that use the upper bits. Add the XHCI_NO_64BIT_SUPPORT quirk
-to fix this issue.
+Stefan Dietrich reports invalid temperature source messages on Asus Formula
+XII Z490.
 
-Signed-off-by: Forest Crossman <cyrozap@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200717112734.328432-1-cyrozap@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+nct6775 nct6775.656: Invalid temperature source 28 at index 0,
+		source register 0x100, temp register 0x73
 
+Debugging suggests that temperature source 28 reports the CPU temperature.
+Let's assume that temperature sources 28 and 29 reflect "PECI Agent {0,1}
+Calibration", similar to other chips of the series.
+
+Reported-by: Stefan Dietrich <roots@gmx.de>
+Cc: Stefan Dietrich <roots@gmx.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/nct6775.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -250,6 +250,9 @@ static void xhci_pci_quirks(struct devic
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
- 			pdev->device == 0x1142)
- 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
-+	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
-+			pdev->device == 0x2142)
-+		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
+diff --git a/drivers/hwmon/nct6775.c b/drivers/hwmon/nct6775.c
+index 7efa6bfef0609..ba9b96973e808 100644
+--- a/drivers/hwmon/nct6775.c
++++ b/drivers/hwmon/nct6775.c
+@@ -786,13 +786,13 @@ static const char *const nct6798_temp_label[] = {
+ 	"Agent1 Dimm1",
+ 	"BYTE_TEMP0",
+ 	"BYTE_TEMP1",
+-	"",
+-	"",
++	"PECI Agent 0 Calibration",	/* undocumented */
++	"PECI Agent 1 Calibration",	/* undocumented */
+ 	"",
+ 	"Virtual_TEMP"
+ };
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
+-#define NCT6798_TEMP_MASK	0x8fff0ffe
++#define NCT6798_TEMP_MASK	0xbfff0ffe
+ #define NCT6798_VIRT_TEMP_MASK	0x80000c00
+ 
+ /* NCT6102D/NCT6106D specific data */
+-- 
+2.25.1
+
 
 
