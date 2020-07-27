@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8350622F1F1
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB7422F16B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbgG0OOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:14:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39670 "EHLO mail.kernel.org"
+        id S1729279AbgG0OcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729908AbgG0OOO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:14:14 -0400
+        id S1730648AbgG0OTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:19:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E60842073E;
-        Mon, 27 Jul 2020 14:14:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B72BD2075A;
+        Mon, 27 Jul 2020 14:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859253;
-        bh=cqwlgHyPsfPuA8z4WrenfxsuVzf4oQ5bGA82xRt0E4c=;
+        s=default; t=1595859582;
+        bh=J25/JXUK4b6mmR7U9r7A6ToZsorSLCfD4+2z74cq+Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgqPhIWeRuipXGA5GlIJWlk7Q4osFBR1gFucyOuEwvxdXny5BEFQw76zbD/2mAKMb
-         Bwp0iiP/eb7c5Ymy9EewhuJQRM3+qW0XTbOA02AnAUCnD50TsoMF9h+oP8dNFbR/F7
-         N1zuqNbKrtIW4YNjMZvdfy3lAaUeV2n0rqajoeSU=
+        b=lXhYUJB8prtmZ4POyXczz6ACTXrIVD0jzC7PG9Lp/J8AIAd+7W79YJpDtP52pr91c
+         RHDt6/NQhxWDY/Nu/PDn8iHNkE67T19mCZhn4jyUEGFLdGPgGb5OLoj+2TbPterdTs
+         l2kvz1nBY70hKK8xO6cFJO4M8zYA+GJrbJxo1HxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 007/138] xtensa: fix __sync_fetch_and_{and,or}_4 declarations
+        stable@vger.kernel.org, Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>
+Subject: [PATCH 5.7 027/179] exfat: fix overflow issue in exfat_cluster_to_sector()
 Date:   Mon, 27 Jul 2020 16:03:22 +0200
-Message-Id: <20200727134925.611026484@linuxfoundation.org>
+Message-Id: <20200727134933.991795930@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Namjae Jeon <namjae.jeon@samsung.com>
 
-[ Upstream commit 73f9941306d5ce030f3ffc7db425c7b2a798cf8e ]
+commit 43946b70494beefe40ec1b2ba4744c0f294d7736 upstream.
 
-Building xtensa kernel with gcc-10 produces the following warnings:
-  arch/xtensa/kernel/xtensa_ksyms.c:90:15: warning: conflicting types
-    for built-in function ‘__sync_fetch_and_and_4’;
-    expected ‘unsigned int(volatile void *, unsigned int)’
-    [-Wbuiltin-declaration-mismatch]
-  arch/xtensa/kernel/xtensa_ksyms.c:96:15: warning: conflicting types
-    for built-in function ‘__sync_fetch_and_or_4’;
-    expected ‘unsigned int(volatile void *, unsigned int)’
-    [-Wbuiltin-declaration-mismatch]
+An overflow issue can occur while calculating sector in
+exfat_cluster_to_sector(). It needs to cast clus's type to sector_t
+before left shifting.
 
-Fix declarations of these functions to avoid the warning.
+Fixes: 1acf1a564b60 ("exfat: add in-memory and on-disk structures and headers")
+Cc: stable@vger.kernel.org # v5.7
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/xtensa_ksyms.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/exfat/exfat_fs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/kernel/xtensa_ksyms.c b/arch/xtensa/kernel/xtensa_ksyms.c
-index 4092555828b13..24cf6972eacea 100644
---- a/arch/xtensa/kernel/xtensa_ksyms.c
-+++ b/arch/xtensa/kernel/xtensa_ksyms.c
-@@ -87,13 +87,13 @@ void __xtensa_libgcc_window_spill(void)
- }
- EXPORT_SYMBOL(__xtensa_libgcc_window_spill);
- 
--unsigned long __sync_fetch_and_and_4(unsigned long *p, unsigned long v)
-+unsigned int __sync_fetch_and_and_4(volatile void *p, unsigned int v)
+--- a/fs/exfat/exfat_fs.h
++++ b/fs/exfat/exfat_fs.h
+@@ -375,7 +375,7 @@ static inline bool exfat_is_last_sector_
+ static inline sector_t exfat_cluster_to_sector(struct exfat_sb_info *sbi,
+ 		unsigned int clus)
  {
- 	BUG();
+-	return ((clus - EXFAT_RESERVED_CLUSTERS) << sbi->sect_per_clus_bits) +
++	return ((sector_t)(clus - EXFAT_RESERVED_CLUSTERS) << sbi->sect_per_clus_bits) +
+ 		sbi->data_start_sector;
  }
- EXPORT_SYMBOL(__sync_fetch_and_and_4);
  
--unsigned long __sync_fetch_and_or_4(unsigned long *p, unsigned long v)
-+unsigned int __sync_fetch_and_or_4(volatile void *p, unsigned int v)
- {
- 	BUG();
- }
--- 
-2.25.1
-
 
 
