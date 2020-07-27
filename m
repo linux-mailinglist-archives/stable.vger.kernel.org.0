@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A245822F07C
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A732722EFA7
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731430AbgG0OY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:24:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54702 "EHLO mail.kernel.org"
+        id S1731165AbgG0OSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:18:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732314AbgG0OY6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:24:58 -0400
+        id S1731158AbgG0OSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:18:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC21C2075A;
-        Mon, 27 Jul 2020 14:24:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17F622075A;
+        Mon, 27 Jul 2020 14:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859897;
-        bh=5MbtI0ihvkEoxI9SWcTbrLH2vIzaHkcSMuxKD1ckyRM=;
+        s=default; t=1595859483;
+        bh=1w8MiR6uKDyPlF/1ToVflJLi46J2u7KN6DicBT8X3T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWYfBCgVKvvtDKfyvDn3j1yzX539D67dfnoG3QLxHljdl0CFkDn1rrby0VCocJ4GF
-         d6lNBtqGmSUxUelgukc+4aRAeMlJxpvTAESlH+cChXSzd5r/ej9R9gZzEnv+nLD1sm
-         pjEcyR3YZUmqYE4Pz5pmIAHl02TKA8aJlBOk5p/g=
+        b=l02IGlZamQsrUH+iRv4UNZG6+0l/gcMlfrpWCH0XrX4nmyLzxTkPjPRjmpSPns2GZ
+         lU+sHstJoM+5l8WAopy94WB9yrtTnk0Trjbj+8P1QrFybYqQBs6dySsFLLj/EPfL/r
+         pGr5zl51Ity59/4aqFcd+AEEaHdvjsE31X0Ij+ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
-Subject: [PATCH 5.7 146/179] staging: wlan-ng: properly check endpoint types
+        stable@vger.kernel.org,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 126/138] io-mapping: indicate mapping failure
 Date:   Mon, 27 Jul 2020 16:05:21 +0200
-Message-Id: <20200727134939.777363116@linuxfoundation.org>
+Message-Id: <20200727134931.729052190@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Michael J. Ruhl <michael.j.ruhl@intel.com>
 
-commit faaff9765664009c1c7c65551d32e9ed3b1dda8f upstream.
+commit e0b3e0b1a04367fc15c07f44e78361545b55357c upstream.
 
-As syzkaller detected, wlan-ng driver does not do sanity check of
-endpoints in prism2sta_probe_usb(), add check for xfer direction and type
+The !ATOMIC_IOMAP version of io_maping_init_wc will always return
+success, even when the ioremap fails.
 
-Reported-and-tested-by: syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=c2a1fa67c02faa0de723
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722161052.999754-1-rkovhaev@gmail.com
+Since the ATOMIC_IOMAP version returns NULL when the init fails, and
+callers check for a NULL return on error this is unexpected.
+
+During a device probe, where the ioremap failed, a crash can look like
+this:
+
+    BUG: unable to handle page fault for address: 0000000000210000
+     #PF: supervisor write access in kernel mode
+     #PF: error_code(0x0002) - not-present page
+     Oops: 0002 [#1] PREEMPT SMP
+     CPU: 0 PID: 177 Comm:
+     RIP: 0010:fill_page_dma [i915]
+       gen8_ppgtt_create [i915]
+       i915_ppgtt_create [i915]
+       intel_gt_init [i915]
+       i915_gem_init [i915]
+       i915_driver_probe [i915]
+       pci_device_probe
+       really_probe
+       driver_probe_device
+
+The remap failure occurred much earlier in the probe.  If it had been
+propagated, the driver would have exited with an error.
+
+Return NULL on ioremap failure.
+
+[akpm@linux-foundation.org: detect ioremap_wc() errors earlier]
+
+Fixes: cafaf14a5d8f ("io-mapping: Always create a struct to hold metadata about the io-mapping")
+Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200721171936.81563-1-michael.j.ruhl@intel.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/wlan-ng/prism2usb.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ include/linux/io-mapping.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/wlan-ng/prism2usb.c
-+++ b/drivers/staging/wlan-ng/prism2usb.c
-@@ -61,11 +61,25 @@ static int prism2sta_probe_usb(struct us
- 			       const struct usb_device_id *id)
+--- a/include/linux/io-mapping.h
++++ b/include/linux/io-mapping.h
+@@ -108,9 +108,12 @@ io_mapping_init_wc(struct io_mapping *io
+ 		   resource_size_t base,
+ 		   unsigned long size)
  {
- 	struct usb_device *dev;
--
-+	const struct usb_endpoint_descriptor *epd;
-+	const struct usb_host_interface *iface_desc = interface->cur_altsetting;
- 	struct wlandevice *wlandev = NULL;
- 	struct hfa384x *hw = NULL;
- 	int result = 0;
- 
-+	if (iface_desc->desc.bNumEndpoints != 2) {
-+		result = -ENODEV;
-+		goto failed;
-+	}
++	iomap->iomem = ioremap_wc(base, size);
++	if (!iomap->iomem)
++		return NULL;
 +
-+	result = -EINVAL;
-+	epd = &iface_desc->endpoint[1].desc;
-+	if (!usb_endpoint_is_bulk_in(epd))
-+		goto failed;
-+	epd = &iface_desc->endpoint[2].desc;
-+	if (!usb_endpoint_is_bulk_out(epd))
-+		goto failed;
-+
- 	dev = interface_to_usbdev(interface);
- 	wlandev = create_wlan();
- 	if (!wlandev) {
+ 	iomap->base = base;
+ 	iomap->size = size;
+-	iomap->iomem = ioremap_wc(base, size);
+ #if defined(pgprot_noncached_wc) /* archs can't agree on a name ... */
+ 	iomap->prot = pgprot_noncached_wc(PAGE_KERNEL);
+ #elif defined(pgprot_writecombine)
 
 
