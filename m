@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C94722F069
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 761CD22EEF6
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732251AbgG0OYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:24:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53898 "EHLO mail.kernel.org"
+        id S1730156AbgG0OMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732202AbgG0OYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:24:24 -0400
+        id S1730150AbgG0OMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:12:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F05921744;
-        Mon, 27 Jul 2020 14:24:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EAFF20838;
+        Mon, 27 Jul 2020 14:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859863;
-        bh=kOVhulJk+pdwU88duSZrqzaEiuBdYU+NRWyGSP6HyBo=;
+        s=default; t=1595859132;
+        bh=LtcaDP+8s7NZB4utetwwB27kehj8gYyt/QbXVd8N9X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdYBmobozHhgvZ94mBOR+2fGXTnsO7D7AqDC4qQ7EPzaI8PGTxJvF7it/bjDXlzdX
-         Bqokrk5ZWyOa2KR3+dX1yQTR0E6drso+t3y0HCKMfQ3skQyq6ZE3ZnqIIEcX9LqmZu
-         ekVktbKBYv7A6lVlSxYjxWK6zxH8ooae4KbDn1rU=
+        b=n4q51LxvZfWUbD1V9JgvkRC8JvRh10RRmhfefdwn/B/ZUE8HiM1k5EYUspjb/QwRA
+         ifQo9CX4GqoPToQlP3veiMTyl4s04X97JVpRO2r7fzsMP0Z63LVtqsGRby45vEE8ac
+         ihNQUjyzPlGIc6Rn0VbNSIcSd84l9ly3eKdITAI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Katsnelson <me@0upti.me>,
-        Lyude Paul <lyude@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 117/179] Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pawe=C5=82=20Gronowski?= <me@woland.xyz>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 78/86] drm/amdgpu: Fix NULL dereference in dpm sysfs handlers
 Date:   Mon, 27 Jul 2020 16:04:52 +0200
-Message-Id: <20200727134938.354419325@linuxfoundation.org>
+Message-Id: <20200727134918.314684663@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Katsnelson <me@0upti.me>
+From: Paweł Gronowski <me@woland.xyz>
 
-[ Upstream commit dcb00fc799dc03fd320e123e4c81b3278c763ea5 ]
+commit 38e0c89a19fd13f28d2b4721035160a3e66e270b upstream.
 
-Tested on my own laptop, touchpad feels slightly more responsive with
-this on, though it might just be placebo.
+NULL dereference occurs when string that is not ended with space or
+newline is written to some dpm sysfs interface (for example pp_dpm_sclk).
+This happens because strsep replaces the tmp with NULL if the delimiter
+is not present in string, which is then dereferenced by tmp[0].
 
-Signed-off-by: Ilya Katsnelson <me@0upti.me>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://lore.kernel.org/r/20200703143457.132373-1-me@0upti.me
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reproduction example:
+sudo sh -c 'echo -n 1 > /sys/class/drm/card0/device/pp_dpm_sclk'
+
+Signed-off-by: Paweł Gronowski <me@woland.xyz>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 758dae8d65006..4b81b2d0fe067 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0093", /* T480 */
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
-+	"LEN0099", /* X1 Extreme 1st */
- 	"LEN009b", /* T580 */
- 	"LEN200f", /* T450s */
- 	"LEN2044", /* L470  */
--- 
-2.25.1
-
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+@@ -529,8 +529,7 @@ static ssize_t amdgpu_set_pp_od_clk_volt
+ 
+ 	while (isspace(*++tmp_str));
+ 
+-	while (tmp_str[0]) {
+-		sub_str = strsep(&tmp_str, delimiter);
++	while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
+ 		ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
+ 		if (ret)
+ 			return -EINVAL;
+@@ -630,8 +629,7 @@ static ssize_t amdgpu_read_mask(const ch
+ 	memcpy(buf_cpy, buf, bytes);
+ 	buf_cpy[bytes] = '\0';
+ 	tmp = buf_cpy;
+-	while (tmp[0]) {
+-		sub_str = strsep(&tmp, delimiter);
++	while ((sub_str = strsep(&tmp, delimiter)) != NULL) {
+ 		if (strlen(sub_str)) {
+ 			ret = kstrtol(sub_str, 0, &level);
+ 			if (ret)
+@@ -882,8 +880,7 @@ static ssize_t amdgpu_set_pp_power_profi
+ 			i++;
+ 		memcpy(buf_cpy, buf, count-i);
+ 		tmp_str = buf_cpy;
+-		while (tmp_str[0]) {
+-			sub_str = strsep(&tmp_str, delimiter);
++		while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
+ 			ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
+ 			if (ret) {
+ 				count = -EINVAL;
 
 
