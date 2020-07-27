@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F34DF22EE9F
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:09:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E6522F132
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:30:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728938AbgG0OJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:09:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59476 "EHLO mail.kernel.org"
+        id S1730433AbgG0OaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728446AbgG0OJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:09:24 -0400
+        id S1730707AbgG0OWN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:22:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B28320838;
-        Mon, 27 Jul 2020 14:09:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2996C2083E;
+        Mon, 27 Jul 2020 14:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858963;
-        bh=S/bM2SWtg8rsSnzMbrIeZ2D0uKfq/MRyIXX/J3so7J8=;
+        s=default; t=1595859732;
+        bh=ntk01Kim6t9W9EGr/aZfU8ztLQHGiTsPGvsW5wOPnEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13m4uowzCTk2l5wB6HgjhCK1x7Ts3XbTv0AFJu1ZkEQsfTmcnPGn6ScU8+KYWtoN5
-         Y3xviN44rkPhjRb9EiJYR44yRvUNpNbyMNfsWEmmjGuCiKdzklChTiRW6qhIpl3fnt
-         dn8s4zjINlb/Tvu4BMUZB5enr9xXRkXupao2BJUs=
+        b=LzQgloeavDSAWINGeII7PTlTrwEXSboSH3g97m50Otq5pbJ0evFyS99HdIoKTc+pd
+         3V/OsnzG5H3ZCxf+lszyi8SD8Q3gIVUD1SCVimJYtuI1NfGaWGupJA/T0UvubBJ2S1
+         Katcj8gT1dgfThhMKUqk9quz/EQHxdleytf53Lmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/86] irqdomain/treewide: Keep firmware node unconditionally allocated
+        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 053/179] RDMA/mlx5: Use xa_lock_irq when access to SRQ table
 Date:   Mon, 27 Jul 2020 16:03:48 +0200
-Message-Id: <20200727134915.048599494@linuxfoundation.org>
+Message-Id: <20200727134935.251709742@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,192 +45,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Maor Gottlieb <maorg@mellanox.com>
 
-[ Upstream commit e3beca48a45b5e0e6e6a4e0124276b8248dcc9bb ]
+[ Upstream commit c3d6057e07a5d15be7c69ea545b3f91877808c96 ]
 
-Quite some non OF/ACPI users of irqdomains allocate firmware nodes of type
-IRQCHIP_FWNODE_NAMED or IRQCHIP_FWNODE_NAMED_ID and free them right after
-creating the irqdomain. The only purpose of these FW nodes is to convey
-name information. When this was introduced the core code did not store the
-pointer to the node in the irqdomain. A recent change stored the firmware
-node pointer in irqdomain for other reasons and missed to notice that the
-usage sites which do the alloc_fwnode/create_domain/free_fwnode sequence
-are broken by this. Storing a dangling pointer is dangerous itself, but in
-case that the domain is destroyed later on this leads to a double free.
+SRQ table is accessed both from interrupt and process context,
+therefore we must use xa_lock_irq.
 
-Remove the freeing of the firmware node after creating the irqdomain from
-all affected call sites to cure this.
+   inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+   kworker/u17:9/8573   takes:
+   ffff8883e3503d30 (&xa->xa_lock#13){?...}-{2:2}, at: mlx5_cmd_get_srq+0x18/0x70 [mlx5_ib]
+   {IN-HARDIRQ-W} state was registered at:
+     lock_acquire+0xb9/0x3a0
+     _raw_spin_lock+0x25/0x30
+     srq_event_notifier+0x2b/0xc0 [mlx5_ib]
+     notifier_call_chain+0x45/0x70
+     __atomic_notifier_call_chain+0x69/0x100
+     forward_event+0x36/0xc0 [mlx5_core]
+     notifier_call_chain+0x45/0x70
+     __atomic_notifier_call_chain+0x69/0x100
+     mlx5_eq_async_int+0xc5/0x160 [mlx5_core]
+     notifier_call_chain+0x45/0x70
+     __atomic_notifier_call_chain+0x69/0x100
+     mlx5_irq_int_handler+0x19/0x30 [mlx5_core]
+     __handle_irq_event_percpu+0x43/0x2a0
+     handle_irq_event_percpu+0x30/0x70
+     handle_irq_event+0x34/0x60
+     handle_edge_irq+0x7c/0x1b0
+     do_IRQ+0x60/0x110
+     ret_from_intr+0x0/0x2a
+     default_idle+0x34/0x160
+     do_idle+0x1ec/0x220
+     cpu_startup_entry+0x19/0x20
+     start_secondary+0x153/0x1a0
+     secondary_startup_64+0xa4/0xb0
+   irq event stamp: 20907
+   hardirqs last  enabled at (20907):   _raw_spin_unlock_irq+0x24/0x30
+   hardirqs last disabled at (20906):   _raw_spin_lock_irq+0xf/0x40
+   softirqs last  enabled at (20746):   __do_softirq+0x2c9/0x436
+   softirqs last disabled at (20681):   irq_exit+0xb3/0xc0
 
-Fixes: 711419e504eb ("irqdomain: Add the missing assignment of domain->fwnode for named fwnode")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/873661qakd.fsf@nanos.tec.linutronix.de
+   other info that might help us debug this:
+    Possible unsafe locking scenario:
+
+          CPU0
+          ----
+     lock(&xa->xa_lock#13);
+     <Interrupt>
+       lock(&xa->xa_lock#13);
+
+    *** DEADLOCK ***
+
+   2 locks held by kworker/u17:9/8573:
+    #0: ffff888295218d38 ((wq_completion)mlx5_ib_page_fault){+.+.}-{0:0}, at: process_one_work+0x1f1/0x5f0
+    #1: ffff888401647e78 ((work_completion)(&pfault->work)){+.+.}-{0:0}, at: process_one_work+0x1f1/0x5f0
+
+   stack backtrace:
+   CPU: 0 PID: 8573 Comm: kworker/u17:9 Tainted: GO      5.7.0_for_upstream_min_debug_2020_06_14_11_31_46_41 #1
+   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+   Workqueue: mlx5_ib_page_fault mlx5_ib_eqe_pf_action [mlx5_ib]
+   Call Trace:
+    dump_stack+0x71/0x9b
+    mark_lock+0x4f2/0x590
+    ? print_shortest_lock_dependencies+0x200/0x200
+    __lock_acquire+0xa00/0x1eb0
+    lock_acquire+0xb9/0x3a0
+    ? mlx5_cmd_get_srq+0x18/0x70 [mlx5_ib]
+    _raw_spin_lock+0x25/0x30
+    ? mlx5_cmd_get_srq+0x18/0x70 [mlx5_ib]
+    mlx5_cmd_get_srq+0x18/0x70 [mlx5_ib]
+    mlx5_ib_eqe_pf_action+0x257/0xa30 [mlx5_ib]
+    ? process_one_work+0x209/0x5f0
+    process_one_work+0x27b/0x5f0
+    ? __schedule+0x280/0x7e0
+    worker_thread+0x2d/0x3c0
+    ? process_one_work+0x5f0/0x5f0
+    kthread+0x111/0x130
+    ? kthread_park+0x90/0x90
+    ret_from_fork+0x24/0x30
+
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Link: https://lore.kernel.org/r/20200712102641.15210-1-leon@kernel.org
+Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c      | 10 +++++-----
- arch/x86/kernel/apic/msi.c          | 18 ++++++++++++------
- arch/x86/kernel/apic/vector.c       |  1 -
- arch/x86/platform/uv/uv_irq.c       |  3 ++-
- drivers/iommu/amd_iommu.c           |  5 +++--
- drivers/iommu/intel_irq_remapping.c |  2 +-
- drivers/pci/controller/vmd.c        |  5 +++--
- 7 files changed, 26 insertions(+), 18 deletions(-)
+ drivers/infiniband/hw/mlx5/srq_cmd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index fa3b85b222e31..08e2f3a5f1242 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2323,12 +2323,12 @@ static int mp_irqdomain_create(int ioapic)
- 	ip->irqdomain = irq_domain_create_linear(fn, hwirqs, cfg->ops,
- 						 (void *)(long)ioapic);
+diff --git a/drivers/infiniband/hw/mlx5/srq_cmd.c b/drivers/infiniband/hw/mlx5/srq_cmd.c
+index 8fc3630a9d4c3..0224231a2e6f8 100644
+--- a/drivers/infiniband/hw/mlx5/srq_cmd.c
++++ b/drivers/infiniband/hw/mlx5/srq_cmd.c
+@@ -83,11 +83,11 @@ struct mlx5_core_srq *mlx5_cmd_get_srq(struct mlx5_ib_dev *dev, u32 srqn)
+ 	struct mlx5_srq_table *table = &dev->srq_table;
+ 	struct mlx5_core_srq *srq;
  
--	/* Release fw handle if it was allocated above */
--	if (!cfg->dev)
--		irq_domain_free_fwnode(fn);
--
--	if (!ip->irqdomain)
-+	if (!ip->irqdomain) {
-+		/* Release fw handle if it was allocated above */
-+		if (!cfg->dev)
-+			irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
+-	xa_lock(&table->array);
++	xa_lock_irq(&table->array);
+ 	srq = xa_load(&table->array, srqn);
+ 	if (srq)
+ 		refcount_inc(&srq->common.refcount);
+-	xa_unlock(&table->array);
++	xa_unlock_irq(&table->array);
  
- 	ip->irqdomain->parent = parent;
- 
-diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
-index 1f5df339e48ff..fb26c956c4421 100644
---- a/arch/x86/kernel/apic/msi.c
-+++ b/arch/x86/kernel/apic/msi.c
-@@ -265,12 +265,13 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
- 		msi_default_domain =
- 			pci_msi_create_irq_domain(fn, &pci_msi_domain_info,
- 						  parent);
--		irq_domain_free_fwnode(fn);
- 	}
--	if (!msi_default_domain)
-+	if (!msi_default_domain) {
-+		irq_domain_free_fwnode(fn);
- 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
--	else
-+	} else {
- 		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
-+	}
+ 	return srq;
  }
- 
- #ifdef CONFIG_IRQ_REMAP
-@@ -303,7 +304,8 @@ struct irq_domain *arch_create_remap_msi_irq_domain(struct irq_domain *parent,
- 	if (!fn)
- 		return NULL;
- 	d = pci_msi_create_irq_domain(fn, &pci_msi_ir_domain_info, parent);
--	irq_domain_free_fwnode(fn);
-+	if (!d)
-+		irq_domain_free_fwnode(fn);
- 	return d;
- }
- #endif
-@@ -366,7 +368,8 @@ static struct irq_domain *dmar_get_irq_domain(void)
- 	if (fn) {
- 		dmar_domain = msi_create_irq_domain(fn, &dmar_msi_domain_info,
- 						    x86_vector_domain);
--		irq_domain_free_fwnode(fn);
-+		if (!dmar_domain)
-+			irq_domain_free_fwnode(fn);
- 	}
- out:
- 	mutex_unlock(&dmar_lock);
-@@ -491,7 +494,10 @@ struct irq_domain *hpet_create_irq_domain(int hpet_id)
- 	}
- 
- 	d = msi_create_irq_domain(fn, domain_info, parent);
--	irq_domain_free_fwnode(fn);
-+	if (!d) {
-+		irq_domain_free_fwnode(fn);
-+		kfree(domain_info);
-+	}
- 	return d;
- }
- 
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index e41be2c25da81..99c28c02b7a54 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -703,7 +703,6 @@ int __init arch_early_irq_init(void)
- 	x86_vector_domain = irq_domain_create_tree(fn, &x86_vector_domain_ops,
- 						   NULL);
- 	BUG_ON(x86_vector_domain == NULL);
--	irq_domain_free_fwnode(fn);
- 	irq_set_default_host(x86_vector_domain);
- 
- 	arch_init_msi_domain(x86_vector_domain);
-diff --git a/arch/x86/platform/uv/uv_irq.c b/arch/x86/platform/uv/uv_irq.c
-index fc13cbbb2dce2..abb6075397f05 100644
---- a/arch/x86/platform/uv/uv_irq.c
-+++ b/arch/x86/platform/uv/uv_irq.c
-@@ -167,9 +167,10 @@ static struct irq_domain *uv_get_irq_domain(void)
- 		goto out;
- 
- 	uv_domain = irq_domain_create_tree(fn, &uv_domain_ops, NULL);
--	irq_domain_free_fwnode(fn);
- 	if (uv_domain)
- 		uv_domain->parent = x86_vector_domain;
-+	else
-+		irq_domain_free_fwnode(fn);
- out:
- 	mutex_unlock(&uv_lock);
- 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 0783f44e9afe5..d0cbe910ee9db 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -4508,9 +4508,10 @@ int amd_iommu_create_irq_domain(struct amd_iommu *iommu)
- 	if (!fn)
- 		return -ENOMEM;
- 	iommu->ir_domain = irq_domain_create_tree(fn, &amd_ir_domain_ops, iommu);
--	irq_domain_free_fwnode(fn);
--	if (!iommu->ir_domain)
-+	if (!iommu->ir_domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENOMEM;
-+	}
- 
- 	iommu->ir_domain->parent = arch_get_ir_parent_domain();
- 	iommu->msi_domain = arch_create_remap_msi_irq_domain(iommu->ir_domain,
-diff --git a/drivers/iommu/intel_irq_remapping.c b/drivers/iommu/intel_irq_remapping.c
-index 967450bd421a1..852e2841395b4 100644
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -536,8 +536,8 @@ static int intel_setup_irq_remapping(struct intel_iommu *iommu)
- 					    0, INTR_REMAP_TABLE_ENTRIES,
- 					    fn, &intel_ir_domain_ops,
- 					    iommu);
--	irq_domain_free_fwnode(fn);
- 	if (!iommu->ir_domain) {
-+		irq_domain_free_fwnode(fn);
- 		pr_err("IR%d: failed to allocate irqdomain\n", iommu->seq_id);
- 		goto out_free_bitmap;
- 	}
-diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
-index c3ac7f094a394..ad39b404f10a4 100644
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -704,9 +704,10 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
- 
- 	vmd->irq_domain = pci_msi_create_irq_domain(fn, &vmd_msi_domain_info,
- 						    x86_vector_domain);
--	irq_domain_free_fwnode(fn);
--	if (!vmd->irq_domain)
-+	if (!vmd->irq_domain) {
-+		irq_domain_free_fwnode(fn);
- 		return -ENODEV;
-+	}
- 
- 	pci_add_resource(&resources, &vmd->resources[0]);
- 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
 -- 
 2.25.1
 
