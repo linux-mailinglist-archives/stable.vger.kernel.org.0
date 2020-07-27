@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D9822EE82
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7797D22EEE2
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729404AbgG0OIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:08:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57750 "EHLO mail.kernel.org"
+        id S1730020AbgG0OLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:11:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbgG0OIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:08:21 -0400
+        id S1729452AbgG0OL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:11:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B276E207FC;
-        Mon, 27 Jul 2020 14:08:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C972920838;
+        Mon, 27 Jul 2020 14:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858901;
-        bh=2N5Wm++7+eoqHG8fsn7/XL8Q1oSa/XmTbUdG1O2wd7U=;
+        s=default; t=1595859086;
+        bh=kB41gXh/gK69Ub+thQTzV8vVMeVaJNEl8ZZLFyl95ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOGigsdfczEFWa0wvZauTgyVUR85BnwGi//+Y3x2Hgh+LrbtLVg79T99jMF+29v33
-         z20iNb6XNFvcgReoniwSW+A8Ieru+7ITiL6gFYMRXNIxle8cayxhc+Nr0cEYxHdGD5
-         tHUpoJ5246KroJ5cT0sHB/vTAVeuWGrqa9I66fd0=
+        b=180DPRe+hrjhJZC6XYqnwqzGxeMzu1JbtxFWLlO1dNkqondoJMWmWmgVdgA7TzMec
+         RoB/jrlYbAEimVeRUhmz5ZkrSY7t/PftZR+PTdatNgCf1TYOE/pIxKA8nEngzunxcY
+         YvAw3/QuwxS2YQwliCV+X+SOL2hKwILvlY3TGnFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.14 54/64] staging: comedi: addi_apci_1564: check INSN_CONFIG_DIGITAL_TRIG shift
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 59/86] x86: math-emu: Fix up cmp insn for clang ias
 Date:   Mon, 27 Jul 2020 16:04:33 +0200
-Message-Id: <20200727134913.849293400@linuxfoundation.org>
+Message-Id: <20200727134917.395764070@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
-References: <20200727134911.020675249@linuxfoundation.org>
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+References: <20200727134914.312934924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 926234f1b8434c4409aa4c53637aa3362ca07cea upstream.
+[ Upstream commit 81e96851ea32deb2c921c870eecabf335f598aeb ]
 
-The `INSN_CONFIG` comedi instruction with sub-instruction code
-`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
-used as a right shift amount for other bitmask values without being
-checked.  Shift amounts greater than or equal to 32 will result in
-undefined behavior.  Add code to deal with this.
+The clang integrated assembler requires the 'cmp' instruction to
+have a length prefix here:
 
-Fixes: 1e15687ea472 ("staging: comedi: addi_apci_1564: add Change-of-State interrupt subdevice and required functions")
-Cc: <stable@vger.kernel.org> #3.17+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20200717145257.112660-4-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/x86/math-emu/wm_sqrt.S:212:2: error: ambiguous instructions require an explicit suffix (could be 'cmpb', 'cmpw', or 'cmpl')
+ cmp $0xffffffff,-24(%ebp)
+ ^
 
+Make this a 32-bit comparison, which it was clearly meant to be.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lkml.kernel.org/r/20200527135352.1198078-1-arnd@arndb.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1564.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/x86/math-emu/wm_sqrt.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1564.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1564.c
-@@ -340,14 +340,22 @@ static int apci1564_cos_insn_config(stru
- 				    unsigned int *data)
- {
- 	struct apci1564_private *devpriv = dev->private;
--	unsigned int shift, oldmask;
-+	unsigned int shift, oldmask, himask, lomask;
+diff --git a/arch/x86/math-emu/wm_sqrt.S b/arch/x86/math-emu/wm_sqrt.S
+index f031c0e193565..515cdee90df72 100644
+--- a/arch/x86/math-emu/wm_sqrt.S
++++ b/arch/x86/math-emu/wm_sqrt.S
+@@ -209,7 +209,7 @@ sqrt_stage_2_finish:
  
- 	switch (data[0]) {
- 	case INSN_CONFIG_DIGITAL_TRIG:
- 		if (data[1] != 0)
- 			return -EINVAL;
- 		shift = data[3];
--		oldmask = (1U << shift) - 1;
-+		if (shift < 32) {
-+			oldmask = (1U << shift) - 1;
-+			himask = data[4] << shift;
-+			lomask = data[5] << shift;
-+		} else {
-+			oldmask = 0xffffffffu;
-+			himask = 0;
-+			lomask = 0;
-+		}
- 		switch (data[2]) {
- 		case COMEDI_DIGITAL_TRIG_DISABLE:
- 			devpriv->ctrl = 0;
-@@ -371,8 +379,8 @@ static int apci1564_cos_insn_config(stru
- 				devpriv->mode2 &= oldmask;
- 			}
- 			/* configure specified channels */
--			devpriv->mode1 |= data[4] << shift;
--			devpriv->mode2 |= data[5] << shift;
-+			devpriv->mode1 |= himask;
-+			devpriv->mode2 |= lomask;
- 			break;
- 		case COMEDI_DIGITAL_TRIG_ENABLE_LEVELS:
- 			if (devpriv->ctrl != (APCI1564_DI_IRQ_ENA |
-@@ -389,8 +397,8 @@ static int apci1564_cos_insn_config(stru
- 				devpriv->mode2 &= oldmask;
- 			}
- 			/* configure specified channels */
--			devpriv->mode1 |= data[4] << shift;
--			devpriv->mode2 |= data[5] << shift;
-+			devpriv->mode1 |= himask;
-+			devpriv->mode2 |= lomask;
- 			break;
- 		default:
- 			return -EINVAL;
+ #ifdef PARANOID
+ /* It should be possible to get here only if the arg is ffff....ffff */
+-	cmp	$0xffffffff,FPU_fsqrt_arg_1
++	cmpl	$0xffffffff,FPU_fsqrt_arg_1
+ 	jnz	sqrt_stage_2_error
+ #endif /* PARANOID */
+ 
+-- 
+2.25.1
+
 
 
