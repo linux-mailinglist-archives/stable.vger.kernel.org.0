@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2475922FD7D
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C361A22FD7B
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 01:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbgG0XYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 19:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35828 "EHLO mail.kernel.org"
+        id S1728079AbgG0X17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 19:27:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728326AbgG0XYl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:24:41 -0400
+        id S1728335AbgG0XYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:24:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A782621D95;
-        Mon, 27 Jul 2020 23:24:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2352208E4;
+        Mon, 27 Jul 2020 23:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892280;
-        bh=Ezm59BrI2xzB7EIKgvwFqNMC5HrCH6WKJKXNUOGexwc=;
+        s=default; t=1595892281;
+        bh=n1FukGZuQXyu2MVVpZOdKAmj1C0W92scKOGnuT4UQO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BGSteS5ITVEMj0WODuAdwdhV7JIHEQjhjWxb1V5OQkPrbIxEhBZXcMKhTVmGr0BQR
-         LLGeqFAqXIDKf/51dLNZxbsDhdrY4c44vldmcDXlYPvklli2H9j+GvanZ1QMFIdV02
-         an1X3o2X9Shw8xFMxuk6/N7x67eCYaLOSx40Tlow=
+        b=fDUbjLgVDLKH3ZBC4o7O0sap26ef3QtaCDvmkjqFi+SD9BugZw8dVVC38vJ9Paimo
+         p5KL0t9biHW/+x1xtTj3V3u7n8Q4FQXDSM31o1Kv8hIOUd8zAq89DFw4Dsmx4IAdVO
+         gJOyunQXPWZ/c7jeXP2XlRYnnOvkt9KyqMl1LpOU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Righi <andrea.righi@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 15/17] xen-netfront: fix potential deadlock in xennet_remove()
-Date:   Mon, 27 Jul 2020 19:24:18 -0400
-Message-Id: <20200727232420.717684-15-sashal@kernel.org>
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 16/17] RISC-V: Set maximum number of mapped pages correctly
+Date:   Mon, 27 Jul 2020 19:24:19 -0400
+Message-Id: <20200727232420.717684-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200727232420.717684-1-sashal@kernel.org>
 References: <20200727232420.717684-1-sashal@kernel.org>
@@ -44,132 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-[ Upstream commit c2c633106453611be07821f53dff9e93a9d1c3f0 ]
+[ Upstream commit d0d8aae64566b753c4330fbd5944b88af035f299 ]
 
-There's a potential race in xennet_remove(); this is what the driver is
-doing upon unregistering a network device:
+Currently, maximum number of mapper pages are set to the pfn calculated
+from the memblock size of the memblock containing kernel. This will work
+until that memblock spans the entire memory. However, it will be set to
+a wrong value if there are multiple memblocks defined in kernel
+(e.g. with efi runtime services).
 
-  1. state = read bus state
-  2. if state is not "Closed":
-  3.    request to set state to "Closing"
-  4.    wait for state to be set to "Closing"
-  5.    request to set state to "Closed"
-  6.    wait for state to be set to "Closed"
+Set the the maximum value to the pfn calculated from dram size.
 
-If the state changes to "Closed" immediately after step 1 we are stuck
-forever in step 4, because the state will never go back from "Closed" to
-"Closing".
-
-Make sure to check also for state == "Closed" in step 4 to prevent the
-deadlock.
-
-Also add a 5 sec timeout any time we wait for the bus state to change,
-to avoid getting stuck forever in wait_event().
-
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c | 64 +++++++++++++++++++++++++-------------
- 1 file changed, 42 insertions(+), 22 deletions(-)
+ arch/riscv/mm/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 482c6c8b0fb7e..88280057e0321 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -63,6 +63,8 @@ module_param_named(max_queues, xennet_max_queues, uint, 0644);
- MODULE_PARM_DESC(max_queues,
- 		 "Maximum number of queues per virtual interface");
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 3198129230126..b1eb6a0411183 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -115,9 +115,9 @@ void __init setup_bootmem(void)
+ 	/* Reserve from the start of the kernel to the end of the kernel */
+ 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
  
-+#define XENNET_TIMEOUT  (5 * HZ)
-+
- static const struct ethtool_ops xennet_ethtool_ops;
+-	set_max_mapnr(PFN_DOWN(mem_size));
+ 	max_pfn = PFN_DOWN(memblock_end_of_DRAM());
+ 	max_low_pfn = max_pfn;
++	set_max_mapnr(max_low_pfn);
  
- struct netfront_cb {
-@@ -1334,12 +1336,15 @@ static struct net_device *xennet_create_dev(struct xenbus_device *dev)
- 
- 	netif_carrier_off(netdev);
- 
--	xenbus_switch_state(dev, XenbusStateInitialising);
--	wait_event(module_wq,
--		   xenbus_read_driver_state(dev->otherend) !=
--		   XenbusStateClosed &&
--		   xenbus_read_driver_state(dev->otherend) !=
--		   XenbusStateUnknown);
-+	do {
-+		xenbus_switch_state(dev, XenbusStateInitialising);
-+		err = wait_event_timeout(module_wq,
-+				 xenbus_read_driver_state(dev->otherend) !=
-+				 XenbusStateClosed &&
-+				 xenbus_read_driver_state(dev->otherend) !=
-+				 XenbusStateUnknown, XENNET_TIMEOUT);
-+	} while (!err);
-+
- 	return netdev;
- 
-  exit:
-@@ -2139,28 +2144,43 @@ static const struct attribute_group xennet_dev_group = {
- };
- #endif /* CONFIG_SYSFS */
- 
--static int xennet_remove(struct xenbus_device *dev)
-+static void xennet_bus_close(struct xenbus_device *dev)
- {
--	struct netfront_info *info = dev_get_drvdata(&dev->dev);
--
--	dev_dbg(&dev->dev, "%s\n", dev->nodename);
-+	int ret;
- 
--	if (xenbus_read_driver_state(dev->otherend) != XenbusStateClosed) {
-+	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
-+		return;
-+	do {
- 		xenbus_switch_state(dev, XenbusStateClosing);
--		wait_event(module_wq,
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateClosing ||
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateUnknown);
-+		ret = wait_event_timeout(module_wq,
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateClosing ||
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateClosed ||
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateUnknown,
-+				   XENNET_TIMEOUT);
-+	} while (!ret);
-+
-+	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
-+		return;
- 
-+	do {
- 		xenbus_switch_state(dev, XenbusStateClosed);
--		wait_event(module_wq,
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateClosed ||
--			   xenbus_read_driver_state(dev->otherend) ==
--			   XenbusStateUnknown);
--	}
-+		ret = wait_event_timeout(module_wq,
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateClosed ||
-+				   xenbus_read_driver_state(dev->otherend) ==
-+				   XenbusStateUnknown,
-+				   XENNET_TIMEOUT);
-+	} while (!ret);
-+}
-+
-+static int xennet_remove(struct xenbus_device *dev)
-+{
-+	struct netfront_info *info = dev_get_drvdata(&dev->dev);
- 
-+	xennet_bus_close(dev);
- 	xennet_disconnect_backend(info);
- 
- 	if (info->netdev->reg_state == NETREG_REGISTERED)
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	setup_initrd();
 -- 
 2.25.1
 
