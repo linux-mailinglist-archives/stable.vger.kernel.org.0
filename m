@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD0C122F279
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2542722F147
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730845AbgG0OkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:40:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
+        id S1731762AbgG0ObF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729604AbgG0OJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:09:16 -0400
+        id S1731660AbgG0OVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:21:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A5120838;
-        Mon, 27 Jul 2020 14:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B00E2070B;
+        Mon, 27 Jul 2020 14:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595858956;
-        bh=Nq5QR3iG8Cr3ox2BQ3/zYb67ZQcxz9425Pv2U2LcgGI=;
+        s=default; t=1595859664;
+        bh=fWgkcWHZ5S4Hy6H2qIaWgZq9/peitARfUWaqCkpTLzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBR2YcLYOBiVEzhmhmOnkM9iUe/fO6GfE8fg9K+SK95Y6REs4bcuyPm70v11YFkoB
-         s3T8hqlCH/AEpj4B4RVEVdI9ubS0Q8Q+kiwh6cECjZ8Hd8RDlbsHgTmVAAQxoCFpfI
-         LuW5qz4q1WQTksSz9xdLOUAC49wgM4Ecib7pAMuw=
+        b=glilwNrpGiexzIpCjeDQcZQjbiyHEj6B6Ax2Tby5ekuFVnHAbDKtM0jzPr7as1ecR
+         hTosoQOThCa6pfxRJWZOF0YukEnm/7kYDfgmW2ZyTzIWSIhw5SBujD4X8+ESWSA5Er
+         Vc/Bg6C/y0Y8A0VnkKl9fSMDTw+oh+KhgZVtd/Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/86] drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
+Subject: [PATCH 5.7 050/179] dpaa2-eth: check fsl_mc_get_endpoint for IS_ERR_OR_NULL()
 Date:   Mon, 27 Jul 2020 16:03:45 +0200
-Message-Id: <20200727134914.906792115@linuxfoundation.org>
+Message-Id: <20200727134935.105780439@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-References: <20200727134914.312934924@linuxfoundation.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 0156e76d388310a490aeb0f2fbb5b284ded3aecc ]
+[ Upstream commit 841eb4012cef84820e5906527b31a854f42b0748 ]
 
-Tegra TRM says worst-case reply time is 1216us, and this should fix some
-spurious timeouts that have been popping up.
+The fsl_mc_get_endpoint() function can return an error or directly a
+NULL pointer in case the peer device is not under the root DPRC
+container. Treat this case also, otherwise it would lead to a NULL
+pointer when trying to access the peer fsl_mc_device.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Fixes: 719479230893 ("dpaa2-eth: add MAC/PHY support through phylink")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   | 4 ++--
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-index c8ab1b5741a3e..db7769cb33eba 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
-@@ -118,10 +118,10 @@ g94_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index 569e06d2bab21..72fa9c4e058f7 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -3383,7 +3383,7 @@ static int dpaa2_eth_connect_mac(struct dpaa2_eth_priv *priv)
  
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00e4e4 + base, 0x00010000 | ctrl);
+ 	dpni_dev = to_fsl_mc_device(priv->net_dev->dev.parent);
+ 	dpmac_dev = fsl_mc_get_endpoint(dpni_dev);
+-	if (IS_ERR(dpmac_dev) || dpmac_dev->dev.type != &fsl_mc_bus_dpmac_type)
++	if (IS_ERR_OR_NULL(dpmac_dev) || dpmac_dev->dev.type != &fsl_mc_bus_dpmac_type)
+ 		return 0;
  
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00e4e4 + base);
- 			udelay(1);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-index 7ef60895f43a7..edb6148cbca04 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-@@ -118,10 +118,10 @@ gm200_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
- 		if (retries)
- 			udelay(400);
- 
--		/* transaction request, wait up to 1ms for it to complete */
-+		/* transaction request, wait up to 2ms for it to complete */
- 		nvkm_wr32(device, 0x00d954 + base, 0x00010000 | ctrl);
- 
--		timeout = 1000;
-+		timeout = 2000;
- 		do {
- 			ctrl = nvkm_rd32(device, 0x00d954 + base);
- 			udelay(1);
+ 	if (dpaa2_mac_is_type_fixed(dpmac_dev, priv->mc_io))
 -- 
 2.25.1
 
