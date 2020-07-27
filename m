@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8F822F0C6
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 318F322F094
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732370AbgG0OZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55218 "EHLO mail.kernel.org"
+        id S1732507AbgG0OZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731498AbgG0OZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:25:19 -0400
+        id S1732495AbgG0OZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:25:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98CAF207FC;
-        Mon, 27 Jul 2020 14:25:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4861921775;
+        Mon, 27 Jul 2020 14:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859918;
-        bh=Tdh9cOVs/2IgNFxLPF4ZL/iqY0zBfjy8MZwS73LcFlo=;
+        s=default; t=1595859946;
+        bh=W6z7dnpeGGRWpWZZKzTCo6fCMQg2u8gAj9/OmC7aNfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6l5TkhguRe1x6pjbAXirXONgFMYko7CPuEXLevc4s3RbjSi2oPtdsF6l8NKycLLR
-         lG6tXVLuF2U4wq4slZGJ62egKzErlpIdpPaiq5+MRIXEwjF0a14MAUOeskY+2zboZk
-         akCx3M1s6qWDc3+gpN2JWKz8YQbm9uqsFLnSqx/U=
+        b=TyrnaELTqI+lXmWgC8dDLl5Qv1Wx0+eMwnDuH8B0FvejniHLuzBrnREJtG7VfTEPs
+         gfb5GNfrSKnDekDD7aVgu0BwR1PJ7LUQy2Y0vdePwjGY/AsiAan3vyFnBcC4Zv4EST
+         939VGZdkId2Bdu9Axt3FnZWyhbZRu6Hl96iMfHuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.7 148/179] staging: comedi: ni_6527: fix INSN_CONFIG_DIGITAL_TRIG support
-Date:   Mon, 27 Jul 2020 16:05:23 +0200
-Message-Id: <20200727134939.878334717@linuxfoundation.org>
+Subject: [PATCH 5.7 149/179] staging: comedi: addi_apci_1500: check INSN_CONFIG_DIGITAL_TRIG shift
+Date:   Mon, 27 Jul 2020 16:05:24 +0200
+Message-Id: <20200727134939.928825242@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -44,49 +44,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ian Abbott <abbotti@mev.co.uk>
 
-commit f07804ec77d77f8a9dcf570a24154e17747bc82f upstream.
+commit fc846e9db67c7e808d77bf9e2ef3d49e3820ce5d upstream.
 
-`ni6527_intr_insn_config()` processes `INSN_CONFIG` comedi instructions
-for the "interrupt" subdevice.  When `data[0]` is
-`INSN_CONFIG_DIGITAL_TRIG` it is configuring the digital trigger.  When
-`data[2]` is `COMEDI_DIGITAL_TRIG_ENABLE_EDGES` it is configuring rising
-and falling edge detection for the digital trigger, using a base channel
-number (or shift amount) in `data[3]`, a rising edge bitmask in
-`data[4]` and falling edge bitmask in `data[5]`.
+The `INSN_CONFIG` comedi instruction with sub-instruction code
+`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
+used as a right shift amount for other bitmask values without being
+checked.  Shift amounts greater than or equal to 32 will result in
+undefined behavior.  Add code to deal with this, adjusting the checks
+for invalid channels so that enabled channel bits that would have been
+lost by shifting are also checked for validity.  Only channels 0 to 15
+are valid.
 
-If the base channel number (shift amount) is greater than or equal to
-the number of channels (24) of the digital input subdevice, there are no
-changes to the rising and falling edges, so the mask of channels to be
-changed can be set to 0, otherwise the mask of channels to be changed,
-and the rising and falling edge bitmasks are shifted by the base channel
-number before calling `ni6527_set_edge_detection()` to change the
-appropriate registers.  Unfortunately, the code is comparing the base
-channel (shift amount) to the interrupt subdevice's number of channels
-(1) instead of the digital input subdevice's number of channels (24).
-Fix it by comparing to 32 because all shift amounts for an `unsigned
-int` must be less than that and everything from bit 24 upwards is
-ignored by `ni6527_set_edge_detection()` anyway.
-
-Fixes: 110f9e687c1a8 ("staging: comedi: ni_6527: support INSN_CONFIG_DIGITAL_TRIG")
-Cc: <stable@vger.kernel.org> # 3.17+
+Fixes: a8c66b684efaf ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Cc: <stable@vger.kernel.org> #4.0+: ef75e14a6c93: staging: comedi: verify array index is correct before using it
+Cc: <stable@vger.kernel.org> #4.0+
 Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20200717145257.112660-2-abbotti@mev.co.uk
+Link: https://lore.kernel.org/r/20200717145257.112660-5-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/ni_6527.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c |   24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/comedi/drivers/ni_6527.c
-+++ b/drivers/staging/comedi/drivers/ni_6527.c
-@@ -332,7 +332,7 @@ static int ni6527_intr_insn_config(struc
- 		case COMEDI_DIGITAL_TRIG_ENABLE_EDGES:
- 			/* check shift amount */
- 			shift = data[3];
--			if (shift >= s->n_chan) {
-+			if (shift >= 32) {
- 				mask = 0;
- 				rising = 0;
- 				falling = 0;
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -452,13 +452,14 @@ static int apci1500_di_cfg_trig(struct c
+ 	struct apci1500_private *devpriv = dev->private;
+ 	unsigned int trig = data[1];
+ 	unsigned int shift = data[3];
+-	unsigned int hi_mask = data[4] << shift;
+-	unsigned int lo_mask = data[5] << shift;
+-	unsigned int chan_mask = hi_mask | lo_mask;
+-	unsigned int old_mask = (1 << shift) - 1;
++	unsigned int hi_mask;
++	unsigned int lo_mask;
++	unsigned int chan_mask;
++	unsigned int old_mask;
+ 	unsigned int pm;
+ 	unsigned int pt;
+ 	unsigned int pp;
++	unsigned int invalid_chan;
+ 
+ 	if (trig > 1) {
+ 		dev_dbg(dev->class_dev,
+@@ -466,7 +467,20 @@ static int apci1500_di_cfg_trig(struct c
+ 		return -EINVAL;
+ 	}
+ 
+-	if (chan_mask > 0xffff) {
++	if (shift <= 16) {
++		hi_mask = data[4] << shift;
++		lo_mask = data[5] << shift;
++		old_mask = (1U << shift) - 1;
++		invalid_chan = (data[4] | data[5]) >> (16 - shift);
++	} else {
++		hi_mask = 0;
++		lo_mask = 0;
++		old_mask = 0xffff;
++		invalid_chan = data[4] | data[5];
++	}
++	chan_mask = hi_mask | lo_mask;
++
++	if (invalid_chan) {
+ 		dev_dbg(dev->class_dev, "invalid digital trigger channel\n");
+ 		return -EINVAL;
+ 	}
 
 
