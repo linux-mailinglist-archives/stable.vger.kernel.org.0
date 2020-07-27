@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 207D922F1DA
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 894D022F2D4
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgG0Oex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:34:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
+        id S1731165AbgG0Omf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:42:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730728AbgG0OPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:15:52 -0400
+        id S1727833AbgG0OGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:06:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3FE82078E;
-        Mon, 27 Jul 2020 14:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3A652078E;
+        Mon, 27 Jul 2020 14:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859352;
-        bh=D47ELempxSsRd0RR5eXkjVqnLYMRwAeKS5pm6K881BM=;
+        s=default; t=1595858815;
+        bh=lXydRmKUFY5sur3nSfW3FGBmlslf8j7RwPqS6nb1vfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RLpYTloLjr/L93ivGW3/aQwDFNOE5y73IYEATT6q9uEJOH6gNFTR4twlrU9/8dc2
-         5M4xjpOAm0kerVKPnQzmTq7DuT3dFhncoGu5YUXtmFslArURY8roPLpt+7LSm/ksw8
-         ay4d6TijzCQYWtUcQBsBF/a0+Pj6su3LqmZVbFN8=
+        b=E0GdkqaPc2q31ayQYrxw3vIsLnfrypajvfHWi75szcgq0gOslMdvBvlikLlUfPn/w
+         nDYxtOK6b9XAyyGKVQmXvDEYljFLoX4yTURsLO+oYh/KuxKeBq+Ni0JfAA0RI37an/
+         ma/z4yHJ2Dr+PxWwfzafF6E1ogYEnNES6n7c8Tcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/138] ASoC: Intel: bytcht_es8316: Add missed put_device()
-Date:   Mon, 27 Jul 2020 16:03:59 +0200
-Message-Id: <20200727134927.567605246@linuxfoundation.org>
+Subject: [PATCH 4.14 21/64] bnxt_en: Fix race when modifying pause settings.
+Date:   Mon, 27 Jul 2020 16:04:00 +0200
+Message-Id: <20200727134912.096049773@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
-References: <20200727134925.228313570@linuxfoundation.org>
+In-Reply-To: <20200727134911.020675249@linuxfoundation.org>
+References: <20200727134911.020675249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit b3df80ab6d147d4738be242e1c91e5fdbb6b03ef ]
+[ Upstream commit 163e9ef63641a02de4c95cd921577265c52e1ce2 ]
 
-snd_byt_cht_es8316_mc_probe() misses to call put_device() in an error
-path. Add the missed function call to fix it.
+The driver was modified to not rely on rtnl lock to protect link
+settings about 2 years ago.  The pause setting was missed when
+making that change.  Fix it by acquiring link_lock mutex before
+calling bnxt_hwrm_set_pause().
 
-Fixes: ba49cf6f8e4a ("ASoC: Intel: bytcht_es8316: Add quirk for inverted jack detect")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200714080918.148196-1-jingxiangfeng@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e2dc9b6e38fa ("bnxt_en: Don't use rtnl lock to protect link change logic in workqueue.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcht_es8316.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boards/bytcht_es8316.c
-index 54e97455d7f66..ed332177b0f9d 100644
---- a/sound/soc/intel/boards/bytcht_es8316.c
-+++ b/sound/soc/intel/boards/bytcht_es8316.c
-@@ -548,8 +548,10 @@ static int snd_byt_cht_es8316_mc_probe(struct platform_device *pdev)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 3c78cd1cdd6fb..6edbbfc1709a2 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1287,8 +1287,11 @@ static int bnxt_set_pauseparam(struct net_device *dev,
+ 	if (epause->tx_pause)
+ 		link_info->req_flow_ctrl |= BNXT_LINK_PAUSE_TX;
  
- 	if (cnt) {
- 		ret = device_add_properties(codec_dev, props);
--		if (ret)
-+		if (ret) {
-+			put_device(codec_dev);
- 			return ret;
-+		}
- 	}
+-	if (netif_running(dev))
++	if (netif_running(dev)) {
++		mutex_lock(&bp->link_lock);
+ 		rc = bnxt_hwrm_set_pause(bp);
++		mutex_unlock(&bp->link_lock);
++	}
+ 	return rc;
+ }
  
- 	devm_acpi_dev_add_driver_gpios(codec_dev, byt_cht_es8316_gpios);
 -- 
 2.25.1
 
