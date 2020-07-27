@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A913122F0E0
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E32C022EF9B
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:17:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732286AbgG0OYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54104 "EHLO mail.kernel.org"
+        id S1731062AbgG0ORp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:17:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732202AbgG0OYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:24:32 -0400
+        id S1731098AbgG0ORl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:17:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF2272083E;
-        Mon, 27 Jul 2020 14:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C82D820775;
+        Mon, 27 Jul 2020 14:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859871;
-        bh=MutjSMAafDXjPRebpjYD2MZe+oGnDIbyaCZJHeddI8Y=;
+        s=default; t=1595859461;
+        bh=W+aZnU5vNg9bWZKBSUOjo0QnhgEt+zvcWQNSDiewMUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfogZUZ6rH7QemqeXIObsCuNoiYLja7sZWf3kOf8ZEpsIlwyyH8UGJX0CMmzvo5+b
-         yQ/blLhReJHNLrHvqJnBQcbNA0oj1LH8wD05HqxgrNg1obSCD+hpTFecETFEivBwH2
-         XOalHOr965RBaxE/e44qqkt87enTah0PBu8ochzo=
+        b=pmgYAUM8DXH4ZarW+6lm8tEdUDhixIgl1dqVdB1EVwsrEwIGc1dZWrUnWWPgnAix7
+         5++FvrTqmv7WDTHhuPfPbXUt/lQbvc+dl9P4+tD3xCnxUFsUIh53kAGc0jKBp/y47X
+         RmgmJ6gPqsZeM31gCfimq23Uu5Wq77uvssB4Us14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 137/179] RISC-V: Upgrade smp_mb__after_spinlock() to iorw,iorw
-Date:   Mon, 27 Jul 2020 16:05:12 +0200
-Message-Id: <20200727134939.307666976@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Russell King <linux@arm.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.4 118/138] /dev/mem: Add missing memory barriers for devmem_inode
+Date:   Mon, 27 Jul 2020 16:05:13 +0200
+Message-Id: <20200727134931.348451262@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
-References: <20200727134932.659499757@linuxfoundation.org>
+In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
+References: <20200727134925.228313570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmerdabbelt@google.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 38b7c2a3ffb1fce8358ddc6006cfe5c038ff9963 ]
+commit b34e7e298d7a5ed76b3aa327c240c29f1ef6dd22 upstream.
 
-While digging through the recent mmiowb preemption issue it came up that
-we aren't actually preventing IO from crossing a scheduling boundary.
-While it's a bit ugly to overload smp_mb__after_spinlock() with this
-behavior, it's what PowerPC is doing so there's some precedent.
+WRITE_ONCE() isn't the correct way to publish a pointer to a data
+structure, since it doesn't include a write memory barrier.  Therefore
+other tasks may see that the pointer has been set but not see that the
+pointed-to memory has finished being initialized yet.  Instead a
+primitive with "release" semantics is needed.
 
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use smp_store_release() for this.
+
+The use of READ_ONCE() on the read side is still potentially correct if
+there's no control dependency, i.e. if all memory being "published" is
+transitively reachable via the pointer itself.  But this pairing is
+somewhat confusing and error-prone.  So just upgrade the read side to
+smp_load_acquire() so that it clearly pairs with smp_store_release().
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Russell King <linux@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims the region")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Link: https://lore.kernel.org/r/20200716060553.24618-1-ebiggers@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/riscv/include/asm/barrier.h | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/char/mem.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/include/asm/barrier.h b/arch/riscv/include/asm/barrier.h
-index 3f1737f301ccb..d0e24aaa2aa06 100644
---- a/arch/riscv/include/asm/barrier.h
-+++ b/arch/riscv/include/asm/barrier.h
-@@ -58,8 +58,16 @@ do {									\
-  * The AQ/RL pair provides a RCpc critical section, but there's not really any
-  * way we can take advantage of that here because the ordering is only enforced
-  * on that one lock.  Thus, we're just doing a full fence.
-+ *
-+ * Since we allow writeX to be called from preemptive regions we need at least
-+ * an "o" in the predecessor set to ensure device writes are visible before the
-+ * task is marked as available for scheduling on a new hart.  While I don't see
-+ * any concrete reason we need a full IO fence, it seems safer to just upgrade
-+ * this in order to avoid any IO crossing a scheduling boundary.  In both
-+ * instances the scheduler pairs this with an mb(), so nothing is necessary on
-+ * the new hart.
-  */
--#define smp_mb__after_spinlock()	RISCV_FENCE(rw,rw)
-+#define smp_mb__after_spinlock()	RISCV_FENCE(iorw,iorw)
+--- a/drivers/char/mem.c
++++ b/drivers/char/mem.c
+@@ -814,7 +814,8 @@ static struct inode *devmem_inode;
+ #ifdef CONFIG_IO_STRICT_DEVMEM
+ void revoke_devmem(struct resource *res)
+ {
+-	struct inode *inode = READ_ONCE(devmem_inode);
++	/* pairs with smp_store_release() in devmem_init_inode() */
++	struct inode *inode = smp_load_acquire(&devmem_inode);
  
- #include <asm-generic/barrier.h>
+ 	/*
+ 	 * Check that the initialization has completed. Losing the race
+@@ -1028,8 +1029,11 @@ static int devmem_init_inode(void)
+ 		return rc;
+ 	}
  
--- 
-2.25.1
-
+-	/* publish /dev/mem initialized */
+-	WRITE_ONCE(devmem_inode, inode);
++	/*
++	 * Publish /dev/mem initialized.
++	 * Pairs with smp_load_acquire() in revoke_devmem().
++	 */
++	smp_store_release(&devmem_inode, inode);
+ 
+ 	return 0;
+ }
 
 
