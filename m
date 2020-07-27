@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A227522ECDD
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 15:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FA522ECFF
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 15:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbgG0NIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 09:08:02 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:33741 "EHLO
-        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728141AbgG0NIC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 09:08:02 -0400
+        id S1727792AbgG0NSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 09:18:05 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40479 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727120AbgG0NSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 09:18:04 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 281B61941E76;
-        Mon, 27 Jul 2020 09:08:01 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:08:01 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 92825194201F;
+        Mon, 27 Jul 2020 09:18:03 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 27 Jul 2020 09:18:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=exg+Yx
-        gmNEhgmFvUEd6JhBkreBfrVMcHtz5akqdER8w=; b=iIRMbD06EZpJEdynMEXVHA
-        vQI0RN1nsHTHLFLsIMOlIR9zaCXQJYSG6pcIppmb/LXOxb01gqt18OQjdO9W+Hx4
-        VzwxWHzhNhxBKnGBhxWeD59KmBNcn2iD+jPTG+JhXg/lKcKXGx2MblJH2v+H/fWA
-        Bs9oXZtHcrrpE1hQ9L6tNqwYlHvL1D8Q4//MXQwVQA2JlHxmvVZcm0EQ5CJcQPbB
-        pe4gNlfb/DdDG0J8a0W8/qSmDec8wOkI7sCFT9mNH87e8sEEuLWP0QVwt5S1ZGdb
-        sjLEhbzRxFoqb/m1hPucogzCn3cY17oepwcDHZCuFGTciObJJ9afhob8PuquRU7w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OrOIE6
+        k+xGcxu+iiCGIegkDCGENoFpFAenMkErYDjTo=; b=OO6sUjFGJRWQhPspD6YTpR
+        kyagRp2Ymp3sz7pKQQ1HYvKzthsw2YvCe3iOuNfGZbIJh6oQiMGNXWZpOZj53cUQ
+        l5W1FLXS6yYhImMi5WjGbg/RylVql1VE9vwReYOebfap3xCx5EbIywLto7WNTAjh
+        4DsY6zZ+iSk/K+HWJXG9zHYf6I0/qGVcZKP2ZDkcPg4+iVWJotSBjnlblg8fNA2q
+        OzQYw/RkZLo29Gz6oVFLvNGpGSwWjdk0sjXHEr3SMCNKXU7NEM5Rw2Ntk9b9N5A3
+        YiHTlD5eeqDyAPaGWsM0Zm8zsiZxc+OtsEPxYyyiOTMAneGs+gLWTGGED1aHtLAA
         ==
-X-ME-Sender: <xms:sNEeXz7gv4I3ZE4ZJWq0USLN2YB-Go2xvYIEHX-1En4-qELkj9ochg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeiudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:C9QeX5uGPH2N2o5IXHSknfrTiPkFSWYuvsj5YLFzmkT6RjYu6sq14Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedriedtgdeigecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeitdffteffuddvgfekvefgtdeikeeuudffhefffedtge
-    dvjeeuvddugeduledtieenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:sNEeX45KSNQGogy-ikLMZY8e7U0KTml-pArvOzv2Ech-XTRN6NMGBQ>
-    <xmx:sNEeX6eqCyyXWC1mLAoMaRz2roybZzGPHMYjn5XF1M0ftIrykDsoZA>
-    <xmx:sNEeX0IfIaW1lTLQtb7HiJM2HEvjXb7EHeEUV3u2NzNCDJu9NqZDqQ>
-    <xmx:sdEeX9gQkHk_I82VaJgsQM2gpV3bpUNWPDbYcidplJWbvLYcacH0cg>
+    qeenucggtffrrghtthgvrhhnpedtueevueduhfdtffdtvdeiteetkeeggfeuveetgfeffe
+    euteffgedvieeludevkeenucffohhmrghinhepghhithhhuhgsrdgtohhmpdhkvghrnhgv
+    lhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivg
+    eptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:C9QeXyeujnw2oGqfUzccBIWhuEtM7dytElxlWOr59Es0hyjbLqmHLg>
+    <xmx:C9QeX8yIi46c6qLWNsp_ZGiWbR1CprKQXPWetOJBuEmJ49h-UCnYvg>
+    <xmx:C9QeXwPzQ1cccuzoISlg9u00DIl5IRiiiXHZoVHm_X78dgL3ZzaupQ>
+    <xmx:C9QeX-Le9YC26IvdAsB0611ZDep0qRoWtOZqvwbQHZDLg-Cv-Dz7oA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A9EE730600A6;
-        Mon, 27 Jul 2020 09:08:00 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross" failed to apply to 4.4-stable tree
-To:     maskray@google.com, masahiroy@kernel.org, natechancellor@gmail.com,
-        ndesaulniers@google.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 06F273280059;
+        Mon, 27 Jul 2020 09:18:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: vdso32: Fix '--prefix=' value for newer versions of" failed to apply to 5.4-stable tree
+To:     natechancellor@gmail.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jul 2020 15:07:57 +0200
-Message-ID: <159585527713469@kroah.com>
+Date:   Mon, 27 Jul 2020 15:17:59 +0200
+Message-ID: <1595855879193205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,54 +69,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ca9b31f6bb9c6aa9b4e5f0792f39a97bbffb8c51 Mon Sep 17 00:00:00 2001
-From: Fangrui Song <maskray@google.com>
-Date: Tue, 21 Jul 2020 10:31:23 -0700
-Subject: [PATCH] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross
- compilation
+From 7b7891c7bdfd61fc9ed6747a0a05efe2394dddc6 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Wed, 22 Jul 2020 21:15:10 -0700
+Subject: [PATCH] arm64: vdso32: Fix '--prefix=' value for newer versions of
+ clang
 
-When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
-$(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
-GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
-/usr/bin/ and Clang as of 11 will search for both
-$(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
+Newer versions of clang only look for $(COMPAT_GCC_TOOLCHAIN_DIR)as [1],
+rather than $(COMPAT_GCC_TOOLCHAIN_DIR)$(CROSS_COMPILE_COMPAT)as,
+resulting in the following build error:
 
-GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
-$(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
-$(prefix)aarch64-linux-gnu/$needle rarely contains executables.
+$ make -skj"$(nproc)" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
+CROSS_COMPILE_COMPAT=arm-linux-gnueabi- LLVM=1 O=out/aarch64 distclean \
+defconfig arch/arm64/kernel/vdso32/
+...
+/home/nathan/cbl/toolchains/llvm-binutils/bin/as: unrecognized option '-EL'
+clang-12: error: assembler command failed with exit code 1 (use -v to see invocation)
+make[3]: *** [arch/arm64/kernel/vdso32/Makefile:181: arch/arm64/kernel/vdso32/note.o] Error 1
+...
 
-To better model how GCC's -B/--prefix takes in effect in practice, newer
-Clang (since
-https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
-only searches for $(prefix)$needle. Currently it will find /usr/bin/as
-instead of /usr/bin/aarch64-linux-gnu-as.
+Adding the value of CROSS_COMPILE_COMPAT (adding notdir to account for a
+full path for CROSS_COMPILE_COMPAT) fixes this issue, which matches the
+solution done for the main Makefile [2].
 
-Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
-(/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
-appropriate cross compiling GNU as (when -no-integrated-as is in
-effect).
+[1]: https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90
+[2]: https://lore.kernel.org/lkml/20200721173125.1273884-1-maskray@google.com/
 
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Cc: stable@vger.kernel.org
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Link: https://github.com/ClangBuiltLinux/linux/issues/1099
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20200723041509.400450-1-natechancellor@gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
 
-diff --git a/Makefile b/Makefile
-index 676f1cfb1d56..9d9d4166c0be 100644
---- a/Makefile
-+++ b/Makefile
-@@ -567,7 +567,7 @@ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
- ifneq ($(CROSS_COMPILE),)
- CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
- GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
--CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
-+CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
- GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
- endif
- ifneq ($(GCC_TOOLCHAIN),)
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index d88148bef6b0..5139a5f19256 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -14,7 +14,7 @@ COMPAT_GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE_COMPAT)elfedit))
+ COMPAT_GCC_TOOLCHAIN := $(realpath $(COMPAT_GCC_TOOLCHAIN_DIR)/..)
+ 
+ CC_COMPAT_CLANG_FLAGS := --target=$(notdir $(CROSS_COMPILE_COMPAT:%-=%))
+-CC_COMPAT_CLANG_FLAGS += --prefix=$(COMPAT_GCC_TOOLCHAIN_DIR)
++CC_COMPAT_CLANG_FLAGS += --prefix=$(COMPAT_GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE_COMPAT))
+ CC_COMPAT_CLANG_FLAGS += -no-integrated-as -Qunused-arguments
+ ifneq ($(COMPAT_GCC_TOOLCHAIN),)
+ CC_COMPAT_CLANG_FLAGS += --gcc-toolchain=$(COMPAT_GCC_TOOLCHAIN)
 
