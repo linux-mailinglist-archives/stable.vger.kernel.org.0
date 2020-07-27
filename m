@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B865822F093
+	by mail.lfdr.de (Postfix) with ESMTP id 3F62722F092
 	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732499AbgG0OZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732479AbgG0OZq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jul 2020 10:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55752 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732493AbgG0OZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:25:42 -0400
+        id S1731876AbgG0OZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:25:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 775222083E;
-        Mon, 27 Jul 2020 14:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8421207FC;
+        Mon, 27 Jul 2020 14:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859942;
-        bh=Rc3LqmVNrUoUef3e4HgaTNJPrptVc3bY/lS8DI5SHkg=;
+        s=default; t=1595859944;
+        bh=aH9N2X8cK9yWknxgS/kGhUdLd4Tp5DOTt7iEgW0I6Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4syDZ+HT1e9k/mijVs17xVKnI4LN+HZAQQQVYOJKf2s7RiyE4j2+oQsIeknTLJcD
-         Wey4CLyjAtGUrUqWNk/Z6Nxd88h5bSJKmOHyHbEmAl2xOFCkU1HE1vn6JCNjITGFSK
-         EmHfjCtrwD9dmei2AXrvrneMuW+g9VPGfMklk2yw=
+        b=xamtOT0S8Nwv2Wew5yJ23K4cw2cz6n9PQ6JLdTtynZDEWRG/p41TFNwwCrfTxG5Gl
+         Gfivwlo3G3KMNzBX08DMkESfWX/43zC6WtQNNmhdCwhf1eJPKhP77hdNz0AnfrJaBH
+         dro+dIntJzxKDKToopaLcDI8D71qdb4LqN2IPiyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 165/179] io-mapping: indicate mapping failure
-Date:   Mon, 27 Jul 2020 16:05:40 +0200
-Message-Id: <20200727134940.703288031@linuxfoundation.org>
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Joel Stanley <joel@jms.id.au>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.7 166/179] mmc: sdhci-of-aspeed: Fix clock divider calculation
+Date:   Mon, 27 Jul 2020 16:05:41 +0200
+Message-Id: <20200727134940.746906590@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
 References: <20200727134932.659499757@linuxfoundation.org>
@@ -49,73 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael J. Ruhl <michael.j.ruhl@intel.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-commit e0b3e0b1a04367fc15c07f44e78361545b55357c upstream.
+commit ebd4050c6144b38098d8eed34df461e5e3fa82a9 upstream.
 
-The !ATOMIC_IOMAP version of io_maping_init_wc will always return
-success, even when the ioremap fails.
+When calculating the clock divider, start dividing at 2 instead of 1.
+The divider is divided by two at the end of the calculation, so starting
+at 1 may result in a divider of 0, which shouldn't happen.
 
-Since the ATOMIC_IOMAP version returns NULL when the init fails, and
-callers check for a NULL return on error this is unexpected.
-
-During a device probe, where the ioremap failed, a crash can look like
-this:
-
-    BUG: unable to handle page fault for address: 0000000000210000
-     #PF: supervisor write access in kernel mode
-     #PF: error_code(0x0002) - not-present page
-     Oops: 0002 [#1] PREEMPT SMP
-     CPU: 0 PID: 177 Comm:
-     RIP: 0010:fill_page_dma [i915]
-       gen8_ppgtt_create [i915]
-       i915_ppgtt_create [i915]
-       intel_gt_init [i915]
-       i915_gem_init [i915]
-       i915_driver_probe [i915]
-       pci_device_probe
-       really_probe
-       driver_probe_device
-
-The remap failure occurred much earlier in the probe.  If it had been
-propagated, the driver would have exited with an error.
-
-Return NULL on ioremap failure.
-
-[akpm@linux-foundation.org: detect ioremap_wc() errors earlier]
-
-Fixes: cafaf14a5d8f ("io-mapping: Always create a struct to hold metadata about the io-mapping")
-Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200721171936.81563-1-michael.j.ruhl@intel.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Acked-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200709195706.12741-3-eajames@linux.ibm.com
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/io-mapping.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-aspeed.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/io-mapping.h
-+++ b/include/linux/io-mapping.h
-@@ -107,9 +107,12 @@ io_mapping_init_wc(struct io_mapping *io
- 		   resource_size_t base,
- 		   unsigned long size)
- {
-+	iomap->iomem = ioremap_wc(base, size);
-+	if (!iomap->iomem)
-+		return NULL;
-+
- 	iomap->base = base;
- 	iomap->size = size;
--	iomap->iomem = ioremap_wc(base, size);
- #if defined(pgprot_noncached_wc) /* archs can't agree on a name ... */
- 	iomap->prot = pgprot_noncached_wc(PAGE_KERNEL);
- #elif defined(pgprot_writecombine)
+--- a/drivers/mmc/host/sdhci-of-aspeed.c
++++ b/drivers/mmc/host/sdhci-of-aspeed.c
+@@ -68,7 +68,7 @@ static void aspeed_sdhci_set_clock(struc
+ 	if (WARN_ON(clock > host->max_clk))
+ 		clock = host->max_clk;
+ 
+-	for (div = 1; div < 256; div *= 2) {
++	for (div = 2; div < 256; div *= 2) {
+ 		if ((parent / div) <= clock)
+ 			break;
+ 	}
 
 
