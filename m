@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AE5422EF18
-	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D65122EF19
+	for <lists+stable@lfdr.de>; Mon, 27 Jul 2020 16:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730347AbgG0ONS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 10:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38190 "EHLO mail.kernel.org"
+        id S1729752AbgG0ONU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 10:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729744AbgG0ONR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 10:13:17 -0400
+        id S1729741AbgG0ONT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jul 2020 10:13:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 365DA2073E;
-        Mon, 27 Jul 2020 14:13:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCF4D208E4;
+        Mon, 27 Jul 2020 14:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595859196;
-        bh=Gj23uE/wUAfv9Vn6JjfEiTHDxLgeQuJq4HzYtVmfryI=;
+        s=default; t=1595859199;
+        bh=1qUn0lMJORu6ifgNr/+2XMmc4BJdRSnGJM6VzusjKEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0YNqfcr/FHOksFOET7bYxTU61Fp8+7NSqyDqP31NCIZ/2Lj+i/rrB0y+wap/Ind5
-         +gTizoM4uymUdY/kHhtGMN9QkBNjKzKtBa6F1bL/h3ZFYIZ4hTKQUc33noTe0yxmVG
-         19nFxMTfAXd2nHbhK18LtNVrDNFQbq0QVrRjgnsQ=
+        b=YmFCUXMOrIzAFKjyW5t11wIBW77yMl7r1xK1mmKaHUOL/WQBpLcGLZS1yjc84I/4l
+         SLWC/hbCgBZiFcYDbpTnDwAbrSEEu615Pql9zpoZwmnalvS/xLfZgFJF6Pb9/3jvDn
+         7hjsmRpgT37/bm20pX/eqciMkIrJuSy9JueUTGc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/138] dm: use bio_uninit instead of bio_disassociate_blkg
-Date:   Mon, 27 Jul 2020 16:03:31 +0200
-Message-Id: <20200727134926.093362997@linuxfoundation.org>
+        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 017/138] drivers/firmware/psci: Fix memory leakage in alloc_init_cpu_groups()
+Date:   Mon, 27 Jul 2020 16:03:32 +0200
+Message-Id: <20200727134926.176944604@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200727134925.228313570@linuxfoundation.org>
 References: <20200727134925.228313570@linuxfoundation.org>
@@ -45,55 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Gavin Shan <gshan@redhat.com>
 
-[ Upstream commit 382761dc6312965a11f82f2217e16ec421bf17ae ]
+[ Upstream commit c377e67c6271954969384f9be1b1b71de13eba30 ]
 
-bio_uninit is the proper API to clean up a BIO that has been allocated
-on stack or inside a structure that doesn't come from the BIO allocator.
-Switch dm to use that instead of bio_disassociate_blkg, which really is
-an implementation detail.  Note that the bio_uninit calls are also moved
-to the two callers of __send_empty_flush, so that they better pair with
-the bio_init calls used to initialize them.
+The CPU mask (@tmp) should be released on failing to allocate
+@cpu_groups or any of its elements. Otherwise, it leads to memory
+leakage because the CPU mask variable is dynamically allocated
+when CONFIG_CPUMASK_OFFSTACK is enabled.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20200630075227.199624-1-gshan@redhat.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/firmware/psci/psci_checker.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 915019ec0e25b..3cf5b354568e5 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1437,9 +1437,6 @@ static int __send_empty_flush(struct clone_info *ci)
- 	BUG_ON(bio_has_data(ci->bio));
- 	while ((ti = dm_table_get_target(ci->map, target_nr++)))
- 		__send_duplicate_bios(ci, ti, ti->num_flush_bios, NULL);
--
--	bio_disassociate_blkg(ci->bio);
--
- 	return 0;
- }
+diff --git a/drivers/firmware/psci/psci_checker.c b/drivers/firmware/psci/psci_checker.c
+index 6a445397771ca..03eb798ad3ed9 100644
+--- a/drivers/firmware/psci/psci_checker.c
++++ b/drivers/firmware/psci/psci_checker.c
+@@ -157,8 +157,10 @@ static int alloc_init_cpu_groups(cpumask_var_t **pcpu_groups)
  
-@@ -1627,6 +1624,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
- 		ci.bio = &flush_bio;
- 		ci.sector_count = 0;
- 		error = __send_empty_flush(&ci);
-+		bio_uninit(ci.bio);
- 		/* dec_pending submits any data associated with flush */
- 	} else if (bio_op(bio) == REQ_OP_ZONE_RESET) {
- 		ci.bio = bio;
-@@ -1701,6 +1699,7 @@ static blk_qc_t __process_bio(struct mapped_device *md, struct dm_table *map,
- 		ci.bio = &flush_bio;
- 		ci.sector_count = 0;
- 		error = __send_empty_flush(&ci);
-+		bio_uninit(ci.bio);
- 		/* dec_pending submits any data associated with flush */
- 	} else {
- 		struct dm_target_io *tio;
+ 	cpu_groups = kcalloc(nb_available_cpus, sizeof(cpu_groups),
+ 			     GFP_KERNEL);
+-	if (!cpu_groups)
++	if (!cpu_groups) {
++		free_cpumask_var(tmp);
+ 		return -ENOMEM;
++	}
+ 
+ 	cpumask_copy(tmp, cpu_online_mask);
+ 
+@@ -167,6 +169,7 @@ static int alloc_init_cpu_groups(cpumask_var_t **pcpu_groups)
+ 			topology_core_cpumask(cpumask_any(tmp));
+ 
+ 		if (!alloc_cpumask_var(&cpu_groups[num_groups], GFP_KERNEL)) {
++			free_cpumask_var(tmp);
+ 			free_cpu_groups(num_groups, &cpu_groups);
+ 			return -ENOMEM;
+ 		}
 -- 
 2.25.1
 
