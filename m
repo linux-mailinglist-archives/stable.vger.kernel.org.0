@@ -2,79 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A787723088B
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 13:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DFFA230890
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 13:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729010AbgG1LUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 07:20:22 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:34924 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729007AbgG1LUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 07:20:21 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-37--iVuWA0-PPSW89n4nhK_hg-1; Tue, 28 Jul 2020 12:20:16 +0100
-X-MC-Unique: -iVuWA0-PPSW89n4nhK_hg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Tue, 28 Jul 2020 12:20:15 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Tue, 28 Jul 2020 12:20:15 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Christian Eggers' <ceggers@arri.de>
-CC:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] eeprom: at25: set minimum read/write access stride to 1
-Thread-Topic: [PATCH] eeprom: at25: set minimum read/write access stride to 1
-Thread-Index: AQHWZMG/Rp7Dl/S8M02sb706WA/KmqkcvErQ///9loCAABviQA==
-Date:   Tue, 28 Jul 2020 11:20:15 +0000
-Message-ID: <02cb3be60abf4a54affe239009c6e157@AcuMS.aculab.com>
-References: <20200728092959.24600-1-ceggers@arri.de>
- <a65b01608fb34c5c8782b301c2e0cabc@AcuMS.aculab.com>
- <2225645.EMaFvj1lSc@n95hx1g2>
-In-Reply-To: <2225645.EMaFvj1lSc@n95hx1g2>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1728996AbgG1LWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 07:22:20 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:21655 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728985AbgG1LWT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 07:22:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1595935338;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=OM8kQeBlgXTVmT6/iyptsReY/9gmQ0oUbCzvizJ2goY=;
+        b=ZayuLxTgsSNAqxeNv9+d/7lJPXv8pp+zGd+f9eoeEdfcCAGXnHAQvlXKhKebMVByAVTiqn
+        bLKxVr6sLLpBteV95afxEYOOMEJ3BVMZDHcqRNU6uJCkWqH7znOJ5LYSlNySII/VR7giBB
+        RyX18NXN5awhfby7eTowStJILpfEZh0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-331-e2hbXsfsMSaatcGi02Zpjg-1; Tue, 28 Jul 2020 07:22:16 -0400
+X-MC-Unique: e2hbXsfsMSaatcGi02Zpjg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3702D801A03;
+        Tue, 28 Jul 2020 11:22:15 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-114-116.ams2.redhat.com [10.36.114.116])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 24F2E7BD60;
+        Tue, 28 Jul 2020 11:22:10 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-media@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/2] media: uvcvideo: Fix uvc_ctrl_fixup_xu_info() not having any effect
+Date:   Tue, 28 Jul 2020 13:22:08 +0200
+Message-Id: <20200728112209.26207-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogQ2hyaXN0aWFuIEVnZ2Vycw0KPiBTZW50OiAyOCBKdWx5IDIwMjAgMTE6MzANCj4gDQo+
-IE9uIFR1ZXNkYXksIDI4IEp1bHkgMjAyMCwgMTE6NTI6MDUgQ0VTVCwgRGF2aWQgTGFpZ2h0IHdy
-b3RlOg0KPiA+IEZyb206IENocmlzdGlhbiBFZ2dlcnMNCj4gPg0KPiA+ID4gU2VudDogMjggSnVs
-eSAyMDIwIDEwOjMwDQo+ID4gPg0KPiA+ID4gU1BJIGVlcHJvbXMgYXJlIGFkZHJlc3NlZCBieSBi
-eXRlLg0KPiA+DQo+ID4gVGhleSBhbHNvIHN1cHBvcnQgbXVsdGktYnl0ZSB3cml0ZXMgLSBwb3Nz
-aWJseSB3aXRoIGFsaWdubWVudA0KPiA+IHJlc3RyaWN0aW9ucy4NCj4gPiBTbyBmb3JjaW5nIDQt
-Ynl0ZSB3cml0ZXMgKGF0IGFsaWduZWQgYWRkcmVzc2VzKSB3b3VsZCB0eXBpY2FsbHkNCj4gPiBz
-cGVlZCB1cCB3cml0ZXMgYnkgYSBmYWN0b3Igb2YgNCBvdmVyIGJ5dGUgd3JpdGVzLg0KPiA+DQo+
-ID4gU28gZG9lcyB0aGlzIGZpeCBhIHByb2JsZW0/DQo+ID4gSWYgc28gd2hhdC4NCj4gSSB1c2Ug
-dGhlIG52bWVtLWNlbGxzIHByb3BlcnR5IGZvciBnZXR0aW5nIHRoZSBNQUMtQWRkcmVzcyBvdXQg
-b2YgdGhlIGVlcHJvbQ0KPiAoYWN0dWFsbHkgYW4gRlJBTSBpbiBteSBjYXNlKS4NCj4gDQo+ICZz
-cGkgew0KPiAgICAgLi4uLg0KPiAgICAgZnJhbTogZnJhbUAwIHsNCj4gICAgIC4uLg0KPiAgICAg
-ICAgIG1hY19hZGRyZXNzX2ZlYzI6IG1hYy1hZGRyZXNzQDEyNiB7DQo+ICAgICAgICAgICAgIHJl
-ZyA9IDwweDEyNiA2PjsNCj4gICAgICAgICB9Ow0KPiAgICAgLi4uDQo+ICAgICB9Ow0KPiB9Ow0K
-DQpIbW1tbS4uLi4gdGhlICdzdHJpZGUnIG9ubHkgY29uc3RyYWlucyB0aGUgYWxpZ25tZW50IG9m
-ICdjZWxscycuDQooaWUgYWRkcmVzcyByYW5nZXMgZnJvbSB0aGUgZGV2aWNlIHRyZWUuKQ0KDQpJ
-dCBsb29rcyBhcyB0aG91Z2ggeW91IGNhbiBvcGVuIHRoZSBlbnRpcmUgTlZNRU0gZGV2aWNlIGFu
-ZA0KdGhlbiBkbyByZWFkcyBmcm9tIGJ5dGUgb2Zmc2V0cy4NClRoZSAnc3RyaWRlJyBhbmQgJ3dv
-cmRfc2l6ZScgYXJlIHRoZW4gbm90IGNoZWNrZWQhDQoNCkFjdHVhbGx5IGl0IG1pZ2h0IGJlIHRo
-YXQgYmVmb3JlIDAxOTczYTAxZjllYzMgYnl0ZSBhbGlnbmVkDQonY2VsbHMnIHdlcmUgYWxsb3dl
-ZC4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBS
-b2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9u
-IE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+uvc_ctrl_add_info() calls uvc_ctrl_get_flags() which will override
+the fixed-up flags set by uvc_ctrl_fixup_xu_info().
+
+uvc_ctrl_init_xu_ctrl() already calls uvc_ctrl_get_flags() before
+calling uvc_ctrl_add_info(), so the uvc_ctrl_get_flags() call in
+uvc_ctrl_add_info() is not necessary for xu ctrls.
+
+This commit moves the uvc_ctrl_get_flags() call for normal controls
+from uvc_ctrl_add_info() to uvc_ctrl_init_ctrl(), so that we no longer
+call uvc_ctrl_get_flags() twice for xu controls and so that we no longer
+override the fixed-up flags set by uvc_ctrl_fixup_xu_info().
+
+This fixes the xu motor controls not working properly on a Logitech
+046d:08cc, and presumably also on the other Logitech models which have
+a quirk for this in the uvc_ctrl_fixup_xu_info() function.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- Move the uvc_ctrl_get_flags() call for normal controls to uvc_ctrl_init_ctrl()
+---
+ drivers/media/usb/uvc/uvc_ctrl.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index e399b9fad757..b78aba991212 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -2024,13 +2024,6 @@ static int uvc_ctrl_add_info(struct uvc_device *dev, struct uvc_control *ctrl,
+ 		goto done;
+ 	}
+ 
+-	/*
+-	 * Retrieve control flags from the device. Ignore errors and work with
+-	 * default flag values from the uvc_ctrl array when the device doesn't
+-	 * properly implement GET_INFO on standard controls.
+-	 */
+-	uvc_ctrl_get_flags(dev, ctrl, &ctrl->info);
+-
+ 	ctrl->initialized = 1;
+ 
+ 	uvc_trace(UVC_TRACE_CONTROL, "Added control %pUl/%u to device %s "
+@@ -2253,6 +2246,13 @@ static void uvc_ctrl_init_ctrl(struct uvc_device *dev, struct uvc_control *ctrl)
+ 		if (uvc_entity_match_guid(ctrl->entity, info->entity) &&
+ 		    ctrl->index == info->index) {
+ 			uvc_ctrl_add_info(dev, ctrl, info);
++			/*
++			 * Retrieve control flags from the device. Ignore errors
++			 * and work with default flag values from the uvc_ctrl
++			 * array when the device doesn't properly implement
++			 * GET_INFO on standard controls.
++			 */
++			uvc_ctrl_get_flags(dev, ctrl, &ctrl->info);
+ 			break;
+ 		 }
+ 	}
+-- 
+2.26.2
 
