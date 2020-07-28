@@ -2,128 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E891F230BEC
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 15:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7C7230C87
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 16:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730277AbgG1N7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 09:59:32 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51566 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730056AbgG1N7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jul 2020 09:59:32 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 318EFB130;
-        Tue, 28 Jul 2020 13:59:42 +0000 (UTC)
-From:   colyli@suse.de
-To:     axboe@kernel.dk
-Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        Coly Li <colyli@suse.de>, Christoph Hellwig <hch@lst.de>,
-        stable@vger.kernel.org
-Subject: [PATCH] bcache: use disk_{start,end}_io_acct() to count I/O for bcache device
-Date:   Tue, 28 Jul 2020 21:59:20 +0800
-Message-Id: <20200728135920.4618-1-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
+        id S1730452AbgG1Of3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 10:35:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730449AbgG1Of3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 10:35:29 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0076CC061794
+        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 07:35:28 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id l1so20944896ioh.5
+        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 07:35:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wE63hykpdOWCKf+hJ+uo4tJ4NmzeI9PTAqJH7wvSMlc=;
+        b=LhfgIFjPN1Zt6pM27TDwc0D9sQ3LgHFulpPO2SX5S88mG/mDfs8otJIYAkvnkswxld
+         9pGQRB5MX9+c/pNc/D2jvjcUfkcaX+O+bWMi/ZdZWSGCZgEcirUgpaGCBHTTFwLDeXxm
+         blFwenzn7yqD2djWtvbrpRZs6R2NA61KUwTMx0D/r9/j+IuKq9D9CivCPsM5HlRumsun
+         8SeaeatA922UsvA+t5ljvF60Q6rxHuH9aAmjAJ5nqq0yc8rdtO4PxA+a9Y5/pkBdStPf
+         L/JGt34i7DNkTsg+8boIo3khF5Q26aC+wBgUC+PHLlS8m0uSQi46IDgH+/15eUls3L+F
+         tp9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wE63hykpdOWCKf+hJ+uo4tJ4NmzeI9PTAqJH7wvSMlc=;
+        b=l2Dwtg3sIe5iGOkZR2xoqEyR5DZNmGGIhooKx+94URFUkYmnI3S9FJynOZ2T+Medvw
+         MMiNMBjQaocuo0K9hCLGk950V3AymeccvRFyM3hLvdcVCa1PXfq3vgk1XF5FpoM9zaeE
+         7JHb1zcpbIrZ4H4MnAUP27MMtQf41CTzgkMYy51ytmkZXa/sn3z3GPlwXUeqAp8DSj5P
+         5u0q99edlYrUHxKt016nkgjn8T4DhJvPV8AsZCOX7vpjGS9qvrpjuYZ48gsUP1J2VBNr
+         2M70u12ZHifasRNtCAuaJoXkHBYPcZw1wR/Z9r/NyVjoDbzOSuKyOqPXhIYVUjErf2XS
+         PgaA==
+X-Gm-Message-State: AOAM531UJ3LTJqzY0NyRXLNL4KTuXi72Irt/sSVQYYz2flOEsv4SjG/5
+        bDltUis3EpFBXEfzlBY14XXQmDYGSMEa3T5VvW6eZA==
+X-Google-Smtp-Source: ABdhPJy2WEagQVK01W1PoJL3TtsswctQA4jC85OF1eYxNmME8rZTNY5/2CM7uNz/FDIzfpS1C5VvpAW+f52j5jGXddQ=
+X-Received: by 2002:a05:6638:134a:: with SMTP id u10mr6463616jad.35.1595946928305;
+ Tue, 28 Jul 2020 07:35:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200727134914.312934924@linuxfoundation.org> <CA+G9fYvBRONMYwX36Hcju4JA5TwstkT2Afyuy2DB1zQcBcc1CA@mail.gmail.com>
+ <CAMZfGtVV-u7K+Z0vFLkoKv1UOTfk=a9+r_6G4PYfGLywwnkm3Q@mail.gmail.com>
+In-Reply-To: <CAMZfGtVV-u7K+Z0vFLkoKv1UOTfk=a9+r_6G4PYfGLywwnkm3Q@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 28 Jul 2020 20:05:16 +0530
+Message-ID: <CA+G9fYs__nNa-090Cm8j_EPYGRfh+y+VTX3ZqR_W1Jcu2suNEQ@mail.gmail.com>
+Subject: Re: [External] Re: [PATCH 4.19 00/86] 4.19.135-rc1 review
+To:     Muchun Song <songmuchun@bytedance.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Christoph Lameter <cl@linux.com>, Roman Gushchin <guro@fb.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        linux-mm <linux-mm@kvack.org>, mm-commits@vger.kernel.org,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Arnd Bergmann <arnd@arndb.de>, lkft-triage@lists.linaro.org,
+        clang-built-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+On Tue, 28 Jul 2020 at 18:33, Muchun Song <songmuchun@bytedance.com> wrote:
+>
+> Thanks for your test. I have reviewed the patch:
+>
+> [PATCH 4.19 76/86] mm: memcg/slab: fix memory leak at non-root
+> kmem_cache destroy
+>
+> There is a backport problem and I have pointed out the problem in that email.
 
-This patch is a fix to patch "bcache: fix bio_{start,end}_io_acct with
-proper device". The previous patch uses a hack to temporarily set
-bi_disk to bcache device, which is mistaken too.
+Thanks for your suggestions on the other email thread.
+I have made changes as you said and boot test pass on x86 now.
 
-As Christoph suggests, this patch uses disk_{start,end}_io_acct() to
-count I/O for bcache device in the correct way.
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index 9c5eb4b08fc3..65bc49f19504 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -842,9 +842,7 @@ static int shutdown_memcg_caches(struct kmem_cache *s)
 
-Fixes: 85750aeb748f ("bcache: use bio_{start,end}_io_acct")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
----
- drivers/md/bcache/request.c | 37 +++++++++----------------------------
- 1 file changed, 9 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-index 8ea0f079c1d0..9cc044293acd 100644
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -617,28 +617,6 @@ static void cache_lookup(struct closure *cl)
- 
- /* Common code for the make_request functions */
- 
--static inline void bch_bio_start_io_acct(struct gendisk *acct_bi_disk,
--					 struct bio *bio,
--					 unsigned long *start_time)
--{
--	struct gendisk *saved_bi_disk = bio->bi_disk;
--
--	bio->bi_disk = acct_bi_disk;
--	*start_time = bio_start_io_acct(bio);
--	bio->bi_disk = saved_bi_disk;
--}
--
--static inline void bch_bio_end_io_acct(struct gendisk *acct_bi_disk,
--				       struct bio *bio,
--				       unsigned long start_time)
--{
--	struct gendisk *saved_bi_disk = bio->bi_disk;
--
--	bio->bi_disk = acct_bi_disk;
--	bio_end_io_acct(bio, start_time);
--	bio->bi_disk = saved_bi_disk;
--}
--
- static void request_endio(struct bio *bio)
+ static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
  {
- 	struct closure *cl = bio->bi_private;
-@@ -690,7 +668,9 @@ static void backing_request_endio(struct bio *bio)
- static void bio_complete(struct search *s)
- {
- 	if (s->orig_bio) {
--		bch_bio_end_io_acct(s->d->disk, s->orig_bio, s->start_time);
-+		/* Count on bcache device */
-+		disk_end_io_acct(s->d->disk, bio_op(s->orig_bio), s->start_time);
-+
- 		trace_bcache_request_end(s->d, s->orig_bio);
- 		s->orig_bio->bi_status = s->iop.status;
- 		bio_endio(s->orig_bio);
-@@ -750,8 +730,8 @@ static inline struct search *search_alloc(struct bio *bio,
- 	s->recoverable		= 1;
- 	s->write		= op_is_write(bio_op(bio));
- 	s->read_dirty_data	= 0;
--	bch_bio_start_io_acct(d->disk, bio, &s->start_time);
--
-+	/* Count on the bcache device */
-+	s->start_time		= disk_start_io_acct(d->disk, bio_sectors(bio), bio_op(bio));
- 	s->iop.c		= d->c;
- 	s->iop.bio		= NULL;
- 	s->iop.inode		= d->id;
-@@ -1102,7 +1082,8 @@ static void detached_dev_end_io(struct bio *bio)
- 	bio->bi_end_io = ddip->bi_end_io;
- 	bio->bi_private = ddip->bi_private;
- 
--	bch_bio_end_io_acct(ddip->d->disk, bio, ddip->start_time);
-+	/* Count on the bcache device */
-+	disk_end_io_acct(ddip->d->disk, bio_op(bio), ddip->start_time);
- 
- 	if (bio->bi_status) {
- 		struct cached_dev *dc = container_of(ddip->d,
-@@ -1127,8 +1108,8 @@ static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
- 	 */
- 	ddip = kzalloc(sizeof(struct detached_dev_io_private), GFP_NOIO);
- 	ddip->d = d;
--	bch_bio_start_io_acct(d->disk, bio, &ddip->start_time);
--
-+	/* Count on the bcache device */
-+	ddip->start_time = disk_start_io_acct(d->disk, bio_sectors(bio), bio_op(bio));
- 	ddip->bi_end_io = bio->bi_end_io;
- 	ddip->bi_private = bio->bi_private;
- 	bio->bi_end_io = detached_dev_end_io;
--- 
-2.26.2
+-       mutex_lock(&slab_mutex);
+        s->memcg_params.dying = true;
+-       mutex_unlock(&slab_mutex);
+ }
 
+ static void flush_memcg_workqueue(struct kmem_cache *s)
+
+- Naresh
