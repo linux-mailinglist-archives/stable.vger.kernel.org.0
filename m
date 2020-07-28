@@ -2,137 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A29CC230D81
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2833230D9D
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:23:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730586AbgG1PRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 11:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40324 "EHLO mail.kernel.org"
+        id S1730760AbgG1PXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 11:23:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41320 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730640AbgG1PRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jul 2020 11:17:05 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB27E2065C;
-        Tue, 28 Jul 2020 15:17:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595949425;
-        bh=iVPJO34OY7XxYoQPxs+Z2edcN9FjEC5up2igQlk6TIM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NOxKdbdNitc7pl98MAMaeiLTMttCJXbZp9OwbzyaxJYI3eFKSMuDtZ32BHx+CTFqK
-         1Cm7V3LhiqjwC/mAohk+7QWpCTjjfdMDeCF0PehwKh4RaVYe+DWpAll9nMNtR9IPBr
-         Xvwk3KNu3qPVpPNgFjp6ahyyAD7fkf/Qp2OLzVh8=
-Date:   Tue, 28 Jul 2020 11:17:03 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [External] [PATCH 4.19 76/86] mm: memcg/slab: fix memory leak at
- non-root kmem_cache destroy
-Message-ID: <20200728151703.GM406581@sasha-vm>
-References: <20200727134914.312934924@linuxfoundation.org>
- <20200727134918.205538211@linuxfoundation.org>
- <CAMZfGtWVtGeMfu=04LiNVcLrBpmexUryHjy-dujo77CpJhcwGg@mail.gmail.com>
+        id S1730586AbgG1PXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jul 2020 11:23:16 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 3E589B6D4;
+        Tue, 28 Jul 2020 15:23:26 +0000 (UTC)
+Subject: Re: [PATCH] bcache: use disk_{start,end}_io_acct() to count I/O for
+ bcache device
+To:     axboe@kernel.dk, Christoph Hellwig <hch@lst.de>
+Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200728135920.4618-1-colyli@suse.de>
+From:   Coly Li <colyli@suse.de>
+Autocrypt: addr=colyli@suse.de; keydata=
+ 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
+Message-ID: <cdf2090a-c2ea-8fab-ca47-f27305be77b6@suse.de>
+Date:   Tue, 28 Jul 2020 23:23:09 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAMZfGtWVtGeMfu=04LiNVcLrBpmexUryHjy-dujo77CpJhcwGg@mail.gmail.com>
+In-Reply-To: <20200728135920.4618-1-colyli@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 28, 2020 at 08:56:41PM +0800, Muchun Song wrote:
->On Mon, Jul 27, 2020 at 10:12 PM Greg Kroah-Hartman
-><gregkh@linuxfoundation.org> wrote:
->>
->> From: Muchun Song <songmuchun@bytedance.com>
->>
->> commit d38a2b7a9c939e6d7329ab92b96559ccebf7b135 upstream.
->>
->> If the kmem_cache refcount is greater than one, we should not mark the
->> root kmem_cache as dying.  If we mark the root kmem_cache dying
->> incorrectly, the non-root kmem_cache can never be destroyed.  It
->> resulted in memory leak when memcg was destroyed.  We can use the
->> following steps to reproduce.
->>
->>   1) Use kmem_cache_create() to create a new kmem_cache named A.
->>   2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
->>      so the refcount of B is just increased.
->>   3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
->>      decrease the B's refcount but mark the B as dying.
->>   4) Create a new memory cgroup and alloc memory from the kmem_cache
->>      B. It leads to create a non-root kmem_cache for allocating memory.
->>   5) When destroy the memory cgroup created in the step 4), the
->>      non-root kmem_cache can never be destroyed.
->>
->> If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
->> only when refcount reach zero, we mark the root kmem_cache as dying.
->>
->> Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
->> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
->> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->> Reviewed-by: Shakeel Butt <shakeelb@google.com>
->> Acked-by: Roman Gushchin <guro@fb.com>
->> Cc: Vlastimil Babka <vbabka@suse.cz>
->> Cc: Christoph Lameter <cl@linux.com>
->> Cc: Pekka Enberg <penberg@kernel.org>
->> Cc: David Rientjes <rientjes@google.com>
->> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
->> Cc: Shakeel Butt <shakeelb@google.com>
->> Cc: <stable@vger.kernel.org>
->> Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
->> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
->> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>
->> ---
->>  mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
->>  1 file changed, 28 insertions(+), 7 deletions(-)
->>
->> --- a/mm/slab_common.c
->> +++ b/mm/slab_common.c
->> @@ -310,6 +310,14 @@ int slab_unmergeable(struct kmem_cache *
->>         if (s->refcount < 0)
->>                 return 1;
->>
->> +#ifdef CONFIG_MEMCG_KMEM
->> +       /*
->> +        * Skip the dying kmem_cache.
->> +        */
->> +       if (s->memcg_params.dying)
->> +               return 1;
->> +#endif
->> +
->>         return 0;
->>  }
->>
->> @@ -832,12 +840,15 @@ static int shutdown_memcg_caches(struct
->>         return 0;
->>  }
->>
->> -static void flush_memcg_workqueue(struct kmem_cache *s)
->> +static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
->>  {
->>         mutex_lock(&slab_mutex);
->>         s->memcg_params.dying = true;
->>         mutex_unlock(&slab_mutex);
->
->We should remove mutex_lock/unlock(&slab_mutex) here, because
->we already hold the slab_mutex from kmem_cache_destroy().
+On 2020/7/28 21:59, colyli@suse.de wrote:
+> From: Coly Li <colyli@suse.de>
+> 
+> This patch is a fix to patch "bcache: fix bio_{start,end}_io_acct with
+> proper device". The previous patch uses a hack to temporarily set
+> bi_disk to bcache device, which is mistaken too.
+> 
+> As Christoph suggests, this patch uses disk_{start,end}_io_acct() to
+> count I/O for bcache device in the correct way.
+> 
+> Fixes: 85750aeb748f ("bcache: use bio_{start,end}_io_acct")
+> Signed-off-by: Coly Li <colyli@suse.de>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: stable@vger.kernel.org
 
-Good catch! I backported 63b02ef7dc4e ("mm: memcg/slab: synchronize
-access to kmem_cache dying flag using a spinlock") instead of changing
-this patch.
 
--- 
-Thanks,
-Sasha
+Hi Jens and Christoph,
+
+This patch is tested, the I/O counter behavior is displayed by iostat in
+expected way.
+
+Please consider to take it for Linux v5.9.
+
+Thanks in advance.
+
+Coly Li
