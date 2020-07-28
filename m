@@ -2,134 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8596622FE62
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 02:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E0522FE69
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 02:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgG1AOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 20:14:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48866 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726278AbgG1AOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jul 2020 20:14:37 -0400
-Received: from earth.universe (unknown [185.213.155.232])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C20720786;
-        Tue, 28 Jul 2020 00:14:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595895276;
-        bh=ZjobJSwZTEqZyVrwiktFvrw1vDV/J3FUevuLNucXXFc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=e8KCm+Y3BCUyd4X4m0k/p+tKC3n2uKI2tdY20iYqirpt96wqVDUEQW0cCTjYGucmW
-         Y1x80Hd6FfPETETaD++tHBrDREMnmz47v3lJN8f7FZL7A+MiSQlUpawlspAX0zJ1xj
-         rQ3VMuYwEW5p4nGJESg2Dd9CRDHeswYqIgSRtBKM=
-Received: by earth.universe (Postfix, from userid 1000)
-        id 946063C0B87; Tue, 28 Jul 2020 02:14:34 +0200 (CEST)
-Date:   Tue, 28 Jul 2020 02:14:34 +0200
-From:   Sebastian Reichel <sre@kernel.org>
-To:     trix@redhat.com
-Cc:     anton.vorontsov@linaro.org, jtzhou@marvell.com,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] power: supply: check if calc_soc succeeded in
- pm860x_init_battery
-Message-ID: <20200728001434.3thznd6a35ycb3f2@earth.universe>
-References: <20200712192351.15428-1-trix@redhat.com>
+        id S1726575AbgG1ARh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 20:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726278AbgG1ARh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 20:17:37 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CEBBC061794
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 17:17:37 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id l63so10879493pge.12
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 17:17:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=31945vdAQjYWPNNeBqfStM9L3O38CpXPU984c88jmcQ=;
+        b=Uk+fmDaSHRlvWiE+NO5iF7XLXaXCA0ZsYt2FwO+5k1I/csp2evDOIBs5OLnF40Nh95
+         Zt2YhUv3QJCPnOTdwHoX2uRBSyWjGZ6J9HTytHZ3ZH/XTOtZQ7x4C+wj60M/C7UepGKH
+         oqvTNsenln6luElN42pXKOYZkVteT8ChhnRT4QiuhbIVVhOAuevZAAywuL1qkiBsVJ8u
+         tGswIuBlxaviM++sTL5NxWhS8VsxwSPI3Gk70n9h4rnUfbTViSQpDit4tSm8DhDEgEzl
+         Q/0VhSEkHCgH42mDysLjwUoJ1E48US0AWCdEWOaoa6/EnujZF4rpGuGgS/Vryx39xEUU
+         KsBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=31945vdAQjYWPNNeBqfStM9L3O38CpXPU984c88jmcQ=;
+        b=fYwbmYe8BpKRZRA0zQ/sSipbehSyOqWUrZerPSmwV7gkZtaEBScrlclmpFmfh5d70t
+         sDDLCGVW3r9KdZAtHpprXmDuevnisrB2c3v3MEHt72fNG6G4NsTxlExH/Troh+gPE2KC
+         XbrbN0x5SQN6wXOs0S6jMu94fdMSs4EuLL47Tl5WGb/8SNCzY6eQcbW6EI6fgiYug1GB
+         0xdDAkQhLyfJohbSZ8uoW7In6bFn/K7wv1EhKWzYlcUSzrpKwNsm0CzTwJguTooEh7Fu
+         ytm2LO8bhiv66hy8gLxE2Lg/N8S/da9IsmvJSOAC9qGv9E22vgbauKjfKkFh9E0vfWAo
+         mKJA==
+X-Gm-Message-State: AOAM532SkFFuFoEDp0Dx4/6QH0pOcq8avwoIToTwK+kkTFYSKwDuadN+
+        OFkk9giPvraCRZ1NE4qp3MP1BAnwakI=
+X-Google-Smtp-Source: ABdhPJx1MV6toMG8SGXWPOjbblf2FwiOT4scgKrx9QLJbdx0pUYtzDzoLzKlfnc7FTf6MGPedsJw+Q==
+X-Received: by 2002:a63:3ec4:: with SMTP id l187mr21709967pga.371.1595895456339;
+        Mon, 27 Jul 2020 17:17:36 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mg17sm725687pjb.55.2020.07.27.17.17.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jul 2020 17:17:35 -0700 (PDT)
+Message-ID: <5f1f6e9f.1c69fb81.b8881.376f@mx.google.com>
+Date:   Mon, 27 Jul 2020 17:17:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="pfzhq2sgckiqqd5s"
-Content-Disposition: inline
-In-Reply-To: <20200712192351.15428-1-trix@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.7.10-180-g17edbab45dbf
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.7.y
+Subject: stable-rc/linux-5.7.y baseline: 180 runs,
+ 2 regressions (v5.7.10-180-g17edbab45dbf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.7.y baseline: 180 runs, 2 regressions (v5.7.10-180-g17edb=
+ab45dbf)
 
---pfzhq2sgckiqqd5s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-Hi,
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-On Sun, Jul 12, 2020 at 12:23:51PM -0700, trix@redhat.com wrote:
-> From: Tom Rix <trix@redhat.com>
->=20
-> clang static analysis flags this error
->=20
-> 88pm860x_battery.c:522:19: warning: Assigned value is
->   garbage or undefined [core.uninitialized.Assign]
->                 info->start_soc =3D soc;
->                                 ^ ~~~
-> soc is set by calling calc_soc.
-> But calc_soc can return without setting soc.
->=20
-> So check the return status and bail similarly to other
-> checks in pm860x_init_battery and initialize soc to
-> silence the warning.
->=20
-> Fixes: a830d28b48bf ("power_supply: Enable battery-charger for 88pm860x")
->=20
-> Signed-off-by: Tom Rix <trix@redhat.com>
-> ---
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 4/5    =
 
-Thanks, queued.
 
--- Sebastian
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
+el/v5.7.10-180-g17edbab45dbf/plan/baseline/
 
->  drivers/power/supply/88pm860x_battery.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/power/supply/88pm860x_battery.c b/drivers/power/supp=
-ly/88pm860x_battery.c
-> index 1308f3a185f3..590da88a17a2 100644
-> --- a/drivers/power/supply/88pm860x_battery.c
-> +++ b/drivers/power/supply/88pm860x_battery.c
-> @@ -433,7 +433,7 @@ static void pm860x_init_battery(struct pm860x_battery=
-_info *info)
->  	int ret;
->  	int data;
->  	int bat_remove;
-> -	int soc;
-> +	int soc =3D 0;
-> =20
->  	/* measure enable on GPADC1 */
->  	data =3D MEAS1_GP1;
-> @@ -496,7 +496,9 @@ static void pm860x_init_battery(struct pm860x_battery=
-_info *info)
->  	}
->  	mutex_unlock(&info->lock);
-> =20
-> -	calc_soc(info, OCV_MODE_ACTIVE, &soc);
-> +	ret =3D calc_soc(info, OCV_MODE_ACTIVE, &soc);
-> +	if (ret < 0)
-> +		goto out;
-> =20
->  	data =3D pm860x_reg_read(info->i2c, PM8607_POWER_UP_LOG);
->  	bat_remove =3D data & BAT_WU_LOG;
-> --=20
-> 2.18.1
->=20
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.7.y
+  Describe: v5.7.10-180-g17edbab45dbf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      17edbab45dbfdee306397509538f3f12251f23b3 =
 
---pfzhq2sgckiqqd5s
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl8fbeoACgkQ2O7X88g7
-+pqbiBAAi9zcDp6J8QZGB6XRbzvLzMzWfszhICGReM5sXZStY/KBHXOGZ1letSUH
-zfDOA3Wi1nZrM7LgLYLCAoksCWKM3ai0oEAvTfcKUq9Jj25/5DIEFNvXhCjYRiXK
-RNpW8pXVJD7HKcAGv4+pwv3Fx2WKVm6pck3mvYhM+o0HFMWaaOyEegvYMV5NmmSJ
-7VScVl3foQIiX8ctIfeLiToYIhEug/40Ynw4Eu3tj7cxF1iqhp6vlB+A/V6FHWD3
-VpovUY2FAs9gpbDVTRTp8oMWYYvSsx5dMSn2/fZIP/TfpCATvATt4UdIfSClgZtg
-pVRWxbml629NXxFivox83t+7gDZVUJ7nPjlnN6OjlJIpuyZ3jcTOhQvVVYa8PevS
-72Zu0n+U2bqnHLHNxg/hBigayVvDH4rrZn2MqNFXjenheCC2yz53Jl9Oa7ZqT5yP
-S5fp17BWD4IsTCvzVQNV6nAfTwg4d8O4y1RAzYxwgLs9655DeNIqbmHRXq7iSLe7
-Xnz0PFdeISNjZ5rebCKDFDQBr5uUr0Dl8j99NHna/LQywpOIelLW+VgAj1C3XSMd
-AnW5YsUZFF7aljBxKHmWvm0tniUjLneGXbkfMXT1BlQNQZ/JBrMdEWipD6mdGkav
-preS4jDKBhMK8uGu7lauMtPNq1xhJ0X1iuRAJaJQ3LERJx/VA5E=
-=Lr1T
------END PGP SIGNATURE-----
+Test Regressions
+---------------- =
 
---pfzhq2sgckiqqd5s--
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f1f38cad8d6ed6add85bb18
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.10-=
+180-g17edbab45dbf/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
+5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.10-=
+180-g17edbab45dbf/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
+5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f1f38cad8d6ed6add85b=
+b19
+      failing since 11 days (last pass: v5.7.8-167-gc2fb28a4b6e4, first fai=
+l: v5.7.9) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f1f17c73aeaa9862485bb4f
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.10-=
+180-g17edbab45dbf/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.10-=
+180-g17edbab45dbf/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f1f17c73aeaa986=
+2485bb52
+      new failure (last pass: v5.7.10)
+      1 lines =20
