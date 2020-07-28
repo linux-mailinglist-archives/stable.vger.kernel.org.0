@@ -2,79 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA505231481
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 23:18:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD10231630
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 01:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729243AbgG1VST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 17:18:19 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:52728 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728149AbgG1VST (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 17:18:19 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 084EA1C0BD8; Tue, 28 Jul 2020 23:18:17 +0200 (CEST)
-Date:   Tue, 28 Jul 2020 23:18:16 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/86] 4.19.135-rc1 review
-Message-ID: <20200728211816.GA13081@duo.ucw.cz>
-References: <20200727134914.312934924@linuxfoundation.org>
+        id S1729918AbgG1XRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 19:17:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729597AbgG1XRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 19:17:16 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4001FC061794
+        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 16:17:16 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id p16so6965929ile.0
+        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 16:17:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=JJqDHNpW+EExX8os1KPAj0lcUd8ypgKzU8yc4TKVjZw=;
+        b=cpD7ihGcS+yFcUcdFHSGJDtzoEseaSuPEwjlqP6ZdjYaFxeDleDfjiE3BEvgXPkOG4
+         mTPxHTAOnalrph1wA2uYNk0Fm9gYQ/ss1mYMONrEVVClxLJ9fULraBJP99TECoF5P4R/
+         PSR5uQQQ907dWBtNavFajqv7ZoheDyr0YH+5d8ExvYSjsxPoSFVKEW+z7up97Tge+cf6
+         uir+2pK+hcFZmw1HE+p0wNm0k2C80vQNZeYRv7nzDmGPZpFyjd1hb2aekr/YkAlPVopM
+         snJStA5faCxPdxo+bjQmmPB5LW482idMqfwo6/376equXfb4V4Syz5UfQ6Irv39tf0Px
+         4/tQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=JJqDHNpW+EExX8os1KPAj0lcUd8ypgKzU8yc4TKVjZw=;
+        b=tJZXtiXY88YVTbwbFhe9f6jC3bqmzis2jvGuHjVCEIWfKAEYTUclSLtw36e4fVeTTG
+         gKxmZZQDC8tu/cDD26CPj2OX8RLKCXFjHz+I8Zvg7oI8pD3s666e9O+1DgsgsyMb4bum
+         I8Qc/sQetcoTEZ8PxII/3pSIP7UDVjHnvPAGAMv10k8giKz5YH3vyjZaaebrv5hHoP3Q
+         EzCXbyDg/AqUUdqV2UkOoakzFD+rotMqznyLJn5pzRwEjart6SJ7ZI7ecnZnOpxNTLCx
+         hbhQVX++00I6dTyMFJyAYep7Q5v6+/7OlJgbBAzRO9qOuIIzyoh9y9C2Q0Aee1VL94Sf
+         1MPA==
+X-Gm-Message-State: AOAM530OaqZch7kzYkjlXn1MbxPigiUVU++dyun8HyZjTieaWPRu8hNF
+        UqefQghwX/vEZBiLUYu6c5uL6zF8BdGMBRfJDEg=
+X-Google-Smtp-Source: ABdhPJzQq8LvtRgfHI6fvcK78IW8xKzvOMdhTImt4EoDu2icQdDoX9yd5+Xbc48vMAObLWVTFzdC9MXuERajRXeLErg=
+X-Received: by 2002:a92:9a0e:: with SMTP id t14mr31179905ili.7.1595978234921;
+ Tue, 28 Jul 2020 16:17:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Reply-To: bashamzebdani@gmail.com
+Received: by 2002:a5d:9254:0:0:0:0:0 with HTTP; Tue, 28 Jul 2020 16:17:13
+ -0700 (PDT)
+From:   "Mr.Basham Zebdani" <bashamzebdani@gmail.com>
+Date:   Tue, 28 Jul 2020 16:17:13 -0700
+X-Google-Sender-Auth: p3swZo1Y_fZHtrVRRPpmVJX7LEg
+Message-ID: <CAPqrW29qTM0X5ANB-2V3ktUiDA3k6Qs_Jks906LOKtfu6WvymA@mail.gmail.com>
+Subject: VERY VERY URGENT,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+FROM MR.BASHAM ZEBDANI
+AUDIT& ACCOUNT MANAGER
+BANK OF AFRICA (B.O.A)
+OUAGADOUGOU BURKINA FASO
+WEST AFRICA.
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dear Friend,
 
-On Mon 2020-07-27 16:03:34, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.135 release.
-> There are 86 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Wed, 29 Jul 2020 13:48:51 +0000.
-> Anything received after that time might be too late.
->=20
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.13=
-5-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
- linux-4.19.y
-> and the diffstat can be found below.
+With due respect, I have decided to contact you on abusiness
+transaction  that will be beneficial to both of us. At the bank last
+account and  auditing evaluation, my staffs came across an old account
+which was being maintained by a foreign client who we learn was among
+the deceased passengers of motor accident on November.2003, the
+deceased was unable to run this account since his death. Theaccount
+has  remained dormant without the knowledge of his family since it was
+put in a  safe deposit account in the bank for future investment by
+the client.
 
-It passes tests on CIP test farm:
+Since his demise, even the members of his family haven't applied for
+claims over this fund and it has been in the safe deposit account
+until I discovered that it cannot be claimed since our client
+isaforeign national and we are sure that he has no next of kin here to
+file claims over the money. As the director of the department, this
+discovery was brought to my office so as to decide what is to bedone.I
+decided to seek ways through which to transfer this money out of the
+bank and out of the country too.
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.19.y
+The total amount in the account is USD $18.6 million with my positions
+as staffs of the bank,I am handicapped because I cannot operate
+foreign accounts and cannot lay bonafide claim over this money. The
+client was a foreign  national and you will only be asked to act as
+his next of kin and I will supply you with all the necessary
+information and bank data to assist you in being able to transfer this
+money to any bank of your  choice where this money could be
+transferred into.The total sum will be shared as follows: 50% for me,
+50% for you and expenses incidental occur  during the transfer will be
+incur by both of us. The transfer is risk free on both sides hence you
+are going to follow my instruction till the fund  transfer to your
+account. Since I work in this bank that is why you should  be
+confident in the success of this transaction because you will be
+updated with information as at when desired.
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+I will wish you to keep this transaction secret and confidential as I
+am hoping to retire with my share of this money at the end of
+transaction  which will be when this money is safety in your account.I
+will then come over to your country for sharing according to the
+previously agreed percentages. You might even have to advise me on
+possibilities of investment in your country or elsewhere of our
+choice. May  God help you to help me to a restive retirement,Amen,And
+You have to  contact me through my private e-mail
+at(bashamzebdani@gmail.com)Please for further information and inquires
+feel free to contact me back immediately for more explanation and
+better understanding I want you to assure me your capability of
+handling this  project with trust by providing me your following
+information details such as:
 
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
+(1)NAME..............
+(2)AGE:................
+(3)SEX:.....................
+(4)PHONE NUMBER:.................
+(5)OCCUPATION:.....................
+(6)YOUR COUNTRY:.....................
 
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXyCWGAAKCRAw5/Bqldv6
-8sTgAKCLpKis5fWswll/hf15bQUsjyMVwACfZyAvjrWp5N/A95qkENqNr3ihLSc=
-=m1x/
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
+Yours sincerely,
+Mr.Basham Zebdani
