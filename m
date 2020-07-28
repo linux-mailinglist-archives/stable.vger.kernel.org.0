@@ -2,105 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC7C7230C87
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 16:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523CA230CDE
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730452AbgG1Of3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 10:35:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730449AbgG1Of3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 10:35:29 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0076CC061794
-        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 07:35:28 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id l1so20944896ioh.5
-        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 07:35:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wE63hykpdOWCKf+hJ+uo4tJ4NmzeI9PTAqJH7wvSMlc=;
-        b=LhfgIFjPN1Zt6pM27TDwc0D9sQ3LgHFulpPO2SX5S88mG/mDfs8otJIYAkvnkswxld
-         9pGQRB5MX9+c/pNc/D2jvjcUfkcaX+O+bWMi/ZdZWSGCZgEcirUgpaGCBHTTFwLDeXxm
-         blFwenzn7yqD2djWtvbrpRZs6R2NA61KUwTMx0D/r9/j+IuKq9D9CivCPsM5HlRumsun
-         8SeaeatA922UsvA+t5ljvF60Q6rxHuH9aAmjAJ5nqq0yc8rdtO4PxA+a9Y5/pkBdStPf
-         L/JGt34i7DNkTsg+8boIo3khF5Q26aC+wBgUC+PHLlS8m0uSQi46IDgH+/15eUls3L+F
-         tp9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wE63hykpdOWCKf+hJ+uo4tJ4NmzeI9PTAqJH7wvSMlc=;
-        b=l2Dwtg3sIe5iGOkZR2xoqEyR5DZNmGGIhooKx+94URFUkYmnI3S9FJynOZ2T+Medvw
-         MMiNMBjQaocuo0K9hCLGk950V3AymeccvRFyM3hLvdcVCa1PXfq3vgk1XF5FpoM9zaeE
-         7JHb1zcpbIrZ4H4MnAUP27MMtQf41CTzgkMYy51ytmkZXa/sn3z3GPlwXUeqAp8DSj5P
-         5u0q99edlYrUHxKt016nkgjn8T4DhJvPV8AsZCOX7vpjGS9qvrpjuYZ48gsUP1J2VBNr
-         2M70u12ZHifasRNtCAuaJoXkHBYPcZw1wR/Z9r/NyVjoDbzOSuKyOqPXhIYVUjErf2XS
-         PgaA==
-X-Gm-Message-State: AOAM531UJ3LTJqzY0NyRXLNL4KTuXi72Irt/sSVQYYz2flOEsv4SjG/5
-        bDltUis3EpFBXEfzlBY14XXQmDYGSMEa3T5VvW6eZA==
-X-Google-Smtp-Source: ABdhPJy2WEagQVK01W1PoJL3TtsswctQA4jC85OF1eYxNmME8rZTNY5/2CM7uNz/FDIzfpS1C5VvpAW+f52j5jGXddQ=
-X-Received: by 2002:a05:6638:134a:: with SMTP id u10mr6463616jad.35.1595946928305;
- Tue, 28 Jul 2020 07:35:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200727134914.312934924@linuxfoundation.org> <CA+G9fYvBRONMYwX36Hcju4JA5TwstkT2Afyuy2DB1zQcBcc1CA@mail.gmail.com>
- <CAMZfGtVV-u7K+Z0vFLkoKv1UOTfk=a9+r_6G4PYfGLywwnkm3Q@mail.gmail.com>
-In-Reply-To: <CAMZfGtVV-u7K+Z0vFLkoKv1UOTfk=a9+r_6G4PYfGLywwnkm3Q@mail.gmail.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 28 Jul 2020 20:05:16 +0530
-Message-ID: <CA+G9fYs__nNa-090Cm8j_EPYGRfh+y+VTX3ZqR_W1Jcu2suNEQ@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH 4.19 00/86] 4.19.135-rc1 review
+        id S1730521AbgG1PAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 11:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57986 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730508AbgG1PAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jul 2020 11:00:54 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47BF3206D8;
+        Tue, 28 Jul 2020 15:00:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595948453;
+        bh=frxB2QXihnX0bS03Xc1I0P6xwq48DECVyTC63uP/ctM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kjc1NjTB8mTa19UGapHTh6qmux0UixS44sD8UjmAXe+/c2jxnunFjlZWvrL9fK4h9
+         Gt3SlRxefMTqGCYw4JIh6RTMQ0MGLKLGxPKyYBTjVj1Gd4ovftrw+hlJQz9bCP/WnW
+         y/4tr2Mpq6ISoqGqYaRDApHAC/R/yERivGbwlOC8=
+Date:   Tue, 28 Jul 2020 17:00:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Christoph Lameter <cl@linux.com>, Roman Gushchin <guro@fb.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        linux-mm <linux-mm@kvack.org>, mm-commits@vger.kernel.org,
+        Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
         Pekka Enberg <penberg@kernel.org>,
         David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Arnd Bergmann <arnd@arndb.de>, lkft-triage@lists.linaro.org,
-        clang-built-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [External] [PATCH 4.19 76/86] mm: memcg/slab: fix memory leak at
+ non-root kmem_cache destroy
+Message-ID: <20200728150047.GC3537020@kroah.com>
+References: <20200727134914.312934924@linuxfoundation.org>
+ <20200727134918.205538211@linuxfoundation.org>
+ <CAMZfGtWVtGeMfu=04LiNVcLrBpmexUryHjy-dujo77CpJhcwGg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMZfGtWVtGeMfu=04LiNVcLrBpmexUryHjy-dujo77CpJhcwGg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 28 Jul 2020 at 18:33, Muchun Song <songmuchun@bytedance.com> wrote:
->
-> Thanks for your test. I have reviewed the patch:
->
-> [PATCH 4.19 76/86] mm: memcg/slab: fix memory leak at non-root
-> kmem_cache destroy
->
-> There is a backport problem and I have pointed out the problem in that email.
+On Tue, Jul 28, 2020 at 08:56:41PM +0800, Muchun Song wrote:
+> On Mon, Jul 27, 2020 at 10:12 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > From: Muchun Song <songmuchun@bytedance.com>
+> >
+> > commit d38a2b7a9c939e6d7329ab92b96559ccebf7b135 upstream.
+> >
+> > If the kmem_cache refcount is greater than one, we should not mark the
+> > root kmem_cache as dying.  If we mark the root kmem_cache dying
+> > incorrectly, the non-root kmem_cache can never be destroyed.  It
+> > resulted in memory leak when memcg was destroyed.  We can use the
+> > following steps to reproduce.
+> >
+> >   1) Use kmem_cache_create() to create a new kmem_cache named A.
+> >   2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
+> >      so the refcount of B is just increased.
+> >   3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
+> >      decrease the B's refcount but mark the B as dying.
+> >   4) Create a new memory cgroup and alloc memory from the kmem_cache
+> >      B. It leads to create a non-root kmem_cache for allocating memory.
+> >   5) When destroy the memory cgroup created in the step 4), the
+> >      non-root kmem_cache can never be destroyed.
+> >
+> > If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
+> > only when refcount reach zero, we mark the root kmem_cache as dying.
+> >
+> > Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
+> > Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > Reviewed-by: Shakeel Butt <shakeelb@google.com>
+> > Acked-by: Roman Gushchin <guro@fb.com>
+> > Cc: Vlastimil Babka <vbabka@suse.cz>
+> > Cc: Christoph Lameter <cl@linux.com>
+> > Cc: Pekka Enberg <penberg@kernel.org>
+> > Cc: David Rientjes <rientjes@google.com>
+> > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> > Cc: Shakeel Butt <shakeelb@google.com>
+> > Cc: <stable@vger.kernel.org>
+> > Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
+> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >
+> > ---
+> >  mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
+> >  1 file changed, 28 insertions(+), 7 deletions(-)
+> >
+> > --- a/mm/slab_common.c
+> > +++ b/mm/slab_common.c
+> > @@ -310,6 +310,14 @@ int slab_unmergeable(struct kmem_cache *
+> >         if (s->refcount < 0)
+> >                 return 1;
+> >
+> > +#ifdef CONFIG_MEMCG_KMEM
+> > +       /*
+> > +        * Skip the dying kmem_cache.
+> > +        */
+> > +       if (s->memcg_params.dying)
+> > +               return 1;
+> > +#endif
+> > +
+> >         return 0;
+> >  }
+> >
+> > @@ -832,12 +840,15 @@ static int shutdown_memcg_caches(struct
+> >         return 0;
+> >  }
+> >
+> > -static void flush_memcg_workqueue(struct kmem_cache *s)
+> > +static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
+> >  {
+> >         mutex_lock(&slab_mutex);
+> >         s->memcg_params.dying = true;
+> >         mutex_unlock(&slab_mutex);
+> 
+> We should remove mutex_lock/unlock(&slab_mutex) here, because
+> we already hold the slab_mutex from kmem_cache_destroy().
 
-Thanks for your suggestions on the other email thread.
-I have made changes as you said and boot test pass on x86 now.
+Good catch.  I'll go make this change and push out a -rc2.
 
-diff --git a/mm/slab_common.c b/mm/slab_common.c
-index 9c5eb4b08fc3..65bc49f19504 100644
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -842,9 +842,7 @@ static int shutdown_memcg_caches(struct kmem_cache *s)
+thanks,
 
- static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
- {
--       mutex_lock(&slab_mutex);
-        s->memcg_params.dying = true;
--       mutex_unlock(&slab_mutex);
- }
-
- static void flush_memcg_workqueue(struct kmem_cache *s)
-
-- Naresh
+greg k-h
