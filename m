@@ -2,142 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 737BF230DB9
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AECB230DC3
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730697AbgG1P1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 11:27:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42944 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730637AbgG1P1J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jul 2020 11:27:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DC68206D8;
-        Tue, 28 Jul 2020 15:27:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595950028;
-        bh=Gtafif/hLm53aJUqTj0yE5b7PKRrMxEHfIDxZmza8w8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ql+tY6ow28UR1M+zmZJ4bmAtbCepESkBoLUwiQU32StzHgsqsgUt61zHlKpmdFufy
-         iM22Dx35q4HhTcSgQgGcZEZClWRFk35PKQMQSRp8d70uDBG12cDX54oW/0jqbbbHkE
-         NqN+nuho1U0DinupeR31OdPpemU2hvADqw4pv6lo=
-Date:   Tue, 28 Jul 2020 17:27:01 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Muchun Song <songmuchun@bytedance.com>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [External] [PATCH 4.19 76/86] mm: memcg/slab: fix memory leak at
- non-root kmem_cache destroy
-Message-ID: <20200728152701.GA3554518@kroah.com>
-References: <20200727134914.312934924@linuxfoundation.org>
- <20200727134918.205538211@linuxfoundation.org>
- <CAMZfGtWVtGeMfu=04LiNVcLrBpmexUryHjy-dujo77CpJhcwGg@mail.gmail.com>
- <20200728151703.GM406581@sasha-vm>
+        id S1730701AbgG1P2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 11:28:20 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:60118 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730637AbgG1P2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 11:28:19 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21959536-1500050 
+        for multiple; Tue, 28 Jul 2020 16:28:12 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     thomas.hellstrom@intel.com, tvrtko.ursulin@intel.com,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        CQ Tang <cq.tang@intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/i915/gem: Serialise debugfs i915_gem_objects with ctx->mutex
+Date:   Tue, 28 Jul 2020 16:28:11 +0100
+Message-Id: <20200728152812.26962-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200728151703.GM406581@sasha-vm>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 28, 2020 at 11:17:03AM -0400, Sasha Levin wrote:
-> On Tue, Jul 28, 2020 at 08:56:41PM +0800, Muchun Song wrote:
-> > On Mon, Jul 27, 2020 at 10:12 PM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > > 
-> > > From: Muchun Song <songmuchun@bytedance.com>
-> > > 
-> > > commit d38a2b7a9c939e6d7329ab92b96559ccebf7b135 upstream.
-> > > 
-> > > If the kmem_cache refcount is greater than one, we should not mark the
-> > > root kmem_cache as dying.  If we mark the root kmem_cache dying
-> > > incorrectly, the non-root kmem_cache can never be destroyed.  It
-> > > resulted in memory leak when memcg was destroyed.  We can use the
-> > > following steps to reproduce.
-> > > 
-> > >   1) Use kmem_cache_create() to create a new kmem_cache named A.
-> > >   2) Coincidentally, the kmem_cache A is an alias for kmem_cache B,
-> > >      so the refcount of B is just increased.
-> > >   3) Use kmem_cache_destroy() to destroy the kmem_cache A, just
-> > >      decrease the B's refcount but mark the B as dying.
-> > >   4) Create a new memory cgroup and alloc memory from the kmem_cache
-> > >      B. It leads to create a non-root kmem_cache for allocating memory.
-> > >   5) When destroy the memory cgroup created in the step 4), the
-> > >      non-root kmem_cache can never be destroyed.
-> > > 
-> > > If we repeat steps 4) and 5), this will cause a lot of memory leak.  So
-> > > only when refcount reach zero, we mark the root kmem_cache as dying.
-> > > 
-> > > Fixes: 92ee383f6daa ("mm: fix race between kmem_cache destroy, create and deactivate")
-> > > Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > > Reviewed-by: Shakeel Butt <shakeelb@google.com>
-> > > Acked-by: Roman Gushchin <guro@fb.com>
-> > > Cc: Vlastimil Babka <vbabka@suse.cz>
-> > > Cc: Christoph Lameter <cl@linux.com>
-> > > Cc: Pekka Enberg <penberg@kernel.org>
-> > > Cc: David Rientjes <rientjes@google.com>
-> > > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-> > > Cc: Shakeel Butt <shakeelb@google.com>
-> > > Cc: <stable@vger.kernel.org>
-> > > Link: http://lkml.kernel.org/r/20200716165103.83462-1-songmuchun@bytedance.com
-> > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > 
-> > > ---
-> > >  mm/slab_common.c |   35 ++++++++++++++++++++++++++++-------
-> > >  1 file changed, 28 insertions(+), 7 deletions(-)
-> > > 
-> > > --- a/mm/slab_common.c
-> > > +++ b/mm/slab_common.c
-> > > @@ -310,6 +310,14 @@ int slab_unmergeable(struct kmem_cache *
-> > >         if (s->refcount < 0)
-> > >                 return 1;
-> > > 
-> > > +#ifdef CONFIG_MEMCG_KMEM
-> > > +       /*
-> > > +        * Skip the dying kmem_cache.
-> > > +        */
-> > > +       if (s->memcg_params.dying)
-> > > +               return 1;
-> > > +#endif
-> > > +
-> > >         return 0;
-> > >  }
-> > > 
-> > > @@ -832,12 +840,15 @@ static int shutdown_memcg_caches(struct
-> > >         return 0;
-> > >  }
-> > > 
-> > > -static void flush_memcg_workqueue(struct kmem_cache *s)
-> > > +static void memcg_set_kmem_cache_dying(struct kmem_cache *s)
-> > >  {
-> > >         mutex_lock(&slab_mutex);
-> > >         s->memcg_params.dying = true;
-> > >         mutex_unlock(&slab_mutex);
-> > 
-> > We should remove mutex_lock/unlock(&slab_mutex) here, because
-> > we already hold the slab_mutex from kmem_cache_destroy().
-> 
-> Good catch! I backported 63b02ef7dc4e ("mm: memcg/slab: synchronize
-> access to kmem_cache dying flag using a spinlock") instead of changing
-> this patch.
+Since the debugfs may peek into the GEM contexts as the corresponding
+client/fd is being closed, we may try and follow a dangling pointer.
+However, the context closure itself is serialised with the ctx->mutex,
+so if we hold that mutex as we inspect the state coupled in the context,
+we know the pointers within the context are stable and will remain valid
+as we inspect their tables.
 
-Ah, much better, let me roll my change back and then push out -rc3 with
-this all fixed up like this.
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: CQ Tang <cq.tang@intel.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/i915_debugfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-thanks,
+diff --git a/drivers/gpu/drm/i915/i915_debugfs.c b/drivers/gpu/drm/i915/i915_debugfs.c
+index 784219962193..ea469168cd44 100644
+--- a/drivers/gpu/drm/i915/i915_debugfs.c
++++ b/drivers/gpu/drm/i915/i915_debugfs.c
+@@ -326,6 +326,7 @@ static void print_context_stats(struct seq_file *m,
+ 		}
+ 		i915_gem_context_unlock_engines(ctx);
+ 
++		mutex_lock(&ctx->mutex);
+ 		if (!IS_ERR_OR_NULL(ctx->file_priv)) {
+ 			struct file_stats stats = {
+ 				.vm = rcu_access_pointer(ctx->vm),
+@@ -346,6 +347,7 @@ static void print_context_stats(struct seq_file *m,
+ 
+ 			print_file_stats(m, name, stats);
+ 		}
++		mutex_unlock(&ctx->mutex);
+ 
+ 		spin_lock(&i915->gem.contexts.lock);
+ 		list_safe_reset_next(ctx, cn, link);
+-- 
+2.20.1
 
-greg k-h
