@@ -2,158 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFA922FEDD
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 03:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E85722FEE8
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 03:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726909AbgG1BXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jul 2020 21:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55292 "EHLO
+        id S1726265AbgG1BbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jul 2020 21:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726139AbgG1BXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 21:23:02 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C77C061794
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 18:23:01 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id d188so3997730pfd.2
-        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 18:23:01 -0700 (PDT)
+        with ESMTP id S1726237AbgG1BbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jul 2020 21:31:23 -0400
+Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA092C0619D2
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 18:31:23 -0700 (PDT)
+Received: by mail-oo1-xc42.google.com with SMTP id s190so3508035ooa.13
+        for <stable@vger.kernel.org>; Mon, 27 Jul 2020 18:31:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=EOB5B51t2Eb8h2wGkZk+KzT4iyzncD7k9od+FHXq7cs=;
-        b=T/s3K4PYwji+s+Njed8JBNjIyyaKr0rm5OnC1L1E1pLxeJBfiZEqJac9kNZUkLciaw
-         AUmBIxRi/dO/JOGDiByql/hMRjWW4gXvA+jRrKGNleSMfd1otkaWWEKk+/jU/r2Iocle
-         0/2KQxbmd3nGh+RuoyRcSoRaagnolFFpOD3j4VIXmvj3X26XQRDw4C3QD2D1OIcjwr9T
-         8wygwUFPHIn6WVRDecR+gvsFLrBLaYzWMKOXsWkTuy4quaXUk4UaaVfu6lWbSIFS63d0
-         rf6LQQdlWL8j6piZQIvwjS366wbGaFgAx0F/CTonwrgAicx8xexwhgeXq4lfTohYTjVR
-         hOfQ==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=85PU/jeMBPu5Upo6UlF9JkPgAyG/TgNDI2puYp9FnuM=;
+        b=RfG/PYmyP3MrH8UgvY59xXT43rK8K6jxBfyj3ny8PFYkBkhY9QibvYkB6zi7MRm88C
+         UvBlHM5OiF9Q1JBxtVpkHFWf01zVjdcZ12B2MNSz9rfP5shebjPn315qhA02U79Hunuv
+         cQeC2p6EwohTKWu+CFLf2+BTz+tPLYjtKgT1M=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=EOB5B51t2Eb8h2wGkZk+KzT4iyzncD7k9od+FHXq7cs=;
-        b=P2Hu+s7JJrixcn5Rn035ZuSsfVG2w9Om5Pr15wRhqFIBVNTneDd5PI2IuQmSCanIcf
-         lIBOpGs/BfuSu4J21cX3Ib9ltSPHqDPjlK6NrP+ZsSxLItye0kq3niycr6ADyGkEVbva
-         sBDsDkWC1zYUQI/KUBiCeYm3ouyLCf64xyzLwdLai+ZKHOb38ejTD92MOinrl6NmuptN
-         kEB3joThcnbD8/RoqG7OsKzd7wCFlZUICeFyVVEsIYQrnF3J+WHx3E/dUswhDOt2kYgo
-         b3+T4vlLLCfN5rN+UXOfhO8uFtUQpTT5kjERr148HUszS4SQEm03Ah+i2mN8nkqihLlw
-         IuIA==
-X-Gm-Message-State: AOAM530YGK++Lx7KXXyVbKodT1QLOYMyjF4A8Ieoi7fFRG8tNqJGIcQv
-        ruvrJ7wU4Hw6n5UgDNCAm6Np73crd5I=
-X-Google-Smtp-Source: ABdhPJx5h5M4kiKVLMsK+X5S9XlOc3Hr3SEHop5hNFexIBqiKG5fIqYH1wzTmO6/5LW/e/kEOjYU+g==
-X-Received: by 2002:a65:55c2:: with SMTP id k2mr21891176pgs.451.1595899381154;
-        Mon, 27 Jul 2020 18:23:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 16sm802151pjb.48.2020.07.27.18.23.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2020 18:23:00 -0700 (PDT)
-Message-ID: <5f1f7df4.1c69fb81.8a05d.3cab@mx.google.com>
-Date:   Mon, 27 Jul 2020 18:23:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=85PU/jeMBPu5Upo6UlF9JkPgAyG/TgNDI2puYp9FnuM=;
+        b=qdVMcWqtpM0R90h31RZ6o1E53xuMnXA2mKRrEPK4y02gu968hAv2lTiXvoYArD2GEK
+         NBmGh4k9hw2PMACrPowHnLR83U1eGXj7ZPp3QMFBPKmb9vYmxCYcQ1XoawBYIvox2S3+
+         xrJ7mb1YbEQPDvQgTWPrbQQHctiu0R5lHJ3vvFCj+yx43Q4A/lOcd39CDJ3nj5gyXP9P
+         MD+MO15SzHG0eL0iX6798/zoCZSQxUqQ+wWRQEmnZdNIKUIBnsJQ9hkf7aRCXC6VB6RV
+         XdUk7FjMGtfdSvFGIkyfRynafQ5rZoNtFXYZsNYbmaIhMFkk4o5TCBXRskojqm9x4hQH
+         +TrA==
+X-Gm-Message-State: AOAM530FZOjBnpkF22Fumqnt/saOy4nepquLFaW/RmJdR6U7WmGUBUtL
+        sYnFF0Ezq2Gl8b9sP5Dj7CkwnA==
+X-Google-Smtp-Source: ABdhPJyTn7S/tuMTZD6FUbhNh3F/gzDuxavwvcuLVVLhUX0JpFMq8XGVsq71+W60ALcKrnkct9aH0w==
+X-Received: by 2002:a4a:aac8:: with SMTP id e8mr10248748oon.64.1595899882847;
+        Mon, 27 Jul 2020 18:31:22 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id e203sm2102281oia.17.2020.07.27.18.31.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Jul 2020 18:31:22 -0700 (PDT)
+Subject: Re: [PATCH 5.7 000/179] 5.7.11-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20200727134932.659499757@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <63f634e5-e2bb-fea4-90da-774790ced38d@linuxfoundation.org>
+Date:   Mon, 27 Jul 2020 19:31:20 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.134-87-ge11702667f84
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y baseline: 153 runs,
- 2 regressions (v4.19.134-87-ge11702667f84)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200727134932.659499757@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 153 runs, 2 regressions (v4.19.134-87-ge11=
-702667f84)
+On 7/27/20 8:02 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.11 release.
+> There are 179 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 29 Jul 2020 13:48:51 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.11-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Regressions Summary
--------------------
+Compiled and booted on my test system. No dmesg regressions.
 
-platform              | arch | lab          | compiler | defconfig         =
-  | results
-----------------------+------+--------------+----------+-------------------=
---+--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
-  | 0/1    =
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-omap3-beagle-xm       | arm  | lab-baylibre | gcc-8    | omap2plus_defconfi=
-g | 0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.134-87-ge11702667f84/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.134-87-ge11702667f84
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e11702667f84474535b156dbb194deffa0a6cdb4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig         =
-  | results
-----------------------+------+--------------+----------+-------------------=
---+--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
-  | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f1f42c959b0ad60af85bb26
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-34-87-ge11702667f84/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-34-87-ge11702667f84/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f1f42c959b0ad60af85b=
-b27
-      failing since 41 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
-ail: v4.19.126-113-gd694d4388e88) =
-
-
-
-platform              | arch | lab          | compiler | defconfig         =
-  | results
-----------------------+------+--------------+----------+-------------------=
---+--------
-omap3-beagle-xm       | arm  | lab-baylibre | gcc-8    | omap2plus_defconfi=
-g | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f1f4a320bc32eaa4685bb18
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-34-87-ge11702667f84/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-oma=
-p3-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-34-87-ge11702667f84/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-oma=
-p3-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f1f4a320bc32eaa4685b=
-b19
-      new failure (last pass: v4.19.134) =20
+thanks,
+-- Shuah
