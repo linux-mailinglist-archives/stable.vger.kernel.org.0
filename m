@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D03D9230DED
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E605C230DEE
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 17:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730703AbgG1Pd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 11:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
+        id S1730812AbgG1PeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 11:34:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730701AbgG1Pd5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jul 2020 11:33:57 -0400
+        id S1730701AbgG1PeE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jul 2020 11:34:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 069FD206D4;
-        Tue, 28 Jul 2020 15:33:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6635206D4;
+        Tue, 28 Jul 2020 15:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595950436;
-        bh=vfuq+mKr8EIt+f1ofVRnURd2R633XXBxzMYdQUhxulY=;
+        s=default; t=1595950444;
+        bh=KNirNzwN4A/kGpXUIibz1ueIYgQbSdSCtWL1LdjTKsY=;
         h=Subject:To:From:Date:From;
-        b=QWXQ9OibXGROR6cukG0z+EAeba1EfWxH0jyglAa3lUxDvR6VFZh04TAHCSZ5AS1s6
-         jMV9Avr++9qkj2g58Ro8kICtb43QeItIVzJikvp9EQrgipSUquK5crs0BcfiGGYWvo
-         Iw6rVhsvmozctwtREkVIS/8tDc5rQLPKpIbWoZlQ=
-Subject: patch "USB: serial: cp210x: enable usb generic throttle/unthrottle" added to usb-testing
+        b=P5PCgc93Pi2yfDMXO7E4Oy/0SEFL8sz8m+iD4D82UxEjH+d0QIQ9FB3yyaK+XtkKq
+         eDd2WhsJKR33GXf6CQ7ahVs2MJ/JRO6HaiYG/Rqe+5yelCxJGRb3Xz55DyG/F5loP3
+         OYH0HAwgNN0LuVEnDuHXaQPnYbd0KZGcXSBIg/+0=
+Subject: patch "USB: serial: cp210x: re-enable auto-RTS on open" added to usb-testing
 To:     brant.merryman@silabs.com, johan@kernel.org, phu.luu@silabs.com,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Jul 2020 17:33:31 +0200
-Message-ID: <1595950411183179@kroah.com>
+Date:   Tue, 28 Jul 2020 17:33:32 +0200
+Message-ID: <159595041223274@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: cp210x: enable usb generic throttle/unthrottle
+    USB: serial: cp210x: re-enable auto-RTS on open
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,40 +55,63 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 Mon Sep 17 00:00:00 2001
+From c7614ff9b73a1e6fb2b1b51396da132ed22fecdb Mon Sep 17 00:00:00 2001
 From: Brant Merryman <brant.merryman@silabs.com>
-Date: Fri, 26 Jun 2020 04:22:58 +0000
-Subject: USB: serial: cp210x: enable usb generic throttle/unthrottle
+Date: Fri, 26 Jun 2020 04:24:20 +0000
+Subject: USB: serial: cp210x: re-enable auto-RTS on open
 
-Assign the .throttle and .unthrottle functions to be generic function
-in the driver structure to prevent data loss that can otherwise occur
-if the host does not enable USB throttling.
+CP210x hardware disables auto-RTS but leaves auto-CTS when in hardware
+flow control mode and UART on cp210x hardware is disabled. When
+re-opening the port, if auto-CTS is enabled on the cp210x, then auto-RTS
+must be re-enabled in the driver.
 
 Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
 Co-developed-by: Phu Luu <phu.luu@silabs.com>
 Signed-off-by: Phu Luu <phu.luu@silabs.com>
-Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
-[ johan: fix up tags ]
+Link: https://lore.kernel.org/r/ECCF8E73-91F3-4080-BE17-1714BC8818FB@silabs.com
+[ johan: fix up tags and problem description ]
 Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
 Cc: stable <stable@vger.kernel.org>     # 2.6.12
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/cp210x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/cp210x.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index f5143eedbc48..bcceb4ad8be0 100644
+index bcceb4ad8be0..a90801ef0055 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -272,6 +272,8 @@ static struct usb_serial_driver cp210x_device = {
- 	.break_ctl		= cp210x_break_ctl,
- 	.set_termios		= cp210x_set_termios,
- 	.tx_empty		= cp210x_tx_empty,
-+	.throttle		= usb_serial_generic_throttle,
-+	.unthrottle		= usb_serial_generic_unthrottle,
- 	.tiocmget		= cp210x_tiocmget,
- 	.tiocmset		= cp210x_tiocmset,
- 	.attach			= cp210x_attach,
+@@ -917,6 +917,7 @@ static void cp210x_get_termios_port(struct usb_serial_port *port,
+ 	u32 baud;
+ 	u16 bits;
+ 	u32 ctl_hs;
++	u32 flow_repl;
+ 
+ 	cp210x_read_u32_reg(port, CP210X_GET_BAUDRATE, &baud);
+ 
+@@ -1017,6 +1018,22 @@ static void cp210x_get_termios_port(struct usb_serial_port *port,
+ 	ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
+ 	if (ctl_hs & CP210X_SERIAL_CTS_HANDSHAKE) {
+ 		dev_dbg(dev, "%s - flow control = CRTSCTS\n", __func__);
++		/*
++		 * When the port is closed, the CP210x hardware disables
++		 * auto-RTS and RTS is deasserted but it leaves auto-CTS when
++		 * in hardware flow control mode. When re-opening the port, if
++		 * auto-CTS is enabled on the cp210x, then auto-RTS must be
++		 * re-enabled in the driver.
++		 */
++		flow_repl = le32_to_cpu(flow_ctl.ulFlowReplace);
++		flow_repl &= ~CP210X_SERIAL_RTS_MASK;
++		flow_repl |= CP210X_SERIAL_RTS_SHIFT(CP210X_SERIAL_RTS_FLOW_CTL);
++		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
++		cp210x_write_reg_block(port,
++				CP210X_SET_FLOW,
++				&flow_ctl,
++				sizeof(flow_ctl));
++
+ 		cflag |= CRTSCTS;
+ 	} else {
+ 		dev_dbg(dev, "%s - flow control = NONE\n", __func__);
 -- 
 2.27.0
 
