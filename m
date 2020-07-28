@@ -2,91 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E292306CD
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 11:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E831230704
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 11:52:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728550AbgG1JpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 05:45:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728197AbgG1JpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 05:45:17 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79CD0C061794;
-        Tue, 28 Jul 2020 02:45:16 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id u10so108778plr.7;
-        Tue, 28 Jul 2020 02:45:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=YW61uT4gs7NLfpC0VAfH7u18rjoR4roJ54bakldbt1o=;
-        b=RfYnzTVaaiIcgr+9v6Qpt+9Sn4A6BP7Q9yIcBs4oG6bfhviw+3JSTCk5bxF1v0Q9VP
-         CUq/x8J/Q5xlyidW5jaxO5+QUJ1nIMYZT95rI6r8HwIvVYcixErDeg97g06HHpbEo/7F
-         LwwNFv4NhVm7TKSdT4zHjQsYvZhtIh6u86VYKcMqCJCod6yK6Tl5nqYYVoMm8ubtdCGH
-         quJmKGjBIogttIL6DsrSLmV1jPalEf2Fq+43Dty6I0iwCNBjfVc23hz+lt+1g9YQV+SJ
-         3TP1vfw0eBPVO9iLug6dQSoZVxRimiRsV98IQ6Ahh8vFpJK16eXVvpLLG6ndwl95wNg4
-         mHkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=YW61uT4gs7NLfpC0VAfH7u18rjoR4roJ54bakldbt1o=;
-        b=S/277hyXeTjAkmgbQCqdwINDdJJWLN12opdg270kTVxjc18S4U4LlQqtNRp3h6DoqW
-         hmfJBS0E/2aPOY8u+8/FBpk4qCPhilA6K8/8PPfbDTvB6bcbrTgDSwqpgtlFPEWBG7qy
-         BhTPoxjwZO7hFV4s8dIuJweqwNCoyUm6dM+SSC74myDwWkaxja6c7KWPozLWrkSzSneB
-         2VwBSSpbBL6P9S0Q1b1+rt53FtcW1BbtDGRh1knnfbDHtAoIrnagK3F1lOqhOW/TnZcy
-         zCzjj15FAQ+mc7hPYH1bESIMp0kvcH9oSeew5I0/a65t/VTQIaLakn+SXfHAhIY8tF2W
-         +3DA==
-X-Gm-Message-State: AOAM5321UOlqULWQu45mXdZcC5m+wpiwPbc8Zadf7gKr3JvTSPkbg53F
-        EroCfbUVz8I7Xqe4xn3dT4mrm2Nc
-X-Google-Smtp-Source: ABdhPJxD6tzllfcRVDmb1xoKhd2jMzTzXphKdkN4ooTcK2t2IBIzxcYpjGFm4Em3KQhe2BXXOgUfSA==
-X-Received: by 2002:a17:90a:d30c:: with SMTP id p12mr3843893pju.4.1595929515664;
-        Tue, 28 Jul 2020 02:45:15 -0700 (PDT)
-Received: from localhost.localdomain ([103.7.29.6])
-        by smtp.googlemail.com with ESMTPSA id r17sm17969173pfg.62.2020.07.28.02.45.12
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2020 02:45:15 -0700 (PDT)
-From:   Wanpeng Li <kernellwp@gmail.com>
-X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
-Subject: [PATCH v2 1/3] KVM: LAPIC: Prevent setting the tscdeadline timer if the lapic is hw disabled
-Date:   Tue, 28 Jul 2020 17:45:04 +0800
-Message-Id: <1595929506-9203-1-git-send-email-wanpengli@tencent.com>
-X-Mailer: git-send-email 2.7.4
+        id S1728368AbgG1JwK convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 28 Jul 2020 05:52:10 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:39533 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728253AbgG1JwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 05:52:09 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-99-v648WAFYPa2DlrrGj_LO-w-1; Tue, 28 Jul 2020 10:52:05 +0100
+X-MC-Unique: v648WAFYPa2DlrrGj_LO-w-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Tue, 28 Jul 2020 10:52:05 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Tue, 28 Jul 2020 10:52:05 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Christian Eggers' <ceggers@arri.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] eeprom: at25: set minimum read/write access stride to 1
+Thread-Topic: [PATCH] eeprom: at25: set minimum read/write access stride to 1
+Thread-Index: AQHWZMG/Rp7Dl/S8M02sb706WA/KmqkcvErQ
+Date:   Tue, 28 Jul 2020 09:52:05 +0000
+Message-ID: <a65b01608fb34c5c8782b301c2e0cabc@AcuMS.aculab.com>
+References: <20200728092959.24600-1-ceggers@arri.de>
+In-Reply-To: <20200728092959.24600-1-ceggers@arri.de>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Christian Eggers
+> Sent: 28 July 2020 10:30
+> 
+> SPI eeproms are addressed by byte.
 
-Prevent setting the tscdeadline timer if the lapic is hw disabled.
+They also support multi-byte writes - possibly with alignment
+restrictions.
+So forcing 4-byte writes (at aligned addresses) would typically
+speed up writes by a factor of 4 over byte writes.
 
-Fixes: bce87cce88 (KVM: x86: consolidate different ways to test for in-kernel LAPIC)
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
----
- arch/x86/kvm/lapic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+So does this fix a problem?
+If so what.
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 5bf72fc..4ce2ddd 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2195,7 +2195,7 @@ void kvm_set_lapic_tscdeadline_msr(struct kvm_vcpu *vcpu, u64 data)
- {
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 
--	if (!lapic_in_kernel(vcpu) || apic_lvtt_oneshot(apic) ||
-+	if (!kvm_apic_present(vcpu) || apic_lvtt_oneshot(apic) ||
- 			apic_lvtt_period(apic))
- 		return;
- 
--- 
-2.7.4
+So setting the 'stride' to 4 may be a compromise.
+Looking at some code that writes the EPCQ for Altera FPGA
+(which I think is just SPI) it does aligned 256 byte writes.
+The long writes (and the 4-bit physical interface) are needed
+to get the write times down to a sensible value.
+
+	David
+
+> 
+> Signed-off-by: Christian Eggers <ceggers@arri.de>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/misc/eeprom/at25.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
+> index 0e7c8dc01195..4e57eb145fcc 100644
+> --- a/drivers/misc/eeprom/at25.c
+> +++ b/drivers/misc/eeprom/at25.c
+> @@ -358,7 +358,7 @@ static int at25_probe(struct spi_device *spi)
+>  	at25->nvmem_config.reg_read = at25_ee_read;
+>  	at25->nvmem_config.reg_write = at25_ee_write;
+>  	at25->nvmem_config.priv = at25;
+> -	at25->nvmem_config.stride = 4;
+> +	at25->nvmem_config.stride = 1;
+>  	at25->nvmem_config.word_size = 1;
+>  	at25->nvmem_config.size = chip.byte_len;
+> 
+> --
+> Christian Eggers
+> Embedded software developer
+> 
+> Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+> Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
+> Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
+> Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
+> Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
