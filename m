@@ -2,82 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD686231448
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 22:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA505231481
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 23:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728921AbgG1Uyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 16:54:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37152 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbgG1Uyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jul 2020 16:54:44 -0400
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAAA420775;
-        Tue, 28 Jul 2020 20:54:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595969684;
-        bh=QxYwn1VGKKYVE4wolqR/oZEUZLEvahfqhhFb7dEx8ig=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=vOySFjhisZjrjcpa3h8dZhmiRAvjA3NFhmfFS7JZXK8S/tGvXyOKMFYrYlx7PH5D1
-         jyTYzUGhG2rDu8q/4rFJ6BRF6R0Mxsr6+7+WmueU55U6n7ppPqUezIRS4qfuQalUOD
-         MKoUI6y3GhMnR81lA+6dxW9mjZoPYzp/EoRlX9rU=
-Received: by mail-lj1-f179.google.com with SMTP id b25so22687674ljp.6;
-        Tue, 28 Jul 2020 13:54:43 -0700 (PDT)
-X-Gm-Message-State: AOAM530vI5V6+d70J27Jj+a4pX31kzRORROBCQOUfJlEzA1AJ63DCGzS
-        0Z3y5Jk+3cooPAzY9BuEujVuux6aPoBH+C/B2r0=
-X-Google-Smtp-Source: ABdhPJz/HC8mfYYw1GKSPbbMVpVjzr75BnuutV80ntrPCmSBUDVRRC2syeVUsksnTjoR6DbOSlm4KUI3h6YO329kpTk=
-X-Received: by 2002:a2e:88c6:: with SMTP id a6mr13313441ljk.27.1595969682062;
- Tue, 28 Jul 2020 13:54:42 -0700 (PDT)
+        id S1729243AbgG1VST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 17:18:19 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52728 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728149AbgG1VST (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 17:18:19 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 084EA1C0BD8; Tue, 28 Jul 2020 23:18:17 +0200 (CEST)
+Date:   Tue, 28 Jul 2020 23:18:16 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/86] 4.19.135-rc1 review
+Message-ID: <20200728211816.GA13081@duo.ucw.cz>
+References: <20200727134914.312934924@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20200728003139.2410375-1-andriin@fb.com> <20200728003139.2410375-2-andriin@fb.com>
-In-Reply-To: <20200728003139.2410375-2-andriin@fb.com>
-From:   Song Liu <song@kernel.org>
-Date:   Tue, 28 Jul 2020 13:54:31 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW795Y2YaRDy1mDMaF5DMdAUPjeqFdDJ97=JNo1AW0b4jw@mail.gmail.com>
-Message-ID: <CAPhsuW795Y2YaRDy1mDMaF5DMdAUPjeqFdDJ97=JNo1AW0b4jw@mail.gmail.com>
-Subject: Re: [PATCH v3 bpf 2/2] selftests/bpf: extend map-in-map selftest to
- detect memory leaks
-To:     Andrii Nakryiko <andriin@fb.com>
-Cc:     bpf <bpf@vger.kernel.org>, Networking <netdev@vger.kernel.org>,
-        Alexei Starovoitov <ast@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Kernel Team <kernel-team@fb.com>,
-        Song Liu <songliubraving@fb.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+In-Reply-To: <20200727134914.312934924@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 27, 2020 at 5:32 PM Andrii Nakryiko <andriin@fb.com> wrote:
->
-> Add test validating that all inner maps are released properly after skeleton
-> is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu()
-> before checking map existence by their IDs.
->
-> Signed-off-by: Andrii Nakryiko <andriin@fb.com>
 
-Acked-by: Song Liu <songliubraving@fb.com>
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With one last nitpick...
+On Mon 2020-07-27 16:03:34, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.135 release.
+> There are 86 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Wed, 29 Jul 2020 13:48:51 +0000.
+> Anything received after that time might be too late.
+>=20
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.13=
+5-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
+ linux-4.19.y
+> and the diffstat can be found below.
 
-> ---
->  .../selftests/bpf/prog_tests/btf_map_in_map.c | 124 ++++++++++++++++--
->  1 file changed, 110 insertions(+), 14 deletions(-)
->
-> diff --git a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-> index f7ee8fa377ad..2af1996df6f3 100644
-> --- a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-> +++ b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-> @@ -5,10 +5,60 @@
->
->  #include "test_btf_map_in_map.skel.h"
->
-> +static int duration;
-> +
-> +__u32 bpf_map_id(struct bpf_map *map)
+It passes tests on CIP test farm:
 
-nit: We can make this function static.
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.19.y
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXyCWGAAKCRAw5/Bqldv6
+8sTgAKCLpKis5fWswll/hf15bQUsjyMVwACfZyAvjrWp5N/A95qkENqNr3ihLSc=
+=m1x/
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
