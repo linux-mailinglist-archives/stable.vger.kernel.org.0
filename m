@@ -2,113 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F36B23134E
-	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 21:58:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD686231448
+	for <lists+stable@lfdr.de>; Tue, 28 Jul 2020 22:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgG1T6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jul 2020 15:58:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58506 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728734AbgG1T6e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jul 2020 15:58:34 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7372C061794;
-        Tue, 28 Jul 2020 12:58:34 -0700 (PDT)
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id DA27F563;
-        Tue, 28 Jul 2020 21:58:26 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1595966307;
-        bh=FHmiDJkKSgx1tmB25R46oNgNHZUHsQv24Z/0cU0Tfiw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=d8W7SnIk2LpAmoAbYQOR9vJtCl9S4sSQyhlU2usWPFuYZs1GO1YBC0DfkOCMEXqfN
-         XlS9DnxpERw76NtlBE/6gQXwMDNdIIcZ82kEvoqGk1SNRS8o46O8bxrlOqw2motv3L
-         QnFcDMyrozdC/8VPLfEgZ3OXjT/ZWF5oEn3ciKW0=
-Date:   Tue, 28 Jul 2020 22:58:18 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] media: uvcvideo: Fix uvc_ctrl_fixup_xu_info() not
- having any effect
-Message-ID: <20200728195818.GO13753@pendragon.ideasonboard.com>
-References: <20200728112209.26207-1-hdegoede@redhat.com>
+        id S1728921AbgG1Uyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jul 2020 16:54:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37152 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728202AbgG1Uyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jul 2020 16:54:44 -0400
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAAA420775;
+        Tue, 28 Jul 2020 20:54:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595969684;
+        bh=QxYwn1VGKKYVE4wolqR/oZEUZLEvahfqhhFb7dEx8ig=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=vOySFjhisZjrjcpa3h8dZhmiRAvjA3NFhmfFS7JZXK8S/tGvXyOKMFYrYlx7PH5D1
+         jyTYzUGhG2rDu8q/4rFJ6BRF6R0Mxsr6+7+WmueU55U6n7ppPqUezIRS4qfuQalUOD
+         MKoUI6y3GhMnR81lA+6dxW9mjZoPYzp/EoRlX9rU=
+Received: by mail-lj1-f179.google.com with SMTP id b25so22687674ljp.6;
+        Tue, 28 Jul 2020 13:54:43 -0700 (PDT)
+X-Gm-Message-State: AOAM530vI5V6+d70J27Jj+a4pX31kzRORROBCQOUfJlEzA1AJ63DCGzS
+        0Z3y5Jk+3cooPAzY9BuEujVuux6aPoBH+C/B2r0=
+X-Google-Smtp-Source: ABdhPJz/HC8mfYYw1GKSPbbMVpVjzr75BnuutV80ntrPCmSBUDVRRC2syeVUsksnTjoR6DbOSlm4KUI3h6YO329kpTk=
+X-Received: by 2002:a2e:88c6:: with SMTP id a6mr13313441ljk.27.1595969682062;
+ Tue, 28 Jul 2020 13:54:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200728112209.26207-1-hdegoede@redhat.com>
+References: <20200728003139.2410375-1-andriin@fb.com> <20200728003139.2410375-2-andriin@fb.com>
+In-Reply-To: <20200728003139.2410375-2-andriin@fb.com>
+From:   Song Liu <song@kernel.org>
+Date:   Tue, 28 Jul 2020 13:54:31 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW795Y2YaRDy1mDMaF5DMdAUPjeqFdDJ97=JNo1AW0b4jw@mail.gmail.com>
+Message-ID: <CAPhsuW795Y2YaRDy1mDMaF5DMdAUPjeqFdDJ97=JNo1AW0b4jw@mail.gmail.com>
+Subject: Re: [PATCH v3 bpf 2/2] selftests/bpf: extend map-in-map selftest to
+ detect memory leaks
+To:     Andrii Nakryiko <andriin@fb.com>
+Cc:     bpf <bpf@vger.kernel.org>, Networking <netdev@vger.kernel.org>,
+        Alexei Starovoitov <ast@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
+        Kernel Team <kernel-team@fb.com>,
+        Song Liu <songliubraving@fb.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Hans,
+On Mon, Jul 27, 2020 at 5:32 PM Andrii Nakryiko <andriin@fb.com> wrote:
+>
+> Add test validating that all inner maps are released properly after skeleton
+> is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu()
+> before checking map existence by their IDs.
+>
+> Signed-off-by: Andrii Nakryiko <andriin@fb.com>
 
-Thank you for the patch.
+Acked-by: Song Liu <songliubraving@fb.com>
 
-On Tue, Jul 28, 2020 at 01:22:08PM +0200, Hans de Goede wrote:
-> uvc_ctrl_add_info() calls uvc_ctrl_get_flags() which will override
-> the fixed-up flags set by uvc_ctrl_fixup_xu_info().
-> 
-> uvc_ctrl_init_xu_ctrl() already calls uvc_ctrl_get_flags() before
-> calling uvc_ctrl_add_info(), so the uvc_ctrl_get_flags() call in
-> uvc_ctrl_add_info() is not necessary for xu ctrls.
-> 
-> This commit moves the uvc_ctrl_get_flags() call for normal controls
-> from uvc_ctrl_add_info() to uvc_ctrl_init_ctrl(), so that we no longer
-> call uvc_ctrl_get_flags() twice for xu controls and so that we no longer
-> override the fixed-up flags set by uvc_ctrl_fixup_xu_info().
-> 
-> This fixes the xu motor controls not working properly on a Logitech
-> 046d:08cc, and presumably also on the other Logitech models which have
-> a quirk for this in the uvc_ctrl_fixup_xu_info() function.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+With one last nitpick...
 
 > ---
-> Changes in v2:
-> - Move the uvc_ctrl_get_flags() call for normal controls to uvc_ctrl_init_ctrl()
-> ---
->  drivers/media/usb/uvc/uvc_ctrl.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-> index e399b9fad757..b78aba991212 100644
-> --- a/drivers/media/usb/uvc/uvc_ctrl.c
-> +++ b/drivers/media/usb/uvc/uvc_ctrl.c
-> @@ -2024,13 +2024,6 @@ static int uvc_ctrl_add_info(struct uvc_device *dev, struct uvc_control *ctrl,
->  		goto done;
->  	}
->  
-> -	/*
-> -	 * Retrieve control flags from the device. Ignore errors and work with
-> -	 * default flag values from the uvc_ctrl array when the device doesn't
-> -	 * properly implement GET_INFO on standard controls.
-> -	 */
-> -	uvc_ctrl_get_flags(dev, ctrl, &ctrl->info);
-> -
->  	ctrl->initialized = 1;
->  
->  	uvc_trace(UVC_TRACE_CONTROL, "Added control %pUl/%u to device %s "
-> @@ -2253,6 +2246,13 @@ static void uvc_ctrl_init_ctrl(struct uvc_device *dev, struct uvc_control *ctrl)
->  		if (uvc_entity_match_guid(ctrl->entity, info->entity) &&
->  		    ctrl->index == info->index) {
->  			uvc_ctrl_add_info(dev, ctrl, info);
-> +			/*
-> +			 * Retrieve control flags from the device. Ignore errors
-> +			 * and work with default flag values from the uvc_ctrl
-> +			 * array when the device doesn't properly implement
-> +			 * GET_INFO on standard controls.
-> +			 */
-> +			uvc_ctrl_get_flags(dev, ctrl, &ctrl->info);
->  			break;
->  		 }
->  	}
+>  .../selftests/bpf/prog_tests/btf_map_in_map.c | 124 ++++++++++++++++--
+>  1 file changed, 110 insertions(+), 14 deletions(-)
+>
+> diff --git a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> index f7ee8fa377ad..2af1996df6f3 100644
+> --- a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> +++ b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> @@ -5,10 +5,60 @@
+>
+>  #include "test_btf_map_in_map.skel.h"
+>
+> +static int duration;
+> +
+> +__u32 bpf_map_id(struct bpf_map *map)
 
--- 
-Regards,
-
-Laurent Pinchart
+nit: We can make this function static.
