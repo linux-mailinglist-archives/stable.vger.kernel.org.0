@@ -2,98 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0CB231943
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 07:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F132319AF
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 08:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726047AbgG2F6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 01:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58956 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725986AbgG2F6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Jul 2020 01:58:46 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726314AbgG2Gp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 02:45:26 -0400
+Received: from mail29.static.mailgun.info ([104.130.122.29]:53913 "EHLO
+        mail29.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726290AbgG2Gp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 02:45:26 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1596005125; h=Content-Transfer-Encoding: Content-Type:
+ In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
+ Subject: Sender; bh=F8Dx2k2QTTUlJ3PVcw289iUoRDVJ4gqpdkDJN4dKpe8=; b=GazcNQmDsgNlb1oGZfSA68CIFH+HO+voGzCUuXNVCO76+6g7TEfyTFPjh7n9UwaMcXtU5v0i
+ WUk1KRp4vOpznp8j6mfyk33YtWzAaRmK5jh3eZMpRfkQAUCnAKzueJ37JNHd/bGSiqsMoDZB
+ lo71IpGnt4GB4jM0cE3fc392dlA=
+X-Mailgun-Sending-Ip: 104.130.122.29
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n03.prod.us-east-1.postgun.com with SMTP id
+ 5f211b0570ff737ddbb67b25 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 29 Jul 2020 06:45:25
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 6D9EDC4339C; Wed, 29 Jul 2020 06:45:24 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.8 required=2.0 tests=ALL_TRUSTED,NICE_REPLY_A,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from [192.168.0.101] (unknown [49.204.127.128])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7013207F5;
-        Wed, 29 Jul 2020 05:58:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596002326;
-        bh=gixyuxLy1a2C+hgXR7T0fpUikBmjGgy/VZ7eocXbxJg=;
-        h=Subject:To:From:Date:From;
-        b=N2i4KDPBzWI7bTWu1HJcF5cMXZoAbUyANas2MZdjsCaOXRzJMqdVhtl1b9Da/O9fK
-         XogYSxw66AeEXFl2ehkfcDLExJq0FY0Q0T0VFBIzR2D3AgNoDrt9gRnawSzOz0JZcV
-         fFAzsukWFvjyHkIc/7Ukno8TucCKmFnW4o55Axl4=
-Subject: patch "Staging: rtl8188eu: rtw_mlme: Fix uninitialized variable authmode" added to staging-next
-To:     dinghao.liu@zju.edu.cn, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 29 Jul 2020 07:57:16 +0200
-Message-ID: <1596002236195132@kroah.com>
+        (Authenticated sender: sivaprak)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 232CEC433C9;
+        Wed, 29 Jul 2020 06:45:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 232CEC433C9
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sivaprak@codeaurora.org
+Subject: Re: [PATCH 5/9] phy: qcom-qmp: use correct values for ipq8074 gen2
+ pcie phy init
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     agross@kernel.org, bjorn.andersson@linaro.org, bhelgaas@google.com,
+        robh+dt@kernel.org, kishon@ti.com, mturquette@baylibre.com,
+        sboyd@kernel.org, svarbanov@mm-sol.com, lorenzo.pieralisi@arm.com,
+        p.zabel@pengutronix.de, mgautam@codeaurora.org,
+        smuthayy@codeaurora.org, varada@codeaurora.org,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, stable@vger.kernel.org,
+        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+References: <1593940680-2363-1-git-send-email-sivaprak@codeaurora.org>
+ <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
+ <20200713055558.GB34333@vkoul-mobl>
+From:   Sivaprakash Murugesan <sivaprak@codeaurora.org>
+Message-ID: <9988249f-53aa-e615-f64b-28c0c0641ab4@codeaurora.org>
+Date:   Wed, 29 Jul 2020 12:15:13 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200713055558.GB34333@vkoul-mobl>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+On 7/13/2020 11:25 AM, Vinod Koul wrote:
+> On 05-07-20, 14:47, Sivaprakash Murugesan wrote:
+>> There were some problem in ipq8074 gen2 pcie phy init sequence, fix
+> Can you please describe these problems, it would help review to
+> understand the issues and also for future reference to you
 
-    Staging: rtl8188eu: rtw_mlme: Fix uninitialized variable authmode
+Hi Vinod,
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+As you mentioned we are updating few register values
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+and also adding clocks and resets.
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+the register values are given by the Hardware team and there
 
-If you have any questions about this process, please let me know.
+is some fine tuning values are provided by Hardware team for the
 
+issues we faced downstream.
 
-From 11536442a3b4e1de6890ea5e805908debb74f94a Mon Sep 17 00:00:00 2001
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Date: Tue, 28 Jul 2020 15:21:51 +0800
-Subject: Staging: rtl8188eu: rtw_mlme: Fix uninitialized variable authmode
+Also, few register values are typos for example QSERDES_RX_SIGDET_CNTRL
 
-The variable authmode can be uninitialized. The danger would be if
-it equals to _WPA_IE_ID_ (0xdd) or _WPA2_IE_ID_ (0x33). We can avoid
-this by setting it to zero instead. This is the approach that was
-used in the rtl8723bs driver.
+is a rx register it was wrongly in serdes table.
 
-Fixes: 7b464c9fa5cc ("staging: r8188eu: Add files for new driver - part 4")
-Co-developed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200728072153.9202-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/rtl8188eu/core/rtw_mlme.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/staging/rtl8188eu/core/rtw_mlme.c b/drivers/staging/rtl8188eu/core/rtw_mlme.c
-index 5d7a749f1aac..d334dc335914 100644
---- a/drivers/staging/rtl8188eu/core/rtw_mlme.c
-+++ b/drivers/staging/rtl8188eu/core/rtw_mlme.c
-@@ -1729,9 +1729,11 @@ int rtw_restruct_sec_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in_
- 	if ((ndisauthmode == Ndis802_11AuthModeWPA) ||
- 	    (ndisauthmode == Ndis802_11AuthModeWPAPSK))
- 		authmode = _WPA_IE_ID_;
--	if ((ndisauthmode == Ndis802_11AuthModeWPA2) ||
-+	else if ((ndisauthmode == Ndis802_11AuthModeWPA2) ||
- 	    (ndisauthmode == Ndis802_11AuthModeWPA2PSK))
- 		authmode = _WPA2_IE_ID_;
-+	else
-+		authmode = 0x0;
- 
- 	if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
- 		memcpy(out_ie + ielength, psecuritypriv->wps_ie, psecuritypriv->wps_ie_len);
--- 
-2.27.0
-
+I will try to mention these details in next patch.
 
