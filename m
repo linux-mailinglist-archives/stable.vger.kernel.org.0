@@ -2,102 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 480382320EF
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 16:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8AF23213A
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 17:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726449AbgG2OwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 10:52:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33664 "EHLO mail.kernel.org"
+        id S1726615AbgG2PJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 11:09:48 -0400
+Received: from mga09.intel.com ([134.134.136.24]:41937 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726353AbgG2OwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Jul 2020 10:52:08 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 473B120829;
-        Wed, 29 Jul 2020 14:52:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596034327;
-        bh=yUoxFcQVmiJxsCYpLNkCWRdXsHAOhYD0WGgDdTcP2uo=;
-        h=Subject:To:From:Date:From;
-        b=Vvw1oIWgtJAhrkx7qNkS9pOrzeoxtlewNljzewJWbiC3fO3+EVPzvc57xdZSEDmeJ
-         Sopnip/udmLVe3fefHMxr24t1OWVnCmu+IWx37znEXlZ5wpfMwwEFounrrZLiREfXy
-         TpDwTNLGgH1mupfhchjdazK3T0OvZuWzmR17Db/M=
-Subject: patch "usb: xhci: Fix ASMedia ASM1142 DMA addressing" added to usb-testing
-To:     cyrozap@gmail.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 29 Jul 2020 16:51:50 +0200
-Message-ID: <1596034310637@kroah.com>
+        id S1726385AbgG2PJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jul 2020 11:09:48 -0400
+IronPort-SDR: Q9p97yCZ5Uv5pOYRuf+yg1+t3rqo1gMbk1ABcLM2rcY2kJtlNabxewOT/RhMyLxNPvPMfFXwFc
+ Y1EnIsbDiynw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9696"; a="152666805"
+X-IronPort-AV: E=Sophos;i="5.75,410,1589266800"; 
+   d="scan'208";a="152666805"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2020 08:09:47 -0700
+IronPort-SDR: GagSq0xY1JUqlQZztKdqk7dFOdSz71mNIA7WOluPT9cnV24kOa3bJJ9GUtoItbO6dfhKchIAeV
+ fVZnNhtQ+euQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,410,1589266800"; 
+   d="scan'208";a="313057299"
+Received: from irsmsx606.ger.corp.intel.com ([163.33.146.139])
+  by fmsmga004.fm.intel.com with ESMTP; 29 Jul 2020 08:09:45 -0700
+Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
+ IRSMSX606.ger.corp.intel.com (163.33.146.139) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 29 Jul 2020 16:09:44 +0100
+Received: from fmsmsx611.amr.corp.intel.com ([10.18.126.91]) by
+ fmsmsx611.amr.corp.intel.com ([10.18.126.91]) with mapi id 15.01.1713.004;
+ Wed, 29 Jul 2020 08:09:42 -0700
+From:   "Tang, CQ" <cq.tang@intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>
+CC:     intel-gfx <intel-gfx@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>,
+        Gustavo Padovan <gustavo.padovan@collabora.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        "Vetter, Daniel" <daniel.vetter@intel.com>
+Subject: RE: [PATCH 1/3] drm: Restore driver.preclose() for all to use
+Thread-Topic: [PATCH 1/3] drm: Restore driver.preclose() for all to use
+Thread-Index: AQHWYRW5n+A4jji0YE+tc8HbwEq9WakcTJSAgAFel4CAAQcEIA==
+Date:   Wed, 29 Jul 2020 15:09:42 +0000
+Message-ID: <0118a278832d4dde8d8d71e3db635869@intel.com>
+References: <20200723172119.17649-1-chris@chris-wilson.co.uk>
+ <CAKMK7uFt5ViekqBPqdBbJWN4FhfxvF57K58VW8hAZGZwjRDz0w@mail.gmail.com>
+ <159595365380.28639.1774414370144556112@build.alporthouse.com>
+In-Reply-To: <159595365380.28639.1774414370144556112@build.alporthouse.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.2.0.6
+x-originating-ip: [10.1.200.100]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    usb: xhci: Fix ASMedia ASM1142 DMA addressing
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From ec37198acca7b4c17b96247697406e47aafe0605 Mon Sep 17 00:00:00 2001
-From: Forest Crossman <cyrozap@gmail.com>
-Date: Mon, 27 Jul 2020 23:24:08 -0500
-Subject: usb: xhci: Fix ASMedia ASM1142 DMA addressing
-
-I've confirmed that the ASMedia ASM1142 has the same problem as the
-ASM2142/ASM3142, in that it too reports that it supports 64-bit DMA
-addresses when in fact it does not. As with the ASM2142/ASM3142, this
-can cause problems on systems where the upper bits matter, and adding
-the XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
-
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Forest Crossman <cyrozap@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200728042408.180529-3-cyrozap@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index baa5af88ca67..3feaafebfe58 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_1			0x43bc
- #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
-+#define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
- #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
- 
- static const char hcd_name[] = "xhci_hcd";
-@@ -268,7 +269,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
- 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--		pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI)
-+	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
- 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--- 
-2.28.0
-
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQ2hyaXMgV2lsc29uIDxj
+aHJpc0BjaHJpcy13aWxzb24uY28udWs+DQo+IFNlbnQ6IFR1ZXNkYXksIEp1bHkgMjgsIDIwMjAg
+OToyOCBBTQ0KPiBUbzogRGFuaWVsIFZldHRlciA8ZGFuaWVsQGZmd2xsLmNoPjsgRGF2ZSBBaXJs
+aWUgPGFpcmxpZWRAcmVkaGF0LmNvbT4NCj4gQ2M6IGludGVsLWdmeCA8aW50ZWwtZ2Z4QGxpc3Rz
+LmZyZWVkZXNrdG9wLm9yZz47IHN0YWJsZQ0KPiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz47IEd1
+c3Rhdm8gUGFkb3Zhbg0KPiA8Z3VzdGF2by5wYWRvdmFuQGNvbGxhYm9yYS5jb20+OyBUYW5nLCBD
+USA8Y3EudGFuZ0BpbnRlbC5jb20+OyBkcmktDQo+IGRldmVsIDxkcmktZGV2ZWxAbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnPjsgVmV0dGVyLCBEYW5pZWwNCj4gPGRhbmllbC52ZXR0ZXJAaW50ZWwuY29t
+Pg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvM10gZHJtOiBSZXN0b3JlIGRyaXZlci5wcmVjbG9z
+ZSgpIGZvciBhbGwgdG8gdXNlDQo+IA0KPiBRdW90aW5nIERhbmllbCBWZXR0ZXIgKDIwMjAtMDct
+MjcgMjA6MzI6NDUpDQo+ID4gT24gVGh1LCBKdWwgMjMsIDIwMjAgYXQgNzoyMSBQTSBDaHJpcyBX
+aWxzb24gPGNocmlzQGNocmlzLXdpbHNvbi5jby51az4NCj4gd3JvdGU6DQo+ID4gPg0KPiA+ID4g
+QW4gdW5mb3J0dW5hdGUgc2VxdWVuY2Ugb2YgZXZlbnRzLCBidXQgaXQgdHVybnMgb3V0IHRoZXJl
+IGlzIGEgdmFsaWQNCj4gPiA+IHVzZWNhc2UgZm9yIGJlaW5nIGFibGUgdG8gZnJlZS9kZWNvdXBs
+ZSB0aGUgZHJpdmVyIG9iamVjdHMgYmVmb3JlDQo+ID4gPiB0aGV5IGFyZSBmcmVlZCBieSB0aGUg
+RFJNIGNvcmUuIEluIHBhcnRpY3VsYXIsIGlmIHdlIGhhdmUgYSBwb2ludGVyDQo+ID4gPiBpbnRv
+IGEgZHJtIGNvcmUgb2JqZWN0IGZyb20gaW5zaWRlIGEgZHJpdmVyIG9iamVjdCwgdGhhdCBwb2lu
+dGVyDQo+ID4gPiBuZWVkcyB0byBiZSBuZXJmZWQgKmJlZm9yZSogaXQgaXMgZnJlZWQgc28gdGhh
+dCBjb25jdXJyZW50IGFjY2Vzcw0KPiA+ID4gKGUuZy4gZGVidWdmcykgZG9lcyBub3QgZm9sbG93
+aW5nIHRoZSBkYW5nbGluZyBwb2ludGVyLg0KPiA+ID4NCj4gPiA+IFRoZSBsZWdhY3kgbWFya2Vy
+IHdhcyBhZGRpbmcgaW4gdGhlIGNvZGUgbW92ZW1lbnQgZnJvbSBkcnBfZm9wcy5jIHRvDQo+ID4g
+PiBkcm1fZmlsZS5jDQo+ID4NCj4gPiBJIG1pZ2h0IGZ1bWJsZSBhIGxvdCwgYnV0IG5vdCB0aGlz
+IG9uZToNCj4gPg0KPiA+IGNvbW1pdCA0NWMzZDIxM2E0MDBjOTUyYWI3MTE5ZjM5NGM1MjkzYmI2
+ODc3ZTZiDQo+ID4gQXV0aG9yOiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGZmd2xsLmNo
+Pg0KPiA+IERhdGU6ICAgTW9uIE1heSA4IDEwOjI2OjMzIDIwMTcgKzAyMDANCj4gPg0KPiA+ICAg
+ICBkcm06IE5lcmYgdGhlIHByZWNsb3NlIGNhbGxiYWNrIGZvciBtb2Rlcm4gZHJpdmVycw0KPiAN
+Cj4gR2FoLCB3aGVuIEkgZ29pbmcgdGhyb3VnaCB0aGUgaGlzdG9yeSBpdCBsb29rZWQgbGlrZSBp
+dCBhcHBlYXJlZCBvdXQgb2YNCj4gbm93aGVyZS4NCj4gDQo+ID4gQWxzbyBsb29raW5nIGF0IHRo
+ZSBkZWJ1Z2ZzIGhvb2sgdGhhdCBoYXMgc29tZSByYXRoZXIgYWR2ZW50dXJvdXMNCj4gPiBzdHVm
+ZiBnb2luZyBvbiBJIHRoaW5rLCBmZWVscyBhIGJpdCBsaWtlIGEga2l0Y2hlbnNpbmsgd2l0aCBi
+YXR0ZXJpZXMNCj4gPiBpbmNsdWRlZC4gSWYgdGhhdCdzIHJlYWxseSBhbGwgbmVlZGVkIEknZCBz
+YXkgaXRlcmF0ZSB0aGUgY29udGV4dHMgYnkNCj4gPiBmaXJzdCBnb2luZyBvdmVyIGZpbGVzLCB0
+aGVuIHRoZSBjdHggKHdoaWNoIGFyZW50IHNoYXJlZCBhbnl3YXkpIGFuZA0KPiA+IHRoZSBwcm9i
+bGVtIHNob3VsZCBhbHNvIGJlIGdvbmUuDQo+IA0KPiBPciB3ZSBjb3VsZCBjdXQgb3V0IHRoZSBt
+aWRkbGVsYXllciBhbmQgcHV0IHRoZSByZWxlYXNlIHVuZGVyIHRoZSBkcml2ZXINCj4gY29udHJv
+bCB3aXRoIGEgY2FsbCB0byB0aGUgZHJtX3JlbGVhc2UoKSB3aGVuIHRoZSBkcml2ZXIgaXMgcmVh
+ZHkuDQoNCkNoaXJpcywgY2FuIGV4cGxhaW4gdGhpcyBpZGVhLCBvciBwb3N0IGEgcGF0Y2ggPw0K
+DQotLUNRDQoNCj4gLUNocmlzDQo=
