@@ -2,158 +2,459 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0EF12323AA
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 19:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDCA42323D3
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 19:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726502AbgG2RsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 13:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726385AbgG2RsN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 13:48:13 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2A0C061794;
-        Wed, 29 Jul 2020 10:48:13 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id ed14so11267025qvb.2;
-        Wed, 29 Jul 2020 10:48:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KLov+zHRwCIC5dmTzJG4jUY2DEz0vF5YAWPCuEXipCY=;
-        b=Vw4wTblo7xPLb8AX+1v0epllbl48lPuFT40OiUuie6YFtL/leiZoCcDQHoh4CU0yAz
-         y38+K1sdewtCyhgla+hqRJVVQtLdDiNexi69yCXIyevEaxkSyopHQITX1rb7KC+0LsbH
-         3htCk3sq4+JqwSl/xuJYSutVMy1jxgLRj27R748PFC/8Nhdako2CXXWadOQIEPUtYRoS
-         tq+DSGjTiiF3fnlKcbh9cnE9f/g05B3DfRcGWX4Ry2Y3JVZkXd3FbJkdz0NgXUrxWsFe
-         QdFlKPGCj/yZWK4jMsYyF4L++oaZneceEtXyp8g+3THWqOdlsDx9P5SX8wsv9di+4mc6
-         DHQw==
+        id S1727064AbgG2R6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 13:58:19 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:21623 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726884AbgG2R6T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 13:58:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596045495;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=BqHno2xJS51JHVcIXHfHHPz1GRnZj2r5/746+yt/0sA=;
+        b=KAFuLo6PilJUvmedcNU04m0HnM36qviTqjGpKXbitoeXrpUfUo0hYzgmDlyVn7X+L6p3th
+        qpvj6n9fi0vLMyGrWTatNHnkk20NNXdGREwO1s9kNjsp2dBUiqZg+ZNCehrojFR4KogKDO
+        Netjp3NcaQcWWZZm8RMCCSvfn/pJIkM=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-450-sm-yyiaMMtafSBXU1dWTag-1; Wed, 29 Jul 2020 13:58:13 -0400
+X-MC-Unique: sm-yyiaMMtafSBXU1dWTag-1
+Received: by mail-pg1-f199.google.com with SMTP id 37so4438150pgx.17
+        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 10:58:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KLov+zHRwCIC5dmTzJG4jUY2DEz0vF5YAWPCuEXipCY=;
-        b=furOzCggikVMiHf/i9OV02zQTKEd4WpCNPjgXdQxbwfqpOJC4DuwN3aT+dnNcNlCUE
-         UmgU/4Zk8clJ5mB7RsarBNFMZ9NK2yDkLQyoX4XUjI/omgH1z2bZd8h/bx/c35DEVzuK
-         dK+l0khr3exsqe2bhfeXN4lwS65Ue25q8uqYJAaA4iE62bHTFuHtYkabkYlJu+QMdbQF
-         2IHSeh6F8p6O5/oqcxDkB7BYjKIHYZ0c2usPdTpWf/LglZw31vLE13VxkoRO/7UsitaC
-         s0tsTypARuXhZnzKRZU/Y0HUbnBx7NvicuP5p5V7JaN5stp94mumfIU0uCHA1soH2kgC
-         vkBA==
-X-Gm-Message-State: AOAM530SV9CpVuwdTuHclX1Et8Rw4MpbHhzLcJPlqdyl0kBoiR2BhnEf
-        pasURzg/fTVICBGsh4kpSv+egENlSjrGmKND5gU=
-X-Google-Smtp-Source: ABdhPJzdYOC78Mao1Zvw7purKveWY01VJjJxxKFefer0drau5rKfTQFnz1rDzot0Em+BMTnuo85l3SOeaNdYkBP54W4=
-X-Received: by 2002:a0c:bf4f:: with SMTP id b15mr31968009qvj.224.1596044892184;
- Wed, 29 Jul 2020 10:48:12 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=BqHno2xJS51JHVcIXHfHHPz1GRnZj2r5/746+yt/0sA=;
+        b=m25CNaMzT4tNnSJQSJXqh2AREuKd5ySDH0tptiZe4Cgy8bwel/mo1+A6dLOsT2jtCu
+         UaXWOOv2swVKEbGXe8mFOA/Oob55BIdcS8NUzT9NlKIG941O58uytdc00WXW00A/RWzZ
+         8VpAMkQ3ISm7Vy1rUzxHkIkfTKrtkM9OyrGcb8Y8WA6sTrZzCUPqBhzx+yROOjCaSvZq
+         UMjslCvxU5fbd5SLcMCyMXmENad2/n8ck2jQBL/0twEIFHk0VvSlU4D3qta+mFvK8OmS
+         220MesQTJC76aMY5dLUuoJab4dmcMdOZhTHAWKPgd6sz7aTA6cRW8fWP0o7YS7J6P5pl
+         +yCw==
+X-Gm-Message-State: AOAM530RoH04xPRimSKXB3EYtZSe2khY990kFZ4Uhch93O+Qsv8IKrcR
+        OzkD2cbRCczIN9nhzrVLqQ5gjv4cerZmF+QXEq5ATIoemhqZVaLjrGaJ57T06f4cJd2l85asHeZ
+        IoTaeUb8nyDdcrvRD
+X-Received: by 2002:a17:90b:d87:: with SMTP id bg7mr11645343pjb.159.1596045492119;
+        Wed, 29 Jul 2020 10:58:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxq6Jl6wbRxkNBBFWbhdPNqgxC0LWq42W7pu2RSvhZwNHRCuYnQTTrSbyfvnYFoezt3GtcRRA==
+X-Received: by 2002:a17:90b:d87:: with SMTP id bg7mr11645321pjb.159.1596045491785;
+        Wed, 29 Jul 2020 10:58:11 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id 186sm3105017pfe.1.2020.07.29.10.58.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2020 10:58:11 -0700 (PDT)
+Date:   Thu, 30 Jul 2020 01:58:01 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     linux-erofs@lists.ozlabs.org, Chao Yu <yuchao0@huawei.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Chao Yu <chao@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] erofs: fix extended inode could cross boundary
+Message-ID: <20200729175801.GA23973@xiangao.remote.csb>
 MIME-Version: 1.0
-References: <20200729040913.2815687-1-andriin@fb.com> <20200729040913.2815687-2-andriin@fb.com>
- <87k0ymwg2b.fsf@cloudflare.com>
-In-Reply-To: <87k0ymwg2b.fsf@cloudflare.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Wed, 29 Jul 2020 10:48:01 -0700
-Message-ID: <CAEf4BzYagTebczsojJJfn0viy07dhRUq3oysezEO_LSYSuwfRQ@mail.gmail.com>
-Subject: Re: [PATCH v4 bpf 2/2] selftests/bpf: extend map-in-map selftest to
- detect memory leaks
-To:     Jakub Sitnicki <jakub@cloudflare.com>
-Cc:     Andrii Nakryiko <andriin@fb.com>, bpf <bpf@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        Alexei Starovoitov <ast@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Kernel Team <kernel-team@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; boundary="u3/rZRmxL6MmkK24"
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 29, 2020 at 7:29 AM Jakub Sitnicki <jakub@cloudflare.com> wrote:
->
-> On Wed, Jul 29, 2020 at 06:09 AM CEST, Andrii Nakryiko wrote:
-> > Add test validating that all inner maps are released properly after skeleton
-> > is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu()
-> > before checking map existence by their IDs.
-> >
-> > Acked-by: Song Liu <songliubraving@fb.com>
-> > Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-> > ---
-> >  .../selftests/bpf/prog_tests/btf_map_in_map.c | 124 ++++++++++++++++--
-> >  1 file changed, 110 insertions(+), 14 deletions(-)
-> >
-> > diff --git a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-> > index f7ee8fa377ad..f6eee3fb933c 100644
-> > --- a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-> > +++ b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-> > @@ -5,10 +5,60 @@
-> >
-> >  #include "test_btf_map_in_map.skel.h"
-> >
-> > +static int duration;
-> > +
-> > +static __u32 bpf_map_id(struct bpf_map *map)
-> > +{
-> > +     struct bpf_map_info info;
-> > +     __u32 info_len = sizeof(info);
-> > +     int err;
-> > +
-> > +     memset(&info, 0, info_len);
-> > +     err = bpf_obj_get_info_by_fd(bpf_map__fd(map), &info, &info_len);
-> > +     if (err)
-> > +             return 0;
-> > +     return info.id;
-> > +}
-> > +
-> > +/*
-> > + * Trigger synchronize_cpu() in kernel.
->
-> Nit: synchronize_*r*cu().
 
-welp, yeah
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->
-> > + *
-> > + * ARRAY_OF_MAPS/HASH_OF_MAPS lookup/update operations trigger
-> > + * synchronize_rcu(), if looking up/updating non-NULL element. Use this fact
-> > + * to trigger synchronize_cpu(): create map-in-map, create a trivial ARRAY
-> > + * map, update map-in-map with ARRAY inner map. Then cleanup. At the end, at
-> > + * least one synchronize_rcu() would be called.
-> > + */
->
-> That's a cool trick. I'm a bit confused by "looking up/updating non-NULL
-> element". It looks like you're updating an element that is NULL/unset in
-> the code below. What am I missing?
+Each ondisk inode should be aligned with inode slot boundary
+(32-byte alignment) because of nid calculation formula, so all
+compact inodes (32 byte) cannot across page boundary. However,
+extended inode is now 64-byte form, which can across page boundary
+in principle if the location is specified on purpose, although
+it's hard to be generated by mkfs due to the allocation policy
+and rarely used by Android use case now mainly for > 4GiB files.
 
-I was basically trying to say that it has to be a successful lookup or
-update. For lookup that means looking up non-NULL (existing) entry.
-For update -- setting valid inner map FD.
+For now, only two fields `i_ctime_nsec` and `i_nlink' couldn't
+be read from disk properly and cause out-of-bound memory read
+with random value.
 
-Not sure fixing this and typo above is worth it to post v5.
+Let's fix now.
 
->
-> > +static int kern_sync_rcu(void)
-> > +{
-> > +     int inner_map_fd, outer_map_fd, err, zero = 0;
-> > +
-> > +     inner_map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, 4, 4, 1, 0);
-> > +     if (CHECK(inner_map_fd < 0, "inner_map_create", "failed %d\n", -errno))
-> > +             return -1;
-> > +
-> > +     outer_map_fd = bpf_create_map_in_map(BPF_MAP_TYPE_ARRAY_OF_MAPS, NULL,
-> > +                                          sizeof(int), inner_map_fd, 1, 0);
-> > +     if (CHECK(outer_map_fd < 0, "outer_map_create", "failed %d\n", -errno)) {
-> > +             close(inner_map_fd);
-> > +             return -1;
-> > +     }
-> > +
-> > +     err = bpf_map_update_elem(outer_map_fd, &zero, &inner_map_fd, 0);
-> > +     if (err)
-> > +             err = -errno;
-> > +     CHECK(err, "outer_map_update", "failed %d\n", err);
-> > +     close(inner_map_fd);
-> > +     close(outer_map_fd);
-> > +     return err;
-> > +}
-> > +
+Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+The attachment is a designed image for reference.
 
-[...]
+ fs/erofs/inode.c | 121 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 79 insertions(+), 42 deletions(-)
 
-trimming's good ;)
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 7dd4bbe9674f..586f9d0a8b2f 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -8,31 +8,80 @@
+ 
+ #include <trace/events/erofs.h>
+ 
+-/* no locking */
+-static int erofs_read_inode(struct inode *inode, void *data)
++/*
++ * if inode is successfully read, return its inode page (or sometimes
++ * the inode payload page if it's an extended inode) in order to fill
++ * inline data if possible.
++ */
++static struct page *erofs_read_inode(struct inode *inode,
++				     unsigned int *ofs)
+ {
++	struct super_block *sb = inode->i_sb;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 	struct erofs_inode *vi = EROFS_I(inode);
+-	struct erofs_inode_compact *dic = data;
+-	struct erofs_inode_extended *die;
++	const erofs_off_t inode_loc = iloc(sbi, vi->nid);
++
++	erofs_blk_t blkaddr, nblks = 0;
++	struct page *page;
++	struct erofs_inode_compact *dic;
++	struct erofs_inode_extended *die, *copied = NULL;
++	unsigned int ifmt;
++	int err;
+ 
+-	const unsigned int ifmt = le16_to_cpu(dic->i_format);
+-	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+-	erofs_blk_t nblks = 0;
++	blkaddr = erofs_blknr(inode_loc);
++	*ofs = erofs_blkoff(inode_loc);
+ 
+-	vi->datalayout = erofs_inode_datalayout(ifmt);
++	erofs_dbg("%s, reading inode nid %llu at %u of blkaddr %u",
++		  __func__, vi->nid, *ofs, blkaddr);
++
++	page = erofs_get_meta_page(sb, blkaddr);
++	if (IS_ERR(page)) {
++		erofs_err(sb, "failed to get inode (nid: %llu) page, err %ld",
++			  vi->nid, PTR_ERR(page));
++		return page;
++	}
+ 
++	dic = page_address(page) + *ofs;
++	ifmt = le16_to_cpu(dic->i_format);
++
++	vi->datalayout = erofs_inode_datalayout(ifmt);
+ 	if (vi->datalayout >= EROFS_INODE_DATALAYOUT_MAX) {
+ 		erofs_err(inode->i_sb, "unsupported datalayout %u of nid %llu",
+ 			  vi->datalayout, vi->nid);
+-		DBG_BUGON(1);
+-		return -EOPNOTSUPP;
++		err = -EOPNOTSUPP;
++		goto err_out;
+ 	}
+ 
+ 	switch (erofs_inode_version(ifmt)) {
+ 	case EROFS_INODE_LAYOUT_EXTENDED:
+-		die = data;
+-
+ 		vi->inode_isize = sizeof(struct erofs_inode_extended);
++		/* check if the inode acrosses page boundary */
++		if (*ofs + vi->inode_isize <= PAGE_SIZE) {
++			*ofs += vi->inode_isize;
++			die = (struct erofs_inode_extended *)dic;
++		} else {
++			const unsigned int gotten = PAGE_SIZE - *ofs;
++
++			copied = kmalloc(vi->inode_isize, GFP_NOFS);
++			if (!copied) {
++				err = -ENOMEM;
++				goto err_out;
++			}
++			memcpy(copied, dic, gotten);
++			unlock_page(page);
++			put_page(page);
++
++			page = erofs_get_meta_page(sb, blkaddr + 1);
++			if (IS_ERR(page)) {
++				erofs_err(sb, "failed to get inode payload page (nid: %llu), err %ld",
++					  vi->nid, PTR_ERR(page));
++				kfree(copied);
++				return page;
++			}
++			*ofs = vi->inode_isize - gotten;
++			memcpy((u8 *)copied + gotten, page_address(page), *ofs);
++			die = copied;
++		}
+ 		vi->xattr_isize = erofs_xattr_ibody_size(die->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(die->i_mode);
+@@ -69,9 +118,12 @@ static int erofs_read_inode(struct inode *inode, void *data)
+ 		/* total blocks for compressed files */
+ 		if (erofs_inode_is_data_compressed(vi->datalayout))
+ 			nblks = le32_to_cpu(die->i_u.compressed_blocks);
++
++		kfree(copied);
+ 		break;
+ 	case EROFS_INODE_LAYOUT_COMPACT:
+ 		vi->inode_isize = sizeof(struct erofs_inode_compact);
++		*ofs += vi->inode_isize;
+ 		vi->xattr_isize = erofs_xattr_ibody_size(dic->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(dic->i_mode);
+@@ -111,8 +163,8 @@ static int erofs_read_inode(struct inode *inode, void *data)
+ 		erofs_err(inode->i_sb,
+ 			  "unsupported on-disk inode version %u of nid %llu",
+ 			  erofs_inode_version(ifmt), vi->nid);
+-		DBG_BUGON(1);
+-		return -EOPNOTSUPP;
++		err = -EOPNOTSUPP;
++		goto err_out;
+ 	}
+ 
+ 	if (!nblks)
+@@ -120,13 +172,18 @@ static int erofs_read_inode(struct inode *inode, void *data)
+ 		inode->i_blocks = roundup(inode->i_size, EROFS_BLKSIZ) >> 9;
+ 	else
+ 		inode->i_blocks = nblks << LOG_SECTORS_PER_BLOCK;
+-	return 0;
++	return page;
+ 
+ bogusimode:
+ 	erofs_err(inode->i_sb, "bogus i_mode (%o) @ nid %llu",
+ 		  inode->i_mode, vi->nid);
++	err = -EFSCORRUPTED;
++err_out:
+ 	DBG_BUGON(1);
+-	return -EFSCORRUPTED;
++	kfree(copied);
++	unlock_page(page);
++	put_page(page);
++	return ERR_PTR(err);
+ }
+ 
+ static int erofs_fill_symlink(struct inode *inode, void *data,
+@@ -146,7 +203,7 @@ static int erofs_fill_symlink(struct inode *inode, void *data,
+ 	if (!lnk)
+ 		return -ENOMEM;
+ 
+-	m_pofs += vi->inode_isize + vi->xattr_isize;
++	m_pofs += vi->xattr_isize;
+ 	/* inline symlink data shouldn't cross page boundary as well */
+ 	if (m_pofs + inode->i_size > PAGE_SIZE) {
+ 		kfree(lnk);
+@@ -167,37 +224,17 @@ static int erofs_fill_symlink(struct inode *inode, void *data,
+ 
+ static int erofs_fill_inode(struct inode *inode, int isdir)
+ {
+-	struct super_block *sb = inode->i_sb;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+ 	struct page *page;
+-	void *data;
+-	int err;
+-	erofs_blk_t blkaddr;
+ 	unsigned int ofs;
+-	erofs_off_t inode_loc;
++	int err = 0;
+ 
+ 	trace_erofs_fill_inode(inode, isdir);
+-	inode_loc = iloc(EROFS_SB(sb), vi->nid);
+-	blkaddr = erofs_blknr(inode_loc);
+-	ofs = erofs_blkoff(inode_loc);
+-
+-	erofs_dbg("%s, reading inode nid %llu at %u of blkaddr %u",
+-		  __func__, vi->nid, ofs, blkaddr);
+ 
+-	page = erofs_get_meta_page(sb, blkaddr);
+-
+-	if (IS_ERR(page)) {
+-		erofs_err(sb, "failed to get inode (nid: %llu) page, err %ld",
+-			  vi->nid, PTR_ERR(page));
++	/* read inode base data from disk */
++	page = erofs_read_inode(inode, &ofs);
++	if (IS_ERR(page))
+ 		return PTR_ERR(page);
+-	}
+-
+-	DBG_BUGON(!PageUptodate(page));
+-	data = page_address(page);
+-
+-	err = erofs_read_inode(inode, data + ofs);
+-	if (err)
+-		goto out_unlock;
+ 
+ 	/* setup the new inode */
+ 	switch (inode->i_mode & S_IFMT) {
+@@ -210,7 +247,7 @@ static int erofs_fill_inode(struct inode *inode, int isdir)
+ 		inode->i_fop = &erofs_dir_fops;
+ 		break;
+ 	case S_IFLNK:
+-		err = erofs_fill_symlink(inode, data, ofs);
++		err = erofs_fill_symlink(inode, page_address(page), ofs);
+ 		if (err)
+ 			goto out_unlock;
+ 		inode_nohighmem(inode);
+-- 
+2.18.1
+
+
+--u3/rZRmxL6MmkK24
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="extended_golden.img"
+Content-Transfer-Encoding: base64
+
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLh
+9eAvAjAuAQAAAAwAJAAAAAAAAAAAAE+kIV8AAAAAMRkEAAEAAAAAAAAAAAAAAAaRmh50Hky/
+kh5SruK64hoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAABQAAAO1BAAAoAAAAAAAAAP////8AAAAA6AMAAOgDAABPpCFf
+AAAAADEZBAABAAAAAAAAAAAAAAAAAAAAAAAAACQAAAAAAAAAJAACACQAAAAAAAAAJQACAH8A
+AAAAAAAAJwAHAC4uLjEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAA/6EAAAUAAAAAAAAA
+/////wEAAADoAwAA6AMAAE+kIV8AAAAAMRkEAAEAAAAAAAAAAAAAAAAAAAAAAAAALi4vZnMA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAFAAAA/6EAAAUAAAAAAAAA/////wEAAADoAwAA6AMAAE+kIV8AAAAA
+MRkEAAEAAAAAAAAAAAAAAAAAAAAAAAAALi4vZnMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+
+--u3/rZRmxL6MmkK24--
+
