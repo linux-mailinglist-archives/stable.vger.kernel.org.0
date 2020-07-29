@@ -2,95 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF21231F3E
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 15:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0756231EF1
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 15:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727854AbgG2NXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 09:23:11 -0400
-Received: from gateway24.websitewelcome.com ([192.185.50.93]:47523 "EHLO
-        gateway24.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727828AbgG2NXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 09:23:10 -0400
-X-Greylist: delayed 1291 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Jul 2020 09:23:10 EDT
-Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
-        by gateway24.websitewelcome.com (Postfix) with ESMTP id 917C26831
-        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 08:00:53 -0500 (CDT)
-Received: from cs2002.webhostbox.net ([162.241.85.127])
-        by cmsmtp with SMTP
-        id 0lhVkxyUWhKYq0lhVkz21t; Wed, 29 Jul 2020 08:00:53 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=abcd76.online; s=default; h=Content-Transfer-Encoding:Content-Type:
-        Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Sender:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=DfGf1iGtwWuY3gz0LobyoXioNnVA83n7hPGn1PZbFPU=; b=gb7FKA+yBPE430jd/kRzvty/NL
-        vBu5ioQB0AxVy4qu0BDjQlwsYQvz+ukzgpAg0ktGVzQTuDkYY3x2DksopF262ofWqOQi4PESWkm/I
-        0IopfOHKMQvLxajX8zzt/iTfJwpp3kgnsaHTeOOCBILPgDvTv3UeksI8GzlqnhjlAG0m4goZbY96v
-        /LX2JOAXqqx/Z8reCJqb/BjF896SMicw35yC4M9sl5X3D3sM0xKF65+WYElegsLYInRXab/4t2LVw
-        k0LBU+CeJQkMSyaHavBtKFF1ptqgkwjw8/lxx1ceBp7eduBiuXtAuE6Q7g3ewxLYfGQIrW9zLyfiw
-        tQAOD0nQ==;
-Received: from cs2002.webhostbox.net ([162.241.85.127]:15344)
-        by cs2002.webhostbox.net with esmtpa (Exim 4.93)
-        (envelope-from <asp@abcd76.online>)
-        id 1k0lhD-002m4z-W7; Wed, 29 Jul 2020 13:00:35 +0000
-MIME-Version: 1.0
-Date:   Wed, 29 Jul 2020 08:00:35 -0500
-From:   Oxford Academic Services <asp@abcd76.online>
-To:     sswr@yahoo.com
-Subject: Proofreading & Editing Services
-Reply-To: submission@academicproofreading.online
-Mail-Reply-To: submission@academicproofreading.online
-Message-ID: <b5a16880e7fa4096293de2fccf4c70cc@abcd76.online>
-X-Sender: asp@abcd76.online
-User-Agent: Roundcube Webmail/1.3.13
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cs2002.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - abcd76.online
-X-BWhitelist: no
-X-Source-IP: 162.241.85.127
-X-Source-L: No
-X-Exim-ID: 1k0lhD-002m4z-W7
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: cs2002.webhostbox.net [162.241.85.127]:15344
-X-Source-Auth: asp@abcd76.online
-X-Email-Count: 68
-X-Source-Cap: em9uaW5tNG07em9uaW5tNG07Y3MyMDAyLndlYmhvc3Rib3gubmV0
-X-Local-Domain: yes
+        id S1727026AbgG2NEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 09:04:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726983AbgG2ND7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 09:03:59 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BF9C0619D2
+        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 06:03:58 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id il6so2011882pjb.0
+        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 06:03:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=u9Fs8JFKpYorssSuY35iRa45QXcNSCimMAssbW0zI4Q=;
+        b=O6VR8cQFjNpWZroeLWuJjiEDHTkhHrrlwoBR7IIge8QR+bHCmkI5JSenFDw+saUwkE
+         sLsPG+210ZG27f5Nssa5hW2KhhM68E9EdrRLGIMOXdPtsURUVEFHLFB6xd4V7JzOzZu4
+         Ymra9Kd/C6pkFVm40Jv/uE3fH2kkLHm47h+8vYv2MjKIv4V2sTTCS20TC67H0eT+ABTu
+         y5/8mPPaWgg1+zR09gvwqX9hllCHckgVm+4Bo8zD0p33EMX0Eyr3gHaRacMfAIFAJYOo
+         hE9snATZy58Et612nsVq4c6Ljmjr/nPecK2W0Y7nGBKOS3yNHHOxSQb8okyqK1ts1Ily
+         5gpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=u9Fs8JFKpYorssSuY35iRa45QXcNSCimMAssbW0zI4Q=;
+        b=TsteY75Vq6yV1VCnk07xFNd8I/BwNvtP/hcMrmCEpv2gBiVsqHue24z4J0Y8vEcZRI
+         T53cTsfuua+47CInk/zQB6UOJYH2RP2bMfgiiXzKRmKkmisxTlu4STJjGiH/z8a+0WXA
+         MDEXgqha409cYUE16m16MskaIvDuteS9J5IydiXiB/pn1bQE702o1bHmSK6wLzYU6Gh4
+         6RLnzXuUaXGkdc7gs8RAG5rS4PcIlH+ZogmdoJ4GhCkqt+Foopiv6c5k4gY2aT8zRY8o
+         Q6A+T0UZIQigZipETspnijkIa3XHS7gM6UpDFFw/t60ZOlkPrsj6lPJyQs6LkifoEY21
+         7KGg==
+X-Gm-Message-State: AOAM531MRJsRtqgiWyxY9pAIZQ64KksO4AB6PKxtGgbD+zhJNh0Uc4Sw
+        xdySBoEqZpX80iUtzHuh62drEA==
+X-Google-Smtp-Source: ABdhPJximOr+wp5Q7N5sPRtSZxwpjuc3QfCEcMD07CK6rU3ColT6m1rCPLm89/CM9GECHAuNZYQ13g==
+X-Received: by 2002:a17:902:59c1:: with SMTP id d1mr28388711plj.78.1596027837788;
+        Wed, 29 Jul 2020 06:03:57 -0700 (PDT)
+Received: from debian.bytedance.net ([61.120.150.75])
+        by smtp.gmail.com with ESMTPSA id 196sm2538784pgd.16.2020.07.29.06.03.54
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 Jul 2020 06:03:56 -0700 (PDT)
+From:   Hou Pu <houpu@bytedance.com>
+To:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, michael.christie@oracle.com
+Cc:     Hou Pu <houpu@bytedance.com>, stable@vger.kernel.org
+Subject: [PATCH] iscsi-target: fix hang in iscsit_access_np() when getting tpg->np_login_sem
+Date:   Wed, 29 Jul 2020 09:03:43 -0400
+Message-Id: <20200729130343.24976-1-houpu@bytedance.com>
+X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Oxford Academic Proofreading Company is among the top names for the most 
-trusted quality of crosschecking skills. This is because when we 
-crosscheck or edit your writings, we check for the following:
+The iscsi target login thread might stuck in following stack:
 
-Grammatical structure: We help to correct any mistakes related to 
-tenses.
-Spelling and punctuation: A comma here, a missing letter there— 
-EduBirdie takes proper care of those.
-Format: If there’s a specific format for the paper, we compare it to the 
-standard criteria for such formats.
-Structure: We check how understandable your paragraphs are, based on how 
-you wrote your essay. We also help to restructure if we see more 
-plausible options.??????
+cat /proc/`pidof iscsi_np`/stack
+[<0>] down_interruptible+0x42/0x50
+[<0>] iscsit_access_np+0xe3/0x167
+[<0>] iscsi_target_locate_portal+0x695/0x8ac
+[<0>] __iscsi_target_login_thread+0x855/0xb82
+[<0>] iscsi_target_login_thread+0x2f/0x5a
+[<0>] kthread+0xfa/0x130
+[<0>] ret_from_fork+0x1f/0x30
 
-Send your documents for editing to: 
-submission@academicproofreading.online
+This could be reproduced by following steps:
+1. Initiator A try to login iqn1-tpg1 on port 3260. After finishing
+   PDU exchange in the login thread and before the negotiation is
+   finished, at this time the network link is down. In a production
+   environment, this could happen. I could emulated it by bring
+   the network card down in the initiator node by ifconfig eth0 down.
+   (Now A could never finish this login. And tpg->np_login_sem is
+   hold by it).
+2. Initiator B try to login iqn2-tpg1 on port 3260. After finishing
+   PDU exchange in the login thread. The target expect to process
+   remaining login PDUs in workqueue context.
+3. Initiator A' try to re-login to iqn1-tpg1 on port 3260 from
+   a new socket. It will wait for tpg->np_login_sem with
+   np->np_login_timer loaded to wait for at most 15 second.
+   (Because the lock is held by A. A never gets a change to
+   release tpg->np_login_sem. so A' should finally get timeout).
+4. Before A' got timeout. Initiator B gets negotiation failed and
+   calls iscsi_target_login_drop()->iscsi_target_login_sess_out().
+   The np->np_login_timer is canceled. And initiator A' will hang
+   there forever. Because A' is now in the login thread. All other
+   login requests could not be serviced.
 
+Fix this by moving iscsi_stop_login_thread_timer() out of
+iscsi_target_login_sess_out(). Also remove iscsi_np parameter
+from iscsi_target_login_sess_out().
 
+Cc: stable@vger.kernel.org
+Signed-off-by: Hou Pu <houpu@bytedance.com>
+---
+ drivers/target/iscsi/iscsi_target_login.c | 6 +++---
+ drivers/target/iscsi/iscsi_target_login.h | 3 +--
+ drivers/target/iscsi/iscsi_target_nego.c  | 3 +--
+ 3 files changed, 5 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/target/iscsi/iscsi_target_login.c b/drivers/target/iscsi/iscsi_target_login.c
+index 85748e338858..893d1b406c29 100644
+--- a/drivers/target/iscsi/iscsi_target_login.c
++++ b/drivers/target/iscsi/iscsi_target_login.c
+@@ -1149,7 +1149,7 @@ void iscsit_free_conn(struct iscsi_conn *conn)
+ }
+ 
+ void iscsi_target_login_sess_out(struct iscsi_conn *conn,
+-		struct iscsi_np *np, bool zero_tsih, bool new_sess)
++				 bool zero_tsih, bool new_sess)
+ {
+ 	if (!new_sess)
+ 		goto old_sess_out;
+@@ -1167,7 +1167,6 @@ void iscsi_target_login_sess_out(struct iscsi_conn *conn,
+ 	conn->sess = NULL;
+ 
+ old_sess_out:
+-	iscsi_stop_login_thread_timer(np);
+ 	/*
+ 	 * If login negotiation fails check if the Time2Retain timer
+ 	 * needs to be restarted.
+@@ -1407,8 +1406,9 @@ static int __iscsi_target_login_thread(struct iscsi_np *np)
+ new_sess_out:
+ 	new_sess = true;
+ old_sess_out:
++	iscsi_stop_login_thread_timer(np);
+ 	tpg_np = conn->tpg_np;
+-	iscsi_target_login_sess_out(conn, np, zero_tsih, new_sess);
++	iscsi_target_login_sess_out(conn, zero_tsih, new_sess);
+ 	new_sess = false;
+ 
+ 	if (tpg) {
+diff --git a/drivers/target/iscsi/iscsi_target_login.h b/drivers/target/iscsi/iscsi_target_login.h
+index 3b8e3639ff5d..fc95e6150253 100644
+--- a/drivers/target/iscsi/iscsi_target_login.h
++++ b/drivers/target/iscsi/iscsi_target_login.h
+@@ -22,8 +22,7 @@ extern int iscsit_put_login_tx(struct iscsi_conn *, struct iscsi_login *, u32);
+ extern void iscsit_free_conn(struct iscsi_conn *);
+ extern int iscsit_start_kthreads(struct iscsi_conn *);
+ extern void iscsi_post_login_handler(struct iscsi_np *, struct iscsi_conn *, u8);
+-extern void iscsi_target_login_sess_out(struct iscsi_conn *, struct iscsi_np *,
+-				bool, bool);
++extern void iscsi_target_login_sess_out(struct iscsi_conn *, bool, bool);
+ extern int iscsi_target_login_thread(void *);
+ extern void iscsi_handle_login_thread_timeout(struct timer_list *t);
+ 
+diff --git a/drivers/target/iscsi/iscsi_target_nego.c b/drivers/target/iscsi/iscsi_target_nego.c
+index 685d771b51d4..e32d93b92742 100644
+--- a/drivers/target/iscsi/iscsi_target_nego.c
++++ b/drivers/target/iscsi/iscsi_target_nego.c
+@@ -535,12 +535,11 @@ static bool iscsi_target_sk_check_and_clear(struct iscsi_conn *conn, unsigned in
+ 
+ static void iscsi_target_login_drop(struct iscsi_conn *conn, struct iscsi_login *login)
+ {
+-	struct iscsi_np *np = login->np;
+ 	bool zero_tsih = login->zero_tsih;
+ 
+ 	iscsi_remove_failed_auth_entry(conn);
+ 	iscsi_target_nego_release(conn);
+-	iscsi_target_login_sess_out(conn, np, zero_tsih, true);
++	iscsi_target_login_sess_out(conn, zero_tsih, true);
+ }
+ 
+ struct conn_timeout {
+-- 
+2.11.0
 
-Best regards
-
-Johnson Thomas
-Oxford Proofreading Company
