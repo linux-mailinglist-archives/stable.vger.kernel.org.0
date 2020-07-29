@@ -2,76 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0256E23202C
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 16:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2FEF232054
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 16:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726883AbgG2OQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 10:16:17 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:47336 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726862AbgG2OQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 10:16:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1596032175;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=R+kWxxzVDXpfhBG6NZI6e/XAKHu4RLpk6Vec2IpRy1o=;
-        b=Y8ZBE+2wvOMbNUNDJAOXgrEzwgW6o1NZy5FJbZ8oR0XbBm1mOAHMnRVatpSk6FvGW55j+V
-        81mfv/WCGsr5aZZkDn6WPy9dVeRK7VNpfFhCYYmnTjYVforfp4UBmRXGN9lls5swBVKYAs
-        fjsbtb6im4bhM15a8qxaDoJtNSqLXyE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-370-T0g2FcyGP7eT56ycpL13Zg-1; Wed, 29 Jul 2020 10:16:09 -0400
-X-MC-Unique: T0g2FcyGP7eT56ycpL13Zg-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9059F106B242;
-        Wed, 29 Jul 2020 14:16:08 +0000 (UTC)
-Received: from localhost (unknown [10.18.25.174])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 67B6A5C5B7;
-        Wed, 29 Jul 2020 14:16:08 +0000 (UTC)
-Date:   Wed, 29 Jul 2020 10:16:07 -0400
-From:   Mike Snitzer <snitzer@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     John Donnelly <John.P.donnelly@oracle.com>, stable@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: (resend) [PATCH [linux-4.14.y]] dm cache: submit writethrough
- writes in parallel to origin and cache
-Message-ID: <20200729141607.GA7215@redhat.com>
-References: <37c5a615-655d-c106-afd0-54e03f3c0eef@oracle.com>
- <20200727150014.GA27472@redhat.com>
- <20200729115119.GB2674635@kroah.com>
- <20200729115557.GA2799681@kroah.com>
+        id S1726710AbgG2O3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 10:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59538 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726353AbgG2O3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 10:29:03 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495CEC061794
+        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 07:29:03 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id 184so3189472wmb.0
+        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 07:29:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google;
+        h=references:user-agent:from:to:cc:subject:in-reply-to:date
+         :message-id:mime-version;
+        bh=5lOk5/IjM4Kivdv0hUHvAQZc4qCXG9zQibXbSDtbUdk=;
+        b=mXfye9BX8+b3RDATjFt6WT/1RpQYT5H0NnqbySS/v383E2XpMdG4iVtxyb8yT25gEx
+         wCcEj6lgn3WpKGQVquSzsIPiOFLv3bCNgrCsQcS0LMDCy/1te3Ht7NgWuWnqa36I95vu
+         wjTd1e6/AUdXK1/llygDlqUrc0SREe9SDaHs8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:references:user-agent:from:to:cc:subject
+         :in-reply-to:date:message-id:mime-version;
+        bh=5lOk5/IjM4Kivdv0hUHvAQZc4qCXG9zQibXbSDtbUdk=;
+        b=S/ETKC2UFgn6wsi571tfdqFsId/yPVOqfmBJ1y9CR19mFB9Jype8sfd1msyS0ImJSI
+         RZvG9Jic7T4eYYzBaaNLIaZmR0FDHmiUvWGuIIQ5L+SLm5CZH4WIevr/qWN6pwG6YJ+w
+         5rE12OYfF63LTKBGcgUYJOnQZ6LfG+5gCfhvwovFC30xErHSVsD6uyWDxhfSe4s7954t
+         N+vLkyDuOVyD3aV5l1T9IL5lj5R9T6vwh/iX3MGLsTDcehqnV44mHv2ej85DytexXBBN
+         /ZF5kdYA8HkMN0UN3dIq/DozyMw1GYZ+8OO3i5HQWK56MbjMOFZ4SD5OVb/MdZJ3e3Zv
+         IJBw==
+X-Gm-Message-State: AOAM532Bw0RHRGXpNW4Kk9MUT/bWerMln3yu3vylpV4heBmGr+MsAJ4l
+        6s6gecCfMMkISXJM1qD8eoNl3K9NMpc=
+X-Google-Smtp-Source: ABdhPJymj02zHisgqHwORjvU/qXus/k98Koel0aZUvfTGgt/4syNv7yitji/Hc8ZekRfW4GHf+ts6A==
+X-Received: by 2002:a05:600c:2d1:: with SMTP id 17mr8919961wmn.15.1596032941868;
+        Wed, 29 Jul 2020 07:29:01 -0700 (PDT)
+Received: from cloudflare.com ([176.221.114.230])
+        by smtp.gmail.com with ESMTPSA id w16sm6931996wrg.95.2020.07.29.07.29.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2020 07:29:01 -0700 (PDT)
+References: <20200729040913.2815687-1-andriin@fb.com> <20200729040913.2815687-2-andriin@fb.com>
+User-agent: mu4e 1.1.0; emacs 26.3
+From:   Jakub Sitnicki <jakub@cloudflare.com>
+To:     Andrii Nakryiko <andriin@fb.com>
+Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org, ast@fb.com,
+        daniel@iogearbox.net, andrii.nakryiko@gmail.com,
+        kernel-team@fb.com, Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v4 bpf 2/2] selftests/bpf: extend map-in-map selftest to detect memory leaks
+In-reply-to: <20200729040913.2815687-2-andriin@fb.com>
+Date:   Wed, 29 Jul 2020 16:29:00 +0200
+Message-ID: <87k0ymwg2b.fsf@cloudflare.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200729115557.GA2799681@kroah.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 29 2020 at  7:55am -0400,
-Greg KH <gregkh@linuxfoundation.org> wrote:
+On Wed, Jul 29, 2020 at 06:09 AM CEST, Andrii Nakryiko wrote:
+> Add test validating that all inner maps are released properly after skeleton
+> is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu()
+> before checking map existence by their IDs.
+>
+> Acked-by: Song Liu <songliubraving@fb.com>
+> Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+> ---
+>  .../selftests/bpf/prog_tests/btf_map_in_map.c | 124 ++++++++++++++++--
+>  1 file changed, 110 insertions(+), 14 deletions(-)
+>
+> diff --git a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> index f7ee8fa377ad..f6eee3fb933c 100644
+> --- a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> +++ b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> @@ -5,10 +5,60 @@
+>
+>  #include "test_btf_map_in_map.skel.h"
+>
+> +static int duration;
+> +
+> +static __u32 bpf_map_id(struct bpf_map *map)
+> +{
+> +	struct bpf_map_info info;
+> +	__u32 info_len = sizeof(info);
+> +	int err;
+> +
+> +	memset(&info, 0, info_len);
+> +	err = bpf_obj_get_info_by_fd(bpf_map__fd(map), &info, &info_len);
+> +	if (err)
+> +		return 0;
+> +	return info.id;
+> +}
+> +
+> +/*
+> + * Trigger synchronize_cpu() in kernel.
 
-> On Wed, Jul 29, 2020 at 01:51:19PM +0200, Greg KH wrote:
-> > On Mon, Jul 27, 2020 at 11:00:14AM -0400, Mike Snitzer wrote:
-> > > This mail needs to be saent to stable@vger.kernel.org (now cc'd).
-> > > 
-> > > Greg et al: please backport 2df3bae9a6543e90042291707b8db0cbfbae9ee9
-> > 
-> > Now backported, thanks.
-> 
-> Nope, it broke the build, I need something that actually works :)
-> 
+Nit: synchronize_*r*cu().
 
-OK, I'll defer to John Donnelly to get back with you (and rest of
-stable@).  He is more invested due to SUSE also having this issue.  I
-can put focus to it if John cannot sort this out.
+> + *
+> + * ARRAY_OF_MAPS/HASH_OF_MAPS lookup/update operations trigger
+> + * synchronize_rcu(), if looking up/updating non-NULL element. Use this fact
+> + * to trigger synchronize_cpu(): create map-in-map, create a trivial ARRAY
+> + * map, update map-in-map with ARRAY inner map. Then cleanup. At the end, at
+> + * least one synchronize_rcu() would be called.
+> + */
 
-Mike
+That's a cool trick. I'm a bit confused by "looking up/updating non-NULL
+element". It looks like you're updating an element that is NULL/unset in
+the code below. What am I missing?
 
+> +static int kern_sync_rcu(void)
+> +{
+> +	int inner_map_fd, outer_map_fd, err, zero = 0;
+> +
+> +	inner_map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, 4, 4, 1, 0);
+> +	if (CHECK(inner_map_fd < 0, "inner_map_create", "failed %d\n", -errno))
+> +		return -1;
+> +
+> +	outer_map_fd = bpf_create_map_in_map(BPF_MAP_TYPE_ARRAY_OF_MAPS, NULL,
+> +					     sizeof(int), inner_map_fd, 1, 0);
+> +	if (CHECK(outer_map_fd < 0, "outer_map_create", "failed %d\n", -errno)) {
+> +		close(inner_map_fd);
+> +		return -1;
+> +	}
+> +
+> +	err = bpf_map_update_elem(outer_map_fd, &zero, &inner_map_fd, 0);
+> +	if (err)
+> +		err = -errno;
+> +	CHECK(err, "outer_map_update", "failed %d\n", err);
+> +	close(inner_map_fd);
+> +	close(outer_map_fd);
+> +	return err;
+> +}
+> +
+>  void test_btf_map_in_map(void)
+>  {
+> -	int duration = 0, err, key = 0, val;
+> -	struct test_btf_map_in_map* skel;
+> +	int err, key = 0, val, i;
+> +	struct test_btf_map_in_map *skel;
+> +	int outer_arr_fd, outer_hash_fd;
+> +	int fd, map1_fd, map2_fd, map1_id, map2_id;
+>
+>  	skel = test_btf_map_in_map__open_and_load();
+>  	if (CHECK(!skel, "skel_open", "failed to open&load skeleton\n"))
+> @@ -18,32 +68,78 @@ void test_btf_map_in_map(void)
+>  	if (CHECK(err, "skel_attach", "skeleton attach failed: %d\n", err))
+>  		goto cleanup;
+>
+> +	map1_fd = bpf_map__fd(skel->maps.inner_map1);
+> +	map2_fd = bpf_map__fd(skel->maps.inner_map2);
+> +	outer_arr_fd = bpf_map__fd(skel->maps.outer_arr);
+> +	outer_hash_fd = bpf_map__fd(skel->maps.outer_hash);
+> +
+>  	/* inner1 = input, inner2 = input + 1 */
+> -	val = bpf_map__fd(skel->maps.inner_map1);
+> -	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_arr), &key, &val, 0);
+> -	val = bpf_map__fd(skel->maps.inner_map2);
+> -	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_hash), &key, &val, 0);
+> +	map1_fd = bpf_map__fd(skel->maps.inner_map1);
+> +	bpf_map_update_elem(outer_arr_fd, &key, &map1_fd, 0);
+> +	map2_fd = bpf_map__fd(skel->maps.inner_map2);
+> +	bpf_map_update_elem(outer_hash_fd, &key, &map2_fd, 0);
+>  	skel->bss->input = 1;
+>  	usleep(1);
+>
+> -	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map1), &key, &val);
+> +	bpf_map_lookup_elem(map1_fd, &key, &val);
+>  	CHECK(val != 1, "inner1", "got %d != exp %d\n", val, 1);
+> -	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map2), &key, &val);
+> +	bpf_map_lookup_elem(map2_fd, &key, &val);
+>  	CHECK(val != 2, "inner2", "got %d != exp %d\n", val, 2);
+>
+>  	/* inner1 = input + 1, inner2 = input */
+> -	val = bpf_map__fd(skel->maps.inner_map2);
+> -	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_arr), &key, &val, 0);
+> -	val = bpf_map__fd(skel->maps.inner_map1);
+> -	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_hash), &key, &val, 0);
+> +	bpf_map_update_elem(outer_arr_fd, &key, &map2_fd, 0);
+> +	bpf_map_update_elem(outer_hash_fd, &key, &map1_fd, 0);
+>  	skel->bss->input = 3;
+>  	usleep(1);
+>
+> -	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map1), &key, &val);
+> +	bpf_map_lookup_elem(map1_fd, &key, &val);
+>  	CHECK(val != 4, "inner1", "got %d != exp %d\n", val, 4);
+> -	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map2), &key, &val);
+> +	bpf_map_lookup_elem(map2_fd, &key, &val);
+>  	CHECK(val != 3, "inner2", "got %d != exp %d\n", val, 3);
+>
+> +	for (i = 0; i < 5; i++) {
+> +		val = i % 2 ? map1_fd : map2_fd;
+> +		err = bpf_map_update_elem(outer_hash_fd, &key, &val, 0);
+> +		if (CHECK_FAIL(err)) {
+> +			printf("failed to update hash_of_maps on iter #%d\n", i);
+> +			goto cleanup;
+> +		}
+> +		err = bpf_map_update_elem(outer_arr_fd, &key, &val, 0);
+> +		if (CHECK_FAIL(err)) {
+> +			printf("failed to update hash_of_maps on iter #%d\n", i);
+> +			goto cleanup;
+> +		}
+> +	}
+> +
+> +	map1_id = bpf_map_id(skel->maps.inner_map1);
+> +	map2_id = bpf_map_id(skel->maps.inner_map2);
+> +	CHECK(map1_id == 0, "map1_id", "failed to get ID 1\n");
+> +	CHECK(map2_id == 0, "map2_id", "failed to get ID 2\n");
+> +
+> +	test_btf_map_in_map__destroy(skel);
+> +	skel = NULL;
+> +
+> +	/* we need to either wait for or force synchronize_rcu(), before
+> +	 * checking for "still exists" condition, otherwise map could still be
+> +	 * resolvable by ID, causing false positives.
+> +	 *
+> +	 * Older kernels (5.8 and earlier) freed map only after two
+> +	 * synchronize_rcu()s, so trigger two, to be entirely sure.
+> +	 */
+> +	CHECK(kern_sync_rcu(), "sync_rcu", "failed\n");
+> +	CHECK(kern_sync_rcu(), "sync_rcu", "failed\n");
+> +
+> +	fd = bpf_map_get_fd_by_id(map1_id);
+> +	if (CHECK(fd >= 0, "map1_leak", "inner_map1 leaked!\n")) {
+> +		close(fd);
+> +		goto cleanup;
+> +	}
+> +	fd = bpf_map_get_fd_by_id(map2_id);
+> +	if (CHECK(fd >= 0, "map2_leak", "inner_map2 leaked!\n")) {
+> +		close(fd);
+> +		goto cleanup;
+> +	}
+> +
+>  cleanup:
+>  	test_btf_map_in_map__destroy(skel);
+>  }
