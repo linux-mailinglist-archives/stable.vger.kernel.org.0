@@ -2,243 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6305C23185C
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 06:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92AE231940
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 07:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbgG2EJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 00:09:31 -0400
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:25358 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726088AbgG2EJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 00:09:31 -0400
-Received: from pps.filterd (m0109334.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 06T49A1D032428
-        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 21:09:30 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=facebook;
- bh=0NhYLaizM+cUNmkH0e29r7X0pb2TdSWG9jK02zlKPrg=;
- b=kMbss/r+F20LPtNOsD3JV2yS/58bAUObSnN7ACjLSPa0rIIpcka2GkxVePblEmbBQH8U
- HBe5aL2EuDJzEFORtBINe3oQggPwYszCPVcMsuq8tNoF/mGtEFCvfRWD+O6QPGhvgu1q
- xPR0O3sR/hlM6jpLLf2eg6KBVmMu0E+bZoc= 
-Received: from mail.thefacebook.com ([163.114.132.120])
-        by mx0a-00082601.pphosted.com with ESMTP id 32h4q9n5f5-9
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 28 Jul 2020 21:09:30 -0700
-Received: from intmgw004.03.ash8.facebook.com (2620:10d:c085:208::f) by
- mail.thefacebook.com (2620:10d:c085:11d::7) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Tue, 28 Jul 2020 21:09:29 -0700
-Received: by devbig012.ftw2.facebook.com (Postfix, from userid 137359)
-        id A8EC72EC4C8E; Tue, 28 Jul 2020 21:09:16 -0700 (PDT)
-Smtp-Origin-Hostprefix: devbig
-From:   Andrii Nakryiko <andriin@fb.com>
-Smtp-Origin-Hostname: devbig012.ftw2.facebook.com
-To:     <bpf@vger.kernel.org>, <netdev@vger.kernel.org>, <ast@fb.com>,
-        <daniel@iogearbox.net>
-CC:     <andrii.nakryiko@gmail.com>, <kernel-team@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Song Liu <songliubraving@fb.com>, <stable@vger.kernel.org>
-Smtp-Origin-Cluster: ftw2c04
-Subject: [PATCH v4 bpf 2/2] selftests/bpf: extend map-in-map selftest to detect memory leaks
-Date:   Tue, 28 Jul 2020 21:09:13 -0700
-Message-ID: <20200729040913.2815687-2-andriin@fb.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200729040913.2815687-1-andriin@fb.com>
-References: <20200729040913.2815687-1-andriin@fb.com>
+        id S1726445AbgG2F5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 01:57:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726314AbgG2F5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jul 2020 01:57:17 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 806DD206D4;
+        Wed, 29 Jul 2020 05:57:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596002236;
+        bh=pH/Jvgs0UETubxIfK7bmO3oomhXo4t6Fdu4wzp1wKIo=;
+        h=Subject:To:From:Date:From;
+        b=XUzinxZymRv+LeJ1FFj6DNYHYEEQBRzsslk20DAwwflQyYhoxLfH+DKUETv3K36Ls
+         CM8JYn1VgFp0KdxMCdwa8sYi29BM2ENl8zmG8mNwECu9GPzRXxVOngaMyVYAwEDdYz
+         jsSEi36XcFlVsnMv+BuG5cTi0FrlsjSmwy5KBnYY=
+Subject: patch "USB: serial: cp210x: enable usb generic throttle/unthrottle" added to usb-next
+To:     brant.merryman@silabs.com, johan@kernel.org, phu.luu@silabs.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 29 Jul 2020 07:56:50 +0200
+Message-ID: <15960022105970@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-07-29_02:2020-07-28,2020-07-29 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 spamscore=0
- impostorscore=0 clxscore=1015 lowpriorityscore=0 mlxlogscore=999
- malwarescore=0 adultscore=0 phishscore=0 mlxscore=0 priorityscore=1501
- bulkscore=0 suspectscore=9 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2007290028
-X-FB-Internal: deliver
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add test validating that all inner maps are released properly after skele=
-ton
-is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu(=
-)
-before checking map existence by their IDs.
 
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+This is a note to let you know that I've just added the patch titled
+
+    USB: serial: cp210x: enable usb generic throttle/unthrottle
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 Mon Sep 17 00:00:00 2001
+From: Brant Merryman <brant.merryman@silabs.com>
+Date: Fri, 26 Jun 2020 04:22:58 +0000
+Subject: USB: serial: cp210x: enable usb generic throttle/unthrottle
+
+Assign the .throttle and .unthrottle functions to be generic function
+in the driver structure to prevent data loss that can otherwise occur
+if the host does not enable USB throttling.
+
+Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
+Co-developed-by: Phu Luu <phu.luu@silabs.com>
+Signed-off-by: Phu Luu <phu.luu@silabs.com>
+Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
+[ johan: fix up tags ]
+Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
+Cc: stable <stable@vger.kernel.org>     # 2.6.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- .../selftests/bpf/prog_tests/btf_map_in_map.c | 124 ++++++++++++++++--
- 1 file changed, 110 insertions(+), 14 deletions(-)
+ drivers/usb/serial/cp210x.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c b/to=
-ols/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-index f7ee8fa377ad..f6eee3fb933c 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
-@@ -5,10 +5,60 @@
-=20
- #include "test_btf_map_in_map.skel.h"
-=20
-+static int duration;
-+
-+static __u32 bpf_map_id(struct bpf_map *map)
-+{
-+	struct bpf_map_info info;
-+	__u32 info_len =3D sizeof(info);
-+	int err;
-+
-+	memset(&info, 0, info_len);
-+	err =3D bpf_obj_get_info_by_fd(bpf_map__fd(map), &info, &info_len);
-+	if (err)
-+		return 0;
-+	return info.id;
-+}
-+
-+/*
-+ * Trigger synchronize_cpu() in kernel.
-+ *
-+ * ARRAY_OF_MAPS/HASH_OF_MAPS lookup/update operations trigger
-+ * synchronize_rcu(), if looking up/updating non-NULL element. Use this =
-fact
-+ * to trigger synchronize_cpu(): create map-in-map, create a trivial ARR=
-AY
-+ * map, update map-in-map with ARRAY inner map. Then cleanup. At the end=
-, at
-+ * least one synchronize_rcu() would be called.
-+ */
-+static int kern_sync_rcu(void)
-+{
-+	int inner_map_fd, outer_map_fd, err, zero =3D 0;
-+
-+	inner_map_fd =3D bpf_create_map(BPF_MAP_TYPE_ARRAY, 4, 4, 1, 0);
-+	if (CHECK(inner_map_fd < 0, "inner_map_create", "failed %d\n", -errno))
-+		return -1;
-+
-+	outer_map_fd =3D bpf_create_map_in_map(BPF_MAP_TYPE_ARRAY_OF_MAPS, NULL=
-,
-+					     sizeof(int), inner_map_fd, 1, 0);
-+	if (CHECK(outer_map_fd < 0, "outer_map_create", "failed %d\n", -errno))=
- {
-+		close(inner_map_fd);
-+		return -1;
-+	}
-+
-+	err =3D bpf_map_update_elem(outer_map_fd, &zero, &inner_map_fd, 0);
-+	if (err)
-+		err =3D -errno;
-+	CHECK(err, "outer_map_update", "failed %d\n", err);
-+	close(inner_map_fd);
-+	close(outer_map_fd);
-+	return err;
-+}
-+
- void test_btf_map_in_map(void)
- {
--	int duration =3D 0, err, key =3D 0, val;
--	struct test_btf_map_in_map* skel;
-+	int err, key =3D 0, val, i;
-+	struct test_btf_map_in_map *skel;
-+	int outer_arr_fd, outer_hash_fd;
-+	int fd, map1_fd, map2_fd, map1_id, map2_id;
-=20
- 	skel =3D test_btf_map_in_map__open_and_load();
- 	if (CHECK(!skel, "skel_open", "failed to open&load skeleton\n"))
-@@ -18,32 +68,78 @@ void test_btf_map_in_map(void)
- 	if (CHECK(err, "skel_attach", "skeleton attach failed: %d\n", err))
- 		goto cleanup;
-=20
-+	map1_fd =3D bpf_map__fd(skel->maps.inner_map1);
-+	map2_fd =3D bpf_map__fd(skel->maps.inner_map2);
-+	outer_arr_fd =3D bpf_map__fd(skel->maps.outer_arr);
-+	outer_hash_fd =3D bpf_map__fd(skel->maps.outer_hash);
-+
- 	/* inner1 =3D input, inner2 =3D input + 1 */
--	val =3D bpf_map__fd(skel->maps.inner_map1);
--	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_arr), &key, &val, 0);
--	val =3D bpf_map__fd(skel->maps.inner_map2);
--	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_hash), &key, &val, 0);
-+	map1_fd =3D bpf_map__fd(skel->maps.inner_map1);
-+	bpf_map_update_elem(outer_arr_fd, &key, &map1_fd, 0);
-+	map2_fd =3D bpf_map__fd(skel->maps.inner_map2);
-+	bpf_map_update_elem(outer_hash_fd, &key, &map2_fd, 0);
- 	skel->bss->input =3D 1;
- 	usleep(1);
-=20
--	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map1), &key, &val);
-+	bpf_map_lookup_elem(map1_fd, &key, &val);
- 	CHECK(val !=3D 1, "inner1", "got %d !=3D exp %d\n", val, 1);
--	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map2), &key, &val);
-+	bpf_map_lookup_elem(map2_fd, &key, &val);
- 	CHECK(val !=3D 2, "inner2", "got %d !=3D exp %d\n", val, 2);
-=20
- 	/* inner1 =3D input + 1, inner2 =3D input */
--	val =3D bpf_map__fd(skel->maps.inner_map2);
--	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_arr), &key, &val, 0);
--	val =3D bpf_map__fd(skel->maps.inner_map1);
--	bpf_map_update_elem(bpf_map__fd(skel->maps.outer_hash), &key, &val, 0);
-+	bpf_map_update_elem(outer_arr_fd, &key, &map2_fd, 0);
-+	bpf_map_update_elem(outer_hash_fd, &key, &map1_fd, 0);
- 	skel->bss->input =3D 3;
- 	usleep(1);
-=20
--	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map1), &key, &val);
-+	bpf_map_lookup_elem(map1_fd, &key, &val);
- 	CHECK(val !=3D 4, "inner1", "got %d !=3D exp %d\n", val, 4);
--	bpf_map_lookup_elem(bpf_map__fd(skel->maps.inner_map2), &key, &val);
-+	bpf_map_lookup_elem(map2_fd, &key, &val);
- 	CHECK(val !=3D 3, "inner2", "got %d !=3D exp %d\n", val, 3);
-=20
-+	for (i =3D 0; i < 5; i++) {
-+		val =3D i % 2 ? map1_fd : map2_fd;
-+		err =3D bpf_map_update_elem(outer_hash_fd, &key, &val, 0);
-+		if (CHECK_FAIL(err)) {
-+			printf("failed to update hash_of_maps on iter #%d\n", i);
-+			goto cleanup;
-+		}
-+		err =3D bpf_map_update_elem(outer_arr_fd, &key, &val, 0);
-+		if (CHECK_FAIL(err)) {
-+			printf("failed to update hash_of_maps on iter #%d\n", i);
-+			goto cleanup;
-+		}
-+	}
-+
-+	map1_id =3D bpf_map_id(skel->maps.inner_map1);
-+	map2_id =3D bpf_map_id(skel->maps.inner_map2);
-+	CHECK(map1_id =3D=3D 0, "map1_id", "failed to get ID 1\n");
-+	CHECK(map2_id =3D=3D 0, "map2_id", "failed to get ID 2\n");
-+
-+	test_btf_map_in_map__destroy(skel);
-+	skel =3D NULL;
-+
-+	/* we need to either wait for or force synchronize_rcu(), before
-+	 * checking for "still exists" condition, otherwise map could still be
-+	 * resolvable by ID, causing false positives.
-+	 *
-+	 * Older kernels (5.8 and earlier) freed map only after two
-+	 * synchronize_rcu()s, so trigger two, to be entirely sure.
-+	 */
-+	CHECK(kern_sync_rcu(), "sync_rcu", "failed\n");
-+	CHECK(kern_sync_rcu(), "sync_rcu", "failed\n");
-+
-+	fd =3D bpf_map_get_fd_by_id(map1_id);
-+	if (CHECK(fd >=3D 0, "map1_leak", "inner_map1 leaked!\n")) {
-+		close(fd);
-+		goto cleanup;
-+	}
-+	fd =3D bpf_map_get_fd_by_id(map2_id);
-+	if (CHECK(fd >=3D 0, "map2_leak", "inner_map2 leaked!\n")) {
-+		close(fd);
-+		goto cleanup;
-+	}
-+
- cleanup:
- 	test_btf_map_in_map__destroy(skel);
- }
---=20
-2.24.1
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index f5143eedbc48..bcceb4ad8be0 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -272,6 +272,8 @@ static struct usb_serial_driver cp210x_device = {
+ 	.break_ctl		= cp210x_break_ctl,
+ 	.set_termios		= cp210x_set_termios,
+ 	.tx_empty		= cp210x_tx_empty,
++	.throttle		= usb_serial_generic_throttle,
++	.unthrottle		= usb_serial_generic_unthrottle,
+ 	.tiocmget		= cp210x_tiocmget,
+ 	.tiocmset		= cp210x_tiocmset,
+ 	.attach			= cp210x_attach,
+-- 
+2.27.0
+
 
