@@ -2,80 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3392232352
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 19:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0EF12323AA
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 19:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbgG2R0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 13:26:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58838 "EHLO
+        id S1726502AbgG2RsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 13:48:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726336AbgG2R0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 13:26:01 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10261C061794
-        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 10:26:01 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id w17so12087266ply.11
-        for <stable@vger.kernel.org>; Wed, 29 Jul 2020 10:26:00 -0700 (PDT)
+        with ESMTP id S1726385AbgG2RsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 13:48:13 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2A0C061794;
+        Wed, 29 Jul 2020 10:48:13 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id ed14so11267025qvb.2;
+        Wed, 29 Jul 2020 10:48:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=CNp6kZKANI3pBR6i8y+/XdO7n8ax8rlSmErac042k/Y=;
-        b=fly0eTKEM/EKGjP16uHCq+pssRpnG1oc9UoD42sQ+DjGaEGgDyCjJVmdsBehGVFJAt
-         tDNAzjNWyi+KKho1FdNdW0k2Jcj995U+FXNERWEzMPKtWBQK2ClbuGt9rZHOMZNBJArP
-         mMJu/xJZIGQE7SLkiym0nS1ZReiINiIbRfdJtUtmmpKJ8uVAZlZspIxXpVKx1k/6BwI2
-         02z/r47siNSpiw+r3aRWjPJ/9coKNnamUgcvWA5cRB1aenxCHis13DRTQYYS7Lr+KWV2
-         kaE/I4emqVM3JfncrYgEFOLqJsW1mmYMKIrUMGhBvDeW2SYcpLzYbOsX83egBqqrOxut
-         VerQ==
+        bh=KLov+zHRwCIC5dmTzJG4jUY2DEz0vF5YAWPCuEXipCY=;
+        b=Vw4wTblo7xPLb8AX+1v0epllbl48lPuFT40OiUuie6YFtL/leiZoCcDQHoh4CU0yAz
+         y38+K1sdewtCyhgla+hqRJVVQtLdDiNexi69yCXIyevEaxkSyopHQITX1rb7KC+0LsbH
+         3htCk3sq4+JqwSl/xuJYSutVMy1jxgLRj27R748PFC/8Nhdako2CXXWadOQIEPUtYRoS
+         tq+DSGjTiiF3fnlKcbh9cnE9f/g05B3DfRcGWX4Ry2Y3JVZkXd3FbJkdz0NgXUrxWsFe
+         QdFlKPGCj/yZWK4jMsYyF4L++oaZneceEtXyp8g+3THWqOdlsDx9P5SX8wsv9di+4mc6
+         DHQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=CNp6kZKANI3pBR6i8y+/XdO7n8ax8rlSmErac042k/Y=;
-        b=tpb3gZUYk1hiwtIyE0DBsQKU5spAQI+XngCY/LjSgHcAeL0RaHgBwO2Ujw5K5A+KN9
-         7qUf9JyIvdukAxDrK8jBtjbNf6WWkKRvzH9A8HhzwMBkSYThzWJJ9T+IVMWthxjzP+H+
-         Qd3toYeNnwMZ86upGyZav4Spvr9vCSLcpwEuqeYXEBvToVYqKdewweBafSqypIajGg+y
-         jNpm6OPATPlqtDx1nvvDa5no7k2B56V88r83nAICJGmPTPHBpnjbk+6Ljj/DlG74oZbR
-         B+G0wMFHVdVyJjgyKVvJqmkY7ARvEWVSzTwmptGWQIvwCUAWWwKs1alC2tkEPRPHS7ry
-         QsxQ==
-X-Gm-Message-State: AOAM531zwvFclAxNd6TrRM9lgMJ+3SSrH62mw/vO97thcilBi8RDwmx3
-        9Tw2JFvdZ/pz5LJln8axQljBIopaqXysbasKZzzkcw==
-X-Google-Smtp-Source: ABdhPJxDXD5VZFMahV5bPRMyliowl8obs4+5jq1SXRL4nu282PjxCmsVHe9zoAoUJK2Ok2mSTg9oXhoTHKsmOrWerxU=
-X-Received: by 2002:a17:90a:d306:: with SMTP id p6mr10153051pju.25.1596043560274;
- Wed, 29 Jul 2020 10:26:00 -0700 (PDT)
+        bh=KLov+zHRwCIC5dmTzJG4jUY2DEz0vF5YAWPCuEXipCY=;
+        b=furOzCggikVMiHf/i9OV02zQTKEd4WpCNPjgXdQxbwfqpOJC4DuwN3aT+dnNcNlCUE
+         UmgU/4Zk8clJ5mB7RsarBNFMZ9NK2yDkLQyoX4XUjI/omgH1z2bZd8h/bx/c35DEVzuK
+         dK+l0khr3exsqe2bhfeXN4lwS65Ue25q8uqYJAaA4iE62bHTFuHtYkabkYlJu+QMdbQF
+         2IHSeh6F8p6O5/oqcxDkB7BYjKIHYZ0c2usPdTpWf/LglZw31vLE13VxkoRO/7UsitaC
+         s0tsTypARuXhZnzKRZU/Y0HUbnBx7NvicuP5p5V7JaN5stp94mumfIU0uCHA1soH2kgC
+         vkBA==
+X-Gm-Message-State: AOAM530SV9CpVuwdTuHclX1Et8Rw4MpbHhzLcJPlqdyl0kBoiR2BhnEf
+        pasURzg/fTVICBGsh4kpSv+egENlSjrGmKND5gU=
+X-Google-Smtp-Source: ABdhPJzdYOC78Mao1Zvw7purKveWY01VJjJxxKFefer0drau5rKfTQFnz1rDzot0Em+BMTnuo85l3SOeaNdYkBP54W4=
+X-Received: by 2002:a0c:bf4f:: with SMTP id b15mr31968009qvj.224.1596044892184;
+ Wed, 29 Jul 2020 10:48:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200727191746.3644844-1-ndesaulniers@google.com> <20200729115155.GC2674635@kroah.com>
-In-Reply-To: <20200729115155.GC2674635@kroah.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 29 Jul 2020 10:25:48 -0700
-Message-ID: <CAKwvOd=cNoP7nVQUDwbVDGu4EQXa87aTvjiCdrcXK74jJyggig@mail.gmail.com>
-Subject: Re: [PATCH 4.14.y] mm/page_owner.c: remove drain_all_pages from init_early_allocated_pages
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-mediatek@lists.infradead.org,
-        Oscar Salvador <osalvador@techadventures.net>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>
+References: <20200729040913.2815687-1-andriin@fb.com> <20200729040913.2815687-2-andriin@fb.com>
+ <87k0ymwg2b.fsf@cloudflare.com>
+In-Reply-To: <87k0ymwg2b.fsf@cloudflare.com>
+From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Date:   Wed, 29 Jul 2020 10:48:01 -0700
+Message-ID: <CAEf4BzYagTebczsojJJfn0viy07dhRUq3oysezEO_LSYSuwfRQ@mail.gmail.com>
+Subject: Re: [PATCH v4 bpf 2/2] selftests/bpf: extend map-in-map selftest to
+ detect memory leaks
+To:     Jakub Sitnicki <jakub@cloudflare.com>
+Cc:     Andrii Nakryiko <andriin@fb.com>, bpf <bpf@vger.kernel.org>,
+        Networking <netdev@vger.kernel.org>,
+        Alexei Starovoitov <ast@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Kernel Team <kernel-team@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 29, 2020 at 4:52 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Wed, Jul 29, 2020 at 7:29 AM Jakub Sitnicki <jakub@cloudflare.com> wrote:
 >
-> On Mon, Jul 27, 2020 at 12:17:45PM -0700, Nick Desaulniers wrote:
-> > From: Oscar Salvador <osalvador@techadventures.net>
+> On Wed, Jul 29, 2020 at 06:09 AM CEST, Andrii Nakryiko wrote:
+> > Add test validating that all inner maps are released properly after skeleton
+> > is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu()
+> > before checking map existence by their IDs.
 > >
-> > commit u6bec6ad77fac3d29aed0d8e0b7526daedc964970 upstream.
+> > Acked-by: Song Liu <songliubraving@fb.com>
+> > Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+> > ---
+> >  .../selftests/bpf/prog_tests/btf_map_in_map.c | 124 ++++++++++++++++--
+> >  1 file changed, 110 insertions(+), 14 deletions(-)
+> >
+> > diff --git a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> > index f7ee8fa377ad..f6eee3fb933c 100644
+> > --- a/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> > +++ b/tools/testing/selftests/bpf/prog_tests/btf_map_in_map.c
+> > @@ -5,10 +5,60 @@
+> >
+> >  #include "test_btf_map_in_map.skel.h"
+> >
+> > +static int duration;
+> > +
+> > +static __u32 bpf_map_id(struct bpf_map *map)
+> > +{
+> > +     struct bpf_map_info info;
+> > +     __u32 info_len = sizeof(info);
+> > +     int err;
+> > +
+> > +     memset(&info, 0, info_len);
+> > +     err = bpf_obj_get_info_by_fd(bpf_map__fd(map), &info, &info_len);
+> > +     if (err)
+> > +             return 0;
+> > +     return info.id;
+> > +}
+> > +
+> > +/*
+> > + * Trigger synchronize_cpu() in kernel.
 >
-> This is not a valid git id :(
+> Nit: synchronize_*r*cu().
 
-Prepended a `u`. As a git user, I must have `u`ndid something.
-Surprisingly it wasn't a `:wq` that was added.  Thanks for fixing that
-up for me and applying.
+welp, yeah
 
--- 
-Thanks,
-~Nick Desaulniers
+>
+> > + *
+> > + * ARRAY_OF_MAPS/HASH_OF_MAPS lookup/update operations trigger
+> > + * synchronize_rcu(), if looking up/updating non-NULL element. Use this fact
+> > + * to trigger synchronize_cpu(): create map-in-map, create a trivial ARRAY
+> > + * map, update map-in-map with ARRAY inner map. Then cleanup. At the end, at
+> > + * least one synchronize_rcu() would be called.
+> > + */
+>
+> That's a cool trick. I'm a bit confused by "looking up/updating non-NULL
+> element". It looks like you're updating an element that is NULL/unset in
+> the code below. What am I missing?
+
+I was basically trying to say that it has to be a successful lookup or
+update. For lookup that means looking up non-NULL (existing) entry.
+For update -- setting valid inner map FD.
+
+Not sure fixing this and typo above is worth it to post v5.
+
+>
+> > +static int kern_sync_rcu(void)
+> > +{
+> > +     int inner_map_fd, outer_map_fd, err, zero = 0;
+> > +
+> > +     inner_map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, 4, 4, 1, 0);
+> > +     if (CHECK(inner_map_fd < 0, "inner_map_create", "failed %d\n", -errno))
+> > +             return -1;
+> > +
+> > +     outer_map_fd = bpf_create_map_in_map(BPF_MAP_TYPE_ARRAY_OF_MAPS, NULL,
+> > +                                          sizeof(int), inner_map_fd, 1, 0);
+> > +     if (CHECK(outer_map_fd < 0, "outer_map_create", "failed %d\n", -errno)) {
+> > +             close(inner_map_fd);
+> > +             return -1;
+> > +     }
+> > +
+> > +     err = bpf_map_update_elem(outer_map_fd, &zero, &inner_map_fd, 0);
+> > +     if (err)
+> > +             err = -errno;
+> > +     CHECK(err, "outer_map_update", "failed %d\n", err);
+> > +     close(inner_map_fd);
+> > +     close(outer_map_fd);
+> > +     return err;
+> > +}
+> > +
+
+[...]
+
+trimming's good ;)
