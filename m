@@ -2,90 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1972326AE
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 23:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A232326E3
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 23:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgG2VRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 17:17:12 -0400
-Received: from www62.your-server.de ([213.133.104.62]:37296 "EHLO
-        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726365AbgG2VRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 17:17:12 -0400
-Received: from sslproxy05.your-server.de ([78.46.172.2])
-        by www62.your-server.de with esmtpsa (TLSv1.2:DHE-RSA-AES256-GCM-SHA384:256)
-        (Exim 4.89_1)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1k0tRm-0005V4-77; Wed, 29 Jul 2020 23:17:10 +0200
-Received: from [178.196.57.75] (helo=pc-9.home)
-        by sslproxy05.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1k0tRm-0007WS-0D; Wed, 29 Jul 2020 23:17:10 +0200
-Subject: Re: [PATCH v4 bpf 2/2] selftests/bpf: extend map-in-map selftest to
- detect memory leaks
-To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>
-Cc:     Andrii Nakryiko <andriin@fb.com>, bpf <bpf@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        Alexei Starovoitov <ast@fb.com>,
-        Kernel Team <kernel-team@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        linux- stable <stable@vger.kernel.org>
-References: <20200729040913.2815687-1-andriin@fb.com>
- <20200729040913.2815687-2-andriin@fb.com> <87k0ymwg2b.fsf@cloudflare.com>
- <CAEf4BzYagTebczsojJJfn0viy07dhRUq3oysezEO_LSYSuwfRQ@mail.gmail.com>
-From:   Daniel Borkmann <daniel@iogearbox.net>
-Message-ID: <e0741aae-64fd-dd2c-d91d-d8eb0b79ba20@iogearbox.net>
-Date:   Wed, 29 Jul 2020 23:17:09 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1727845AbgG2VhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 17:37:17 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:20552 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727823AbgG2VhR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 17:37:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596058636;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WhkCWwPB9RkgFRVKaewK6/9aoLErXC4RnUkvrrja2Pw=;
+        b=fKiB/NQJftA5RUH0ded5GHzlhPqErXXPhHfpzcUfoUrTM/0EnFee94qw6E1zVMKRWGqmvB
+        Sx3mfki6nqEy3wzhnYKYeJX0PlMUiZvzI6fUFM0YhBOkGYP+okqWOi3TyPvGhLQXJImErm
+        BAqNMnSnKleRVW9S1TiHwSvjSqAklZ8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-444-GtqNS00LNMKFdWOJ8hygRQ-1; Wed, 29 Jul 2020 17:37:12 -0400
+X-MC-Unique: GtqNS00LNMKFdWOJ8hygRQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A4E1A1005504;
+        Wed, 29 Jul 2020 21:37:10 +0000 (UTC)
+Received: from Ruby.redhat.com (ovpn-119-146.rdu2.redhat.com [10.10.119.146])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E9E9A60C84;
+        Wed, 29 Jul 2020 21:37:08 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     nouveau@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Karol Herbst <kherbst@redhat.com>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 1/9] drm/nouveau/kms: Handle -EINPROGRESS in nouveau_connector_hotplug()
+Date:   Wed, 29 Jul 2020 17:36:55 -0400
+Message-Id: <20200729213703.119137-2-lyude@redhat.com>
+In-Reply-To: <20200729213703.119137-1-lyude@redhat.com>
+References: <20200729213703.119137-1-lyude@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAEf4BzYagTebczsojJJfn0viy07dhRUq3oysezEO_LSYSuwfRQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: daniel@iogearbox.net
-X-Virus-Scanned: Clear (ClamAV 0.102.3/25888/Wed Jul 29 16:57:45 2020)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/29/20 7:48 PM, Andrii Nakryiko wrote:
-> On Wed, Jul 29, 2020 at 7:29 AM Jakub Sitnicki <jakub@cloudflare.com> wrote:
->>
->> On Wed, Jul 29, 2020 at 06:09 AM CEST, Andrii Nakryiko wrote:
->>> Add test validating that all inner maps are released properly after skeleton
->>> is destroyed. To ensure determinism, trigger kernel-side synchronize_rcu()
->>> before checking map existence by their IDs.
->>>
->>> Acked-by: Song Liu <songliubraving@fb.com>
->>> Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-[...]
->>> +/*
->>> + * Trigger synchronize_cpu() in kernel.
->>
->> Nit: synchronize_*r*cu().
-> 
-> welp, yeah
-> 
->>
->>> + *
->>> + * ARRAY_OF_MAPS/HASH_OF_MAPS lookup/update operations trigger
->>> + * synchronize_rcu(), if looking up/updating non-NULL element. Use this fact
->>> + * to trigger synchronize_cpu(): create map-in-map, create a trivial ARRAY
->>> + * map, update map-in-map with ARRAY inner map. Then cleanup. At the end, at
->>> + * least one synchronize_rcu() would be called.
->>> + */
->>
->> That's a cool trick. I'm a bit confused by "looking up/updating non-NULL
->> element". It looks like you're updating an element that is NULL/unset in
->> the code below. What am I missing?
-> 
-> I was basically trying to say that it has to be a successful lookup or
-> update. For lookup that means looking up non-NULL (existing) entry.
-> For update -- setting valid inner map FD.
-> 
-> Not sure fixing this and typo above is worth it to post v5.
+Looks like that we forgot to handle -EINPROGRESS being returned by
+pm_runtime_get(), which can happen if multiple callers try to
+asynchronously resume the GPU before it wakes up. This is perfectly
+normal and OK, so fix this by treating -EINPROGRESS as success.
 
-Nope, I'll fix it up while applying.
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: 3e1a12754d4d ("drm/nouveau: Fix deadlocks in nouveau_connector_detect()")
+Cc: stable@vger.kernel.org
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.19+
+---
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 7674025a4bfe8..38e226b8cfd05 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1173,7 +1173,7 @@ nouveau_connector_hotplug(struct nvif_notify *notify)
+ 	}
+ 
+ 	ret = pm_runtime_get(drm->dev->dev);
+-	if (ret == 0) {
++	if (ret == 0 || ret == -EINPROGRESS) {
+ 		/* We can't block here if there's a pending PM request
+ 		 * running, as we'll deadlock nouveau_display_fini() when it
+ 		 * calls nvif_put() on our nvif_notify struct. So, simply
+-- 
+2.26.2
+
