@@ -2,148 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BD9232198
-	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 17:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E04723225B
+	for <lists+stable@lfdr.de>; Wed, 29 Jul 2020 18:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726857AbgG2PbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jul 2020 11:31:08 -0400
-Received: from alexa-out-sd-01.qualcomm.com ([199.106.114.38]:10011 "EHLO
-        alexa-out-sd-01.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726709AbgG2PbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jul 2020 11:31:07 -0400
-Received: from unknown (HELO ironmsg01-sd.qualcomm.com) ([10.53.140.141])
-  by alexa-out-sd-01.qualcomm.com with ESMTP; 29 Jul 2020 08:31:04 -0700
-Received: from sivaprak-linux.qualcomm.com ([10.201.3.202])
-  by ironmsg01-sd.qualcomm.com with ESMTP; 29 Jul 2020 08:30:56 -0700
-Received: by sivaprak-linux.qualcomm.com (Postfix, from userid 459349)
-        id 005A9219A9; Wed, 29 Jul 2020 21:00:54 +0530 (IST)
-From:   Sivaprakash Murugesan <sivaprak@codeaurora.org>
-To:     agross@kernel.org, bjorn.andersson@linaro.org, bhelgaas@google.com,
-        robh+dt@kernel.org, kishon@ti.com, vkoul@kernel.org,
-        svarbanov@mm-sol.com, lorenzo.pieralisi@arm.com,
-        p.zabel@pengutronix.de, sivaprak@codeaurora.org,
-        mgautam@codeaurora.org, smuthayy@codeaurora.org,
-        varada@codeaurora.org, linux-arm-msm@vger.kernel.org,
-        linux-pci@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Subject: [PATCH V2 3/7] phy: qcom-qmp: Use correct values for ipq8074 PCIe Gen2 PHY init
-Date:   Wed, 29 Jul 2020 21:00:03 +0530
-Message-Id: <1596036607-11877-4-git-send-email-sivaprak@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1596036607-11877-1-git-send-email-sivaprak@codeaurora.org>
-References: <1596036607-11877-1-git-send-email-sivaprak@codeaurora.org>
+        id S1727109AbgG2QLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jul 2020 12:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49660 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726341AbgG2QLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jul 2020 12:11:41 -0400
+Received: from kozik-lap.mshome.net (unknown [194.230.155.213])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41E2122B48;
+        Wed, 29 Jul 2020 16:11:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596039101;
+        bh=sgnxQDxNFJhXCnpuKyxV9bhtCuQWJwff+93nPoham8s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cM4dVIXwR8DqzyQLOawNX1BOBHmqXQoHA6UO6xnb+fl+HSkQZRKq+0wevYNyuMDZ+
+         Z3x3sGobVRCFxBs/1KHgpWBmeAGDp9fNHImoMNRcr8xD2XwZgK3VtM3fLR9Tuy2Wxj
+         m91TTXpMH7UsVNy/mMdeuvUGo7i6UCtRbFIp8OZk=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Russell King <linux@armlinux.org.uk>,
+        Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Vincent Sanders <vince@simtec.co.uk>,
+        Simtec Linux Team <linux@simtec.co.uk>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Tomasz Figa <tomasz.figa@gmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        patches@opensource.cirrus.com, linux-clk@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Cc:     Sergio Prado <sergio.prado@e-labworks.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sylwester Nawrocki <snawrocki@kernel.org>,
+        Cedric Roux <sed@free.fr>, Lihua Yao <ylhuajnu@outlook.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 7/7] ARM: s3c24xx: Fix missing system reset
+Date:   Wed, 29 Jul 2020 18:09:42 +0200
+Message-Id: <20200729160942.28867-8-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200729160942.28867-1-krzk@kernel.org>
+References: <20200729160942.28867-1-krzk@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There were some problem in ipq8074 Gen2 PCIe phy init sequence.
+Commit f6361c6b3880 ("ARM: S3C24XX: remove separate restart code")
+removed usage of the watchdog reset platform code in favor of the
+Samsung SoC watchdog driver.  However the latter was not selected thus
+S3C24xx platforms lost reset abilities.
 
-1. Few register values were wrongly updated in the phy init sequence.
-2. The register QSERDES_RX_SIGDET_CNTRL is a RX tuning parameter
-   register which is added in serdes table causing the wrong register
-   was getting updated.
-3. Clocks and resets were not added in the phy init.
-
-Fix these to make Gen2 PCIe port on ipq8074 devices to work.
-
-Fixes: eef243d04b2b6 ("phy: qcom-qmp: Add support for IPQ8074")
-
-Cc: stable@vger.kernel.org
-Co-developed-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Signed-off-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Fixes: f6361c6b3880 ("ARM: S3C24XX: remove separate restart code")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
-[V2]
- * Fixed commit message as commented by Vinod
- drivers/phy/qualcomm/phy-qcom-qmp.c | 16 +++++++++-------
- drivers/phy/qualcomm/phy-qcom-qmp.h |  2 ++
- 2 files changed, 11 insertions(+), 7 deletions(-)
+ arch/arm/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
-index 562053c..6e6f992 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -604,8 +604,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_COM_BG_TRIM, 0xf),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_LOCK_CMP_EN, 0x1),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_MAP, 0x0),
--	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0x1f),
--	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x3f),
-+	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0xff),
-+	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x1f),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_CMN_CONFIG, 0x6),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_PLL_IVCO, 0xf),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_HSCLK_SEL, 0x0),
-@@ -631,7 +631,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN1_MODE0, 0x0),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN0_MODE0, 0x80),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_BIAS_EN_CTRL_BY_PSM, 0x1),
--	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_CTRL, 0xa),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_EN_CENTER, 0x1),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER1, 0x31),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER2, 0x1),
-@@ -640,7 +639,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE1, 0x2f),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE2, 0x19),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_CLK_EP_DIV, 0x19),
--	QMP_PHY_INIT_CFG(QSERDES_RX_SIGDET_CNTRL, 0x7),
- };
- 
- static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
-@@ -648,6 +646,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_TX_LANE_MODE, 0x6),
- 	QMP_PHY_INIT_CFG(QSERDES_TX_RES_CODE_LANE_OFFSET, 0x2),
- 	QMP_PHY_INIT_CFG(QSERDES_TX_RCV_DETECT_LVL_2, 0x12),
-+	QMP_PHY_INIT_CFG(QSERDES_TX_EMP_POST1_LVL, 0x36),
-+	QMP_PHY_INIT_CFG(QSERDES_TX_SLEW_CNTL, 0x0a),
- };
- 
- static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
-@@ -658,7 +658,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_RX_RX_EQU_ADAPTOR_CNTRL4, 0xdb),
- 	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_SATURATION_AND_ENABLE, 0x4b),
- 	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN, 0x4),
--	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN_HALF, 0x4),
- };
- 
- static const struct qmp_phy_init_tbl ipq8074_pcie_pcs_tbl[] = {
-@@ -2046,6 +2045,9 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
- 	.pwrdn_ctrl		= SW_PWRDN,
- };
- 
-+static const char * const ipq8074_pciephy_clk_l[] = {
-+	"aux", "cfg_ahb",
-+};
- /* list of resets */
- static const char * const ipq8074_pciephy_reset_l[] = {
- 	"phy", "common",
-@@ -2063,8 +2065,8 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
- 	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
- 	.pcs_tbl		= ipq8074_pcie_pcs_tbl,
- 	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
--	.clk_list		= NULL,
--	.num_clks		= 0,
-+	.clk_list		= ipq8074_pciephy_clk_l,
-+	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
- 	.reset_list		= ipq8074_pciephy_reset_l,
- 	.num_resets		= ARRAY_SIZE(ipq8074_pciephy_reset_l),
- 	.vreg_list		= NULL,
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.h b/drivers/phy/qualcomm/phy-qcom-qmp.h
-index 4277f59..904b80a 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.h
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.h
-@@ -77,6 +77,8 @@
- #define QSERDES_COM_CORECLK_DIV_MODE1			0x1bc
- 
- /* Only for QMP V2 PHY - TX registers */
-+#define QSERDES_TX_EMP_POST1_LVL			0x018
-+#define QSERDES_TX_SLEW_CNTL				0x040
- #define QSERDES_TX_RES_CODE_LANE_OFFSET			0x054
- #define QSERDES_TX_DEBUG_BUS_SEL			0x064
- #define QSERDES_TX_HIGHZ_TRANSCEIVEREN_BIAS_DRVR_EN	0x068
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index fe95777af653..063018c387be 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -506,8 +506,10 @@ config ARCH_S3C24XX
+ 	select HAVE_S3C2410_I2C if I2C
+ 	select HAVE_S3C_RTC if RTC_CLASS
+ 	select NEED_MACH_IO_H
++	select S3C2410_WATCHDOG
+ 	select SAMSUNG_ATAGS
+ 	select USE_OF
++	select WATCHDOG
+ 	help
+ 	  Samsung S3C2410, S3C2412, S3C2413, S3C2416, S3C2440, S3C2442, S3C2443
+ 	  and S3C2450 SoCs based systems, such as the Simtec Electronics BAST
 -- 
-2.7.4
+2.17.1
 
