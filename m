@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D938232D58
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C33232E0E
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729683AbgG3IJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:09:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48140 "EHLO mail.kernel.org"
+        id S1729703AbgG3IJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:09:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729703AbgG3IJg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:09:36 -0400
+        id S1729271AbgG3IJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:09:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B766C2070B;
-        Thu, 30 Jul 2020 08:09:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F59A2074B;
+        Thu, 30 Jul 2020 08:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096575;
-        bh=9U8Zlh4Tp++W52y47iLBLszmisu1bIMe3FBsSfMFuts=;
+        s=default; t=1596096577;
+        bh=tHuG06lH8svj5l1Txy9XjlGDzB6W2pXKLJki2MBeZBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4hnbBsoLnYv4UKcDV8tF2JvuNvK0JApcJGtC1v4HJqATakeAU7Of3P5SWCX1BjjD
-         c+ZU5tMJhLhdLGaGAyN05lf91SiS/gOrGjh6cIcgLq5cDUosRGtZws5mI+AUOToYGI
-         veYe3yfORjmANJAMNNhphqil2ig8OJ3keiGpGVxE=
+        b=W2qVJnrjE9/PUIN7kX2pGTE66/h7MWDdAM2H2PcfSDgBp/zo0ako/seybT/bG/qyk
+         cbt7dEgZobor8NvO3b/5HVxmmw87ZxMui711rNNPgK9qPEANT9WDX4wPQ0oR5XcYFd
+         zNZIpQGrD2XJKDjHugh70V0VR9jBOT2xJdOO0RKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.9 40/61] Makefile: Fix GCC_TOOLCHAIN_DIR prefix for Clang cross compilation
-Date:   Thu, 30 Jul 2020 10:04:58 +0200
-Message-Id: <20200730074422.772965892@linuxfoundation.org>
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alex Shi <alex.shi@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 41/61] mm/memcg: fix refcount error while moving and swapping
+Date:   Thu, 30 Jul 2020 10:04:59 +0200
+Message-Id: <20200730074422.823349331@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
 References: <20200730074420.811058810@linuxfoundation.org>
@@ -46,56 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit ca9b31f6bb9c6aa9b4e5f0792f39a97bbffb8c51 upstream.
+commit 8d22a9351035ef2ff12ef163a1091b8b8cf1e49c upstream.
 
-When CROSS_COMPILE is set (e.g. aarch64-linux-gnu-), if
-$(CROSS_COMPILE)elfedit is found at /usr/bin/aarch64-linux-gnu-elfedit,
-GCC_TOOLCHAIN_DIR will be set to /usr/bin/.  --prefix= will be set to
-/usr/bin/ and Clang as of 11 will search for both
-$(prefix)aarch64-linux-gnu-$needle and $(prefix)$needle.
+It was hard to keep a test running, moving tasks between memcgs with
+move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
+refcount is discovered to be 0 (supposedly impossible), so it is then
+forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
+succession, the test is at last put out of misery by being OOM killed.
 
-GCC searchs for $(prefix)aarch64-linux-gnu/$version/$needle,
-$(prefix)aarch64-linux-gnu/$needle and $(prefix)$needle. In practice,
-$(prefix)aarch64-linux-gnu/$needle rarely contains executables.
+This is because of the way moved_swap accounting was saved up until the
+task move gets completed in __mem_cgroup_clear_mc(), deferred from when
+mem_cgroup_move_swap_account() actually exchanged old and new ids.
+Concurrent activity can free up swap quicker than the task is scanned,
+bringing id refcount down 0 (which should only be possible when
+offlining).
 
-To better model how GCC's -B/--prefix takes in effect in practice, newer
-Clang (since
-https://github.com/llvm/llvm-project/commit/3452a0d8c17f7166f479706b293caf6ac76ffd90)
-only searches for $(prefix)$needle. Currently it will find /usr/bin/as
-instead of /usr/bin/aarch64-linux-gnu-as.
+Just skip that optimization: do that part of the accounting immediately.
 
-Set --prefix= to $(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
-(/usr/bin/aarch64-linux-gnu-) so that newer Clang can find the
-appropriate cross compiling GNU as (when -no-integrated-as is in
-effect).
-
-Cc: stable@vger.kernel.org
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1099
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/memcontrol.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -505,7 +505,7 @@ ifeq ($(cc-name),clang)
- ifneq ($(CROSS_COMPILE),)
- CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
- GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
--CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
-+CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
- GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
- endif
- ifneq ($(GCC_TOOLCHAIN),)
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -4794,7 +4794,6 @@ static void __mem_cgroup_clear_mc(void)
+ 		if (!mem_cgroup_is_root(mc.to))
+ 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
+ 
+-		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
+ 		css_put_many(&mc.to->css, mc.moved_swap);
+ 
+ 		mc.moved_swap = 0;
+@@ -4972,7 +4971,8 @@ put:			/* get_mctgt_type() gets the page
+ 			ent = target.ent;
+ 			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
+ 				mc.precharge--;
+-				/* we fixup refcnts and charges later. */
++				mem_cgroup_id_get_many(mc.to, 1);
++				/* we fixup other refcnts and charges later. */
+ 				mc.moved_swap++;
+ 			}
+ 			break;
 
 
