@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57E72232E30
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9CF2232E2D
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729626AbgG3IIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:08:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47104 "EHLO mail.kernel.org"
+        id S1729573AbgG3IIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729150AbgG3IIp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:08:45 -0400
+        id S1729163AbgG3IIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:08:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 795ED2083E;
-        Thu, 30 Jul 2020 08:08:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98E702074B;
+        Thu, 30 Jul 2020 08:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096525;
-        bh=PO98IxXYDBqn674cEJXk8rqRkVdotQu0HmgKd61RnH0=;
+        s=default; t=1596096497;
+        bh=NNlEVXo3UQ7qWHdlC8wROzn6n5lKu8TzbE3HTYTb5so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyG2vd4LRBt/6fjc2wTBTXyRNwiqpdVXJ9XeAcIm1R8kXoDR+L6zY+CWfmNB8wJyw
-         2IUSvyO0C7uA74bNa9sY8pkNHLD8ZUtOmQqgnZyve5oJnbUvvwjXG9JxgYxk5/QXgo
-         rvjnFBOAWKeIVDnkcjd1Q9ABOJOaKi0OCv9SzRic=
+        b=Rwub0oFdAv5xwfk1CNpVyYO3NQINCkE7IDNC9cFvVyetdSOPSfZ01+149XnY0EJzD
+         tKhtVi+al7NgFtZtom5QMLr6m8tE0hFdaXrp4Ck06FxkuDMDl/DgSX7b5QBOO/fIYm
+         q9wwn5VWoTggR4UH/dwEPJNgJ1d+KcoGeLvQTQLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.9 09/61] SUNRPC reverting d03727b248d0 ("NFSv4 fix CLOSE not waiting for direct IO compeletion")
-Date:   Thu, 30 Jul 2020 10:04:27 +0200
-Message-Id: <20200730074421.272533071@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Merey <amerey@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Subject: [PATCH 4.9 10/61] uprobes: Change handle_swbp() to send SIGTRAP with si_code=SI_KERNEL, to fix GDB regression
+Date:   Thu, 30 Jul 2020 10:04:28 +0200
+Message-Id: <20200730074421.323102663@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
 References: <20200730074420.811058810@linuxfoundation.org>
@@ -43,84 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 65caafd0d2145d1dd02072c4ced540624daeab40 upstream.
+commit fe5ed7ab99c656bd2f5b79b49df0e9ebf2cead8a upstream.
 
-Reverting commit d03727b248d0 "NFSv4 fix CLOSE not waiting for
-direct IO compeletion". This patch made it so that fput() by calling
-inode_dio_done() in nfs_file_release() would wait uninterruptably
-for any outstanding directIO to the file (but that wait on IO should
-be killable).
+If a tracee is uprobed and it hits int3 inserted by debugger, handle_swbp()
+does send_sig(SIGTRAP, current, 0) which means si_code == SI_USER. This used
+to work when this code was written, but then GDB started to validate si_code
+and now it simply can't use breakpoints if the tracee has an active uprobe:
 
-The problem the patch was also trying to address was REMOVE returning
-ERR_ACCESS because the file is still opened, is supposed to be resolved
-by server returning ERR_FILE_OPEN and not ERR_ACCESS.
+	# cat test.c
+	void unused_func(void)
+	{
+	}
+	int main(void)
+	{
+		return 0;
+	}
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+	# gcc -g test.c -o test
+	# perf probe -x ./test -a unused_func
+	# perf record -e probe_test:unused_func gdb ./test -ex run
+	GNU gdb (GDB) 10.0.50.20200714-git
+	...
+	Program received signal SIGTRAP, Trace/breakpoint trap.
+	0x00007ffff7ddf909 in dl_main () from /lib64/ld-linux-x86-64.so.2
+	(gdb)
+
+The tracee hits the internal breakpoint inserted by GDB to monitor shared
+library events but GDB misinterprets this SIGTRAP and reports a signal.
+
+Change handle_swbp() to use force_sig(SIGTRAP), this matches do_int3_user()
+and fixes the problem.
+
+This is the minimal fix for -stable, arch/x86/kernel/uprobes.c is equally
+wrong; it should use send_sigtrap(TRAP_TRACE) instead of send_sig(SIGTRAP),
+but this doesn't confuse GDB and needs another x86-specific patch.
+
+Reported-by: Aaron Merey <amerey@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200723154420.GA32043@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/direct.c |   13 ++++---------
- fs/nfs/file.c   |    1 -
- 2 files changed, 4 insertions(+), 10 deletions(-)
+ kernel/events/uprobes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -379,6 +379,8 @@ static void nfs_direct_complete(struct n
- {
- 	struct inode *inode = dreq->inode;
- 
-+	inode_dio_end(inode);
-+
- 	if (dreq->iocb) {
- 		long res = (long) dreq->error;
- 		if (dreq->count != 0) {
-@@ -390,10 +392,7 @@ static void nfs_direct_complete(struct n
- 
- 	complete(&dreq->completion);
- 
--	igrab(inode);
- 	nfs_direct_req_release(dreq);
--	inode_dio_end(inode);
--	iput(inode);
- }
- 
- static void nfs_direct_readpage_release(struct nfs_page *req)
-@@ -535,10 +534,8 @@ static ssize_t nfs_direct_read_schedule_
- 	 * generic layer handle the completion.
- 	 */
- 	if (requested_bytes == 0) {
--		igrab(inode);
--		nfs_direct_req_release(dreq);
- 		inode_dio_end(inode);
--		iput(inode);
-+		nfs_direct_req_release(dreq);
- 		return result < 0 ? result : -EIO;
- 	}
- 
-@@ -956,10 +953,8 @@ static ssize_t nfs_direct_write_schedule
- 	 * generic layer handle the completion.
- 	 */
- 	if (requested_bytes == 0) {
--		igrab(inode);
--		nfs_direct_req_release(dreq);
- 		inode_dio_end(inode);
--		iput(inode);
-+		nfs_direct_req_release(dreq);
- 		return result < 0 ? result : -EIO;
- 	}
- 
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -82,7 +82,6 @@ nfs_file_release(struct inode *inode, st
- 	dprintk("NFS: release(%pD2)\n", filp);
- 
- 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
--	inode_dio_wait(inode);
- 	nfs_file_clear_open_context(filp);
- 	return 0;
- }
+--- a/kernel/events/uprobes.c
++++ b/kernel/events/uprobes.c
+@@ -1885,7 +1885,7 @@ static void handle_swbp(struct pt_regs *
+ 	if (!uprobe) {
+ 		if (is_swbp > 0) {
+ 			/* No matching uprobe; signal SIGTRAP. */
+-			send_sig(SIGTRAP, current, 0);
++			force_sig(SIGTRAP, current);
+ 		} else {
+ 			/*
+ 			 * Either we raced with uprobe_unregister() or we can't
 
 
