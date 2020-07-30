@@ -2,126 +2,231 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38018233A0A
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 22:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CED4233AEF
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 23:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730130AbgG3Uvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 16:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729166AbgG3Uva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 16:51:30 -0400
-Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52DCC061574
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 13:51:30 -0700 (PDT)
-Received: by mail-pj1-x1049.google.com with SMTP id ei10so7056856pjb.2
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 13:51:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=U0OUPTDRNGhh0ydoN6VkhJdiruQZ6OtwNxR4N39C4f8=;
-        b=bS33mlwdf/DJIQD28epPbEI7pJZXa1xHzvIjvbrwJsYvNRprRL04EmCMO8BY7c7vyR
-         ofLXj+EecJitrlsOgIRSeYox7Ze/fCWlAwsLoJGJXNxJhm1Jzit1E25lLOIc4Zq4SNtH
-         vDVgxSSFKjr6Dev1jNeB+/y6/4/TPRX9evR1RJBCof4kAi7IzZUb1z4wOFHcPt1MDXS1
-         UMmiVxWsDAo7fDiJWj5rZyAePJEpkaW+/xc4T//YX/DRcxFqZMlHsEZewHwkWf3ZE5Bn
-         pEZzlVLo2QFc9P0WbNbGGnsimIfk/QgsbAfVHpxvfHt3Lp7csq8m7P0gUJ1850oZa06/
-         oWcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=U0OUPTDRNGhh0ydoN6VkhJdiruQZ6OtwNxR4N39C4f8=;
-        b=QdLzRUTaGhF17z1Nwubx2DU2DaIx2PNQmjhpEJBQdUFw60Jis1rbHUq94FyEqOM8Oa
-         Nu99vePA5IO2A3oAqGUreU3c5BgdxkWI4ycWrXjYQ/XMCWriVizvyTJcHG9+DswBS1tW
-         KCzJmNVqMLBiAR99Bcx1FN01Rx88z69nerG4tBDvPs9ipfp2SatqMsCHzfFLdq+XYZrv
-         DHwL9On02R5Yiky7lBnLFlalqw0KPvvh0LW25t3ILFd1u5aHwdJZReXv4I8E2US5kDuo
-         Iqu6q7F/WTgU3L6P2vMYoDk5QZc5sNLR+VxaQoS0BZZUAiNJqWmWOqUmBewyQQhLxlCl
-         Lz1w==
-X-Gm-Message-State: AOAM532HH7y5Mr2tnwRmWgRAc/xm+xGdfitzUmQ9TO4fnmNUBPP+z7F1
-        kDp8TPtXddrQDw9HqwLSbYJ0+HqUQub3k1YCV70=
-X-Google-Smtp-Source: ABdhPJwCEyx+wmqrFUv640p8yJy8eY2sYOEIDXEj/DD5NDhOwWleNVqKa5yzVDKQryUe9mvaALl+3zlHBVcQT43pRDg=
-X-Received: by 2002:a17:90b:4d0b:: with SMTP id mw11mr923395pjb.4.1596142290243;
- Thu, 30 Jul 2020 13:51:30 -0700 (PDT)
-Date:   Thu, 30 Jul 2020 13:51:10 -0700
-In-Reply-To: <20200730205112.2099429-1-ndesaulniers@google.com>
-Message-Id: <20200730205112.2099429-3-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <20200730205112.2099429-1-ndesaulniers@google.com>
-X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
-Subject: [PATCH 2/4] ARM: backtrace-clang: add fixup for lr dereference
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     Nathan Huckleberry <nhuck15@gmail.com>,
-        Russell King <linux@armlinux.org.uk>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        clang-built-linux@googlegroups.com,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Lvqiang Huang <lvqiang.huang@unisoc.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Miles Chen <miles.chen@mediatek.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1730684AbgG3Vkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 17:40:45 -0400
+Received: from gateway21.websitewelcome.com ([192.185.45.210]:24156 "EHLO
+        gateway21.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728849AbgG3Vkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 17:40:43 -0400
+X-Greylist: delayed 1290 seconds by postgrey-1.27 at vger.kernel.org; Thu, 30 Jul 2020 17:40:41 EDT
+Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
+        by gateway21.websitewelcome.com (Postfix) with ESMTP id BD7E7400D9BA1
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 16:19:03 -0500 (CDT)
+Received: from gator4166.hostgator.com ([108.167.133.22])
+        by cmsmtp with SMTP
+        id 1Fx9kXaASRQIV1Fx9kwWfi; Thu, 30 Jul 2020 16:19:03 -0500
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:Subject:From:References:Cc:To:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Dgc5q+btJ0qLtgKsOpVqoaxgoehsQ/cFQWUFMqbTx18=; b=Ya+aBj1VC2ibFEEbdFxjVK4+ip
+        rkM8dXXAa/PREqZa0iuogOr01gjvLpHYNbssEGN/zkmWd4pg300hxGZ0YDV0vDczgw1tadrJZJdSB
+        Byx0gprUPjOisZN+Wpgm5zMPDGyK0U2+xhvQQlaxnJQkq6PNZ1QFHYL3gzw9r2kZWDpi1r3f6qisT
+        GNQ/APg1Jrn0/kjeBM+r96mqOz5ZU//dxn+DyJoeDQc1X1+eRv48XMv8zRj5I1I7OEB6+6VbjAQSp
+        6aQA68ANDCl4ClGl8IBflmtaHXFtd13xAhDrr2suFC3OtuAcsFhsNo7poVTyxhyySxNpK4VdzfxEe
+        69Pckl1g==;
+Received: from 187-162-31-110.static.axtel.net ([187.162.31.110]:47268 helo=[192.168.15.3])
+        by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <gustavo@embeddedor.com>)
+        id 1k1Fx7-000Sv2-Gr; Thu, 30 Jul 2020 16:19:01 -0500
+To:     Tomas Winkler <tomas.winkler@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org,
+        Ramalingam C <ramalingam.c@intel.com>, stable@vger.kernel.org
+References: <20200730185451.3621108-1-tomas.winkler@intel.com>
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Autocrypt: addr=gustavo@embeddedor.com; keydata=
+ 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
+ AP7RWS474w==
+Subject: Re: [char-misc-next V3] mei: hdcp: fix mei_hdcp_verify_mprime() input
+ paramter
+Message-ID: <2ce86027-467f-6cc0-6e1b-f706dd1adfe5@embeddedor.com>
+Date:   Thu, 30 Jul 2020 16:25:04 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
+MIME-Version: 1.0
+In-Reply-To: <20200730185451.3621108-1-tomas.winkler@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 187.162.31.110
+X-Source-L: No
+X-Exim-ID: 1k1Fx7-000Sv2-Gr
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 187-162-31-110.static.axtel.net ([192.168.15.3]) [187.162.31.110]:47268
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 6
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the value of the link register is not correct (tail call from asm
-that didn't set it, stack corruption, memory no longer mapped), then
-using it for an address calculation may trigger an exception.  Without a
-fixup handler, this will lead to a panic, which will unwind, which will
-trigger the fault repeatedly in an infinite loop.
+Tomas,
 
-We don't observe such failures currently, but we have. Just to be safe,
-add a fixup handler here so that at least we don't have an infinite
-loop.
+The subject line has a typo: s/paramter/parameter
 
-Cc: stable@vger.kernel.org
-Fixes: commit 6dc5fd93b2f1 ("ARM: 8900/1: UNWINDER_FRAME_POINTER implementation for Clang")
-Reported-by: Miles Chen <miles.chen@mediatek.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- arch/arm/lib/backtrace-clang.S | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+Please, see more comments below...
 
-diff --git a/arch/arm/lib/backtrace-clang.S b/arch/arm/lib/backtrace-clang.S
-index 5388ac664c12..40eb2215eaf4 100644
---- a/arch/arm/lib/backtrace-clang.S
-+++ b/arch/arm/lib/backtrace-clang.S
-@@ -146,7 +146,7 @@ for_each_frame:	tst	frame, mask		@ Check for address exceptions
- 
- 		tst	sv_lr, #0		@ If there's no previous lr,
- 		beq	finished_setup		@ we're done.
--		ldr	r0, [sv_lr, #-4]	@ get call instruction
-+prev_call:	ldr	r0, [sv_lr, #-4]	@ get call instruction
- 		ldr	r3, .Lopcode+4
- 		and	r2, r3, r0		@ is this a bl call
- 		teq	r2, r3
-@@ -206,6 +206,13 @@ finished_setup:
- 		mov	r2, frame
- 		bl	printk
- no_frame:	ldmfd	sp!, {r4 - r9, fp, pc}
-+/*
-+ * Accessing the address pointed to by the link register triggered an
-+ * exception, don't try to unwind through it.
-+ */
-+bad_lr:		mov	sv_fp, #0
-+		mov	sv_lr, #0
-+		b	finished_setup
- ENDPROC(c_backtrace)
- 		.pushsection __ex_table,"a"
- 		.align	3
-@@ -214,6 +221,7 @@ ENDPROC(c_backtrace)
- 		.long	1003b, 1006b
- 		.long	1004b, 1006b
- 		.long   1005b, 1006b
-+		.long	prev_call, bad_lr
- 		.popsection
- 
- .Lbad:		.asciz	"%sBacktrace aborted due to bad frame pointer <%p>\n"
--- 
-2.28.0.163.g6104cc2f0b6-goog
+On 7/30/20 13:54, Tomas Winkler wrote:
+> wired_cmd_repeater_auth_stream_req_in has a variable
+> length array at the end. we use struct_size() overflow
+> macro to determine the size for the allocation and sending
+> size.
+> This also fixes bug in case number of streams is > 0 in the original
+> submission. This bug was not triggered as the number of streams is
+> always one.
+> 
+> Fixes: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
+> Fixes: 0a1af1b5c18d ("misc/mei/hdcp: Verify M_prime")
+> Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+> Cc: Ramalingam C <ramalingam.c@intel.com>
+> Cc: <stable@vger.kernel.org> v5.1+
+> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+> ---
+> V3:
+> 1. Fix commit message with more info and another patch it fixes (Gustavo)
+> 2. Target stable. (Gustavo)
+> V2: Check for allocation failure.
+>  drivers/misc/mei/hdcp/mei_hdcp.c | 40 +++++++++++++++++++-------------
+>  1 file changed, 24 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
+> index d1d3e025ca0e..f1205e0060db 100644
+> --- a/drivers/misc/mei/hdcp/mei_hdcp.c
+> +++ b/drivers/misc/mei/hdcp/mei_hdcp.c
+> @@ -546,38 +546,46 @@ static int mei_hdcp_verify_mprime(struct device *dev,
+>  				  struct hdcp_port_data *data,
+>  				  struct hdcp2_rep_stream_ready *stream_ready)
+>  {
+> -	struct wired_cmd_repeater_auth_stream_req_in
+> -					verify_mprime_in = { { 0 } };
+> +	struct wired_cmd_repeater_auth_stream_req_in *verify_mprime_in;
+>  	struct wired_cmd_repeater_auth_stream_req_out
+>  					verify_mprime_out = { { 0 } };
+>  	struct mei_cl_device *cldev;
+>  	ssize_t byte;
+> +	size_t cmd_size;
+>  
+>  	if (!dev || !stream_ready || !data)
+>  		return -EINVAL;
+>  
+>  	cldev = to_mei_cl_device(dev);
+>  
+> -	verify_mprime_in.header.api_version = HDCP_API_VERSION;
+> -	verify_mprime_in.header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
+> -	verify_mprime_in.header.status = ME_HDCP_STATUS_SUCCESS;
+> -	verify_mprime_in.header.buffer_len =
+> +	cmd_size = struct_size(verify_mprime_in, streams, data->k);
+> +	if (cmd_size == SIZE_MAX)
+> +		return -EINVAL;
+> +
+> +	verify_mprime_in = kzalloc(cmd_size, GFP_KERNEL);
+> +	if (!verify_mprime_in)
+> +		return -ENOMEM;
+> +
+> +	verify_mprime_in->header.api_version = HDCP_API_VERSION;
+> +	verify_mprime_in->header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
+> +	verify_mprime_in->header.status = ME_HDCP_STATUS_SUCCESS;
+> +	verify_mprime_in->header.buffer_len =
+>  			WIRED_CMD_BUF_LEN_REPEATER_AUTH_STREAM_REQ_MIN_IN;
+>  
+> -	verify_mprime_in.port.integrated_port_type = data->port_type;
+> -	verify_mprime_in.port.physical_port = (u8)data->fw_ddi;
+> -	verify_mprime_in.port.attached_transcoder = (u8)data->fw_tc;
+> +	verify_mprime_in->port.integrated_port_type = data->port_type;
+> +	verify_mprime_in->port.physical_port = (u8)data->fw_ddi;
+> +	verify_mprime_in->port.attached_transcoder = (u8)data->fw_tc;
+> +
+> +	memcpy(verify_mprime_in->m_prime, stream_ready->m_prime, HDCP_2_2_MPRIME_LEN);
+> +	drm_hdcp_cpu_to_be24(verify_mprime_in->seq_num_m, data->seq_num_m);
+>  
+> -	memcpy(verify_mprime_in.m_prime, stream_ready->m_prime,
+> -	       HDCP_2_2_MPRIME_LEN);
+> -	drm_hdcp_cpu_to_be24(verify_mprime_in.seq_num_m, data->seq_num_m);
+> -	memcpy(verify_mprime_in.streams, data->streams,
+> +	memcpy(verify_mprime_in->streams, data->streams,
+>  	       array_size(data->k, sizeof(*data->streams)));
+>  
+> -	verify_mprime_in.k = cpu_to_be16(data->k);
+> +	verify_mprime_in->k = cpu_to_be16(data->k);
+>  
+> -	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in,
+> -			      sizeof(verify_mprime_in));
+> +	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in, cmd_size);
 
+The line above is incorrect, it should be this, instead:
+
+byte = mei_cldev_send(cldev, (u8 *)verify_mprime_in, cmd_size);
+
+otherwise you are passing the address of the object pointer
+verify_mprime_in and not the reference to what it points to,
+which is what we want in this case.
+
+Thanks
+--
+Gustavo
+
+> +	kfree(verify_mprime_in);
+>  	if (byte < 0) {
+>  		dev_dbg(dev, "mei_cldev_send failed. %zd\n", byte);
+>  		return byte;
+> 
