@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA6A232D85
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4FF232E69
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729342AbgG3ILa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50630 "EHLO mail.kernel.org"
+        id S1729398AbgG3IHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729959AbgG3ILW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:11:22 -0400
+        id S1729394AbgG3IHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:07:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F7992074B;
-        Thu, 30 Jul 2020 08:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B42DF22B40;
+        Thu, 30 Jul 2020 08:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096681;
-        bh=307H0mAGqFThKH7YKYzyGbkMGO1zCL4yynGdqbyR1Cc=;
+        s=default; t=1596096425;
+        bh=bt49cYPlrr0TKkQdlPFv9yTPAeQJnVfpScaMwdccLl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FvwjlBvQzWntU1RB2Q0SqUdBtPY9JsHXzbJ8S6mqjP1274bRf0vBd33Gdadi2o85g
-         p9uH33OL+S6Afti39W/ppn1QAG4HiUnnBr70QsF3IsGPkQCtQjYDk0A13WQj/IRFGW
-         G9MltIEE12GxPuz1ZUSmr8mCTg0We9vfbaPoXno0=
+        b=Ruj7MTCUelGiyMbK0kU8G4/dj329mHEAfbr7nN1f+douwchyx6CppH2NdeumXaQvK
+         j4DrPNsvlPZCyXj/D/KHNuCX2pn5PrM7xuJjjByeD98ghjt2SIIT98wAFywBuieGZk
+         AYdU4r/2m4HOvD1uQUuSJzgxQsEZt7IzsIa8rE6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/54] mac80211: allow rx of mesh eapol frames with default rx key
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Benjamin Herrenschmidt <benh@amazon.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 15/17] udp: Improve load balancing for SO_REUSEPORT.
 Date:   Thu, 30 Jul 2020 10:04:41 +0200
-Message-Id: <20200730074421.330256531@linuxfoundation.org>
+Message-Id: <20200730074421.210362558@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.449233408@linuxfoundation.org>
+References: <20200730074420.449233408@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit 0b467b63870d9c05c81456aa9bfee894ab2db3b6 ]
+[ Upstream commit efc6b6f6c3113e8b203b9debfb72d81e0f3dcace ]
 
-Without this patch, eapol frames cannot be received in mesh
-mode, when 802.1X should be used. Initially only a MGTK is
-defined, which is found and set as rx->key, when there are
-no other keys set. ieee80211_drop_unencrypted would then
-drop these eapol frames, as they are data frames without
-encryption and there exists some rx->key.
+Currently, SO_REUSEPORT does not work well if connected sockets are in a
+UDP reuseport group.
 
-Fix this by differentiating between mesh eapol frames and
-other data frames with existing rx->key. Allow mesh mesh
-eapol frames only if they are for our vif address.
+Then reuseport_has_conns() returns true and the result of
+reuseport_select_sock() is discarded. Also, unconnected sockets have the
+same score, hence only does the first unconnected socket in udp_hslot
+always receive all packets sent to unconnected sockets.
 
-With this patch in-place, ieee80211_rx_h_mesh_fwding continues
-after the ieee80211_drop_unencrypted check and notices, that
-these eapol frames have to be delivered locally, as they should.
+So, the result of reuseport_select_sock() should be used for load
+balancing.
 
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20200625104214.50319-1-markus.theil@tu-ilmenau.de
-[small code cleanups]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The noteworthy point is that the unconnected sockets placed after
+connected sockets in sock_reuseport.socks will receive more packets than
+others because of the algorithm in reuseport_select_sock().
+
+    index | connected | reciprocal_scale | result
+    ---------------------------------------------
+    0     | no        | 20%              | 40%
+    1     | no        | 20%              | 20%
+    2     | yes       | 20%              | 0%
+    3     | no        | 20%              | 40%
+    4     | yes       | 20%              | 0%
+
+If most of the sockets are connected, this can be a problem, but it still
+works better than now.
+
+Fixes: acdcecc61285 ("udp: correct reuseport selection with connected sockets")
+CC: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Benjamin Herrenschmidt <benh@amazon.com>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ net/ipv4/udp.c |   15 +++++++++------
+ net/ipv6/udp.c |   15 +++++++++------
+ 2 files changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index a74a6ff18f919..886dce84e70c0 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1963,6 +1963,7 @@ static int ieee80211_802_1x_port_control(struct ieee80211_rx_data *rx)
- 
- static int ieee80211_drop_unencrypted(struct ieee80211_rx_data *rx, __le16 fc)
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -433,7 +433,7 @@ static struct sock *udp4_lib_lookup2(str
+ 				     struct udp_hslot *hslot2,
+ 				     struct sk_buff *skb)
  {
-+	struct ieee80211_hdr *hdr = (void *)rx->skb->data;
- 	struct sk_buff *skb = rx->skb;
- 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+-	struct sock *sk, *result;
++	struct sock *sk, *result, *reuseport_result;
+ 	int score, badness;
+ 	u32 hash = 0;
  
-@@ -1973,6 +1974,31 @@ static int ieee80211_drop_unencrypted(struct ieee80211_rx_data *rx, __le16 fc)
- 	if (status->flag & RX_FLAG_DECRYPTED)
- 		return 0;
+@@ -443,17 +443,20 @@ static struct sock *udp4_lib_lookup2(str
+ 		score = compute_score(sk, net, saddr, sport,
+ 				      daddr, hnum, dif, sdif, exact_dif);
+ 		if (score > badness) {
++			reuseport_result = NULL;
++
+ 			if (sk->sk_reuseport &&
+ 			    sk->sk_state != TCP_ESTABLISHED) {
+ 				hash = udp_ehashfn(net, daddr, hnum,
+ 						   saddr, sport);
+-				result = reuseport_select_sock(sk, hash, skb,
+-							sizeof(struct udphdr));
+-				if (result && !reuseport_has_conns(sk, false))
+-					return result;
++				reuseport_result = reuseport_select_sock(sk, hash, skb,
++									 sizeof(struct udphdr));
++				if (reuseport_result && !reuseport_has_conns(sk, false))
++					return reuseport_result;
+ 			}
++
++			result = reuseport_result ? : sk;
+ 			badness = score;
+-			result = sk;
+ 		}
+ 	}
+ 	return result;
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -167,7 +167,7 @@ static struct sock *udp6_lib_lookup2(str
+ 		int dif, int sdif, bool exact_dif,
+ 		struct udp_hslot *hslot2, struct sk_buff *skb)
+ {
+-	struct sock *sk, *result;
++	struct sock *sk, *result, *reuseport_result;
+ 	int score, badness;
+ 	u32 hash = 0;
  
-+	/* check mesh EAPOL frames first */
-+	if (unlikely(rx->sta && ieee80211_vif_is_mesh(&rx->sdata->vif) &&
-+		     ieee80211_is_data(fc))) {
-+		struct ieee80211s_hdr *mesh_hdr;
-+		u16 hdr_len = ieee80211_hdrlen(fc);
-+		u16 ethertype_offset;
-+		__be16 ethertype;
+@@ -177,17 +177,20 @@ static struct sock *udp6_lib_lookup2(str
+ 		score = compute_score(sk, net, saddr, sport,
+ 				      daddr, hnum, dif, sdif, exact_dif);
+ 		if (score > badness) {
++			reuseport_result = NULL;
 +
-+		if (!ether_addr_equal(hdr->addr1, rx->sdata->vif.addr))
-+			goto drop_check;
+ 			if (sk->sk_reuseport &&
+ 			    sk->sk_state != TCP_ESTABLISHED) {
+ 				hash = udp6_ehashfn(net, daddr, hnum,
+ 						    saddr, sport);
+ 
+-				result = reuseport_select_sock(sk, hash, skb,
+-							sizeof(struct udphdr));
+-				if (result && !reuseport_has_conns(sk, false))
+-					return result;
++				reuseport_result = reuseport_select_sock(sk, hash, skb,
++									 sizeof(struct udphdr));
++				if (reuseport_result && !reuseport_has_conns(sk, false))
++					return reuseport_result;
+ 			}
+-			result = sk;
 +
-+		/* make sure fixed part of mesh header is there, also checks skb len */
-+		if (!pskb_may_pull(rx->skb, hdr_len + 6))
-+			goto drop_check;
-+
-+		mesh_hdr = (struct ieee80211s_hdr *)(skb->data + hdr_len);
-+		ethertype_offset = hdr_len + ieee80211_get_mesh_hdrlen(mesh_hdr) +
-+				   sizeof(rfc1042_header);
-+
-+		if (skb_copy_bits(rx->skb, ethertype_offset, &ethertype, 2) == 0 &&
-+		    ethertype == rx->sdata->control_port_protocol)
-+			return 0;
-+	}
-+
-+drop_check:
- 	/* Drop unencrypted frames if key is set. */
- 	if (unlikely(!ieee80211_has_protected(fc) &&
- 		     !ieee80211_is_any_nullfunc(fc) &&
--- 
-2.25.1
-
++			result = reuseport_result ? : sk;
+ 			badness = score;
+ 		}
+ 	}
 
 
