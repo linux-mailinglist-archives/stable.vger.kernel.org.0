@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C3E232E13
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2600B232E07
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729786AbgG3IKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49100 "EHLO mail.kernel.org"
+        id S1729223AbgG3IQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729348AbgG3IKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:15 -0400
+        id S1729830AbgG3IKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD04E2084D;
-        Thu, 30 Jul 2020 08:10:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 654552074B;
+        Thu, 30 Jul 2020 08:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096615;
-        bh=d2ykpq0HLu37WsOzX2nM/4UzxyXO+CJh8/ET11Cwvlw=;
+        s=default; t=1596096630;
+        bh=OZYPXWVfMwBquWoDmCQumURZ7Eyv7oOh4xRRvY28ykk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZtFZX/VPkokobonZxXpS8YcKh1D93gLULprBy93GViz/EAzlJuy0zg2Tfjn9b/StN
-         MZRB0lBG5LzGueF57iFwWLLU0goBpN6B22HtgfZeBr5wq4sGUP/zvpijfHZInJJ3/+
-         WJCf87V2BIFmM7PZG+tHYXfiXd06PRxfwMQG0SUw=
+        b=L4hPCr0JaPG1PinkJ3w5Ay2p+ejubV5WKkJhgeZ20QlDf+/qXQyWOeq3xz9dSmdvQ
+         Cf4ScowlLzlBimfLx3esNAwd4PP2ofrY9XS+Wzd5Qq5os1onFSZfM4+2HNGIoxMhlq
+         u4jjTt5QGSUlyQb5VsVrYPOt1ZOGYnzWN0NIH0SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 48/61] dev: Defer free of skbs in flush_backlog
-Date:   Thu, 30 Jul 2020 10:05:06 +0200
-Message-Id: <20200730074423.160526285@linuxfoundation.org>
+Subject: [PATCH 4.9 49/61] net-sysfs: add a newline when printing tx_timeout by sysfs
+Date:   Thu, 30 Jul 2020 10:05:07 +0200
+Message-Id: <20200730074423.208969293@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
 References: <20200730074420.811058810@linuxfoundation.org>
@@ -44,31 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 7df5cb75cfb8acf96c7f2342530eb41e0c11f4c3 ]
+[ Upstream commit 9bb5fbea59f36a589ef886292549ca4052fe676c ]
 
-IRQs are disabled when freeing skbs in input queue.
-Use the IRQ safe variant to free skbs here.
+When I cat 'tx_timeout' by sysfs, it displays as follows. It's better to
+add a newline for easy reading.
 
-Fixes: 145dd5f9c88f ("net: flush the softnet backlog in process context")
-Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+root@syzkaller:~# cat /sys/devices/virtual/net/lo/queues/tx-0/tx_timeout
+0root@syzkaller:~#
+
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |    2 +-
+ net/core/net-sysfs.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4392,7 +4392,7 @@ static void flush_backlog(struct work_st
- 	skb_queue_walk_safe(&sd->input_pkt_queue, skb, tmp) {
- 		if (skb->dev->reg_state == NETREG_UNREGISTERING) {
- 			__skb_unlink(skb, &sd->input_pkt_queue);
--			kfree_skb(skb);
-+			dev_kfree_skb_irq(skb);
- 			input_queue_head_incr(sd);
- 		}
- 	}
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -1018,7 +1018,7 @@ static ssize_t show_trans_timeout(struct
+ 	trans_timeout = queue->trans_timeout;
+ 	spin_unlock_irq(&queue->_xmit_lock);
+ 
+-	return sprintf(buf, "%lu", trans_timeout);
++	return sprintf(buf, fmt_ulong, trans_timeout);
+ }
+ 
+ #ifdef CONFIG_XPS
 
 
