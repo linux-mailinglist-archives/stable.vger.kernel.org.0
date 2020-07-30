@@ -2,231 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CED4233AEF
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 23:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A072A233AE9
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 23:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730684AbgG3Vkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 17:40:45 -0400
-Received: from gateway21.websitewelcome.com ([192.185.45.210]:24156 "EHLO
-        gateway21.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728849AbgG3Vkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 17:40:43 -0400
-X-Greylist: delayed 1290 seconds by postgrey-1.27 at vger.kernel.org; Thu, 30 Jul 2020 17:40:41 EDT
-Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
-        by gateway21.websitewelcome.com (Postfix) with ESMTP id BD7E7400D9BA1
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 16:19:03 -0500 (CDT)
-Received: from gator4166.hostgator.com ([108.167.133.22])
-        by cmsmtp with SMTP
-        id 1Fx9kXaASRQIV1Fx9kwWfi; Thu, 30 Jul 2020 16:19:03 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:MIME-Version:Date:Message-ID:Subject:From:References:Cc:To:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Dgc5q+btJ0qLtgKsOpVqoaxgoehsQ/cFQWUFMqbTx18=; b=Ya+aBj1VC2ibFEEbdFxjVK4+ip
-        rkM8dXXAa/PREqZa0iuogOr01gjvLpHYNbssEGN/zkmWd4pg300hxGZ0YDV0vDczgw1tadrJZJdSB
-        Byx0gprUPjOisZN+Wpgm5zMPDGyK0U2+xhvQQlaxnJQkq6PNZ1QFHYL3gzw9r2kZWDpi1r3f6qisT
-        GNQ/APg1Jrn0/kjeBM+r96mqOz5ZU//dxn+DyJoeDQc1X1+eRv48XMv8zRj5I1I7OEB6+6VbjAQSp
-        6aQA68ANDCl4ClGl8IBflmtaHXFtd13xAhDrr2suFC3OtuAcsFhsNo7poVTyxhyySxNpK4VdzfxEe
-        69Pckl1g==;
-Received: from 187-162-31-110.static.axtel.net ([187.162.31.110]:47268 helo=[192.168.15.3])
-        by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <gustavo@embeddedor.com>)
-        id 1k1Fx7-000Sv2-Gr; Thu, 30 Jul 2020 16:19:01 -0500
-To:     Tomas Winkler <tomas.winkler@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Ramalingam C <ramalingam.c@intel.com>, stable@vger.kernel.org
-References: <20200730185451.3621108-1-tomas.winkler@intel.com>
-From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Autocrypt: addr=gustavo@embeddedor.com; keydata=
- xsFNBFssHAwBEADIy3ZoPq3z5UpsUknd2v+IQud4TMJnJLTeXgTf4biSDSrXn73JQgsISBwG
- 2Pm4wnOyEgYUyJd5tRWcIbsURAgei918mck3tugT7AQiTUN3/5aAzqe/4ApDUC+uWNkpNnSV
- tjOx1hBpla0ifywy4bvFobwSh5/I3qohxDx+c1obd8Bp/B/iaOtnq0inli/8rlvKO9hp6Z4e
- DXL3PlD0QsLSc27AkwzLEc/D3ZaqBq7ItvT9Pyg0z3Q+2dtLF00f9+663HVC2EUgP25J3xDd
- 496SIeYDTkEgbJ7WYR0HYm9uirSET3lDqOVh1xPqoy+U9zTtuA9NQHVGk+hPcoazSqEtLGBk
- YE2mm2wzX5q2uoyptseSNceJ+HE9L+z1KlWW63HhddgtRGhbP8pj42bKaUSrrfDUsicfeJf6
- m1iJRu0SXYVlMruGUB1PvZQ3O7TsVfAGCv85pFipdgk8KQnlRFkYhUjLft0u7CL1rDGZWDDr
- NaNj54q2CX9zuSxBn9XDXvGKyzKEZ4NY1Jfw+TAMPCp4buawuOsjONi2X0DfivFY+ZsjAIcx
- qQMglPtKk/wBs7q2lvJ+pHpgvLhLZyGqzAvKM1sVtRJ5j+ARKA0w4pYs5a5ufqcfT7dN6TBk
- LXZeD9xlVic93Ju08JSUx2ozlcfxq+BVNyA+dtv7elXUZ2DrYwARAQABzStHdXN0YXZvIEEu
- IFIuIFNpbHZhIDxndXN0YXZvYXJzQGtlcm5lbC5vcmc+wsGrBBMBCAA+FiEEkmRahXBSurMI
- g1YvRwW0y0cG2zEFAl6zFvQCGyMFCQlmAYAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AAIQkQ
- RwW0y0cG2zEWIQSSZFqFcFK6swiDVi9HBbTLRwbbMZsEEACWjJyXLjtTAF21Vuf1VDoGzitP
- oE69rq9UhXIGR+e0KACyIFoB9ibG/1j/ESMa0RPSwLpJDLgfvi/I18H/9cKtdo2uz0XNbDT8
- i3llIu0b43nzGIDzRudINBXC8Coeob+hrp/MMZueyzt0CUoAnY4XqpHQbQsTfTrpFeHT02Qz
- ITw6kTSmK7dNbJj2naH2vSrU11qGdU7aFzI7jnVvGgv4NVQLPxm/t4jTG1o+P1Xk4N6vKafP
- zqzkxj99JrUAPt+LyPS2VpNvmbSNq85PkQ9gpeTHpkio/D9SKsMW62njITPgy6M8TFAmx8JF
- ZAI6k8l1eU29F274WnlQ6ZokkJoNctwHa+88euWKHWUDolCmQpegJJ8932www83GLn1mdUZn
- NsymjFSdMWE+y8apWaV9QsDOKWf7pY2uBuE6GMPRhX7e7h5oQwa1lYeO2L9LTDeXkEOJe+hE
- qQdEEvkC/nok0eoRlBlZh433DQlv4+IvSsfN/uWld2TuQFyjDCLIm1CPRfe7z0TwiCM27F+O
- lHnUspCFSgpnrxqNH6CM4aj1EF4fEX+ZyknTSrKL9BGZ/qRz7Xe9ikU2/7M1ov6rOXCI4NR9
- THsNax6etxCBMzZs2bdMHMcajP5XdRsOIARuN08ytRjDolR2r8SkTN2YMwxodxNWWDC3V8X2
- RHZ4UwQw487BTQRbLBwMARAAsHCE31Ffrm6uig1BQplxMV8WnRBiZqbbsVJBH1AAh8tq2ULl
- 7udfQo1bsPLGGQboJSVN9rckQQNahvHAIK8ZGfU4Qj8+CER+fYPp/MDZj+t0DbnWSOrG7z9H
- IZo6PR9z4JZza3Hn/35jFggaqBtuydHwwBANZ7A6DVY+W0COEU4of7CAahQo5NwYiwS0lGis
- LTqks5R0Vh+QpvDVfuaF6I8LUgQR/cSgLkR//V1uCEQYzhsoiJ3zc1HSRyOPotJTApqGBq80
- X0aCVj1LOiOF4rrdvQnj6iIlXQssdb+WhSYHeuJj1wD0ZlC7ds5zovXh+FfFl5qH5RFY/qVn
- 3mNIVxeO987WSF0jh+T5ZlvUNdhedGndRmwFTxq2Li6GNMaolgnpO/CPcFpDjKxY/HBUSmaE
- 9rNdAa1fCd4RsKLlhXda+IWpJZMHlmIKY8dlUybP+2qDzP2lY7kdFgPZRU+ezS/pzC/YTzAv
- CWM3tDgwoSl17vnZCr8wn2/1rKkcLvTDgiJLPCevqpTb6KFtZosQ02EGMuHQI6Zk91jbx96n
- rdsSdBLGH3hbvLvjZm3C+fNlVb9uvWbdznObqcJxSH3SGOZ7kCHuVmXUcqozol6ioMHMb+In
- rHPP16aVDTBTPEGwgxXI38f7SUEn+NpbizWdLNz2hc907DvoPm6HEGCanpcAEQEAAcLBZQQY
- AQgADwUCWywcDAIbDAUJCWYBgAAKCRBHBbTLRwbbMdsZEACUjmsJx2CAY+QSUMebQRFjKavw
- XB/xE7fTt2ahuhHT8qQ/lWuRQedg4baInw9nhoPE+VenOzhGeGlsJ0Ys52sdXvUjUocKgUQq
- 6ekOHbcw919nO5L9J2ejMf/VC/quN3r3xijgRtmuuwZjmmi8ct24TpGeoBK4WrZGh/1hAYw4
- ieARvKvgjXRstcEqM5thUNkOOIheud/VpY+48QcccPKbngy//zNJWKbRbeVnimua0OpqRXhC
- rEVm/xomeOvl1WK1BVO7z8DjSdEBGzbV76sPDJb/fw+y+VWrkEiddD/9CSfgfBNOb1p1jVnT
- 2mFgGneIWbU0zdDGhleI9UoQTr0e0b/7TU+Jo6TqwosP9nbk5hXw6uR5k5PF8ieyHVq3qatJ
- 9K1jPkBr8YWtI5uNwJJjTKIA1jHlj8McROroxMdI6qZ/wZ1ImuylpJuJwCDCORYf5kW61fcr
- HEDlIvGc371OOvw6ejF8ksX5+L2zwh43l/pKkSVGFpxtMV6d6J3eqwTafL86YJWH93PN+ZUh
- 6i6Rd2U/i8jH5WvzR57UeWxE4P8bQc0hNGrUsHQH6bpHV2lbuhDdqo+cM9ehGZEO3+gCDFmK
- rjspZjkJbB5Gadzvts5fcWGOXEvuT8uQSvl+vEL0g6vczsyPBtqoBLa9SNrSVtSixD1uOgyt
- AP7RWS474w==
-Subject: Re: [char-misc-next V3] mei: hdcp: fix mei_hdcp_verify_mprime() input
- paramter
-Message-ID: <2ce86027-467f-6cc0-6e1b-f706dd1adfe5@embeddedor.com>
-Date:   Thu, 30 Jul 2020 16:25:04 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1730552AbgG3Vfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 17:35:33 -0400
+Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:24877 "EHLO
+        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730551AbgG3Vfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 17:35:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1596144932; x=1627680932;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=eFvWBQeFrJLrkrBobJ3cC5vX4KhoBqg54LUohiUx7VQ=;
+  b=DDuz6MuOgkl/YJOccafdlTzpylGoGONBW1vD8+jRZb92F6MPWZ5QYw4G
+   K21Hx/jxODBAqwyVW/1ATlwDymYrWOzPCEbnO+DlJMsLNyELyihMmpFuy
+   1kXdmAdmeBNUs5XgLnDVpsI6Y66+SLE27EyV3b3eLfmGT5RrzSjUjyl4S
+   U=;
+IronPort-SDR: kzGYIOWAi6Ok6i6/SMmZJs0fCtSinSnjW0lURzuR6Eq+FzraB+ifQG6UgSTKaGAkz8ZbitHgbK
+ yncyjUszWsvQ==
+X-IronPort-AV: E=Sophos;i="5.75,415,1589241600"; 
+   d="scan'208";a="63142780"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2c-cc689b93.us-west-2.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 30 Jul 2020 21:35:30 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2c-cc689b93.us-west-2.amazon.com (Postfix) with ESMTPS id 969C412170D
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 21:35:29 +0000 (UTC)
+Received: from EX13D01UWA002.ant.amazon.com (10.43.160.74) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 30 Jul 2020 21:35:28 +0000
+Received: from u87e72aa3c6c25c.ant.amazon.com (10.43.162.85) by
+ EX13d01UWA002.ant.amazon.com (10.43.160.74) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 30 Jul 2020 21:35:28 +0000
+From:   Samuel Mendoza-Jonas <samjonas@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <fllinden@amazon.com>, <surajjs@amazon.com>, <benh@amazon.com>,
+        <anchalag@amazon.com>, Samuel Mendoza-Jonas <samjonas@amazon.com>
+Subject: [PATCH 4.9 4.19] xfs: fix missed wakeup on l_flush_wait
+Date:   Thu, 30 Jul 2020 14:35:07 -0700
+Message-ID: <20200730213507.24791-1-samjonas@amazon.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <20200730185451.3621108-1-tomas.winkler@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 187.162.31.110
-X-Source-L: No
-X-Exim-ID: 1k1Fx7-000Sv2-Gr
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 187-162-31-110.static.axtel.net ([192.168.15.3]) [187.162.31.110]:47268
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 6
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.85]
+X-ClientProxiedBy: EX13D24UWB002.ant.amazon.com (10.43.161.159) To
+ EX13d01UWA002.ant.amazon.com (10.43.160.74)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tomas,
+From: Rik van Riel <riel@surriel.com>
 
-The subject line has a typo: s/paramter/parameter
+commit cdea5459ce263fbc963657a7736762ae897a8ae6 upstream
 
-Please, see more comments below...
+The code in xlog_wait uses the spinlock to make adding the task to
+the wait queue, and setting the task state to UNINTERRUPTIBLE atomic
+with respect to the waker.
 
-On 7/30/20 13:54, Tomas Winkler wrote:
-> wired_cmd_repeater_auth_stream_req_in has a variable
-> length array at the end. we use struct_size() overflow
-> macro to determine the size for the allocation and sending
-> size.
-> This also fixes bug in case number of streams is > 0 in the original
-> submission. This bug was not triggered as the number of streams is
-> always one.
-> 
-> Fixes: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
-> Fixes: 0a1af1b5c18d ("misc/mei/hdcp: Verify M_prime")
-> Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-> Cc: Ramalingam C <ramalingam.c@intel.com>
-> Cc: <stable@vger.kernel.org> v5.1+
-> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-> ---
-> V3:
-> 1. Fix commit message with more info and another patch it fixes (Gustavo)
-> 2. Target stable. (Gustavo)
-> V2: Check for allocation failure.
->  drivers/misc/mei/hdcp/mei_hdcp.c | 40 +++++++++++++++++++-------------
->  1 file changed, 24 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
-> index d1d3e025ca0e..f1205e0060db 100644
-> --- a/drivers/misc/mei/hdcp/mei_hdcp.c
-> +++ b/drivers/misc/mei/hdcp/mei_hdcp.c
-> @@ -546,38 +546,46 @@ static int mei_hdcp_verify_mprime(struct device *dev,
->  				  struct hdcp_port_data *data,
->  				  struct hdcp2_rep_stream_ready *stream_ready)
->  {
-> -	struct wired_cmd_repeater_auth_stream_req_in
-> -					verify_mprime_in = { { 0 } };
-> +	struct wired_cmd_repeater_auth_stream_req_in *verify_mprime_in;
->  	struct wired_cmd_repeater_auth_stream_req_out
->  					verify_mprime_out = { { 0 } };
->  	struct mei_cl_device *cldev;
->  	ssize_t byte;
-> +	size_t cmd_size;
->  
->  	if (!dev || !stream_ready || !data)
->  		return -EINVAL;
->  
->  	cldev = to_mei_cl_device(dev);
->  
-> -	verify_mprime_in.header.api_version = HDCP_API_VERSION;
-> -	verify_mprime_in.header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
-> -	verify_mprime_in.header.status = ME_HDCP_STATUS_SUCCESS;
-> -	verify_mprime_in.header.buffer_len =
-> +	cmd_size = struct_size(verify_mprime_in, streams, data->k);
-> +	if (cmd_size == SIZE_MAX)
-> +		return -EINVAL;
-> +
-> +	verify_mprime_in = kzalloc(cmd_size, GFP_KERNEL);
-> +	if (!verify_mprime_in)
-> +		return -ENOMEM;
-> +
-> +	verify_mprime_in->header.api_version = HDCP_API_VERSION;
-> +	verify_mprime_in->header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
-> +	verify_mprime_in->header.status = ME_HDCP_STATUS_SUCCESS;
-> +	verify_mprime_in->header.buffer_len =
->  			WIRED_CMD_BUF_LEN_REPEATER_AUTH_STREAM_REQ_MIN_IN;
->  
-> -	verify_mprime_in.port.integrated_port_type = data->port_type;
-> -	verify_mprime_in.port.physical_port = (u8)data->fw_ddi;
-> -	verify_mprime_in.port.attached_transcoder = (u8)data->fw_tc;
-> +	verify_mprime_in->port.integrated_port_type = data->port_type;
-> +	verify_mprime_in->port.physical_port = (u8)data->fw_ddi;
-> +	verify_mprime_in->port.attached_transcoder = (u8)data->fw_tc;
-> +
-> +	memcpy(verify_mprime_in->m_prime, stream_ready->m_prime, HDCP_2_2_MPRIME_LEN);
-> +	drm_hdcp_cpu_to_be24(verify_mprime_in->seq_num_m, data->seq_num_m);
->  
-> -	memcpy(verify_mprime_in.m_prime, stream_ready->m_prime,
-> -	       HDCP_2_2_MPRIME_LEN);
-> -	drm_hdcp_cpu_to_be24(verify_mprime_in.seq_num_m, data->seq_num_m);
-> -	memcpy(verify_mprime_in.streams, data->streams,
-> +	memcpy(verify_mprime_in->streams, data->streams,
->  	       array_size(data->k, sizeof(*data->streams)));
->  
-> -	verify_mprime_in.k = cpu_to_be16(data->k);
-> +	verify_mprime_in->k = cpu_to_be16(data->k);
->  
-> -	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in,
-> -			      sizeof(verify_mprime_in));
-> +	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in, cmd_size);
+Doing the wakeup after releasing the spinlock opens up the following
+race condition:
 
-The line above is incorrect, it should be this, instead:
+Task 1					task 2
+add task to wait queue
+					wake up task
+set task state to UNINTERRUPTIBLE
 
-byte = mei_cldev_send(cldev, (u8 *)verify_mprime_in, cmd_size);
+This issue was found through code inspection as a result of kworkers
+being observed stuck in UNINTERRUPTIBLE state with an empty
+wait queue. It is rare and largely unreproducable.
 
-otherwise you are passing the address of the object pointer
-verify_mprime_in and not the reference to what it points to,
-which is what we want in this case.
+Simply moving the spin_unlock to after the wake_up_all results
+in the waker not being able to see a task on the waitqueue before
+it has set its state to UNINTERRUPTIBLE.
 
-Thanks
---
-Gustavo
+This bug dates back to the conversion of this code to generic
+waitqueue infrastructure from a counting semaphore back in 2008
+which didn't place the wakeups consistently w.r.t. to the relevant
+spin locks.
 
-> +	kfree(verify_mprime_in);
->  	if (byte < 0) {
->  		dev_dbg(dev, "mei_cldev_send failed. %zd\n", byte);
->  		return byte;
-> 
+[dchinner: Also fix a similar issue in the shutdown path on
+xc_commit_wait. Update commit log with more details of the issue.]
+
+Fixes: d748c62367eb ("[XFS] Convert l_flushsema to a sv_t")
+Reported-by: Chris Mason <clm@fb.com>
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Cc: stable@vger.kernel.org # 4.9.x-4.19.x
+[modified for contextual change near xlog_state_do_callback()]
+Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+Reviewed-by: Frank van der Linden <fllinden@amazon.com>
+Reviewed-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Reviewed-by: Benjamin Herrenschmidt <benh@amazon.com>
+Reviewed-by: Anchal Agarwal <anchalag@amazon.com>
+---
+This issue was fixed in v5.4 but didn't appear to make it to stable. The
+fixed commit goes back to v2.6, so backport this to stable kernels
+before v5.4. The only difference is a contextual change at
+	xlog_state_do_callback(log, XFS_LI_ABORTED, NULL);
+Which in v5.4 is
+	xlog_state_do_callback(log, true, NULL);
+
+ fs/xfs/xfs_log.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
+index 360e32220f93..0c0f70e6c7d9 100644
+--- a/fs/xfs/xfs_log.c
++++ b/fs/xfs/xfs_log.c
+@@ -2684,7 +2684,6 @@ xlog_state_do_callback(
+ 	int		   funcdidcallbacks; /* flag: function did callbacks */
+ 	int		   repeats;	/* for issuing console warnings if
+ 					 * looping too many times */
+-	int		   wake = 0;
+ 
+ 	spin_lock(&log->l_icloglock);
+ 	first_iclog = iclog = log->l_iclog;
+@@ -2886,11 +2885,9 @@ xlog_state_do_callback(
+ #endif
+ 
+ 	if (log->l_iclog->ic_state & (XLOG_STATE_ACTIVE|XLOG_STATE_IOERROR))
+-		wake = 1;
+-	spin_unlock(&log->l_icloglock);
+-
+-	if (wake)
+ 		wake_up_all(&log->l_flush_wait);
++
++	spin_unlock(&log->l_icloglock);
+ }
+ 
+ 
+@@ -4052,7 +4049,9 @@ xfs_log_force_umount(
+ 	 * item committed callback functions will do this again under lock to
+ 	 * avoid races.
+ 	 */
++	spin_lock(&log->l_cilp->xc_push_lock);
+ 	wake_up_all(&log->l_cilp->xc_commit_wait);
++	spin_unlock(&log->l_cilp->xc_push_lock);
+ 	xlog_state_do_callback(log, XFS_LI_ABORTED, NULL);
+ 
+ #ifdef XFSERRORDEBUG
+-- 
+2.17.1
+
