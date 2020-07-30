@@ -2,102 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A64232B36
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 07:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5534232B53
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 07:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728167AbgG3FQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 01:16:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51132 "EHLO mail.kernel.org"
+        id S1728519AbgG3FVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 01:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726774AbgG3FQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 01:16:09 -0400
+        id S1728195AbgG3FVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 01:21:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B0F62084D;
-        Thu, 30 Jul 2020 05:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BABF20842;
+        Thu, 30 Jul 2020 05:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596086168;
-        bh=Mp+oPivCOkF2Jd+omSKXkRFpw4M3zAs5pjlMBMLkqpY=;
-        h=Subject:To:From:Date:From;
-        b=VO0AKiBUfhG6IUT1aPdOrU0gbyfH2qTZ1P6ONDc85+OAOlcYPPHvw6UiGbTjfiCkg
-         ZcgTdCNHJC6ftHcapxuvbyn2FXLk/P8wsSuHCH/nKdeFo+KAVI8m1oZ/3Xblg5DGWZ
-         fS4ZMfwFcXVKfSS3nQKb/gDIagn9MwlHRCzuTX7c=
-Subject: patch "usb: xhci: Fix ASMedia ASM1142 DMA addressing" added to usb-next
-To:     cyrozap@gmail.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 30 Jul 2020 07:14:25 +0200
-Message-ID: <159608606525322@kroah.com>
+        s=default; t=1596086498;
+        bh=pf25fmQ/TZV16YYmJ+84pEKXAho0XJaQPnceNoQ5PBg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2qS+e8juE+hJmAnsxhBWQ3mFEv84S6snZ8Kp8oimbo74cX5rA5q8nVLlLj0W8CIPI
+         Q53zZQO7jPpaCAHWAUnQAdvzt0Ypf/BZ0vlykXC7NDplKPcwTEBriz/ffHJG4U6h6m
+         yXgB6s99/30eUWur+damaSIIjl6Gz4mHLKmnvf2I=
+Date:   Thu, 30 Jul 2020 07:21:27 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     John Donnelly <John.P.donnelly@oracle.com>
+Cc:     Mike Snitzer <snitzer@redhat.com>, stable@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: (resend) [PATCH [linux-4.14.y]] dm cache: submit writethrough
+ writes in parallel to origin and cache
+Message-ID: <20200730052127.GA3860556@kroah.com>
+References: <37c5a615-655d-c106-afd0-54e03f3c0eef@oracle.com>
+ <20200727150014.GA27472@redhat.com>
+ <20200729115119.GB2674635@kroah.com>
+ <20200729115557.GA2799681@kroah.com>
+ <20200729141607.GA7215@redhat.com>
+ <851f749a-5c92-dcb1-f8e4-95b4434a1ec4@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <851f749a-5c92-dcb1-f8e4-95b4434a1ec4@oracle.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jul 29, 2020 at 06:45:46PM -0500, John Donnelly wrote:
+> 
+> 
+> On 7/29/20 9:16 AM, Mike Snitzer wrote:
+> > On Wed, Jul 29 2020 at  7:55am -0400,
+> > Greg KH <gregkh@linuxfoundation.org> wrote:
+> > 
+> > > On Wed, Jul 29, 2020 at 01:51:19PM +0200, Greg KH wrote:
+> > > > On Mon, Jul 27, 2020 at 11:00:14AM -0400, Mike Snitzer wrote:
+> > > > > This mail needs to be saent to stable@vger.kernel.org (now cc'd).
+> > > > > 
+> > > > > Greg et al: please backport 2df3bae9a6543e90042291707b8db0cbfbae9ee9
+> > > > 
+> > > > Now backported, thanks.
+> > > 
+> > > Nope, it broke the build, I need something that actually works :)
+> > > 
+> > 
+> > OK, I'll defer to John Donnelly to get back with you (and rest of
+> > stable@).  He is more invested due to SUSE also having this issue.  I
+> > can put focus to it if John cannot sort this out.
+> > 
+> > Mike
+> > 
+> 
+> 
+> Hi.
+> 
+> 
+> Thank you for reaching out.
+> 
+> What specifically is broken? . If it that applying
+> 2df3bae9a6543e90042291707b8db0cbfbae9ee9 to 4.14.y is failing?
 
-This is a note to let you know that I've just added the patch titled
-
-    usb: xhci: Fix ASMedia ASM1142 DMA addressing
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From ec37198acca7b4c17b96247697406e47aafe0605 Mon Sep 17 00:00:00 2001
-From: Forest Crossman <cyrozap@gmail.com>
-Date: Mon, 27 Jul 2020 23:24:08 -0500
-Subject: usb: xhci: Fix ASMedia ASM1142 DMA addressing
-
-I've confirmed that the ASMedia ASM1142 has the same problem as the
-ASM2142/ASM3142, in that it too reports that it supports 64-bit DMA
-addresses when in fact it does not. As with the ASM2142/ASM3142, this
-can cause problems on systems where the upper bits matter, and adding
-the XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
-
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Forest Crossman <cyrozap@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200728042408.180529-3-cyrozap@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index baa5af88ca67..3feaafebfe58 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_1			0x43bc
- #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
-+#define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
- #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
- 
- static const char hcd_name[] = "xhci_hcd";
-@@ -268,7 +269,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
- 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--		pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI)
-+	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
- 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--- 
-2.28.0
-
-
+yes, try it yourself and see!
