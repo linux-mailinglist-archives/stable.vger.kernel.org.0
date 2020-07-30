@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82CFF232DC0
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BA75232DC1
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729425AbgG3IM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51680 "EHLO mail.kernel.org"
+        id S1730046AbgG3IM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:12:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730036AbgG3IM0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:12:26 -0400
+        id S1729624AbgG3IM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:12:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BE502074B;
-        Thu, 30 Jul 2020 08:12:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B9142075F;
+        Thu, 30 Jul 2020 08:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096744;
-        bh=fl1fBfq7VAkarh5dDzIyCKF13FawR1zCt5nl5UY5jD0=;
+        s=default; t=1596096747;
+        bh=VBmi54s14KAH1tEcB9aUNxeNx6r24nXwJMYonFwmZ8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+fsnW1p2QT1S8pueDRGXcq3n0vyx8+oVLvacSI8monWqJTE/KsmzYgBOl9rOcRiQ
-         PUYIrzFNQgsfQmhHmeHXyowyRGsh8esOxMni7qW49/VfFxQ3Lnn8fZaoavJd/7n3Fn
-         Y1ac5vNBP29IxAV3sQUz54aJJYIri2e3HoWxQwkE=
+        b=pNsiqKtR5KQa8yskp67b85kXUStrHo0xbyAyQ3QwecVZ5ogG6QQEXBhLiAEGxNQrK
+         c4HA3biZBxxtz986RXMZzPZpnKnnUi11PIAPIi4De6N5HQLHpwRVJZm5JYHqpvZpc5
+         V3jO7W3qamvBoK7Qz0SSBxWj6BwRGbxHBokH1/uE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 44/54] rxrpc: Fix sendmsg() returning EPIPE due to recvmsg() returning ENODATA
-Date:   Thu, 30 Jul 2020 10:05:23 +0200
-Message-Id: <20200730074423.320388565@linuxfoundation.org>
+Subject: [PATCH 4.4 45/54] ip6_gre: fix null-ptr-deref in ip6gre_init_net()
+Date:   Thu, 30 Jul 2020 10:05:24 +0200
+Message-Id: <20200730074423.360369252@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
 References: <20200730074421.203879987@linuxfoundation.org>
@@ -43,51 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 639f181f0ee20d3249dbc55f740f0167267180f0 ]
+[ Upstream commit 46ef5b89ec0ecf290d74c4aee844f063933c4da4 ]
 
-rxrpc_sendmsg() returns EPIPE if there's an outstanding error, such as if
-rxrpc_recvmsg() indicating ENODATA if there's nothing for it to read.
+KASAN report null-ptr-deref error when register_netdev() failed:
 
-Change rxrpc_recvmsg() to return EAGAIN instead if there's nothing to read
-as this particular error doesn't get stored in ->sk_err by the networking
-core.
+KASAN: null-ptr-deref in range [0x00000000000003c0-0x00000000000003c7]
+CPU: 2 PID: 422 Comm: ip Not tainted 5.8.0-rc4+ #12
+Call Trace:
+ ip6gre_init_net+0x4ab/0x580
+ ? ip6gre_tunnel_uninit+0x3f0/0x3f0
+ ops_init+0xa8/0x3c0
+ setup_net+0x2de/0x7e0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? ops_init+0x3c0/0x3c0
+ ? kasan_unpoison_shadow+0x33/0x40
+ ? __kasan_kmalloc.constprop.0+0xc2/0xd0
+ copy_net_ns+0x27d/0x530
+ create_new_namespaces+0x382/0xa30
+ unshare_nsproxy_namespaces+0xa1/0x1d0
+ ksys_unshare+0x39c/0x780
+ ? walk_process_tree+0x2a0/0x2a0
+ ? trace_hardirqs_on+0x4a/0x1b0
+ ? _raw_spin_unlock_irq+0x1f/0x30
+ ? syscall_trace_enter+0x1a7/0x330
+ ? do_syscall_64+0x1c/0xa0
+ __x64_sys_unshare+0x2d/0x40
+ do_syscall_64+0x56/0xa0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Also change rxrpc_sendmsg() so that it doesn't fail with delayed receive
-errors (there's no way for it to report which call, if any, the error was
-caused by).
+ip6gre_tunnel_uninit() has set 'ign->fb_tunnel_dev' to NULL, later
+access to ign->fb_tunnel_dev cause null-ptr-deref. Fix it by saving
+'ign->fb_tunnel_dev' to local variable ndev.
 
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: dafabb6590cb ("ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/ar-output.c  |    2 +-
- net/rxrpc/ar-recvmsg.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_gre.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/rxrpc/ar-output.c
-+++ b/net/rxrpc/ar-output.c
-@@ -533,7 +533,7 @@ static int rxrpc_send_data(struct rxrpc_
- 	/* this should be in poll */
- 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1355,15 +1355,16 @@ static void ip6gre_destroy_tunnels(struc
+ static int __net_init ip6gre_init_net(struct net *net)
+ {
+ 	struct ip6gre_net *ign = net_generic(net, ip6gre_net_id);
++	struct net_device *ndev;
+ 	int err;
  
--	if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
-+	if (sk->sk_shutdown & SEND_SHUTDOWN)
- 		return -EPIPE;
+-	ign->fb_tunnel_dev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
+-					  NET_NAME_UNKNOWN,
+-					  ip6gre_tunnel_setup);
+-	if (!ign->fb_tunnel_dev) {
++	ndev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
++			    NET_NAME_UNKNOWN, ip6gre_tunnel_setup);
++	if (!ndev) {
+ 		err = -ENOMEM;
+ 		goto err_alloc_dev;
+ 	}
++	ign->fb_tunnel_dev = ndev;
+ 	dev_net_set(ign->fb_tunnel_dev, net);
+ 	/* FB netdevice is special: we have one, and only one per netns.
+ 	 * Allowing to move it to another netns is clearly unsafe.
+@@ -1383,7 +1384,7 @@ static int __net_init ip6gre_init_net(st
+ 	return 0;
  
- 	more = msg->msg_flags & MSG_MORE;
---- a/net/rxrpc/ar-recvmsg.c
-+++ b/net/rxrpc/ar-recvmsg.c
-@@ -78,7 +78,7 @@ int rxrpc_recvmsg(struct socket *sock, s
- 				release_sock(&rx->sk);
- 				if (continue_call)
- 					rxrpc_put_call(continue_call);
--				return -ENODATA;
-+				return -EAGAIN;
- 			}
- 		}
- 
+ err_reg_dev:
+-	ip6gre_dev_free(ign->fb_tunnel_dev);
++	ip6gre_dev_free(ndev);
+ err_alloc_dev:
+ 	return err;
+ }
 
 
