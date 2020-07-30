@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7505F232D9B
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D41232DF2
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbgG3IMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52170 "EHLO mail.kernel.org"
+        id S1729483AbgG3IKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729701AbgG3IMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:12:49 -0400
+        id S1729876AbgG3IKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AB2A2070B;
-        Thu, 30 Jul 2020 08:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BCD62074B;
+        Thu, 30 Jul 2020 08:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096768;
-        bh=Mc08/Y2BsY/mIkRNqTpfOa/umI+Wdp+70Pc0H6ZfhlY=;
+        s=default; t=1596096648;
+        bh=iq0cc1HbAjP3ZijxgovlgnyFFQEtr+kzZijALmDgw4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/YsFco40t6tWXiAsxh2+TwnN4tv4xTZlx3wCOTVFypKN9HnIg0dlEAud2g/YzZ0Y
-         MWieQrrvnq2ig5B8uhlMnulgArdxGHAFCp+09aOrnaxeq2oP37YouNXUp11FC+q/aO
-         cybUBqQX8if5qpOXcI6xiHwy0IoOdiZ49+qbEJNY=
+        b=GZ8MqGMwgs1t8tO3NwWMGJQ7vQAKd6MUaRm2gfId6YBt5KsqJPpIvPBhoHGLDMkN6
+         DhZaxWNrQkcVXm15nBBsAGfjIHR36mtXxdrV7+lKVX5k6esRr3t4UGpEd8FCp1+/oC
+         wYhy3SCe/rg8c5cjSYWuFX8xkqB0eEr5ZYiNv/i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.4 35/54] parisc: Add atomic64_set_release() define to avoid CPU soft lockups
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 56/61] regmap: debugfs: check count when read regmap file
 Date:   Thu, 30 Jul 2020 10:05:14 +0200
-Message-Id: <20200730074422.890412042@linuxfoundation.org>
+Message-Id: <20200730074423.547568375@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit be6577af0cef934ccb036445314072e8cb9217b9 upstream.
+commit 74edd08a4fbf51d65fd8f4c7d8289cd0f392bd91 upstream.
 
-Stalls are quite frequent with recent kernels. I enabled
-CONFIG_SOFTLOCKUP_DETECTOR and I caught the following stall:
+When executing the following command, we met kernel dump.
+dmesg -c > /dev/null; cd /sys;
+for i in `ls /sys/kernel/debug/regmap/* -d`; do
+	echo "Checking regmap in $i";
+	cat $i/registers;
+done && grep -ri "0x02d0" *;
 
-watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [cc1:22803]
-CPU: 0 PID: 22803 Comm: cc1 Not tainted 5.6.17+ #3
-Hardware name: 9000/800/rp3440
- IAOQ[0]: d_alloc_parallel+0x384/0x688
- IAOQ[1]: d_alloc_parallel+0x388/0x688
- RP(r2): d_alloc_parallel+0x134/0x688
-Backtrace:
- [<000000004036974c>] __lookup_slow+0xa4/0x200
- [<0000000040369fc8>] walk_component+0x288/0x458
- [<000000004036a9a0>] path_lookupat+0x88/0x198
- [<000000004036e748>] filename_lookup+0xa0/0x168
- [<000000004036e95c>] user_path_at_empty+0x64/0x80
- [<000000004035d93c>] vfs_statx+0x104/0x158
- [<000000004035dfcc>] __do_sys_lstat64+0x44/0x80
- [<000000004035e5a0>] sys_lstat64+0x20/0x38
- [<0000000040180054>] syscall_exit+0x0/0x14
+It is because the count value is too big, and kmalloc fails. So add an
+upper bound check to allow max size `PAGE_SIZE << (MAX_ORDER - 1)`.
 
-The code was stuck in this loop in d_alloc_parallel:
-
-    4037d414:   0e 00 10 dc     ldd 0(r16),ret0
-    4037d418:   c7 fc 5f ed     bb,< ret0,1f,4037d414 <d_alloc_parallel+0x384>
-    4037d41c:   08 00 02 40     nop
-
-This is the inner loop of bit_spin_lock which is called by hlist_bl_unlock in
-d_alloc_parallel:
-
-static inline void bit_spin_lock(int bitnum, unsigned long *addr)
-{
-        /*
-         * Assuming the lock is uncontended, this never enters
-         * the body of the outer loop. If it is contended, then
-         * within the inner loop a non-atomic test is used to
-         * busywait with less bus contention for a good time to
-         * attempt to acquire the lock bit.
-         */
-        preempt_disable();
-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-        while (unlikely(test_and_set_bit_lock(bitnum, addr))) {
-                preempt_enable();
-                do {
-                        cpu_relax();
-                } while (test_bit(bitnum, addr));
-                preempt_disable();
-        }
-#endif
-        __acquire(bitlock);
-}
-
-After consideration, I realized that we must be losing bit unlocks.
-Then, I noticed that we missed defining atomic64_set_release().
-Adding this define fixes the stalls in bit operations.
-
-Signed-off-by: Dave Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/1584064687-12964-1-git-send-email-peng.fan@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/include/asm/atomic.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/regmap/regmap-debugfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/parisc/include/asm/atomic.h
-+++ b/arch/parisc/include/asm/atomic.h
-@@ -208,6 +208,8 @@ atomic64_set(atomic64_t *v, s64 i)
- 	_atomic_spin_unlock_irqrestore(v, flags);
- }
+--- a/drivers/base/regmap/regmap-debugfs.c
++++ b/drivers/base/regmap/regmap-debugfs.c
+@@ -204,6 +204,9 @@ static ssize_t regmap_read_debugfs(struc
+ 	if (*ppos < 0 || !count)
+ 		return -EINVAL;
  
-+#define atomic64_set_release(v, i)	atomic64_set((v), (i))
++	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
++		count = PAGE_SIZE << (MAX_ORDER - 1);
 +
- static __inline__ s64
- atomic64_read(const atomic64_t *v)
- {
+ 	buf = kmalloc(count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+@@ -352,6 +355,9 @@ static ssize_t regmap_reg_ranges_read_fi
+ 	if (*ppos < 0 || !count)
+ 		return -EINVAL;
+ 
++	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
++		count = PAGE_SIZE << (MAX_ORDER - 1);
++
+ 	buf = kmalloc(count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
 
 
