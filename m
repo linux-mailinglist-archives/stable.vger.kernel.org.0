@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 670E3232DDF
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD940232D71
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729242AbgG3IP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:15:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51086 "EHLO mail.kernel.org"
+        id S1729849AbgG3IKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729996AbgG3ILx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:11:53 -0400
+        id S1729844AbgG3IKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A2EC2075F;
-        Thu, 30 Jul 2020 08:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 822802074B;
+        Thu, 30 Jul 2020 08:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096712;
-        bh=9tz4CidWw9o+Gpp59fBPlYhlBDzhpP4SJWGqTHQVUNQ=;
+        s=default; t=1596096636;
+        bh=FVhoiaMqawfycJa2gTAx0+qfzi3sGM1BjKz7hpJQLzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEK6+OVpEr0xSdEAUBQ1qc2xzqYF/oxiyyhw1PNw2yRFBxGVxkCFTUL7o8rVmNlOe
-         VuttCT2+7CAPdgh7Y+2hdLFCqtagVH4Hs8tVxh+jQe7vGEB3iMUAZ/nf7UQHPh/mVT
-         A7yibcmRQVcWCw41AcHoiU2c5/tntf8zi9wkG7K4=
+        b=e4QDwyyh+1QnBcGfU76JlqJG1QVgLGXieJVPX8UX8SuSoMld34eJ7ZFhPixJNswpd
+         ZbN4FjeSmrWIFCibioroTIYrwN2N52/dAWhc4ikpyhpZitvTLUFBUnWc7Z2EXJkDMV
+         7gmLpZQrVpIFCTDr0hxAdR/sjXSv9nOErPX83I9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.4 30/54] staging: comedi: addi_apci_1500: check INSN_CONFIG_DIGITAL_TRIG shift
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 51/61] rxrpc: Fix sendmsg() returning EPIPE due to recvmsg() returning ENODATA
 Date:   Thu, 30 Jul 2020 10:05:09 +0200
-Message-Id: <20200730074422.656138041@linuxfoundation.org>
+Message-Id: <20200730074423.305397265@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: David Howells <dhowells@redhat.com>
 
-commit fc846e9db67c7e808d77bf9e2ef3d49e3820ce5d upstream.
+[ Upstream commit 639f181f0ee20d3249dbc55f740f0167267180f0 ]
 
-The `INSN_CONFIG` comedi instruction with sub-instruction code
-`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
-used as a right shift amount for other bitmask values without being
-checked.  Shift amounts greater than or equal to 32 will result in
-undefined behavior.  Add code to deal with this, adjusting the checks
-for invalid channels so that enabled channel bits that would have been
-lost by shifting are also checked for validity.  Only channels 0 to 15
-are valid.
+rxrpc_sendmsg() returns EPIPE if there's an outstanding error, such as if
+rxrpc_recvmsg() indicating ENODATA if there's nothing for it to read.
 
-Fixes: a8c66b684efaf ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
-Cc: <stable@vger.kernel.org> #4.0+: ef75e14a6c93: staging: comedi: verify array index is correct before using it
-Cc: <stable@vger.kernel.org> #4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20200717145257.112660-5-abbotti@mev.co.uk
+Change rxrpc_recvmsg() to return EAGAIN instead if there's nothing to read
+as this particular error doesn't get stored in ->sk_err by the networking
+core.
+
+Also change rxrpc_sendmsg() so that it doesn't fail with delayed receive
+errors (there's no way for it to report which call, if any, the error was
+caused by).
+
+Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/comedi/drivers/addi_apci_1500.c |   24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ net/rxrpc/recvmsg.c |    2 +-
+ net/rxrpc/sendmsg.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1500.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
-@@ -461,13 +461,14 @@ static int apci1500_di_cfg_trig(struct c
- 	struct apci1500_private *devpriv = dev->private;
- 	unsigned int trig = data[1];
- 	unsigned int shift = data[3];
--	unsigned int hi_mask = data[4] << shift;
--	unsigned int lo_mask = data[5] << shift;
--	unsigned int chan_mask = hi_mask | lo_mask;
--	unsigned int old_mask = (1 << shift) - 1;
-+	unsigned int hi_mask;
-+	unsigned int lo_mask;
-+	unsigned int chan_mask;
-+	unsigned int old_mask;
- 	unsigned int pm;
- 	unsigned int pt;
- 	unsigned int pp;
-+	unsigned int invalid_chan;
- 
- 	if (trig > 1) {
- 		dev_dbg(dev->class_dev,
-@@ -475,7 +476,20 @@ static int apci1500_di_cfg_trig(struct c
- 		return -EINVAL;
+--- a/net/rxrpc/recvmsg.c
++++ b/net/rxrpc/recvmsg.c
+@@ -439,7 +439,7 @@ try_again:
+ 	    list_empty(&rx->recvmsg_q) &&
+ 	    rx->sk.sk_state != RXRPC_SERVER_LISTENING) {
+ 		release_sock(&rx->sk);
+-		return -ENODATA;
++		return -EAGAIN;
  	}
  
--	if (chan_mask > 0xffff) {
-+	if (shift <= 16) {
-+		hi_mask = data[4] << shift;
-+		lo_mask = data[5] << shift;
-+		old_mask = (1U << shift) - 1;
-+		invalid_chan = (data[4] | data[5]) >> (16 - shift);
-+	} else {
-+		hi_mask = 0;
-+		lo_mask = 0;
-+		old_mask = 0xffff;
-+		invalid_chan = data[4] | data[5];
-+	}
-+	chan_mask = hi_mask | lo_mask;
-+
-+	if (invalid_chan) {
- 		dev_dbg(dev->class_dev, "invalid digital trigger channel\n");
- 		return -EINVAL;
- 	}
+ 	if (list_empty(&rx->recvmsg_q)) {
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -191,7 +191,7 @@ static int rxrpc_send_data(struct rxrpc_
+ 	/* this should be in poll */
+ 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+ 
+-	if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
++	if (sk->sk_shutdown & SEND_SHUTDOWN)
+ 		return -EPIPE;
+ 
+ 	more = msg->msg_flags & MSG_MORE;
 
 
