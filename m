@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24122232E53
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA2C8232DD1
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729343AbgG3IT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46070 "EHLO mail.kernel.org"
+        id S1729358AbgG3IO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729524AbgG3IH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:07:57 -0400
+        id S1730009AbgG3IMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:12:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B43A21744;
-        Thu, 30 Jul 2020 08:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E7752070B;
+        Thu, 30 Jul 2020 08:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096477;
-        bh=JjbukgK1RCypO5AHgBZxFuJ1fvW16NkY33+qsO0OrAA=;
+        s=default; t=1596096731;
+        bh=l8iMUhDmxL56ZQClu7OIK41mMOrQdimwaf8E9fVcrz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZiT1A3d5NF0OtjoWh5fGMwdpKH+GUePJCjGUM2ylBPLkL22EEamuGMc4dCraZrVt
-         FBbnKX6gYoTtSKvr0hDCZ/J8psUisKPAw7IPa0MHGMnzSKplwomk/ZzyhG1ZtzpV5m
-         Pp0xnJmz2g6qmKZtbZOwEWQWKgiO+2sbx2TLD4gI=
+        b=wd4QK8R8mNKVx+ukILqmOq6x8glnCTsQdgbvccDkeO+7wup7peOCYUL5o1YoRkr98
+         ZgXARNtiDlYbF/jEh3I2hVMlDUPFC8ZdlLO01dZAAivbWOc9h2MHrJEnbEmdn8BSE0
+         tFF9SolaBa0RZJj6oobSII4TwXD/Q9CE2K8EKSe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 04/14] drivers/net/wan/x25_asy: Fix to make it work
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/54] drm/nouveau/i2c/g94-: increase NV_PMGR_DP_AUXCTL_TRANSACTREQ timeout
 Date:   Thu, 30 Jul 2020 10:04:47 +0200
-Message-Id: <20200730074419.110976185@linuxfoundation.org>
+Message-Id: <20200730074421.619600114@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074418.882736401@linuxfoundation.org>
-References: <20200730074418.882736401@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,102 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 8fdcabeac39824fe67480fd9508d80161c541854 ]
+[ Upstream commit 0156e76d388310a490aeb0f2fbb5b284ded3aecc ]
 
-This driver is not working because of problems of its receiving code.
-This patch fixes it to make it work.
+Tegra TRM says worst-case reply time is 1216us, and this should fix some
+spurious timeouts that have been popping up.
 
-When the driver receives an LAPB frame, it should first pass the frame
-to the LAPB module to process. After processing, the LAPB module passes
-the data (the packet) back to the driver, the driver should then add a
-one-byte pseudo header and pass the data to upper layers.
-
-The changes to the "x25_asy_bump" function and the
-"x25_asy_data_indication" function are to correctly implement this
-procedure.
-
-Also, the "x25_asy_unesc" function ignores any frame that is shorter
-than 3 bytes. However the shortest frames are 2-byte long. So we need
-to change it to allow 2-byte frames to pass.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Reviewed-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/x25_asy.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c   | 4 ++--
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wan/x25_asy.c
-+++ b/drivers/net/wan/x25_asy.c
-@@ -183,7 +183,7 @@ static inline void x25_asy_unlock(struct
- 	netif_wake_queue(sl->dev);
- }
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
+index 954f5b76bfcf7..d44965f805fe9 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxg94.c
+@@ -118,10 +118,10 @@ g94_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
+ 		if (retries)
+ 			udelay(400);
  
--/* Send one completely decapsulated IP datagram to the IP layer. */
-+/* Send an LAPB frame to the LAPB module to process. */
+-		/* transaction request, wait up to 1ms for it to complete */
++		/* transaction request, wait up to 2ms for it to complete */
+ 		nvkm_wr32(device, 0x00e4e4 + base, 0x00010000 | ctrl);
  
- static void x25_asy_bump(struct x25_asy *sl)
- {
-@@ -195,13 +195,12 @@ static void x25_asy_bump(struct x25_asy
- 	count = sl->rcount;
- 	dev->stats.rx_bytes += count;
+-		timeout = 1000;
++		timeout = 2000;
+ 		do {
+ 			ctrl = nvkm_rd32(device, 0x00e4e4 + base);
+ 			udelay(1);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c
+index bed231b56dbd2..7cac8fe372b6b 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c
+@@ -118,10 +118,10 @@ gm204_i2c_aux_xfer(struct nvkm_i2c_aux *obj, bool retry,
+ 		if (retries)
+ 			udelay(400);
  
--	skb = dev_alloc_skb(count+1);
-+	skb = dev_alloc_skb(count);
- 	if (skb == NULL) {
- 		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
- 		dev->stats.rx_dropped++;
- 		return;
- 	}
--	skb_push(skb, 1);	/* LAPB internal control */
- 	skb_put_data(skb, sl->rbuff, count);
- 	skb->protocol = x25_type_trans(skb, sl->dev);
- 	err = lapb_data_received(skb->dev, skb);
-@@ -209,7 +208,6 @@ static void x25_asy_bump(struct x25_asy
- 		kfree_skb(skb);
- 		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
- 	} else {
--		netif_rx(skb);
- 		dev->stats.rx_packets++;
- 	}
- }
-@@ -355,12 +353,21 @@ static netdev_tx_t x25_asy_xmit(struct s
-  */
+-		/* transaction request, wait up to 1ms for it to complete */
++		/* transaction request, wait up to 2ms for it to complete */
+ 		nvkm_wr32(device, 0x00d954 + base, 0x00010000 | ctrl);
  
- /*
-- *	Called when I frame data arrives. We did the work above - throw it
-- *	at the net layer.
-+ *	Called when I frame data arrive. We add a pseudo header for upper
-+ *	layers and pass it to upper layers.
-  */
- 
- static int x25_asy_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
-+		return NET_RX_DROP;
-+	}
-+	skb_push(skb, 1);
-+	skb->data[0] = X25_IFACE_DATA;
-+
-+	skb->protocol = x25_type_trans(skb, dev);
-+
- 	return netif_rx(skb);
- }
- 
-@@ -656,7 +663,7 @@ static void x25_asy_unesc(struct x25_asy
- 	switch (s) {
- 	case X25_END:
- 		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
--		    sl->rcount > 2)
-+		    sl->rcount >= 2)
- 			x25_asy_bump(sl);
- 		clear_bit(SLF_ESCAPE, &sl->flags);
- 		sl->rcount = 0;
+-		timeout = 1000;
++		timeout = 2000;
+ 		do {
+ 			ctrl = nvkm_rd32(device, 0x00d954 + base);
+ 			udelay(1);
+-- 
+2.25.1
+
 
 
