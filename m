@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09507232E09
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD09232DB2
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730135AbgG3IQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49200 "EHLO mail.kernel.org"
+        id S1730139AbgG3IN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729808AbgG3IKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:21 -0400
+        id S1729739AbgG3IND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:13:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBF0F2070B;
-        Thu, 30 Jul 2020 08:10:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B5232074B;
+        Thu, 30 Jul 2020 08:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096620;
-        bh=WTVL0m1JxbN9FAbto5tt2PyUCly73Fc2OqFEXOXruPY=;
+        s=default; t=1596096781;
+        bh=eUhvwrtCzl8ctpxf2MXDDRqpicwqtJPQF+VzXjCcQDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1VveCCPHsMSrbqMDJ4eIzEyDknnYFusr5X0rl4qlkFsRVM0jyI2gg/NUlW9k4Z9P
-         Roy7APVWbzLRb7R6Jx/9YsRVJ4UBZBRnBcLwuYO6tUI9kiLp4rmwHm7v2MR95dpThr
-         SkF+5wsuftla0+c3LJNoL3vi4tbpmMbOKmsZp568=
+        b=OFj/caT6eyVFZMDnA2NPqZbqqt5mUFcNH1PHvJDnO9zqucp6H4/y0BOk6BvccuOl1
+         wpcuvbjRt+YNfoORUOG/dU+nAzTHCus5vEF7m9ahfI9VhvTt93TosuHFs+4tMoroLS
+         yijAr/ceqVefQK790rILkuIL/bJABt5kRv4f91/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH 4.9 58/61] perf probe: Fix to check blacklist address correctly
-Date:   Thu, 30 Jul 2020 10:05:16 +0200
-Message-Id: <20200730074423.646049205@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c82752228ed975b0a623@syzkaller.appspotmail.com,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 38/54] AX.25: Fix out-of-bounds read in ax25_connect()
+Date:   Thu, 30 Jul 2020 10:05:17 +0200
+Message-Id: <20200730074423.034444301@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,118 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 80526491c2ca6abc028c0f0dbb0707a1f35fb18a upstream.
+[ Upstream commit 2f2a7ffad5c6cbf3d438e813cfdc88230e185ba6 ]
 
-Fix to check kprobe blacklist address correctly with relocated address
-by adjusting debuginfo address.
+Checks on `addr_len` and `fsa->fsa_ax25.sax25_ndigis` are insufficient.
+ax25_connect() can go out of bounds when `fsa->fsa_ax25.sax25_ndigis`
+equals to 7 or 8. Fix it.
 
-Since the address in the debuginfo is same as objdump, it is different
-from relocated kernel address with KASLR.  Thus, 'perf probe' always
-misses to catch the blacklisted addresses.
+This issue has been reported as a KMSAN uninit-value bug, because in such
+a case, ax25_connect() reaches into the uninitialized portion of the
+`struct sockaddr_storage` statically allocated in __sys_connect().
 
-Without this patch, 'perf probe' can not detect the blacklist addresses
-on a KASLR enabled kernel.
+It is safe to remove `fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS` because
+`addr_len` is guaranteed to be less than or equal to
+`sizeof(struct full_sockaddr_ax25)`.
 
-  # perf probe kprobe_dispatcher
-  Failed to write event: Invalid argument
-    Error: Failed to add events.
-  #
-
-With this patch, it correctly shows the error message.
-
-  # perf probe kprobe_dispatcher
-  kprobe_dispatcher is blacklisted function, skip it.
-  Probe point 'kprobe_dispatcher' not found.
-    Error: Failed to add events.
-  #
-
-Fixes: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/158763966411.30755.5882376357738273695.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: syzbot+c82752228ed975b0a623@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=55ef9d629f3b3d7d70b69558015b63b48d01af66
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/probe-event.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ net/ax25/af_ax25.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -118,7 +118,7 @@ static struct symbol *__find_kernel_func
- 	return machine__find_kernel_function(host_machine, addr, mapp);
- }
- 
--static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
-+static struct ref_reloc_sym *kernel_get_ref_reloc_sym(struct map **pmap)
- {
- 	/* kmap->ref_reloc_sym should be set if host_machine is initialized */
- 	struct kmap *kmap;
-@@ -130,6 +130,10 @@ static struct ref_reloc_sym *kernel_get_
- 	kmap = map__kmap(map);
- 	if (!kmap)
- 		return NULL;
-+
-+	if (pmap)
-+		*pmap = map;
-+
- 	return kmap->ref_reloc_sym;
- }
- 
-@@ -141,7 +145,7 @@ static int kernel_get_symbol_address_by_
- 	struct map *map;
- 
- 	/* ref_reloc_sym is just a label. Need a special fix*/
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 	if (reloc_sym && strcmp(name, reloc_sym->name) == 0)
- 		*addr = (reloc) ? reloc_sym->addr : reloc_sym->unrelocated_addr;
- 	else {
-@@ -742,6 +746,7 @@ post_process_kernel_probe_trace_events(s
- 				       int ntevs)
- {
- 	struct ref_reloc_sym *reloc_sym;
-+	struct map *map;
- 	char *tmp;
- 	int i, skipped = 0;
- 
-@@ -750,7 +755,7 @@ post_process_kernel_probe_trace_events(s
- 		return post_process_offline_probe_trace_events(tevs, ntevs,
- 						symbol_conf.vmlinux_name);
- 
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(&map);
- 	if (!reloc_sym) {
- 		pr_warning("Relocated base symbol is not found!\n");
- 		return -EINVAL;
-@@ -759,9 +764,13 @@ post_process_kernel_probe_trace_events(s
- 	for (i = 0; i < ntevs; i++) {
- 		if (!tevs[i].point.address || tevs[i].point.retprobe)
- 			continue;
--		/* If we found a wrong one, mark it by NULL symbol */
-+		/*
-+		 * If we found a wrong one, mark it by NULL symbol.
-+		 * Since addresses in debuginfo is same as objdump, we need
-+		 * to convert it to addresses on memory.
-+		 */
- 		if (kprobe_warn_out_range(tevs[i].point.symbol,
--					  tevs[i].point.address)) {
-+			map__objdump_2mem(map, tevs[i].point.address))) {
- 			tmp = NULL;
- 			skipped++;
- 		} else {
-@@ -2850,7 +2859,7 @@ static int find_probe_trace_events_from_
- 
- 	/* Note that the symbols in the kmodule are not relocated */
- 	if (!pev->uprobes && !pp->retprobe && !pev->target) {
--		reloc_sym = kernel_get_ref_reloc_sym();
-+		reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 		if (!reloc_sym) {
- 			pr_warning("Relocated base symbol is not found!\n");
- 			ret = -EINVAL;
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1191,7 +1191,9 @@ static int __must_check ax25_connect(str
+ 	if (addr_len > sizeof(struct sockaddr_ax25) &&
+ 	    fsa->fsa_ax25.sax25_ndigis != 0) {
+ 		/* Valid number of digipeaters ? */
+-		if (fsa->fsa_ax25.sax25_ndigis < 1 || fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS) {
++		if (fsa->fsa_ax25.sax25_ndigis < 1 ||
++		    addr_len < sizeof(struct sockaddr_ax25) +
++		    sizeof(ax25_address) * fsa->fsa_ax25.sax25_ndigis) {
+ 			err = -EINVAL;
+ 			goto out_release;
+ 		}
 
 
