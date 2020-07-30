@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E66C7232CF3
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:05:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61EB6232E5E
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729137AbgG3IFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42658 "EHLO mail.kernel.org"
+        id S1729010AbgG3IEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729152AbgG3IF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:05:29 -0400
+        id S1729004AbgG3IEn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:04:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B592120656;
-        Thu, 30 Jul 2020 08:05:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE9D22074B;
+        Thu, 30 Jul 2020 08:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096329;
-        bh=3AwXia64fCTFpJoU6h5xVPg77ZN+UbsHXwwU8FVjCbw=;
+        s=default; t=1596096282;
+        bh=adE+o9V+aVKv7b7s5ECHe6WwO2Fhgh6YtOsnLfIM7Zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhidhxJ8g6pxO/yKglcHjbZ/m4FnKj27Tq/gJbTZFLpTrmETZSuRDKhVm4v6Sb6TY
-         /zl8XZfrNJp231bbcCDvpav5HM0vFWDSwJ9gabqCfGKE7HPgnJCPwdyTBezJNZl4TR
-         bSnNR95oMiNOyBU38qIrajG0hdKeO11X7nFh+vb0=
+        b=EKfvh43QjZjD3RQfZK5CiZA/iDxW4tov9xo4PdzYpyH8S8bLwzSVJVdCvl0EXpM6B
+         uM5ny/6cJpiNQ0OOC9Dhjp5fAGtEppPLKG/ZH7NcpB6bqY61o3N4nAAAyxEBBuLUw9
+         uInuQLC7UBtFa0VqaefASxQYiDXpdpDi94LWNqmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+6720d64f31c081c2f708@syzkaller.appspotmail.com
-Subject: [PATCH 5.7 09/20] qrtr: orphan socket in qrtr_release()
-Date:   Thu, 30 Jul 2020 10:03:59 +0200
-Message-Id: <20200730074420.973027895@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Weilong Chen <chenweilong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.7 10/20] rtnetlink: Fix memory(net_device) leak when ->newlink fails
+Date:   Thu, 30 Jul 2020 10:04:00 +0200
+Message-Id: <20200730074421.023008750@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.533211699@linuxfoundation.org>
 References: <20200730074420.533211699@linuxfoundation.org>
@@ -48,37 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Weilong Chen <chenweilong@huawei.com>
 
-[ Upstream commit af9f691f0f5bdd1ade65a7b84927639882d7c3e5 ]
+[ Upstream commit cebb69754f37d68e1355a5e726fdac317bcda302 ]
 
-We have to detach sock from socket in qrtr_release(),
-otherwise skb->sk may still reference to this socket
-when the skb is released in tun->queue, particularly
-sk->sk_wq still points to &sock->wq, which leads to
-a UAF.
+When vlan_newlink call register_vlan_dev fails, it might return error
+with dev->reg_state = NETREG_UNREGISTERED. The rtnl_newlink should
+free the memory. But currently rtnl_newlink only free the memory which
+state is NETREG_UNINITIALIZED.
 
-Reported-and-tested-by: syzbot+6720d64f31c081c2f708@syzkaller.appspotmail.com
-Fixes: 28fb4e59a47d ("net: qrtr: Expose tunneling endpoint to user space")
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+BUG: memory leak
+unreferenced object 0xffff8881051de000 (size 4096):
+  comm "syz-executor139", pid 560, jiffies 4294745346 (age 32.445s)
+  hex dump (first 32 bytes):
+    76 6c 61 6e 32 00 00 00 00 00 00 00 00 00 00 00  vlan2...........
+    00 45 28 03 81 88 ff ff 00 00 00 00 00 00 00 00  .E(.............
+  backtrace:
+    [<0000000047527e31>] kmalloc_node include/linux/slab.h:578 [inline]
+    [<0000000047527e31>] kvmalloc_node+0x33/0xd0 mm/util.c:574
+    [<000000002b59e3bc>] kvmalloc include/linux/mm.h:753 [inline]
+    [<000000002b59e3bc>] kvzalloc include/linux/mm.h:761 [inline]
+    [<000000002b59e3bc>] alloc_netdev_mqs+0x83/0xd90 net/core/dev.c:9929
+    [<000000006076752a>] rtnl_create_link+0x2c0/0xa20 net/core/rtnetlink.c:3067
+    [<00000000572b3be5>] __rtnl_newlink+0xc9c/0x1330 net/core/rtnetlink.c:3329
+    [<00000000e84ea553>] rtnl_newlink+0x66/0x90 net/core/rtnetlink.c:3397
+    [<0000000052c7c0a9>] rtnetlink_rcv_msg+0x540/0x990 net/core/rtnetlink.c:5460
+    [<000000004b5cb379>] netlink_rcv_skb+0x12b/0x3a0 net/netlink/af_netlink.c:2469
+    [<00000000c71c20d3>] netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+    [<00000000c71c20d3>] netlink_unicast+0x4c6/0x690 net/netlink/af_netlink.c:1329
+    [<00000000cca72fa9>] netlink_sendmsg+0x735/0xcc0 net/netlink/af_netlink.c:1918
+    [<000000009221ebf7>] sock_sendmsg_nosec net/socket.c:652 [inline]
+    [<000000009221ebf7>] sock_sendmsg+0x109/0x140 net/socket.c:672
+    [<000000001c30ffe4>] ____sys_sendmsg+0x5f5/0x780 net/socket.c:2352
+    [<00000000b71ca6f3>] ___sys_sendmsg+0x11d/0x1a0 net/socket.c:2406
+    [<0000000007297384>] __sys_sendmsg+0xeb/0x1b0 net/socket.c:2439
+    [<000000000eb29b11>] do_syscall_64+0x56/0xa0 arch/x86/entry/common.c:359
+    [<000000006839b4d0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: cb626bf566eb ("net-sysfs: Fix reference count leak")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Weilong Chen <chenweilong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/rtnetlink.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -1180,6 +1180,7 @@ static int qrtr_release(struct socket *s
- 		sk->sk_state_change(sk);
- 
- 	sock_set_flag(sk, SOCK_DEAD);
-+	sock_orphan(sk);
- 	sock->sk = NULL;
- 
- 	if (!sock_flag(sk, SOCK_ZAPPED))
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3337,7 +3337,8 @@ replay:
+ 		 */
+ 		if (err < 0) {
+ 			/* If device is not registered at all, free it now */
+-			if (dev->reg_state == NETREG_UNINITIALIZED)
++			if (dev->reg_state == NETREG_UNINITIALIZED ||
++			    dev->reg_state == NETREG_UNREGISTERED)
+ 				free_netdev(dev);
+ 			goto out;
+ 		}
 
 
