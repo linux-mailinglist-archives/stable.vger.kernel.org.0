@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98BA5232E11
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC0B232E6C
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729756AbgG3IJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48642 "EHLO mail.kernel.org"
+        id S1729070AbgG3IHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:07:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729724AbgG3IJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:09:56 -0400
+        id S1729424AbgG3IHY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:07:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB0FD2074B;
-        Thu, 30 Jul 2020 08:09:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69107206C0;
+        Thu, 30 Jul 2020 08:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096596;
-        bh=+U6G1q06ryExgq9ufgnfnJAJRWYBQ9uYTA7+TCtW5WI=;
+        s=default; t=1596096443;
+        bh=rQYNZnD9DOcyrtUY71OvtSGMzsmJEMexCjp6PP7SJoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUko6GZukCdU2sbtbBJPP7Z5jlyT2HZJonGaoiXGmpyIG17r+n7HEIfumPBAFujei
-         sHWBPqBOj+8CEdSsqiRP63xVaHPqxRyenp1gXHG2rR3KcbveNiAx8ruh40VVz6aQU/
-         A5kGdhezOAQ5GR1pndUcIwt+Wuukj6bwSjCtbu3c=
+        b=si3MQBBjJH9OVN6j8LmS638UC7wHh3UMV4DD0gKr5t4GJ4M+X7LiQsEtN+PmJfY8s
+         iIj4pvvDGGo7zOv5qURLabB5DWFu8OWhyWwjz9+BCHhRfrNgakLbxrAvXRn4ERbw77
+         jniEf5nAhfGLjlMM+hfvpWl7+rucErVWRc8TvHT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/61] net: dp83640: fix SIOCSHWTSTAMP to update the struct with actual configuration
-Date:   Thu, 30 Jul 2020 10:04:36 +0200
-Message-Id: <20200730074421.730515015@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 11/17] AX.25: Prevent integer overflows in connect and sendmsg
+Date:   Thu, 30 Jul 2020 10:04:37 +0200
+Message-Id: <20200730074421.011274744@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074420.449233408@linuxfoundation.org>
+References: <20200730074420.449233408@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Organov <sorganov@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 473309fb8372365ad211f425bca760af800e10a7 ]
+[ Upstream commit 17ad73e941b71f3bec7523ea4e9cbc3752461c2d ]
 
->From Documentation/networking/timestamping.txt:
+We recently added some bounds checking in ax25_connect() and
+ax25_sendmsg() and we so we removed the AX25_MAX_DIGIS checks because
+they were no longer required.
 
-  A driver which supports hardware time stamping shall update the
-  struct with the actual, possibly more permissive configuration.
+Unfortunately, I believe they are required to prevent integer overflows
+so I have added them back.
 
-Do update the struct passed when we upscale the requested time
-stamping mode.
-
-Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
-Signed-off-by: Sergey Organov <sorganov@gmail.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8885bb0621f0 ("AX.25: Prevent out-of-bounds read in ax25_sendmsg()")
+Fixes: 2f2a7ffad5c6 ("AX.25: Fix out-of-bounds read in ax25_connect()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/dp83640.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ax25/af_ax25.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83640.c b/drivers/net/phy/dp83640.c
-index 7e94526de51c3..5649cc075ccbb 100644
---- a/drivers/net/phy/dp83640.c
-+++ b/drivers/net/phy/dp83640.c
-@@ -1337,6 +1337,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4;
- 		dp83640->version = PTP_CLASS_V1;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
-@@ -1344,6 +1345,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
-@@ -1351,6 +1353,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L2;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
- 		break;
- 	case HWTSTAMP_FILTER_PTP_V2_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_SYNC:
-@@ -1358,6 +1361,7 @@ static int dp83640_hwtstamp(struct phy_device *phydev, struct ifreq *ifr)
- 		dp83640->hwts_rx_en = 1;
- 		dp83640->layer = PTP_CLASS_L4 | PTP_CLASS_L2;
- 		dp83640->version = PTP_CLASS_V2;
-+		cfg.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 		break;
- 	default:
- 		return -ERANGE;
--- 
-2.25.1
-
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1191,6 +1191,7 @@ static int __must_check ax25_connect(str
+ 	    fsa->fsa_ax25.sax25_ndigis != 0) {
+ 		/* Valid number of digipeaters ? */
+ 		if (fsa->fsa_ax25.sax25_ndigis < 1 ||
++		    fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS ||
+ 		    addr_len < sizeof(struct sockaddr_ax25) +
+ 		    sizeof(ax25_address) * fsa->fsa_ax25.sax25_ndigis) {
+ 			err = -EINVAL;
+@@ -1512,7 +1513,9 @@ static int ax25_sendmsg(struct socket *s
+ 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
+ 
+ 			/* Valid number of digipeaters ? */
+-			if (usax->sax25_ndigis < 1 || addr_len < sizeof(struct sockaddr_ax25) +
++			if (usax->sax25_ndigis < 1 ||
++			    usax->sax25_ndigis > AX25_MAX_DIGIS ||
++			    addr_len < sizeof(struct sockaddr_ax25) +
+ 			    sizeof(ax25_address) * usax->sax25_ndigis) {
+ 				err = -EINVAL;
+ 				goto out;
 
 
