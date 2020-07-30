@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0659E232DB3
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F1A232E05
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729843AbgG3IN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52494 "EHLO mail.kernel.org"
+        id S1729829AbgG3IKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:10:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730108AbgG3INE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:13:04 -0400
+        id S1729824AbgG3IK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A6122070B;
-        Thu, 30 Jul 2020 08:13:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFC432075F;
+        Thu, 30 Jul 2020 08:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096783;
-        bh=4BqZ/RhG1SD/WQbc4OLwfRvW43zToqd/adGssxo8Ef4=;
+        s=default; t=1596096628;
+        bh=LOrYVVJL1mqPPdpn8zdfbWNQHqdDvHqgNiXmoQM1rMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAY20vQwinxZcskcVtIa8NjAb/BRw5V2kEKkXcz9NHkTf3ZHMUcWRsrXS//DWNmpg
-         ABxcOi/0KvlzvZNf0RKpTnFcR+qVxNtLWnT2oa65pbA2ZSOr9ZtfXcRGpxumuyKNVt
-         X8LFXZnCdq2Y2QvuLty6XA/PCEh6DtTP7ks5MVTc=
+        b=pHOIYrwyjkPOtM3v3vCNHtdxzmMEz1tO4nu8UtUNVKfD3xG+Gv9yD7GRpVLP9c6rN
+         WcXTbWrk7X6epgMOWGkwCe1nJQzKWrUikxcJEzdhyf+0i999FQEra85mOYpO8bVtQ4
+         xNRpLrjuVV1XBVrdrCDft8/kKfQN34TU3iLoQDcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 39/54] AX.25: Prevent out-of-bounds read in ax25_sendmsg()
-Date:   Thu, 30 Jul 2020 10:05:18 +0200
-Message-Id: <20200730074423.084112225@linuxfoundation.org>
+        Changbin Du <changbin.du@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.9 61/61] perf: Make perf able to build with latest libbfd
+Date:   Thu, 30 Jul 2020 10:05:19 +0200
+Message-Id: <20200730074423.794840006@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-[ Upstream commit 8885bb0621f01a6c82be60a91e5fc0f6e2f71186 ]
+commit 0ada120c883d4f1f6aafd01cf0fbb10d8bbba015 upstream.
 
-Checks on `addr_len` and `usax->sax25_ndigis` are insufficient.
-ax25_sendmsg() can go out of bounds when `usax->sax25_ndigis` equals to 7
-or 8. Fix it.
+libbfd has changed the bfd_section_* macros to inline functions
+bfd_section_<field> since 2019-09-18. See below two commits:
+  o http://www.sourceware.org/ml/gdb-cvs/2019-09/msg00064.html
+  o https://www.sourceware.org/ml/gdb-cvs/2019-09/msg00072.html
 
-It is safe to remove `usax->sax25_ndigis > AX25_MAX_DIGIS`, since
-`addr_len` is guaranteed to be less than or equal to
-`sizeof(struct full_sockaddr_ax25)`
+This fix make perf able to build with both old and new libbfd.
 
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200128152938.31413-1-changbin.du@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ax25/af_ax25.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/util/srcline.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1512,7 +1512,8 @@ static int ax25_sendmsg(struct socket *s
- 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
+--- a/tools/perf/util/srcline.c
++++ b/tools/perf/util/srcline.c
+@@ -86,16 +86,30 @@ static void find_address_in_section(bfd
+ 	bfd_vma pc, vma;
+ 	bfd_size_type size;
+ 	struct a2l_data *a2l = data;
++	flagword flags;
  
- 			/* Valid number of digipeaters ? */
--			if (usax->sax25_ndigis < 1 || usax->sax25_ndigis > AX25_MAX_DIGIS) {
-+			if (usax->sax25_ndigis < 1 || addr_len < sizeof(struct sockaddr_ax25) +
-+			    sizeof(ax25_address) * usax->sax25_ndigis) {
- 				err = -EINVAL;
- 				goto out;
- 			}
+ 	if (a2l->found)
+ 		return;
+ 
+-	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
++#ifdef bfd_get_section_flags
++	flags = bfd_get_section_flags(abfd, section);
++#else
++	flags = bfd_section_flags(section);
++#endif
++	if ((flags & SEC_ALLOC) == 0)
+ 		return;
+ 
+ 	pc = a2l->addr;
++#ifdef bfd_get_section_vma
+ 	vma = bfd_get_section_vma(abfd, section);
++#else
++	vma = bfd_section_vma(section);
++#endif
++#ifdef bfd_get_section_size
+ 	size = bfd_get_section_size(section);
++#else
++	size = bfd_section_size(section);
++#endif
+ 
+ 	if (pc < vma || pc >= vma + size)
+ 		return;
 
 
