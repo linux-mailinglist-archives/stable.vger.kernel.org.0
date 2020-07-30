@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF73A232D79
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C08E232DE9
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729904AbgG3ILA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
+        id S1730222AbgG3IP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:15:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729880AbgG3IKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:51 -0400
+        id S1729981AbgG3ILn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:11:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9C8F20842;
-        Thu, 30 Jul 2020 08:10:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA89720838;
+        Thu, 30 Jul 2020 08:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096651;
-        bh=4BqZ/RhG1SD/WQbc4OLwfRvW43zToqd/adGssxo8Ef4=;
+        s=default; t=1596096702;
+        bh=3skWiDVPUpQL4qr7FPevZfmE+/vdlGPFeS71okyenxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evDifpktTBtdqfFHyXJ5JNcszka6sOscAfK9kmLyZcyltounCXdxW/pjLWcmqlL1D
-         Waj2XiT1YQNbcwOmgwmUFJDi5Q0MOgctKdHIbqFcSiSVl0Z5StRY0nGyhtWrkGdFuy
-         htrmMWTpbE1B58KnIkVgwu+Y/KAs2aRxoE6ULY30=
+        b=p2m8QS22WGHv8YRi+WIxlMKvsajEVAmzhtZ4UgI2z0LSsEu+J2jDRndWGSOx5l4jj
+         i+bVLIVdU09VHzaos1l0dTxFnkDXJcXmcnn5PVq102B7vr2DbfPoYs51qcVDRqKhVr
+         GcwubHZlV7FhlK6C/hW3oMQ0w0AUDAyqokmsWWeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 47/61] AX.25: Prevent out-of-bounds read in ax25_sendmsg()
-Date:   Thu, 30 Jul 2020 10:05:05 +0200
-Message-Id: <20200730074423.110716116@linuxfoundation.org>
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 27/54] staging: wlan-ng: properly check endpoint types
+Date:   Thu, 30 Jul 2020 10:05:06 +0200
+Message-Id: <20200730074422.510568876@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 8885bb0621f01a6c82be60a91e5fc0f6e2f71186 ]
+commit faaff9765664009c1c7c65551d32e9ed3b1dda8f upstream.
 
-Checks on `addr_len` and `usax->sax25_ndigis` are insufficient.
-ax25_sendmsg() can go out of bounds when `usax->sax25_ndigis` equals to 7
-or 8. Fix it.
+As syzkaller detected, wlan-ng driver does not do sanity check of
+endpoints in prism2sta_probe_usb(), add check for xfer direction and type
 
-It is safe to remove `usax->sax25_ndigis > AX25_MAX_DIGIS`, since
-`addr_len` is guaranteed to be less than or equal to
-`sizeof(struct full_sockaddr_ax25)`
-
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-and-tested-by: syzbot+c2a1fa67c02faa0de723@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=c2a1fa67c02faa0de723
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722161052.999754-1-rkovhaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ax25/af_ax25.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1512,7 +1512,8 @@ static int ax25_sendmsg(struct socket *s
- 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
+---
+ drivers/staging/wlan-ng/prism2usb.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+--- a/drivers/staging/wlan-ng/prism2usb.c
++++ b/drivers/staging/wlan-ng/prism2usb.c
+@@ -60,11 +60,25 @@ static int prism2sta_probe_usb(struct us
+ 			       const struct usb_device_id *id)
+ {
+ 	struct usb_device *dev;
+-
++	const struct usb_endpoint_descriptor *epd;
++	const struct usb_host_interface *iface_desc = interface->cur_altsetting;
+ 	wlandevice_t *wlandev = NULL;
+ 	hfa384x_t *hw = NULL;
+ 	int result = 0;
  
- 			/* Valid number of digipeaters ? */
--			if (usax->sax25_ndigis < 1 || usax->sax25_ndigis > AX25_MAX_DIGIS) {
-+			if (usax->sax25_ndigis < 1 || addr_len < sizeof(struct sockaddr_ax25) +
-+			    sizeof(ax25_address) * usax->sax25_ndigis) {
- 				err = -EINVAL;
- 				goto out;
- 			}
++	if (iface_desc->desc.bNumEndpoints != 2) {
++		result = -ENODEV;
++		goto failed;
++	}
++
++	result = -EINVAL;
++	epd = &iface_desc->endpoint[1].desc;
++	if (!usb_endpoint_is_bulk_in(epd))
++		goto failed;
++	epd = &iface_desc->endpoint[2].desc;
++	if (!usb_endpoint_is_bulk_out(epd))
++		goto failed;
++
+ 	dev = interface_to_usbdev(interface);
+ 	wlandev = create_wlan();
+ 	if (wlandev == NULL) {
 
 
