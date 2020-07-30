@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53EC9232DE1
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77400232D6E
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:10:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730027AbgG3IP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:15:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50996 "EHLO mail.kernel.org"
+        id S1729824AbgG3IKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729982AbgG3ILp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:11:45 -0400
+        id S1729838AbgG3IKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 548DA2083B;
-        Thu, 30 Jul 2020 08:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDE3820838;
+        Thu, 30 Jul 2020 08:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096704;
-        bh=syJIf6GQBppf2Hdw79wPHqxwHwYccToCNQ4NPDLgv8o=;
+        s=default; t=1596096633;
+        bh=0vct4LVgTM2EVqNhF6kmRL0eBebcTy+NUjzRVoKf/XE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDoZANaal+O20DDvKTkIcOskFCH8m+td8p49zbyVFSacekVtrg0iGoxJMLKdZqFG9
-         JzUBLxPelPZz9rc6+S4EJ+WAYJZYSgr9KqKh1sCV84tI4zbmvgWj4uKLoQpobyrUtM
-         jY/krhsGqo/sd6nSlWJB8elVha/soSDaGfd/z+Og=
+        b=JJjbEPNlEAkmb0lDKptjAAyTmHZo0umLMN51L6BpOtnTuXtDNntJhdC2obOB1oFyC
+         GDs/FRFsug/nUYbUr1NfjztuSjCMZlToZNswYrX81imn8AdmKvVkvaLdmbTziqADDF
+         6d+R2VkWAtLYByxuU+Axzf4hMAv6MCbQc/xsgUFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.4 28/54] staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
-Date:   Thu, 30 Jul 2020 10:05:07 +0200
-Message-Id: <20200730074422.558679015@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 50/61] net: udp: Fix wrong clean up for IS_UDPLITE macro
+Date:   Thu, 30 Jul 2020 10:05:08 +0200
+Message-Id: <20200730074423.257384372@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-commit 0bd0db42a030b75c20028c7ba6e327b9cb554116 upstream.
+[ Upstream commit b0a422772fec29811e293c7c0e6f991c0fd9241d ]
 
-The `INSN_CONFIG` comedi instruction with sub-instruction code
-`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
-used as a right shift amount for other bitmask values without being
-checked.  Shift amounts greater than or equal to 32 will result in
-undefined behavior.  Add code to deal with this.
+We can't use IS_UDPLITE to replace udp_sk->pcflag when UDPLITE_RECV_CC is
+checked.
 
-Fixes: 33cdce6293dcc ("staging: comedi: addi_apci_1032: conform to new INSN_CONFIG_DIGITAL_TRIG")
-Cc: <stable@vger.kernel.org> #3.8+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20200717145257.112660-3-abbotti@mev.co.uk
+Fixes: b2bf1e2659b1 ("[UDP]: Clean up for IS_UDPLITE macro")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/comedi/drivers/addi_apci_1032.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ net/ipv4/udp.c |    2 +-
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1032.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
-@@ -115,14 +115,22 @@ static int apci1032_cos_insn_config(stru
- 				    unsigned int *data)
- {
- 	struct apci1032_private *devpriv = dev->private;
--	unsigned int shift, oldmask;
-+	unsigned int shift, oldmask, himask, lomask;
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1554,7 +1554,7 @@ int udp_queue_rcv_skb(struct sock *sk, s
+ 	/*
+ 	 * 	UDP-Lite specific tests, ignored on UDP sockets
+ 	 */
+-	if ((is_udplite & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
++	if ((up->pcflag & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
  
- 	switch (data[0]) {
- 	case INSN_CONFIG_DIGITAL_TRIG:
- 		if (data[1] != 0)
- 			return -EINVAL;
- 		shift = data[3];
--		oldmask = (1U << shift) - 1;
-+		if (shift < 32) {
-+			oldmask = (1U << shift) - 1;
-+			himask = data[4] << shift;
-+			lomask = data[5] << shift;
-+		} else {
-+			oldmask = 0xffffffffu;
-+			himask = 0;
-+			lomask = 0;
-+		}
- 		switch (data[2]) {
- 		case COMEDI_DIGITAL_TRIG_DISABLE:
- 			devpriv->ctrl = 0;
-@@ -145,8 +153,8 @@ static int apci1032_cos_insn_config(stru
- 				devpriv->mode2 &= oldmask;
- 			}
- 			/* configure specified channels */
--			devpriv->mode1 |= data[4] << shift;
--			devpriv->mode2 |= data[5] << shift;
-+			devpriv->mode1 |= himask;
-+			devpriv->mode2 |= lomask;
- 			break;
- 		case COMEDI_DIGITAL_TRIG_ENABLE_LEVELS:
- 			if (devpriv->ctrl != (APCI1032_CTRL_INT_ENA |
-@@ -163,8 +171,8 @@ static int apci1032_cos_insn_config(stru
- 				devpriv->mode2 &= oldmask;
- 			}
- 			/* configure specified channels */
--			devpriv->mode1 |= data[4] << shift;
--			devpriv->mode2 |= data[5] << shift;
-+			devpriv->mode1 |= himask;
-+			devpriv->mode2 |= lomask;
- 			break;
- 		default:
- 			return -EINVAL;
+ 		/*
+ 		 * MIB statistics other than incrementing the error count are
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -601,7 +601,7 @@ int udpv6_queue_rcv_skb(struct sock *sk,
+ 	/*
+ 	 * UDP-Lite specific tests, ignored on UDP sockets (see net/ipv4/udp.c).
+ 	 */
+-	if ((is_udplite & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
++	if ((up->pcflag & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
+ 
+ 		if (up->pcrlen == 0) {          /* full coverage was set  */
+ 			net_dbg_ratelimited("UDPLITE6: partial coverage %d while full coverage %d requested\n",
 
 
