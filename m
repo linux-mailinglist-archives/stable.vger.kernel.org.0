@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DF1232DF1
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7505F232D9B
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729230AbgG3IKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49810 "EHLO mail.kernel.org"
+        id S1729707AbgG3IMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:12:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729306AbgG3IKr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:47 -0400
+        id S1729701AbgG3IMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:12:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02D202083B;
-        Thu, 30 Jul 2020 08:10:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AB2A2070B;
+        Thu, 30 Jul 2020 08:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096646;
-        bh=09YYAdhW1lRLAFI0+BOT3wBKBQth+gwbblPsn+lSVbI=;
+        s=default; t=1596096768;
+        bh=Mc08/Y2BsY/mIkRNqTpfOa/umI+Wdp+70Pc0H6ZfhlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0h7noC3CnEdwP4cVBs60W4xzTgv9TNWBtOrbY14hKjZ23G1GVZpeCY5soF63ewpx8
-         dZsPnzCZXxS1HAtVupm9c7DqWNn1AQEnhqSIxLULHUCHw4IzbZCVb9H+Pi3MH4wBsn
-         n+NXLJofkpaUWygyplGodtDrJTTceicthQGvrrHg=
+        b=s/YsFco40t6tWXiAsxh2+TwnN4tv4xTZlx3wCOTVFypKN9HnIg0dlEAud2g/YzZ0Y
+         MWieQrrvnq2ig5B8uhlMnulgArdxGHAFCp+09aOrnaxeq2oP37YouNXUp11FC+q/aO
+         cybUBqQX8if5qpOXcI6xiHwy0IoOdiZ49+qbEJNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 55/61] drivers/net/wan/x25_asy: Fix to make it work
-Date:   Thu, 30 Jul 2020 10:05:13 +0200
-Message-Id: <20200730074423.504703191@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.4 35/54] parisc: Add atomic64_set_release() define to avoid CPU soft lockups
+Date:   Thu, 30 Jul 2020 10:05:14 +0200
+Message-Id: <20200730074422.890412042@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,102 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit 8fdcabeac39824fe67480fd9508d80161c541854 ]
+commit be6577af0cef934ccb036445314072e8cb9217b9 upstream.
 
-This driver is not working because of problems of its receiving code.
-This patch fixes it to make it work.
+Stalls are quite frequent with recent kernels. I enabled
+CONFIG_SOFTLOCKUP_DETECTOR and I caught the following stall:
 
-When the driver receives an LAPB frame, it should first pass the frame
-to the LAPB module to process. After processing, the LAPB module passes
-the data (the packet) back to the driver, the driver should then add a
-one-byte pseudo header and pass the data to upper layers.
+watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [cc1:22803]
+CPU: 0 PID: 22803 Comm: cc1 Not tainted 5.6.17+ #3
+Hardware name: 9000/800/rp3440
+ IAOQ[0]: d_alloc_parallel+0x384/0x688
+ IAOQ[1]: d_alloc_parallel+0x388/0x688
+ RP(r2): d_alloc_parallel+0x134/0x688
+Backtrace:
+ [<000000004036974c>] __lookup_slow+0xa4/0x200
+ [<0000000040369fc8>] walk_component+0x288/0x458
+ [<000000004036a9a0>] path_lookupat+0x88/0x198
+ [<000000004036e748>] filename_lookup+0xa0/0x168
+ [<000000004036e95c>] user_path_at_empty+0x64/0x80
+ [<000000004035d93c>] vfs_statx+0x104/0x158
+ [<000000004035dfcc>] __do_sys_lstat64+0x44/0x80
+ [<000000004035e5a0>] sys_lstat64+0x20/0x38
+ [<0000000040180054>] syscall_exit+0x0/0x14
 
-The changes to the "x25_asy_bump" function and the
-"x25_asy_data_indication" function are to correctly implement this
-procedure.
+The code was stuck in this loop in d_alloc_parallel:
 
-Also, the "x25_asy_unesc" function ignores any frame that is shorter
-than 3 bytes. However the shortest frames are 2-byte long. So we need
-to change it to allow 2-byte frames to pass.
+    4037d414:   0e 00 10 dc     ldd 0(r16),ret0
+    4037d418:   c7 fc 5f ed     bb,< ret0,1f,4037d414 <d_alloc_parallel+0x384>
+    4037d41c:   08 00 02 40     nop
 
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Reviewed-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is the inner loop of bit_spin_lock which is called by hlist_bl_unlock in
+d_alloc_parallel:
+
+static inline void bit_spin_lock(int bitnum, unsigned long *addr)
+{
+        /*
+         * Assuming the lock is uncontended, this never enters
+         * the body of the outer loop. If it is contended, then
+         * within the inner loop a non-atomic test is used to
+         * busywait with less bus contention for a good time to
+         * attempt to acquire the lock bit.
+         */
+        preempt_disable();
+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+        while (unlikely(test_and_set_bit_lock(bitnum, addr))) {
+                preempt_enable();
+                do {
+                        cpu_relax();
+                } while (test_bit(bitnum, addr));
+                preempt_disable();
+        }
+#endif
+        __acquire(bitlock);
+}
+
+After consideration, I realized that we must be losing bit unlocks.
+Then, I noticed that we missed defining atomic64_set_release().
+Adding this define fixes the stalls in bit operations.
+
+Signed-off-by: Dave Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/wan/x25_asy.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wan/x25_asy.c
-+++ b/drivers/net/wan/x25_asy.c
-@@ -186,7 +186,7 @@ static inline void x25_asy_unlock(struct
- 	netif_wake_queue(sl->dev);
+---
+ arch/parisc/include/asm/atomic.h |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/arch/parisc/include/asm/atomic.h
++++ b/arch/parisc/include/asm/atomic.h
+@@ -208,6 +208,8 @@ atomic64_set(atomic64_t *v, s64 i)
+ 	_atomic_spin_unlock_irqrestore(v, flags);
  }
  
--/* Send one completely decapsulated IP datagram to the IP layer. */
-+/* Send an LAPB frame to the LAPB module to process. */
- 
- static void x25_asy_bump(struct x25_asy *sl)
- {
-@@ -198,13 +198,12 @@ static void x25_asy_bump(struct x25_asy
- 	count = sl->rcount;
- 	dev->stats.rx_bytes += count;
- 
--	skb = dev_alloc_skb(count+1);
-+	skb = dev_alloc_skb(count);
- 	if (skb == NULL) {
- 		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
- 		dev->stats.rx_dropped++;
- 		return;
- 	}
--	skb_push(skb, 1);	/* LAPB internal control */
- 	memcpy(skb_put(skb, count), sl->rbuff, count);
- 	skb->protocol = x25_type_trans(skb, sl->dev);
- 	err = lapb_data_received(skb->dev, skb);
-@@ -212,7 +211,6 @@ static void x25_asy_bump(struct x25_asy
- 		kfree_skb(skb);
- 		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
- 	} else {
--		netif_rx(skb);
- 		dev->stats.rx_packets++;
- 	}
- }
-@@ -358,12 +356,21 @@ static netdev_tx_t x25_asy_xmit(struct s
-  */
- 
- /*
-- *	Called when I frame data arrives. We did the work above - throw it
-- *	at the net layer.
-+ *	Called when I frame data arrive. We add a pseudo header for upper
-+ *	layers and pass it to upper layers.
-  */
- 
- static int x25_asy_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
-+		return NET_RX_DROP;
-+	}
-+	skb_push(skb, 1);
-+	skb->data[0] = X25_IFACE_DATA;
++#define atomic64_set_release(v, i)	atomic64_set((v), (i))
 +
-+	skb->protocol = x25_type_trans(skb, dev);
-+
- 	return netif_rx(skb);
- }
- 
-@@ -659,7 +666,7 @@ static void x25_asy_unesc(struct x25_asy
- 	switch (s) {
- 	case X25_END:
- 		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
--		    sl->rcount > 2)
-+		    sl->rcount >= 2)
- 			x25_asy_bump(sl);
- 		clear_bit(SLF_ESCAPE, &sl->flags);
- 		sl->rcount = 0;
+ static __inline__ s64
+ atomic64_read(const atomic64_t *v)
+ {
 
 
