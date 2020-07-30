@@ -2,55 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D76A7232C88
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 09:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B27AD232C99
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 09:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728624AbgG3H2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 03:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53400 "EHLO mail.kernel.org"
+        id S1728971AbgG3HaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 03:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726194AbgG3H2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 03:28:49 -0400
+        id S1726194AbgG3HaY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 03:30:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58CB7206E6;
-        Thu, 30 Jul 2020 07:28:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 920F12070B;
+        Thu, 30 Jul 2020 07:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596094128;
-        bh=0vavgTMDfVfwJjBVHBedsRYmusoi+PhLN5q4bb6SHOc=;
+        s=default; t=1596094224;
+        bh=obI1cW5B2vkgbR1FTfLccdeC3SAat3jW9yYsILJxDWg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=b7tAP4FWtQkiZLoSwjJG62hN21GEeii/kdwCI0X9X+ZE8Afmu4bmmgbRB2yHY8xX4
-         x0AxjqMYqtL1LtiJBV1vstzxiSfi9U1nSknRZkrKYNVNIVAFcgXvixL77abIMuLEbz
-         R4GCQERO0n7rhsXI297WaDYODKd8Ovh7tv8mg9CA=
-Date:   Thu, 30 Jul 2020 09:28:37 +0200
+        b=orK/glA1/hvlkXbeRL/ErCXplRTG2IdEYTZIOuVeFybdLjUDj+ooPomqVXeg43nNx
+         KUv7nvvrlhzi9y8Gv4OlkglG+/K/2Ahej8yLlhBLQBriVuIocrEIT5rGr70LaYanAU
+         Vpzlk51SlSihnn6OD4YaDjfQGoXhb9AAHTM+tzuk=
+Date:   Thu, 30 Jul 2020 09:30:13 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        stable@vger.kernel.org, iommu@lists.linux-foundation.org
-Subject: Re: [PATCH v2] iommu: amd: Fix IO_PAGE_FAULT due to __unmap_single()
- size overflow
-Message-ID: <20200730072837.GB4045776@kroah.com>
-References: <20200624084121.6588-1-suravee.suthikulpanit@amd.com>
- <20200624090906.GC1731290@kroah.com>
- <20200624115827.GO3701@8bytes.org>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
+        madalin.bucur@oss.nxp.com, camelia.groza@nxp.com,
+        joakim.tjernlund@infinera.com, fido_max@inbox.ru,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 stable-5.4.y] Revert "dpaa_eth: fix usage as DSA
+ master, try 3"
+Message-ID: <20200730073013.GC4045776@kroah.com>
+References: <20200624124517.3212326-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200624115827.GO3701@8bytes.org>
+In-Reply-To: <20200624124517.3212326-1-olteanv@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 24, 2020 at 01:58:27PM +0200, Joerg Roedel wrote:
-> Hi Greg,
+On Wed, Jun 24, 2020 at 03:45:17PM +0300, Vladimir Oltean wrote:
+> From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> On Wed, Jun 24, 2020 at 11:09:06AM +0200, Greg KH wrote:
-> > So what exact stable kernel version(s) do you want to see this patch
-> > applied to?
+> This reverts commit 40a904b1c2e57b22dd002dfce73688871cb0bac8.
 > 
-> It is needed in kernels <= v5.4. Linux v5.5 has replaced the code with
-> the bug.
+> The patch is not wrong, but the Fixes: tag is. It should have been:
+> 
+> 	Fixes: 060ad66f9795 ("dpaa_eth: change DMA device")
+> 
+> which means that it's fixing a commit which was introduced in:
+> 
+> git tag --contains 060ad66f97954
+> v5.5
+> 
+> which then means it should have not been backported to linux-5.4.y,
+> where things _were_ working and now they're not.
+> 
+> Reported-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> ---
+> Changes in v1:
+> Adjusted the commit message from linux-4.19.y to linux-5.4.y
+> 
+> Changes in v2:
+> Fixed the sha1sum of the reverted commit.
+> 
+>  drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+> index 6683409fbd4a..4b21ae27a9fd 100644
+> --- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+> +++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+> @@ -2796,7 +2796,7 @@ static int dpaa_eth_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	/* Do this here, so we can be verbose early */
+> -	SET_NETDEV_DEV(net_dev, dev->parent);
+> +	SET_NETDEV_DEV(net_dev, dev);
+>  	dev_set_drvdata(dev, net_dev);
+>  
+>  	priv = netdev_priv(net_dev);
+> -- 
+> 2.25.1
+> 
 
-This doesn't apply to any older kernels that I can see :(
+Now queued up, thanks.
+
+greg k-h
