@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B90232D0E
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:06:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A18A2232D3F
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729310AbgG3IGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43900 "EHLO mail.kernel.org"
+        id S1729189AbgG3IId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:08:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729306AbgG3IGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:06:20 -0400
+        id S1729591AbgG3IIb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:08:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D904206C0;
-        Thu, 30 Jul 2020 08:06:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D33792070B;
+        Thu, 30 Jul 2020 08:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096379;
-        bh=hMdj6p1RegJOk6WhykDM+3eQpY8+Us26o9pQeZnzf1M=;
+        s=default; t=1596096509;
+        bh=8/u2v9f1AS4A+vYFzNeZgTlwKWH2MAHgTKw+YPnZWRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FL2SRMW7AHShU+T6lWYRS/7YMUlno99ZHqVQeufMBeo5CwCwUIUy2CftVBV8LXf3C
-         yiqjhHnAfjnOgcEz9rSN85AhHwr4kvzYrnpv0FLEr3MYwWu0ShI5jvlGLQamyMRd7B
-         Vrd9rrskyse1pzsfxpog2cV+JqsqdsP19zrTi3kc=
+        b=e1P3/tzLdsTeJMmz3NJLsFG6yiuASCLsBuESVcEc1ko4UbZ9wbJ6Gh8RU2bn65vIU
+         hxukOnPKzLoeXqLp5//1hKvfK5qGbXOVrSJxBUcXNir4PELn3DnlTqJQtl0mL5s3jN
+         Za0G0MRm3jDoysViK2cwfa0dRI3/npIB9R8tT1bM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>
-Subject: [PATCH 5.4 19/19] Revert "dpaa_eth: fix usage as DSA master, try 3"
+        stable@vger.kernel.org, James Bottomley <jejb@linux.ibm.com>,
+        Tom Rix <trix@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 03/61] scsi: scsi_transport_spi: Fix function pointer check
 Date:   Thu, 30 Jul 2020 10:04:21 +0200
-Message-Id: <20200730074421.448421335@linuxfoundation.org>
+Message-Id: <20200730074420.970320831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.502923740@linuxfoundation.org>
-References: <20200730074420.502923740@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Tom Rix <trix@redhat.com>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+[ Upstream commit 5aee52c44d9170591df65fafa1cd408acc1225ce ]
 
-This reverts commit 40a904b1c2e57b22dd002dfce73688871cb0bac8.
+clang static analysis flags several null function pointer problems.
 
-The patch is not wrong, but the Fixes: tag is. It should have been:
+drivers/scsi/scsi_transport_spi.c:374:1: warning: Called function pointer is null (null dereference) [core.CallAndMessage]
+spi_transport_max_attr(offset, "%d\n");
+^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	Fixes: 060ad66f9795 ("dpaa_eth: change DMA device")
+Reviewing the store_spi_store_max macro
 
-which means that it's fixing a commit which was introduced in:
+	if (i->f->set_##field)
+		return -EINVAL;
 
-git tag --contains 060ad66f97954
-v5.5
+should be
 
-which then means it should have not been backported to linux-5.4.y,
-where things _were_ working and now they're not.
+	if (!i->f->set_##field)
+		return -EINVAL;
 
-Reported-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200627133242.21618-1-trix@redhat.com
+Reviewed-by: James Bottomley <jejb@linux.ibm.com>
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-Changes in v1:
-Adjusted the commit message from linux-4.19.y to linux-5.4.y
-
-Changes in v2:
-Fixed the sha1sum of the reverted commit.
-
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c |    2 +-
+ drivers/scsi/scsi_transport_spi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2802,7 +2802,7 @@ static int dpaa_eth_probe(struct platfor
- 	}
- 
- 	/* Do this here, so we can be verbose early */
--	SET_NETDEV_DEV(net_dev, dev->parent);
-+	SET_NETDEV_DEV(net_dev, dev);
- 	dev_set_drvdata(dev, net_dev);
- 
- 	priv = netdev_priv(net_dev);
+diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
+index 319868f3f6743..083cd11ce7d7d 100644
+--- a/drivers/scsi/scsi_transport_spi.c
++++ b/drivers/scsi/scsi_transport_spi.c
+@@ -353,7 +353,7 @@ store_spi_transport_##field(struct device *dev, 			\
+ 	struct spi_transport_attrs *tp					\
+ 		= (struct spi_transport_attrs *)&starget->starget_data;	\
+ 									\
+-	if (i->f->set_##field)						\
++	if (!i->f->set_##field)						\
+ 		return -EINVAL;						\
+ 	val = simple_strtoul(buf, NULL, 0);				\
+ 	if (val > tp->max_##field)					\
+-- 
+2.25.1
+
 
 
