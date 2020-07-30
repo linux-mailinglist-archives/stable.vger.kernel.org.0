@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 858A3232E6E
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FAD232D64
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:10:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbgG3IHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:07:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45464 "EHLO mail.kernel.org"
+        id S1729288AbgG3IKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729419AbgG3IHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:07:32 -0400
+        id S1729786AbgG3IKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CE95206C0;
-        Thu, 30 Jul 2020 08:07:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0270C20838;
+        Thu, 30 Jul 2020 08:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096451;
-        bh=Q1kEsNcIpPtKeGTJYNNx/pkXlTyPb2hsO2eQo91rRRs=;
+        s=default; t=1596096607;
+        bh=4JzCQhAGnw2TNVm7WPrALwR6pRDjtp1IIAQIm09Db9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trZXrsy8XTnNF37YFPYleXOPfzdUUmGdL09SCvmpJ+WpAINbhJt3U2YzMizk9wMPb
-         fjTVCG0rA+TcAW4omm9BWu4S/JIakZxsrBq/2Ltia6MCF+88IoESBhdcozkN5qV5Sy
-         +ujU2PYae4jgrPT3PnyzzOkOINlfdAbDPqhWhpY8=
+        b=ZCD09+V8BllLloE5Fg1DpMGYmClcxTckza9R7tpUpE7CzOSwO4nWMoMYMYdPR+CiC
+         1wdDx4z1vd38KpeZ0S6LEg7lagKmiGpBEzkp5nIlpUzKI/fNKYIsuzDzPANsfg5fB8
+         xnG7Frajv3DmDs/zIjZUCSX7ea04wHBxh0sW6sO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Benjamin Herrenschmidt <benh@amazon.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 14/17] udp: Copy has_conns in reuseport_grow().
+        stable@vger.kernel.org, Joao Moreno <mail@joaomoreno.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 22/61] HID: apple: Disable Fn-key key-re-mapping on clone keyboards
 Date:   Thu, 30 Jul 2020 10:04:40 +0200
-Message-Id: <20200730074421.161531583@linuxfoundation.org>
+Message-Id: <20200730074421.919331482@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.449233408@linuxfoundation.org>
-References: <20200730074420.449233408@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f2b2c55e512879a05456eaf5de4d1ed2f7757509 ]
+[ Upstream commit a5d81646fa294eed57786a9310b06ca48902adf8 ]
 
-If an unconnected socket in a UDP reuseport group connect()s, has_conns is
-set to 1. Then, when a packet is received, udp[46]_lib_lookup2() scans all
-sockets in udp_hslot looking for the connected socket with the highest
-score.
+The Maxxter KB-BT-001 Bluetooth keyboard, which looks somewhat like the
+Apple Wireless Keyboard, is using the vendor and product IDs (05AC:0239)
+of the Apple Wireless Keyboard (2009 ANSI version) <sigh>.
 
-However, when the number of sockets bound to the port exceeds max_socks,
-reuseport_grow() resets has_conns to 0. It can cause udp[46]_lib_lookup2()
-to return without scanning all sockets, resulting in that packets sent to
-connected sockets may be distributed to unconnected sockets.
+But its F1 - F10 keys are marked as sending F1 - F10, not the special
+functions hid-apple.c maps them too; and since its descriptors do not
+contain the HID_UP_CUSTOM | 0x0003 usage apple-hid looks for for the
+Fn-key, apple_setup_input() never gets called, so F1 - F6 are mapped
+to key-codes which have not been set in the keybit array causing them
+to not send any events at all.
 
-Therefore, reuseport_grow() should copy has_conns.
+The lack of a usage code matching the Fn key in the clone is actually
+useful as this allows solving this problem in a generic way.
 
-Fixes: acdcecc61285 ("udp: correct reuseport selection with connected sockets")
-CC: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Benjamin Herrenschmidt <benh@amazon.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This commits adds a fn_found flag and it adds a input_configured
+callback which checks if this flag is set once all usages have been
+mapped. If it is not set, then assume this is a clone and clear the
+quirks bitmap so that the hid-apple code does not add any special
+handling to this keyboard.
+
+This fixes F1 - F6 not sending anything at all and F7 - F12 sending
+the wrong codes on the Maxxter KB-BT-001 Bluetooth keyboard and on
+similar clones.
+
+Cc: Joao Moreno <mail@joaomoreno.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock_reuseport.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-apple.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -112,6 +112,7 @@ static struct sock_reuseport *reuseport_
- 	more_reuse->prog = reuse->prog;
- 	more_reuse->reuseport_id = reuse->reuseport_id;
- 	more_reuse->bind_inany = reuse->bind_inany;
-+	more_reuse->has_conns = reuse->has_conns;
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 197eb75d10ef2..959a9e38b4f54 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -55,6 +55,7 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
+ struct apple_sc {
+ 	unsigned long quirks;
+ 	unsigned int fn_on;
++	unsigned int fn_found;
+ 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+ };
  
- 	memcpy(more_reuse->socks, reuse->socks,
- 	       reuse->num_socks * sizeof(struct sock *));
+@@ -340,12 +341,15 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	struct apple_sc *asc = hid_get_drvdata(hdev);
++
+ 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
+ 			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
+ 			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
+ 		/* The fn key on Apple USB keyboards */
+ 		set_bit(EV_REP, hi->input->evbit);
+ 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
++		asc->fn_found = true;
+ 		apple_setup_input(hi->input);
+ 		return 1;
+ 	}
+@@ -372,6 +376,19 @@ static int apple_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 	return 0;
+ }
+ 
++static int apple_input_configured(struct hid_device *hdev,
++		struct hid_input *hidinput)
++{
++	struct apple_sc *asc = hid_get_drvdata(hdev);
++
++	if ((asc->quirks & APPLE_HAS_FN) && !asc->fn_found) {
++		hid_info(hdev, "Fn key not found (Apple Wireless Keyboard clone?), disabling Fn key handling\n");
++		asc->quirks = 0;
++	}
++
++	return 0;
++}
++
+ static int apple_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -593,6 +610,7 @@ static struct hid_driver apple_driver = {
+ 	.event = apple_event,
+ 	.input_mapping = apple_input_mapping,
+ 	.input_mapped = apple_input_mapped,
++	.input_configured = apple_input_configured,
+ };
+ module_hid_driver(apple_driver);
+ 
+-- 
+2.25.1
+
 
 
