@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DE3232D80
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:11:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED77232E20
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729941AbgG3ILP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:11:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50412 "EHLO mail.kernel.org"
+        id S1729416AbgG3IRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729934AbgG3ILO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:11:14 -0400
+        id S1729332AbgG3IJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:09:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36C9E2074B;
-        Thu, 30 Jul 2020 08:11:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC4892074B;
+        Thu, 30 Jul 2020 08:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096673;
-        bh=HnEd8weyY2cJzcGqCvbfCZvAam8vR6OcAgYPFgX54Gw=;
+        s=default; t=1596096570;
+        bh=Mq71PoAFIqvTbSxc3PBWoFGgJMVoqwJEQTwERqubN2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkjKDgTDST3Sq7guNZU4USwjwe+HwFFhT97iCMO17XiYVrRc8tvaTmIQFPilwWOaw
-         35rlcaMtcxglqxBzC/yBDhvy/sTUFlyvtO5FF950vqKAr0BEeB8/23ApXlkFutHbai
-         XHhHb/E60Z+k2TXRQ4v/P//ft7hz8PYA/Lregm5o=
+        b=pRiCP9JPUQa49C0i3PtX4xvV5j3xcUwWHvDQvrRbvBSW86LjolLIEveTgvBtdst/0
+         VQvbgx/MY1K23J5TTaOPRAENoLiJDzPgmDfWFbd1xg+Srms0pKbwwGUiF/c27IPmjL
+         6aUKXnL6Pgw6ZYYoZS2UfkMkLqxZyFdCwgO6OE4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/54] hippi: Fix a size used in a pci_free_consistent() in an error handling path
+        stable@vger.kernel.org, Daniel Winkler <danielwinkler@google.com>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Claire Chang <tientzu@chromium.org>
+Subject: [PATCH 4.9 38/61] serial: 8250_mtk: Fix high-speed baud rates clamping
 Date:   Thu, 30 Jul 2020 10:04:56 +0200
-Message-Id: <20200730074422.039936399@linuxfoundation.org>
+Message-Id: <20200730074422.675563344@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 3195c4706b00106aa82c73acd28340fa8fc2bfc1 ]
+commit 551e553f0d4ab623e2a6f424ab5834f9c7b5229c upstream.
 
-The size used when calling 'pci_alloc_consistent()' and
-'pci_free_consistent()' should match.
+Commit 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250
+port") fixed limits of a baud rate setting for a generic 8250 port.
+In other words since that commit the baud rate has been permitted to be
+within [uartclk / 16 / UART_DIV_MAX; uartclk / 16], which is absolutely
+normal for a standard 8250 UART port. But there are custom 8250 ports,
+which provide extended baud rate limits. In particular the Mediatek 8250
+port can work with baud rates up to "uartclk" speed.
 
-Fix it and have it consistent with the corresponding call in 'rr_close()'.
+Normally that and any other peculiarity is supposed to be handled in a
+custom set_termios() callback implemented in the vendor-specific
+8250-port glue-driver. Currently that is how it's done for the most of
+the vendor-specific 8250 ports, but for some reason for Mediatek a
+solution has been spread out to both the glue-driver and to the generic
+8250-port code. Due to that a bug has been introduced, which permitted the
+extended baud rate limit for all even for standard 8250-ports. The bug
+has been fixed by the commit 7b668c064ec3 ("serial: 8250: Fix max baud
+limit in generic 8250 port") by narrowing the baud rates limit back down to
+the normal bounds. Unfortunately by doing so we also broke the
+Mediatek-specific extended bauds feature.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A fix of the problem described above is twofold. First since we can't get
+back the extended baud rate limits feature to the generic set_termios()
+function and that method supports only a standard baud rates range, the
+requested baud rate must be locally stored before calling it and then
+restored back to the new termios structure after the generic set_termios()
+finished its magic business. By doing so we still use the
+serial8250_do_set_termios() method to set the LCR/MCR/FCR/etc. registers,
+while the extended baud rate setting procedure will be performed later in
+the custom Mediatek-specific set_termios() callback. Second since a true
+baud rate is now fully calculated in the custom set_termios() method we
+need to locally update the port timeout by calling the
+uart_update_timeout() function. After the fixes described above are
+implemented in the 8250_mtk.c driver, the Mediatek 8250-port should
+get back to normally working with extended baud rates.
+
+Link: https://lore.kernel.org/linux-serial/20200701211337.3027448-1-danielwinkler@google.com
+
+Fixes: 7b668c064ec3 ("serial: 8250: Fix max baud limit in generic 8250 port")
+Reported-by: Daniel Winkler <danielwinkler@google.com>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Claire Chang <tientzu@chromium.org>
+Link: https://lore.kernel.org/r/20200714124113.20918-1-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/hippi/rrunner.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_mtk.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/hippi/rrunner.c b/drivers/net/hippi/rrunner.c
-index 313e006f74feb..6f3519123eb66 100644
---- a/drivers/net/hippi/rrunner.c
-+++ b/drivers/net/hippi/rrunner.c
-@@ -1250,7 +1250,7 @@ static int rr_open(struct net_device *dev)
- 		rrpriv->info = NULL;
- 	}
- 	if (rrpriv->rx_ctrl) {
--		pci_free_consistent(pdev, sizeof(struct ring_ctrl),
-+		pci_free_consistent(pdev, 256 * sizeof(struct ring_ctrl),
- 				    rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
- 		rrpriv->rx_ctrl = NULL;
- 	}
--- 
-2.25.1
-
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -45,8 +45,21 @@ mtk8250_set_termios(struct uart_port *po
+ 	unsigned long flags;
+ 	unsigned int baud, quot;
+ 
++	/*
++	 * Store the requested baud rate before calling the generic 8250
++	 * set_termios method. Standard 8250 port expects bauds to be
++	 * no higher than (uartclk / 16) so the baud will be clamped if it
++	 * gets out of that bound. Mediatek 8250 port supports speed
++	 * higher than that, therefore we'll get original baud rate back
++	 * after calling the generic set_termios method and recalculate
++	 * the speed later in this method.
++	 */
++	baud = tty_termios_baud_rate(termios);
++
+ 	serial8250_do_set_termios(port, termios, old);
+ 
++	tty_termios_encode_baud_rate(termios, baud, baud);
++
+ 	/*
+ 	 * Mediatek UARTs use an extra highspeed register (UART_MTK_HIGHS)
+ 	 *
+@@ -85,6 +98,11 @@ mtk8250_set_termios(struct uart_port *po
+ 	 */
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
++	/*
++	 * Update the per-port timeout.
++	 */
++	uart_update_timeout(port, termios->c_cflag, baud);
++
+ 	/* set DLAB we have cval saved in up->lcr from the call to the core */
+ 	serial_port_out(port, UART_LCR, up->lcr | UART_LCR_DLAB);
+ 	serial_dl_write(up, quot);
 
 
