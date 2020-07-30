@@ -2,105 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3919232FA0
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 11:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43700232FFE
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 12:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbgG3JiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 05:38:13 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:55928 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726615AbgG3JiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 05:38:12 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21979070-1500050 
-        for multiple; Thu, 30 Jul 2020 10:38:03 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     tvrtko.ursulin@intel.com, thomas.hellstrom@intel.com,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        CQ Tang <cq.tang@intel.com>, stable@vger.kernel.org,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Subject: [PATCH 21/21] drm/i915/gem: Delay tracking the GEM context until it is registered
-Date:   Thu, 30 Jul 2020 10:37:56 +0100
-Message-Id: <20200730093756.16737-22-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200730093756.16737-1-chris@chris-wilson.co.uk>
-References: <20200730093756.16737-1-chris@chris-wilson.co.uk>
+        id S1726819AbgG3KDn convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 30 Jul 2020 06:03:43 -0400
+Received: from mx.hsalvador.cl ([163.247.80.68]:35536 "EHLO mx.hsalvador.cl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726799AbgG3KDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 06:03:42 -0400
+X-Greylist: delayed 3169 seconds by postgrey-1.27 at vger.kernel.org; Thu, 30 Jul 2020 06:03:41 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mx.hsalvador.cl (Postfix) with ESMTP id AA1D88549D;
+        Thu, 30 Jul 2020 04:21:34 -0400 (-04)
+Received: from mx.hsalvador.cl ([127.0.0.1])
+        by localhost (mx.hsalvador.cl [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id OaWD7XCgUqMx; Thu, 30 Jul 2020 04:21:34 -0400 (-04)
+Received: from localhost (localhost [127.0.0.1])
+        by mx.hsalvador.cl (Postfix) with ESMTP id 3644D857E9;
+        Thu, 30 Jul 2020 04:21:34 -0400 (-04)
+X-Virus-Scanned: amavisd-new at mx.hsalvador.cl
+Received: from mx.hsalvador.cl ([127.0.0.1])
+        by localhost (mx.hsalvador.cl [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id jeO9RPQSkpj7; Thu, 30 Jul 2020 04:21:34 -0400 (-04)
+Received: from [10.122.192.18] (unknown [105.12.7.105])
+        by mx.hsalvador.cl (Postfix) with ESMTPSA id C4EBD857A2;
+        Thu, 30 Jul 2020 04:21:24 -0400 (-04)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Sehr wichtige Nachricht an Sie
+To:     Recipients <mpinto@hsalvador.cl>
+From:   "Jeff Lindsay" <mpinto@hsalvador.cl>
+Date:   Thu, 30 Jul 2020 01:21:15 -0700
+Reply-To: jeffworkhomeorg@gmail.com
+Message-Id: <20200730082124.C4EBD857A2@mx.hsalvador.cl>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Avoid exposing a partially constructed context by deferring the
-list_add() from the initial construction to the end of registration.
-Otherwise, if we peek into the list of contexts from inside debugfs, we
-may see the partially constructed context and chase down some dangling
-incomplete pointers.
-
-Reported-by: CQ Tang <cq.tang@intel.com>
-Fixes: 3aa9945a528e ("drm/i915: Separate GEM context construction and registration to userspace")
-References: f6e8aa387171 ("drm/i915: Report the number of closed vma held by each context in debugfs")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: CQ Tang <cq.tang@intel.com>
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
----
- drivers/gpu/drm/i915/gem/i915_gem_context.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index f43f0ca4eec9..d308cefb2b34 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -713,6 +713,7 @@ __create_context(struct drm_i915_private *i915)
- 	ctx->i915 = i915;
- 	ctx->sched.priority = I915_USER_PRIORITY(I915_PRIORITY_NORMAL);
- 	mutex_init(&ctx->mutex);
-+	INIT_LIST_HEAD(&ctx->link);
- 
- 	spin_lock_init(&ctx->stale.lock);
- 	INIT_LIST_HEAD(&ctx->stale.engines);
-@@ -740,10 +741,6 @@ __create_context(struct drm_i915_private *i915)
- 	for (i = 0; i < ARRAY_SIZE(ctx->hang_timestamp); i++)
- 		ctx->hang_timestamp[i] = jiffies - CONTEXT_FAST_HANG_JIFFIES;
- 
--	spin_lock(&i915->gem.contexts.lock);
--	list_add_tail(&ctx->link, &i915->gem.contexts.list);
--	spin_unlock(&i915->gem.contexts.lock);
--
- 	return ctx;
- 
- err_free:
-@@ -936,6 +933,7 @@ static int gem_context_register(struct i915_gem_context *ctx,
- 				struct drm_i915_file_private *fpriv,
- 				u32 *id)
- {
-+	struct drm_i915_private *i915 = ctx->i915;
- 	struct i915_address_space *vm;
- 	int ret;
- 
-@@ -954,8 +952,16 @@ static int gem_context_register(struct i915_gem_context *ctx,
- 	/* And finally expose ourselves to userspace via the idr */
- 	ret = xa_alloc(&fpriv->context_xa, id, ctx, xa_limit_32b, GFP_KERNEL);
- 	if (ret)
--		put_pid(fetch_and_zero(&ctx->pid));
-+		goto err_pid;
-+
-+	spin_lock(&i915->gem.contexts.lock);
-+	list_add_tail(&ctx->link, &i915->gem.contexts.list);
-+	spin_unlock(&i915->gem.contexts.lock);
-+
-+	return 0;
- 
-+err_pid:
-+	put_pid(fetch_and_zero(&ctx->pid));
- 	return ret;
- }
- 
--- 
-2.20.1
-
+Ich bin Jeff Lindsay, ein älterer Bürger aus Kalifornien, USA. Ich habe einen Jackpot von 447,8 Millionen Dollar gewonnen, der größte Lotterie-Jackpot. Im Namen meiner Familie und aus gutem Willen spenden wir Ihnen und Ihrer Familie einen Betrag von (€ 2.000.000,00 EUR). Ich versuche, die öffentlichen Waisenhäuser zu erreichen. Tragen Sie zur Armutsbekämpfung bei und sorgen Sie für eine angemessene Gesundheitsversorgung für Einzelpersonen, insbesondere während dieser Welt. Pandemic. Ich möchte auch, dass Sie einen Teil dieser Spende in die öffentliche Infrastruktur investieren, um Arbeitslosen in Ihrem Land Arbeitsplätze zu bieten. Ich habe dich gewählt, weil ich an dich glaube. Ich brauche Ihre uneingeschränkte Mitarbeit in Bezug auf diese Spende. Bitte kontaktieren Sie mich hier zurück unter meiner privaten E-Mail: info@jefflindsayfoundation.com
