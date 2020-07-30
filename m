@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185B5232D42
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1727B232D44
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:08:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729611AbgG3IIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46918 "EHLO mail.kernel.org"
+        id S1729208AbgG3IIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729553AbgG3IIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:08:38 -0400
+        id S1729150AbgG3IIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:08:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E872E2074B;
-        Thu, 30 Jul 2020 08:08:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA6612083B;
+        Thu, 30 Jul 2020 08:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096517;
-        bh=YQdGdyFZCQb1etR9mwK5uyrGf4eoBu/JddeSOQZWijc=;
+        s=default; t=1596096520;
+        bh=qfy7+x9HX1WYyOurfC+VcaypKnAWr/2L03q+4DeR254=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVyvIfCpGrpdK4cEh11IJDdbWu8eK1iAmtPud0A0cdQgT8QEGFkKTFvBnWkJ9PaDG
-         DuSyxFzWFlXZJ9wzkJOnej+ShByP0wF+G8asAgH/0KQsDNCgg4wHlXQF1mkGNiGl8o
-         xePSoUFsjkSb4X00+fKuXgCFOV2DRKX8CdgHph3g=
+        b=2Vt2iDevfSpCnAc9gjPnfw5kEPUHRW/QYQDHGDv4HCAydrqs1j7HFXwoyxGGQ9/2g
+         c3lA+w44R0el1RITXhDrEnAJchSoZ63u+JU4YS3qiTXzkjsv3x+tPMrzprcPuiVZft
+         rAc62kryT7YzZxHpN4Jiy/U/2Cu+j7Liv1cWCQ2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/61] drivers/net/wan/lapbether: Fixed the value of hard_header_len
-Date:   Thu, 30 Jul 2020 10:04:24 +0200
-Message-Id: <20200730074421.121452110@linuxfoundation.org>
+Subject: [PATCH 4.9 07/61] net: sky2: initialize return of gm_phy_read
+Date:   Thu, 30 Jul 2020 10:04:25 +0200
+Message-Id: <20200730074421.172184677@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
 References: <20200730074420.811058810@linuxfoundation.org>
@@ -44,56 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 9dc829a135fb5927f1519de11286e2bbb79f5b66 ]
+[ Upstream commit 28b18e4eb515af7c6661c3995c6e3c34412c2874 ]
 
-When this driver transmits data,
-  first this driver will remove a pseudo header of 1 byte,
-  then the lapb module will prepend the LAPB header of 2 or 3 bytes,
-  then this driver will prepend a length field of 2 bytes,
-  then the underlying Ethernet device will prepend its own header.
+clang static analysis flags this garbage return
 
-So, the header length required should be:
-  -1 + 3 + 2 + "the header length needed by the underlying device".
+drivers/net/ethernet/marvell/sky2.c:208:2: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+        return v;
+        ^~~~~~~~
 
-This patch fixes kernel panic when this driver is used with AF_PACKET
-SOCK_DGRAM sockets.
+static inline u16 gm_phy_read( ...
+{
+	u16 v;
+	__gm_phy_read(hw, port, reg, &v);
+	return v;
+}
 
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
+__gm_phy_read can return without setting v.
+
+So handle similar to skge.c's gm_phy_read, initialize v.
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/sky2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 6676607164d65..f5657783fad4e 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -308,7 +308,6 @@ static void lapbeth_setup(struct net_device *dev)
- 	dev->netdev_ops	     = &lapbeth_netdev_ops;
- 	dev->destructor	     = free_netdev;
- 	dev->type            = ARPHRD_X25;
--	dev->hard_header_len = 3;
- 	dev->mtu             = 1000;
- 	dev->addr_len        = 0;
+diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
+index 49f692907a30b..c4197d0ec4d25 100644
+--- a/drivers/net/ethernet/marvell/sky2.c
++++ b/drivers/net/ethernet/marvell/sky2.c
+@@ -215,7 +215,7 @@ io_error:
+ 
+ static inline u16 gm_phy_read(struct sky2_hw *hw, unsigned port, u16 reg)
+ {
+-	u16 v;
++	u16 v = 0;
+ 	__gm_phy_read(hw, port, reg, &v);
+ 	return v;
  }
-@@ -329,6 +328,14 @@ static int lapbeth_new_device(struct net_device *dev)
- 	if (!ndev)
- 		goto out;
- 
-+	/* When transmitting data:
-+	 * first this driver removes a pseudo header of 1 byte,
-+	 * then the lapb module prepends an LAPB header of at most 3 bytes,
-+	 * then this driver prepends a length field of 2 bytes,
-+	 * then the underlying Ethernet device prepends its own header.
-+	 */
-+	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
-+
- 	lapbeth = netdev_priv(ndev);
- 	lapbeth->axdev = ndev;
- 
 -- 
 2.25.1
 
