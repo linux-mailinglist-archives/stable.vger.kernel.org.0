@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B088232D51
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C447232D7B
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729666AbgG3IJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47720 "EHLO mail.kernel.org"
+        id S1728739AbgG3ILE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729254AbgG3IJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:09:16 -0400
+        id S1729918AbgG3ILD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:11:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D774D2083E;
-        Thu, 30 Jul 2020 08:09:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95E5F2070B;
+        Thu, 30 Jul 2020 08:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096555;
-        bh=syJIf6GQBppf2Hdw79wPHqxwHwYccToCNQ4NPDLgv8o=;
+        s=default; t=1596096663;
+        bh=391sbRHYpWgc8awcde+J3xrFm3+48hwdU8hDC9WLgas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhKlIUbpkv78UtedyRuZqi1dehxeSrwq48/kUx9BsXMVPrDk5Z24Bcrn6VlJt0eX0
-         UAXATNdpfHNnDmwVaFGI3S6+2MwvRNy9DtvnefSzsJ6nSuGGk1r2YCBruimu1aoIFN
-         TliDHHFFwIVGkhcqq+GFwQ8k4Wur35eu44Oz7HIU=
+        b=A8xwgMCA1WEzkUWybYfQNwfcKn96drZRO9Y7twwbmt5x5pNyBgKOkjTSCtdt02i/1
+         8kWYK+IKPtMyFSuarXRTKPYFcn98HigGFQGMk75mxH74IwhRqCja/nMFE6p3TelHVn
+         C1ZleGW+DPI2+9cMFkxB0xdA3GdUcUuUHQ/IdZCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.9 33/61] staging: comedi: addi_apci_1032: check INSN_CONFIG_DIGITAL_TRIG shift
-Date:   Thu, 30 Jul 2020 10:04:51 +0200
-Message-Id: <20200730074422.439029094@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 13/54] ASoC: rt5670: Correct RT5670_LDO_SEL_MASK
+Date:   Thu, 30 Jul 2020 10:04:52 +0200
+Message-Id: <20200730074421.852863350@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 0bd0db42a030b75c20028c7ba6e327b9cb554116 upstream.
+commit 5cacc6f5764e94fa753b2c1f5f7f1f3f74286e82 upstream.
 
-The `INSN_CONFIG` comedi instruction with sub-instruction code
-`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
-used as a right shift amount for other bitmask values without being
-checked.  Shift amounts greater than or equal to 32 will result in
-undefined behavior.  Add code to deal with this.
+The RT5670_PWR_ANLG1 register has 3 bits to select the LDO voltage,
+so the correct mask is 0x7 not 0x3.
 
-Fixes: 33cdce6293dcc ("staging: comedi: addi_apci_1032: conform to new INSN_CONFIG_DIGITAL_TRIG")
-Cc: <stable@vger.kernel.org> #3.8+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20200717145257.112660-3-abbotti@mev.co.uk
+Because of this wrong mask we were programming the ldo bits
+to a setting of binary 001 (0x05 & 0x03) instead of binary 101
+when moving to SND_SOC_BIAS_PREPARE.
+
+According to the datasheet 001 is a reserved value, so no idea
+what it did, since the driver was working fine before I guess we
+got lucky and it does something which is ok.
+
+Fixes: 5e8351de740d ("ASoC: add RT5670 CODEC driver")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200628155231.71089-3-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/addi_apci_1032.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ sound/soc/codecs/rt5670.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1032.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
-@@ -115,14 +115,22 @@ static int apci1032_cos_insn_config(stru
- 				    unsigned int *data)
- {
- 	struct apci1032_private *devpriv = dev->private;
--	unsigned int shift, oldmask;
-+	unsigned int shift, oldmask, himask, lomask;
+--- a/sound/soc/codecs/rt5670.h
++++ b/sound/soc/codecs/rt5670.h
+@@ -760,7 +760,7 @@
+ #define RT5670_PWR_VREF2_BIT			4
+ #define RT5670_PWR_FV2				(0x1 << 3)
+ #define RT5670_PWR_FV2_BIT			3
+-#define RT5670_LDO_SEL_MASK			(0x3)
++#define RT5670_LDO_SEL_MASK			(0x7)
+ #define RT5670_LDO_SEL_SFT			0
  
- 	switch (data[0]) {
- 	case INSN_CONFIG_DIGITAL_TRIG:
- 		if (data[1] != 0)
- 			return -EINVAL;
- 		shift = data[3];
--		oldmask = (1U << shift) - 1;
-+		if (shift < 32) {
-+			oldmask = (1U << shift) - 1;
-+			himask = data[4] << shift;
-+			lomask = data[5] << shift;
-+		} else {
-+			oldmask = 0xffffffffu;
-+			himask = 0;
-+			lomask = 0;
-+		}
- 		switch (data[2]) {
- 		case COMEDI_DIGITAL_TRIG_DISABLE:
- 			devpriv->ctrl = 0;
-@@ -145,8 +153,8 @@ static int apci1032_cos_insn_config(stru
- 				devpriv->mode2 &= oldmask;
- 			}
- 			/* configure specified channels */
--			devpriv->mode1 |= data[4] << shift;
--			devpriv->mode2 |= data[5] << shift;
-+			devpriv->mode1 |= himask;
-+			devpriv->mode2 |= lomask;
- 			break;
- 		case COMEDI_DIGITAL_TRIG_ENABLE_LEVELS:
- 			if (devpriv->ctrl != (APCI1032_CTRL_INT_ENA |
-@@ -163,8 +171,8 @@ static int apci1032_cos_insn_config(stru
- 				devpriv->mode2 &= oldmask;
- 			}
- 			/* configure specified channels */
--			devpriv->mode1 |= data[4] << shift;
--			devpriv->mode2 |= data[5] << shift;
-+			devpriv->mode1 |= himask;
-+			devpriv->mode2 |= lomask;
- 			break;
- 		default:
- 			return -EINVAL;
+ /* Power Management for Analog 2 (0x64) */
 
 
