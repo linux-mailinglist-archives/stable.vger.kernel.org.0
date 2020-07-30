@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48400232DE3
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF73A232D79
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730225AbgG3IP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:15:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
+        id S1729904AbgG3ILA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:11:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729032AbgG3ILk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:11:40 -0400
+        id S1729880AbgG3IKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:10:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90C992074B;
-        Thu, 30 Jul 2020 08:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9C8F20842;
+        Thu, 30 Jul 2020 08:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096700;
-        bh=qnVZu9crdHTCyMWJNFk+Ro1TPn3vWi+nlVvrtDnRP+I=;
+        s=default; t=1596096651;
+        bh=4BqZ/RhG1SD/WQbc4OLwfRvW43zToqd/adGssxo8Ef4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ru43QaJ1rXugetJEdJg/vdjShrn+Pc0pXQafpFKlGEJK2Jkw/5QnDuIj37nAjG6ZN
-         hDLSJrAVxUidgK13l/jjQeOKbfmx6cOeG8rjLJnec+MbQ2gATfe+evvkSpQojP23vB
-         wmBvnaDosyMoQUW/bp/+yEEKVITTFM0r6jiaa/wU=
+        b=evDifpktTBtdqfFHyXJ5JNcszka6sOscAfK9kmLyZcyltounCXdxW/pjLWcmqlL1D
+         Waj2XiT1YQNbcwOmgwmUFJDi5Q0MOgctKdHIbqFcSiSVl0Z5StRY0nGyhtWrkGdFuy
+         htrmMWTpbE1B58KnIkVgwu+Y/KAs2aRxoE6ULY30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Patrick Fernie <patrick.fernie@gmail.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Subject: [PATCH 4.4 26/54] Revert "cifs: Fix the target file was deleted when rename failed."
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 47/61] AX.25: Prevent out-of-bounds read in ax25_sendmsg()
 Date:   Thu, 30 Jul 2020 10:05:05 +0200
-Message-Id: <20200730074422.463592386@linuxfoundation.org>
+Message-Id: <20200730074423.110716116@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
-References: <20200730074421.203879987@linuxfoundation.org>
+In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
+References: <20200730074420.811058810@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 0e6705182d4e1b77248a93470d6d7b3013d59b30 upstream.
+[ Upstream commit 8885bb0621f01a6c82be60a91e5fc0f6e2f71186 ]
 
-This reverts commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2.
+Checks on `addr_len` and `usax->sax25_ndigis` are insufficient.
+ax25_sendmsg() can go out of bounds when `usax->sax25_ndigis` equals to 7
+or 8. Fix it.
 
-Upon additional testing with older servers, it was found that
-the original commit introduced a regression when using the old SMB1
-dialect and rsyncing over an existing file.
+It is safe to remove `usax->sax25_ndigis > AX25_MAX_DIGIS`, since
+`addr_len` is guaranteed to be less than or equal to
+`sizeof(struct full_sockaddr_ax25)`
 
-The patch will need to be respun to address this, likely including
-a larger refactoring of the SMB1 and SMB3 rename code paths to make
-it less confusing and also to address some additional rename error
-cases that SMB3 may be able to workaround.
-
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reported-by: Patrick Fernie <patrick.fernie@gmail.com>
-CC: Stable <stable@vger.kernel.org>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
-Acked-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/cifs/inode.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ net/ax25/af_ax25.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1737,7 +1737,6 @@ cifs_rename2(struct inode *source_dir, s
- 	FILE_UNIX_BASIC_INFO *info_buf_target;
- 	unsigned int xid;
- 	int rc, tmprc;
--	bool new_target = d_really_is_negative(target_dentry);
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1512,7 +1512,8 @@ static int ax25_sendmsg(struct socket *s
+ 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
  
- 	if (flags & ~RENAME_NOREPLACE)
- 		return -EINVAL;
-@@ -1814,13 +1813,8 @@ cifs_rename2(struct inode *source_dir, s
- 	 */
- 
- unlink_target:
--	/*
--	 * If the target dentry was created during the rename, try
--	 * unlinking it if it's not negative
--	 */
--	if (new_target &&
--	    d_really_is_positive(target_dentry) &&
--	    (rc == -EACCES || rc == -EEXIST)) {
-+	/* Try unlinking the target dentry if it's not negative */
-+	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
- 		if (d_is_dir(target_dentry))
- 			tmprc = cifs_rmdir(target_dir, target_dentry);
- 		else
+ 			/* Valid number of digipeaters ? */
+-			if (usax->sax25_ndigis < 1 || usax->sax25_ndigis > AX25_MAX_DIGIS) {
++			if (usax->sax25_ndigis < 1 || addr_len < sizeof(struct sockaddr_ax25) +
++			    sizeof(ax25_address) * usax->sax25_ndigis) {
+ 				err = -EINVAL;
+ 				goto out;
+ 			}
 
 
