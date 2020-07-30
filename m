@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C875232E62
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B222D232E89
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728903AbgG3IFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:05:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42322 "EHLO mail.kernel.org"
+        id S1726774AbgG3IVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729124AbgG3IFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:05:17 -0400
+        id S1729130AbgG3IFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:05:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F13F32074B;
-        Thu, 30 Jul 2020 08:05:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D8DE20656;
+        Thu, 30 Jul 2020 08:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096316;
-        bh=kh+wE68N2kyRA2fXhaGgr74yea6YKa1fBgeKu2BPwew=;
+        s=default; t=1596096319;
+        bh=PWOXS3zO0M0ruj0VjGy3cwmNjPBT6MXLJjYCnw74PFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17rL/4guoMwP8HCEnFnd0I0TvGENpa7pDfN/ay26Ng4yiMHPsNmT7XDCOqGvt2hDw
-         lrJvnu6KMS8YSBcaX/uK6fbXE+0icYT/irlfnSXBRUu4CcHob2SqYIns1qCU3bRzOe
-         np0ivgMzjpn7KRJzSP8T6kPVXJ2GadIyq8i+vYQo=
+        b=k+z2/DbNFZr09OzYhEB3RmL88seEInwIeIiUiS+Lj2NpkSKbNc10H2wbaVf5Nlubv
+         F7srPfxNoFcqj6QwHuej7c05EHedS65QjsIuLqhjLvqz3DmLNNQ4mok9GoZWSPO+zD
+         MM9Xpa/f6iyUOG5OkL1eSD+IcpH/Htxli4wxrIqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 04/20] drivers/net/wan/x25_asy: Fix to make it work
-Date:   Thu, 30 Jul 2020 10:03:54 +0200
-Message-Id: <20200730074420.749987528@linuxfoundation.org>
+Subject: [PATCH 5.7 05/20] ip6_gre: fix null-ptr-deref in ip6gre_init_net()
+Date:   Thu, 30 Jul 2020 10:03:55 +0200
+Message-Id: <20200730074420.797915804@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.533211699@linuxfoundation.org>
 References: <20200730074420.533211699@linuxfoundation.org>
@@ -45,102 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 8fdcabeac39824fe67480fd9508d80161c541854 ]
+[ Upstream commit 46ef5b89ec0ecf290d74c4aee844f063933c4da4 ]
 
-This driver is not working because of problems of its receiving code.
-This patch fixes it to make it work.
+KASAN report null-ptr-deref error when register_netdev() failed:
 
-When the driver receives an LAPB frame, it should first pass the frame
-to the LAPB module to process. After processing, the LAPB module passes
-the data (the packet) back to the driver, the driver should then add a
-one-byte pseudo header and pass the data to upper layers.
+KASAN: null-ptr-deref in range [0x00000000000003c0-0x00000000000003c7]
+CPU: 2 PID: 422 Comm: ip Not tainted 5.8.0-rc4+ #12
+Call Trace:
+ ip6gre_init_net+0x4ab/0x580
+ ? ip6gre_tunnel_uninit+0x3f0/0x3f0
+ ops_init+0xa8/0x3c0
+ setup_net+0x2de/0x7e0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? ops_init+0x3c0/0x3c0
+ ? kasan_unpoison_shadow+0x33/0x40
+ ? __kasan_kmalloc.constprop.0+0xc2/0xd0
+ copy_net_ns+0x27d/0x530
+ create_new_namespaces+0x382/0xa30
+ unshare_nsproxy_namespaces+0xa1/0x1d0
+ ksys_unshare+0x39c/0x780
+ ? walk_process_tree+0x2a0/0x2a0
+ ? trace_hardirqs_on+0x4a/0x1b0
+ ? _raw_spin_unlock_irq+0x1f/0x30
+ ? syscall_trace_enter+0x1a7/0x330
+ ? do_syscall_64+0x1c/0xa0
+ __x64_sys_unshare+0x2d/0x40
+ do_syscall_64+0x56/0xa0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The changes to the "x25_asy_bump" function and the
-"x25_asy_data_indication" function are to correctly implement this
-procedure.
+ip6gre_tunnel_uninit() has set 'ign->fb_tunnel_dev' to NULL, later
+access to ign->fb_tunnel_dev cause null-ptr-deref. Fix it by saving
+'ign->fb_tunnel_dev' to local variable ndev.
 
-Also, the "x25_asy_unesc" function ignores any frame that is shorter
-than 3 bytes. However the shortest frames are 2-byte long. So we need
-to change it to allow 2-byte frames to pass.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Reviewed-by: Martin Schiller <ms@dev.tdt.de>
+Fixes: dafabb6590cb ("ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/x25_asy.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ net/ipv6/ip6_gre.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wan/x25_asy.c
-+++ b/drivers/net/wan/x25_asy.c
-@@ -183,7 +183,7 @@ static inline void x25_asy_unlock(struct
- 	netif_wake_queue(sl->dev);
- }
- 
--/* Send one completely decapsulated IP datagram to the IP layer. */
-+/* Send an LAPB frame to the LAPB module to process. */
- 
- static void x25_asy_bump(struct x25_asy *sl)
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1562,17 +1562,18 @@ static void ip6gre_destroy_tunnels(struc
+ static int __net_init ip6gre_init_net(struct net *net)
  {
-@@ -195,13 +195,12 @@ static void x25_asy_bump(struct x25_asy
- 	count = sl->rcount;
- 	dev->stats.rx_bytes += count;
+ 	struct ip6gre_net *ign = net_generic(net, ip6gre_net_id);
++	struct net_device *ndev;
+ 	int err;
  
--	skb = dev_alloc_skb(count+1);
-+	skb = dev_alloc_skb(count);
- 	if (skb == NULL) {
- 		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
- 		dev->stats.rx_dropped++;
- 		return;
+ 	if (!net_has_fallback_tunnels(net))
+ 		return 0;
+-	ign->fb_tunnel_dev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
+-					  NET_NAME_UNKNOWN,
+-					  ip6gre_tunnel_setup);
+-	if (!ign->fb_tunnel_dev) {
++	ndev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
++			    NET_NAME_UNKNOWN, ip6gre_tunnel_setup);
++	if (!ndev) {
+ 		err = -ENOMEM;
+ 		goto err_alloc_dev;
  	}
--	skb_push(skb, 1);	/* LAPB internal control */
- 	skb_put_data(skb, sl->rbuff, count);
- 	skb->protocol = x25_type_trans(skb, sl->dev);
- 	err = lapb_data_received(skb->dev, skb);
-@@ -209,7 +208,6 @@ static void x25_asy_bump(struct x25_asy
- 		kfree_skb(skb);
- 		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
- 	} else {
--		netif_rx(skb);
- 		dev->stats.rx_packets++;
- 	}
++	ign->fb_tunnel_dev = ndev;
+ 	dev_net_set(ign->fb_tunnel_dev, net);
+ 	/* FB netdevice is special: we have one, and only one per netns.
+ 	 * Allowing to move it to another netns is clearly unsafe.
+@@ -1592,7 +1593,7 @@ static int __net_init ip6gre_init_net(st
+ 	return 0;
+ 
+ err_reg_dev:
+-	free_netdev(ign->fb_tunnel_dev);
++	free_netdev(ndev);
+ err_alloc_dev:
+ 	return err;
  }
-@@ -356,12 +354,21 @@ static netdev_tx_t x25_asy_xmit(struct s
-  */
- 
- /*
-- *	Called when I frame data arrives. We did the work above - throw it
-- *	at the net layer.
-+ *	Called when I frame data arrive. We add a pseudo header for upper
-+ *	layers and pass it to upper layers.
-  */
- 
- static int x25_asy_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
-+		return NET_RX_DROP;
-+	}
-+	skb_push(skb, 1);
-+	skb->data[0] = X25_IFACE_DATA;
-+
-+	skb->protocol = x25_type_trans(skb, dev);
-+
- 	return netif_rx(skb);
- }
- 
-@@ -657,7 +664,7 @@ static void x25_asy_unesc(struct x25_asy
- 	switch (s) {
- 	case X25_END:
- 		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
--		    sl->rcount > 2)
-+		    sl->rcount >= 2)
- 			x25_asy_bump(sl);
- 		clear_bit(SLF_ESCAPE, &sl->flags);
- 		sl->rcount = 0;
 
 
