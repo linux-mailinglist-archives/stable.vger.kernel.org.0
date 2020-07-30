@@ -2,142 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0E8233B0E
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 00:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC257233B8A
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 00:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728063AbgG3WBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 18:01:45 -0400
-Received: from mga17.intel.com ([192.55.52.151]:20825 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726544AbgG3WBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 18:01:45 -0400
-IronPort-SDR: Hd97d/qInC5mZ4tR8ELyazbVyDYT4FrYtUK15QmQKweRuw2ziMrLstkDHrzsHrZDG2DbyZ6KHZ
- Buzb68Iu7uuQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9698"; a="131770557"
-X-IronPort-AV: E=Sophos;i="5.75,415,1589266800"; 
-   d="scan'208";a="131770557"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2020 15:01:44 -0700
-IronPort-SDR: KG5bBtfQ5NYIWnkLXakYe6lEqlSfkszqGP5+7vR7xaJytouSRsMjPtn/ldEsmk8DZk308UE7/U
- eZBSZV2tMA4A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,415,1589266800"; 
-   d="scan'208";a="435205691"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
-  by orsmga004.jf.intel.com with ESMTP; 30 Jul 2020 15:01:41 -0700
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Ramalingam C <ramalingam.c@intel.com>, stable@vger.kernel.org
-Subject: [char-misc-next V4] mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
-Date:   Fri, 31 Jul 2020 01:01:39 +0300
-Message-Id: <20200730220139.3642424-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.25.4
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1730641AbgG3WqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 18:46:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47202 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730625AbgG3WqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 18:46:16 -0400
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 778E5C061575
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 15:46:16 -0700 (PDT)
+Received: by mail-pl1-x64a.google.com with SMTP id t18so19399929plo.13
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 15:46:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=nxP2fPsBjuLaGOnJV2PoctyTt9HEnsA8L8JDsWYdkGs=;
+        b=KeQRs5P9ew2DCJuY+M3CRlFIQjO3m8TNGL7YPT1yXAaZfGSylk6BIYxBtdGhvil/Ss
+         ljoeXefdtoexVULGZzypQj5Oz/JmHBezN/UqXxhjkRIGoFNI7XVHetAcIQdgyVI32dg3
+         7BTDhMS8RJnf46s+eHaoJV71PDCq0JNiTUXnaOz+no7SCf4yheXzYEuCslAFJ0odgXka
+         DsGUBo79d4p/i9/cMudzqJwCWvCocHR6GF+Xe8jtr4c4LXUm+BYEf000ml26uyDXo3vm
+         +lEivQeCo/PwMLZO3UWaMCfDudWt47LTXtis9ovz7vclBQW5EgOyaJxK0JppgnceeyFf
+         MtKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=nxP2fPsBjuLaGOnJV2PoctyTt9HEnsA8L8JDsWYdkGs=;
+        b=eTHzXfAE5jEtFE+qD+SIENiEUuwBFhyp5P5sgdzj1CkvXYEj01U0HJuOyCDUuIOPIO
+         h1LgGDva9Z3No/g9GK9p55bE8rrmYAt7eW2gUBZzXQIBben7KPIqclmDzLlYoqyw1dSR
+         cfoD/S/a0LzW1BNBuH29g9kMlUcPRAfeLcEO23FnKTtZdzLsbo558JE74iea9Y1oCOqu
+         gEX6fnSisALmQQLTO6EcARWmCoUlTNKg1QA4bzQH+gOFZG1pxqGBb6kTzF9hrSSGzQgK
+         EPUBNeduhPk/c1sxTzxxLiOm3JzOkzvu2GL/FJM5B2JPFi9RpP0G4mzl/UbOxm6TmX8u
+         KskA==
+X-Gm-Message-State: AOAM532+TML3PnLf8KXpX7E9Y0OYYJ5WDf0IeeeAJYWwx4rgrjNPEPmH
+        x8ZCz+z6twmaZubbnao3KG1ke/CFO3jlVCPWfCU=
+X-Google-Smtp-Source: ABdhPJyxLPs7XttU9ug/fEo70OLgEg1uxpiUznOI71yyHWeiiaIucGy64+/wfZyIf6mQtLMUzZh8SZkifKavPrl6d9Y=
+X-Received: by 2002:a17:90a:d42:: with SMTP id 2mr1254368pju.15.1596149175923;
+ Thu, 30 Jul 2020 15:46:15 -0700 (PDT)
+Date:   Thu, 30 Jul 2020 15:45:54 -0700
+In-Reply-To: <20200730224555.2142154-1-ndesaulniers@google.com>
+Message-Id: <20200730224555.2142154-2-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <20200730224555.2142154-1-ndesaulniers@google.com>
+X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
+Subject: [PATCH v2 1/2] tracepoint: mark __tracepoint_string's __used
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Tim Murray <timmurray@google.com>,
+        Simon MacMullen <simonmacm@google.com>,
+        Greg Hackmann <ghackmann@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-wired_cmd_repeater_auth_stream_req_in has a variable
-length array at the end. we use struct_size() overflow
-macro to determine the size for the allocation and sending
-size.
-This also fixes bug in case number of streams is > 0 in the original
-submission. This bug was not triggered as the number of streams is
-always one.
+__tracepoint_string's have their string data stored in .rodata, and an
+address to that data stored in the "__tracepoint_str" section. Functions
+that refer to those strings refer to the symbol of the address. Compiler
+optimization can replace those address references with references
+directly to the string data. If the address doesn't appear to have other
+uses, then it appears dead to the compiler and is removed. This can
+break the /tracing/printk_formats sysfs node which iterates the
+addresses stored in the "__tracepoint_str" section.
 
-Fixes: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
-Fixes: commit 0a1af1b5c18d ("misc/mei/hdcp: Verify M_prime")
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Cc: <stable@vger.kernel.org> v5.1+
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Like other strings stored in custom sections in this header, mark these
+__used to inform the compiler that there are other non-obvious users of
+the address, so they should still be emitted.
+
+Cc: stable@vger.kernel.org
+Reported-by: Tim Murray <timmurray@google.com>
+Reported-by: Simon MacMullen <simonmacm@google.com>
+Suggested-by: Greg Hackmann <ghackmann@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
-V4:
-1. Fix typo in the subject. (Gustavo)
-2. Fix dereferencing pointer in send. (Gustavo)
-V3:
-1. Fix commit message with more info and another patch it fixes (Gustavo)
-2. Target stable. (Gustavo)
-V2: Check for allocation failure.
+No change V1 -> V2.
 
- drivers/misc/mei/hdcp/mei_hdcp.c | 40 +++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+ include/linux/tracepoint.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
-index d1d3e025ca0e..9ae9669e46ea 100644
---- a/drivers/misc/mei/hdcp/mei_hdcp.c
-+++ b/drivers/misc/mei/hdcp/mei_hdcp.c
-@@ -546,38 +546,46 @@ static int mei_hdcp_verify_mprime(struct device *dev,
- 				  struct hdcp_port_data *data,
- 				  struct hdcp2_rep_stream_ready *stream_ready)
- {
--	struct wired_cmd_repeater_auth_stream_req_in
--					verify_mprime_in = { { 0 } };
-+	struct wired_cmd_repeater_auth_stream_req_in *verify_mprime_in;
- 	struct wired_cmd_repeater_auth_stream_req_out
- 					verify_mprime_out = { { 0 } };
- 	struct mei_cl_device *cldev;
- 	ssize_t byte;
-+	size_t cmd_size;
- 
- 	if (!dev || !stream_ready || !data)
- 		return -EINVAL;
- 
- 	cldev = to_mei_cl_device(dev);
- 
--	verify_mprime_in.header.api_version = HDCP_API_VERSION;
--	verify_mprime_in.header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
--	verify_mprime_in.header.status = ME_HDCP_STATUS_SUCCESS;
--	verify_mprime_in.header.buffer_len =
-+	cmd_size = struct_size(verify_mprime_in, streams, data->k);
-+	if (cmd_size == SIZE_MAX)
-+		return -EINVAL;
-+
-+	verify_mprime_in = kzalloc(cmd_size, GFP_KERNEL);
-+	if (!verify_mprime_in)
-+		return -ENOMEM;
-+
-+	verify_mprime_in->header.api_version = HDCP_API_VERSION;
-+	verify_mprime_in->header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
-+	verify_mprime_in->header.status = ME_HDCP_STATUS_SUCCESS;
-+	verify_mprime_in->header.buffer_len =
- 			WIRED_CMD_BUF_LEN_REPEATER_AUTH_STREAM_REQ_MIN_IN;
- 
--	verify_mprime_in.port.integrated_port_type = data->port_type;
--	verify_mprime_in.port.physical_port = (u8)data->fw_ddi;
--	verify_mprime_in.port.attached_transcoder = (u8)data->fw_tc;
-+	verify_mprime_in->port.integrated_port_type = data->port_type;
-+	verify_mprime_in->port.physical_port = (u8)data->fw_ddi;
-+	verify_mprime_in->port.attached_transcoder = (u8)data->fw_tc;
-+
-+	memcpy(verify_mprime_in->m_prime, stream_ready->m_prime, HDCP_2_2_MPRIME_LEN);
-+	drm_hdcp_cpu_to_be24(verify_mprime_in->seq_num_m, data->seq_num_m);
- 
--	memcpy(verify_mprime_in.m_prime, stream_ready->m_prime,
--	       HDCP_2_2_MPRIME_LEN);
--	drm_hdcp_cpu_to_be24(verify_mprime_in.seq_num_m, data->seq_num_m);
--	memcpy(verify_mprime_in.streams, data->streams,
-+	memcpy(verify_mprime_in->streams, data->streams,
- 	       array_size(data->k, sizeof(*data->streams)));
- 
--	verify_mprime_in.k = cpu_to_be16(data->k);
-+	verify_mprime_in->k = cpu_to_be16(data->k);
- 
--	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in,
--			      sizeof(verify_mprime_in));
-+	byte = mei_cldev_send(cldev, (u8 *)verify_mprime_in, cmd_size);
-+	kfree(verify_mprime_in);
- 	if (byte < 0) {
- 		dev_dbg(dev, "mei_cldev_send failed. %zd\n", byte);
- 		return byte;
+diff --git a/include/linux/tracepoint.h b/include/linux/tracepoint.h
+index a1fecf311621..3a5b717d92e8 100644
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -361,7 +361,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
+ 		static const char *___tp_str __tracepoint_string = str; \
+ 		___tp_str;						\
+ 	})
+-#define __tracepoint_string	__attribute__((section("__tracepoint_str")))
++#define __tracepoint_string	__attribute__((section("__tracepoint_str"), used))
+ #else
+ /*
+  * tracepoint_string() is used to save the string address for userspace
 -- 
-2.25.4
+2.28.0.163.g6104cc2f0b6-goog
 
