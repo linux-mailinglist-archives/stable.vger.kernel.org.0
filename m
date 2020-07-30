@@ -2,126 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59DF22337E3
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 19:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBCC23381A
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 20:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbgG3Rsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 13:48:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
+        id S1730363AbgG3SDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 14:03:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726343AbgG3Rsg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 13:48:36 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4BC8C061574
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 10:48:35 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id m16so14826132pls.5
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 10:48:35 -0700 (PDT)
+        with ESMTP id S1730204AbgG3SDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 14:03:43 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEBCDC061574
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 11:03:42 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id x10so16198026ybj.19
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 11:03:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PQA9qiixdjE4SdHhnCQyFCMw2pDkRiPlhqdlEEWI0kE=;
-        b=WqHpCjB8qyk8yDPoCFDwPzvV8/bIQ8GwXTCqfEOnSfz5TFdSTgseCeEZVG/2JqNIKt
-         S0Y8P+JGb4r+47XqjM0lragsWMFeHrKr/aDv2XQzIQy2se5fKwHi0/Ubka6QL+cmZ67J
-         fPcr3mpoK2tMZV0qzk0eMdvFz1ypb93g5bqIOHAkkMf6WtVIPHQs2HRIrZlS4vOygisc
-         R7kfJRL7d7i6NgJOi+ZeRCnHN0cWop4AvtqA8mTmOQ9H2GOtLhqzDi9cSr61wu78lQpE
-         H1AxLVBogKUBWOB1vP+WtnIw/T/sx0UsskkXQ+X29ghH5RXNd8t2mr4syXrNqaMHnqTD
-         ON1g==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=RKbdLkq470ddFEAhoN8dslKMFuIe6gCNhu2f+gFLXbo=;
+        b=AYXD98CYJaxvZj351bCuwkKEgAp6qB/0qN45oav4U0Nku0PPI6vQQepfwhNZwK5CzC
+         52/y5L32aXsIbe29yg94Cqy9MvAEm96xKtPkB2dSYH2KycwLmjduog0vbxc4ojTa/V+E
+         9CPEXlIfrIkVGaC5PRqvkOHDAPKdVv8YpTYlYaaISqauubNyhXD+gI8+5K7xiQpSFoz+
+         JjlCnAGoRSbZD06iL62nOu+N8EjiYphpi1xa8+zL9hYs/HsVMYTRTP40c++87vPuOGLS
+         bPFcimYL5LPAweRbKHbAzuI8iG0BUkR1QgPxWFwwqpHV0Czt54NauY+hefqA3c3ViC2U
+         XWMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PQA9qiixdjE4SdHhnCQyFCMw2pDkRiPlhqdlEEWI0kE=;
-        b=IXVklMKLjiNkKc5IpB5PWjPfNCdJIHd6lPdMDt+i+9Ih1E8/P9xk11ZQWMlvr0zY8t
-         S0n+NFfSLyUuK6aGaTgoWU+6VgsWiXAG1ZfSt6lXyk2yjfIn0fFXXqh57M6RAV0cFH0l
-         LN3i185fx5Nuu6c11eo3AVrdOKpb64WIDT7AT1QDnAvREz5Vw/Gze83t3sz0g0bQv3a/
-         pESLZXr0JBujtUzLOqyeibRVZV5IKWAsnAzS8h0ZgyQgzLgNg3jRlTqzovS0wGtQ6rL7
-         XaDpvtIOKZbxDgYeiC7Ww+tdntG1Vaug2FvgHsUF/zdSnhaBZpQFzTz9czwX9lwrL2+9
-         OfLA==
-X-Gm-Message-State: AOAM533qF3seHk8UKFNgNmhW3EZWFH4fS0EJxI6nEaeJ1PWPLlKqw0Z2
-        OM5Ilpe5MQwg4lM3pjN0ONks78FFuMw=
-X-Google-Smtp-Source: ABdhPJy8WegrPdjKCFkwR+M57u1PmNduHlfeW348QZj1lOL6bAKDYrGZvDkb4iWDYkVeVA8KMgDROQ==
-X-Received: by 2002:a17:90a:6983:: with SMTP id s3mr225491pjj.55.1596131314550;
-        Thu, 30 Jul 2020 10:48:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p9sm7125238pgc.77.2020.07.30.10.48.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2020 10:48:33 -0700 (PDT)
-Message-ID: <5f2307f1.1c69fb81.f909b.2d3c@mx.google.com>
-Date:   Thu, 30 Jul 2020 10:48:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.134-105-g62c048b85133
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 177 runs,
- 1 regressions (v4.19.134-105-g62c048b85133)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=RKbdLkq470ddFEAhoN8dslKMFuIe6gCNhu2f+gFLXbo=;
+        b=UpiswCngoVoL4qVDYaJaeYdlBelXOmijYwhgznMJms/BsfAFG5iKpPzOYd+VsEULPM
+         tboUwjMPyR81QMuj4XZMKIVL6E1HK/XHXHapFc8cydXA28VjFN23aUzN0ZVRPdI53iBg
+         bUjxttoBspdr39bh8tlTN6DF/PcXvmlE4l/yDYoqk65k2NQAx+G6NfelApgxQPUeQW1/
+         59EpxO45MnbAWMb5gMLL/K/9GdvJpKRlvMEO6vH0BcoO/av7pvP3KfhH2BIcV+7+YIeY
+         YovxYjZwd2NFH9FXKC+hQh4bq2xrdR5x9d1I/TV8EZrJda2drZIfRyfTz7DBi6Tefy9S
+         cItA==
+X-Gm-Message-State: AOAM531pw5gfbA+0kxcn8N/dmgqZqaC8FHCxLEIKex0KCOhfr7c5Tixr
+        rwWrGDID1GHa3F26Jt5JXTv2q1u1Dt7Xllqt2w1AxeIW1QyDbHi95gRI9sCaRQDB41+sbXZQ93g
+        8A5WlFdsjZgqvaOhACpAO40CTk8G4WCuNsvr+YlnBwPj3R/ZUGTt1pjq10R+Kd6YnEUAoqW+6zq
+        UVpA==
+X-Google-Smtp-Source: ABdhPJwWTOk5Rkil7/YZB1kpbcZdwuN6b1zKF45bHRzQiMgMlQ2K+j2K8dSQLCmCxzkuQHpG2duUO4m3x9YzGPiAN/Y=
+X-Received: by 2002:a25:f40a:: with SMTP id q10mr172146ybd.192.1596132221796;
+ Thu, 30 Jul 2020 11:03:41 -0700 (PDT)
+Date:   Thu, 30 Jul 2020 11:03:40 -0700
+Message-Id: <20200730180340.1724137-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.rc0.142.g3c755180ce-goog
+Subject: [PATCH 4.14.y] ARM: 8702/1: head-common.S: Clear lr before jumping to start_kernel()
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     stable@vger.kernel.org
+Cc:     Miles Chen <miles.chen@mediatek.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Nicolas Pitre <nico@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 177 runs, 1 regressions (v4.19.134-105-g62=
-c048b85133)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Regressions Summary
--------------------
+commit 59b6359dd92d18f5dc04b14a4c926fa08ab66f7c upstream.
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+If CONFIG_DEBUG_LOCK_ALLOC=y, the kernel log is spammed with a few
+hundred identical messages:
 
+    unwind: Unknown symbol address c0800300
+    unwind: Index not found c0800300
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.134-105-g62c048b85133/plan/baseline/
+c0800300 is the return address from the last subroutine call (to
+__memzero()) in __mmap_switched().  Apparently having this address in
+the link register confuses the unwinder.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.134-105-g62c048b85133
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      62c048b85133b227b3af4b3d3c52853b2ea1f1d5 =
+To fix this, reset the link register to zero before jumping to
+start_kernel().
 
+Fixes: 9520b1a1b5f7a348 ("ARM: head-common.S: speed up startup code")
+Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Nicolas Pitre <nico@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+Looks like this first landed in v4.15-rc1.  Without this, we can't tell
+during an unwind initiated from start_kernel() when to stop unwinding,
+which for the clang specific implementation of the arm frame pointer
+unwinder leads to dereferencing a garbage value, triggering an exception
+which has no fixup, triggering a panic, triggering an unwind, triggering
+an infinite loop that prevents booting. I have more patches to send
+upstream to make the unwinder more resilient, but it's ambiguous as to
+when to stop unwinding without this patch.
 
+ arch/arm/kernel/head-common.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-Test Regressions
----------------- =
+diff --git a/arch/arm/kernel/head-common.S b/arch/arm/kernel/head-common.S
+index 7e662bdd5cb3..932b2244e709 100644
+--- a/arch/arm/kernel/head-common.S
++++ b/arch/arm/kernel/head-common.S
+@@ -101,6 +101,7 @@ __mmap_switched:
+ 	str	r2, [r6]			@ Save atags pointer
+ 	cmp	r7, #0
+ 	strne	r0, [r7]			@ Save control register values
++	mov	lr, #0
+ 	b	start_kernel
+ ENDPROC(__mmap_switched)
+ 
+-- 
+2.28.0.rc0.142.g3c755180ce-goog
 
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f22d706c5488508c752c1d2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-34-105-g62c048b85133/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-34-105-g62c048b85133/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f22d706c5488508c752c=
-1d3
-      failing since 44 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
-ail: v4.19.126-113-gd694d4388e88) =20
