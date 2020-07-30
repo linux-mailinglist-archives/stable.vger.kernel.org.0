@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 676EC233B0C
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 00:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0E8233B0E
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 00:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726992AbgG3WB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 18:01:27 -0400
-Received: from mga01.intel.com ([192.55.52.88]:43029 "EHLO mga01.intel.com"
+        id S1728063AbgG3WBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 18:01:45 -0400
+Received: from mga17.intel.com ([192.55.52.151]:20825 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726544AbgG3WB1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 18:01:27 -0400
-IronPort-SDR: YeGpVXBd04VOqp4LVg3bUF+DHelPflqa21lqIu7pkJgqWqJBQcriNGEU58tJJMukitpZ8kHGk/
- wUkwe3iFZyzw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9698"; a="169812674"
+        id S1726544AbgG3WBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 18:01:45 -0400
+IronPort-SDR: Hd97d/qInC5mZ4tR8ELyazbVyDYT4FrYtUK15QmQKweRuw2ziMrLstkDHrzsHrZDG2DbyZ6KHZ
+ Buzb68Iu7uuQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9698"; a="131770557"
 X-IronPort-AV: E=Sophos;i="5.75,415,1589266800"; 
-   d="scan'208";a="169812674"
+   d="scan'208";a="131770557"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2020 15:01:26 -0700
-IronPort-SDR: RQtxE384/54CR/X7EYR+OzCEj0P5Uxde2EwhUwsWCN1OkZfgZwBxeusV+ZubmAQupgFRwuznG9
- en0b2p8vXjyQ==
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2020 15:01:44 -0700
+IronPort-SDR: KG5bBtfQ5NYIWnkLXakYe6lEqlSfkszqGP5+7vR7xaJytouSRsMjPtn/ldEsmk8DZk308UE7/U
+ eZBSZV2tMA4A==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.75,415,1589266800"; 
-   d="scan'208";a="329079836"
+   d="scan'208";a="435205691"
 Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
-  by FMSMGA003.fm.intel.com with ESMTP; 30 Jul 2020 15:01:24 -0700
+  by orsmga004.jf.intel.com with ESMTP; 30 Jul 2020 15:01:41 -0700
 From:   Tomas Winkler <tomas.winkler@intel.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
@@ -34,9 +34,9 @@ Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
         Tomas Winkler <tomas.winkler@intel.com>,
         "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
         Ramalingam C <ramalingam.c@intel.com>, stable@vger.kernel.org
-Subject: [char-misc-next] mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
-Date:   Fri, 31 Jul 2020 01:01:22 +0300
-Message-Id: <20200730220122.3642357-1-tomas.winkler@intel.com>
+Subject: [char-misc-next V4] mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
+Date:   Fri, 31 Jul 2020 01:01:39 +0300
+Message-Id: <20200730220139.3642424-1-tomas.winkler@intel.com>
 X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
