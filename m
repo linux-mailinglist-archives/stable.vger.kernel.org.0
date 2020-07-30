@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F1A232E05
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D650232DAF
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729829AbgG3IKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:10:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
+        id S1729628AbgG3INw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:13:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729824AbgG3IK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:29 -0400
+        id S1730111AbgG3ING (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:13:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFC432075F;
-        Thu, 30 Jul 2020 08:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B82082075F;
+        Thu, 30 Jul 2020 08:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096628;
-        bh=LOrYVVJL1mqPPdpn8zdfbWNQHqdDvHqgNiXmoQM1rMs=;
+        s=default; t=1596096786;
+        bh=QNGev99s991GqAfc2daKbH6No1tFEbQshVRdVMqfTR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHOIYrwyjkPOtM3v3vCNHtdxzmMEz1tO4nu8UtUNVKfD3xG+Gv9yD7GRpVLP9c6rN
-         WcXTbWrk7X6epgMOWGkwCe1nJQzKWrUikxcJEzdhyf+0i999FQEra85mOYpO8bVtQ4
-         xNRpLrjuVV1XBVrdrCDft8/kKfQN34TU3iLoQDcA=
+        b=cbDvRw596dce5mbP55Zl17/tdipX080EAKgdw/rE/VhAlXKXX5HzboiI2CZMk2/NO
+         Dq4vxhUuT8qiSl/wZR4o66oY6B97EmnRDx87HZyJksiLoUx7Z7SAVAW4BX+KRGjpac
+         yCRJgOKNixU/mauQ7Vv51Mv56YWPq1xewop9F2NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Changbin Du <changbin.du@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 61/61] perf: Make perf able to build with latest libbfd
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 40/54] net-sysfs: add a newline when printing tx_timeout by sysfs
 Date:   Thu, 30 Jul 2020 10:05:19 +0200
-Message-Id: <20200730074423.794840006@linuxfoundation.org>
+Message-Id: <20200730074423.132754236@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 0ada120c883d4f1f6aafd01cf0fbb10d8bbba015 upstream.
+[ Upstream commit 9bb5fbea59f36a589ef886292549ca4052fe676c ]
 
-libbfd has changed the bfd_section_* macros to inline functions
-bfd_section_<field> since 2019-09-18. See below two commits:
-  o http://www.sourceware.org/ml/gdb-cvs/2019-09/msg00064.html
-  o https://www.sourceware.org/ml/gdb-cvs/2019-09/msg00072.html
+When I cat 'tx_timeout' by sysfs, it displays as follows. It's better to
+add a newline for easy reading.
 
-This fix make perf able to build with both old and new libbfd.
+root@syzkaller:~# cat /sys/devices/virtual/net/lo/queues/tx-0/tx_timeout
+0root@syzkaller:~#
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200128152938.31413-1-changbin.du@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/srcline.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ net/core/net-sysfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/srcline.c
-+++ b/tools/perf/util/srcline.c
-@@ -86,16 +86,30 @@ static void find_address_in_section(bfd
- 	bfd_vma pc, vma;
- 	bfd_size_type size;
- 	struct a2l_data *a2l = data;
-+	flagword flags;
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -999,7 +999,7 @@ static ssize_t show_trans_timeout(struct
+ 	trans_timeout = queue->trans_timeout;
+ 	spin_unlock_irq(&queue->_xmit_lock);
  
- 	if (a2l->found)
- 		return;
+-	return sprintf(buf, "%lu", trans_timeout);
++	return sprintf(buf, fmt_ulong, trans_timeout);
+ }
  
--	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
-+#ifdef bfd_get_section_flags
-+	flags = bfd_get_section_flags(abfd, section);
-+#else
-+	flags = bfd_section_flags(section);
-+#endif
-+	if ((flags & SEC_ALLOC) == 0)
- 		return;
- 
- 	pc = a2l->addr;
-+#ifdef bfd_get_section_vma
- 	vma = bfd_get_section_vma(abfd, section);
-+#else
-+	vma = bfd_section_vma(section);
-+#endif
-+#ifdef bfd_get_section_size
- 	size = bfd_get_section_size(section);
-+#else
-+	size = bfd_section_size(section);
-+#endif
- 
- 	if (pc < vma || pc >= vma + size)
- 		return;
+ #ifdef CONFIG_XPS
 
 
