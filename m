@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58782232E7D
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C68B232E8B
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729268AbgG3IUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43556 "EHLO mail.kernel.org"
+        id S1729506AbgG3IVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:21:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726194AbgG3IGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:06:05 -0400
+        id S1729103AbgG3IFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:05:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 500CE206C0;
-        Thu, 30 Jul 2020 08:06:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E16542074B;
+        Thu, 30 Jul 2020 08:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096364;
-        bh=LKGNT2qVhcOAafZ2dGb9zKN9EZp306o8SFySeGT4rD8=;
+        s=default; t=1596096311;
+        bh=hws6r1qdK3HiZpyswurACWXLhMa8sZJ+geNOvHw2hL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X2vIrl6dUKVd1ONs/F+uJVCw62+FKtsZPxjLeAwMD0TLBjUDhUQ5JBROt/E8JI4xs
-         JcnLkJXdkLuFGZo7BhS6OCYxKRfWDz4F9F8sQecgPUXgYa9TeUxaYslqsx4WGAbru8
-         H7xyarOYGvxjuML5fgbqyF3RBEkXvRnhxxcPTZY8=
+        b=sdqUUXEAGIdoiG7e0KxLX0iqesVOaTNjiZTyl19NjatCaroYEXcsbPXo381Y+VUra
+         kxwaDIRlE6b+1kGfZGrwxL+Um0DE8IY7mD25jke+WiI1d39UcqWBy8JQPj+Qu0h4AY
+         JxQyzV0FoK0pi3RiCKjKCxjMrNpGAZyAm0zhLm8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+6720d64f31c081c2f708@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 08/19] qrtr: orphan socket in qrtr_release()
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.7 20/20] regmap: debugfs: check count when read regmap file
 Date:   Thu, 30 Jul 2020 10:04:10 +0200
-Message-Id: <20200730074420.924420214@linuxfoundation.org>
+Message-Id: <20200730074421.478393765@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.502923740@linuxfoundation.org>
-References: <20200730074420.502923740@linuxfoundation.org>
+In-Reply-To: <20200730074420.533211699@linuxfoundation.org>
+References: <20200730074420.533211699@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,37 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit af9f691f0f5bdd1ade65a7b84927639882d7c3e5 ]
+commit 74edd08a4fbf51d65fd8f4c7d8289cd0f392bd91 upstream.
 
-We have to detach sock from socket in qrtr_release(),
-otherwise skb->sk may still reference to this socket
-when the skb is released in tun->queue, particularly
-sk->sk_wq still points to &sock->wq, which leads to
-a UAF.
+When executing the following command, we met kernel dump.
+dmesg -c > /dev/null; cd /sys;
+for i in `ls /sys/kernel/debug/regmap/* -d`; do
+	echo "Checking regmap in $i";
+	cat $i/registers;
+done && grep -ri "0x02d0" *;
 
-Reported-and-tested-by: syzbot+6720d64f31c081c2f708@syzkaller.appspotmail.com
-Fixes: 28fb4e59a47d ("net: qrtr: Expose tunneling endpoint to user space")
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It is because the count value is too big, and kmalloc fails. So add an
+upper bound check to allow max size `PAGE_SIZE << (MAX_ORDER - 1)`.
+
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/1584064687-12964-1-git-send-email-peng.fan@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/qrtr/qrtr.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -1004,6 +1004,7 @@ static int qrtr_release(struct socket *s
- 		sk->sk_state_change(sk);
+---
+ drivers/base/regmap/regmap-debugfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/drivers/base/regmap/regmap-debugfs.c
++++ b/drivers/base/regmap/regmap-debugfs.c
+@@ -227,6 +227,9 @@ static ssize_t regmap_read_debugfs(struc
+ 	if (*ppos < 0 || !count)
+ 		return -EINVAL;
  
- 	sock_set_flag(sk, SOCK_DEAD);
-+	sock_orphan(sk);
- 	sock->sk = NULL;
++	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
++		count = PAGE_SIZE << (MAX_ORDER - 1);
++
+ 	buf = kmalloc(count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+@@ -371,6 +374,9 @@ static ssize_t regmap_reg_ranges_read_fi
+ 	if (*ppos < 0 || !count)
+ 		return -EINVAL;
  
- 	if (!sock_flag(sk, SOCK_ZAPPED))
++	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
++		count = PAGE_SIZE << (MAX_ORDER - 1);
++
+ 	buf = kmalloc(count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
 
 
