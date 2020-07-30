@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B222D232E89
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC40E232E87
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726774AbgG3IVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42412 "EHLO mail.kernel.org"
+        id S1730322AbgG3IVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:21:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729130AbgG3IFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:05:19 -0400
+        id S1728883AbgG3IFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:05:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D8DE20656;
-        Thu, 30 Jul 2020 08:05:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F3B222CB3;
+        Thu, 30 Jul 2020 08:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096319;
-        bh=PWOXS3zO0M0ruj0VjGy3cwmNjPBT6MXLJjYCnw74PFE=;
+        s=default; t=1596096321;
+        bh=ujPKpPCEH1vowH1yF5817YURZkyiHerQ4CbRd4rKHq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+z2/DbNFZr09OzYhEB3RmL88seEInwIeIiUiS+Lj2NpkSKbNc10H2wbaVf5Nlubv
-         F7srPfxNoFcqj6QwHuej7c05EHedS65QjsIuLqhjLvqz3DmLNNQ4mok9GoZWSPO+zD
-         MM9Xpa/f6iyUOG5OkL1eSD+IcpH/Htxli4wxrIqA=
+        b=tTSWai1hVhWrOPkUIUu59w4IIZlsETPlPLOLjMP7yyBTUHH9m+pTa0nI2sxUWP5pQ
+         nBEk5riSEK8DLJeCniKBkb5YBzOFZphpG+BYkgoPdjhylGLUBFUM3ZUvliiPt6fpCE
+         Ye1wrE07uJuIMZ6UidkLkbh0YMiSRTXo/5abVwe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 05/20] ip6_gre: fix null-ptr-deref in ip6gre_init_net()
-Date:   Thu, 30 Jul 2020 10:03:55 +0200
-Message-Id: <20200730074420.797915804@linuxfoundation.org>
+Subject: [PATCH 5.7 06/20] net/sched: act_ct: fix restore the qdisc_skb_cb after defrag
+Date:   Thu, 30 Jul 2020 10:03:56 +0200
+Message-Id: <20200730074420.845160025@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200730074420.533211699@linuxfoundation.org>
 References: <20200730074420.533211699@linuxfoundation.org>
@@ -45,83 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: wenxu <wenxu@ucloud.cn>
 
-[ Upstream commit 46ef5b89ec0ecf290d74c4aee844f063933c4da4 ]
+[ Upstream commit ae372cb1750f6c95370f92fe5f5620e0954663ba ]
 
-KASAN report null-ptr-deref error when register_netdev() failed:
+The fragment packets do defrag in tcf_ct_handle_fragments
+will clear the skb->cb which make the qdisc_skb_cb clear
+too. So the qdsic_skb_cb should be store before defrag and
+restore after that.
+It also update the pkt_len after all the
+fragments finish the defrag to one packet and make the
+following actions counter correct.
 
-KASAN: null-ptr-deref in range [0x00000000000003c0-0x00000000000003c7]
-CPU: 2 PID: 422 Comm: ip Not tainted 5.8.0-rc4+ #12
-Call Trace:
- ip6gre_init_net+0x4ab/0x580
- ? ip6gre_tunnel_uninit+0x3f0/0x3f0
- ops_init+0xa8/0x3c0
- setup_net+0x2de/0x7e0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? ops_init+0x3c0/0x3c0
- ? kasan_unpoison_shadow+0x33/0x40
- ? __kasan_kmalloc.constprop.0+0xc2/0xd0
- copy_net_ns+0x27d/0x530
- create_new_namespaces+0x382/0xa30
- unshare_nsproxy_namespaces+0xa1/0x1d0
- ksys_unshare+0x39c/0x780
- ? walk_process_tree+0x2a0/0x2a0
- ? trace_hardirqs_on+0x4a/0x1b0
- ? _raw_spin_unlock_irq+0x1f/0x30
- ? syscall_trace_enter+0x1a7/0x330
- ? do_syscall_64+0x1c/0xa0
- __x64_sys_unshare+0x2d/0x40
- do_syscall_64+0x56/0xa0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-ip6gre_tunnel_uninit() has set 'ign->fb_tunnel_dev' to NULL, later
-access to ign->fb_tunnel_dev cause null-ptr-deref. Fix it by saving
-'ign->fb_tunnel_dev' to local variable ndev.
-
-Fixes: dafabb6590cb ("ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: b57dc7c13ea9 ("net/sched: Introduce action ct")
+Signed-off-by: wenxu <wenxu@ucloud.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/sched/act_ct.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -1562,17 +1562,18 @@ static void ip6gre_destroy_tunnels(struc
- static int __net_init ip6gre_init_net(struct net *net)
- {
- 	struct ip6gre_net *ign = net_generic(net, ip6gre_net_id);
-+	struct net_device *ndev;
- 	int err;
- 
- 	if (!net_has_fallback_tunnels(net))
- 		return 0;
--	ign->fb_tunnel_dev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
--					  NET_NAME_UNKNOWN,
--					  ip6gre_tunnel_setup);
--	if (!ign->fb_tunnel_dev) {
-+	ndev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
-+			    NET_NAME_UNKNOWN, ip6gre_tunnel_setup);
-+	if (!ndev) {
- 		err = -ENOMEM;
- 		goto err_alloc_dev;
- 	}
-+	ign->fb_tunnel_dev = ndev;
- 	dev_net_set(ign->fb_tunnel_dev, net);
- 	/* FB netdevice is special: we have one, and only one per netns.
- 	 * Allowing to move it to another netns is clearly unsafe.
-@@ -1592,7 +1593,7 @@ static int __net_init ip6gre_init_net(st
- 	return 0;
- 
- err_reg_dev:
--	free_netdev(ign->fb_tunnel_dev);
-+	free_netdev(ndev);
- err_alloc_dev:
- 	return err;
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -671,9 +671,10 @@ static int tcf_ct_ipv6_is_fragment(struc
  }
+ 
+ static int tcf_ct_handle_fragments(struct net *net, struct sk_buff *skb,
+-				   u8 family, u16 zone)
++				   u8 family, u16 zone, bool *defrag)
+ {
+ 	enum ip_conntrack_info ctinfo;
++	struct qdisc_skb_cb cb;
+ 	struct nf_conn *ct;
+ 	int err = 0;
+ 	bool frag;
+@@ -691,6 +692,7 @@ static int tcf_ct_handle_fragments(struc
+ 		return err;
+ 
+ 	skb_get(skb);
++	cb = *qdisc_skb_cb(skb);
+ 
+ 	if (family == NFPROTO_IPV4) {
+ 		enum ip_defrag_users user = IP_DEFRAG_CONNTRACK_IN + zone;
+@@ -701,6 +703,9 @@ static int tcf_ct_handle_fragments(struc
+ 		local_bh_enable();
+ 		if (err && err != -EINPROGRESS)
+ 			goto out_free;
++
++		if (!err)
++			*defrag = true;
+ 	} else { /* NFPROTO_IPV6 */
+ #if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+ 		enum ip6_defrag_users user = IP6_DEFRAG_CONNTRACK_IN + zone;
+@@ -709,12 +714,16 @@ static int tcf_ct_handle_fragments(struc
+ 		err = nf_ct_frag6_gather(net, skb, user);
+ 		if (err && err != -EINPROGRESS)
+ 			goto out_free;
++
++		if (!err)
++			*defrag = true;
+ #else
+ 		err = -EOPNOTSUPP;
+ 		goto out_free;
+ #endif
+ 	}
+ 
++	*qdisc_skb_cb(skb) = cb;
+ 	skb_clear_hash(skb);
+ 	skb->ignore_df = 1;
+ 	return err;
+@@ -912,6 +921,7 @@ static int tcf_ct_act(struct sk_buff *sk
+ 	int nh_ofs, err, retval;
+ 	struct tcf_ct_params *p;
+ 	bool skip_add = false;
++	bool defrag = false;
+ 	struct nf_conn *ct;
+ 	u8 family;
+ 
+@@ -942,7 +952,7 @@ static int tcf_ct_act(struct sk_buff *sk
+ 	 */
+ 	nh_ofs = skb_network_offset(skb);
+ 	skb_pull_rcsum(skb, nh_ofs);
+-	err = tcf_ct_handle_fragments(net, skb, family, p->zone);
++	err = tcf_ct_handle_fragments(net, skb, family, p->zone, &defrag);
+ 	if (err == -EINPROGRESS) {
+ 		retval = TC_ACT_STOLEN;
+ 		goto out;
+@@ -1010,6 +1020,8 @@ out_push:
+ 
+ out:
+ 	tcf_action_update_bstats(&c->common, skb);
++	if (defrag)
++		qdisc_skb_cb(skb)->pkt_len = skb->len;
+ 	return retval;
+ 
+ drop:
 
 
