@@ -2,132 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 784A12338FE
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 21:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8BF23390D
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 21:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730566AbgG3T0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 15:26:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44576 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730529AbgG3T0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 15:26:39 -0400
-Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F22D6C06174A
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 12:26:38 -0700 (PDT)
-Received: by mail-qv1-xf4a.google.com with SMTP id g17so18766831qvw.0
-        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 12:26:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=fWc6OJCig1UgfvHtWplz+nD9vozoDKzNVIvYHPTkg44=;
-        b=gj5uH8D4Swjos7n2MMJejn1TAY3/L82VroaxdW/TCkIJ79VyK0QF+7je5BWTh2VdbP
-         S5EJcY/69Oah1CX+JxuEJQFQiERjk/P36vSs5VY/IAzzXXFTcElypDb5ad2LCfKgg07p
-         bxmXzb+N1u0FJ/kmrnEpOysUXavSYtx5LY2CqEkI9v108NbkONilghGgiQFXGU6ZnOQS
-         tV4PACfZgq/MYzgVSxp7OsSRh4PVZC9+HRmf49Eutm2q6iUHcHMvbPFTIqgYorCXg0F3
-         6Rxksb9qwD2MmW8j0Y9pUDSrTzgxYA1mNCTFcqttpvKe9S03LbVAvGFse0CBzYiYrZDF
-         25FQ==
+        id S1726581AbgG3TaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 15:30:09 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:29688 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730497AbgG3TaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jul 2020 15:30:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596137407;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=Zo62zBr05G4i/w6uOCrF5bcIwehfjUuSBLT3HlEcuYQ=;
+        b=Ezxbxa9XNbsqgIwto1nIFCZd7eA2QQNfmnF67HzrXSniqzpiI4iI+Ck+Q8bClbt9JQer15
+        VzrtM5Z+Mm5RVXnM5PHw+Ha7YgiYZDYXYMaRd9bPX1GHmEKrfzl+8J47eHNop237+U1HyV
+        wgwC/zeTl4Fc1ULLo24le0uGEcCkh38=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-246-w5ALKJ7VPKa5kGCNGay2CQ-1; Thu, 30 Jul 2020 15:30:04 -0400
+X-MC-Unique: w5ALKJ7VPKa5kGCNGay2CQ-1
+Received: by mail-wr1-f69.google.com with SMTP id j16so8341326wrw.3
+        for <stable@vger.kernel.org>; Thu, 30 Jul 2020 12:30:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=fWc6OJCig1UgfvHtWplz+nD9vozoDKzNVIvYHPTkg44=;
-        b=UY/g2wgCWj+jlr3j4Cuc38AG4plya+qEFwcL2Y5z5vwEFIn4OO8G7vyv5o8FR3LV+1
-         51+8wknqkCwKT3l2uzQAlTQ2fT5Xuq6GSXUJS+snn38/m8jP7E6i8gOYNcwKtu9Y0nb3
-         TL91XmWoBX7kdYFcufG2LSkzrz9v2ASakp5E26BxVxfH+W6PEr3GRFAvM0UizOH9X4Ni
-         R61sF8zuCEtXVwHp9+NP1G6ZQJJmtU6meisnZLAj/1Qa5VbIPVVCZBBR/j8ZKMNtqG43
-         kvr1wUmKBpeubS1Zex9q0XAWJ1z0/Pb7pTMijo4B6Fpj5KYlpUXmP+E8Um8MDkHkven2
-         PtyQ==
-X-Gm-Message-State: AOAM533FYyYpXGrYIzmh/FQMAvkIBjk/LwqNMwMxOYgIfr/Ng/hgW6N6
-        YYQ0RLW6JSyVMRknE8W9sZLfFgawm5g=
-X-Google-Smtp-Source: ABdhPJzEMZe4ramJ8Ov7HBdblAvH3a+W031fHCnG32znIrk4AscZJPDQJ3jlVI/1fwnUZWE1mXm5diLdqiM=
-X-Received: by 2002:ad4:40cb:: with SMTP id x11mr702214qvp.176.1596137197459;
- Thu, 30 Jul 2020 12:26:37 -0700 (PDT)
-Date:   Thu, 30 Jul 2020 12:26:32 -0700
-Message-Id: <20200730192632.3088194-1-surenb@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
-Subject: [PATCH v2 1/1] staging: android: ashmem: Fix lockdep warning for
- write operation
-From:   Suren Baghdasaryan <surenb@google.com>
-To:     surenb@google.com
-Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, joel@joelfernandes.org, christian@brauner.io,
-        hridya@google.com, mhocko@kernel.org, hdanton@sina.com,
-        ebiggers@kernel.org, devel@driverdev.osuosl.org,
-        linux-mm@kvack.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com,
-        syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=Zo62zBr05G4i/w6uOCrF5bcIwehfjUuSBLT3HlEcuYQ=;
+        b=X21auM5Lj6L+g7gpRf+vriRNkSUU2mnNYJRKbWCyq+SxLR1TI7l7Ab7NwxFcKzYDlk
+         yDm1gxvvom2RFNqyFKpUSEG5wnsZk3oVrZu9+5t5YFVu0LuYMlf3morZyzjmEnoIGd7q
+         IxqWp7vsXkUQGM/DEgIj3vCDnZ330G93p0vGirY+BswKNOSJUyMfLnS9H6q2PJvlkDvw
+         yEoRF0lBkonTw8RmZ7c/ftGzZPYGWFxC6t2Dv9mDnPy50K815EMk1ZnG8AymtqOTZABj
+         r13dNFAxmagCrl4lMclmaXCt3umTXNJOCoE/EsNTTnW8bLQ4A7rPsRqYtKclDs78Sl9o
+         iiRw==
+X-Gm-Message-State: AOAM5317EuSZTM0/DiTuaR2v8Ha65CXN6cKtpPKKiD2nCu7L4MU4tghT
+        lDT7jYOigNasv5QmgeOaGWl+YhC3/VrsFjRahhsP4HggZkrgUppguKrKxtB/XU7CXGfukKOC4mc
+        mf3ddYKZOMMsOBAJQ
+X-Received: by 2002:a5d:538a:: with SMTP id d10mr267394wrv.280.1596137403065;
+        Thu, 30 Jul 2020 12:30:03 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxM38R/gaJ4B9lHJnwY7CoXgiuKGr1JOva2N2K51sHps4St8QHQsZSys7gU+zLzyFwcYWboVQ==
+X-Received: by 2002:a5d:538a:: with SMTP id d10mr267372wrv.280.1596137402764;
+        Thu, 30 Jul 2020 12:30:02 -0700 (PDT)
+Received: from redhat.com (bzq-79-179-105-63.red.bezeqint.net. [79.179.105.63])
+        by smtp.gmail.com with ESMTPSA id w64sm9081104wmb.26.2020.07.30.12.29.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2020 12:30:01 -0700 (PDT)
+Date:   Thu, 30 Jul 2020 15:29:58 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        alexander.h.duyck@linux.intel.com, chenweilong@huawei.com,
+        david@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        rdunlap@infradead.org, stable@vger.kernel.org, wu000273@umn.edu
+Subject: [GIT PULL] virtio, qemu_fw: bugfixes
+Message-ID: <20200730152958-mutt-send-email-mst@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mutt-Fcc: =sent
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-syzbot report [1] describes a deadlock when write operation against an
-ashmem fd executed at the time when ashmem is shrinking its cache results
-in the following lock sequence:
+The following changes since commit 92ed301919932f777713b9172e525674157e983d:
 
-Possible unsafe locking scenario:
+  Linux 5.8-rc7 (2020-07-26 14:14:06 -0700)
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(fs_reclaim);
-                                lock(&sb->s_type->i_mutex_key#13);
-                                lock(fs_reclaim);
-   lock(&sb->s_type->i_mutex_key#13);
+are available in the Git repository at:
 
-kswapd takes fs_reclaim and then inode_lock while generic_perform_write
-takes inode_lock and then fs_reclaim. However ashmem does not support
-writing into backing shmem with a write syscall. The only way to change
-its content is to mmap it and operate on mapped memory. Therefore the race
-that lockdep is warning about is not valid. Resolve this by introducing a
-separate lockdep class for the backing shmem inodes.
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-[1]: https://lkml.kernel.org/lkml/0000000000000b5f9d059aa2037f@google.com/
+for you to fetch changes up to a96b0d061d476093cf86ca1c2de06fc57163588d:
 
-Reported-by: syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
----
- drivers/staging/android/ashmem.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+  virtio-mem: Fix build error due to improper use 'select' (2020-07-30 11:28:17 -0400)
 
-diff --git a/drivers/staging/android/ashmem.c b/drivers/staging/android/ashmem.c
-index c05a214191da..10b4be1f3e78 100644
---- a/drivers/staging/android/ashmem.c
-+++ b/drivers/staging/android/ashmem.c
-@@ -95,6 +95,15 @@ static DEFINE_MUTEX(ashmem_mutex);
- static struct kmem_cache *ashmem_area_cachep __read_mostly;
- static struct kmem_cache *ashmem_range_cachep __read_mostly;
- 
-+/*
-+ * A separate lockdep class for the backing shmem inodes to resolve the lockdep
-+ * warning about the race between kswapd taking fs_reclaim before inode_lock
-+ * and write syscall taking inode_lock and then fs_reclaim.
-+ * Note that such race is impossible because ashmem does not support write
-+ * syscalls operating on the backing shmem.
-+ */
-+static struct lock_class_key backing_shmem_inode_class;
-+
- static inline unsigned long range_size(struct ashmem_range *range)
- {
- 	return range->pgend - range->pgstart + 1;
-@@ -396,6 +405,7 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
- 	if (!asma->file) {
- 		char *name = ASHMEM_NAME_DEF;
- 		struct file *vmfile;
-+		struct inode *inode;
- 
- 		if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0')
- 			name = asma->name;
-@@ -407,6 +417,8 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
- 			goto out;
- 		}
- 		vmfile->f_mode |= FMODE_LSEEK;
-+		inode = file_inode(vmfile);
-+		lockdep_set_class(&inode->i_rwsem, &backing_shmem_inode_class);
- 		asma->file = vmfile;
- 		/*
- 		 * override mmap operation of the vmfile so that it can't be
--- 
-2.28.0.163.g6104cc2f0b6-goog
+----------------------------------------------------------------
+virtio, qemu_fw: bugfixes
+
+A couple of last minute bugfixes.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Alexander Duyck (1):
+      virtio-balloon: Document byte ordering of poison_val
+
+Michael S. Tsirkin (2):
+      vhost/scsi: fix up req type endian-ness
+      virtio_balloon: fix up endian-ness for free cmd id
+
+Qiushi Wu (1):
+      firmware: Fix a reference count leak.
+
+Weilong Chen (1):
+      virtio-mem: Fix build error due to improper use 'select'
+
+ drivers/firmware/qemu_fw_cfg.c  |  7 ++++---
+ drivers/vhost/scsi.c            |  2 +-
+ drivers/virtio/Kconfig          |  2 +-
+ drivers/virtio/virtio_balloon.c | 11 ++++++++++-
+ 4 files changed, 16 insertions(+), 6 deletions(-)
 
