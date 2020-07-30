@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1F2232D66
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B5C232E68
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729443AbgG3IKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
+        id S1729388AbgG3IHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:07:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729265AbgG3IKO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:14 -0400
+        id S1729384AbgG3IHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:07:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91D702074B;
-        Thu, 30 Jul 2020 08:10:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FC4420672;
+        Thu, 30 Jul 2020 08:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096613;
-        bh=T/Uqo1pGCLFxqxThNCnIF1XGIsQEQgNGpx28Wsefn0g=;
+        s=default; t=1596096422;
+        bh=d4c+wEfZHCUoQmOVXkFpcKTZur8ymNn5HK8mjL6I+ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWawl1xgtU1xV9Xn0XaGozx9nur/J1PUkapq7Rvx9muyirT4JnyVFmA0InuLxH6Wq
-         mshLOdksZnRzbEsD2NcTcWiJFRcLx8Id7e7hmEzU7FiHPr56agJCKfKfouEo7Lmt+F
-         Mu3TzALMYNmWG6QZLATitiCy8BfAuSyijmN3U7D4=
+        b=S27n2RPxxML23Pk4iClIOiKHBnWLJnYlWdgbCmHQL1ZpzYAVMMF/MkrGzmG8D/3XO
+         xr+u9sUm3fjldrRqsF1yKA5ZcdSizjSdb0bmQMxoOEf4fto4Ds3uk6alQvt2TTJcvZ
+         vsw11NVizUEt51rvIONtLevxm17PSP9LIqVGAxhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/61] btrfs: fix mount failure caused by race with umount
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 06/17] net-sysfs: add a newline when printing tx_timeout by sysfs
 Date:   Thu, 30 Jul 2020 10:04:32 +0200
-Message-Id: <20200730074421.512942134@linuxfoundation.org>
+Message-Id: <20200730074420.772186994@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074420.449233408@linuxfoundation.org>
+References: <20200730074420.449233408@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 48cfa61b58a1fee0bc49eef04f8ccf31493b7cdd ]
+[ Upstream commit 9bb5fbea59f36a589ef886292549ca4052fe676c ]
 
-It is possible to cause a btrfs mount to fail by racing it with a slow
-umount. The crux of the sequence is generic_shutdown_super not yet
-calling sop->put_super before btrfs_mount_root calls btrfs_open_devices.
-If that occurs, btrfs_open_devices will decide the opened counter is
-non-zero, increment it, and skip resetting fs_devices->total_rw_bytes to
-0. From here, mount will call sget which will result in grab_super
-trying to take the super block umount semaphore. That semaphore will be
-held by the slow umount, so mount will block. Before up-ing the
-semaphore, umount will delete the super block, resulting in mount's sget
-reliably allocating a new one, which causes the mount path to dutifully
-fill it out, and increment total_rw_bytes a second time, which causes
-the mount to fail, as we see double the expected bytes.
+When I cat 'tx_timeout' by sysfs, it displays as follows. It's better to
+add a newline for easy reading.
 
-Here is the sequence laid out in greater detail:
+root@syzkaller:~# cat /sys/devices/virtual/net/lo/queues/tx-0/tx_timeout
+0root@syzkaller:~#
 
-CPU0                                                    CPU1
-down_write sb->s_umount
-btrfs_kill_super
-  kill_anon_super(sb)
-    generic_shutdown_super(sb);
-      shrink_dcache_for_umount(sb);
-      sync_filesystem(sb);
-      evict_inodes(sb); // SLOW
-
-                                              btrfs_mount_root
-                                                btrfs_scan_one_device
-                                                fs_devices = device->fs_devices
-                                                fs_info->fs_devices = fs_devices
-                                                // fs_devices-opened makes this a no-op
-                                                btrfs_open_devices(fs_devices, mode, fs_type)
-                                                s = sget(fs_type, test, set, flags, fs_info);
-                                                  find sb in s_instances
-                                                  grab_super(sb);
-                                                    down_write(&s->s_umount); // blocks
-
-      sop->put_super(sb)
-        // sb->fs_devices->opened == 2; no-op
-      spin_lock(&sb_lock);
-      hlist_del_init(&sb->s_instances);
-      spin_unlock(&sb_lock);
-      up_write(&sb->s_umount);
-                                                    return 0;
-                                                  retry lookup
-                                                  don't find sb in s_instances (deleted by CPU0)
-                                                  s = alloc_super
-                                                  return s;
-                                                btrfs_fill_super(s, fs_devices, data)
-                                                  open_ctree // fs_devices total_rw_bytes improperly set!
-                                                    btrfs_read_chunk_tree
-                                                      read_one_dev // increment total_rw_bytes again!!
-                                                      super_total_bytes < fs_devices->total_rw_bytes // ERROR!!!
-
-To fix this, we clear total_rw_bytes from within btrfs_read_chunk_tree
-before the calls to read_one_dev, while holding the sb umount semaphore
-and the uuid mutex.
-
-To reproduce, it is sufficient to dirty a decent number of inodes, then
-quickly umount and mount.
-
-  for i in $(seq 0 500)
-  do
-    dd if=/dev/zero of="/mnt/foo/$i" bs=1M count=1
-  done
-  umount /mnt/foo&
-  mount /mnt/foo
-
-does the trick for me.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Boris Burkov <boris@bur.io>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/core/net-sysfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 70aa22a8a9cce..bace03a546b2d 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6854,6 +6854,14 @@ int btrfs_read_chunk_tree(struct btrfs_root *root)
- 	mutex_lock(&uuid_mutex);
- 	lock_chunks(root);
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -1045,7 +1045,7 @@ static ssize_t tx_timeout_show(struct ne
+ 	trans_timeout = queue->trans_timeout;
+ 	spin_unlock_irq(&queue->_xmit_lock);
  
-+	/*
-+	 * It is possible for mount and umount to race in such a way that
-+	 * we execute this code path, but open_fs_devices failed to clear
-+	 * total_rw_bytes. We certainly want it cleared before reading the
-+	 * device items, so clear it here.
-+	 */
-+	root->fs_info->fs_devices->total_rw_bytes = 0;
-+
- 	/*
- 	 * Read all device items, and then all the chunk items. All
- 	 * device items are found before any chunk item (their object id
--- 
-2.25.1
-
+-	return sprintf(buf, "%lu", trans_timeout);
++	return sprintf(buf, fmt_ulong, trans_timeout);
+ }
+ 
+ static unsigned int get_netdev_queue_index(struct netdev_queue *queue)
 
 
