@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0999232E0D
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47431232DEE
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729718AbgG3IJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48254 "EHLO mail.kernel.org"
+        id S1729161AbgG3IQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729714AbgG3IJl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:09:41 -0400
+        id S1729331AbgG3ILa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:11:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA24E2070B;
-        Thu, 30 Jul 2020 08:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 868B82075F;
+        Thu, 30 Jul 2020 08:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096580;
-        bh=29cjQnjSC+wuvHtG+20VVuSfXqeNY9zwFB/jMOukLSE=;
+        s=default; t=1596096690;
+        bh=EK7AU3umgWF+MjgNKJPzI26DlG5PNOhqnBDJBBvQw98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzOsfgxXLOY7dEFB6NUMRubO9Yc+UyuY7ZaYC4eM+GyMNSyymP+YB5ugeyFQHlIv5
-         3WAbNDaTSrW1CliER6txL1Nf0PvJWKHM+SF1syzqb1Tge0XlnCGKFj4LOFC+bWKA6o
-         pLjbuZdaWrowEj/T9n1zdIpLykrf1gnUWEk3Cfh4=
+        b=H48FNtuNkc9UOHQzMBa/5axTipm045YUl07naGt0k6FuYJfK5r5Mq2n8ZIWkmkMew
+         kOdWGRFd/fBJ4ikTq4o4x/2XT/T32nuFJAjL2ulG9YVL3Hnuz/Jo9Ox9qHmTZbb5Zf
+         p9mpVLN4IcXobJblPxbmTNAAKaWyrpNKNwAQfVoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 42/61] io-mapping: indicate mapping failure
-Date:   Thu, 30 Jul 2020 10:05:00 +0200
-Message-Id: <20200730074422.873157551@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 22/54] regmap: dev_get_regmap_match(): fix string comparison
+Date:   Thu, 30 Jul 2020 10:05:01 +0200
+Message-Id: <20200730074422.276619714@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,73 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael J. Ruhl <michael.j.ruhl@intel.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit e0b3e0b1a04367fc15c07f44e78361545b55357c upstream.
+[ Upstream commit e84861fec32dee8a2e62bbaa52cded6b05a2a456 ]
 
-The !ATOMIC_IOMAP version of io_maping_init_wc will always return
-success, even when the ioremap fails.
+This function is used by dev_get_regmap() to retrieve a regmap for the
+specified device. If the device has more than one regmap, the name parameter
+can be used to specify one.
 
-Since the ATOMIC_IOMAP version returns NULL when the init fails, and
-callers check for a NULL return on error this is unexpected.
+The code here uses a pointer comparison to check for equal strings. This
+however will probably always fail, as the regmap->name is allocated via
+kstrdup_const() from the regmap's config->name.
 
-During a device probe, where the ioremap failed, a crash can look like
-this:
+Fix this by using strcmp() instead.
 
-    BUG: unable to handle page fault for address: 0000000000210000
-     #PF: supervisor write access in kernel mode
-     #PF: error_code(0x0002) - not-present page
-     Oops: 0002 [#1] PREEMPT SMP
-     CPU: 0 PID: 177 Comm:
-     RIP: 0010:fill_page_dma [i915]
-       gen8_ppgtt_create [i915]
-       i915_ppgtt_create [i915]
-       intel_gt_init [i915]
-       i915_gem_init [i915]
-       i915_driver_probe [i915]
-       pci_device_probe
-       really_probe
-       driver_probe_device
-
-The remap failure occurred much earlier in the probe.  If it had been
-propagated, the driver would have exited with an error.
-
-Return NULL on ioremap failure.
-
-[akpm@linux-foundation.org: detect ioremap_wc() errors earlier]
-
-Fixes: cafaf14a5d8f ("io-mapping: Always create a struct to hold metadata about the io-mapping")
-Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200721171936.81563-1-michael.j.ruhl@intel.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20200703103315.267996-1-mkl@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/io-mapping.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/base/regmap/regmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/io-mapping.h
-+++ b/include/linux/io-mapping.h
-@@ -120,9 +120,12 @@ io_mapping_init_wc(struct io_mapping *io
- 		   resource_size_t base,
- 		   unsigned long size)
- {
-+	iomap->iomem = ioremap_wc(base, size);
-+	if (!iomap->iomem)
-+		return NULL;
-+
- 	iomap->base = base;
- 	iomap->size = size;
--	iomap->iomem = ioremap_wc(base, size);
- #if defined(pgprot_noncached_wc) /* archs can't agree on a name ... */
- 	iomap->prot = pgprot_noncached_wc(PAGE_KERNEL);
- #elif defined(pgprot_writecombine)
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 77cabde977edd..4a4efc6f54b55 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1106,7 +1106,7 @@ static int dev_get_regmap_match(struct device *dev, void *res, void *data)
+ 
+ 	/* If the user didn't specify a name match any */
+ 	if (data)
+-		return (*r)->name == data;
++		return !strcmp((*r)->name, data);
+ 	else
+ 		return 1;
+ }
+-- 
+2.25.1
+
 
 
