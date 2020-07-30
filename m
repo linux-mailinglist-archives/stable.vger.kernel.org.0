@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA33232E70
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81059232DCB
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729482AbgG3IHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:07:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45624 "EHLO mail.kernel.org"
+        id S1730006AbgG3IMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729467AbgG3IHh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:07:37 -0400
+        id S1729979AbgG3IME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:12:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 514E6206C0;
-        Thu, 30 Jul 2020 08:07:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DB482070B;
+        Thu, 30 Jul 2020 08:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096456;
-        bh=eUhvwrtCzl8ctpxf2MXDDRqpicwqtJPQF+VzXjCcQDo=;
+        s=default; t=1596096723;
+        bh=E8GGfYTP6aEG4HFq9D6Klka2eaIy5f/oaUK+llhHQ/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZ7Z55sviP861FL2cs1lUE0uUk5BIdq0slW+Gg0qdpMj9BsDlguOxmDehsdUM9pV/
-         vv819IpV7V0ZJEZq+5ReFNZ04fuBBdXTGLwlCl+rqz+oAMK7ITMPWO5CZyBNTqiqFW
-         6MvyWDHqzq1yaB5YrdhtijvqylkzCiVY0GTu5JNk=
+        b=PZKKENH7DvMoAoj+UjFXFESto1mO3yFQ9ylRewN97Cg16+Z0p9AYewYrP49vrSnjO
+         orSRyBddeNkQr1hX1nwU5/v2sCb9hKqKokq25sSKbIqjxLLJMeNu6UIoCXeUqQKBee
+         4ctavRlNIkqSJejqyvRBTIN8GWIjnSNHraPeqlic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c82752228ed975b0a623@syzkaller.appspotmail.com,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 01/14] AX.25: Fix out-of-bounds read in ax25_connect()
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 05/54] xtensa: update *pos in cpuinfo_op.next
 Date:   Thu, 30 Jul 2020 10:04:44 +0200
-Message-Id: <20200730074418.959770368@linuxfoundation.org>
+Message-Id: <20200730074421.477672241@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074418.882736401@linuxfoundation.org>
-References: <20200730074418.882736401@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,43 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 2f2a7ffad5c6cbf3d438e813cfdc88230e185ba6 ]
+[ Upstream commit 0d5ab144429e8bd80889b856a44d56ab4a5cd59b ]
 
-Checks on `addr_len` and `fsa->fsa_ax25.sax25_ndigis` are insufficient.
-ax25_connect() can go out of bounds when `fsa->fsa_ax25.sax25_ndigis`
-equals to 7 or 8. Fix it.
+Increment *pos in the cpuinfo_op.next to fix the following warning
+triggered by cat /proc/cpuinfo:
 
-This issue has been reported as a KMSAN uninit-value bug, because in such
-a case, ax25_connect() reaches into the uninitialized portion of the
-`struct sockaddr_storage` statically allocated in __sys_connect().
+  seq_file: buggy .next function c_next did not update position index
 
-It is safe to remove `fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS` because
-`addr_len` is guaranteed to be less than or equal to
-`sizeof(struct full_sockaddr_ax25)`.
-
-Reported-by: syzbot+c82752228ed975b0a623@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=55ef9d629f3b3d7d70b69558015b63b48d01af66
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/xtensa/kernel/setup.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1191,7 +1191,9 @@ static int __must_check ax25_connect(str
- 	if (addr_len > sizeof(struct sockaddr_ax25) &&
- 	    fsa->fsa_ax25.sax25_ndigis != 0) {
- 		/* Valid number of digipeaters ? */
--		if (fsa->fsa_ax25.sax25_ndigis < 1 || fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS) {
-+		if (fsa->fsa_ax25.sax25_ndigis < 1 ||
-+		    addr_len < sizeof(struct sockaddr_ax25) +
-+		    sizeof(ax25_address) * fsa->fsa_ax25.sax25_ndigis) {
- 			err = -EINVAL;
- 			goto out_release;
- 		}
+diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
+index 49ccbd9022f61..92f5a259e2517 100644
+--- a/arch/xtensa/kernel/setup.c
++++ b/arch/xtensa/kernel/setup.c
+@@ -716,7 +716,8 @@ c_start(struct seq_file *f, loff_t *pos)
+ static void *
+ c_next(struct seq_file *f, void *v, loff_t *pos)
+ {
+-	return NULL;
++	++*pos;
++	return c_start(f, pos);
+ }
+ 
+ static void
+-- 
+2.25.1
+
 
 
