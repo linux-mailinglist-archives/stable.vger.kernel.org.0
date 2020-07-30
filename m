@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB9A4232E04
-	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:16:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD78232DDC
+	for <lists+stable@lfdr.de>; Thu, 30 Jul 2020 10:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729470AbgG3IKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jul 2020 04:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49632 "EHLO mail.kernel.org"
+        id S1729449AbgG3IPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jul 2020 04:15:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729306AbgG3IKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jul 2020 04:10:39 -0400
+        id S1729999AbgG3IL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jul 2020 04:11:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F3A32074B;
-        Thu, 30 Jul 2020 08:10:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8D192070B;
+        Thu, 30 Jul 2020 08:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596096639;
-        bh=8YRW/f78TgXrKU6CirmFlfF1OeBr1ipbQ53HPQPsv8g=;
+        s=default; t=1596096715;
+        bh=dNHEmN8GY5Kk570993to6U6lEsF9ZGItPJ4O4RppeYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HT+reNW//Eak5P54EQr4tentGNxfmMrgQo2obA/3Tx71gJl9XkBxRaOoYLqYKCaJN
-         H86ufkItEomsPnjOVyVV7X0OtvJQ1k9xbDfso8SlbEB/I8Xd2KCEiRJ17g4+Mg6QvQ
-         NREMA2gREOSk2IXr4ptiqejCJUxuwqVqyxJOYaEA=
+        b=sQAzeUqnm1lHA0SaEuuNlM3n1V5of0KjPstFweOujehhjFtgIyDxAyV5GTvK5pyXI
+         ZvD1IT6RibZWryqxn2ITjfYXqwvuivVYsp2bRMx0Bdis3ttBqLv7xnMgVv+xNi1ex5
+         J6Txx7I4AkBSCObK1yqs1CDUS0RNQui7cFzuj4BU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 52/61] AX.25: Prevent integer overflows in connect and sendmsg
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.4 31/54] staging: comedi: addi_apci_1564: check INSN_CONFIG_DIGITAL_TRIG shift
 Date:   Thu, 30 Jul 2020 10:05:10 +0200
-Message-Id: <20200730074423.354748671@linuxfoundation.org>
+Message-Id: <20200730074422.703208647@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200730074420.811058810@linuxfoundation.org>
-References: <20200730074420.811058810@linuxfoundation.org>
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit 17ad73e941b71f3bec7523ea4e9cbc3752461c2d ]
+commit 926234f1b8434c4409aa4c53637aa3362ca07cea upstream.
 
-We recently added some bounds checking in ax25_connect() and
-ax25_sendmsg() and we so we removed the AX25_MAX_DIGIS checks because
-they were no longer required.
+The `INSN_CONFIG` comedi instruction with sub-instruction code
+`INSN_CONFIG_DIGITAL_TRIG` includes a base channel in `data[3]`. This is
+used as a right shift amount for other bitmask values without being
+checked.  Shift amounts greater than or equal to 32 will result in
+undefined behavior.  Add code to deal with this.
 
-Unfortunately, I believe they are required to prevent integer overflows
-so I have added them back.
-
-Fixes: 8885bb0621f0 ("AX.25: Prevent out-of-bounds read in ax25_sendmsg()")
-Fixes: 2f2a7ffad5c6 ("AX.25: Fix out-of-bounds read in ax25_connect()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1e15687ea472 ("staging: comedi: addi_apci_1564: add Change-of-State interrupt subdevice and required functions")
+Cc: <stable@vger.kernel.org> #3.17+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20200717145257.112660-4-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ax25/af_ax25.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1192,6 +1192,7 @@ static int __must_check ax25_connect(str
- 	    fsa->fsa_ax25.sax25_ndigis != 0) {
- 		/* Valid number of digipeaters ? */
- 		if (fsa->fsa_ax25.sax25_ndigis < 1 ||
-+		    fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS ||
- 		    addr_len < sizeof(struct sockaddr_ax25) +
- 		    sizeof(ax25_address) * fsa->fsa_ax25.sax25_ndigis) {
- 			err = -EINVAL;
-@@ -1512,7 +1513,9 @@ static int ax25_sendmsg(struct socket *s
- 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
+---
+ drivers/staging/comedi/drivers/addi_apci_1564.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+--- a/drivers/staging/comedi/drivers/addi_apci_1564.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1564.c
+@@ -288,14 +288,22 @@ static int apci1564_cos_insn_config(stru
+ 				    unsigned int *data)
+ {
+ 	struct apci1564_private *devpriv = dev->private;
+-	unsigned int shift, oldmask;
++	unsigned int shift, oldmask, himask, lomask;
  
- 			/* Valid number of digipeaters ? */
--			if (usax->sax25_ndigis < 1 || addr_len < sizeof(struct sockaddr_ax25) +
-+			if (usax->sax25_ndigis < 1 ||
-+			    usax->sax25_ndigis > AX25_MAX_DIGIS ||
-+			    addr_len < sizeof(struct sockaddr_ax25) +
- 			    sizeof(ax25_address) * usax->sax25_ndigis) {
- 				err = -EINVAL;
- 				goto out;
+ 	switch (data[0]) {
+ 	case INSN_CONFIG_DIGITAL_TRIG:
+ 		if (data[1] != 0)
+ 			return -EINVAL;
+ 		shift = data[3];
+-		oldmask = (1U << shift) - 1;
++		if (shift < 32) {
++			oldmask = (1U << shift) - 1;
++			himask = data[4] << shift;
++			lomask = data[5] << shift;
++		} else {
++			oldmask = 0xffffffffu;
++			himask = 0;
++			lomask = 0;
++		}
+ 		switch (data[2]) {
+ 		case COMEDI_DIGITAL_TRIG_DISABLE:
+ 			devpriv->ctrl = 0;
+@@ -319,8 +327,8 @@ static int apci1564_cos_insn_config(stru
+ 				devpriv->mode2 &= oldmask;
+ 			}
+ 			/* configure specified channels */
+-			devpriv->mode1 |= data[4] << shift;
+-			devpriv->mode2 |= data[5] << shift;
++			devpriv->mode1 |= himask;
++			devpriv->mode2 |= lomask;
+ 			break;
+ 		case COMEDI_DIGITAL_TRIG_ENABLE_LEVELS:
+ 			if (devpriv->ctrl != (APCI1564_DI_IRQ_ENA |
+@@ -337,8 +345,8 @@ static int apci1564_cos_insn_config(stru
+ 				devpriv->mode2 &= oldmask;
+ 			}
+ 			/* configure specified channels */
+-			devpriv->mode1 |= data[4] << shift;
+-			devpriv->mode2 |= data[5] << shift;
++			devpriv->mode1 |= himask;
++			devpriv->mode2 |= lomask;
+ 			break;
+ 		default:
+ 			return -EINVAL;
 
 
