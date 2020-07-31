@@ -2,86 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E22AD2347A8
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 16:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72D923491B
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 18:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729220AbgGaOWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 10:22:13 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:35489 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1729184AbgGaOWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 10:22:13 -0400
-Received: (qmail 37750 invoked by uid 1000); 31 Jul 2020 10:22:12 -0400
-Date:   Fri, 31 Jul 2020 10:22:12 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul.lin@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] usb: mtu3: fix panic in mtu3_gadget_disconnect()
-Message-ID: <20200731142212.GE36650@rowland.harvard.edu>
-References: <1596177366-12029-1-git-send-email-macpaul.lin@mediatek.com>
- <1596185878-24360-1-git-send-email-macpaul.lin@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1596185878-24360-1-git-send-email-macpaul.lin@mediatek.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1731222AbgGaQVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 12:21:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49864 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730974AbgGaQVq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 31 Jul 2020 12:21:46 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 80264AC61;
+        Fri, 31 Jul 2020 16:21:58 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id D66221E12CB; Fri, 31 Jul 2020 18:21:45 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     Ted Tso <tytso@mit.edu>
+Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH] ext4: Fix checking of entry validity
+Date:   Fri, 31 Jul 2020 18:21:35 +0200
+Message-Id: <20200731162135.8080-1-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 31, 2020 at 04:57:58PM +0800, Macpaul Lin wrote:
-> This patch fixes a possible issue when mtu3_gadget_stop()
-> already assigned NULL to mtu->gadget_driver during mtu_gadget_disconnect().
+ext4_search_dir() and ext4_generic_delete_entry() can be called both for
+standard director blocks and for inline directories stored inside inode
+or inline xattr space. For the second case we didn't call
+ext4_check_dir_entry() with proper constraints that could result in
+accepting corrupted directory entry as well as false positive filesystem
+errors like:
 
-> 
-> Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> Cc: stable@vger.kernel.org
-> ---
-> Changes for v2:
->   - Check mtu_gadget_driver out of spin_lock might still not work.
->     We use a temporary pointer to keep the callback function.
-> 
->  drivers/usb/mtu3/mtu3_gadget.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
-> index 68ea4395f871..40cb6626f496 100644
-> --- a/drivers/usb/mtu3/mtu3_gadget.c
-> +++ b/drivers/usb/mtu3/mtu3_gadget.c
-> @@ -840,10 +840,17 @@ void mtu3_gadget_suspend(struct mtu3 *mtu)
->  /* called when VBUS drops below session threshold, and in other cases */
->  void mtu3_gadget_disconnect(struct mtu3 *mtu)
->  {
-> +	struct usb_gadget_driver *driver;
-> +
->  	dev_dbg(mtu->dev, "gadget DISCONNECT\n");
->  	if (mtu->gadget_driver && mtu->gadget_driver->disconnect) {
-> +		driver = mtu->gadget_driver;
->  		spin_unlock(&mtu->lock);
-> -		mtu->gadget_driver->disconnect(&mtu->g);
-> +		/*
-> +		 * avoid kernel panic because mtu3_gadget_stop() assigned NULL
-> +		 * to mtu->gadget_driver.
-> +		 */
-> +		driver->disconnect(&mtu->g);
->  		spin_lock(&mtu->lock);
->  	}
+EXT4-fs error (device dm-0): ext4_search_dir:1395: inode #28320400:
+block 113246792: comm dockerd: bad entry in directory: directory entry too
+close to block end - offset=0, inode=28320403, rec_len=32, name_len=8,
+size=4096
 
-This is not the right approach; it might race with the gadget driver 
-unregistering itself.
+Fix the arguments passed to ext4_check_dir_entry().
 
-Instead, mtu3_gadget_stop() should call synchronize_irq() after 
-releasing the IRQ line.  When synchronize_irq() returns, you'll know any 
-IRQ handlers have finished running, so you won't receive any more 
-disconnect notifications.  Then it will be safe to acquire the spinlock 
-and set mtu->gadget_driver to NULL.
+Fixes: 109ba779d6cc ("ext4: check for directory entries too close to block end")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/ext4/namei.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Alan Stern
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 56738b538ddf..98b91f2314eb 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1396,8 +1396,8 @@ int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
+ 		    ext4_match(dir, fname, de)) {
+ 			/* found a match - just to be sure, do
+ 			 * a full check */
+-			if (ext4_check_dir_entry(dir, NULL, de, bh, bh->b_data,
+-						 bh->b_size, offset))
++			if (ext4_check_dir_entry(dir, NULL, de, bh, search_buf,
++						 buf_size, offset))
+ 				return -1;
+ 			*res_dir = de;
+ 			return 1;
+@@ -2472,7 +2472,7 @@ int ext4_generic_delete_entry(handle_t *handle,
+ 	de = (struct ext4_dir_entry_2 *)entry_buf;
+ 	while (i < buf_size - csum_size) {
+ 		if (ext4_check_dir_entry(dir, NULL, de, bh,
+-					 bh->b_data, bh->b_size, i))
++					 entry_buf, buf_size, i))
+ 			return -EFSCORRUPTED;
+ 		if (de == de_del)  {
+ 			if (pde)
+-- 
+2.16.4
+
