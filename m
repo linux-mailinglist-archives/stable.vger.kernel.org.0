@@ -2,181 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B8323458E
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 14:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 851592345F7
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 14:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732916AbgGaMPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 08:15:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58278 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732863AbgGaMPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 08:15:44 -0400
-Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32543C061575
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 05:15:44 -0700 (PDT)
-Received: by mail-vs1-xe41.google.com with SMTP id n25so1944915vsq.6
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 05:15:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1gowMH0CRwwMnTHOVHU5jY/2lEG6qeP7P342f23hLe8=;
-        b=Uy3fPRUd0/4F2GahA2w1QyYu+RiazzcsITzsOpRGCrz//KczrF1IFtYoww4zguNEI6
-         ndyjHmV+yXgrT69dIDVKbiqx/hvpAKv1JUMz3M2lzgtl3DG2OHP6ZS7nWEEQcWqO9JQj
-         XsfrMjTS0xZYOeXT8QcCBJC0N6io339/+cdmOyUfARxXVyW8vuPInnkcX0TX73rVSzju
-         jI2nZVD/os+rJjrz+tnuuEUqTZY53UOXszbavlZ+dpPNJPZLJhreW+oMYVxYALvWJPWn
-         bwwTeQKpDwBYy57drWjXNVF+Tb/p7FS5/QDPxdSGFbolZ+l1flT79HfryLOHhLxICPEz
-         6bTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1gowMH0CRwwMnTHOVHU5jY/2lEG6qeP7P342f23hLe8=;
-        b=F7CrmhERCCgWiRa1k//AgmCXXVv40da3FZsLF1LCJkOkk0iVXQsQWNAr9DW9uNptco
-         E3/hWXZULpeLBpXbOYLcxs/qbwWmUigWLmty9Nyo8A7QdcBGCtO5D+iUFYCltQ5O6p9C
-         DyhrZNztaz/YgzrCIEi739hPbqP3kmr7aPkwD5gvwTdpsr0xEPPyhCELSRGQmU2ZBRTd
-         VfYhJ6VD0YUyycNHkWf4w4LHXX1Xy/JZuG9RuLWB85vw3moEqrE0SF6oUrsPvLUM/MLF
-         TyVcczufRstDUCLFhm4sevN46MQZWeHDypJH5zQbRU7nzbmyAuCYVUWlVrwgH26LTe/x
-         zYgA==
-X-Gm-Message-State: AOAM5308HQ8WagAW3JTSESdI1K+BU1mpxbkJnKZR1LdwhqkGuXfnib1s
-        8+3e1vh23mcAMUPQZ9v5gqKUlB1EMM9lQMueVLA0jg==
-X-Google-Smtp-Source: ABdhPJwqa3AabQ8T7tGM5gvXPn/waAtUx7Bx6tpvelDIEjRtH3c5BSOGnIJ7IJCjmtRRgG9WBTERlbBA78mRy1LKeEs=
-X-Received: by 2002:a67:e412:: with SMTP id d18mr2862509vsf.41.1596197743258;
- Fri, 31 Jul 2020 05:15:43 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200730074418.882736401@linuxfoundation.org>
-In-Reply-To: <20200730074418.882736401@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 31 Jul 2020 17:45:31 +0530
-Message-ID: <CA+G9fYvKSWvopcjec-+eczak44XUsKf3Qb00uMOE9-iFfq_xVw@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/14] 4.14.191-rc1 review
+        id S1733222AbgGaMlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 08:41:10 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:1800 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733216AbgGaMlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 08:41:10 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f2411080000>; Fri, 31 Jul 2020 05:39:36 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Fri, 31 Jul 2020 05:41:10 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Fri, 31 Jul 2020 05:41:10 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 31 Jul
+ 2020 12:41:09 +0000
+Received: from [127.0.1.1] (10.124.1.5) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Fri, 31 Jul 2020 12:41:07 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/54] 4.4.232-rc1 review
+In-Reply-To: <20200730074421.203879987@linuxfoundation.org>
+References: <20200730074421.203879987@linuxfoundation.org>
+X-NVConfidentiality: public
+MIME-Version: 1.0
+Message-ID: <b72691657bdd46d49bee8ae26e4515af@HQMAIL101.nvidia.com>
+Date:   Fri, 31 Jul 2020 12:41:07 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1596199176; bh=9rjwq6uZ0CnxHnTuOG7z5ffik/6OXkY8z0IS7PSDi4o=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=B/9AMRxZo4dvRiFbagOdr0JSlVAp81JUFTqjL12D9gZcmkS2PenICmF8AE4UIiaTy
+         ShwCRO4bqakEwGOgaccNQQ0wJneLHnH5JOw+VofuqbTJlF38VKmVSsLH0FYMGlsNfz
+         O+BTmUmY5+pjNp8yyiVOHxoYRajowSJD/JnvJlx8+ruiVgVOIxoLtEjsd6Z7OGImKI
+         NoAs+ijiMinu5W58Fk+ueGpnI2TDE9Wtx5VVyeqIp7eavboEIspAfmSt4xfjmd1O8j
+         uIWUmXWqkZgPLN535cM4l+zSoIbaP9zcNye8Sv9mxq7U1DizwgTktpmHuzUauF77QO
+         XxvsxxXNXUQig==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 30 Jul 2020 at 13:38, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.191 release.
-> There are 14 patches in this series, all will be posted as a response
+On Thu, 30 Jul 2020 10:04:39 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.232 release.
+> There are 54 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Sat, 01 Aug 2020 07:44:05 +0000.
 > Anything received after that time might be too late.
->
+> 
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.191-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.232-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
 > and the diffstat can be found below.
->
+> 
 > thanks,
->
+> 
 > greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+All tests passing for Tegra ...
 
-Summary
-------------------------------------------------------------------------
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    25 tests:	25 pass, 0 fail
 
-kernel: 4.14.191-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: f743b8ea46fbaa440f9ccf7a4da9fa4a874941b0
-git describe: v4.14.190-15-gf743b8ea46fb
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.190-15-gf743b8ea46fb
+Linux version:	4.4.232-rc1-g0ee6ef294be6
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-No regressions (compared to build v4.14.189-80-gf743b8ea46fb)
-
-No fixes (compared to build v4.14.189-80-gf743b8ea46fb)
-
-Ran 34716 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-dio-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-mm-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Jon
