@@ -2,127 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F254234CA3
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 23:03:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8A1234CD6
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 23:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727975AbgGaVDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 17:03:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54736 "EHLO
+        id S1727053AbgGaVUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 17:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726884AbgGaVDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 17:03:18 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1AF8C061574
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 14:03:17 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id 7so37326208ybl.5
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 14:03:17 -0700 (PDT)
+        with ESMTP id S1726571AbgGaVUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 17:20:13 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065F9C061574;
+        Fri, 31 Jul 2020 14:20:12 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id b186so4788421pfb.9;
+        Fri, 31 Jul 2020 14:20:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=1Eh/wQ40rCPdQV1JiRjjRBdPYnmIc11YaQZLvEs3Mp4=;
-        b=cmTvj0LlS+aFzUyt0QVz9Ncl3mqAEGvH9mSk504JWN1Ll5T/mhAgV/roaOA/a/OXZm
-         bEdsYGpawU0pSmNKfbhRtB5raLR02o92TdhxC2BiGnCYqtqwx89daFGBrx/1x+Dy7hZ8
-         DVF7i4LoPe+roqVbY0Tl7sD+QjjM4Kq18kzT0rql5a20dcwujYMxzixAITKvZm6KZHDZ
-         Fco1fXT4gJ2yloEdndM/ZBGQ/bFYahKem4BhWaUK/EB5/E3fsD3l+SrIM45iSTZlcGHe
-         OHk+DMRQAakBFFLhzMA1FTiSX4TWQ8n460xngf6JhPfDk+bzfoOeITaGNiNLhNtB1qL9
-         FOXw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2m8bxGCf+gpIPT9ul2HDHjNGeJCBm38FKDdWisVHgKI=;
+        b=l5Earp68wcfJil4yyIni/DwT8pjkau0mElKuIw8rHR0DoIEBDXb06cnyTb0Yb3BvYT
+         hJIU6w3yGx2SgUYizL0sTaUDvbKcMfARYDIOimjJYGFS+Zwhi1eyM/MDSXLBL2X72vDK
+         ZyNxE+Y42Bk0LGLGn/xTDoUyYy5wR9QC0FlqAjB2616RnUNRjTs4wPQ5E+xxu4JtFLvE
+         m9/Ut3Pt5UZK5dfxk3vDLrYLqYMhInXbpxHYrGiapI2MVPeOgh2r5oYQ4B0VC1/8ZHHv
+         8t2jf6pTfIQKeDirT41isCr+pTNamOnKVQJmbVL7roOaXTeUcJKEqLQe3Syo5REPj50Q
+         Pw1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=1Eh/wQ40rCPdQV1JiRjjRBdPYnmIc11YaQZLvEs3Mp4=;
-        b=ledokFcvocGmrOOoEwtR3PCbfllv5S3TrvXJTEvo3XbF9cKUgnHUSKobLCY9faZ5ey
-         8FS1bI1Rl6hHNRKNbjtWhElwVUALModbhV9Ncf1RlALITYxwRSwwDsC70ixbkxmTKREs
-         sU3aaHXmPFJYG9O4jNiT9rcYVDlXmEgGn6jd/rjW4JNb8wJjcKK0p7ra+rCsZYM4pm0a
-         tnc0IeWADz+CaremtBm4EAOcKN9wN3w/L2IZRpAW/zqJZeAay7G6Wqa3AfOL/LlpWwAa
-         r5TWj7ID7Y42tcUeicshQ4myMPgFPJW5eMPRxi/ewvHY4JDaeAKhqg9p1qmtrO9vXrAz
-         DlLQ==
-X-Gm-Message-State: AOAM530qxGPyvmCMyL1GCL6zvBFyoiaYYtitL+F5kAcsRw7brY3iCvPx
-        S9aK7Mh46M7PjvKeXJt6yUchwJKpebkJ2plQ4hSNVymfgR2C933NgEmHrDWJTAW+RXb5jFBiHgq
-        ZGiOPQVltb6id2S4oCFVbogRwvIA/YweJ1TkbAZ132Of9vvsozW1IuFVfoSw9Mi40EmvH2u5DGL
-        NJQw==
-X-Google-Smtp-Source: ABdhPJydE0qiSLfe0EytQpTa/RBJXtPsf3bHadz0qIJPsnGFOVHso/rVidbE19oah1KnUICw4W7pngE4F05U0YIHjdY=
-X-Received: by 2002:a25:40c8:: with SMTP id n191mr8739974yba.436.1596229397059;
- Fri, 31 Jul 2020 14:03:17 -0700 (PDT)
-Date:   Fri, 31 Jul 2020 14:03:08 -0700
-Message-Id: <20200731210308.3823395-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
-Subject: [PATCH 4.14] wireless: Use offsetof instead of custom macro.
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     stable@vger.kernel.org
-Cc:     Pi-Hsun Shih <pihsun@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2m8bxGCf+gpIPT9ul2HDHjNGeJCBm38FKDdWisVHgKI=;
+        b=bNJO5jbRXF0HJ+6yg2TTEsiwkA9KePz+11Z/FwNLUGDejYNxUuED95KZ7ot6Duxl7P
+         YETo0a0BIsrgLNN7CRbXF1FpgWMRWZCw0qDOEVBg+lC5lzAwmGhmHLZHEFY/kBfhmtva
+         GCSLiRLMi57yRdix5ousuwmK+D3ellKVNMg7ZvK/YofiqwdIBCRCpcWhciPn+ISrf2DT
+         9UJXDVYzAl/cBss3y/IytZWQ6P5UcqV9kOjBkOqKopIIjZ1fnRegS7wIJl0C+2/OKawh
+         w+qWMUaycqxDRbAaKqZbFN0acpBEeYD1UtmRjSFX5Tp71qkhKT4kVNxuM+UcBjj7l9T2
+         eyWw==
+X-Gm-Message-State: AOAM530cljwv7zl4MwJ5pwzcPqkAzsZOppWelublxq4LMbQj44SXFWrO
+        s3jLMpfu8DA2lA1DTuyZKB4=
+X-Google-Smtp-Source: ABdhPJztbF7d7FxQwrIjj1SdW8MB0sElEnBNafOSNFVht7V8dcXYE8tZmv6k/D4EYLNo49zSBAnGHQ==
+X-Received: by 2002:a62:1ccb:: with SMTP id c194mr5377357pfc.277.1596230411764;
+        Fri, 31 Jul 2020 14:20:11 -0700 (PDT)
+Received: from octofox.cadence.com ([2601:641:400:e00:19b7:f650:7bbe:a7fb])
+        by smtp.gmail.com with ESMTPSA id s22sm5687449pfh.16.2020.07.31.14.20.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Jul 2020 14:20:11 -0700 (PDT)
+From:   Max Filippov <jcmvbkbc@gmail.com>
+To:     linux-xtensa@linux-xtensa.org
+Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
+        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] xtensa: fix xtensa_pmu_setup prototype
+Date:   Fri, 31 Jul 2020 14:19:52 -0700
+Message-Id: <20200731211952.26802-1-jcmvbkbc@gmail.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pi-Hsun Shih <pihsun@chromium.org>
+Fix the following build error in configurations with
+CONFIG_XTENSA_VARIANT_HAVE_PERF_EVENTS=y:
 
-commit 6989310f5d4327e8595664954edd40a7f99ddd0d upstream.
+  arch/xtensa/kernel/perf_event.c:420:29: error: passing argument 3 of
+  ‘cpuhp_setup_state’ from incompatible pointer type
 
-Use offsetof to calculate offset of a field to take advantage of
-compiler built-in version when possible, and avoid UBSAN warning when
-compiling with Clang:
-
-==================================================================
-UBSAN: Undefined behaviour in net/wireless/wext-core.c:525:14
-member access within null pointer of type 'struct iw_point'
-CPU: 3 PID: 165 Comm: kworker/u16:3 Tainted: G S      W         4.19.23 #43
-Workqueue: cfg80211 __cfg80211_scan_done [cfg80211]
-Call trace:
- dump_backtrace+0x0/0x194
- show_stack+0x20/0x2c
- __dump_stack+0x20/0x28
- dump_stack+0x70/0x94
- ubsan_epilogue+0x14/0x44
- ubsan_type_mismatch_common+0xf4/0xfc
- __ubsan_handle_type_mismatch_v1+0x34/0x54
- wireless_send_event+0x3cc/0x470
- ___cfg80211_scan_done+0x13c/0x220 [cfg80211]
- __cfg80211_scan_done+0x28/0x34 [cfg80211]
- process_one_work+0x170/0x35c
- worker_thread+0x254/0x380
- kthread+0x13c/0x158
- ret_from_fork+0x10/0x18
-===================================================================
-
-Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20191204081307.138765-1-pihsun@chromium.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+Fixes: 25a77b55e74c ("xtensa/perf: Convert the hotplug notifier to state machine callbacks")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 ---
-Fix landed in v5.7-rc1. Thanks to James Hsu of MediaTek for the report.
+ arch/xtensa/kernel/perf_event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- include/uapi/linux/wireless.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/include/uapi/linux/wireless.h b/include/uapi/linux/wireless.h
-index 86eca3208b6b..a2c006a364e0 100644
---- a/include/uapi/linux/wireless.h
-+++ b/include/uapi/linux/wireless.h
-@@ -74,6 +74,8 @@
- #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
- #include <linux/if.h>			/* for IFNAMSIZ and co... */
+diff --git a/arch/xtensa/kernel/perf_event.c b/arch/xtensa/kernel/perf_event.c
+index 99fcd63ce597..a0d05c8598d0 100644
+--- a/arch/xtensa/kernel/perf_event.c
++++ b/arch/xtensa/kernel/perf_event.c
+@@ -399,7 +399,7 @@ static struct pmu xtensa_pmu = {
+ 	.read = xtensa_pmu_read,
+ };
  
-+#include <stddef.h>                     /* for offsetof */
-+
- /***************************** VERSION *****************************/
- /*
-  * This constant is used to know the availability of the wireless
-@@ -1090,8 +1092,7 @@ struct iw_event {
- /* iw_point events are special. First, the payload (extra data) come at
-  * the end of the event, so they are bigger than IW_EV_POINT_LEN. Second,
-  * we omit the pointer, so start at an offset. */
--#define IW_EV_POINT_OFF (((char *) &(((struct iw_point *) NULL)->length)) - \
--			  (char *) NULL)
-+#define IW_EV_POINT_OFF offsetof(struct iw_point, length)
- #define IW_EV_POINT_LEN	(IW_EV_LCP_LEN + sizeof(struct iw_point) - \
- 			 IW_EV_POINT_OFF)
+-static int xtensa_pmu_setup(int cpu)
++static int xtensa_pmu_setup(unsigned int cpu)
+ {
+ 	unsigned i;
  
 -- 
-2.28.0.163.g6104cc2f0b6-goog
+2.20.1
 
