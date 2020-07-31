@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFDD234CA2
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 23:03:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F254234CA3
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 23:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727964AbgGaVDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 17:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54700 "EHLO
+        id S1727975AbgGaVDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 17:03:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726884AbgGaVDF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 17:03:05 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A3DC061574
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 14:03:04 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id a14so30473631ybm.13
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 14:03:04 -0700 (PDT)
+        with ESMTP id S1726884AbgGaVDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 17:03:18 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1AF8C061574
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 14:03:17 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id 7so37326208ybl.5
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 14:03:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:message-id:mime-version:subject:from:to:cc;
         bh=1Eh/wQ40rCPdQV1JiRjjRBdPYnmIc11YaQZLvEs3Mp4=;
-        b=OYixH7JdGmTUIvuymI6eEmbudvjglQTb8eU++fXyFYvmFGyTMWsHGf68RwqWjQwjDi
-         bH5BlLXK88fQI/foBGa6Uttv5zmHlrCw0e3Omym+1dHOM2jJbv9/wx/fBeu88SCHnRNt
-         8pk8fdPdQLus+g9MMjU9+M4WnmFXuOhT2vRIff9kqrzO1FUg2TRXbCA67y8Os9tP6d4j
-         U9nTKPf82HQJEADqi81cAtsxIlJJIz/TdHocstUQLl0Efl7rIp6M3NFBJUsZcai90t8c
-         4CAQyRQs9LgcdRsLoofjsp6weXibVf/r1kcmyOKGD7pFuBKvp5jFDo4qe5/3zOihjfir
-         bTyg==
+        b=cmTvj0LlS+aFzUyt0QVz9Ncl3mqAEGvH9mSk504JWN1Ll5T/mhAgV/roaOA/a/OXZm
+         bEdsYGpawU0pSmNKfbhRtB5raLR02o92TdhxC2BiGnCYqtqwx89daFGBrx/1x+Dy7hZ8
+         DVF7i4LoPe+roqVbY0Tl7sD+QjjM4Kq18kzT0rql5a20dcwujYMxzixAITKvZm6KZHDZ
+         Fco1fXT4gJ2yloEdndM/ZBGQ/bFYahKem4BhWaUK/EB5/E3fsD3l+SrIM45iSTZlcGHe
+         OHk+DMRQAakBFFLhzMA1FTiSX4TWQ8n460xngf6JhPfDk+bzfoOeITaGNiNLhNtB1qL9
+         FOXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
         bh=1Eh/wQ40rCPdQV1JiRjjRBdPYnmIc11YaQZLvEs3Mp4=;
-        b=mKL3KalOlyy6KxV6nzEqkM9Bf750EKGdODBRCPg+JW2gFuwsXB/xXGezLxfWfY7PPe
-         1cfVNpwyeaxjyWnSep+Lvn4KJujPGUdnt96SJL8fdhMSrShB6A5fIUbqkwh9+n9s4yVD
-         Ev8qWoH4QVUIcH1hjhtPxLyU6CtFmtMICuEudEFYEpyro4wAsPT4+uaOsVwdYJ5Eyt/3
-         NaSHLddbVF+3rkGSooKrh/KttRM8cCLzXhgUiVqrseLIXMCNvkI7qkC915Df4R5CPsF2
-         Xbvd/MVz7gA8pyut4NxJ4V30DkgRkwaIStVt83emyrHpSVld4lsk73znS6if30WFkhzQ
-         lF2Q==
-X-Gm-Message-State: AOAM531XWXj3wj+/m5obTpAkntNba5t4ZcBK7osOGRiYU44iOrZOM0t1
-        fqFHUJlpG2oiybZ/0PxKhjuZ0tmHRhXvSCrwlxJD72ycRJrASkgVsH7oS+nLaYzPHgPYFaKB3T9
-        mUo8Ii4SFaEy3+BDXzeR4wx5IXpBqLmFRZEmvwi70pjFxI9Na9lvrOcYKIyPdi5X9x2muUXAsh+
-        EAPw==
-X-Google-Smtp-Source: ABdhPJyhaSUCxrybIPsH/F5/XWW7eiTiutPvXFcY4IMbCe0+9wf/6fPdBQ/2hzE+UvsdX+ngHyaqnlyqcGDxZgLTtSA=
-X-Received: by 2002:a25:a308:: with SMTP id d8mr9226993ybi.60.1596229382568;
- Fri, 31 Jul 2020 14:03:02 -0700 (PDT)
-Date:   Fri, 31 Jul 2020 14:02:55 -0700
-Message-Id: <20200731210255.3821452-1-ndesaulniers@google.com>
+        b=ledokFcvocGmrOOoEwtR3PCbfllv5S3TrvXJTEvo3XbF9cKUgnHUSKobLCY9faZ5ey
+         8FS1bI1Rl6hHNRKNbjtWhElwVUALModbhV9Ncf1RlALITYxwRSwwDsC70ixbkxmTKREs
+         sU3aaHXmPFJYG9O4jNiT9rcYVDlXmEgGn6jd/rjW4JNb8wJjcKK0p7ra+rCsZYM4pm0a
+         tnc0IeWADz+CaremtBm4EAOcKN9wN3w/L2IZRpAW/zqJZeAay7G6Wqa3AfOL/LlpWwAa
+         r5TWj7ID7Y42tcUeicshQ4myMPgFPJW5eMPRxi/ewvHY4JDaeAKhqg9p1qmtrO9vXrAz
+         DlLQ==
+X-Gm-Message-State: AOAM530qxGPyvmCMyL1GCL6zvBFyoiaYYtitL+F5kAcsRw7brY3iCvPx
+        S9aK7Mh46M7PjvKeXJt6yUchwJKpebkJ2plQ4hSNVymfgR2C933NgEmHrDWJTAW+RXb5jFBiHgq
+        ZGiOPQVltb6id2S4oCFVbogRwvIA/YweJ1TkbAZ132Of9vvsozW1IuFVfoSw9Mi40EmvH2u5DGL
+        NJQw==
+X-Google-Smtp-Source: ABdhPJydE0qiSLfe0EytQpTa/RBJXtPsf3bHadz0qIJPsnGFOVHso/rVidbE19oah1KnUICw4W7pngE4F05U0YIHjdY=
+X-Received: by 2002:a25:40c8:: with SMTP id n191mr8739974yba.436.1596229397059;
+ Fri, 31 Jul 2020 14:03:17 -0700 (PDT)
+Date:   Fri, 31 Jul 2020 14:03:08 -0700
+Message-Id: <20200731210308.3823395-1-ndesaulniers@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
-Subject: [PATCH 4.19] wireless: Use offsetof instead of custom macro.
+Subject: [PATCH 4.14] wireless: Use offsetof instead of custom macro.
 From:   Nick Desaulniers <ndesaulniers@google.com>
 To:     stable@vger.kernel.org
 Cc:     Pi-Hsun Shih <pihsun@chromium.org>,
