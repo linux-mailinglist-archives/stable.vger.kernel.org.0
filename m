@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9717234A1B
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 19:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5294D234A0D
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 19:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387502AbgGaRQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 13:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34628 "EHLO mail.kernel.org"
+        id S2387593AbgGaRQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 13:16:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732953AbgGaRQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jul 2020 13:16:24 -0400
+        id S2387574AbgGaRQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 31 Jul 2020 13:16:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A751322B42;
-        Fri, 31 Jul 2020 17:16:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A89AD2074B;
+        Fri, 31 Jul 2020 17:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596215784;
-        bh=ro3lGatHfSU2aYnzZOQu9dDVJyaAfG9ef1xU8u45zk4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MkvULP5f/ix/CmFY5IXZUsUV8KvFFIL3Pa/mYovkvSn/WXs3xrn2zWBVJH4L2Tf3t
-         98pt0jHIWxSUimqPfamd1wPu9xvbEW8azWAn+VsYknH/N3FeATRQoOuTI+3g3peIY5
-         qX0unQQPu7eI5gUxSpKYN3WqUfy5jHWMRh0yr/Yc=
+        s=default; t=1596215789;
+        bh=QGsxXqjrDcluPMT0UVLTE4KUMVd+Yf10w8o4QaDWMkA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BTwenWZBuJcIZKNL7Eryruez61eqD6gSe7hglLNi8WkwtoS4LOgFOtBozseb5BRee
+         lrKfQBYdFoN1hc1wUcDgOqLDQNpwXPiio6DN0bNkb2gyNmDAGVzWgX4QfRuLqlwOAy
+         8wI9oIDcPgh7no+Ai/yNqWw+Y+QOQLMDAjum7i/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.14.191
-Date:   Fri, 31 Jul 2020 19:16:06 +0200
-Message-Id: <159621576612204@kroah.com>
+Subject: Re: Linux 4.14.191
+Date:   Fri, 31 Jul 2020 19:16:07 +0200
+Message-Id: <1596215766161214@kroah.com>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <159621576612204@kroah.com>
+References: <159621576612204@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -39,80 +41,388 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.14.191 kernel.
-
-All users of the 4.14 kernel series must upgrade.
-
-The updated 4.14.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                             |    2 +-
- drivers/base/regmap/regmap-debugfs.c |    6 ++++++
- drivers/net/wan/x25_asy.c            |   21 ++++++++++++++-------
- fs/xfs/libxfs/xfs_bmap.c             |    4 ++++
- include/linux/tcp.h                  |    4 +++-
- mm/page_owner.c                      |    1 -
- net/ax25/af_ax25.c                   |   10 ++++++++--
- net/core/dev.c                       |    2 +-
- net/core/net-sysfs.c                 |    2 +-
- net/core/rtnetlink.c                 |    3 ++-
- net/ipv4/tcp_input.c                 |   11 ++++++-----
- net/ipv4/tcp_output.c                |   13 ++++++++-----
- net/ipv4/udp.c                       |    2 +-
- net/ipv6/ip6_gre.c                   |   11 ++++++-----
- net/ipv6/udp.c                       |    2 +-
- net/rxrpc/recvmsg.c                  |    2 +-
- net/rxrpc/sendmsg.c                  |    2 +-
- 17 files changed, 64 insertions(+), 34 deletions(-)
-
-Dan Carpenter (1):
-      AX.25: Prevent integer overflows in connect and sendmsg
-
-David Howells (1):
-      rxrpc: Fix sendmsg() returning EPIPE due to recvmsg() returning ENODATA
-
-Eric Sandeen (1):
-      xfs: set format back to extents if xfs_bmap_extents_to_btree
-
-Greg Kroah-Hartman (1):
-      Linux 4.14.191
-
-Miaohe Lin (1):
-      net: udp: Fix wrong clean up for IS_UDPLITE macro
-
-Oscar Salvador (1):
-      mm/page_owner.c: remove drain_all_pages from init_early_allocated_pages
-
-Peilin Ye (2):
-      AX.25: Fix out-of-bounds read in ax25_connect()
-      AX.25: Prevent out-of-bounds read in ax25_sendmsg()
-
-Peng Fan (1):
-      regmap: debugfs: check count when read regmap file
-
-Subash Abhinov Kasiviswanathan (1):
-      dev: Defer free of skbs in flush_backlog
-
-Wei Yongjun (1):
-      ip6_gre: fix null-ptr-deref in ip6gre_init_net()
-
-Weilong Chen (1):
-      rtnetlink: Fix memory(net_device) leak when ->newlink fails
-
-Xie He (1):
-      drivers/net/wan/x25_asy: Fix to make it work
-
-Xiongfeng Wang (1):
-      net-sysfs: add a newline when printing 'tx_timeout' by sysfs
-
-Yuchung Cheng (1):
-      tcp: allow at most one TLP probe per flight
-
+diff --git a/Makefile b/Makefile
+index 4e5f6615fd98..e31c1ce12895 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 14
+-SUBLEVEL = 190
++SUBLEVEL = 191
+ EXTRAVERSION =
+ NAME = Petit Gorille
+ 
+diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
+index 36ce3511c733..7d0c83b47259 100644
+--- a/drivers/base/regmap/regmap-debugfs.c
++++ b/drivers/base/regmap/regmap-debugfs.c
+@@ -204,6 +204,9 @@ static ssize_t regmap_read_debugfs(struct regmap *map, unsigned int from,
+ 	if (*ppos < 0 || !count)
+ 		return -EINVAL;
+ 
++	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
++		count = PAGE_SIZE << (MAX_ORDER - 1);
++
+ 	buf = kmalloc(count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+@@ -352,6 +355,9 @@ static ssize_t regmap_reg_ranges_read_file(struct file *file,
+ 	if (*ppos < 0 || !count)
+ 		return -EINVAL;
+ 
++	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
++		count = PAGE_SIZE << (MAX_ORDER - 1);
++
+ 	buf = kmalloc(count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+diff --git a/drivers/net/wan/x25_asy.c b/drivers/net/wan/x25_asy.c
+index 3eaefecd4448..229cab00c4b0 100644
+--- a/drivers/net/wan/x25_asy.c
++++ b/drivers/net/wan/x25_asy.c
+@@ -183,7 +183,7 @@ static inline void x25_asy_unlock(struct x25_asy *sl)
+ 	netif_wake_queue(sl->dev);
+ }
+ 
+-/* Send one completely decapsulated IP datagram to the IP layer. */
++/* Send an LAPB frame to the LAPB module to process. */
+ 
+ static void x25_asy_bump(struct x25_asy *sl)
+ {
+@@ -195,13 +195,12 @@ static void x25_asy_bump(struct x25_asy *sl)
+ 	count = sl->rcount;
+ 	dev->stats.rx_bytes += count;
+ 
+-	skb = dev_alloc_skb(count+1);
++	skb = dev_alloc_skb(count);
+ 	if (skb == NULL) {
+ 		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
+ 		dev->stats.rx_dropped++;
+ 		return;
+ 	}
+-	skb_push(skb, 1);	/* LAPB internal control */
+ 	skb_put_data(skb, sl->rbuff, count);
+ 	skb->protocol = x25_type_trans(skb, sl->dev);
+ 	err = lapb_data_received(skb->dev, skb);
+@@ -209,7 +208,6 @@ static void x25_asy_bump(struct x25_asy *sl)
+ 		kfree_skb(skb);
+ 		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
+ 	} else {
+-		netif_rx(skb);
+ 		dev->stats.rx_packets++;
+ 	}
+ }
+@@ -355,12 +353,21 @@ static netdev_tx_t x25_asy_xmit(struct sk_buff *skb,
+  */
+ 
+ /*
+- *	Called when I frame data arrives. We did the work above - throw it
+- *	at the net layer.
++ *	Called when I frame data arrive. We add a pseudo header for upper
++ *	layers and pass it to upper layers.
+  */
+ 
+ static int x25_asy_data_indication(struct net_device *dev, struct sk_buff *skb)
+ {
++	if (skb_cow(skb, 1)) {
++		kfree_skb(skb);
++		return NET_RX_DROP;
++	}
++	skb_push(skb, 1);
++	skb->data[0] = X25_IFACE_DATA;
++
++	skb->protocol = x25_type_trans(skb, dev);
++
+ 	return netif_rx(skb);
+ }
+ 
+@@ -656,7 +663,7 @@ static void x25_asy_unesc(struct x25_asy *sl, unsigned char s)
+ 	switch (s) {
+ 	case X25_END:
+ 		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
+-		    sl->rcount > 2)
++		    sl->rcount >= 2)
+ 			x25_asy_bump(sl);
+ 		clear_bit(SLF_ESCAPE, &sl->flags);
+ 		sl->rcount = 0;
+diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+index 84245d210182..2b07dadc5916 100644
+--- a/fs/xfs/libxfs/xfs_bmap.c
++++ b/fs/xfs/libxfs/xfs_bmap.c
+@@ -761,12 +761,16 @@ xfs_bmap_extents_to_btree(
+ 	*logflagsp = 0;
+ 	if ((error = xfs_alloc_vextent(&args))) {
+ 		xfs_iroot_realloc(ip, -1, whichfork);
++		ASSERT(ifp->if_broot == NULL);
++		XFS_IFORK_FMT_SET(ip, whichfork, XFS_DINODE_FMT_EXTENTS);
+ 		xfs_btree_del_cursor(cur, XFS_BTREE_ERROR);
+ 		return error;
+ 	}
+ 
+ 	if (WARN_ON_ONCE(args.fsbno == NULLFSBLOCK)) {
+ 		xfs_iroot_realloc(ip, -1, whichfork);
++		ASSERT(ifp->if_broot == NULL);
++		XFS_IFORK_FMT_SET(ip, whichfork, XFS_DINODE_FMT_EXTENTS);
+ 		xfs_btree_del_cursor(cur, XFS_BTREE_ERROR);
+ 		return -ENOSPC;
+ 	}
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 60aea230dc6a..61eb40fef759 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -209,6 +209,8 @@ struct tcp_sock {
+ 		u8 reord;    /* reordering detected */
+ 	} rack;
+ 	u16	advmss;		/* Advertised MSS			*/
++	u8	tlp_retrans:1,	/* TLP is a retransmission */
++		unused_1:7;
+ 	u32	chrono_start;	/* Start time in jiffies of a TCP chrono */
+ 	u32	chrono_stat[3];	/* Time in jiffies for chrono_stat stats */
+ 	u8	chrono_type:2,	/* current chronograph type */
+@@ -229,7 +231,7 @@ struct tcp_sock {
+ 		syn_data_acked:1,/* data in SYN is acked by SYN-ACK */
+ 		save_syn:1,	/* Save headers of SYN packet */
+ 		is_cwnd_limited:1;/* forward progress limited by snd_cwnd? */
+-	u32	tlp_high_seq;	/* snd_nxt at the time of TLP retransmit. */
++	u32	tlp_high_seq;	/* snd_nxt at the time of TLP */
+ 
+ /* RTT measurement */
+ 	u64	tcp_mstamp;	/* most recent packet received/sent */
+diff --git a/mm/page_owner.c b/mm/page_owner.c
+index 6ac05a6ff2d1..4753b317ef7b 100644
+--- a/mm/page_owner.c
++++ b/mm/page_owner.c
+@@ -617,7 +617,6 @@ static void init_early_allocated_pages(void)
+ {
+ 	pg_data_t *pgdat;
+ 
+-	drain_all_pages(NULL);
+ 	for_each_online_pgdat(pgdat)
+ 		init_zones_in_node(pgdat);
+ }
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 89d074ce10fc..6915eebc7a4a 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1191,7 +1191,10 @@ static int __must_check ax25_connect(struct socket *sock,
+ 	if (addr_len > sizeof(struct sockaddr_ax25) &&
+ 	    fsa->fsa_ax25.sax25_ndigis != 0) {
+ 		/* Valid number of digipeaters ? */
+-		if (fsa->fsa_ax25.sax25_ndigis < 1 || fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS) {
++		if (fsa->fsa_ax25.sax25_ndigis < 1 ||
++		    fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS ||
++		    addr_len < sizeof(struct sockaddr_ax25) +
++		    sizeof(ax25_address) * fsa->fsa_ax25.sax25_ndigis) {
+ 			err = -EINVAL;
+ 			goto out_release;
+ 		}
+@@ -1511,7 +1514,10 @@ static int ax25_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
+ 
+ 			/* Valid number of digipeaters ? */
+-			if (usax->sax25_ndigis < 1 || usax->sax25_ndigis > AX25_MAX_DIGIS) {
++			if (usax->sax25_ndigis < 1 ||
++			    usax->sax25_ndigis > AX25_MAX_DIGIS ||
++			    addr_len < sizeof(struct sockaddr_ax25) +
++			    sizeof(ax25_address) * usax->sax25_ndigis) {
+ 				err = -EINVAL;
+ 				goto out;
+ 			}
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 1ee177485fd0..7ec549e481e3 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4626,7 +4626,7 @@ static void flush_backlog(struct work_struct *work)
+ 	skb_queue_walk_safe(&sd->input_pkt_queue, skb, tmp) {
+ 		if (skb->dev->reg_state == NETREG_UNREGISTERING) {
+ 			__skb_unlink(skb, &sd->input_pkt_queue);
+-			kfree_skb(skb);
++			dev_kfree_skb_irq(skb);
+ 			input_queue_head_incr(sd);
+ 		}
+ 	}
+diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+index baf771d2d088..9d012255cedc 100644
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -1028,7 +1028,7 @@ static ssize_t tx_timeout_show(struct netdev_queue *queue, char *buf)
+ 	trans_timeout = queue->trans_timeout;
+ 	spin_unlock_irq(&queue->_xmit_lock);
+ 
+-	return sprintf(buf, "%lu", trans_timeout);
++	return sprintf(buf, fmt_ulong, trans_timeout);
+ }
+ 
+ static unsigned int get_netdev_queue_index(struct netdev_queue *queue)
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index cb15338cfda4..0168c700a201 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -2733,7 +2733,8 @@ static int rtnl_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			 */
+ 			if (err < 0) {
+ 				/* If device is not registered at all, free it now */
+-				if (dev->reg_state == NETREG_UNINITIALIZED)
++				if (dev->reg_state == NETREG_UNINITIALIZED ||
++				    dev->reg_state == NETREG_UNREGISTERED)
+ 					free_netdev(dev);
+ 				goto out;
+ 			}
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index a2c26c2b3a94..83d03340417a 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3516,10 +3516,8 @@ static void tcp_replace_ts_recent(struct tcp_sock *tp, u32 seq)
+ 	}
+ }
+ 
+-/* This routine deals with acks during a TLP episode.
+- * We mark the end of a TLP episode on receiving TLP dupack or when
+- * ack is after tlp_high_seq.
+- * Ref: loss detection algorithm in draft-dukkipati-tcpm-tcp-loss-probe.
++/* This routine deals with acks during a TLP episode and ends an episode by
++ * resetting tlp_high_seq. Ref: TLP algorithm in draft-ietf-tcpm-rack
+  */
+ static void tcp_process_tlp_ack(struct sock *sk, u32 ack, int flag)
+ {
+@@ -3528,7 +3526,10 @@ static void tcp_process_tlp_ack(struct sock *sk, u32 ack, int flag)
+ 	if (before(ack, tp->tlp_high_seq))
+ 		return;
+ 
+-	if (flag & FLAG_DSACKING_ACK) {
++	if (!tp->tlp_retrans) {
++		/* TLP of new data has been acknowledged */
++		tp->tlp_high_seq = 0;
++	} else if (flag & FLAG_DSACKING_ACK) {
+ 		/* This DSACK means original and TLP probe arrived; no loss */
+ 		tp->tlp_high_seq = 0;
+ 	} else if (after(ack, tp->tlp_high_seq)) {
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 8fc14ad0726a..355ebae883c1 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -2500,6 +2500,11 @@ void tcp_send_loss_probe(struct sock *sk)
+ 	int pcount;
+ 	int mss = tcp_current_mss(sk);
+ 
++	/* At most one outstanding TLP */
++	if (tp->tlp_high_seq)
++		goto rearm_timer;
++
++	tp->tlp_retrans = 0;
+ 	skb = tcp_send_head(sk);
+ 	if (skb) {
+ 		if (tcp_snd_wnd_test(tp, skb, mss)) {
+@@ -2522,10 +2527,6 @@ void tcp_send_loss_probe(struct sock *sk)
+ 		return;
+ 	}
+ 
+-	/* At most one outstanding TLP retransmission. */
+-	if (tp->tlp_high_seq)
+-		goto rearm_timer;
+-
+ 	if (skb_still_in_host_queue(sk, skb))
+ 		goto rearm_timer;
+ 
+@@ -2546,10 +2547,12 @@ void tcp_send_loss_probe(struct sock *sk)
+ 	if (__tcp_retransmit_skb(sk, skb, 1))
+ 		goto rearm_timer;
+ 
++	tp->tlp_retrans = 1;
++
++probe_sent:
+ 	/* Record snd_nxt for loss detection. */
+ 	tp->tlp_high_seq = tp->snd_nxt;
+ 
+-probe_sent:
+ 	NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPLOSSPROBES);
+ 	/* Reset s.t. tcp_rearm_rto will restart timer from now */
+ 	inet_csk(sk)->icsk_pending = 0;
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index e33258d69246..f335dd4c84e2 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1894,7 +1894,7 @@ static int udp_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	/*
+ 	 * 	UDP-Lite specific tests, ignored on UDP sockets
+ 	 */
+-	if ((is_udplite & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
++	if ((up->pcflag & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
+ 
+ 		/*
+ 		 * MIB statistics other than incrementing the error count are
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index e07cc2cfc1a6..802457c0a121 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1169,15 +1169,16 @@ static void ip6gre_destroy_tunnels(struct net *net, struct list_head *head)
+ static int __net_init ip6gre_init_net(struct net *net)
+ {
+ 	struct ip6gre_net *ign = net_generic(net, ip6gre_net_id);
++	struct net_device *ndev;
+ 	int err;
+ 
+-	ign->fb_tunnel_dev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
+-					  NET_NAME_UNKNOWN,
+-					  ip6gre_tunnel_setup);
+-	if (!ign->fb_tunnel_dev) {
++	ndev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
++			    NET_NAME_UNKNOWN, ip6gre_tunnel_setup);
++	if (!ndev) {
+ 		err = -ENOMEM;
+ 		goto err_alloc_dev;
+ 	}
++	ign->fb_tunnel_dev = ndev;
+ 	dev_net_set(ign->fb_tunnel_dev, net);
+ 	/* FB netdevice is special: we have one, and only one per netns.
+ 	 * Allowing to move it to another netns is clearly unsafe.
+@@ -1197,7 +1198,7 @@ static int __net_init ip6gre_init_net(struct net *net)
+ 	return 0;
+ 
+ err_reg_dev:
+-	free_netdev(ign->fb_tunnel_dev);
++	free_netdev(ndev);
+ err_alloc_dev:
+ 	return err;
+ }
+diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
+index a2ba7356fa65..38ad3fac8c37 100644
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -629,7 +629,7 @@ static int udpv6_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	/*
+ 	 * UDP-Lite specific tests, ignored on UDP sockets (see net/ipv4/udp.c).
+ 	 */
+-	if ((is_udplite & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
++	if ((up->pcflag & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
+ 
+ 		if (up->pcrlen == 0) {          /* full coverage was set  */
+ 			net_dbg_ratelimited("UDPLITE6: partial coverage %d while full coverage %d requested\n",
+diff --git a/net/rxrpc/recvmsg.c b/net/rxrpc/recvmsg.c
+index b74cde2fd214..e82e91fe6178 100644
+--- a/net/rxrpc/recvmsg.c
++++ b/net/rxrpc/recvmsg.c
+@@ -445,7 +445,7 @@ int rxrpc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	    list_empty(&rx->recvmsg_q) &&
+ 	    rx->sk.sk_state != RXRPC_SERVER_LISTENING) {
+ 		release_sock(&rx->sk);
+-		return -ENODATA;
++		return -EAGAIN;
+ 	}
+ 
+ 	if (list_empty(&rx->recvmsg_q)) {
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index a980b49d7a4f..f4386ad975cf 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -222,7 +222,7 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
+ 	/* this should be in poll */
+ 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+ 
+-	if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
++	if (sk->sk_shutdown & SEND_SHUTDOWN)
+ 		return -EPIPE;
+ 
+ 	more = msg->msg_flags & MSG_MORE;
