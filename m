@@ -2,826 +2,1125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20BD3234A20
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 19:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5B8234BDC
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 22:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387677AbgGaRRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 13:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387635AbgGaRRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jul 2020 13:17:01 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19B532074B;
-        Fri, 31 Jul 2020 17:16:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596215820;
-        bh=jAREMvpRX1yEC/z+L25h81OfHWmWR9PaxfxWIir/oz0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZJXHcql6Fj8Hzyij13z9YN4CV+Ik4oGIt9wr9qJxbxkoKqPrk4E8IWgT28AliFU7
-         ZrDgK5dFuELYR+00RWLjCyMIJTrHWX1WCvS59/K4B7BvBEOozsXMubn9h6A5tFXbdo
-         UbXFFBAyVqlbrpasAYgM8852KcxBAg9bRYHEfIdI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.7.12
-Date:   Fri, 31 Jul 2020 19:16:37 +0200
-Message-Id: <159621579630193@kroah.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <1596215796117118@kroah.com>
-References: <1596215796117118@kroah.com>
+        id S1726077AbgGaUCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 16:02:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45356 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725938AbgGaUCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 16:02:09 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D5AC061574
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 13:02:08 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id z5so16584520pgb.6
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 13:02:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=x4AM748dcwcVanzQRYccZNUZBuWUs6ld6QvzQ/wxA3c=;
+        b=CsVQ2drBCmeLz0O+8/DylcVP6srO/DpNzxWrjO4hi7Q4Q+hDT/pFCO/xUrLKhbJEtp
+         ibjrUdMTPHWNib31sUS01R+rNIUo1uXLSZ4/u2eeMyZgYY9HrV7ZIVxEVlgPra7OttsF
+         5J/rygHKn3uo+3WDvtD0yBIomgPGm168uQWlS82Ch8YdPmHLzIr63yiYg4aoFcFkrR2r
+         8s5Rrj/ogDT65k75q/8m3cOBPlVPhLdMYdIHUnEGdmo0LnH3f70iaKqjT7xGtem1l3EH
+         IoioZ5H8gdkc0snkPzpCZ2Upb9MFL2nCjcWq0dwV7s+v1pHhIJkATVk3L+J9DiMErVXB
+         qKAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=x4AM748dcwcVanzQRYccZNUZBuWUs6ld6QvzQ/wxA3c=;
+        b=DLf7Ba6UOe44BzqY2XP7BRx3rGnMNgFWIb+NXHvN2Gpti/gz36pW1WLpCLahNP6XOo
+         h5NoEjMdqN5aV1GNKDpSKWn0xS4pHa5l8z+4mCoPinjyV5B8NmAv3Bb4wI+ZSl75ROI5
+         HPfC6SSNK5WsjGVX5Em7vAFr3EpVbVkCfwfvF72hMoPxL3Wj4NwZzKOA8oIv0ePVgu1e
+         xssm59Z5OdKWPdTLS65Zwt9Rkmv7C6YkXRlIes3RnvtmmebWRJPptvhYec7+Hq16SQDF
+         lXAuYP0B/N9znfDbpTem++S/VcW6M6NWLxGXdSIY3nzCQo6nF8NDtX5EB0ZuYm8vLPjD
+         IGsg==
+X-Gm-Message-State: AOAM532kwbYbBAJ+pVGimQk1uEHyW0fbEjemLdACIUuWyut5eyoSyc/d
+        yXet1221G9J9P3soK4wOK9g+j6zQoQ0=
+X-Google-Smtp-Source: ABdhPJy0ZW7NV4nwxTlzbMkIqf+legMA+1gOyGcnaAM/Wnls25oAxBUQUAG2zJ6eP9E/BprMHbpO2g==
+X-Received: by 2002:a62:2546:: with SMTP id l67mr5315641pfl.154.1596225727077;
+        Fri, 31 Jul 2020 13:02:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 7sm11012364pgw.85.2020.07.31.13.02.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Jul 2020 13:02:06 -0700 (PDT)
+Message-ID: <5f2478be.1c69fb81.f7bd0.bb7c@mx.google.com>
+Date:   Fri, 31 Jul 2020 13:02:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.14.191
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.14.y build: 201 builds: 0 failed, 201 passed,
+ 2 warnings (v4.14.191)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 12777a95833f..401d58b35e61 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 7
--SUBLEVEL = 11
-+SUBLEVEL = 12
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
-index e16afa27700d..f58baff2be0a 100644
---- a/drivers/base/regmap/regmap-debugfs.c
-+++ b/drivers/base/regmap/regmap-debugfs.c
-@@ -227,6 +227,9 @@ static ssize_t regmap_read_debugfs(struct regmap *map, unsigned int from,
- 	if (*ppos < 0 || !count)
- 		return -EINVAL;
- 
-+	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
-+		count = PAGE_SIZE << (MAX_ORDER - 1);
-+
- 	buf = kmalloc(count, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
-@@ -371,6 +374,9 @@ static ssize_t regmap_reg_ranges_read_file(struct file *file,
- 	if (*ppos < 0 || !count)
- 		return -EINVAL;
- 
-+	if (count > (PAGE_SIZE << (MAX_ORDER - 1)))
-+		count = PAGE_SIZE << (MAX_ORDER - 1);
-+
- 	buf = kmalloc(count, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
-diff --git a/drivers/net/wan/x25_asy.c b/drivers/net/wan/x25_asy.c
-index 69773d228ec1..84640a0c13f3 100644
---- a/drivers/net/wan/x25_asy.c
-+++ b/drivers/net/wan/x25_asy.c
-@@ -183,7 +183,7 @@ static inline void x25_asy_unlock(struct x25_asy *sl)
- 	netif_wake_queue(sl->dev);
- }
- 
--/* Send one completely decapsulated IP datagram to the IP layer. */
-+/* Send an LAPB frame to the LAPB module to process. */
- 
- static void x25_asy_bump(struct x25_asy *sl)
- {
-@@ -195,13 +195,12 @@ static void x25_asy_bump(struct x25_asy *sl)
- 	count = sl->rcount;
- 	dev->stats.rx_bytes += count;
- 
--	skb = dev_alloc_skb(count+1);
-+	skb = dev_alloc_skb(count);
- 	if (skb == NULL) {
- 		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
- 		dev->stats.rx_dropped++;
- 		return;
- 	}
--	skb_push(skb, 1);	/* LAPB internal control */
- 	skb_put_data(skb, sl->rbuff, count);
- 	skb->protocol = x25_type_trans(skb, sl->dev);
- 	err = lapb_data_received(skb->dev, skb);
-@@ -209,7 +208,6 @@ static void x25_asy_bump(struct x25_asy *sl)
- 		kfree_skb(skb);
- 		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
- 	} else {
--		netif_rx(skb);
- 		dev->stats.rx_packets++;
- 	}
- }
-@@ -356,12 +354,21 @@ static netdev_tx_t x25_asy_xmit(struct sk_buff *skb,
-  */
- 
- /*
-- *	Called when I frame data arrives. We did the work above - throw it
-- *	at the net layer.
-+ *	Called when I frame data arrive. We add a pseudo header for upper
-+ *	layers and pass it to upper layers.
-  */
- 
- static int x25_asy_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
-+		return NET_RX_DROP;
-+	}
-+	skb_push(skb, 1);
-+	skb->data[0] = X25_IFACE_DATA;
-+
-+	skb->protocol = x25_type_trans(skb, dev);
-+
- 	return netif_rx(skb);
- }
- 
-@@ -657,7 +664,7 @@ static void x25_asy_unesc(struct x25_asy *sl, unsigned char s)
- 	switch (s) {
- 	case X25_END:
- 		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
--		    sl->rcount > 2)
-+		    sl->rcount >= 2)
- 			x25_asy_bump(sl);
- 		clear_bit(SLF_ESCAPE, &sl->flags);
- 		sl->rcount = 0;
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 51be3a20ade1..d0d3efaaa4d4 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -581,6 +581,7 @@ enum {
- 
- struct async_poll {
- 	struct io_poll_iocb	poll;
-+	struct io_poll_iocb	*double_poll;
- 	struct io_wq_work	work;
- };
- 
-@@ -4220,9 +4221,9 @@ static bool io_poll_rewait(struct io_kiocb *req, struct io_poll_iocb *poll)
- 	return false;
- }
- 
--static void io_poll_remove_double(struct io_kiocb *req)
-+static void io_poll_remove_double(struct io_kiocb *req, void *data)
- {
--	struct io_poll_iocb *poll = (struct io_poll_iocb *) req->io;
-+	struct io_poll_iocb *poll = data;
- 
- 	lockdep_assert_held(&req->ctx->completion_lock);
- 
-@@ -4242,7 +4243,7 @@ static void io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 
--	io_poll_remove_double(req);
-+	io_poll_remove_double(req, req->io);
- 	req->poll.done = true;
- 	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
- 	io_commit_cqring(ctx);
-@@ -4285,21 +4286,21 @@ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
- 			       int sync, void *key)
- {
- 	struct io_kiocb *req = wait->private;
--	struct io_poll_iocb *poll = (struct io_poll_iocb *) req->io;
-+	struct io_poll_iocb *poll = req->apoll->double_poll;
- 	__poll_t mask = key_to_poll(key);
- 
- 	/* for instances that support it check for an event match first: */
- 	if (mask && !(mask & poll->events))
- 		return 0;
- 
--	if (req->poll.head) {
-+	if (poll && poll->head) {
- 		bool done;
- 
--		spin_lock(&req->poll.head->lock);
--		done = list_empty(&req->poll.wait.entry);
-+		spin_lock(&poll->head->lock);
-+		done = list_empty(&poll->wait.entry);
- 		if (!done)
--			list_del_init(&req->poll.wait.entry);
--		spin_unlock(&req->poll.head->lock);
-+			list_del_init(&poll->wait.entry);
-+		spin_unlock(&poll->head->lock);
- 		if (!done)
- 			__io_async_wake(req, poll, mask, io_poll_task_func);
- 	}
-@@ -4319,7 +4320,8 @@ static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
- }
- 
- static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
--			    struct wait_queue_head *head)
-+			    struct wait_queue_head *head,
-+			    struct io_poll_iocb **poll_ptr)
- {
- 	struct io_kiocb *req = pt->req;
- 
-@@ -4330,7 +4332,7 @@ static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
- 	 */
- 	if (unlikely(poll->head)) {
- 		/* already have a 2nd entry, fail a third attempt */
--		if (req->io) {
-+		if (*poll_ptr) {
- 			pt->error = -EINVAL;
- 			return;
- 		}
-@@ -4342,7 +4344,7 @@ static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
- 		io_init_poll_iocb(poll, req->poll.events, io_poll_double_wake);
- 		refcount_inc(&req->refs);
- 		poll->wait.private = req;
--		req->io = (void *) poll;
-+		*poll_ptr = poll;
- 	}
- 
- 	pt->error = 0;
-@@ -4354,8 +4356,9 @@ static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
- 			       struct poll_table_struct *p)
- {
- 	struct io_poll_table *pt = container_of(p, struct io_poll_table, pt);
-+	struct async_poll *apoll = pt->req->apoll;
- 
--	__io_queue_proc(&pt->req->apoll->poll, pt, head);
-+	__io_queue_proc(&apoll->poll, pt, head, &apoll->double_poll);
- }
- 
- static void io_sq_thread_drop_mm(struct io_ring_ctx *ctx)
-@@ -4409,6 +4412,7 @@ static void io_async_task_func(struct callback_head *cb)
- 	memcpy(&req->work, &apoll->work, sizeof(req->work));
- 
- 	if (canceled) {
-+		kfree(apoll->double_poll);
- 		kfree(apoll);
- 		io_cqring_ev_posted(ctx);
- end_req:
-@@ -4426,6 +4430,7 @@ static void io_async_task_func(struct callback_head *cb)
- 	__io_queue_sqe(req, NULL);
- 	mutex_unlock(&ctx->uring_lock);
- 
-+	kfree(apoll->double_poll);
- 	kfree(apoll);
- }
- 
-@@ -4497,7 +4502,6 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	struct async_poll *apoll;
- 	struct io_poll_table ipt;
- 	__poll_t mask, ret;
--	bool had_io;
- 
- 	if (!req->file || !file_can_poll(req->file))
- 		return false;
-@@ -4509,10 +4513,10 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	apoll = kmalloc(sizeof(*apoll), GFP_ATOMIC);
- 	if (unlikely(!apoll))
- 		return false;
-+	apoll->double_poll = NULL;
- 
- 	req->flags |= REQ_F_POLLED;
- 	memcpy(&apoll->work, &req->work, sizeof(req->work));
--	had_io = req->io != NULL;
- 
- 	get_task_struct(current);
- 	req->task = current;
-@@ -4531,12 +4535,10 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
- 					io_async_wake);
- 	if (ret) {
--		ipt.error = 0;
--		/* only remove double add if we did it here */
--		if (!had_io)
--			io_poll_remove_double(req);
-+		io_poll_remove_double(req, apoll->double_poll);
- 		spin_unlock_irq(&ctx->completion_lock);
- 		memcpy(&req->work, &apoll->work, sizeof(req->work));
-+		kfree(apoll->double_poll);
- 		kfree(apoll);
- 		return false;
- 	}
-@@ -4567,11 +4569,13 @@ static bool io_poll_remove_one(struct io_kiocb *req)
- 	bool do_complete;
- 
- 	if (req->opcode == IORING_OP_POLL_ADD) {
--		io_poll_remove_double(req);
-+		io_poll_remove_double(req, req->io);
- 		do_complete = __io_poll_remove_one(req, &req->poll);
- 	} else {
- 		struct async_poll *apoll = req->apoll;
- 
-+		io_poll_remove_double(req, apoll->double_poll);
-+
- 		/* non-poll requests have submit ref still */
- 		do_complete = __io_poll_remove_one(req, &apoll->poll);
- 		if (do_complete) {
-@@ -4582,6 +4586,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
- 			 * final reference.
- 			 */
- 			memcpy(&req->work, &apoll->work, sizeof(req->work));
-+			kfree(apoll->double_poll);
- 			kfree(apoll);
- 		}
- 	}
-@@ -4682,7 +4687,7 @@ static void io_poll_queue_proc(struct file *file, struct wait_queue_head *head,
- {
- 	struct io_poll_table *pt = container_of(p, struct io_poll_table, pt);
- 
--	__io_queue_proc(&pt->req->poll, pt, head);
-+	__io_queue_proc(&pt->req->poll, pt, head, (struct io_poll_iocb **) &pt->req->io);
- }
- 
- static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 4f8159e90ce1..0bba582e83ca 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -217,6 +217,8 @@ struct tcp_sock {
- 	} rack;
- 	u16	advmss;		/* Advertised MSS			*/
- 	u8	compressed_ack;
-+	u8	tlp_retrans:1,	/* TLP is a retransmission */
-+		unused:7;
- 	u32	chrono_start;	/* Start time in jiffies of a TCP chrono */
- 	u32	chrono_stat[3];	/* Time in jiffies for chrono_stat stats */
- 	u8	chrono_type:2,	/* current chronograph type */
-@@ -239,7 +241,7 @@ struct tcp_sock {
- 		save_syn:1,	/* Save headers of SYN packet */
- 		is_cwnd_limited:1,/* forward progress limited by snd_cwnd? */
- 		syn_smc:1;	/* SYN includes SMC */
--	u32	tlp_high_seq;	/* snd_nxt at the time of TLP retransmit. */
-+	u32	tlp_high_seq;	/* snd_nxt at the time of TLP */
- 
- 	u32	tcp_tx_delay;	/* delay (in usec) added to TX packets */
- 	u64	tcp_wstamp_ns;	/* departure time for next sent data packet */
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index fd91cd34f25e..dec3f35467c9 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1187,7 +1187,10 @@ static int __must_check ax25_connect(struct socket *sock,
- 	if (addr_len > sizeof(struct sockaddr_ax25) &&
- 	    fsa->fsa_ax25.sax25_ndigis != 0) {
- 		/* Valid number of digipeaters ? */
--		if (fsa->fsa_ax25.sax25_ndigis < 1 || fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS) {
-+		if (fsa->fsa_ax25.sax25_ndigis < 1 ||
-+		    fsa->fsa_ax25.sax25_ndigis > AX25_MAX_DIGIS ||
-+		    addr_len < sizeof(struct sockaddr_ax25) +
-+		    sizeof(ax25_address) * fsa->fsa_ax25.sax25_ndigis) {
- 			err = -EINVAL;
- 			goto out_release;
- 		}
-@@ -1507,7 +1510,10 @@ static int ax25_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
- 
- 			/* Valid number of digipeaters ? */
--			if (usax->sax25_ndigis < 1 || usax->sax25_ndigis > AX25_MAX_DIGIS) {
-+			if (usax->sax25_ndigis < 1 ||
-+			    usax->sax25_ndigis > AX25_MAX_DIGIS ||
-+			    addr_len < sizeof(struct sockaddr_ax25) +
-+			    sizeof(ax25_address) * usax->sax25_ndigis) {
- 				err = -EINVAL;
- 				goto out;
- 			}
-diff --git a/net/core/dev.c b/net/core/dev.c
-index c9ee5d80d5ea..c1c2688a955c 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5504,7 +5504,7 @@ static void flush_backlog(struct work_struct *work)
- 	skb_queue_walk_safe(&sd->input_pkt_queue, skb, tmp) {
- 		if (skb->dev->reg_state == NETREG_UNREGISTERING) {
- 			__skb_unlink(skb, &sd->input_pkt_queue);
--			kfree_skb(skb);
-+			dev_kfree_skb_irq(skb);
- 			input_queue_head_incr(sd);
- 		}
- 	}
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index 4773ad6ec111..f67f5ca39d63 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1077,7 +1077,7 @@ static ssize_t tx_timeout_show(struct netdev_queue *queue, char *buf)
- 	trans_timeout = queue->trans_timeout;
- 	spin_unlock_irq(&queue->_xmit_lock);
- 
--	return sprintf(buf, "%lu", trans_timeout);
-+	return sprintf(buf, fmt_ulong, trans_timeout);
- }
- 
- static unsigned int get_netdev_queue_index(struct netdev_queue *queue)
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 709ebbf8ab5b..78345e39e54a 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3337,7 +3337,8 @@ static int __rtnl_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		 */
- 		if (err < 0) {
- 			/* If device is not registered at all, free it now */
--			if (dev->reg_state == NETREG_UNINITIALIZED)
-+			if (dev->reg_state == NETREG_UNINITIALIZED ||
-+			    dev->reg_state == NETREG_UNREGISTERED)
- 				free_netdev(dev);
- 			goto out;
- 		}
-diff --git a/net/core/sock_reuseport.c b/net/core/sock_reuseport.c
-index adcb3aea576d..bbdd3c7b6cb5 100644
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -101,6 +101,7 @@ static struct sock_reuseport *reuseport_grow(struct sock_reuseport *reuse)
- 	more_reuse->prog = reuse->prog;
- 	more_reuse->reuseport_id = reuse->reuseport_id;
- 	more_reuse->bind_inany = reuse->bind_inany;
-+	more_reuse->has_conns = reuse->has_conns;
- 
- 	memcpy(more_reuse->socks, reuse->socks,
- 	       reuse->num_socks * sizeof(struct sock *));
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 31c58e00d25b..32ac66a8c657 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -3506,10 +3506,8 @@ static void tcp_replace_ts_recent(struct tcp_sock *tp, u32 seq)
- 	}
- }
- 
--/* This routine deals with acks during a TLP episode.
-- * We mark the end of a TLP episode on receiving TLP dupack or when
-- * ack is after tlp_high_seq.
-- * Ref: loss detection algorithm in draft-dukkipati-tcpm-tcp-loss-probe.
-+/* This routine deals with acks during a TLP episode and ends an episode by
-+ * resetting tlp_high_seq. Ref: TLP algorithm in draft-ietf-tcpm-rack
-  */
- static void tcp_process_tlp_ack(struct sock *sk, u32 ack, int flag)
- {
-@@ -3518,7 +3516,10 @@ static void tcp_process_tlp_ack(struct sock *sk, u32 ack, int flag)
- 	if (before(ack, tp->tlp_high_seq))
- 		return;
- 
--	if (flag & FLAG_DSACKING_ACK) {
-+	if (!tp->tlp_retrans) {
-+		/* TLP of new data has been acknowledged */
-+		tp->tlp_high_seq = 0;
-+	} else if (flag & FLAG_DSACKING_ACK) {
- 		/* This DSACK means original and TLP probe arrived; no loss */
- 		tp->tlp_high_seq = 0;
- 	} else if (after(ack, tp->tlp_high_seq)) {
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index bee2f9b8b8a1..b1c2484b4314 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2625,6 +2625,11 @@ void tcp_send_loss_probe(struct sock *sk)
- 	int pcount;
- 	int mss = tcp_current_mss(sk);
- 
-+	/* At most one outstanding TLP */
-+	if (tp->tlp_high_seq)
-+		goto rearm_timer;
-+
-+	tp->tlp_retrans = 0;
- 	skb = tcp_send_head(sk);
- 	if (skb && tcp_snd_wnd_test(tp, skb, mss)) {
- 		pcount = tp->packets_out;
-@@ -2642,10 +2647,6 @@ void tcp_send_loss_probe(struct sock *sk)
- 		return;
- 	}
- 
--	/* At most one outstanding TLP retransmission. */
--	if (tp->tlp_high_seq)
--		goto rearm_timer;
--
- 	if (skb_still_in_host_queue(sk, skb))
- 		goto rearm_timer;
- 
-@@ -2667,10 +2668,12 @@ void tcp_send_loss_probe(struct sock *sk)
- 	if (__tcp_retransmit_skb(sk, skb, 1))
- 		goto rearm_timer;
- 
-+	tp->tlp_retrans = 1;
-+
-+probe_sent:
- 	/* Record snd_nxt for loss detection. */
- 	tp->tlp_high_seq = tp->snd_nxt;
- 
--probe_sent:
- 	NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPLOSSPROBES);
- 	/* Reset s.t. tcp_rearm_rto will restart timer from now */
- 	inet_csk(sk)->icsk_pending = 0;
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 32564b350823..6ffef9861fa9 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -413,7 +413,7 @@ static struct sock *udp4_lib_lookup2(struct net *net,
- 				     struct udp_hslot *hslot2,
- 				     struct sk_buff *skb)
- {
--	struct sock *sk, *result;
-+	struct sock *sk, *result, *reuseport_result;
- 	int score, badness;
- 	u32 hash = 0;
- 
-@@ -423,17 +423,20 @@ static struct sock *udp4_lib_lookup2(struct net *net,
- 		score = compute_score(sk, net, saddr, sport,
- 				      daddr, hnum, dif, sdif);
- 		if (score > badness) {
-+			reuseport_result = NULL;
-+
- 			if (sk->sk_reuseport &&
- 			    sk->sk_state != TCP_ESTABLISHED) {
- 				hash = udp_ehashfn(net, daddr, hnum,
- 						   saddr, sport);
--				result = reuseport_select_sock(sk, hash, skb,
--							sizeof(struct udphdr));
--				if (result && !reuseport_has_conns(sk, false))
--					return result;
-+				reuseport_result = reuseport_select_sock(sk, hash, skb,
-+									 sizeof(struct udphdr));
-+				if (reuseport_result && !reuseport_has_conns(sk, false))
-+					return reuseport_result;
- 			}
-+
-+			result = reuseport_result ? : sk;
- 			badness = score;
--			result = sk;
- 		}
- 	}
- 	return result;
-@@ -2048,7 +2051,7 @@ static int udp_queue_rcv_one_skb(struct sock *sk, struct sk_buff *skb)
- 	/*
- 	 * 	UDP-Lite specific tests, ignored on UDP sockets
- 	 */
--	if ((is_udplite & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
-+	if ((up->pcflag & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
- 
- 		/*
- 		 * MIB statistics other than incrementing the error count are
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 6532bde82b40..3a57fb9ce049 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -1562,17 +1562,18 @@ static void ip6gre_destroy_tunnels(struct net *net, struct list_head *head)
- static int __net_init ip6gre_init_net(struct net *net)
- {
- 	struct ip6gre_net *ign = net_generic(net, ip6gre_net_id);
-+	struct net_device *ndev;
- 	int err;
- 
- 	if (!net_has_fallback_tunnels(net))
- 		return 0;
--	ign->fb_tunnel_dev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
--					  NET_NAME_UNKNOWN,
--					  ip6gre_tunnel_setup);
--	if (!ign->fb_tunnel_dev) {
-+	ndev = alloc_netdev(sizeof(struct ip6_tnl), "ip6gre0",
-+			    NET_NAME_UNKNOWN, ip6gre_tunnel_setup);
-+	if (!ndev) {
- 		err = -ENOMEM;
- 		goto err_alloc_dev;
- 	}
-+	ign->fb_tunnel_dev = ndev;
- 	dev_net_set(ign->fb_tunnel_dev, net);
- 	/* FB netdevice is special: we have one, and only one per netns.
- 	 * Allowing to move it to another netns is clearly unsafe.
-@@ -1592,7 +1593,7 @@ static int __net_init ip6gre_init_net(struct net *net)
- 	return 0;
- 
- err_reg_dev:
--	free_netdev(ign->fb_tunnel_dev);
-+	free_netdev(ndev);
- err_alloc_dev:
- 	return err;
- }
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 7d4151747340..a8d74f44056a 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -148,7 +148,7 @@ static struct sock *udp6_lib_lookup2(struct net *net,
- 		int dif, int sdif, struct udp_hslot *hslot2,
- 		struct sk_buff *skb)
- {
--	struct sock *sk, *result;
-+	struct sock *sk, *result, *reuseport_result;
- 	int score, badness;
- 	u32 hash = 0;
- 
-@@ -158,17 +158,20 @@ static struct sock *udp6_lib_lookup2(struct net *net,
- 		score = compute_score(sk, net, saddr, sport,
- 				      daddr, hnum, dif, sdif);
- 		if (score > badness) {
-+			reuseport_result = NULL;
-+
- 			if (sk->sk_reuseport &&
- 			    sk->sk_state != TCP_ESTABLISHED) {
- 				hash = udp6_ehashfn(net, daddr, hnum,
- 						    saddr, sport);
- 
--				result = reuseport_select_sock(sk, hash, skb,
--							sizeof(struct udphdr));
--				if (result && !reuseport_has_conns(sk, false))
--					return result;
-+				reuseport_result = reuseport_select_sock(sk, hash, skb,
-+									 sizeof(struct udphdr));
-+				if (reuseport_result && !reuseport_has_conns(sk, false))
-+					return reuseport_result;
- 			}
--			result = sk;
-+
-+			result = reuseport_result ? : sk;
- 			badness = score;
- 		}
- 	}
-@@ -643,7 +646,7 @@ static int udpv6_queue_rcv_one_skb(struct sock *sk, struct sk_buff *skb)
- 	/*
- 	 * UDP-Lite specific tests, ignored on UDP sockets (see net/ipv4/udp.c).
- 	 */
--	if ((is_udplite & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
-+	if ((up->pcflag & UDPLITE_RECV_CC)  &&  UDP_SKB_CB(skb)->partial_cov) {
- 
- 		if (up->pcrlen == 0) {          /* full coverage was set  */
- 			net_dbg_ratelimited("UDPLITE6: partial coverage %d while full coverage %d requested\n",
-diff --git a/net/qrtr/qrtr.c b/net/qrtr/qrtr.c
-index 24a8c3c6da0d..300a104b9a0f 100644
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -1180,6 +1180,7 @@ static int qrtr_release(struct socket *sock)
- 		sk->sk_state_change(sk);
- 
- 	sock_set_flag(sk, SOCK_DEAD);
-+	sock_orphan(sk);
- 	sock->sk = NULL;
- 
- 	if (!sock_flag(sk, SOCK_ZAPPED))
-diff --git a/net/rxrpc/recvmsg.c b/net/rxrpc/recvmsg.c
-index 8578c39ec839..6896a33ef842 100644
---- a/net/rxrpc/recvmsg.c
-+++ b/net/rxrpc/recvmsg.c
-@@ -464,7 +464,7 @@ int rxrpc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	    list_empty(&rx->recvmsg_q) &&
- 	    rx->sk.sk_state != RXRPC_SERVER_LISTENING) {
- 		release_sock(&rx->sk);
--		return -ENODATA;
-+		return -EAGAIN;
- 	}
- 
- 	if (list_empty(&rx->recvmsg_q)) {
-diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
-index 5e9c43d4a314..49d03c8c64da 100644
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -306,7 +306,7 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
- 	/* this should be in poll */
- 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
- 
--	if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
-+	if (sk->sk_shutdown & SEND_SHUTDOWN)
- 		return -EPIPE;
- 
- 	more = msg->msg_flags & MSG_MORE;
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 6a114f80e54b..e191f2728389 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -671,9 +671,10 @@ static int tcf_ct_ipv6_is_fragment(struct sk_buff *skb, bool *frag)
- }
- 
- static int tcf_ct_handle_fragments(struct net *net, struct sk_buff *skb,
--				   u8 family, u16 zone)
-+				   u8 family, u16 zone, bool *defrag)
- {
- 	enum ip_conntrack_info ctinfo;
-+	struct qdisc_skb_cb cb;
- 	struct nf_conn *ct;
- 	int err = 0;
- 	bool frag;
-@@ -691,6 +692,7 @@ static int tcf_ct_handle_fragments(struct net *net, struct sk_buff *skb,
- 		return err;
- 
- 	skb_get(skb);
-+	cb = *qdisc_skb_cb(skb);
- 
- 	if (family == NFPROTO_IPV4) {
- 		enum ip_defrag_users user = IP_DEFRAG_CONNTRACK_IN + zone;
-@@ -701,6 +703,9 @@ static int tcf_ct_handle_fragments(struct net *net, struct sk_buff *skb,
- 		local_bh_enable();
- 		if (err && err != -EINPROGRESS)
- 			goto out_free;
-+
-+		if (!err)
-+			*defrag = true;
- 	} else { /* NFPROTO_IPV6 */
- #if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
- 		enum ip6_defrag_users user = IP6_DEFRAG_CONNTRACK_IN + zone;
-@@ -709,12 +714,16 @@ static int tcf_ct_handle_fragments(struct net *net, struct sk_buff *skb,
- 		err = nf_ct_frag6_gather(net, skb, user);
- 		if (err && err != -EINPROGRESS)
- 			goto out_free;
-+
-+		if (!err)
-+			*defrag = true;
- #else
- 		err = -EOPNOTSUPP;
- 		goto out_free;
- #endif
- 	}
- 
-+	*qdisc_skb_cb(skb) = cb;
- 	skb_clear_hash(skb);
- 	skb->ignore_df = 1;
- 	return err;
-@@ -912,6 +921,7 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
- 	int nh_ofs, err, retval;
- 	struct tcf_ct_params *p;
- 	bool skip_add = false;
-+	bool defrag = false;
- 	struct nf_conn *ct;
- 	u8 family;
- 
-@@ -942,7 +952,7 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
- 	 */
- 	nh_ofs = skb_network_offset(skb);
- 	skb_pull_rcsum(skb, nh_ofs);
--	err = tcf_ct_handle_fragments(net, skb, family, p->zone);
-+	err = tcf_ct_handle_fragments(net, skb, family, p->zone, &defrag);
- 	if (err == -EINPROGRESS) {
- 		retval = TC_ACT_STOLEN;
- 		goto out;
-@@ -1010,6 +1020,8 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
- 
- out:
- 	tcf_action_update_bstats(&c->common, skb);
-+	if (defrag)
-+		qdisc_skb_cb(skb)->pkt_len = skb->len;
- 	return retval;
- 
- drop:
-diff --git a/net/sctp/stream.c b/net/sctp/stream.c
-index 67f7e71f9129..bda2536dd740 100644
---- a/net/sctp/stream.c
-+++ b/net/sctp/stream.c
-@@ -22,17 +22,11 @@
- #include <net/sctp/sm.h>
- #include <net/sctp/stream_sched.h>
- 
--/* Migrates chunks from stream queues to new stream queues if needed,
-- * but not across associations. Also, removes those chunks to streams
-- * higher than the new max.
-- */
--static void sctp_stream_outq_migrate(struct sctp_stream *stream,
--				     struct sctp_stream *new, __u16 outcnt)
-+static void sctp_stream_shrink_out(struct sctp_stream *stream, __u16 outcnt)
- {
- 	struct sctp_association *asoc;
- 	struct sctp_chunk *ch, *temp;
- 	struct sctp_outq *outq;
--	int i;
- 
- 	asoc = container_of(stream, struct sctp_association, stream);
- 	outq = &asoc->outqueue;
-@@ -56,6 +50,19 @@ static void sctp_stream_outq_migrate(struct sctp_stream *stream,
- 
- 		sctp_chunk_free(ch);
- 	}
-+}
-+
-+/* Migrates chunks from stream queues to new stream queues if needed,
-+ * but not across associations. Also, removes those chunks to streams
-+ * higher than the new max.
-+ */
-+static void sctp_stream_outq_migrate(struct sctp_stream *stream,
-+				     struct sctp_stream *new, __u16 outcnt)
-+{
-+	int i;
-+
-+	if (stream->outcnt > outcnt)
-+		sctp_stream_shrink_out(stream, outcnt);
- 
- 	if (new) {
- 		/* Here we actually move the old ext stuff into the new
-@@ -1037,11 +1044,13 @@ struct sctp_chunk *sctp_process_strreset_resp(
- 		nums = ntohs(addstrm->number_of_streams);
- 		number = stream->outcnt - nums;
- 
--		if (result == SCTP_STRRESET_PERFORMED)
-+		if (result == SCTP_STRRESET_PERFORMED) {
- 			for (i = number; i < stream->outcnt; i++)
- 				SCTP_SO(stream, i)->state = SCTP_STREAM_OPEN;
--		else
-+		} else {
-+			sctp_stream_shrink_out(stream, number);
- 			stream->outcnt = number;
-+		}
- 
- 		*evp = sctp_ulpevent_make_stream_change_event(asoc, flags,
- 			0, nums, GFP_ATOMIC);
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index d4675e922a8f..e18369201a15 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -813,11 +813,11 @@ int tipc_link_timeout(struct tipc_link *l, struct sk_buff_head *xmitq)
- 		state |= l->bc_rcvlink->rcv_unacked;
- 		state |= l->rcv_unacked;
- 		state |= !skb_queue_empty(&l->transmq);
--		state |= !skb_queue_empty(&l->deferdq);
- 		probe = mstate->probing;
- 		probe |= l->silent_intv_cnt;
- 		if (probe || mstate->monitoring)
- 			l->silent_intv_cnt++;
-+		probe |= !skb_queue_empty(&l->deferdq);
- 		if (l->snd_nxt == l->checkpoint) {
- 			tipc_link_update_cwin(l, 0, 0);
- 			probe = true;
+stable/linux-4.14.y build: 201 builds: 0 failed, 201 passed, 2 warnings (v4=
+.14.191)
+
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.191/
+
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.191
+Git Commit: 7f2c5eb458b8855655a19c44cd0043f7f83c595f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Built: 6 unique architectures
+
+Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+
+i386:
+
+mips:
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+
+
+Warnings summary:
+
+    1    {standard input}:29: Warning: macro instruction expanded into mult=
+iple instructions
+    1    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    {standard input}:29: Warning: macro instruction expanded into multiple =
+instructions
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
