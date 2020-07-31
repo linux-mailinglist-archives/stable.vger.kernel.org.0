@@ -2,71 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92885234C76
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 22:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809F3234C8C
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 22:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727947AbgGaUrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 16:47:45 -0400
-Received: from mail-il1-f194.google.com ([209.85.166.194]:45895 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727941AbgGaUro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 16:47:44 -0400
-Received: by mail-il1-f194.google.com with SMTP id f68so4547268ilh.12;
-        Fri, 31 Jul 2020 13:47:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=MO2GV7Q7hJc5Zuy2tX2Bw37DgW3Q604di6mfkd5jHpo=;
-        b=Ksx0z7ZmBm7jUz7PZFfO59M+K2Z1oaAoCP2ct6KQ5Lt6RIczS3C5/IIevhpqQhGcWa
-         jkyAjVxLHm8pr2jQjbeLeYyLrYGgcYXZilZqMl+xZfv9mePzefoNqMTjxkicS1Ew1X4t
-         e76m0VocLQYRc8QsAjWOjRQlDh4P/ngv5t0TROwYXf0aSrPT95alsvowhDQVBz6oNj+j
-         SPx/Dk1FGxtmNXCN92qG67xcoTCDtBiku5x6oVKVtN8s1iW3yJWl6rsB2f5ETu3CiDYk
-         6BQ5LeL1FHbucaHnmRKuJh81p0HThYqDXF+H9+32LWwxqYw1r5RlfeqlWbXvAOmvfJHa
-         jH0w==
-X-Gm-Message-State: AOAM533B2os8QvMZ84DLeZRv+IgzduhaN7LWAL0ZbmBy+jmuLuFMrrG5
-        qHITBfKHRygaailE2RgNiA==
-X-Google-Smtp-Source: ABdhPJxvJk5Gfz+s8v5Gkz1xsf+wqIVtzcYiRafEuoMdOS5wIy1uW0boqjp6Ljc92wFmT+CR6tdUOA==
-X-Received: by 2002:a92:9fcb:: with SMTP id z72mr5562602ilk.195.1596228463994;
-        Fri, 31 Jul 2020 13:47:43 -0700 (PDT)
-Received: from xps15 ([64.188.179.252])
-        by smtp.gmail.com with ESMTPSA id 142sm5498355ilc.40.2020.07.31.13.47.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jul 2020 13:47:43 -0700 (PDT)
-Received: (nullmailer pid 757897 invoked by uid 1000);
-        Fri, 31 Jul 2020 20:47:42 -0000
-Date:   Fri, 31 Jul 2020 14:47:42 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Hartmut Knaack <knaack.h@gmx.de>, devicetree@vger.kernel.org,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Jiri Kosina <trivial@kernel.org>
-Subject: Re: [PATCH] dt-bindings: iio: io-channel-mux: Fix compatible string
- in example code
-Message-ID: <20200731204742.GA756942@bogus>
-References: <20200727101605.24384-1-ceggers@arri.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200727101605.24384-1-ceggers@arri.de>
+        id S1727892AbgGaU5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 16:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43328 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726884AbgGaU5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 31 Jul 2020 16:57:12 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC9A1208E4;
+        Fri, 31 Jul 2020 20:57:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596229031;
+        bh=vdXEGu/7qMDVaKN9D44BCySt6O+PHbNNjTVbqhCGH4c=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=xtm1XKF9cdjegSad07S+5xZLBKEiT/NU8aKvxKguh6Ip7ZZLFcErz/JiV/jQadhuV
+         gmmjFvDIyB1DLOcM4dOOcOFI+Ta+XLbL2hVYR0WpTj0Q0/nHibo05eHXf9y1Gb/ls/
+         c1E1BtJKab7R2tkbP2IbJmcNpCDjPqFkRDWWJweM=
+Date:   Fri, 31 Jul 2020 13:57:10 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     aarcange@redhat.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, peterx@redhat.com,
+        stable@vger.kernel.org, willy@infradead.org
+Subject:  +
+ mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible.patch
+ added to -mm tree
+Message-ID: <20200731205710.iB3KouoTG%akpm@linux-foundation.org>
+In-Reply-To: <20200723211432.b31831a0df3bc2cbdae31b40@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 27 Jul 2020 12:16:05 +0200, Christian Eggers wrote:
-> The correct compatible string is "gpio-mux" (see
-> bindings/mux/gpio-mux.txt).
-> 
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Cc: stable@vger.kernel.org
-> ---
->  .../devicetree/bindings/iio/multiplexer/io-channel-mux.txt      | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
 
-Added 'v4.13+' to stable tag and applied, thanks!
+The patch titled
+     Subject: mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+has been added to the -mm tree.  Its filename is
+     mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+
+This is found by code observation only.
+
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
+
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
+
+Mike said:
+
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+: 
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+: 
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+: 
+: 1) for a single page
+: 2) for range == entire vma
+: 
+: In those cases, the current code should produce the correct results.
+: 
+: To be safe, let's just cc stable.
+
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/hugetlb.c |   24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible
++++ a/mm/hugetlb.c
+@@ -5314,25 +5314,21 @@ static bool vma_shareable(struct vm_area
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr;
++	unsigned long a_start, a_end;
+ 
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
+ 
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible.patch
+mm-do-page-fault-accounting-in-handle_mm_fault.patch
+mm-alpha-use-general-page-fault-accounting.patch
+mm-arc-use-general-page-fault-accounting.patch
+mm-arm-use-general-page-fault-accounting.patch
+mm-arm64-use-general-page-fault-accounting.patch
+mm-csky-use-general-page-fault-accounting.patch
+mm-hexagon-use-general-page-fault-accounting.patch
+mm-ia64-use-general-page-fault-accounting.patch
+mm-m68k-use-general-page-fault-accounting.patch
+mm-microblaze-use-general-page-fault-accounting.patch
+mm-mips-use-general-page-fault-accounting.patch
+mm-nds32-use-general-page-fault-accounting.patch
+mm-nios2-use-general-page-fault-accounting.patch
+mm-openrisc-use-general-page-fault-accounting.patch
+mm-parisc-use-general-page-fault-accounting.patch
+mm-powerpc-use-general-page-fault-accounting.patch
+mm-riscv-use-general-page-fault-accounting.patch
+mm-s390-use-general-page-fault-accounting.patch
+mm-sh-use-general-page-fault-accounting.patch
+mm-sparc32-use-general-page-fault-accounting.patch
+mm-sparc64-use-general-page-fault-accounting.patch
+mm-x86-use-general-page-fault-accounting.patch
+mm-xtensa-use-general-page-fault-accounting.patch
+mm-clean-up-the-last-pieces-of-page-fault-accountings.patch
+mm-gup-remove-task_struct-pointer-for-all-gup-code.patch
+
