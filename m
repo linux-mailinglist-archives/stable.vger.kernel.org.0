@@ -2,85 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF2E233F6B
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 08:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3CC5233FE3
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 09:18:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731367AbgGaGt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 02:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58140 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731365AbgGaGt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jul 2020 02:49:28 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AAE620829;
-        Fri, 31 Jul 2020 06:49:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596178167;
-        bh=xPd3z35wKS3rDjjx7Vmt9THjpc672VJ9ztW3nUpT64Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0Q3ICI1V39uoTR2bahOLTiWRuZyStsuQCSxAxlu3tuLNDDdxXkZye4aTApfmI09oP
-         mHeFkactbMxsGxOovfmNKBOEAIKsfLtXqMC8MYm5S6d+4VpFoyQ4kKVEHJXVQtgTz7
-         tfmLFxdi77Lk/PFCuX5bsTfFP/eQ6cIbQf7fE7HU=
-Date:   Fri, 31 Jul 2020 08:49:15 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] arm64/alternatives: move length validation inside the
- subsection
-Message-ID: <20200731064915.GI1508201@kroah.com>
-References: <20200729215152.662225-1-samitolvanen@google.com>
- <20200730122201.GM25149@gaia>
- <CABCJKucS-DXPkHMCPKpbFduZApRdw=1DL4+YhULAsUNn=o-dTA@mail.gmail.com>
- <20200730152330.GA3128@gaia>
+        id S1731685AbgGaHSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 03:18:40 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42241 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731629AbgGaHSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 03:18:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596179917;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FBeZiBi3rY5wwl7r2xHV4CjPc5IMTAH+aLjF+XSNGTI=;
+        b=Qf72zOYEqFw7j5JgeP44uhf/xyG/xshVgmt5c+CFJSR2un/6O6KjpR39bUIcoPv7CPMFTH
+        HSeGYiKif0u60Z9ssNYgS9GsvVPB01oVTVt2Cs8xkq+fXG67bBjb+w2TWK1ilzR2fGA5IP
+        zusCRWwqEW1DBOpzGCWyZpIpMtgRl5U=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-34-C2R-7gH9PqOacdhv-8I_uQ-1; Fri, 31 Jul 2020 03:18:36 -0400
+X-MC-Unique: C2R-7gH9PqOacdhv-8I_uQ-1
+Received: by mail-wr1-f69.google.com with SMTP id e12so8836010wra.13
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 00:18:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=FBeZiBi3rY5wwl7r2xHV4CjPc5IMTAH+aLjF+XSNGTI=;
+        b=L/XFbLUTixT1HQZng8J+oRTLkV/OPTWWYvzfIe9wbACvHXzmTjApsqTIU6mmx0TzTa
+         AK+yc29DsGoSFIMN88vadNmNqU6uMYsdjilmOYta09OaL4uo3MfbxweWuzEfHno6L7r8
+         ItIO7qCEFxJwCMs4bsGi8+SISRltM2d+3PA7wxbOmvWBiUDkgRzaeegsl1FS0oaqHZMH
+         udMxsPdzuBKzd0Kk6BYQ3qh+jmKOd58sH0NHi9FZKhrnimOiUvIyqa11dKii6i0eGNth
+         CceTR5svAXW3NZveal1kVOiL+NUhmhzAhyzjVwdCEux/aahKoqb1k5bsZrvREKn6/fTQ
+         qC/A==
+X-Gm-Message-State: AOAM5330z1rUIl7HPXHINEzA5ufRS+o2RihsR5SqFT0K4HkDWttaU1LF
+        iEsnpkGdNT8x2xjqUpkjB2ODEVyU27Mwq+phbX/CHKptTLmYjfUA93V+uYvXFT4KHTd8XJ4pO4X
+        y/yLPHY5GQ31PAgka
+X-Received: by 2002:a7b:c40a:: with SMTP id k10mr2454204wmi.127.1596179914866;
+        Fri, 31 Jul 2020 00:18:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx4jKCODk7T1VsBYriZd1g/iAJIFX62aV+2CqLzzD8PaXGWqc3wXNimK5Bl5W0qr0xLjLvzyA==
+X-Received: by 2002:a7b:c40a:: with SMTP id k10mr2454188wmi.127.1596179914663;
+        Fri, 31 Jul 2020 00:18:34 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:90a5:f767:5f9f:3445? ([2001:b07:6468:f312:90a5:f767:5f9f:3445])
+        by smtp.gmail.com with ESMTPSA id s19sm14586327wrb.54.2020.07.31.00.18.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Jul 2020 00:18:34 -0700 (PDT)
+Subject: Re: [PATCH v3 1/3] KVM: LAPIC: Prevent setting the tscdeadline timer
+ if the lapic is hw disabled
+To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
+References: <1596165141-28874-1-git-send-email-wanpengli@tencent.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <f28c7ad5-ea17-382e-f61e-c48418e49363@redhat.com>
+Date:   Fri, 31 Jul 2020 09:18:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200730152330.GA3128@gaia>
+In-Reply-To: <1596165141-28874-1-git-send-email-wanpengli@tencent.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 30, 2020 at 04:23:31PM +0100, Catalin Marinas wrote:
-> On Thu, Jul 30, 2020 at 08:13:05AM -0700, Sami Tolvanen wrote:
-> > On Thu, Jul 30, 2020 at 5:22 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > >
-> > > On Wed, Jul 29, 2020 at 02:51:52PM -0700, Sami Tolvanen wrote:
-> > > > Commit f7b93d42945c ("arm64/alternatives: use subsections for replacement
-> > > > sequences") breaks LLVM's integrated assembler, because due to its
-> > > > one-pass design, it cannot compute instruction sequence lengths before the
-> > > > layout for the subsection has been finalized. This change fixes the build
-> > > > by moving the .org directives inside the subsection, so they are processed
-> > > > after the subsection layout is known.
-> > > >
-> > > > Link: https://github.com/ClangBuiltLinux/linux/issues/1078
-> > > > Cc: <stable@vger.kernel.org> # 4.14+
-> > >
-> > > Commit f7b93d42945c went in 5.8-rc4. Why is this cc stable from 4.14? If
-> > > Will picks it up for 5.8, it doesn't even need a cc stable.
-> > 
-> > Greg or Sasha can probably answer why, but this patch is in 4.14.189,
-> > 4.19.134, 5.4.53, and 5.7.10, which ended up breaking some downstream
-> > Android kernel builds.
+On 31/07/20 05:12, Wanpeng Li wrote:
+> From: Wanpeng Li <wanpengli@tencent.com>
 > 
-> I see but I don't think we need the explicit cc stable for 4.14. That's
-> why the Fixes tag is important. If a patch was back-ported, the
-> subsequent fixes should be picked by the stable maintainers as well.
+> Prevent setting the tscdeadline timer if the lapic is hw disabled.
+> 
+> Fixes: bce87cce88 (KVM: x86: consolidate different ways to test for in-kernel LAPIC)
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> ---
+> v1 -> v2:
+>  * add Fixes tag and cc stable
+> 
+>  arch/x86/kvm/lapic.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> index 5bf72fc..4ce2ddd 100644
+> --- a/arch/x86/kvm/lapic.c
+> +++ b/arch/x86/kvm/lapic.c
+> @@ -2195,7 +2195,7 @@ void kvm_set_lapic_tscdeadline_msr(struct kvm_vcpu *vcpu, u64 data)
+>  {
+>  	struct kvm_lapic *apic = vcpu->arch.apic;
+>  
+> -	if (!lapic_in_kernel(vcpu) || apic_lvtt_oneshot(apic) ||
+> +	if (!kvm_apic_present(vcpu) || apic_lvtt_oneshot(apic) ||
+>  			apic_lvtt_period(apic))
+>  		return;
+>  
+> 
 
-If you know it ahead of time, the explict "# kernel.version" hint is
-always nice to have as it ensures I will try to backport it that far,
-and if I have problems, I will ask for help.
+Testcase please.
 
-thanks,
+Paolo
 
-greg k-h
