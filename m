@@ -2,98 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B004923461E
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 14:49:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6B6234646
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 14:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730943AbgGaMtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 08:49:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730291AbgGaMtu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 08:49:50 -0400
-Received: from mail-vk1-xa41.google.com (mail-vk1-xa41.google.com [IPv6:2607:f8b0:4864:20::a41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872CBC061574
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 05:49:50 -0700 (PDT)
-Received: by mail-vk1-xa41.google.com with SMTP id l184so5802270vki.10
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 05:49:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=MZv43kB+1lTlZUp+vVMxat9/5Weuo12mLX9BP76MtIoBFiIrOGlF6s7iOYm0khyy7R
-         XNroJblPlZq5vUb4jmGdC3vGotFzxdj4oPfgGBRUCxyn0nzPajhksuuK4RUuBh4CKDts
-         tFti5hB+UGXV4OMILz213p5peITjnVxi3l5kMhFKkHbEoLhruIRY5TbePZCD5GOJrzC4
-         wHFMYLdqJuVw7VWyoBuf+UCODhvFJ6XqqA/1dZwkVdhWLpVxiunMexMrc5p7VGNYfqU3
-         Q/InymUwK9Q5VplA6YG+Btcy4RHk/8LWczi2gRpIY/R+favjeVQWv567tTrET6y/fXvr
-         EQZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=tlVLK+ijP/D/86VSVZr01yynyuJ8CGoGjccwA9JoDk4G0zQgHKMJpaobQAZTuaH2w1
-         irM/nPtgdIwCvwTn92lHMyu3mjk7YUj1IpNUfxx4PbYDe8wOi1MDI+Mtggm9SKMKuVup
-         oVMqtN6mcH+RSxw6n3G9D6fkPwGSqKdOrWSbAtLMhGeNSa7pc5FNw+L510Kzta7C8C5O
-         70kQo4cjcdfs4e/oV4d9SD9rCT1maPtZCOMtoHvgJej9NNX6huIbBrvsff7xncQuNb98
-         ZhViW3mqi6zxAhXnfgxh7XLKwWCif1dvjUZaHLxtBeHGM9x2ip/+BUjaI4Z0UhTtsTl/
-         KYEw==
-X-Gm-Message-State: AOAM533zpJJjVkLTKgAd3UW28ujeZeatfKcs+FLP/xcTaftGnFE5Bq7S
-        pSV9TgBzDlRzAy2bP7w3CmI0vlIlWV0rI98m2Pw=
-X-Google-Smtp-Source: ABdhPJw81PICAx/8OExIzdY/aA8uwBnxAJQN6ig1AlZu3yh7JEgLCov9oNb88h1yyLoKDG5YFOL4I+xvwDfIOr6mZdY=
-X-Received: by 2002:a05:6122:2c:: with SMTP id q12mr2606862vkd.39.1596199789447;
- Fri, 31 Jul 2020 05:49:49 -0700 (PDT)
+        id S1730695AbgGaMwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 08:52:38 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:1951 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727040AbgGaMwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 08:52:38 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f2414080001>; Fri, 31 Jul 2020 05:52:24 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 31 Jul 2020 05:52:37 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 31 Jul 2020 05:52:37 -0700
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 31 Jul
+ 2020 12:52:37 +0000
+Received: from [127.0.1.1] (10.124.1.5) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Fri, 31 Jul 2020 12:52:34 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.19 00/17] 4.19.136-rc1 review
+In-Reply-To: <20200730074420.449233408@linuxfoundation.org>
+References: <20200730074420.449233408@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Received: by 2002:a67:b00d:0:0:0:0:0 with HTTP; Fri, 31 Jul 2020 05:49:48
- -0700 (PDT)
-Reply-To: ayishagddafio@mail.ru
-From:   AISHA GADDAFI <gracejohnson60000@gmail.com>
-Date:   Fri, 31 Jul 2020 05:49:48 -0700
-Message-ID: <CAASjQ8CHjaNSESdGUiDwMUND-97EbjDz+paD_YtMxSQOiEoGKA@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <567f30667e4a4aeab8cd7f4d0309abfe@HQMAIL105.nvidia.com>
+Date:   Fri, 31 Jul 2020 12:52:34 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1596199944; bh=1UoM/iwDNgtl4Wmu329WrXnOYEtJeijaLT+4ZXhWoIQ=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=ebiSmm1bRNQrbzjtBocrv+Bu29MwDyuYr18hh2UvHdN5cH9wMmMCFc6IuwCnuE7Pl
+         x/rQWwRw5+eLS5PzFmEDgElRziX8u0mdgc1c+JhRyQkWVkDhfElIhOSu7NnQ9kgyGR
+         IV7VZ29uJCcEKS42KiPTApx9Ksaj3HzodwTh3wk6EyXCYZ6FaZBBOvDe1qsWrpz/YJ
+         MWQVC8O34hUPu1TIZ9CybYUQjEnWAvrj2GuPTMccIwzraziQ50IbapJCFWFm2ov/so
+         gRHKgMWDRVTICus9JkeSe7ODUnLFwX8tR3Xkzs995BoFOSSJts+3xN7CxT8q3nTi6a
+         dcvkOZSVSh3zA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+On Thu, 30 Jul 2020 10:04:26 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.136 release.
+> There are 17 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 01 Aug 2020 07:44:05 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.136-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, eine alleinerziehende
-Mutter und eine Witwe
-mit drei Kindern. Ich bin die einzige leibliche Tochter des Sp=C3=A4tlibysc=
-hen
-Pr=C3=A4sident (verstorbener Oberst Muammar Gaddafi).
+All tests passing for Tegra ...
 
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen
-f=C3=BCnfhunderttausend
-United State Dollar ($ 27.500.000.00) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner aufgrund meines aktuellen Fl=C3=BCchtlingsstatus bin ich =
-jedoch
-M=C3=B6glicherweise interessieren Sie sich f=C3=BCr die Unterst=C3=BCtzung =
-von
-Investitionsprojekten in Ihrem Land
-Von dort aus k=C3=B6nnen wir in naher Zukunft Gesch=C3=A4ftsbeziehungen auf=
-bauen.
+Test results for stable-v4.19:
+    11 builds:	11 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    38 tests:	38 pass, 0 fail
 
-Ich bin bereit, mit Ihnen =C3=BCber das Verh=C3=A4ltnis zwischen Investitio=
-n und
-Unternehmensgewinn zu verhandeln
-Basis f=C3=BCr die zuk=C3=BCnftige Investition Gewinne zu erzielen.
+Linux version:	4.19.136-rc1-g62c048b85133
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-Wenn Sie bereit sind, dieses Projekt in meinem Namen zu bearbeiten,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. schreibe mir an diese email adr=
-esse (
-ayishagddafio@mail.ru ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Qaddafi
+Jon
