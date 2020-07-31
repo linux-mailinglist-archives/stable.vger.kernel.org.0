@@ -2,79 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D72D923491B
-	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 18:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97CB92349F8
+	for <lists+stable@lfdr.de>; Fri, 31 Jul 2020 19:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731222AbgGaQVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 12:21:47 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49864 "EHLO mx2.suse.de"
+        id S1732970AbgGaRPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 13:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgGaQVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jul 2020 12:21:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 80264AC61;
-        Fri, 31 Jul 2020 16:21:58 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id D66221E12CB; Fri, 31 Jul 2020 18:21:45 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        id S1732710AbgGaRPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 31 Jul 2020 13:15:17 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B8102074B;
+        Fri, 31 Jul 2020 17:15:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596215716;
+        bh=cWx1hbEGaUUwS1JJFnOe3X+vRj6dABujYkU2GC/oakE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=z8Batu5lPaUADFtk2YKU0dGwnmNAwaJlBCPAHopU4fD4FFJvbU2/tsIgH2XxtdR3X
+         GSV9g73r7DSHzcHssgFtV+ZVm9wvUx9dmnDFO1UbwCP2zVaZ/VslUMZi6q1jaWfuaZ
+         z1zBwgDg8FHfI/LzqcI2WeqaVg6l/F+qoJWF+sUc=
+Date:   Fri, 31 Jul 2020 19:15:03 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH] ext4: Fix checking of entry validity
-Date:   Fri, 31 Jul 2020 18:21:35 +0200
-Message-Id: <20200731162135.8080-1-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
+Subject: Re: [PATCH 5.7 00/20] 5.7.12-rc1 review
+Message-ID: <20200731171503.GA2012979@kroah.com>
+References: <20200730074420.533211699@linuxfoundation.org>
+ <20200730164823.GF57647@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200730164823.GF57647@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ext4_search_dir() and ext4_generic_delete_entry() can be called both for
-standard director blocks and for inline directories stored inside inode
-or inline xattr space. For the second case we didn't call
-ext4_check_dir_entry() with proper constraints that could result in
-accepting corrupted directory entry as well as false positive filesystem
-errors like:
+On Thu, Jul 30, 2020 at 09:48:23AM -0700, Guenter Roeck wrote:
+> On Thu, Jul 30, 2020 at 10:03:50AM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.7.12 release.
+> > There are 20 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat, 01 Aug 2020 07:44:05 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build results:
+> 	total: 155 pass: 155 fail: 0
+> Qemu test results:
+> 	total: 431 pass: 431 fail: 0
 
-EXT4-fs error (device dm-0): ext4_search_dir:1395: inode #28320400:
-block 113246792: comm dockerd: bad entry in directory: directory entry too
-close to block end - offset=0, inode=28320403, rec_len=32, name_len=8,
-size=4096
+Thanks for testing all of these and letting me know.
 
-Fix the arguments passed to ext4_check_dir_entry().
-
-Fixes: 109ba779d6cc ("ext4: check for directory entries too close to block end")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/namei.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 56738b538ddf..98b91f2314eb 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1396,8 +1396,8 @@ int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
- 		    ext4_match(dir, fname, de)) {
- 			/* found a match - just to be sure, do
- 			 * a full check */
--			if (ext4_check_dir_entry(dir, NULL, de, bh, bh->b_data,
--						 bh->b_size, offset))
-+			if (ext4_check_dir_entry(dir, NULL, de, bh, search_buf,
-+						 buf_size, offset))
- 				return -1;
- 			*res_dir = de;
- 			return 1;
-@@ -2472,7 +2472,7 @@ int ext4_generic_delete_entry(handle_t *handle,
- 	de = (struct ext4_dir_entry_2 *)entry_buf;
- 	while (i < buf_size - csum_size) {
- 		if (ext4_check_dir_entry(dir, NULL, de, bh,
--					 bh->b_data, bh->b_size, i))
-+					 entry_buf, buf_size, i))
- 			return -EFSCORRUPTED;
- 		if (de == de_del)  {
- 			if (pde)
--- 
-2.16.4
-
+greg k-h
