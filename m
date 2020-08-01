@@ -2,94 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21ACB234F02
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 03:01:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80F1C234F44
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 03:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726847AbgHABBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 21:01:49 -0400
-Received: from sonic302-1.consmr.mail.bf2.yahoo.com ([74.6.135.40]:44242 "EHLO
-        sonic302-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726099AbgHABBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 21:01:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596243708; bh=Sq0m1vvm2SZTihycyLIp46MmEaT+M4u+5ZuM67ujUHw=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Hrzh7qICRPkfCBqdm2KVLOknD8FHdzZyb5qIYuy/bmlsxjtbdo7Cy+Qh17vjxWCnZv68IWD0iRA0Wuul7oxX0ByUkxwMjR7jiis3Fy3ZyxyaZy2j+N+WgUguTvO9ruViY6oOv3i6CFgn2G/oPUG3drmR3bP9tqSlIXOi6YoTReDCVas04usnvtyuGmTr7Tgoo2liIMAE6XmRUU5V5IVeYUHoCR4lQ/WTSaG7tM4uDqxqI2MveXHSvghd+RzLPf0L7i71fJopmOSzl0kJQv768E6zGC0us9ftkdhLyL1uuAJPspoN3/jRtgwQkHjw+Kp6e2WN4dhWq4qwD8pSCzVBkA==
-X-YMail-OSG: oTxKo_IVM1nrUxuoKQr0EnnXrFo_xZhAzKo9WW_svIymXW4XN6AeUhYSk27i8Yq
- FfABEz9M3m6yFI3DDFeq1w.YMI9hGYyoMEWgYWqNhycq6lBjVmzZyEIJi2TsMutZhiXFbaLPiEqc
- r5aOl0fBSDW6fyZmrR0H.yxps.zQQk1ywvCL0i6Va96UE26qTSdDOZV_eWSMOF8t3m5Bdde9wGTC
- cDac.krmtEDMljcJEqLORLkUsMZIP0gOpeWLjfIrHt6Hcd7O5SO.lpfUNd7yt7x0QCJjaQLWwjBR
- .g7NzDKNVC7vs1.v1Y16U5Vd73GKzT2TL_5YjCxKOdFFegVx0.n6ofVwDsFSFljuucBv4fI5wrop
- C.1qsYDCxYFrVhqaDvu4dZTLe8KO9n_FJjJLjsDrI5nor.XGUhq.540xQPleVemKPIZASsxUQ9K4
- x61VrAfUAPvzqMz76TJRI1F9e0tVtG3O2kLIQmJae6dFvP7lWN9tQyTVW6rjnadmYF987M7CoITf
- K.f6zMR9nfZEJsSAVgSViMiO0P8K..KHuJGsn6QlZzNtniFM2JPDSxTceIhs2H.6mqjD9GFwVnYe
- Y_t9zVFbtJHtTa3OklhFkqyqBOiA2ih3yyi8O8aLk_vR1kBZ5lHkPJJoeOlC2v0PZEdJLyw01zSl
- n_FOSJNEyYEW5ejsiRDzTq6VqkT2tMZXLhlhfED7o.gfHcZfl2To2HPIsNzy0E.UZB.IfhO7ml7v
- l9e3Ap4P7OgNRTfDRTJIqUoTgHhmDu.1z_rSCfXPPNXdRV_0UlVCKQLUQYdyB00.XVP0X2RYEWs9
- su9sAUkE_lHJy0v5dEAcODIDf37Tf9qQzaFLaEt28HsJ8oTxI3ZuxfQBc87U0q2ANxmQKnpr5uU_
- VoR6Zt1JnhXXDAzm4t2fbAJSRpgdqrnoe7cdb8qnzEcqUczbVMF5t261d_Eve.vm4g2Q1C_dw4ut
- SZbK.HM1gMT17mCzkp_fT2PUW3C3nJ4BSiKJOjrWOaNSjPxk_q_rVyEW9hmjGQgTpyqmAHu2IHkC
- uFH9h1qM5k.t8t_lw66eIhyB8o4uzxFRpHwQTtsR4ua5ymTLQqtaw7ghztuJEyS_a6h6h7.Ttvy4
- 5UGsMa0Kle.HkE_UpvaPjylOyxLbutzHq4xKO0CP8T1oGDSLmCeJT9_HmYIcH0P6s82XJZ5rjn50
- nyiWbyMhEr7_O8Cw8JWS7DJKP9QlrmVvJNLFEztffRcw88YAAlt4aYJRde1.ms4QZHVPXH1S_J7T
- Ia0LuzlrHGhLv01vKKHcYFbJOcA5xW1lFoceCJvnGhIyYhicGYfJcXNBWkH0wbhl64w--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Sat, 1 Aug 2020 01:01:48 +0000
-Date:   Sat, 1 Aug 2020 01:01:46 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <annahbruun6@gmail.com>
-Reply-To: mrsminaabrunel653@gmail.com
-Message-ID: <1427289683.456034.1596243706732@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1726883AbgHABef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 21:34:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39864 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726794AbgHABee (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 21:34:34 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B16C06174A
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 18:34:34 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id v21so16779686otj.9
+        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 18:34:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=UgTcJtv3XI0RN4lWxlwQSlVLa4pEB8K0Tva8uiPBER4=;
+        b=Sicejj3XPW08pa3g4c97YMzaRsNpluMYVvawt3u/GPZrW9hr7znlUxDo2A4gqV455V
+         0ugXbv5mZYf5kJ84nouvt7f8K/7QTWXQAtdkX9XKG+9wsSDwFefSLuLEjwHPiSVYpFYu
+         AVe6kelnCU6l5HcD1VSM4GgfcbZxGLbqf80SjQ2ILA5Qo3rz/MFWJDKt6Vv3/ZAMQN5f
+         gsDnL5118lW6ZbyjV0pvXV+8h+10a7DWpfgVL6iuN8jdkyjQGIHViFBw3jnM14BrNG2c
+         wksHdNx/7AgIVOtTmQzJEjPz9M+D7AMdxOC6A/TysJ7z9gKVRqrVXukX5mIjdIfh0v4U
+         OOCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=UgTcJtv3XI0RN4lWxlwQSlVLa4pEB8K0Tva8uiPBER4=;
+        b=pb88ruCiLbZPfgaobVCMLxn9gQKUdsKAnEXBPnBmPkyuOIw/u7AbQhqqYVwyPvzMkg
+         ipaV0IrrRtAkGRPFdi+SKnUS13823mpp5yNxvyJKxUjc9JccCmv5LchTzumkONjssvo6
+         P8XJXIzPdI4lPjzISfxW0jEXjtaiHGL+Vdq1IhbP89AiyuYnDB//fWh6LlmnLNL8Pczf
+         XHXzNUWvG8Geav7HcUMRilgFYmUweTKPjQEAGJ5yUKH2/7Um3a3kDKrM/GE4RqFMf66D
+         PuoxdSKW6TStJeaXR7XqE9KCEsRU0lYam+ZyP7Mp17kCi6sZws/Ry44bVezexWG9HRmG
+         V6dg==
+X-Gm-Message-State: AOAM5327pozlXHkeQjlVXa7yFQ5roxK9ARFjSEKuQOYv6w/6Y3FoAGCT
+        yGjYT4gzpIngE+3SzQlw/KCnoV9zKL//cMRTb4I=
+X-Google-Smtp-Source: ABdhPJxdZebOqrDC0Oc4u2f74CXiwlSOqibkRnPAjcDV39kl7JBjOc4Oe75AEsrE7u1/yOqU6PlDuYAhkc+gMH0f+nc=
+X-Received: by 2002:a05:6830:45c:: with SMTP id d28mr5089137otc.200.1596245674051;
+ Fri, 31 Jul 2020 18:34:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1427289683.456034.1596243706732.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16398 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Received: by 2002:a9d:353:0:0:0:0:0 with HTTP; Fri, 31 Jul 2020 18:34:33 -0700 (PDT)
+From:   Marina Bagni <marinadanielsbagni@gmail.com>
+Date:   Fri, 31 Jul 2020 18:34:33 -0700
+X-Google-Sender-Auth: qbyHkHmsAAfdgrSHp3wGx6MTaHM
+Message-ID: <CA+gOxdHR1x+eOoDZUcjZToNcYHJueL=2j+hrWd5yi4J_je16Rg@mail.gmail.com>
+Subject: I need your assistance,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello my Dear
 
+ I am sending the same message to you. My names are Mrs. Marina Bagni,
+I deal in gold exportation. I am a widow diagnosed with brain tumor
+disease which has gotten to a very bad stage, Please I want you to
+understand the most important reason why I am contacting you through
+this medium is because I need your urgent sincerity and ability to
+carry out this transaction and fulfill my final wish in implementing
+the charitable investment project in your country as it requires
+absolute trust and devotion without any failure, which i believe that
+you will not expose this to anyone or betray this trust and confident
+that I am about to entrust on you for the mutual benefit of the
+orphans and the less privileges ones. I made a substantial deposit
+with the Ecobank which I have decided to hand over and entrust the sum
+of ($ 9,650,000.00, Nine Million Six Hundred and Fifty Thousand
+Dollars) in my account to you to Invest into the charitable project in
+your country. Based on my present health status I am permanently
+indisposed to handle finances or any financial related project
+following my diagnoses for Idiopathic Pulmonary Fibrosis. As my health
+has deteriorated so badly that was what prompted me to take this
+necessary decision from my sick bed in contacting you to assist me
+carry out this transaction and implement the humanitarian project with
+my fund in your country.
 
-My Dear in the lord
+It will be my pleasure to compensate you as my Investment
+Manager/Partner with 50% percent of the total money for your effort in
+handling the transaction, while 50% of the fund will be invested into
+the charity project there in your country. Therefore I am waiting for
+your prompt response now I have access to the Internet in the
+hospital, if only you are interested I will give you further details
+and my data. Please always check your e-mail as I have only a few days
+to leave on this earth. Your early response will be appreciated.
 
-
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
- gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
-ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
-on Euro) Eight million, Five hundred thousand Euros in a bank in Rome the c=
-apital city of Italy in Southern Europe. The money was from the sale of his=
- company and death benefits payment and entitlements of my deceased husband=
- by his company.
-
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
+Best Regards.
+Sincerely Mrs. Marina Bagni.
