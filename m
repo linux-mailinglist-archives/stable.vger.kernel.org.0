@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C78132351E8
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 13:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F34A62351EA
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 13:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728418AbgHALqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 07:46:52 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:38371 "EHLO
+        id S1728814AbgHALrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 07:47:02 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:37571 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726808AbgHALqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 07:46:52 -0400
+        by vger.kernel.org with ESMTP id S1726808AbgHALrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 07:47:02 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 9CA7C839;
-        Sat,  1 Aug 2020 07:46:51 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 974EC762;
+        Sat,  1 Aug 2020 07:47:01 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sat, 01 Aug 2020 07:46:51 -0400
+  by compute1.internal (MEProxy); Sat, 01 Aug 2020 07:47:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VcXoNm
-        m30ivstCFeMK5KzgyB8FNKR1OZsw2QkaV2kXs=; b=SYmjarlQxAT8NnoxFVXVYD
-        p7E/IPDVXEcz3+FV20cuEjB1zDeAD2BBV9F/GN1/6Eom59dRwQQqV3/Yr2AKn1/m
-        xrAe9yHB7uOx1+d13qF0iJOIdYAC0XtjrVhNRKxT88xWnQ6beGq31Os5X11YIf9Y
-        fgpVVTpcvEgpu0m/VRui28nOy47ypbPL8NStxyrqGgGz7iLiAqdPi5Ws+ifi9kl2
-        kOXjnbz0BpLaulkyDmu276AJtK3kIUUqhwZEycn/tmGWw9ccqgbutGNLxT34xHQg
-        EbDXgGHh800zFZlKwiZjznrcv7qvY4kprMxR05h0n8gkAt5wVXkA4lH+On9yZhfw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Nx2i1H
+        uHEXt7ju0QUGlEiLzFGEDHH1oFd7LnR3QpbvI=; b=twm0TmIgmrz4owO8deisQ4
+        k8Bj2V7cDh4RC3ST6VsghqGBzi1hBwBxxtNQzVQKUoMg+c71qSVin6wVOO9fQE5W
+        /BYjT9dO6uJWpoERBrMkkBfbI4Et9GSMU+zgTAHApssXBm0RXKfcu02uf2U7vkRU
+        G0oPLydQWObA0a2+RXan/Iq/39jHQILZ3Hh2UZru7fsW36zKoJcgsxU5JaasSEIV
+        BzM6ZVU1es/fpqJih2/0d0Qcu9C/mGeyomr3X55RvEQyTk7k1NoYdsNFlMQmhc8R
+        +WLGMzRStDzAPM7l9k1NVvM1jr6sqnaFBItL/z9b4g7uZ9iY8iUQNDkm3S7PcDTQ
         ==
-X-ME-Sender: <xms:KlYlXxv_yetJpdrXTvtjRqYeyxxheyUYRW4NlDnzaSvUHtVphN0zbQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgdeggecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:NVYlXxCX8n3DFKiVNHpYsK0yqsxIGulpY_bB5LrqoVEorYwFbYiJJw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgdeghecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgdeggecutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:KlYlX6f8Db86ivObrtEDHq_NoYdKxw19p1Cc0yi-3C76AuA9ZRboVA>
-    <xmx:KlYlX0z1Rp2-AZKDnYJv8J3NTv2oYlKEERtmOxNbkr7du0qXReIjdQ>
-    <xmx:KlYlX4MljAZU5hJnzW2R4Y_qpmGz9ctjWLKjSPI6aiRnXfsCSOx3iw>
-    <xmx:K1YlX2J9oP2uA7WdyJEq3Q4vxOW0UMvRpsQK_L_alymvIDp7G6YRZR_EL90>
+X-ME-Proxy: <xmx:NVYlX_jNuP4ZseEoI9pw0qttEdfi3ZhcLjU3a37AmArr2lKnkLvuCQ>
+    <xmx:NVYlX8navGUWu-gnjQ-fNMA9U8G7oovVDvD2TfqiDWl4kgQRqcPwAQ>
+    <xmx:NVYlX7wpKUKmLeg0bophc-3kx84BsPDBKsQUwGJfzGWPNgxkTxFeQg>
+    <xmx:NVYlX9PHW9ooSRBbNODX-I0jYJvtAb9L3RYo9aj-kD-OI24EUQqdq1z8K2Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8515F328005A;
-        Sat,  1 Aug 2020 07:46:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] 9p/trans_fd: Fix concurrency del of req_list in" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id D5B35328005E;
+        Sat,  1 Aug 2020 07:47:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] 9p/trans_fd: Fix concurrency del of req_list in" failed to apply to 4.9-stable tree
 To:     wanghai38@huawei.com, asmadeus@codewreck.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 01 Aug 2020 13:46:33 +0200
-Message-ID: <159628239320216@kroah.com>
+Date:   Sat, 01 Aug 2020 13:46:34 +0200
+Message-ID: <1596282394253233@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
