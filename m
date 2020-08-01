@@ -2,87 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2476B235328
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 18:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 243D1235356
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 18:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726300AbgHAQCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 12:02:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54276 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725841AbgHAQCn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Aug 2020 12:02:43 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 487AA207BC;
-        Sat,  1 Aug 2020 16:02:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596297763;
-        bh=p2oDC8N96YV8ZYXENTyf4/gTFtcs++qxxMizDPrcRDg=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=YwHwRk01ZdxpAR7bbkL/Psag7Er8KU65zF/vJW/GDIO4EhfSKtjwqmELyMfHmwGvr
-         csVCHv7u8gvajzdrvWYiywe/hLiCKs+/rgctewH8QYauc+KLedUkh63tuCL3b1vEwe
-         4VxHmyBJbu6hZv25YpVbFhY85erKyHZePQMc49oM=
-Date:   Sat, 1 Aug 2020 17:02:34 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     <stable@vger.kernel.org>, "Hartmut Knaack" <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        "Peter Meerwald-Stadler" <pmeerw@pmeerw.net>,
-        <linux-iio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] iio: trigger: sysfs: Disable irqs before calling
- iio_trigger_poll()
-Message-ID: <20200801170234.2953b087@archlinux>
-In-Reply-To: <20200727145714.4377-1-ceggers@arri.de>
-References: <20200727145714.4377-1-ceggers@arri.de>
-X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726494AbgHAQYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 12:24:32 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:44983 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725841AbgHAQYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 12:24:31 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7D9CF5C00EF;
+        Sat,  1 Aug 2020 12:24:30 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sat, 01 Aug 2020 12:24:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        subject:to:cc:references:from:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm3; bh=A
+        R8KqUnGVjK7QTE3PI1CuQvIC++1Koq61ifqJ5NJFGw=; b=hhOs7lAOcdDJ16NvU
+        gnuvG12GqRYeEQVrMudf56LnoOOpWN6gu57sIPiqUymz6BL8t6w/hOEf7ujX5KLU
+        +2D7OLrys/MmgDoVY+4RyHx83MQVoIEKvPM6gwr/Oz74i0G2RvVoE3my4aiz7J+f
+        VwO67EYJy9H/WavpqIZlr52GStXBvCdk0I+6qpOyb5mvlAnh64LeKNF8iarpURjI
+        NxUkKYCrS+iPXzZqpvkz4nfCICrUYd2eNsvccTYFejxelDdIyFy55bHDYhOKNAM4
+        PU+VnVcgoK3ez96vAu547EpEZ2LGY68wRy+1JKNqD2mMrjF/wp6Is3UFQwdD8GPa
+        bvWnQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=AR8KqUnGVjK7QTE3PI1CuQvIC++1Koq61ifqJ5NJF
+        Gw=; b=KP1aCXG5RggBrmp3+c/mBqi1wqnuKBKIhCEVYjfcj6BCJrnz4fQI80Vgw
+        aCrA2iQHzKNu1urp0laqPnqQL36ryNuwiG+O0N/gLBIAWCwooEJHLXspxIrwHZDA
+        p7ISgX7emb2qZIMhfTZcSWMTOqNQxz6FsCuziUugeV8QfdyT/jvPF90kiCkSLpPR
+        oWeIrRegSrkC0oqSdFpKiqUMe+ndnMIklE59gTLE/bP+ENL0DLXDFPfZR1QnCa1v
+        mp5gLwFcrGcDSFLs2/5JXqavnRY8NlQTGGk4jao4UNlinrHsKa14e8RETdsLZ0ai
+        FbST8Sc6igcEQ42lYMvHZlVePRvnQ==
+X-ME-Sender: <xms:PZclXzTItlu3x_0usgXA3tCWVs2TGIf9hRQ0gN47Z9Wl593srCt4ag>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgddutdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepuffvfhfhkffffgggjggtgfesthejredttdefjeenucfhrhhomhepufgrmhhu
+    vghlucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecugg
+    ftrfgrthhtvghrnhepgfevffetleehffejueekvdekvdeitdehveegfeekheeuieeiueet
+    uefgtedtgeegnecukfhppeejtddrudefhedrudegkedrudehudenucevlhhushhtvghruf
+    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgr
+    nhgurdhorhhg
+X-ME-Proxy: <xmx:PpclX0wSmDTsB-4Vm2mHLkv3l4Vnzs56xWSWEuw0kcekKLhteBMrew>
+    <xmx:PpclX41qoMKau78iZuzqyUY4AJ1xPNIWD0IhiJdVtu-3Wqe9hoF-4A>
+    <xmx:PpclXzB458IDE7z96JztAZsHNYlSrNL93QoZN7aOCSZLAQSvt9WxNA>
+    <xmx:PpclX_tuzntJvLFJ12UTLSME0EcPj4Y5Imn3zk00GoVOBuRiV9vKNQ>
+Received: from [192.168.50.169] (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A28453060067;
+        Sat,  1 Aug 2020 12:24:29 -0400 (EDT)
+Subject: Re: [PATCH 1/2] Bluetooth: hci_h5: Stop erroneously setting
+ HCI_UART_REGISTERED
+To:     Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200801154346.63882-1-samuel@sholland.org>
+From:   Samuel Holland <samuel@sholland.org>
+Message-ID: <789a7d61-bdc0-19a2-d4e0-03b2f89bb516@sholland.org>
+Date:   Sat, 1 Aug 2020 11:24:46 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200801154346.63882-1-samuel@sholland.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 27 Jul 2020 16:57:13 +0200
-Christian Eggers <ceggers@arri.de> wrote:
-
-> iio_trigger_poll() calls generic_handle_irq(). This function expects to
-> be run with local IRQs disabled.
-
-Was there an error or warning that lead to this patch?
-Or can you point to what call in generic_handle_irq is making the
-assumption that we are breaking?
-
-Given this is using the irq_work framework I'm wondering if this is
-a more general problem?
-
-Basically more info please!
-
-Thanks,
-
-Jonathan
-
-
+On 8/1/20 10:43 AM, Samuel Holland wrote:
+> This code attempts to set the HCI_UART_RESET_ON_INIT flag. However,
+> it sets the bit in the wrong flag word: HCI_UART_RESET_ON_INIT goes in
+> hu->hdev_flags, not hu->flags. So it is actually setting
+> HCI_UART_REGISTERED, which is bit 1 in hu->flags.
 > 
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
+> Since commit cba736465e5c ("Bluetooth: hci_serdev: Remove setting of
+> HCI_QUIRK_RESET_ON_CLOSE."), this flag is ignored for hci_serdev users,
+> so instead of fixing which flag is set, let's remove the flag entirely.
+> 
 > Cc: stable@vger.kernel.org
+> Fixes: ce945552fde4 ("Bluetooth: hci_h5: Add support for serdev enumerated devices")
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
 > ---
->  drivers/iio/trigger/iio-trig-sysfs.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/iio/trigger/iio-trig-sysfs.c b/drivers/iio/trigger/iio-trig-sysfs.c
-> index e09e58072872..66a96b1632f8 100644
-> --- a/drivers/iio/trigger/iio-trig-sysfs.c
-> +++ b/drivers/iio/trigger/iio-trig-sysfs.c
-> @@ -94,7 +94,9 @@ static void iio_sysfs_trigger_work(struct irq_work *work)
->  	struct iio_sysfs_trig *trig = container_of(work, struct iio_sysfs_trig,
->  							work);
->  
-> +	local_irq_disable();
->  	iio_trigger_poll(trig->trig);
-> +	local_irq_enable();
->  }
->  
->  static ssize_t iio_sysfs_trigger_poll(struct device *dev,
+>  drivers/bluetooth/hci_h5.c | 2 --
+>  1 file changed, 2 deletions(-)
 
+Sorry, I didn't see the other patches that were just added to -next.
+I'll rebase my additional changes on top of them and resend.
+
+Regards,
+Samuel
