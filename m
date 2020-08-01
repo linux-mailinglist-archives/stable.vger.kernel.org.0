@@ -2,154 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A77235306
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 17:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 327C0235316
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 17:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726773AbgHAPnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 11:43:53 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:45325 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725841AbgHAPnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 11:43:49 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id A07B85C00F2;
-        Sat,  1 Aug 2020 11:43:48 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sat, 01 Aug 2020 11:43:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=fLE/BR/AfO59g
-        KvBp7sezPVqGqn3x1Dpcq3I+BQXhzk=; b=eE/HQiHcfS6C4NSf1tO8GS2lYvR5H
-        hrP+ldGh07Y9Na2k7bNzc26W4B3qFTJJTk3+7FlTFi/wzg9RVxOGdRF3ZLZWNI3R
-        bV4dM+H1Om289XgEfl8iak/ukyHfPAbOIizEDQT5HqaulHJnt4b3DKIfKV1e7JN9
-        rlRjLWNIn+Bg1treek5BFfHFNEETIbKrfmmpkkVI4TH+mADUwnmxqcMLWJOjKaxz
-        dAR5PD3ODcHeIgNYhhUd3RAKaOCt4tVtPY8o1rRvbcpfyhpj21vl2aUcN5IpHBby
-        ksA6BaUxtrRA6u+JOQwM6TLOzmp5DC6P2oNvb0zbc8UCYr6ky4ahXAwoA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=fLE/BR/AfO59gKvBp7sezPVqGqn3x1Dpcq3I+BQXhzk=; b=mfEefv+m
-        vSv3Xb/8LImHvLtDoKGu697+xhp8O+BBscg6LkD3bJ0zaGy6TVXO5HaAUAmPQxXm
-        +LR2AtAvwxQD5RiIwv5ZzgD4sKvZBWe0w0FRPLmmeBHrWCIHhn9PhhJJxYZjuKBO
-        2WSLEIlenj2dD7F492XCpJsjfLT9nn48vVxmY8TspWgN9rGElsdz6L28XyUemvw8
-        2PscoXwh8qsAwxW7MzxszSJjLxRB6k/B9yqb4kM1W/+yWIe4HarmCnYjDuVv1S0o
-        snv+w3f78SqtVlOExORtScb9aHydAvVp7CfUMmc2Rwh8svlUF5QDPEtk+3pqVlGw
-        rxjKo+yKlvI/1Q==
-X-ME-Sender: <xms:tI0lX-4LxBE8hH486tCytiUjTvK6S3wdGa274cDkXvHIUuyPhaybhQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgdelfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
-    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
-    grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
-    jeehueeinecukfhppeejtddrudefhedrudegkedrudehudenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgu
-    rdhorhhg
-X-ME-Proxy: <xmx:tI0lX34Ej15o3lvQCJWF6OSME-HGqO5HRla88vPA-OziF47yPZV_TQ>
-    <xmx:tI0lX9d1diDL1Q_BYHL8DfPWp91tub_stNBt48dWZvzUozh6WJSmjw>
-    <xmx:tI0lX7LCZpkkEzbdcYJdoM8YEJg13-cygRmR33u99Ubnae5xjawyAg>
-    <xmx:tI0lX-3H-s4LZSwR8lq5k3jcC_F2x9q2FnS2ZnaMEq2vzKG2ng2N-w>
-Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 20CF73060272;
-        Sat,  1 Aug 2020 11:43:48 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Samuel Holland <samuel@sholland.org>, stable@vger.kernel.org
-Subject: [PATCH 2/2] Bluetooth: hci_serdev: Fix crash with HCI_UART_INIT_PENDING
-Date:   Sat,  1 Aug 2020 10:43:46 -0500
-Message-Id: <20200801154346.63882-2-samuel@sholland.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200801154346.63882-1-samuel@sholland.org>
-References: <20200801154346.63882-1-samuel@sholland.org>
+        id S1726947AbgHAPrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 11:47:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726534AbgHAPrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 11:47:52 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FEAC06174A
+        for <stable@vger.kernel.org>; Sat,  1 Aug 2020 08:47:52 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id mt12so8723847pjb.4
+        for <stable@vger.kernel.org>; Sat, 01 Aug 2020 08:47:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dn4G1XHuY6TL13b+f+qdjJekC5Ek3ShoHSyVkKN61zY=;
+        b=TOLYJjf144ZbaXKqybCAosyODV8gzLjEvnt//rTN3nXMDSVuqGOVUq23gUUDB3jyyf
+         G3sbgynDQfYLIO7xDSjh5HErcV3jckuw9a1Fv/0VqcrEec7xPkt+v07eGZv1HKiiSqot
+         mf34zd7hByd2Z5vvZq+Qm2q1KkhrNQyS8nDX8wIsYDGTeh+WxzCMmiNB0ro84cB9+SoP
+         kVu8fhgHIH1NjZDGX7yB9MhzwedKIl75TN2ph9hAzB4UWnHN+UQ59Ojlm36e+kCXDXTJ
+         CtNk4RDKMGrcHipmGUoaH5B1gwFaaLYHa1CQu8+/QbSJwhaXwTveD1RKdh9Kcag9rDwS
+         b4ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dn4G1XHuY6TL13b+f+qdjJekC5Ek3ShoHSyVkKN61zY=;
+        b=GwU286GcvyCX8Ls3VCEzz0ZK+vFl+yANkkT6dF0kg9R8v8mWeE4fpRVGMWEjW8l/HE
+         VxlnJUJAJG1NpWEAiR542asdENfi8mGF4y8dn0xSdwCfm5YiTxEfq9K7yLNUn1UPgLtm
+         IC9mmBQXLm4IHJZ6iEKe+NgZkIwItyAvVOGeiM2VMVq9LkhFnaXjt4IDxqo7gu1zNeMx
+         gxN7SahQ21p/UmfF8qYOafVo9Kvkz5jAczhVNNq03r3OZUreCT+ERiomDNuKqj+zp/0r
+         8krLQQRWvB3LuMl5rkEUdcRrP+JJ5U0D0uQAxDCRufmRizC2y/eEFw1FiP988EpKeiPp
+         T1wA==
+X-Gm-Message-State: AOAM531YtrE7o7sw1+5y4SPyrzPQG8rquOEwUuSvXDLFcBV+t03WFV8Q
+        VLJrgKl9l7Tt9wInOvLeheH3PffRZYg=
+X-Google-Smtp-Source: ABdhPJzpYxD3U8wpzbo/YPbZsNk9f0zPgaOl12z55qQGCHo64FVqX6M/GY5uoGfdYyJAcQZdajxkcQ==
+X-Received: by 2002:a17:90b:8d6:: with SMTP id ds22mr9333023pjb.145.1596296871588;
+        Sat, 01 Aug 2020 08:47:51 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y6sm14240950pfr.61.2020.08.01.08.47.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 01 Aug 2020 08:47:50 -0700 (PDT)
+Message-ID: <5f258ea6.1c69fb81.619bc.2dff@mx.google.com>
+Date:   Sat, 01 Aug 2020 08:47:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.136
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y baseline: 180 runs, 2 regressions (v4.19.136)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When using HCI_UART_INIT_PENDING, hci_register_dev is not called from
-hci_uart_register_device. Instead, it is called by hci_uart_init_work,
-which is enqueued by hci_uart_init_ready (as hu->init_ready). In the
-case of the hci_h5 proto, hci_uart_init_ready is called only after
-handshaking with the hardware. If that handshake never completes,
-hci_register_dev is never called. When later unregistering the device,
-the kernel crashes:
+stable-rc/linux-4.19.y baseline: 180 runs, 2 regressions (v4.19.136)
 
-  Unable to handle kernel write to read-only memory at virtual address 0000000000000008
-  Internal error: Oops: 96000045 [#1] PREEMPT SMP
-  Modules linked in: hci_uart(-) btrtl bnep bluetooth 8723cs(C) [...]
-  CPU: 3 PID: 516 Comm: rmmod Tainted: G         C        5.8.0-rc7-00277-gd87641cb644c-dirty #1
-  Hardware name: Pine64 PinePhone Braveheart (1.1) (DT)
-  pstate: 80400005 (Nzcv daif +PAN -UAO BTYPE=--)
-  pc : hci_unregister_dev+0x58/0x4b0 [bluetooth]
-  lr : hci_unregister_dev+0x54/0x4b0 [bluetooth]
-  sp : ffffffc011b5bc60
-  x29: ffffffc011b5bc60 x28: ffffff8075d23800
-  x27: 0000000000000000 x26: 0000000000000000
-  x25: 0000000000000000 x24: 0000000000000000
-  x23: 0000000000000000 x22: ffffffc008d86000
-  x21: ffffff8079dd2000 x20: ffffff8078026000
-  x19: ffffffc008f4f6d0 x18: 0000000000000000
-  x17: 0000000000000000 x16: 0000000000000000
-  x15: 0000000000000004 x14: ffffff807b15c110
-  x13: 0000000000000000 x12: ffffff80778e6720
-  x11: ffffff80778e66c8 x10: ffffff807ac6ada2
-  x9 : ffffffc010c95864 x8 : 0000000000210d00
-  x7 : 0000000000000000 x6 : 0000000000000001
-  x5 : 0000000000000001 x4 : 0000000000000001
-  x3 : 0000000000000000 x2 : 0000000000000000
-  x1 : 0000000000000000 x0 : 0000000000000000
-  Call trace:
-   hci_unregister_dev+0x58/0x4b0 [bluetooth]
-   hci_uart_unregister_device+0x40/0x74 [hci_uart]
-   h5_serdev_remove+0x18/0x20 [hci_uart]
-   serdev_drv_remove+0x28/0x4c
-   __device_release_driver+0x174/0x210
-   driver_detach+0xc4/0x100
-   bus_remove_driver+0x5c/0xb0
-   driver_unregister+0x34/0x60
-   h5_deinit+0x14/0xd10 [hci_uart]
-   hci_uart_exit+0xc/0x30 [hci_uart]
-   __arm64_sys_delete_module+0x1b0/0x260
-   el0_svc_common.constprop.0+0x60/0x100
-   do_el0_svc+0x20/0x30
-   el0_sync_handler+0x88/0x1b4
-   el0_sync+0x138/0x140
-  Code: aa1303e0 79408297 95f69770 a9400682 (f9000441)
-  ---[ end trace b68f9044c8f92379 ]---
+Regressions Summary
+-------------------
 
-Fix the crash by flushing the hu->init_ready work to ensure
-hci_register_dev is not being called concurrently, and then only
-calling hci_unregister_dev if the HCI was previously registered.
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-Cc: stable@vger.kernel.org
-Fixes: fdee6d8fc630 ("Bluetooth: hci_serdev: Fix HCI_UART_INIT_PENDING not working")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
- drivers/bluetooth/hci_serdev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 4/5    =
 
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index 599855e4c57c..3977bba485c2 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -355,7 +355,10 @@ void hci_uart_unregister_device(struct hci_uart *hu)
- 	struct hci_dev *hdev = hu->hdev;
- 
- 	clear_bit(HCI_UART_PROTO_READY, &hu->flags);
--	hci_unregister_dev(hdev);
-+
-+	cancel_work_sync(&hu->init_ready);
-+	if (test_bit(HCI_UART_REGISTERED, &hu->flags))
-+		hci_unregister_dev(hdev);
- 	hci_free_dev(hdev);
- 
- 	cancel_work_sync(&hu->write_work);
--- 
-2.26.2
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.136/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.136
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      13af6c74b14a883366e7702c40c52ff548096e7f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f255b3e6bf76351d952c2b5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+36/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+36/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f255b3e6bf76351d952c=
+2b6
+      failing since 46 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
+ail: v4.19.126-113-gd694d4388e88) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f255a8108726c583e52c1a6
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+36/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+36/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f255a8108726c58=
+3e52c1a9
+      new failure (last pass: v4.19.134-105-g62c048b85133)
+      1 lines =20
