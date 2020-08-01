@@ -2,151 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D372352BC
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 16:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C6FC2352EB
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 17:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725910AbgHAOd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 10:33:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725778AbgHAOd0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Aug 2020 10:33:26 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2786E207BC;
-        Sat,  1 Aug 2020 14:33:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596292405;
-        bh=3hASn8Q08edza735DCqH9YFFJFq9TW19O89gdrFOYcI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=c0X4GKvHHB4B2K2BBwENThs8TtDUNT6YML2vG8IZTGp0OVH5ZlZY59z3wph8zdXjo
-         lNjAIxt6++PZY6VZh0bcbP43ycD6pg2QBsm3PrlGIB3XlpRkhk54zQwdSdwTBKdvUm
-         Y2gL0X+oOA7NA42+1yimR3Ccvb42gbH8HIXYg3kg=
-Date:   Sat, 1 Aug 2020 16:33:09 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc:     stable@vger.kernel.org, linux-mips@vger.kernel.org,
-        chenhc@lemote.com
-Subject: Re: [PATCH stable] MIPS: Loongson: Introduce and use
- loongson_llsc_mb()
-Message-ID: <20200801143309.GA2620594@kroah.com>
-References: <20200801063443.1438289-1-jiaxun.yang@flygoat.com>
- <20200801102646.GA3046974@kroah.com>
- <5E555C31-EA38-456E-BB5D-263A54647873@flygoat.com>
- <20200801120459.GA506427@kroah.com>
- <1b535cbd-b4b9-68a2-5e85-8cbcfcdbcf9a@flygoat.com>
+        id S1726300AbgHAPPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 11:15:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725804AbgHAPPR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 11:15:17 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC895C06174A
+        for <stable@vger.kernel.org>; Sat,  1 Aug 2020 08:15:17 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id lx9so9138751pjb.2
+        for <stable@vger.kernel.org>; Sat, 01 Aug 2020 08:15:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yI72fgoWVksvzjYyuamqoY5uq9PaHd9t1nVBs3h8NEY=;
+        b=ew/8tG/D5eCaSMpRYHAIQynK1DKx2718S59oDKMSM2/6MiHjmoleqRnZByj22QoQ6q
+         Ix+4u3DEvsS4d0ngUef682CtpeOFytdm4MqUqvitZznVbn6ihKToc0Dg1NjgMJLxAlWA
+         dNM7Eu7WvuV8be4U1pAgcl+JyzJHgp2uK585vf5cyOl1SNzdg3vXqpFtW6macTUrzijL
+         f1ylGSiJg9jn12HbTCPLfMm5tHPs5Zh0W3ER5qJFC/cAjaFf13C6BjAUsQ/N5WRbQsBR
+         6htYJljBFM6ocV8iCtQgacLcMmnvYJPq6iy3MsLFNZ8uKo5587JLYUWIdUsWuiR+46yf
+         azog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yI72fgoWVksvzjYyuamqoY5uq9PaHd9t1nVBs3h8NEY=;
+        b=I+Wi23ziNhkW+EqhHnNtrxwPe/g9/RKKxVWOcdo4b37cboX++AljdZ9R8yQcPOdmR3
+         KYv1+C18M53yl2RKzC5OT0sYZQtUVN/NmGYQoCd5Ijo7DEXzudqerMhtViGAxUgvayII
+         A7ViyV8lL5nI7LvVBuRCMgvbSZUYpTzVXGfwv8dq3HnLI00bLWqJv5+zyE4E/ZuQGp3o
+         2Tix3gVNgn3U685lwqDVRIAERCMriEL1ll1Wpt2muWl1TS8CJ5chbgYhIo9OSIJf8usC
+         R6r7tL+dtP6aPovEr9JUlfD920lGX682b06l52vC+Ylx4uccAejKnWQ4CDIsOF1D0nkS
+         bArA==
+X-Gm-Message-State: AOAM533vMpkzwnTrydVeveQhvGyyVJD0/T1uwkgVUxoX51FYDhBvmWyJ
+        SXaT0bgH5fsSv9zeLYOEjdawh2kvoNg=
+X-Google-Smtp-Source: ABdhPJxm+QM53RLGnBAmXwRZUHs3NO58ZjIIDy2auRr/6GhDgAdIpXU2+Xf7bFOCAov8/7gYKpKqqg==
+X-Received: by 2002:a17:90a:bc45:: with SMTP id t5mr8990326pjv.139.1596294916518;
+        Sat, 01 Aug 2020 08:15:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x9sm14772836pfq.11.2020.08.01.08.15.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 01 Aug 2020 08:15:15 -0700 (PDT)
+Message-ID: <5f258703.1c69fb81.b8a54.2fbc@mx.google.com>
+Date:   Sat, 01 Aug 2020 08:15:15 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1b535cbd-b4b9-68a2-5e85-8cbcfcdbcf9a@flygoat.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.191
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y baseline: 164 runs, 2 regressions (v4.14.191)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 01, 2020 at 10:11:24PM +0800, Jiaxun Yang wrote:
-> 
-> 
-> 在 2020/8/1 下午8:04, Greg KH 写道:
-> > On Sat, Aug 01, 2020 at 07:48:48PM +0800, Jiaxun Yang wrote:
-> > > 
-> > > 于 2020年8月1日 GMT+08:00 下午6:26:46, Greg KH <gregkh@linuxfoundation.org> 写到:
-> > > > On Sat, Aug 01, 2020 at 02:34:43PM +0800, Jiaxun Yang wrote:
-> > > > > From: Huacai Chen <chenhc@lemote.com>
-> > > > > 
-> > > > > commit e02e07e3127d8aec1f4bcdfb2fc52a2d99b4859e upstream.
-> > > > > 
-> > > > > On the Loongson-2G/2H/3A/3B there is a hardware flaw that ll/sc and
-> > > > > lld/scd is very weak ordering. We should add sync instructions "before
-> > > > > each ll/lld" and "at the branch-target between ll/sc" to workaround.
-> > > > > Otherwise, this flaw will cause deadlock occasionally (e.g. when doing
-> > > > > heavy load test with LTP).
-> > > > > 
-> > > > > Below is the explaination of CPU designer:
-> > > > > 
-> > > > > "For Loongson 3 family, when a memory access instruction (load, store,
-> > > > > or prefetch)'s executing occurs between the execution of LL and SC, the
-> > > > > success or failure of SC is not predictable. Although programmer would
-> > > > > not insert memory access instructions between LL and SC, the memory
-> > > > > instructions before LL in program-order, may dynamically executed
-> > > > > between the execution of LL/SC, so a memory fence (SYNC) is needed
-> > > > > before LL/LLD to avoid this situation.
-> > > > > 
-> > > > > Since Loongson-3A R2 (3A2000), we have improved our hardware design to
-> > > > > handle this case. But we later deduce a rarely circumstance that some
-> > > > > speculatively executed memory instructions due to branch misprediction
-> > > > > between LL/SC still fall into the above case, so a memory fence (SYNC)
-> > > > > at branch-target (if its target is not between LL/SC) is needed for
-> > > > > Loongson 3A1000, 3B1500, 3A2000 and 3A3000.
-> > > > > 
-> > > > > Our processor is continually evolving and we aim to to remove all these
-> > > > > workaround-SYNCs around LL/SC for new-come processor."
-> > > > > 
-> > > > > Here is an example:
-> > > > > 
-> > > > > Both cpu1 and cpu2 simutaneously run atomic_add by 1 on same atomic var,
-> > > > > this bug cause both 'sc' run by two cpus (in atomic_add) succeed at same
-> > > > > time('sc' return 1), and the variable is only *added by 1*, sometimes,
-> > > > > which is wrong and unacceptable(it should be added by 2).
-> > > > > 
-> > > > > Why disable fix-loongson3-llsc in compiler?
-> > > > > Because compiler fix will cause problems in kernel's __ex_table section.
-> > > > > 
-> > > > > This patch fix all the cases in kernel, but:
-> > > > > 
-> > > > > +. the fix at the end of futex_atomic_cmpxchg_inatomic is for branch-target
-> > > > > of 'bne', there other cases which smp_mb__before_llsc() and smp_llsc_mb() fix
-> > > > > the ll and branch-target coincidently such as atomic_sub_if_positive/
-> > > > > cmpxchg/xchg, just like this one.
-> > > > > 
-> > > > > +. Loongson 3 does support CONFIG_EDAC_ATOMIC_SCRUB, so no need to touch
-> > > > > edac.h
-> > > > > 
-> > > > > +. local_ops and cmpxchg_local should not be affected by this bug since
-> > > > > only the owner can write.
-> > > > > 
-> > > > > +. mips_atomic_set for syscall.c is deprecated and rarely used, just let
-> > > > > it go
-> > > > > 
-> > > > > Signed-off-by: Huacai Chen <chenhc@lemote.com>
-> > > > > Signed-off-by: Huang Pei <huangpei@loongson.cn>
-> > > > > [paul.burton@mips.com:
-> > > > >    - Simplify the addition of -mno-fix-loongson3-llsc to cflags, and add
-> > > > >      a comment describing why it's there.
-> > > > >    - Make loongson_llsc_mb() a no-op when
-> > > > >      CONFIG_CPU_LOONGSON3_WORKAROUNDS=n, rather than a compiler memory
-> > > > >      barrier.
-> > > > >    - Add a comment describing the bug & how loongson_llsc_mb() helps
-> > > > >      in asm/barrier.h.]
-> > > > > Signed-off-by: Paul Burton <paul.burton@mips.com>
-> > > > > Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-> > > > > Cc: Ralf Baechle <ralf@linux-mips.org>
-> > > > > Cc: ambrosehua@gmail.com
-> > > > > Cc: Steven J . Hill <Steven.Hill@cavium.com>
-> > > > > Cc: linux-mips@linux-mips.org
-> > > > > Cc: Fuxin Zhang <zhangfx@lemote.com>
-> > > > > Cc: Zhangjin Wu <wuzhangjin@gmail.com>
-> > > > > Cc: Li Xuefeng <lixuefeng@loongson.cn>
-> > > > > Cc: Xu Chenghua <xuchenghua@loongson.cn>
-> > > > > Cc: stable@vger.kernel.org # 4.19
-> > > > > 
-> > > > > ---
-> > > > > Backport to stable according to request from Debian downstream.
-> > > > What do you mean by "request"?
-> > > Debian guys asked us to backport this to ensure the system stability on "buster" release if possible.
-> > Who is "Debian guys"?  And why can't they just add this to their kernel?
-> 
-> Hmm I just got this request from #debian-mips channel, they're tracing a
-> deadlock
-> issue and thought this might be the root cause. So they thought deal with it
-> in upstream
-> stable version may benefit users.
+stable-rc/linux-4.14.y baseline: 164 runs, 2 regressions (v4.14.191)
 
-Has anyone verified that this really is the "root cause" and this fixes
-the problem for them?  If not, that would be good to have done :)
+Regressions Summary
+-------------------
 
-thanks,
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-greg k-h
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.191/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.191
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7f2c5eb458b8855655a19c44cd0043f7f83c595f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f254db8490b296dfc52c1bd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+91/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+91/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f254db8490b296dfc52c=
+1be
+      failing since 7 days (last pass: v4.14.188-126-g5b1e982af0f8, first f=
+ail: v4.14.189) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f254eaed14cd4930a52c1d3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+91/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+91/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f254eaed14cd4930a52c=
+1d4
+      failing since 122 days (last pass: v4.14.172-114-g734382e2d26e, first=
+ fail: v4.14.174-131-g234ce78cac23) =20
