@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D06235496
+	by mail.lfdr.de (Postfix) with ESMTP id 99536235497
 	for <lists+stable@lfdr.de>; Sun,  2 Aug 2020 01:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbgHAXSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726807AbgHAXSR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 1 Aug 2020 19:18:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50350 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726545AbgHAXSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Aug 2020 19:18:14 -0400
+        id S1726899AbgHAXSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Aug 2020 19:18:15 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2B792086A;
-        Sat,  1 Aug 2020 23:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7817920829;
+        Sat,  1 Aug 2020 23:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596323893;
-        bh=w7oOPtgJ+ScgoDdAUvZLH9X4O+2nesOXsGkl1QQd+cI=;
+        s=default; t=1596323895;
+        bh=WX6kMAvcgYOC5R0JdayLAzECqlmeXxK9KmHHwTYNbb8=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=IdkOzV8f5Qyu1VnZoNphMkp4XsQxSxF6z4C+a0L5d/Oc/sD41FepHWxsP6ONuSNh+
-         GA3o+rpJ7/okHHT4ISsbfE3lwWIswH5RNBCBaDQqPuXpG7AgQv0fFXjILHUmrp5b8y
-         IhCAg5KtG27+b0FsDSyJglG9edeAmhzDUyClqNYE=
-Date:   Sat, 01 Aug 2020 23:18:13 +0000
+        b=En1BscZmlJ77mlPvzYbqxGXxPYWfDXq9hdDOcktdDK1f9FnoY2bsCBX6oeQowqnA1
+         MSxUWkxvKMcG1/hm1SZPvTJGblU/vaIETXRvBmHcWtY6uD3gUezR2123pkrFI3GQVL
+         AJvQtoJX0V9wWe2P7s5UzbXs+HyXPNUR7UF2DuM4=
+Date:   Sat, 01 Aug 2020 23:18:14 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     Felipe Balbi <balbi@kernel.org>
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
+To:     Nick Desaulniers <ndesaulniers@google.com>
+To:     Nathan Huckleberry <nhuck15@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
-In-Reply-To: <febe1ba310b638f5013e64835c1cc4210e0b799a.1596151437.git.thinhn@synopsys.com>
-References: <febe1ba310b638f5013e64835c1cc4210e0b799a.1596151437.git.thinhn@synopsys.com>
-Message-Id: <20200801231813.A2B792086A@mail.kernel.org>
+Subject: Re: [PATCH 2/4] ARM: backtrace-clang: add fixup for lr dereference
+In-Reply-To: <20200730205112.2099429-3-ndesaulniers@google.com>
+References: <20200730205112.2099429-3-ndesaulniers@google.com>
+Message-Id: <20200801231815.7817920829@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,23 +45,18 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)").
+fixing commit: 6dc5fd93b2f1 ("ARM: 8900/1: UNWINDER_FRAME_POINTER implementation for Clang").
 
 The bot has tested the following trees: v5.7.11, v5.4.54.
 
 v5.7.11: Failed to apply! Possible dependencies:
-    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
-    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
-    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
-    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
-    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+    5489ab50c227 ("arm/asm: add loglvl to c_backtrace()")
+    99c56f602183 ("ARM: backtrace-clang: check for NULL lr")
 
 v5.4.54: Failed to apply! Possible dependencies:
-    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
-    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
-    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
-    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
-    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+    40ff1ddb5570 ("ARM: 8948/1: Prevent OOB access in stacktrace")
+    5489ab50c227 ("arm/asm: add loglvl to c_backtrace()")
+    99c56f602183 ("ARM: backtrace-clang: check for NULL lr")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
