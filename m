@@ -2,154 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6FC2352EB
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 17:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C1B235303
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 17:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726300AbgHAPPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 11:15:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725804AbgHAPPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 11:15:17 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC895C06174A
-        for <stable@vger.kernel.org>; Sat,  1 Aug 2020 08:15:17 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id lx9so9138751pjb.2
-        for <stable@vger.kernel.org>; Sat, 01 Aug 2020 08:15:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yI72fgoWVksvzjYyuamqoY5uq9PaHd9t1nVBs3h8NEY=;
-        b=ew/8tG/D5eCaSMpRYHAIQynK1DKx2718S59oDKMSM2/6MiHjmoleqRnZByj22QoQ6q
-         Ix+4u3DEvsS4d0ngUef682CtpeOFytdm4MqUqvitZznVbn6ihKToc0Dg1NjgMJLxAlWA
-         dNM7Eu7WvuV8be4U1pAgcl+JyzJHgp2uK585vf5cyOl1SNzdg3vXqpFtW6macTUrzijL
-         f1ylGSiJg9jn12HbTCPLfMm5tHPs5Zh0W3ER5qJFC/cAjaFf13C6BjAUsQ/N5WRbQsBR
-         6htYJljBFM6ocV8iCtQgacLcMmnvYJPq6iy3MsLFNZ8uKo5587JLYUWIdUsWuiR+46yf
-         azog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yI72fgoWVksvzjYyuamqoY5uq9PaHd9t1nVBs3h8NEY=;
-        b=I+Wi23ziNhkW+EqhHnNtrxwPe/g9/RKKxVWOcdo4b37cboX++AljdZ9R8yQcPOdmR3
-         KYv1+C18M53yl2RKzC5OT0sYZQtUVN/NmGYQoCd5Ijo7DEXzudqerMhtViGAxUgvayII
-         A7ViyV8lL5nI7LvVBuRCMgvbSZUYpTzVXGfwv8dq3HnLI00bLWqJv5+zyE4E/ZuQGp3o
-         2Tix3gVNgn3U685lwqDVRIAERCMriEL1ll1Wpt2muWl1TS8CJ5chbgYhIo9OSIJf8usC
-         R6r7tL+dtP6aPovEr9JUlfD920lGX682b06l52vC+Ylx4uccAejKnWQ4CDIsOF1D0nkS
-         bArA==
-X-Gm-Message-State: AOAM533vMpkzwnTrydVeveQhvGyyVJD0/T1uwkgVUxoX51FYDhBvmWyJ
-        SXaT0bgH5fsSv9zeLYOEjdawh2kvoNg=
-X-Google-Smtp-Source: ABdhPJxm+QM53RLGnBAmXwRZUHs3NO58ZjIIDy2auRr/6GhDgAdIpXU2+Xf7bFOCAov8/7gYKpKqqg==
-X-Received: by 2002:a17:90a:bc45:: with SMTP id t5mr8990326pjv.139.1596294916518;
-        Sat, 01 Aug 2020 08:15:16 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x9sm14772836pfq.11.2020.08.01.08.15.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Aug 2020 08:15:15 -0700 (PDT)
-Message-ID: <5f258703.1c69fb81.b8a54.2fbc@mx.google.com>
-Date:   Sat, 01 Aug 2020 08:15:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726456AbgHAPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 11:43:50 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:53529 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726432AbgHAPnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 11:43:49 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9EDCD5C00F1;
+        Sat,  1 Aug 2020 11:43:48 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sat, 01 Aug 2020 11:43:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm3; bh=138EtoiNOuOs5U9pvNEstgflm8
+        9KYVe/SnhbzLU1en4=; b=tstKvIUfpsmzh0gGpUmBdP0HyLRht058hew7gfDAIL
+        Jjziv9wUYZwBnjJieMiG410ZPi8X8ezjDeiUg/6FWh/YbFDyRrRIKQGoJ+V+6qEb
+        /XEIC3eEdioqyv/3/JsL6kI2Pu2xfooCKNo/lc9JDi4JRU189J5WF+aYNh8JCOMD
+        IJKLcuuRc1gzZq8JQE2hel5AeoyGQNClxE7ddqzHXKIVv3hLtevg8dofKt45gTE6
+        7x7KqZ+JCaowChFuhFg4o9yuvn7tA2e7srgjmDMZ56poTqK/qMVKWHNOOqK+iFgY
+        1XR2+d5VXJ+ob8Ct2gDzFcdPUBudJnDU51+ENEMQCreQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=138EtoiNOuOs5U9pv
+        NEstgflm89KYVe/SnhbzLU1en4=; b=BSqHk3AglAwx1eCAHXsXsnVAterQ5JHci
+        MheL7fAkktGuxj5Qrj3lYSJvNVQsqSIhbenqYAC/S9DHIz5RgoI8jGIv/IL08mUq
+        Tk6e5YGW6/d9CohDdJU88KA4T4+bCC0VqgRq53hEi2vhkY9IOj4bc0ksjkAQSvS5
+        qDCP7z2tW2MWjmLQe8/Q8T/n+hB6Ub+N3tC+AE9RsmUc/cZBGbdcfG0zUVusCHMb
+        xVKSBfi7Y1ZfKKwUaJ0f5F0tEIULdcenIALXLGlMHmouN5Sy4bFcSdozSvSOv3FP
+        d31ZySxN60jR/WGfBEMBnigGIvdeH6L+Zx+62obfZbMiN1EIlRfOw==
+X-ME-Sender: <xms:tI0lX_rlZJwvCw475eDDZ3w_5CDrW4NpvadhQZGobq80AKCva-S5Hw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgdelfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghlucfj
+    ohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrfgrth
+    htvghrnhepieetkefhheduudfgledtudefjeejfeegveehkeeufffhhfejkeehiefftdev
+    tdevnecukfhppeejtddrudefhedrudegkedrudehudenucevlhhushhtvghrufhiiigvpe
+    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgurdho
+    rhhg
+X-ME-Proxy: <xmx:tI0lX5qjAlQaNm9D6H326U26FKL3wk9P35HvW-rCeMVfnalDHbf9DQ>
+    <xmx:tI0lX8NcdHn7hVd7kSbNHe79ltstTIF5v7ffMGioVlj71pg9gGfciQ>
+    <xmx:tI0lXy4diiTaXcIWw01bZ4xHUwg-_TG2y_SoY-BloqJtfXP8Babpkw>
+    <xmx:tI0lX0n8gqnUXVdy-On7mbmiycoYYWIJb7IEAUhB7nZFSHFGDdhDpw>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id BFF1430600DC;
+        Sat,  1 Aug 2020 11:43:47 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Samuel Holland <samuel@sholland.org>, stable@vger.kernel.org
+Subject: [PATCH 1/2] Bluetooth: hci_h5: Stop erroneously setting HCI_UART_REGISTERED
+Date:   Sat,  1 Aug 2020 10:43:45 -0500
+Message-Id: <20200801154346.63882-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.191
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 164 runs, 2 regressions (v4.14.191)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 164 runs, 2 regressions (v4.14.191)
+This code attempts to set the HCI_UART_RESET_ON_INIT flag. However,
+it sets the bit in the wrong flag word: HCI_UART_RESET_ON_INIT goes in
+hu->hdev_flags, not hu->flags. So it is actually setting
+HCI_UART_REGISTERED, which is bit 1 in hu->flags.
 
-Regressions Summary
--------------------
+Since commit cba736465e5c ("Bluetooth: hci_serdev: Remove setting of
+HCI_QUIRK_RESET_ON_CLOSE."), this flag is ignored for hci_serdev users,
+so instead of fixing which flag is set, let's remove the flag entirely.
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+Cc: stable@vger.kernel.org
+Fixes: ce945552fde4 ("Bluetooth: hci_h5: Add support for serdev enumerated devices")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/bluetooth/hci_h5.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
+diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
+index e60b2e0773db..981d96cc7695 100644
+--- a/drivers/bluetooth/hci_h5.c
++++ b/drivers/bluetooth/hci_h5.c
+@@ -793,8 +793,6 @@ static int h5_serdev_probe(struct serdev_device *serdev)
+ 	if (!h5)
+ 		return -ENOMEM;
+ 
+-	set_bit(HCI_UART_RESET_ON_INIT, &h5->serdev_hu.flags);
+-
+ 	h5->hu = &h5->serdev_hu;
+ 	h5->serdev_hu.serdev = serdev;
+ 	serdev_device_set_drvdata(serdev, h5);
+-- 
+2.26.2
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.191/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.191
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7f2c5eb458b8855655a19c44cd0043f7f83c595f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f254db8490b296dfc52c1bd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-91/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-91/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f254db8490b296dfc52c=
-1be
-      failing since 7 days (last pass: v4.14.188-126-g5b1e982af0f8, first f=
-ail: v4.14.189) =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f254eaed14cd4930a52c1d3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-91/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-91/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f254eaed14cd4930a52c=
-1d4
-      failing since 122 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23) =20
