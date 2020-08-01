@@ -2,116 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2AE2351F5
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 14:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF122351FB
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 14:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728628AbgHAMCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 08:02:33 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49443 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728609AbgHAMCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 08:02:32 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id E734B5C004B;
-        Sat,  1 Aug 2020 08:02:30 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sat, 01 Aug 2020 08:02:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=ORzcYBFzwKhUt5cMMkHmLNVPkJ4
-        6bxi1gj/+jznNyUw=; b=PNy9mGmNcZe0NhAN3ghnJB2OBjMeA3qetEsniKqS6T4
-        5nNyVtpeY+2qSGKLx5S360OeMEnGvmLsvPk0v4HBLDr9fqUaW6fqBuwG1NYyEj/h
-        2Wxbq6FQnDc4wHnHitELKfVpFJatyFxEJfnHkU7ktyOQAdIs9K3pGdNsmdHjkPkG
-        AOZPNbmS+yGvCFq5RfTV74IlcPlYBnNIDKnJeSIwr6UYBlTnE5x27+fU0sFbZUNW
-        OoFMyb2/sabmSONnp73mq4Bog5usYuXCbjAuWwhIyMNTEJmXSuUypqv/5RVuDcOH
-        rLGNbZk4AjqSSDEae6mrqm1tZPKN4ooccfuUbt8r+pw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ORzcYB
-        FzwKhUt5cMMkHmLNVPkJ46bxi1gj/+jznNyUw=; b=gCnUsktZCSMn39RI8Tjr4B
-        yKYfkJOiAnUbouvDQBwV62YI224MaopWp+6RIa1k3crQfQV5IB9uKFpXB1p+PAq0
-        Csj/6Y/1iZnejw2H0tp1FdChS8bf+D6GqZmgVXypn95Q0j2MBjSPkPw70yc1bNii
-        hIUm4OGBO7piIOC8gOJveoNPh1Nskg5P6ixMaXoqE9596G6GdpYQ4yOt4hjr8blw
-        B5+524NeoyGLNiWtY+Cdr5NfesGhSEokcB1Rtoz/dGX7RSU7KquZGdAGao1Oh986
-        IxZ/jDTQ3uxap/bfrDqUXT2r2KOyvtRhrlb8/dqxgVWNkwiYN8QoLQV2hqqyA3IA
-        ==
-X-ME-Sender: <xms:1lklX68PKKNXzkacQwvse9CooFz7FTuwM3NoovcJJg7_aB2g6Y8SVQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedtgdegkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhm
-X-ME-Proxy: <xmx:1lklX6sDcPXGhg7PjlRdjfMHR1R065K_nJyCk2bUM5UU1GiYRotiOw>
-    <xmx:1lklXwCKAcd_ROv1sAWtcyAax5KX8UnsNWDoR3u9DGhooqWMED5bSg>
-    <xmx:1lklXycuh5pm32Jp2rvgg8TigSFZu77BKnajn-Bts7l_HGBnrOmRfw>
-    <xmx:1lklXxXnNbZ6MFHA0WwrZo7r736EdjJH7mHV05IkSLY-R9XIX1aDSg>
+        id S1728753AbgHAMFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 08:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41766 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728505AbgHAMFP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Aug 2020 08:05:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4363330600A3;
-        Sat,  1 Aug 2020 08:02:30 -0400 (EDT)
-Date:   Sat, 1 Aug 2020 14:02:13 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: Re: [PATCH 4.19] wireless: Use offsetof instead of custom macro.
-Message-ID: <20200801120213.GA382353@kroah.com>
-References: <20200731210255.3821452-1-ndesaulniers@google.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEC1F20716;
+        Sat,  1 Aug 2020 12:05:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596283514;
+        bh=1BrXyqpNBXN0t5LTJZRcxmLAcMJojIbD0JvYdRM4VFY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JftyJtXy1xaxZ60BrOrxoCfAsbYPrO/mQz+EH6tI1wYgd+R0yDo41TBWbNx0MGz5b
+         DneKLWOLL50FTYeawjCcoZOBwDZuYzMZ3LvzvEhss782zUv7FvH1h3BTbwTHkFaNDi
+         3oCdbuVG0wuQMUYllmq7Qs49Fjs7bl9Wqpql96/U=
+Date:   Sat, 1 Aug 2020 14:04:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc:     stable@vger.kernel.org, linux-mips@vger.kernel.org,
+        chenhc@lemote.com
+Subject: Re: [PATCH stable] MIPS: Loongson: Introduce and use
+ loongson_llsc_mb()
+Message-ID: <20200801120459.GA506427@kroah.com>
+References: <20200801063443.1438289-1-jiaxun.yang@flygoat.com>
+ <20200801102646.GA3046974@kroah.com>
+ <5E555C31-EA38-456E-BB5D-263A54647873@flygoat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200731210255.3821452-1-ndesaulniers@google.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5E555C31-EA38-456E-BB5D-263A54647873@flygoat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 31, 2020 at 02:02:55PM -0700, Nick Desaulniers wrote:
-> From: Pi-Hsun Shih <pihsun@chromium.org>
+On Sat, Aug 01, 2020 at 07:48:48PM +0800, Jiaxun Yang wrote:
 > 
-> commit 6989310f5d4327e8595664954edd40a7f99ddd0d upstream.
 > 
-> Use offsetof to calculate offset of a field to take advantage of
-> compiler built-in version when possible, and avoid UBSAN warning when
-> compiling with Clang:
+> 于 2020年8月1日 GMT+08:00 下午6:26:46, Greg KH <gregkh@linuxfoundation.org> 写到:
+> >On Sat, Aug 01, 2020 at 02:34:43PM +0800, Jiaxun Yang wrote:
+> >> From: Huacai Chen <chenhc@lemote.com>
+> >> 
+> >> commit e02e07e3127d8aec1f4bcdfb2fc52a2d99b4859e upstream.
+> >> 
+> >> On the Loongson-2G/2H/3A/3B there is a hardware flaw that ll/sc and
+> >> lld/scd is very weak ordering. We should add sync instructions "before
+> >> each ll/lld" and "at the branch-target between ll/sc" to workaround.
+> >> Otherwise, this flaw will cause deadlock occasionally (e.g. when doing
+> >> heavy load test with LTP).
+> >> 
+> >> Below is the explaination of CPU designer:
+> >> 
+> >> "For Loongson 3 family, when a memory access instruction (load, store,
+> >> or prefetch)'s executing occurs between the execution of LL and SC, the
+> >> success or failure of SC is not predictable. Although programmer would
+> >> not insert memory access instructions between LL and SC, the memory
+> >> instructions before LL in program-order, may dynamically executed
+> >> between the execution of LL/SC, so a memory fence (SYNC) is needed
+> >> before LL/LLD to avoid this situation.
+> >> 
+> >> Since Loongson-3A R2 (3A2000), we have improved our hardware design to
+> >> handle this case. But we later deduce a rarely circumstance that some
+> >> speculatively executed memory instructions due to branch misprediction
+> >> between LL/SC still fall into the above case, so a memory fence (SYNC)
+> >> at branch-target (if its target is not between LL/SC) is needed for
+> >> Loongson 3A1000, 3B1500, 3A2000 and 3A3000.
+> >> 
+> >> Our processor is continually evolving and we aim to to remove all these
+> >> workaround-SYNCs around LL/SC for new-come processor."
+> >> 
+> >> Here is an example:
+> >> 
+> >> Both cpu1 and cpu2 simutaneously run atomic_add by 1 on same atomic var,
+> >> this bug cause both 'sc' run by two cpus (in atomic_add) succeed at same
+> >> time('sc' return 1), and the variable is only *added by 1*, sometimes,
+> >> which is wrong and unacceptable(it should be added by 2).
+> >> 
+> >> Why disable fix-loongson3-llsc in compiler?
+> >> Because compiler fix will cause problems in kernel's __ex_table section.
+> >> 
+> >> This patch fix all the cases in kernel, but:
+> >> 
+> >> +. the fix at the end of futex_atomic_cmpxchg_inatomic is for branch-target
+> >> of 'bne', there other cases which smp_mb__before_llsc() and smp_llsc_mb() fix
+> >> the ll and branch-target coincidently such as atomic_sub_if_positive/
+> >> cmpxchg/xchg, just like this one.
+> >> 
+> >> +. Loongson 3 does support CONFIG_EDAC_ATOMIC_SCRUB, so no need to touch
+> >> edac.h
+> >> 
+> >> +. local_ops and cmpxchg_local should not be affected by this bug since
+> >> only the owner can write.
+> >> 
+> >> +. mips_atomic_set for syscall.c is deprecated and rarely used, just let
+> >> it go
+> >> 
+> >> Signed-off-by: Huacai Chen <chenhc@lemote.com>
+> >> Signed-off-by: Huang Pei <huangpei@loongson.cn>
+> >> [paul.burton@mips.com:
+> >>   - Simplify the addition of -mno-fix-loongson3-llsc to cflags, and add
+> >>     a comment describing why it's there.
+> >>   - Make loongson_llsc_mb() a no-op when
+> >>     CONFIG_CPU_LOONGSON3_WORKAROUNDS=n, rather than a compiler memory
+> >>     barrier.
+> >>   - Add a comment describing the bug & how loongson_llsc_mb() helps
+> >>     in asm/barrier.h.]
+> >> Signed-off-by: Paul Burton <paul.burton@mips.com>
+> >> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> >> Cc: Ralf Baechle <ralf@linux-mips.org>
+> >> Cc: ambrosehua@gmail.com
+> >> Cc: Steven J . Hill <Steven.Hill@cavium.com>
+> >> Cc: linux-mips@linux-mips.org
+> >> Cc: Fuxin Zhang <zhangfx@lemote.com>
+> >> Cc: Zhangjin Wu <wuzhangjin@gmail.com>
+> >> Cc: Li Xuefeng <lixuefeng@loongson.cn>
+> >> Cc: Xu Chenghua <xuchenghua@loongson.cn>
+> >> Cc: stable@vger.kernel.org # 4.19
+> >> 
+> >> ---
+> >> Backport to stable according to request from Debian downstream.
+> >
+> >What do you mean by "request"?
 > 
-> ==================================================================
-> UBSAN: Undefined behaviour in net/wireless/wext-core.c:525:14
-> member access within null pointer of type 'struct iw_point'
-> CPU: 3 PID: 165 Comm: kworker/u16:3 Tainted: G S      W         4.19.23 #43
-> Workqueue: cfg80211 __cfg80211_scan_done [cfg80211]
-> Call trace:
->  dump_backtrace+0x0/0x194
->  show_stack+0x20/0x2c
->  __dump_stack+0x20/0x28
->  dump_stack+0x70/0x94
->  ubsan_epilogue+0x14/0x44
->  ubsan_type_mismatch_common+0xf4/0xfc
->  __ubsan_handle_type_mismatch_v1+0x34/0x54
->  wireless_send_event+0x3cc/0x470
->  ___cfg80211_scan_done+0x13c/0x220 [cfg80211]
->  __cfg80211_scan_done+0x28/0x34 [cfg80211]
->  process_one_work+0x170/0x35c
->  worker_thread+0x254/0x380
->  kthread+0x13c/0x158
->  ret_from_fork+0x10/0x18
-> ===================================================================
-> 
-> Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
-> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> Link: https://lore.kernel.org/r/20191204081307.138765-1-pihsun@chromium.org
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> ---
-> Fix landed in v5.7-rc1. Thanks to James Hsu of MediaTek for the report.
+> Debian guys asked us to backport this to ensure the system stability on "buster" release if possible.
 
-What about 5.4.y?  Why ignore that tree?  You can not have people moving
-from an older stable to a newer stable tree and have regressions :(
+Who is "Debian guys"?  And why can't they just add this to their kernel?
 
-I'll queue it up there, but be more careful next time please.
+> >This feels like a new feature, why can't people just use the 5.4 kernel
+> >or newer?  Given that this issue has been fixed upstream for 1 1/2
+> >years, why does it need to go to the 4.19.y stable kernel now?
+> 
+> It is a workaround of certain hardware bug...
+> Just because we've been asked by downstren why 4.19 can't run flawlessly on certain systems...
+
+What is wrong with those affected users running 5.0 or newer kernels?
+
+So is this a bugfix or a new feature, I can't determine this...
+
+It feels "big" for a 4.19.y kernel patch at this point in time, don't
+you think?
+
+thanks,
 
 greg k-h
