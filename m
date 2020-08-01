@@ -2,121 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01536234F01
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 03:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21ACB234F02
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 03:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726471AbgHABBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jul 2020 21:01:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726099AbgHABBa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 21:01:30 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB9E8C06174A
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 18:01:30 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id c6so8159933pje.1
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 18:01:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pJGxGfdeUutUTiFwuesJFsuk29eEa+TI3DbVgGhPEgU=;
-        b=YzM7UhKp6waouzyrnEmoBADEljXkbYYUeaE718cMNyfk3x88yUG45Be3wk8GpzrTn3
-         orzEk94aURujHmwel1f1ggg/U10o0EnBT4RNuLqLkqW6IadJCuC+GeGxr5FkpaetUlnR
-         UjJ06czC+Qt0oixt5TrYOrJpvNq6f9QUf964Kr1IQrf4QEC6i/zG8lxboYB/hUWW6BnL
-         lWwh9su84z8h+qYYui22wXTdaMiRxC9vy/aGlNvrROT4JSZeQu1kOaz1pi3pLOPf8KGT
-         cWJJ1raiDWXZJSBY1RajMO6iS1xd8a6nmSq8h/dslzBxmYHoHUMhMOnDowJYerlt3qEx
-         s7dg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pJGxGfdeUutUTiFwuesJFsuk29eEa+TI3DbVgGhPEgU=;
-        b=lcw/1UQh/azKn9CZcWtAax3eAGXngEK2EqarmfDfJoVtMnmDDj7NMSv7w4sE8z1ClW
-         kAYNZV+/BaY9TXAST30f3cNLDXDS1OyoaU04VxQMF7YbHjQN3F43gZS7PxEhT2qO1Fz0
-         H7W0VoK5t/2sUaOCpU2i+tqwbcymwpZMheYJiuGiPrVAxeeIN8Zhjq7xCAWVVL8iMM+c
-         UNlsvgQLo3FGf8SgDz8H2CKG2uOFZHtVlO47b2eJ1ECZEiq/ukkFVYtzMzS4anzFuBV5
-         sA5l/upOE3LxZuJJyEr35okt6emtkBLPfatQdJbX/ZRx8gbRk60S5tMMn/mkf67iyovM
-         APyQ==
-X-Gm-Message-State: AOAM5321hZbkMYILBjkixkbQ+Q8WOSFJ9+0bvjILOFaUcV+Wh9fj13X3
-        vjGT3ayw6jv9D6Jd7IQro1dq2ZNgLAY=
-X-Google-Smtp-Source: ABdhPJy5SEyNyVHv91feds9BS/1cJpj2Ep3OTJftAyG3jtGzHo3ddsmdXtNCMuESzOSajT75NHIlHA==
-X-Received: by 2002:a17:902:9683:: with SMTP id n3mr5720960plp.65.1596243689515;
-        Fri, 31 Jul 2020 18:01:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n26sm7452377pgl.42.2020.07.31.18.01.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jul 2020 18:01:28 -0700 (PDT)
-Message-ID: <5f24bee8.1c69fb81.1b64c.fd60@mx.google.com>
-Date:   Fri, 31 Jul 2020 18:01:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726847AbgHABBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jul 2020 21:01:49 -0400
+Received: from sonic302-1.consmr.mail.bf2.yahoo.com ([74.6.135.40]:44242 "EHLO
+        sonic302-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726099AbgHABBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jul 2020 21:01:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596243708; bh=Sq0m1vvm2SZTihycyLIp46MmEaT+M4u+5ZuM67ujUHw=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Hrzh7qICRPkfCBqdm2KVLOknD8FHdzZyb5qIYuy/bmlsxjtbdo7Cy+Qh17vjxWCnZv68IWD0iRA0Wuul7oxX0ByUkxwMjR7jiis3Fy3ZyxyaZy2j+N+WgUguTvO9ruViY6oOv3i6CFgn2G/oPUG3drmR3bP9tqSlIXOi6YoTReDCVas04usnvtyuGmTr7Tgoo2liIMAE6XmRUU5V5IVeYUHoCR4lQ/WTSaG7tM4uDqxqI2MveXHSvghd+RzLPf0L7i71fJopmOSzl0kJQv768E6zGC0us9ftkdhLyL1uuAJPspoN3/jRtgwQkHjw+Kp6e2WN4dhWq4qwD8pSCzVBkA==
+X-YMail-OSG: oTxKo_IVM1nrUxuoKQr0EnnXrFo_xZhAzKo9WW_svIymXW4XN6AeUhYSk27i8Yq
+ FfABEz9M3m6yFI3DDFeq1w.YMI9hGYyoMEWgYWqNhycq6lBjVmzZyEIJi2TsMutZhiXFbaLPiEqc
+ r5aOl0fBSDW6fyZmrR0H.yxps.zQQk1ywvCL0i6Va96UE26qTSdDOZV_eWSMOF8t3m5Bdde9wGTC
+ cDac.krmtEDMljcJEqLORLkUsMZIP0gOpeWLjfIrHt6Hcd7O5SO.lpfUNd7yt7x0QCJjaQLWwjBR
+ .g7NzDKNVC7vs1.v1Y16U5Vd73GKzT2TL_5YjCxKOdFFegVx0.n6ofVwDsFSFljuucBv4fI5wrop
+ C.1qsYDCxYFrVhqaDvu4dZTLe8KO9n_FJjJLjsDrI5nor.XGUhq.540xQPleVemKPIZASsxUQ9K4
+ x61VrAfUAPvzqMz76TJRI1F9e0tVtG3O2kLIQmJae6dFvP7lWN9tQyTVW6rjnadmYF987M7CoITf
+ K.f6zMR9nfZEJsSAVgSViMiO0P8K..KHuJGsn6QlZzNtniFM2JPDSxTceIhs2H.6mqjD9GFwVnYe
+ Y_t9zVFbtJHtTa3OklhFkqyqBOiA2ih3yyi8O8aLk_vR1kBZ5lHkPJJoeOlC2v0PZEdJLyw01zSl
+ n_FOSJNEyYEW5ejsiRDzTq6VqkT2tMZXLhlhfED7o.gfHcZfl2To2HPIsNzy0E.UZB.IfhO7ml7v
+ l9e3Ap4P7OgNRTfDRTJIqUoTgHhmDu.1z_rSCfXPPNXdRV_0UlVCKQLUQYdyB00.XVP0X2RYEWs9
+ su9sAUkE_lHJy0v5dEAcODIDf37Tf9qQzaFLaEt28HsJ8oTxI3ZuxfQBc87U0q2ANxmQKnpr5uU_
+ VoR6Zt1JnhXXDAzm4t2fbAJSRpgdqrnoe7cdb8qnzEcqUczbVMF5t261d_Eve.vm4g2Q1C_dw4ut
+ SZbK.HM1gMT17mCzkp_fT2PUW3C3nJ4BSiKJOjrWOaNSjPxk_q_rVyEW9hmjGQgTpyqmAHu2IHkC
+ uFH9h1qM5k.t8t_lw66eIhyB8o4uzxFRpHwQTtsR4ua5ymTLQqtaw7ghztuJEyS_a6h6h7.Ttvy4
+ 5UGsMa0Kle.HkE_UpvaPjylOyxLbutzHq4xKO0CP8T1oGDSLmCeJT9_HmYIcH0P6s82XJZ5rjn50
+ nyiWbyMhEr7_O8Cw8JWS7DJKP9QlrmVvJNLFEztffRcw88YAAlt4aYJRde1.ms4QZHVPXH1S_J7T
+ Ia0LuzlrHGhLv01vKKHcYFbJOcA5xW1lFoceCJvnGhIyYhicGYfJcXNBWkH0wbhl64w--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Sat, 1 Aug 2020 01:01:48 +0000
+Date:   Sat, 1 Aug 2020 01:01:46 +0000 (UTC)
+From:   "Mrs. Mina A. Brunel" <annahbruun6@gmail.com>
+Reply-To: mrsminaabrunel653@gmail.com
+Message-ID: <1427289683.456034.1596243706732@mail.yahoo.com>
+Subject: My Dear in the lord
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.232
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.4.y baseline: 121 runs, 1 regressions (v4.4.232)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1427289683.456034.1596243706732.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16398 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y baseline: 121 runs, 1 regressions (v4.4.232)
-
-Regressions Summary
--------------------
-
-platform        | arch | lab          | compiler | defconfig           | re=
-sults
-----------------+------+--------------+----------+---------------------+---=
------
-omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 0/=
-1    =
 
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.4.y/kernel/=
-v4.4.232/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.4.y
-  Describe: v4.4.232
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      e164d5f7b274f422f9cd4fa6a6638ea07c4969f1 =
+My Dear in the lord
 
 
+My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
+na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
+ gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
+ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
+on Euro) Eight million, Five hundred thousand Euros in a bank in Rome the c=
+apital city of Italy in Southern Europe. The money was from the sale of his=
+ company and death benefits payment and entitlements of my deceased husband=
+ by his company.
 
-Test Regressions
----------------- =
+I am sending you this message with heavy tears in my eyes and great sorrow =
+in my heart, and also praying that it will reach you in good health because=
+ I am not in good health, I sleep every night without knowing if I may be a=
+live to see the next day. I am suffering from long time cancer and presentl=
+y I am partially suffering from Leprosy, which has become difficult for me =
+to move around. I was married to my late husband for more than 6 years with=
+out having a child and my doctor confided that I have less chance to live, =
+having to know when the cup of death will come, I decided to contact you to=
+ claim the fund since I don't have any relation I grew up from an orphanage=
+ home.
 
+I have decided to donate this money for the support of helping Motherless b=
+abies/Less privileged/Widows and churches also to build the house of God be=
+cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
+cided to donate from what I have inherited from my late husband to you for =
+the good work of Almighty God; I will be going in for an operation surgery =
+soon.
 
+Now I want you to stand as my next of kin to claim the funds for charity pu=
+rposes. Because of this money remains unclaimed after my death, the bank ex=
+ecutives or the government will take the money as unclaimed fund and maybe =
+use it for selfishness and worthless ventures, I need a very honest person =
+who can claim this money and use it for Charity works, for orphanages, wido=
+ws and also build schools and churches for less privilege that will be name=
+d after my late husband and my name.
 
-platform        | arch | lab          | compiler | defconfig           | re=
-sults
-----------------+------+--------------+----------+---------------------+---=
------
-omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 0/=
-1    =
+I need your urgent answer to know if you will be able to execute this proje=
+ct, and I will give you more information on how the fund will be transferre=
+d to your bank account or online banking.
 
-
-  Details:     https://kernelci.org/test/plan/id/5f248688f3161987f852c1a9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.232/ar=
-m/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.232/ar=
-m/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f248688f3161987f852c=
-1aa
-      new failure (last pass: v4.4.231) =20
+Thanks
+Mrs. Mina A. Brunel
