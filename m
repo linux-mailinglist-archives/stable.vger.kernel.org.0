@@ -2,255 +2,434 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0112350C7
-	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 08:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB98F2350D2
+	for <lists+stable@lfdr.de>; Sat,  1 Aug 2020 08:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726461AbgHAGSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 02:18:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725497AbgHAGSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 02:18:05 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D281C061757
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 23:18:05 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id p3so17123468pgh.3
-        for <stable@vger.kernel.org>; Fri, 31 Jul 2020 23:18:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=0Z19kOEJIEx9Zh1BTPeu+eub/GMK1VCMfldmZLSebVY=;
-        b=KxKgPZ44MDuEzDzKcjvBPoOvvk6mFI7inQltWTO8STKjk+OTuM4IBFfbBTfcRxrBx9
-         Hv5LeqEqioFXqlilO6cmcV/9iIS7fSnVqceIhVcwVpR5Sc2SSjnksftHrADfcD5rwVsk
-         B8Kq5NsEciksAOV8kLa0BY0Jpr9pgfCEQ46cY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=0Z19kOEJIEx9Zh1BTPeu+eub/GMK1VCMfldmZLSebVY=;
-        b=Tj0iKoBx4f60CzAsom0cuNoaWYVi5sGlAwG/hBY15uzautSI3yCltynUa8oyfmBnHw
-         +sjK+ghC6YVmZcv6A2Dfv3bjWbdOYWgFTA9hGdLSjdehz4tr0IKCRYUrEHJF3ANMaze+
-         shgClOrTrgpX9moU6P40t/i/xl9l/c4/mAVv1LiIzFDzWv+yv+t1rSoGwp8x9AAaRVjV
-         Ny5N+EPzDehjb9DWcxnZ3wWY7yQZGsRC5CPzckd0HZT7qSYO8ifDeJgbg/SH+hl7+x8b
-         Rtx72a5bmC/bPpNb77BVsstGVFtZa6Zgy8TENwrDDxxWl46qxS3Iov1xNvh5q1BtagPQ
-         eqig==
-X-Gm-Message-State: AOAM530xjdzxW5GcooybubLeTv2oRysk72GFVomEWUfE17nLZSnsrC0V
-        vhD5j2Ls+dMD+TuQvWQE+bM8pw==
-X-Google-Smtp-Source: ABdhPJx5AY+53D/D5aAfJwgIaGzvtgD0uJizQHS7B/hV1cIUoOKvZS+VpnFwSKDmIBEMYUOWOrqC8A==
-X-Received: by 2002:aa7:94bd:: with SMTP id a29mr6882406pfl.280.1596262684343;
-        Fri, 31 Jul 2020 23:18:04 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id 7sm12129236pgw.85.2020.07.31.23.18.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jul 2020 23:18:03 -0700 (PDT)
-Date:   Fri, 31 Jul 2020 23:18:02 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Arvind Sankar <nivedita@alum.mit.edu>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jian Cai <jiancai@google.com>,
-        =?utf-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Manoj Gupta <manojgupta@google.com>, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Peter Collingbourne <pcc@google.com>,
-        James Morse <james.morse@arm.com>,
-        Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@redhat.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
-        clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Kristen Carlson Accardi <kristen@linux.intel.com>
-Subject: Re: [PATCH v5 13/36] vmlinux.lds.h: add PGO and AutoFDO input
- sections
-Message-ID: <202007312237.4F385EB3@keescook>
-References: <20200731230820.1742553-1-keescook@chromium.org>
- <20200731230820.1742553-14-keescook@chromium.org>
- <20200801035128.GB2800311@rani.riverdale.lan>
+        id S1725306AbgHAGlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Aug 2020 02:41:12 -0400
+Received: from vultr.net.flygoat.com ([149.28.68.211]:42532 "EHLO
+        vultr.net.flygoat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725283AbgHAGlL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Aug 2020 02:41:11 -0400
+X-Greylist: delayed 384 seconds by postgrey-1.27 at vger.kernel.org; Sat, 01 Aug 2020 02:41:11 EDT
+Received: from localhost.localdomain (unknown [IPv6:2001:da8:20f:4430:250:56ff:fe9a:7470])
+        by vultr.net.flygoat.com (Postfix) with ESMTPSA id 15DD51FF00;
+        Sat,  1 Aug 2020 06:34:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=flygoat.com; s=vultr;
+        t=1596263687; bh=UW0FRfMncZCae3N4/foSv0LHrVdTr9KMuPbLe2WPEXc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=M67iX/Bxn3bepQuuP42oKaHvPgoF5dd1JVlxsokDm4asIEP4mNXW5f+7xQFUnmcOo
+         XdIY/d2lvQRc/J8l8Cv7PPReYAvhxS3t4hd8mRfVXm50ZUlG0g+p8Jx2/bzpXCVPmD
+         1F4LfWnxFwcLpFk3+hNQJK6a7AUwuLCtHqu3zUJn72Y7NmINApdOZdURHlXzJ5AC9K
+         ATP2dGVWe8I9HsW/wTSSgUNs9irWkA1xygzWMp67hqOdt95VGrxp28V7xj6xLFYdQ1
+         S5eCpbXwe6MvlyZOkd+H2wmtewYGJLze0+jhLld6m89SfCnPvVsh97CGN5vkgXF0Xt
+         MYzNX9vzvIkng==
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+To:     stable@vger.kernel.org
+Cc:     linux-mips@vger.kernel.org, chenhc@lemote.com,
+        gregkh@linuxfoundation.org
+Subject: [PATCH stable] MIPS: Loongson: Introduce and use loongson_llsc_mb()
+Date:   Sat,  1 Aug 2020 14:34:43 +0800
+Message-Id: <20200801063443.1438289-1-jiaxun.yang@flygoat.com>
+X-Mailer: git-send-email 2.28.0.rc1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200801035128.GB2800311@rani.riverdale.lan>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 31, 2020 at 11:51:28PM -0400, Arvind Sankar wrote:
-> On Fri, Jul 31, 2020 at 04:07:57PM -0700, Kees Cook wrote:
-> > From: Nick Desaulniers <ndesaulniers@google.com>
-> > 
-> > Basically, consider .text.{hot|unlikely|unknown}.* part of .text, too.
-> > 
-> > When compiling with profiling information (collected via PGO
-> > instrumentations or AutoFDO sampling), Clang will separate code into
-> > .text.hot, .text.unlikely, or .text.unknown sections based on profiling
-> > information. After D79600 (clang-11), these sections will have a
-> > trailing `.` suffix, ie.  .text.hot., .text.unlikely., .text.unknown..
-> > 
-> > When using -ffunction-sections together with profiling infomation,
-> > either explicitly (FGKASLR) or implicitly (LTO), code may be placed in
-> > sections following the convention:
-> > .text.hot.<foo>, .text.unlikely.<bar>, .text.unknown.<baz>
-> > where <foo>, <bar>, and <baz> are functions.  (This produces one section
-> > per function; we generally try to merge these all back via linker script
-> > so that we don't have 50k sections).
-> > 
-> > For the above cases, we need to teach our linker scripts that such
-> > sections might exist and that we'd explicitly like them grouped
-> > together, otherwise we can wind up with code outside of the
-> > _stext/_etext boundaries that might not be mapped properly for some
-> > architectures, resulting in boot failures.
-> > 
-> > If the linker script is not told about possible input sections, then
-> > where the section is placed as output is a heuristic-laiden mess that's
-> > non-portable between linkers (ie. BFD and LLD), and has resulted in many
-> > hard to debug bugs.  Kees Cook is working on cleaning this up by adding
-> > --orphan-handling=warn linker flag used in ARCH=powerpc to additional
-> > architectures. In the case of linker scripts, borrowing from the Zen of
-> > Python: explicit is better than implicit.
-> > 
-> > Also, ld.bfd's internal linker script considers .text.hot AND
-> > .text.hot.* to be part of .text, as well as .text.unlikely and
-> > .text.unlikely.*. I didn't see support for .text.unknown.*, and didn't
-> > see Clang producing such code in our kernel builds, but I see code in
-> > LLVM that can produce such section names if profiling information is
-> > missing. That may point to a larger issue with generating or collecting
-> > profiles, but I would much rather be safe and explicit than have to
-> > debug yet another issue related to orphan section placement.
-> > 
-> > Reported-by: Jian Cai <jiancai@google.com>
-> > Suggested-by: Fāng-ruì Sòng <maskray@google.com>
-> > Tested-by: Luis Lozano <llozano@google.com>
-> > Tested-by: Manoj Gupta <manojgupta@google.com>
-> > Acked-by: Kees Cook <keescook@chromium.org>
-> > Cc: stable@vger.kernel.org
-> > Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commitdiff;h=add44f8d5c5c05e08b11e033127a744d61c26aee
-> > Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commitdiff;h=1de778ed23ce7492c523d5850c6c6dbb34152655
-> > Link: https://reviews.llvm.org/D79600
-> > Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1084760
-> > Debugged-by: Luis Lozano <llozano@google.com>
-> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> > ---
-> >  include/asm-generic/vmlinux.lds.h | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-> > index 2593957f6e8b..af5211ca857c 100644
-> > --- a/include/asm-generic/vmlinux.lds.h
-> > +++ b/include/asm-generic/vmlinux.lds.h
-> > @@ -561,7 +561,10 @@
-> >   */
-> >  #define TEXT_TEXT							\
-> >  		ALIGN_FUNCTION();					\
-> > -		*(.text.hot TEXT_MAIN .text.fixup .text.unlikely)	\
-> > +		*(.text.hot .text.hot.*)				\
-> > +		*(TEXT_MAIN .text.fixup)				\
-> > +		*(.text.unlikely .text.unlikely.*)			\
-> > +		*(.text.unknown .text.unknown.*)			\
-> >  		NOINSTR_TEXT						\
-> >  		*(.text..refcount)					\
-> >  		*(.ref.text)						\
-> > -- 
-> > 2.25.1
-> > 
-> 
-> This also changes the ordering to place all hot resp unlikely sections separate
-> from other text, while currently it places the hot/unlikely bits of each file
-> together with the rest of the code in that file. That seems like a reasonable
+From: Huacai Chen <chenhc@lemote.com>
 
-Oh, hmm, yes, we aren't explicitly using SORT() here. Does that mean the
-input sections were entirely be ordered in compilation unit link order,
-even in the case of orphan sections? (And I think either way, the answer
-isn't the same between bfd and lld.) I actually thought the like-named
-input sections were collected together first with lld, but bfd strictly
-appended to the output section. I guess it's time for me to stare at -M
-output from ld...
+commit e02e07e3127d8aec1f4bcdfb2fc52a2d99b4859e upstream.
 
-Regardless, this patch is attempting to fix the problem where bfd and lld
-lay out the orphans differently (as mentioned above, lld seems to sort
-them in a way that is not strictly appended, and bfd seems to sort them
-strictly appended). In the case of being appended to the .text output
-section, this would cause boot failures due to _etext not covering the
-resulting sections (which this[1] also encountered and fixed to be more
-robust for such appended collection -- that series actually _depends_ on
-orphan handling doing the appending, because there is no current way
-to map wildcard input sections to their own separate output sections).
+On the Loongson-2G/2H/3A/3B there is a hardware flaw that ll/sc and
+lld/scd is very weak ordering. We should add sync instructions "before
+each ll/lld" and "at the branch-target between ll/sc" to workaround.
+Otherwise, this flaw will cause deadlock occasionally (e.g. when doing
+heavy load test with LTP).
 
-> change and should be mentioned in the commit message.
-> 
-> However, the history of their being together comes from
-> 
->   9bebe9e5b0f3 ("kbuild: Fix .text.unlikely placement")
-> 
-> which seems to indicate there was some problem with having them separated out,
-> although I don't quite understand what the issue was from the commit message.
+Below is the explaination of CPU designer:
 
-Looking at this again, I actually wonder if we have bigger issues here
-with dead code elimination:
+"For Loongson 3 family, when a memory access instruction (load, store,
+or prefetch)'s executing occurs between the execution of LL and SC, the
+success or failure of SC is not predictable. Although programmer would
+not insert memory access instructions between LL and SC, the memory
+instructions before LL in program-order, may dynamically executed
+between the execution of LL/SC, so a memory fence (SYNC) is needed
+before LL/LLD to avoid this situation.
 
-#ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
-#define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
-...
+Since Loongson-3A R2 (3A2000), we have improved our hardware design to
+handle this case. But we later deduce a rarely circumstance that some
+speculatively executed memory instructions due to branch misprediction
+between LL/SC still fall into the above case, so a memory fence (SYNC)
+at branch-target (if its target is not between LL/SC) is needed for
+Loongson 3A1000, 3B1500, 3A2000 and 3A3000.
 
-that would catch: .text.hot .text.fixup .text.unlikely and .text.unknown
-but not .text.hot.*, etc (i.e. the third dot isn't matched, which is,
-I assume, why Clang switched to adding a trailing dot). However, this
-patch lists .text.hot .text.hot.* first, so they'd get pulled to the
-front correctly, but the trailing ones (with 2 dots) would not, since
-they'd match the TEXT_MAIN wildcard first. (This problem actually existed
-before this patch too, and is not the fault of 9bebe9e5b0f3, but rather
-the addition of TEXT_MAIN, which could potentially match .text.unlikely
-and .text.fixup)
+Our processor is continually evolving and we aim to to remove all these
+workaround-SYNCs around LL/SC for new-come processor."
 
-Unless I'm totally wrong and the bfd docs don't match the behavior? e.g.
-if I have a link order of ".foo.before", ".foo.after", and ".foo.middle",
-and this rule:
+Here is an example:
 
-.foo : { *(.foo.before .foo.* .foo.after) }
+Both cpu1 and cpu2 simutaneously run atomic_add by 1 on same atomic var,
+this bug cause both 'sc' run by two cpus (in atomic_add) succeed at same
+time('sc' return 1), and the variable is only *added by 1*, sometimes,
+which is wrong and unacceptable(it should be added by 2).
 
-do I get this (first match):
+Why disable fix-loongson3-llsc in compiler?
+Because compiler fix will cause problems in kernel's __ex_table section.
 
-	.foo.before
-	.foo.after
-	.foo.middle
+This patch fix all the cases in kernel, but:
 
-or (most specific match):
++. the fix at the end of futex_atomic_cmpxchg_inatomic is for branch-target
+of 'bne', there other cases which smp_mb__before_llsc() and smp_llsc_mb() fix
+the ll and branch-target coincidently such as atomic_sub_if_positive/
+cmpxchg/xchg, just like this one.
 
-	.foo.before
-	.foo.middle
-	.foo.after
++. Loongson 3 does support CONFIG_EDAC_ATOMIC_SCRUB, so no need to touch
+edac.h
 
-?
++. local_ops and cmpxchg_local should not be affected by this bug since
+only the owner can write.
 
-As I said, now that I'm able to better articulate these questions, I'll
-go get answers from -M output. :)
++. mips_atomic_set for syscall.c is deprecated and rarely used, just let
+it go
 
-Perhaps we need to fix TEXT_MAIN not TEXT_TEXT? TEXT_TEXT is for
-collecting .text, .text.[^\.]* and *.text, where, effectively,
-.text and .text[^\.]* are defined by TEXT_MAIN. i.e. adding 3-dot "text"
-input sections needs to likely be included in TEXT_MAIN
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
+[paul.burton@mips.com:
+  - Simplify the addition of -mno-fix-loongson3-llsc to cflags, and add
+    a comment describing why it's there.
+  - Make loongson_llsc_mb() a no-op when
+    CONFIG_CPU_LOONGSON3_WORKAROUNDS=n, rather than a compiler memory
+    barrier.
+  - Add a comment describing the bug & how loongson_llsc_mb() helps
+    in asm/barrier.h.]
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: ambrosehua@gmail.com
+Cc: Steven J . Hill <Steven.Hill@cavium.com>
+Cc: linux-mips@linux-mips.org
+Cc: Fuxin Zhang <zhangfx@lemote.com>
+Cc: Zhangjin Wu <wuzhangjin@gmail.com>
+Cc: Li Xuefeng <lixuefeng@loongson.cn>
+Cc: Xu Chenghua <xuchenghua@loongson.cn>
+Cc: stable@vger.kernel.org # 4.19
 
-Anyway, I'll keep looking at this...
+---
+Backport to stable according to request from Debian downstream.
+---
+ arch/mips/Kconfig               | 15 ++++++++++++++
+ arch/mips/include/asm/atomic.h  |  6 ++++++
+ arch/mips/include/asm/barrier.h | 36 +++++++++++++++++++++++++++++++++
+ arch/mips/include/asm/bitops.h  |  5 +++++
+ arch/mips/include/asm/futex.h   |  3 +++
+ arch/mips/include/asm/pgtable.h |  2 ++
+ arch/mips/loongson64/Platform   | 23 +++++++++++++++++++++
+ arch/mips/mm/tlbex.c            | 10 +++++++++
+ 8 files changed, 100 insertions(+)
 
-(In the meantime, perhaps we can take Arvind's series, and the earlier
-portions of the orphan series where asm-generic/vmlinux.lds.h and other
-things are cleaned up...)
-
--Kees
-
-[1] https://lore.kernel.org/lkml/20200717170008.5949-6-kristen@linux.intel.com/
-
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index a830a9701e50..864a2d2fd054 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -1398,6 +1398,21 @@ config LOONGSON3_ENHANCEMENT
+ 	  please say 'N' here. If you want a high-performance kernel to run on
+ 	  new Loongson 3 machines only, please say 'Y' here.
+ 
++config CPU_LOONGSON3_WORKAROUNDS
++	bool "Old Loongson 3 LLSC Workarounds"
++	default y if SMP
++	depends on CPU_LOONGSON3
++	help
++	  Loongson 3 processors have the llsc issues which require workarounds.
++	  Without workarounds the system may hang unexpectedly.
++
++	  Newer Loongson 3 will fix these issues and no workarounds are needed.
++	  The workarounds have no significant side effect on them but may
++	  decrease the performance of the system so this option should be
++	  disabled unless the kernel is intended to be run on old systems.
++
++	  If unsure, please say Y.
++
+ config CPU_LOONGSON2E
+ 	bool "Loongson 2E"
+ 	depends on SYS_HAS_CPU_LOONGSON2E
+diff --git a/arch/mips/include/asm/atomic.h b/arch/mips/include/asm/atomic.h
+index 9e805317847d..1fc6f04e85a1 100644
+--- a/arch/mips/include/asm/atomic.h
++++ b/arch/mips/include/asm/atomic.h
+@@ -58,6 +58,7 @@ static __inline__ void atomic_##op(int i, atomic_t * v)			      \
+ 	if (kernel_uses_llsc) {						      \
+ 		int temp;						      \
+ 									      \
++		loongson_llsc_mb();					      \
+ 		__asm__ __volatile__(					      \
+ 		"	.set	"MIPS_ISA_LEVEL"			\n"   \
+ 		"1:	ll	%0, %1		# atomic_" #op "	\n"   \
+@@ -84,6 +85,7 @@ static __inline__ int atomic_##op##_return_relaxed(int i, atomic_t * v)	      \
+ 	if (kernel_uses_llsc) {						      \
+ 		int temp;						      \
+ 									      \
++		loongson_llsc_mb();					      \
+ 		__asm__ __volatile__(					      \
+ 		"	.set	"MIPS_ISA_LEVEL"			\n"   \
+ 		"1:	ll	%1, %2		# atomic_" #op "_return	\n"   \
+@@ -116,6 +118,7 @@ static __inline__ int atomic_fetch_##op##_relaxed(int i, atomic_t * v)	      \
+ 	if (kernel_uses_llsc) {						      \
+ 		int temp;						      \
+ 									      \
++		loongson_llsc_mb();					      \
+ 		__asm__ __volatile__(					      \
+ 		"	.set	"MIPS_ISA_LEVEL"			\n"   \
+ 		"1:	ll	%1, %2		# atomic_fetch_" #op "	\n"   \
+@@ -251,6 +254,7 @@ static __inline__ void atomic64_##op(long i, atomic64_t * v)		      \
+ 	if (kernel_uses_llsc) {						      \
+ 		long temp;						      \
+ 									      \
++		loongson_llsc_mb();					      \
+ 		__asm__ __volatile__(					      \
+ 		"	.set	"MIPS_ISA_LEVEL"			\n"   \
+ 		"1:	lld	%0, %1		# atomic64_" #op "	\n"   \
+@@ -277,6 +281,7 @@ static __inline__ long atomic64_##op##_return_relaxed(long i, atomic64_t * v) \
+ 	if (kernel_uses_llsc) {						      \
+ 		long temp;						      \
+ 									      \
++		loongson_llsc_mb();					      \
+ 		__asm__ __volatile__(					      \
+ 		"	.set	"MIPS_ISA_LEVEL"			\n"   \
+ 		"1:	lld	%1, %2		# atomic64_" #op "_return\n"  \
+@@ -309,6 +314,7 @@ static __inline__ long atomic64_fetch_##op##_relaxed(long i, atomic64_t * v)  \
+ 	if (kernel_uses_llsc) {						      \
+ 		long temp;						      \
+ 									      \
++		loongson_llsc_mb();					      \
+ 		__asm__ __volatile__(					      \
+ 		"	.set	"MIPS_ISA_LEVEL"			\n"   \
+ 		"1:	lld	%1, %2		# atomic64_fetch_" #op "\n"   \
+diff --git a/arch/mips/include/asm/barrier.h b/arch/mips/include/asm/barrier.h
+index a5eb1bb199a7..b7f6ac5e513c 100644
+--- a/arch/mips/include/asm/barrier.h
++++ b/arch/mips/include/asm/barrier.h
+@@ -222,6 +222,42 @@
+ #define __smp_mb__before_atomic()	__smp_mb__before_llsc()
+ #define __smp_mb__after_atomic()	smp_llsc_mb()
+ 
++/*
++ * Some Loongson 3 CPUs have a bug wherein execution of a memory access (load,
++ * store or pref) in between an ll & sc can cause the sc instruction to
++ * erroneously succeed, breaking atomicity. Whilst it's unusual to write code
++ * containing such sequences, this bug bites harder than we might otherwise
++ * expect due to reordering & speculation:
++ *
++ * 1) A memory access appearing prior to the ll in program order may actually
++ *    be executed after the ll - this is the reordering case.
++ *
++ *    In order to avoid this we need to place a memory barrier (ie. a sync
++ *    instruction) prior to every ll instruction, in between it & any earlier
++ *    memory access instructions. Many of these cases are already covered by
++ *    smp_mb__before_llsc() but for the remaining cases, typically ones in
++ *    which multiple CPUs may operate on a memory location but ordering is not
++ *    usually guaranteed, we use loongson_llsc_mb() below.
++ *
++ *    This reordering case is fixed by 3A R2 CPUs, ie. 3A2000 models and later.
++ *
++ * 2) If a conditional branch exists between an ll & sc with a target outside
++ *    of the ll-sc loop, for example an exit upon value mismatch in cmpxchg()
++ *    or similar, then misprediction of the branch may allow speculative
++ *    execution of memory accesses from outside of the ll-sc loop.
++ *
++ *    In order to avoid this we need a memory barrier (ie. a sync instruction)
++ *    at each affected branch target, for which we also use loongson_llsc_mb()
++ *    defined below.
++ *
++ *    This case affects all current Loongson 3 CPUs.
++ */
++#ifdef CONFIG_CPU_LOONGSON3_WORKAROUNDS /* Loongson-3's LLSC workaround */
++#define loongson_llsc_mb()	__asm__ __volatile__(__WEAK_LLSC_MB : : :"memory")
++#else
++#define loongson_llsc_mb()	do { } while (0)
++#endif
++
+ #include <asm-generic/barrier.h>
+ 
+ #endif /* __ASM_BARRIER_H */
+diff --git a/arch/mips/include/asm/bitops.h b/arch/mips/include/asm/bitops.h
+index da1b8718861e..2a40ecd69ac4 100644
+--- a/arch/mips/include/asm/bitops.h
++++ b/arch/mips/include/asm/bitops.h
+@@ -68,6 +68,7 @@ static inline void set_bit(unsigned long nr, volatile unsigned long *addr)
+ 		: "ir" (1UL << bit), GCC_OFF_SMALL_ASM() (*m));
+ #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR6)
+ 	} else if (kernel_uses_llsc && __builtin_constant_p(bit)) {
++		loongson_llsc_mb();
+ 		do {
+ 			__asm__ __volatile__(
+ 			"	" __LL "%0, %1		# set_bit	\n"
+@@ -78,6 +79,7 @@ static inline void set_bit(unsigned long nr, volatile unsigned long *addr)
+ 		} while (unlikely(!temp));
+ #endif /* CONFIG_CPU_MIPSR2 || CONFIG_CPU_MIPSR6 */
+ 	} else if (kernel_uses_llsc) {
++		loongson_llsc_mb();
+ 		do {
+ 			__asm__ __volatile__(
+ 			"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
+@@ -120,6 +122,7 @@ static inline void clear_bit(unsigned long nr, volatile unsigned long *addr)
+ 		: "ir" (~(1UL << bit)));
+ #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR6)
+ 	} else if (kernel_uses_llsc && __builtin_constant_p(bit)) {
++		loongson_llsc_mb();
+ 		do {
+ 			__asm__ __volatile__(
+ 			"	" __LL "%0, %1		# clear_bit	\n"
+@@ -130,6 +133,7 @@ static inline void clear_bit(unsigned long nr, volatile unsigned long *addr)
+ 		} while (unlikely(!temp));
+ #endif /* CONFIG_CPU_MIPSR2 || CONFIG_CPU_MIPSR6 */
+ 	} else if (kernel_uses_llsc) {
++		loongson_llsc_mb();
+ 		do {
+ 			__asm__ __volatile__(
+ 			"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
+@@ -188,6 +192,7 @@ static inline void change_bit(unsigned long nr, volatile unsigned long *addr)
+ 		unsigned long *m = ((unsigned long *) addr) + (nr >> SZLONG_LOG);
+ 		unsigned long temp;
+ 
++		loongson_llsc_mb();
+ 		do {
+ 			__asm__ __volatile__(
+ 			"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
+diff --git a/arch/mips/include/asm/futex.h b/arch/mips/include/asm/futex.h
+index a9e61ea54ca9..0a62a91b592d 100644
+--- a/arch/mips/include/asm/futex.h
++++ b/arch/mips/include/asm/futex.h
+@@ -50,6 +50,7 @@
+ 		  "i" (-EFAULT)						\
+ 		: "memory");						\
+ 	} else if (cpu_has_llsc) {					\
++		loongson_llsc_mb();					\
+ 		__asm__ __volatile__(					\
+ 		"	.set	push				\n"	\
+ 		"	.set	noat				\n"	\
+@@ -162,6 +163,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
+ 		  "i" (-EFAULT)
+ 		: "memory");
+ 	} else if (cpu_has_llsc) {
++		loongson_llsc_mb();
+ 		__asm__ __volatile__(
+ 		"# futex_atomic_cmpxchg_inatomic			\n"
+ 		"	.set	push					\n"
+@@ -190,6 +192,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
+ 		: GCC_OFF_SMALL_ASM() (*uaddr), "Jr" (oldval), "Jr" (newval),
+ 		  "i" (-EFAULT)
+ 		: "memory");
++		loongson_llsc_mb();
+ 	} else
+ 		return -ENOSYS;
+ 
+diff --git a/arch/mips/include/asm/pgtable.h b/arch/mips/include/asm/pgtable.h
+index 129e0328367f..6a35bbf46b93 100644
+--- a/arch/mips/include/asm/pgtable.h
++++ b/arch/mips/include/asm/pgtable.h
+@@ -229,6 +229,7 @@ static inline void set_pte(pte_t *ptep, pte_t pteval)
+ 			: [buddy] "+m" (buddy->pte), [tmp] "=&r" (tmp)
+ 			: [global] "r" (page_global));
+ 		} else if (kernel_uses_llsc) {
++			loongson_llsc_mb();
+ 			__asm__ __volatile__ (
+ 			"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
+ 			"	.set	push				\n"
+@@ -244,6 +245,7 @@ static inline void set_pte(pte_t *ptep, pte_t pteval)
+ 			"	.set	mips0				\n"
+ 			: [buddy] "+m" (buddy->pte), [tmp] "=&r" (tmp)
+ 			: [global] "r" (page_global));
++			loongson_llsc_mb();
+ 		}
+ #else /* !CONFIG_SMP */
+ 		if (pte_none(*buddy))
+diff --git a/arch/mips/loongson64/Platform b/arch/mips/loongson64/Platform
+index 12abf14aed4a..9f79908f5063 100644
+--- a/arch/mips/loongson64/Platform
++++ b/arch/mips/loongson64/Platform
+@@ -23,6 +23,29 @@ ifdef CONFIG_CPU_LOONGSON2F_WORKAROUNDS
+ endif
+ 
+ cflags-$(CONFIG_CPU_LOONGSON3)	+= -Wa,--trap
++
++#
++# Some versions of binutils, not currently mainline as of 2019/02/04, support
++# an -mfix-loongson3-llsc flag which emits a sync prior to each ll instruction
++# to work around a CPU bug (see loongson_llsc_mb() in asm/barrier.h for a
++# description).
++#
++# We disable this in order to prevent the assembler meddling with the
++# instruction that labels refer to, ie. if we label an ll instruction:
++#
++# 1: ll v0, 0(a0)
++#
++# ...then with the assembler fix applied the label may actually point at a sync
++# instruction inserted by the assembler, and if we were using the label in an
++# exception table the table would no longer contain the address of the ll
++# instruction.
++#
++# Avoid this by explicitly disabling that assembler behaviour. If upstream
++# binutils does not merge support for the flag then we can revisit & remove
++# this later - for now it ensures vendor toolchains don't cause problems.
++#
++cflags-$(CONFIG_CPU_LOONGSON3)	+= $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
++
+ #
+ # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
+ # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index 620abc968624..c99c53ba8338 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -943,6 +943,8 @@ build_get_pgd_vmalloc64(u32 **p, struct uasm_label **l, struct uasm_reloc **r,
+ 		 * to mimic that here by taking a load/istream page
+ 		 * fault.
+ 		 */
++		if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
++			uasm_i_sync(p, 0);
+ 		UASM_i_LA(p, ptr, (unsigned long)tlb_do_page_fault_0);
+ 		uasm_i_jr(p, ptr);
+ 
+@@ -1666,6 +1668,8 @@ static void
+ iPTE_LW(u32 **p, unsigned int pte, unsigned int ptr)
+ {
+ #ifdef CONFIG_SMP
++	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
++		uasm_i_sync(p, 0);
+ # ifdef CONFIG_PHYS_ADDR_T_64BIT
+ 	if (cpu_has_64bits)
+ 		uasm_i_lld(p, pte, 0, ptr);
+@@ -2279,6 +2283,8 @@ static void build_r4000_tlb_load_handler(void)
+ #endif
+ 
+ 	uasm_l_nopage_tlbl(&l, p);
++	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
++		uasm_i_sync(&p, 0);
+ 	build_restore_work_registers(&p);
+ #ifdef CONFIG_CPU_MICROMIPS
+ 	if ((unsigned long)tlb_do_page_fault_0 & 1) {
+@@ -2333,6 +2339,8 @@ static void build_r4000_tlb_store_handler(void)
+ #endif
+ 
+ 	uasm_l_nopage_tlbs(&l, p);
++	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
++		uasm_i_sync(&p, 0);
+ 	build_restore_work_registers(&p);
+ #ifdef CONFIG_CPU_MICROMIPS
+ 	if ((unsigned long)tlb_do_page_fault_1 & 1) {
+@@ -2388,6 +2396,8 @@ static void build_r4000_tlb_modify_handler(void)
+ #endif
+ 
+ 	uasm_l_nopage_tlbm(&l, p);
++	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
++		uasm_i_sync(&p, 0);
+ 	build_restore_work_registers(&p);
+ #ifdef CONFIG_CPU_MICROMIPS
+ 	if ((unsigned long)tlb_do_page_fault_1 & 1) {
 -- 
-Kees Cook
+2.28.0.rc1
+
