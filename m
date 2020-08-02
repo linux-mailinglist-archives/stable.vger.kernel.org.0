@@ -2,106 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8595A235499
-	for <lists+stable@lfdr.de>; Sun,  2 Aug 2020 01:18:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0AE52355C1
+	for <lists+stable@lfdr.de>; Sun,  2 Aug 2020 08:55:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726899AbgHAXSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Aug 2020 19:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50438 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726937AbgHAXSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Aug 2020 19:18:17 -0400
-Received: from localhost (unknown [70.37.104.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D2C920888;
-        Sat,  1 Aug 2020 23:18:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596323896;
-        bh=T8WCDzQV//dhGaP65YVXdlNFqnhK5KsODKjlOFzXAlI=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=ttAXtCpJpfBTJtvmzu7LEo/I5gOwxY5+IKS9SRwNSdBiGfACvynCTiQ1w8v4vdoIg
-         7V5ct++mw2lIpwer1al2gs+Kts+lwq9TRhHDtkbGw/fJNfNAQ8T+PUTy8Nxfh5iuf1
-         hF50LL/jXUoOrVQdu6sxTDkDVzf5yvlM48S55p4g=
-Date:   Sat, 01 Aug 2020 23:18:15 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Jason Wang <jasowang@redhat.com>
-To:     Max Gurtovoy <maxg@mellanox.com>
-To:     mst@redhat.com, jasowang@redhat.com
-Cc:     Max Gurtovoy <maxg@mellanox.com>, stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] vdpasim: protect concurrent access to iommu iotlb
-In-Reply-To: <20200731073822.13326-1-jasowang@redhat.com>
-References: <20200731073822.13326-1-jasowang@redhat.com>
-Message-Id: <20200801231816.5D2C920888@mail.kernel.org>
+        id S1725973AbgHBGz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Aug 2020 02:55:58 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:38059 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725850AbgHBGz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Aug 2020 02:55:58 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 46F535C00B9;
+        Sun,  2 Aug 2020 02:55:57 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Sun, 02 Aug 2020 02:55:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=cWDIbpmbm/crt0rtm0kWzqyFjnD
+        Ztfw+wdOJ4nuUN7c=; b=iiF0rEv/xW3HpqhUNjEpuhoz8lVr7lfEj/e7nsvhkAT
+        Xde3uKi2cC9y+3C8pfZLJ//KyWOC8eXOWtrfYncdpc0xIb5Kt/wBEEpn1F77/EOF
+        AL1qbHeBqemT3/gh3i3PWCkVkY++49YWkFOJiEzABp5NrFixau19ppjspvpgSSQu
+        fkbcPRRVk9QTkkj2ZB988yLVGVG36xVhvxbgrRIJqzWDTKAUUNP28JkZKC0gO71t
+        uwSnsm1WjxbkrfjRlh5bZvsDp563D8xK7MqviYFOPJpbU9KhYZBzFYSxdfDNUGbF
+        frNMcA8/uluqkI7j8nvMSdYP3xh14Wh3F9AD8hWR6dg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=cWDIbp
+        mbm/crt0rtm0kWzqyFjnDZtfw+wdOJ4nuUN7c=; b=kfPW1TwR7qrI8NnRwhMIf5
+        9klbTGfWKsgxCgqEySpvrYDCMc4C/Q533e2P1XTXZTYpau/epELL63nJBi3/qpZZ
+        8cc364/UDJP+zsOooQWqR/fSIDa/QhgYxhk1FiN176Lt13a4uzNL6lNyPSDUPqLB
+        57C/lILdaE8vOI+Ztyzrs9Swa7puudwjDxZD3UpYWlIayMGy732KTtRiBav8t8id
+        RJmjT77XztQMi6l6/fBHMTX9lzwKNr5iy440iMLmbVhAXYbnFqT4of+g3GeDRi4U
+        lQWQfid0DUlRljEy5GZCuALcAgMRK6anfJP4A3BBy4mqiOMCxpSX+C82x3iwCH+g
+        ==
+X-ME-Sender: <xms:fWMmX4TIEh_PXuEEDGicbiWk9hCmaDJwMm4WeoEL-MDCFJgMktGvKQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjedugdduuddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:fWMmX1wUzLRKD_qgFEfrsySbW0kFGzPeXL7olRSA21pZgN8Orjlr1Q>
+    <xmx:fWMmX12rX9myZSupAp3NTREJED5ztFFZ4TDMCUpWianPcAJqYqjS_w>
+    <xmx:fWMmX8DwUGbRK0AYQ5FbtapK7y7D5COfvj5bqk3Q3BHsEjXIrkxxbA>
+    <xmx:fWMmX0t-KzLx_fhJkYaub9_xAld82KqMJF3oNmznxXk0bT_TmzBiBw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C5E6130600A9;
+        Sun,  2 Aug 2020 02:55:56 -0400 (EDT)
+Date:   Sun, 2 Aug 2020 08:55:38 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Samuel Mendoza-Jonas <samjonas@amazon.com>
+Cc:     stable@vger.kernel.org, fllinden@amazon.com, surajjs@amazon.com,
+        benh@amazon.com, anchalag@amazon.com
+Subject: Re: [PATCH 4.9 4.19] xfs: fix missed wakeup on l_flush_wait
+Message-ID: <20200802065538.GA3889624@kroah.com>
+References: <20200730213507.24791-1-samjonas@amazon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200730213507.24791-1-samjonas@amazon.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On Thu, Jul 30, 2020 at 02:35:07PM -0700, Samuel Mendoza-Jonas wrote:
+> From: Rik van Riel <riel@surriel.com>
+> 
+> commit cdea5459ce263fbc963657a7736762ae897a8ae6 upstream
+> 
+> The code in xlog_wait uses the spinlock to make adding the task to
+> the wait queue, and setting the task state to UNINTERRUPTIBLE atomic
+> with respect to the waker.
+> 
+> Doing the wakeup after releasing the spinlock opens up the following
+> race condition:
+> 
+> Task 1					task 2
+> add task to wait queue
+> 					wake up task
+> set task state to UNINTERRUPTIBLE
+> 
+> This issue was found through code inspection as a result of kworkers
+> being observed stuck in UNINTERRUPTIBLE state with an empty
+> wait queue. It is rare and largely unreproducable.
+> 
+> Simply moving the spin_unlock to after the wake_up_all results
+> in the waker not being able to see a task on the waitqueue before
+> it has set its state to UNINTERRUPTIBLE.
+> 
+> This bug dates back to the conversion of this code to generic
+> waitqueue infrastructure from a counting semaphore back in 2008
+> which didn't place the wakeups consistently w.r.t. to the relevant
+> spin locks.
+> 
+> [dchinner: Also fix a similar issue in the shutdown path on
+> xc_commit_wait. Update commit log with more details of the issue.]
+> 
+> Fixes: d748c62367eb ("[XFS] Convert l_flushsema to a sv_t")
+> Reported-by: Chris Mason <clm@fb.com>
+> Signed-off-by: Rik van Riel <riel@surriel.com>
+> Signed-off-by: Dave Chinner <dchinner@redhat.com>
+> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Cc: stable@vger.kernel.org # 4.9.x-4.19.x
+> [modified for contextual change near xlog_state_do_callback()]
+> Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+> Reviewed-by: Frank van der Linden <fllinden@amazon.com>
+> Reviewed-by: Suraj Jitindar Singh <surajjs@amazon.com>
+> Reviewed-by: Benjamin Herrenschmidt <benh@amazon.com>
+> Reviewed-by: Anchal Agarwal <anchalag@amazon.com>
+> ---
+> This issue was fixed in v5.4 but didn't appear to make it to stable. The
+> fixed commit goes back to v2.6, so backport this to stable kernels
+> before v5.4. The only difference is a contextual change at
+> 	xlog_state_do_callback(log, XFS_LI_ABORTED, NULL);
+> Which in v5.4 is
+> 	xlog_state_do_callback(log, true, NULL);
 
-[This is an automated email]
+Now queued up, thanks.
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: .
-
-The bot has tested the following trees: v5.7.11, v5.4.54, v4.19.135, v4.14.190, v4.9.231, v4.4.231.
-
-v5.7.11: Build OK!
-v5.4.54: Failed to apply! Possible dependencies:
-    2c53d0f64c06 ("vdpasim: vDPA device simulator")
-    961e9c84077f ("vDPA: introduce vDPA bus")
-
-v4.19.135: Failed to apply! Possible dependencies:
-    2c53d0f64c06 ("vdpasim: vDPA device simulator")
-    961e9c84077f ("vDPA: introduce vDPA bus")
-
-v4.14.190: Failed to apply! Possible dependencies:
-    2c53d0f64c06 ("vdpasim: vDPA device simulator")
-    7b95fec6d2ff ("virtio: make VIRTIO a menuconfig to ease disabling it all")
-    961e9c84077f ("vDPA: introduce vDPA bus")
-
-v4.9.231: Failed to apply! Possible dependencies:
-    0d7f4f0594fc ("MAINTAINERS: update rmk's entries")
-    2c53d0f64c06 ("vdpasim: vDPA device simulator")
-    384fe7a4d732 ("drivers: net: xgene-v2: Add DMA descriptor")
-    3b3f9a75d931 ("drivers: net: xgene-v2: Add base driver")
-    404a5c392dcc ("MAINTAINERS: fix virtio file pattern")
-    51c5d8447bd7 ("MMC: meson: initial support for GX platforms")
-    6bc37fac30cf ("arm64: dts: add Allwinner A64 SoC .dtsi")
-    70dbd9b258d5 ("MAINTAINERS: Add entry for APM X-Gene SoC Ethernet (v2) driver")
-    7683e9e52925 ("Properly alphabetize MAINTAINERS file")
-    81ccd0cab29b ("drivers: net: xgene-v2: Add mac configuration")
-    872d1ba47bdc ("MAINTAINERS: Add Actions Semi Owl section")
-    87c586a6a0e1 ("MAINTAINERS: Update the Allwinner sunXi entry")
-    961e9c84077f ("vDPA: introduce vDPA bus")
-    b105bcdaaa0e ("drivers: net: xgene-v2: Add transmit and receive")
-    b26bff6e52d8 ("MAINTAINERS: Add device tree bindings to mv88e6xx section")
-    c0a6a5ae6b5d ("MAINTAINERS: copy virtio on balloon_compaction.c")
-    d5d4602e0405 ("Staging: iio: fix a MAINTAINERS entry")
-    dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-    fd33f3eca6bf ("MAINTAINERS: Add maintainers for the meson clock driver")
-
-v4.4.231: Failed to apply! Possible dependencies:
-    02038fd6645a ("crypto: Added Chelsio Menu to the Kconfig file")
-    06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-    2c53d0f64c06 ("vdpasim: vDPA device simulator")
-    404a5c392dcc ("MAINTAINERS: fix virtio file pattern")
-    433cd2c617bf ("crypto: rockchip - add crypto driver for rk3288")
-    6f99612e2500 ("tpm: Proxy driver for supporting multiple emulated TPMs")
-    961e9c84077f ("vDPA: introduce vDPA bus")
-    c0a6a5ae6b5d ("MAINTAINERS: copy virtio on balloon_compaction.c")
-    dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
+greg k-h
