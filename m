@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D7F23A5EE
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CEF23A5A0
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbgHCMnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:43:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
+        id S1729429AbgHCMd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:33:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728487AbgHCMaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:30:16 -0400
+        id S1729435AbgHCMd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C91FB2177B;
-        Mon,  3 Aug 2020 12:30:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9D7A204EC;
+        Mon,  3 Aug 2020 12:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457815;
-        bh=n1FukGZuQXyu2MVVpZOdKAmj1C0W92scKOGnuT4UQO8=;
+        s=default; t=1596458007;
+        bh=jWGFztSlPZ2Ee/FF2hv8UCt06rAB2GbADoQoBX0DGEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRQSs2VkiOx/k6uqe5VoD4WWWwU5528l51f/w2U15RKAEo4QKdamhBiobjzKMGjEa
-         XAMvAACq54+PfrDi41+PEh+MKGOkF4NcpYcZNC9NSrW7ueHSYWt2lrGraLowlTvE3R
-         4YCqyu9Pu11o8JHntK8uANnuEvi3yaf2dfndQJGo=
+        b=qy7jgukRHLVI1QPdzOGsTSZjep42qJuRDBAslHO60gN1aoeeigx6Wx5lNVfiaiefU
+         aZxAKUp9kJnEhbOIuhG+cmEQoaJydBu+zD9/ocNRN0ceyi+f8y8YjoEuSx0wqaeGjH
+         bDyzc5M9lezLKnvyDwQH+p5l80urdSyyMrpmd8hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Ariel Levkovich <lariel@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 83/90] RISC-V: Set maximum number of mapped pages correctly
-Date:   Mon,  3 Aug 2020 14:19:45 +0200
-Message-Id: <20200803121901.620814302@linuxfoundation.org>
+Subject: [PATCH 4.19 31/56] net/mlx5: Verify Hardware supports requested ptp function on a given pin
+Date:   Mon,  3 Aug 2020 14:19:46 +0200
+Message-Id: <20200803121851.847496622@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atish Patra <atish.patra@wdc.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit d0d8aae64566b753c4330fbd5944b88af035f299 ]
+[ Upstream commit 071995c877a8646209d55ff8edddd2b054e7424c ]
 
-Currently, maximum number of mapper pages are set to the pfn calculated
-from the memblock size of the memblock containing kernel. This will work
-until that memblock spans the entire memory. However, it will be set to
-a wrong value if there are multiple memblocks defined in kernel
-(e.g. with efi runtime services).
+Fix a bug where driver did not verify Hardware pin capabilities for
+PTP functions.
 
-Set the the maximum value to the pfn calculated from dram size.
-
-Signed-off-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: ee7f12205abc ("net/mlx5e: Implement 1PPS support")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Reviewed-by: Ariel Levkovich <lariel@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../ethernet/mellanox/mlx5/core/lib/clock.c   | 23 ++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 3198129230126..b1eb6a0411183 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -115,9 +115,9 @@ void __init setup_bootmem(void)
- 	/* Reserve from the start of the kernel to the end of the kernel */
- 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+index 54f1a40a68edd..d359e850dbf07 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+@@ -366,10 +366,31 @@ static int mlx5_ptp_enable(struct ptp_clock_info *ptp,
+ 	return 0;
+ }
  
--	set_max_mapnr(PFN_DOWN(mem_size));
- 	max_pfn = PFN_DOWN(memblock_end_of_DRAM());
- 	max_low_pfn = max_pfn;
-+	set_max_mapnr(max_low_pfn);
++enum {
++	MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_IN = BIT(0),
++	MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_OUT = BIT(1),
++};
++
+ static int mlx5_ptp_verify(struct ptp_clock_info *ptp, unsigned int pin,
+ 			   enum ptp_pin_function func, unsigned int chan)
+ {
+-	return (func == PTP_PF_PHYSYNC) ? -EOPNOTSUPP : 0;
++	struct mlx5_clock *clock = container_of(ptp, struct mlx5_clock,
++						ptp_info);
++
++	switch (func) {
++	case PTP_PF_NONE:
++		return 0;
++	case PTP_PF_EXTTS:
++		return !(clock->pps_info.pin_caps[pin] &
++			 MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_IN);
++	case PTP_PF_PEROUT:
++		return !(clock->pps_info.pin_caps[pin] &
++			 MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_OUT);
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return -EOPNOTSUPP;
+ }
  
- #ifdef CONFIG_BLK_DEV_INITRD
- 	setup_initrd();
+ static const struct ptp_clock_info mlx5_ptp_clock_info = {
 -- 
 2.25.1
 
