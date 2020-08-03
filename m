@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D6023A6BF
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D063623A641
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727863AbgHCMX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:23:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47524 "EHLO mail.kernel.org"
+        id S1726955AbgHCMqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727855AbgHCMX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:23:27 -0400
+        id S1728439AbgHCM0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B43D0204EC;
-        Mon,  3 Aug 2020 12:23:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA148204EC;
+        Mon,  3 Aug 2020 12:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457406;
-        bh=wUGwfYYUp+m6tPyzzV64uHY20TtTjscM989H6gUPW8k=;
+        s=default; t=1596457614;
+        bh=xttePjRSo/HvUvQlP8Rh7kntoyB1U0ZEsi/FLPpeVlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NpgHjDDSmqiqJp/XprRGGF0dhxRQjhPaDwlVsqEuhFv+fav6mJpxdqrn8wlySm4VP
-         EOfNvijto2E56LFQ9zJQyA9AvAg07wcWbE0aA7GlroabJen8ceYqPTmq1PvFWd0KQT
-         6FVdPU/zDjaCPJsLU4g2nU8LFmU2auzK4VrJjSWM=
+        b=hMedszlSbgCtqiTkLUMqqal+0Lq5iF2es7CkAsEkkQyH6D//ipA0lH3GDb44usKVv
+         s8SY8EHhT73RI2oFSGKzHG54zVGnvDjovo9TGGjFJdxoDEVfxItq4hwPGWUpFL4z9h
+         yLinv6CcHuezxiYW3xeLZuYdMURZZLGD+MavglCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 055/120] net/mlx5: E-switch, Destroy TSAR after reload interface
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 11/90] ALSA: hda/realtek - Fixed HP right speaker no sound
 Date:   Mon,  3 Aug 2020 14:18:33 +0200
-Message-Id: <20200803121905.474985067@linuxfoundation.org>
+Message-Id: <20200803121858.093900741@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Kailang Yang <kailang@realtek.com>
 
-[ Upstream commit 0c2600c619578f759cf3d5192b01bd14e281f24c ]
+commit 5649625344fe1f4695eace7c37d011e317bf66d5 upstream.
 
-When eswitch offloads is enabled, TSAR is created before reloading
-the interfaces.
-However when eswitch offloads mode is disabled, TSAR is disabled before
-reloading the interfaces.
+HP NB right speaker had no sound output.
+This platform was connected to I2S Amp for speaker out.(None Realtek I2S Amp IC)
+EC need to check codec GPIO1 pin to initial I2S Amp.
 
-To keep the eswitch enable/disable sequence as mirror, destroy TSAR
-after reloading the interfaces.
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/01285f623ac7447187482fb4a8ecaa7c@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 1bd27b11c1df ("net/mlx5: Introduce E-switch QoS management")
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 459cd668b9e2f..3bb4f72b76da2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -2206,8 +2206,6 @@ void mlx5_eswitch_disable_locked(struct mlx5_eswitch *esw, bool clear_vf)
- 	else if (esw->mode == MLX5_ESWITCH_OFFLOADS)
- 		esw_offloads_disable(esw);
- 
--	esw_destroy_tsar(esw);
--
- 	old_mode = esw->mode;
- 	esw->mode = MLX5_ESWITCH_NONE;
- 
-@@ -2217,6 +2215,8 @@ void mlx5_eswitch_disable_locked(struct mlx5_eswitch *esw, bool clear_vf)
- 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
- 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_ETH);
- 	}
-+	esw_destroy_tsar(esw);
-+
- 	if (clear_vf)
- 		mlx5_eswitch_clear_vf_vports_info(esw);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5940,6 +5940,16 @@ static void alc_fixup_disable_mic_vref(s
+ 		snd_hda_codec_set_pin_target(codec, 0x19, PIN_VREFHIZ);
  }
--- 
-2.25.1
-
+ 
++static void  alc285_fixup_hp_gpio_amp_init(struct hda_codec *codec,
++			      const struct hda_fixup *fix, int action)
++{
++	if (action != HDA_FIXUP_ACT_INIT)
++		return;
++
++	msleep(100);
++	alc_write_coef_idx(codec, 0x65, 0x0);
++}
++
+ /* for hda_fixup_thinkpad_acpi() */
+ #include "thinkpad_helper.c"
+ 
+@@ -6120,6 +6130,7 @@ enum {
+ 	ALC289_FIXUP_ASUS_GA401,
+ 	ALC289_FIXUP_ASUS_GA502,
+ 	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
++	ALC285_FIXUP_HP_GPIO_AMP_INIT,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7352,6 +7363,12 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
+ 	},
++	[ALC285_FIXUP_HP_GPIO_AMP_INIT] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_gpio_amp_init,
++		.chained = true,
++		.chain_id = ALC285_FIXUP_HP_GPIO_LED
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7502,7 +7519,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+-	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
 
 
