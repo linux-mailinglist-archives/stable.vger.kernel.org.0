@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAD023A77E
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 15:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7EB223A857
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 16:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726942AbgHCNbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 09:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52360 "EHLO
+        id S1726778AbgHCOYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 10:24:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726927AbgHCNbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 09:31:43 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E015C06174A
-        for <stable@vger.kernel.org>; Mon,  3 Aug 2020 06:31:43 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id d1so20659082plr.8
-        for <stable@vger.kernel.org>; Mon, 03 Aug 2020 06:31:43 -0700 (PDT)
+        with ESMTP id S1726358AbgHCOYI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 10:24:08 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7826C06174A
+        for <stable@vger.kernel.org>; Mon,  3 Aug 2020 07:24:07 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id m8so11308563pfh.3
+        for <stable@vger.kernel.org>; Mon, 03 Aug 2020 07:24:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=aXkoxgKrhmBn3KkW0q9CJEkBeNFG152nvq4jiGc95mA=;
-        b=htPko/pCZALfmVEz94q6et1mT00pz7hIy4W1Q305vbu8hnC62V4BLhyZmuP3Tk0qpY
-         O1zXT386bk9QhDPKSNnUj4lR9Gucn+ljMulZduQTc5wrd8Pl3pDmrXPi9cMh1yiPtBkC
-         +fq5TQbYgY/LPR+PbEXRwJz0Ek3Xi9AT/phdr7PNB8DotS3NjWxgZBof5dCPq9tUL1CW
-         /FW5WThMEs1HBMJwd+q43TMsDWf0Jx1FTD9F8erjYIG/79N9WG1ecByG/7LiKNBH5tnl
-         r7wBY4tgGRXGQ86vO9VS4z/Jy8LJHvnDH1LHk2oNejMJvBRhFegGKkHK5mVHjkLRiSM2
-         Vtyw==
+        bh=k5rBk6auzioWkbVjDVuNoBbiL6Fj5VJKCr/sYp9wjJw=;
+        b=dfRZ8INdYNLWg96wzoC+wUIPFW0qmD6TwedTg8s3kOcbXuwwjyYEyNdHFT9bU6kHGV
+         1eyOL8qkdNc1BrLbZxfKcYmRjequr1ZY2OqyxDTAGK749b+NnAZ/jYjdRm1107Dydxqq
+         ydEcmmdrKaFqcjTE0XPgaetZW69dMYA+BLhzttId1pyTU0Mf5tq5C2oIoTRAZzNpiPpc
+         Z1tQfcTn2Cmh+fOOzsUE4iBcT2dFQ4elI2e8H/rzWLuzirsYFCPiRGpAX/UIeDOU6M86
+         ttQZ7fz43/lFLzNsqIs0K/2pEjOrEiXcTmCpffTI9ntCn1ujQP7eDPr2PrehC3LrP2xk
+         M82w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=aXkoxgKrhmBn3KkW0q9CJEkBeNFG152nvq4jiGc95mA=;
-        b=o/gbUf3FjSnMHdyx7OTY67yeUvob8nJkLfhOOyhXmzCUlmU/i3yAmtP6ySaIU3MkuK
-         tZoeUYMgUIqpUe3L6lXtKMVev05FNkLuWuBPNXaDrLQNEKhLV26KCn4e/drJchU2+aS1
-         kEEy1qj07Pj+/aOY8LjsejUMwC+1H/GWwyggPtHW/iMSrOvPQJyJlv+fhC8mX1UsthVM
-         N0J6TG/4RiP5za1/Gq6xT5KQbjpeWbCkcyaj8ktHoxJ4EfJi6Jd98bwKE6gFJKyQ0dRb
-         cfboyPvyHPvg2HnV6Ubpel5OqmEjEcFbXRBt5Q0TR5wx+8ltzPS48PcIw2DxefJzrpyk
-         oOxA==
-X-Gm-Message-State: AOAM533tvFHwjLAyfCTKN97+9cZSUP2qmwzD1Kg387uWlSVW2KzTUjyR
-        mL+2GGn11NSCCNpiVHKcSamWSexhDJg=
-X-Google-Smtp-Source: ABdhPJwfv9uRllrI9b4ZZDD+mbr2kkvsUCcYOPk84t99mFydfDgMCJ5cyHdcRrh82xHewRBbnxOjBw==
-X-Received: by 2002:a17:90a:65c7:: with SMTP id i7mr17097792pjs.103.1596461500526;
-        Mon, 03 Aug 2020 06:31:40 -0700 (PDT)
+        bh=k5rBk6auzioWkbVjDVuNoBbiL6Fj5VJKCr/sYp9wjJw=;
+        b=HQrcK2jOPRbjEbqthY7pUTpYiBJEXhx2mMfkw2C8qFNGszrHSAlVjifHh8x/7yiZFb
+         eJGMfQxEJl3raQ7X3bg7qQesbnwb/A5TSHiPw+ZYEdLUWQaFv32nHObFq8bc7tlQX7Go
+         EURqP5ohXGrsdCL9fz12YVDZz7MXcLmudDyeGgT8Lp1+hez+hkZ55peFJkvHiyNTl7nk
+         iIK6FvEiKhNo3fcCBFBDQ0LVTACZ2PjhdQp+g0jxd0xOTwlBbYCsRPCCSBq1UaKj4SV1
+         GPCZsNn78QGEy2F/8H81ag+Bddp/bOHKqX3UQ4ifYB3DzjLGcLVYvvDX9hSVmq4Kgr9P
+         NcaA==
+X-Gm-Message-State: AOAM533V9cb8e4PaasXA0Je9JZVf9oF7ML55CiWiEj9pGplevqk7s22D
+        wf/FQ3/gqWOU6p+JbKOUOUGEFun8EZc=
+X-Google-Smtp-Source: ABdhPJzd59f1vTgE8WZ5ckA1wFR2RcdJRV+afJHPkoq7L3yYLdVfwUaB7yUWuh/ct6wEVVpTcIdO/A==
+X-Received: by 2002:a62:2546:: with SMTP id l67mr16650992pfl.154.1596464645973;
+        Mon, 03 Aug 2020 07:24:05 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x18sm19488590pfc.93.2020.08.03.06.31.39
+        by smtp.gmail.com with ESMTPSA id u21sm17748613pjn.27.2020.08.03.07.24.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2020 06:31:39 -0700 (PDT)
-Message-ID: <5f2811bb.1c69fb81.b7f47.104d@mx.google.com>
-Date:   Mon, 03 Aug 2020 06:31:39 -0700 (PDT)
+        Mon, 03 Aug 2020 07:24:05 -0700 (PDT)
+Message-ID: <5f281e05.1c69fb81.4d4cd.c3c1@mx.google.com>
+Date:   Mon, 03 Aug 2020 07:24:05 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.191-52-g333e573a423b
-X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v5.7.12-121-g759db541b69b
+X-Kernelci-Branch: linux-5.7.y
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y build: 201 builds: 0 failed, 201 passed,
- 72 warnings (v4.14.191-52-g333e573a423b)
+Subject: stable-rc/linux-5.7.y build: 200 builds: 0 failed, 200 passed,
+ 34 warnings (v5.7.12-121-g759db541b69b)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -66,33 +66,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 201 builds: 0 failed, 201 passed, 72 warnings=
- (v4.14.191-52-g333e573a423b)
+stable-rc/linux-5.7.y build: 200 builds: 0 failed, 200 passed, 34 warnings =
+(v5.7.12-121-g759db541b69b)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.191-52-g333e573a423b/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.7.y=
+/kernel/v5.7.12-121-g759db541b69b/
 
 Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.191-52-g333e573a423b
-Git Commit: 333e573a423b816b8b28000d6106fa52bd98e198
+Branch: linux-5.7.y
+Git Describe: v5.7.12-121-g759db541b69b
+Git Commit: 759db541b69b8501f780ad6aefb99c104a2fdede
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Warnings Detected:
 
 arc:
 
 arm64:
-    defconfig (gcc-8): 70 warnings
+    defconfig (gcc-8): 24 warnings
 
 arm:
 
 i386:
 
 mips:
+    ci20_defconfig (gcc-8): 1 warning
     malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    rm200_defconfig (gcc-8): 1 warning
+
+riscv:
+    rv32_defconfig (gcc-8): 6 warnings
 
 x86_64:
     tinyconfig (gcc-8): 1 warning
@@ -100,19 +105,44 @@ x86_64:
 
 Warnings summary:
 
-    14   /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "thi=
-s_cpu_cmpxchg_double_8" redefined
-    14   /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "thi=
-s_cpu_cmpxchg_8" redefined
-    14   /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "thi=
-s_cpu_cmpxchg_4" redefined
-    14   /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "thi=
-s_cpu_cmpxchg_2" redefined
-    14   /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "thi=
-s_cpu_cmpxchg_1" redefined
-    1    {standard input}:29: Warning: macro instruction expanded into mult=
-iple instructions
-    1    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+    16   /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.=
+4-52: Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges:=
+ "dma-ranges" property has invalid length (12 bytes) (parent #address-cells=
+ =3D=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    3    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.=
+dtsi:7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-range=
+s" property but its #size-cells (1) differs from / (2)
+    3    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.=
+dtsi:7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-range=
+s" property but its #address-cells (1) differs from / (2)
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    {standard input}:141: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    arch/mips/configs/ci20_defconfig:178:warning: override: reassignin=
+g to symbol LEDS_TRIGGER_ONESHOT
+    1    /scratch/linux/drivers/block/paride/bpck.c:32: warning: "PC" redef=
+ined
+    1    /scratch/linux/arch/arm64/boot/dts/qcom/ipq6018.dtsi:127.3-14: War=
+ning (dma_ranges_format): /soc:dma-ranges: empty "dma-ranges" property but =
+its #size-cells (1) differs from / (2)
+    1    /scratch/linux/arch/arm64/boot/dts/qcom/ipq6018.dtsi:127.3-14: War=
+ning (dma_ranges_format): /soc:dma-ranges: empty "dma-ranges" property but =
+its #address-cells (1) differs from / (2)
+    1    .config:1161:warning: override: UNWINDER_GUESS changes choice state
+
+Section mismatches summary:
+
+    1    WARNING: modpost: vmlinux.o(.text.unlikely+0x2a44): Section mismat=
+ch in reference from the function pmax_setup_memory_region() to the functio=
+n .init.text:add_memory_region()
+    1    WARNING: modpost: vmlinux.o(.text.unlikely+0x2830): Section mismat=
+ch in reference from the function pmax_setup_memory_region() to the functio=
+n .init.text:add_memory_region()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -128,27 +158,17 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
@@ -158,8 +178,13 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -273,8 +298,12 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    arch/mips/configs/ci20_defconfig:178:warning: override: reassigning to =
+symbol LEDS_TRIGGER_ONESHOT
 
 ---------------------------------------------------------------------------=
 -----
@@ -323,6 +352,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+cu1000-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
 davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
@@ -333,155 +367,128 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 70 warnings, 0 section m=
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text.unlikely+0x2a44): Section mismatch in=
+ reference from the function pmax_setup_memory_region() to the function .in=
+it.text:add_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text.unlikely+0x2830): Section mismatch in=
+ reference from the function pmax_setup_memory_region() to the function .in=
+it.text:add_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 24 warnings, 0 section m=
 ismatches
 
 Warnings:
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:209: warning: "this_cpu=
-_cmpxchg_1" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:210: warning: "this_cpu=
-_cmpxchg_2" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:211: warning: "this_cpu=
-_cmpxchg_4" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:212: warning: "this_cpu=
-_cmpxchg_8" redefined
-    /scratch/linux/arch/arm64/include/asm/cmpxchg.h:214: warning: "this_cpu=
-_cmpxchg_double_8" redefined
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi:1068.4-52:=
+ Warning (dma_ranges_format): /soc/dram-controller@1c62000:dma-ranges: "dma=
+-ranges" property has invalid length (12 bytes) (parent #address-cells =3D=
+=3D 1, child #address-cells =3D=3D 2, #size-cells =3D=3D 1)
+    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:=
+7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" pr=
+operty but its #address-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:=
+7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" pr=
+operty but its #size-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:=
+7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" pr=
+operty but its #address-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:=
+7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" pr=
+operty but its #size-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:=
+7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" pr=
+operty but its #address-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:=
+7.3-14: Warning (dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" pr=
+operty but its #size-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/qcom/ipq6018.dtsi:127.3-14: Warning =
+(dma_ranges_format): /soc:dma-ranges: empty "dma-ranges" property but its #=
+address-cells (1) differs from / (2)
+    /scratch/linux/arch/arm64/boot/dts/qcom/ipq6018.dtsi:127.3-14: Warning =
+(dma_ranges_format): /soc:dma-ranges: empty "dma-ranges" property but its #=
+size-cells (1) differs from / (2)
 
 ---------------------------------------------------------------------------=
 -----
@@ -492,11 +499,6 @@ dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 -----
 e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -537,6 +539,11 @@ ection mismatches
 -----
 fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -610,17 +617,7 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 ---------------------------------------------------------------------------=
@@ -667,11 +664,6 @@ ection mismatches
 -----
 keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -754,8 +746,8 @@ malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
 , 0 section mismatches
 
 Warnings:
-    {standard input}:29: Warning: macro instruction expanded into multiple =
-instructions
+    {standard input}:141: Warning: macro instruction expanded into multiple=
+ instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -786,6 +778,11 @@ maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 -----
 markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -874,11 +871,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -894,13 +886,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+nommu_k210_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+nommu_virt_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -911,21 +903,6 @@ section mismatches
 -----
 nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -946,6 +923,11 @@ tion mismatches
 -----
 orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1019,11 +1001,6 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -1039,8 +1016,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/block/paride/bpck.c:32: warning: "PC" redefined
 
 ---------------------------------------------------------------------------=
 -----
@@ -1051,6 +1031,21 @@ mismatches
 -----
 rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1159,8 +1154,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1169,21 +1164,26 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1161:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1227,6 +1227,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
@@ -1254,11 +1259,6 @@ ction mismatches
 -----
 xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
