@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B027C23A6FD
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B395C23A6FB
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727101AbgHCM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45444 "EHLO mail.kernel.org"
+        id S1727791AbgHCM4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:56:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726877AbgHCMV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:21:57 -0400
+        id S1726929AbgHCMWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:22:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDD602076B;
-        Mon,  3 Aug 2020 12:21:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FDCF2076B;
+        Mon,  3 Aug 2020 12:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457316;
-        bh=ixOj0L2zhR7RM2hV2j31sXovmLSwVRFOPEE5uFKzjAA=;
+        s=default; t=1596457321;
+        bh=+II4H3RfJq9qbm60b9uw3j/pv8zcAsh0c81QTLRm2Ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BC4NJfBmHQXgi954FXmJmpzKQQnpxls4D5qJQnvIoMRoTF4Ke5RTZfkCd5niflVkg
-         fQfByt8BVXIMl7jfIOyGMUvsmPwVyPnsHfnNQ7NKvCYy3eixGK4+1OKu+bHbQvtFZI
-         g3ff/qWD7n4vDZ5ZBnyOFoqf5ZDQCY/Oq8LqeWvw=
+        b=z2Ap/gset+z8DyHZMCKNNzBDfCeZHGfMmt8XZVo/YF4fbKmmdCNf1kyQ0zTmdkWLd
+         u1QMDT0a6jytdsdulcrtw1P+ebb/Asi6cqPB/oS+GiULluTqoWOr/a8nyRh2xQbKDB
+         eWeI6wGfzhQOsky75xVSXrfXVSkXU/6wMfApVGA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.7 023/120] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs handlers"
-Date:   Mon,  3 Aug 2020 14:18:01 +0200
-Message-Id: <20200803121903.976679481@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.7 025/120] drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
+Date:   Mon,  3 Aug 2020 14:18:03 +0200
+Message-Id: <20200803121904.071364135@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -42,54 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 87004abfbc27261edd15716515d89ab42198b405 upstream.
+commit 543e8669ed9bfb30545fd52bc0e047ca4df7fb31 upstream.
 
-This regressed some working configurations so revert it.  Will
-fix this properly for 5.9 and backport then.
+Compiler leaves a 4-byte hole near the end of `dev_info`, causing
+amdgpu_info_ioctl() to copy uninitialized kernel stack memory to userspace
+when `size` is greater than 356.
 
-This reverts commit 38e0c89a19fd13f28d2b4721035160a3e66e270b.
+In 2015 we tried to fix this issue by doing `= {};` on `dev_info`, which
+unfortunately does not initialize that 4-byte hole. Fix it by using
+memset() instead.
 
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+Fixes: c193fa91b918 ("drm/amdgpu: information leak in amdgpu_info_ioctl()")
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -775,7 +775,8 @@ static ssize_t amdgpu_set_pp_od_clk_volt
- 		tmp_str++;
- 	while (isspace(*++tmp_str));
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -692,9 +692,10 @@ static int amdgpu_info_ioctl(struct drm_
+ 		return n ? -EFAULT : 0;
+ 	}
+ 	case AMDGPU_INFO_DEV_INFO: {
+-		struct drm_amdgpu_info_device dev_info = {};
++		struct drm_amdgpu_info_device dev_info;
+ 		uint64_t vm_size;
  
--	while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
-+	while (tmp_str[0]) {
-+		sub_str = strsep(&tmp_str, delimiter);
- 		ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
- 		if (ret)
- 			return -EINVAL;
-@@ -1035,7 +1036,8 @@ static ssize_t amdgpu_read_mask(const ch
- 	memcpy(buf_cpy, buf, bytes);
- 	buf_cpy[bytes] = '\0';
- 	tmp = buf_cpy;
--	while ((sub_str = strsep(&tmp, delimiter)) != NULL) {
-+	while (tmp[0]) {
-+		sub_str = strsep(&tmp, delimiter);
- 		if (strlen(sub_str)) {
- 			ret = kstrtol(sub_str, 0, &level);
- 			if (ret)
-@@ -1632,7 +1634,8 @@ static ssize_t amdgpu_set_pp_power_profi
- 			i++;
- 		memcpy(buf_cpy, buf, count-i);
- 		tmp_str = buf_cpy;
--		while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
-+		while (tmp_str[0]) {
-+			sub_str = strsep(&tmp_str, delimiter);
- 			ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
- 			if (ret)
- 				return -EINVAL;
++		memset(&dev_info, 0, sizeof(dev_info));
+ 		dev_info.device_id = dev->pdev->device;
+ 		dev_info.chip_rev = adev->rev_id;
+ 		dev_info.external_rev = adev->external_rev_id;
 
 
