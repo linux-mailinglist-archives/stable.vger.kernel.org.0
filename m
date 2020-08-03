@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 803A723A57B
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:37:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A14223A56F
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:37:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729218AbgHCMhX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
+        id S1729240AbgHCMfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728902AbgHCMfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:35:01 -0400
+        id S1729233AbgHCMfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:35:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA8FC2076B;
-        Mon,  3 Aug 2020 12:34:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE3C32076B;
+        Mon,  3 Aug 2020 12:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458100;
-        bh=JbkdRBM9tziVBbFuBWhmjeSF9h3LPeTf1NEzOTxkUKw=;
+        s=default; t=1596458103;
+        bh=ciS47U5g58lQh8uM1yhReoh4Xilmw9i+QaZmMFcwVEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twoTXt6tiMW1JvkohvYC5ySBOqjR6nogOgdobqTPN9Ag2Yqg1lssRKikiENIIAdYa
-         pCUnpSMo8YhaTK28yxwaP5JXwN5Y+tdhkkVpHPstOUs264sQ5dhVNVWfFouzN7v+aS
-         Pcan0DbCwBrFddWyYp3dEoLx47bc44cQ3YhSjp5o=
+        b=kRkmwt1nQHc+g/NqXfGCHdVT0LeMwMegiyctu7T8ePucyfxApSDRXYgxJZfYMQHuq
+         Psh6tY7HVQVvS82qOPd7DG5ApyG9tp97wJZcJTCH/kQrRHDBUsqtv0C2Y+sw11lo2J
+         TyEZ+aRnArF1iHDmAX5qVnu9oJGo5deVEqR5U8BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/51] mac80211: mesh: Free pending skb when destroying a mpath
-Date:   Mon,  3 Aug 2020 14:20:23 +0200
-Message-Id: <20200803121851.405451106@linuxfoundation.org>
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/51] arm64/alternatives: move length validation inside the subsection
+Date:   Mon,  3 Aug 2020 14:20:24 +0200
+Message-Id: <20200803121851.455895323@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
 References: <20200803121849.488233135@linuxfoundation.org>
@@ -44,72 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 5e43540c2af0a0c0a18e39579b1ad49541f87506 ]
+[ Upstream commit 966a0acce2fca776391823381dba95c40e03c339 ]
 
-A mpath object can hold reference on a list of skb that are waiting for
-mpath resolution to be sent. When destroying a mpath this skb list
-should be cleaned up in order to not leak memory.
+Commit f7b93d42945c ("arm64/alternatives: use subsections for replacement
+sequences") breaks LLVM's integrated assembler, because due to its
+one-pass design, it cannot compute instruction sequence lengths before the
+layout for the subsection has been finalized. This change fixes the build
+by moving the .org directives inside the subsection, so they are processed
+after the subsection layout is known.
 
-Fixing that kind of leak:
-
-unreferenced object 0xffff0000181c9300 (size 1088):
-  comm "openvpn", pid 1782, jiffies 4295071698 (age 80.416s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 f9 80 36 00 00 00 00 00  ..........6.....
-    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
-  backtrace:
-    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
-    [<000000002caaef13>] sk_prot_alloc.isra.39+0x34/0x178
-    [<00000000ceeaa916>] sk_alloc+0x34/0x228
-    [<00000000ca1f1d04>] inet_create+0x198/0x518
-    [<0000000035626b1c>] __sock_create+0x134/0x328
-    [<00000000a12b3a87>] __sys_socket+0xb0/0x158
-    [<00000000ff859f23>] __arm64_sys_socket+0x40/0x58
-    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
-    [<0000000005b5157d>] el0_svc+0x8/0xc
-unreferenced object 0xffff000012973a40 (size 216):
-  comm "openvpn", pid 1782, jiffies 4295082137 (age 38.660s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 c0 06 16 00 00 ff ff 00 93 1c 18 00 00 ff ff  ................
-  backtrace:
-    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
-    [<0000000023c8c8f9>] __alloc_skb+0xc0/0x2b8
-    [<000000007ad950bb>] alloc_skb_with_frags+0x60/0x320
-    [<00000000ef90023a>] sock_alloc_send_pskb+0x388/0x3c0
-    [<00000000104fb1a3>] sock_alloc_send_skb+0x1c/0x28
-    [<000000006919d2dd>] __ip_append_data+0xba4/0x11f0
-    [<0000000083477587>] ip_make_skb+0x14c/0x1a8
-    [<0000000024f3d592>] udp_sendmsg+0xaf0/0xcf0
-    [<000000005aabe255>] inet_sendmsg+0x5c/0x80
-    [<000000008651ea08>] __sys_sendto+0x15c/0x218
-    [<000000003505c99b>] __arm64_sys_sendto+0x74/0x90
-    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
-    [<0000000005b5157d>] el0_svc+0x8/0xc
-
-Fixes: 2bdaf386f99c (mac80211: mesh: move path tables into if_mesh)
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Link: https://lore.kernel.org/r/20200704135419.27703-1-repk@triplefau.lt
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1078
+Link: https://lore.kernel.org/r/20200730153701.3892953-1-samitolvanen@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/include/asm/alternative.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 1300220912051..933f26e2ff8be 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -554,6 +554,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl,
- 	del_timer_sync(&mpath->timer);
- 	atomic_dec(&sdata->u.mesh.mpaths);
- 	atomic_dec(&tbl->entries);
-+	mesh_path_flush_pending(mpath);
- 	kfree_rcu(mpath, rcu);
- }
+diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
+index 1824768fb1ee9..3abb2dacb43f4 100644
+--- a/arch/arm64/include/asm/alternative.h
++++ b/arch/arm64/include/asm/alternative.h
+@@ -72,9 +72,9 @@ void apply_alternatives(void *start, size_t length);
+ 	"663:\n\t"							\
+ 	newinstr "\n"							\
+ 	"664:\n\t"							\
+-	".previous\n\t"							\
+ 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
+-	".org	. - (662b-661b) + (664b-663b)\n"			\
++	".org	. - (662b-661b) + (664b-663b)\n\t"			\
++	".previous\n"							\
+ 	".endif\n"
  
+ #define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
 -- 
 2.25.1
 
