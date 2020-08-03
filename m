@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4C0923A536
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9A123A5A5
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbgHCMeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
+        id S1728159AbgHCMj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:39:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729544AbgHCMeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:21 -0400
+        id S1728366AbgHCMdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9DFC204EC;
-        Mon,  3 Aug 2020 12:34:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1B382076B;
+        Mon,  3 Aug 2020 12:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458060;
-        bh=hSBw4kuiG9AI2JgvgDHtRSwEZbIlznh+qqR13Tzzt7g=;
+        s=default; t=1596457990;
+        bh=U+chRqPGR8rJrwHBA7q6Oj2Gm8e0BLsd3/ugWeyaAfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHbYupISdWCItEGK4aSOKvqKyOCCdKPWUnRX2aJRrgMem+YSUMXRZE908salomYeM
-         B0nynnd+EUGnAjbUs2F474IZjPie3UaJMjWYKvvP18cqeHoWnfhlZKVe5e8u0gJtJp
-         ErKCMo07tbI5Ssuov0oWsurdo3rr3NuV5NBCZIiE=
+        b=Ws2yKnk4wkhScCQKX14C1y7PiOu68M+O3ST5iXvjB45OPuiCLTTCjd30srMSTkhQY
+         SEQhTmTiEcPh8bciYHEUInrawJWfr1ST7g2vp1MChO99c5XBrhg2WqeZuCTM2FcDwK
+         ytURaAJLlj5/D4u8yLrTtL1O4571LmTltwwRCg9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 24/51] rds: Prevent kernel-infoleak in rds_notify_queue_get()
+        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 54/56] xen-netfront: fix potential deadlock in xennet_remove()
 Date:   Mon,  3 Aug 2020 14:20:09 +0200
-Message-Id: <20200803121850.696632977@linuxfoundation.org>
+Message-Id: <20200803121852.973030494@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Andrea Righi <andrea.righi@canonical.com>
 
-commit bbc8a99e952226c585ac17477a85ef1194501762 upstream.
+[ Upstream commit c2c633106453611be07821f53dff9e93a9d1c3f0 ]
 
-rds_notify_queue_get() is potentially copying uninitialized kernel stack
-memory to userspace since the compiler may leave a 4-byte hole at the end
-of `cmsg`.
+There's a potential race in xennet_remove(); this is what the driver is
+doing upon unregistering a network device:
 
-In 2016 we tried to fix this issue by doing `= { 0 };` on `cmsg`, which
-unfortunately does not always initialize that 4-byte hole. Fix it by using
-memset() instead.
+  1. state = read bus state
+  2. if state is not "Closed":
+  3.    request to set state to "Closing"
+  4.    wait for state to be set to "Closing"
+  5.    request to set state to "Closed"
+  6.    wait for state to be set to "Closed"
 
-Cc: stable@vger.kernel.org
-Fixes: f037590fff30 ("rds: fix a leak of kernel memory")
-Fixes: bdbe6fbc6a2f ("RDS: recv.c")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+If the state changes to "Closed" immediately after step 1 we are stuck
+forever in step 4, because the state will never go back from "Closed" to
+"Closing".
+
+Make sure to check also for state == "Closed" in step 4 to prevent the
+deadlock.
+
+Also add a 5 sec timeout any time we wait for the bus state to change,
+to avoid getting stuck forever in wait_event().
+
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/recv.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/xen-netfront.c | 64 +++++++++++++++++++++++++-------------
+ 1 file changed, 42 insertions(+), 22 deletions(-)
 
---- a/net/rds/recv.c
-+++ b/net/rds/recv.c
-@@ -453,12 +453,13 @@ static int rds_still_queued(struct rds_s
- int rds_notify_queue_get(struct rds_sock *rs, struct msghdr *msghdr)
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 6b4675a9494b2..c8e84276e6397 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -63,6 +63,8 @@ module_param_named(max_queues, xennet_max_queues, uint, 0644);
+ MODULE_PARM_DESC(max_queues,
+ 		 "Maximum number of queues per virtual interface");
+ 
++#define XENNET_TIMEOUT  (5 * HZ)
++
+ static const struct ethtool_ops xennet_ethtool_ops;
+ 
+ struct netfront_cb {
+@@ -1337,12 +1339,15 @@ static struct net_device *xennet_create_dev(struct xenbus_device *dev)
+ 
+ 	netif_carrier_off(netdev);
+ 
+-	xenbus_switch_state(dev, XenbusStateInitialising);
+-	wait_event(module_wq,
+-		   xenbus_read_driver_state(dev->otherend) !=
+-		   XenbusStateClosed &&
+-		   xenbus_read_driver_state(dev->otherend) !=
+-		   XenbusStateUnknown);
++	do {
++		xenbus_switch_state(dev, XenbusStateInitialising);
++		err = wait_event_timeout(module_wq,
++				 xenbus_read_driver_state(dev->otherend) !=
++				 XenbusStateClosed &&
++				 xenbus_read_driver_state(dev->otherend) !=
++				 XenbusStateUnknown, XENNET_TIMEOUT);
++	} while (!err);
++
+ 	return netdev;
+ 
+  exit:
+@@ -2142,28 +2147,43 @@ static const struct attribute_group xennet_dev_group = {
+ };
+ #endif /* CONFIG_SYSFS */
+ 
+-static int xennet_remove(struct xenbus_device *dev)
++static void xennet_bus_close(struct xenbus_device *dev)
  {
- 	struct rds_notifier *notifier;
--	struct rds_rdma_notify cmsg = { 0 }; /* fill holes with zero */
-+	struct rds_rdma_notify cmsg;
- 	unsigned int count = 0, max_messages = ~0U;
- 	unsigned long flags;
- 	LIST_HEAD(copy);
- 	int err = 0;
+-	struct netfront_info *info = dev_get_drvdata(&dev->dev);
+-
+-	dev_dbg(&dev->dev, "%s\n", dev->nodename);
++	int ret;
  
-+	memset(&cmsg, 0, sizeof(cmsg));	/* fill holes with zero */
+-	if (xenbus_read_driver_state(dev->otherend) != XenbusStateClosed) {
++	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
++		return;
++	do {
+ 		xenbus_switch_state(dev, XenbusStateClosing);
+-		wait_event(module_wq,
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateClosing ||
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateUnknown);
++		ret = wait_event_timeout(module_wq,
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateClosing ||
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateClosed ||
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateUnknown,
++				   XENNET_TIMEOUT);
++	} while (!ret);
++
++	if (xenbus_read_driver_state(dev->otherend) == XenbusStateClosed)
++		return;
  
- 	/* put_cmsg copies to user space and thus may sleep. We can't do this
- 	 * with rs_lock held, so first grab as many notifications as we can stuff
++	do {
+ 		xenbus_switch_state(dev, XenbusStateClosed);
+-		wait_event(module_wq,
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateClosed ||
+-			   xenbus_read_driver_state(dev->otherend) ==
+-			   XenbusStateUnknown);
+-	}
++		ret = wait_event_timeout(module_wq,
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateClosed ||
++				   xenbus_read_driver_state(dev->otherend) ==
++				   XenbusStateUnknown,
++				   XENNET_TIMEOUT);
++	} while (!ret);
++}
++
++static int xennet_remove(struct xenbus_device *dev)
++{
++	struct netfront_info *info = dev_get_drvdata(&dev->dev);
+ 
++	xennet_bus_close(dev);
+ 	xennet_disconnect_backend(info);
+ 
+ 	if (info->netdev->reg_state == NETREG_REGISTERED)
+-- 
+2.25.1
+
 
 
