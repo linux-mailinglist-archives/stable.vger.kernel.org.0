@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3399F23A5F1
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD42123A511
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728430AbgHCMaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:30:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56930 "EHLO mail.kernel.org"
+        id S1729392AbgHCMdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729007AbgHCMaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:30:02 -0400
+        id S1729386AbgHCMdC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F6D12086A;
-        Mon,  3 Aug 2020 12:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27DE3204EC;
+        Mon,  3 Aug 2020 12:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457801;
-        bh=+J6fOoLK985RugK/lghNk9b0GLsZJS34xZ+SIvL3Gdo=;
+        s=default; t=1596457981;
+        bh=0Aup74NOSS42XQ7aEIwZYIA0RB6k4tahoOrwdO6yJoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgfbiCw8ipELJwgM6IqARFAPje+rdMMAsH/yv3DhCIWbei/F/vCfllX3LCcRfVeEs
-         QZ1ImOHHUxW9qlGMkGkkJJ8nY0bSroKnoajMgYuiJt8/avwFORt3K4SYNnCJpHp1bz
-         7l7jA/r9GeDMP5ny0Zuw9+w87bt0eooibCQEyjEs=
+        b=aHouRpdtEiNUA954OAhLcSwwkYxP/f+Sb9wVQ7934gsCuYSPj7aSdd3ZIsIDc2rEz
+         4VJQKnozglM3YuF/k5VqB+TRfSHtz2U8FfjsjSEZL5EZGW3prnrK1PXJ1FLPaJczFq
+         xgzu44Oskavjgr2F0x7rZ4rRRuUiQMWSWevjFhFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 78/90] Revert "i2c: cadence: Fix the hold bit setting"
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 25/56] net/x25: Fix x25_neigh refcnt leak when x25 disconnect
 Date:   Mon,  3 Aug 2020 14:19:40 +0200
-Message-Id: <20200803121901.393294334@linuxfoundation.org>
+Message-Id: <20200803121851.567113942@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 0db9254d6b896b587759e2c844c277fb1a6da5b9 ]
+commit 4becb7ee5b3d2829ed7b9261a245a77d5b7de902 upstream.
 
-This reverts commit d358def706880defa4c9e87381c5bf086a97d5f9.
+x25_connect() invokes x25_get_neigh(), which returns a reference of the
+specified x25_neigh object to "x25->neighbour" with increased refcnt.
 
-There are two issues with "i2c: cadence: Fix the hold bit setting" commit.
+When x25 connect success and returns, the reference still be hold by
+"x25->neighbour", so the refcount should be decreased in
+x25_disconnect() to keep refcount balanced.
 
-1. In case of combined message request from user space, when the HOLD
-bit is cleared in cdns_i2c_mrecv function, a STOP condition is sent
-on the bus even before the last message is started. This is because when
-the HOLD bit is cleared, the FIFOS are empty and there is no pending
-transfer. The STOP condition should occur only after the last message
-is completed.
+The reference counting issue happens in x25_disconnect(), which forgets
+to decrease the refcnt increased by x25_get_neigh() in x25_connect(),
+causing a refcnt leak.
 
-2. The code added by the commit is redundant. Driver is handling the
-setting/clearing of HOLD bit in right way before the commit.
+Fix this issue by calling x25_neigh_put() before x25_disconnect()
+returns.
 
-The setting of HOLD bit based on 'bus_hold_flag' is taken care in
-cdns_i2c_master_xfer function even before cdns_i2c_msend/cdns_i2c_recv
-functions.
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The clearing of HOLD bit is taken care at the end of cdns_i2c_msend and
-cdns_i2c_recv functions based on bus_hold_flag and byte count.
-Since clearing of HOLD bit is done after the slave address is written to
-the register (writing to address register triggers the message transfer),
-it is ensured that STOP condition occurs at the right time after
-completion of the pending transfer (last message).
-
-Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ net/x25/x25_subr.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 9d71ce15db050..a51d3b7957701 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -377,10 +377,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if ((id->recv_count > CDNS_I2C_FIFO_DEPTH)  || id->bus_hold_flag)
-+	if (id->recv_count > CDNS_I2C_FIFO_DEPTH)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
--	else
--		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
+--- a/net/x25/x25_subr.c
++++ b/net/x25/x25_subr.c
+@@ -362,6 +362,10 @@ void x25_disconnect(struct sock *sk, int
+ 		sk->sk_state_change(sk);
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
++	read_lock_bh(&x25_list_lock);
++	x25_neigh_put(x25->neighbour);
++	x25->neighbour = NULL;
++	read_unlock_bh(&x25_list_lock);
+ }
  
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
- 
-@@ -437,11 +435,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if ((id->send_count > CDNS_I2C_FIFO_DEPTH) || id->bus_hold_flag)
-+	if (id->send_count > CDNS_I2C_FIFO_DEPTH)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
--	else
--		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
--
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
- 
- 	/* Clear the interrupts in interrupt status register. */
--- 
-2.25.1
-
+ /*
 
 
