@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A12B223A9E3
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 17:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FADC23A9E4
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 17:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726805AbgHCPwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 11:52:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43172 "EHLO mail.kernel.org"
+        id S1726942AbgHCPww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 11:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726772AbgHCPwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 11:52:47 -0400
+        id S1726772AbgHCPww (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 11:52:52 -0400
 Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1FE22076C;
-        Mon,  3 Aug 2020 15:52:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCBC12072A;
+        Mon,  3 Aug 2020 15:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596469966;
-        bh=0iWsV1WaTVwN8U1EJ20zgze+6oCHd3om09hk1PDSxwI=;
+        s=default; t=1596469971;
+        bh=mQeowY8CWoF5oCIepRkpl7Z5wCiGFjMYaay4ZC1xFKc=;
         h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-        b=Tnud3OzherBkJe6Zh1v+vPIuyIH17i0o5KbccCus9tmdoxBBDl8N1b/uZDs0VxtMO
-         kx8YygsBhW6QjhFHbTgFUULr+vAI0I/LbcI6AwQbM2gzJiyZUh3lIY2CIfiProDSqQ
-         qty8KxocOsTV+8kT4yvKrcgDqM9MP6AVrrdQeZN4=
-Date:   Mon, 03 Aug 2020 16:52:26 +0100
+        b=oq1ZBmDUyZc/OPO86rY/94O3VDdxgn06WGSeZuXz5lpt74RsZIyUO1mZCQ9dUx8dm
+         R+iMzBeOVcqJomoD8qVH0VRSghoZTdhLIA1qqSnoyQp/vsgNThKEFoyMqP2q+NesDi
+         ANWwzVI5/CU38VBMpUPFj1OmlR1DlSufDHYCKiIs=
+Date:   Mon, 03 Aug 2020 16:52:31 +0100
 From:   Mark Brown <broonie@kernel.org>
 To:     Hui Wang <hui.wang@canonical.com>, alsa-devel@alsa-project.org,
         Vijendar.Mukunda@amd.com
 Cc:     stable@vger.kernel.org
-In-Reply-To: <20200730123138.5659-1-hui.wang@canonical.com>
-References: <20200730123138.5659-1-hui.wang@canonical.com>
-Subject: Re: [PATCH v2] ASoC: amd: renoir: restore two more registers during resume
-Message-Id: <159646994088.2524.17974008545850176515.b4-ty@kernel.org>
+In-Reply-To: <20200730075020.15667-1-hui.wang@canonical.com>
+References: <20200730075020.15667-1-hui.wang@canonical.com>
+Subject: Re: [PATCH] ASoC: amd: renoir: restore two more registers during resume
+Message-Id: <159646994087.2524.11753685481726603724.b4-ty@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 30 Jul 2020 20:31:38 +0800, Hui Wang wrote:
+On Thu, 30 Jul 2020 15:50:20 +0800, Hui Wang wrote:
 > Recently we found an issue about the suspend and resume. If dmic is
 > recording the sound, and we run suspend and resume, after the resume,
 > the dmic can't work well anymore. we need to close the app and reopen
