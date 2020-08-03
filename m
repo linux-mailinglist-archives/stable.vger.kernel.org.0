@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BA823A507
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C05E23A528
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729338AbgHCMcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:32:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60588 "EHLO mail.kernel.org"
+        id S1728801AbgHCMdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729333AbgHCMcg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:32:36 -0400
+        id S1729488AbgHCMds (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5FD6204EC;
-        Mon,  3 Aug 2020 12:32:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4410520825;
+        Mon,  3 Aug 2020 12:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457955;
-        bh=t2oT0uhxQ0+DVoa3OutONu5D6FifUlSdmQ2IaDTNpbU=;
+        s=default; t=1596458027;
+        bh=xUsj0SvQPFOPJt9RmavoyhnEOWip1p8YnmuqOsaFhaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhSl0rV3Zn2voRDxzk4fbdvE/Z+LZxCHjW9+iZxL/O0X6J0peYsSKTRzSo9dYPGjA
-         qAvEqHNXPk0pbneyvRKETX8ybRosFjuZrs4lFlICGEnRnVLjpPRsDHFsapMkw3+6zO
-         KSogFdUbUH7j13hFeGPTqE2QKAGZEeP+r1oR+RA4=
+        b=pnulWSCFm7aKIXumpgub6qnDzxU6l21jneg/jTXUUz14L6TN3OoYDmIOphaTYJEGD
+         MUrs1KRwOPVVXOKDn4ZOJYwtIWIDkPwfypxKUMyraJn4b4q71twJ/bfSsyZordObnN
+         tc8OW8H1VGWeLVzy8rXbdZOpCLNoGOYVEqGZqXDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, guodeqing <geffrey.guo@huawei.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/56] arm64: csum: Fix handling of bad packets
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>, Willy Tarreau <w@1wt.eu>
+Subject: [PATCH 4.14 12/51] random32: update the net random state on interrupt and activity
 Date:   Mon,  3 Aug 2020 14:19:57 +0200
-Message-Id: <20200803121852.370952603@linuxfoundation.org>
+Message-Id: <20200803121850.075432902@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
+References: <20200803121849.488233135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +49,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 05fb3dbda187bbd9cc1cd0e97e5d6595af570ac6 ]
+commit f227e3ec3b5cad859ad15666874405e8c1bbc1d4 upstream.
 
-Although iph is expected to point to at least 20 bytes of valid memory,
-ihl may be bogus, for example on reception of a corrupt packet. If it
-happens to be less than 5, we really don't want to run away and
-dereference 16GB worth of memory until it wraps back to exactly zero...
+This modifies the first 32 bits out of the 128 bits of a random CPU's
+net_rand_state on interrupt or CPU activity to complicate remote
+observations that could lead to guessing the network RNG's internal
+state.
 
-Fixes: 0e455d8e80aa ("arm64: Implement optimised IP checksum helpers")
-Reported-by: guodeqing <geffrey.guo@huawei.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that depending on some network devices' interrupt rate moderation
+or binding, this re-seeding might happen on every packet or even almost
+never.
+
+In addition, with NOHZ some CPUs might not even get timer interrupts,
+leaving their local state rarely updated, while they are running
+networked processes making use of the random state.  For this reason, we
+also perform this update in update_process_times() in order to at least
+update the state when there is user or system activity, since it's the
+only case we care about.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/include/asm/checksum.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/char/random.c  |    1 +
+ include/linux/random.h |    3 +++
+ kernel/time/timer.c    |    8 ++++++++
+ lib/random32.c         |    2 +-
+ 4 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/checksum.h b/arch/arm64/include/asm/checksum.h
-index 0b6f5a7d4027c..fd11e0d70e446 100644
---- a/arch/arm64/include/asm/checksum.h
-+++ b/arch/arm64/include/asm/checksum.h
-@@ -30,16 +30,17 @@ static inline __sum16 ip_fast_csum(const void *iph, unsigned int ihl)
- {
- 	__uint128_t tmp;
- 	u64 sum;
-+	int n = ihl; /* we want it signed */
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1246,6 +1246,7 @@ void add_interrupt_randomness(int irq, i
  
- 	tmp = *(const __uint128_t *)iph;
- 	iph += 16;
--	ihl -= 4;
-+	n -= 4;
- 	tmp += ((tmp >> 64) | (tmp << 64));
- 	sum = tmp >> 64;
- 	do {
- 		sum += *(const u32 *)iph;
- 		iph += 4;
--	} while (--ihl);
-+	} while (--n > 0);
+ 	fast_mix(fast_pool);
+ 	add_interrupt_bench(cycles);
++	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
  
- 	sum += ((sum >> 32) | (sum << 32));
- 	return csum_fold((__force u32)(sum >> 32));
--- 
-2.25.1
-
+ 	if (unlikely(crng_init == 0)) {
+ 		if ((fast_pool->count >= 64) &&
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -9,6 +9,7 @@
+ 
+ #include <linux/list.h>
+ #include <linux/once.h>
++#include <linux/percpu.h>
+ 
+ #include <uapi/linux/random.h>
+ 
+@@ -116,6 +117,8 @@ struct rnd_state {
+ 	__u32 s1, s2, s3, s4;
+ };
+ 
++DECLARE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
++
+ u32 prandom_u32_state(struct rnd_state *state);
+ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -44,6 +44,7 @@
+ #include <linux/sched/debug.h>
+ #include <linux/slab.h>
+ #include <linux/compat.h>
++#include <linux/random.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/unistd.h>
+@@ -1595,6 +1596,13 @@ void update_process_times(int user_tick)
+ 	scheduler_tick();
+ 	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
+ 		run_posix_cpu_timers(p);
++
++	/* The current CPU might make use of net randoms without receiving IRQs
++	 * to renew them often enough. Let's update the net_rand_state from a
++	 * non-constant value that's not affine to the number of calls to make
++	 * sure it's updated when there's some activity (we don't care in idle).
++	 */
++	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
+ }
+ 
+ /**
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -48,7 +48,7 @@ static inline void prandom_state_selftes
+ }
+ #endif
+ 
+-static DEFINE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
++DEFINE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
+ 
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
 
 
