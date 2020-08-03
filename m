@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3261A23A608
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 011C923A655
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbgHCM2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S1728381AbgHCM02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728792AbgHCM2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:43 -0400
+        id S1728373AbgHCM02 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C8C1207DF;
-        Mon,  3 Aug 2020 12:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10E72208C7;
+        Mon,  3 Aug 2020 12:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457722;
-        bh=r/dP5TKP3/uPip2Keu0WTSGYOWWksUBMOdl1hzUhF6w=;
+        s=default; t=1596457586;
+        bh=1mhfn0JbiQDfYhpxjOS3Uga4z4btaREdfOD5ayAKZfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wE2wSosPVe0Bp7glq5TtkG0YOpnonZpVbljKgzsPnDDrwz8XOAMQAqD+5eoqoUzg0
-         r2ybUE3BtdH1pTb84cZYGTymDF/fuGlZwwhVneItohXfxE4VybWOyLHeA0ZzjNqsZB
-         EyKcPLj2Qf39Yju1+IGuqf5RjglYQIv4FMGwg3VM=
+        b=lm6FjZs82Df2cipa0h16uTpR9xQ5E6I9UbQKECAWVvQkSraX9QD7Zq8oTzpe+xt/E
+         z4AcbCyZeLLPhY2sO1XBpjLr/LlWnaY4aM2Hp4h/E2eL+1YryUBXmLcit3SZ63fk7e
+         VST9M4wuFYevaJikdzXkMIqCx2NbndIfzalUPO1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ron Diskin <rondi@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Moshe Shemesh <moshe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        =?UTF-8?q?Dieter=20N=C3=BCtzel?= <Dieter@nuetzel-hh.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Intel Linux Wireless <linuxwifi@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/90] net/mlx5e: Modify uplink state on interface up/down
-Date:   Mon,  3 Aug 2020 14:19:12 +0200
-Message-Id: <20200803121900.044873890@linuxfoundation.org>
+Subject: [PATCH 5.7 095/120] iwlwifi: fix crash in iwl_dbg_tlv_alloc_trigger
+Date:   Mon,  3 Aug 2020 14:19:13 +0200
+Message-Id: <20200803121907.541688166@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,170 +52,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ron Diskin <rondi@mellanox.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 7d0314b11cdd92bca8b89684c06953bf114605fc ]
+[ Upstream commit ea0cca61d628662e4a1b26c77c7646f9a0257069 ]
 
-When setting the PF interface up/down, notify the firmware to update
-uplink state via MODIFY_VPORT_STATE, when E-Switch is enabled.
+The tlv passed to iwl_dbg_tlv_alloc_trigger comes from a loaded firmware
+file. The memory can be marked as read-only as firmware could be
+shared. In anyway, writing to this memory is not expected. So,
+iwl_dbg_tlv_alloc_trigger can crash now:
 
-This behavior will prevent sending traffic out on uplink port when PF is
-down, such as sending traffic from a VF interface which is still up.
-Currently when calling mlx5e_open/close(), the driver only sends PAOS
-command to notify the firmware to set the physical port state to
-up/down, however, it is not sufficient. When VF is in "auto" state, it
-follows the uplink state, which was not updated on mlx5e_open/close()
-before this patch.
+  BUG: unable to handle page fault for address: ffffae2c01bfa794
+  PF: supervisor write access in kernel mode
+  PF: error_code(0x0003) - permissions violation
+  PGD 107d51067 P4D 107d51067 PUD 107d52067 PMD 659ad2067 PTE 8000000662298161
+  CPU: 2 PID: 161 Comm: kworker/2:1 Not tainted 5.7.0-3.gad96a07-default #1 openSUSE Tumbleweed (unreleased)
+  RIP: 0010:iwl_dbg_tlv_alloc_trigger+0x25/0x60 [iwlwifi]
+  Code: eb f2 0f 1f 00 66 66 66 66 90 83 7e 04 33 48 89 f8 44 8b 46 10 48 89 f7 76 40 41 8d 50 ff 83 fa 19 77 23 8b 56 20 85 d2 75 07 <c7> 46 20 ff ff ff ff 4b 8d 14 40 48 c1 e2 04 48 8d b4 10 00 05 00
+  RSP: 0018:ffffae2c00417ce8 EFLAGS: 00010246
+  RAX: ffff8f0522334018 RBX: ffff8f0522334018 RCX: ffffffffc0fc26c0
+  RDX: 0000000000000000 RSI: ffffae2c01bfa774 RDI: ffffae2c01bfa774
+  RBP: 0000000000000000 R08: 0000000000000004 R09: 0000000000000001
+  R10: 0000000000000034 R11: ffffae2c01bfa77c R12: ffff8f0522334230
+  R13: 0000000001000009 R14: ffff8f0523fdbc00 R15: ffff8f051f395800
+  FS:  0000000000000000(0000) GS:ffff8f0527c80000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffae2c01bfa794 CR3: 0000000389eba000 CR4: 00000000000006e0
+  Call Trace:
+   iwl_dbg_tlv_alloc+0x79/0x120 [iwlwifi]
+   iwl_parse_tlv_firmware.isra.0+0x57d/0x1550 [iwlwifi]
+   iwl_req_fw_callback+0x3f8/0x6a0 [iwlwifi]
+   request_firmware_work_func+0x47/0x90
+   process_one_work+0x1e3/0x3b0
+   worker_thread+0x46/0x340
+   kthread+0x115/0x140
+   ret_from_fork+0x1f/0x40
 
-When switchdev mode is enabled and uplink representor is first enabled,
-set the uplink port state value back to its FW default "AUTO".
+As can be seen, write bit is not set in the PTE. Read of
+trig->occurrences succeeds in iwl_dbg_tlv_alloc_trigger, but
+trig->occurrences = cpu_to_le32(-1); fails there, obviously.
 
-Fixes: 63bfd399de55 ("net/mlx5e: Send PAOS command on interface up/down")
-Signed-off-by: Ron Diskin <rondi@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+This is likely because we (at SUSE) use compressed firmware and that is
+marked as RO after decompression (see fw_map_paged_buf).
+
+Fix it by creating a temporary buffer in case we need to change the
+memory.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Reported-by: Dieter Nützel <Dieter@nuetzel-hh.de>
+Tested-by: Dieter Nützel <Dieter@nuetzel-hh.de>
+Cc: Johannes Berg <johannes.berg@intel.com>
+Cc: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Cc: Luca Coelho <luciano.coelho@intel.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200612073800.27742-1-jslaby@suse.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 25 ++++++++++++++++---
- .../net/ethernet/mellanox/mlx5/core/en_rep.c  |  2 ++
- .../net/ethernet/mellanox/mlx5/core/eswitch.c | 16 +++++++-----
- .../net/ethernet/mellanox/mlx5/core/eswitch.h |  2 ++
- include/linux/mlx5/mlx5_ifc.h                 |  1 +
- 5 files changed, 37 insertions(+), 9 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 15db4a8746dd7..cb3dcfced89fa 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3038,6 +3038,25 @@ void mlx5e_timestamp_init(struct mlx5e_priv *priv)
- 	priv->tstamp.rx_filter = HWTSTAMP_FILTER_NONE;
- }
- 
-+static void mlx5e_modify_admin_state(struct mlx5_core_dev *mdev,
-+				     enum mlx5_port_status state)
-+{
-+	struct mlx5_eswitch *esw = mdev->priv.eswitch;
-+	int vport_admin_state;
-+
-+	mlx5_set_port_admin_status(mdev, state);
-+
-+	if (!MLX5_ESWITCH_MANAGER(mdev) ||  mlx5_eswitch_mode(esw) == MLX5_ESWITCH_OFFLOADS)
-+		return;
-+
-+	if (state == MLX5_PORT_UP)
-+		vport_admin_state = MLX5_VPORT_ADMIN_STATE_AUTO;
-+	else
-+		vport_admin_state = MLX5_VPORT_ADMIN_STATE_DOWN;
-+
-+	mlx5_eswitch_set_vport_state(esw, MLX5_VPORT_UPLINK, vport_admin_state);
-+}
-+
- int mlx5e_open_locked(struct net_device *netdev)
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
+index bf2f00b892140..85b132a77787d 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
+@@ -263,6 +263,8 @@ static int iwl_dbg_tlv_alloc_trigger(struct iwl_trans *trans,
  {
- 	struct mlx5e_priv *priv = netdev_priv(netdev);
-@@ -3070,7 +3089,7 @@ int mlx5e_open(struct net_device *netdev)
- 	mutex_lock(&priv->state_lock);
- 	err = mlx5e_open_locked(netdev);
- 	if (!err)
--		mlx5_set_port_admin_status(priv->mdev, MLX5_PORT_UP);
-+		mlx5e_modify_admin_state(priv->mdev, MLX5_PORT_UP);
- 	mutex_unlock(&priv->state_lock);
+ 	struct iwl_fw_ini_trigger_tlv *trig = (void *)tlv->data;
+ 	u32 tp = le32_to_cpu(trig->time_point);
++	struct iwl_ucode_tlv *dup = NULL;
++	int ret;
  
- 	if (mlx5_vxlan_allowed(priv->mdev->vxlan))
-@@ -3107,7 +3126,7 @@ int mlx5e_close(struct net_device *netdev)
- 		return -ENODEV;
- 
- 	mutex_lock(&priv->state_lock);
--	mlx5_set_port_admin_status(priv->mdev, MLX5_PORT_DOWN);
-+	mlx5e_modify_admin_state(priv->mdev, MLX5_PORT_DOWN);
- 	err = mlx5e_close_locked(netdev);
- 	mutex_unlock(&priv->state_lock);
- 
-@@ -5172,7 +5191,7 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
- 
- 	/* Marking the link as currently not needed by the Driver */
- 	if (!netif_running(netdev))
--		mlx5_set_port_admin_status(mdev, MLX5_PORT_DOWN);
-+		mlx5e_modify_admin_state(mdev, MLX5_PORT_DOWN);
- 
- 	mlx5e_set_netdev_mtu_boundaries(priv);
- 	mlx5e_set_dev_port_mtu(priv);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index 9b232ef36d53b..88b51f64a64ea 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -1736,6 +1736,8 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
- 	INIT_WORK(&rpriv->uplink_priv.reoffload_flows_work,
- 		  mlx5e_tc_reoffload_flows_work);
- 
-+	mlx5_modify_vport_admin_state(mdev, MLX5_VPORT_STATE_OP_MOD_UPLINK,
-+				      0, 0, MLX5_VPORT_ADMIN_STATE_AUTO);
- 	mlx5_lag_add(mdev, netdev);
- 	priv->events_nb.notifier_call = uplink_rep_async_event;
- 	mlx5_notifier_register(mdev, &priv->events_nb);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 422a57404407d..6b711affb7da4 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -2094,6 +2094,8 @@ int mlx5_eswitch_set_vport_state(struct mlx5_eswitch *esw,
- 				 u16 vport, int link_state)
- {
- 	struct mlx5_vport *evport = mlx5_eswitch_get_vport(esw, vport);
-+	int opmod = MLX5_VPORT_STATE_OP_MOD_ESW_VPORT;
-+	int other_vport = 1;
- 	int err = 0;
- 
- 	if (!ESW_ALLOWED(esw))
-@@ -2101,15 +2103,17 @@ int mlx5_eswitch_set_vport_state(struct mlx5_eswitch *esw,
- 	if (IS_ERR(evport))
- 		return PTR_ERR(evport);
- 
-+	if (vport == MLX5_VPORT_UPLINK) {
-+		opmod = MLX5_VPORT_STATE_OP_MOD_UPLINK;
-+		other_vport = 0;
-+		vport = 0;
-+	}
- 	mutex_lock(&esw->state_lock);
- 
--	err = mlx5_modify_vport_admin_state(esw->dev,
--					    MLX5_VPORT_STATE_OP_MOD_ESW_VPORT,
--					    vport, 1, link_state);
-+	err = mlx5_modify_vport_admin_state(esw->dev, opmod, vport, other_vport, link_state);
- 	if (err) {
--		mlx5_core_warn(esw->dev,
--			       "Failed to set vport %d link state, err = %d",
--			       vport, err);
-+		mlx5_core_warn(esw->dev, "Failed to set vport %d link state, opmod = %d, err = %d",
-+			       vport, opmod, err);
- 		goto unlock;
+ 	if (le32_to_cpu(tlv->length) < sizeof(*trig))
+ 		return -EINVAL;
+@@ -275,10 +277,20 @@ static int iwl_dbg_tlv_alloc_trigger(struct iwl_trans *trans,
+ 		return -EINVAL;
  	}
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
-index 6bd6f58952442..0ddbae1e64fad 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
-@@ -606,6 +606,8 @@ static inline int  mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode) { ret
- static inline void mlx5_eswitch_disable(struct mlx5_eswitch *esw) {}
- static inline bool mlx5_esw_lag_prereq(struct mlx5_core_dev *dev0, struct mlx5_core_dev *dev1) { return true; }
- static inline bool mlx5_eswitch_is_funcs_handler(struct mlx5_core_dev *dev) { return false; }
-+static inline
-+int mlx5_eswitch_set_vport_state(struct mlx5_eswitch *esw, u16 vport, int link_state) { return 0; }
- static inline const u32 *mlx5_esw_query_functions(struct mlx5_core_dev *dev)
- {
- 	return ERR_PTR(-EOPNOTSUPP);
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index acd859ea09d42..aba56077cfda2 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -4177,6 +4177,7 @@ struct mlx5_ifc_query_vport_state_out_bits {
- enum {
- 	MLX5_VPORT_STATE_OP_MOD_VNIC_VPORT  = 0x0,
- 	MLX5_VPORT_STATE_OP_MOD_ESW_VPORT   = 0x1,
-+	MLX5_VPORT_STATE_OP_MOD_UPLINK      = 0x2,
- };
+-	if (!le32_to_cpu(trig->occurrences))
++	if (!le32_to_cpu(trig->occurrences)) {
++		dup = kmemdup(tlv, sizeof(*tlv) + le32_to_cpu(tlv->length),
++				GFP_KERNEL);
++		if (!dup)
++			return -ENOMEM;
++		trig = (void *)dup->data;
+ 		trig->occurrences = cpu_to_le32(-1);
++		tlv = dup;
++	}
++
++	ret = iwl_dbg_tlv_add(tlv, &trans->dbg.time_point[tp].trig_list);
++	kfree(dup);
  
- struct mlx5_ifc_arm_monitor_counter_in_bits {
+-	return iwl_dbg_tlv_add(tlv, &trans->dbg.time_point[tp].trig_list);
++	return ret;
+ }
+ 
+ static int (*dbg_tlv_alloc[])(struct iwl_trans *trans,
 -- 
 2.25.1
 
