@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D13FC23A401
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C78A23A40B
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726356AbgHCMV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44524 "EHLO mail.kernel.org"
+        id S1726963AbgHCMWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:22:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725933AbgHCMVT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:21:19 -0400
+        id S1726645AbgHCMWG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:22:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 796C820738;
-        Mon,  3 Aug 2020 12:21:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 516BD2076B;
+        Mon,  3 Aug 2020 12:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457275;
-        bh=6TKRQAx0bExw+dtJQ9fufqGombiOTqQtelaZgNQ8C6o=;
+        s=default; t=1596457324;
+        bh=Ra0sNR3wVYMaJ2vnp53y3iy9sBigv+XID83l4LIHiJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTnzVTxbmJUOWgZi63eQu1zmANLqjjcz0XJut3pFy5jdUM6CPUaG9gMreYyExPkHo
-         nO+iWnl829WhWwLtAswA8zEy5S3Lf+Rf7neqLilX2LrxDXsq8gyemENhvossCnbGbK
-         vQe8rwv1BH7Js1UnOMQQMu9unn2L2QWm/LEM6BJg=
+        b=jqQ8Qu1ji+goK4z4XZjO8SxV9bqFzu3DFSGIun3EjytOUFRD//2V5kpVFtXtw8vWm
+         H6DmMDfa3AO9aS/ueixpb/5oNJerpUuba2kOz2xULsg1yod/bffjIjb3SUOuMNSuui
+         eW4jg+kMuW7JCJ31FSeXYkf0PuVule7glkcMr3NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 001/120] sunrpc: check that domain table is empty at module unload.
-Date:   Mon,  3 Aug 2020 14:17:39 +0200
-Message-Id: <20200803121902.935547948@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry <dpavlushko@gmail.com>,
+        Laurence Tratt <laurie@tratt.net>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.7 003/120] ALSA: usb-audio: Add implicit feedback quirk for SSL2
+Date:   Mon,  3 Aug 2020 14:17:41 +0200
+Message-Id: <20200803121903.032661965@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,95 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Laurence Tratt <laurie@tratt.net>
 
-[ Upstream commit f45db2b909c7e76f35850e78f017221f30282b8e ]
+commit 3da87ec67a491b9633a82045896c076b794bf938 upstream.
 
-The domain table should be empty at module unload.  If it isn't there is
-a bug somewhere.  So check and report.
+As expected, this requires the same quirk as the SSL2+ in order for the
+clock to sync. This was suggested by, and tested on an SSL2, by Dmitry.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206651
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Dmitry <dpavlushko@gmail.com>
+Signed-off-by: Laurence Tratt <laurie@tratt.net>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200621075005.52mjjfc6dtdjnr3h@overdrive.tratt.net
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/sunrpc/sunrpc.h      |  1 +
- net/sunrpc/sunrpc_syms.c |  2 ++
- net/sunrpc/svcauth.c     | 25 +++++++++++++++++++++++++
- 3 files changed, 28 insertions(+)
+ sound/usb/pcm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/sunrpc.h b/net/sunrpc/sunrpc.h
-index 47a756503d11c..f6fe2e6cd65a1 100644
---- a/net/sunrpc/sunrpc.h
-+++ b/net/sunrpc/sunrpc.h
-@@ -52,4 +52,5 @@ static inline int sock_is_loopback(struct sock *sk)
- 
- int rpc_clients_notifier_register(void);
- void rpc_clients_notifier_unregister(void);
-+void auth_domain_cleanup(void);
- #endif /* _NET_SUNRPC_SUNRPC_H */
-diff --git a/net/sunrpc/sunrpc_syms.c b/net/sunrpc/sunrpc_syms.c
-index f9edaa9174a43..236fadc4a4399 100644
---- a/net/sunrpc/sunrpc_syms.c
-+++ b/net/sunrpc/sunrpc_syms.c
-@@ -23,6 +23,7 @@
- #include <linux/sunrpc/rpc_pipe_fs.h>
- #include <linux/sunrpc/xprtsock.h>
- 
-+#include "sunrpc.h"
- #include "netns.h"
- 
- unsigned int sunrpc_net_id;
-@@ -131,6 +132,7 @@ cleanup_sunrpc(void)
- 	unregister_rpc_pipefs();
- 	rpc_destroy_mempool();
- 	unregister_pernet_subsys(&sunrpc_net_ops);
-+	auth_domain_cleanup();
- #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
- 	rpc_unregister_sysctl();
- #endif
-diff --git a/net/sunrpc/svcauth.c b/net/sunrpc/svcauth.c
-index 552617e3467bd..998b196b61767 100644
---- a/net/sunrpc/svcauth.c
-+++ b/net/sunrpc/svcauth.c
-@@ -21,6 +21,8 @@
- 
- #include <trace/events/sunrpc.h>
- 
-+#include "sunrpc.h"
-+
- #define RPCDBG_FACILITY	RPCDBG_AUTH
- 
- 
-@@ -205,3 +207,26 @@ struct auth_domain *auth_domain_find(char *name)
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(auth_domain_find);
-+
-+/**
-+ * auth_domain_cleanup - check that the auth_domain table is empty
-+ *
-+ * On module unload the auth_domain_table must be empty.  To make it
-+ * easier to catch bugs which don't clean up domains properly, we
-+ * warn if anything remains in the table at cleanup time.
-+ *
-+ * Note that we cannot proactively remove the domains at this stage.
-+ * The ->release() function might be in a module that has already been
-+ * unloaded.
-+ */
-+
-+void auth_domain_cleanup(void)
-+{
-+	int h;
-+	struct auth_domain *hp;
-+
-+	for (h = 0; h < DN_HASHMAX; h++)
-+		hlist_for_each_entry(hp, &auth_domain_table[h], hash)
-+			pr_warn("svc: domain %s still present at module unload.\n",
-+				hp->name);
-+}
--- 
-2.25.1
-
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -367,6 +367,7 @@ static int set_sync_ep_implicit_fb_quirk
+ 		ifnum = 0;
+ 		goto add_sync_ep_from_ifnum;
+ 	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
++	case USB_ID(0x31e9, 0x0001): /* Solid State Logic SSL2 */
+ 	case USB_ID(0x31e9, 0x0002): /* Solid State Logic SSL2+ */
+ 	case USB_ID(0x0d9a, 0x00df): /* RTX6001 */
+ 		ep = 0x81;
 
 
