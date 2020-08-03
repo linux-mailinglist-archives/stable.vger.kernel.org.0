@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4712523A6EF
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE6523A614
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbgHCM4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
+        id S1728177AbgHCMoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729349AbgHCMz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:55:59 -0400
+        id S1728127AbgHCM2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:28:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B7BA20678;
-        Mon,  3 Aug 2020 12:55:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D838204EC;
+        Mon,  3 Aug 2020 12:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596459357;
-        bh=BeTP5E8N4TxHgMJsyoBUItQTsU9Pz7lqhT9OygRn2fQ=;
+        s=default; t=1596457685;
+        bh=vAxzeYpt3RHpAX4UhPRpNJ9KK0OUFER8Jhy8mlyxlIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q384vg0KQ0kX8W2mC5CRWdfcQc9pFoT309rijIeIAE4T7X2j6LaR5XYyO1HvF+CH9
-         mWix7Nqi2accfd1CE3Drm42+bj+IZAEQqxbfvWhVH+TcxzsB9497EsOfBfoXnd2mqa
-         ZgX1NnJBOI4Z03NwkAY+9UvpamUxDd3JqqMkr154=
+        b=rcI5EngO4o1puj6d+qsr7IKl0Pc/ZqN8F9/Of5Kyg4AZpasqMVfZMCTfbNpPiNHAx
+         O4ksXs4ytwGK2HeJzYeRUm25sncOCR23uUdKH4p6q78kEj5vbKkL9Ar2Jvy/vVjfIy
+         lo7KrVZg8W3cIZFo7Gyot55fuQfHLNNq52g5aboc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 081/120] RDMA/core: Free DIM memory in error unwind
-Date:   Mon,  3 Aug 2020 14:18:59 +0200
-Message-Id: <20200803121906.816057541@linuxfoundation.org>
+Subject: [PATCH 5.4 38/90] ARM: dts: armada-38x: fix NETA lockup when repeatedly switching speeds
+Date:   Mon,  3 Aug 2020 14:19:00 +0200
+Message-Id: <20200803121859.460654407@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit fb448ce87a4a9482b084e67faf804aec79ed9b43 ]
+[ Upstream commit 09781ba0395c46b1c844f47e405e3ce7856f5989 ]
 
-The memory allocated for the DIM wasn't freed in in error unwind path, fix
-it by calling to rdma_dim_destroy().
+To support the change in "phy: armada-38x: fix NETA lockup when
+repeatedly switching speeds" we need to update the DT with the
+additional register.
 
-Fixes: da6629793aa6 ("RDMA/core: Provide RDMA DIM support for ULPs")
-Link: https://lore.kernel.org/r/20200730082719.1582397-4-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com <mailto:maxg@mellanox.com>>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 14dc100b4411 ("phy: armada38x: add common phy support")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cq.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/armada-38x.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cq.c b/drivers/infiniband/core/cq.c
-index c259f632f257f..6bb62d04030ac 100644
---- a/drivers/infiniband/core/cq.c
-+++ b/drivers/infiniband/core/cq.c
-@@ -270,6 +270,7 @@ struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
- 	return cq;
+diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armada-38x.dtsi
+index 3f4bb44d85f00..669da3a33d82c 100644
+--- a/arch/arm/boot/dts/armada-38x.dtsi
++++ b/arch/arm/boot/dts/armada-38x.dtsi
+@@ -339,7 +339,8 @@
  
- out_destroy_cq:
-+	rdma_dim_destroy(cq);
- 	rdma_restrack_del(&cq->res);
- 	cq->device->ops.destroy_cq(cq, udata);
- out_free_wc:
+ 			comphy: phy@18300 {
+ 				compatible = "marvell,armada-380-comphy";
+-				reg = <0x18300 0x100>;
++				reg-names = "comphy", "conf";
++				reg = <0x18300 0x100>, <0x18460 4>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 
 -- 
 2.25.1
 
