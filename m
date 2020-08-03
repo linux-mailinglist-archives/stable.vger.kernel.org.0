@@ -2,47 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E98623A4AD
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5BB23A4AF
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728908AbgHCM3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:29:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56004 "EHLO mail.kernel.org"
+        id S1728932AbgHCM3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:29:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728921AbgHCM3c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:29:32 -0400
+        id S1728929AbgHCM3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:29:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A32AB207DF;
-        Mon,  3 Aug 2020 12:29:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 826A5208B3;
+        Mon,  3 Aug 2020 12:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457770;
-        bh=MPorudU0yKZNviFiD8N6aBXJXOyf1iQeYGVYQZrt2hs=;
+        s=default; t=1596457773;
+        bh=2p0RX5zCSgS9Ba6CF+WarrcyVNe21ABsL3/IG4LdK54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj07cbd/m81Mi9Mk2GXN4efO4QYJHvcCpvAn0vqOdozSbM3Ki/rUWBl86P5LpW2q8
-         k3xTQgQPzT9vKRe4o47BulL2+QZBWw1OQ0QiSOu4g8wYFP0bnpMxomDXARMFSnqTK4
-         0Ggg7POUa1MoTtYmY0bnfK9tUubeZTfl5xYRoxNs=
+        b=Jw4U8oPYnD3qrmBlK2ET7yvxDWlzkVcvnnLENPWaVfVwjMP9WHesGfMYddKrG7pQB
+         BSkb7Ri7j7qYb2qPZBToD4XiTbQiMXfPPfqtAhzUl/E1NWyvrHOMfTxL4NQ1PEZZ5v
+         QGQYLKQF+3aXWzEAR2t+L77tEhwyRC4cei4g3yZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kim Phillips <kim.phillips@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Leo Yan <leo.yan@linaro.org>
-Subject: [PATCH 5.4 68/90] perf tools: Fix record failure when mixed with ARM SPE event
-Date:   Mon,  3 Aug 2020 14:19:30 +0200
-Message-Id: <20200803121900.912821445@linuxfoundation.org>
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Roopa Prabhu <roopa@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 69/90] vxlan: fix memleak of fdb
+Date:   Mon,  3 Aug 2020 14:19:31 +0200
+Message-Id: <20200803121900.958223920@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
 References: <20200803121857.546052424@linuxfoundation.org>
@@ -55,92 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit bd3c628f8fafa6cbd6a1ca440034b841f0080160 ]
+[ Upstream commit fda2ec62cf1aa7cbee52289dc8059cd3662795da ]
 
-When recording with cache-misses and arm_spe_x event, I found that it
-will just fail without showing any error info if i put cache-misses
-after 'arm_spe_x' event.
+When vxlan interface is deleted, all fdbs are deleted by vxlan_flush().
+vxlan_flush() flushes fdbs but it doesn't delete fdb, which contains
+all-zeros-mac because it is deleted by vxlan_uninit().
+But vxlan_uninit() deletes only the fdb, which contains both all-zeros-mac
+and default vni.
+So, the fdb, which contains both all-zeros-mac and non-default vni
+will not be deleted.
 
-  [root@localhost 0620]# perf record -e cache-misses \
-				-e arm_spe_0/ts_enable=1,pct_enable=1,pa_enable=1,load_filter=1,jitter=1,store_filter=1,min_latency=0/ sleep 1
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.067 MB perf.data ]
-  [root@localhost 0620]#
-  [root@localhost 0620]# perf record -e arm_spe_0/ts_enable=1,pct_enable=1,pa_enable=1,load_filter=1,jitter=1,store_filter=1,min_latency=0/ \
-				     -e  cache-misses sleep 1
-  [root@localhost 0620]#
+Test commands:
+    ip link add vxlan0 type vxlan dstport 4789 external
+    ip link set vxlan0 up
+    bridge fdb add to 00:00:00:00:00:00 dst 172.0.0.1 dev vxlan0 via lo \
+	    src_vni 10000 self permanent
+    ip link del vxlan0
 
-The current code can only work if the only event to be traced is an
-'arm_spe_x', or if it is the last event to be specified. Otherwise the
-last event type will be checked against all the arm_spe_pmus[i]->types,
-none will match and an out of bound 'i' index will be used in
-arm_spe_recording_init().
+kmemleak reports as follows:
+unreferenced object 0xffff9486b25ced88 (size 96):
+  comm "bridge", pid 2151, jiffies 4294701712 (age 35506.901s)
+  hex dump (first 32 bytes):
+    02 00 00 00 ac 00 00 01 40 00 09 b1 86 94 ff ff  ........@.......
+    46 02 00 00 00 00 00 00 a7 03 00 00 12 b5 6a 6b  F.............jk
+  backtrace:
+    [<00000000c10cf651>] vxlan_fdb_append.part.51+0x3c/0xf0 [vxlan]
+    [<000000006b31a8d9>] vxlan_fdb_create+0x184/0x1a0 [vxlan]
+    [<0000000049399045>] vxlan_fdb_update+0x12f/0x220 [vxlan]
+    [<0000000090b1ef00>] vxlan_fdb_add+0x12a/0x1b0 [vxlan]
+    [<0000000056633c2c>] rtnl_fdb_add+0x187/0x270
+    [<00000000dd5dfb6b>] rtnetlink_rcv_msg+0x264/0x490
+    [<00000000fc44dd54>] netlink_rcv_skb+0x4a/0x110
+    [<00000000dff433e7>] netlink_unicast+0x18e/0x250
+    [<00000000b87fb421>] netlink_sendmsg+0x2e9/0x400
+    [<000000002ed55153>] ____sys_sendmsg+0x237/0x260
+    [<00000000faa51c66>] ___sys_sendmsg+0x88/0xd0
+    [<000000006c3982f1>] __sys_sendmsg+0x4e/0x80
+    [<00000000a8f875d2>] do_syscall_64+0x56/0xe0
+    [<000000003610eefa>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff9486b1c40080 (size 128):
+  comm "bridge", pid 2157, jiffies 4294701754 (age 35506.866s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 f8 dc 42 b2 86 94 ff ff  ..........B.....
+    6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+  backtrace:
+    [<00000000a2981b60>] vxlan_fdb_create+0x67/0x1a0 [vxlan]
+    [<0000000049399045>] vxlan_fdb_update+0x12f/0x220 [vxlan]
+    [<0000000090b1ef00>] vxlan_fdb_add+0x12a/0x1b0 [vxlan]
+    [<0000000056633c2c>] rtnl_fdb_add+0x187/0x270
+    [<00000000dd5dfb6b>] rtnetlink_rcv_msg+0x264/0x490
+    [<00000000fc44dd54>] netlink_rcv_skb+0x4a/0x110
+    [<00000000dff433e7>] netlink_unicast+0x18e/0x250
+    [<00000000b87fb421>] netlink_sendmsg+0x2e9/0x400
+    [<000000002ed55153>] ____sys_sendmsg+0x237/0x260
+    [<00000000faa51c66>] ___sys_sendmsg+0x88/0xd0
+    [<000000006c3982f1>] __sys_sendmsg+0x4e/0x80
+    [<00000000a8f875d2>] do_syscall_64+0x56/0xe0
+    [<000000003610eefa>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-We don't support concurrent multiple arm_spe_x events currently, that
-is checked in arm_spe_recording_options(), and it will show the relevant
-info. So add the check and record of the first found 'arm_spe_pmu' to
-fix this issue here.
-
-Fixes: ffd3d18c20b8 ("perf tools: Add ARM Statistical Profiling Extensions (SPE) support")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Tested-by-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kim Phillips <kim.phillips@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/20200724071111.35593-2-liwei391@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 3ad7a4b141eb ("vxlan: support fdb and learning in COLLECT_METADATA mode")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm/util/auxtrace.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/vxlan.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/arch/arm/util/auxtrace.c b/tools/perf/arch/arm/util/auxtrace.c
-index 0a6e75b8777a6..28a5d0c18b1d2 100644
---- a/tools/perf/arch/arm/util/auxtrace.c
-+++ b/tools/perf/arch/arm/util/auxtrace.c
-@@ -56,7 +56,7 @@ struct auxtrace_record
- 	struct perf_pmu	*cs_etm_pmu;
- 	struct evsel *evsel;
- 	bool found_etm = false;
--	bool found_spe = false;
-+	struct perf_pmu *found_spe = NULL;
- 	static struct perf_pmu **arm_spe_pmus = NULL;
- 	static int nr_spes = 0;
- 	int i = 0;
-@@ -74,12 +74,12 @@ struct auxtrace_record
- 		    evsel->core.attr.type == cs_etm_pmu->type)
- 			found_etm = true;
- 
--		if (!nr_spes)
-+		if (!nr_spes || found_spe)
- 			continue;
- 
- 		for (i = 0; i < nr_spes; i++) {
- 			if (evsel->core.attr.type == arm_spe_pmus[i]->type) {
--				found_spe = true;
-+				found_spe = arm_spe_pmus[i];
- 				break;
- 			}
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 03434db36b5c7..b49b6f0cee500 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -2863,8 +2863,10 @@ static void vxlan_flush(struct vxlan_dev *vxlan, bool do_all)
+ 			if (!do_all && (f->state & (NUD_PERMANENT | NUD_NOARP)))
+ 				continue;
+ 			/* the all_zeros_mac entry is deleted at vxlan_uninit */
+-			if (!is_zero_ether_addr(f->eth_addr))
+-				vxlan_fdb_destroy(vxlan, f, true, true);
++			if (is_zero_ether_addr(f->eth_addr) &&
++			    f->vni == vxlan->cfg.vni)
++				continue;
++			vxlan_fdb_destroy(vxlan, f, true, true);
  		}
-@@ -96,7 +96,7 @@ struct auxtrace_record
- 
- #if defined(__aarch64__)
- 	if (found_spe)
--		return arm_spe_recording_init(err, arm_spe_pmus[i]);
-+		return arm_spe_recording_init(err, found_spe);
- #endif
- 
- 	/*
+ 		spin_unlock_bh(&vxlan->hash_lock[h]);
+ 	}
 -- 
 2.25.1
 
