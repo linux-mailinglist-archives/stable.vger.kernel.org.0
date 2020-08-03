@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 062D523A53B
+	by mail.lfdr.de (Postfix) with ESMTP id EA12723A53D
 	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729573AbgHCMeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:34:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34764 "EHLO mail.kernel.org"
+        id S1729187AbgHCMek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:34:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729565AbgHCMeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:36 -0400
+        id S1729574AbgHCMei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C1CE2054F;
-        Mon,  3 Aug 2020 12:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE79F204EC;
+        Mon,  3 Aug 2020 12:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458074;
-        bh=zMyUl9X739lapU9pMWoIAHq3jEYRtrsUrKxrqa5FS4E=;
+        s=default; t=1596458077;
+        bh=L1F/6Fwfm3zp3QB1tFcx0gQ0c08nOJ8xHqOebrQQdds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBBAnTCBMMriyOXHroGigPWNxguHtL36v6l51dz4v8MwATO/T5kfV1Vv45nphWrdt
-         J/9A93e7ixbtyW8UqNohlze5Qb+7jwxR9zYFN8dqoSNIt2FUNCw02T2NiJ2Hd5inD4
-         btYfKQpcAQR2ZVZ44+oTTjEyppTY04penm8ifaaA=
+        b=wvY5J1KUdqpDmbN+Q9FH8Zkqs4Owx+wD2ddWxiuFzjd7uZrCa8hmu/GGoc2nGpKjW
+         g2xxBwAJsEPeTxabBjyuFNRn3x3xMctrCW6BCwWcXZtDa2c5fgSjeYaAa1SbB5dbBE
+         SyP522yQjoB1mh7N5jos2MbTKuKB/UC8geuxvtnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/51] net: lan78xx: add missing endpoint sanity check
-Date:   Mon,  3 Aug 2020 14:20:15 +0200
-Message-Id: <20200803121850.990881137@linuxfoundation.org>
+Subject: [PATCH 4.14 31/51] net: lan78xx: fix transfer-buffer memory leak
+Date:   Mon,  3 Aug 2020 14:20:16 +0200
+Message-Id: <20200803121851.040979097@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
 References: <20200803121849.488233135@linuxfoundation.org>
@@ -48,15 +48,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 8d8e95fd6d69d774013f51e5f2ee10c6e6d1fc14 ]
+[ Upstream commit 63634aa679ba8b5e306ad0727120309ae6ba8a8e ]
 
-Add the missing endpoint sanity check to prevent a NULL-pointer
-dereference should a malicious device lack the expected endpoints.
-
-Note that the driver has a broken endpoint-lookup helper,
-lan78xx_get_endpoints(), which can end up accepting interfaces in an
-altsetting without endpoints as long as *some* altsetting has a bulk-in
-and a bulk-out endpoint.
+The interrupt URB transfer-buffer was never freed on disconnect or after
+probe errors.
 
 Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
 Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
@@ -64,25 +59,21 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/usb/lan78xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index b179a96ea08ca..3be92fff89b1a 100644
+index 3be92fff89b1a..895f307979c82 100644
 --- a/drivers/net/usb/lan78xx.c
 +++ b/drivers/net/usb/lan78xx.c
-@@ -3629,6 +3629,11 @@ static int lan78xx_probe(struct usb_interface *intf,
- 	netdev->max_mtu = MAX_SINGLE_PACKET_SIZE;
- 	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
+@@ -3658,6 +3658,7 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 			usb_fill_int_urb(dev->urb_intr, dev->udev,
+ 					 dev->pipe_intr, buf, maxp,
+ 					 intr_complete, dev, period);
++			dev->urb_intr->transfer_flags |= URB_FREE_BUFFER;
+ 		}
+ 	}
  
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 3) {
-+		ret = -ENODEV;
-+		goto out3;
-+	}
-+
- 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
- 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
- 	dev->ep_intr = (intf->cur_altsetting)->endpoint + 2;
 -- 
 2.25.1
 
