@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB2123A592
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 623B523A5C4
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729394AbgHCMiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:38:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34212 "EHLO mail.kernel.org"
+        id S1728550AbgHCMlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729530AbgHCMeK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:10 -0400
+        id S1729296AbgHCMc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDE792054F;
-        Mon,  3 Aug 2020 12:34:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DBAF2054F;
+        Mon,  3 Aug 2020 12:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458049;
-        bh=9NFaW+DgtHwziAI89eC2YWXuYtYjb2Cz8nG2fitJHT0=;
+        s=default; t=1596457944;
+        bh=KaCNeaf89Tis8mfvhLI1/BfgusKjtbUmF2IX4MJ3hb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dvtjy1hGIWHOZ5yvyxwQf7Fv7WjMBzIOVEiB8sYztYL5IUWS4YdJYqCZ/33uGeIQz
-         UwJirA+8fwngQxGDKeZIsPpNizWmxePR/EDCYQ5FAwIrTSFzNCIIqdM+dfWk3JZvHg
-         phJ+IKjKmd5F4oFjQ3zLKp6ydhT8uGommA53uK20=
+        b=PWybHHnxyeUvXNH3M+do/VwI+W3xpLuidNtMPZnuF1I8AXgPdc0O+ImBu5ALgm1RE
+         26QORcOBgBn3pGa6TQOOs/CVeIgANsyTjE3xgaUXpxzkBYSn/TpPkXybqV4dML329Z
+         5O4shJf8ShgSHWi18B5HOJB6EoyUHuxwW38NrxFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <hancockrwd@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 09/51] PCI/ASPM: Disable ASPM on ASMedia ASM1083/1085 PCIe-to-PCI bridge
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 39/56] mac80211: mesh: Free ie data when leaving mesh
 Date:   Mon,  3 Aug 2020 14:19:54 +0200
-Message-Id: <20200803121849.921535840@linuxfoundation.org>
+Message-Id: <20200803121852.233315098@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <hancockrwd@gmail.com>
+From: Remi Pommarel <repk@triplefau.lt>
 
-commit b361663c5a40c8bc758b7f7f2239f7a192180e7c upstream.
+[ Upstream commit 6a01afcf8468d3ca2bd8bbb27503f60dcf643b20 ]
 
-Recently ASPM handling was changed to allow ASPM on PCIe-to-PCI/PCI-X
-bridges.  Unfortunately the ASMedia ASM1083/1085 PCIe to PCI bridge device
-doesn't seem to function properly with ASPM enabled.  On an Asus PRIME
-H270-PRO motherboard, it causes errors like these:
+At ieee80211_join_mesh() some ie data could have been allocated (see
+copy_mesh_setup()) and need to be cleaned up when leaving the mesh.
 
-  pcieport 0000:00:1c.0: AER: PCIe Bus Error: severity=Corrected, type=Data Link Layer, (Transmitter ID)
-  pcieport 0000:00:1c.0: AER:   device [8086:a292] error status/mask=00003000/00002000
-  pcieport 0000:00:1c.0: AER:    [12] Timeout
-  pcieport 0000:00:1c.0: AER: Corrected error received: 0000:00:1c.0
-  pcieport 0000:00:1c.0: AER: can't find device of ID00e0
+This fixes the following kmemleak report:
 
-In addition to flooding the kernel log, this also causes the machine to
-wake up immediately after suspend is initiated.
+unreferenced object 0xffff0000116bc600 (size 128):
+  comm "wpa_supplicant", pid 608, jiffies 4294898983 (age 293.484s)
+  hex dump (first 32 bytes):
+    30 14 01 00 00 0f ac 04 01 00 00 0f ac 04 01 00  0...............
+    00 0f ac 08 00 00 00 00 c4 65 40 00 00 00 00 00  .........e@.....
+  backtrace:
+    [<00000000bebe439d>] __kmalloc_track_caller+0x1c0/0x330
+    [<00000000a349dbe1>] kmemdup+0x28/0x50
+    [<0000000075d69baa>] ieee80211_join_mesh+0x6c/0x3b8 [mac80211]
+    [<00000000683bb98b>] __cfg80211_join_mesh+0x1e8/0x4f0 [cfg80211]
+    [<0000000072cb507f>] nl80211_join_mesh+0x520/0x6b8 [cfg80211]
+    [<0000000077e9bcf9>] genl_family_rcv_msg+0x374/0x680
+    [<00000000b1bd936d>] genl_rcv_msg+0x78/0x108
+    [<0000000022c53788>] netlink_rcv_skb+0xb0/0x1c0
+    [<0000000011af8ec9>] genl_rcv+0x34/0x48
+    [<0000000069e41f53>] netlink_unicast+0x268/0x2e8
+    [<00000000a7517316>] netlink_sendmsg+0x320/0x4c0
+    [<0000000069cba205>] ____sys_sendmsg+0x354/0x3a0
+    [<00000000e06bab0f>] ___sys_sendmsg+0xd8/0x120
+    [<0000000037340728>] __sys_sendmsg+0xa4/0xf8
+    [<000000004fed9776>] __arm64_sys_sendmsg+0x44/0x58
+    [<000000001c1e5647>] el0_svc_handler+0xd0/0x1a0
 
-The device advertises ASPM L0s and L1 support in the Link Capabilities
-register, but the ASMedia web page for ASM1083 [1] claims "No PCIe ASPM
-support".
-
-Windows 10 (build 2004) enables L0s, but it also logs correctable PCIe
-errors.
-
-Add a quirk to disable ASPM for this device.
-
-[1] https://www.asmedia.com.tw/eng/e_show_products.php?cate_index=169&item=114
-
-[bhelgaas: commit log]
-Fixes: 66ff14e59e8a ("PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208667
-Link: https://lore.kernel.org/r/20200722021803.17958-1-hancockrwd@gmail.com
-Signed-off-by: Robert Hancock <hancockrwd@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c80d545da3f7 (mac80211: Let userspace enable and configure vendor specific path selection.)
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Link: https://lore.kernel.org/r/20200704135007.27292-1-repk@triplefau.lt
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/mac80211/cfg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -2086,6 +2086,19 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x10f4, quirk_disable_aspm_l0s);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x1508, quirk_disable_aspm_l0s);
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index cb7076d9a7698..b6670e74aeb7b 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -2011,6 +2011,7 @@ static int ieee80211_leave_mesh(struct wiphy *wiphy, struct net_device *dev)
+ 	ieee80211_stop_mesh(sdata);
+ 	mutex_lock(&sdata->local->mtx);
+ 	ieee80211_vif_release_channel(sdata);
++	kfree(sdata->u.mesh.ie);
+ 	mutex_unlock(&sdata->local->mtx);
  
-+static void quirk_disable_aspm_l0s_l1(struct pci_dev *dev)
-+{
-+	pci_info(dev, "Disabling ASPM L0s/L1\n");
-+	pci_disable_link_state(dev, PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1);
-+}
-+
-+/*
-+ * ASM1083/1085 PCIe-PCI bridge devices cause AER timeout errors on the
-+ * upstream PCIe root port when ASPM is enabled. At least L0s mode is affected;
-+ * disable both L0s and L1 for now to be safe.
-+ */
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x1080, quirk_disable_aspm_l0s_l1);
-+
- /*
-  * Some Pericom PCIe-to-PCI bridges in reverse mode need the PCIe Retrain
-  * Link bit cleared after starting the link retrain process to allow this
+ 	return 0;
+-- 
+2.25.1
+
 
 
