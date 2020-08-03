@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD42123A511
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A00C223A5F2
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729392AbgHCMdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32846 "EHLO mail.kernel.org"
+        id S1729012AbgHCMaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:30:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729386AbgHCMdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:02 -0400
+        id S1728409AbgHCMaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:30:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27DE3204EC;
-        Mon,  3 Aug 2020 12:33:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D485A204EC;
+        Mon,  3 Aug 2020 12:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457981;
-        bh=0Aup74NOSS42XQ7aEIwZYIA0RB6k4tahoOrwdO6yJoc=;
+        s=default; t=1596457804;
+        bh=5x4VHvCv2++Zyq1VJE6H93Umf7432H6ql6zvKFs5sDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHouRpdtEiNUA954OAhLcSwwkYxP/f+Sb9wVQ7934gsCuYSPj7aSdd3ZIsIDc2rEz
-         4VJQKnozglM3YuF/k5VqB+TRfSHtz2U8FfjsjSEZL5EZGW3prnrK1PXJ1FLPaJczFq
-         xgzu44Oskavjgr2F0x7rZ4rRRuUiQMWSWevjFhFQ=
+        b=Yl1Hr4FoGDrMCOtaKC7Ip2/A5FWr8FWjkbCDRKRIZmysPr9nyNF/MnFBkvg/OA7Vy
+         OHMhZvpBDu4G68ruPmxsJZtZkwj/+KqYEsxwiBi0S81Vnsn6GPlIh/xTMCQZXAH5Yr
+         1hejOobxShGW20rxZz6jPzV6ulSjT0mpAMD8MVRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 25/56] net/x25: Fix x25_neigh refcnt leak when x25 disconnect
-Date:   Mon,  3 Aug 2020 14:19:40 +0200
-Message-Id: <20200803121851.567113942@linuxfoundation.org>
+        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 79/90] x86/unwind/orc: Fix ORC for newly forked tasks
+Date:   Mon,  3 Aug 2020 14:19:41 +0200
+Message-Id: <20200803121901.434583975@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 4becb7ee5b3d2829ed7b9261a245a77d5b7de902 upstream.
+[ Upstream commit 372a8eaa05998cd45b3417d0e0ffd3a70978211a ]
 
-x25_connect() invokes x25_get_neigh(), which returns a reference of the
-specified x25_neigh object to "x25->neighbour" with increased refcnt.
+The ORC unwinder fails to unwind newly forked tasks which haven't yet
+run on the CPU.  It correctly reads the 'ret_from_fork' instruction
+pointer from the stack, but it incorrectly interprets that value as a
+call stack address rather than a "signal" one, so the address gets
+incorrectly decremented in the call to orc_find(), resulting in bad ORC
+data.
 
-When x25 connect success and returns, the reference still be hold by
-"x25->neighbour", so the refcount should be decreased in
-x25_disconnect() to keep refcount balanced.
+Fix it by forcing 'ret_from_fork' frames to be signal frames.
 
-The reference counting issue happens in x25_disconnect(), which forgets
-to decrease the refcnt increased by x25_get_neigh() in x25_connect(),
-causing a refcnt leak.
-
-Fix this issue by calling x25_neigh_put() before x25_disconnect()
-returns.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lkml.kernel.org/r/f91a8778dde8aae7f71884b5df2b16d552040441.1594994374.git.jpoimboe@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/x25_subr.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/unwind_orc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/x25/x25_subr.c
-+++ b/net/x25/x25_subr.c
-@@ -362,6 +362,10 @@ void x25_disconnect(struct sock *sk, int
- 		sk->sk_state_change(sk);
- 		sock_set_flag(sk, SOCK_DEAD);
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index aa0f39dc81298..187a86e0e7531 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -431,8 +431,11 @@ bool unwind_next_frame(struct unwind_state *state)
+ 	/*
+ 	 * Find the orc_entry associated with the text address.
+ 	 *
+-	 * Decrement call return addresses by one so they work for sibling
+-	 * calls and calls to noreturn functions.
++	 * For a call frame (as opposed to a signal frame), state->ip points to
++	 * the instruction after the call.  That instruction's stack layout
++	 * could be different from the call instruction's layout, for example
++	 * if the call was to a noreturn function.  So get the ORC data for the
++	 * call instruction itself.
+ 	 */
+ 	orc = orc_find(state->signal ? state->ip : state->ip - 1);
+ 	if (!orc) {
+@@ -653,6 +656,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		state->sp = task->thread.sp;
+ 		state->bp = READ_ONCE_NOCHECK(frame->bp);
+ 		state->ip = READ_ONCE_NOCHECK(frame->ret_addr);
++		state->signal = (void *)state->ip == ret_from_fork;
  	}
-+	read_lock_bh(&x25_list_lock);
-+	x25_neigh_put(x25->neighbour);
-+	x25->neighbour = NULL;
-+	read_unlock_bh(&x25_list_lock);
- }
  
- /*
+ 	if (get_stack_info((unsigned long *)state->sp, state->task,
+-- 
+2.25.1
+
 
 
