@@ -2,132 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DDC923A27C
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 12:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD88C23A312
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 13:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725996AbgHCKH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 06:07:26 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:56371 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725968AbgHCKH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 06:07:26 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 7247532B;
-        Mon,  3 Aug 2020 06:07:25 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 03 Aug 2020 06:07:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=g0aAxY
-        AyrQ2fEPhX5UobD9ghwwzE4tM71MN7KN42RVE=; b=P8M08CrdCvUGIAyXWdrucz
-        jn4v0qa5ZZQ+kCE7lj/IKUAa6n2f6AXZvD2eHKurRHmslQDShiqZTn7hwq3i1WKQ
-        Hrx2xzpaE5fr0c1npM79Ob9Z+lfbTvAKHhi0SLkufsKoFYVoABzffwSNXK86HxMc
-        /S7KRAr1cjV2KjI/HF837vKbLHLo77C/IAHP4p/j4zv41G5z17L1YW1D8ilF2dJo
-        TFxIEyYj1imhqm/1lEq0l8DE16h/vHDQ8Gpy9LK+2BkOZWyI3EoAdgAGuiv3RCn1
-        3EnGyu+QXOnLlbNnY4x7pUXkR+a6BxN1Vv2l01/uM9Sawmd6YHVaSeFEfDXhGsyQ
-        ==
-X-ME-Sender: <xms:3OEnXyMsCK3zOoWeXYyfapk5eSUQeK-ObXPm8AeO2v3IzK2XGzZ1vA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjeeggddvgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:3OEnXw9ZXFbQEWpcDlCTi_jHluFUiZd9l4BBVicABvxWnIO5gcqQsA>
-    <xmx:3OEnX5S9idDr8A1unw3lAxmrEip1qkWd4qppLnCk5k22HIdjzI_MJg>
-    <xmx:3OEnXyscTOxEaEbvDNgG6oLjQfletWpug2NnRHlFsWuq4gqYwRU0ug>
-    <xmx:3eEnXyl5Mekh0gVgBtEehdy-ncmV17o_EvlR_WA2ZtUPt2LtWLStwsD2bYw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 48BDF3280067;
-        Mon,  3 Aug 2020 06:07:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: SVM: Fix disable pause loop exit/pause filtering" failed to apply to 5.4-stable tree
-To:     wanpengli@tencent.com, lihaiwei@tencent.com, pbonzini@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Aug 2020 12:07:08 +0200
-Message-ID: <159644922811550@kroah.com>
+        id S1726394AbgHCLD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 07:03:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49754 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725945AbgHCLD1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 07:03:27 -0400
+Received: from localhost (unknown [122.171.202.192])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B026320672;
+        Mon,  3 Aug 2020 11:03:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596452605;
+        bh=kdV7nHVNjty6826z22YXZvkV7yNmAWNNVkJspMjhDpQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=I1UGew/EonPvBfcIvQSllI607JXiTFxgOpYG/ahAnfSaaX2cCBLXZutNbgBCwL/jH
+         gy/69hJtFvnx/EL/uaLe7HbUboflywrSGlsV9W/IQUhzEL8Iinvk14qDs/Ll/qfMwl
+         W+ZFdbSIaURryBit7A8k8eLZ2x4XPENz26IngUhI=
+Date:   Mon, 3 Aug 2020 16:33:22 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Sivaprakash Murugesan <sivaprak@codeaurora.org>
+Cc:     agross@kernel.org, bjorn.andersson@linaro.org, bhelgaas@google.com,
+        robh+dt@kernel.org, kishon@ti.com, mturquette@baylibre.com,
+        sboyd@kernel.org, svarbanov@mm-sol.com, lorenzo.pieralisi@arm.com,
+        p.zabel@pengutronix.de, mgautam@codeaurora.org,
+        smuthayy@codeaurora.org, varada@codeaurora.org,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, stable@vger.kernel.org,
+        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+Subject: Re: [PATCH 5/9] phy: qcom-qmp: use correct values for ipq8074 gen2
+ pcie phy init
+Message-ID: <20200803110322.GM12965@vkoul-mobl>
+References: <1593940680-2363-1-git-send-email-sivaprak@codeaurora.org>
+ <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
+ <20200713055558.GB34333@vkoul-mobl>
+ <9988249f-53aa-e615-f64b-28c0c0641ab4@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9988249f-53aa-e615-f64b-28c0c0641ab4@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Sivaprakash,
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 29-07-20, 12:15, Sivaprakash Murugesan wrote:
+> 
+> On 7/13/2020 11:25 AM, Vinod Koul wrote:
+> > On 05-07-20, 14:47, Sivaprakash Murugesan wrote:
+> > > There were some problem in ipq8074 gen2 pcie phy init sequence, fix
+> > Can you please describe these problems, it would help review to
+> > understand the issues and also for future reference to you
+> 
+> Hi Vinod,
+> 
+> As you mentioned we are updating few register values
+> 
+> and also adding clocks and resets.
+> 
+> the register values are given by the Hardware team and there
+> 
+> is some fine tuning values are provided by Hardware team for the
+> 
+> issues we faced downstream.
+> 
+> Also, few register values are typos for example QSERDES_RX_SIGDET_CNTRL
+> 
+> is a rx register it was wrongly in serdes table.
+> 
+> I will try to mention these details in next patch.
 
-thanks,
+The right thing to do would be a change per patch explaining the reason.
+For example, fixing typos in QSERDES_RX_SIGDET_CNTRL, then another to
+update tuning values based on hw recommendations. Clocks and reset
+should be different patch
 
-greg k-h
+This helps us review each change for what it does and helps you down the
+line to figure why a line of code was changed
 
------------------- original commit in Linus's tree ------------------
+HTH
 
-From 830f01b089b12bbe93bd55f2d62837253012a30e Mon Sep 17 00:00:00 2001
-From: Wanpeng Li <wanpengli@tencent.com>
-Date: Fri, 31 Jul 2020 11:12:21 +0800
-Subject: [PATCH] KVM: SVM: Fix disable pause loop exit/pause filtering
- capability on SVM
-
-'Commit 8566ac8b8e7c ("KVM: SVM: Implement pause loop exit logic in SVM")'
-drops disable pause loop exit/pause filtering capability completely, I
-guess it is a merge fault by Radim since disable vmexits capabilities and
-pause loop exit for SVM patchsets are merged at the same time. This patch
-reintroduces the disable pause loop exit/pause filtering capability support.
-
-Reported-by: Haiwei Li <lihaiwei@tencent.com>
-Tested-by: Haiwei Li <lihaiwei@tencent.com>
-Fixes: 8566ac8b ("KVM: SVM: Implement pause loop exit logic in SVM")
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1596165141-28874-3-git-send-email-wanpengli@tencent.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index c0da4dd78ac5..5bbf76189afa 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1090,7 +1090,7 @@ static void init_vmcb(struct vcpu_svm *svm)
- 	svm->nested.vmcb = 0;
- 	svm->vcpu.arch.hflags = 0;
- 
--	if (pause_filter_count) {
-+	if (!kvm_pause_in_guest(svm->vcpu.kvm)) {
- 		control->pause_filter_count = pause_filter_count;
- 		if (pause_filter_thresh)
- 			control->pause_filter_thresh = pause_filter_thresh;
-@@ -2693,7 +2693,7 @@ static int pause_interception(struct vcpu_svm *svm)
- 	struct kvm_vcpu *vcpu = &svm->vcpu;
- 	bool in_kernel = (svm_get_cpl(vcpu) == 0);
- 
--	if (pause_filter_thresh)
-+	if (!kvm_pause_in_guest(vcpu->kvm))
- 		grow_ple_window(vcpu);
- 
- 	kvm_vcpu_on_spin(vcpu, in_kernel);
-@@ -3780,7 +3780,7 @@ static void svm_handle_exit_irqoff(struct kvm_vcpu *vcpu)
- 
- static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
- {
--	if (pause_filter_thresh)
-+	if (!kvm_pause_in_guest(vcpu->kvm))
- 		shrink_ple_window(vcpu);
- }
- 
-@@ -3958,6 +3958,9 @@ static void svm_vm_destroy(struct kvm *kvm)
- 
- static int svm_vm_init(struct kvm *kvm)
- {
-+	if (!pause_filter_count || !pause_filter_thresh)
-+		kvm->arch.pause_in_guest = true;
-+
- 	if (avic) {
- 		int ret = avic_vm_init(kvm);
- 		if (ret)
-
+-- 
+~Vinod
