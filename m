@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C08B23A572
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8682423A50D
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729110AbgHCMgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:36:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
+        id S1729365AbgHCMcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729652AbgHCMf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:35:26 -0400
+        id S1729356AbgHCMct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 760312054F;
-        Mon,  3 Aug 2020 12:35:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA7CA2054F;
+        Mon,  3 Aug 2020 12:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458124;
-        bh=pj9Zf2gXN7/jLCNdK9KZMHeeAQyLHHaWLBIS4TQzfGI=;
+        s=default; t=1596457968;
+        bh=5rkRIb3U+cgcQZ4kmQQZEzU4H5D2wfdrv2LhgBPwlHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUpT0BJBFNaEATOqju1lXkb1ke0yqDQdE9tmUKFR1HovWLVjUiuqTU4GVhfFLKw/k
-         eqXENmxuzKnWR762/OkQVuiw4CbHKUAV8wdwfz9o9rgqZ4/SegwGS696B4nyD1gSq6
-         a/8l0okJV+4Zu+WutGVyWWMZhfJzSXjNYGaVNhkg=
+        b=vmMEHxlkIrZv31mynTOrgTuK3HC2Z46tIeT0LkwpGvEbECD4tbh6axrWQxshLdekX
+         izBAM3uKuGY+8AnFJgmU3F3AxDjtDOBFxOrpay3Kc8jYiOEnOFoOgblEHoQmYXgU6C
+         PjKdb3770fK5oR/Ok7ZSvR7kRroAyO0zL3Uju0R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gong Chen <gongchen4@huawei.com>,
-        Sheng Yong <shengyong1@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/51] f2fs: check if file namelen exceeds max value
+Subject: [PATCH 4.19 47/56] qed: Disable "MFW indication via attention" SPAM every 5 minutes
 Date:   Mon,  3 Aug 2020 14:20:02 +0200
-Message-Id: <20200803121850.325340290@linuxfoundation.org>
+Message-Id: <20200803121852.618349390@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sheng Yong <shengyong1@huawei.com>
+From: Laurence Oberman <loberman@redhat.com>
 
-[ Upstream commit 720db068634c91553a8e1d9a0fcd8c7050e06d2b ]
+[ Upstream commit 1d61e21852d3161f234b9656797669fe185c251b ]
 
-Dentry bitmap is not enough to detect incorrect dentries. So this patch
-also checks the namelen value of a dentry.
+This is likely firmware causing this but its starting to annoy customers.
+Change the message level to verbose to prevent the spam.
+Note that this seems to only show up with ISCSI enabled on the HBA via the
+qedi driver.
 
-Signed-off-by: Gong Chen <gongchen4@huawei.com>
-Signed-off-by: Sheng Yong <shengyong1@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/dir.c | 3 ++-
+ drivers/net/ethernet/qlogic/qed/qed_int.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 7a177b8f227d2..ff519f7a87847 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -819,7 +819,8 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
- 
- 		/* check memory boundary before moving forward */
- 		bit_pos += GET_DENTRY_SLOTS(le16_to_cpu(de->name_len));
--		if (unlikely(bit_pos > d->max)) {
-+		if (unlikely(bit_pos > d->max ||
-+				le16_to_cpu(de->name_len) > F2FS_NAME_LEN)) {
- 			f2fs_msg(F2FS_I_SB(d->inode)->sb, KERN_WARNING,
- 				"%s: corrupted namelen=%d, run fsck to fix.",
- 				__func__, le16_to_cpu(de->name_len));
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index f9e475075d3ea..61d5d76545687 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -1015,7 +1015,8 @@ static int qed_int_attentions(struct qed_hwfn *p_hwfn)
+ 			index, attn_bits, attn_acks, asserted_bits,
+ 			deasserted_bits, p_sb_attn_sw->known_attn);
+ 	} else if (asserted_bits == 0x100) {
+-		DP_INFO(p_hwfn, "MFW indication via attention\n");
++		DP_VERBOSE(p_hwfn, NETIF_MSG_INTR,
++			   "MFW indication via attention\n");
+ 	} else {
+ 		DP_VERBOSE(p_hwfn, NETIF_MSG_INTR,
+ 			   "MFW indication [deassertion]\n");
 -- 
 2.25.1
 
