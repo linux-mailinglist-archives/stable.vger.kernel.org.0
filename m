@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC9E23A6D1
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA7723A627
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728368AbgHCMyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
+        id S1728038AbgHCMpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727817AbgHCMXK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:23:10 -0400
+        id S1726725AbgHCM1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F30722076B;
-        Mon,  3 Aug 2020 12:23:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DC98207FC;
+        Mon,  3 Aug 2020 12:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457389;
-        bh=cEtJnSUaGtbTxH18GKYsJEmTgJr5ZoxfZl79ZRBrVn0=;
+        s=default; t=1596457662;
+        bh=5zeqietPhyhUpjpUe2K3zAjtmebUM/EY9MObnePZxdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rtZLjAL9aJg2PqUwfYpt+eI0gAlcKgLqUNOBYHvVyx0xkVn6uRKr77t8MmBsHyrd
-         9nQVsjtk2oXu/gNVWxIIvlktd5iI+sGYEn03qDt5k1HooDn+eEwsAYA+UfRq3+BHgr
-         6v7uKUJ033KLB7n73w58pejHXo8W1NKH9ARuef7w=
+        b=tC7suW3kc6NUDhSfWM2FfA2nTwpRT8xLHzDJf2s+Yxo6+HqcMffnLv2a4/HovODWF
+         4r1dug6vaRex083LFvRJBH3yHmfQd7XOlNwFfy/kFsyYIdPod4J18L8+y4+L6GdPAr
+         Q92RHI/+hSvRRk9l5/VOY/rLagSvZH7uqnBkfq/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 049/120] net: hns3: fix desc filling bug when skb is expanded or lineared
-Date:   Mon,  3 Aug 2020 14:18:27 +0200
-Message-Id: <20200803121905.192237001@linuxfoundation.org>
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Robert Stupp <snazy@gmx.de>, Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        SeongJae Park <sjpark@amazon.com>
+Subject: [PATCH 5.4 06/90] mm/filemap.c: dont bother dropping mmap_sem for zero size readahead
+Date:   Mon,  3 Aug 2020 14:18:28 +0200
+Message-Id: <20200803121857.853351983@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit cfdaeba5ddc98b303639a3265c2031ac5db249d6 ]
+commit 5c72feee3e45b40a3c96c7145ec422899d0e8964 upstream.
 
-The linear and frag data part may be changed when the skb is expanded
-or lineared in skb_cow_head() or skb_checksum_help(), which is called
-by hns3_fill_skb_desc(), so the linear len return by skb_headlen()
-before the calling of hns3_fill_skb_desc() is unreliable.
+When handling a page fault, we drop mmap_sem to start async readahead so
+that we don't block on IO submission with mmap_sem held.  However there's
+no point to drop mmap_sem in case readahead is disabled.  Handle that case
+to avoid pointless dropping of mmap_sem and retrying the fault.  This was
+actually reported to block mlockall(MCL_CURRENT) indefinitely.
 
-Move hns3_fill_skb_desc() before the calling of skb_headlen() to fix
-this bug.
+Fixes: 6b4c9f446981 ("filemap: drop the mmap_sem for all blocking operations")
+Reported-by: Minchan Kim <minchan@kernel.org>
+Reported-by: Robert Stupp <snazy@gmx.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Minchan Kim <minchan@kernel.org>
+Link: http://lkml.kernel.org/r/20200212101356.30759-1-jack@suse.cz
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: SeongJae Park <sjpark@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ mm/filemap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index df1cb0441183c..0b12425fa2845 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -1098,16 +1098,8 @@ static int hns3_fill_desc(struct hns3_enet_ring *ring, void *priv,
- 	int k, sizeoflast;
- 	dma_addr_t dma;
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2438,7 +2438,7 @@ static struct file *do_async_mmap_readah
+ 	pgoff_t offset = vmf->pgoff;
  
--	if (type == DESC_TYPE_SKB) {
--		struct sk_buff *skb = (struct sk_buff *)priv;
--		int ret;
--
--		ret = hns3_fill_skb_desc(ring, skb, desc);
--		if (unlikely(ret < 0))
--			return ret;
--
--		dma = dma_map_single(dev, skb->data, size, DMA_TO_DEVICE);
--	} else if (type == DESC_TYPE_FRAGLIST_SKB) {
-+	if (type == DESC_TYPE_FRAGLIST_SKB ||
-+	    type == DESC_TYPE_SKB) {
- 		struct sk_buff *skb = (struct sk_buff *)priv;
- 
- 		dma = dma_map_single(dev, skb->data, size, DMA_TO_DEVICE);
-@@ -1452,6 +1444,10 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
- 
- 	next_to_use_head = ring->next_to_use;
- 
-+	ret = hns3_fill_skb_desc(ring, skb, &ring->desc[ring->next_to_use]);
-+	if (unlikely(ret < 0))
-+		goto fill_err;
-+
- 	ret = hns3_fill_skb_to_desc(ring, skb, DESC_TYPE_SKB);
- 	if (unlikely(ret < 0))
- 		goto fill_err;
--- 
-2.25.1
-
+ 	/* If we don't want any read-ahead, don't bother */
+-	if (vmf->vma->vm_flags & VM_RAND_READ)
++	if (vmf->vma->vm_flags & VM_RAND_READ || !ra->ra_pages)
+ 		return fpin;
+ 	if (ra->mmap_miss > 0)
+ 		ra->mmap_miss--;
 
 
