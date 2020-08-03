@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623B523A5C4
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4573523A525
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728550AbgHCMlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60340 "EHLO mail.kernel.org"
+        id S1728983AbgHCMdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729296AbgHCMc0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:32:26 -0400
+        id S1729477AbgHCMdm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DBAF2054F;
-        Mon,  3 Aug 2020 12:32:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74FCC20825;
+        Mon,  3 Aug 2020 12:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457944;
-        bh=KaCNeaf89Tis8mfvhLI1/BfgusKjtbUmF2IX4MJ3hb8=;
+        s=default; t=1596458021;
+        bh=x4UMX5p252GYrKJ/aCarb85LZB57EhVLYClq7cIfOP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWybHHnxyeUvXNH3M+do/VwI+W3xpLuidNtMPZnuF1I8AXgPdc0O+ImBu5ALgm1RE
-         26QORcOBgBn3pGa6TQOOs/CVeIgANsyTjE3xgaUXpxzkBYSn/TpPkXybqV4dML329Z
-         5O4shJf8ShgSHWi18B5HOJB6EoyUHuxwW38NrxFo=
+        b=lfNh+zIa+QnMSdZb/vBdzQhqPLvzgii4CrnElbOpWul5FNkRRswP/DkdxUGmbwIbV
+         zGT5AZy1OzvPoEZgKJf8BHfjlMqOoGW4UhdrIQijJ9Oh/JLJAKrN8TEOPW4UJ5+8yH
+         +CwDkCdvhsrxqSkM85II0EEr7CVMzLnKhRe+SPB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/56] mac80211: mesh: Free ie data when leaving mesh
-Date:   Mon,  3 Aug 2020 14:19:54 +0200
-Message-Id: <20200803121852.233315098@linuxfoundation.org>
+        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 10/51] wireless: Use offsetof instead of custom macro.
+Date:   Mon,  3 Aug 2020 14:19:55 +0200
+Message-Id: <20200803121849.964675445@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
+References: <20200803121849.488233135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit 6a01afcf8468d3ca2bd8bbb27503f60dcf643b20 ]
+commit 6989310f5d4327e8595664954edd40a7f99ddd0d upstream.
 
-At ieee80211_join_mesh() some ie data could have been allocated (see
-copy_mesh_setup()) and need to be cleaned up when leaving the mesh.
+Use offsetof to calculate offset of a field to take advantage of
+compiler built-in version when possible, and avoid UBSAN warning when
+compiling with Clang:
 
-This fixes the following kmemleak report:
+==================================================================
+UBSAN: Undefined behaviour in net/wireless/wext-core.c:525:14
+member access within null pointer of type 'struct iw_point'
+CPU: 3 PID: 165 Comm: kworker/u16:3 Tainted: G S      W         4.19.23 #43
+Workqueue: cfg80211 __cfg80211_scan_done [cfg80211]
+Call trace:
+ dump_backtrace+0x0/0x194
+ show_stack+0x20/0x2c
+ __dump_stack+0x20/0x28
+ dump_stack+0x70/0x94
+ ubsan_epilogue+0x14/0x44
+ ubsan_type_mismatch_common+0xf4/0xfc
+ __ubsan_handle_type_mismatch_v1+0x34/0x54
+ wireless_send_event+0x3cc/0x470
+ ___cfg80211_scan_done+0x13c/0x220 [cfg80211]
+ __cfg80211_scan_done+0x28/0x34 [cfg80211]
+ process_one_work+0x170/0x35c
+ worker_thread+0x254/0x380
+ kthread+0x13c/0x158
+ ret_from_fork+0x10/0x18
+===================================================================
 
-unreferenced object 0xffff0000116bc600 (size 128):
-  comm "wpa_supplicant", pid 608, jiffies 4294898983 (age 293.484s)
-  hex dump (first 32 bytes):
-    30 14 01 00 00 0f ac 04 01 00 00 0f ac 04 01 00  0...............
-    00 0f ac 08 00 00 00 00 c4 65 40 00 00 00 00 00  .........e@.....
-  backtrace:
-    [<00000000bebe439d>] __kmalloc_track_caller+0x1c0/0x330
-    [<00000000a349dbe1>] kmemdup+0x28/0x50
-    [<0000000075d69baa>] ieee80211_join_mesh+0x6c/0x3b8 [mac80211]
-    [<00000000683bb98b>] __cfg80211_join_mesh+0x1e8/0x4f0 [cfg80211]
-    [<0000000072cb507f>] nl80211_join_mesh+0x520/0x6b8 [cfg80211]
-    [<0000000077e9bcf9>] genl_family_rcv_msg+0x374/0x680
-    [<00000000b1bd936d>] genl_rcv_msg+0x78/0x108
-    [<0000000022c53788>] netlink_rcv_skb+0xb0/0x1c0
-    [<0000000011af8ec9>] genl_rcv+0x34/0x48
-    [<0000000069e41f53>] netlink_unicast+0x268/0x2e8
-    [<00000000a7517316>] netlink_sendmsg+0x320/0x4c0
-    [<0000000069cba205>] ____sys_sendmsg+0x354/0x3a0
-    [<00000000e06bab0f>] ___sys_sendmsg+0xd8/0x120
-    [<0000000037340728>] __sys_sendmsg+0xa4/0xf8
-    [<000000004fed9776>] __arm64_sys_sendmsg+0x44/0x58
-    [<000000001c1e5647>] el0_svc_handler+0xd0/0x1a0
-
-Fixes: c80d545da3f7 (mac80211: Let userspace enable and configure vendor specific path selection.)
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Link: https://lore.kernel.org/r/20200704135007.27292-1-repk@triplefau.lt
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20191204081307.138765-1-pihsun@chromium.org
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/mac80211/cfg.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/linux/wireless.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index cb7076d9a7698..b6670e74aeb7b 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -2011,6 +2011,7 @@ static int ieee80211_leave_mesh(struct wiphy *wiphy, struct net_device *dev)
- 	ieee80211_stop_mesh(sdata);
- 	mutex_lock(&sdata->local->mtx);
- 	ieee80211_vif_release_channel(sdata);
-+	kfree(sdata->u.mesh.ie);
- 	mutex_unlock(&sdata->local->mtx);
+--- a/include/uapi/linux/wireless.h
++++ b/include/uapi/linux/wireless.h
+@@ -74,6 +74,8 @@
+ #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
+ #include <linux/if.h>			/* for IFNAMSIZ and co... */
  
- 	return 0;
--- 
-2.25.1
-
++#include <stddef.h>                     /* for offsetof */
++
+ /***************************** VERSION *****************************/
+ /*
+  * This constant is used to know the availability of the wireless
+@@ -1090,8 +1092,7 @@ struct iw_event {
+ /* iw_point events are special. First, the payload (extra data) come at
+  * the end of the event, so they are bigger than IW_EV_POINT_LEN. Second,
+  * we omit the pointer, so start at an offset. */
+-#define IW_EV_POINT_OFF (((char *) &(((struct iw_point *) NULL)->length)) - \
+-			  (char *) NULL)
++#define IW_EV_POINT_OFF offsetof(struct iw_point, length)
+ #define IW_EV_POINT_LEN	(IW_EV_LCP_LEN + sizeof(struct iw_point) - \
+ 			 IW_EV_POINT_OFF)
+ 
 
 
