@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1A1623A509
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 039CF23A591
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729312AbgHCMcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:32:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60648 "EHLO mail.kernel.org"
+        id S1729161AbgHCMiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:38:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729337AbgHCMcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:32:41 -0400
+        id S1729527AbgHCMeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 977772076B;
-        Mon,  3 Aug 2020 12:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FAE1204EC;
+        Mon,  3 Aug 2020 12:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457960;
-        bh=VIHMX9KfMBPg8/pWyGq9IW87rpE2ocGo68sX2lLBjPk=;
+        s=default; t=1596458055;
+        bh=+EYqTni3FNqfBHaiNdgQ2JMG4j+xAECMvzO5jCAXxMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paEQsDsL4Bf+L0SjptwYAebfrAuaB5blxJDBfg5q1yK5nAZYCw47LdFKbnNNHEw+s
-         s7eCStz0zS80NhwCzMTRnXI4jKKE3cXsS8o12IGHj+RYHpBv91fFyjGblXiEwcZ2wo
-         39Xjg594e0kzagTCcRJVbwXg65GN38OhtAXTbeZk=
+        b=1mEFwq/xpzAmsL1YA8ffPhMCuCmDlfLNOBn1g0oMPYebhvvfvLKRfgeDBR3wMEVKn
+         6H6bDmaaAqh4zcIlUq/2AldtNwFpzYZfPr86u0MAfL+EfXJ0pQzuuavBk4mxYlctaV
+         i9iXlwhD8fmN7a+IRYNgjzfDzujf4QFd/y9gYRpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/56] net: gemini: Fix missing clk_disable_unprepare() in error path of gemini_ethernet_port_probe()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.14 14/51] drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
 Date:   Mon,  3 Aug 2020 14:19:59 +0200
-Message-Id: <20200803121852.465245070@linuxfoundation.org>
+Message-Id: <20200803121850.183204182@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
+References: <20200803121849.488233135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 85496a29224188051b6135eb38da8afd4c584765 ]
+commit 543e8669ed9bfb30545fd52bc0e047ca4df7fb31 upstream.
 
-Fix the missing clk_disable_unprepare() before return
-from gemini_ethernet_port_probe() in the error handling case.
+Compiler leaves a 4-byte hole near the end of `dev_info`, causing
+amdgpu_info_ioctl() to copy uninitialized kernel stack memory to userspace
+when `size` is greater than 356.
 
-Fixes: 4d5ae32f5e1e ("net: ethernet: Add a driver for Gemini gigabit ethernet")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In 2015 we tried to fix this issue by doing `= {};` on `dev_info`, which
+unfortunately does not initialize that 4-byte hole. Fix it by using
+memset() instead.
+
+Cc: stable@vger.kernel.org
+Fixes: c193fa91b918 ("drm/amdgpu: information leak in amdgpu_info_ioctl()")
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/cortina/gemini.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
-index 01a2120978360..f402af39da42a 100644
---- a/drivers/net/ethernet/cortina/gemini.c
-+++ b/drivers/net/ethernet/cortina/gemini.c
-@@ -2451,6 +2451,7 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
- 	port->reset = devm_reset_control_get_exclusive(dev, NULL);
- 	if (IS_ERR(port->reset)) {
- 		dev_err(dev, "no reset\n");
-+		clk_disable_unprepare(port->pclk);
- 		return PTR_ERR(port->reset);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -527,8 +527,9 @@ static int amdgpu_info_ioctl(struct drm_
+ 		return n ? -EFAULT : 0;
  	}
- 	reset_control_reset(port->reset);
-@@ -2506,8 +2507,10 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
- 					IRQF_SHARED,
- 					port_names[port->id],
- 					port);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(port->pclk);
- 		return ret;
-+	}
+ 	case AMDGPU_INFO_DEV_INFO: {
+-		struct drm_amdgpu_info_device dev_info = {};
++		struct drm_amdgpu_info_device dev_info;
  
- 	ret = register_netdev(netdev);
- 	if (!ret) {
--- 
-2.25.1
-
++		memset(&dev_info, 0, sizeof(dev_info));
+ 		dev_info.device_id = dev->pdev->device;
+ 		dev_info.chip_rev = adev->rev_id;
+ 		dev_info.external_rev = adev->external_rev_id;
 
 
