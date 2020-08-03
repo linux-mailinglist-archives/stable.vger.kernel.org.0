@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D288D23A433
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:24:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 938AC23A483
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726622AbgHCMYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:24:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S1728676AbgHCM2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728039AbgHCMYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:24:33 -0400
+        id S1728103AbgHCM2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:28:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C55DE207BB;
-        Mon,  3 Aug 2020 12:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B945D2083B;
+        Mon,  3 Aug 2020 12:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457471;
-        bh=NocX8FRNNofFxc9quJy1/gGLORMCIGCJ/kDCDScoBrE=;
+        s=default; t=1596457680;
+        bh=5ZTbntYsx//AIdI+J6uU78DsJOWtvYZYlI+yqOfRk6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDtzTh1yXXe7QKMfy4RlJx2WHJGgagm21tXxd0a3FQNT+puQCKBMUoqMmEdTwVfVF
-         XqEtGbBBbKLFj5o6aIMA5mZVzkLRc/ziVHAbdZccu2a4vg/8BZteNv3cxaU/1wlyZB
-         DOqgYdrluBdUdGW72b5GnZ/PxwCOGOFBUeyX8z30=
+        b=visktFZ9BPwhgStNUf+jN17wr1lT+FHgbj7o6EjyXy/WHuJ2FO/6FegyVHPHsibJN
+         t+uwZw4LWbu3R/r2kjOMvmQEsh7yPFAM7bdIQCtDC6O108b/mK4BcYyYxrcPDQQHOq
+         kQBkrXFxr3RUgrsoL7FtTFq+rzxYi1uZ0YJGgR0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 079/120] mac80211: mesh: Free pending skb when destroying a mpath
-Date:   Mon,  3 Aug 2020 14:18:57 +0200
-Message-Id: <20200803121906.683861064@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 36/90] ARM: dts sunxi: Relax a bit the CMA pool allocation range
+Date:   Mon,  3 Aug 2020 14:18:58 +0200
+Message-Id: <20200803121859.358937552@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 5e43540c2af0a0c0a18e39579b1ad49541f87506 ]
+[ Upstream commit 92025b90f18d45e26b7f17d68756b1abd771b9d3 ]
 
-A mpath object can hold reference on a list of skb that are waiting for
-mpath resolution to be sent. When destroying a mpath this skb list
-should be cleaned up in order to not leak memory.
+The hardware codec on the A10, A10s, A13 and A20 needs buffer in the
+first 256MB of RAM. This was solved by setting the CMA pool at a fixed
+address in that range.
 
-Fixing that kind of leak:
+However, in recent kernels there's something else that comes in and
+reserve some range that end up conflicting with our default pool
+requirement, and thus makes its reservation fail.
 
-unreferenced object 0xffff0000181c9300 (size 1088):
-  comm "openvpn", pid 1782, jiffies 4295071698 (age 80.416s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 f9 80 36 00 00 00 00 00  ..........6.....
-    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
-  backtrace:
-    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
-    [<000000002caaef13>] sk_prot_alloc.isra.39+0x34/0x178
-    [<00000000ceeaa916>] sk_alloc+0x34/0x228
-    [<00000000ca1f1d04>] inet_create+0x198/0x518
-    [<0000000035626b1c>] __sock_create+0x134/0x328
-    [<00000000a12b3a87>] __sys_socket+0xb0/0x158
-    [<00000000ff859f23>] __arm64_sys_socket+0x40/0x58
-    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
-    [<0000000005b5157d>] el0_svc+0x8/0xc
-unreferenced object 0xffff000012973a40 (size 216):
-  comm "openvpn", pid 1782, jiffies 4295082137 (age 38.660s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 c0 06 16 00 00 ff ff 00 93 1c 18 00 00 ff ff  ................
-  backtrace:
-    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
-    [<0000000023c8c8f9>] __alloc_skb+0xc0/0x2b8
-    [<000000007ad950bb>] alloc_skb_with_frags+0x60/0x320
-    [<00000000ef90023a>] sock_alloc_send_pskb+0x388/0x3c0
-    [<00000000104fb1a3>] sock_alloc_send_skb+0x1c/0x28
-    [<000000006919d2dd>] __ip_append_data+0xba4/0x11f0
-    [<0000000083477587>] ip_make_skb+0x14c/0x1a8
-    [<0000000024f3d592>] udp_sendmsg+0xaf0/0xcf0
-    [<000000005aabe255>] inet_sendmsg+0x5c/0x80
-    [<000000008651ea08>] __sys_sendto+0x15c/0x218
-    [<000000003505c99b>] __arm64_sys_sendto+0x74/0x90
-    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
-    [<0000000005b5157d>] el0_svc+0x8/0xc
+The video codec will then use buffers from the usual default pool,
+outside of the range it can access, and will fail to decode anything.
 
-Fixes: 2bdaf386f99c (mac80211: mesh: move path tables into if_mesh)
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Link: https://lore.kernel.org/r/20200704135419.27703-1-repk@triplefau.lt
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Since we're only concerned about that 256MB, we can however relax the
+allocation to just specify the range that's allowed, and not try to
+enforce a specific address.
+
+Fixes: 5949bc5602cc ("ARM: dts: sun4i-a10: Add Video Engine and reserved memory nodes")
+Fixes: 960432010156 ("ARM: dts: sun5i: Add Video Engine and reserved memory nodes")
+Fixes: c2a641a74850 ("ARM: dts: sun7i-a20: Add Video Engine and reserved memory nodes")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20200704130829.34297-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
+ arch/arm/boot/dts/sun5i.dtsi     | 2 +-
+ arch/arm/boot/dts/sun7i-a20.dtsi | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 117519bf33d65..aca608ae313fe 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -521,6 +521,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl,
- 	del_timer_sync(&mpath->timer);
- 	atomic_dec(&sdata->u.mesh.mpaths);
- 	atomic_dec(&tbl->entries);
-+	mesh_path_flush_pending(mpath);
- 	kfree_rcu(mpath, rcu);
- }
- 
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 4c268b70b7357..e0a9b371c248f 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -198,7 +198,7 @@
+ 		default-pool {
+ 			compatible = "shared-dma-pool";
+ 			size = <0x6000000>;
+-			alloc-ranges = <0x4a000000 0x6000000>;
++			alloc-ranges = <0x40000000 0x10000000>;
+ 			reusable;
+ 			linux,cma-default;
+ 		};
+diff --git a/arch/arm/boot/dts/sun5i.dtsi b/arch/arm/boot/dts/sun5i.dtsi
+index 6befa236ba99d..fd31da8fd3112 100644
+--- a/arch/arm/boot/dts/sun5i.dtsi
++++ b/arch/arm/boot/dts/sun5i.dtsi
+@@ -117,7 +117,7 @@
+ 		default-pool {
+ 			compatible = "shared-dma-pool";
+ 			size = <0x6000000>;
+-			alloc-ranges = <0x4a000000 0x6000000>;
++			alloc-ranges = <0x40000000 0x10000000>;
+ 			reusable;
+ 			linux,cma-default;
+ 		};
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index 8aebefd6accfe..1f8b45f07e58f 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -180,7 +180,7 @@
+ 		default-pool {
+ 			compatible = "shared-dma-pool";
+ 			size = <0x6000000>;
+-			alloc-ranges = <0x4a000000 0x6000000>;
++			alloc-ranges = <0x40000000 0x10000000>;
+ 			reusable;
+ 			linux,cma-default;
+ 		};
 -- 
 2.25.1
 
