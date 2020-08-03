@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 479D423A440
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E495023A476
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:27:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728118AbgHCMZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:25:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49758 "EHLO mail.kernel.org"
+        id S1728523AbgHCM1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:27:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727021AbgHCMZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:25:08 -0400
+        id S1728511AbgHCM1Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DEB3204EC;
-        Mon,  3 Aug 2020 12:25:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C54A2204EC;
+        Mon,  3 Aug 2020 12:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457507;
-        bh=rZcy60kFi4xUciZ3M6ajETGC0IBrF7cILGnScHXKouI=;
+        s=default; t=1596457635;
+        bh=BVwzFKiVpuCd9zR8RL2bcPlOG5HmNG3KEtqme8bzdcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTeifUL65PIoIjF0iBm84C95pypZ7WWaKtbewr1t/pqc/otUkjd2Iqwq+vowcVnSe
-         hCj4s80WTPF64ptyJ/WJOPogopyXjm6Z3NfFV17NyQJ0XnLqrqE0lsRQQeL8rnovhn
-         fJcTtqS4hRsDs9TLcwdr8iaseVcVeqGfEJr43ymU=
+        b=cWr3a5ZRBBuhKIPUGp0e1CX9s/8BjoAiOL9ocSRZ6Dr/hGEBvqN6J/c348LSPrxaj
+         PT72l2sZgVEmviorZ9P1P4buTcUz8EojSOq2vekdxDzFQ4x43ZioXe/KWS3wu9owTr
+         Q4ld71sM5Pc2ROyP3gPmMQLMfa7xQ3vZ6mTNTFv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 063/120] net: lan78xx: fix transfer-buffer memory leak
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 19/90] ARM: dts: imx6sx-sdb: Fix the phy-mode on fec2
 Date:   Mon,  3 Aug 2020 14:18:41 +0200
-Message-Id: <20200803121905.872450320@linuxfoundation.org>
+Message-Id: <20200803121858.549301846@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 63634aa679ba8b5e306ad0727120309ae6ba8a8e ]
+commit c696afd331be1acb39206aba53048f2386b781fc upstream.
 
-The interrupt URB transfer-buffer was never freed on disconnect or after
-probe errors.
+Commit 0672d22a1924 ("ARM: dts: imx: Fix the AR803X phy-mode") fixed the
+phy-mode for fec1, but missed to fix it for the fec2 node.
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix fec2 to also use "rgmii-id" as the phy-mode.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0672d22a1924 ("ARM: dts: imx: Fix the AR803X phy-mode")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/lan78xx.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/imx6sx-sdb.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index d7162690e3f3d..ee062b27cfa7b 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3788,6 +3788,7 @@ static int lan78xx_probe(struct usb_interface *intf,
- 			usb_fill_int_urb(dev->urb_intr, dev->udev,
- 					 dev->pipe_intr, buf, maxp,
- 					 intr_complete, dev, period);
-+			dev->urb_intr->transfer_flags |= URB_FREE_BUFFER;
- 		}
- 	}
- 
--- 
-2.25.1
-
+--- a/arch/arm/boot/dts/imx6sx-sdb.dtsi
++++ b/arch/arm/boot/dts/imx6sx-sdb.dtsi
+@@ -213,7 +213,7 @@
+ &fec2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet2>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ethphy2>;
+ 	status = "okay";
+ };
 
 
