@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B949423A49A
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABB523A464
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728258AbgHCM2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55062 "EHLO mail.kernel.org"
+        id S1727905AbgHCM0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726394AbgHCM2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:49 -0400
+        id S1727873AbgHCM0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B421207DF;
-        Mon,  3 Aug 2020 12:28:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C850E207FB;
+        Mon,  3 Aug 2020 12:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457727;
-        bh=9hjkPMxo/mTjurQnQFy89AafOR3M7VRXCspHHGa+u6o=;
+        s=default; t=1596457595;
+        bh=kbe8WXIGRrAQO4d8dZZB8ZfVPuIxlU9GkwkGd1km1gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vaU1yhSir3HcwKwy4mpT0IYbym/eMVOQTTpg9lLtiunwtaf58SLznr7r96hTyIs0V
-         7ElniQZQQHDrUVFzPz0nWEhlO53Ww6bFh9kZlBayoArAnCubAUqFFrJwwOUf8Oasmu
-         zjRzsgemh8AlYVsrq8Ujs4Ey1GGU7IQDI9T9VEjw=
+        b=QUIwt69o+UZynoWhXNWOjJ89zGHeFjISYDLyJArIg7XF5TbxuTUY8QhGAvvqN3OoP
+         N9xVxBPQQEBpfxr+7QkcirxUXvntpPGw1ik/qUJsTIGZIEQkFPQWWT3vrEsUnA4HCJ
+         OYYq/j/e80Dw6lMOxWpW4hpU/JDRVjQlRmABZXrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 52/90] net: lan78xx: add missing endpoint sanity check
-Date:   Mon,  3 Aug 2020 14:19:14 +0200
-Message-Id: <20200803121900.142970363@linuxfoundation.org>
+Subject: [PATCH 5.7 098/120] qed: Disable "MFW indication via attention" SPAM every 5 minutes
+Date:   Mon,  3 Aug 2020 14:19:16 +0200
+Message-Id: <20200803121907.678159943@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Laurence Oberman <loberman@redhat.com>
 
-[ Upstream commit 8d8e95fd6d69d774013f51e5f2ee10c6e6d1fc14 ]
+[ Upstream commit 1d61e21852d3161f234b9656797669fe185c251b ]
 
-Add the missing endpoint sanity check to prevent a NULL-pointer
-dereference should a malicious device lack the expected endpoints.
+This is likely firmware causing this but its starting to annoy customers.
+Change the message level to verbose to prevent the spam.
+Note that this seems to only show up with ISCSI enabled on the HBA via the
+qedi driver.
 
-Note that the driver has a broken endpoint-lookup helper,
-lan78xx_get_endpoints(), which can end up accepting interfaces in an
-altsetting without endpoints as long as *some* altsetting has a bulk-in
-and a bulk-out endpoint.
-
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Laurence Oberman <loberman@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_int.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 0170a441208a7..54ce1ed1ea379 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3767,6 +3767,11 @@ static int lan78xx_probe(struct usb_interface *intf,
- 	netdev->max_mtu = MAX_SINGLE_PACKET_SIZE;
- 	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
- 
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 3) {
-+		ret = -ENODEV;
-+		goto out3;
-+	}
-+
- 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
- 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
- 	dev->ep_intr = (intf->cur_altsetting)->endpoint + 2;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index 8d106063e9275..666e43748a5f4 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -1180,7 +1180,8 @@ static int qed_int_attentions(struct qed_hwfn *p_hwfn)
+ 			index, attn_bits, attn_acks, asserted_bits,
+ 			deasserted_bits, p_sb_attn_sw->known_attn);
+ 	} else if (asserted_bits == 0x100) {
+-		DP_INFO(p_hwfn, "MFW indication via attention\n");
++		DP_VERBOSE(p_hwfn, NETIF_MSG_INTR,
++			   "MFW indication via attention\n");
+ 	} else {
+ 		DP_VERBOSE(p_hwfn, NETIF_MSG_INTR,
+ 			   "MFW indication [deassertion]\n");
 -- 
 2.25.1
 
