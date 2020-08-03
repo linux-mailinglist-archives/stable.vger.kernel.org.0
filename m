@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC7F23A5D3
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EC9323A656
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbgHCMb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58978 "EHLO mail.kernel.org"
+        id S1728324AbgHCMrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729180AbgHCMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:31:27 -0400
+        id S1728314AbgHCM0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C2062076B;
-        Mon,  3 Aug 2020 12:31:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4239B204EC;
+        Mon,  3 Aug 2020 12:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457885;
-        bh=Fl5DlAk/eat9xnhGSnnm4wpVPUDjVMLmzf7szweD+k0=;
+        s=default; t=1596457569;
+        bh=1/r9Q8IfWowqNWxBcXwbOD8b3HJEuZTPsq0N564a95c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WilgAWEp2zomJTh/oMSTGhgUdaBnGSW7yn7FY1IShK+ed6r3TiFtULW2tnoNRdXQt
-         Fktk9updQ5HXg96jgqldvNDAZ8uHeDtFbA1X/qAWopUmZs7klzwJlq44qOHkhcX52v
-         i4M+wHh5kB9cy/urY8Zog0EOO/EylTjk81Zw0SHE=
+        b=VfxE/AEpfSe7XqWYEsCjHPTuuxVBSck3uqX9U8PZ6hJdzsaYjzKLH3j1VJgVSwg4V
+         lohTiKdWkkZom2JayUrNlknstaWe6GGeAo8VJfR6V5Lx11NgblbmF0I9Qbwccm3SZS
+         t3EQ6tkYvKY6lJbQdAviAriat6su3gQijlDq5dSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 18/56] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs handlers"
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 115/120] drivers/net/wan: lapb: Corrected the usage of skb_cow
 Date:   Mon,  3 Aug 2020 14:19:33 +0200
-Message-Id: <20200803121851.226856767@linuxfoundation.org>
+Message-Id: <20200803121908.501864761@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit 87004abfbc27261edd15716515d89ab42198b405 upstream.
+[ Upstream commit 8754e1379e7089516a449821f88e1fe1ebbae5e1 ]
 
-This regressed some working configurations so revert it.  Will
-fix this properly for 5.9 and backport then.
+This patch fixed 2 issues with the usage of skb_cow in LAPB drivers
+"lapbether" and "hdlc_x25":
 
-This reverts commit 38e0c89a19fd13f28d2b4721035160a3e66e270b.
+1) After skb_cow fails, kfree_skb should be called to drop a reference
+to the skb. But in both drivers, kfree_skb is not called.
 
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+2) skb_cow should be called before skb_push so that is can ensure the
+safety of skb_push. But in "lapbether", it is incorrectly called after
+skb_push.
 
+More details about these 2 issues:
+
+1) The behavior of calling kfree_skb on failure is also the behavior of
+netif_rx, which is called by this function with "return netif_rx(skb);".
+So this function should follow this behavior, too.
+
+2) In "lapbether", skb_cow is called after skb_push. This results in 2
+logical issues:
+   a) skb_push is not protected by skb_cow;
+   b) An extra headroom of 1 byte is ensured after skb_push. This extra
+      headroom has no use in this function. It also has no use in the
+      upper-layer function that this function passes the skb to
+      (x25_lapb_receive_frame in net/x25/x25_dev.c).
+So logically skb_cow should instead be called before skb_push.
+
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/wan/hdlc_x25.c  | 4 +++-
+ drivers/net/wan/lapbether.c | 8 +++++---
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -529,7 +529,8 @@ static ssize_t amdgpu_set_pp_od_clk_volt
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index c84536b03aa84..f70336bb6f524 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -71,8 +71,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	unsigned char *ptr;
  
- 	while (isspace(*++tmp_str));
+-	if (skb_cow(skb, 1))
++	if (skb_cow(skb, 1)) {
++		kfree_skb(skb);
+ 		return NET_RX_DROP;
++	}
  
--	while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
-+	while (tmp_str[0]) {
-+		sub_str = strsep(&tmp_str, delimiter);
- 		ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
- 		if (ret)
- 			return -EINVAL;
-@@ -629,7 +630,8 @@ static ssize_t amdgpu_read_mask(const ch
- 	memcpy(buf_cpy, buf, bytes);
- 	buf_cpy[bytes] = '\0';
- 	tmp = buf_cpy;
--	while ((sub_str = strsep(&tmp, delimiter)) != NULL) {
-+	while (tmp[0]) {
-+		sub_str = strsep(&tmp, delimiter);
- 		if (strlen(sub_str)) {
- 			ret = kstrtol(sub_str, 0, &level);
- 			if (ret)
-@@ -880,7 +882,8 @@ static ssize_t amdgpu_set_pp_power_profi
- 			i++;
- 		memcpy(buf_cpy, buf, count-i);
- 		tmp_str = buf_cpy;
--		while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
-+		while (tmp_str[0]) {
-+			sub_str = strsep(&tmp_str, delimiter);
- 			ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
- 			if (ret) {
- 				count = -EINVAL;
+ 	skb_push(skb, 1);
+ 	skb_reset_network_header(skb);
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 284832314f310..b2868433718f6 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -128,10 +128,12 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	unsigned char *ptr;
+ 
+-	skb_push(skb, 1);
+-
+-	if (skb_cow(skb, 1))
++	if (skb_cow(skb, 1)) {
++		kfree_skb(skb);
+ 		return NET_RX_DROP;
++	}
++
++	skb_push(skb, 1);
+ 
+ 	ptr  = skb->data;
+ 	*ptr = X25_IFACE_DATA;
+-- 
+2.25.1
+
 
 
