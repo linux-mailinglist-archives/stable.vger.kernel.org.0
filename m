@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CEC923A549
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 480E323A55D
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729636AbgHCMfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:35:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35538 "EHLO mail.kernel.org"
+        id S1729648AbgHCMfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:35:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729624AbgHCMfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:35:13 -0400
+        id S1729645AbgHCMfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:35:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 436372054F;
-        Mon,  3 Aug 2020 12:35:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB59B20781;
+        Mon,  3 Aug 2020 12:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458111;
-        bh=68+LEuzRoR3ugStnHhsnfI6mCpaMtgKIP3ttLWOydd4=;
+        s=default; t=1596458117;
+        bh=bTEMXvdIvyE2iqBAS9NC+cQYJQ88tOHYymR7wqxovZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLFr7jXyhTaHIVrub38UxYq2rqb//aLTNyWN1N6uWhMBei4rVcADUue9zt2Tf8GTa
-         WqBHN/aSrq2EZGyVjfQn3UMVnyMt0ILFp9SK+cyuRS3aEhVwZauM1ge52OH6tfB8wi
-         DZvEgXG2oMFrppnqt8wIjuPSOE3hpCWqak+ns4Gc=
+        b=sOFxcAjND/9jJODzu1TxLULpNDYl3hHjut/DpYoQ/mPWNMKrCkaXlOCaUqdwFhSSN
+         O9XfThhU6oU+P8f+thVn2m2qL4d/Tk5778OtcRk8WvNr5nm5WNeAOB/0jncWyPU3lL
+         EACZSzW9sdccwriazyvn1KlS9lYBBwiDsrNw8QPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/51] qed: Disable "MFW indication via attention" SPAM every 5 minutes
-Date:   Mon,  3 Aug 2020 14:20:27 +0200
-Message-Id: <20200803121851.619739433@linuxfoundation.org>
+Subject: [PATCH 4.14 43/51] nfc: s3fwrn5: add missing release on skb in s3fwrn5_recv_frame
+Date:   Mon,  3 Aug 2020 14:20:28 +0200
+Message-Id: <20200803121851.668423841@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
 References: <20200803121849.488233135@linuxfoundation.org>
@@ -44,36 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurence Oberman <loberman@redhat.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 1d61e21852d3161f234b9656797669fe185c251b ]
+[ Upstream commit 1e8fd3a97f2d83a7197876ceb4f37b4c2b00a0f3 ]
 
-This is likely firmware causing this but its starting to annoy customers.
-Change the message level to verbose to prevent the spam.
-Note that this seems to only show up with ISCSI enabled on the HBA via the
-qedi driver.
+The implementation of s3fwrn5_recv_frame() is supposed to consume skb on
+all execution paths. Release skb before returning -ENODEV.
 
-Signed-off-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_int.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/s3fwrn5/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
-index c5d9f290ec4c7..f8d1d02a3cd4a 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_int.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
-@@ -1015,7 +1015,8 @@ static int qed_int_attentions(struct qed_hwfn *p_hwfn)
- 			index, attn_bits, attn_acks, asserted_bits,
- 			deasserted_bits, p_sb_attn_sw->known_attn);
- 	} else if (asserted_bits == 0x100) {
--		DP_INFO(p_hwfn, "MFW indication via attention\n");
-+		DP_VERBOSE(p_hwfn, NETIF_MSG_INTR,
-+			   "MFW indication via attention\n");
- 	} else {
- 		DP_VERBOSE(p_hwfn, NETIF_MSG_INTR,
- 			   "MFW indication [deassertion]\n");
+diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
+index 9d9c8d57a042d..64b58455e620b 100644
+--- a/drivers/nfc/s3fwrn5/core.c
++++ b/drivers/nfc/s3fwrn5/core.c
+@@ -209,6 +209,7 @@ int s3fwrn5_recv_frame(struct nci_dev *ndev, struct sk_buff *skb,
+ 	case S3FWRN5_MODE_FW:
+ 		return s3fwrn5_fw_recv_frame(ndev, skb);
+ 	default:
++		kfree_skb(skb);
+ 		return -ENODEV;
+ 	}
+ }
 -- 
 2.25.1
 
