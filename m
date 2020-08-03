@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8AFF23A520
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2FA823A586
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728357AbgHCMdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33494 "EHLO mail.kernel.org"
+        id S1728678AbgHCMed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:34:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729455AbgHCMde (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:34 -0400
+        id S1729174AbgHCMe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CAEB204EC;
-        Mon,  3 Aug 2020 12:33:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CB842054F;
+        Mon,  3 Aug 2020 12:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458012;
-        bh=+3EfgGtmCKrNepVQ0cjyTDgJi1Grs6bidEQ5QqtEGDA=;
+        s=default; t=1596458067;
+        bh=4+bJ4V4+h+IhJBG4UFGNp9Sstd5C8TtRB8gNzvGlyBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xegTBw0l3Go0/lS2Fo3jd1XdNfrz2InuOB6OWXrfKtwMB1bQUwnU+dCYa4K6RY9t/
-         oYT239/lpPws0XYtOg3Fx5W5ZPU+iailBBXyH3c4qp+XynQXXAiqI1IGCdwmub4EKz
-         EJ6QgpC4eQdhrITI/85RAyjoc4zSZp701psP0wvw=
+        b=vXZad+COAy/ymRFysxwreBpBWsN+D5t6De4wHgYE9JzHJMu0LmmoH+hjW1FJ7Wd1U
+         fWyJ2nFTam7tu/Sht8KTtrmaKAVdbmTDfID35Oel7hmdj4+0aUamZBUj05itYVNyYH
+         m8nVj/r2/eC+G1iMY1HNebVR6fOItDb76MxJYtMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 56/56] x86/i8259: Use printk_deferred() to prevent deadlock
-Date:   Mon,  3 Aug 2020 14:20:11 +0200
-Message-Id: <20200803121853.061508887@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com,
+        YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 27/51] net/x25: Fix null-ptr-deref in x25_disconnect
+Date:   Mon,  3 Aug 2020 14:20:12 +0200
+Message-Id: <20200803121850.842132215@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
+References: <20200803121849.488233135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit bdd65589593edd79b6a12ce86b3b7a7c6dae5208 upstream.
+commit 8999dc89497ab1c80d0718828e838c7cd5f6bffe upstream.
 
-0day reported a possible circular locking dependency:
+We should check null before do x25_neigh_put in x25_disconnect,
+otherwise may cause null-ptr-deref like this:
 
-Chain exists of:
-  &irq_desc_lock_class --> console_owner --> &port_lock_key
+ #include <sys/socket.h>
+ #include <linux/x25.h>
 
- Possible unsafe locking scenario:
+ int main() {
+    int sck_x25;
+    sck_x25 = socket(AF_X25, SOCK_SEQPACKET, 0);
+    close(sck_x25);
+    return 0;
+ }
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(&port_lock_key);
-                               lock(console_owner);
-                               lock(&port_lock_key);
-  lock(&irq_desc_lock_class);
+BUG: kernel NULL pointer dereference, address: 00000000000000d8
+CPU: 0 PID: 4817 Comm: t2 Not tainted 5.7.0-rc3+ #159
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-
+RIP: 0010:x25_disconnect+0x91/0xe0
+Call Trace:
+ x25_release+0x18a/0x1b0
+ __sock_release+0x3d/0xc0
+ sock_close+0x13/0x20
+ __fput+0x107/0x270
+ ____fput+0x9/0x10
+ task_work_run+0x6d/0xb0
+ exit_to_usermode_loop+0x102/0x110
+ do_syscall_64+0x23c/0x260
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
-The reason for this is a printk() in the i8259 interrupt chip driver
-which is invoked with the irq descriptor lock held, which reverses the
-lock operations vs. printk() from arbitrary contexts.
-
-Switch the printk() to printk_deferred() to avoid that.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87365abt2v.fsf@nanos.tec.linutronix.de
+Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/i8259.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/x25/x25_subr.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kernel/i8259.c
-+++ b/arch/x86/kernel/i8259.c
-@@ -207,7 +207,7 @@ spurious_8259A_irq:
- 		 * lets ACK and report it. [once per IRQ]
- 		 */
- 		if (!(spurious_irq_mask & irqmask)) {
--			printk(KERN_DEBUG
-+			printk_deferred(KERN_DEBUG
- 			       "spurious 8259A interrupt: IRQ%d.\n", irq);
- 			spurious_irq_mask |= irqmask;
- 		}
+--- a/net/x25/x25_subr.c
++++ b/net/x25/x25_subr.c
+@@ -363,10 +363,12 @@ void x25_disconnect(struct sock *sk, int
+ 		sk->sk_state_change(sk);
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
+-	read_lock_bh(&x25_list_lock);
+-	x25_neigh_put(x25->neighbour);
+-	x25->neighbour = NULL;
+-	read_unlock_bh(&x25_list_lock);
++	if (x25->neighbour) {
++		read_lock_bh(&x25_list_lock);
++		x25_neigh_put(x25->neighbour);
++		x25->neighbour = NULL;
++		read_unlock_bh(&x25_list_lock);
++	}
+ }
+ 
+ /*
 
 
