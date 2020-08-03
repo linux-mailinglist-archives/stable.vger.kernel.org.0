@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2D023A623
+	by mail.lfdr.de (Postfix) with ESMTP id 8B48423A624
 	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728591AbgHCM1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:27:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
+        id S1728448AbgHCMpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728589AbgHCM1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:27:46 -0400
+        id S1728598AbgHCM1s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79F18204EC;
-        Mon,  3 Aug 2020 12:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC38B204EC;
+        Mon,  3 Aug 2020 12:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457665;
-        bh=X/YvT9our1TpoFDBLPHs1qsdci4SbG8xv6ohX2HSy/o=;
+        s=default; t=1596457667;
+        bh=jMTM9Awye6xGmKCtwUVQ9PWUR+npLdpUHGaUO7Onh5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJiUquheCjNY1DE7bU1XIT9b3GXYTxRR0TgFWiOBbGKc0+v2Ra6yrd/eOUQUPSt2w
-         LPN3oLrLxpmEwa7z4xkGrTbUCd0jLnMsLHIFJMHbV2Fictjuz6nYkCLZSwLANSuTeZ
-         zP5m55cAEyXDZ0OffPgbpMQSqQCbU0q0aJaHoK38=
+        b=16Ouo7KUCEnq/i+wXshO8x5rLOTegum72edg/vuqoQiewmGcTHwfJvm1shUMU5sE4
+         +z6d9Md+FfpdGPk4GzyyD0B3WVQk9FnMm8ZV+IVST3H8chrWXq6Fl5pNU/1mLR3MFi
+         6B3fXs/3xctYnO8/SuW+3iCUNQwTOUB5xEL5PAOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry <dpavlushko@gmail.com>,
-        Laurence Tratt <laurie@tratt.net>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 07/90] ALSA: usb-audio: Add implicit feedback quirk for SSL2
-Date:   Mon,  3 Aug 2020 14:18:29 +0200
-Message-Id: <20200803121857.901126854@linuxfoundation.org>
+        stable@vger.kernel.org, Armas Spann <zappel@retarded.farm>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 08/90] ALSA: hda/realtek: enable headset mic of ASUS ROG Zephyrus G15(GA502) series with ALC289
+Date:   Mon,  3 Aug 2020 14:18:30 +0200
+Message-Id: <20200803121857.948708603@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
 References: <20200803121857.546052424@linuxfoundation.org>
@@ -43,33 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurence Tratt <laurie@tratt.net>
+From: Armas Spann <zappel@retarded.farm>
 
-commit 3da87ec67a491b9633a82045896c076b794bf938 upstream.
+commit 4b43d05a1978a93a19374c6e6b817c9c1ff4ba4b upstream.
 
-As expected, this requires the same quirk as the SSL2+ in order for the
-clock to sync. This was suggested by, and tested on an SSL2, by Dmitry.
+This patch adds support for headset mic to the ASUS ROG Zephyrus
+G15(GA502) notebook series by adding the corresponding
+vendor/pci_device id, as well as adding a new fixup for the used
+realtek ALC289. The fixup stets the correct pin to get the headset mic
+correctly recognized on audio-jack.
 
-Suggested-by: Dmitry <dpavlushko@gmail.com>
-Signed-off-by: Laurence Tratt <laurie@tratt.net>
+Signed-off-by: Armas Spann <zappel@retarded.farm>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200621075005.52mjjfc6dtdjnr3h@overdrive.tratt.net
+Link: https://lore.kernel.org/r/20200724140616.298892-1-zappel@retarded.farm
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/pcm.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -354,6 +354,7 @@ static int set_sync_ep_implicit_fb_quirk
- 		ifnum = 0;
- 		goto add_sync_ep_from_ifnum;
- 	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
-+	case USB_ID(0x31e9, 0x0001): /* Solid State Logic SSL2 */
- 	case USB_ID(0x31e9, 0x0002): /* Solid State Logic SSL2+ */
- 	case USB_ID(0x0d9a, 0x00df): /* RTX6001 */
- 		ep = 0x81;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6118,6 +6118,7 @@ enum {
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
+ 	ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE,
+ 	ALC289_FIXUP_ASUS_G401,
++	ALC289_FIXUP_ASUS_GA502,
+ 	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
+ };
+ 
+@@ -7335,6 +7336,13 @@ static const struct hda_fixup alc269_fix
+ 			{ }
+ 		},
+ 	},
++	[ALC289_FIXUP_ASUS_GA502] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x03a11020 }, /* headset mic with jack detect */
++			{ }
++		},
++	},
+ 	[ALC256_FIXUP_ACER_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -7526,6 +7534,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1bbd, "ASUS Z550MA", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x1c23, "Asus X55U", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
++	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_G401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
 
 
