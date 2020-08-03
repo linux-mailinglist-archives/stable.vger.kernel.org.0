@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 663D623A413
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA9923A415
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727035AbgHCMWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:22:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
+        id S1727088AbgHCMWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:22:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727061AbgHCMWe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:22:34 -0400
+        id S1726999AbgHCMWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:22:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E8EB20781;
-        Mon,  3 Aug 2020 12:22:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B174F204EC;
+        Mon,  3 Aug 2020 12:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457353;
-        bh=zDwpmyjPKya0I/UyS8MQGxGiCxNFiG4fKCHZ3nOML1g=;
+        s=default; t=1596457361;
+        bh=6/KZZcuNPBEWPDe5p9X9eJ+q6DkOWYt2qsk2p6v6cMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ic1MyhuqDD8STGDXsmf9C9ocSTqEI7IqDcFBbrABAu1jE6Gdq8tWG6v+2S3dRVGis
-         amiR0L0vMBu+OQTB+Oo2B9s6Ch8euJv0vlmLEdXayRc02+Qx5KujFbmSJA7ghhW2Gz
-         vJlK1hn6tnOZ2f4a6Ns81b4Smv5hjQSb7v1XqFNY=
+        b=EYV6+jk20tjK+4ZFt/E5QrBCh5ojP4gjg1LzOE6M7bEBa1zE22y567u0gWVKnnyW0
+         aLCQ5Iaw/TO6AgKoDOqyAoSvYf89b3Ixpsuazsc3ybDACvVsLplr71HNXnjnYPKxVV
+         qeAAVSHKmQK9RAuSMaw/33ptDkNOHXG/V4qHj4PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 037/120] ARM: dts sunxi: Relax a bit the CMA pool allocation range
-Date:   Mon,  3 Aug 2020 14:18:15 +0200
-Message-Id: <20200803121904.634046308@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 040/120] xfrm: Fix crash when the hold queue is used.
+Date:   Mon,  3 Aug 2020 14:18:18 +0200
+Message-Id: <20200803121904.776077829@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -43,77 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-[ Upstream commit 92025b90f18d45e26b7f17d68756b1abd771b9d3 ]
+[ Upstream commit 101dde4207f1daa1fda57d714814a03835dccc3f ]
 
-The hardware codec on the A10, A10s, A13 and A20 needs buffer in the
-first 256MB of RAM. This was solved by setting the CMA pool at a fixed
-address in that range.
+The commits "xfrm: Move dst->path into struct xfrm_dst"
+and "net: Create and use new helper xfrm_dst_child()."
+changed xfrm bundle handling under the assumption
+that xdst->path and dst->child are not a NULL pointer
+only if dst->xfrm is not a NULL pointer. That is true
+with one exception. If the xfrm hold queue is used
+to wait until a SA is installed by the key manager,
+we create a dummy bundle without a valid dst->xfrm
+pointer. The current xfrm bundle handling crashes
+in that case. Fix this by extending the NULL check
+of dst->xfrm with a test of the DST_XFRM_QUEUE flag.
 
-However, in recent kernels there's something else that comes in and
-reserve some range that end up conflicting with our default pool
-requirement, and thus makes its reservation fail.
-
-The video codec will then use buffers from the usual default pool,
-outside of the range it can access, and will fail to decode anything.
-
-Since we're only concerned about that 256MB, we can however relax the
-allocation to just specify the range that's allowed, and not try to
-enforce a specific address.
-
-Fixes: 5949bc5602cc ("ARM: dts: sun4i-a10: Add Video Engine and reserved memory nodes")
-Fixes: 960432010156 ("ARM: dts: sun5i: Add Video Engine and reserved memory nodes")
-Fixes: c2a641a74850 ("ARM: dts: sun7i-a20: Add Video Engine and reserved memory nodes")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20200704130829.34297-1-maxime@cerno.tech
+Fixes: 0f6c480f23f4 ("xfrm: Move dst->path into struct xfrm_dst")
+Fixes: b92cf4aab8e6 ("net: Create and use new helper xfrm_dst_child().")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
- arch/arm/boot/dts/sun5i.dtsi     | 2 +-
- arch/arm/boot/dts/sun7i-a20.dtsi | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ include/net/xfrm.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index bf531efc0610e..0f95a6ef8543a 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -198,7 +198,7 @@
- 		default-pool {
- 			compatible = "shared-dma-pool";
- 			size = <0x6000000>;
--			alloc-ranges = <0x4a000000 0x6000000>;
-+			alloc-ranges = <0x40000000 0x10000000>;
- 			reusable;
- 			linux,cma-default;
- 		};
-diff --git a/arch/arm/boot/dts/sun5i.dtsi b/arch/arm/boot/dts/sun5i.dtsi
-index e6b036734a643..c2b4fbf552a38 100644
---- a/arch/arm/boot/dts/sun5i.dtsi
-+++ b/arch/arm/boot/dts/sun5i.dtsi
-@@ -117,7 +117,7 @@
- 		default-pool {
- 			compatible = "shared-dma-pool";
- 			size = <0x6000000>;
--			alloc-ranges = <0x4a000000 0x6000000>;
-+			alloc-ranges = <0x40000000 0x10000000>;
- 			reusable;
- 			linux,cma-default;
- 		};
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index ffe1d10a1a846..6d6a37940db2a 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -181,7 +181,7 @@
- 		default-pool {
- 			compatible = "shared-dma-pool";
- 			size = <0x6000000>;
--			alloc-ranges = <0x4a000000 0x6000000>;
-+			alloc-ranges = <0x40000000 0x10000000>;
- 			reusable;
- 			linux,cma-default;
- 		};
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 31ff059b42904..7b616e45fbfcc 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -946,7 +946,7 @@ struct xfrm_dst {
+ static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
+ {
+ #ifdef CONFIG_XFRM
+-	if (dst->xfrm) {
++	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
+ 		const struct xfrm_dst *xdst = (const struct xfrm_dst *) dst;
+ 
+ 		return xdst->path;
+@@ -958,7 +958,7 @@ static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
+ static inline struct dst_entry *xfrm_dst_child(const struct dst_entry *dst)
+ {
+ #ifdef CONFIG_XFRM
+-	if (dst->xfrm) {
++	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
+ 		struct xfrm_dst *xdst = (struct xfrm_dst *) dst;
+ 		return xdst->child;
+ 	}
 -- 
 2.25.1
 
