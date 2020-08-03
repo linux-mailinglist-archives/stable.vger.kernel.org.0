@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D2123A6D5
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9427323A638
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727976AbgHCMzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:55:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46880 "EHLO mail.kernel.org"
+        id S1727053AbgHCM1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726785AbgHCMXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:23:02 -0400
+        id S1728481AbgHCM1T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A1D220738;
-        Mon,  3 Aug 2020 12:23:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CB91204EC;
+        Mon,  3 Aug 2020 12:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457381;
-        bh=cdtxj/ywbkVNySjD8OmBny99CKB7Y7dBkHs04XnxzZU=;
+        s=default; t=1596457638;
+        bh=5vqUXZqNHicOPd5VauNDyLWLLk0gMnVuZuYvgGZBg/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LH9xriZaPP34S8VLB4uBbWk1K/t6k/f9qP8TZGpFL/S02Lvu8812c3Jcj6c+f48bY
-         4YS8SPNirbtRZ9OuL93DykoLbkE1QsJBqYfz//o3D9sk/2IokshpHxDCqTmIEZNhzt
-         xNC6lkaluUhlBNUcR9ErgapidQB6Gt4RlTdnQ7ME=
+        b=Ie8Z9WVQ38c6oB9G8MxSkoK+NmyNI5pQ30aSGc0hL1ZvI3N6OtQbSXsDhVtHwwQGD
+         0rkxM5rsGJJRF3sLBVjT520pheqAhhn9Bdip5E4op+CGkvjAZvcRE639ae42ZSuDBS
+         pvCQK4A0MFXriePNOg5FM8UDsV1lev/Oq4Tsc5fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 046/120] selftests/net: tcp_mmap: fix clang warning for target arch PowerPC
+Subject: [PATCH 5.4 02/90] media: rc: prevent memory leak in cx23888_ir_probe
 Date:   Mon,  3 Aug 2020 14:18:24 +0200
-Message-Id: <20200803121905.051526833@linuxfoundation.org>
+Message-Id: <20200803121857.663999765@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tanner Love <tannerlove@google.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 94b6c13be57cdedb7cf4d33dbcd066fad133f22b ]
+[ Upstream commit a7b2df76b42bdd026e3106cf2ba97db41345a177 ]
 
-When size_t maps to unsigned int (e.g. on 32-bit powerpc), then the
-comparison with 1<<35 is always true. Clang 9 threw:
-warning: result of comparison of constant 34359738368 with \
-expression of type 'size_t' (aka 'unsigned int') is always true \
-[-Wtautological-constant-out-of-range-compare]
-        while (total < FILE_SZ) {
+In cx23888_ir_probe if kfifo_alloc fails the allocated memory for state
+should be released.
 
-Tested: make -C tools/testing/selftests TARGETS="net" run_tests
-
-Fixes: 192dc405f308 ("selftests: net: add tcp_mmap program")
-Signed-off-by: Tanner Love <tannerlove@google.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/tcp_mmap.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/pci/cx23885/cx23888-ir.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/tcp_mmap.c b/tools/testing/selftests/net/tcp_mmap.c
-index 4555f88252baf..a61b7b3da5496 100644
---- a/tools/testing/selftests/net/tcp_mmap.c
-+++ b/tools/testing/selftests/net/tcp_mmap.c
-@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
- {
- 	struct sockaddr_storage listenaddr, addr;
- 	unsigned int max_pacing_rate = 0;
--	size_t total = 0;
-+	uint64_t total = 0;
- 	char *host = NULL;
- 	int fd, c, on = 1;
- 	char *buffer;
-@@ -473,12 +473,12 @@ int main(int argc, char *argv[])
- 		zflg = 0;
- 	}
- 	while (total < FILE_SZ) {
--		ssize_t wr = FILE_SZ - total;
-+		int64_t wr = FILE_SZ - total;
+diff --git a/drivers/media/pci/cx23885/cx23888-ir.c b/drivers/media/pci/cx23885/cx23888-ir.c
+index e880afe37f151..d59ca3601785e 100644
+--- a/drivers/media/pci/cx23885/cx23888-ir.c
++++ b/drivers/media/pci/cx23885/cx23888-ir.c
+@@ -1167,8 +1167,11 @@ int cx23888_ir_probe(struct cx23885_dev *dev)
+ 		return -ENOMEM;
  
- 		if (wr > chunk_size)
- 			wr = chunk_size;
- 		/* Note : we just want to fill the pipe with 0 bytes */
--		wr = send(fd, buffer, wr, zflg ? MSG_ZEROCOPY : 0);
-+		wr = send(fd, buffer, (size_t)wr, zflg ? MSG_ZEROCOPY : 0);
- 		if (wr <= 0)
- 			break;
- 		total += wr;
+ 	spin_lock_init(&state->rx_kfifo_lock);
+-	if (kfifo_alloc(&state->rx_kfifo, CX23888_IR_RX_KFIFO_SIZE, GFP_KERNEL))
++	if (kfifo_alloc(&state->rx_kfifo, CX23888_IR_RX_KFIFO_SIZE,
++			GFP_KERNEL)) {
++		kfree(state);
+ 		return -ENOMEM;
++	}
+ 
+ 	state->dev = dev;
+ 	sd = &state->sd;
 -- 
 2.25.1
 
