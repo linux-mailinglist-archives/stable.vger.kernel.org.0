@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2FA823A586
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:38:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8E523A588
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbgHCMed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34636 "EHLO mail.kernel.org"
+        id S1728890AbgHCMiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:38:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729174AbgHCMe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:28 -0400
+        id S1728299AbgHCMeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CB842054F;
-        Mon,  3 Aug 2020 12:34:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BE5A20775;
+        Mon,  3 Aug 2020 12:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458067;
-        bh=4+bJ4V4+h+IhJBG4UFGNp9Sstd5C8TtRB8gNzvGlyBs=;
+        s=default; t=1596458069;
+        bh=j4QwB29Ee9qxu9nA3B0US/rFh4yAG4wKdres+4bmP5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXZad+COAy/ymRFysxwreBpBWsN+D5t6De4wHgYE9JzHJMu0LmmoH+hjW1FJ7Wd1U
-         fWyJ2nFTam7tu/Sht8KTtrmaKAVdbmTDfID35Oel7hmdj4+0aUamZBUj05itYVNyYH
-         m8nVj/r2/eC+G1iMY1HNebVR6fOItDb76MxJYtMY=
+        b=jtn5gt2uoNXpymym9Wgv7CprHkse+tZUBt4d89SjY7lY1UGPKuLUa5Q4u59TkPAYi
+         vEXZqzCuQD3bKDGoTPhLqVgR4Emn9OGRgWG/dJ1uzCXhpqFuWwZipqrsolhbIltabX
+         89IM/hzq3J2sqC01RP095O/FjcJkf/7BquXvdPBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com,
-        YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 27/51] net/x25: Fix null-ptr-deref in x25_disconnect
-Date:   Mon,  3 Aug 2020 14:20:12 +0200
-Message-Id: <20200803121850.842132215@linuxfoundation.org>
+        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 28/51] selftests/net: rxtimestamp: fix clang issues for target arch PowerPC
+Date:   Mon,  3 Aug 2020 14:20:13 +0200
+Message-Id: <20200803121850.899260066@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
 References: <20200803121849.488233135@linuxfoundation.org>
@@ -45,66 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Tanner Love <tannerlove@google.com>
 
-commit 8999dc89497ab1c80d0718828e838c7cd5f6bffe upstream.
+[ Upstream commit 955cbe91bcf782c09afe369c95a20f0a4b6dcc3c ]
 
-We should check null before do x25_neigh_put in x25_disconnect,
-otherwise may cause null-ptr-deref like this:
+The signedness of char is implementation-dependent. Some systems
+(including PowerPC and ARM) use unsigned char. Clang 9 threw:
+warning: result of comparison of constant -1 with expression of type \
+'char' is always true [-Wtautological-constant-out-of-range-compare]
+                                  &arg_index)) != -1) {
 
- #include <sys/socket.h>
- #include <linux/x25.h>
+Tested: make -C tools/testing/selftests TARGETS="net" run_tests
 
- int main() {
-    int sck_x25;
-    sck_x25 = socket(AF_X25, SOCK_SEQPACKET, 0);
-    close(sck_x25);
-    return 0;
- }
-
-BUG: kernel NULL pointer dereference, address: 00000000000000d8
-CPU: 0 PID: 4817 Comm: t2 Not tainted 5.7.0-rc3+ #159
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-
-RIP: 0010:x25_disconnect+0x91/0xe0
-Call Trace:
- x25_release+0x18a/0x1b0
- __sock_release+0x3d/0xc0
- sock_close+0x13/0x20
- __fput+0x107/0x270
- ____fput+0x9/0x10
- task_work_run+0x6d/0xb0
- exit_to_usermode_loop+0x102/0x110
- do_syscall_64+0x23c/0x260
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Fixes: 16e781224198 ("selftests/net: Add a test to validate behavior of rx timestamps")
+Signed-off-by: Tanner Love <tannerlove@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/x25_subr.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/testing/selftests/networking/timestamping/rxtimestamp.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/x25/x25_subr.c
-+++ b/net/x25/x25_subr.c
-@@ -363,10 +363,12 @@ void x25_disconnect(struct sock *sk, int
- 		sk->sk_state_change(sk);
- 		sock_set_flag(sk, SOCK_DEAD);
- 	}
--	read_lock_bh(&x25_list_lock);
--	x25_neigh_put(x25->neighbour);
--	x25->neighbour = NULL;
--	read_unlock_bh(&x25_list_lock);
-+	if (x25->neighbour) {
-+		read_lock_bh(&x25_list_lock);
-+		x25_neigh_put(x25->neighbour);
-+		x25->neighbour = NULL;
-+		read_unlock_bh(&x25_list_lock);
-+	}
- }
+diff --git a/tools/testing/selftests/networking/timestamping/rxtimestamp.c b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
+index 7a573fb4c1c4e..c6428f1ac22fb 100644
+--- a/tools/testing/selftests/networking/timestamping/rxtimestamp.c
++++ b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
+@@ -328,8 +328,7 @@ int main(int argc, char **argv)
+ 	bool all_tests = true;
+ 	int arg_index = 0;
+ 	int failures = 0;
+-	int s, t;
+-	char opt;
++	int s, t, opt;
  
- /*
+ 	while ((opt = getopt_long(argc, argv, "", long_options,
+ 				  &arg_index)) != -1) {
+-- 
+2.25.1
+
 
 
