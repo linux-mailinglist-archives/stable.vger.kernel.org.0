@@ -2,100 +2,291 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7105923A51C
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5270A23A533
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:34:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729022AbgHCMd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33296 "EHLO mail.kernel.org"
+        id S1729532AbgHCMeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:34:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729427AbgHCMdZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:25 -0400
+        id S1728961AbgHCMeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C1C0204EC;
-        Mon,  3 Aug 2020 12:33:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6F8120775;
+        Mon,  3 Aug 2020 12:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458003;
-        bh=p6TsHCvvkp3SLABaDg9z5pQt9RWPKGLg3o7T1fgNJ4E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYsB6juNOKcRjjwM2vtSMzFg42eHGna7Gft+TVBnnT6pS3NjnPDAz/HZdNC0Y14zY
-         RxrxGxVbvXe3vS6jXJnUYeu/K9E3Hi3PyaQyHGuu9kUjq+5k5bIVf34GUN6hjblZ1f
-         QDi7mEf29/DbPziCgkFbWS8f06taOJVzibCE7bPg=
+        s=default; t=1596458052;
+        bh=EDWeytsM2zJ3XM/67xDFgdIGNratuxwM+Il9g5YwTZI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jXj/OIu1k48IlXKeEN/kypBaLYA+pUU27ngQzqNQA4PK3Oc+o5/lE4PwQmmaQhcAV
+         Fd+EBBLGqfd75Oaw1FlQCiXglA4xlyuQo0sTQ7LTEaTl7JkX9vkGBAYm184AQiVOXH
+         JhjJ1ZX2fynElaXx1B/N2b+/lYRED4hEfJP4f4qE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/56] sh: Fix validation of system call number
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.14 00/51] 4.14.192-rc1 review
 Date:   Mon,  3 Aug 2020 14:19:45 +0200
-Message-Id: <20200803121851.803645933@linuxfoundation.org>
+Message-Id: <20200803121849.488233135@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.192-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.192-rc1
+X-KernelTest-Deadline: 2020-08-05T12:18+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+This is the start of the stable review cycle for the 4.14.192 release.
+There are 51 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 04a8a3d0a73f51c7c2da84f494db7ec1df230e69 ]
+Responses should be made by Wed, 05 Aug 2020 12:18:33 +0000.
+Anything received after that time might be too late.
 
-The slow path for traced system call entries accessed a wrong memory
-location to get the number of the maximum allowed system call number.
-Renumber the numbered "local" label for the correct location to avoid
-collisions with actual local labels.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.192-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Fixes: f3a8308864f920d2 ("sh: Add a few missing irqflags tracing markers.")
-Signed-off-by: Rich Felker <dalias@libc.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/sh/kernel/entry-common.S | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+thanks,
 
-diff --git a/arch/sh/kernel/entry-common.S b/arch/sh/kernel/entry-common.S
-index 28cc61216b649..ed5b758c650d7 100644
---- a/arch/sh/kernel/entry-common.S
-+++ b/arch/sh/kernel/entry-common.S
-@@ -203,7 +203,7 @@ syscall_trace_entry:
- 	mov.l	@(OFF_R7,r15), r7   ! arg3
- 	mov.l	@(OFF_R3,r15), r3   ! syscall_nr
- 	!
--	mov.l	2f, r10			! Number of syscalls
-+	mov.l	6f, r10			! Number of syscalls
- 	cmp/hs	r10, r3
- 	bf	syscall_call
- 	mov	#-ENOSYS, r0
-@@ -357,7 +357,7 @@ ENTRY(system_call)
- 	tst	r9, r8
- 	bf	syscall_trace_entry
- 	!
--	mov.l	2f, r8			! Number of syscalls
-+	mov.l	6f, r8			! Number of syscalls
- 	cmp/hs	r8, r3
- 	bt	syscall_badsys
- 	!
-@@ -396,7 +396,7 @@ syscall_exit:
- #if !defined(CONFIG_CPU_SH2)
- 1:	.long	TRA
- #endif
--2:	.long	NR_syscalls
-+6:	.long	NR_syscalls
- 3:	.long	sys_call_table
- 7:	.long	do_syscall_trace_enter
- 8:	.long	do_syscall_trace_leave
--- 
-2.25.1
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.192-rc1
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/i8259: Use printk_deferred() to prevent deadlock
+
+Wanpeng Li <wanpengli@tencent.com>
+    KVM: LAPIC: Prevent setting the tscdeadline timer if the lapic is hw disabled
+
+Andrea Righi <andrea.righi@canonical.com>
+    xen-netfront: fix potential deadlock in xennet_remove()
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    cxgb4: add missing release on skb in uld_send()
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/unwind/orc: Fix ORC for newly forked tasks
+
+Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+    Revert "i2c: cadence: Fix the hold bit setting"
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    net: ethernet: ravb: exit if re-initialization fails in tx timeout
+
+Liam Beguin <liambeguin@gmail.com>
+    parisc: add support for cmpxchg on u8 pointers
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    nfc: s3fwrn5: add missing release on skb in s3fwrn5_recv_frame
+
+Laurence Oberman <loberman@redhat.com>
+    qed: Disable "MFW indication via attention" SPAM every 5 minutes
+
+Geert Uytterhoeven <geert@linux-m68k.org>
+    usb: hso: Fix debug compile warning on sparc32
+
+Robin Murphy <robin.murphy@arm.com>
+    arm64: csum: Fix handling of bad packets
+
+Sami Tolvanen <samitolvanen@google.com>
+    arm64/alternatives: move length validation inside the subsection
+
+Remi Pommarel <repk@triplefau.lt>
+    mac80211: mesh: Free pending skb when destroying a mpath
+
+Remi Pommarel <repk@triplefau.lt>
+    mac80211: mesh: Free ie data when leaving mesh
+
+Andrii Nakryiko <andriin@fb.com>
+    bpf: Fix map leak in HASH_OF_MAPS map
+
+Thomas Falcon <tlfalcon@linux.ibm.com>
+    ibmvnic: Fix IRQ mapping disposal in error path
+
+Ido Schimmel <idosch@mellanox.com>
+    mlxsw: core: Free EMAD transactions using kfree_rcu()
+
+Ido Schimmel <idosch@mellanox.com>
+    mlxsw: core: Increase scope of RCU read-side critical section
+
+Jakub Kicinski <kuba@kernel.org>
+    mlx4: disable device on shutdown
+
+Johan Hovold <johan@kernel.org>
+    net: lan78xx: fix transfer-buffer memory leak
+
+Johan Hovold <johan@kernel.org>
+    net: lan78xx: add missing endpoint sanity check
+
+Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+    sh: Fix validation of system call number
+
+Tanner Love <tannerlove@google.com>
+    selftests/net: rxtimestamp: fix clang issues for target arch PowerPC
+
+YueHaibing <yuehaibing@huawei.com>
+    net/x25: Fix null-ptr-deref in x25_disconnect
+
+Xiyu Yang <xiyuyang19@fudan.edu.cn>
+    net/x25: Fix x25_neigh refcnt leak when x25 disconnect
+
+Rik van Riel <riel@surriel.com>
+    xfs: fix missed wakeup on l_flush_wait
+
+Peilin Ye <yepeilin.cs@gmail.com>
+    rds: Prevent kernel-infoleak in rds_notify_queue_get()
+
+Joerg Roedel <jroedel@suse.de>
+    x86, vmlinux.lds: Page-align end of ..page_aligned sections
+
+Sami Tolvanen <samitolvanen@google.com>
+    x86/build/lto: Fix truncated .bss with -fdata-sections
+
+Wang Hai <wanghai38@huawei.com>
+    9p/trans_fd: Fix concurrency del of req_list in p9_fd_cancelled/p9_read_work
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p/trans_fd: abort p9_read_work if req status changed
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    random32: remove net_rand_state from the latent entropy gcc plugin
+
+Willy Tarreau <w@1wt.eu>
+    random: fix circular include dependency on arm64 after addition of percpu.h
+
+Sheng Yong <shengyong1@huawei.com>
+    f2fs: check if file namelen exceeds max value
+
+Jaegeuk Kim <jaegeuk@kernel.org>
+    f2fs: check memory boundary by insane namelen
+
+Steve Cohen <cohens@codeaurora.org>
+    drm: hold gem reference until object is no longer accessed
+
+Peilin Ye <yepeilin.cs@gmail.com>
+    drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
+
+Grygorii Strashko <grygorii.strashko@ti.com>
+    ARM: percpu.h: fix build error
+
+Willy Tarreau <w@1wt.eu>
+    random32: update the net random state on interrupt and activity
+
+Will Deacon <will@kernel.org>
+    ARM: 8986/1: hw_breakpoint: Don't invoke overflow handler on uaccess watchpoints
+
+Pi-Hsun Shih <pihsun@chromium.org>
+    wireless: Use offsetof instead of custom macro.
+
+Robert Hancock <hancockrwd@gmail.com>
+    PCI/ASPM: Disable ASPM on ASMedia ASM1083/1085 PCIe-to-PCI bridge
+
+Sasha Levin <sashal@kernel.org>
+    x86/kvm: Be careful not to clear KVM_VCPU_FLUSH_TLB bit
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    ath9k: release allocated buffer if timed out
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    ath9k_htc: release allocated buffer if timed out
+
+Sasha Levin <sashal@kernel.org>
+    iio: imu: adis16400: fix memory leak
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    media: rc: prevent memory leak in cx23888_ir_probe
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    crypto: ccp - Release all allocated memory if sha type is invalid
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    net: phy: mdio-bcm-unimac: fix potential NULL dereference in unimac_mdio_probe()
+
+Jason Yan <yanaijie@huawei.com>
+    scsi: libsas: direct call probe and destruct
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/include/asm/percpu.h                      |  2 +
+ arch/arm/kernel/hw_breakpoint.c                    | 27 +++++++--
+ arch/arm64/include/asm/alternative.h               |  4 +-
+ arch/arm64/include/asm/checksum.h                  |  5 +-
+ arch/parisc/include/asm/cmpxchg.h                  |  2 +
+ arch/parisc/lib/bitops.c                           | 12 ++++
+ arch/sh/kernel/entry-common.S                      |  6 +-
+ arch/x86/kernel/i8259.c                            |  2 +-
+ arch/x86/kernel/unwind_orc.c                       |  8 ++-
+ arch/x86/kernel/vmlinux.lds.S                      |  3 +-
+ arch/x86/kvm/lapic.c                               |  2 +-
+ arch/x86/kvm/x86.c                                 |  3 +
+ drivers/char/random.c                              |  1 +
+ drivers/crypto/ccp/ccp-ops.c                       |  3 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c            |  3 +-
+ drivers/gpu/drm/drm_gem.c                          | 10 ++--
+ drivers/i2c/busses/i2c-cadence.c                   |  9 +--
+ drivers/iio/imu/adis16400_buffer.c                 |  5 +-
+ drivers/media/pci/cx23885/cx23888-ir.c             |  5 +-
+ drivers/net/ethernet/chelsio/cxgb4/sge.c           |  1 +
+ drivers/net/ethernet/ibm/ibmvnic.c                 |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/main.c          |  2 +
+ drivers/net/ethernet/mellanox/mlxsw/core.c         |  8 ++-
+ drivers/net/ethernet/qlogic/qed/qed_int.c          |  3 +-
+ drivers/net/ethernet/renesas/ravb_main.c           | 26 ++++++++-
+ drivers/net/phy/mdio-bcm-unimac.c                  |  2 +
+ drivers/net/usb/hso.c                              |  5 +-
+ drivers/net/usb/lan78xx.c                          |  6 ++
+ drivers/net/wireless/ath/ath9k/htc_hst.c           |  3 +
+ drivers/net/wireless/ath/ath9k/wmi.c               |  1 +
+ drivers/net/xen-netfront.c                         | 64 ++++++++++++++--------
+ drivers/nfc/s3fwrn5/core.c                         |  1 +
+ drivers/pci/quirks.c                               | 13 +++++
+ drivers/scsi/libsas/sas_ata.c                      |  1 -
+ drivers/scsi/libsas/sas_discover.c                 | 32 ++++++-----
+ drivers/scsi/libsas/sas_expander.c                 |  8 +--
+ drivers/scsi/libsas/sas_internal.h                 |  1 +
+ drivers/scsi/libsas/sas_port.c                     |  3 +
+ fs/f2fs/dir.c                                      | 12 +++-
+ fs/xfs/xfs_log.c                                   |  9 ++-
+ include/asm-generic/vmlinux.lds.h                  |  5 +-
+ include/linux/random.h                             |  3 +
+ include/scsi/libsas.h                              |  3 +-
+ include/scsi/scsi_transport_sas.h                  |  1 +
+ include/uapi/linux/wireless.h                      |  5 +-
+ kernel/bpf/hashtab.c                               | 12 +++-
+ kernel/time/timer.c                                |  8 +++
+ lib/random32.c                                     |  2 +-
+ net/9p/trans_fd.c                                  | 32 ++++++++---
+ net/mac80211/cfg.c                                 |  1 +
+ net/mac80211/mesh_pathtbl.c                        |  1 +
+ net/rds/recv.c                                     |  3 +-
+ net/x25/x25_subr.c                                 |  6 ++
+ .../networking/timestamping/rxtimestamp.c          |  3 +-
+ 55 files changed, 292 insertions(+), 112 deletions(-)
 
 
