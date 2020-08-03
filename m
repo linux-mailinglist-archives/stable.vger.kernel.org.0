@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 374FA23A535
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D43923A5A8
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:40:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbgHCMeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:34:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34384 "EHLO mail.kernel.org"
+        id S1728655AbgHCMkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:40:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729537AbgHCMeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:19 -0400
+        id S1728962AbgHCMdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DF152054F;
-        Mon,  3 Aug 2020 12:34:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E9882054F;
+        Mon,  3 Aug 2020 12:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458057;
-        bh=tAyamzmykEeNs7zG/CGyzEdNvKuy3fcdrgqm5YlfXXI=;
+        s=default; t=1596457987;
+        bh=pOfsrTcmGvxL4USw2Stgyi30wbEKbO6BwaawdDfIvHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYTLWrMPzckxLqaBQh1vL5PICydY9FAISj68Mgcc02sXKFiSXMtmuBzY0uyCPGitF
-         5BSkwvVHplcQDBrdjE0Qs68mjfG4Hh7euTMudSt9kRHIMg6SMNMkCyrlh6fFlvBRMV
-         AS7oo/ddCPMd3cXvpJr7BBKtQxW80v5aUtBWMgsc=
+        b=Kau+9ZnP3y6tEOXRNU6AgHXxbXMXcgvO1RHZt4e0BispVsf5ie12yJiyJR7PjpDfy
+         +BXad1V/RTeo6UHW2eyXjmrk+fOywgqddTcg3oJSZT5IJozk9cU1MPD5elFyUbE2yH
+         nFXe0KeCWyBuSWCdqstY3KCerQZ8Bgtj4x80uxsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/51] x86, vmlinux.lds: Page-align end of ..page_aligned sections
+Subject: [PATCH 4.19 53/56] cxgb4: add missing release on skb in uld_send()
 Date:   Mon,  3 Aug 2020 14:20:08 +0200
-Message-Id: <20200803121850.643036041@linuxfoundation.org>
+Message-Id: <20200803121852.925404448@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit de2b41be8fcccb2f5b6c480d35df590476344201 ]
+[ Upstream commit e6827d1abdc9b061a57d7b7d3019c4e99fabea2f ]
 
-On x86-32 the idt_table with 256 entries needs only 2048 bytes. It is
-page-aligned, but the end of the .bss..page_aligned section is not
-guaranteed to be page-aligned.
+In the implementation of uld_send(), the skb is consumed on all
+execution paths except one. Release skb when returning NET_XMIT_DROP.
 
-As a result, objects from other .bss sections may end up on the same 4k
-page as the idt_table, and will accidentially get mapped read-only during
-boot, causing unexpected page-faults when the kernel writes to them.
-
-This could be worked around by making the objects in the page aligned
-sections page sized, but that's wrong.
-
-Explicit sections which store only page aligned objects have an implicit
-guarantee that the object is alone in the page in which it is placed. That
-works for all objects except the last one. That's inconsistent.
-
-Enforcing page sized objects for these sections would wreckage memory
-sanitizers, because the object becomes artificially larger than it should
-be and out of bound access becomes legit.
-
-Align the end of the .bss..page_aligned and .data..page_aligned section on
-page-size so all objects places in these sections are guaranteed to have
-their own page.
-
-[ tglx: Amended changelog ]
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200721093448.10417-1-joro@8bytes.org
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/vmlinux.lds.S     | 1 +
- include/asm-generic/vmlinux.lds.h | 5 ++++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/sge.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index f9f33a168a002..d3dc8bc6b3adf 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -352,6 +352,7 @@ SECTIONS
- 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {
- 		__bss_start = .;
- 		*(.bss..page_aligned)
-+		. = ALIGN(PAGE_SIZE);
- 		*(BSS_MAIN)
- 		. = ALIGN(PAGE_SIZE);
- 		__bss_stop = .;
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index c229ffbed6d4c..48e618b20d34b 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -251,7 +251,8 @@
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+index 3d4a765e9e61d..7801f2aeeb30e 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+@@ -2367,6 +2367,7 @@ static inline int uld_send(struct adapter *adap, struct sk_buff *skb,
+ 	txq_info = adap->sge.uld_txq_info[tx_uld_type];
+ 	if (unlikely(!txq_info)) {
+ 		WARN_ON(true);
++		kfree_skb(skb);
+ 		return NET_XMIT_DROP;
+ 	}
  
- #define PAGE_ALIGNED_DATA(page_align)					\
- 	. = ALIGN(page_align);						\
--	*(.data..page_aligned)
-+	*(.data..page_aligned)						\
-+	. = ALIGN(page_align);
- 
- #define READ_MOSTLY_DATA(align)						\
- 	. = ALIGN(align);						\
-@@ -619,7 +620,9 @@
- 	. = ALIGN(bss_align);						\
- 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {				\
- 		BSS_FIRST_SECTIONS					\
-+		. = ALIGN(PAGE_SIZE);					\
- 		*(.bss..page_aligned)					\
-+		. = ALIGN(PAGE_SIZE);					\
- 		*(.dynbss)						\
- 		*(BSS_MAIN)						\
- 		*(COMMON)						\
 -- 
 2.25.1
 
