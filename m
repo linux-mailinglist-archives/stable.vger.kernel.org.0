@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A263723A666
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C7F23A5E4
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728408AbgHCMrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50532 "EHLO mail.kernel.org"
+        id S1729054AbgHCMab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728234AbgHCMZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:25:40 -0400
+        id S1728518AbgHCMab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:30:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D03D207FB;
-        Mon,  3 Aug 2020 12:25:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0124A2076B;
+        Mon,  3 Aug 2020 12:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457538;
-        bh=cW0MevAFt8H5njALXBT6v761SRuxFMSBRNmZHnFg2CY=;
+        s=default; t=1596457829;
+        bh=NocX8FRNNofFxc9quJy1/gGLORMCIGCJ/kDCDScoBrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r10cWIta+6MIhJwmHhDJTeMLRWFXs4Kw0r5WoCU0wooj+glhLe/iOekWRHvgDM4Pu
-         00H+gSV3oOXvn2GAUrsuP1syibBQqMEhllmh+c/FmmlckfVMS6APaChwZTWbwdBE/8
-         ybA3fhp+6MhQqQRPwrM5kmLgEdtVFfopvuhJPuMs=
+        b=Tx0MpscVORalkSLKDgEejse/mWWsZAbQV0uh1hIuAW7QTnFGZYXjdAY8yjHt/gOeW
+         Vo2jTp/icdmAq5hZat8lThUIq25saA0unHYKMsQl6m8nsz/7wxA2c6sZPvQU+U/rMd
+         K5Mbl3yY8sPHMPfEOE/clFXQGIV4xra25TxHWiys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Liam Beguin <liambeguin@gmail.com>,
-        Dave Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 105/120] parisc: add support for cmpxchg on u8 pointers
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 61/90] mac80211: mesh: Free pending skb when destroying a mpath
 Date:   Mon,  3 Aug 2020 14:19:23 +0200
-Message-Id: <20200803121908.021555656@linuxfoundation.org>
+Message-Id: <20200803121900.576638446@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Beguin <liambeguin@gmail.com>
+From: Remi Pommarel <repk@triplefau.lt>
 
-[ Upstream commit b344d6a83d01c52fddbefa6b3b4764da5b1022a0 ]
+[ Upstream commit 5e43540c2af0a0c0a18e39579b1ad49541f87506 ]
 
-The kernel test bot reported[1] that using set_mask_bits on a u8 causes
-the following issue on parisc:
+A mpath object can hold reference on a list of skb that are waiting for
+mpath resolution to be sent. When destroying a mpath this skb list
+should be cleaned up in order to not leak memory.
 
-	hppa-linux-ld: drivers/phy/ti/phy-tusb1210.o: in function `tusb1210_probe':
-	>> (.text+0x2f4): undefined reference to `__cmpxchg_called_with_bad_pointer'
-	>> hppa-linux-ld: (.text+0x324): undefined reference to `__cmpxchg_called_with_bad_pointer'
-	hppa-linux-ld: (.text+0x354): undefined reference to `__cmpxchg_called_with_bad_pointer'
+Fixing that kind of leak:
 
-Add support for cmpxchg on u8 pointers.
+unreferenced object 0xffff0000181c9300 (size 1088):
+  comm "openvpn", pid 1782, jiffies 4295071698 (age 80.416s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 f9 80 36 00 00 00 00 00  ..........6.....
+    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<000000002caaef13>] sk_prot_alloc.isra.39+0x34/0x178
+    [<00000000ceeaa916>] sk_alloc+0x34/0x228
+    [<00000000ca1f1d04>] inet_create+0x198/0x518
+    [<0000000035626b1c>] __sock_create+0x134/0x328
+    [<00000000a12b3a87>] __sys_socket+0xb0/0x158
+    [<00000000ff859f23>] __arm64_sys_socket+0x40/0x58
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
+unreferenced object 0xffff000012973a40 (size 216):
+  comm "openvpn", pid 1782, jiffies 4295082137 (age 38.660s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 c0 06 16 00 00 ff ff 00 93 1c 18 00 00 ff ff  ................
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<0000000023c8c8f9>] __alloc_skb+0xc0/0x2b8
+    [<000000007ad950bb>] alloc_skb_with_frags+0x60/0x320
+    [<00000000ef90023a>] sock_alloc_send_pskb+0x388/0x3c0
+    [<00000000104fb1a3>] sock_alloc_send_skb+0x1c/0x28
+    [<000000006919d2dd>] __ip_append_data+0xba4/0x11f0
+    [<0000000083477587>] ip_make_skb+0x14c/0x1a8
+    [<0000000024f3d592>] udp_sendmsg+0xaf0/0xcf0
+    [<000000005aabe255>] inet_sendmsg+0x5c/0x80
+    [<000000008651ea08>] __sys_sendto+0x15c/0x218
+    [<000000003505c99b>] __arm64_sys_sendto+0x74/0x90
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
 
-[1] https://lore.kernel.org/patchwork/patch/1272617/#1468946
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Liam Beguin <liambeguin@gmail.com>
-Tested-by: Dave Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 2bdaf386f99c (mac80211: mesh: move path tables into if_mesh)
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Link: https://lore.kernel.org/r/20200704135419.27703-1-repk@triplefau.lt
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/cmpxchg.h |  2 ++
- arch/parisc/lib/bitops.c          | 12 ++++++++++++
- 2 files changed, 14 insertions(+)
+ net/mac80211/mesh_pathtbl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
-index ab5c215cf46c3..0689585758717 100644
---- a/arch/parisc/include/asm/cmpxchg.h
-+++ b/arch/parisc/include/asm/cmpxchg.h
-@@ -60,6 +60,7 @@ extern void __cmpxchg_called_with_bad_pointer(void);
- extern unsigned long __cmpxchg_u32(volatile unsigned int *m, unsigned int old,
- 				   unsigned int new_);
- extern u64 __cmpxchg_u64(volatile u64 *ptr, u64 old, u64 new_);
-+extern u8 __cmpxchg_u8(volatile u8 *ptr, u8 old, u8 new_);
- 
- /* don't worry...optimizer will get rid of most of this */
- static inline unsigned long
-@@ -71,6 +72,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new_, int size)
- #endif
- 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
- 				     (unsigned int)old, (unsigned int)new_);
-+	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
- 	}
- 	__cmpxchg_called_with_bad_pointer();
- 	return old;
-diff --git a/arch/parisc/lib/bitops.c b/arch/parisc/lib/bitops.c
-index 70ffbcf889b8e..2e4d1f05a9264 100644
---- a/arch/parisc/lib/bitops.c
-+++ b/arch/parisc/lib/bitops.c
-@@ -79,3 +79,15 @@ unsigned long __cmpxchg_u32(volatile unsigned int *ptr, unsigned int old, unsign
- 	_atomic_spin_unlock_irqrestore(ptr, flags);
- 	return (unsigned long)prev;
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index 117519bf33d65..aca608ae313fe 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -521,6 +521,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl,
+ 	del_timer_sync(&mpath->timer);
+ 	atomic_dec(&sdata->u.mesh.mpaths);
+ 	atomic_dec(&tbl->entries);
++	mesh_path_flush_pending(mpath);
+ 	kfree_rcu(mpath, rcu);
  }
-+
-+u8 __cmpxchg_u8(volatile u8 *ptr, u8 old, u8 new)
-+{
-+	unsigned long flags;
-+	u8 prev;
-+
-+	_atomic_spin_lock_irqsave(ptr, flags);
-+	if ((prev = *ptr) == old)
-+		*ptr = new;
-+	_atomic_spin_unlock_irqrestore(ptr, flags);
-+	return prev;
-+}
+ 
 -- 
 2.25.1
 
