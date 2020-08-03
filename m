@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD5623A427
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C75B23A46F
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727892AbgHCMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47692 "EHLO mail.kernel.org"
+        id S1728463AbgHCM1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:27:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727874AbgHCMXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:23:35 -0400
+        id S1726744AbgHCM1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C569204EC;
-        Mon,  3 Aug 2020 12:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C64EA204EC;
+        Mon,  3 Aug 2020 12:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457414;
-        bh=Hh1DLbFjydQzfY0ESF6hsKREFsDzyERKMwVwlFnK8M8=;
+        s=default; t=1596457619;
+        bh=gKlcmSGlHvB6+8H+L2KwKuZ7/ab68uJDzVhy8Km+I8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obQ63xZKiifhwCAm5E5t+Q+jBDxfe/7hj85zZPyFspRUHnqR5yaJV01tx/6CO9SWM
-         Tfbf1r+icUw7rgoMH8fElvR9MzUG3dd7uHrcCvTWTMC+OItMrxul196YN/T7LObAGK
-         EbpRG5UNwb3kMIG+JemKQOOtqjHqlEBFviFjp2Oc=
+        b=cGHCjV/J4kUyhSl/y8Xw8WTXo8VZl2lVM1X7d3lODe7ycVS7Hk030wXxPkq0dj320
+         3xJO/RetNs+EmAf1RMYAioz6Z/ZQBlMLkDAfIqOEp8aWI8eWeuPKy2G4gtqIXX1t60
+         IJxd7ckwKctmmbNUKP9cB+PbzAQcXV/uJGKI+u5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
-        Ariel Levkovich <lariel@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 057/120] net/mlx5: Fix a bug of using ptp channel index as pin index
+        stable@vger.kernel.org, Zhaojuan Guo <zguo@redhat.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Honggang Li <honli@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 13/90] IB/rdmavt: Fix RQ counting issues causing use of an invalid RWQE
 Date:   Mon,  3 Aug 2020 14:18:35 +0200
-Message-Id: <20200803121905.571639182@linuxfoundation.org>
+Message-Id: <20200803121858.190381162@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +46,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@mellanox.com>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-[ Upstream commit 88c8cf92db48b2e359fe3051ad8e09829c1bee5d ]
+commit 54a485e9ec084da1a4b32dcf7749c7d760ed8aa5 upstream.
 
-On PTP mlx5_ptp_enable(on=0) flow, driver mistakenly used channel index
-as pin index.
+The lookaside count is improperly initialized to the size of the
+Receive Queue with the additional +1.  In the traces below, the
+RQ size is 384, so the count was set to 385.
 
-After ptp patch marked in fixes tag was introduced, driver can freely
-call ptp_find_pin() as part of the .enable() callback.
+The lookaside count is then rarely refreshed.  Note the high and
+incorrect count in the trace below:
 
-Fix driver mlx5_ptp_enable(on=0) flow to always use ptp_find_pin(). With
-that, Driver will use the correct pin index in mlx5_ptp_enable(on=0) flow.
+rvt_get_rwqe: [hfi1_0] wqe ffffc900078e9008 wr_id 55c7206d75a0 qpn c
+	qpt 2 pid 3018 num_sge 1 head 1 tail 0, count 385
+rvt_get_rwqe: (hfi1_rc_rcv+0x4eb/0x1480 [hfi1] <- rvt_get_rwqe) ret=0x1
 
-In addition, when initializing the pins, always set channel to zero. As
-all pins can be attached to all channels, let ptp_set_pinfunc() to move
-them between the channels.
+The head,tail indicate there is only one RWQE posted although the count
+says 385 and we correctly return the element 0.
 
-For stable branches, this fix to be applied only on kernels that includes
-both patches in fixes tag. Otherwise, mlx5_ptp_enable(on=0) will be stuck
-on pincfg_mux.
+The next call to rvt_get_rwqe with the decremented count:
 
-Fixes: 62582a7ee783 ("ptp: Avoid deadlocks in the programmable pin code.")
-Fixes: ee7f12205abc ("net/mlx5e: Implement 1PPS support")
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Reviewed-by: Ariel Levkovich <lariel@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+rvt_get_rwqe: [hfi1_0] wqe ffffc900078e9058 wr_id 0 qpn c
+	qpt 2 pid 3018 num_sge 0 head 1 tail 1, count 384
+rvt_get_rwqe: (hfi1_rc_rcv+0x4eb/0x1480 [hfi1] <- rvt_get_rwqe) ret=0x1
+
+Note that the RQ is empty (head == tail) yet we return the RWQE at tail 1,
+which is not valid because of the bogus high count.
+
+Best case, the RWQE has never been posted and the rc logic sees an RWQE
+that is too small (all zeros) and puts the QP into an error state.
+
+In the worst case, a server slow at posting receive buffers might fool
+rvt_get_rwqe() into fetching an old RWQE and corrupt memory.
+
+Fix by deleting the faulty initialization code and creating an
+inline to fetch the posted count and convert all callers to use
+new inline.
+
+Fixes: f592ae3c999f ("IB/rdmavt: Fracture single lock used for posting and processing RWQEs")
+Link: https://lore.kernel.org/r/20200728183848.22226.29132.stgit@awfm-01.aw.intel.com
+Reported-by: Zhaojuan Guo <zguo@redhat.com>
+Cc: <stable@vger.kernel.org> # 5.4.x
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Tested-by: Honggang Li <honli@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../ethernet/mellanox/mlx5/core/lib/clock.c   | 21 +++++++++----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/infiniband/sw/rdmavt/qp.c |   33 ++++-----------------------------
+ drivers/infiniband/sw/rdmavt/rc.c |    4 +---
+ include/rdma/rdmavt_qp.h          |   19 +++++++++++++++++++
+ 3 files changed, 24 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-index 43f97601b5000..b88c6456d2154 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-@@ -252,17 +252,17 @@ static int mlx5_extts_configure(struct ptp_clock_info *ptp,
- 	if (rq->extts.index >= clock->ptp_info.n_pins)
- 		return -EINVAL;
+--- a/drivers/infiniband/sw/rdmavt/qp.c
++++ b/drivers/infiniband/sw/rdmavt/qp.c
+@@ -898,8 +898,6 @@ static void rvt_init_qp(struct rvt_dev_i
+ 	qp->s_tail_ack_queue = 0;
+ 	qp->s_acked_ack_queue = 0;
+ 	qp->s_num_rd_atomic = 0;
+-	if (qp->r_rq.kwq)
+-		qp->r_rq.kwq->count = qp->r_rq.size;
+ 	qp->r_sge.num_sge = 0;
+ 	atomic_set(&qp->s_reserved_used, 0);
+ }
+@@ -2353,31 +2351,6 @@ bad_lkey:
+ }
  
-+	pin = ptp_find_pin(clock->ptp, PTP_PF_EXTTS, rq->extts.index);
-+	if (pin < 0)
-+		return -EBUSY;
+ /**
+- * get_count - count numbers of request work queue entries
+- * in circular buffer
+- * @rq: data structure for request queue entry
+- * @tail: tail indices of the circular buffer
+- * @head: head indices of the circular buffer
+- *
+- * Return - total number of entries in the circular buffer
+- */
+-static u32 get_count(struct rvt_rq *rq, u32 tail, u32 head)
+-{
+-	u32 count;
+-
+-	count = head;
+-
+-	if (count >= rq->size)
+-		count = 0;
+-	if (count < tail)
+-		count += rq->size - tail;
+-	else
+-		count -= tail;
+-
+-	return count;
+-}
+-
+-/**
+  * get_rvt_head - get head indices of the circular buffer
+  * @rq: data structure for request queue entry
+  * @ip: the QP
+@@ -2451,7 +2424,7 @@ int rvt_get_rwqe(struct rvt_qp *qp, bool
+ 
+ 	if (kwq->count < RVT_RWQ_COUNT_THRESHOLD) {
+ 		head = get_rvt_head(rq, ip);
+-		kwq->count = get_count(rq, tail, head);
++		kwq->count = rvt_get_rq_count(rq, head, tail);
+ 	}
+ 	if (unlikely(kwq->count == 0)) {
+ 		ret = 0;
+@@ -2486,7 +2459,9 @@ int rvt_get_rwqe(struct rvt_qp *qp, bool
+ 		 * the number of remaining WQEs.
+ 		 */
+ 		if (kwq->count < srq->limit) {
+-			kwq->count = get_count(rq, tail, get_rvt_head(rq, ip));
++			kwq->count =
++				rvt_get_rq_count(rq,
++						 get_rvt_head(rq, ip), tail);
+ 			if (kwq->count < srq->limit) {
+ 				struct ib_event ev;
+ 
+--- a/drivers/infiniband/sw/rdmavt/rc.c
++++ b/drivers/infiniband/sw/rdmavt/rc.c
+@@ -127,9 +127,7 @@ __be32 rvt_compute_aeth(struct rvt_qp *q
+ 			 * not atomic, which is OK, since the fuzziness is
+ 			 * resolved as further ACKs go out.
+ 			 */
+-			credits = head - tail;
+-			if ((int)credits < 0)
+-				credits += qp->r_rq.size;
++			credits = rvt_get_rq_count(&qp->r_rq, head, tail);
+ 		}
+ 		/*
+ 		 * Binary search the credit table to find the code to
+--- a/include/rdma/rdmavt_qp.h
++++ b/include/rdma/rdmavt_qp.h
+@@ -278,6 +278,25 @@ struct rvt_rq {
+ 	spinlock_t lock ____cacheline_aligned_in_smp;
+ };
+ 
++/**
++ * rvt_get_rq_count - count numbers of request work queue entries
++ * in circular buffer
++ * @rq: data structure for request queue entry
++ * @head: head indices of the circular buffer
++ * @tail: tail indices of the circular buffer
++ *
++ * Return - total number of entries in the Receive Queue
++ */
 +
- 	if (on) {
--		pin = ptp_find_pin(clock->ptp, PTP_PF_EXTTS, rq->extts.index);
--		if (pin < 0)
--			return -EBUSY;
- 		pin_mode = MLX5_PIN_MODE_IN;
- 		pattern = !!(rq->extts.flags & PTP_FALLING_EDGE);
- 		field_select = MLX5_MTPPS_FS_PIN_MODE |
- 			       MLX5_MTPPS_FS_PATTERN |
- 			       MLX5_MTPPS_FS_ENABLE;
- 	} else {
--		pin = rq->extts.index;
- 		field_select = MLX5_MTPPS_FS_ENABLE;
- 	}
- 
-@@ -310,12 +310,12 @@ static int mlx5_perout_configure(struct ptp_clock_info *ptp,
- 	if (rq->perout.index >= clock->ptp_info.n_pins)
- 		return -EINVAL;
- 
--	if (on) {
--		pin = ptp_find_pin(clock->ptp, PTP_PF_PEROUT,
--				   rq->perout.index);
--		if (pin < 0)
--			return -EBUSY;
-+	pin = ptp_find_pin(clock->ptp, PTP_PF_PEROUT,
-+			   rq->perout.index);
-+	if (pin < 0)
-+		return -EBUSY;
- 
-+	if (on) {
- 		pin_mode = MLX5_PIN_MODE_OUT;
- 		pattern = MLX5_OUT_PATTERN_PERIODIC;
- 		ts.tv_sec = rq->perout.period.sec;
-@@ -341,7 +341,6 @@ static int mlx5_perout_configure(struct ptp_clock_info *ptp,
- 			       MLX5_MTPPS_FS_ENABLE |
- 			       MLX5_MTPPS_FS_TIME_STAMP;
- 	} else {
--		pin = rq->perout.index;
- 		field_select = MLX5_MTPPS_FS_ENABLE;
- 	}
- 
-@@ -431,7 +430,7 @@ static int mlx5_init_pin_config(struct mlx5_clock *clock)
- 			 "mlx5_pps%d", i);
- 		clock->ptp_info.pin_config[i].index = i;
- 		clock->ptp_info.pin_config[i].func = PTP_PF_NONE;
--		clock->ptp_info.pin_config[i].chan = i;
-+		clock->ptp_info.pin_config[i].chan = 0;
- 	}
- 
- 	return 0;
--- 
-2.25.1
-
++static inline u32 rvt_get_rq_count(struct rvt_rq *rq, u32 head, u32 tail)
++{
++	u32 count = head - tail;
++
++	if ((s32)count < 0)
++		count += rq->size;
++	return count;
++}
++
+ /*
+  * This structure holds the information that the send tasklet needs
+  * to send a RDMA read response or atomic operation.
 
 
