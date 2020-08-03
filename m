@@ -2,156 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A8123AE06
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 22:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F352523AE34
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 22:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbgHCUP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 16:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58298 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbgHCUP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 16:15:29 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1FAC06174A;
-        Mon,  3 Aug 2020 13:15:29 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id t23so26123413qto.3;
-        Mon, 03 Aug 2020 13:15:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=wIzAc23M6SmVRHfzbQTJsd5meKdIF3mKB2ogEoSxK28=;
-        b=Mb3JcqW+XFn1zZNLDNtYzvQ7fYRa2tYUzI3gZFDWNUWde5OcP26V0oh+PjD35OCSzB
-         bzMPfV03KjMF0FQBDerQ64AKSYaoszLeYaXvJK0c2834Apz3yejXmA+jjGn9DCQ++cbt
-         PJDN6Oi3rIRwOLAUF4YqK7/UbjnycJ1TK3UGqO2C3liIo2HQiUA03NRBMMQDpvBAQrbC
-         IOL7zWOem7AHl2unr256yMU8jaPwjG4/WPHVtoLmGLQp46VGFMlnLhTIzAgCw3gEtz2/
-         aWgH35uAWnE/OxW9pXO4WeDglTwikPls/ndMJJT+REEG3d7QoMRrRkpbl2QrssGKrPQ2
-         5T7w==
+        id S1726693AbgHCUeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 16:34:13 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:38691 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728038AbgHCUeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 16:34:11 -0400
+Received: by mail-ot1-f68.google.com with SMTP id q9so13267395oth.5;
+        Mon, 03 Aug 2020 13:34:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:date:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=wIzAc23M6SmVRHfzbQTJsd5meKdIF3mKB2ogEoSxK28=;
-        b=hKP4Xo/RDag1qtCxG2oVm16XUhsq2E2g+6gw6/Hi+N2RtKE39kuxMlXIv9Evrzp/tF
-         hcPRVnXc8MW4EK9vzFSFuqOL6zmC1mlvquZFyprT+NWJCw7RHjnbeFQaT/g21mi/JZ0M
-         vpOBSnCNkI8T8CpC57EOOzawQc+cZYJNnIVxJZujoUdVeEFMImRwnnscgYcEsVZSN3/l
-         1tfmQsmAnrNjCUzStDxRi/dv+rxn68Tb/mEPK6aUpmfbcEazEodN86tpLHDvBKJ55PXv
-         qYeD1R0NRdIqRHtOFwWoOEuIPXSPzKML3GYQ1MDnXQmlsrvxhchh0TdpJ7YheCTzXq8I
-         p4CQ==
-X-Gm-Message-State: AOAM532EcO/jrNTmxuwxZSAQfWHQ/2HnfkWVhvj7LraC2CBgzu7DVEL6
-        gKLKH0Va0l1vGHMNV1Xt1UQoxLmN3Uc=
-X-Google-Smtp-Source: ABdhPJyE3PI+Fi7IC9HkU//5shrXJxzaX2PctnEZrfdsFCsLRS9ySPu20CHEHgpiFEUf6cFiR/O54w==
-X-Received: by 2002:aed:29a1:: with SMTP id o30mr19112481qtd.249.1596485728209;
-        Mon, 03 Aug 2020 13:15:28 -0700 (PDT)
-Received: from rani.riverdale.lan ([2001:470:1f07:5f3::b55f])
-        by smtp.gmail.com with ESMTPSA id w20sm4846226qki.108.2020.08.03.13.15.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2020 13:15:27 -0700 (PDT)
-From:   Arvind Sankar <nivedita@alum.mit.edu>
-X-Google-Original-From: Arvind Sankar <arvind@rani.riverdale.lan>
-Date:   Mon, 3 Aug 2020 16:15:25 -0400
-To:     Andi Kleen <ak@linux.intel.com>
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Kees Cook <keescook@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jian Cai <jiancai@google.com>,
-        =?utf-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Manoj Gupta <manojgupta@google.com>, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Peter Collingbourne <pcc@google.com>,
-        James Morse <james.morse@arm.com>,
-        Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@redhat.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
-        clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Michal Marek <michal.lkml@markovi.net>
-Subject: Re: [PATCH v5 13/36] vmlinux.lds.h: add PGO and AutoFDO input
- sections
-Message-ID: <20200803201525.GA1351390@rani.riverdale.lan>
-References: <20200731230820.1742553-1-keescook@chromium.org>
- <20200731230820.1742553-14-keescook@chromium.org>
- <20200801035128.GB2800311@rani.riverdale.lan>
- <20200803190506.GE1299820@tassilo.jf.intel.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=OjA7iT6k7T3UICRKqIEcmmELA9u5uRqayG52kES09s0=;
+        b=PrPjXx4JBBbSMLlxvA202YHfSm5xoqGoLG4a/EXNBkM7UOGpA7pscjAF+h9oYmW0xW
+         WCC4WWDJBt+pYtpcz0nSONHLObIkWhiHNpO+NT7GXnHf806Ls2nPGM4UUI001VTwd2Zi
+         B8kC97ULEnuMc+Sk8Pf7qQ+mrbElxUI30ijzspSH5TVd0zrJ/lDpzucZWYa2QG9aNBMT
+         e7OUtJ8C7VrkQ1eB06QT38uuJlIxlwZRPOfqh/PcXlffjPxdmPQR2gSZcoawxUUrberG
+         84jTq+li84jJQ7QMedMup9FGeHkOLedooRHJ118QVUSIajhzbUKvlBPVIZ/vw8BfcvUc
+         KXHw==
+X-Gm-Message-State: AOAM531i204rHPk58MwmEbiOP1FNAuy3c/l86/6fuLSs52sBuUx3tlSs
+        JKsViQmRwlCens/tfFIrzGywsbeSsiEqSS0QC3BveA==
+X-Google-Smtp-Source: ABdhPJygp/6Y+Xp19D2UVJnG0yqVw6bti301myD5f15br10CxzwiyLNIBgbLDG5iBZREPkPdHaJztQr7BIU2Exoe/tA=
+X-Received: by 2002:a9d:1b0d:: with SMTP id l13mr14657662otl.145.1596486850954;
+ Mon, 03 Aug 2020 13:34:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200803190506.GE1299820@tassilo.jf.intel.com>
+References: <20200803121902.860751811@linuxfoundation.org> <20200803155820.GA160756@roeck-us.net>
+ <20200803173330.GA1186998@kroah.com>
+In-Reply-To: <20200803173330.GA1186998@kroah.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 3 Aug 2020 22:33:59 +0200
+Message-ID: <CAMuHMdW1Cz_JJsTmssVz_0wjX_1_EEXGOvGjygPxTkcMsbR6Lw@mail.gmail.com>
+Subject: Re: [PATCH 5.7 000/120] 5.7.13-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 03, 2020 at 12:05:06PM -0700, Andi Kleen wrote:
-> > However, the history of their being together comes from
-> > 
-> >   9bebe9e5b0f3 ("kbuild: Fix .text.unlikely placement")
-> > 
-> > which seems to indicate there was some problem with having them separated out,
-> > although I don't quite understand what the issue was from the commit message.
-> 
-> Separating it out is less efficient. Gives worse packing for the hot part
-> if they are not aligned to 64byte boundaries, which they are usually not. 
-> 
-> It also improves packing of the cold part, but that probably doesn't matter.
-> 
-> -Andi
+Hi Greg,
 
-Why is that? Both .text and .text.hot have alignment of 2^4 (default
-function alignment on x86) by default, so it doesn't seem like it should
-matter for packing density.  Avoiding interspersing cold text among
-regular/hot text seems like it should be a net win.
+On Mon, Aug 3, 2020 at 7:35 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> On Mon, Aug 03, 2020 at 08:58:20AM -0700, Guenter Roeck wrote:
+> > On Mon, Aug 03, 2020 at 02:17:38PM +0200, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 5.7.13 release.  There
+> > > are 120 patches in this series, all will be posted as a response to this one.
+> > > If anyone has any issues with these being applied, please let me know.
+> > >
+> > > Responses should be made by Wed, 05 Aug 2020 12:18:33 +0000.  Anything
+> > > received after that time might be too late.
+> > >
+> >
+> > Building sparc64:allmodconfig ... failed
+> > --------------
+> > Error log:
+> > <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+> > In file included from arch/sparc/include/asm/percpu_64.h:11,
+> >                  from arch/sparc/include/asm/percpu.h:5,
+> >                  from include/linux/random.h:14,
+> >                  from fs/crypto/policy.c:13:
+> > arch/sparc/include/asm/trap_block.h:54:39: error: 'NR_CPUS' undeclared here (not in a function)
+> >    54 | extern struct trap_per_cpu trap_block[NR_CPUS];
+> >
+> > Inherited from mainline. Builds are not complete yet;
+> > we may see a few more failures (powerpc:ppc64e_defconfig
+> > fails to build in mainline as well).
+>
+> If it gets fixed upstream, I'll fix it here :)
 
-That old commit doesn't reference efficiency -- it says there was some
-problem with matching when they were separated out, but there were no
-wildcard section names back then.
+And else you'll release a known-broken v5.7.13?
 
-commit 9bebe9e5b0f3109a14000df25308c2971f872605
-Author: Andi Kleen <ak@linux.intel.com>
-Date:   Sun Jul 19 18:01:19 2015 -0700
+Perhaps backporting should be a bit less aggressive?
+This breakage was introduced in between v5.8-rc7 and v5.8, and backported
+before people had the time to properly look into the v5.8 build bot logs.
 
-    kbuild: Fix .text.unlikely placement
-    
-    When building a kernel with .text.unlikely text the unlikely text for
-    each translation unit was put next to the main .text code in the
-    final vmlinux.
-    
-    The problem is that the linker doesn't allow more specific submatches
-    of a section name in a different linker script statement after the
-    main match.
-    
-    So we need to move them all into one line. With that change
-    .text.unlikely is at the end of everything again.
-    
-    I also moved .text.hot into the same statement though, even though
-    that's not strictly needed.
-    
-    Signed-off-by: Andi Kleen <ak@linux.intel.com>
-    Signed-off-by: Michal Marek <mmarek@suse.com>
+Gr{oetje,eeting}s,
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 8bd374d3cf21..1781e54ea6d3 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -412,12 +412,10 @@
-  * during second ld run in second ld pass when generating System.map */
- #define TEXT_TEXT							\
- 		ALIGN_FUNCTION();					\
--		*(.text.hot)						\
--		*(.text .text.fixup)					\
-+		*(.text.hot .text .text.fixup .text.unlikely)		\
- 		*(.ref.text)						\
- 	MEM_KEEP(init.text)						\
- 	MEM_KEEP(exit.text)						\
--		*(.text.unlikely)
- 
- 
- /* sched.text is aling to function alignment to secure we have same
+                        Geert
+
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
