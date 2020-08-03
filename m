@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA12723A53D
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DD723A585
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbgHCMek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:34:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34828 "EHLO mail.kernel.org"
+        id S1728383AbgHCMiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:38:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729574AbgHCMei (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:38 -0400
+        id S1729582AbgHCMel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE79F204EC;
-        Mon,  3 Aug 2020 12:34:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB71D204EC;
+        Mon,  3 Aug 2020 12:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458077;
-        bh=L1F/6Fwfm3zp3QB1tFcx0gQ0c08nOJ8xHqOebrQQdds=;
+        s=default; t=1596458080;
+        bh=/MNFJzkOY3OPjHdn2z1uM0k6Ta88CX9tJI06WJIu3pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvY5J1KUdqpDmbN+Q9FH8Zkqs4Owx+wD2ddWxiuFzjd7uZrCa8hmu/GGoc2nGpKjW
-         g2xxBwAJsEPeTxabBjyuFNRn3x3xMctrCW6BCwWcXZtDa2c5fgSjeYaAa1SbB5dbBE
-         SyP522yQjoB1mh7N5jos2MbTKuKB/UC8geuxvtnw=
+        b=wZvRo6jYFURGGIXVy4z78oNFMpRDegjSozjL8W5yRl2EwVCX+qJjImkaG+fLrSXP9
+         uZGRe1a5APyxLAjYu/QvuaWGyJA2NTerwt9j0xoRM6J9oM0JW6/68vy1kztaofrIuU
+         ELjdSfy/1U/o4nC7A7SPVeWhenE0xZ8FEX5nZie0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Jake Lawrence <lawja@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 31/51] net: lan78xx: fix transfer-buffer memory leak
-Date:   Mon,  3 Aug 2020 14:20:16 +0200
-Message-Id: <20200803121851.040979097@linuxfoundation.org>
+Subject: [PATCH 4.14 32/51] mlx4: disable device on shutdown
+Date:   Mon,  3 Aug 2020 14:20:17 +0200
+Message-Id: <20200803121851.092119670@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
 References: <20200803121849.488233135@linuxfoundation.org>
@@ -46,34 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 63634aa679ba8b5e306ad0727120309ae6ba8a8e ]
+[ Upstream commit 3cab8c65525920f00d8f4997b3e9bb73aecb3a8e ]
 
-The interrupt URB transfer-buffer was never freed on disconnect or after
-probe errors.
+It appears that not disabling a PCI device on .shutdown may lead to
+a Hardware Error with particular (perhaps buggy) BIOS versions:
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+    mlx4_en: eth0: Close port called
+    mlx4_en 0000:04:00.0: removed PHC
+    reboot: Restarting system
+    {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 1
+    {1}[Hardware Error]: event severity: fatal
+    {1}[Hardware Error]:  Error 0, type: fatal
+    {1}[Hardware Error]:   section_type: PCIe error
+    {1}[Hardware Error]:   port_type: 4, root port
+    {1}[Hardware Error]:   version: 1.16
+    {1}[Hardware Error]:   command: 0x4010, status: 0x0143
+    {1}[Hardware Error]:   device_id: 0000:00:02.2
+    {1}[Hardware Error]:   slot: 0
+    {1}[Hardware Error]:   secondary_bus: 0x04
+    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2f06
+    {1}[Hardware Error]:   class_code: 000604
+    {1}[Hardware Error]:   bridge: secondary_status: 0x2000, control: 0x0003
+    {1}[Hardware Error]:   aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00000000
+    {1}[Hardware Error]:   aer_uncor_severity: 0x00062030
+    {1}[Hardware Error]:   TLP Header: 40000018 040000ff 791f4080 00000000
+[hw error repeats]
+    Kernel panic - not syncing: Fatal hardware error!
+    CPU: 0 PID: 2189 Comm: reboot Kdump: loaded Not tainted 5.6.x-blabla #1
+    Hardware name: HP ProLiant DL380 Gen9/ProLiant DL380 Gen9, BIOS P89 05/05/2017
+
+Fix the mlx4 driver.
+
+This is a very similar problem to what had been fixed in:
+commit 0d98ba8d70b0 ("scsi: hpsa: disable device during shutdown")
+to address https://bugzilla.kernel.org/show_bug.cgi?id=199779.
+
+Fixes: 2ba5fbd62b25 ("net/mlx4_core: Handle AER flow properly")
+Reported-by: Jake Lawrence <lawja@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx4/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 3be92fff89b1a..895f307979c82 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3658,6 +3658,7 @@ static int lan78xx_probe(struct usb_interface *intf,
- 			usb_fill_int_urb(dev->urb_intr, dev->udev,
- 					 dev->pipe_intr, buf, maxp,
- 					 intr_complete, dev, period);
-+			dev->urb_intr->transfer_flags |= URB_FREE_BUFFER;
- 		}
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
+index cf9011bb6e0f1..c6660b61e8361 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -4190,12 +4190,14 @@ end:
+ static void mlx4_shutdown(struct pci_dev *pdev)
+ {
+ 	struct mlx4_dev_persistent *persist = pci_get_drvdata(pdev);
++	struct mlx4_dev *dev = persist->dev;
  
+ 	mlx4_info(persist->dev, "mlx4_shutdown was called\n");
+ 	mutex_lock(&persist->interface_state_mutex);
+ 	if (persist->interface_state & MLX4_INTERFACE_STATE_UP)
+ 		mlx4_unload_one(pdev);
+ 	mutex_unlock(&persist->interface_state_mutex);
++	mlx4_pci_disable_device(dev);
+ }
+ 
+ static const struct pci_error_handlers mlx4_err_handler = {
 -- 
 2.25.1
 
