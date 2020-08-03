@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A4E23A660
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A6423A5D1
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728289AbgHCMZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50968 "EHLO mail.kernel.org"
+        id S1728043AbgHCMbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:31:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726767AbgHCMZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:25:54 -0400
+        id S1727914AbgHCMbP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:31:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 422B2204EC;
-        Mon,  3 Aug 2020 12:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B9FE2054F;
+        Mon,  3 Aug 2020 12:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457552;
-        bh=6A+UnJffvNtJviVbexL14aZ+ErblWEm8XBAuF4tWmpM=;
+        s=default; t=1596457874;
+        bh=x4UMX5p252GYrKJ/aCarb85LZB57EhVLYClq7cIfOP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kP14ROpsSbqMyTxIryJwq/BCWOli35kBA2T9MjGKI3NVxOgMYkwiUtjayIjDoXk1K
-         CJgIiXlEfUjww/5JBfTpnmmQkoZEmlZeyBTJV4zslG40rFvWyrxrMe+juKEk01duZb
-         ijO4yHTjtTZbhXjjIiu5Uz1zCuNkW7XN+RcibZYo=
+        b=Q7tQ9/OMrZZc+2C6DnNwudVlWueJdnzsTdaJUJ9t52mjwyHs3roGrePL3xSEp59Em
+         xD8g99Bq0VonnGAmnsEKLyGXEzBzt2lj5WwNLKauy94DPeTVzFTLDWhYCov8UU4vaa
+         C9bTNNg6cc50lY1D+g5Z4d8/0lfHz9LLaRq8V800=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 110/120] x86/unwind/orc: Fix ORC for newly forked tasks
-Date:   Mon,  3 Aug 2020 14:19:28 +0200
-Message-Id: <20200803121908.251940954@linuxfoundation.org>
+        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 14/56] wireless: Use offsetof instead of custom macro.
+Date:   Mon,  3 Aug 2020 14:19:29 +0200
+Message-Id: <20200803121851.023714217@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit 372a8eaa05998cd45b3417d0e0ffd3a70978211a ]
+commit 6989310f5d4327e8595664954edd40a7f99ddd0d upstream.
 
-The ORC unwinder fails to unwind newly forked tasks which haven't yet
-run on the CPU.  It correctly reads the 'ret_from_fork' instruction
-pointer from the stack, but it incorrectly interprets that value as a
-call stack address rather than a "signal" one, so the address gets
-incorrectly decremented in the call to orc_find(), resulting in bad ORC
-data.
+Use offsetof to calculate offset of a field to take advantage of
+compiler built-in version when possible, and avoid UBSAN warning when
+compiling with Clang:
 
-Fix it by forcing 'ret_from_fork' frames to be signal frames.
+==================================================================
+UBSAN: Undefined behaviour in net/wireless/wext-core.c:525:14
+member access within null pointer of type 'struct iw_point'
+CPU: 3 PID: 165 Comm: kworker/u16:3 Tainted: G S      W         4.19.23 #43
+Workqueue: cfg80211 __cfg80211_scan_done [cfg80211]
+Call trace:
+ dump_backtrace+0x0/0x194
+ show_stack+0x20/0x2c
+ __dump_stack+0x20/0x28
+ dump_stack+0x70/0x94
+ ubsan_epilogue+0x14/0x44
+ ubsan_type_mismatch_common+0xf4/0xfc
+ __ubsan_handle_type_mismatch_v1+0x34/0x54
+ wireless_send_event+0x3cc/0x470
+ ___cfg80211_scan_done+0x13c/0x220 [cfg80211]
+ __cfg80211_scan_done+0x28/0x34 [cfg80211]
+ process_one_work+0x170/0x35c
+ worker_thread+0x254/0x380
+ kthread+0x13c/0x158
+ ret_from_fork+0x10/0x18
+===================================================================
 
-Reported-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Link: https://lkml.kernel.org/r/f91a8778dde8aae7f71884b5df2b16d552040441.1594994374.git.jpoimboe@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20191204081307.138765-1-pihsun@chromium.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/unwind_orc.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ include/uapi/linux/wireless.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index 7f969b2d240fd..ec88bbe08a328 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -440,8 +440,11 @@ bool unwind_next_frame(struct unwind_state *state)
- 	/*
- 	 * Find the orc_entry associated with the text address.
- 	 *
--	 * Decrement call return addresses by one so they work for sibling
--	 * calls and calls to noreturn functions.
-+	 * For a call frame (as opposed to a signal frame), state->ip points to
-+	 * the instruction after the call.  That instruction's stack layout
-+	 * could be different from the call instruction's layout, for example
-+	 * if the call was to a noreturn function.  So get the ORC data for the
-+	 * call instruction itself.
- 	 */
- 	orc = orc_find(state->signal ? state->ip : state->ip - 1);
- 	if (!orc) {
-@@ -662,6 +665,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 		state->sp = task->thread.sp;
- 		state->bp = READ_ONCE_NOCHECK(frame->bp);
- 		state->ip = READ_ONCE_NOCHECK(frame->ret_addr);
-+		state->signal = (void *)state->ip == ret_from_fork;
- 	}
+--- a/include/uapi/linux/wireless.h
++++ b/include/uapi/linux/wireless.h
+@@ -74,6 +74,8 @@
+ #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
+ #include <linux/if.h>			/* for IFNAMSIZ and co... */
  
- 	if (get_stack_info((unsigned long *)state->sp, state->task,
--- 
-2.25.1
-
++#include <stddef.h>                     /* for offsetof */
++
+ /***************************** VERSION *****************************/
+ /*
+  * This constant is used to know the availability of the wireless
+@@ -1090,8 +1092,7 @@ struct iw_event {
+ /* iw_point events are special. First, the payload (extra data) come at
+  * the end of the event, so they are bigger than IW_EV_POINT_LEN. Second,
+  * we omit the pointer, so start at an offset. */
+-#define IW_EV_POINT_OFF (((char *) &(((struct iw_point *) NULL)->length)) - \
+-			  (char *) NULL)
++#define IW_EV_POINT_OFF offsetof(struct iw_point, length)
+ #define IW_EV_POINT_LEN	(IW_EV_LCP_LEN + sizeof(struct iw_point) - \
+ 			 IW_EV_POINT_OFF)
+ 
 
 
