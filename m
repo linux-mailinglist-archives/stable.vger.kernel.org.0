@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC48B23A5FF
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA2B23A4E8
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:31:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727864AbgHCM3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56314 "EHLO mail.kernel.org"
+        id S1728346AbgHCMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:31:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728941AbgHCM3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:29:40 -0400
+        id S1729180AbgHCMba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:31:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29EB6208B3;
-        Mon,  3 Aug 2020 12:29:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 470232076B;
+        Mon,  3 Aug 2020 12:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457778;
-        bh=LkmYfpO8CCHqVPPYGJEJrOUiJmWXY43q7bamRMNf8qU=;
+        s=default; t=1596457888;
+        bh=2JT30Mg+Jr0ZteIkhVIf2ruEenMvuGx4U1kmh9bx+jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bS6ziFl+eYvnvcG4Z5QngpbWDXEId9UMkVYHGLfvyvmt1knUt53Zr8lnabtykEYkt
-         rYmu4sfIqhKph0l/YoKXf6aawIIS2aHtRoWBxbe01jQXAzt9iIJeH7O/wy23lqQR7p
-         vSM8mpnqqoM4afSn4FH54gtL6zy59i7QfXqFHfI0=
+        b=tWs0BRs0SEcFVHesAHJlxlGXIXACv2X1b48F0lgf8gEqayDFUYPKxaOtI1IF9zJG1
+         mRcagS29nBPF/1NVXFHG4WWHpfqxbba5wJ9W3MGW03lW46Hr7iAwQ2li3DC0It5xRj
+         LBDQVaro8vbSxUz3UDKyimTYhSlX3eB+Xz6wON/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Pisati <paolo.pisati@canonical.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 71/90] selftests: fib_nexthop_multiprefix: fix cleanup() netns deletion
-Date:   Mon,  3 Aug 2020 14:19:33 +0200
-Message-Id: <20200803121901.049058129@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 19/56] drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
+Date:   Mon,  3 Aug 2020 14:19:34 +0200
+Message-Id: <20200803121851.277418241@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Pisati <paolo.pisati@canonical.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 651149f60376758a4759f761767965040f9e4464 ]
+commit 543e8669ed9bfb30545fd52bc0e047ca4df7fb31 upstream.
 
-During setup():
-...
-        for ns in h0 r1 h1 h2 h3
-        do
-                create_ns ${ns}
-        done
-...
+Compiler leaves a 4-byte hole near the end of `dev_info`, causing
+amdgpu_info_ioctl() to copy uninitialized kernel stack memory to userspace
+when `size` is greater than 356.
 
-while in cleanup():
-...
-        for n in h1 r1 h2 h3 h4
-        do
-                ip netns del ${n} 2>/dev/null
-        done
-...
+In 2015 we tried to fix this issue by doing `= {};` on `dev_info`, which
+unfortunately does not initialize that 4-byte hole. Fix it by using
+memset() instead.
 
-and after removing the stderr redirection in cleanup():
+Cc: stable@vger.kernel.org
+Fixes: c193fa91b918 ("drm/amdgpu: information leak in amdgpu_info_ioctl()")
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-$ sudo ./fib_nexthop_multiprefix.sh
-...
-TEST: IPv4: host 0 to host 3, mtu 1400                              [ OK ]
-TEST: IPv6: host 0 to host 3, mtu 1400                              [ OK ]
-Cannot remove namespace file "/run/netns/h4": No such file or directory
-$ echo $?
-1
-
-and a non-zero return code, make kselftests fail (even if the test
-itself is fine):
-
-...
-not ok 34 selftests: net: fib_nexthop_multiprefix.sh # exit=1
-...
-
-Signed-off-by: Paolo Pisati <paolo.pisati@canonical.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fib_nexthop_multiprefix.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/fib_nexthop_multiprefix.sh b/tools/testing/selftests/net/fib_nexthop_multiprefix.sh
-index 9dc35a16e4159..51df5e305855a 100755
---- a/tools/testing/selftests/net/fib_nexthop_multiprefix.sh
-+++ b/tools/testing/selftests/net/fib_nexthop_multiprefix.sh
-@@ -144,7 +144,7 @@ setup()
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -549,9 +549,10 @@ static int amdgpu_info_ioctl(struct drm_
+ 		return n ? -EFAULT : 0;
+ 	}
+ 	case AMDGPU_INFO_DEV_INFO: {
+-		struct drm_amdgpu_info_device dev_info = {};
++		struct drm_amdgpu_info_device dev_info;
+ 		uint64_t vm_size;
  
- cleanup()
- {
--	for n in h1 r1 h2 h3 h4
-+	for n in h0 r1 h1 h2 h3
- 	do
- 		ip netns del ${n} 2>/dev/null
- 	done
--- 
-2.25.1
-
++		memset(&dev_info, 0, sizeof(dev_info));
+ 		dev_info.device_id = dev->pdev->device;
+ 		dev_info.chip_rev = adev->rev_id;
+ 		dev_info.external_rev = adev->external_rev_id;
 
 
