@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D674E23A595
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D5023A5BC
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728815AbgHCMjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33898 "EHLO mail.kernel.org"
+        id S1728508AbgHCMcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:32:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729491AbgHCMdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:51 -0400
+        id S1728460AbgHCMcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA6FF204EC;
-        Mon,  3 Aug 2020 12:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABAF12076B;
+        Mon,  3 Aug 2020 12:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458030;
-        bh=dEa0AWvWOg19CrPOh7m9qvf9OgTA1IIxsH3IV00BKcI=;
+        s=default; t=1596457928;
+        bh=LZWwTvS0tp1gdoXEyc79W/d6yllJPiT86ElTRyUHeQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CMhwe0y8RrrxAWw92y/zd8fCJwWD8cF/qD6io7v8ZqbMDsNNBsb7NjN6q+yeBeNpb
-         7zdPRIhTvNwHl+j3h3kHv09kxCgFTwJWnwWOj0uoWRr7PlTrLZgOKrXaCw7vXqHHXl
-         9hmzY8V2vsCiQnid8HVqH6mtwr94IttbsgBCTnEI=
+        b=rUlIB0u4sryH/Y3G4t7boTSEc8XWNe6T1fT3z510RnY5KnGs/JeBEO+xc7PdmWD7C
+         +Mj3ECHsqQ1nTP3LZusUYvPkVgT/8fyCsiUBzrRwUOgb36RUWL3vL2EUHPkN6LRmu2
+         zKZANGXT7xec81YxAecM+vy+fRMYcf4YhwUCj8pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org,
+        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
+        Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/51] net: phy: mdio-bcm-unimac: fix potential NULL dereference in unimac_mdio_probe()
-Date:   Mon,  3 Aug 2020 14:19:47 +0200
-Message-Id: <20200803121849.606398618@linuxfoundation.org>
+Subject: [PATCH 4.19 33/56] net: lan78xx: fix transfer-buffer memory leak
+Date:   Mon,  3 Aug 2020 14:19:48 +0200
+Message-Id: <20200803121851.938595494@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 297a6961ffb8ff4dc66c9fbf53b924bd1dda05d5 ]
+[ Upstream commit 63634aa679ba8b5e306ad0727120309ae6ba8a8e ]
 
-platform_get_resource() may fail and return NULL, so we should
-better check it's return value to avoid a NULL pointer dereference
-a bit later in the code.
+The interrupt URB transfer-buffer was never freed on disconnect or after
+probe errors.
 
-This is detected by Coccinelle semantic patch.
-
-@@
-expression pdev, res, n, t, e, e1, e2;
-@@
-
-res = platform_get_resource(pdev, t, n);
-+ if (!res)
-+   return -EINVAL;
-... when != res == NULL
-e = devm_ioremap(e1, res->start, e2);
-
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-bcm-unimac.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/usb/lan78xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/mdio-bcm-unimac.c b/drivers/net/phy/mdio-bcm-unimac.c
-index 52703bbd4d666..df75efa96a7d9 100644
---- a/drivers/net/phy/mdio-bcm-unimac.c
-+++ b/drivers/net/phy/mdio-bcm-unimac.c
-@@ -237,6 +237,8 @@ static int unimac_mdio_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 2dff233814ea5..d198f36785a46 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3815,6 +3815,7 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 			usb_fill_int_urb(dev->urb_intr, dev->udev,
+ 					 dev->pipe_intr, buf, maxp,
+ 					 intr_complete, dev, period);
++			dev->urb_intr->transfer_flags |= URB_FREE_BUFFER;
+ 		}
+ 	}
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -EINVAL;
- 
- 	/* Just ioremap, as this MDIO block is usually integrated into an
- 	 * Ethernet MAC controller register range
 -- 
 2.25.1
 
