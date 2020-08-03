@@ -2,168 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1DE23AFF1
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 00:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA53823B063
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 00:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729214AbgHCWGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 18:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729217AbgHCWGy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 18:06:54 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C4BC06174A
-        for <stable@vger.kernel.org>; Mon,  3 Aug 2020 15:06:54 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id c10so596399pjn.1
-        for <stable@vger.kernel.org>; Mon, 03 Aug 2020 15:06:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=j0yp0NbFk1BjbaXmV0xOpZBsc0vdosH6qIpBX1oEU+8=;
-        b=RT06J95wbl/z9RHYp6gw0wftwtVr0DYAxf3T6wVkANZyhatKAqKMRXjQGCrdowE4aK
-         BP7ct2gRm5TjxJodWLZ7P//unWnKsCngn8YZaTQ3UDTnfL//M5JQVaGmVHme8sjY/HN0
-         xKwkUsjVZioLvo2kkacLV+UPZBUCiYzjnpFkckkeEvmj35KV/UkvyTVKURiV69XidcKn
-         hueXISwyXzc/5aswJQksO5iNSJkQCBegWyIV2VS4uBSNhwiX/j6M5WTZVa7D888x7kmf
-         hBg6+SPoj6MH9XYIJ2TgwGS3vXUXD+alOhjVkrXLdBbdvd5KuyiPuFyXt3SEj32fVgSi
-         V+Uw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=j0yp0NbFk1BjbaXmV0xOpZBsc0vdosH6qIpBX1oEU+8=;
-        b=FiAX4NTCdDhlv646wH08ZWzXYdAHS4DhqppMRgxFIaDkcfZnmfKr2B7VY1rmg5/qXj
-         XzJF6+8Pp5EswDOaEUSrUi5GCDvK6OUDzAmvLrgrMOzv9C+VB4hHBEN0ttgICliUAkYc
-         LyRTzCyYVVOrUgB6qAUgdu/cBr+IPtRb11kaLuueg543ORbLsT9L9FCq8FH65JSgkXw2
-         X2neH06e2VRGFf346k4nFSsFZNamr4m/vnLAaf/U1UYEpQwkMkbYoYsczt/zAov0Ax4x
-         39ECvNKqYGjosLE4ln79OVnPXpuEniClBKpLv/p77oPOiFNS6p4ENxJgYMfwLI3Y33n5
-         CRlw==
-X-Gm-Message-State: AOAM5303VUMYLyTXJHQadtTXr3kC/wYXQv0AQGCILGR+Yq7jX527Urwl
-        74OGfOX+Ht3HYBvmSv47lr91VmRZaUygHidIGO/w4w==
-X-Google-Smtp-Source: ABdhPJykFREY81Y6/5cJ5cu6kgpKwUJzCiIN9Q7xASYZLDjCtQAXf5stcXj8BhAYsC8hzIDcgzb923Unk3KXAHLprEo=
-X-Received: by 2002:a17:902:cb91:: with SMTP id d17mr16201957ply.223.1596492413065;
- Mon, 03 Aug 2020 15:06:53 -0700 (PDT)
+        id S1728224AbgHCWpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 18:45:00 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:43590 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727779AbgHCWpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 18:45:00 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 073Mfwp8108675;
+        Mon, 3 Aug 2020 22:43:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2020-01-29; bh=P/qiltt5JR6ClETgdVJw3m3oOQ7ShSj7YYKa6IhOHSk=;
+ b=aDq3YmjIpFH9n52g2TpQFGXLHflSjZ5r7sofdxesoyTqEuGX0NBARuOCb94zoA22bIbD
+ CgZEqAdjZcKIrXLmntVONDlHwyLXS3AcaPBr7IpYq5axr+pT/eLjFzSktNG9yREkwUR0
+ 52i8R0WKDuBBL41QXbbGMStO+dlVp6f79AlHG5ZchZRYpWurhv7XxBHTbqfCEOodStVZ
+ 0Np32EJRroL1hIyFAjy7sRrkP2L0nwbIlRupSQDlC7ZTwQLgENMKthzD7TdM4k1SHE/9
+ 1plqWfh5OSIFGqeZu0cm/b8vs1TDYX//VpSzo4e4N9EOSRYlE5JKlQVeGoTIOJVeIjDb qw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2120.oracle.com with ESMTP id 32n11n13gh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 03 Aug 2020 22:43:45 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 073MgtN4103193;
+        Mon, 3 Aug 2020 22:43:45 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3020.oracle.com with ESMTP id 32pdhb339x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 03 Aug 2020 22:43:45 +0000
+Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 073Mhf98030762;
+        Mon, 3 Aug 2020 22:43:41 GMT
+Received: from monkey.oracle.com (/50.38.35.18)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 03 Aug 2020 15:43:41 -0700
+From:   Mike Kravetz <mike.kravetz@oracle.com>
+To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc:     Michal Hocko <mhocko@kernel.org>, Hugh Dickins <hughd@google.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Prakash Sangappa <prakash.sangappa@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>, stable@vger.kernel.org
+Subject: [PATCH] hugetlbfs: remove call to huge_pte_alloc without i_mmap_rwsem
+Date:   Mon,  3 Aug 2020 15:43:35 -0700
+Message-Id: <20200803224335.55794-1-mike.kravetz@oracle.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-References: <20200730180340.1724137-1-ndesaulniers@google.com>
- <20200801103805.GD3046974@kroah.com> <CAKwvOdnDGCVLU-MrJweLOuVaCGuqhQxKtVJxbCN1R_xK8NFo3Q@mail.gmail.com>
-In-Reply-To: <CAKwvOdnDGCVLU-MrJweLOuVaCGuqhQxKtVJxbCN1R_xK8NFo3Q@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 3 Aug 2020 15:06:41 -0700
-Message-ID: <CAKwvOdmEGYbMu=tWYYQeVVPk80o-dOugsMBRXrGwOG8DyM_ePQ@mail.gmail.com>
-Subject: Re: [PATCH 4.14.y] ARM: 8702/1: head-common.S: Clear lr before
- jumping to start_kernel()
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Nicolas Pitre <nico@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9702 signatures=668679
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 spamscore=0
+ bulkscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2008030156
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9702 signatures=668679
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1015 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=999 phishscore=0 adultscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2008030156
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 3, 2020 at 2:54 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
->
-> On Sat, Aug 1, 2020 at 3:38 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, Jul 30, 2020 at 11:03:40AM -0700, Nick Desaulniers wrote:
-> > > From: Geert Uytterhoeven <geert@linux-m68k.org>
-> > >
-> > > commit 59b6359dd92d18f5dc04b14a4c926fa08ab66f7c upstream.
-> > >
-> > > If CONFIG_DEBUG_LOCK_ALLOC=y, the kernel log is spammed with a few
-> > > hundred identical messages:
-> > >
-> > >     unwind: Unknown symbol address c0800300
-> > >     unwind: Index not found c0800300
-> > >
-> > > c0800300 is the return address from the last subroutine call (to
-> > > __memzero()) in __mmap_switched().  Apparently having this address in
-> > > the link register confuses the unwinder.
-> > >
-> > > To fix this, reset the link register to zero before jumping to
-> > > start_kernel().
-> > >
-> > > Fixes: 9520b1a1b5f7a348 ("ARM: head-common.S: speed up startup code")
-> > > Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > > Acked-by: Nicolas Pitre <nico@linaro.org>
-> > > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> > > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> > > ---
-> > > Looks like this first landed in v4.15-rc1.  Without this, we can't tell
-> > > during an unwind initiated from start_kernel() when to stop unwinding,
-> > > which for the clang specific implementation of the arm frame pointer
-> > > unwinder leads to dereferencing a garbage value, triggering an exception
-> > > which has no fixup, triggering a panic, triggering an unwind, triggering
-> > > an infinite loop that prevents booting. I have more patches to send
-> > > upstream to make the unwinder more resilient, but it's ambiguous as to
-> > > when to stop unwinding without this patch.
-> >
-> > Note, the "Fixes:" tag points at something in 4.15, not 4.14, so are you
-> > _SURE_ this is needed in 4.14.y?
->
-> It's a fair question, sorry I didn't notice and pre-emptively address.
->
-> Yes.  Prior to 59b6359dd92d, the value in the link register (LR) was
-> garbage left over from the calls to __memzero added in 9520b1a1b5f7.
-> I suspect that after a `ret` instruction, the value in LR really
+Commit c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing
+synchronization") requires callers of huge_pte_alloc to hold i_mmap_rwsem
+in at least read mode.  This is because the explicit locking in
+huge_pmd_share (called by huge_pte_alloc) was removed.  When restructuring
+the code, the call to huge_pte_alloc in the else block at the beginning
+of hugetlb_fault was missed.
 
-Sorry, rereading that `ret` is not an instruction on ARM; I may have
-confused the assembler macro defined in
-arch/arm/include/asm/assembler.h used in __turn_mmu_on to call into
-__mmap_switched with being an actual instruction.  Maybe `I suspect
-that after returning from a called frame, the value in LR really
-shouldn't be used again.` would have been more precise.
+Unfortunately, that else clause is exercised when there is no page table
+entry.  This will likely lead to a call to huge_pmd_share.  If
+huge_pmd_share thinks pmd sharing is possible, it will traverse the mapping
+tree (i_mmap) without holding i_mmap_rwsem.  If someone else is modifying
+the tree, bad things such as addressing exceptions or worse could happen.
 
-> shouldn't be used again.
->
-> Having garbage in LR when chasing frame pointers from an unwind
-> started in start_kernel() makes it appear that there are further
-> frames to unwind, hence the error noted in the commit message of
-> 59b6359dd92d.
->
-> Prior to 9520b1a1b5f7, the value in the LR was still garbage (so the
-> Fixes tag referencing 9520b1a1b5f7 isn't super precise; it references
-> the latest change that noticeably changed the value of LR, but it was
-> still previously undefined what its last value was set to).  In fact,
-> digging up the original suggestion from Ard regarding 59b6359dd92d:
-> https://lore.kernel.org/linux-arm-kernel/CAKv+Gu8BSnn3XhUALM-CfPqw2zNxovvup4uHf1F4qYZZ5oVUaA@mail.gmail.com/
->
-> > I don't think the patch itself is to blame here, it simply triggers an
-> > existing issue in the unwinder (if my analysis is correct, of course)
->
-> and yet 9520b1a1b5f7 was still cited in the Fixes tag of 59b6359dd92d.
-> (I agree with Ard's analysis).  Yes, "c0800300 is the return address
-> from the last subroutine call (to __memzero()) in __mmap_switched()"
-> is correct, but I'd have argued this was broken even before
-> 59b6359dd92d (which is Ard's point).  Forgive me if I'm
-> misinterpreting your analysis, Ard.  Maybe that Fixes tag was the
-> simplest to avoid backports to stable which would have had conflicts
-> due to 9520b1a1b5f7 being a dependency?
->
-> Looking at the callers of __mmap_switched, it's hard to tell who would
-> have set the last value of LR, as there's divergent implementations
-> based on whether or not there's MMU support.  I don't think it matters
-> though, and that unwinding via frame pointer on ARM out of a path in
-> start_kernel() was broken until 59b6359dd92d.  I suspect a combination
-> of the frame pointer unwinder not being as popular on ARM (vs
-> CONFIG_UNWINDER_ARM) and the lack of needing to unwind from
-> start_kernel() (since unwinding occurs for exceptional cases like
-> WARN_ON or panics) as sources that may have helped to keep this bug
-> latent for a while.
->
-> Here's the lore thread on 9520b1a1b5f7 FWIW, but there's nothing of
-> interest there IMO.
-> https://lore.kernel.org/linux-arm-kernel/1507044184-27152-1-git-send-email-geert+renesas@glider.be/
-> --
-> Thanks,
-> ~Nick Desaulniers
+Simply remove the else clause.  It should have been removed previously.
+The code following the else will call huge_pte_alloc with the appropriate
+locking.
 
+Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+---
+ mm/hugetlb.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 590111ea6975..0f6716422a53 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4539,10 +4539,6 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry)))
+ 			return VM_FAULT_HWPOISON_LARGE |
+ 				VM_FAULT_SET_HINDEX(hstate_index(h));
+-	} else {
+-		ptep = huge_pte_alloc(mm, haddr, huge_page_size(h));
+-		if (!ptep)
+-			return VM_FAULT_OOM;
+ 	}
+ 
+ 	/*
 -- 
-Thanks,
-~Nick Desaulniers
+2.25.4
+
