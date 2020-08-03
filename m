@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB2223A424
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD5623A427
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727797AbgHCMXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47294 "EHLO mail.kernel.org"
+        id S1727892AbgHCMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:23:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727829AbgHCMXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:23:20 -0400
+        id S1727874AbgHCMXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:23:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A21C20775;
-        Mon,  3 Aug 2020 12:23:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C569204EC;
+        Mon,  3 Aug 2020 12:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457398;
-        bh=aSgBZZ3WxASOQs9tP6z2R1qM/vh8yYYpRtEu8M9Ki+o=;
+        s=default; t=1596457414;
+        bh=Hh1DLbFjydQzfY0ESF6hsKREFsDzyERKMwVwlFnK8M8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZzPg15NBibc1G59/zQKe6zpecbng+9mLGab5PrE0oN3S2e3MC7z03X2dkhlEkriB
-         UvixzY0VcgS9/E7TBoOWKcL/71LANaaDIaHRjBD9BjeAF5oRDHNWCEh0wjPtHPwfQu
-         M67TMWGKKnRC5qREkbhuhX4XdSL2Mpzl5AWzFkY0=
+        b=obQ63xZKiifhwCAm5E5t+Q+jBDxfe/7hj85zZPyFspRUHnqR5yaJV01tx/6CO9SWM
+         Tfbf1r+icUw7rgoMH8fElvR9MzUG3dd7uHrcCvTWTMC+OItMrxul196YN/T7LObAGK
+         EbpRG5UNwb3kMIG+JemKQOOtqjHqlEBFviFjp2Oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guojia Liao <liaoguojia@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Ariel Levkovich <lariel@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 052/120] net: hns3: fix aRFS FD rules leftover after add a user FD rule
-Date:   Mon,  3 Aug 2020 14:18:30 +0200
-Message-Id: <20200803121905.331289317@linuxfoundation.org>
+Subject: [PATCH 5.7 057/120] net/mlx5: Fix a bug of using ptp channel index as pin index
+Date:   Mon,  3 Aug 2020 14:18:35 +0200
+Message-Id: <20200803121905.571639182@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -45,141 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guojia Liao <liaoguojia@huawei.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit efe3fa45f770f1d66e2734ee7a3523c75694ff04 ]
+[ Upstream commit 88c8cf92db48b2e359fe3051ad8e09829c1bee5d ]
 
-When user had created a FD rule, all the aRFS rules should be clear up.
-HNS3 process flow as below:
-1.get spin lock of fd_ruls_list
-2.clear up all aRFS rules
-3.release lock
-4.get spin lock of fd_ruls_list
-5.creat a rules
-6.release lock;
+On PTP mlx5_ptp_enable(on=0) flow, driver mistakenly used channel index
+as pin index.
 
-There is a short period of time between step 3 and step 4, which would
-creatting some new aRFS FD rules if driver was receiving packet.
-So refactor the fd_rule_lock to fix it.
+After ptp patch marked in fixes tag was introduced, driver can freely
+call ptp_find_pin() as part of the .enable() callback.
 
-Fixes: 441228875706 ("net: hns3: refine the flow director handle")
-Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix driver mlx5_ptp_enable(on=0) flow to always use ptp_find_pin(). With
+that, Driver will use the correct pin index in mlx5_ptp_enable(on=0) flow.
+
+In addition, when initializing the pins, always set channel to zero. As
+all pins can be attached to all channels, let ptp_set_pinfunc() to move
+them between the channels.
+
+For stable branches, this fix to be applied only on kernels that includes
+both patches in fixes tag. Otherwise, mlx5_ptp_enable(on=0) will be stuck
+on pincfg_mux.
+
+Fixes: 62582a7ee783 ("ptp: Avoid deadlocks in the programmable pin code.")
+Fixes: ee7f12205abc ("net/mlx5e: Implement 1PPS support")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Reviewed-by: Ariel Levkovich <lariel@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_main.c        | 28 ++++++++++---------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ .../ethernet/mellanox/mlx5/core/lib/clock.c   | 21 +++++++++----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index b66b93f320b42..ae4c415b97e45 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -5737,9 +5737,9 @@ static int hclge_add_fd_entry(struct hnae3_handle *handle,
- 	/* to avoid rule conflict, when user configure rule by ethtool,
- 	 * we need to clear all arfs rules
- 	 */
-+	spin_lock_bh(&hdev->fd_rule_lock);
- 	hclge_clear_arfs_rules(handle);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+index 43f97601b5000..b88c6456d2154 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+@@ -252,17 +252,17 @@ static int mlx5_extts_configure(struct ptp_clock_info *ptp,
+ 	if (rq->extts.index >= clock->ptp_info.n_pins)
+ 		return -EINVAL;
  
--	spin_lock_bh(&hdev->fd_rule_lock);
- 	ret = hclge_fd_config_rule(hdev, rule);
- 
- 	spin_unlock_bh(&hdev->fd_rule_lock);
-@@ -5782,6 +5782,7 @@ static int hclge_del_fd_entry(struct hnae3_handle *handle,
- 	return ret;
- }
- 
-+/* make sure being called after lock up with fd_rule_lock */
- static void hclge_del_all_fd_entries(struct hnae3_handle *handle,
- 				     bool clear_list)
- {
-@@ -5794,7 +5795,6 @@ static void hclge_del_all_fd_entries(struct hnae3_handle *handle,
- 	if (!hnae3_dev_fd_supported(hdev))
- 		return;
- 
--	spin_lock_bh(&hdev->fd_rule_lock);
- 	for_each_set_bit(location, hdev->fd_bmap,
- 			 hdev->fd_cfg.rule_num[HCLGE_FD_STAGE_1])
- 		hclge_fd_tcam_config(hdev, HCLGE_FD_STAGE_1, true, location,
-@@ -5811,8 +5811,6 @@ static void hclge_del_all_fd_entries(struct hnae3_handle *handle,
- 		bitmap_zero(hdev->fd_bmap,
- 			    hdev->fd_cfg.rule_num[HCLGE_FD_STAGE_1]);
- 	}
--
--	spin_unlock_bh(&hdev->fd_rule_lock);
- }
- 
- static int hclge_restore_fd_entries(struct hnae3_handle *handle)
-@@ -6179,7 +6177,7 @@ static int hclge_add_fd_entry_by_arfs(struct hnae3_handle *handle, u16 queue_id,
- 				      u16 flow_id, struct flow_keys *fkeys)
- {
- 	struct hclge_vport *vport = hclge_get_vport(handle);
--	struct hclge_fd_rule_tuples new_tuples;
-+	struct hclge_fd_rule_tuples new_tuples = {};
- 	struct hclge_dev *hdev = vport->back;
- 	struct hclge_fd_rule *rule;
- 	u16 tmp_queue_id;
-@@ -6189,20 +6187,18 @@ static int hclge_add_fd_entry_by_arfs(struct hnae3_handle *handle, u16 queue_id,
- 	if (!hnae3_dev_fd_supported(hdev))
- 		return -EOPNOTSUPP;
- 
--	memset(&new_tuples, 0, sizeof(new_tuples));
--	hclge_fd_get_flow_tuples(fkeys, &new_tuples);
--
--	spin_lock_bh(&hdev->fd_rule_lock);
--
- 	/* when there is already fd rule existed add by user,
- 	 * arfs should not work
- 	 */
-+	spin_lock_bh(&hdev->fd_rule_lock);
- 	if (hdev->fd_active_type == HCLGE_FD_EP_ACTIVE) {
- 		spin_unlock_bh(&hdev->fd_rule_lock);
- 
- 		return -EOPNOTSUPP;
++	pin = ptp_find_pin(clock->ptp, PTP_PF_EXTTS, rq->extts.index);
++	if (pin < 0)
++		return -EBUSY;
++
+ 	if (on) {
+-		pin = ptp_find_pin(clock->ptp, PTP_PF_EXTTS, rq->extts.index);
+-		if (pin < 0)
+-			return -EBUSY;
+ 		pin_mode = MLX5_PIN_MODE_IN;
+ 		pattern = !!(rq->extts.flags & PTP_FALLING_EDGE);
+ 		field_select = MLX5_MTPPS_FS_PIN_MODE |
+ 			       MLX5_MTPPS_FS_PATTERN |
+ 			       MLX5_MTPPS_FS_ENABLE;
+ 	} else {
+-		pin = rq->extts.index;
+ 		field_select = MLX5_MTPPS_FS_ENABLE;
  	}
  
-+	hclge_fd_get_flow_tuples(fkeys, &new_tuples);
-+
- 	/* check is there flow director filter existed for this flow,
- 	 * if not, create a new filter for it;
- 	 * if filter exist with different queue id, modify the filter;
-@@ -6287,6 +6283,7 @@ static void hclge_rfs_filter_expire(struct hclge_dev *hdev)
- #endif
- }
+@@ -310,12 +310,12 @@ static int mlx5_perout_configure(struct ptp_clock_info *ptp,
+ 	if (rq->perout.index >= clock->ptp_info.n_pins)
+ 		return -EINVAL;
  
-+/* make sure being called after lock up with fd_rule_lock */
- static void hclge_clear_arfs_rules(struct hnae3_handle *handle)
- {
- #ifdef CONFIG_RFS_ACCEL
-@@ -6331,10 +6328,14 @@ static void hclge_enable_fd(struct hnae3_handle *handle, bool enable)
+-	if (on) {
+-		pin = ptp_find_pin(clock->ptp, PTP_PF_PEROUT,
+-				   rq->perout.index);
+-		if (pin < 0)
+-			return -EBUSY;
++	pin = ptp_find_pin(clock->ptp, PTP_PF_PEROUT,
++			   rq->perout.index);
++	if (pin < 0)
++		return -EBUSY;
  
- 	hdev->fd_en = enable;
- 	clear = hdev->fd_active_type == HCLGE_FD_ARFS_ACTIVE;
--	if (!enable)
-+
-+	if (!enable) {
-+		spin_lock_bh(&hdev->fd_rule_lock);
- 		hclge_del_all_fd_entries(handle, clear);
--	else
-+		spin_unlock_bh(&hdev->fd_rule_lock);
-+	} else {
- 		hclge_restore_fd_entries(handle);
-+	}
- }
++	if (on) {
+ 		pin_mode = MLX5_PIN_MODE_OUT;
+ 		pattern = MLX5_OUT_PATTERN_PERIODIC;
+ 		ts.tv_sec = rq->perout.period.sec;
+@@ -341,7 +341,6 @@ static int mlx5_perout_configure(struct ptp_clock_info *ptp,
+ 			       MLX5_MTPPS_FS_ENABLE |
+ 			       MLX5_MTPPS_FS_TIME_STAMP;
+ 	} else {
+-		pin = rq->perout.index;
+ 		field_select = MLX5_MTPPS_FS_ENABLE;
+ 	}
  
- static void hclge_cfg_mac_mode(struct hclge_dev *hdev, bool enable)
-@@ -6799,8 +6800,9 @@ static void hclge_ae_stop(struct hnae3_handle *handle)
- 	int i;
+@@ -431,7 +430,7 @@ static int mlx5_init_pin_config(struct mlx5_clock *clock)
+ 			 "mlx5_pps%d", i);
+ 		clock->ptp_info.pin_config[i].index = i;
+ 		clock->ptp_info.pin_config[i].func = PTP_PF_NONE;
+-		clock->ptp_info.pin_config[i].chan = i;
++		clock->ptp_info.pin_config[i].chan = 0;
+ 	}
  
- 	set_bit(HCLGE_STATE_DOWN, &hdev->state);
--
-+	spin_lock_bh(&hdev->fd_rule_lock);
- 	hclge_clear_arfs_rules(handle);
-+	spin_unlock_bh(&hdev->fd_rule_lock);
- 
- 	/* If it is not PF reset, the firmware will disable the MAC,
- 	 * so it only need to stop phy here.
+ 	return 0;
 -- 
 2.25.1
 
