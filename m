@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 658BF23A503
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB2123A592
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729305AbgHCMc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60286 "EHLO mail.kernel.org"
+        id S1729394AbgHCMiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:38:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729301AbgHCMcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:32:23 -0400
+        id S1729530AbgHCMeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:34:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31A78204EC;
-        Mon,  3 Aug 2020 12:32:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDE792054F;
+        Mon,  3 Aug 2020 12:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457941;
-        bh=Vs6BmE6cEpyxFsmxJNBFx3YtUtzpVXtY/843g7hCNOE=;
+        s=default; t=1596458049;
+        bh=9NFaW+DgtHwziAI89eC2YWXuYtYjb2Cz8nG2fitJHT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqQNakENwnsmKexR7vje/BaBSgmILFCOmGj/e148rtZdeSNVSAqNTLKRIOsBJMol2
-         1XKJMdK8eLEBZYUmq3x9feWZW/WToLxu+j61r6ko+oNamzUDASYderp3KM+ZOpzKLU
-         J05+V2odVfceJNn8N8Zw4rsTqciDCOxgspxNsRjs=
+        b=Dvtjy1hGIWHOZ5yvyxwQf7Fv7WjMBzIOVEiB8sYztYL5IUWS4YdJYqCZ/33uGeIQz
+         UwJirA+8fwngQxGDKeZIsPpNizWmxePR/EDCYQ5FAwIrTSFzNCIIqdM+dfWk3JZvHg
+         phJ+IKjKmd5F4oFjQ3zLKp6ydhT8uGommA53uK20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/56] bpf: Fix map leak in HASH_OF_MAPS map
-Date:   Mon,  3 Aug 2020 14:19:53 +0200
-Message-Id: <20200803121852.186221082@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Hancock <hancockrwd@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 09/51] PCI/ASPM: Disable ASPM on ASMedia ASM1083/1085 PCIe-to-PCI bridge
+Date:   Mon,  3 Aug 2020 14:19:54 +0200
+Message-Id: <20200803121849.921535840@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
+References: <20200803121849.488233135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Robert Hancock <hancockrwd@gmail.com>
 
-[ Upstream commit 1d4e1eab456e1ee92a94987499b211db05f900ea ]
+commit b361663c5a40c8bc758b7f7f2239f7a192180e7c upstream.
 
-Fix HASH_OF_MAPS bug of not putting inner map pointer on bpf_map_elem_update()
-operation. This is due to per-cpu extra_elems optimization, which bypassed
-free_htab_elem() logic doing proper clean ups. Make sure that inner map is put
-properly in optimized case as well.
+Recently ASPM handling was changed to allow ASPM on PCIe-to-PCI/PCI-X
+bridges.  Unfortunately the ASMedia ASM1083/1085 PCIe to PCI bridge device
+doesn't seem to function properly with ASPM enabled.  On an Asus PRIME
+H270-PRO motherboard, it causes errors like these:
 
-Fixes: 8c290e60fa2a ("bpf: fix hashmap extra_elems logic")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20200729040913.2815687-1-andriin@fb.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  pcieport 0000:00:1c.0: AER: PCIe Bus Error: severity=Corrected, type=Data Link Layer, (Transmitter ID)
+  pcieport 0000:00:1c.0: AER:   device [8086:a292] error status/mask=00003000/00002000
+  pcieport 0000:00:1c.0: AER:    [12] Timeout
+  pcieport 0000:00:1c.0: AER: Corrected error received: 0000:00:1c.0
+  pcieport 0000:00:1c.0: AER: can't find device of ID00e0
+
+In addition to flooding the kernel log, this also causes the machine to
+wake up immediately after suspend is initiated.
+
+The device advertises ASPM L0s and L1 support in the Link Capabilities
+register, but the ASMedia web page for ASM1083 [1] claims "No PCIe ASPM
+support".
+
+Windows 10 (build 2004) enables L0s, but it also logs correctable PCIe
+errors.
+
+Add a quirk to disable ASPM for this device.
+
+[1] https://www.asmedia.com.tw/eng/e_show_products.php?cate_index=169&item=114
+
+[bhelgaas: commit log]
+Fixes: 66ff14e59e8a ("PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208667
+Link: https://lore.kernel.org/r/20200722021803.17958-1-hancockrwd@gmail.com
+Signed-off-by: Robert Hancock <hancockrwd@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/bpf/hashtab.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/pci/quirks.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index 6fe72792312d8..1b28fb006763a 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -678,15 +678,20 @@ static void htab_elem_free_rcu(struct rcu_head *head)
- 	preempt_enable();
- }
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -2086,6 +2086,19 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x10f4, quirk_disable_aspm_l0s);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x1508, quirk_disable_aspm_l0s);
  
--static void free_htab_elem(struct bpf_htab *htab, struct htab_elem *l)
-+static void htab_put_fd_value(struct bpf_htab *htab, struct htab_elem *l)
- {
- 	struct bpf_map *map = &htab->map;
-+	void *ptr;
- 
- 	if (map->ops->map_fd_put_ptr) {
--		void *ptr = fd_htab_map_get_ptr(map, l);
--
-+		ptr = fd_htab_map_get_ptr(map, l);
- 		map->ops->map_fd_put_ptr(ptr);
- 	}
++static void quirk_disable_aspm_l0s_l1(struct pci_dev *dev)
++{
++	pci_info(dev, "Disabling ASPM L0s/L1\n");
++	pci_disable_link_state(dev, PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1);
 +}
 +
-+static void free_htab_elem(struct bpf_htab *htab, struct htab_elem *l)
-+{
-+	htab_put_fd_value(htab, l);
- 
- 	if (htab_is_prealloc(htab)) {
- 		__pcpu_freelist_push(&htab->freelist, &l->fnode);
-@@ -747,6 +752,7 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
- 			 */
- 			pl_new = this_cpu_ptr(htab->extra_elems);
- 			l_new = *pl_new;
-+			htab_put_fd_value(htab, old_elem);
- 			*pl_new = old_elem;
- 		} else {
- 			struct pcpu_freelist_node *l;
--- 
-2.25.1
-
++/*
++ * ASM1083/1085 PCIe-PCI bridge devices cause AER timeout errors on the
++ * upstream PCIe root port when ASPM is enabled. At least L0s mode is affected;
++ * disable both L0s and L1 for now to be safe.
++ */
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x1080, quirk_disable_aspm_l0s_l1);
++
+ /*
+  * Some Pericom PCIe-to-PCI bridges in reverse mode need the PCIe Retrain
+  * Link bit cleared after starting the link retrain process to allow this
 
 
