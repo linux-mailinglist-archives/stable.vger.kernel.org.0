@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D063623A641
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1261E23A63D
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726955AbgHCMqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:46:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52504 "EHLO mail.kernel.org"
+        id S1728426AbgHCM07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:26:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728439AbgHCM0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:55 -0400
+        id S1728463AbgHCM06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA148204EC;
-        Mon,  3 Aug 2020 12:26:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66EFD207DF;
+        Mon,  3 Aug 2020 12:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457614;
-        bh=xttePjRSo/HvUvQlP8Rh7kntoyB1U0ZEsi/FLPpeVlk=;
+        s=default; t=1596457616;
+        bh=Rh62DhGdoKHPCSs+kPs8e/tz6sIMTBBS7JOf5oDuEXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMedszlSbgCtqiTkLUMqqal+0Lq5iF2es7CkAsEkkQyH6D//ipA0lH3GDb44usKVv
-         s8SY8EHhT73RI2oFSGKzHG54zVGnvDjovo9TGGjFJdxoDEVfxItq4hwPGWUpFL4z9h
-         yLinv6CcHuezxiYW3xeLZuYdMURZZLGD+MavglCA=
+        b=0+SQ0XrLSB+jrAXhsUpyTUtkMLPXyTuVWwv2GsIdtPCfZJS2BqCNkRE6WOug+x3cT
+         2Oo2wd4Es5kfbWIEiVplRL1W0crRRxeDk4ghW9cObsca2GddehpF5XG/i9wlsXof9y
+         NHnRiUoL0Eyy1Lp4q74Mc7aKNKrp5U8FZH2HW6NE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 11/90] ALSA: hda/realtek - Fixed HP right speaker no sound
-Date:   Mon,  3 Aug 2020 14:18:33 +0200
-Message-Id: <20200803121858.093900741@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 12/90] ALSA: hda/hdmi: Fix keep_power assignment for non-component devices
+Date:   Mon,  3 Aug 2020 14:18:34 +0200
+Message-Id: <20200803121858.140976208@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
 References: <20200803121857.546052424@linuxfoundation.org>
@@ -43,72 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5649625344fe1f4695eace7c37d011e317bf66d5 upstream.
+commit c2c3657f0aedb8736a0fb7b2b1985adfb86e7802 upstream.
 
-HP NB right speaker had no sound output.
-This platform was connected to I2S Amp for speaker out.(None Realtek I2S Amp IC)
-EC need to check codec GPIO1 pin to initial I2S Amp.
+It's been reported that, when neither nouveau nor Nvidia graphics
+driver is used, the screen starts flickering.  And, after comparing
+between the working case (stable 4.4.x) and the broken case, it turned
+out that the problem comes from the audio component binding.  The
+Nvidia and AMD audio binding code clears the bus->keep_power flag
+whenever snd_hdac_acomp_init() succeeds.  But this doesn't mean that
+the component is actually bound, but it merely indicates that it's
+ready for binding.  So, when both nouveau and Nvidia are blacklisted
+or not ready, the driver keeps running without the audio component but
+also with bus->keep_power = false.  This made the driver runtime PM
+kicked in and powering down when unused, which results in flickering
+in the graphics side, as it seems.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
+For fixing the bug, this patch moves the bus->keep_power flag change
+into generic_acomp_notifier_set() that is the function called from the
+master_bind callback of component ops; i.e. it's guaranteed that the
+binding succeeded.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208609
+Fixes: 5a858e79c911 ("ALSA: hda - Disable audio component for legacy Nvidia HDMI codecs")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/01285f623ac7447187482fb4a8ecaa7c@realtek.com
+Link: https://lore.kernel.org/r/20200728082033.23933-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5940,6 +5940,16 @@ static void alc_fixup_disable_mic_vref(s
- 		snd_hda_codec_set_pin_target(codec, 0x19, PIN_VREFHIZ);
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2483,6 +2483,7 @@ static void generic_acomp_notifier_set(s
+ 	mutex_lock(&spec->bind_lock);
+ 	spec->use_acomp_notifier = use_acomp;
+ 	spec->codec->relaxed_resume = use_acomp;
++	spec->codec->bus->keep_power = 0;
+ 	/* reprogram each jack detection logic depending on the notifier */
+ 	if (spec->use_jack_detect) {
+ 		for (i = 0; i < spec->num_pins; i++)
+@@ -2578,7 +2579,6 @@ static void generic_acomp_init(struct hd
+ 	if (!snd_hdac_acomp_init(&codec->bus->core, &spec->drm_audio_ops,
+ 				 match_bound_vga, 0)) {
+ 		spec->acomp_registered = true;
+-		codec->bus->keep_power = 0;
+ 	}
  }
  
-+static void  alc285_fixup_hp_gpio_amp_init(struct hda_codec *codec,
-+			      const struct hda_fixup *fix, int action)
-+{
-+	if (action != HDA_FIXUP_ACT_INIT)
-+		return;
-+
-+	msleep(100);
-+	alc_write_coef_idx(codec, 0x65, 0x0);
-+}
-+
- /* for hda_fixup_thinkpad_acpi() */
- #include "thinkpad_helper.c"
- 
-@@ -6120,6 +6130,7 @@ enum {
- 	ALC289_FIXUP_ASUS_GA401,
- 	ALC289_FIXUP_ASUS_GA502,
- 	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
-+	ALC285_FIXUP_HP_GPIO_AMP_INIT,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7352,6 +7363,12 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
- 	},
-+	[ALC285_FIXUP_HP_GPIO_AMP_INIT] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_hp_gpio_amp_init,
-+		.chained = true,
-+		.chain_id = ALC285_FIXUP_HP_GPIO_LED
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7502,7 +7519,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
--	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
 
 
