@@ -2,317 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD5A23A24C
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 11:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CF723A27D
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 12:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbgHCJt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 05:49:58 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45724 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725965AbgHCJt6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 05:49:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1596448196;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=J6KHrCsadEdw9V9WB7W2rt/GGKnvV16+tpgXEpLUalM=;
-        b=f8Zju49wRHjqjHufHnBPTWPtXY7BAMfCTYWMynRrwKsyixWgjSpqaRJ4Uu0IPNHvmnaBiT
-        oo/qFtAT6J66nNfyU1azzxgBcnnWXVkm95i8USp+sC85Z5PTPcTAahe6wJ+UdduEUKhZwC
-        RTEDYZHmO1SZHeWQVCe4LWZT/KaWgVk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-453-CqtEJ6WcMAi_Posn8n2Lrw-1; Mon, 03 Aug 2020 05:49:53 -0400
-X-MC-Unique: CqtEJ6WcMAi_Posn8n2Lrw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7EE91106B243
-        for <stable@vger.kernel.org>; Mon,  3 Aug 2020 09:49:52 +0000 (UTC)
-Received: from [10.130.8.94] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7179510013C1;
-        Mon,  3 Aug 2020 09:49:46 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1726041AbgHCKHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 06:07:36 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:58751 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725968AbgHCKHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 06:07:35 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id BC1E5849;
+        Mon,  3 Aug 2020 06:07:34 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 03 Aug 2020 06:07:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xCynW9
+        cR29m2XoqPbwWMq5709zd2fjjog4vu8ZqZe+g=; b=iXU72vvucUJIfrBHQv0NO3
+        ZyllaFMXZ6ZuI2vzwCfrsvqW6ZMKMzfqVOsdvGxqWFXqQJbFFwGO4kjlJ2g6OEq+
+        YvhEbYYsSUpFFyBM8RlRfcVIW2pzLeiVbyuL+uYH4CxqA3bOeXhhryv1R+plA4kf
+        FoRpJ+DTYaJ9g4D+iFpkp8tSY/sPQai04/0MipPQjQem8WrEijeKrkAgaGXZoRgg
+        jShNATxA0qo8u501MzRcIZij0X2NYqh5hfGHJvI18EZSR5FQItzx0Ijqew6EFuVO
+        vW+MqCCkZxao/RB5hVmyMo58d+JBLavep2/yqendH21gsgFiEv2JSdc14DWl00GQ
+        ==
+X-ME-Sender: <xms:5uEnX0BFbvgLUdDyA_6fhzWGWRcrjToV0T04TiPHEbcMnsdqTlSI9A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjeeggddvgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:5uEnX2gYIXi2Iuf8EyJLIQtBRTBQaShGffi8kqwlk6ebYXySNYvfpg>
+    <xmx:5uEnX3ksRYmSPLWfwInpAwujZeqXw50Ca7peE2H6LF-Z7Gh4kbeqrQ>
+    <xmx:5uEnX6wR2Mq8ZHYLERPIVV7FN9nKbfH4YK85soakul_BO7WmIt7oGA>
+    <xmx:5uEnX67_U2UcuXAKFc_4KhqyFIrjNL4Jl8RT1wz25EhClFJHYT7OuErAvyY>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E35C130600A3;
+        Mon,  3 Aug 2020 06:07:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: SVM: Fix disable pause loop exit/pause filtering" failed to apply to 4.19-stable tree
+To:     wanpengli@tencent.com, lihaiwei@tencent.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 03 Aug 2020 12:07:08 +0200
+Message-ID: <1596449228218155@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.7.12-a51347e.cki
- (stable-queue)
-Date:   Mon, 03 Aug 2020 09:49:46 -0000
-CC:     Memory Management <mm-qe@redhat.com>
-Message-ID: <cki.6C97C6C249.4V6DU7WJIT@redhat.com>
-X-Gitlab-Pipeline-ID: 611384
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/611384
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-We ran automated tests on a recent commit from this kernel tree:
+thanks,
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: a51347edfd15 - riscv: Parse all memory blocks to remove u=
-nusable memory
+greg k-h
 
-The results of these automated tests are provided below.
+------------------ original commit in Linus's tree ------------------
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+From 830f01b089b12bbe93bd55f2d62837253012a30e Mon Sep 17 00:00:00 2001
+From: Wanpeng Li <wanpengli@tencent.com>
+Date: Fri, 31 Jul 2020 11:12:21 +0800
+Subject: [PATCH] KVM: SVM: Fix disable pause loop exit/pause filtering
+ capability on SVM
 
-All kernel binaries, config files, and logs are available for download here:
+'Commit 8566ac8b8e7c ("KVM: SVM: Implement pause loop exit logic in SVM")'
+drops disable pause loop exit/pause filtering capability completely, I
+guess it is a merge fault by Radim since disable vmexits capabilities and
+pause loop exit for SVM patchsets are merged at the same time. This patch
+reintroduces the disable pause loop exit/pause filtering capability support.
 
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/08/03/611384
+Reported-by: Haiwei Li <lihaiwei@tencent.com>
+Tested-by: Haiwei Li <lihaiwei@tencent.com>
+Fixes: 8566ac8b ("KVM: SVM: Implement pause loop exit logic in SVM")
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1596165141-28874-3-git-send-email-wanpengli@tencent.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - file-load
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9D=8C Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index c0da4dd78ac5..5bbf76189afa 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1090,7 +1090,7 @@ static void init_vmcb(struct vcpu_svm *svm)
+ 	svm->nested.vmcb = 0;
+ 	svm->vcpu.arch.hflags = 0;
+ 
+-	if (pause_filter_count) {
++	if (!kvm_pause_in_guest(svm->vcpu.kvm)) {
+ 		control->pause_filter_count = pause_filter_count;
+ 		if (pause_filter_thresh)
+ 			control->pause_filter_thresh = pause_filter_thresh;
+@@ -2693,7 +2693,7 @@ static int pause_interception(struct vcpu_svm *svm)
+ 	struct kvm_vcpu *vcpu = &svm->vcpu;
+ 	bool in_kernel = (svm_get_cpl(vcpu) == 0);
+ 
+-	if (pause_filter_thresh)
++	if (!kvm_pause_in_guest(vcpu->kvm))
+ 		grow_ple_window(vcpu);
+ 
+ 	kvm_vcpu_on_spin(vcpu, in_kernel);
+@@ -3780,7 +3780,7 @@ static void svm_handle_exit_irqoff(struct kvm_vcpu *vcpu)
+ 
+ static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
+ {
+-	if (pause_filter_thresh)
++	if (!kvm_pause_in_guest(vcpu->kvm))
+ 		shrink_ple_window(vcpu);
+ }
+ 
+@@ -3958,6 +3958,9 @@ static void svm_vm_destroy(struct kvm *kvm)
+ 
+ static int svm_vm_init(struct kvm *kvm)
+ {
++	if (!pause_filter_count || !pause_filter_thresh)
++		kvm->arch.pause_in_guest = true;
++
+ 	if (avic) {
+ 		int ret = avic_vm_init(kvm);
+ 		if (ret)
 
