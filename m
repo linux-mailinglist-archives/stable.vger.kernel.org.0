@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8118323A516
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B06F623A5F0
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727094AbgHCMdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33062 "EHLO mail.kernel.org"
+        id S1728467AbgHCMaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:30:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729401AbgHCMdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:14 -0400
+        id S1727006AbgHCMaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:30:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B9A6204EC;
-        Mon,  3 Aug 2020 12:33:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 810AB208B3;
+        Mon,  3 Aug 2020 12:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457992;
-        bh=UBRBwNUBAkcMQm7k4AI2Gc1Fdp/NT7POSOWwfxAQqok=;
+        s=default; t=1596457807;
+        bh=h5rqxxYfACI8lziQ7XNfbCk2S/drUfGwBebl1x248LA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8ZcQXjxGpVBoFCjiGGS01JqdaUb0oRJkSAi4+CIUFOoxeRY+qT0vb2brlMoOA76i
-         2oRdPQ+5Lj+OAJyxvkUlvNiAm/SoJuCbFKm12Kh3a8GqPNLPSm20SQV9HfZwjCYxbX
-         rWq7iGIueJ2Bto3esVG2edTI1yyeHlkJ47mZKCZg=
+        b=rFHNAq7fZC8tOMkPFfgNll1+OjU86hfmNqduZcxakraZfmUQBAnA4fbJQSnUgBKGv
+         kgn9yKS2G1CAauy18odK7nx451XOiQrb32JX3/pzDZqMXmI8ICFegSIVF0oYAYu01s
+         ZlZbUpwcXiCueoXIG9C+SLibieTqb0OTG08MHHD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com,
-        YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 26/56] net/x25: Fix null-ptr-deref in x25_disconnect
-Date:   Mon,  3 Aug 2020 14:19:41 +0200
-Message-Id: <20200803121851.621479441@linuxfoundation.org>
+        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 80/90] x86/stacktrace: Fix reliable check for empty user task stacks
+Date:   Mon,  3 Aug 2020 14:19:42 +0200
+Message-Id: <20200803121901.482736973@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 8999dc89497ab1c80d0718828e838c7cd5f6bffe upstream.
+[ Upstream commit 039a7a30ec102ec866d382a66f87f6f7654f8140 ]
 
-We should check null before do x25_neigh_put in x25_disconnect,
-otherwise may cause null-ptr-deref like this:
+If a user task's stack is empty, or if it only has user regs, ORC
+reports it as a reliable empty stack.  But arch_stack_walk_reliable()
+incorrectly treats it as unreliable.
 
- #include <sys/socket.h>
- #include <linux/x25.h>
+That happens because the only success path for user tasks is inside the
+loop, which only iterates on non-empty stacks.  Generally, a user task
+must end in a user regs frame, but an empty stack is an exception to
+that rule.
 
- int main() {
-    int sck_x25;
-    sck_x25 = socket(AF_X25, SOCK_SEQPACKET, 0);
-    close(sck_x25);
-    return 0;
- }
+Thanks to commit 71c95825289f ("x86/unwind/orc: Fix error handling in
+__unwind_start()"), unwind_start() now sets state->error appropriately.
+So now for both ORC and FP unwinders, unwind_done() and !unwind_error()
+always means the end of the stack was successfully reached.  So the
+success path for kthreads is no longer needed -- it can also be used for
+empty user tasks.
 
-BUG: kernel NULL pointer dereference, address: 00000000000000d8
-CPU: 0 PID: 4817 Comm: t2 Not tainted 5.7.0-rc3+ #159
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-
-RIP: 0010:x25_disconnect+0x91/0xe0
-Call Trace:
- x25_release+0x18a/0x1b0
- __sock_release+0x3d/0xc0
- sock_close+0x13/0x20
- __fput+0x107/0x270
- ____fput+0x9/0x10
- task_work_run+0x6d/0xb0
- exit_to_usermode_loop+0x102/0x110
- do_syscall_64+0x23c/0x260
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lkml.kernel.org/r/f136a4e5f019219cbc4f4da33b30c2f44fa65b84.1594994374.git.jpoimboe@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/x25_subr.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/x86/kernel/stacktrace.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/net/x25/x25_subr.c
-+++ b/net/x25/x25_subr.c
-@@ -362,10 +362,12 @@ void x25_disconnect(struct sock *sk, int
- 		sk->sk_state_change(sk);
- 		sock_set_flag(sk, SOCK_DEAD);
- 	}
--	read_lock_bh(&x25_list_lock);
--	x25_neigh_put(x25->neighbour);
--	x25->neighbour = NULL;
--	read_unlock_bh(&x25_list_lock);
-+	if (x25->neighbour) {
-+		read_lock_bh(&x25_list_lock);
-+		x25_neigh_put(x25->neighbour);
-+		x25->neighbour = NULL;
-+		read_unlock_bh(&x25_list_lock);
-+	}
+diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+index 2d6898c2cb647..6d83b4b857e6a 100644
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -58,7 +58,6 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+ 			 * or a page fault), which can make frame pointers
+ 			 * unreliable.
+ 			 */
+-
+ 			if (IS_ENABLED(CONFIG_FRAME_POINTER))
+ 				return -EINVAL;
+ 		}
+@@ -81,10 +80,6 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+ 	if (unwind_error(&state))
+ 		return -EINVAL;
+ 
+-	/* Success path for non-user tasks, i.e. kthreads and idle tasks */
+-	if (!(task->flags & (PF_KTHREAD | PF_IDLE)))
+-		return -EINVAL;
+-
+ 	return 0;
  }
  
- /*
+-- 
+2.25.1
+
 
 
