@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6116023A4A6
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:29:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D288D23A433
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728877AbgHCM3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:29:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
+        id S1726622AbgHCMYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:24:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727814AbgHCM3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:29:20 -0400
+        id S1728039AbgHCMYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:24:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53AA72245C;
-        Mon,  3 Aug 2020 12:29:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C55DE207BB;
+        Mon,  3 Aug 2020 12:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457758;
-        bh=ydK9cr8WcttdvYlxvmGns+HK1944d3qEWesYbgDU2qE=;
+        s=default; t=1596457471;
+        bh=NocX8FRNNofFxc9quJy1/gGLORMCIGCJ/kDCDScoBrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMP9zJY52r68QpXhv3SfKk3jjiPEQOUbCOq5kcK6+Yp2qB/TtMlpaBY0602460Kic
-         SKwfxyi8Kt48SkgNvxVEaQ2JWQdtDdPZsUKH33gZuCHAEDpmc6KxOsgnRas5NSrCJU
-         UVITW8P2mzl9KIqk1kerr35EVrM2+IH8uADHwHGc=
+        b=dDtzTh1yXXe7QKMfy4RlJx2WHJGgagm21tXxd0a3FQNT+puQCKBMUoqMmEdTwVfVF
+         XqEtGbBBbKLFj5o6aIMA5mZVzkLRc/ziVHAbdZccu2a4vg/8BZteNv3cxaU/1wlyZB
+         DOqgYdrluBdUdGW72b5GnZ/PxwCOGOFBUeyX8z30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 33/90] net/x25: Fix x25_neigh refcnt leak when x25 disconnect
-Date:   Mon,  3 Aug 2020 14:18:55 +0200
-Message-Id: <20200803121859.217192052@linuxfoundation.org>
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 079/120] mac80211: mesh: Free pending skb when destroying a mpath
+Date:   Mon,  3 Aug 2020 14:18:57 +0200
+Message-Id: <20200803121906.683861064@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Remi Pommarel <repk@triplefau.lt>
 
-commit 4becb7ee5b3d2829ed7b9261a245a77d5b7de902 upstream.
+[ Upstream commit 5e43540c2af0a0c0a18e39579b1ad49541f87506 ]
 
-x25_connect() invokes x25_get_neigh(), which returns a reference of the
-specified x25_neigh object to "x25->neighbour" with increased refcnt.
+A mpath object can hold reference on a list of skb that are waiting for
+mpath resolution to be sent. When destroying a mpath this skb list
+should be cleaned up in order to not leak memory.
 
-When x25 connect success and returns, the reference still be hold by
-"x25->neighbour", so the refcount should be decreased in
-x25_disconnect() to keep refcount balanced.
+Fixing that kind of leak:
 
-The reference counting issue happens in x25_disconnect(), which forgets
-to decrease the refcnt increased by x25_get_neigh() in x25_connect(),
-causing a refcnt leak.
+unreferenced object 0xffff0000181c9300 (size 1088):
+  comm "openvpn", pid 1782, jiffies 4295071698 (age 80.416s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 f9 80 36 00 00 00 00 00  ..........6.....
+    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<000000002caaef13>] sk_prot_alloc.isra.39+0x34/0x178
+    [<00000000ceeaa916>] sk_alloc+0x34/0x228
+    [<00000000ca1f1d04>] inet_create+0x198/0x518
+    [<0000000035626b1c>] __sock_create+0x134/0x328
+    [<00000000a12b3a87>] __sys_socket+0xb0/0x158
+    [<00000000ff859f23>] __arm64_sys_socket+0x40/0x58
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
+unreferenced object 0xffff000012973a40 (size 216):
+  comm "openvpn", pid 1782, jiffies 4295082137 (age 38.660s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 c0 06 16 00 00 ff ff 00 93 1c 18 00 00 ff ff  ................
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<0000000023c8c8f9>] __alloc_skb+0xc0/0x2b8
+    [<000000007ad950bb>] alloc_skb_with_frags+0x60/0x320
+    [<00000000ef90023a>] sock_alloc_send_pskb+0x388/0x3c0
+    [<00000000104fb1a3>] sock_alloc_send_skb+0x1c/0x28
+    [<000000006919d2dd>] __ip_append_data+0xba4/0x11f0
+    [<0000000083477587>] ip_make_skb+0x14c/0x1a8
+    [<0000000024f3d592>] udp_sendmsg+0xaf0/0xcf0
+    [<000000005aabe255>] inet_sendmsg+0x5c/0x80
+    [<000000008651ea08>] __sys_sendto+0x15c/0x218
+    [<000000003505c99b>] __arm64_sys_sendto+0x74/0x90
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
 
-Fix this issue by calling x25_neigh_put() before x25_disconnect()
-returns.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2bdaf386f99c (mac80211: mesh: move path tables into if_mesh)
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Link: https://lore.kernel.org/r/20200704135419.27703-1-repk@triplefau.lt
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/x25_subr.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/mac80211/mesh_pathtbl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/x25/x25_subr.c
-+++ b/net/x25/x25_subr.c
-@@ -357,6 +357,10 @@ void x25_disconnect(struct sock *sk, int
- 		sk->sk_state_change(sk);
- 		sock_set_flag(sk, SOCK_DEAD);
- 	}
-+	read_lock_bh(&x25_list_lock);
-+	x25_neigh_put(x25->neighbour);
-+	x25->neighbour = NULL;
-+	read_unlock_bh(&x25_list_lock);
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index 117519bf33d65..aca608ae313fe 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -521,6 +521,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl,
+ 	del_timer_sync(&mpath->timer);
+ 	atomic_dec(&sdata->u.mesh.mpaths);
+ 	atomic_dec(&tbl->entries);
++	mesh_path_flush_pending(mpath);
+ 	kfree_rcu(mpath, rcu);
  }
  
- /*
+-- 
+2.25.1
+
 
 
