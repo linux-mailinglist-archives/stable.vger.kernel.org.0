@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CF323A54D
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297C223A5AC
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:40:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729111AbgHCMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:35:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
+        id S1728165AbgHCMkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728954AbgHCMfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:35:31 -0400
+        id S1728592AbgHCMc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5804120781;
-        Mon,  3 Aug 2020 12:35:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3FD62054F;
+        Mon,  3 Aug 2020 12:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458130;
-        bh=szKyfdCf1Jf/SkG9ybiPLg0SInDIfcKuTeM+JmnJMz0=;
+        s=default; t=1596457976;
+        bh=bgAddR/u870zWR7NHJFFnORjmWhzCSF1Zmk3C6mtp4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hul9d9Y9EPDgItLQh3RfGNGkKptNc1PPG8bwMwdkenHFAD7XvItdc4Q6lLBVPjv1r
-         CXp8q9cm4UNzeKUUQCaQ+xWzUdwyN42SAPzF2WmBsV7duRpsCXM1KggYOLQgI8PwPJ
-         QIIwPAigrHEpVxgDIGiugUy3/ym763i0QR8APUfM=
+        b=YXCbffeKbZEK6byME6mUEYifM8zgKOzfQleKqrkSY+CIGT+5A3dwnl4HpKS0sfVmR
+         NdymAb7uXH0TXrrFqhWvJyH+khXloIqTCIThQ7vPn59ODkmwtqeZwC52/LmfsdK7Ra
+         6CtSllgZ68NRlncxX3JszMM7WaZ1g+8sUCApj1kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Emese Revfy <re.emese@gmail.com>,
-        Kees Cook <keescook@chromium.org>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 19/51] random32: remove net_rand_state from the latent entropy gcc plugin
-Date:   Mon,  3 Aug 2020 14:20:04 +0200
-Message-Id: <20200803121850.423049686@linuxfoundation.org>
+        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 50/56] net: ethernet: ravb: exit if re-initialization fails in tx timeout
+Date:   Mon,  3 Aug 2020 14:20:05 +0200
+Message-Id: <20200803121852.769062363@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 83bdc7275e6206f560d247be856bceba3e1ed8f2 upstream.
+[ Upstream commit 015c5d5e6aa3523c758a70eb87b291cece2dbbb4 ]
 
-It turns out that the plugin right now ends up being really unhappy
-about the change from 'static' to 'extern' storage that happened in
-commit f227e3ec3b5c ("random32: update the net random state on interrupt
-and activity").
+According to the report of [1], this driver is possible to cause
+the following error in ravb_tx_timeout_work().
 
-This is probably a trivial fix for the latent_entropy plugin, but for
-now, just remove net_rand_state from the list of things the plugin
-worries about.
+ravb e6800000.ethernet ethernet: failed to switch device to config mode
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Emese Revfy <re.emese@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This error means that the hardware could not change the state
+from "Operation" to "Configuration" while some tx and/or rx queue
+are operating. After that, ravb_config() in ravb_dmac_init() will fail,
+and then any descriptors will be not allocaled anymore so that NULL
+pointer dereference happens after that on ravb_start_xmit().
 
+To fix the issue, the ravb_tx_timeout_work() should check
+the return values of ravb_stop_dma() and ravb_dmac_init().
+If ravb_stop_dma() fails, ravb_tx_timeout_work() re-enables TX and RX
+and just exits. If ravb_dmac_init() fails, just exits.
+
+[1]
+https://lore.kernel.org/linux-renesas-soc/20200518045452.2390-1-dirk.behme@de.bosch.com/
+
+Reported-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/random.h |    2 +-
- lib/random32.c         |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 26 ++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -117,7 +117,7 @@ struct rnd_state {
- 	__u32 s1, s2, s3, s4;
- };
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index faaf74073a120..569e698b5c807 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1445,6 +1445,7 @@ static void ravb_tx_timeout_work(struct work_struct *work)
+ 	struct ravb_private *priv = container_of(work, struct ravb_private,
+ 						 work);
+ 	struct net_device *ndev = priv->ndev;
++	int error;
  
--DECLARE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
-+DECLARE_PER_CPU(struct rnd_state, net_rand_state);
+ 	netif_tx_stop_all_queues(ndev);
  
- u32 prandom_u32_state(struct rnd_state *state);
- void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
---- a/lib/random32.c
-+++ b/lib/random32.c
-@@ -48,7 +48,7 @@ static inline void prandom_state_selftes
- }
- #endif
+@@ -1453,15 +1454,36 @@ static void ravb_tx_timeout_work(struct work_struct *work)
+ 		ravb_ptp_stop(ndev);
  
--DEFINE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
-+DEFINE_PER_CPU(struct rnd_state, net_rand_state);
+ 	/* Wait for DMA stopping */
+-	ravb_stop_dma(ndev);
++	if (ravb_stop_dma(ndev)) {
++		/* If ravb_stop_dma() fails, the hardware is still operating
++		 * for TX and/or RX. So, this should not call the following
++		 * functions because ravb_dmac_init() is possible to fail too.
++		 * Also, this should not retry ravb_stop_dma() again and again
++		 * here because it's possible to wait forever. So, this just
++		 * re-enables the TX and RX and skip the following
++		 * re-initialization procedure.
++		 */
++		ravb_rcv_snd_enable(ndev);
++		goto out;
++	}
  
- /**
-  *	prandom_u32_state - seeded pseudo-random number generator.
+ 	ravb_ring_free(ndev, RAVB_BE);
+ 	ravb_ring_free(ndev, RAVB_NC);
+ 
+ 	/* Device init */
+-	ravb_dmac_init(ndev);
++	error = ravb_dmac_init(ndev);
++	if (error) {
++		/* If ravb_dmac_init() fails, descriptors are freed. So, this
++		 * should return here to avoid re-enabling the TX and RX in
++		 * ravb_emac_init().
++		 */
++		netdev_err(ndev, "%s: ravb_dmac_init() failed, error %d\n",
++			   __func__, error);
++		return;
++	}
+ 	ravb_emac_init(ndev);
+ 
++out:
+ 	/* Initialise PTP Clock driver */
+ 	if (priv->chip_id == RCAR_GEN2)
+ 		ravb_ptp_init(ndev, priv->pdev);
+-- 
+2.25.1
+
 
 
