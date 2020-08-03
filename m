@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5348223A4DC
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43E5123A661
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbgHCMa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:30:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58232 "EHLO mail.kernel.org"
+        id S1728302AbgHCMZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:25:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729123AbgHCMa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:30:56 -0400
+        id S1728296AbgHCMZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:25:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 878FE204EC;
-        Mon,  3 Aug 2020 12:30:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 143F0207DF;
+        Mon,  3 Aug 2020 12:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457855;
-        bh=AgABORwTNRUJplQ+d2D63qNA8DLesu9K85EcX1bW8Z0=;
+        s=default; t=1596457555;
+        bh=k9WgX49UhER9eYl15sr7XTWMTSzUTaFe3tk7B9RNLmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=04JKRmfRZKkevFGQKCKIjiAvzDwPNzCTWp+txcU6HuN+WU3u8W9johLu5CDqEIC1x
-         vaMBajEvUV50mbdv4yOS1tc4xhFjSgDSBXzN0izzEYM8JoRROG63Y1Bb6xXuESc4jV
-         GyDTDAfZIOp/V/PY49/4lhbglJEtM4Uh+MI3VJqE=
+        b=flgMXCEi80yhHssYGl3xQBRdhr7P/E6Kh0DcE5jnHAx7tDNasjumqOPMuYPtzoNDv
+         8z705IJ3DunxayIzdAxlfkgX2QG4/urgK2ed9ul90h3oM1tndt3jeYC41QoHokrep6
+         aviDcsQFGOMaU3bNgW9yo6TUhiw0E1NpOR7sMxdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 67/90] net/mlx5e: fix bpf_prog reference count leaks in mlx5e_alloc_rq
+Subject: [PATCH 5.7 111/120] x86/stacktrace: Fix reliable check for empty user task stacks
 Date:   Mon,  3 Aug 2020 14:19:29 +0200
-Message-Id: <20200803121900.864413586@linuxfoundation.org>
+Message-Id: <20200803121908.300695312@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit e692139e6af339a1495ef401b2d95f7f9d1c7a44 ]
+[ Upstream commit 039a7a30ec102ec866d382a66f87f6f7654f8140 ]
 
-The function invokes bpf_prog_inc(), which increases the reference
-count of a bpf_prog object "rq->xdp_prog" if the object isn't NULL.
+If a user task's stack is empty, or if it only has user regs, ORC
+reports it as a reliable empty stack.  But arch_stack_walk_reliable()
+incorrectly treats it as unreliable.
 
-The refcount leak issues take place in two error handling paths. When
-either mlx5_wq_ll_create() or mlx5_wq_cyc_create() fails, the function
-simply returns the error code and forgets to drop the reference count
-increased earlier, causing a reference count leak of "rq->xdp_prog".
+That happens because the only success path for user tasks is inside the
+loop, which only iterates on non-empty stacks.  Generally, a user task
+must end in a user regs frame, but an empty stack is an exception to
+that rule.
 
-Fix this issue by jumping to the error handling path err_rq_wq_destroy
-while either function fails.
+Thanks to commit 71c95825289f ("x86/unwind/orc: Fix error handling in
+__unwind_start()"), unwind_start() now sets state->error appropriately.
+So now for both ORC and FP unwinders, unwind_done() and !unwind_error()
+always means the end of the stack was successfully reached.  So the
+success path for kthreads is no longer needed -- it can also be used for
+empty user tasks.
 
-Fixes: 422d4c401edd ("net/mlx5e: RX, Split WQ objects for different RQ types")
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Reported-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lkml.kernel.org/r/f136a4e5f019219cbc4f4da33b30c2f44fa65b84.1594994374.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/stacktrace.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index cb3dcfced89fa..ee0d78f801af5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -432,7 +432,7 @@ static int mlx5e_alloc_rq(struct mlx5e_channel *c,
- 		err = mlx5_wq_ll_create(mdev, &rqp->wq, rqc_wq, &rq->mpwqe.wq,
- 					&rq->wq_ctrl);
- 		if (err)
--			return err;
-+			goto err_rq_wq_destroy;
+diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+index 6ad43fc44556e..2fd698e28e4d5 100644
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -58,7 +58,6 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+ 			 * or a page fault), which can make frame pointers
+ 			 * unreliable.
+ 			 */
+-
+ 			if (IS_ENABLED(CONFIG_FRAME_POINTER))
+ 				return -EINVAL;
+ 		}
+@@ -81,10 +80,6 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+ 	if (unwind_error(&state))
+ 		return -EINVAL;
  
- 		rq->mpwqe.wq.db = &rq->mpwqe.wq.db[MLX5_RCV_DBR];
- 
-@@ -485,7 +485,7 @@ static int mlx5e_alloc_rq(struct mlx5e_channel *c,
- 		err = mlx5_wq_cyc_create(mdev, &rqp->wq, rqc_wq, &rq->wqe.wq,
- 					 &rq->wq_ctrl);
- 		if (err)
--			return err;
-+			goto err_rq_wq_destroy;
- 
- 		rq->wqe.wq.db = &rq->wqe.wq.db[MLX5_RCV_DBR];
+-	/* Success path for non-user tasks, i.e. kthreads and idle tasks */
+-	if (!(task->flags & (PF_KTHREAD | PF_IDLE)))
+-		return -EINVAL;
+-
+ 	return 0;
+ }
  
 -- 
 2.25.1
