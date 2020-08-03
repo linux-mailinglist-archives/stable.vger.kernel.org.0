@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D48223A485
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6617E23A436
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728117AbgHCM2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54020 "EHLO mail.kernel.org"
+        id S1728052AbgHCMYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:24:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728069AbgHCM2E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:04 -0400
+        id S1728047AbgHCMYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:24:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 689E3204EC;
-        Mon,  3 Aug 2020 12:28:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 209E4207DF;
+        Mon,  3 Aug 2020 12:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457683;
-        bh=Kfu+XxVXJeh86b6zyQ0ONniE1Ud6R7QhS1dDN4UNn1Q=;
+        s=default; t=1596457478;
+        bh=2Rf00zb0NiJrc2Hsb0wQlosMgVlGXbTqxrdugp9D0xA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k53xwjHhqkuO0y3YKrlZj7evh42wnQ6mYtIg/ae1/Of37LJAj2Lbr/HhlNbt8HVau
-         F7O9RJI3Zw2hUAOAqvlaKzi9LfVBkKIpQcBWoN/IyfE9e49EgLjrPVzjZp/eri0US7
-         YvYEdAj0GYI//283/2VGvYobtQM12Q0I9T89o2SE=
+        b=YL+2cZhY+RZKKIxwKLc7dfUzPIbtlU2nYPsQ3j7DVW4NpOITP0Y+eenOwWTCVZwih
+         oa4taS1G7ptI1tH/SnrHgdq2Qh9ZgflGx4F7EpPC781jXnMtlqY0XuERfyvEKtUvPo
+         8BW6uYljmuD6xj9uPFsFOibA0qWe/upjjMNWZk8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/90] xfrm: Fix crash when the hold queue is used.
-Date:   Mon,  3 Aug 2020 14:18:59 +0200
-Message-Id: <20200803121859.406238820@linuxfoundation.org>
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 082/120] arm64/alternatives: move length validation inside the subsection
+Date:   Mon,  3 Aug 2020 14:19:00 +0200
+Message-Id: <20200803121906.864468101@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 101dde4207f1daa1fda57d714814a03835dccc3f ]
+[ Upstream commit 966a0acce2fca776391823381dba95c40e03c339 ]
 
-The commits "xfrm: Move dst->path into struct xfrm_dst"
-and "net: Create and use new helper xfrm_dst_child()."
-changed xfrm bundle handling under the assumption
-that xdst->path and dst->child are not a NULL pointer
-only if dst->xfrm is not a NULL pointer. That is true
-with one exception. If the xfrm hold queue is used
-to wait until a SA is installed by the key manager,
-we create a dummy bundle without a valid dst->xfrm
-pointer. The current xfrm bundle handling crashes
-in that case. Fix this by extending the NULL check
-of dst->xfrm with a test of the DST_XFRM_QUEUE flag.
+Commit f7b93d42945c ("arm64/alternatives: use subsections for replacement
+sequences") breaks LLVM's integrated assembler, because due to its
+one-pass design, it cannot compute instruction sequence lengths before the
+layout for the subsection has been finalized. This change fixes the build
+by moving the .org directives inside the subsection, so they are processed
+after the subsection layout is known.
 
-Fixes: 0f6c480f23f4 ("xfrm: Move dst->path into struct xfrm_dst")
-Fixes: b92cf4aab8e6 ("net: Create and use new helper xfrm_dst_child().")
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1078
+Link: https://lore.kernel.org/r/20200730153701.3892953-1-samitolvanen@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h | 4 ++--
+ arch/arm64/include/asm/alternative.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index e7a480a4ffb90..12aa6e15e43f6 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -945,7 +945,7 @@ struct xfrm_dst {
- static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
- {
- #ifdef CONFIG_XFRM
--	if (dst->xfrm) {
-+	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
- 		const struct xfrm_dst *xdst = (const struct xfrm_dst *) dst;
+diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
+index 12f0eb56a1cc3..619db9b4c9d5c 100644
+--- a/arch/arm64/include/asm/alternative.h
++++ b/arch/arm64/include/asm/alternative.h
+@@ -77,9 +77,9 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ 	"663:\n\t"							\
+ 	newinstr "\n"							\
+ 	"664:\n\t"							\
+-	".previous\n\t"							\
+ 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
+-	".org	. - (662b-661b) + (664b-663b)\n"			\
++	".org	. - (662b-661b) + (664b-663b)\n\t"			\
++	".previous\n"							\
+ 	".endif\n"
  
- 		return xdst->path;
-@@ -957,7 +957,7 @@ static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
- static inline struct dst_entry *xfrm_dst_child(const struct dst_entry *dst)
- {
- #ifdef CONFIG_XFRM
--	if (dst->xfrm) {
-+	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
- 		struct xfrm_dst *xdst = (struct xfrm_dst *) dst;
- 		return xdst->child;
- 	}
+ #define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
 -- 
 2.25.1
 
