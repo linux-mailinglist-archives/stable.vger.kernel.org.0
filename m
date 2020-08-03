@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A72A23A668
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 871D523A63E
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726645AbgHCMZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:25:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50232 "EHLO mail.kernel.org"
+        id S1728497AbgHCMqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:46:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728207AbgHCMZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:25:25 -0400
+        id S1726865AbgHCM1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F239204EC;
-        Mon,  3 Aug 2020 12:25:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0BA6207DF;
+        Mon,  3 Aug 2020 12:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457524;
-        bh=Wt3/h1QPAQLhuPhRPshYUENEheR289Pn/aK8t45cbZ8=;
+        s=default; t=1596457627;
+        bh=x4UMX5p252GYrKJ/aCarb85LZB57EhVLYClq7cIfOP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/NzVPGT2eMsl8ec8X5OWPMCNV8vxkk1X6ZbCGTmCV5hJPXFD00XZvoac8wADHayJ
-         KyJZWNBUkD8DTUzOv6f7NWhbXqthCxMNUHdZbq6X0HvHynX/xxTRj7D4knDQ98keRW
-         6LP8V62FYrmhjfEmwZGqZEATwrBkaOVfcwtTImME=
+        b=Mv4Kgjfr70R7EjeH37qSLloEZNoJR3ixr6hIkmm1QNKMw4tEAkMTrwCImqNx75Wu+
+         q+oFHbdPK5PQm7S8xmN/9u0eZJYWWqU4Bg0fPnl5jIDMbYEvUxzjjzsJqZBFIlrS3q
+         kMesOpNjGMZtfiTUHW+3MwCGxSCJEnq6JCEAYUgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 059/120] net/mlx5: Query PPS pin operational status before registering it
-Date:   Mon,  3 Aug 2020 14:18:37 +0200
-Message-Id: <20200803121905.672531946@linuxfoundation.org>
+        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 16/90] wireless: Use offsetof instead of custom macro.
+Date:   Mon,  3 Aug 2020 14:18:38 +0200
+Message-Id: <20200803121858.404958387@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@mellanox.com>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit ed56d749c366be269d58b29597392e4a0ae71c0a ]
+commit 6989310f5d4327e8595664954edd40a7f99ddd0d upstream.
 
-In a special configuration, a ConnectX6-Dx pin pps-out might be activated
-when driver is loaded. Fix the driver to always read the operational pin
-mode when registering it, and advertise it accordingly.
+Use offsetof to calculate offset of a field to take advantage of
+compiler built-in version when possible, and avoid UBSAN warning when
+compiling with Clang:
 
-Fixes: ee7f12205abc ("net/mlx5e: Implement 1PPS support")
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+==================================================================
+UBSAN: Undefined behaviour in net/wireless/wext-core.c:525:14
+member access within null pointer of type 'struct iw_point'
+CPU: 3 PID: 165 Comm: kworker/u16:3 Tainted: G S      W         4.19.23 #43
+Workqueue: cfg80211 __cfg80211_scan_done [cfg80211]
+Call trace:
+ dump_backtrace+0x0/0x194
+ show_stack+0x20/0x2c
+ __dump_stack+0x20/0x28
+ dump_stack+0x70/0x94
+ ubsan_epilogue+0x14/0x44
+ ubsan_type_mismatch_common+0xf4/0xfc
+ __ubsan_handle_type_mismatch_v1+0x34/0x54
+ wireless_send_event+0x3cc/0x470
+ ___cfg80211_scan_done+0x13c/0x220 [cfg80211]
+ __cfg80211_scan_done+0x28/0x34 [cfg80211]
+ process_one_work+0x170/0x35c
+ worker_thread+0x254/0x380
+ kthread+0x13c/0x158
+ ret_from_fork+0x10/0x18
+===================================================================
+
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20191204081307.138765-1-pihsun@chromium.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../ethernet/mellanox/mlx5/core/lib/clock.c   | 34 ++++++++++++++++++-
- 1 file changed, 33 insertions(+), 1 deletion(-)
+ include/uapi/linux/wireless.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-index 0267552b8a61b..1d9a5117f90b2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-@@ -431,6 +431,38 @@ static const struct ptp_clock_info mlx5_ptp_clock_info = {
- 	.verify		= NULL,
- };
+--- a/include/uapi/linux/wireless.h
++++ b/include/uapi/linux/wireless.h
+@@ -74,6 +74,8 @@
+ #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
+ #include <linux/if.h>			/* for IFNAMSIZ and co... */
  
-+static int mlx5_query_mtpps_pin_mode(struct mlx5_core_dev *mdev, u8 pin,
-+				     u32 *mtpps, u32 mtpps_size)
-+{
-+	u32 in[MLX5_ST_SZ_DW(mtpps_reg)] = {};
++#include <stddef.h>                     /* for offsetof */
 +
-+	MLX5_SET(mtpps_reg, in, pin, pin);
-+
-+	return mlx5_core_access_reg(mdev, in, sizeof(in), mtpps,
-+				    mtpps_size, MLX5_REG_MTPPS, 0, 0);
-+}
-+
-+static int mlx5_get_pps_pin_mode(struct mlx5_clock *clock, u8 pin)
-+{
-+	struct mlx5_core_dev *mdev = clock->mdev;
-+	u32 out[MLX5_ST_SZ_DW(mtpps_reg)] = {};
-+	u8 mode;
-+	int err;
-+
-+	err = mlx5_query_mtpps_pin_mode(mdev, pin, out, sizeof(out));
-+	if (err || !MLX5_GET(mtpps_reg, out, enable))
-+		return PTP_PF_NONE;
-+
-+	mode = MLX5_GET(mtpps_reg, out, pin_mode);
-+
-+	if (mode == MLX5_PIN_MODE_IN)
-+		return PTP_PF_EXTTS;
-+	else if (mode == MLX5_PIN_MODE_OUT)
-+		return PTP_PF_PEROUT;
-+
-+	return PTP_PF_NONE;
-+}
-+
- static int mlx5_init_pin_config(struct mlx5_clock *clock)
- {
- 	int i;
-@@ -450,7 +482,7 @@ static int mlx5_init_pin_config(struct mlx5_clock *clock)
- 			 sizeof(clock->ptp_info.pin_config[i].name),
- 			 "mlx5_pps%d", i);
- 		clock->ptp_info.pin_config[i].index = i;
--		clock->ptp_info.pin_config[i].func = PTP_PF_NONE;
-+		clock->ptp_info.pin_config[i].func = mlx5_get_pps_pin_mode(clock, i);
- 		clock->ptp_info.pin_config[i].chan = 0;
- 	}
+ /***************************** VERSION *****************************/
+ /*
+  * This constant is used to know the availability of the wireless
+@@ -1090,8 +1092,7 @@ struct iw_event {
+ /* iw_point events are special. First, the payload (extra data) come at
+  * the end of the event, so they are bigger than IW_EV_POINT_LEN. Second,
+  * we omit the pointer, so start at an offset. */
+-#define IW_EV_POINT_OFF (((char *) &(((struct iw_point *) NULL)->length)) - \
+-			  (char *) NULL)
++#define IW_EV_POINT_OFF offsetof(struct iw_point, length)
+ #define IW_EV_POINT_LEN	(IW_EV_LCP_LEN + sizeof(struct iw_point) - \
+ 			 IW_EV_POINT_OFF)
  
--- 
-2.25.1
-
 
 
