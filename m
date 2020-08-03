@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0302123A517
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F9523A5EF
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729411AbgHCMdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33114 "EHLO mail.kernel.org"
+        id S1729009AbgHCMaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:30:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728539AbgHCMdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:17 -0400
+        id S1728132AbgHCMaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:30:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FD0D2054F;
-        Mon,  3 Aug 2020 12:33:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47ECF2086A;
+        Mon,  3 Aug 2020 12:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457995;
-        bh=yi2SbEtLnpkfz+2kpqX+tuBL/mzKRqOf3TWT5F77Vno=;
+        s=default; t=1596457809;
+        bh=5pduQLlgfqUUfmXNn6eWMBtyvLAHIiItS3XnpYYz72c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGuJTfJBKkvFsCl1oFb27MdocfjXOzdamVTyJ+4rJttJ4l9PVk4UwcDAS+l4vrmv6
-         dulAbOFCN7Wlx5YtLuJI6ND5LlpUxkLlhoGWHl8zTk0TfY86u/jyhzOFgKYSGV/esV
-         3aVbu47jujn7sL2yw33ng0lwYDZLLgkV+UFc1iD0=
+        b=v3XPkN/XEz7OYp8fuqVfY3iaEHA5niQNSlXu8gJYOEnWKiRystFX8NAD3ZX8prz2g
+         AF3g/J5PnXxD4mLMHbx5SHIf6HoFnjtZdKNVrm62mKQbV2bg/LHsbp3QtVC11PauF4
+         E5+g8cXa9XZ3Zg9Ge/ybxge7pwZzfVX6VrspaP+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/56] xfrm: Fix crash when the hold queue is used.
-Date:   Mon,  3 Aug 2020 14:19:42 +0200
-Message-Id: <20200803121851.669728405@linuxfoundation.org>
+Subject: [PATCH 5.4 81/90] cxgb4: add missing release on skb in uld_send()
+Date:   Mon,  3 Aug 2020 14:19:43 +0200
+Message-Id: <20200803121901.530719207@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 101dde4207f1daa1fda57d714814a03835dccc3f ]
+[ Upstream commit e6827d1abdc9b061a57d7b7d3019c4e99fabea2f ]
 
-The commits "xfrm: Move dst->path into struct xfrm_dst"
-and "net: Create and use new helper xfrm_dst_child()."
-changed xfrm bundle handling under the assumption
-that xdst->path and dst->child are not a NULL pointer
-only if dst->xfrm is not a NULL pointer. That is true
-with one exception. If the xfrm hold queue is used
-to wait until a SA is installed by the key manager,
-we create a dummy bundle without a valid dst->xfrm
-pointer. The current xfrm bundle handling crashes
-in that case. Fix this by extending the NULL check
-of dst->xfrm with a test of the DST_XFRM_QUEUE flag.
+In the implementation of uld_send(), the skb is consumed on all
+execution paths except one. Release skb when returning NET_XMIT_DROP.
 
-Fixes: 0f6c480f23f4 ("xfrm: Move dst->path into struct xfrm_dst")
-Fixes: b92cf4aab8e6 ("net: Create and use new helper xfrm_dst_child().")
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/sge.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index f087c8d125b8f..3a0b5de742e9b 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1016,7 +1016,7 @@ struct xfrm_dst {
- static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
- {
- #ifdef CONFIG_XFRM
--	if (dst->xfrm) {
-+	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
- 		const struct xfrm_dst *xdst = (const struct xfrm_dst *) dst;
- 
- 		return xdst->path;
-@@ -1028,7 +1028,7 @@ static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
- static inline struct dst_entry *xfrm_dst_child(const struct dst_entry *dst)
- {
- #ifdef CONFIG_XFRM
--	if (dst->xfrm) {
-+	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
- 		struct xfrm_dst *xdst = (struct xfrm_dst *) dst;
- 		return xdst->child;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+index 506170fe3a8b7..049f1bbe27ab3 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+@@ -2441,6 +2441,7 @@ static inline int uld_send(struct adapter *adap, struct sk_buff *skb,
+ 	txq_info = adap->sge.uld_txq_info[tx_uld_type];
+ 	if (unlikely(!txq_info)) {
+ 		WARN_ON(true);
++		kfree_skb(skb);
+ 		return NET_XMIT_DROP;
  	}
+ 
 -- 
 2.25.1
 
