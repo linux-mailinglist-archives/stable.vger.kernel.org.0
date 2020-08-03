@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8360023A5F8
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE0923A4ED
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:31:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728955AbgHCM3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:29:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56456 "EHLO mail.kernel.org"
+        id S1729197AbgHCMbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:31:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728965AbgHCM3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:29:45 -0400
+        id S1729206AbgHCMbi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:31:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C23B3204EC;
-        Mon,  3 Aug 2020 12:29:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B531022BEB;
+        Mon,  3 Aug 2020 12:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457784;
-        bh=I2dTzUq/9wZciNDjDhbRp5+H1zAaUup4cSjPwG9P8DI=;
+        s=default; t=1596457897;
+        bh=gXEwiYtWJrb+EFFUrwnNNz7Jzhi9gU+IQFe3eDUXoAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/MexlLfoQNbB8RxoXfu/YAxjYaThGWVOU7GdKUh4cDaN8X9UNsuF0o2D96Ut0WUE
-         lEHr7px6vzHslEq8rAqQCnxJy2T0Q5iGQS/0fjFIcEKvbvA/tQ4VXKJIr8wfRMFrSS
-         wkf9gOQWWr/4+Dkl35fM4eaW+vc7ApD9os9hxJBc=
+        b=WH65WrdP/UV1ocIXHbrL1l6vD2xat7O8XRuMY//rSFMmViVHyU8SorClzRJeB++SQ
+         X48LYr76gtau9VQ0B57iWPTkr0sGmzEmA4aPzQ24cgx0FeqT36BVKyU7WcLZL4Wf8t
+         nC6hNGrUtpHBElzETD2TbCQa25VwIf8+FZtbLD+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Pisati <paolo.pisati@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 73/90] selftests: net: ip_defrag: modprobe missing nf_defrag_ipv6 support
-Date:   Mon,  3 Aug 2020 14:19:35 +0200
-Message-Id: <20200803121901.147778151@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 21/56] random: fix circular include dependency on arm64 after addition of percpu.h
+Date:   Mon,  3 Aug 2020 14:19:36 +0200
+Message-Id: <20200803121851.368106736@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Pisati <paolo.pisati@canonical.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit aba69d49fb49c9166596dd78926514173b7f9ab5 ]
+commit 1c9df907da83812e4f33b59d3d142c864d9da57f upstream.
 
-Fix ip_defrag.sh when CONFIG_NF_DEFRAG_IPV6=m:
+Daniel Díaz and Kees Cook independently reported that commit
+f227e3ec3b5c ("random32: update the net random state on interrupt and
+activity") broke arm64 due to a circular dependency on include files
+since the addition of percpu.h in random.h.
 
-$ sudo ./ip_defrag.sh
-+ set -e
-+ mktemp -u XXXXXX
-+ readonly NETNS=ns-rGlXcw
-+ trap cleanup EXIT
-+ setup
-+ ip netns add ns-rGlXcw
-+ ip -netns ns-rGlXcw link set lo up
-+ ip netns exec ns-rGlXcw sysctl -w net.ipv4.ipfrag_high_thresh=9000000
-+ ip netns exec ns-rGlXcw sysctl -w net.ipv4.ipfrag_low_thresh=7000000
-+ ip netns exec ns-rGlXcw sysctl -w net.ipv4.ipfrag_time=1
-+ ip netns exec ns-rGlXcw sysctl -w net.ipv6.ip6frag_high_thresh=9000000
-+ ip netns exec ns-rGlXcw sysctl -w net.ipv6.ip6frag_low_thresh=7000000
-+ ip netns exec ns-rGlXcw sysctl -w net.ipv6.ip6frag_time=1
-+ ip netns exec ns-rGlXcw sysctl -w net.netfilter.nf_conntrack_frag6_high_thresh=9000000
-+ cleanup
-+ ip netns del ns-rGlXcw
+The correct fix would definitely be to move all the prandom32 stuff out
+of random.h but for backporting, a smaller solution is preferred.
 
-$ ls -la /proc/sys/net/netfilter/nf_conntrack_frag6_high_thresh
-ls: cannot access '/proc/sys/net/netfilter/nf_conntrack_frag6_high_thresh': No such file or directory
+This one replaces linux/percpu.h with asm/percpu.h, and this fixes the
+problem on x86_64, arm64, arm, and mips.  Note that moving percpu.h
+around didn't change anything and that removing it entirely broke
+differently.  When backporting, such options might still be considered
+if this patch fails to help.
 
-$ sudo modprobe nf_defrag_ipv6
-$ ls -la /proc/sys/net/netfilter/nf_conntrack_frag6_high_thresh
--rw-r--r-- 1 root root 0 Jul 14 12:34 /proc/sys/net/netfilter/nf_conntrack_frag6_high_thresh
+[ It turns out that an alternate fix seems to be to just remove the
+  troublesome <asm/pointer_auth.h> remove from the arm64 <asm/smp.h>
+  that causes the circular dependency.
 
-Signed-off-by: Paolo Pisati <paolo.pisati@canonical.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  But we might as well do the whole belt-and-suspenders thing, and
+  minimize inclusion in <linux/random.h> too. Either will fix the
+  problem, and both are good changes.   - Linus ]
+
+Reported-by: Daniel Díaz <daniel.diaz@linaro.org>
+Reported-by: Kees Cook <keescook@chromium.org>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Fixes: f227e3ec3b5c
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/testing/selftests/net/ip_defrag.sh | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/random.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/ip_defrag.sh b/tools/testing/selftests/net/ip_defrag.sh
-index 15d3489ecd9ce..ceb7ad4dbd945 100755
---- a/tools/testing/selftests/net/ip_defrag.sh
-+++ b/tools/testing/selftests/net/ip_defrag.sh
-@@ -6,6 +6,8 @@
- set +x
- set -e
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -9,7 +9,7 @@
  
-+modprobe -q nf_defrag_ipv6
-+
- readonly NETNS="ns-$(mktemp -u XXXXXX)"
+ #include <linux/list.h>
+ #include <linux/once.h>
+-#include <linux/percpu.h>
++#include <asm/percpu.h>
  
- setup() {
--- 
-2.25.1
-
+ #include <uapi/linux/random.h>
+ 
 
 
