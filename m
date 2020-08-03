@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B173A23A682
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2F923A5FD
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbgHCMY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:24:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48776 "EHLO mail.kernel.org"
+        id S1727814AbgHCM3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:29:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728013AbgHCMY1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:24:27 -0400
+        id S1728309AbgHCM3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:29:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1D09207BB;
-        Mon,  3 Aug 2020 12:24:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 102BB2083B;
+        Mon,  3 Aug 2020 12:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457466;
-        bh=XBvsK20w6/gS9XX8ytMSJQLUzv9/dWAw8I3cJHHSmio=;
+        s=default; t=1596457761;
+        bh=UrYifyq0Pf/TA6VM3AVSRA9hu+2XFb3N7zmCd1lYJQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wd5cZUgx0gZ1bjYD5TRUhNow5Q+PdYLsHwjiuRlYR4YvjI5BGsGBaB9PSd8xPJO9W
-         Tv3zSBN+ibBejcUf1zgujSS/P4PX3Q53J/ZKhsBfHqJBHyLTtGe8j15uVjbOeLLAT2
-         J9CEFyqTA2MgN+Tjv/1Md1FtsKlUlWhngydgiyXg=
+        b=GuH8gfB2QjKIpJvA9JAy7anQ4OWz9lcADIub8U+/lsxExuttXlkSec1wQI/Y6HMmZ
+         2HOPbe4C/TWIG2RVTpQ6IsR5Ntu/TdiKHFr7AbgW7RBbNAtjuB9ljZ91YEpM/FSx40
+         6k6TK5jK8Kp6w2exIcAIFS6cKOumbfDL8eiEzh/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 078/120] mac80211: mesh: Free ie data when leaving mesh
+        stable@vger.kernel.org,
+        syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com,
+        YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 34/90] net/x25: Fix null-ptr-deref in x25_disconnect
 Date:   Mon,  3 Aug 2020 14:18:56 +0200
-Message-Id: <20200803121906.632519018@linuxfoundation.org>
+Message-Id: <20200803121859.263966529@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 6a01afcf8468d3ca2bd8bbb27503f60dcf643b20 ]
+commit 8999dc89497ab1c80d0718828e838c7cd5f6bffe upstream.
 
-At ieee80211_join_mesh() some ie data could have been allocated (see
-copy_mesh_setup()) and need to be cleaned up when leaving the mesh.
+We should check null before do x25_neigh_put in x25_disconnect,
+otherwise may cause null-ptr-deref like this:
 
-This fixes the following kmemleak report:
+ #include <sys/socket.h>
+ #include <linux/x25.h>
 
-unreferenced object 0xffff0000116bc600 (size 128):
-  comm "wpa_supplicant", pid 608, jiffies 4294898983 (age 293.484s)
-  hex dump (first 32 bytes):
-    30 14 01 00 00 0f ac 04 01 00 00 0f ac 04 01 00  0...............
-    00 0f ac 08 00 00 00 00 c4 65 40 00 00 00 00 00  .........e@.....
-  backtrace:
-    [<00000000bebe439d>] __kmalloc_track_caller+0x1c0/0x330
-    [<00000000a349dbe1>] kmemdup+0x28/0x50
-    [<0000000075d69baa>] ieee80211_join_mesh+0x6c/0x3b8 [mac80211]
-    [<00000000683bb98b>] __cfg80211_join_mesh+0x1e8/0x4f0 [cfg80211]
-    [<0000000072cb507f>] nl80211_join_mesh+0x520/0x6b8 [cfg80211]
-    [<0000000077e9bcf9>] genl_family_rcv_msg+0x374/0x680
-    [<00000000b1bd936d>] genl_rcv_msg+0x78/0x108
-    [<0000000022c53788>] netlink_rcv_skb+0xb0/0x1c0
-    [<0000000011af8ec9>] genl_rcv+0x34/0x48
-    [<0000000069e41f53>] netlink_unicast+0x268/0x2e8
-    [<00000000a7517316>] netlink_sendmsg+0x320/0x4c0
-    [<0000000069cba205>] ____sys_sendmsg+0x354/0x3a0
-    [<00000000e06bab0f>] ___sys_sendmsg+0xd8/0x120
-    [<0000000037340728>] __sys_sendmsg+0xa4/0xf8
-    [<000000004fed9776>] __arm64_sys_sendmsg+0x44/0x58
-    [<000000001c1e5647>] el0_svc_handler+0xd0/0x1a0
+ int main() {
+    int sck_x25;
+    sck_x25 = socket(AF_X25, SOCK_SEQPACKET, 0);
+    close(sck_x25);
+    return 0;
+ }
 
-Fixes: c80d545da3f7 (mac80211: Let userspace enable and configure vendor specific path selection.)
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Link: https://lore.kernel.org/r/20200704135007.27292-1-repk@triplefau.lt
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BUG: kernel NULL pointer dereference, address: 00000000000000d8
+CPU: 0 PID: 4817 Comm: t2 Not tainted 5.7.0-rc3+ #159
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-
+RIP: 0010:x25_disconnect+0x91/0xe0
+Call Trace:
+ x25_release+0x18a/0x1b0
+ __sock_release+0x3d/0xc0
+ sock_close+0x13/0x20
+ __fput+0x107/0x270
+ ____fput+0x9/0x10
+ task_work_run+0x6d/0xb0
+ exit_to_usermode_loop+0x102/0x110
+ do_syscall_64+0x23c/0x260
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/mac80211/cfg.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/x25/x25_subr.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 0f72813fed53e..4230b483168a1 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -2140,6 +2140,7 @@ static int ieee80211_leave_mesh(struct wiphy *wiphy, struct net_device *dev)
- 	ieee80211_stop_mesh(sdata);
- 	mutex_lock(&sdata->local->mtx);
- 	ieee80211_vif_release_channel(sdata);
-+	kfree(sdata->u.mesh.ie);
- 	mutex_unlock(&sdata->local->mtx);
+--- a/net/x25/x25_subr.c
++++ b/net/x25/x25_subr.c
+@@ -357,10 +357,12 @@ void x25_disconnect(struct sock *sk, int
+ 		sk->sk_state_change(sk);
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
+-	read_lock_bh(&x25_list_lock);
+-	x25_neigh_put(x25->neighbour);
+-	x25->neighbour = NULL;
+-	read_unlock_bh(&x25_list_lock);
++	if (x25->neighbour) {
++		read_lock_bh(&x25_list_lock);
++		x25_neigh_put(x25->neighbour);
++		x25->neighbour = NULL;
++		read_unlock_bh(&x25_list_lock);
++	}
+ }
  
- 	return 0;
--- 
-2.25.1
-
+ /*
 
 
