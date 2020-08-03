@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4E823A488
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:28:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F49623A48B
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbgHCM2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54274 "EHLO mail.kernel.org"
+        id S1728722AbgHCM2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:28:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728069AbgHCM2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:12 -0400
+        id S1727834AbgHCM2P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:28:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 955DE204EC;
-        Mon,  3 Aug 2020 12:28:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BECC207FC;
+        Mon,  3 Aug 2020 12:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457691;
-        bh=FWvn97YmC6GDheCI0hkPsiqOIFa1+ILy9NTGVfWL8CE=;
+        s=default; t=1596457693;
+        bh=QyR66mhOB+DXFLTsZEh2HgiH7RdpdVsPW6tOdlXQPTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3etPOjjol30FbxDvqj37AO0acG749uH3KsbCSOPnkMZGQA57pyLnrUDHc7TWF/dV
-         cbvao3+P75Y0Tc2xjbgOp/UNQM2MaZ+03S7A+21gXopm7NgbYPpYwvKJ8Z187tFdD7
-         XzNMvwWq632sQdVNRX3ilx0h/vnaSIb3LEer2XTI=
+        b=Snn4jhFaKhyjxVv9i0MFzhVq9aGZWmxMXBU9C+LkFtqS5RzytBBcevhgeAm8PniYV
+         4StEGnrwVPQn+kLR3nbQk3ztjQpTOgBTAlBeWVlCutZGhF7u57y8n/q7uOJEQebNbD
+         JXIxgH136Fw5E3n2LBeoI8YbrQV2W08sLzo2ACEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/90] selftests/net: rxtimestamp: fix clang issues for target arch PowerPC
-Date:   Mon,  3 Aug 2020 14:19:02 +0200
-Message-Id: <20200803121859.556473411@linuxfoundation.org>
+Subject: [PATCH 5.4 41/90] selftests/net: psock_fanout: fix clang issues for target arch PowerPC
+Date:   Mon,  3 Aug 2020 14:19:03 +0200
+Message-Id: <20200803121859.613977019@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
 References: <20200803121857.546052424@linuxfoundation.org>
@@ -47,39 +47,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tanner Love <tannerlove@google.com>
 
-[ Upstream commit 955cbe91bcf782c09afe369c95a20f0a4b6dcc3c ]
+[ Upstream commit 64f9ede2274980076423583683d44480909b7a40 ]
 
-The signedness of char is implementation-dependent. Some systems
-(including PowerPC and ARM) use unsigned char. Clang 9 threw:
-warning: result of comparison of constant -1 with expression of type \
-'char' is always true [-Wtautological-constant-out-of-range-compare]
-                                  &arg_index)) != -1) {
+Clang 9 threw:
+warning: format specifies type 'unsigned short' but the argument has \
+type 'int' [-Wformat]
+                typeflags, PORT_BASE, PORT_BASE + port_off);
 
 Tested: make -C tools/testing/selftests TARGETS="net" run_tests
 
-Fixes: 16e781224198 ("selftests/net: Add a test to validate behavior of rx timestamps")
+Fixes: 77f65ebdca50 ("packet: packet fanout rollover during socket overload")
 Signed-off-by: Tanner Love <tannerlove@google.com>
 Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/networking/timestamping/rxtimestamp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/testing/selftests/net/psock_fanout.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/networking/timestamping/rxtimestamp.c b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
-index 422e7761254de..bcb79ba1f2143 100644
---- a/tools/testing/selftests/networking/timestamping/rxtimestamp.c
-+++ b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
-@@ -329,8 +329,7 @@ int main(int argc, char **argv)
- 	bool all_tests = true;
- 	int arg_index = 0;
- 	int failures = 0;
--	int s, t;
--	char opt;
-+	int s, t, opt;
+diff --git a/tools/testing/selftests/net/psock_fanout.c b/tools/testing/selftests/net/psock_fanout.c
+index 8c8c7d79c38d9..2c522f7a0aeca 100644
+--- a/tools/testing/selftests/net/psock_fanout.c
++++ b/tools/testing/selftests/net/psock_fanout.c
+@@ -350,7 +350,8 @@ static int test_datapath(uint16_t typeflags, int port_off,
+ 	int fds[2], fds_udp[2][2], ret;
  
- 	while ((opt = getopt_long(argc, argv, "", long_options,
- 				  &arg_index)) != -1) {
+ 	fprintf(stderr, "\ntest: datapath 0x%hx ports %hu,%hu\n",
+-		typeflags, PORT_BASE, PORT_BASE + port_off);
++		typeflags, (uint16_t)PORT_BASE,
++		(uint16_t)(PORT_BASE + port_off));
+ 
+ 	fds[0] = sock_fanout_open(typeflags, 0);
+ 	fds[1] = sock_fanout_open(typeflags, 0);
 -- 
 2.25.1
 
