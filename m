@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A75C23A606
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66ED23A5E7
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbgHCM25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55178 "EHLO mail.kernel.org"
+        id S1729145AbgHCMmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:42:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728218AbgHCM2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:55 -0400
+        id S1729133AbgHCMbB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:31:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25B74204EC;
-        Mon,  3 Aug 2020 12:28:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06FEB2076B;
+        Mon,  3 Aug 2020 12:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457733;
-        bh=lhv4IwAgqn2rxgBpcw8dPa2pumagXqXev8znU1R0jLw=;
+        s=default; t=1596457860;
+        bh=C8PD6oRY0Isp66vleS6E1szTsB0xCyrvx6x4AqQUzOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juaav0UmovZhGoVcbI94xhjk2sZUZstNR56UJKBYxYdEOiu0DnnSY7LTFDRyBHAim
-         gim23RnauEkpk96CEW8o56MVMn2xoB8ntqv/9Ee52SVrr/FG7CdRRJQlpdt2uGOcFS
-         PXBmNck3yswjd546xPfC+RNH136XmdRTvT77Uq5s=
+        b=JTyP+dJvcLHvfHis2NYLcKnxMtXjOdgZFm9AKlmgF1QShiAsVHYf7cWzwR8mrwZ/u
+         1mAxP6EnYPL5D+PO7XlnSWOd+bjzBRgjai6wD2dSqreicYzamzk7lEpiNH3ej26s4E
+         NMtDSGYUIyfPVq0HALJ5J0oWPjPKt4ccHt99/ASw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Gong, Sishuai" <sishuai@purdue.edu>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Gary R Hook <gary.hook@amd.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 54/90] rhashtable: Fix unprotected RCU dereference in __rht_ptr
+Subject: [PATCH 4.19 01/56] crypto: ccp - Release all allocated memory if sha type is invalid
 Date:   Mon,  3 Aug 2020 14:19:16 +0200
-Message-Id: <20200803121900.241283758@linuxfoundation.org>
+Message-Id: <20200803121850.381405558@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,84 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 1748f6a2cbc4694523f16da1c892b59861045b9d ]
+[ Upstream commit 128c66429247add5128c03dc1e144ca56f05a4e2 ]
 
-The rcu_dereference call in rht_ptr_rcu is completely bogus because
-we've already dereferenced the value in __rht_ptr and operated on it.
-This causes potential double readings which could be fatal.  The RCU
-dereference must occur prior to the comparison in __rht_ptr.
+Release all allocated memory if sha type is invalid:
+In ccp_run_sha_cmd, if the type of sha is invalid, the allocated
+hmac_buf should be released.
 
-This patch changes the order of RCU dereference so that it is done
-first and the result is then fed to __rht_ptr.  The RCU marking
-changes have been minimised using casts which will be removed in
-a follow-up patch.
+v2: fix the goto.
 
-Fixes: ba6306e3f648 ("rhashtable: Remove RCU marking from...")
-Reported-by: "Gong, Sishuai" <sishuai@purdue.edu>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Gary R Hook <gary.hook@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rhashtable.h | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/crypto/ccp/ccp-ops.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/rhashtable.h b/include/linux/rhashtable.h
-index beb9a9da16994..c5bf21261bb19 100644
---- a/include/linux/rhashtable.h
-+++ b/include/linux/rhashtable.h
-@@ -349,11 +349,11 @@ static inline void rht_unlock(struct bucket_table *tbl,
- 	local_bh_enable();
- }
+diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
+index 330853a2702f0..43b74cf0787e1 100644
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -1783,8 +1783,9 @@ ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ 			       LSB_ITEM_SIZE);
+ 			break;
+ 		default:
++			kfree(hmac_buf);
+ 			ret = -EINVAL;
+-			goto e_ctx;
++			goto e_data;
+ 		}
  
--static inline struct rhash_head __rcu *__rht_ptr(
--	struct rhash_lock_head *const *bkt)
-+static inline struct rhash_head *__rht_ptr(
-+	struct rhash_lock_head *p, struct rhash_lock_head __rcu *const *bkt)
- {
--	return (struct rhash_head __rcu *)
--		((unsigned long)*bkt & ~BIT(0) ?:
-+	return (struct rhash_head *)
-+		((unsigned long)p & ~BIT(0) ?:
- 		 (unsigned long)RHT_NULLS_MARKER(bkt));
- }
- 
-@@ -365,25 +365,26 @@ static inline struct rhash_head __rcu *__rht_ptr(
-  *            access is guaranteed, such as when destroying the table.
-  */
- static inline struct rhash_head *rht_ptr_rcu(
--	struct rhash_lock_head *const *bkt)
-+	struct rhash_lock_head *const *p)
- {
--	struct rhash_head __rcu *p = __rht_ptr(bkt);
--
--	return rcu_dereference(p);
-+	struct rhash_lock_head __rcu *const *bkt = (void *)p;
-+	return __rht_ptr(rcu_dereference(*bkt), bkt);
- }
- 
- static inline struct rhash_head *rht_ptr(
--	struct rhash_lock_head *const *bkt,
-+	struct rhash_lock_head *const *p,
- 	struct bucket_table *tbl,
- 	unsigned int hash)
- {
--	return rht_dereference_bucket(__rht_ptr(bkt), tbl, hash);
-+	struct rhash_lock_head __rcu *const *bkt = (void *)p;
-+	return __rht_ptr(rht_dereference_bucket(*bkt, tbl, hash), bkt);
- }
- 
- static inline struct rhash_head *rht_ptr_exclusive(
--	struct rhash_lock_head *const *bkt)
-+	struct rhash_lock_head *const *p)
- {
--	return rcu_dereference_protected(__rht_ptr(bkt), 1);
-+	struct rhash_lock_head __rcu *const *bkt = (void *)p;
-+	return __rht_ptr(rcu_dereference_protected(*bkt, 1), bkt);
- }
- 
- static inline void rht_assign_locked(struct rhash_lock_head **bkt,
+ 		memset(&hmac_cmd, 0, sizeof(hmac_cmd));
 -- 
 2.25.1
 
