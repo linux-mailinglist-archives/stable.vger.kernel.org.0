@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0D223A531
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 658BF23A503
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728871AbgHCMeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34184 "EHLO mail.kernel.org"
+        id S1729305AbgHCMc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:32:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729528AbgHCMeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:34:07 -0400
+        id S1729301AbgHCMcX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A629204EC;
-        Mon,  3 Aug 2020 12:34:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A78204EC;
+        Mon,  3 Aug 2020 12:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458046;
-        bh=N9pC0y8ia7HAFIP+qsQdo12QqCgv5yaYu1BWaAETZIE=;
+        s=default; t=1596457941;
+        bh=Vs6BmE6cEpyxFsmxJNBFx3YtUtzpVXtY/843g7hCNOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBkEkNAM1C0dCe0mg/bnCkopg/XjKlAxEvnoYpJRMZs/lVC/9ISs9VaqDOA8czmIF
-         +RPKM5FCzIbOjqUTjrgzDV+K5m3SKQbOIJ74iqk0rvd5pkb6dn9zg2qmopM+Poe2aM
-         0p8Sx08aXABp9vMb94xbfZ3P2tGUIwwT5ZWSU9yM=
+        b=FqQNakENwnsmKexR7vje/BaBSgmILFCOmGj/e148rtZdeSNVSAqNTLKRIOsBJMol2
+         1XKJMdK8eLEBZYUmq3x9feWZW/WToLxu+j61r6ko+oNamzUDASYderp3KM+ZOpzKLU
+         J05+V2odVfceJNn8N8Zw4rsTqciDCOxgspxNsRjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/51] x86/kvm: Be careful not to clear KVM_VCPU_FLUSH_TLB bit
+Subject: [PATCH 4.19 38/56] bpf: Fix map leak in HASH_OF_MAPS map
 Date:   Mon,  3 Aug 2020 14:19:53 +0200
-Message-Id: <20200803121849.869521189@linuxfoundation.org>
+Message-Id: <20200803121852.186221082@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8c6de56a42e0c657955e12b882a81ef07d1d073e ]
+From: Andrii Nakryiko <andriin@fb.com>
 
-kvm_steal_time_set_preempted() may accidentally clear KVM_VCPU_FLUSH_TLB
-bit if it is called more than once while VCPU is preempted.
+[ Upstream commit 1d4e1eab456e1ee92a94987499b211db05f900ea ]
 
-This is part of CVE-2019-3016.
+Fix HASH_OF_MAPS bug of not putting inner map pointer on bpf_map_elem_update()
+operation. This is due to per-cpu extra_elems optimization, which bypassed
+free_htab_elem() logic doing proper clean ups. Make sure that inner map is put
+properly in optimized case as well.
 
-(This bug was also independently discovered by Jim Mattson
-<jmattson@google.com>)
-
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8c290e60fa2a ("bpf: fix hashmap extra_elems logic")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20200729040913.2815687-1-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/bpf/hashtab.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 09f47c837c258..3aed03942d7d4 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3075,6 +3075,9 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
- 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
- 		return;
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 6fe72792312d8..1b28fb006763a 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -678,15 +678,20 @@ static void htab_elem_free_rcu(struct rcu_head *head)
+ 	preempt_enable();
+ }
  
-+	if (vcpu->arch.st.steal.preempted)
-+		return;
+-static void free_htab_elem(struct bpf_htab *htab, struct htab_elem *l)
++static void htab_put_fd_value(struct bpf_htab *htab, struct htab_elem *l)
+ {
+ 	struct bpf_map *map = &htab->map;
++	void *ptr;
+ 
+ 	if (map->ops->map_fd_put_ptr) {
+-		void *ptr = fd_htab_map_get_ptr(map, l);
+-
++		ptr = fd_htab_map_get_ptr(map, l);
+ 		map->ops->map_fd_put_ptr(ptr);
+ 	}
++}
 +
- 	vcpu->arch.st.steal.preempted = 1;
++static void free_htab_elem(struct bpf_htab *htab, struct htab_elem *l)
++{
++	htab_put_fd_value(htab, l);
  
- 	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
+ 	if (htab_is_prealloc(htab)) {
+ 		__pcpu_freelist_push(&htab->freelist, &l->fnode);
+@@ -747,6 +752,7 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
+ 			 */
+ 			pl_new = this_cpu_ptr(htab->extra_elems);
+ 			l_new = *pl_new;
++			htab_put_fd_value(htab, old_elem);
+ 			*pl_new = old_elem;
+ 		} else {
+ 			struct pcpu_freelist_node *l;
 -- 
 2.25.1
 
