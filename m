@@ -2,102 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE78D23AA58
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 18:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 326B123AA7E
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 18:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbgHCQRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 12:17:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49810 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726802AbgHCQRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 12:17:47 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CD6C06174A;
-        Mon,  3 Aug 2020 09:17:47 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id 2so98662pjx.5;
-        Mon, 03 Aug 2020 09:17:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=GPsrQW4vpQ6dRXyrzWsHOIAruTyA0LII1zG3YHLs52M=;
-        b=fMlUIz0rLEz3np/lgOR1J/xdo3PvyCdrkMOYNmTrImerYZd+Z0ERvgCmlU2O7XaXiN
-         /rPjHx8143fNjlGV2LmOwBz6+b4AMyK3K2t+G/vrlqRbWt/s8ECFfIYlmrYWMQtw0raE
-         S1DzcRzxmD4IHLSkpGCXUHciCUU31SBZsiZWitkeHTVLkjXV78v5JzNat5JLyDYj10eD
-         QShTyvnNM7yjM7k6zlXp4lTkX1CBtYRuEGSHwNXjeY6OTPjNDYBqQtVXc0Rb/YIjwVrI
-         uLs7ivpbkukdz6x3NNl8bVqqlMCGKzIDxU3L//Qp3uEpwMzkgJcm7wvwcT5PjHfn4vYa
-         dOhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=GPsrQW4vpQ6dRXyrzWsHOIAruTyA0LII1zG3YHLs52M=;
-        b=Uzek/6Yacyy7zrdp+wlhntVybN2k0hYeCkBffYoMiAXG0QymmTP2DIf8hS6xMUpVBM
-         WUoJLcBXyQQeE98UqJgVTcBG+dAKrEJU3qqz5PaEF6j1/j7nLcjsPMQCTKv1W/1ruu9n
-         fTyym5IFCwEYbX0P+X5kwoR8imeyqC1h39P908QMXED+zwNc3215s+OxC3i3huOEngOX
-         FRs3uESIIULfIMEzNC/8JC7yHsyagLnalrD5Qz0H542DpbobeJ+lEWJkSwbqEToFSbGS
-         jQsiyNzu/MP50NbQNGBFqrbGV0sQSs+Po3ar2+VF7U5RpboukPKpmjEDw4lbC9BpqHLw
-         WWLg==
-X-Gm-Message-State: AOAM5337r45QwI02anObOZg0WHmeyz3w6jRRF5G3hIZX1RsPYqG/3Y8i
-        vSuh191Ux1rniYcp9hxereGzYLETiwvg3Q==
-X-Google-Smtp-Source: ABdhPJw7avMZq/kZ3NOZty8xBaeBN9sb48D/0vRuTEUPmcWVWsBvmPfrnSh14aB4vO5FXDt8YNYHFw==
-X-Received: by 2002:a17:902:eb14:: with SMTP id l20mr9684125plb.104.1596471466713;
-        Mon, 03 Aug 2020 09:17:46 -0700 (PDT)
-Received: from lazar-beloica-cent7-umvm1.dev.nutanix.com ([192.146.154.242])
-        by smtp.gmail.com with ESMTPSA id d65sm19316102pfc.97.2020.08.03.09.17.45
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 03 Aug 2020 09:17:45 -0700 (PDT)
-From:   Lazar Beloica <lazarbeloica@gmail.com>
-X-Google-Original-From: Lazar Beloica <lazar.beloica@nutanix.com>
-To:     linux-ext4@vger.kernel.org
-Cc:     stable@vger.kernel.org, lazarbeloica@gmail.com,
-        lazar.beloica@nutanix.com, boyu.mt@taobao.com,
-        adilger.kernel@dilger.ca, linux-kernel@vger.kernel.org
-Subject: [PATCH] ext4: fix marking group trimmed if all blocks not trimmed
-Date:   Mon,  3 Aug 2020 16:17:44 +0000
-Message-Id: <1596471464-198715-1-git-send-email-lazar.beloica@nutanix.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1727016AbgHCQat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 12:30:49 -0400
+Received: from mga04.intel.com ([192.55.52.120]:37810 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726688AbgHCQan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 12:30:43 -0400
+IronPort-SDR: LNdul57aNmsS3qGMSdNFid03EFRDdcc09O3UDUNxPypsw9rN0SP9l/2rcv19YeuTx0JmrdejvG
+ PpGwQ4J3doHA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9702"; a="149587769"
+X-IronPort-AV: E=Sophos;i="5.75,430,1589266800"; 
+   d="scan'208";a="149587769"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2020 09:30:42 -0700
+IronPort-SDR: aPqtZPAbukrGaO0VjBpclcqc6FoDcQQVprCkGldxPYo3FkJW5044mbUsE2KR0jSU2sROR4ItC9
+ /BjGdYdaHMTA==
+X-IronPort-AV: E=Sophos;i="5.75,430,1589266800"; 
+   d="scan'208";a="274054350"
+Received: from ksramesh-mobl.amr.corp.intel.com (HELO [10.252.128.191]) ([10.252.128.191])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2020 09:30:41 -0700
+Subject: Re: [PATCH] Revert "ALSA: hda: call runtime_allow() for all hda
+ controllers"
+To:     Hui Wang <hui.wang@canonical.com>, alsa-devel@alsa-project.org,
+        tiwai@suse.de
+Cc:     stable@vger.kernel.org
+References: <20200803064638.6139-1-hui.wang@canonical.com>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <0db4f5fe-7895-2d00-8ce3-96f1245000ab@linux.intel.com>
+Date:   Mon, 3 Aug 2020 10:27:12 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200803064638.6139-1-hui.wang@canonical.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When FTRIM is issued on a group, ext4 marks it as trimmed so another FTRIM
-on the same group has no effect. Ext4 marks group as trimmed if at least
-one block is trimmed, therefore it is possible that a group is marked as
-trimmed even if there are blocks in that group left untrimmed.
 
-This patch marks group as trimmed only if there are no more blocks
-in that group to be trimmed.
 
-Fixes: 3d56b8d2c74cc3f375ce332b3ac3519e009d79ee
-Tested-by: Lazar Beloica <lazar.beloica@nutanix.com>
-Signed-off-by: Lazar Beloica <lazar.beloica@nutanix.com>
----
- fs/ext4/mballoc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+On 8/3/20 1:46 AM, Hui Wang wrote:
+> This reverts commit 9a6418487b56 ("ALSA: hda: call runtime_allow()
+> for all hda controllers").
+> 
+> The reverted patch already introduced some regressions on some
+> machines:
+>   - on gemini-lake machines, the error of "azx_get_response timeout"
+>     happens in the hda driver.
+>   - on the machines with alc662 codec, the audio jack detection doesn't
+>     work anymore.
+> 
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208511
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Hui Wang <hui.wang@canonical.com>
+> ---
+>   sound/pci/hda/hda_intel.c | 1 -
+>   1 file changed, 1 deletion(-)
+> 
+> diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+> index e699873c8293..e34a4d5d047c 100644
+> --- a/sound/pci/hda/hda_intel.c
+> +++ b/sound/pci/hda/hda_intel.c
+> @@ -2352,7 +2352,6 @@ static int azx_probe_continue(struct azx *chip)
+>   
+>   	if (azx_has_pm_runtime(chip)) {
+>   		pm_runtime_use_autosuspend(&pci->dev);
+> -		pm_runtime_allow(&pci->dev);
+>   		pm_runtime_put_autosuspend(&pci->dev);
+>   	}
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index c0a331e..130936b 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -5346,6 +5346,7 @@ static int ext4_trim_extent(struct super_block *sb, int start, int count,
- {
- 	void *bitmap;
- 	ext4_grpblk_t next, count = 0, free_count = 0;
-+	ext4_fsblk_t max_blks = ext4_blocks_count(EXT4_SB(sb)->s_es);
- 	struct ext4_buddy e4b;
- 	int ret = 0;
- 
-@@ -5401,7 +5402,9 @@ static int ext4_trim_extent(struct super_block *sb, int start, int count,
- 
- 	if (!ret) {
- 		ret = count;
--		EXT4_MB_GRP_SET_TRIMMED(e4b.bd_info);
-+		next = mb_find_next_bit(bitmap, max_blks, max + 1);
-+		if (next == max_blks)
-+			EXT4_MB_GRP_SET_TRIMMED(e4b.bd_info);
- 	}
- out:
- 	ext4_unlock_group(sb, group);
--- 
-1.8.3.1
+Do I get this right that this permanently disables pm_runtime on all 
+Intel HDaudio controllers?
 
