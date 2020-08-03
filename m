@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3900E23A6CF
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374EC23A61C
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728090AbgHCMye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:54:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47384 "EHLO mail.kernel.org"
+        id S1728623AbgHCM1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727843AbgHCMXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:23:22 -0400
+        id S1728616AbgHCM1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342902076B;
-        Mon,  3 Aug 2020 12:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65704207DF;
+        Mon,  3 Aug 2020 12:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457400;
-        bh=5K8yZzDkipZ/HEQTB9fDYk/IC/b3+nBlZqhBFh1ALQ0=;
+        s=default; t=1596457669;
+        bh=4G/hq+dWt7uTc7mT1QzkDw9j+ydSD1QMGb59w7BHS+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zz/S4Q+z7RXh8N9p2glHHxVDABmUXozJwLhqnF6e+A+UT1/1zN6urRqIzQtwMwgaA
-         Tb9MzVXSisNb862Tk4wmr3/3WctmiESPuuBvzKthASzL4hAPgJfUkKQA+VQqVJi+kB
-         tC/Q/j0kd6TejFwB2mAbw8pqR3vetLGS9grJ7wqA=
+        b=O9mOGytf3x/Q4tPHtY07DMyWi7IBePaGeJI+skRdV0BXsZnLiOwHOhc6PPFJsKOtd
+         Ec92moCTMO2f8tol2GTude/xH1RqBiSaqzLLwEe5bj52WDIDHVtno4zEhURyKGQG2I
+         mh+NfO8Iim5bo77qCOZI03CcOaS/NP6/QnofREWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guojia Liao <liaoguojia@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 053/120] net: hns3: fix for VLAN config when reset failed
+        stable@vger.kernel.org, Armas Spann <zappel@retarded.farm>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 09/90] ALSA: hda/realtek: typo_fix: enable headset mic of ASUS ROG Zephyrus G14(GA401) series with ALC289
 Date:   Mon,  3 Aug 2020 14:18:31 +0200
-Message-Id: <20200803121905.378939723@linuxfoundation.org>
+Message-Id: <20200803121857.995683953@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guojia Liao <liaoguojia@huawei.com>
+From: Armas Spann <zappel@retarded.farm>
 
-[ Upstream commit b7b5d25bdd7bdea7d72a41e0a97b1b8f3dea2ee7 ]
+commit 293a92c1d9913248b9987b68f3a5d6d2f0aae62b upstream.
 
-When device is resetting or reset failed, firmware is unable to
-handle mailbox. VLAN should not be configured in this case.
+This patch fixes a small typo I accidently submitted with the initial patch. The board should be named GA401 not G401.
 
-Fixes: fe4144d47eef ("net: hns3: sync VLAN filter entries when kill VLAN ID failed")
-Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ff53664daff2 ("ALSA: hda/realtek: enable headset mic of ASUS ROG Zephyrus G14(G401) series with ALC289")
+Signed-off-by: Armas Spann <zappel@retarded.farm>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200724140837.302763-1-zappel@retarded.farm
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c    |  7 ++++---
- .../net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c  | 10 ++++++----
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ sound/pci/hda/patch_realtek.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index ae4c415b97e45..dfe247ad84751 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -8534,11 +8534,12 @@ int hclge_set_vlan_filter(struct hnae3_handle *handle, __be16 proto,
- 	bool writen_to_tbl = false;
- 	int ret = 0;
- 
--	/* When device is resetting, firmware is unable to handle
--	 * mailbox. Just record the vlan id, and remove it after
-+	/* When device is resetting or reset failed, firmware is unable to
-+	 * handle mailbox. Just record the vlan id, and remove it after
- 	 * reset finished.
- 	 */
--	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state) && is_kill) {
-+	if ((test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state) ||
-+	     test_bit(HCLGE_STATE_RST_FAIL, &hdev->state)) && is_kill) {
- 		set_bit(vlan_id, vport->vlan_del_fail_bmap);
- 		return -EBUSY;
- 	}
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 1bdff64bb70f9..0060fa643d0e3 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -1322,11 +1322,12 @@ static int hclgevf_set_vlan_filter(struct hnae3_handle *handle,
- 	if (proto != htons(ETH_P_8021Q))
- 		return -EPROTONOSUPPORT;
- 
--	/* When device is resetting, firmware is unable to handle
--	 * mailbox. Just record the vlan id, and remove it after
-+	/* When device is resetting or reset failed, firmware is unable to
-+	 * handle mailbox. Just record the vlan id, and remove it after
- 	 * reset finished.
- 	 */
--	if (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state) && is_kill) {
-+	if ((test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state) ||
-+	     test_bit(HCLGEVF_STATE_RST_FAIL, &hdev->state)) && is_kill) {
- 		set_bit(vlan_id, hdev->vlan_del_fail_bmap);
- 		return -EBUSY;
- 	}
-@@ -3146,7 +3147,8 @@ void hclgevf_update_port_base_vlan_info(struct hclgevf_dev *hdev, u16 state,
- 
- 	rtnl_lock();
- 
--	if (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state)) {
-+	if (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state) ||
-+	    test_bit(HCLGEVF_STATE_RST_FAIL, &hdev->state)) {
- 		dev_warn(&hdev->pdev->dev,
- 			 "is resetting when updating port based vlan info\n");
- 		rtnl_unlock();
--- 
-2.25.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6117,7 +6117,7 @@ enum {
+ 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
+ 	ALC269VC_FIXUP_ACER_MIC_NO_PRESENCE,
+-	ALC289_FIXUP_ASUS_G401,
++	ALC289_FIXUP_ASUS_GA401,
+ 	ALC289_FIXUP_ASUS_GA502,
+ 	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
+ };
+@@ -7329,7 +7329,7 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MIC
+ 	},
+-	[ALC289_FIXUP_ASUS_G401] = {
++	[ALC289_FIXUP_ASUS_GA401] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+ 			{ 0x19, 0x03a11020 }, /* headset mic with jack detect */
+@@ -7535,7 +7535,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1c23, "Asus X55U", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
+-	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_G401),
++	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x834a, "ASUS S101", ALC269_FIXUP_STEREO_DMIC),
 
 
