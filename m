@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D85123A654
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DEA823A5CB
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727849AbgHCM00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51792 "EHLO mail.kernel.org"
+        id S1728401AbgHCMlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728362AbgHCM0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:25 -0400
+        id S1728803AbgHCMcE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC7A9207FC;
-        Mon,  3 Aug 2020 12:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B74120775;
+        Mon,  3 Aug 2020 12:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457584;
-        bh=+3EfgGtmCKrNepVQ0cjyTDgJi1Grs6bidEQ5QqtEGDA=;
+        s=default; t=1596457922;
+        bh=yjdHc/3RhY1oNsnLLVQljljiujWDhRGpXIEJ97lP+S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/PsVGOtokMH4Z9iGHumSPBO6ieVmrepy9TvPQnrCHT59dmX8dEGaLWjKUuQmrxe/
-         xsHclLhrWPlYpo4CBvLIsaeRhQCnxL0wU3qOv7QpA67CpkU83diSJUUhAWnEXyGXgm
-         lzZ3TFSaaohtE1A9qDnAgGvhRWu3x9wycLaEbCsg=
+        b=OJn2oIUrAxOYrecaASbWLtxw6Q5eJf0Hx8J+4Ma8bNwKH4kOQhQmGJYNt3MQVO9R0
+         WqJeryFQmbzgnES8yveuvSo4a9li864pkaaLqBhk+r1cfBsc8ag++ujh7TFIqZU6fM
+         nDR+H+D6foUcz+aJyTEBmESX2BkebhZwqCUiWb94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.7 120/120] x86/i8259: Use printk_deferred() to prevent deadlock
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 23/56] rds: Prevent kernel-infoleak in rds_notify_queue_get()
 Date:   Mon,  3 Aug 2020 14:19:38 +0200
-Message-Id: <20200803121908.732241710@linuxfoundation.org>
+Message-Id: <20200803121851.460373765@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit bdd65589593edd79b6a12ce86b3b7a7c6dae5208 upstream.
+commit bbc8a99e952226c585ac17477a85ef1194501762 upstream.
 
-0day reported a possible circular locking dependency:
+rds_notify_queue_get() is potentially copying uninitialized kernel stack
+memory to userspace since the compiler may leave a 4-byte hole at the end
+of `cmsg`.
 
-Chain exists of:
-  &irq_desc_lock_class --> console_owner --> &port_lock_key
+In 2016 we tried to fix this issue by doing `= { 0 };` on `cmsg`, which
+unfortunately does not always initialize that 4-byte hole. Fix it by using
+memset() instead.
 
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&port_lock_key);
-                               lock(console_owner);
-                               lock(&port_lock_key);
-  lock(&irq_desc_lock_class);
-
-The reason for this is a printk() in the i8259 interrupt chip driver
-which is invoked with the irq descriptor lock held, which reverses the
-lock operations vs. printk() from arbitrary contexts.
-
-Switch the printk() to printk_deferred() to avoid that.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87365abt2v.fsf@nanos.tec.linutronix.de
+Fixes: f037590fff30 ("rds: fix a leak of kernel memory")
+Fixes: bdbe6fbc6a2f ("RDS: recv.c")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/i8259.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rds/recv.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/i8259.c
-+++ b/arch/x86/kernel/i8259.c
-@@ -207,7 +207,7 @@ spurious_8259A_irq:
- 		 * lets ACK and report it. [once per IRQ]
- 		 */
- 		if (!(spurious_irq_mask & irqmask)) {
--			printk(KERN_DEBUG
-+			printk_deferred(KERN_DEBUG
- 			       "spurious 8259A interrupt: IRQ%d.\n", irq);
- 			spurious_irq_mask |= irqmask;
- 		}
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -455,12 +455,13 @@ static int rds_still_queued(struct rds_s
+ int rds_notify_queue_get(struct rds_sock *rs, struct msghdr *msghdr)
+ {
+ 	struct rds_notifier *notifier;
+-	struct rds_rdma_notify cmsg = { 0 }; /* fill holes with zero */
++	struct rds_rdma_notify cmsg;
+ 	unsigned int count = 0, max_messages = ~0U;
+ 	unsigned long flags;
+ 	LIST_HEAD(copy);
+ 	int err = 0;
+ 
++	memset(&cmsg, 0, sizeof(cmsg));	/* fill holes with zero */
+ 
+ 	/* put_cmsg copies to user space and thus may sleep. We can't do this
+ 	 * with rs_lock held, so first grab as many notifications as we can stuff
 
 
