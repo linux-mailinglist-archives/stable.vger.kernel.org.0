@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA7323A589
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC1523A5BD
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729507AbgHCMd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33984 "EHLO mail.kernel.org"
+        id S1728470AbgHCMcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:32:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729500AbgHCMd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:56 -0400
+        id S1728268AbgHCMcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F148204EC;
-        Mon,  3 Aug 2020 12:33:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4063B20781;
+        Mon,  3 Aug 2020 12:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458035;
-        bh=QGJLI3lpn7Q5Cm0/qHWjOxdlhi69SOT6w8GCqm/H52E=;
+        s=default; t=1596457930;
+        bh=p/dz+IbuPkwaKp2FQ2XQx+DORgDOLu18VaROnkcbRzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KiDt6fEFlJwaxy0NlpbOmkolliLATNOWHxG+KANIFGZfNiXdjK0/ucpMJ9Lgos1Sz
-         cvDY8NlAYJIMYOF+2WryCQOhYtRNAVm++m3XMDyyYc0urs25aE9FzodqDTWR3J/icj
-         xvQHqPKLFRcNkZMOflPadW7ktOe+aDoXUPPIBLtM=
+        b=16SaL6C8axa9Ng0hYnR602I/tt9y+5Dtt3P+7el+2DehSpoJ+t2KPfUr0GeYynXJs
+         loJYvaYI7BOaefqgnQoygM7w3cpEX8drr3hhdIluvKFLkK6b5SQNedGeId0jgzolfX
+         sbB4RUmQDiGJr71IYh6Q1dQ5nfpzwCzLckRR9yx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Jake Lawrence <lawja@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/51] media: rc: prevent memory leak in cx23888_ir_probe
+Subject: [PATCH 4.19 34/56] mlx4: disable device on shutdown
 Date:   Mon,  3 Aug 2020 14:19:49 +0200
-Message-Id: <20200803121849.702208862@linuxfoundation.org>
+Message-Id: <20200803121851.999149414@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit a7b2df76b42bdd026e3106cf2ba97db41345a177 ]
+[ Upstream commit 3cab8c65525920f00d8f4997b3e9bb73aecb3a8e ]
 
-In cx23888_ir_probe if kfifo_alloc fails the allocated memory for state
-should be released.
+It appears that not disabling a PCI device on .shutdown may lead to
+a Hardware Error with particular (perhaps buggy) BIOS versions:
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+    mlx4_en: eth0: Close port called
+    mlx4_en 0000:04:00.0: removed PHC
+    reboot: Restarting system
+    {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 1
+    {1}[Hardware Error]: event severity: fatal
+    {1}[Hardware Error]:  Error 0, type: fatal
+    {1}[Hardware Error]:   section_type: PCIe error
+    {1}[Hardware Error]:   port_type: 4, root port
+    {1}[Hardware Error]:   version: 1.16
+    {1}[Hardware Error]:   command: 0x4010, status: 0x0143
+    {1}[Hardware Error]:   device_id: 0000:00:02.2
+    {1}[Hardware Error]:   slot: 0
+    {1}[Hardware Error]:   secondary_bus: 0x04
+    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2f06
+    {1}[Hardware Error]:   class_code: 000604
+    {1}[Hardware Error]:   bridge: secondary_status: 0x2000, control: 0x0003
+    {1}[Hardware Error]:   aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00000000
+    {1}[Hardware Error]:   aer_uncor_severity: 0x00062030
+    {1}[Hardware Error]:   TLP Header: 40000018 040000ff 791f4080 00000000
+[hw error repeats]
+    Kernel panic - not syncing: Fatal hardware error!
+    CPU: 0 PID: 2189 Comm: reboot Kdump: loaded Not tainted 5.6.x-blabla #1
+    Hardware name: HP ProLiant DL380 Gen9/ProLiant DL380 Gen9, BIOS P89 05/05/2017
+
+Fix the mlx4 driver.
+
+This is a very similar problem to what had been fixed in:
+commit 0d98ba8d70b0 ("scsi: hpsa: disable device during shutdown")
+to address https://bugzilla.kernel.org/show_bug.cgi?id=199779.
+
+Fixes: 2ba5fbd62b25 ("net/mlx4_core: Handle AER flow properly")
+Reported-by: Jake Lawrence <lawja@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx23885/cx23888-ir.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/pci/cx23885/cx23888-ir.c b/drivers/media/pci/cx23885/cx23888-ir.c
-index 040323b0f9455..f63a7e6f272c2 100644
---- a/drivers/media/pci/cx23885/cx23888-ir.c
-+++ b/drivers/media/pci/cx23885/cx23888-ir.c
-@@ -1178,8 +1178,11 @@ int cx23888_ir_probe(struct cx23885_dev *dev)
- 		return -ENOMEM;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
+index f7825c7b92fe3..8d7bb9a889677 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -4311,12 +4311,14 @@ end:
+ static void mlx4_shutdown(struct pci_dev *pdev)
+ {
+ 	struct mlx4_dev_persistent *persist = pci_get_drvdata(pdev);
++	struct mlx4_dev *dev = persist->dev;
  
- 	spin_lock_init(&state->rx_kfifo_lock);
--	if (kfifo_alloc(&state->rx_kfifo, CX23888_IR_RX_KFIFO_SIZE, GFP_KERNEL))
-+	if (kfifo_alloc(&state->rx_kfifo, CX23888_IR_RX_KFIFO_SIZE,
-+			GFP_KERNEL)) {
-+		kfree(state);
- 		return -ENOMEM;
-+	}
+ 	mlx4_info(persist->dev, "mlx4_shutdown was called\n");
+ 	mutex_lock(&persist->interface_state_mutex);
+ 	if (persist->interface_state & MLX4_INTERFACE_STATE_UP)
+ 		mlx4_unload_one(pdev);
+ 	mutex_unlock(&persist->interface_state_mutex);
++	mlx4_pci_disable_device(dev);
+ }
  
- 	state->dev = dev;
- 	sd = &state->sd;
+ static const struct pci_error_handlers mlx4_err_handler = {
 -- 
 2.25.1
 
