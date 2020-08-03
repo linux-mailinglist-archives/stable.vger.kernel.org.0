@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1261E23A63D
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C50323A6C9
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbgHCM07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:26:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
+        id S1727911AbgHCMyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:54:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728463AbgHCM06 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:58 -0400
+        id S1726610AbgHCMXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:23:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66EFD207DF;
-        Mon,  3 Aug 2020 12:26:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73E7220738;
+        Mon,  3 Aug 2020 12:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457616;
-        bh=Rh62DhGdoKHPCSs+kPs8e/tz6sIMTBBS7JOf5oDuEXk=;
+        s=default; t=1596457412;
+        bh=soTYc1QE3Dv28sQn4ZvbPIO2zXj0JHGiazOciM5OGV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+SQ0XrLSB+jrAXhsUpyTUtkMLPXyTuVWwv2GsIdtPCfZJS2BqCNkRE6WOug+x3cT
-         2Oo2wd4Es5kfbWIEiVplRL1W0crRRxeDk4ghW9cObsca2GddehpF5XG/i9wlsXof9y
-         NHnRiUoL0Eyy1Lp4q74Mc7aKNKrp5U8FZH2HW6NE=
+        b=IY9bA/Mx0dM4QlhStAkdkB0PmGinIyFYjz+N3DnxJS1tgQwrwqnJAk7IvfFVV6K/C
+         fKFJHX5ookXJoTu6y2JzcjBmkNfHElb1aW+XUZt4u1uf6FhDdbNk83rbnADHbQjNXs
+         GcEkC0zp/Qwjd6AAxhJ5JxBZvrWDYEPVT3ila4U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 12/90] ALSA: hda/hdmi: Fix keep_power assignment for non-component devices
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 056/120] net/mlx5e: Fix error path of device attach
 Date:   Mon,  3 Aug 2020 14:18:34 +0200
-Message-Id: <20200803121858.140976208@linuxfoundation.org>
+Message-Id: <20200803121905.524095852@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Aya Levin <ayal@mellanox.com>
 
-commit c2c3657f0aedb8736a0fb7b2b1985adfb86e7802 upstream.
+[ Upstream commit 5cd39b6e9a420329a9a408894be7ba8aa7dd755e ]
 
-It's been reported that, when neither nouveau nor Nvidia graphics
-driver is used, the screen starts flickering.  And, after comparing
-between the working case (stable 4.4.x) and the broken case, it turned
-out that the problem comes from the audio component binding.  The
-Nvidia and AMD audio binding code clears the bus->keep_power flag
-whenever snd_hdac_acomp_init() succeeds.  But this doesn't mean that
-the component is actually bound, but it merely indicates that it's
-ready for binding.  So, when both nouveau and Nvidia are blacklisted
-or not ready, the driver keeps running without the audio component but
-also with bus->keep_power = false.  This made the driver runtime PM
-kicked in and powering down when unused, which results in flickering
-in the graphics side, as it seems.
+On failure to attach the netdev, fix the rollback by re-setting the
+device's state back to MLX5E_STATE_DESTROYING.
 
-For fixing the bug, this patch moves the bus->keep_power flag change
-into generic_acomp_notifier_set() that is the function called from the
-master_bind callback of component ops; i.e. it's guaranteed that the
-binding succeeded.
+Failing to attach doesn't stop statistics polling via .ndo_get_stats64.
+In this case, although the device is not attached, it falsely continues
+to query the firmware for counters. Setting the device's state back to
+MLX5E_STATE_DESTROYING prevents the firmware counters query.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208609
-Fixes: 5a858e79c911 ("ALSA: hda - Disable audio component for legacy Nvidia HDMI codecs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200728082033.23933-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 26e59d8077a3 ("net/mlx5e: Implement mlx5e interface attach/detach callbacks")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2483,6 +2483,7 @@ static void generic_acomp_notifier_set(s
- 	mutex_lock(&spec->bind_lock);
- 	spec->use_acomp_notifier = use_acomp;
- 	spec->codec->relaxed_resume = use_acomp;
-+	spec->codec->bus->keep_power = 0;
- 	/* reprogram each jack detection logic depending on the notifier */
- 	if (spec->use_jack_detect) {
- 		for (i = 0; i < spec->num_pins; i++)
-@@ -2578,7 +2579,6 @@ static void generic_acomp_init(struct hd
- 	if (!snd_hdac_acomp_init(&codec->bus->core, &spec->drm_audio_ops,
- 				 match_bound_vga, 0)) {
- 		spec->acomp_registered = true;
--		codec->bus->keep_power = 0;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index bc54913c58618..5f8c69ea82539 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -5395,6 +5395,8 @@ err_cleanup_tx:
+ 	profile->cleanup_tx(priv);
+ 
+ out:
++	set_bit(MLX5E_STATE_DESTROYING, &priv->state);
++	cancel_work_sync(&priv->update_stats_work);
+ 	return err;
  }
  
+-- 
+2.25.1
+
 
 
