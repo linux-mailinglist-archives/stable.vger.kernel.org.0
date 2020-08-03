@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC7623A672
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44D4423A631
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728161AbgHCMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49936 "EHLO mail.kernel.org"
+        id S1727997AbgHCM10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:27:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728150AbgHCMZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:25:15 -0400
+        id S1728511AbgHCM1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:27:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8773204EC;
-        Mon,  3 Aug 2020 12:25:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB118204EC;
+        Mon,  3 Aug 2020 12:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457513;
-        bh=GepQvqaBctLo+/EECXy1848guYNru9D7ZY1Ld9MYv/Y=;
+        s=default; t=1596457643;
+        bh=yTP/gbX7NwD9prvx9sgZEXLgLl6qKkR5XehZhqhxzfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvziriHqiq9MttVMGMopxZv5+rIwcPETGVmSxFj3P+ld8EoKC0w49wFGxbZsSp7YS
-         Z87fs1wxc0vqmWIXO9LdEVQVXG5G3bRt2tWy4P+kDUqG6y0iPcMZTcnhXY45mUrQMc
-         FSkvgzQojciDjJyThlBmQt/+gY/vW9x8xh8Zpx7I=
+        b=T0jzCgfgIlXiBGfv3NFIJq36d7lExLaOyGu2QuVsZDJcvCaMmpOx5l/pC/RrlX9oO
+         766ma0hJRprTqiSzuPSeZ5djjUKdsjYRza1acgKx+8Y7wOkaO8vYy2PpBOVagEwzSl
+         6A7sm/I+orSh+imcPRJfrV/NUUpSgmZh/7jQspq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jake Lawrence <lawja@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 065/120] mlx4: disable device on shutdown
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Wei Wang <wei.w.wang@intel.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH 5.4 21/90] virtio_balloon: fix up endian-ness for free cmd id
 Date:   Mon,  3 Aug 2020 14:18:43 +0200
-Message-Id: <20200803121905.970966759@linuxfoundation.org>
+Message-Id: <20200803121858.644051268@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
+References: <20200803121857.546052424@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit 3cab8c65525920f00d8f4997b3e9bb73aecb3a8e ]
+commit 168c358af2f8c5a37f8b5f877ba2cc93995606ee upstream.
 
-It appears that not disabling a PCI device on .shutdown may lead to
-a Hardware Error with particular (perhaps buggy) BIOS versions:
+free cmd id is read using virtio endian, spec says all fields
+in balloon are LE. Fix it up.
 
-    mlx4_en: eth0: Close port called
-    mlx4_en 0000:04:00.0: removed PHC
-    reboot: Restarting system
-    {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 1
-    {1}[Hardware Error]: event severity: fatal
-    {1}[Hardware Error]:  Error 0, type: fatal
-    {1}[Hardware Error]:   section_type: PCIe error
-    {1}[Hardware Error]:   port_type: 4, root port
-    {1}[Hardware Error]:   version: 1.16
-    {1}[Hardware Error]:   command: 0x4010, status: 0x0143
-    {1}[Hardware Error]:   device_id: 0000:00:02.2
-    {1}[Hardware Error]:   slot: 0
-    {1}[Hardware Error]:   secondary_bus: 0x04
-    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2f06
-    {1}[Hardware Error]:   class_code: 000604
-    {1}[Hardware Error]:   bridge: secondary_status: 0x2000, control: 0x0003
-    {1}[Hardware Error]:   aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00000000
-    {1}[Hardware Error]:   aer_uncor_severity: 0x00062030
-    {1}[Hardware Error]:   TLP Header: 40000018 040000ff 791f4080 00000000
-[hw error repeats]
-    Kernel panic - not syncing: Fatal hardware error!
-    CPU: 0 PID: 2189 Comm: reboot Kdump: loaded Not tainted 5.6.x-blabla #1
-    Hardware name: HP ProLiant DL380 Gen9/ProLiant DL380 Gen9, BIOS P89 05/05/2017
+Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Wei Wang <wei.w.wang@intel.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix the mlx4 driver.
-
-This is a very similar problem to what had been fixed in:
-commit 0d98ba8d70b0 ("scsi: hpsa: disable device during shutdown")
-to address https://bugzilla.kernel.org/show_bug.cgi?id=199779.
-
-Fixes: 2ba5fbd62b25 ("net/mlx4_core: Handle AER flow properly")
-Reported-by: Jake Lawrence <lawja@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/virtio/virtio_balloon.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
-index c72c4e1ea383b..598e222e0b907 100644
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -4358,12 +4358,14 @@ end:
- static void mlx4_shutdown(struct pci_dev *pdev)
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -529,10 +529,14 @@ static int init_vqs(struct virtio_balloo
+ static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
  {
- 	struct mlx4_dev_persistent *persist = pci_get_drvdata(pdev);
-+	struct mlx4_dev *dev = persist->dev;
+ 	if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+-			       &vb->config_read_bitmap))
++			       &vb->config_read_bitmap)) {
+ 		virtio_cread(vb->vdev, struct virtio_balloon_config,
+ 			     free_page_report_cmd_id,
+ 			     &vb->cmd_id_received_cache);
++		/* Legacy balloon config space is LE, unlike all other devices. */
++		if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
++			vb->cmd_id_received_cache = le32_to_cpu((__force __le32)vb->cmd_id_received_cache);
++	}
  
- 	mlx4_info(persist->dev, "mlx4_shutdown was called\n");
- 	mutex_lock(&persist->interface_state_mutex);
- 	if (persist->interface_state & MLX4_INTERFACE_STATE_UP)
- 		mlx4_unload_one(pdev);
- 	mutex_unlock(&persist->interface_state_mutex);
-+	mlx4_pci_disable_device(dev);
+ 	return vb->cmd_id_received_cache;
  }
- 
- static const struct pci_error_handlers mlx4_err_handler = {
--- 
-2.25.1
-
 
 
