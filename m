@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4573523A525
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B75023A5BF
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728983AbgHCMdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
+        id S1729317AbgHCMc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729477AbgHCMdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:33:42 -0400
+        id S1729312AbgHCMc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74FCC20825;
-        Mon,  3 Aug 2020 12:33:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B87112076B;
+        Mon,  3 Aug 2020 12:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458021;
-        bh=x4UMX5p252GYrKJ/aCarb85LZB57EhVLYClq7cIfOP0=;
+        s=default; t=1596457947;
+        bh=tRCAR+29801nJlV6nn6fx12W0QoTWA6SQQ+ift7Kwg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfNh+zIa+QnMSdZb/vBdzQhqPLvzgii4CrnElbOpWul5FNkRRswP/DkdxUGmbwIbV
-         zGT5AZy1OzvPoEZgKJf8BHfjlMqOoGW4UhdrIQijJ9Oh/JLJAKrN8TEOPW4UJ5+8yH
-         +CwDkCdvhsrxqSkM85II0EEr7CVMzLnKhRe+SPB8=
+        b=z/kvzCSkRNpKs+xvUTUITFdHBtnwF8p2aa/jylpTxLhMIv6i9l8gtrh7nChByEk5a
+         8CU7I+S/xic20wQnzBvJiF/NsOViHG87AdDixyUHJMeQSnL0H4+rR2U7xeG0hWElbu
+         hSkisPfQX0tXlz2sJ3Kja+NCqH1HlK6w+Goda1gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 10/51] wireless: Use offsetof instead of custom macro.
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 40/56] mac80211: mesh: Free pending skb when destroying a mpath
 Date:   Mon,  3 Aug 2020 14:19:55 +0200
-Message-Id: <20200803121849.964675445@linuxfoundation.org>
+Message-Id: <20200803121852.281619470@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pi-Hsun Shih <pihsun@chromium.org>
+From: Remi Pommarel <repk@triplefau.lt>
 
-commit 6989310f5d4327e8595664954edd40a7f99ddd0d upstream.
+[ Upstream commit 5e43540c2af0a0c0a18e39579b1ad49541f87506 ]
 
-Use offsetof to calculate offset of a field to take advantage of
-compiler built-in version when possible, and avoid UBSAN warning when
-compiling with Clang:
+A mpath object can hold reference on a list of skb that are waiting for
+mpath resolution to be sent. When destroying a mpath this skb list
+should be cleaned up in order to not leak memory.
 
-==================================================================
-UBSAN: Undefined behaviour in net/wireless/wext-core.c:525:14
-member access within null pointer of type 'struct iw_point'
-CPU: 3 PID: 165 Comm: kworker/u16:3 Tainted: G S      W         4.19.23 #43
-Workqueue: cfg80211 __cfg80211_scan_done [cfg80211]
-Call trace:
- dump_backtrace+0x0/0x194
- show_stack+0x20/0x2c
- __dump_stack+0x20/0x28
- dump_stack+0x70/0x94
- ubsan_epilogue+0x14/0x44
- ubsan_type_mismatch_common+0xf4/0xfc
- __ubsan_handle_type_mismatch_v1+0x34/0x54
- wireless_send_event+0x3cc/0x470
- ___cfg80211_scan_done+0x13c/0x220 [cfg80211]
- __cfg80211_scan_done+0x28/0x34 [cfg80211]
- process_one_work+0x170/0x35c
- worker_thread+0x254/0x380
- kthread+0x13c/0x158
- ret_from_fork+0x10/0x18
-===================================================================
+Fixing that kind of leak:
 
-Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20191204081307.138765-1-pihsun@chromium.org
+unreferenced object 0xffff0000181c9300 (size 1088):
+  comm "openvpn", pid 1782, jiffies 4295071698 (age 80.416s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 f9 80 36 00 00 00 00 00  ..........6.....
+    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<000000002caaef13>] sk_prot_alloc.isra.39+0x34/0x178
+    [<00000000ceeaa916>] sk_alloc+0x34/0x228
+    [<00000000ca1f1d04>] inet_create+0x198/0x518
+    [<0000000035626b1c>] __sock_create+0x134/0x328
+    [<00000000a12b3a87>] __sys_socket+0xb0/0x158
+    [<00000000ff859f23>] __arm64_sys_socket+0x40/0x58
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
+unreferenced object 0xffff000012973a40 (size 216):
+  comm "openvpn", pid 1782, jiffies 4295082137 (age 38.660s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 c0 06 16 00 00 ff ff 00 93 1c 18 00 00 ff ff  ................
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<0000000023c8c8f9>] __alloc_skb+0xc0/0x2b8
+    [<000000007ad950bb>] alloc_skb_with_frags+0x60/0x320
+    [<00000000ef90023a>] sock_alloc_send_pskb+0x388/0x3c0
+    [<00000000104fb1a3>] sock_alloc_send_skb+0x1c/0x28
+    [<000000006919d2dd>] __ip_append_data+0xba4/0x11f0
+    [<0000000083477587>] ip_make_skb+0x14c/0x1a8
+    [<0000000024f3d592>] udp_sendmsg+0xaf0/0xcf0
+    [<000000005aabe255>] inet_sendmsg+0x5c/0x80
+    [<000000008651ea08>] __sys_sendto+0x15c/0x218
+    [<000000003505c99b>] __arm64_sys_sendto+0x74/0x90
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
+
+Fixes: 2bdaf386f99c (mac80211: mesh: move path tables into if_mesh)
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Link: https://lore.kernel.org/r/20200704135419.27703-1-repk@triplefau.lt
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/wireless.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/mac80211/mesh_pathtbl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/uapi/linux/wireless.h
-+++ b/include/uapi/linux/wireless.h
-@@ -74,6 +74,8 @@
- #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
- #include <linux/if.h>			/* for IFNAMSIZ and co... */
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index ac1f5db529945..4fc720c77e37e 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -532,6 +532,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl,
+ 	del_timer_sync(&mpath->timer);
+ 	atomic_dec(&sdata->u.mesh.mpaths);
+ 	atomic_dec(&tbl->entries);
++	mesh_path_flush_pending(mpath);
+ 	kfree_rcu(mpath, rcu);
+ }
  
-+#include <stddef.h>                     /* for offsetof */
-+
- /***************************** VERSION *****************************/
- /*
-  * This constant is used to know the availability of the wireless
-@@ -1090,8 +1092,7 @@ struct iw_event {
- /* iw_point events are special. First, the payload (extra data) come at
-  * the end of the event, so they are bigger than IW_EV_POINT_LEN. Second,
-  * we omit the pointer, so start at an offset. */
--#define IW_EV_POINT_OFF (((char *) &(((struct iw_point *) NULL)->length)) - \
--			  (char *) NULL)
-+#define IW_EV_POINT_OFF offsetof(struct iw_point, length)
- #define IW_EV_POINT_LEN	(IW_EV_LCP_LEN + sizeof(struct iw_point) - \
- 			 IW_EV_POINT_OFF)
- 
+-- 
+2.25.1
+
 
 
