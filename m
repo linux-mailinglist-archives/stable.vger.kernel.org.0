@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A76323A54F
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2169723A513
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729658AbgHCMfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
+        id S1728948AbgHCMdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729649AbgHCMfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:35:36 -0400
+        id S1728608AbgHCMdF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AE4B2054F;
-        Mon,  3 Aug 2020 12:35:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E267B2076B;
+        Mon,  3 Aug 2020 12:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458135;
-        bh=LKi61odvfuxeOQtUwqVPGGDvZrvazCumDpikHda+Rgc=;
+        s=default; t=1596457984;
+        bh=KP2S6zjMVIV//HHt0ckkmTyuYNbrWQFsrRLKQQLWScM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ez9Dug+UrOaUpz5hdQoNr3DoB1qkPRp62fSYDPzmsXjNyLrpnzZLFCFLtpYEG8byO
-         13snqceAVuMNiYmyDiF3UFFloIIZ1vBdA4XKO+hchi3US94COsJFzoPy+TSQlAWbb6
-         yB9Bpo05e5iuKkM7CtxQ4IB5R/vx79vVH1GYnJyc=
+        b=Kp4RF5e6c4AYx0kMN8O4UyRTljlgAvRHTt272KbNkLR/8MEm7sp0T7TM4yY8e2vDg
+         1aJYLuz0uZamTmBt75kc7L6eIFnyhOqUp+modpwVmBUKyvKT7TUTemC2ML+LdvZL2o
+         2ree9cpM+LCSTAdKLipHI+ikpgq+hlb30DbTG5tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+77a25acfa0382e06ab23@syzkaller.appspotmail.com,
-        Wang Hai <wanghai38@huawei.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/51] 9p/trans_fd: Fix concurrency del of req_list in p9_fd_cancelled/p9_read_work
-Date:   Mon,  3 Aug 2020 14:20:06 +0200
-Message-Id: <20200803121850.508725738@linuxfoundation.org>
+Subject: [PATCH 4.19 52/56] x86/unwind/orc: Fix ORC for newly forked tasks
+Date:   Mon,  3 Aug 2020 14:20:07 +0200
+Message-Id: <20200803121852.874529785@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
-References: <20200803121849.488233135@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 74d6a5d5662975aed7f25952f62efbb6f6dadd29 ]
+[ Upstream commit 372a8eaa05998cd45b3417d0e0ffd3a70978211a ]
 
-p9_read_work and p9_fd_cancelled may be called concurrently.
-In some cases, req->req_list may be deleted by both p9_read_work
-and p9_fd_cancelled.
+The ORC unwinder fails to unwind newly forked tasks which haven't yet
+run on the CPU.  It correctly reads the 'ret_from_fork' instruction
+pointer from the stack, but it incorrectly interprets that value as a
+call stack address rather than a "signal" one, so the address gets
+incorrectly decremented in the call to orc_find(), resulting in bad ORC
+data.
 
-We can fix it by ignoring replies associated with a cancelled
-request and ignoring cancelled request if message has been received
-before lock.
+Fix it by forcing 'ret_from_fork' frames to be signal frames.
 
-Link: http://lkml.kernel.org/r/20200612090833.36149-1-wanghai38@huawei.com
-Fixes: 60ff779c4abb ("9p: client: remove unused code and any reference to "cancelled" function")
-Cc: <stable@vger.kernel.org> # v3.12+
-Reported-by: syzbot+77a25acfa0382e06ab23@syzkaller.appspotmail.com
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Reported-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lkml.kernel.org/r/f91a8778dde8aae7f71884b5df2b16d552040441.1594994374.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/x86/kernel/unwind_orc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index cbd8cfafb7940..32de8afbfbf8e 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -383,6 +383,10 @@ static void p9_read_work(struct work_struct *work)
- 		if (m->req->status == REQ_STATUS_SENT) {
- 			list_del(&m->req->req_list);
- 			p9_client_cb(m->client, m->req, REQ_STATUS_RCVD);
-+		} else if (m->req->status == REQ_STATUS_FLSHD) {
-+			/* Ignore replies associated with a cancelled request. */
-+			p9_debug(P9_DEBUG_TRANS,
-+				 "Ignore replies associated with a cancelled request\n");
- 		} else {
- 			spin_unlock(&m->client->lock);
- 			p9_debug(P9_DEBUG_ERROR,
-@@ -717,11 +721,20 @@ static int p9_fd_cancelled(struct p9_client *client, struct p9_req_t *req)
- {
- 	p9_debug(P9_DEBUG_TRANS, "client %p req %p\n", client, req);
- 
-+	spin_lock(&client->lock);
-+	/* Ignore cancelled request if message has been received
-+	 * before lock.
-+	 */
-+	if (req->status == REQ_STATUS_RCVD) {
-+		spin_unlock(&client->lock);
-+		return 0;
-+	}
-+
- 	/* we haven't received a response for oldreq,
- 	 * remove it from the list.
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 2701b370e58fe..1d264ba1e56d1 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -420,8 +420,11 @@ bool unwind_next_frame(struct unwind_state *state)
+ 	/*
+ 	 * Find the orc_entry associated with the text address.
+ 	 *
+-	 * Decrement call return addresses by one so they work for sibling
+-	 * calls and calls to noreturn functions.
++	 * For a call frame (as opposed to a signal frame), state->ip points to
++	 * the instruction after the call.  That instruction's stack layout
++	 * could be different from the call instruction's layout, for example
++	 * if the call was to a noreturn function.  So get the ORC data for the
++	 * call instruction itself.
  	 */
--	spin_lock(&client->lock);
- 	list_del(&req->req_list);
-+	req->status = REQ_STATUS_FLSHD;
- 	spin_unlock(&client->lock);
+ 	orc = orc_find(state->signal ? state->ip : state->ip - 1);
+ 	if (!orc)
+@@ -634,6 +637,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		state->sp = task->thread.sp;
+ 		state->bp = READ_ONCE_NOCHECK(frame->bp);
+ 		state->ip = READ_ONCE_NOCHECK(frame->ret_addr);
++		state->signal = (void *)state->ip == ret_from_fork;
+ 	}
  
- 	return 0;
+ 	if (get_stack_info((unsigned long *)state->sp, state->task,
 -- 
 2.25.1
 
