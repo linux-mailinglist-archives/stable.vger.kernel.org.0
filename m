@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8824E23A5C0
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8BA823A507
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727088AbgHCMcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
+        id S1729338AbgHCMcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729319AbgHCMca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:32:30 -0400
+        id S1729333AbgHCMcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 442922054F;
-        Mon,  3 Aug 2020 12:32:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5FD6204EC;
+        Mon,  3 Aug 2020 12:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457949;
-        bh=3jz3EdWVTWUgnoW/sHst9pS+pz7RHP5OQQhYlSCBmTU=;
+        s=default; t=1596457955;
+        bh=t2oT0uhxQ0+DVoa3OutONu5D6FifUlSdmQ2IaDTNpbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNFhhibi6XM6+mQ1iOj8Hdd8qqSD9ZOzDJyTqpUtOHTbet8k+kfezAu+gFf+YaIVK
-         NGS+BHup5LCkGStRbSy9/OkmxcjwGnGrrd/fL7WW+0+9wYs8MoF8AG+REq2UCkRoAw
-         DxO+cUrTPxDKE1EN7r39mxmXQOLwYoBesELIibnU=
+        b=YhSl0rV3Zn2voRDxzk4fbdvE/Z+LZxCHjW9+iZxL/O0X6J0peYsSKTRzSo9dYPGjA
+         qAvEqHNXPk0pbneyvRKETX8ybRosFjuZrs4lFlICGEnRnVLjpPRsDHFsapMkw3+6zO
+         KSogFdUbUH7j13hFeGPTqE2QKAGZEeP+r1oR+RA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        stable@vger.kernel.org, guodeqing <geffrey.guo@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/56] arm64/alternatives: move length validation inside the subsection
-Date:   Mon,  3 Aug 2020 14:19:56 +0200
-Message-Id: <20200803121852.321902247@linuxfoundation.org>
+Subject: [PATCH 4.19 42/56] arm64: csum: Fix handling of bad packets
+Date:   Mon,  3 Aug 2020 14:19:57 +0200
+Message-Id: <20200803121852.370952603@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
 References: <20200803121850.306734207@linuxfoundation.org>
@@ -43,43 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 966a0acce2fca776391823381dba95c40e03c339 ]
+[ Upstream commit 05fb3dbda187bbd9cc1cd0e97e5d6595af570ac6 ]
 
-Commit f7b93d42945c ("arm64/alternatives: use subsections for replacement
-sequences") breaks LLVM's integrated assembler, because due to its
-one-pass design, it cannot compute instruction sequence lengths before the
-layout for the subsection has been finalized. This change fixes the build
-by moving the .org directives inside the subsection, so they are processed
-after the subsection layout is known.
+Although iph is expected to point to at least 20 bytes of valid memory,
+ihl may be bogus, for example on reception of a corrupt packet. If it
+happens to be less than 5, we really don't want to run away and
+dereference 16GB worth of memory until it wraps back to exactly zero...
 
-Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1078
-Link: https://lore.kernel.org/r/20200730153701.3892953-1-samitolvanen@google.com
+Fixes: 0e455d8e80aa ("arm64: Implement optimised IP checksum helpers")
+Reported-by: guodeqing <geffrey.guo@huawei.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/alternative.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/checksum.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
-index 849d891c60a81..844f05b23115a 100644
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -77,9 +77,9 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
- 	"663:\n\t"							\
- 	newinstr "\n"							\
- 	"664:\n\t"							\
--	".previous\n\t"							\
- 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
--	".org	. - (662b-661b) + (664b-663b)\n"			\
-+	".org	. - (662b-661b) + (664b-663b)\n\t"			\
-+	".previous\n"							\
- 	".endif\n"
+diff --git a/arch/arm64/include/asm/checksum.h b/arch/arm64/include/asm/checksum.h
+index 0b6f5a7d4027c..fd11e0d70e446 100644
+--- a/arch/arm64/include/asm/checksum.h
++++ b/arch/arm64/include/asm/checksum.h
+@@ -30,16 +30,17 @@ static inline __sum16 ip_fast_csum(const void *iph, unsigned int ihl)
+ {
+ 	__uint128_t tmp;
+ 	u64 sum;
++	int n = ihl; /* we want it signed */
  
- #define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
+ 	tmp = *(const __uint128_t *)iph;
+ 	iph += 16;
+-	ihl -= 4;
++	n -= 4;
+ 	tmp += ((tmp >> 64) | (tmp << 64));
+ 	sum = tmp >> 64;
+ 	do {
+ 		sum += *(const u32 *)iph;
+ 		iph += 4;
+-	} while (--ihl);
++	} while (--n > 0);
+ 
+ 	sum += ((sum >> 32) | (sum << 32));
+ 	return csum_fold((__force u32)(sum >> 32));
 -- 
 2.25.1
 
