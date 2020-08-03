@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA9823A647
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D2123A6D5
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728439AbgHCMqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
+        id S1727976AbgHCMzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:55:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728422AbgHCM0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:49 -0400
+        id S1726785AbgHCMXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:23:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69443204EC;
-        Mon,  3 Aug 2020 12:26:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A1D220738;
+        Mon,  3 Aug 2020 12:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457608;
-        bh=z8DB9BbECBRb+IaSNOPSwPWCqDsqjkirBR1M+COF/qQ=;
+        s=default; t=1596457381;
+        bh=cdtxj/ywbkVNySjD8OmBny99CKB7Y7dBkHs04XnxzZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwW71cknxB4vRmyutIwtIJsKpIoOHoeHBAzfB2ANjDYwPAyIxtms5CVSD93jqZOG7
-         /65sX5O1D6GqsvPJ1iLFTkSNl7s5+e4edYRYEphvPXN/OC6yYFAeHepWiyzSlGwNVh
-         dwUNt7Peez2MRH68bVSejgx3+gQut5/eVjKoWxjA=
+        b=LH9xriZaPP34S8VLB4uBbWk1K/t6k/f9qP8TZGpFL/S02Lvu8812c3Jcj6c+f48bY
+         4YS8SPNirbtRZ9OuL93DykoLbkE1QsJBqYfz//o3D9sk/2IokshpHxDCqTmIEZNhzt
+         xNC6lkaluUhlBNUcR9ErgapidQB6Gt4RlTdnQ7ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Gary R Hook <gary.hook@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/90] crypto: ccp - Release all allocated memory if sha type is invalid
-Date:   Mon,  3 Aug 2020 14:18:23 +0200
-Message-Id: <20200803121857.614278053@linuxfoundation.org>
+Subject: [PATCH 5.7 046/120] selftests/net: tcp_mmap: fix clang warning for target arch PowerPC
+Date:   Mon,  3 Aug 2020 14:18:24 +0200
+Message-Id: <20200803121905.051526833@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,39 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Tanner Love <tannerlove@google.com>
 
-[ Upstream commit 128c66429247add5128c03dc1e144ca56f05a4e2 ]
+[ Upstream commit 94b6c13be57cdedb7cf4d33dbcd066fad133f22b ]
 
-Release all allocated memory if sha type is invalid:
-In ccp_run_sha_cmd, if the type of sha is invalid, the allocated
-hmac_buf should be released.
+When size_t maps to unsigned int (e.g. on 32-bit powerpc), then the
+comparison with 1<<35 is always true. Clang 9 threw:
+warning: result of comparison of constant 34359738368 with \
+expression of type 'size_t' (aka 'unsigned int') is always true \
+[-Wtautological-constant-out-of-range-compare]
+        while (total < FILE_SZ) {
 
-v2: fix the goto.
+Tested: make -C tools/testing/selftests TARGETS="net" run_tests
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Acked-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 192dc405f308 ("selftests: net: add tcp_mmap program")
+Signed-off-by: Tanner Love <tannerlove@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/ccp-ops.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/net/tcp_mmap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
-index c8da8eb160da0..422193690fd47 100644
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -1777,8 +1777,9 @@ ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 			       LSB_ITEM_SIZE);
- 			break;
- 		default:
-+			kfree(hmac_buf);
- 			ret = -EINVAL;
--			goto e_ctx;
-+			goto e_data;
- 		}
+diff --git a/tools/testing/selftests/net/tcp_mmap.c b/tools/testing/selftests/net/tcp_mmap.c
+index 4555f88252baf..a61b7b3da5496 100644
+--- a/tools/testing/selftests/net/tcp_mmap.c
++++ b/tools/testing/selftests/net/tcp_mmap.c
+@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
+ {
+ 	struct sockaddr_storage listenaddr, addr;
+ 	unsigned int max_pacing_rate = 0;
+-	size_t total = 0;
++	uint64_t total = 0;
+ 	char *host = NULL;
+ 	int fd, c, on = 1;
+ 	char *buffer;
+@@ -473,12 +473,12 @@ int main(int argc, char *argv[])
+ 		zflg = 0;
+ 	}
+ 	while (total < FILE_SZ) {
+-		ssize_t wr = FILE_SZ - total;
++		int64_t wr = FILE_SZ - total;
  
- 		memset(&hmac_cmd, 0, sizeof(hmac_cmd));
+ 		if (wr > chunk_size)
+ 			wr = chunk_size;
+ 		/* Note : we just want to fill the pipe with 0 bytes */
+-		wr = send(fd, buffer, wr, zflg ? MSG_ZEROCOPY : 0);
++		wr = send(fd, buffer, (size_t)wr, zflg ? MSG_ZEROCOPY : 0);
+ 		if (wr <= 0)
+ 			break;
+ 		total += wr;
 -- 
 2.25.1
 
