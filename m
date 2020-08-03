@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8507523A708
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAD023A6F3
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbgHCM5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45080 "EHLO mail.kernel.org"
+        id S1726189AbgHCMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726824AbgHCMVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:21:43 -0400
+        id S1726835AbgHCMVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:21:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6027B204EC;
-        Mon,  3 Aug 2020 12:21:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B7882076E;
+        Mon,  3 Aug 2020 12:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457302;
-        bh=1NJdlySNwlZG7pancpbQGVvWZeWCVGv8qXRslt06aVQ=;
+        s=default; t=1596457308;
+        bh=CDmO9XrYo5F5yWtezrGi445Z+qZ86t9Xk+um3LOorFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMSyV5mDykgdQaXvGi0p03+95dj0nYE/AG7D7AFiFuNjlb0JUUdn3X9px4seGVZ64
-         A/NbE961XEOwNpkMFjJ3uJ4q8if7QYAnH0EDBB4d/qvwwvO2/4TTjQHOL+NJyiOZE6
-         eC7bZAHhghw1gkN9A/RWq06z/Bs/SUoWZip5FZMc=
+        b=Gkv9jEVgwdeve58KHqv+ZyRar5HUEvqPq+jYh2J3JUvHqxSVBwYRlJzRCXrROVvUV
+         k6ocx+GCVFDc8fPiGZbLCL3hZJ/m4X+IxwysxWm+dPKRSzI4Hqh+e8KJ+CmsVsK5Oy
+         wWKAF+2wgnaDHi4tREFw6JnYsohqgLN+kncWdGFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Suniel Mahesh <sunil@amarulasolutions.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.7 019/120] ARM: dts: imx6qdl-icore: Fix OTG_ID pin and sdcard detect
-Date:   Mon,  3 Aug 2020 14:17:57 +0200
-Message-Id: <20200803121903.786244511@linuxfoundation.org>
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Wei Wang <wei.w.wang@intel.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH 5.7 020/120] virtio_balloon: fix up endian-ness for free cmd id
+Date:   Mon,  3 Aug 2020 14:17:58 +0200
+Message-Id: <20200803121903.833733094@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -45,67 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Trimarchi <michael@amarulasolutions.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-commit 4a601da92c2a782e5c022680d476104586b74994 upstream.
+commit 168c358af2f8c5a37f8b5f877ba2cc93995606ee upstream.
 
-The current pin muxing scheme muxes GPIO_1 pad for USB_OTG_ID
-because of which when card is inserted, usb otg is enumerated
-and the card is never detected.
+free cmd id is read using virtio endian, spec says all fields
+in balloon are LE. Fix it up.
 
-[   64.492645] cfg80211: failed to load regulatory.db
-[   64.492657] imx-sdma 20ec000.sdma: external firmware not found, using ROM firmware
-[   76.343711] ci_hdrc ci_hdrc.0: EHCI Host Controller
-[   76.349742] ci_hdrc ci_hdrc.0: new USB bus registered, assigned bus number 2
-[   76.388862] ci_hdrc ci_hdrc.0: USB 2.0 started, EHCI 1.00
-[   76.396650] usb usb2: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 5.08
-[   76.405412] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
-[   76.412763] usb usb2: Product: EHCI Host Controller
-[   76.417666] usb usb2: Manufacturer: Linux 5.8.0-rc1-next-20200618 ehci_hcd
-[   76.424623] usb usb2: SerialNumber: ci_hdrc.0
-[   76.431755] hub 2-0:1.0: USB hub found
-[   76.435862] hub 2-0:1.0: 1 port detected
-
-The TRM mentions GPIO_1 pad should be muxed/assigned for card detect
-and ENET_RX_ER pad for USB_OTG_ID for proper operation.
-
-This patch fixes pin muxing as per TRM and is tested on a
-i.Core 1.5 MX6 DL SOM.
-
-[   22.449165] mmc0: host does not support reading read-only switch, assuming write-enable
-[   22.459992] mmc0: new high speed SDHC card at address 0001
-[   22.469725] mmcblk0: mmc0:0001 EB1QT 29.8 GiB
-[   22.478856]  mmcblk0: p1 p2
-
-Fixes: 6df11287f7c9 ("ARM: dts: imx6q: Add Engicam i.CoreM6 Quad/Dual initial support")
+Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
 Cc: stable@vger.kernel.org
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Suniel Mahesh <sunil@amarulasolutions.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Wei Wang <wei.w.wang@intel.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6qdl-icore.dtsi |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_balloon.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx6qdl-icore.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-icore.dtsi
-@@ -397,7 +397,7 @@
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -578,10 +578,14 @@ static int init_vqs(struct virtio_balloo
+ static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
+ {
+ 	if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+-			       &vb->config_read_bitmap))
++			       &vb->config_read_bitmap)) {
+ 		virtio_cread(vb->vdev, struct virtio_balloon_config,
+ 			     free_page_hint_cmd_id,
+ 			     &vb->cmd_id_received_cache);
++		/* Legacy balloon config space is LE, unlike all other devices. */
++		if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
++			vb->cmd_id_received_cache = le32_to_cpu((__force __le32)vb->cmd_id_received_cache);
++	}
  
- 	pinctrl_usbotg: usbotggrp {
- 		fsl,pins = <
--			MX6QDL_PAD_GPIO_1__USB_OTG_ID 0x17059
-+			MX6QDL_PAD_ENET_RX_ER__USB_OTG_ID 0x17059
- 		>;
- 	};
- 
-@@ -409,6 +409,7 @@
- 			MX6QDL_PAD_SD1_DAT1__SD1_DATA1 0x17070
- 			MX6QDL_PAD_SD1_DAT2__SD1_DATA2 0x17070
- 			MX6QDL_PAD_SD1_DAT3__SD1_DATA3 0x17070
-+			MX6QDL_PAD_GPIO_1__GPIO1_IO01  0x1b0b0
- 		>;
- 	};
- 
+ 	return vb->cmd_id_received_cache;
+ }
 
 
