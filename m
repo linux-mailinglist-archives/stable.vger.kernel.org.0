@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5F323A5EC
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 078E223A5CC
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727902AbgHCMnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57300 "EHLO mail.kernel.org"
+        id S1728091AbgHCMlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729024AbgHCMaT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:30:19 -0400
+        id S1729261AbgHCMcH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:32:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91E0C20775;
-        Mon,  3 Aug 2020 12:30:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 011FB204EC;
+        Mon,  3 Aug 2020 12:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457818;
-        bh=lh5kN0aZNa2kwrAZq9484r/FQcxSPMX2RaU2x6rT4S8=;
+        s=default; t=1596457925;
+        bh=8OoNLzM9mef1N3xrgx4IKRdDJjPBJpJae6hwQNZo8l0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuZEJcgFfIbqH2kvYywOtnqiquxXTYxUOFnrpBmnHnzzAQCT8xGf8ZT+LLaRwHXKH
-         Kc/tbvmYeeeVbSG8LqrARJnkg/pR3s0j7ucv8rz5GmdFiEE3/wRorX19c0TjlwqMMy
-         ejbUSMfowKkGzqkTOso1AOjnYSj1g2ToRrCodpe4=
+        b=pHHfXhcGB8ogAL0N2mICFSh7K5FGkd7mjSVYLEn3LR0YKbcFJsiFfLdAiE4bhscpN
+         x2aecNrcEDmIEHt4fwXWvzAA7M62NBaaHIrL1CBFyOJqLZPdhsnzxaBIp75QeLujDO
+         /BHR+0I2jnakj/3qOEbiDtfvMXiqXaOLANBPluDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
+        stable@vger.kernel.org,
+        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
+        Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 84/90] drivers/net/wan: lapb: Corrected the usage of skb_cow
-Date:   Mon,  3 Aug 2020 14:19:46 +0200
-Message-Id: <20200803121901.666059663@linuxfoundation.org>
+Subject: [PATCH 4.19 32/56] net: lan78xx: add missing endpoint sanity check
+Date:   Mon,  3 Aug 2020 14:19:47 +0200
+Message-Id: <20200803121851.898829519@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 8754e1379e7089516a449821f88e1fe1ebbae5e1 ]
+[ Upstream commit 8d8e95fd6d69d774013f51e5f2ee10c6e6d1fc14 ]
 
-This patch fixed 2 issues with the usage of skb_cow in LAPB drivers
-"lapbether" and "hdlc_x25":
+Add the missing endpoint sanity check to prevent a NULL-pointer
+dereference should a malicious device lack the expected endpoints.
 
-1) After skb_cow fails, kfree_skb should be called to drop a reference
-to the skb. But in both drivers, kfree_skb is not called.
+Note that the driver has a broken endpoint-lookup helper,
+lan78xx_get_endpoints(), which can end up accepting interfaces in an
+altsetting without endpoints as long as *some* altsetting has a bulk-in
+and a bulk-out endpoint.
 
-2) skb_cow should be called before skb_push so that is can ensure the
-safety of skb_push. But in "lapbether", it is incorrectly called after
-skb_push.
-
-More details about these 2 issues:
-
-1) The behavior of calling kfree_skb on failure is also the behavior of
-netif_rx, which is called by this function with "return netif_rx(skb);".
-So this function should follow this behavior, too.
-
-2) In "lapbether", skb_cow is called after skb_push. This results in 2
-logical issues:
-   a) skb_push is not protected by skb_cow;
-   b) An extra headroom of 1 byte is ensured after skb_push. This extra
-      headroom has no use in this function. It also has no use in the
-      upper-layer function that this function passes the skb to
-      (x25_lapb_receive_frame in net/x25/x25_dev.c).
-So logically skb_cow should instead be called before skb_push.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_x25.c  | 4 +++-
- drivers/net/wan/lapbether.c | 8 +++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/usb/lan78xx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index bf78073ee7fd9..e2a83f4cd3bb6 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -62,8 +62,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
- 	unsigned char *ptr;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 92548887df2fe..2dff233814ea5 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3786,6 +3786,11 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 	netdev->max_mtu = MAX_SINGLE_PACKET_SIZE;
+ 	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
  
--	if (skb_cow(skb, 1))
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
- 		return NET_RX_DROP;
-+	}
- 
- 	skb_push(skb, 1);
- 	skb_reset_network_header(skb);
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 5a6f27298b90f..134e4dd916c1a 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -128,10 +128,12 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
- 	unsigned char *ptr;
- 
--	skb_push(skb, 1);
--
--	if (skb_cow(skb, 1))
-+	if (skb_cow(skb, 1)) {
-+		kfree_skb(skb);
- 		return NET_RX_DROP;
++	if (intf->cur_altsetting->desc.bNumEndpoints < 3) {
++		ret = -ENODEV;
++		goto out3;
 +	}
 +
-+	skb_push(skb, 1);
- 
- 	ptr  = skb->data;
- 	*ptr = X25_IFACE_DATA;
+ 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
+ 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
+ 	dev->ep_intr = (intf->cur_altsetting)->endpoint + 2;
 -- 
 2.25.1
 
