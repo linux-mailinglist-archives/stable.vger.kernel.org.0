@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AE8923A48D
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E699723A48F
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728734AbgHCM2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S1728753AbgHCM2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:28:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728147AbgHCM2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:20 -0400
+        id S1728721AbgHCM2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:28:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5DE22083B;
-        Mon,  3 Aug 2020 12:28:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BC34204EC;
+        Mon,  3 Aug 2020 12:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457699;
-        bh=mMaacA9vE0nsei1eQU9xoZKDWVY7ktUlsDNk0P5mmr0=;
+        s=default; t=1596457710;
+        bh=upQ0vadh/GU4f/aiUZGGppbmhZRBx7Ux6CJdmf4im6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRl/tMIu7+4mSOf30WsPj9zsTLK5eMTqpZhBLFDT2G4CMmohkhgle+S7ruYK0b/Pp
-         zfMtA90M2Ue/tS6lJocn8qgAgvbpNlJT9N2BoPaL63RN7Jafqn7+3IZ+WvZduzbu8W
-         G4e80omj8lW106lf4rpPzWZ0u/Q77xuNA0frPRi8=
+        b=kKPeuSxrzJBnoRLM5z6ZteGxSvzDZ4jjynT9yPwif2GcEPHz5CEhLiMS4q/nYRc2g
+         qoKdDCY5/ql6i8dyciwKShGFdD6/X8jhiZpAYBJOuik1jUzPPwgu2A/Lalt3RkA6bC
+         RtpOsqJ+2NC+J6M2DX28I+cEKoqehSYm9/mMdbEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 43/90] sh/tlb: Fix PGTABLE_LEVELS > 2
-Date:   Mon,  3 Aug 2020 14:19:05 +0200
-Message-Id: <20200803121859.708701681@linuxfoundation.org>
+        stable@vger.kernel.org, Guojia Liao <liaoguojia@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 46/90] net: hns3: fix aRFS FD rules leftover after add a user FD rule
+Date:   Mon,  3 Aug 2020 14:19:08 +0200
+Message-Id: <20200803121859.851258153@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
 References: <20200803121857.546052424@linuxfoundation.org>
@@ -45,55 +45,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Guojia Liao <liaoguojia@huawei.com>
 
-[ Upstream commit c7bcbc8ab9cb20536b8f50c62a48cebda965fdba ]
+[ Upstream commit efe3fa45f770f1d66e2734ee7a3523c75694ff04 ]
 
-Geert reported that his SH7722-based Migo-R board failed to boot after
-commit:
+When user had created a FD rule, all the aRFS rules should be clear up.
+HNS3 process flow as below:
+1.get spin lock of fd_ruls_list
+2.clear up all aRFS rules
+3.release lock
+4.get spin lock of fd_ruls_list
+5.creat a rules
+6.release lock;
 
-  c5b27a889da9 ("sh/tlb: Convert SH to generic mmu_gather")
+There is a short period of time between step 3 and step 4, which would
+creatting some new aRFS FD rules if driver was receiving packet.
+So refactor the fd_rule_lock to fix it.
 
-That commit fell victim to copying the wrong pattern --
-__pmd_free_tlb() used to be implemented with pmd_free().
-
-Fixes: c5b27a889da9 ("sh/tlb: Convert SH to generic mmu_gather")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Rich Felker <dalias@libc.org>
+Fixes: 441228875706 ("net: hns3: refine the flow director handle")
+Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/pgalloc.h | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 28 ++++++++++---------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
-index 22d968bfe9bb6..d770da3f8b6fb 100644
---- a/arch/sh/include/asm/pgalloc.h
-+++ b/arch/sh/include/asm/pgalloc.h
-@@ -12,6 +12,7 @@ extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
- extern void pud_populate(struct mm_struct *mm, pud_t *pudp, pmd_t *pmd);
- extern pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address);
- extern void pmd_free(struct mm_struct *mm, pmd_t *pmd);
-+#define __pmd_free_tlb(tlb, pmdp, addr)		pmd_free((tlb)->mm, (pmdp))
- #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index d4652dea4569b..6c3d13110993f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -5627,9 +5627,9 @@ static int hclge_add_fd_entry(struct hnae3_handle *handle,
+ 	/* to avoid rule conflict, when user configure rule by ethtool,
+ 	 * we need to clear all arfs rules
+ 	 */
++	spin_lock_bh(&hdev->fd_rule_lock);
+ 	hclge_clear_arfs_rules(handle);
  
- static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
-@@ -33,13 +34,4 @@ do {							\
- 	tlb_remove_page((tlb), (pte));			\
- } while (0)
+-	spin_lock_bh(&hdev->fd_rule_lock);
+ 	ret = hclge_fd_config_rule(hdev, rule);
  
--#if CONFIG_PGTABLE_LEVELS > 2
--#define __pmd_free_tlb(tlb, pmdp, addr)			\
--do {							\
--	struct page *page = virt_to_page(pmdp);		\
--	pgtable_pmd_page_dtor(page);			\
--	tlb_remove_page((tlb), page);			\
--} while (0);
--#endif
+ 	spin_unlock_bh(&hdev->fd_rule_lock);
+@@ -5672,6 +5672,7 @@ static int hclge_del_fd_entry(struct hnae3_handle *handle,
+ 	return ret;
+ }
+ 
++/* make sure being called after lock up with fd_rule_lock */
+ static void hclge_del_all_fd_entries(struct hnae3_handle *handle,
+ 				     bool clear_list)
+ {
+@@ -5684,7 +5685,6 @@ static void hclge_del_all_fd_entries(struct hnae3_handle *handle,
+ 	if (!hnae3_dev_fd_supported(hdev))
+ 		return;
+ 
+-	spin_lock_bh(&hdev->fd_rule_lock);
+ 	for_each_set_bit(location, hdev->fd_bmap,
+ 			 hdev->fd_cfg.rule_num[HCLGE_FD_STAGE_1])
+ 		hclge_fd_tcam_config(hdev, HCLGE_FD_STAGE_1, true, location,
+@@ -5701,8 +5701,6 @@ static void hclge_del_all_fd_entries(struct hnae3_handle *handle,
+ 		bitmap_zero(hdev->fd_bmap,
+ 			    hdev->fd_cfg.rule_num[HCLGE_FD_STAGE_1]);
+ 	}
 -
- #endif /* __ASM_SH_PGALLOC_H */
+-	spin_unlock_bh(&hdev->fd_rule_lock);
+ }
+ 
+ static int hclge_restore_fd_entries(struct hnae3_handle *handle)
+@@ -6069,7 +6067,7 @@ static int hclge_add_fd_entry_by_arfs(struct hnae3_handle *handle, u16 queue_id,
+ 				      u16 flow_id, struct flow_keys *fkeys)
+ {
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+-	struct hclge_fd_rule_tuples new_tuples;
++	struct hclge_fd_rule_tuples new_tuples = {};
+ 	struct hclge_dev *hdev = vport->back;
+ 	struct hclge_fd_rule *rule;
+ 	u16 tmp_queue_id;
+@@ -6079,20 +6077,18 @@ static int hclge_add_fd_entry_by_arfs(struct hnae3_handle *handle, u16 queue_id,
+ 	if (!hnae3_dev_fd_supported(hdev))
+ 		return -EOPNOTSUPP;
+ 
+-	memset(&new_tuples, 0, sizeof(new_tuples));
+-	hclge_fd_get_flow_tuples(fkeys, &new_tuples);
+-
+-	spin_lock_bh(&hdev->fd_rule_lock);
+-
+ 	/* when there is already fd rule existed add by user,
+ 	 * arfs should not work
+ 	 */
++	spin_lock_bh(&hdev->fd_rule_lock);
+ 	if (hdev->fd_active_type == HCLGE_FD_EP_ACTIVE) {
+ 		spin_unlock_bh(&hdev->fd_rule_lock);
+ 
+ 		return -EOPNOTSUPP;
+ 	}
+ 
++	hclge_fd_get_flow_tuples(fkeys, &new_tuples);
++
+ 	/* check is there flow director filter existed for this flow,
+ 	 * if not, create a new filter for it;
+ 	 * if filter exist with different queue id, modify the filter;
+@@ -6177,6 +6173,7 @@ static void hclge_rfs_filter_expire(struct hclge_dev *hdev)
+ #endif
+ }
+ 
++/* make sure being called after lock up with fd_rule_lock */
+ static void hclge_clear_arfs_rules(struct hnae3_handle *handle)
+ {
+ #ifdef CONFIG_RFS_ACCEL
+@@ -6221,10 +6218,14 @@ static void hclge_enable_fd(struct hnae3_handle *handle, bool enable)
+ 
+ 	hdev->fd_en = enable;
+ 	clear = hdev->fd_active_type == HCLGE_FD_ARFS_ACTIVE;
+-	if (!enable)
++
++	if (!enable) {
++		spin_lock_bh(&hdev->fd_rule_lock);
+ 		hclge_del_all_fd_entries(handle, clear);
+-	else
++		spin_unlock_bh(&hdev->fd_rule_lock);
++	} else {
+ 		hclge_restore_fd_entries(handle);
++	}
+ }
+ 
+ static void hclge_cfg_mac_mode(struct hclge_dev *hdev, bool enable)
+@@ -6678,8 +6679,9 @@ static void hclge_ae_stop(struct hnae3_handle *handle)
+ 	int i;
+ 
+ 	set_bit(HCLGE_STATE_DOWN, &hdev->state);
+-
++	spin_lock_bh(&hdev->fd_rule_lock);
+ 	hclge_clear_arfs_rules(handle);
++	spin_unlock_bh(&hdev->fd_rule_lock);
+ 
+ 	/* If it is not PF reset, the firmware will disable the MAC,
+ 	 * so it only need to stop phy here.
 -- 
 2.25.1
 
