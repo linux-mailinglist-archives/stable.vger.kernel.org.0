@@ -2,47 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A041423A46A
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E2E23A456
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728265AbgHCM0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52358 "EHLO mail.kernel.org"
+        id S1728311AbgHCM0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728419AbgHCM0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:48 -0400
+        id S1728298AbgHCMZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:25:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2C13207DF;
-        Mon,  3 Aug 2020 12:26:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9445C204EC;
+        Mon,  3 Aug 2020 12:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457606;
-        bh=MPorudU0yKZNviFiD8N6aBXJXOyf1iQeYGVYQZrt2hs=;
+        s=default; t=1596457558;
+        bh=x7YoQtupH7CiYhIjtuOqqsTxqZZSxlDcl4I1Z5TtKrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L96xnD8CVP/75ru3jOZ03s/0VbWIyA4cKcGFVheyVEnGfFAgT/ms63ZWJcfgWPxwq
-         bb4rDMDAi5In2+W1tJcDZc+jh4OhC+Sne2rJLr7Zobz36jqCvmtwG1s0OeQZSTpQ25
-         VQ+J/RqvKDq3kQiEZfYcdCVB/wGDCnes/UykUvoI=
+        b=DnOch+yBRZJ507KhBaV1Es4aJTswLnENC3rO9sHCzWPzTiYDtxXZ+OiXdLSwYxglQ
+         SkdxBKdX1mu2cdQR6ewCRxZT1bOpAIfGeoQbkANr5za+2ec8BNcRmlUbmXRoPTpRdr
+         clFb2agKRJ8MSu/6ur+UgOOiDOnAJPxvh2ZWB67g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kim Phillips <kim.phillips@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Leo Yan <leo.yan@linaro.org>
-Subject: [PATCH 5.7 092/120] perf tools: Fix record failure when mixed with ARM SPE event
-Date:   Mon,  3 Aug 2020 14:19:10 +0200
-Message-Id: <20200803121907.394401662@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 094/120] mt76: mt7615: fix lmac queue debugsfs entry
+Date:   Mon,  3 Aug 2020 14:19:12 +0200
+Message-Id: <20200803121907.494879651@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -55,92 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit bd3c628f8fafa6cbd6a1ca440034b841f0080160 ]
+[ Upstream commit d941f47caa386931c3b598ad1b43d5ddd65869aa ]
 
-When recording with cache-misses and arm_spe_x event, I found that it
-will just fail without showing any error info if i put cache-misses
-after 'arm_spe_x' event.
+acs and wmm index are swapped in mt7615_queues_acq respect to the hw
+design
 
-  [root@localhost 0620]# perf record -e cache-misses \
-				-e arm_spe_0/ts_enable=1,pct_enable=1,pa_enable=1,load_filter=1,jitter=1,store_filter=1,min_latency=0/ sleep 1
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.067 MB perf.data ]
-  [root@localhost 0620]#
-  [root@localhost 0620]# perf record -e arm_spe_0/ts_enable=1,pct_enable=1,pa_enable=1,load_filter=1,jitter=1,store_filter=1,min_latency=0/ \
-				     -e  cache-misses sleep 1
-  [root@localhost 0620]#
-
-The current code can only work if the only event to be traced is an
-'arm_spe_x', or if it is the last event to be specified. Otherwise the
-last event type will be checked against all the arm_spe_pmus[i]->types,
-none will match and an out of bound 'i' index will be used in
-arm_spe_recording_init().
-
-We don't support concurrent multiple arm_spe_x events currently, that
-is checked in arm_spe_recording_options(), and it will show the relevant
-info. So add the check and record of the first found 'arm_spe_pmu' to
-fix this issue here.
-
-Fixes: ffd3d18c20b8 ("perf tools: Add ARM Statistical Profiling Extensions (SPE) support")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Tested-by-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kim Phillips <kim.phillips@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/20200724071111.35593-2-liwei391@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm/util/auxtrace.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/arch/arm/util/auxtrace.c b/tools/perf/arch/arm/util/auxtrace.c
-index 0a6e75b8777a6..28a5d0c18b1d2 100644
---- a/tools/perf/arch/arm/util/auxtrace.c
-+++ b/tools/perf/arch/arm/util/auxtrace.c
-@@ -56,7 +56,7 @@ struct auxtrace_record
- 	struct perf_pmu	*cs_etm_pmu;
- 	struct evsel *evsel;
- 	bool found_etm = false;
--	bool found_spe = false;
-+	struct perf_pmu *found_spe = NULL;
- 	static struct perf_pmu **arm_spe_pmus = NULL;
- 	static int nr_spes = 0;
- 	int i = 0;
-@@ -74,12 +74,12 @@ struct auxtrace_record
- 		    evsel->core.attr.type == cs_etm_pmu->type)
- 			found_etm = true;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
+index b4d0795154e3d..a2afd1a3c51ba 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
+@@ -206,10 +206,11 @@ mt7615_queues_acq(struct seq_file *s, void *data)
+ 	int i;
  
--		if (!nr_spes)
-+		if (!nr_spes || found_spe)
- 			continue;
+ 	for (i = 0; i < 16; i++) {
+-		int j, acs = i / 4, index = i % 4;
++		int j, wmm_idx = i % MT7615_MAX_WMM_SETS;
++		int acs = i / MT7615_MAX_WMM_SETS;
+ 		u32 ctrl, val, qlen = 0;
  
- 		for (i = 0; i < nr_spes; i++) {
- 			if (evsel->core.attr.type == arm_spe_pmus[i]->type) {
--				found_spe = true;
-+				found_spe = arm_spe_pmus[i];
- 				break;
- 			}
+-		val = mt76_rr(dev, MT_PLE_AC_QEMPTY(acs, index));
++		val = mt76_rr(dev, MT_PLE_AC_QEMPTY(acs, wmm_idx));
+ 		ctrl = BIT(31) | BIT(15) | (acs << 8);
+ 
+ 		for (j = 0; j < 32; j++) {
+@@ -217,11 +218,11 @@ mt7615_queues_acq(struct seq_file *s, void *data)
+ 				continue;
+ 
+ 			mt76_wr(dev, MT_PLE_FL_Q0_CTRL,
+-				ctrl | (j + (index << 5)));
++				ctrl | (j + (wmm_idx << 5)));
+ 			qlen += mt76_get_field(dev, MT_PLE_FL_Q3_CTRL,
+ 					       GENMASK(11, 0));
  		}
-@@ -96,7 +96,7 @@ struct auxtrace_record
+-		seq_printf(s, "AC%d%d: queued=%d\n", acs, index, qlen);
++		seq_printf(s, "AC%d%d: queued=%d\n", wmm_idx, acs, qlen);
+ 	}
  
- #if defined(__aarch64__)
- 	if (found_spe)
--		return arm_spe_recording_init(err, arm_spe_pmus[i]);
-+		return arm_spe_recording_init(err, found_spe);
- #endif
- 
- 	/*
+ 	return 0;
 -- 
 2.25.1
 
