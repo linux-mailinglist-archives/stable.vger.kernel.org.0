@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE0923A4ED
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C5C23A653
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbgHCMbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
+        id S1728353AbgHCM0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbgHCMbi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:31:38 -0400
+        id S1728347AbgHCM0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B531022BEB;
-        Mon,  3 Aug 2020 12:31:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6879207DF;
+        Mon,  3 Aug 2020 12:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457897;
-        bh=gXEwiYtWJrb+EFFUrwnNNz7Jzhi9gU+IQFe3eDUXoAg=;
+        s=default; t=1596457581;
+        bh=z/62umX2iyzbwCdVpvGAfwegoxn3Mj8qDdtq/KT0das=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WH65WrdP/UV1ocIXHbrL1l6vD2xat7O8XRuMY//rSFMmViVHyU8SorClzRJeB++SQ
-         X48LYr76gtau9VQ0B57iWPTkr0sGmzEmA4aPzQ24cgx0FeqT36BVKyU7WcLZL4Wf8t
-         nC6hNGrUtpHBElzETD2TbCQa25VwIf8+FZtbLD+0=
+        b=g/QaLW9vnLhQMC2UbnqJdvVxaLaXIcBPEUCz+UCqkzTSCS5/qdEjp1a7HPoCrFz+9
+         rrn1bqiCWyIhpxFBVlXB7P14sHw3udeuXFYtPRFTxBm4gIPSSJHcddss5Hvh5fp+3e
+         p64FoZnJ9Ifay/3ssnsHlKiqYClbfg9D+PdBk0hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 21/56] random: fix circular include dependency on arm64 after addition of percpu.h
-Date:   Mon,  3 Aug 2020 14:19:36 +0200
-Message-Id: <20200803121851.368106736@linuxfoundation.org>
+        stable@vger.kernel.org, Haiwei Li <lihaiwei@tencent.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 119/120] KVM: SVM: Fix disable pause loop exit/pause filtering capability on SVM
+Date:   Mon,  3 Aug 2020 14:19:37 +0200
+Message-Id: <20200803121908.684431080@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
-References: <20200803121850.306734207@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit 1c9df907da83812e4f33b59d3d142c864d9da57f upstream.
+commit 830f01b089b12bbe93bd55f2d62837253012a30e upstream.
 
-Daniel Díaz and Kees Cook independently reported that commit
-f227e3ec3b5c ("random32: update the net random state on interrupt and
-activity") broke arm64 due to a circular dependency on include files
-since the addition of percpu.h in random.h.
+'Commit 8566ac8b8e7c ("KVM: SVM: Implement pause loop exit logic in SVM")'
+drops disable pause loop exit/pause filtering capability completely, I
+guess it is a merge fault by Radim since disable vmexits capabilities and
+pause loop exit for SVM patchsets are merged at the same time. This patch
+reintroduces the disable pause loop exit/pause filtering capability support.
 
-The correct fix would definitely be to move all the prandom32 stuff out
-of random.h but for backporting, a smaller solution is preferred.
-
-This one replaces linux/percpu.h with asm/percpu.h, and this fixes the
-problem on x86_64, arm64, arm, and mips.  Note that moving percpu.h
-around didn't change anything and that removing it entirely broke
-differently.  When backporting, such options might still be considered
-if this patch fails to help.
-
-[ It turns out that an alternate fix seems to be to just remove the
-  troublesome <asm/pointer_auth.h> remove from the arm64 <asm/smp.h>
-  that causes the circular dependency.
-
-  But we might as well do the whole belt-and-suspenders thing, and
-  minimize inclusion in <linux/random.h> too. Either will fix the
-  problem, and both are good changes.   - Linus ]
-
-Reported-by: Daniel Díaz <daniel.diaz@linaro.org>
-Reported-by: Kees Cook <keescook@chromium.org>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Fixes: f227e3ec3b5c
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Haiwei Li <lihaiwei@tencent.com>
+Tested-by: Haiwei Li <lihaiwei@tencent.com>
+Fixes: 8566ac8b ("KVM: SVM: Implement pause loop exit logic in SVM")
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1596165141-28874-3-git-send-email-wanpengli@tencent.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/random.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -9,7 +9,7 @@
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1105,7 +1105,7 @@ static void init_vmcb(struct vcpu_svm *s
+ 	svm->nested.vmcb = 0;
+ 	svm->vcpu.arch.hflags = 0;
  
- #include <linux/list.h>
- #include <linux/once.h>
--#include <linux/percpu.h>
-+#include <asm/percpu.h>
+-	if (pause_filter_count) {
++	if (!kvm_pause_in_guest(svm->vcpu.kvm)) {
+ 		control->pause_filter_count = pause_filter_count;
+ 		if (pause_filter_thresh)
+ 			control->pause_filter_thresh = pause_filter_thresh;
+@@ -2682,7 +2682,7 @@ static int pause_interception(struct vcp
+ 	struct kvm_vcpu *vcpu = &svm->vcpu;
+ 	bool in_kernel = (svm_get_cpl(vcpu) == 0);
  
- #include <uapi/linux/random.h>
+-	if (pause_filter_thresh)
++	if (!kvm_pause_in_guest(vcpu->kvm))
+ 		grow_ple_window(vcpu);
  
+ 	kvm_vcpu_on_spin(vcpu, in_kernel);
+@@ -3727,7 +3727,7 @@ static void svm_handle_exit_irqoff(struc
+ 
+ static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
+ {
+-	if (pause_filter_thresh)
++	if (!kvm_pause_in_guest(vcpu->kvm))
+ 		shrink_ple_window(vcpu);
+ }
+ 
+@@ -3892,6 +3892,9 @@ static void svm_vm_destroy(struct kvm *k
+ 
+ static int svm_vm_init(struct kvm *kvm)
+ {
++	if (!pause_filter_count || !pause_filter_thresh)
++		kvm->arch.pause_in_guest = true;
++
+ 	if (avic) {
+ 		int ret = avic_vm_init(kvm);
+ 		if (ret)
 
 
