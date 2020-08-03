@@ -2,100 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F352523AE34
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 22:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D3C23AF78
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 23:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726693AbgHCUeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 16:34:13 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:38691 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728038AbgHCUeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 16:34:11 -0400
-Received: by mail-ot1-f68.google.com with SMTP id q9so13267395oth.5;
-        Mon, 03 Aug 2020 13:34:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OjA7iT6k7T3UICRKqIEcmmELA9u5uRqayG52kES09s0=;
-        b=PrPjXx4JBBbSMLlxvA202YHfSm5xoqGoLG4a/EXNBkM7UOGpA7pscjAF+h9oYmW0xW
-         WCC4WWDJBt+pYtpcz0nSONHLObIkWhiHNpO+NT7GXnHf806Ls2nPGM4UUI001VTwd2Zi
-         B8kC97ULEnuMc+Sk8Pf7qQ+mrbElxUI30ijzspSH5TVd0zrJ/lDpzucZWYa2QG9aNBMT
-         e7OUtJ8C7VrkQ1eB06QT38uuJlIxlwZRPOfqh/PcXlffjPxdmPQR2gSZcoawxUUrberG
-         84jTq+li84jJQ7QMedMup9FGeHkOLedooRHJ118QVUSIajhzbUKvlBPVIZ/vw8BfcvUc
-         KXHw==
-X-Gm-Message-State: AOAM531i204rHPk58MwmEbiOP1FNAuy3c/l86/6fuLSs52sBuUx3tlSs
-        JKsViQmRwlCens/tfFIrzGywsbeSsiEqSS0QC3BveA==
-X-Google-Smtp-Source: ABdhPJygp/6Y+Xp19D2UVJnG0yqVw6bti301myD5f15br10CxzwiyLNIBgbLDG5iBZREPkPdHaJztQr7BIU2Exoe/tA=
-X-Received: by 2002:a9d:1b0d:: with SMTP id l13mr14657662otl.145.1596486850954;
- Mon, 03 Aug 2020 13:34:10 -0700 (PDT)
+        id S1728665AbgHCVKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 17:10:14 -0400
+Received: from sonic314-20.consmr.mail.ir2.yahoo.com ([77.238.177.146]:42902
+        "EHLO sonic314-20.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728631AbgHCVKO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 17:10:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1596489013; bh=4GgFxXkhC86dj48BmrELV5zlxicqlhhIXyZgiwEolDI=; h=Date:From:Reply-To:Subject:References:From:Subject; b=hGjgq1AMnFKUNJmvA+Amkr//cQqzWElA++Np18Kdail0Z6OOrdpL4XPNC3qlouCpWcMo3NGZHISaGnrkwO1D3Z6rQY8NioGPnKUYlaUoG/AI6bjqBjwjiNesfNp7ry0OacnP4XL+kO91GxuPK5gATwVqtAWVb4iqm0xiGva+z2Z5THyYtz0KvhcIRYbCse2HCgpACrmhtWHTohO8LvA7HXK3YCB8noT4nBTkuA0yW04Wt6xkam7opDR51YQQkuUqANeTtpsMrsyh3WOtmAUivQeeuzZThN2SfO0k46HiAOePIE/B9PdSkQ8yy+At0paxyLEaO/43A54SA7dFpmvdpg==
+X-YMail-OSG: ZjXOTFUVM1lYDrMD70zhLoSGHcZauZ_QRpaS4OxR3Iy8sl0E8Iec.ApiFrm7Di6
+ _YB6l1NjYVyPVwZ78wyrG2zXiFSfg0e4zhZp4mHpLl977HCNEUR8k5Egf360oNQvsVI12GmSEOyu
+ YZJK4tcAeebUwjF8lZl19nhxqsWOJommZKLsVLwq3n5jCnPruwtKaSoLQrYSfVNZd0xZEmAvlgjb
+ lgTOYoM6i2VohEQEv_xQDEzRAb7bNGVJx5pi6BR9U4sD_q7SvXEzYclztCmGbJ5lzn5bQ7A7bMoH
+ VQbYm4xUYSimuIwe1cJ2CEVz_TQPi6oGX70Lo4IE6dcb6fGEBHXHn2Y1P1st_5kPgDIoB04tFmFx
+ xCJATvOpfcoAve9vyovgC7JKJftQvPEUajNneyEFoA9.hf3SpgxaUtC72agYBgMfREpcerRl6SV3
+ MqhbljfxAf1.MiOAVxQiiALh9hSNrXw8s.d69TG9nhnFIa9iHJvy3dNakspBsQEjwqx7R6ZTHUm4
+ I0BHLStthn.MsKSvcG_ZLNRA_RHDENGOSZocWKWf2AUbbOQx8pAjSggmsDUw9QYx7pugZqG8RUXn
+ 01rXQSqf5GNp4FNm0DbrXU4TMA7mpLeN8n73NKU0EMxJVCPr78cFXDDWMDbOP9ljp7Ysa141T4N_
+ SLQuylEiYMwqvYK_IcWVbRrny9PUJeWpeDnzwlK9HDyZorbnpxiFiGmYMYG6OeMoG79ReoJIkO_H
+ oL8yxC837BdztvgkOZW3wiCbNtJF2YQTPmhRRrDE0nATvVkaFk__c.yQcyJYz_OI9M0BbtqQQDRi
+ mfqnwyj98ME2YETAQ8eTMwhLr4OijtNn98I0YfbZH4trt_u.PGOY8_3PQ6SK_wwz7G9A3vB5m7hb
+ UXmxd2rk_eWm861XH2IskHKOr942NZqkYuxV3RoSStCUGrLBBKisbXlqc41ceypT.ymeOvtsW4__
+ GB0OA8PDX0lBMKZgzSxnTExpYHn6Og7wQn8wYCcUw4Ux3xRIIP1uZfOKPizKmPi5oDrOJoY5OKAK
+ dcA5vB6Rx54dU9hvc9PDpMkquITKdiQHb6uqyni5Oc1Gsepez.UEPNkDtEPlSv7GiuXEhWcTtYoT
+ cjOgerl98O5vyz70Brs5vf26MtUqcKPzCd64PRiU.RdA23bSQXTuV0HE_0d8mN6PuSU_P_cTP9bD
+ Z8aTf.nG.ouLwiHa.J6Xqiogt8cku5NcBjWEukeunLAA8V2mgykn2SD47HHdrcN.QWJ7szwqzGaH
+ tfW0ISmMKrmNPLG2vq5Yaxa8O
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ir2.yahoo.com with HTTP; Mon, 3 Aug 2020 21:10:13 +0000
+Date:   Mon, 3 Aug 2020 21:10:10 +0000 (UTC)
+From:   Zeena Hamad <zeena.hamad121@aol.com>
+Reply-To: zeenahamad@aol.com
+Message-ID: <713931143.16757734.1596489010375@mail.yahoo.com>
+Subject: Hello Dear.
 MIME-Version: 1.0
-References: <20200803121902.860751811@linuxfoundation.org> <20200803155820.GA160756@roeck-us.net>
- <20200803173330.GA1186998@kroah.com>
-In-Reply-To: <20200803173330.GA1186998@kroah.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 3 Aug 2020 22:33:59 +0200
-Message-ID: <CAMuHMdW1Cz_JJsTmssVz_0wjX_1_EEXGOvGjygPxTkcMsbR6Lw@mail.gmail.com>
-Subject: Re: [PATCH 5.7 000/120] 5.7.13-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <713931143.16757734.1596489010375.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16271 YMailNodin Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Hello Dear,
 
-On Mon, Aug 3, 2020 at 7:35 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> On Mon, Aug 03, 2020 at 08:58:20AM -0700, Guenter Roeck wrote:
-> > On Mon, Aug 03, 2020 at 02:17:38PM +0200, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.7.13 release.  There
-> > > are 120 patches in this series, all will be posted as a response to this one.
-> > > If anyone has any issues with these being applied, please let me know.
-> > >
-> > > Responses should be made by Wed, 05 Aug 2020 12:18:33 +0000.  Anything
-> > > received after that time might be too late.
-> > >
-> >
-> > Building sparc64:allmodconfig ... failed
-> > --------------
-> > Error log:
-> > <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-> > In file included from arch/sparc/include/asm/percpu_64.h:11,
-> >                  from arch/sparc/include/asm/percpu.h:5,
-> >                  from include/linux/random.h:14,
-> >                  from fs/crypto/policy.c:13:
-> > arch/sparc/include/asm/trap_block.h:54:39: error: 'NR_CPUS' undeclared here (not in a function)
-> >    54 | extern struct trap_per_cpu trap_block[NR_CPUS];
-> >
-> > Inherited from mainline. Builds are not complete yet;
-> > we may see a few more failures (powerpc:ppc64e_defconfig
-> > fails to build in mainline as well).
->
-> If it gets fixed upstream, I'll fix it here :)
+How are you today, I hope you are doing great. It is my great pleasure
+to contact you and i hope you don't mind, I was just surfing through
+the Internet search when I found your email address, I want to make a
+new and special friend, I hope you don't mind.
 
-And else you'll release a known-broken v5.7.13?
+My name is Zeena Hamad, I am from the South Sudan but presently
+I live in a mission house in Burkina Faso and I will give you pictures
+and details of me as soon as I hear from you.
 
-Perhaps backporting should be a bit less aggressive?
-This breakage was introduced in between v5.8-rc7 and v5.8, and backported
-before people had the time to properly look into the v5.8 build bot logs.
+Bye
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Zeena Hamad
