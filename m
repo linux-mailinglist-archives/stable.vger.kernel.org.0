@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3C823A688
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B173A23A682
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727004AbgHCMsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48708 "EHLO mail.kernel.org"
+        id S1727959AbgHCMY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:24:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727996AbgHCMYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:24:25 -0400
+        id S1728013AbgHCMY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:24:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F24720738;
-        Mon,  3 Aug 2020 12:24:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1D09207BB;
+        Mon,  3 Aug 2020 12:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457463;
-        bh=CG5oTrDbM26ezVVrh+6VKhc8fQZjKbyO8JMPbOnvVKo=;
+        s=default; t=1596457466;
+        bh=XBvsK20w6/gS9XX8ytMSJQLUzv9/dWAw8I3cJHHSmio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Om4YTKKnMH7juZuVLVE+mgwzJ9n/ERc7QEdEttClw5fkUgqXLr8kWhymqZxxHBo1w
-         8UHXUwKMz6eLdZzBkwBCiHtCmBjHhUtEqZAIfnRMVQEnBNRw0owEerXmSUnwuNrnRa
-         ewM98D6nXHW6oA4ChR5ZkWKvw7l+4u2VdMCGHVB4=
+        b=Wd5cZUgx0gZ1bjYD5TRUhNow5Q+PdYLsHwjiuRlYR4YvjI5BGsGBaB9PSd8xPJO9W
+         Tv3zSBN+ibBejcUf1zgujSS/P4PX3Q53J/ZKhsBfHqJBHyLTtGe8j15uVjbOeLLAT2
+         J9CEFyqTA2MgN+Tjv/1Md1FtsKlUlWhngydgiyXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cagney <cagney@libreswan.org>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 077/120] espintcp: handle short messages instead of breaking the encap socket
-Date:   Mon,  3 Aug 2020 14:18:55 +0200
-Message-Id: <20200803121906.574767719@linuxfoundation.org>
+Subject: [PATCH 5.7 078/120] mac80211: mesh: Free ie data when leaving mesh
+Date:   Mon,  3 Aug 2020 14:18:56 +0200
+Message-Id: <20200803121906.632519018@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -45,75 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Remi Pommarel <repk@triplefau.lt>
 
-[ Upstream commit fadd1a63a7b4df295a01fa50b2f4e447542bee59 ]
+[ Upstream commit 6a01afcf8468d3ca2bd8bbb27503f60dcf643b20 ]
 
-Currently, short messages (less than 4 bytes after the length header)
-will break the stream of messages. This is unnecessary, since we can
-still parse messages even if they're too short to contain any usable
-data. This is also bogus, as keepalive messages (a single 0xff byte),
-though not needed with TCP encapsulation, should be allowed.
+At ieee80211_join_mesh() some ie data could have been allocated (see
+copy_mesh_setup()) and need to be cleaned up when leaving the mesh.
 
-This patch changes the stream parser so that short messages are
-accepted and dropped in the kernel. Messages that contain a valid SPI
-or non-ESP header are processed as before.
+This fixes the following kmemleak report:
 
-Fixes: e27cca96cd68 ("xfrm: add espintcp (RFC 8229)")
-Reported-by: Andrew Cagney <cagney@libreswan.org>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+unreferenced object 0xffff0000116bc600 (size 128):
+  comm "wpa_supplicant", pid 608, jiffies 4294898983 (age 293.484s)
+  hex dump (first 32 bytes):
+    30 14 01 00 00 0f ac 04 01 00 00 0f ac 04 01 00  0...............
+    00 0f ac 08 00 00 00 00 c4 65 40 00 00 00 00 00  .........e@.....
+  backtrace:
+    [<00000000bebe439d>] __kmalloc_track_caller+0x1c0/0x330
+    [<00000000a349dbe1>] kmemdup+0x28/0x50
+    [<0000000075d69baa>] ieee80211_join_mesh+0x6c/0x3b8 [mac80211]
+    [<00000000683bb98b>] __cfg80211_join_mesh+0x1e8/0x4f0 [cfg80211]
+    [<0000000072cb507f>] nl80211_join_mesh+0x520/0x6b8 [cfg80211]
+    [<0000000077e9bcf9>] genl_family_rcv_msg+0x374/0x680
+    [<00000000b1bd936d>] genl_rcv_msg+0x78/0x108
+    [<0000000022c53788>] netlink_rcv_skb+0xb0/0x1c0
+    [<0000000011af8ec9>] genl_rcv+0x34/0x48
+    [<0000000069e41f53>] netlink_unicast+0x268/0x2e8
+    [<00000000a7517316>] netlink_sendmsg+0x320/0x4c0
+    [<0000000069cba205>] ____sys_sendmsg+0x354/0x3a0
+    [<00000000e06bab0f>] ___sys_sendmsg+0xd8/0x120
+    [<0000000037340728>] __sys_sendmsg+0xa4/0xf8
+    [<000000004fed9776>] __arm64_sys_sendmsg+0x44/0x58
+    [<000000001c1e5647>] el0_svc_handler+0xd0/0x1a0
+
+Fixes: c80d545da3f7 (mac80211: Let userspace enable and configure vendor specific path selection.)
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Link: https://lore.kernel.org/r/20200704135007.27292-1-repk@triplefau.lt
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/espintcp.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ net/mac80211/cfg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
-index 024470fb2d856..19396f3655c05 100644
---- a/net/xfrm/espintcp.c
-+++ b/net/xfrm/espintcp.c
-@@ -41,9 +41,32 @@ static void espintcp_rcv(struct strparser *strp, struct sk_buff *skb)
- 	struct espintcp_ctx *ctx = container_of(strp, struct espintcp_ctx,
- 						strp);
- 	struct strp_msg *rxm = strp_msg(skb);
-+	int len = rxm->full_len - 2;
- 	u32 nonesp_marker;
- 	int err;
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 0f72813fed53e..4230b483168a1 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -2140,6 +2140,7 @@ static int ieee80211_leave_mesh(struct wiphy *wiphy, struct net_device *dev)
+ 	ieee80211_stop_mesh(sdata);
+ 	mutex_lock(&sdata->local->mtx);
+ 	ieee80211_vif_release_channel(sdata);
++	kfree(sdata->u.mesh.ie);
+ 	mutex_unlock(&sdata->local->mtx);
  
-+	/* keepalive packet? */
-+	if (unlikely(len == 1)) {
-+		u8 data;
-+
-+		err = skb_copy_bits(skb, rxm->offset + 2, &data, 1);
-+		if (err < 0) {
-+			kfree_skb(skb);
-+			return;
-+		}
-+
-+		if (data == 0xff) {
-+			kfree_skb(skb);
-+			return;
-+		}
-+	}
-+
-+	/* drop other short messages */
-+	if (unlikely(len <= sizeof(nonesp_marker))) {
-+		kfree_skb(skb);
-+		return;
-+	}
-+
- 	err = skb_copy_bits(skb, rxm->offset + 2, &nonesp_marker,
- 			    sizeof(nonesp_marker));
- 	if (err < 0) {
-@@ -83,7 +106,7 @@ static int espintcp_parse(struct strparser *strp, struct sk_buff *skb)
- 		return err;
- 
- 	len = be16_to_cpu(blen);
--	if (len < 6)
-+	if (len < 2)
- 		return -EINVAL;
- 
- 	return len;
+ 	return 0;
 -- 
 2.25.1
 
