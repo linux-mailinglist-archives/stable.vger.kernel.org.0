@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DB223A55A
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5BB23A555
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728976AbgHCMgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36222 "EHLO mail.kernel.org"
+        id S1729217AbgHCMf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:35:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729683AbgHCMfw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:35:52 -0400
+        id S1729358AbgHCMf4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:35:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 776F52054F;
-        Mon,  3 Aug 2020 12:35:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56717204EC;
+        Mon,  3 Aug 2020 12:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596458151;
-        bh=6mlTaYz/r5BjFnTgvvrOuhZAkYfGl7AE/Vx8SDbgczY=;
+        s=default; t=1596458153;
+        bh=++HN40KXXok4Pa/m1B5+Kdb5ESmRpFZqv7jtST+wKf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QOru/3sBSPTp6Xfd0LpVertu77kCWoH1zX7GH2UAddP4ks8jmwVSK7CmgMSgveLku
-         xMX31UDvMyQqV6jsF9bng9fum7kZ7lnxxaDCQIydLws1SsEt6UZ59HMoPDDKPh+rju
-         2XdWHr1HkR4EMnZGZSM16Y1PxMWyVWvkrZhOssoY=
+        b=cCo1XKuYsi0QkMWsLh0Z0PV44NKUpHxy12Sbk4pyvzK7DS3cXX1pO6r7W+37VroX6
+         4jCKL7fKVZ+eQetWtjaIsb6xqak48RTxI/R80iUidtuK8HbG288RkK0Sp060g0Sump
+         mu5Aq7jsFxC2D/PHFfhrT5iNilbTyOeVkoYJ2ioU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 50/51] KVM: LAPIC: Prevent setting the tscdeadline timer if the lapic is hw disabled
-Date:   Mon,  3 Aug 2020 14:20:35 +0200
-Message-Id: <20200803121852.014023088@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 51/51] x86/i8259: Use printk_deferred() to prevent deadlock
+Date:   Mon,  3 Aug 2020 14:20:36 +0200
+Message-Id: <20200803121852.063688962@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121849.488233135@linuxfoundation.org>
 References: <20200803121849.488233135@linuxfoundation.org>
@@ -43,33 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit d2286ba7d574ba3103a421a2f9ec17cb5b0d87a1 upstream.
+commit bdd65589593edd79b6a12ce86b3b7a7c6dae5208 upstream.
 
-Prevent setting the tscdeadline timer if the lapic is hw disabled.
+0day reported a possible circular locking dependency:
 
-Fixes: bce87cce88 (KVM: x86: consolidate different ways to test for in-kernel LAPIC)
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1596165141-28874-1-git-send-email-wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Chain exists of:
+  &irq_desc_lock_class --> console_owner --> &port_lock_key
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&port_lock_key);
+                               lock(console_owner);
+                               lock(&port_lock_key);
+  lock(&irq_desc_lock_class);
+
+The reason for this is a printk() in the i8259 interrupt chip driver
+which is invoked with the irq descriptor lock held, which reverses the
+lock operations vs. printk() from arbitrary contexts.
+
+Switch the printk() to printk_deferred() to avoid that.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87365abt2v.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/lapic.c |    2 +-
+ arch/x86/kernel/i8259.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1918,7 +1918,7 @@ void kvm_set_lapic_tscdeadline_msr(struc
- {
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 
--	if (!lapic_in_kernel(vcpu) || apic_lvtt_oneshot(apic) ||
-+	if (!kvm_apic_present(vcpu) || apic_lvtt_oneshot(apic) ||
- 			apic_lvtt_period(apic))
- 		return;
- 
+--- a/arch/x86/kernel/i8259.c
++++ b/arch/x86/kernel/i8259.c
+@@ -206,7 +206,7 @@ spurious_8259A_irq:
+ 		 * lets ACK and report it. [once per IRQ]
+ 		 */
+ 		if (!(spurious_irq_mask & irqmask)) {
+-			printk(KERN_DEBUG
++			printk_deferred(KERN_DEBUG
+ 			       "spurious 8259A interrupt: IRQ%d.\n", irq);
+ 			spurious_irq_mask |= irqmask;
+ 		}
 
 
