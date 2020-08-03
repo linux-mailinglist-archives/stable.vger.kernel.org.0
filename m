@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC93223A47D
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:27:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80F323A421
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728577AbgHCM1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:27:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53454 "EHLO mail.kernel.org"
+        id S1727826AbgHCMXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:23:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728574AbgHCM1i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:27:38 -0400
+        id S1727797AbgHCMXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:23:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9684A204EC;
-        Mon,  3 Aug 2020 12:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CB2E207FC;
+        Mon,  3 Aug 2020 12:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457657;
-        bh=6neVmE4RuTPyO1WwkKuIkdjl/sl5fH6UJcth+i9Zpek=;
+        s=default; t=1596457394;
+        bh=UHtW8gr5ECAWR/VH94aqmSyCXDjEJAbSu5JGNwEo1aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snljmb2yc4bDOubjbEqyslFjeF3rOALKIYOr/hsr/zqbLHBil6GNGvlTM1+AhYvfb
-         QqHRRmvTCPF00SbsfK+25XnwYkPaRrE5/QsTlDOSocUrlNWmcoZ8dwv5zx6LAbp+UP
-         FbBlxHRXiW466Eg/JUEoMDNDgoDUQFJx1hmoPq3o=
+        b=jQ/VUTymKzmZTs2rwIReOSP1w1OgwNxz2z9onr9HIRF0C3Z29C6ladg+vnMpFtieW
+         syVyBEh25r3k95CtDyOxgPKFLkpVFHjMNWR8TYIVyTwfnc9liwUglAUrdprak1T9E2
+         1zM5X2vkjI0fatZm0L1JB9gdolKwmX0OF1wtbgtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Ambure <aambure@codeaurora.org>,
-        Balaji Pothunoori <bpothuno@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sathishkumar Muruganandam <murugana@codeaurora.org>
-Subject: [PATCH 5.4 04/90] ath10k: enable transmit data ack RSSI for QCA9884
-Date:   Mon,  3 Aug 2020 14:18:26 +0200
-Message-Id: <20200803121857.760477726@linuxfoundation.org>
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 051/120] net: hns3: add reset check for VF updating port based VLAN
+Date:   Mon,  3 Aug 2020 14:18:29 +0200
+Message-Id: <20200803121905.292698090@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
+References: <20200803121902.860751811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Ambure <aambure@codeaurora.org>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit cc78dc3b790619aa05f22a86a9152986bd73698c upstream.
+[ Upstream commit a6f7bfdc78ddd8d719d108fef973b4e4a5a6ac6b ]
 
-For all data packets transmitted, host gets htt tx completion event. Some QCA9984
-firmware releases support WMI_SERVICE_TX_DATA_ACK_RSSI, which gives data
-ack rssi values to host through htt event of data tx completion. Data ack rssi
-values are valid if A0 bit is set in HTT rx message. So enable the feature also
-for QCA9884.
+Currently hclgevf_update_port_base_vlan_info() may be called when
+VF is resetting,  which may cause hns3_nic_net_open() being called
+twice unexpectedly.
 
-Tested HW: QCA9984
-Tested FW: 10.4-3.9.0.2-00044
+So fix it by adding a reset check for it, and extend critical
+region for rntl_lock in hclgevf_update_port_base_vlan_info().
 
-Signed-off-by: Abhishek Ambure <aambure@codeaurora.org>
-Signed-off-by: Balaji Pothunoori <bpothuno@codeaurora.org>
-[kvalo@codeaurora.org: improve commit log]
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 92f11ea177cd ("net: hns3: fix set port based VLAN issue for VF")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/hw.c |    1 +
- 1 file changed, 1 insertion(+)
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      | 30 +++++++++++++------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
---- a/drivers/net/wireless/ath/ath10k/hw.c
-+++ b/drivers/net/wireless/ath/ath10k/hw.c
-@@ -1145,6 +1145,7 @@ static bool ath10k_qca99x0_rx_desc_msdu_
- const struct ath10k_hw_ops qca99x0_ops = {
- 	.rx_desc_get_l3_pad_bytes = ath10k_qca99x0_rx_desc_get_l3_pad_bytes,
- 	.rx_desc_get_msdu_limit_error = ath10k_qca99x0_rx_desc_msdu_limit_error,
-+	.is_rssi_enable = ath10k_htt_tx_rssi_enable,
- };
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index e6cdd06925e6b..1bdff64bb70f9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -3142,23 +3142,35 @@ void hclgevf_update_port_base_vlan_info(struct hclgevf_dev *hdev, u16 state,
+ {
+ 	struct hnae3_handle *nic = &hdev->nic;
+ 	struct hclge_vf_to_pf_msg send_msg;
++	int ret;
  
- const struct ath10k_hw_ops qca6174_ops = {
+ 	rtnl_lock();
+-	hclgevf_notify_client(hdev, HNAE3_DOWN_CLIENT);
+-	rtnl_unlock();
++
++	if (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state)) {
++		dev_warn(&hdev->pdev->dev,
++			 "is resetting when updating port based vlan info\n");
++		rtnl_unlock();
++		return;
++	}
++
++	ret = hclgevf_notify_client(hdev, HNAE3_DOWN_CLIENT);
++	if (ret) {
++		rtnl_unlock();
++		return;
++	}
+ 
+ 	/* send msg to PF and wait update port based vlan info */
+ 	hclgevf_build_send_msg(&send_msg, HCLGE_MBX_SET_VLAN,
+ 			       HCLGE_MBX_PORT_BASE_VLAN_CFG);
+ 	memcpy(send_msg.data, port_base_vlan_info, data_size);
+-	hclgevf_send_mbx_msg(hdev, &send_msg, false, NULL, 0);
+-
+-	if (state == HNAE3_PORT_BASE_VLAN_DISABLE)
+-		nic->port_base_vlan_state = HNAE3_PORT_BASE_VLAN_DISABLE;
+-	else
+-		nic->port_base_vlan_state = HNAE3_PORT_BASE_VLAN_ENABLE;
++	ret = hclgevf_send_mbx_msg(hdev, &send_msg, false, NULL, 0);
++	if (!ret) {
++		if (state == HNAE3_PORT_BASE_VLAN_DISABLE)
++			nic->port_base_vlan_state = state;
++		else
++			nic->port_base_vlan_state = HNAE3_PORT_BASE_VLAN_ENABLE;
++	}
+ 
+-	rtnl_lock();
+ 	hclgevf_notify_client(hdev, HNAE3_UP_CLIENT);
+ 	rtnl_unlock();
+ }
+-- 
+2.25.1
+
 
 
