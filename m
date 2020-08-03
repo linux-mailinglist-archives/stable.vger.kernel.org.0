@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA4C23A467
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E12A923A469
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:26:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728413AbgHCM0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:26:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52212 "EHLO mail.kernel.org"
+        id S1727873AbgHCM0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:26:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728409AbgHCM0m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:42 -0400
+        id S1728415AbgHCM0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:26:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85CA0207FC;
-        Mon,  3 Aug 2020 12:26:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28DF1204EC;
+        Mon,  3 Aug 2020 12:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457601;
-        bh=5TXyn/wlwTOopHs0f1sd8GztkJl5GDHmCySOXvXNy5Y=;
+        s=default; t=1596457603;
+        bh=ZDt/Zl6117SPnQ8nKwlwPrgsijr9OdQmhrm1hTPLeCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lA9y2kO4OcwqvtSM7hEet/Z+aluQnAth/WTpXrFducH1gekgCAT/gqLV/p2tP7J85
-         idzL66Kj22wK4529H5MPbL4+3T6qrOt6xqYnyoRGls7vUScBtTq18ctqoYRfpJyOTW
-         fF/LZHGTQfbaf4oT07k00ZaRrqNC8BnBJFu1JZNw=
+        b=Y8I7HH81LCfFjfRGyaEBsGisaok2EXugZtf/pCiAYY/417jJyCfXoDRrVKXmrRxwl
+         mOXWGU2Ds2irrBxlrbYI+Lqlqq3o7FzUQGbf3UF5UtHSC0pZTR7t30iEyzQUVl6oOE
+         qRTj3cYIago51XgLlzpzcsnKIhyDZ7pu8xLXJa1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Albano <d.albano@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 100/120] io_uring: always allow drain/link/hardlink/async sqe flags
-Date:   Mon,  3 Aug 2020 14:19:18 +0200
-Message-Id: <20200803121907.776492818@linuxfoundation.org>
+        stable@vger.kernel.org, Oded Gabbay <oded.gabbay@gmail.com>,
+        Tomer Tayar <ttayar@habana.ai>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 101/120] habanalabs: prevent possible out-of-bounds array access
+Date:   Mon,  3 Aug 2020 14:19:19 +0200
+Message-Id: <20200803121907.823809165@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
 References: <20200803121902.860751811@linuxfoundation.org>
@@ -43,62 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Albano <d.albano@gmail.com>
+From: Oded Gabbay <oded.gabbay@gmail.com>
 
-[ Upstream commit 61710e437f2807e26a3402543bdbb7217a9c8620 ]
+[ Upstream commit cea7a0449ea3fa4883bf5dc8397f000d6b67d6cd ]
 
-We currently filter these for timeout_remove/async_cancel/files_update,
-but we only should be filtering for fixed file and buffer select. This
-also causes a second read of sqe->flags, which isn't needed.
+Queue index is received from the user. Therefore, we must validate it
+before using it to access the queue props array.
 
-Just check req->flags for the relevant bits. This then allows these
-commands to be used in links, for example, like everything else.
-
-Signed-off-by: Daniele Albano <d.albano@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Reviewed-by: Tomer Tayar <ttayar@habana.ai>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/misc/habanalabs/command_submission.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d0d3efaaa4d4f..4e09af1d5d223 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4808,7 +4808,9 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
- {
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->flags || sqe->ioprio || sqe->buf_index || sqe->len)
-+	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
-+		return -EINVAL;
-+	if (sqe->ioprio || sqe->buf_index || sqe->len)
- 		return -EINVAL;
+diff --git a/drivers/misc/habanalabs/command_submission.c b/drivers/misc/habanalabs/command_submission.c
+index 409276b6374d7..e7c8e7473226f 100644
+--- a/drivers/misc/habanalabs/command_submission.c
++++ b/drivers/misc/habanalabs/command_submission.c
+@@ -425,11 +425,19 @@ static int validate_queue_index(struct hl_device *hdev,
+ 	struct asic_fixed_properties *asic = &hdev->asic_prop;
+ 	struct hw_queue_properties *hw_queue_prop;
  
- 	req->timeout.addr = READ_ONCE(sqe->addr);
-@@ -5014,8 +5016,9 @@ static int io_async_cancel_prep(struct io_kiocb *req,
- {
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->flags || sqe->ioprio || sqe->off || sqe->len ||
--	    sqe->cancel_flags)
-+	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
++	/* This must be checked here to prevent out-of-bounds access to
++	 * hw_queues_props array
++	 */
++	if (chunk->queue_index >= HL_MAX_QUEUES) {
++		dev_err(hdev->dev, "Queue index %d is invalid\n",
++			chunk->queue_index);
 +		return -EINVAL;
-+	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags)
- 		return -EINVAL;
++	}
++
+ 	hw_queue_prop = &asic->hw_queues_props[chunk->queue_index];
  
- 	req->cancel.addr = READ_ONCE(sqe->addr);
-@@ -5033,7 +5036,9 @@ static int io_async_cancel(struct io_kiocb *req)
- static int io_files_update_prep(struct io_kiocb *req,
- 				const struct io_uring_sqe *sqe)
- {
--	if (sqe->flags || sqe->ioprio || sqe->rw_flags)
-+	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
-+		return -EINVAL;
-+	if (sqe->ioprio || sqe->rw_flags)
+-	if ((chunk->queue_index >= HL_MAX_QUEUES) ||
+-			(hw_queue_prop->type == QUEUE_TYPE_NA)) {
+-		dev_err(hdev->dev, "Queue index %d is invalid\n",
++	if (hw_queue_prop->type == QUEUE_TYPE_NA) {
++		dev_err(hdev->dev, "Queue index %d is not applicable\n",
+ 			chunk->queue_index);
  		return -EINVAL;
- 
- 	req->files_update.offset = READ_ONCE(sqe->off);
+ 	}
 -- 
 2.25.1
 
