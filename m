@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06F623A5F0
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0302123A517
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbgHCMaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:30:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57052 "EHLO mail.kernel.org"
+        id S1729411AbgHCMdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:33:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727006AbgHCMaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:30:08 -0400
+        id S1728539AbgHCMdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 810AB208B3;
-        Mon,  3 Aug 2020 12:30:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FD0D2054F;
+        Mon,  3 Aug 2020 12:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457807;
-        bh=h5rqxxYfACI8lziQ7XNfbCk2S/drUfGwBebl1x248LA=;
+        s=default; t=1596457995;
+        bh=yi2SbEtLnpkfz+2kpqX+tuBL/mzKRqOf3TWT5F77Vno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFHNAq7fZC8tOMkPFfgNll1+OjU86hfmNqduZcxakraZfmUQBAnA4fbJQSnUgBKGv
-         kgn9yKS2G1CAauy18odK7nx451XOiQrb32JX3/pzDZqMXmI8ICFegSIVF0oYAYu01s
-         ZlZbUpwcXiCueoXIG9C+SLibieTqb0OTG08MHHD4=
+        b=lGuJTfJBKkvFsCl1oFb27MdocfjXOzdamVTyJ+4rJttJ4l9PVk4UwcDAS+l4vrmv6
+         dulAbOFCN7Wlx5YtLuJI6ND5LlpUxkLlhoGWHl8zTk0TfY86u/jyhzOFgKYSGV/esV
+         3aVbu47jujn7sL2yw33ng0lwYDZLLgkV+UFc1iD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 80/90] x86/stacktrace: Fix reliable check for empty user task stacks
+Subject: [PATCH 4.19 27/56] xfrm: Fix crash when the hold queue is used.
 Date:   Mon,  3 Aug 2020 14:19:42 +0200
-Message-Id: <20200803121901.482736973@linuxfoundation.org>
+Message-Id: <20200803121851.669728405@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
-References: <20200803121857.546052424@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-[ Upstream commit 039a7a30ec102ec866d382a66f87f6f7654f8140 ]
+[ Upstream commit 101dde4207f1daa1fda57d714814a03835dccc3f ]
 
-If a user task's stack is empty, or if it only has user regs, ORC
-reports it as a reliable empty stack.  But arch_stack_walk_reliable()
-incorrectly treats it as unreliable.
+The commits "xfrm: Move dst->path into struct xfrm_dst"
+and "net: Create and use new helper xfrm_dst_child()."
+changed xfrm bundle handling under the assumption
+that xdst->path and dst->child are not a NULL pointer
+only if dst->xfrm is not a NULL pointer. That is true
+with one exception. If the xfrm hold queue is used
+to wait until a SA is installed by the key manager,
+we create a dummy bundle without a valid dst->xfrm
+pointer. The current xfrm bundle handling crashes
+in that case. Fix this by extending the NULL check
+of dst->xfrm with a test of the DST_XFRM_QUEUE flag.
 
-That happens because the only success path for user tasks is inside the
-loop, which only iterates on non-empty stacks.  Generally, a user task
-must end in a user regs frame, but an empty stack is an exception to
-that rule.
-
-Thanks to commit 71c95825289f ("x86/unwind/orc: Fix error handling in
-__unwind_start()"), unwind_start() now sets state->error appropriately.
-So now for both ORC and FP unwinders, unwind_done() and !unwind_error()
-always means the end of the stack was successfully reached.  So the
-success path for kthreads is no longer needed -- it can also be used for
-empty user tasks.
-
-Reported-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Link: https://lkml.kernel.org/r/f136a4e5f019219cbc4f4da33b30c2f44fa65b84.1594994374.git.jpoimboe@redhat.com
+Fixes: 0f6c480f23f4 ("xfrm: Move dst->path into struct xfrm_dst")
+Fixes: b92cf4aab8e6 ("net: Create and use new helper xfrm_dst_child().")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/stacktrace.c | 5 -----
- 1 file changed, 5 deletions(-)
+ include/net/xfrm.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
-index 2d6898c2cb647..6d83b4b857e6a 100644
---- a/arch/x86/kernel/stacktrace.c
-+++ b/arch/x86/kernel/stacktrace.c
-@@ -58,7 +58,6 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
- 			 * or a page fault), which can make frame pointers
- 			 * unreliable.
- 			 */
--
- 			if (IS_ENABLED(CONFIG_FRAME_POINTER))
- 				return -EINVAL;
- 		}
-@@ -81,10 +80,6 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
- 	if (unwind_error(&state))
- 		return -EINVAL;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index f087c8d125b8f..3a0b5de742e9b 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1016,7 +1016,7 @@ struct xfrm_dst {
+ static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
+ {
+ #ifdef CONFIG_XFRM
+-	if (dst->xfrm) {
++	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
+ 		const struct xfrm_dst *xdst = (const struct xfrm_dst *) dst;
  
--	/* Success path for non-user tasks, i.e. kthreads and idle tasks */
--	if (!(task->flags & (PF_KTHREAD | PF_IDLE)))
--		return -EINVAL;
--
- 	return 0;
- }
- 
+ 		return xdst->path;
+@@ -1028,7 +1028,7 @@ static inline struct dst_entry *xfrm_dst_path(const struct dst_entry *dst)
+ static inline struct dst_entry *xfrm_dst_child(const struct dst_entry *dst)
+ {
+ #ifdef CONFIG_XFRM
+-	if (dst->xfrm) {
++	if (dst->xfrm || (dst->flags & DST_XFRM_QUEUE)) {
+ 		struct xfrm_dst *xdst = (struct xfrm_dst *) dst;
+ 		return xdst->child;
+ 	}
 -- 
 2.25.1
 
