@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C5C23A653
-	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE1823A5A1
+	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728353AbgHCM0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:26:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
+        id S1728839AbgHCMjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:39:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728347AbgHCM0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:26:22 -0400
+        id S1729446AbgHCMdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:33:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6879207DF;
-        Mon,  3 Aug 2020 12:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F6142076B;
+        Mon,  3 Aug 2020 12:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457581;
-        bh=z/62umX2iyzbwCdVpvGAfwegoxn3Mj8qDdtq/KT0das=;
+        s=default; t=1596458009;
+        bh=h3F50YRu/vJdUAaf8yXaUUqx+mIxdpj9HxIcTXfF7B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/QaLW9vnLhQMC2UbnqJdvVxaLaXIcBPEUCz+UCqkzTSCS5/qdEjp1a7HPoCrFz+9
-         rrn1bqiCWyIhpxFBVlXB7P14sHw3udeuXFYtPRFTxBm4gIPSSJHcddss5Hvh5fp+3e
-         p64FoZnJ9Ifay/3ssnsHlKiqYClbfg9D+PdBk0hg=
+        b=UZbOQGlAagGARcq78DJzmAufKHR8TMZkJrBEsl136L2ShbdJPpP/pMuThFvYNfB8V
+         mdxO9k2fT+VZhF+eczv2sFYkCuJqqa/pPJv6EvlsRRuq+aeAkTQe0lVHv/wqlw80qK
+         PFmSUASDXMXZAc6hCrxGXoj+BYEhWiH42SgbZOaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiwei Li <lihaiwei@tencent.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.7 119/120] KVM: SVM: Fix disable pause loop exit/pause filtering capability on SVM
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Emese Revfy <re.emese@gmail.com>,
+        Kees Cook <keescook@chromium.org>, Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 22/56] random32: remove net_rand_state from the latent entropy gcc plugin
 Date:   Mon,  3 Aug 2020 14:19:37 +0200
-Message-Id: <20200803121908.684431080@linuxfoundation.org>
+Message-Id: <20200803121851.414965160@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200803121902.860751811@linuxfoundation.org>
-References: <20200803121902.860751811@linuxfoundation.org>
+In-Reply-To: <20200803121850.306734207@linuxfoundation.org>
+References: <20200803121850.306734207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 830f01b089b12bbe93bd55f2d62837253012a30e upstream.
+commit 83bdc7275e6206f560d247be856bceba3e1ed8f2 upstream.
 
-'Commit 8566ac8b8e7c ("KVM: SVM: Implement pause loop exit logic in SVM")'
-drops disable pause loop exit/pause filtering capability completely, I
-guess it is a merge fault by Radim since disable vmexits capabilities and
-pause loop exit for SVM patchsets are merged at the same time. This patch
-reintroduces the disable pause loop exit/pause filtering capability support.
+It turns out that the plugin right now ends up being really unhappy
+about the change from 'static' to 'extern' storage that happened in
+commit f227e3ec3b5c ("random32: update the net random state on interrupt
+and activity").
 
-Reported-by: Haiwei Li <lihaiwei@tencent.com>
-Tested-by: Haiwei Li <lihaiwei@tencent.com>
-Fixes: 8566ac8b ("KVM: SVM: Implement pause loop exit logic in SVM")
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1596165141-28874-3-git-send-email-wanpengli@tencent.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This is probably a trivial fix for the latent_entropy plugin, but for
+now, just remove net_rand_state from the list of things the plugin
+worries about.
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Emese Revfy <re.emese@gmail.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/svm/svm.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ include/linux/random.h |    2 +-
+ lib/random32.c         |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1105,7 +1105,7 @@ static void init_vmcb(struct vcpu_svm *s
- 	svm->nested.vmcb = 0;
- 	svm->vcpu.arch.hflags = 0;
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -116,7 +116,7 @@ struct rnd_state {
+ 	__u32 s1, s2, s3, s4;
+ };
  
--	if (pause_filter_count) {
-+	if (!kvm_pause_in_guest(svm->vcpu.kvm)) {
- 		control->pause_filter_count = pause_filter_count;
- 		if (pause_filter_thresh)
- 			control->pause_filter_thresh = pause_filter_thresh;
-@@ -2682,7 +2682,7 @@ static int pause_interception(struct vcp
- 	struct kvm_vcpu *vcpu = &svm->vcpu;
- 	bool in_kernel = (svm_get_cpl(vcpu) == 0);
+-DECLARE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
++DECLARE_PER_CPU(struct rnd_state, net_rand_state);
  
--	if (pause_filter_thresh)
-+	if (!kvm_pause_in_guest(vcpu->kvm))
- 		grow_ple_window(vcpu);
- 
- 	kvm_vcpu_on_spin(vcpu, in_kernel);
-@@ -3727,7 +3727,7 @@ static void svm_handle_exit_irqoff(struc
- 
- static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
- {
--	if (pause_filter_thresh)
-+	if (!kvm_pause_in_guest(vcpu->kvm))
- 		shrink_ple_window(vcpu);
+ u32 prandom_u32_state(struct rnd_state *state);
+ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -48,7 +48,7 @@ static inline void prandom_state_selftes
  }
+ #endif
  
-@@ -3892,6 +3892,9 @@ static void svm_vm_destroy(struct kvm *k
+-DEFINE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
++DEFINE_PER_CPU(struct rnd_state, net_rand_state);
  
- static int svm_vm_init(struct kvm *kvm)
- {
-+	if (!pause_filter_count || !pause_filter_thresh)
-+		kvm->arch.pause_in_guest = true;
-+
- 	if (avic) {
- 		int ret = avic_vm_init(kvm);
- 		if (ret)
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
 
 
