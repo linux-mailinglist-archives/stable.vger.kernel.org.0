@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A14E323A609
+	by mail.lfdr.de (Postfix) with ESMTP id 3261A23A608
 	for <lists+stable@lfdr.de>; Mon,  3 Aug 2020 14:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728764AbgHCM2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 08:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54870 "EHLO mail.kernel.org"
+        id S1728754AbgHCM2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 08:28:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728754AbgHCM2k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 08:28:40 -0400
+        id S1728792AbgHCM2n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Aug 2020 08:28:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E00B8204EC;
-        Mon,  3 Aug 2020 12:28:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C8C1207DF;
+        Mon,  3 Aug 2020 12:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596457719;
-        bh=1lSb22xJIhaeGJv+HCgH8xtusIhyGxWIAiMO+X1TXrQ=;
+        s=default; t=1596457722;
+        bh=r/dP5TKP3/uPip2Keu0WTSGYOWWksUBMOdl1hzUhF6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkVfI6cccwxhot0dzdYVx5gVbDTRFhw/DZEWHgMvjTCQW0bo4rbXgQ64smb2X2U/t
-         FkrR8bukW//YMe8lr9gLrpTxJpXhPTVdTshF+InqcoRF/yP+0Bd6ITMtfH+CP89QK5
-         EQbJYIFrmQVLMwKVxPDxll2WX77LxUpgzYPqsahI=
+        b=wE2wSosPVe0Bp7glq5TtkG0YOpnonZpVbljKgzsPnDDrwz8XOAMQAqD+5eoqoUzg0
+         r2ybUE3BtdH1pTb84cZYGTymDF/fuGlZwwhVneItohXfxE4VybWOyLHeA0ZzjNqsZB
+         EyKcPLj2Qf39Yju1+IGuqf5RjglYQIv4FMGwg3VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
-        Ariel Levkovich <lariel@mellanox.com>,
+        stable@vger.kernel.org, Ron Diskin <rondi@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>,
+        Moshe Shemesh <moshe@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 49/90] net/mlx5: Verify Hardware supports requested ptp function on a given pin
-Date:   Mon,  3 Aug 2020 14:19:11 +0200
-Message-Id: <20200803121859.997229384@linuxfoundation.org>
+Subject: [PATCH 5.4 50/90] net/mlx5e: Modify uplink state on interface up/down
+Date:   Mon,  3 Aug 2020 14:19:12 +0200
+Message-Id: <20200803121900.044873890@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200803121857.546052424@linuxfoundation.org>
 References: <20200803121857.546052424@linuxfoundation.org>
@@ -45,59 +46,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@mellanox.com>
+From: Ron Diskin <rondi@mellanox.com>
 
-[ Upstream commit 071995c877a8646209d55ff8edddd2b054e7424c ]
+[ Upstream commit 7d0314b11cdd92bca8b89684c06953bf114605fc ]
 
-Fix a bug where driver did not verify Hardware pin capabilities for
-PTP functions.
+When setting the PF interface up/down, notify the firmware to update
+uplink state via MODIFY_VPORT_STATE, when E-Switch is enabled.
 
-Fixes: ee7f12205abc ("net/mlx5e: Implement 1PPS support")
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Reviewed-by: Ariel Levkovich <lariel@mellanox.com>
+This behavior will prevent sending traffic out on uplink port when PF is
+down, such as sending traffic from a VF interface which is still up.
+Currently when calling mlx5e_open/close(), the driver only sends PAOS
+command to notify the firmware to set the physical port state to
+up/down, however, it is not sufficient. When VF is in "auto" state, it
+follows the uplink state, which was not updated on mlx5e_open/close()
+before this patch.
+
+When switchdev mode is enabled and uplink representor is first enabled,
+set the uplink port state value back to its FW default "AUTO".
+
+Fixes: 63bfd399de55 ("net/mlx5e: Send PAOS command on interface up/down")
+Signed-off-by: Ron Diskin <rondi@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
+Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/lib/clock.c   | 23 ++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 25 ++++++++++++++++---
+ .../net/ethernet/mellanox/mlx5/core/en_rep.c  |  2 ++
+ .../net/ethernet/mellanox/mlx5/core/eswitch.c | 16 +++++++-----
+ .../net/ethernet/mellanox/mlx5/core/eswitch.h |  2 ++
+ include/linux/mlx5/mlx5_ifc.h                 |  1 +
+ 5 files changed, 37 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-index 43f97601b5000..75fc283cacc36 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-@@ -388,10 +388,31 @@ static int mlx5_ptp_enable(struct ptp_clock_info *ptp,
- 	return 0;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 15db4a8746dd7..cb3dcfced89fa 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3038,6 +3038,25 @@ void mlx5e_timestamp_init(struct mlx5e_priv *priv)
+ 	priv->tstamp.rx_filter = HWTSTAMP_FILTER_NONE;
  }
  
-+enum {
-+	MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_IN = BIT(0),
-+	MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_OUT = BIT(1),
-+};
++static void mlx5e_modify_admin_state(struct mlx5_core_dev *mdev,
++				     enum mlx5_port_status state)
++{
++	struct mlx5_eswitch *esw = mdev->priv.eswitch;
++	int vport_admin_state;
 +
- static int mlx5_ptp_verify(struct ptp_clock_info *ptp, unsigned int pin,
- 			   enum ptp_pin_function func, unsigned int chan)
++	mlx5_set_port_admin_status(mdev, state);
++
++	if (!MLX5_ESWITCH_MANAGER(mdev) ||  mlx5_eswitch_mode(esw) == MLX5_ESWITCH_OFFLOADS)
++		return;
++
++	if (state == MLX5_PORT_UP)
++		vport_admin_state = MLX5_VPORT_ADMIN_STATE_AUTO;
++	else
++		vport_admin_state = MLX5_VPORT_ADMIN_STATE_DOWN;
++
++	mlx5_eswitch_set_vport_state(esw, MLX5_VPORT_UPLINK, vport_admin_state);
++}
++
+ int mlx5e_open_locked(struct net_device *netdev)
  {
--	return (func == PTP_PF_PHYSYNC) ? -EOPNOTSUPP : 0;
-+	struct mlx5_clock *clock = container_of(ptp, struct mlx5_clock,
-+						ptp_info);
-+
-+	switch (func) {
-+	case PTP_PF_NONE:
-+		return 0;
-+	case PTP_PF_EXTTS:
-+		return !(clock->pps_info.pin_caps[pin] &
-+			 MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_IN);
-+	case PTP_PF_PEROUT:
-+		return !(clock->pps_info.pin_caps[pin] &
-+			 MLX5_MTPPS_REG_CAP_PIN_X_MODE_SUPPORT_PPS_OUT);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return -EOPNOTSUPP;
- }
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+@@ -3070,7 +3089,7 @@ int mlx5e_open(struct net_device *netdev)
+ 	mutex_lock(&priv->state_lock);
+ 	err = mlx5e_open_locked(netdev);
+ 	if (!err)
+-		mlx5_set_port_admin_status(priv->mdev, MLX5_PORT_UP);
++		mlx5e_modify_admin_state(priv->mdev, MLX5_PORT_UP);
+ 	mutex_unlock(&priv->state_lock);
  
- static const struct ptp_clock_info mlx5_ptp_clock_info = {
+ 	if (mlx5_vxlan_allowed(priv->mdev->vxlan))
+@@ -3107,7 +3126,7 @@ int mlx5e_close(struct net_device *netdev)
+ 		return -ENODEV;
+ 
+ 	mutex_lock(&priv->state_lock);
+-	mlx5_set_port_admin_status(priv->mdev, MLX5_PORT_DOWN);
++	mlx5e_modify_admin_state(priv->mdev, MLX5_PORT_DOWN);
+ 	err = mlx5e_close_locked(netdev);
+ 	mutex_unlock(&priv->state_lock);
+ 
+@@ -5172,7 +5191,7 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
+ 
+ 	/* Marking the link as currently not needed by the Driver */
+ 	if (!netif_running(netdev))
+-		mlx5_set_port_admin_status(mdev, MLX5_PORT_DOWN);
++		mlx5e_modify_admin_state(mdev, MLX5_PORT_DOWN);
+ 
+ 	mlx5e_set_netdev_mtu_boundaries(priv);
+ 	mlx5e_set_dev_port_mtu(priv);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+index 9b232ef36d53b..88b51f64a64ea 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -1736,6 +1736,8 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
+ 	INIT_WORK(&rpriv->uplink_priv.reoffload_flows_work,
+ 		  mlx5e_tc_reoffload_flows_work);
+ 
++	mlx5_modify_vport_admin_state(mdev, MLX5_VPORT_STATE_OP_MOD_UPLINK,
++				      0, 0, MLX5_VPORT_ADMIN_STATE_AUTO);
+ 	mlx5_lag_add(mdev, netdev);
+ 	priv->events_nb.notifier_call = uplink_rep_async_event;
+ 	mlx5_notifier_register(mdev, &priv->events_nb);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 422a57404407d..6b711affb7da4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -2094,6 +2094,8 @@ int mlx5_eswitch_set_vport_state(struct mlx5_eswitch *esw,
+ 				 u16 vport, int link_state)
+ {
+ 	struct mlx5_vport *evport = mlx5_eswitch_get_vport(esw, vport);
++	int opmod = MLX5_VPORT_STATE_OP_MOD_ESW_VPORT;
++	int other_vport = 1;
+ 	int err = 0;
+ 
+ 	if (!ESW_ALLOWED(esw))
+@@ -2101,15 +2103,17 @@ int mlx5_eswitch_set_vport_state(struct mlx5_eswitch *esw,
+ 	if (IS_ERR(evport))
+ 		return PTR_ERR(evport);
+ 
++	if (vport == MLX5_VPORT_UPLINK) {
++		opmod = MLX5_VPORT_STATE_OP_MOD_UPLINK;
++		other_vport = 0;
++		vport = 0;
++	}
+ 	mutex_lock(&esw->state_lock);
+ 
+-	err = mlx5_modify_vport_admin_state(esw->dev,
+-					    MLX5_VPORT_STATE_OP_MOD_ESW_VPORT,
+-					    vport, 1, link_state);
++	err = mlx5_modify_vport_admin_state(esw->dev, opmod, vport, other_vport, link_state);
+ 	if (err) {
+-		mlx5_core_warn(esw->dev,
+-			       "Failed to set vport %d link state, err = %d",
+-			       vport, err);
++		mlx5_core_warn(esw->dev, "Failed to set vport %d link state, opmod = %d, err = %d",
++			       vport, opmod, err);
+ 		goto unlock;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+index 6bd6f58952442..0ddbae1e64fad 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+@@ -606,6 +606,8 @@ static inline int  mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode) { ret
+ static inline void mlx5_eswitch_disable(struct mlx5_eswitch *esw) {}
+ static inline bool mlx5_esw_lag_prereq(struct mlx5_core_dev *dev0, struct mlx5_core_dev *dev1) { return true; }
+ static inline bool mlx5_eswitch_is_funcs_handler(struct mlx5_core_dev *dev) { return false; }
++static inline
++int mlx5_eswitch_set_vport_state(struct mlx5_eswitch *esw, u16 vport, int link_state) { return 0; }
+ static inline const u32 *mlx5_esw_query_functions(struct mlx5_core_dev *dev)
+ {
+ 	return ERR_PTR(-EOPNOTSUPP);
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index acd859ea09d42..aba56077cfda2 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -4177,6 +4177,7 @@ struct mlx5_ifc_query_vport_state_out_bits {
+ enum {
+ 	MLX5_VPORT_STATE_OP_MOD_VNIC_VPORT  = 0x0,
+ 	MLX5_VPORT_STATE_OP_MOD_ESW_VPORT   = 0x1,
++	MLX5_VPORT_STATE_OP_MOD_UPLINK      = 0x2,
+ };
+ 
+ struct mlx5_ifc_arm_monitor_counter_in_bits {
 -- 
 2.25.1
 
