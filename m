@@ -2,231 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB7723B31B
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 04:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2CD23B322
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 05:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725975AbgHDC7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 22:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37796 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725840AbgHDC7Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 22:59:24 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05A6520738;
-        Tue,  4 Aug 2020 02:59:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596509963;
-        bh=LDOy1eyWGHUUIkgyHWlTzqn1p/8CiO7tqJB+KrfA80Y=;
-        h=Date:From:To:Subject:From;
-        b=SRMSYpbhf2tv3ku5zzT0t2B2bJNny7ZHjXhsXCLsk0PzEdulykikXQ/sfJy9Fxd38
-         y1uhvXkGcvMlvWu3Pz2AhznWDgC44vHiCF0d3Yuv5nKmjaECim+jsHGuOgTsBKgAjt
-         eDvNd1b4uiowc37Jz4S3LtW9H+WQlxtlpnOtcozc=
-Date:   Mon, 03 Aug 2020 19:59:22 -0700
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, aneesh.kumar@linux.vnet.ibm.com,
-        dave@stgolabs.net, hughd@google.com,
-        kirill.shutemov@linux.intel.com, mhocko@kernel.org,
-        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
-        n-horiguchi@ah.jp.nec.com, prakash.sangappa@oracle.com,
-        stable@vger.kernel.org, willy@infradead.org
-Subject:  +
- hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem.patch added to
- -mm tree
-Message-ID: <20200804025922._txyOJrwR%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725917AbgHDDBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 23:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725840AbgHDDBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 23:01:09 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0154C06174A;
+        Mon,  3 Aug 2020 20:01:09 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id g19so9503608plq.0;
+        Mon, 03 Aug 2020 20:01:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=t7bwQ7uszFAoujrRz6CfHxaIJ5PCL1LbSKdLTSTnrIw=;
+        b=gaxwoqhxXzq5sdzxrMO8ULxCa2KiPx1YgUoYsK2lXwp3FewnyOJxBnlqZaLvpSWYRR
+         okPkoL4YtRjdezmdAFm1/+SZK9Gg/0eixFVXHWAzKchJ3O0iuGho0Rt/DjoWj9lbLL9r
+         cD9mmKcfZjbtBMfVGYgmsv/SNz8zfjGkbJeOs7aN3+epY7fjaF1p+ILZ/cEUSo/ClHLU
+         /smDmj9z3dhWVOem6Z0HPAt/jDfA/+YsEy4U7sRtR7CK1UgDCybC5hw22Weddr5BR5c8
+         PY8uzMI2eYn6XnNUZ5PXyZDU9IEsqwByTrjSLvJzKWbEWqRmdwXjcRLnIABIqCXng3L9
+         W/mQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=t7bwQ7uszFAoujrRz6CfHxaIJ5PCL1LbSKdLTSTnrIw=;
+        b=Hzo2cN3KOyOhx7nRWGM4ZGA50UgGJ8uXACFs77lCg9UH4yCVnAFZkGHrcn7mqm075y
+         YHDCkadlcJ4zyft9fyFm3bgjI3XzedqqfMSaILlxUsNrAWuauveneCNIkl57S2aBk9ZC
+         VxbBaSracXJoBHjxOFNQYtvIQQZ24JVWP46xBoXxXBkFYuoSoBUw3q1q82eIaLeaPFiE
+         nhfsuE/HlZqHuu6Sm6duwesBn9/OiYgs5hdn1Mz8rvChV8NkA2od9pKL/vYtECSCDNGB
+         9/Q7SAH+I3OS2uiG9VraJ7ipxG3sEOiAs4DMhO3Anpx2UbuzcbbuOm71LtHJmIksDNjE
+         oHDA==
+X-Gm-Message-State: AOAM532Ep2WqI0jNEkQ8yi+6pVPfKS8U0C/3QqZ1C26JF+AAiV17ZhBZ
+        T0h0KHgJmQSXnpc4lmxd5tE=
+X-Google-Smtp-Source: ABdhPJzr1g+60gUIfi4iCvfQCTqYTrx7MMJPxlHxsCf1eNUSi9O/jLpDK6ahpOQsHsPrVbMZbltVkA==
+X-Received: by 2002:a17:902:bd01:: with SMTP id p1mr13255411pls.25.1596510069334;
+        Mon, 03 Aug 2020 20:01:09 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d81sm7352521pfd.174.2020.08.03.20.01.07
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 03 Aug 2020 20:01:08 -0700 (PDT)
+Date:   Mon, 3 Aug 2020 20:01:07 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.7 000/120] 5.7.13-rc1 review
+Message-ID: <20200804030107.GA220454@roeck-us.net>
+References: <20200803121902.860751811@linuxfoundation.org>
+ <20200803155820.GA160756@roeck-us.net>
+ <20200803173330.GA1186998@kroah.com>
+ <CAMuHMdW1Cz_JJsTmssVz_0wjX_1_EEXGOvGjygPxTkcMsbR6Lw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdW1Cz_JJsTmssVz_0wjX_1_EEXGOvGjygPxTkcMsbR6Lw@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 03, 2020 at 10:33:59PM +0200, Geert Uytterhoeven wrote:
+> Hi Greg,
+> 
+> On Mon, Aug 3, 2020 at 7:35 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> > On Mon, Aug 03, 2020 at 08:58:20AM -0700, Guenter Roeck wrote:
+> > > On Mon, Aug 03, 2020 at 02:17:38PM +0200, Greg Kroah-Hartman wrote:
+> > > > This is the start of the stable review cycle for the 5.7.13 release.  There
+> > > > are 120 patches in this series, all will be posted as a response to this one.
+> > > > If anyone has any issues with these being applied, please let me know.
+> > > >
+> > > > Responses should be made by Wed, 05 Aug 2020 12:18:33 +0000.  Anything
+> > > > received after that time might be too late.
+> > > >
+> > >
+> > > Building sparc64:allmodconfig ... failed
+> > > --------------
+> > > Error log:
+> > > <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+> > > In file included from arch/sparc/include/asm/percpu_64.h:11,
+> > >                  from arch/sparc/include/asm/percpu.h:5,
+> > >                  from include/linux/random.h:14,
+> > >                  from fs/crypto/policy.c:13:
+> > > arch/sparc/include/asm/trap_block.h:54:39: error: 'NR_CPUS' undeclared here (not in a function)
+> > >    54 | extern struct trap_per_cpu trap_block[NR_CPUS];
+> > >
+> > > Inherited from mainline. Builds are not complete yet;
+> > > we may see a few more failures (powerpc:ppc64e_defconfig
+> > > fails to build in mainline as well).
+> >
+> > If it gets fixed upstream, I'll fix it here :)
+> 
+> And else you'll release a known-broken v5.7.13?
+> 
+> Perhaps backporting should be a bit less aggressive?
+> This breakage was introduced in between v5.8-rc7 and v5.8, and backported
+> before people had the time to properly look into the v5.8 build bot logs.
+> 
 
-The patch titled
-     Subject: hugetlbfs: remove call to huge_pte_alloc without i_mmap_rwsem
-has been added to the -mm tree.  Its filename is
-     hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem.patch
+The bisect log below applies to both the sparc and the powerpc build
+failures.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem.patch
+I should have guessed. Bisect points to the random changes. Those are
+really causing an endless amount of trouble. I hope the problem they
+are solving is worth all that trouble.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Guenter
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlbfs: remove call to huge_pte_alloc without i_mmap_rwsem
-
-Commit c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing
-synchronization") requires callers of huge_pte_alloc to hold i_mmap_rwsem
-in at least read mode.  This is because the explicit locking in
-huge_pmd_share (called by huge_pte_alloc) was removed.  When restructuring
-the code, the call to huge_pte_alloc in the else block at the beginning of
-hugetlb_fault was missed.
-
-Unfortunately, that else clause is exercised when there is no page table
-entry.  This will likely lead to a call to huge_pmd_share.  If
-huge_pmd_share thinks pmd sharing is possible, it will traverse the
-mapping tree (i_mmap) without holding i_mmap_rwsem.  If someone else is
-modifying the tree, bad things such as addressing exceptions or worse
-could happen.
-
-Simply remove the else clause.  It should have been removed previously. 
-The code following the else will call huge_pte_alloc with the appropriate
-locking.
-
-To prevent this type of issue in the future, add routines to assert that
-i_mmap_rwsem is held, and call these routines in huge pmd sharing
-routines.
-
-Link: http://lkml.kernel.org/r/e670f327-5cf9-1959-96e4-6dc7cc30d3d5@oracle.com
-Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Kirill A.Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Prakash Sangappa <prakash.sangappa@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- include/linux/fs.h      |   10 ++++++++++
- include/linux/hugetlb.h |    8 +++++---
- mm/hugetlb.c            |   15 +++++++--------
- mm/rmap.c               |    2 +-
- 4 files changed, 23 insertions(+), 12 deletions(-)
-
---- a/include/linux/fs.h~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/include/linux/fs.h
-@@ -518,6 +518,16 @@ static inline void i_mmap_unlock_read(st
- 	up_read(&mapping->i_mmap_rwsem);
- }
- 
-+static inline void i_mmap_assert_locked(struct address_space *mapping)
-+{
-+	lockdep_assert_held(&mapping->i_mmap_rwsem);
-+}
-+
-+static inline void i_mmap_assert_write_locked(struct address_space *mapping)
-+{
-+	lockdep_assert_held_write(&mapping->i_mmap_rwsem);
-+}
-+
- /*
-  * Might pages of this file be mapped into userspace?
-  */
---- a/include/linux/hugetlb.h~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/include/linux/hugetlb.h
-@@ -164,7 +164,8 @@ pte_t *huge_pte_alloc(struct mm_struct *
- 			unsigned long addr, unsigned long sz);
- pte_t *huge_pte_offset(struct mm_struct *mm,
- 		       unsigned long addr, unsigned long sz);
--int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep);
-+int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
-+				unsigned long *addr, pte_t *ptep);
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end);
- struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
-@@ -203,8 +204,9 @@ static inline struct address_space *huge
- 	return NULL;
- }
- 
--static inline int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr,
--					pte_t *ptep)
-+static inline int huge_pmd_unshare(struct mm_struct *mm,
-+					struct vm_area_struct *vma,
-+					unsigned long *addr, pte_t *ptep)
- {
- 	return 0;
- }
---- a/mm/hugetlb.c~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/mm/hugetlb.c
-@@ -3953,7 +3953,7 @@ void __unmap_hugepage_range(struct mmu_g
- 			continue;
- 
- 		ptl = huge_pte_lock(h, mm, ptep);
--		if (huge_pmd_unshare(mm, &address, ptep)) {
-+		if (huge_pmd_unshare(mm, vma, &address, ptep)) {
- 			spin_unlock(ptl);
- 			/*
- 			 * We just unmapped a page of PMDs by clearing a PUD.
-@@ -4540,10 +4540,6 @@ vm_fault_t hugetlb_fault(struct mm_struc
- 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry)))
- 			return VM_FAULT_HWPOISON_LARGE |
- 				VM_FAULT_SET_HINDEX(hstate_index(h));
--	} else {
--		ptep = huge_pte_alloc(mm, haddr, huge_page_size(h));
--		if (!ptep)
--			return VM_FAULT_OOM;
- 	}
- 
- 	/*
-@@ -5020,7 +5016,7 @@ unsigned long hugetlb_change_protection(
- 		if (!ptep)
- 			continue;
- 		ptl = huge_pte_lock(h, mm, ptep);
--		if (huge_pmd_unshare(mm, &address, ptep)) {
-+		if (huge_pmd_unshare(mm, vma, &address, ptep)) {
- 			pages++;
- 			spin_unlock(ptl);
- 			shared_pmd = true;
-@@ -5401,12 +5397,14 @@ out:
-  * returns: 1 successfully unmapped a shared pte page
-  *	    0 the underlying pte page is not shared, or it is the last user
-  */
--int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
-+int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
-+					unsigned long *addr, pte_t *ptep)
- {
- 	pgd_t *pgd = pgd_offset(mm, *addr);
- 	p4d_t *p4d = p4d_offset(pgd, *addr);
- 	pud_t *pud = pud_offset(p4d, *addr);
- 
-+	i_mmap_assert_write_locked(vma->vm_file->f_mapping);
- 	BUG_ON(page_count(virt_to_page(ptep)) == 0);
- 	if (page_count(virt_to_page(ptep)) == 1)
- 		return 0;
-@@ -5424,7 +5422,8 @@ pte_t *huge_pmd_share(struct mm_struct *
- 	return NULL;
- }
- 
--int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
-+int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
-+				unsigned long *addr, pte_t *ptep)
- {
- 	return 0;
- }
---- a/mm/rmap.c~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/mm/rmap.c
-@@ -1469,7 +1469,7 @@ static bool try_to_unmap_one(struct page
- 			 * do this outside rmap routines.
- 			 */
- 			VM_BUG_ON(!(flags & TTU_RMAP_LOCKED));
--			if (huge_pmd_unshare(mm, &address, pvmw.pte)) {
-+			if (huge_pmd_unshare(mm, vma, &address, pvmw.pte)) {
- 				/*
- 				 * huge_pmd_unshare unmapped an entire PMD
- 				 * page.  There is no way of knowing exactly
-_
-
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
-
-hugetlbfs-prevent-filesystem-stacking-of-hugetlbfs.patch
-hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem.patch
-cma-dont-quit-at-first-error-when-activating-reserved-areas.patch
-
+# bad: [333e573a423b816b8b28000d6106fa52bd98e198] Linux 4.14.192-rc1
+# good: [7f2c5eb458b8855655a19c44cd0043f7f83c595f] Linux 4.14.191
+git bisect start 'HEAD' 'v4.14.191'
+# bad: [88918f1a1f18dad31154103fa5218e714f10679e] net/x25: Fix x25_neigh refcnt leak when x25 disconnect
+git bisect bad 88918f1a1f18dad31154103fa5218e714f10679e
+# good: [1f9d268fd05887ecb6225a9452309efc3535492d] ARM: percpu.h: fix build error
+git bisect good 1f9d268fd05887ecb6225a9452309efc3535492d
+# bad: [f496bedf603212e6dbef88425680f8e137a51e27] random32: remove net_rand_state from the latent entropy gcc plugin
+git bisect bad f496bedf603212e6dbef88425680f8e137a51e27
+# good: [1e69d85c7e40051b57414953410bcee858285081] f2fs: check memory boundary by insane namelen
+git bisect good 1e69d85c7e40051b57414953410bcee858285081
+# bad: [0ea865dc4e3d93320e7103958ff041f5d7032ed5] random: fix circular include dependency on arm64 after addition of percpu.h
+git bisect bad 0ea865dc4e3d93320e7103958ff041f5d7032ed5
+# good: [e2bd43f819d770de686a904b7139bf444e96543c] f2fs: check if file namelen exceeds max value
+git bisect good e2bd43f819d770de686a904b7139bf444e96543c
+# first bad commit: [0ea865dc4e3d93320e7103958ff041f5d7032ed5] random: fix circular include dependency on arm64 after addition of percpu.h
