@@ -2,140 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 744CF23B186
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 02:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F6D23B1A1
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 02:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728037AbgHDADX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Aug 2020 20:03:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726725AbgHDADX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Aug 2020 20:03:23 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52C6020786;
-        Tue,  4 Aug 2020 00:03:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596499402;
-        bh=N6QHjdb/DQV2ZLM6TQWJrwqac5QwLsnE85j4EcwohBk=;
-        h=Date:From:To:Subject:From;
-        b=kMW+ps94OhlEa8R7nMFhRDGvbaNhDBr8rikL624j+ItSddeZtRx07h+e6cTAB8NC9
-         svrZdf6IF4zej4YQKtx1zyLYXHLB7HjWqo+wIUZUA7kgqYsJy2Gy7pdAX4zKDFQPOk
-         pwDhVzJGX8fGbZJIAM/AK6eYE/HSifQILPYX4dWs=
-Date:   Mon, 03 Aug 2020 17:03:21 -0700
-From:   akpm@linux-foundation.org
-To:     guro@fb.com, hannes@cmpxchg.org, mhocko@suse.com, mkoutny@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, tj@kernel.org
-Subject:  + mm-fix-protection-usage-propagation.patch added to -mm
- tree
-Message-ID: <20200804000321.PxQ1KP_0d%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1729221AbgHDAVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Aug 2020 20:21:40 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:54652 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729028AbgHDAVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Aug 2020 20:21:40 -0400
+Received: from [114.252.213.24] (helo=[192.168.0.104])
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1k2ki1-000136-Dk; Tue, 04 Aug 2020 00:21:37 +0000
+Subject: Re: [PATCH] Revert "ALSA: hda: call runtime_allow() for all hda
+ controllers"
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+References: <20200803064638.6139-1-hui.wang@canonical.com>
+ <0db4f5fe-7895-2d00-8ce3-96f1245000ab@linux.intel.com>
+ <s5hwo2f3cux.wl-tiwai@suse.de>
+ <6f583ccc-2251-384d-bc20-aa17c83a45b4@linux.intel.com>
+From:   Hui Wang <hui.wang@canonical.com>
+Message-ID: <e832bdc6-99d2-072d-87c4-2bbc868c099e@canonical.com>
+Date:   Tue, 4 Aug 2020 08:21:30 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <6f583ccc-2251-384d-bc20-aa17c83a45b4@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/page_counter.c: fix protection usage propagation
-has been added to the -mm tree.  Its filename is
-     mm-fix-protection-usage-propagation.patch
+On 2020/8/4 上午1:00, Pierre-Louis Bossart wrote:
+>
+>
+> On 8/3/20 11:36 AM, Takashi Iwai wrote:
+>> On Mon, 03 Aug 2020 17:27:12 +0200,
+>> Pierre-Louis Bossart wrote:
+>>>
+>>>
+>>>
+>>> On 8/3/20 1:46 AM, Hui Wang wrote:
+>>>> This reverts commit 9a6418487b56 ("ALSA: hda: call runtime_allow()
+>>>> for all hda controllers").
+>>>>
+>>>> The reverted patch already introduced some regressions on some
+>>>> machines:
+>>>>    - on gemini-lake machines, the error of "azx_get_response timeout"
+>>>>      happens in the hda driver.
+>>>>    - on the machines with alc662 codec, the audio jack detection 
+>>>> doesn't
+>>>>      work anymore.
+>>>>
+>>>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208511
+>>>> Cc: <stable@vger.kernel.org>
+>>>> Signed-off-by: Hui Wang <hui.wang@canonical.com>
+>>>> ---
+>>>>    sound/pci/hda/hda_intel.c | 1 -
+>>>>    1 file changed, 1 deletion(-)
+>>>>
+>>>> diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+>>>> index e699873c8293..e34a4d5d047c 100644
+>>>> --- a/sound/pci/hda/hda_intel.c
+>>>> +++ b/sound/pci/hda/hda_intel.c
+>>>> @@ -2352,7 +2352,6 @@ static int azx_probe_continue(struct azx *chip)
+>>>>          if (azx_has_pm_runtime(chip)) {
+>>>>            pm_runtime_use_autosuspend(&pci->dev);
+>>>> -        pm_runtime_allow(&pci->dev);
+>>>>            pm_runtime_put_autosuspend(&pci->dev);
+>>>>        }
+>>>
+>>> Do I get this right that this permanently disables pm_runtime on all
+>>> Intel HDaudio controllers?
+>>
+>> It just drops the unconditional enablement of runtime PM.
+>> It can be enabled via sysfs, and that's the old default (let admin
+>> enabling it via udev or whatever).
+>
+> Sorry I am confused now.
+> Kai seemed to suggest in the Bugzilla comments that this would be 
+> temporary, until these problems with i915 and ALC662 get fixed?
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-fix-protection-usage-propag=
-ation.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-protection-usage-propag=
-ation.patch
+I planed to debug the issue of ALC662, but so far, I haven't got the 
+machine,  It is difficult to debug power issues without a physical 
+machine. Once I get the machine, I will debug it and try to find the 
+root cause.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Thanks,
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-=46rom: Michal Koutn=C3=BD <mkoutny@suse.com>
-Subject: mm/page_counter.c: fix protection usage propagation
-
-When workload runs in cgroups that aren't directly below root cgroup and
-their parent specifies reclaim protection, it may end up ineffective.
-
-The reason is that propagate_protected_usage() is not called in all
-hierarchy up.  All the protected usage is incorrectly accumulated in the
-workload's parent.  This means that siblings_low_usage is overestimated
-and effective protection underestimated.  Even though it is transitional
-phenomenon (uncharge path does correct propagation and fixes the wrong
-children_low_usage), it can undermine the indended protection
-unexpectedly.
-
-We have noticed this problem while seeing a swap out in a descendant of a
-protected memcg (intermediate node) while the parent was conveniently
-under its protection limit and the memory pressure was external to that
-hierarchy.  Michal has pinpointed this down to the wrong
-siblings_low_usage which led to the unwanted reclaim.
-
-The fix is simply updating children_low_usage in respective ancestors also
-in the charging path.
-
-Link: http://lkml.kernel.org/r/20200803153231.15477-1-mhocko@kernel.org
-Fixes: 230671533d64 ("mm: memory.low hierarchical behavior")
-Signed-off-by: Michal Koutn=C3=BD <mkoutny@suse.com>
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.18+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_counter.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/mm/page_counter.c~mm-fix-protection-usage-propagation
-+++ a/mm/page_counter.c
-@@ -72,7 +72,7 @@ void page_counter_charge(struct page_cou
- 		long new;
-=20
- 		new =3D atomic_long_add_return(nr_pages, &c->usage);
--		propagate_protected_usage(counter, new);
-+		propagate_protected_usage(c, new);
- 		/*
- 		 * This is indeed racy, but we can live with some
- 		 * inaccuracy in the watermark.
-@@ -116,7 +116,7 @@ bool page_counter_try_charge(struct page
- 		new =3D atomic_long_add_return(nr_pages, &c->usage);
- 		if (new > c->max) {
- 			atomic_long_sub(nr_pages, &c->usage);
--			propagate_protected_usage(counter, new);
-+			propagate_protected_usage(c, new);
- 			/*
- 			 * This is racy, but we can live with some
- 			 * inaccuracy in the failcnt.
-@@ -125,7 +125,7 @@ bool page_counter_try_charge(struct page
- 			*fail =3D c;
- 			goto failed;
- 		}
--		propagate_protected_usage(counter, new);
-+		propagate_protected_usage(c, new);
- 		/*
- 		 * Just like with failcnt, we can live with some
- 		 * inaccuracy in the watermark.
-_
-
-Patches currently in -mm which might be from mkoutny@suse.com are
-
-mm-fix-protection-usage-propagation.patch
-proc-pid-smaps-consistent-whitespace-output-format.patch
+Hui.
 
