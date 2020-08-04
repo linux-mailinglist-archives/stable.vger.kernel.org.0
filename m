@@ -2,159 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3E223BAA2
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 14:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0804723BAAF
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 14:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727809AbgHDMpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Aug 2020 08:45:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41362 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727928AbgHDMpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Aug 2020 08:45:33 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D32C06174A
-        for <stable@vger.kernel.org>; Tue,  4 Aug 2020 05:45:33 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id d188so14072096pfd.2
-        for <stable@vger.kernel.org>; Tue, 04 Aug 2020 05:45:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Ujlbcz5MFI/dPWrFMlKdiMVfyAhPrjwzR1VYhv+BJ+E=;
-        b=Sl4DBp1H4UJ5fxmE3eFNOu8e3O7/ubWKzT0JLFsoNdsotGdX+TPEwBG8HE8cVNSY6Z
-         XNkI9QGl12Ezsaxk5WVaO7EPskUS8pNFeKL7ErGoWhkwTawsSKybw8JKcWjQJgCXsRJE
-         97//kXShQuHX5mabtVP1Uwhu8g8uQv7L2VrKsOErhFknqQ7lZWTxn8JxgiaResFQ9hk0
-         q2JrqUX81temhYpG5ukDConm4JzucQBHuXcClEvNtGF+R7GTSwtVUUmzRRPq7zGog5cX
-         64SIV27Wh6qXYiZs3RzRmeP275xGznICV+u9GUOOzpr0ymjcOMzd/QRqD7uj07eTLbmS
-         jgsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Ujlbcz5MFI/dPWrFMlKdiMVfyAhPrjwzR1VYhv+BJ+E=;
-        b=HMpQ/sSO/Z6vEeRDciyPJDvn2Ii6wDYS7gGrX40iXt9N01iWyIBYZWz2lOQUtWfbIB
-         NespXDRALWL6k56Qq9gLWf4V+dJYpi4A9aaAW6qUYU2TsD0y7qZVeErAH8rFL+wNrylq
-         7iHEcSkNdIki80dektjqwNJRjdYtjlmJ5VagJL08m1WkfygIIuGwCj9m+r7nAVkQsXXC
-         usswM1Gqag/nOFeF63KBos09peiTlTQhHaT8c+n+UPA/TRD50yF4sMHjSn18afb5kym5
-         2IU7nkp7zahrx39H2TAp0XS0T/z08aQKqSQ68Tc4GMPwdXcnpp0s3kt3lHFqxcuETKl2
-         M80A==
-X-Gm-Message-State: AOAM530dZi59KQQE6/mTJeqEUPgv/OXg2Qy79yUI2kAaxBEyGZD5nA8p
-        0Fs1HVoku11WEkkUZcUeNlZLYJ9SYuE=
-X-Google-Smtp-Source: ABdhPJyxtd5SyrMN1jdN+xun5hJ2HuFArzUG6dKUw43qwhdF40PDh0liLZ5L06PRtsviSCGbqtmFbQ==
-X-Received: by 2002:aa7:8182:: with SMTP id g2mr14743613pfi.261.1596545132312;
-        Tue, 04 Aug 2020 05:45:32 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n13sm2661992pjb.20.2020.08.04.05.45.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2020 05:45:31 -0700 (PDT)
-Message-ID: <5f29586b.1c69fb81.da903.6ce9@mx.google.com>
-Date:   Tue, 04 Aug 2020 05:45:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725932AbgHDMr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Aug 2020 08:47:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59832 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726282AbgHDMrz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Aug 2020 08:47:55 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60B862067D;
+        Tue,  4 Aug 2020 12:47:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596545275;
+        bh=HQdWsBUMcWk0XAvFfhB9slWoCiSqMyM9l3UqhNyhGKM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QvgHeKpoKhPkVMhNF+slMOCNRLYusfHQ7oFeHTxJ+KFq8TM4iQrBk2JnTuLCoHJeL
+         oga/wcPaJXanVl0kCPlpB0cd/vT0kUzKSLAWsgFdbiSwnpt3BCf4Sj21xbFbr21D9k
+         7gJvltixRePRmm67bFUVDR+2rPwv9TupeC7HqH2Q=
+Date:   Tue, 4 Aug 2020 14:47:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     John Donnelly <john.p.donnelly@oracle.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
+Subject: Re: [(resend) PATCH v3: {linux-4.14.y} ] dm cache: submit
+ writethrough writes in parallel to origin and cache
+Message-ID: <20200804124735.GA219143@kroah.com>
+References: <8CFF8DA9-C105-461C-8F5A-DA2BF448A135@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.136-58-g1bfc1293a1a9
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 154 runs,
- 2 regressions (v4.19.136-58-g1bfc1293a1a9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8CFF8DA9-C105-461C-8F5A-DA2BF448A135@oracle.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 154 runs, 2 regressions (v4.19.136-58-g1bf=
-c1293a1a9)
+On Tue, Aug 04, 2020 at 07:33:05AM -0500, John Donnelly wrote:
+> From: Mike Snitzer <snitzer@redhat.com>
+> 
+> Discontinue issuing writethrough write IO in series to the origin and
+> then cache.
+> 
+> Use bio_clone_fast() to create a new origin clone bio that will be
+> mapped to the origin device and then bio_chain() it to the bio that gets
+> remapped to the cache device.  The origin clone bio does _not_ have a
+> copy of the per_bio_data -- as such check_if_tick_bio_needed() will not
+> be called.
+> 
+> The cache bio (parent bio) will not complete until the origin bio has
+> completed -- this fulfills bio_clone_fast()'s requirements as well as
+> the requirement to not complete the original IO until the write IO has
+> completed to both the origin and cache device.
+> 
+> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+> 
+> (cherry picked from commit 2df3bae9a6543e90042291707b8db0cbfbae9ee9)
+> 
+> Fixes: 4ec34f2196d125ff781170ddc6c3058c08ec5e73 (dm bio record:
+> save/restore bi_end_io and bi_integrity )
+> 
+> 4ec34f21 introduced a mkfs.ext4 hang on a LVM device that has been
+> modified with lvconvert --cachemode=writethrough.
+> 
+> CC:stable@vger.kernel.org for 4.14.y
+> 
+> Signed-off-by: John Donnelly <john.p.donnelly@oracle.com>
+> Reviewed-by: Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>
+> 
+> conflicts:
+> 	drivers/md/dm-cache-target.c. -  Corrected usage of
+> 	writethrough_mode(&cache->feature) that was caught by
+> 	compiler, and removed unused static functions : writethrough_endio(),
+> 	defer_writethrough_bio(), wake_deferred_writethrough_worker()
+> 	that generated warnings.
 
-Regressions Summary
--------------------
+What is this "conflicts nonsense"?  You don't see that in any other
+kernel patch changelog, do you?
 
-platform              | arch  | lab          | compiler | defconfig | resul=
-ts
-----------------------+-------+--------------+----------+-----------+------=
---
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5  =
-  =
+> ---
+> drivers/md/dm-cache-target.c | 92 ++++++++++++++++++--------------------------
+> 1 file changed, 37 insertions(+), 55 deletions(-)
 
-meson-gxm-khadas-vim2 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1  =
-  =
+Please fix your email client up, it's totally broken and this does not
+work at all and is getting frustrating from my side here.
 
+Try sending emails to yourself and see if you can apply the patches, as
+the one you sent here does not work, again:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.136-58-g1bfc1293a1a9/plan/baseline/
+------------
+~/linux/stable/linux-4.14.y $ b4 am https://lore.kernel.org/r/8CFF8DA9-C105-461C-8F5A-DA2BF448A135@oracle.com
+Looking up https://lore.kernel.org/r/8CFF8DA9-C105-461C-8F5A-DA2BF448A135%40oracle.com
+Grabbing thread from lore.kernel.org/lkml
+Analyzing 1 messages in the thread
+---
+Writing ./20200804_john_p_donnelly_dm_cache_submit_writethrough_writes_in_parallel_to_origin_and_cache.mbx
+  [(resend) PATCH v3: {linux-4.14.y} ] dm cache: submit writethrough writes in parallel to origin and cache
+---
+Total patches: 1
+---
+ Link: https://lore.kernel.org/r/8CFF8DA9-C105-461C-8F5A-DA2BF448A135@oracle.com
+ Base: not found (applies clean to current tree)
+       git am ./20200804_john_p_donnelly_dm_cache_submit_writethrough_writes_in_parallel_to_origin_and_cache.mbx
+~/linux/stable/linux-4.14.y $ patch -p1 < 20200804_john_p_donnelly_dm_cache_submit_writethrough_writes_in_parallel_to_origin_and_cache.mbx
+checking file drivers/md/dm-cache-target.c
+patch: **** malformed patch at line 70: }
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.136-58-g1bfc1293a1a9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1bfc1293a1a92ef3e23b572c328ceca3c2531e26 =
+------------
 
+{sigh}
 
+You can do better.
 
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig | resul=
-ts
-----------------------+-------+--------------+----------+-----------+------=
---
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5  =
-  =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2924009a5309dc9552c1b4
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-36-58-g1bfc1293a1a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi=
--3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-36-58-g1bfc1293a1a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi=
--3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f2924009a5309dc=
-9552c1b7
-      failing since 2 days (last pass: v4.19.134-105-g62c048b85133, first f=
-ail: v4.19.136)
-      1 lines =
-
-
-
-platform              | arch  | lab          | compiler | defconfig | resul=
-ts
-----------------------+-------+--------------+----------+-----------+------=
---
-meson-gxm-khadas-vim2 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1  =
-  =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2924ea1908c2bb6c52c1b7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-36-58-g1bfc1293a1a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-k=
-hadas-vim2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-36-58-g1bfc1293a1a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-k=
-hadas-vim2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f2924ea1908c2bb6c52c=
-1b8
-      new failure (last pass: v4.19.136-57-g805f2d7d066e) =20
+greg k-h
