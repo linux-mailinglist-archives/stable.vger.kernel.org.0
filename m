@@ -2,252 +2,274 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3536123B707
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 10:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 740EF23B717
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 10:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729989AbgHDItY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Aug 2020 04:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33240 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726233AbgHDItX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Aug 2020 04:49:23 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724FEC06174A
-        for <stable@vger.kernel.org>; Tue,  4 Aug 2020 01:49:23 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id y3so36601619wrl.4
-        for <stable@vger.kernel.org>; Tue, 04 Aug 2020 01:49:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AS1L/irQ1SAiuy2bJA12BGGvcMN41EqAyMONdeOJ9tc=;
-        b=SNNHBJzw7nzpAcW+yLrJzjJSN14QhzRZ7Tbxoxc4gIys7PqYT41g4aksXqRZzPMqG1
-         ArW/prZNev6cryb5bVmP/FVtZONsZr4oOgPdtbrh6+cH1J/Jx4TW3EFnB0WDxITrW7eY
-         RCddcTfxynziFhiRVEJPmrRQiV/W3cKOyXcYA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AS1L/irQ1SAiuy2bJA12BGGvcMN41EqAyMONdeOJ9tc=;
-        b=p8xjQfm+9zCJ6/kusL+Jx0E3GFCujeRxRGh1u9JvkDP9XkIYDqiGOh3M+0BZb5R2nS
-         EzYqmHLLTvgcPcLLAsOjEXKixePY5pwJOLf+3uPmkbAhEmTR2ayODVWc2ohUWOx7bWBJ
-         kHT2xXTZP3EFo/L6oG/qhHmSZ7e0EpFjWURaAPaRGlDFuprhvfF0nHHgRPeTIoGC8oZb
-         IFEKfe+b1fonzkppjrC9TVhxdfXlblVROl6k73CzudKkCZNP78I8cV1m9IC5pIgB9qAo
-         xfvY7jp6HllVsDKb/kr1TkEcEgRvFA+nwD+aMzhHaKN9KW3Px4uxQ+rfuCT/h2moZJP1
-         KBhg==
-X-Gm-Message-State: AOAM533vNRrenZMZLRe9CvVEa205WDYOWvSC9pO2/3b3C2NzmedB8OXV
-        7nfIZv7sorBfDKR16p5Dfm9UhOlT+cA=
-X-Google-Smtp-Source: ABdhPJwknV03hX6+Le1i0l1o6rQu35IlAxjFFu2vOxUuvhRe2xIIpSQE0rV1onVpnXlud7zp88Cxnw==
-X-Received: by 2002:adf:a192:: with SMTP id u18mr20495707wru.158.1596530961625;
-        Tue, 04 Aug 2020 01:49:21 -0700 (PDT)
-Received: from antares.lan (e.8.0.d.1.c.0.9.4.b.c.4.0.6.d.7.f.f.6.2.a.5.a.7.0.b.8.0.1.0.0.2.ip6.arpa. [2001:8b0:7a5a:26ff:7d60:4cb4:90c1:d08e])
-        by smtp.gmail.com with ESMTPSA id l21sm3246418wmj.25.2020.08.04.01.49.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2020 01:49:20 -0700 (PDT)
-From:   Lorenz Bauer <lmb@cloudflare.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        bpf@vger.kernel.org
-Cc:     kernel-team@cloudflare.com, Lorenz Bauer <lmb@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH stable-5.4.y] bpf: sockmap: Require attach_bpf_fd when detaching a program
-Date:   Tue,  4 Aug 2020 09:47:47 +0100
-Message-Id: <20200804084747.42530-1-lmb@cloudflare.com>
-X-Mailer: git-send-email 2.25.1
+        id S1729957AbgHDIxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Aug 2020 04:53:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729856AbgHDIxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Aug 2020 04:53:38 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAD2A2075A;
+        Tue,  4 Aug 2020 08:53:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596531217;
+        bh=t0mk9cNIb/0COvakGYrIvms/4YHLyI1U62Idnmu22hI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kVyoEq1KiHvcoEATAVCpW46LHdPp3Jysrs9DFFbJ5XVZqd87B/6SYRIteIpwbPDNa
+         jDZ4Q7N81J8t9xU79HUanwUakNNszNSOeftuMw5sINN+0ItE15qamH7z0OXpRAfBR4
+         ovw9Vg4DYaPUNF7JXfGJRyAHMdNxOlTXu0LlfFmU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.14 00/47] 4.14.192-rc3 review
+Date:   Tue,  4 Aug 2020 10:53:16 +0200
+Message-Id: <20200804085215.362760089@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.192-rc3.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.192-rc3
+X-KernelTest-Deadline: 2020-08-06T08:52+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit bb0de3131f4c60a9bf976681e0fe4d1e55c7a821 upstream.
+This is the start of the stable review cycle for the 4.14.192 release.
+There are 47 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-The sockmap code currently ignores the value of attach_bpf_fd when
-detaching a program. This is contrary to the usual behaviour of
-checking that attach_bpf_fd represents the currently attached
-program.
+Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
+Anything received after that time might be too late.
 
-Ensure that attach_bpf_fd is indeed the currently attached
-program. It turns out that all sockmap selftests already do this,
-which indicates that this is unlikely to cause breakage.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.192-rc3.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200629095630.7933-5-lmb@cloudflare.com
----
-The 5.4 tree needs a dedicated backport, since some headers have
-changed sufficiently to cause the patch to fail. bpf_prog_detach
-needs further massaging to pass the correct program type to
-sock_map_prog_detach. Please queue this patch together with
-commit f43cb0d672aa ("selftests: bpf: Fix detach from sockmap tests").
----
- include/linux/bpf.h   | 13 +++++++++--
- include/linux/skmsg.h | 13 +++++++++++
- kernel/bpf/syscall.c  |  4 ++--
- net/core/sock_map.c   | 50 ++++++++++++++++++++++++++++++++++++++-----
- 4 files changed, 71 insertions(+), 9 deletions(-)
+thanks,
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 3bf3835d0e86..7aa0d8b5aaf0 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -956,11 +956,14 @@ static inline void bpf_map_offload_map_free(struct bpf_map *map)
- #endif /* CONFIG_NET && CONFIG_BPF_SYSCALL */
- 
- #if defined(CONFIG_BPF_STREAM_PARSER)
--int sock_map_prog_update(struct bpf_map *map, struct bpf_prog *prog, u32 which);
-+int sock_map_prog_update(struct bpf_map *map, struct bpf_prog *prog,
-+			 struct bpf_prog *old, u32 which);
- int sock_map_get_from_fd(const union bpf_attr *attr, struct bpf_prog *prog);
-+int sock_map_prog_detach(const union bpf_attr *attr, enum bpf_prog_type ptype);
- #else
- static inline int sock_map_prog_update(struct bpf_map *map,
--				       struct bpf_prog *prog, u32 which)
-+				       struct bpf_prog *prog,
-+				       struct bpf_prog *old, u32 which)
- {
- 	return -EOPNOTSUPP;
- }
-@@ -970,6 +973,12 @@ static inline int sock_map_get_from_fd(const union bpf_attr *attr,
- {
- 	return -EINVAL;
- }
-+
-+static inline int sock_map_prog_detach(const union bpf_attr *attr,
-+				       enum bpf_prog_type ptype)
-+{
-+	return -EOPNOTSUPP;
-+}
- #endif
- 
- #if defined(CONFIG_XDP_SOCKETS)
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index 4bdb5e4bbd6a..20f3550b0b11 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -450,6 +450,19 @@ static inline void psock_set_prog(struct bpf_prog **pprog,
- 		bpf_prog_put(prog);
- }
- 
-+static inline int psock_replace_prog(struct bpf_prog **pprog,
-+				     struct bpf_prog *prog,
-+				     struct bpf_prog *old)
-+{
-+	if (cmpxchg(pprog, old, prog) != old)
-+		return -ENOENT;
-+
-+	if (old)
-+		bpf_prog_put(old);
-+
-+	return 0;
-+}
-+
- static inline void psock_progs_drop(struct sk_psock_progs *progs)
- {
- 	psock_set_prog(&progs->msg_parser, NULL);
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 8bc904f9badb..bf03d04a9e2f 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2029,10 +2029,10 @@ static int bpf_prog_detach(const union bpf_attr *attr)
- 		ptype = BPF_PROG_TYPE_CGROUP_DEVICE;
- 		break;
- 	case BPF_SK_MSG_VERDICT:
--		return sock_map_get_from_fd(attr, NULL);
-+		return sock_map_prog_detach(attr, BPF_PROG_TYPE_SK_MSG);
- 	case BPF_SK_SKB_STREAM_PARSER:
- 	case BPF_SK_SKB_STREAM_VERDICT:
--		return sock_map_get_from_fd(attr, NULL);
-+		return sock_map_prog_detach(attr, BPF_PROG_TYPE_SK_SKB);
- 	case BPF_LIRC_MODE2:
- 		return lirc_prog_detach(attr);
- 	case BPF_FLOW_DISSECTOR:
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index 6bbc118bf00e..df52061f99f7 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -71,7 +71,42 @@ int sock_map_get_from_fd(const union bpf_attr *attr, struct bpf_prog *prog)
- 	map = __bpf_map_get(f);
- 	if (IS_ERR(map))
- 		return PTR_ERR(map);
--	ret = sock_map_prog_update(map, prog, attr->attach_type);
-+	ret = sock_map_prog_update(map, prog, NULL, attr->attach_type);
-+	fdput(f);
-+	return ret;
-+}
-+
-+int sock_map_prog_detach(const union bpf_attr *attr, enum bpf_prog_type ptype)
-+{
-+	u32 ufd = attr->target_fd;
-+	struct bpf_prog *prog;
-+	struct bpf_map *map;
-+	struct fd f;
-+	int ret;
-+
-+	if (attr->attach_flags)
-+		return -EINVAL;
-+
-+	f = fdget(ufd);
-+	map = __bpf_map_get(f);
-+	if (IS_ERR(map))
-+		return PTR_ERR(map);
-+
-+	prog = bpf_prog_get(attr->attach_bpf_fd);
-+	if (IS_ERR(prog)) {
-+		ret = PTR_ERR(prog);
-+		goto put_map;
-+	}
-+
-+	if (prog->type != ptype) {
-+		ret = -EINVAL;
-+		goto put_prog;
-+	}
-+
-+	ret = sock_map_prog_update(map, NULL, prog, attr->attach_type);
-+put_prog:
-+	bpf_prog_put(prog);
-+put_map:
- 	fdput(f);
- 	return ret;
- }
-@@ -1015,27 +1050,32 @@ static struct sk_psock_progs *sock_map_progs(struct bpf_map *map)
- }
- 
- int sock_map_prog_update(struct bpf_map *map, struct bpf_prog *prog,
--			 u32 which)
-+			 struct bpf_prog *old, u32 which)
- {
- 	struct sk_psock_progs *progs = sock_map_progs(map);
-+	struct bpf_prog **pprog;
- 
- 	if (!progs)
- 		return -EOPNOTSUPP;
- 
- 	switch (which) {
- 	case BPF_SK_MSG_VERDICT:
--		psock_set_prog(&progs->msg_parser, prog);
-+		pprog = &progs->msg_parser;
- 		break;
- 	case BPF_SK_SKB_STREAM_PARSER:
--		psock_set_prog(&progs->skb_parser, prog);
-+		pprog = &progs->skb_parser;
- 		break;
- 	case BPF_SK_SKB_STREAM_VERDICT:
--		psock_set_prog(&progs->skb_verdict, prog);
-+		pprog = &progs->skb_verdict;
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
- 
-+	if (old)
-+		return psock_replace_prog(pprog, prog, old);
-+
-+	psock_set_prog(pprog, prog);
- 	return 0;
- }
- 
--- 
-2.25.1
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.192-rc3
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/i8259: Use printk_deferred() to prevent deadlock
+
+Wanpeng Li <wanpengli@tencent.com>
+    KVM: LAPIC: Prevent setting the tscdeadline timer if the lapic is hw disabled
+
+Andrea Righi <andrea.righi@canonical.com>
+    xen-netfront: fix potential deadlock in xennet_remove()
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    cxgb4: add missing release on skb in uld_send()
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/unwind/orc: Fix ORC for newly forked tasks
+
+Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+    Revert "i2c: cadence: Fix the hold bit setting"
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    net: ethernet: ravb: exit if re-initialization fails in tx timeout
+
+Liam Beguin <liambeguin@gmail.com>
+    parisc: add support for cmpxchg on u8 pointers
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    nfc: s3fwrn5: add missing release on skb in s3fwrn5_recv_frame
+
+Laurence Oberman <loberman@redhat.com>
+    qed: Disable "MFW indication via attention" SPAM every 5 minutes
+
+Geert Uytterhoeven <geert@linux-m68k.org>
+    usb: hso: Fix debug compile warning on sparc32
+
+Robin Murphy <robin.murphy@arm.com>
+    arm64: csum: Fix handling of bad packets
+
+Sami Tolvanen <samitolvanen@google.com>
+    arm64/alternatives: move length validation inside the subsection
+
+Remi Pommarel <repk@triplefau.lt>
+    mac80211: mesh: Free pending skb when destroying a mpath
+
+Remi Pommarel <repk@triplefau.lt>
+    mac80211: mesh: Free ie data when leaving mesh
+
+Andrii Nakryiko <andriin@fb.com>
+    bpf: Fix map leak in HASH_OF_MAPS map
+
+Thomas Falcon <tlfalcon@linux.ibm.com>
+    ibmvnic: Fix IRQ mapping disposal in error path
+
+Ido Schimmel <idosch@mellanox.com>
+    mlxsw: core: Free EMAD transactions using kfree_rcu()
+
+Ido Schimmel <idosch@mellanox.com>
+    mlxsw: core: Increase scope of RCU read-side critical section
+
+Jakub Kicinski <kuba@kernel.org>
+    mlx4: disable device on shutdown
+
+Johan Hovold <johan@kernel.org>
+    net: lan78xx: fix transfer-buffer memory leak
+
+Johan Hovold <johan@kernel.org>
+    net: lan78xx: add missing endpoint sanity check
+
+Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+    sh: Fix validation of system call number
+
+Tanner Love <tannerlove@google.com>
+    selftests/net: rxtimestamp: fix clang issues for target arch PowerPC
+
+YueHaibing <yuehaibing@huawei.com>
+    net/x25: Fix null-ptr-deref in x25_disconnect
+
+Xiyu Yang <xiyuyang19@fudan.edu.cn>
+    net/x25: Fix x25_neigh refcnt leak when x25 disconnect
+
+Rik van Riel <riel@surriel.com>
+    xfs: fix missed wakeup on l_flush_wait
+
+Peilin Ye <yepeilin.cs@gmail.com>
+    rds: Prevent kernel-infoleak in rds_notify_queue_get()
+
+Joerg Roedel <jroedel@suse.de>
+    x86, vmlinux.lds: Page-align end of ..page_aligned sections
+
+Sami Tolvanen <samitolvanen@google.com>
+    x86/build/lto: Fix truncated .bss with -fdata-sections
+
+Wang Hai <wanghai38@huawei.com>
+    9p/trans_fd: Fix concurrency del of req_list in p9_fd_cancelled/p9_read_work
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p/trans_fd: abort p9_read_work if req status changed
+
+Sheng Yong <shengyong1@huawei.com>
+    f2fs: check if file namelen exceeds max value
+
+Jaegeuk Kim <jaegeuk@kernel.org>
+    f2fs: check memory boundary by insane namelen
+
+Steve Cohen <cohens@codeaurora.org>
+    drm: hold gem reference until object is no longer accessed
+
+Peilin Ye <yepeilin.cs@gmail.com>
+    drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
+
+Will Deacon <will@kernel.org>
+    ARM: 8986/1: hw_breakpoint: Don't invoke overflow handler on uaccess watchpoints
+
+Pi-Hsun Shih <pihsun@chromium.org>
+    wireless: Use offsetof instead of custom macro.
+
+Robert Hancock <hancockrwd@gmail.com>
+    PCI/ASPM: Disable ASPM on ASMedia ASM1083/1085 PCIe-to-PCI bridge
+
+Sasha Levin <sashal@kernel.org>
+    x86/kvm: Be careful not to clear KVM_VCPU_FLUSH_TLB bit
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    ath9k: release allocated buffer if timed out
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    ath9k_htc: release allocated buffer if timed out
+
+Sasha Levin <sashal@kernel.org>
+    iio: imu: adis16400: fix memory leak
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    media: rc: prevent memory leak in cx23888_ir_probe
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    crypto: ccp - Release all allocated memory if sha type is invalid
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    net: phy: mdio-bcm-unimac: fix potential NULL dereference in unimac_mdio_probe()
+
+Jason Yan <yanaijie@huawei.com>
+    scsi: libsas: direct call probe and destruct
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/kernel/hw_breakpoint.c                    | 27 +++++++--
+ arch/arm64/include/asm/alternative.h               |  4 +-
+ arch/arm64/include/asm/checksum.h                  |  5 +-
+ arch/parisc/include/asm/cmpxchg.h                  |  2 +
+ arch/parisc/lib/bitops.c                           | 12 ++++
+ arch/sh/kernel/entry-common.S                      |  6 +-
+ arch/x86/kernel/i8259.c                            |  2 +-
+ arch/x86/kernel/unwind_orc.c                       |  8 ++-
+ arch/x86/kernel/vmlinux.lds.S                      |  3 +-
+ arch/x86/kvm/lapic.c                               |  2 +-
+ arch/x86/kvm/x86.c                                 |  3 +
+ drivers/crypto/ccp/ccp-ops.c                       |  3 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c            |  3 +-
+ drivers/gpu/drm/drm_gem.c                          | 10 ++--
+ drivers/i2c/busses/i2c-cadence.c                   |  9 +--
+ drivers/iio/imu/adis16400_buffer.c                 |  5 +-
+ drivers/media/pci/cx23885/cx23888-ir.c             |  5 +-
+ drivers/net/ethernet/chelsio/cxgb4/sge.c           |  1 +
+ drivers/net/ethernet/ibm/ibmvnic.c                 |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/main.c          |  2 +
+ drivers/net/ethernet/mellanox/mlxsw/core.c         |  8 ++-
+ drivers/net/ethernet/qlogic/qed/qed_int.c          |  3 +-
+ drivers/net/ethernet/renesas/ravb_main.c           | 26 ++++++++-
+ drivers/net/phy/mdio-bcm-unimac.c                  |  2 +
+ drivers/net/usb/hso.c                              |  5 +-
+ drivers/net/usb/lan78xx.c                          |  6 ++
+ drivers/net/wireless/ath/ath9k/htc_hst.c           |  3 +
+ drivers/net/wireless/ath/ath9k/wmi.c               |  1 +
+ drivers/net/xen-netfront.c                         | 64 ++++++++++++++--------
+ drivers/nfc/s3fwrn5/core.c                         |  1 +
+ drivers/pci/quirks.c                               | 13 +++++
+ drivers/scsi/libsas/sas_ata.c                      |  1 -
+ drivers/scsi/libsas/sas_discover.c                 | 32 ++++++-----
+ drivers/scsi/libsas/sas_expander.c                 |  8 +--
+ drivers/scsi/libsas/sas_internal.h                 |  1 +
+ drivers/scsi/libsas/sas_port.c                     |  3 +
+ fs/f2fs/dir.c                                      | 12 +++-
+ fs/xfs/xfs_log.c                                   |  9 ++-
+ include/asm-generic/vmlinux.lds.h                  |  5 +-
+ include/scsi/libsas.h                              |  3 +-
+ include/scsi/scsi_transport_sas.h                  |  1 +
+ include/uapi/linux/wireless.h                      |  5 +-
+ kernel/bpf/hashtab.c                               | 12 +++-
+ net/9p/trans_fd.c                                  | 32 ++++++++---
+ net/mac80211/cfg.c                                 |  1 +
+ net/mac80211/mesh_pathtbl.c                        |  1 +
+ net/rds/recv.c                                     |  3 +-
+ net/x25/x25_subr.c                                 |  6 ++
+ .../networking/timestamping/rxtimestamp.c          |  3 +-
+ 50 files changed, 277 insertions(+), 111 deletions(-)
+
 
