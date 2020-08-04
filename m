@@ -2,84 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E8FE23BFAE
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 21:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EFC23BFDD
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 21:28:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727911AbgHDTYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Aug 2020 15:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46288 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726027AbgHDTYU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Aug 2020 15:24:20 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46F70C06174A;
-        Tue,  4 Aug 2020 12:24:20 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id t11so3958139plr.5;
-        Tue, 04 Aug 2020 12:24:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=iq2aYfhJ5sJs77/hPx3FMr3YTRxCtfhdhT9zx8Qv3yg=;
-        b=h09FAqNMyBUWkeGKmzOTjFfMGvrbMg7upPYBms7YkhKhtHSVTbqSDZEMdcJZv1KW+9
-         iWXERt4ej+FOpf2SolwJ+cG61NAxrtv+fUIgk0ltZlTDkQWdLxWwxfKbJ065jYo716SO
-         WK53JIRHx8poRXi7C3Q3GoYI6HF7Rhcn1Xzaf+yfJ1/jVlhyg+OtJFifmZl9MZrEdES6
-         6vNUaNgnEpm/IfEZ8zGjoDOH2DfOF60PeC2bOXK+pRP2OJB3orPpjVzzF9BsoKdPXxNq
-         PzXvEqy8s2fkMjgFjITHL/3ehl8+caVRiYDeRD6t/KpHbyd3lNTddmpFYxRxm6+rAElv
-         vQBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=iq2aYfhJ5sJs77/hPx3FMr3YTRxCtfhdhT9zx8Qv3yg=;
-        b=XFAz19qwdYMSuZ7r0yu3hhdoazPtdi8Lrukh8gg5+buhll0pRO8ZyMlboy4IzPCbaw
-         KJYkhdZ6Hpd2GLb+Rykv28l9nW2+v2ooPiSCG/aSPZjgIo4CWjy1mMBJkNgtP23ZYnSI
-         eNHL58NDlEB6wSF+l1Jj3jDif5ViqwmxsWD4ezT9r8GzJZRr6WYua8U2DwyT/a00Luo/
-         EV2o8GXjDX/qLzr/otULyi5SepR6uyodC79r9bMC1Nb54bOofSY/avBycFCA0COth1mY
-         FKQ7OJAfBum4T3ZhLfugOrrkanO2lD2u/woMCbix/rnxhkTOM3VsiTZPaOrfxjYrOBJS
-         jvaw==
-X-Gm-Message-State: AOAM5320iaCUSMAqjS7v4Jv9zZcn0XRISh67K2KYEuRBYMrVHewUXKY5
-        YhDReGFDJjvLUIRRo2TPMdU=
-X-Google-Smtp-Source: ABdhPJx4gGcSVdoJWOaGdjTpS0w0DViuNaRPZd2s4fR9qCzvP9W0eOOB3lzkr1lpkBxDhCiXqr/B2g==
-X-Received: by 2002:a17:90a:884:: with SMTP id v4mr5493506pjc.27.1596569059764;
-        Tue, 04 Aug 2020 12:24:19 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x6sm18420473pfd.53.2020.08.04.12.24.19
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 04 Aug 2020 12:24:19 -0700 (PDT)
-Date:   Tue, 4 Aug 2020 12:24:18 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        id S1728216AbgHDT2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Aug 2020 15:28:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727930AbgHDT2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Aug 2020 15:28:09 -0400
+Received: from localhost.localdomain (unknown [194.230.155.117])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6539722BF3;
+        Tue,  4 Aug 2020 19:28:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596569289;
+        bh=sgnxQDxNFJhXCnpuKyxV9bhtCuQWJwff+93nPoham8s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0dmsVsNjWAT2k1Ta4zKuRcbRPUBQETmXvmHdU33Noci7gMhuYE6Kqexmr9wfROWGY
+         U+lAFouZwjKWDazsCqCskeLE5nTguXJzcSI54IYC1Epvr2MjBgyonUnjgm2DNSE9Ew
+         VOH5GaPCSFjNYccHAchT7iU0HuPMyJYVqcCit7mo=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Russell King <linux@armlinux.org.uk>,
+        Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Simtec Linux Team <linux@simtec.co.uk>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Tomasz Figa <tomasz.figa@gmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        patches@opensource.cirrus.com, linux-clk@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Cc:     Sergio Prado <sergio.prado@e-labworks.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sylwester Nawrocki <snawrocki@kernel.org>,
+        Cedric Roux <sed@free.fr>, Lihua Yao <ylhuajnu@outlook.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 5.7 000/116] 5.7.13-rc3 review
-Message-ID: <20200804192418.GD186129@roeck-us.net>
-References: <20200804085233.484875373@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200804085233.484875373@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Subject: [PATCH v2 08/13] ARM: s3c24xx: fix missing system reset
+Date:   Tue,  4 Aug 2020 21:26:49 +0200
+Message-Id: <20200804192654.12783-9-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200804192654.12783-1-krzk@kernel.org>
+References: <20200804192654.12783-1-krzk@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 04, 2020 at 10:53:53AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.7.13 release.
-> There are 116 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
-> Anything received after that time might be too late.
-> 
+Commit f6361c6b3880 ("ARM: S3C24XX: remove separate restart code")
+removed usage of the watchdog reset platform code in favor of the
+Samsung SoC watchdog driver.  However the latter was not selected thus
+S3C24xx platforms lost reset abilities.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 431 pass: 431 fail: 0
+Cc: <stable@vger.kernel.org>
+Fixes: f6361c6b3880 ("ARM: S3C24XX: remove separate restart code")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ arch/arm/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Guenter
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index fe95777af653..063018c387be 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -506,8 +506,10 @@ config ARCH_S3C24XX
+ 	select HAVE_S3C2410_I2C if I2C
+ 	select HAVE_S3C_RTC if RTC_CLASS
+ 	select NEED_MACH_IO_H
++	select S3C2410_WATCHDOG
+ 	select SAMSUNG_ATAGS
+ 	select USE_OF
++	select WATCHDOG
+ 	help
+ 	  Samsung S3C2410, S3C2412, S3C2413, S3C2416, S3C2440, S3C2442, S3C2443
+ 	  and S3C2450 SoCs based systems, such as the Simtec Electronics BAST
+-- 
+2.17.1
+
