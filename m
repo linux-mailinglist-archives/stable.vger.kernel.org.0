@@ -2,130 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2725823C11A
-	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 22:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5376F23C161
+	for <lists+stable@lfdr.de>; Tue,  4 Aug 2020 23:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgHDU7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Aug 2020 16:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42180 "EHLO mail.kernel.org"
+        id S1727012AbgHDVXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Aug 2020 17:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728103AbgHDU6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Aug 2020 16:58:16 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        id S1727006AbgHDVXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Aug 2020 17:23:09 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B87AB22CAE;
-        Tue,  4 Aug 2020 20:58:14 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.93)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1k340j-006HF0-Nx; Tue, 04 Aug 2020 16:58:13 -0400
-Message-ID: <20200804205813.625104551@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Tue, 04 Aug 2020 16:57:55 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>
-Subject: [for-linus][PATCH 12/17] kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
-References: <20200804205743.419135730@goodmis.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id A099520842;
+        Tue,  4 Aug 2020 21:23:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596576188;
+        bh=FUi79Z6g4j3LKocBOkO8y606YrmtOIbAhq+x5CTTBNo=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=nzPunqSGCcvCWrOS3UfFNLt+3r9GiHXOMQtWHfEax2kra8aOA4Uz1DLLHhkhRZqnK
+         LPFNed+wKnuUOmyY2tB2Bi/Jr0htuIvLF5+m6T8pXHsQYJc+1IDtiVp+pVUVHlGEoW
+         0Rmp+whXq5OFgLIh97TNxExjxQWgCPQfhaUDOwpc=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1k34Op-00HUEC-2X; Tue, 04 Aug 2020 22:23:07 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Tue, 04 Aug 2020 22:23:06 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH 5.7 000/121] 5.7.13-rc2 review
+In-Reply-To: <CAHk-=whJ=shbf-guMGZkGvxh9fVmbrvUuiWO48+PDFG7J9A9qw@mail.gmail.com>
+References: <20200804072435.385370289@linuxfoundation.org>
+ <CA+G9fYs35Eiq1QFM0MOj6Y7gC=YKaiknCPgcJpJ5NMW4Y7qnYQ@mail.gmail.com>
+ <20200804082130.GA1768075@kroah.com>
+ <CAHk-=whJ=shbf-guMGZkGvxh9fVmbrvUuiWO48+PDFG7J9A9qw@mail.gmail.com>
+User-Agent: Roundcube Webmail/1.4.5
+Message-ID: <c32ad2216ca3dd83d6d3d740512db9de@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: torvalds@linux-foundation.org, gregkh@linuxfoundation.org, naresh.kamboju@linaro.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org, ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org, stable@vger.kernel.org, arnd@arndb.de, will@kernel.org, catalin.marinas@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+On 2020-08-04 19:33, Linus Torvalds wrote:
+> On Tue, Aug 4, 2020 at 1:21 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+>> 
+>> So Linus's tree is also broken here.
+> 
+> No, there's 835d1c3a9879 ("arm64: Drop unnecessary include from
+> asm/smp.h") upstream.
 
-We found a case of kernel panic on our server. The stack trace is as
-follows(omit some irrelevant information):
+My bet is that Greg ended up with this patch backported to
+5.7, but doesn't have 62a679cb2825 ("arm64: simplify ptrauth
+initialization") as the latter isn't a fix.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000080
-  RIP: 0010:kprobe_ftrace_handler+0x5e/0xe0
-  RSP: 0018:ffffb512c6550998 EFLAGS: 00010282
-  RAX: 0000000000000000 RBX: ffff8e9d16eea018 RCX: 0000000000000000
-  RDX: ffffffffbe1179c0 RSI: ffffffffc0535564 RDI: ffffffffc0534ec0
-  RBP: ffffffffc0534ec1 R08: ffff8e9d1bbb0f00 R09: 0000000000000004
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-  R13: ffff8e9d1f797060 R14: 000000000000bacc R15: ffff8e9ce13eca00
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000080 CR3: 00000008453d0005 CR4: 00000000003606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   <IRQ>
-   ftrace_ops_assist_func+0x56/0xe0
-   ftrace_call+0x5/0x34
-   tcpa_statistic_send+0x5/0x130 [ttcp_engine]
+I don't think any of these two patches are worth backporting,
+to be honest.
 
-The tcpa_statistic_send is the function being kprobed. After analysis,
-the root cause is that the fourth parameter regs of kprobe_ftrace_handler
-is NULL. Why regs is NULL? We use the crash tool to analyze the kdump.
-
-  crash> dis tcpa_statistic_send -r
-         <tcpa_statistic_send>: callq 0xffffffffbd8018c0 <ftrace_caller>
-
-The tcpa_statistic_send calls ftrace_caller instead of ftrace_regs_caller.
-So it is reasonable that the fourth parameter regs of kprobe_ftrace_handler
-is NULL. In theory, we should call the ftrace_regs_caller instead of the
-ftrace_caller. After in-depth analysis, we found a reproducible path.
-
-  Writing a simple kernel module which starts a periodic timer. The
-  timer's handler is named 'kprobe_test_timer_handler'. The module
-  name is kprobe_test.ko.
-
-  1) insmod kprobe_test.ko
-  2) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
-  3) echo 0 > /proc/sys/kernel/ftrace_enabled
-  4) rmmod kprobe_test
-  5) stop step 2) kprobe
-  6) insmod kprobe_test.ko
-  7) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
-
-We mark the kprobe as GONE but not disarm the kprobe in the step 4).
-The step 5) also do not disarm the kprobe when unregister kprobe. So
-we do not remove the ip from the filter. In this case, when the module
-loads again in the step 6), we will replace the code to ftrace_caller
-via the ftrace_module_enable(). When we register kprobe again, we will
-not replace ftrace_caller to ftrace_regs_caller because the ftrace is
-disabled in the step 3). So the step 7) will trigger kernel panic. Fix
-this problem by disarming the kprobe when the module is going away.
-
-Link: https://lkml.kernel.org/r/20200728064536.24405-1-songmuchun@bytedance.com
-
-Cc: stable@vger.kernel.org
-Fixes: ae6aa16fdc16 ("kprobes: introduce ftrace based optimization")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/kprobes.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 4a904cc56d68..07bf03fcf574 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2113,6 +2113,13 @@ static void kill_kprobe(struct kprobe *p)
- 	 * the original probed function (which will be freed soon) any more.
- 	 */
- 	arch_remove_kprobe(p);
-+
-+	/*
-+	 * The module is going away. We should disarm the kprobe which
-+	 * is using ftrace.
-+	 */
-+	if (kprobe_ftrace(p))
-+		disarm_kprobe_ftrace(p);
- }
- 
- /* Disable one kprobe */
+         M.
 -- 
-2.26.2
-
-
+Jazz is not dead. It just smells funny...
