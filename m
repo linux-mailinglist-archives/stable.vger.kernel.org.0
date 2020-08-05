@@ -2,118 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC4E23D2A7
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:15:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E790A23D1AF
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbgHEUOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 16:14:45 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:36627 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726609AbgHEQVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 12:21:11 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 93A4B5C010D;
-        Wed,  5 Aug 2020 10:33:16 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 05 Aug 2020 10:33:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=C
-        R4YatWMpWxQKBesXUUIF5dUX3OG0y4jCv8eJKqFZWk=; b=odO86XUdUjtHKhRAc
-        f1D70hSFiswPF8RAgyGwL8HN/PdtcA3zlWVuqlCfEPw4kkj5aoG/WIyIc75BgwWt
-        J7nWxlgeDetyKZv9nxLdo4mHmNc8GQQ+rRXvpWD7l31/7QB0gfFIOfAEkljTCOBd
-        JXgxb1URgCwf0Md+6rwgGc+TMngqG/I5GX3rcBbVcfABpBAWdQZkQfF+OAU0a3dX
-        L7Mywwvi6Q1bTH/n/E8QSMeS4r9Sdxtp8emV+cxTFsgGsNkkGoAYTJNzqMTRZgGA
-        P2COs7MYFNHKSf6Mkx7VcYhjls5xm4pNcRKVyRlZVBR+JTXjiPlCY6lm0PAi9ek5
-        665rg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=CR4YatWMpWxQKBesXUUIF5dUX3OG0y4jCv8eJKqFZ
-        Wk=; b=s3q/MpcaBcwJEQ5wdhLBCbK6IYjcBNO7xDBUhqB5fPHHxtmIKa1vl05wL
-        fU8z47oNJ+pXAw3cOXKIy3MzAZ7ilwHHzkA2zm50N4ITiCceeFg0r/PZU8R3sG/r
-        VpLLZ9qjina8yPpRmixhH6YFWC8xrm7KrkQf7zG+OB7RCUEQScJMcmdJSra6sk2c
-        WzTlxXFJ7o3hcDATdWHlWbrYdO6+KGh/lP4JeQ4St7pteXC1no5RHGoA48Nb+RRJ
-        FPqdMDdmJfbnuJrPRSWjQVyiOgTEHQOXOJY+eY/TL5Y7GfX4MUgkbslDyVzoScMn
-        5dZ+4TO05tlDlZLUdnFeXCenvZZZw==
-X-ME-Sender: <xms:LMMqX-EpktiCLPHxtaGGMkWyt9ZO3naQYjp7IZulaI2mN4MI092UFw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrjeekgdektdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevtdeile
-    euteeggefgueefhfevgfdttefgtefgtddvgeejheeiuddvtdekffehffenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:LMMqX_UWPolgm27gWxkx9woKuquNbKkwsocDnEA4vBeSreZPJxqUNw>
-    <xmx:LMMqX4I8TM-dJZRUs3O1AiP8Dl3BFdVosRv7xu6L5c_scaoEC4JHeQ>
-    <xmx:LMMqX4H7jYpnJPEsSZS2_O3T8Rq6R8X1ZJkRX9IP0RZBybprbYwQxA>
-    <xmx:LMMqX9enf7fHN3cQCTJD5vaGyLriyKPePKxOVoBC1gYXlwjO_RSTqA>
+        id S1727815AbgHEUFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 16:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727801AbgHEQge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 12:36:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 96DFD30600B1;
-        Wed,  5 Aug 2020 10:33:15 -0400 (EDT)
-Date:   Wed, 5 Aug 2020 16:33:28 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc:     Adam Ford <aford173@gmail.com>, stable <stable@vger.kernel.org>,
-        Adam Ford-BE <aford@beaconembedded.com>
-Subject: Re: [PATCH] omapfb: dss: Fix max fclk divider for omap36xx
-Message-ID: <20200805143328.GD2154236@kroah.com>
-References: <20200709121232.9827-1-aford173@gmail.com>
- <CAHCN7x+crwfE4pfufad_WEUhiJQXccSZHot+YNDZzZKvqhrmWA@mail.gmail.com>
- <86992356-b902-d7da-ffd7-e8b98f9252fd@ti.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A5522313E;
+        Wed,  5 Aug 2020 14:34:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596638069;
+        bh=gDP4cNqSVT6Y18LAsqey+eKbm0Unv/hgfGjP95S5Eik=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1R1euXRY6Zz0q5Rlbv0hbqXsHAaYISrTkhQXsGeeuWtfTBpae74z/GYpgDhHEyT3R
+         dqvSiM0QHAPhpdurv8I1b617s+qeRrMvPCFZWNM1VqrONI6+OYFKE6h0zg9vRmGPBP
+         tW+NhV2t4wBJShDe8uD+Mz+hOqG+Mxiom8CqfRbo=
+Date:   Wed, 5 Aug 2020 16:34:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Lorenz Bauer <lmb@cloudflare.com>
+Cc:     stable@vger.kernel.org, bpf@vger.kernel.org,
+        kernel-team@cloudflare.com, Alexei Starovoitov <ast@kernel.org>
+Subject: Re: [PATCH stable-5.4.y] bpf: sockmap: Require attach_bpf_fd when
+ detaching a program
+Message-ID: <20200805143446.GE2154236@kroah.com>
+References: <20200804084747.42530-1-lmb@cloudflare.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <86992356-b902-d7da-ffd7-e8b98f9252fd@ti.com>
+In-Reply-To: <20200804084747.42530-1-lmb@cloudflare.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 04, 2020 at 04:19:54PM +0300, Tomi Valkeinen wrote:
-> On 04/08/2020 16:13, Adam Ford wrote:
-> > 
-> > 
-> > On Thu, Jul 9, 2020 at 7:12 AM Adam Ford <aford173@gmail.com <mailto:aford173@gmail.com>> wrote:
-> > 
-> >     There appears to be a timing issue where using a divider of 32 breaks
-> >     the DSS for OMAP36xx despite the TRM stating 32 is a valid
-> >     number.  Through experimentation, it appears that 31 works.
-> > 
-> >     This same fix was issued for kernels 4.5+.  However, between
-> >     kernels 4.4 and 4.5, the directory structure was changed when the
-> >     dss directory was moved inside the omapfb directory. That broke the
-> >     patch on kernels older than 4.5, because it didn't permit the patch
-> >     to apply cleanly for 4.4 and older.
-> > 
-> >     A similar patch was applied to the 3.16 kernel already, but not to 4.4.
-> >     Commit 4b911101a5cd ("drm/omap: fix max fclk divider for omap36xx") is
-> >     on the 3.16 stable branch with notes from Ben about the path change.
-> > 
-> >     Since this was applied for 3.16 already, this patch is for kernels
-> >     3.17 through 4.4 only.
-> > 
-> >     Fixes: f7018c213502 ("video: move fbdev to drivers/video/fbdev")
-> > 
-> >     Cc: <stable@vger.kernel.org <mailto:stable@vger.kernel.org>> #3.17 - 4.4
-> >     CC: <tomi.valkeinen@ti.com <mailto:tomi.valkeinen@ti.com>>
-> >     Signed-off-by: Adam Ford <aford173@gmail.com <mailto:aford173@gmail.com>>
-> > 
-> > 
-> > Tomi,
-> > 
-> > Can you comment on this?  The 4.4 is still waiting for this fix.  The other branches are fixed.
+On Tue, Aug 04, 2020 at 09:47:47AM +0100, Lorenz Bauer wrote:
+> commit bb0de3131f4c60a9bf976681e0fe4d1e55c7a821 upstream.
 > 
-> Looks good to me.
+> The sockmap code currently ignores the value of attach_bpf_fd when
+> detaching a program. This is contrary to the usual behaviour of
+> checking that attach_bpf_fd represents the currently attached
+> program.
 > 
-> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Ensure that attach_bpf_fd is indeed the currently attached
+> program. It turns out that all sockmap selftests already do this,
+> which indicates that this is unlikely to cause breakage.
+> 
+> Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+> Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> Link: https://lore.kernel.org/bpf/20200629095630.7933-5-lmb@cloudflare.com
+> ---
+> The 5.4 tree needs a dedicated backport, since some headers have
+> changed sufficiently to cause the patch to fail. bpf_prog_detach
+> needs further massaging to pass the correct program type to
+> sock_map_prog_detach. Please queue this patch together with
+> commit f43cb0d672aa ("selftests: bpf: Fix detach from sockmap tests").
 
-I don't seem to have the original of this anymore, can someone please
-resend it?
-
-thanks,
+Thanks for the backport, now queued up.
 
 greg k-h
