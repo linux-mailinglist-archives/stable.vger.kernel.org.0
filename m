@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 653F923D22B
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9415A23D218
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727045AbgHEUJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 16:09:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49786 "EHLO mail.kernel.org"
+        id S1729001AbgHEUJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 16:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726899AbgHEQcP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 12:32:15 -0400
+        id S1726762AbgHEQce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 12:32:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDCC22336F;
-        Wed,  5 Aug 2020 15:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 816DB2336D;
+        Wed,  5 Aug 2020 15:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596642753;
-        bh=rrwU+IeLgHsbPSg+A1OKnWuzb6x6ildPNCaamZLKvhg=;
+        s=default; t=1596642756;
+        bh=spc1X6ooR2qi3Jvt+dlx7hBKDUVxVkK3j/CNkkP9+r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fx9HMKw1hyYQZ16mmTraPrBzHACn1OuNqTTLW02lI7AweYz5mJvrbvvqg5L6DH7h+
-         EuyNFpm0ADVMz05z+pY5B15dQhKhL5+kTnbEmAVCIcBMsnCfz99/KdKDKnjyAGPEOe
-         m6VWxPkIoPAtS4PQ/leRJkHA56sOQj2t6SLT1x0A=
+        b=H8918TWw7QcmUmP6JFo+D2swOSPZafy5XbSNGbGCnl79ADZ9SM3wQMo4tF3zDtxvX
+         15D/rRT693YiEUwSxNEa6cLUZPzVb500I4Xa5HMjUkPuG7SktDz5Q95hGDMqS36qdL
+         JMaJFSEEfDnw7+jBsZt9iWxAOp83l2R9F0W6y0/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 5/6] random32: move the pseudo-random 32-bit definitions to prandom.h
-Date:   Wed,  5 Aug 2020 17:52:32 +0200
-Message-Id: <20200805153507.225797181@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.7 6/6] [PATCH] arm64: Workaround circular dependency in pointer_auth.h
+Date:   Wed,  5 Aug 2020 17:52:33 +0200
+Message-Id: <20200805153507.271067111@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200805153506.978105994@linuxfoundation.org>
 References: <20200805153506.978105994@linuxfoundation.org>
@@ -44,213 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit c0842fbc1b18c7a044e6ff3e8fa78bfa822c7d1a upstream.
+With the backport of f227e3ec3b5c ("random32: update the net random
+state on interrupt and activity") and its associated fixes, the
+arm64 build explodes early:
 
-The addition of percpu.h to the list of includes in random.h revealed
-some circular dependencies on arm64 and possibly other platforms.  This
-include was added solely for the pseudo-random definitions, which have
-nothing to do with the rest of the definitions in this file but are
-still there for legacy reasons.
+In file included from ../include/linux/smp.h:67,
+                  from ../include/linux/percpu.h:7,
+                  from ../include/linux/prandom.h:12,
+                  from ../include/linux/random.h:118,
+                  from ../arch/arm64/include/asm/pointer_auth.h:6,
+                  from ../arch/arm64/include/asm/processor.h:39,
+                  from ../include/linux/mutex.h:19,
+                  from ../include/linux/kernfs.h:12,
+                  from ../include/linux/sysfs.h:16,
+                  from ../include/linux/kobject.h:20,
+                  from ../include/linux/of.h:17,
+                  from ../include/linux/irqdomain.h:35,
+                  from ../include/linux/acpi.h:13,
+                  from ../include/acpi/apei.h:9,
+                  from ../include/acpi/ghes.h:5,
+                  from ../include/linux/arm_sdei.h:8,
+                  from ../arch/arm64/kernel/asm-offsets.c:10:
+../arch/arm64/include/asm/smp.h:100:29: error: field ‘ptrauth_key’ has
+incomplete type
 
-This patch moves the pseudo-random parts to linux/prandom.h and the
-percpu.h include with it, which is now guarded by _LINUX_PRANDOM_H and
-protected against recursive inclusion.
+This is due to struct ptrauth_keys_kernel not being defined before
+we transitively include asm/smp.h from linux/random.h.
 
-A further cleanup step would be to remove this from <linux/random.h>
-entirely, and make people who use the prandom infrastructure include
-just the new header file.  That's a bit of a churn patch, but grepping
-for "prandom_" and "next_pseudo_random32" "struct rnd_state" should
-catch most users.
+Paper over it by moving the inclusion of linux/random.h *after* the
+type has been defined.
 
-But it turns out that that nice cleanup step is fairly painful, because
-a _lot_ of code currently seems to depend on the implicit include of
-<linux/random.h>, which can currently come in a lot of ways, including
-such fairly core headfers as <linux/net.h>.
-
-So the "nice cleanup" part may or may never happen.
-
-Fixes: 1c9df907da83 ("random: fix circular include dependency on arm64 after addition of percpu.h")
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/prandom.h |   78 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/random.h  |   66 ++--------------------------------------
- 2 files changed, 82 insertions(+), 62 deletions(-)
+ arch/arm64/include/asm/pointer_auth.h |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- /dev/null
-+++ b/include/linux/prandom.h
-@@ -0,0 +1,78 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
+--- a/arch/arm64/include/asm/pointer_auth.h
++++ b/arch/arm64/include/asm/pointer_auth.h
+@@ -3,7 +3,6 @@
+ #define __ASM_POINTER_AUTH_H
+ 
+ #include <linux/bitops.h>
+-#include <linux/random.h>
+ 
+ #include <asm/cpufeature.h>
+ #include <asm/memory.h>
+@@ -34,6 +33,13 @@ struct ptrauth_keys_kernel {
+ 	struct ptrauth_key apia;
+ };
+ 
 +/*
-+ * include/linux/prandom.h
-+ *
-+ * Include file for the fast pseudo-random 32-bit
-+ * generation.
++ * Only include random.h once ptrauth_keys_* structures are defined
++ * to avoid yet another circular include hell (random.h * ends up
++ * including asm/smp.h, which requires ptrauth_keys_kernel).
 + */
-+#ifndef _LINUX_PRANDOM_H
-+#define _LINUX_PRANDOM_H
++#include <linux/random.h>
 +
-+#include <linux/types.h>
-+#include <linux/percpu.h>
-+
-+u32 prandom_u32(void);
-+void prandom_bytes(void *buf, size_t nbytes);
-+void prandom_seed(u32 seed);
-+void prandom_reseed_late(void);
-+
-+struct rnd_state {
-+	__u32 s1, s2, s3, s4;
-+};
-+
-+DECLARE_PER_CPU(struct rnd_state, net_rand_state);
-+
-+u32 prandom_u32_state(struct rnd_state *state);
-+void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
-+void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
-+
-+#define prandom_init_once(pcpu_state)			\
-+	DO_ONCE(prandom_seed_full_state, (pcpu_state))
-+
-+/**
-+ * prandom_u32_max - returns a pseudo-random number in interval [0, ep_ro)
-+ * @ep_ro: right open interval endpoint
-+ *
-+ * Returns a pseudo-random number that is in interval [0, ep_ro). Note
-+ * that the result depends on PRNG being well distributed in [0, ~0U]
-+ * u32 space. Here we use maximally equidistributed combined Tausworthe
-+ * generator, that is, prandom_u32(). This is useful when requesting a
-+ * random index of an array containing ep_ro elements, for example.
-+ *
-+ * Returns: pseudo-random number in interval [0, ep_ro)
-+ */
-+static inline u32 prandom_u32_max(u32 ep_ro)
-+{
-+	return (u32)(((u64) prandom_u32() * ep_ro) >> 32);
-+}
-+
-+/*
-+ * Handle minimum values for seeds
-+ */
-+static inline u32 __seed(u32 x, u32 m)
-+{
-+	return (x < m) ? x + m : x;
-+}
-+
-+/**
-+ * prandom_seed_state - set seed for prandom_u32_state().
-+ * @state: pointer to state structure to receive the seed.
-+ * @seed: arbitrary 64-bit value to use as a seed.
-+ */
-+static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
-+{
-+	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
-+
-+	state->s1 = __seed(i,   2U);
-+	state->s2 = __seed(i,   8U);
-+	state->s3 = __seed(i,  16U);
-+	state->s4 = __seed(i, 128U);
-+}
-+
-+/* Pseudo random number generator from numerical recipes. */
-+static inline u32 next_pseudo_random32(u32 seed)
-+{
-+	return seed * 1664525 + 1013904223;
-+}
-+
-+#endif
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -11,7 +11,6 @@
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/once.h>
--#include <asm/percpu.h>
- 
- #include <uapi/linux/random.h>
- 
-@@ -111,63 +110,12 @@ declare_get_random_var_wait(long)
- 
- unsigned long randomize_page(unsigned long start, unsigned long range);
- 
--u32 prandom_u32(void);
--void prandom_bytes(void *buf, size_t nbytes);
--void prandom_seed(u32 seed);
--void prandom_reseed_late(void);
--
--struct rnd_state {
--	__u32 s1, s2, s3, s4;
--};
--
--DECLARE_PER_CPU(struct rnd_state, net_rand_state);
--
--u32 prandom_u32_state(struct rnd_state *state);
--void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
--void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
--
--#define prandom_init_once(pcpu_state)			\
--	DO_ONCE(prandom_seed_full_state, (pcpu_state))
--
--/**
-- * prandom_u32_max - returns a pseudo-random number in interval [0, ep_ro)
-- * @ep_ro: right open interval endpoint
-- *
-- * Returns a pseudo-random number that is in interval [0, ep_ro). Note
-- * that the result depends on PRNG being well distributed in [0, ~0U]
-- * u32 space. Here we use maximally equidistributed combined Tausworthe
-- * generator, that is, prandom_u32(). This is useful when requesting a
-- * random index of an array containing ep_ro elements, for example.
-- *
-- * Returns: pseudo-random number in interval [0, ep_ro)
-- */
--static inline u32 prandom_u32_max(u32 ep_ro)
--{
--	return (u32)(((u64) prandom_u32() * ep_ro) >> 32);
--}
--
- /*
-- * Handle minimum values for seeds
-- */
--static inline u32 __seed(u32 x, u32 m)
--{
--	return (x < m) ? x + m : x;
--}
--
--/**
-- * prandom_seed_state - set seed for prandom_u32_state().
-- * @state: pointer to state structure to receive the seed.
-- * @seed: arbitrary 64-bit value to use as a seed.
-+ * This is designed to be standalone for just prandom
-+ * users, but for now we include it from <linux/random.h>
-+ * for legacy reasons.
-  */
--static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
--{
--	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
--
--	state->s1 = __seed(i,   2U);
--	state->s2 = __seed(i,   8U);
--	state->s3 = __seed(i,  16U);
--	state->s4 = __seed(i, 128U);
--}
-+#include <linux/prandom.h>
- 
- #ifdef CONFIG_ARCH_RANDOM
- # include <asm/archrandom.h>
-@@ -210,10 +158,4 @@ static inline bool __init arch_get_rando
- }
- #endif
- 
--/* Pseudo random number generator from numerical recipes. */
--static inline u32 next_pseudo_random32(u32 seed)
--{
--	return seed * 1664525 + 1013904223;
--}
--
- #endif /* _LINUX_RANDOM_H */
+ static inline void ptrauth_keys_init_user(struct ptrauth_keys_user *keys)
+ {
+ 	if (system_supports_address_auth()) {
 
 
