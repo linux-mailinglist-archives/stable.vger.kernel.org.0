@@ -2,90 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BCCA23C9A1
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B87C23C9C2
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 12:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728350AbgHEJzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 05:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727972AbgHEJy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 05:54:27 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D37220792;
-        Wed,  5 Aug 2020 09:54:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596621261;
-        bh=YHxmFzC+i8NL+lLlcDEA7V7cryScK1yFI5iWFnAXZ7g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yLj59uDj6wytOjCdhqd+HC6siugHCSEu23VMBzTdtUZ2EEuXshboHtaSY8l4owDyP
-         RRV3IZR/VcJQC+2VUEqg/wjBdOzqlL/dk8HbXp7xpK4BYLjJkiYKGCPJKIJT3HZKPI
-         nBWmLihJP2ftAFhii9CO7s3GybtPgKavhhEcod+o=
-Date:   Wed, 5 Aug 2020 11:54:39 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH 5.7 000/121] 5.7.13-rc2 review
-Message-ID: <20200805095439.GB1634853@kroah.com>
-References: <20200804072435.385370289@linuxfoundation.org>
- <CA+G9fYs35Eiq1QFM0MOj6Y7gC=YKaiknCPgcJpJ5NMW4Y7qnYQ@mail.gmail.com>
- <20200804082130.GA1768075@kroah.com>
- <CAHk-=whJ=shbf-guMGZkGvxh9fVmbrvUuiWO48+PDFG7J9A9qw@mail.gmail.com>
- <c32ad2216ca3dd83d6d3d740512db9de@kernel.org>
+        id S1726212AbgHEKHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 06:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40776 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726175AbgHEKGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 06:06:48 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37326C06174A;
+        Wed,  5 Aug 2020 03:06:21 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id a14so15105371edx.7;
+        Wed, 05 Aug 2020 03:06:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=o31JkXgtZ4KmGQwREdAQtnazhwrTeZbjodMq4WKIsR8=;
+        b=jqaR06xc5HtUs7MVw/5Go/HLs96oAV0bc+H9PNL0c4dqzWihlBfFj2W0bBeN4pyIXg
+         smJeD9YmR9+XlUd8J/Ei0PdM3Ze4oSzB7TokvOG9Tr3rKMQgurDOVBM+nULiBDNoYh1b
+         YMnM5huvG3CTVU502QwXy5/tjiRaXd9o0lm2tohK/oTvWzfJnSWQcIA61P5mg2ZxLkls
+         jooEmRS9H8oD+rAMH+C6x22hMIjQqciHjoxhFiDlfUhtkl9StEtwPxy2xmj1IeQILcFz
+         JOqTFlHe/Rh3kvmPTwXbN8iLy6kB7r80CSXYYS9Y8SHgndKnBHkXqPRmkFjQ4gg+zaYe
+         QbtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=o31JkXgtZ4KmGQwREdAQtnazhwrTeZbjodMq4WKIsR8=;
+        b=TCtbq0hrYjY8WBPa/k+6+K6sMT6NzAGNy81pOHd/3Hj6p35+7LYnNn123YOqi1rL/y
+         fX0gbXug0U2lh0u9MEdQX8xy1/zkqT4OENO6D6Tw+Uqp2exyk2vrRJ8hWR9kqk8CVKpQ
+         dUWQQN2sp2S4GO06SUBv8fP3J52IhPreXa4V7y6SX2xZOQiUpQ+Vq5naPgAHg3PS60J+
+         qtm2Lde3ks3sBk5gU0/Jq6kpQ1qUxtyea2T1ppG97ObtCkcL/19EDpAEU2ai2ZVHpfPb
+         9n5YMKqTNpmg35C779PIcvSyLZJH7nhkOjipJzb+KV/YF7/HkEmdN09wP1J4MOMYeEWP
+         wN3w==
+X-Gm-Message-State: AOAM533TS60ZUUaRDxmqhh+vpZz21upe/0xUQ7zh1wqBUSNFvpT3fG3C
+        Fvm+ZXRBxQnoP/mdPUBwzng7eXD3mczJUaOW
+X-Google-Smtp-Source: ABdhPJwnKcUuCTNXc5gdVniToDxdlNfB7kNhTTGfx/JjK3WYYdgxPAcKRikC/CVdFUlzK7zOtFz24w==
+X-Received: by 2002:a05:6402:1758:: with SMTP id v24mr2110733edx.274.1596621979408;
+        Wed, 05 Aug 2020 03:06:19 -0700 (PDT)
+Received: from ci00583-linux.xsens-tech.local (2001-1c06-0702-ba00-8940-6ad0-42ef-6a6f.cable.dynamic.v6.ziggo.nl. [2001:1c06:702:ba00:8940:6ad0:42ef:6a6f])
+        by smtp.googlemail.com with ESMTPSA id f20sm1194723ejq.60.2020.08.05.03.06.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2020 03:06:18 -0700 (PDT)
+From:   Patrick Riphagen <ppriphagen@gmail.com>
+X-Google-Original-From: Patrick Riphagen <patrick.riphagen@xsens.com>
+To:     stable@vger.kernel.org
+Cc:     patrick.riphagen@xsens.com, Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] USB: serial: ftdi_sio: add IDs for Xsens Mti USB converter
+Date:   Wed,  5 Aug 2020 12:05:57 +0200
+Message-Id: <20200805100558.18593-1-patrick.riphagen@xsens.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c32ad2216ca3dd83d6d3d740512db9de@kernel.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 04, 2020 at 10:23:06PM +0100, Marc Zyngier wrote:
-> On 2020-08-04 19:33, Linus Torvalds wrote:
-> > On Tue, Aug 4, 2020 at 1:21 AM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > > 
-> > > So Linus's tree is also broken here.
-> > 
-> > No, there's 835d1c3a9879 ("arm64: Drop unnecessary include from
-> > asm/smp.h") upstream.
-> 
-> My bet is that Greg ended up with this patch backported to
-> 5.7, but doesn't have 62a679cb2825 ("arm64: simplify ptrauth
-> initialization") as the latter isn't a fix.
-> 
-> I don't think any of these two patches are worth backporting,
-> to be honest.
+The device added has an FTDI chip inside.
+The device is used to connect Xsens USB Motion Trackers.
 
-I didn't have either of those patches, so I can try applying them to see
-if the build errors go away.  But if you don't think they should be
-applied, what should I do?
+Signed-off-by: Patrick Riphagen <patrick.riphagen@xsens.com>
+---
+ drivers/usb/serial/ftdi_sio.c     | 1 +
+ drivers/usb/serial/ftdi_sio_ids.h | 1 +
+ 2 files changed, 2 insertions(+)
 
-Here's what I did have queued up:
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index 9ad44a96dfe3..2c08cad32f1d 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -713,6 +713,7 @@ static const struct usb_device_id id_table_combined[] = {
+ 	{ USB_DEVICE(XSENS_VID, XSENS_AWINDA_STATION_PID) },
+ 	{ USB_DEVICE(XSENS_VID, XSENS_CONVERTER_PID) },
+ 	{ USB_DEVICE(XSENS_VID, XSENS_MTDEVBOARD_PID) },
++	{ USB_DEVICE(XSENS_VID, XSENS_MTIUSBCONVERTER_PID) },
+ 	{ USB_DEVICE(XSENS_VID, XSENS_MTW_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_OMNI1509) },
+ 	{ USB_DEVICE(MOBILITY_VID, MOBILITY_USB_SERIAL_PID) },
+diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
+index e8373528264c..b5ca17a5967a 100644
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -160,6 +160,7 @@
+ #define XSENS_AWINDA_DONGLE_PID 0x0102
+ #define XSENS_MTW_PID		0x0200	/* Xsens MTw */
+ #define XSENS_MTDEVBOARD_PID	0x0300	/* Motion Tracker Development Board */
++#define XSENS_MTIUSBCONVERTER_PID	0x0301	/* MTi USB converter */
+ #define XSENS_CONVERTER_PID	0xD00D	/* Xsens USB-serial converter */
+ 
+ /* Xsens devices using FTDI VID */
+-- 
+2.25.1
 
-f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
-aa54ea903abb ("ARM: percpu.h: fix build error")
-1c9df907da83 ("random: fix circular include dependency on arm64 after addition of percpu.h")
-83bdc7275e62 ("random32: remove net_rand_state from the latent entropy gcc plugin")
-c0842fbc1b18 ("random32: move the pseudo-random 32-bit definitions to prandom.h")
-
-And that caused the builds to blow up.
-
-So, what should I do here?
-
-thanks,
-
-greg k-h
