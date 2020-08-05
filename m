@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E5523CF97
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCA5C23CF94
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728870AbgHETWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 15:22:49 -0400
-Received: from mail-eopbgr770077.outbound.protection.outlook.com ([40.107.77.77]:56848
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        id S1728477AbgHETWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 15:22:47 -0400
+Received: from mail-dm6nam10on2073.outbound.protection.outlook.com ([40.107.93.73]:61664
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728360AbgHERlM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 13:41:12 -0400
+        id S1728851AbgHERlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 13:41:14 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mq4jYttRP2Y3lw+i8eyEBMDXVnwx9bTwfKF2Z94ZacZgiHy7c3pPIEty0TR5FOu8GQBJR8pEKUIvfZkKk7Sot4YG3Zur07mcVnezYWk7UVDusHubkNdbjF3bY6LxHz00TaDgmmPAlh2SBW8Kzxwy4sICC0T0q1No9X9xXYzvc0QNz0/bFYHoM2vkE1nptBoieeWrkMznSwqNd1ZB5t+6o8QJuhgockgPV4zgpRQ4wfWt/eEyHj9rDN5bUOOPWSCKEgf+8bMFtAn80rPL30LCi8i2zDZ52UEugmlDX7SxcMF/Re+SEpGCZX1MlYyyKV1C5qz+ZNg0xSEiLZfpembUBA==
+ b=U4I54Zo606C/ut2vJWhPXvvMO7Ppdve6lvL6a7qrGFwsbiqbqW9XTyb9HC7k8/RFW0l93hz5zvtYnUTpVR8hIwnu2TPKcUgPI23VVtApHvjDgNemFdlmQeC60Rd8NKS/elhNaKfPjyYa1uxBrm0U+X4g2/h09HY8Jm8oDzsheeRsF5LU2RFYlY5cTT4Rofcsd6SG6fOB9ccpw1nJY5guOhFH1XqXkXbOJFN8UmYXPdxW7qz0FPoEFKicwbKFTigNrQIG+ofdaSnG/gj85AHZQV+GyrYKMs+kXRdxTlwFJyycf+DrEImoxZW5KuLmuAMo7Vka87U2FyiCIEPid8ERqg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Q9Agzt7iNk4McnaR2qaWLxRdiBZiGx48fk24De3KGCw=;
- b=dBD5GFHdcfVV47YxuGKzhY2uCgqpCwY7pASEhn7OnAfdeQjt5ST4hnPNyWe1+LU5xODhThDwkWGJUQKy3GZMX9cJGShpx2Psagilg7YT5ujKZrFTFWgTewwSKwqKESUPZiJUiQyfmh+5I11GLafZe/bfz669pRp8cNDYddpaVoqQSTvlbeJ2U2nZKJT07XrBytaPM9jJwUA7mjEpfw1Duy4gnoBm7DzDvgCcRqVldFodWrtO56t/m83OfwLVa8d8xI2uRAXtnPWTdAfL4gtW7oPOqTP5DcXGFfjO/Saa8ODNIF6jgFZTAvDHr8ElAci6FN+WRayVnI8bJv2RdUNSMQ==
+ bh=DprzQBfuFauV2loh/P4pR3y2wnwOTpPmYmhnevmSvhA=;
+ b=Q3K2mYpJHhS0sA0/k19p/jpfDxj38zwFU0P72tyPoiNgFD9TFb1qkQZUq7NQxEp7ImqrwVwWkjGMCgeNJwQDdasdXSvylfogiChT795x+8/lLxlQBtUA3wzQXwoXMTjBYHIem9prt0zoQU1RF98Jix97e7LU6V9rat7g+j5bpcXGg21vsnqsx4huZD+XvlviaPik2WoixmDt7uZSH/KReaKLNxXw6gb4rQqEJJnz4kMIhGHuhJzfMcnA3e2wEVQ0C+Bzx5mTr4ggdNsDBbVazwuwlH/9ZSKMx4bsqMp8A/jOk1IAc+tvNxr8IW46PBZMbdn3Rdf7Iuueg9mjtG71dQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
  165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
  dmarc=permerror action=none header.from=amd.com; dkim=none (message not
@@ -26,17 +26,17 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Q9Agzt7iNk4McnaR2qaWLxRdiBZiGx48fk24De3KGCw=;
- b=hvHtM8Mez6jh2Vgp1j1vssUGaBliQvB2JPPW10e1IvXLOzz4cqZpQFqqce6q0h4HVcBiYegzktC6JMKZ9Id39MfzHHIW4KnLFs6Aj8vmiSm0onp0Y1/KqHqgKRLleljDJumHgZyTsQhrvQqRxC3xt/teWRL8hzIK2p18MjHBeZA=
-Received: from CO1PR15CA0084.namprd15.prod.outlook.com (2603:10b6:101:20::28)
- by BN7PR12MB2689.namprd12.prod.outlook.com (2603:10b6:408:29::31) with
+ bh=DprzQBfuFauV2loh/P4pR3y2wnwOTpPmYmhnevmSvhA=;
+ b=1G9w3O80Ge+xjA2efEvVoJ4bAmzbMIl720AWoQsFYwkWdfIY3Gn7as8wkx+o6XMSv9/xI2gQweC+t69YRjYjZHjUSZQEGghsGofg4xKRWmvewTUKfYdPgHZ5bD+TIHLv4JueRtjbVoipdW8bc0O6Mkg9rpyJcGB+BZU8u52lJy4=
+Received: from MWHPR02CA0011.namprd02.prod.outlook.com (2603:10b6:300:4b::21)
+ by BYAPR12MB3368.namprd12.prod.outlook.com (2603:10b6:a03:dc::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3239.17; Wed, 5 Aug
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3239.20; Wed, 5 Aug
  2020 17:41:10 +0000
-Received: from CO1NAM11FT068.eop-nam11.prod.protection.outlook.com
- (2603:10b6:101:20:cafe::c5) by CO1PR15CA0084.outlook.office365.com
- (2603:10b6:101:20::28) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3239.17 via Frontend
+Received: from CO1NAM11FT011.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:300:4b:cafe::1d) by MWHPR02CA0011.outlook.office365.com
+ (2603:10b6:300:4b::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3261.18 via Frontend
  Transport; Wed, 5 Aug 2020 17:41:10 +0000
 X-MS-Exchange-Authentication-Results: spf=none (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
@@ -45,17 +45,17 @@ X-MS-Exchange-Authentication-Results: spf=none (sender IP is 165.204.84.17)
 Received-SPF: None (protection.outlook.com: amd.com does not designate
  permitted sender hosts)
 Received: from SATLEXMB01.amd.com (165.204.84.17) by
- CO1NAM11FT068.mail.protection.outlook.com (10.13.175.142) with Microsoft SMTP
+ CO1NAM11FT011.mail.protection.outlook.com (10.13.175.186) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.20.3261.16 via Frontend Transport; Wed, 5 Aug 2020 17:41:09 +0000
-Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB01.amd.com
+Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB01.amd.com
  (10.181.40.142) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 5 Aug 2020
- 12:41:04 -0500
-Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ 12:41:05 -0500
+Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB03.amd.com
+ (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 5 Aug 2020
- 12:41:04 -0500
+ 12:41:05 -0500
 Received: from localhost.localdomain (10.180.168.240) by SATLEXMB02.amd.com
  (10.181.40.143) with Microsoft SMTP Server id 15.1.1713.5 via Frontend
  Transport; Wed, 5 Aug 2020 12:41:04 -0500
@@ -64,10 +64,10 @@ To:     <amd-gfx@lists.freedesktop.org>
 CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
         <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
         <Qingqing.Zhuo@amd.com>, <Eryk.Brol@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>, <stable@vger.kernel.org>
-Subject: [PATCH 8/9] drm/amd/display: Fix EDID parsing after resume from suspend
-Date:   Wed, 5 Aug 2020 13:40:57 -0400
-Message-ID: <20200805174058.11736-9-qingqing.zhuo@amd.com>
+        Jaehyun Chung <jaehyun.chung@amd.com>, <stable@vger.kernel.org>
+Subject: [PATCH 9/9] drm/amd/display: Blank stream before destroying HDCP session
+Date:   Wed, 5 Aug 2020 13:40:58 -0400
+Message-ID: <20200805174058.11736-10-qingqing.zhuo@amd.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200805174058.11736-1-qingqing.zhuo@amd.com>
 References: <20200805174058.11736-1-qingqing.zhuo@amd.com>
@@ -76,61 +76,66 @@ Content-Type: text/plain
 X-EOPAttributedMessage: 0
 X-MS-Office365-Filtering-HT: Tenant
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0ec91160-9ea5-4304-22f1-08d83966bd66
-X-MS-TrafficTypeDiagnostic: BN7PR12MB2689:
-X-Microsoft-Antispam-PRVS: <BN7PR12MB26890BB987CF58483792648AFB4B0@BN7PR12MB2689.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1091;
+X-MS-Office365-Filtering-Correlation-Id: 2b5ec078-2cea-4d5b-305a-08d83966bd74
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3368:
+X-Microsoft-Antispam-PRVS: <BYAPR12MB33680A9AF58D8BADF4F741B1FB4B0@BYAPR12MB3368.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1850;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kGGYivWKKlIEWGhA98DmnubVK/UGAIScSD6ovmB6OX/I2pzcXldsudfnwoNn97AM8CNZFhnelfl2yEP9pi3j6UBgAPC3tiJ6LRkDmWe9bcSUEbFz8+eaIPGTxJtATs3DkjPjtNbsSiLnBRkM8cL6XWnFirB01MeD2/SGUycwOLkjOscOeL9DmM18ezAQOSyW1mQd09ctmxloUqCatPjPEBqnQgz7ouvjXmUn8m+WPGApKxaC/rz8JPdP+pAi0HB5IhJLF7KaA62dcvmZ4hwSE3pgFUGWgACH1W4iStDjrufWshtLaXmV3KiiPXLaMyRQQBHqjm8xAzJtY1Ed+bEsYyGJIUDLB09NLd2mTAErA8FCt3RV1Bxnt4lU0pDluE7gtA2XVmzD62yXsBkHn02S/Q==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SATLEXMB01.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFTY:;SFS:(4636009)(39860400002)(376002)(346002)(136003)(396003)(46966005)(8676002)(2616005)(82310400002)(1076003)(47076004)(82740400003)(70206006)(6666004)(83380400001)(6916009)(316002)(15650500001)(186003)(5660300002)(36756003)(86362001)(81166007)(54906003)(26005)(478600001)(426003)(356005)(2906002)(4326008)(8936002)(336012)(70586007)(44832011);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 0f2ncPeyP3SorbljQS4yqocxchyEdgXl/YL8xIXVrgSB/O9pfKTvkMbWd2ukHV5gO8gayN95oTH+J85UpYFsYQm3TUrkSEMO+XKHfIl6GVlhg6PHmQT3cHWguj2+gSBBkFb3wmuF/GGiQphk2GI6mlEpdxVL0QKosX0GLYZ+tb3kPRh6mcY5M1V1UkLJAgVbx5FzDAjYV4HxLpVFN0egl7SKcK95cd0IwyqVsJMhPfyrbp4l289cESijwg3s3GzFZCU4SZl1l8bNwjC1ICpD+339d33wyCTGiIPxFyAwpbLqY07VQnWbQtHXs/rX1mQu5iENPoJ/9vnNtqiS16ADdb6rsEy9YgmvEnFX1bGgDA3aF9hJH5PSNhFsFUHEebKAUs15bspppcaMMxQ8KIp2dg==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SATLEXMB01.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFTY:;SFS:(4636009)(136003)(376002)(396003)(346002)(39860400002)(46966005)(26005)(8676002)(70586007)(82310400002)(6916009)(36756003)(356005)(70206006)(83380400001)(81166007)(186003)(44832011)(478600001)(2616005)(4326008)(5660300002)(426003)(336012)(1076003)(316002)(82740400003)(8936002)(54906003)(47076004)(86362001)(6666004)(2906002);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2020 17:41:09.8330
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2020 17:41:09.9171
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0ec91160-9ea5-4304-22f1-08d83966bd66
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2b5ec078-2cea-4d5b-305a-08d83966bd74
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB01.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT068.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT011.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR12MB2689
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3368
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+From: Jaehyun Chung <jaehyun.chung@amd.com>
 
 [Why]
-Resuming from suspend, CEA blocks from EDID are not parsed and no video
-modes can support YUV420. When this happens, output bpc cannot go over
-8-bit with 4K modes on HDMI.
+Stream disable sequence incorretly destroys HDCP session while stream is
+not blanked and while audio is not muted. This sequence causes a flash
+of corruption during mode change and an audio click.
 
 [How]
-In amdgpu_dm_update_connector_after_detect(), drm_add_edid_modes() is
-called after drm_connector_update_edid_property() to fully parse EDID
-and update display info.
+Change sequence to blank stream before destroying HDCP session. Audio will
+also be muted by blanking the stream.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Signed-off-by: Jaehyun Chung <jaehyun.chung@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
 Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 53bf8f60d30c..bfb06c168fba 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2202,6 +2202,7 @@ void amdgpu_dm_update_connector_after_detect(
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 4bd6e03a7ef3..117d8aaf2a9b 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3286,12 +3286,11 @@ void core_link_disable_stream(struct pipe_ctx *pipe_ctx)
+ 		core_link_set_avmute(pipe_ctx, true);
+ 	}
  
- 			drm_connector_update_edid_property(connector,
- 							   aconnector->edid);
-+			drm_add_edid_modes(connector, aconnector->edid);
++	dc->hwss.blank_stream(pipe_ctx);
+ #if defined(CONFIG_DRM_AMD_DC_HDCP)
+ 	update_psp_stream_config(pipe_ctx, true);
+ #endif
  
- 			if (aconnector->dc_link->aux_mode)
- 				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
+-	dc->hwss.blank_stream(pipe_ctx);
+-
+ 	if (pipe_ctx->stream->signal == SIGNAL_TYPE_DISPLAY_PORT_MST)
+ 		deallocate_mst_payload(pipe_ctx);
+ 
 -- 
 2.17.1
 
