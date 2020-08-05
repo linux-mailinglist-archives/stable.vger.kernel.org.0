@@ -2,90 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B80B923D2D5
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF06923D1AD
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727998AbgHEUQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 16:16:42 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:4475 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725946AbgHEQS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 12:18:56 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f2ad5a50000>; Wed, 05 Aug 2020 08:52:05 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 05 Aug 2020 08:52:55 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 05 Aug 2020 08:52:55 -0700
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 5 Aug
- 2020 15:52:55 +0000
-Received: from [127.0.1.1] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 5 Aug 2020 15:52:46 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.7 000/116] 5.7.13-rc3 review
-In-Reply-To: <20200804085233.484875373@linuxfoundation.org>
-References: <20200804085233.484875373@linuxfoundation.org>
-X-NVConfidentiality: public
+        id S1726878AbgHEUE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 16:04:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50662 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726402AbgHEQgf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 12:36:35 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF2662339E;
+        Wed,  5 Aug 2020 15:53:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596642789;
+        bh=fshGYLcQsSw3oRUdVr523hsrXJ+lrjE7n7VUtXtO3IQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FA+cFCpJByyCLrQaA+xjz7yCg5InSp2Py9rUpYcTsCrRLCFPVpyk09wg1gZqlv0j8
+         braYbQuZUqv0MQmtrxEkHIlsPgmV9i2psI96wuJPI8XSik46ve4qcVpoX+EUBBg8Ig
+         v/YYLAiaR9ClL29w6gbr5Imu4MbmX2uum33l2hOI=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>, Willy Tarreau <w@1wt.eu>
+Subject: [PATCH 4.19 1/6] random32: update the net random state on interrupt and activity
+Date:   Wed,  5 Aug 2020 17:53:00 +0200
+Message-Id: <20200805153505.558718245@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200805153505.472594546@linuxfoundation.org>
+References: <20200805153505.472594546@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Message-ID: <42f62b34e93b43a58ec90b6f8b973bae@HQMAIL107.nvidia.com>
-Date:   Wed, 5 Aug 2020 15:52:46 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1596642725; bh=sxEZcaVXjMbb5T+zPk/l8OYNGMH4JgwgvPIIgS+SqFM=;
-        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
-         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
-         Content-Transfer-Encoding;
-        b=Vqi+FyZJjQBSheaQUnjYsCMBlm9d2IWw/ogxPaPW60X/sWSqsocFZi1qxfjMxbQsL
-         O+LwOwgPGaVok7SRWi8u4DQ7b6Qb9waCtCgQ4AKxIZr7FT5ep+ftdwBnXyASwVp4ZA
-         AY2aIlx7sM5bowEeMsVSMYI3rx4qmnME7z3i3KNREPgfainhNeLRijyAWbR3iOTQLX
-         LmcEVUqx5ZeL4BvIu2bziz/8InRSWb8Q1MLZWe3GmvGhVJevzTMrTXfkKgCJ1c3ma7
-         GUvu/BkwnRoEgxpy3dwnj8WH+Gfk2Xv5yyqgnNpQ+PXuWcTtaeRZbD8ty29Air60vY
-         1vNmB19YBATsA==
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 04 Aug 2020 10:53:53 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.7.13 release.
-> There are 116 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.13-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+From: Willy Tarreau <w@1wt.eu>
 
-All tests passing for Tegra ...
+commit f227e3ec3b5cad859ad15666874405e8c1bbc1d4 upstream.
 
-Test results for stable-v5.7:
-    11 builds:	11 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    56 tests:	56 pass, 0 fail
+This modifies the first 32 bits out of the 128 bits of a random CPU's
+net_rand_state on interrupt or CPU activity to complicate remote
+observations that could lead to guessing the network RNG's internal
+state.
 
-Linux version:	5.7.13-rc3-gd3223abaf6fd
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+Note that depending on some network devices' interrupt rate moderation
+or binding, this re-seeding might happen on every packet or even almost
+never.
 
-Jon
+In addition, with NOHZ some CPUs might not even get timer interrupts,
+leaving their local state rarely updated, while they are running
+networked processes making use of the random state.  For this reason, we
+also perform this update in update_process_times() in order to at least
+update the state when there is user or system activity, since it's the
+only case we care about.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/char/random.c  |    1 +
+ include/linux/random.h |    3 +++
+ kernel/time/timer.c    |    8 ++++++++
+ lib/random32.c         |    2 +-
+ 4 files changed, 13 insertions(+), 1 deletion(-)
+
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1257,6 +1257,7 @@ void add_interrupt_randomness(int irq, i
+ 
+ 	fast_mix(fast_pool);
+ 	add_interrupt_bench(cycles);
++	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
+ 
+ 	if (unlikely(crng_init == 0)) {
+ 		if ((fast_pool->count >= 64) &&
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -9,6 +9,7 @@
+ 
+ #include <linux/list.h>
+ #include <linux/once.h>
++#include <linux/percpu.h>
+ 
+ #include <uapi/linux/random.h>
+ 
+@@ -115,6 +116,8 @@ struct rnd_state {
+ 	__u32 s1, s2, s3, s4;
+ };
+ 
++DECLARE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
++
+ u32 prandom_u32_state(struct rnd_state *state);
+ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -44,6 +44,7 @@
+ #include <linux/sched/debug.h>
+ #include <linux/slab.h>
+ #include <linux/compat.h>
++#include <linux/random.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/unistd.h>
+@@ -1654,6 +1655,13 @@ void update_process_times(int user_tick)
+ 	scheduler_tick();
+ 	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
+ 		run_posix_cpu_timers(p);
++
++	/* The current CPU might make use of net randoms without receiving IRQs
++	 * to renew them often enough. Let's update the net_rand_state from a
++	 * non-constant value that's not affine to the number of calls to make
++	 * sure it's updated when there's some activity (we don't care in idle).
++	 */
++	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
+ }
+ 
+ /**
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -48,7 +48,7 @@ static inline void prandom_state_selftes
+ }
+ #endif
+ 
+-static DEFINE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
++DEFINE_PER_CPU(struct rnd_state, net_rand_state) __latent_entropy;
+ 
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
+
+
