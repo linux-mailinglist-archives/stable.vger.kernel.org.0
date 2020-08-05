@@ -2,118 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7F823D1D2
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B80B923D2D5
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729693AbgHEUGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 16:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726987AbgHEQel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 12:34:41 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6BF823382;
-        Wed,  5 Aug 2020 15:52:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596642779;
-        bh=POF6DDiHm8atPTslFXz0sLdllxBBkRKfAFe2q0FnobE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gg+itV+r90Y6NJdDD0QLTkJ1Kak0FRXZ1l7TGvxe1R8a9uw9RgtkSHAPofHqaJw/Y
-         1kfFJYrMLT50fYMskW4NFimBq87Cw1pu+F4LC7g7AYzxmbGq/dzaG39dOw2fBK0ZxZ
-         0/Hc0BV0vhJVkOApRnPkaVwf8x0y2Q6nM4bXMomU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
-        Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>
-Subject: [PATCH 5.4 8/9] selftests: bpf: Fix detach from sockmap tests
-Date:   Wed,  5 Aug 2020 17:52:45 +0200
-Message-Id: <20200805153507.423308944@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200805153507.053638231@linuxfoundation.org>
-References: <20200805153507.053638231@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727998AbgHEUQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 16:16:42 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:4475 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725946AbgHEQS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 12:18:56 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f2ad5a50000>; Wed, 05 Aug 2020 08:52:05 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 05 Aug 2020 08:52:55 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 05 Aug 2020 08:52:55 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 5 Aug
+ 2020 15:52:55 +0000
+Received: from [127.0.1.1] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 5 Aug 2020 15:52:46 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.7 000/116] 5.7.13-rc3 review
+In-Reply-To: <20200804085233.484875373@linuxfoundation.org>
+References: <20200804085233.484875373@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <42f62b34e93b43a58ec90b6f8b973bae@HQMAIL107.nvidia.com>
+Date:   Wed, 5 Aug 2020 15:52:46 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1596642725; bh=sxEZcaVXjMbb5T+zPk/l8OYNGMH4JgwgvPIIgS+SqFM=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=Vqi+FyZJjQBSheaQUnjYsCMBlm9d2IWw/ogxPaPW60X/sWSqsocFZi1qxfjMxbQsL
+         O+LwOwgPGaVok7SRWi8u4DQ7b6Qb9waCtCgQ4AKxIZr7FT5ep+ftdwBnXyASwVp4ZA
+         AY2aIlx7sM5bowEeMsVSMYI3rx4qmnME7z3i3KNREPgfainhNeLRijyAWbR3iOTQLX
+         LmcEVUqx5ZeL4BvIu2bziz/8InRSWb8Q1MLZWe3GmvGhVJevzTMrTXfkKgCJ1c3ma7
+         GUvu/BkwnRoEgxpy3dwnj8WH+Gfk2Xv5yyqgnNpQ+PXuWcTtaeRZbD8ty29Air60vY
+         1vNmB19YBATsA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+On Tue, 04 Aug 2020 10:53:53 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.13 release.
+> There are 116 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.13-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-commit f43cb0d672aa8eb09bfdb779de5900c040487d1d upstream.
+All tests passing for Tegra ...
 
-Fix sockmap tests which rely on old bpf_prog_dispatch behaviour.
-In the first case, the tests check that detaching without giving
-a program succeeds. Since these are not the desired semantics,
-invert the condition. In the second case, the clean up code doesn't
-supply the necessary program fds.
+Test results for stable-v5.7:
+    11 builds:	11 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
 
-Fixes: bb0de3131f4c ("bpf: sockmap: Require attach_bpf_fd when detaching a program")
-Reported-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20200709115151.75829-1-lmb@cloudflare.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Linux version:	5.7.13-rc3-gd3223abaf6fd
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
----
- tools/testing/selftests/bpf/test_maps.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---- a/tools/testing/selftests/bpf/test_maps.c
-+++ b/tools/testing/selftests/bpf/test_maps.c
-@@ -793,19 +793,19 @@ static void test_sockmap(unsigned int ta
- 	}
- 
- 	err = bpf_prog_detach(fd, BPF_SK_SKB_STREAM_PARSER);
--	if (err) {
-+	if (!err) {
- 		printf("Failed empty parser prog detach\n");
- 		goto out_sockmap;
- 	}
- 
- 	err = bpf_prog_detach(fd, BPF_SK_SKB_STREAM_VERDICT);
--	if (err) {
-+	if (!err) {
- 		printf("Failed empty verdict prog detach\n");
- 		goto out_sockmap;
- 	}
- 
- 	err = bpf_prog_detach(fd, BPF_SK_MSG_VERDICT);
--	if (err) {
-+	if (!err) {
- 		printf("Failed empty msg verdict prog detach\n");
- 		goto out_sockmap;
- 	}
-@@ -1094,19 +1094,19 @@ static void test_sockmap(unsigned int ta
- 		assert(status == 0);
- 	}
- 
--	err = bpf_prog_detach(map_fd_rx, __MAX_BPF_ATTACH_TYPE);
-+	err = bpf_prog_detach2(parse_prog, map_fd_rx, __MAX_BPF_ATTACH_TYPE);
- 	if (!err) {
- 		printf("Detached an invalid prog type.\n");
- 		goto out_sockmap;
- 	}
- 
--	err = bpf_prog_detach(map_fd_rx, BPF_SK_SKB_STREAM_PARSER);
-+	err = bpf_prog_detach2(parse_prog, map_fd_rx, BPF_SK_SKB_STREAM_PARSER);
- 	if (err) {
- 		printf("Failed parser prog detach\n");
- 		goto out_sockmap;
- 	}
- 
--	err = bpf_prog_detach(map_fd_rx, BPF_SK_SKB_STREAM_VERDICT);
-+	err = bpf_prog_detach2(verdict_prog, map_fd_rx, BPF_SK_SKB_STREAM_VERDICT);
- 	if (err) {
- 		printf("Failed parser prog detach\n");
- 		goto out_sockmap;
-
-
+Jon
