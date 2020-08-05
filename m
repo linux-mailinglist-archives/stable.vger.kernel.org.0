@@ -2,158 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D050F23D270
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC61223D210
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726927AbgHEUMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 16:12:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726956AbgHEQZe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 12:25:34 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE6FC001FC6;
-        Wed,  5 Aug 2020 08:44:06 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id g19so12887057plq.0;
-        Wed, 05 Aug 2020 08:44:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=38oGDFVZxYlm4jCt82Y6Pi2UrtgWkhfSP7CwpkOvuwo=;
-        b=q/Puz6CNiEQUtbimeIQUcWx+fyOQe4YZBRrvoO3QnjbPNCN0bjyJbSQ4NTn6C8mQNa
-         tBHi76QLKQ1rOi4mmEhslKbkk30WJmN+AG5RInHchGHO1L9NHZfSxc75PPVKvAjDAqRt
-         sSqSB+jevUhLUjtNcI93ZEekTRIsqz0LEfzaH5QKAvy3f8UUE0JDbnPQxtYgQ08xeG9b
-         8AE8lR1JvbEuoTBQKtn8X5/sNdrDUwswQntqQXDBAsMet7/zJcjdWNS0SVs3X7vMu1fO
-         SZlWUFx/c6mTLIvZsKkDZ+DwusfrnjOIkcfv7jqv7UMX6p6/d/9kimLG8aU4BoC3d9fg
-         i6tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=38oGDFVZxYlm4jCt82Y6Pi2UrtgWkhfSP7CwpkOvuwo=;
-        b=Ho97s6rh6j3il0wHJ0mQo5xKooAaoT7Todbw6smaAeu5mByDS7ADLxXe/G6pJsJFaM
-         AYHjidnEj+iueeKGi2OwjpMbeBjaRn5Phj/pAkVzgofMkJ9w/PwewE3OhBud/6QwUtXV
-         6f2KCtsigCZvADgB7RFbmnvyGx7fmiYy/PbDrWePkTJc9c+YDrutBtFMkyJp07m580gL
-         71sJ8PgGah1JwAEA41+D41dQimZPowNUmaASKKmJjs25c7Vv47JiP9wuhUAX27r76FDv
-         4r2qUFgQ1f1XrH685AOfS9G8ypa4gU62MscDlKlLKSCSO0QiIqVawpmvhCJePWRRAdFr
-         a1HQ==
-X-Gm-Message-State: AOAM533Dc60X8NMzDNOVReCfIVyx6+sN4wdpeu+iOCuvu6++Zpy8Ilcq
-        Ajk44RrhI+hRoHIXoYSaGyFOn/ruMEbvyA==
-X-Google-Smtp-Source: ABdhPJxU2jwD16AOtHWirmkbYGfOdJGfCpi76zPG8pvgitZMToYDQ7zuX7HkifSxNEoCf3zxpAhdfA==
-X-Received: by 2002:a17:90b:1413:: with SMTP id jo19mr3824714pjb.37.1596642245650;
-        Wed, 05 Aug 2020 08:44:05 -0700 (PDT)
-Received: from ?IPv6:2001:569:7bc3:ce00:a4b2:4936:f0f6:3eff? (node-1w7jr9qsv51tb41p80xpg7667.ipv6.telus.net. [2001:569:7bc3:ce00:a4b2:4936:f0f6:3eff])
-        by smtp.gmail.com with ESMTPSA id 207sm3809364pfz.203.2020.08.05.08.44.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Aug 2020 08:44:05 -0700 (PDT)
-Subject: Re: Flaw in "random32: update the net random state on interrupt and
- activity"
-To:     Willy Tarreau <w@1wt.eu>
-Cc:     tytso@mit.edu, netdev@vger.kernel.org, aksecurity@gmail.com,
-        torvalds@linux-foundation.org, edumazet@google.com,
-        Jason@zx2c4.com, luto@kernel.org, keescook@chromium.org,
-        tglx@linutronix.de, peterz@infradead.org, stable@vger.kernel.org
-References: <9f74230f-ba4d-2e19-5751-79dc2ab59877@gmail.com>
- <20200805024941.GA17301@1wt.eu>
-From:   Marc Plumb <lkml.mplumb@gmail.com>
-Message-ID: <66f06ea1-3221-5661-e0de-6eef45ac3664@gmail.com>
-Date:   Wed, 5 Aug 2020 08:44:04 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726234AbgHEUIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 16:08:40 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:5595 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727053AbgHEQce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 12:32:34 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f2ad57f0001>; Wed, 05 Aug 2020 08:51:28 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 05 Aug 2020 08:52:17 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 05 Aug 2020 08:52:17 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 5 Aug
+ 2020 15:52:17 +0000
+Received: from [127.0.1.1] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 5 Aug 2020 15:52:08 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/86] 5.4.56-rc3 review
+In-Reply-To: <20200804085225.402560650@linuxfoundation.org>
+References: <20200804085225.402560650@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-In-Reply-To: <20200805024941.GA17301@1wt.eu>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Message-ID: <efd7e42499764fe5aa4242316e6d83bd@HQMAIL107.nvidia.com>
+Date:   Wed, 5 Aug 2020 15:52:08 +0000
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1596642688; bh=attfFQzfqWtAY+0kRxsEgEK/RqLVKg1BG1c4/dMXoHk=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=V1cn/VmJXonkxu9bdB3LcBAj3o7YyvjP8GLFXX7veMTKP0UydTxdf5hd8qKYYIJF3
+         kHdOGb8FxD54OS3uwPcewKCH5qV//aCGRYSBchKghs/rZsO/A8aP2Lbp7klHfHgSjn
+         kJ4g2B8dnpWaCNWPG3wo4tMTKIpFrXXNY71qV3SleTQ6Ka2CBZVnK0raLxSli0t4Mw
+         GXpoSPAikR+Lez0r/pMTR+PjRWDO5Bu2zKj4v3+XArnKjAyguW738cZwzEKG6yEW8P
+         iiotrfnWZdZsV0t0Vs+S/5CXRLPuGi8k3wJok1fu0xrdXvZ4PEXOIgywqvF8c+Lz7a
+         qYQByTsEnRa7Q==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Willy,
+On Tue, 04 Aug 2020 10:53:41 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.56 release.
+> There are 86 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.56-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-On 2020-08-04 7:49 p.m., Willy Tarreau wrote:
-> Hi Marc,
->
-> On Tue, Aug 04, 2020 at 05:52:36PM -0700, Marc Plumb wrote:
->> Seeding two PRNGs with the same entropy causes two problems. The minor one
->> is that you're double counting entropy. The major one is that anyone who can
->> determine the state of one PRNG can determine the state of the other.
->>
->> The net_rand_state PRNG is effectively a 113 bit LFSR, so anyone who can see
->> any 113 bits of output can determine the complete internal state.
->>
->> The output of the net_rand_state PRNG is used to determine how data is sent
->> to the network, so the output is effectively broadcast to anyone watching
->> network traffic. Therefore anyone watching the network traffic can determine
->> the seed data being fed to the net_rand_state PRNG.
-> The problem this patch is trying to work around is that the reporter
-> (Amit) was able to determine the entire net_rand_state after observing
-> a certain number of packets due to this trivial LFSR and the fact that
-> its internal state between two reseedings only depends on the number
-> of calls to read it.
+All tests passing for Tegra ...
 
-I thought net_rand_state was assumed to be insecure and that anyone 
-could determine the internal state. Isn't this Working as Designed? It's 
-a PRNG not a CPRNG. If some aspects of security depends on the sate 
-remaining secret then this is fundamentally the wrong tool.
+Test results for stable-v5.4:
+    11 builds:	11 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
 
-> (please note that regarding this point I'll
-> propose a patch to replace that PRNG to stop directly exposing the
-> internal state to the network).
+Linux version:	5.4.56-rc3-g47b594b8993f
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-I'm glad to hear that. A good option would be SFC32.
-
-> If you look closer at the patch, you'll see that in one interrupt
-> the patch only uses any 32 out of the 128 bits of fast_pool to
-> update only 32 bits of the net_rand_state. As such, the sequence
-> observed on the network also depends on the remaining bits of
-> net_rand_state, while the 96 other bits of the fast_pool are not
-> exposed there.
-
-The fast pool contains 128 bits of state, not 128 bits of entropy. The 
-purpose of the large pool size is to make sure that the entropy is not 
-lost due to collisions. The non-linear mixing function (a simplified 
-version of a single round of the ChaCha mixing function so the entropy 
-diffusion is low) means that the 32 bits leaked are not independent from 
-the other 96 bits, and in fact you can reconstruct the entire pool from 
-a single reading of 32 bits (as long as there aren't more than 32 bits 
-of entropy added during this time -- which isn't the case, see below). 
-Please think harder about this part. I think you are misunderstanding 
-how this code works.
-
->> Since this is the same
->> seed data being fed to get_random_bytes, it allows an attacker to determine
->> the state and there output of /dev/random. I sincerely hope that this was
->> not the intended goal. :)
-> Not only was this obviously not the goal, but I'd be particularly
-> interested in seeing this reality demonstrated, considering that
-> the whole 128 bits of fast_pool together count as a single bit of
-> entropy, and that as such, even if you were able to figure the
-> value of the 32 bits leaked to net_rand_state, you'd still have to
-> guess the 96 other bits for each single entropy bit :-/
-
-The code assumes that there is at least 1/64 bit of entropy per sample, 
-and at most 2 bits of entropy per sample (which is why it dumps 128 bits 
-every 64 samples). If you're extracting 32 bits every sample, which 
-means it's leaking 2048 bits in 64 samples (to net_random, how fast it 
-leaks to the outside world is a different issue). So the question is if 
-an attacker can reconstruct 128 bits of entropy from 2048 bits of 
-internal state -- this does not seem obviously impossible, since there 
-are no cryptographically vetted operations in this.
-
-The other thing that this misses is that reseeding in dribs and drabs 
-makes it much easier to recover the new state. This is is explained well 
-in the documentation about catastrophic reseeding in the Fortuna CPRNG. 
-This entire approach is flawed. Throwing in single bits of entropy at a 
-time doesn't really help since an attacker can brute force a single bit 
-at a time. (There is a challenge in deriving the initial fast_pool 
-states which this makes more difficult, but there is no real 
-crytptographic guarantee about how difficult it is.)
-
-Thanks,
-
-Marc
-
+Jon
