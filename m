@@ -2,243 +2,284 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B7323CF12
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0418A23CEF3
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:10:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728575AbgHETNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 15:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33882 "EHLO
+        id S1728579AbgHETKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 15:10:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728621AbgHESYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 14:24:25 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F09C061575;
-        Wed,  5 Aug 2020 11:24:25 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id d19so1415585pgl.10;
-        Wed, 05 Aug 2020 11:24:25 -0700 (PDT)
+        with ESMTP id S1729284AbgHESeQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 14:34:16 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299A9C061757
+        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 11:34:13 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id r11so15352159pfl.11
+        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 11:34:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=sesb+iOajMrkthKitgXHyu1N3R51OJyrL241Xs6whr8=;
-        b=chNJhfF7a+/eQFIbz8EN66bcNCKTFuLcvelW5TuPxN4hdyLi7eWIXZZSH2gBrk/JUo
-         b7qK0y5fVrx1I1EYXGcnauESoF0La+GysDkT8s1uIo3y0AefGOvNE9c3CjYH65iWeD8/
-         GC2VrsbKdQA6yDOO8FWZyncn9nXhB+C4UrlB67IWspLd5mz53EAbuMyPYIdwauunvOv4
-         Map3/4Rq1W3FJSXXtqV4lsdkNdrJ/ovYxqQDuHs4tYBmPw/huOgtFJCOoLsnL33uZf32
-         RdlUugTIw2kSTrpn6mda882UUKZ4seU/17PpirFgDaf5SV7J1DUZCgIQWhsTT76wGu2Y
-         Oq9A==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=3uKuALbj50Q0JbREXDATt+b6tbcgxg3fyPprhXR9jxw=;
+        b=PGvCZeBZnPQ7kxClhlJx3KEt+9lwPsjzWJ3i767WlbBF/q5CtSovvI6H0b5dOrMdjp
+         kbqnVo0hwAhsrQvSkan2rzqsCzdtUVwXsPRg8qHF4hgrvSTaP1Bd8DU6TNc4880bS10Q
+         Vfyv39h4PFr3XLVqyTsPZlkDcxDJs1advTw5r25+E+xSjKFUhDBvp3KoLbJysD85kr00
+         QajXL0D1+CYoz6nZZ+i5yrixkFBR6pl8OoXTcjazEmRgREYVNC9lBkeZUMyQVYSr8Hqj
+         tpF+VCg7tY7h4BucdDRvQM06sulbq/TfmxRh88tQJT45be/LD6LmLJLrBpeGuMOtBbtd
+         ag1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=sesb+iOajMrkthKitgXHyu1N3R51OJyrL241Xs6whr8=;
-        b=Yq0z9gABYNsu3F1Q0r2rO6l2ZSo+cF1GjgrLVc7ewUYjT4GnqOCtYueGID0735EwQ4
-         CPsdMHQKnp+9IY37xIUEb2CIepPkW03VRKtd33eHBrgdftzJuxHoV0u6oPnWQ71CQ2xB
-         x8CZZPCfxFSPl0rszCrKCRfztfdrQyiQSozBLPimsxlQo2bEaNtHsRrjDSBaaDeeaGJC
-         xRKzp2mmCWp2rVaMlbHLPV/6n1PhGmWT50LzHPWBPwYKLkspSsfaMksMVdRB6lw2RGpA
-         4NFPmdhzNSLEeeO15CYo5E0a1ZpEA5UHbNvVEK5YD9GcB8K7qYyexreT7f3vH6SUhEsm
-         z7DQ==
-X-Gm-Message-State: AOAM532ScrqlfD3D9oCVguPsgCe7g6saKeIYWtnjVU6MxPBvKhBRA5nT
-        7dCHPxdus9LxgTDN2Frent6RhbgA
-X-Google-Smtp-Source: ABdhPJwKLNOLC8w3MreF/H6NQ6gI/veJY+Itb1bCqCCkcsYAmS/VSOhslcfnVigCbZHx8w/cv0IZHw==
-X-Received: by 2002:a62:1d1:: with SMTP id 200mr4409861pfb.161.1596651865244;
-        Wed, 05 Aug 2020 11:24:25 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id l16sm4493848pff.167.2020.08.05.11.24.23
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=3uKuALbj50Q0JbREXDATt+b6tbcgxg3fyPprhXR9jxw=;
+        b=pNBVFFBWdE3JZPAEuzb9NTZL5A+8RMeYAiXCErFaezgg0J+2OqZniu6sfG1yzG/LNO
+         i4oKw9awHzC6iJeshfh+0RY11h+TGPwGhvz0AR7GgDiuQtRyZbs9PemY6LktiqnxhoPu
+         UM2O0b4nDZAqTFab1XX6KEb8fe2pWn/lj3Pm644FdW38g/0r0qMMEzDha3fr3f4hBaxx
+         sxLxHRefmzZhw92q+uR9ZJtCMYJw6XWysP4pfLTR43chw42/dp4EC/ACNtmXasl9tesu
+         xmWZU6G28CdaiHtJvcj2xLs+znS/EJjKN+xAXjD9nexzzVtYrjBn9BXnbzXhoPEooAy6
+         hwaQ==
+X-Gm-Message-State: AOAM530cqOWJABc4y6Fcgm4vLZ11FvZnknSvbeg/PEC87hywLe4pfO1O
+        R2M13a2qnYrSNpVzu+1DRRiZGbGSLSU=
+X-Google-Smtp-Source: ABdhPJw1+2Aaih2XDyyawtBHXCe937KDSQ2TnTTxjEDC7KhuzpIU99rAtrkKkBPVlKAhBPxUorqT1Q==
+X-Received: by 2002:a63:4c48:: with SMTP id m8mr4203406pgl.290.1596652451769;
+        Wed, 05 Aug 2020 11:34:11 -0700 (PDT)
+Received: from [192.168.1.58] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id l9sm3812046pjf.46.2020.08.05.11.34.10
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Aug 2020 11:24:24 -0700 (PDT)
-Subject: Re: [PATCH 5.7 0/6] 5.7.14-rc1 review
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Marc Zyngier <maz@kernel.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>, w@1wt.eu,
-        Grygorii Strashko <grygorii.strashko@ti.com>
-References: <20200805153506.978105994@linuxfoundation.org>
- <CA+G9fYv_aX36Kq_RD5dAL_By4AFq=-ZY_qh7VhLG=HJQv5mDzg@mail.gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <71a132bf-5ddb-a97a-9b65-6767fd806ee9@roeck-us.net>
-Date:   Wed, 5 Aug 2020 11:24:22 -0700
+        Wed, 05 Aug 2020 11:34:10 -0700 (PDT)
+To:     stable@vger.kernel.org
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: 5.4 stable inclusion request
+Message-ID: <9740b863-25f0-7adc-7bdc-f95bf8c664f5@kernel.dk>
+Date:   Wed, 5 Aug 2020 12:34:09 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <CA+G9fYv_aX36Kq_RD5dAL_By4AFq=-ZY_qh7VhLG=HJQv5mDzg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/5/20 10:39 AM, Naresh Kamboju wrote:
-> On Wed, 5 Aug 2020 at 21:22, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
->>
->> This is the start of the stable review cycle for the 5.7.14 release.
->> There are 6 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
->>
->> Responses should be made by Fri, 07 Aug 2020 15:34:53 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.14-rc1.gz
->> or in the git tree and branch at:
->>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
->> and the diffstat can be found below.
->>
->> thanks,
->>
->> greg k-h
->>
->> -------------
->> Pseudo-Shortlog of commits:
->>
->> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>     Linux 5.7.14-rc1
->>
->> Marc Zyngier <maz@kernel.org>
->>     arm64: Workaround circular dependency in pointer_auth.h
->>
->> Linus Torvalds <torvalds@linux-foundation.org>
->>     random32: move the pseudo-random 32-bit definitions to prandom.h
->>
->> Linus Torvalds <torvalds@linux-foundation.org>
->>     random32: remove net_rand_state from the latent entropy gcc plugin
->>
->> Willy Tarreau <w@1wt.eu>
->>     random: fix circular include dependency on arm64 after addition of percpu.h
->>
->> Grygorii Strashko <grygorii.strashko@ti.com>
->>     ARM: percpu.h: fix build error
->>
->> Willy Tarreau <w@1wt.eu>
->>     random32: update the net random state on interrupt and activity
->>
-> 
-> [ sorry if it is not interesting ! ]
-> 
-> While building with old gcc-7.3.0 the build breaks for arm64
-> whereas build PASS on gcc-8, gcc-9 and gcc-10.
-> 
-> with gcc 7.3.0 build breaks log,
-> 
-Same with older versions of gcc. I don't see the problem with the
-mainline kernel.
+Hi,
 
-I think this is caused by more recursive includes.
-arch/arm64/include/asm/archrandom.h includes include/linux/random.h
-which includes arch/arm64/include/asm/archrandom.h to get the definition
-of arch_get_random_seed_long_early (which it won't get because of
-the recursion).
+Below is a io_uring patch that I'd like to get into 5.4. There's no
+equiv 5.5 commit, because the resulting changes were a lot more invasive
+there to avoid re-reading important sqe fields. But the reporter has
+also tested this one and verifies it fixes his issue. Can we get this
+queued up for 5.4?
 
-What I don't really understand is how this works with new versions
-of gcc.
 
-Guenter
+commit 8cfecb9a5d7b2aff34547652adc5bb00a8da5fac
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Wed Aug 5 12:30:36 2020 -0600
 
-> In file included from arch/arm64/include/asm/archrandom.h:9:0,
->                  from arch/arm64/kernel/kaslr.c:14:
-> include/linux/random.h: In function 'arch_get_random_seed_long_early':
-> include/linux/random.h:149:9: error: implicit declaration of function
-> 'arch_get_random_seed_long'; did you mean
-> 'arch_get_random_seed_long_early'?
-> [-Werror=implicit-function-declaration]
->   return arch_get_random_seed_long(v);
->          ^~~~~~~~~~~~~~~~~~~~~~~~~
->          arch_get_random_seed_long_early
-> include/linux/random.h: In function 'arch_get_random_long_early':
-> include/linux/random.h:157:9: error: implicit declaration of function
-> 'arch_get_random_long'; did you mean 'get_random_long'?
-> [-Werror=implicit-function-declaration]
->   return arch_get_random_long(v);
->          ^~~~~~~~~~~~~~~~~~~~
->          get_random_long
-> In file included from arch/arm64/kernel/kaslr.c:14:0:
-> arch/arm64/include/asm/archrandom.h: At top level:
-> arch/arm64/include/asm/archrandom.h:30:33: error: conflicting types
-> for 'arch_get_random_long'
->  static inline bool __must_check arch_get_random_long(unsigned long *v)
->                                  ^~~~~~~~~~~~~~~~~~~~
-> In file included from arch/arm64/include/asm/archrandom.h:9:0,
->                  from arch/arm64/kernel/kaslr.c:14:
-> include/linux/random.h:157:9: note: previous implicit declaration of
-> 'arch_get_random_long' was here
->   return arch_get_random_long(v);
->          ^~~~~~~~~~~~~~~~~~~~
-> In file included from arch/arm64/kernel/kaslr.c:14:0:
-> arch/arm64/include/asm/archrandom.h:40:33: error: conflicting types
-> for 'arch_get_random_seed_long'
->  static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
->                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
-> In file included from arch/arm64/include/asm/archrandom.h:9:0,
->                  from arch/arm64/kernel/kaslr.c:14:
-> include/linux/random.h:149:9: note: previous implicit declaration of
-> 'arch_get_random_seed_long' was here
->   return arch_get_random_seed_long(v);
->          ^~~~~~~~~~~~~~~~~~~~~~~~~
-> In file included from arch/arm64/kernel/kaslr.c:14:0:
-> arch/arm64/include/asm/archrandom.h:72:1: error: redefinition of
-> 'arch_get_random_seed_long_early'
->  arch_get_random_seed_long_early(unsigned long *v)
->  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> In file included from arch/arm64/include/asm/archrandom.h:9:0,
->                  from arch/arm64/kernel/kaslr.c:14:
-> include/linux/random.h:146:27: note: previous definition of
-> 'arch_get_random_seed_long_early' was here
->  static inline bool __init arch_get_random_seed_long_early(unsigned long *v)
-> 
-> 
+    io_uring: prevent re-read of sqe->opcode
+    
+    Liu reports that he can trigger a NULL pointer dereference with
+    IORING_OP_SENDMSG, by changing the sqe->opcode after we've validated
+    that the previous opcode didn't need a file and didn't assign one.
+    
+    Ensure we validate and read the opcode only once.
+    
+    Reported-by: Liu Yong <pkfxxxing@gmail.com>
+    Tested-by: Liu Yong <pkfxxxing@gmail.com>
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index e0200406765c..8bb5e19b7c3c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -279,6 +279,7 @@ struct sqe_submit {
+ 	bool				has_user;
+ 	bool				needs_lock;
+ 	bool				needs_fixed_file;
++	u8				opcode;
+ };
+ 
+ /*
+@@ -505,7 +506,7 @@ static inline void io_queue_async_work(struct io_ring_ctx *ctx,
+ 	int rw = 0;
+ 
+ 	if (req->submit.sqe) {
+-		switch (req->submit.sqe->opcode) {
++		switch (req->submit.opcode) {
+ 		case IORING_OP_WRITEV:
+ 		case IORING_OP_WRITE_FIXED:
+ 			rw = !(req->rw.ki_flags & IOCB_DIRECT);
+@@ -1254,23 +1255,15 @@ static int io_import_fixed(struct io_ring_ctx *ctx, int rw,
+ }
+ 
+ static ssize_t io_import_iovec(struct io_ring_ctx *ctx, int rw,
+-			       const struct sqe_submit *s, struct iovec **iovec,
++			       struct io_kiocb *req, struct iovec **iovec,
+ 			       struct iov_iter *iter)
+ {
+-	const struct io_uring_sqe *sqe = s->sqe;
++	const struct io_uring_sqe *sqe = req->submit.sqe;
+ 	void __user *buf = u64_to_user_ptr(READ_ONCE(sqe->addr));
+ 	size_t sqe_len = READ_ONCE(sqe->len);
+ 	u8 opcode;
+ 
+-	/*
+-	 * We're reading ->opcode for the second time, but the first read
+-	 * doesn't care whether it's _FIXED or not, so it doesn't matter
+-	 * whether ->opcode changes concurrently. The first read does care
+-	 * about whether it is a READ or a WRITE, so we don't trust this read
+-	 * for that purpose and instead let the caller pass in the read/write
+-	 * flag.
+-	 */
+-	opcode = READ_ONCE(sqe->opcode);
++	opcode = req->submit.opcode;
+ 	if (opcode == IORING_OP_READ_FIXED ||
+ 	    opcode == IORING_OP_WRITE_FIXED) {
+ 		ssize_t ret = io_import_fixed(ctx, rw, sqe, iter);
+@@ -1278,7 +1271,7 @@ static ssize_t io_import_iovec(struct io_ring_ctx *ctx, int rw,
+ 		return ret;
+ 	}
+ 
+-	if (!s->has_user)
++	if (!req->submit.has_user)
+ 		return -EFAULT;
+ 
+ #ifdef CONFIG_COMPAT
+@@ -1425,7 +1418,7 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 	if (unlikely(!(file->f_mode & FMODE_READ)))
+ 		return -EBADF;
+ 
+-	ret = io_import_iovec(req->ctx, READ, s, &iovec, &iter);
++	ret = io_import_iovec(req->ctx, READ, req, &iovec, &iter);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1490,7 +1483,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+ 	if (unlikely(!(file->f_mode & FMODE_WRITE)))
+ 		return -EBADF;
+ 
+-	ret = io_import_iovec(req->ctx, WRITE, s, &iovec, &iter);
++	ret = io_import_iovec(req->ctx, WRITE, req, &iovec, &iter);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -2109,15 +2102,14 @@ static int io_req_defer(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ static int __io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 			   const struct sqe_submit *s, bool force_nonblock)
+ {
+-	int ret, opcode;
++	int ret;
+ 
+ 	req->user_data = READ_ONCE(s->sqe->user_data);
+ 
+ 	if (unlikely(s->index >= ctx->sq_entries))
+ 		return -EINVAL;
+ 
+-	opcode = READ_ONCE(s->sqe->opcode);
+-	switch (opcode) {
++	switch (req->submit.opcode) {
+ 	case IORING_OP_NOP:
+ 		ret = io_nop(req, req->user_data);
+ 		break;
+@@ -2181,10 +2173,10 @@ static int __io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	return 0;
+ }
+ 
+-static struct async_list *io_async_list_from_sqe(struct io_ring_ctx *ctx,
+-						 const struct io_uring_sqe *sqe)
++static struct async_list *io_async_list_from_req(struct io_ring_ctx *ctx,
++						 struct io_kiocb *req)
+ {
+-	switch (sqe->opcode) {
++	switch (req->submit.opcode) {
+ 	case IORING_OP_READV:
+ 	case IORING_OP_READ_FIXED:
+ 		return &ctx->pending_async[READ];
+@@ -2196,12 +2188,10 @@ static struct async_list *io_async_list_from_sqe(struct io_ring_ctx *ctx,
+ 	}
+ }
+ 
+-static inline bool io_sqe_needs_user(const struct io_uring_sqe *sqe)
++static inline bool io_req_needs_user(struct io_kiocb *req)
+ {
+-	u8 opcode = READ_ONCE(sqe->opcode);
+-
+-	return !(opcode == IORING_OP_READ_FIXED ||
+-		 opcode == IORING_OP_WRITE_FIXED);
++	return !(req->submit.opcode == IORING_OP_READ_FIXED ||
++		req->submit.opcode == IORING_OP_WRITE_FIXED);
+ }
+ 
+ static void io_sq_wq_submit_work(struct work_struct *work)
+@@ -2217,7 +2207,7 @@ static void io_sq_wq_submit_work(struct work_struct *work)
+ 	int ret;
+ 
+ 	old_cred = override_creds(ctx->creds);
+-	async_list = io_async_list_from_sqe(ctx, req->submit.sqe);
++	async_list = io_async_list_from_req(ctx, req);
+ 
+ 	allow_kernel_signal(SIGINT);
+ restart:
+@@ -2239,7 +2229,7 @@ static void io_sq_wq_submit_work(struct work_struct *work)
+ 		}
+ 
+ 		ret = 0;
+-		if (io_sqe_needs_user(sqe) && !cur_mm) {
++		if (io_req_needs_user(req) && !cur_mm) {
+ 			if (!mmget_not_zero(ctx->sqo_mm)) {
+ 				ret = -EFAULT;
+ 			} else {
+@@ -2387,11 +2377,9 @@ static bool io_add_to_prev_work(struct async_list *list, struct io_kiocb *req)
+ 	return ret;
+ }
+ 
+-static bool io_op_needs_file(const struct io_uring_sqe *sqe)
++static bool io_op_needs_file(struct io_kiocb *req)
+ {
+-	int op = READ_ONCE(sqe->opcode);
+-
+-	switch (op) {
++	switch (req->submit.opcode) {
+ 	case IORING_OP_NOP:
+ 	case IORING_OP_POLL_REMOVE:
+ 	case IORING_OP_TIMEOUT:
+@@ -2419,7 +2407,7 @@ static int io_req_set_file(struct io_ring_ctx *ctx, const struct sqe_submit *s,
+ 	 */
+ 	req->sequence = s->sequence;
+ 
+-	if (!io_op_needs_file(s->sqe))
++	if (!io_op_needs_file(req))
+ 		return 0;
+ 
+ 	if (flags & IOSQE_FIXED_FILE) {
+@@ -2460,7 +2448,7 @@ static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 
+ 			s->sqe = sqe_copy;
+ 			memcpy(&req->submit, s, sizeof(*s));
+-			list = io_async_list_from_sqe(ctx, s->sqe);
++			list = io_async_list_from_req(ctx, req);
+ 			if (!io_add_to_prev_work(list, req)) {
+ 				if (list)
+ 					atomic_inc(&list->cnt);
+@@ -2582,7 +2570,7 @@ static void io_submit_sqe(struct io_ring_ctx *ctx, struct sqe_submit *s,
+ 	req->user_data = s->sqe->user_data;
+ 
+ #if defined(CONFIG_NET)
+-	switch (READ_ONCE(s->sqe->opcode)) {
++	switch (req->submit.opcode) {
+ 	case IORING_OP_SENDMSG:
+ 	case IORING_OP_RECVMSG:
+ 		spin_lock(&current->fs->lock);
+@@ -2697,6 +2685,7 @@ static bool io_get_sqring(struct io_ring_ctx *ctx, struct sqe_submit *s)
+ 	if (head < ctx->sq_entries) {
+ 		s->index = head;
+ 		s->sqe = &ctx->sq_sqes[head];
++		s->opcode = READ_ONCE(s->sqe->opcode);
+ 		s->sequence = ctx->cached_sq_head;
+ 		ctx->cached_sq_head++;
+ 		return true;
+
+-- 
+Jens Axboe
 
