@@ -2,117 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BCB723CFF7
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E1B23CF9F
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbgHET1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 15:27:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50534 "EHLO
+        id S1728760AbgHETXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 15:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728602AbgHERMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 13:12:35 -0400
+        with ESMTP id S1728946AbgHERjt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 13:39:49 -0400
 Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C07C0617A3
-        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 10:12:20 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id z6so46736240iow.6
-        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 10:12:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13870C061575
+        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 10:39:49 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id w12so33152174iom.4
+        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 10:39:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=KkfsA9tbt51JhKe8sFTLvMpREroWrtYLfSyGKrepgnc=;
-        b=sV/MLpudecnRU4GQxONhClJttWv3PUwHU66kJKLWiHum4YhBiyGbSz5MhfOBgXKOrr
-         MKWe2ljEQ952stDe2dXiAh2gsZbWP9Z/HXkK2PxOkyxkjpUXWT6VYx0bhDB6qKEvtgAo
-         0+8VpahpNTwnAPH32jAbzyTPZe00UK+uDCwUv51GlJVhvbo8Zy9YpIrVKbiPtA4iVEXe
-         +O7bnZ7s/S+pDsjGSV9MVUNIi9PE1F0kTWRdUSroboeB0xUzpHzmdYlthsVDyMwIu8FR
-         VzFuVtzTc3Jt62SIS85GIC7n8Iks7jgVMsvpNqFG4dlxCxIlwObJfeuAbSYL+Um7ewcM
-         nY/g==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ltXiat2Rl2Zwbogz+0r5FKwZHjDORLemXuadza+vI+Q=;
+        b=Ya3jo9QJDcOA6NffqQfhpqKparGgzal9V+JPBiYU4afxBELrAdQZJKpN77F6OHvG2j
+         0LgWLVjraEAcCbRa70iPs+xRARHMu3NwCtbyhcT0sYY4bbuXXlfMbd6q0uhG4YOBBaDf
+         GLy4rLWmBI24Wbb9KFKW1Z+hv6w0zSikRGiha05Ko6lAntvWEAuKWgy9T43+o6t5WjIK
+         OF5XQXzdU2zHIQUd6UXL/vMefBjaDUDOTx1PqHmP9p3vHmRp5F7bRqWoybKf9zM91N6a
+         UvAmoeHGvce1psyCwUAPesnydIxy8TNzzRlMkx2re4mSSw9WDW0ccl/aLKJKGSEZUDfi
+         gbxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=KkfsA9tbt51JhKe8sFTLvMpREroWrtYLfSyGKrepgnc=;
-        b=O0h7DR7+FMI/UhlraVCsnTpqz7Wz3vIF3gcGbXR0jRFNFajUeyjusgXV8OGKmL7H6b
-         SfSDf66ylazy09+mS/PNO5C0UA8ymqaxBv7slqsZ1taS23jQZiIhx+cEy1qHxjEmysk2
-         B+Iihkt24D3HiMl8Ec8h5YDZAzTtW0XNmvim50A4RWIFOXJ/mUBBpdOOc9GaLTsar3Ew
-         l3ZzIIBRGABma9TlB1CteBBc9FWRXkX/C8mSMqkpDAt/lnSXVLUNEhcUp94R8f3PVcBf
-         0FNZFGg+Y/cRK/dzbGrdyA8uj4DRabndDKG/DRwS/q8XdVejru9gobS/GtwvHltABk/9
-         dlQQ==
-X-Gm-Message-State: AOAM533/9I/jZCixNL33BNxs7vab3bIf1xWBa4Bwl+/ua21Dk1oZA54Z
-        JyeQ4W4JIkWBeaI8SIvDj2RbTl6GfXAWHVKIV8PpkppoLMaobQ==
-X-Google-Smtp-Source: ABdhPJydvkbI8JuH0DRGc8fl99fy8gEfBBiNspPdGBUDSlzEmjUkpG8MId4QwMHSc07sfLFkkrPwZ1DMKb81MUx1Ntg=
-X-Received: by 2002:a05:6638:1614:: with SMTP id x20mr5286536jas.92.1596647539517;
- Wed, 05 Aug 2020 10:12:19 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ltXiat2Rl2Zwbogz+0r5FKwZHjDORLemXuadza+vI+Q=;
+        b=int7VSdh8d7DVEJVbykwDTN0j1Khjfquq3NO+PPCbw0513JvpNCC512+nUrRi2ljJ9
+         TbQjKi0hLMg83wJI4MUadzmw1kjZPL3rtRFRqw6mWQkfqOvd+uaqcZk4Ghy3+FN+LOKL
+         EUfXa2lwHPqaKOwdJ20gzi//1StpYcewyeUV/j4Xe2edaS+1wfGIDQmAWKRNbdmit7Dn
+         CJsEUyUh1IRLUDRAJMY7xZj8WmbAOmSVuHqToVhN8j1uqzpu48WMyVp5mxw7u7cOeHIq
+         2F7smWdBggTKKrPQs9WLUOwrElN19I+P0zo0UVfNiKGlGUMznB2j5MWXfvNkmB7w3ZVx
+         4HvQ==
+X-Gm-Message-State: AOAM53264M3AMEMGnSXVGDYv0oFcw5Q9WTMO0YKgDK6rZwvZP8qIU7Zp
+        ElK36xImxS4anCpfV95VlQw7uHBhEhXZvGVDOwIgiA==
+X-Google-Smtp-Source: ABdhPJyFew5VLDSWc3gE+0xFUlGE3hKSfOMO1eUbHLBzf9JX57Tz6MZ9GTG6hb1mgP02FR8F+uwTF+rF0OjPkL+kLVk=
+X-Received: by 2002:a5d:995a:: with SMTP id v26mr4435600ios.176.1596649188239;
+ Wed, 05 Aug 2020 10:39:48 -0700 (PDT)
 MIME-Version: 1.0
+References: <20200805153506.978105994@linuxfoundation.org>
+In-Reply-To: <20200805153506.978105994@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 5 Aug 2020 22:42:08 +0530
-Message-ID: <CA+G9fYtpsT23+xXkOfhBt3RP6MeHKjQCrmgF921mDdwQ+wZu2g@mail.gmail.com>
-Subject: stable rc 4.4 - v4.4.232-33-g0b3898baf614 - build breaks on arm64,
- arm, x86_64 and i386.
-To:     linux- stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Jiang Ying <jiangying8582@126.com>
+Date:   Wed, 5 Aug 2020 23:09:37 +0530
+Message-ID: <CA+G9fYv_aX36Kq_RD5dAL_By4AFq=-ZY_qh7VhLG=HJQv5mDzg@mail.gmail.com>
+Subject: Re: [PATCH 5.7 0/6] 5.7.14-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Marc Zyngier <maz@kernel.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
         lkft-triage@lists.linaro.org,
-        linux-ext4 <linux-ext4@vger.kernel.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Jan Kara <jack@suse.cz>, wanglong19@meituan.com
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>, w@1wt.eu,
+        Grygorii Strashko <grygorii.strashko@ti.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable rc 4.4 build breaks on arm64, arm, x86_64 and i386.
+On Wed, 5 Aug 2020 at 21:22, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.7.14 release.
+> There are 6 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 07 Aug 2020 15:34:53 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.14-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+> -------------
+> Pseudo-Shortlog of commits:
+>
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>     Linux 5.7.14-rc1
+>
+> Marc Zyngier <maz@kernel.org>
+>     arm64: Workaround circular dependency in pointer_auth.h
+>
+> Linus Torvalds <torvalds@linux-foundation.org>
+>     random32: move the pseudo-random 32-bit definitions to prandom.h
+>
+> Linus Torvalds <torvalds@linux-foundation.org>
+>     random32: remove net_rand_state from the latent entropy gcc plugin
+>
+> Willy Tarreau <w@1wt.eu>
+>     random: fix circular include dependency on arm64 after addition of percpu.h
+>
+> Grygorii Strashko <grygorii.strashko@ti.com>
+>     ARM: percpu.h: fix build error
+>
+> Willy Tarreau <w@1wt.eu>
+>     random32: update the net random state on interrupt and activity
+>
 
-Here are the build log failures on arm64.
-   git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-s=
-table-rc.git
-    target_arch: arm64
-    toolchain: gcc-9
-    git_short_log: 0b3898baf614 (\Linux 4.4.233-rc1\)
-    git_sha: 0b3898baf61459e1f963dcf893b4683174668975
-    git_describe: v4.4.232-33-g0b3898baf614
-    kernel_version: 4.4.233-rc1
+[ sorry if it is not interesting ! ]
 
-make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm64
-CROSS_COMPILE=3Daarch64-linux-gnu- HOSTCC=3Dgcc CC=3D"sccache
-aarch64-linux-gnu-gcc" O=3Dbuild Image
-#
-../arch/arm64/kernel/hw_breakpoint.c: In function =E2=80=98arch_bp_generic_=
-fields=E2=80=99:
-../arch/arm64/kernel/hw_breakpoint.c:348:5: note: parameter passing
-for argument of type =E2=80=98struct arch_hw_breakpoint_ctrl=E2=80=99 chang=
-ed in GCC
-9.1
-  348 | int arch_bp_generic_fields(struct arch_hw_breakpoint_ctrl ctrl,
-      |     ^~~~~~~~~~~~~~~~~~~~~~
-../fs/ext4/inode.c: In function =E2=80=98ext4_direct_IO=E2=80=99:
-../fs/ext4/inode.c:3355:9: error: =E2=80=98offset=E2=80=99 redeclared as di=
-fferent
-kind of symbol
- 3355 |  loff_t offset =3D iocb->ki_pos;
-      |         ^~~~~~
-../fs/ext4/inode.c:3349:17: note: previous definition of =E2=80=98offset=E2=
-=80=99 was here
- 3349 |          loff_t offset)
-      |          ~~~~~~~^~~~~~
-make[3]: *** [../scripts/Makefile.build:277: fs/ext4/inode.o] Error 1
-make[3]: Target '__build' not remade because of errors.
-make[2]: *** [../scripts/Makefile.build:484: fs/ext4] Error 2
-../drivers/net/ethernet/apm/xgene/xgene_enet_main.c:32:36: warning:
-array =E2=80=98xgene_enet_acpi_match=E2=80=99 assumed to have one element
-   32 | static const struct acpi_device_id xgene_enet_acpi_match[];
-      |                                    ^~~~~~~~~~~~~~~~~~~~~
-make[2]: Target '__build' not remade because of errors.
-make[1]: *** [/linux/Makefile:1006: fs] Error 2
-make[1]: Target 'Image' not remade because of errors.
-make: *** [Makefile:152: sub-make] Error 2
-make: Target 'Image' not remade because of errors.
+While building with old gcc-7.3.0 the build breaks for arm64
+whereas build PASS on gcc-8, gcc-9 and gcc-10.
 
---=20
+with gcc 7.3.0 build breaks log,
+
+In file included from arch/arm64/include/asm/archrandom.h:9:0,
+                 from arch/arm64/kernel/kaslr.c:14:
+include/linux/random.h: In function 'arch_get_random_seed_long_early':
+include/linux/random.h:149:9: error: implicit declaration of function
+'arch_get_random_seed_long'; did you mean
+'arch_get_random_seed_long_early'?
+[-Werror=implicit-function-declaration]
+  return arch_get_random_seed_long(v);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~
+         arch_get_random_seed_long_early
+include/linux/random.h: In function 'arch_get_random_long_early':
+include/linux/random.h:157:9: error: implicit declaration of function
+'arch_get_random_long'; did you mean 'get_random_long'?
+[-Werror=implicit-function-declaration]
+  return arch_get_random_long(v);
+         ^~~~~~~~~~~~~~~~~~~~
+         get_random_long
+In file included from arch/arm64/kernel/kaslr.c:14:0:
+arch/arm64/include/asm/archrandom.h: At top level:
+arch/arm64/include/asm/archrandom.h:30:33: error: conflicting types
+for 'arch_get_random_long'
+ static inline bool __must_check arch_get_random_long(unsigned long *v)
+                                 ^~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm64/include/asm/archrandom.h:9:0,
+                 from arch/arm64/kernel/kaslr.c:14:
+include/linux/random.h:157:9: note: previous implicit declaration of
+'arch_get_random_long' was here
+  return arch_get_random_long(v);
+         ^~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm64/kernel/kaslr.c:14:0:
+arch/arm64/include/asm/archrandom.h:40:33: error: conflicting types
+for 'arch_get_random_seed_long'
+ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm64/include/asm/archrandom.h:9:0,
+                 from arch/arm64/kernel/kaslr.c:14:
+include/linux/random.h:149:9: note: previous implicit declaration of
+'arch_get_random_seed_long' was here
+  return arch_get_random_seed_long(v);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm64/kernel/kaslr.c:14:0:
+arch/arm64/include/asm/archrandom.h:72:1: error: redefinition of
+'arch_get_random_seed_long_early'
+ arch_get_random_seed_long_early(unsigned long *v)
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm64/include/asm/archrandom.h:9:0,
+                 from arch/arm64/kernel/kaslr.c:14:
+include/linux/random.h:146:27: note: previous definition of
+'arch_get_random_seed_long_early' was here
+ static inline bool __init arch_get_random_seed_long_early(unsigned long *v)
+
+
+-- 
 Linaro LKFT
 https://lkft.linaro.org
