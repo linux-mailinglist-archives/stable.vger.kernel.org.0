@@ -2,182 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA8D23C639
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 08:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 318E323C70C
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 09:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbgHEGxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 02:53:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725904AbgHEGxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 02:53:12 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D56C06174A
-        for <stable@vger.kernel.org>; Tue,  4 Aug 2020 23:53:11 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id q75so36683496iod.1
-        for <stable@vger.kernel.org>; Tue, 04 Aug 2020 23:53:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=E3FDGWcfDYMfmZzmjCmVff8ufX3JbPAPvNP4qUqkbYk=;
-        b=oRw0sKEcr1FH3uJgTU7KO4GPlxBHZ7VQFoq0pxyRGoeWrNUlLNSJZ45gqE/sPYbFmJ
-         go64ObjzG5EAwWKJxw7qc7pXQ3iatPjhA2ipGMPNRHsPw8fJWViuGLAO5o1DpSazSbrZ
-         wrtmCU+GqwCsTNw8y5KJxeDYRi1UF1gCVrnIHwLssZtrB730T3S/AqB5Ijug5/1vfyC3
-         NLTzlU+/Zp0ZvlJKKtanCZbv2uhA/VDXlHbumnk42obRo2YTJIVfCeK5AyQlwT2fuCv9
-         dAM1j4DELm9A/urP7om8vlxErmZL4U8t3SI+y3z7hmltucgMMVNvmJPD9VTVL7zGqtu7
-         Owrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=E3FDGWcfDYMfmZzmjCmVff8ufX3JbPAPvNP4qUqkbYk=;
-        b=l4xMFwZ8OMQ83uDXhHsYMHHcfwCTwuX63NCSpoiNJn5D7X00GjQ3lqWnCXglC7pFXW
-         hf5lMsOdb9OoF1kzIpoUKXZpGcmRBLYeZm3PsdzLfWmPrhwwNgjKSkH/RkOiZPDrwyhM
-         rsMEWJmJ1Ua0ePLZQs00MbJSMrqrUDrXaYEu9rn69csvQXWgKYykXDM6i95exuEhLqkp
-         +Cf7KF/x3LlXGx+75fMLNH6SBU5Y37ueg92BhctUqS3ptXj0DlRg+s0O/tGoT39aMRSn
-         roxwt3m4FEz5f2hbEu5x+5L7weq5Fy88X+6edeCS5aZJXWa3vt6luCQ4hs+A9YvZF9jj
-         vZfA==
-X-Gm-Message-State: AOAM5323EbGhTKqXEhSUbLBvE6isPXX7AYNJd3kTF0vKAvPTMBFiZ6uT
-        WtxjsZDwqjg2jBhrOfC0Kl9JWWfpjctYANIXwceSYg==
-X-Google-Smtp-Source: ABdhPJw292/nirdA4CiSTWNrlYejai8h8/9xpGI2jxOgYtnzNx5JlV/4p993axYti0lQodF7npaxZ6qbY1skboXx/zw=
-X-Received: by 2002:a5d:995a:: with SMTP id v26mr1887188ios.176.1596610390782;
- Tue, 04 Aug 2020 23:53:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200804085215.362760089@linuxfoundation.org>
-In-Reply-To: <20200804085215.362760089@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 5 Aug 2020 12:22:59 +0530
-Message-ID: <CA+G9fYt6Yxsh9QRn6yG3SsOoLKBUYbbp=e3JTd8oKTj=w=852g@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/47] 4.14.192-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1725963AbgHEHii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 03:38:38 -0400
+Received: from mail-m964.mail.126.com ([123.126.96.4]:36342 "EHLO
+        mail-m964.mail.126.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725983AbgHEHih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 03:38:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+        s=s110527; h=From:Subject:Date:Message-Id; bh=DOCU5HntHDoMHJxp9H
+        qyRoF18SUiP/lo+VubNRBp8Xc=; b=Nu3by3850DqlQbsM3JfwhbaoDTs0M517vu
+        whCR84Wi2xa5Y/WCxKT357WDAgJTi23qTs4myC80qOJ/jdI9EPm/FTicIRTuMl8X
+        UgUh2WJiYss5aLqjZxzZHivHVJ623yEkrAs8V/KYR5C3L4fdraTg/bGzSYp/3OwZ
+        XBuxuJOHI=
+Received: from xr-hulk-k8s-node1933.gh.sankuai.com (unknown [101.236.11.3])
+        by smtp9 (Coremail) with SMTP id NeRpCgDn7y+xYSpfzH34Ew--.23S2;
+        Wed, 05 Aug 2020 15:37:31 +0800 (CST)
+From:   Jiang Ying <jiangying8582@126.com>
+To:     tytso@mit.edu, adilger.kernel@dilger.ca,
+        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     wanglong19@meituan.com, heguanjun@meituan.com
+Subject: [PATCH] ext4: fix direct I/O read error
+Date:   Wed,  5 Aug 2020 15:37:21 +0800
+Message-Id: <1596613041-173057-1-git-send-email-jiangying8582@126.com>
+X-Mailer: git-send-email 1.8.3.1
+X-CM-TRANSID: NeRpCgDn7y+xYSpfzH34Ew--.23S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxAw47WFW8tw4rCr1UZr4xZwb_yoWrXr4rpF
+        sxCa15WrWkZr4rCanFk3W7Za4Fy3yDGFWUXF98uw1UZr43Kr9YyrW8KF1UGayUGrWF9w4F
+        qFZ8tryfXw1UZFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UEfOcUUUUU=
+X-Originating-IP: [101.236.11.3]
+X-CM-SenderInfo: xmld0wp1lqwmqvysqiyswou0bp/1tbi7xt3AFpD+oBi7wAAst
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 4 Aug 2020 at 14:23, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.192 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.192-rc3.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+This patch is used to fix ext4 direct I/O read error when
+the read size is not aligned with block size.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Then, I will use a test to explain the error.
 
-Summary
-------------------------------------------------------------------------
+(1) Make a file that is not aligned with block size:
+	$dd if=/dev/zero of=./test.jar bs=1000 count=3
 
-kernel: 4.14.192-rc3
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 7083248d6b07cb6515a68a2615895a121d7429e0
-git describe: v4.14.191-48-g7083248d6b07
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.191-48-g7083248d6b07
+(2) I wrote a source file named "direct_io_read_file.c" as following:
 
-No regressions (compared to build v4.14.191)
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <unistd.h>
+	#include <sys/file.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <string.h>
+	#define BUF_SIZE 1024
 
-No fixes (compared to build v4.14.191)
+	int main()
+	{
+		int fd;
+		int ret;
 
+		unsigned char *buf;
+		ret = posix_memalign((void **)&buf, 512, BUF_SIZE);
+		if (ret) {
+			perror("posix_memalign failed");
+			exit(1);
+		}
+		fd = open("./test.jar", O_RDONLY | O_DIRECT, 0755);
+		if (fd < 0){
+			perror("open ./test.jar failed");
+			exit(1);
+		}
 
-Ran 31440 total tests in the following environments and test suites.
+		do {
+			ret = read(fd, buf, BUF_SIZE);
+			printf("ret=%d\n",ret);
+			if (ret < 0) {
+				perror("write test.jar failed");
+			}
+		} while (ret > 0);
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
+		free(buf);
+		close(fd);
+	}
 
-Test Suites
------------
-* build
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* ssuite
+(3) Compile the source file:
+	$gcc direct_io_read_file.c -D_GNU_SOURCE
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+(4) Run the test program:
+	$./a.out
+
+	The result is as following:
+	ret=1024
+	ret=1024
+	ret=952
+	ret=-1
+	write test.jar failed: Invalid argument.
+
+I have tested this program on XFS filesystem, XFS does not have
+this problem, because XFS use iomap_dio_rw() to do direct I/O
+read. And the comparing between read offset and file size is done
+in iomap_dio_rw(), the code is as following:
+
+	if (pos < size) {
+		retval = filemap_write_and_wait_range(mapping, pos,
+				pos + iov_length(iov, nr_segs) - 1);
+
+		if (!retval) {
+			retval = mapping->a_ops->direct_IO(READ, iocb,
+						iov, pos, nr_segs);
+		}
+		...
+	}
+
+...only when "pos < size", direct I/O can be done, or 0 will be return.
+
+I have tested the fix patch on Ext4, it is up to the mustard of
+EINVAL in man2(read) as following:
+	#include <unistd.h>
+	ssize_t read(int fd, void *buf, size_t count);
+
+	EINVAL
+		fd is attached to an object which is unsuitable for reading;
+		or the file was opened with the O_DIRECT flag, and either the
+		address specified in buf, the value specified in count, or the
+		current file offset is not suitably aligned.
+
+So I think this patch can be applied to fix ext4 direct I/O error.
+
+However Ext4 introduces direct I/O read using iomap infrastructure
+on kernel 5.5, the patch is commit <b1b4705d54ab>
+("ext4: introduce direct I/O read using iomap infrastructure"),
+then Ext4 will be the same as XFS, they all use iomap_dio_rw() to do direct
+I/O read. So this problem does not exist on kernel 5.5 for Ext4.
+
+From above description, we can see this problem exists on all the kernel
+versions between kernel 3.14 and kernel 5.4. It will cause the Applications
+to fail to read. For example, when the search service downloads a new full
+index file, the search engine is loading the previous index file and is
+processing the search request, it can not use buffer io that may squeeze
+the previous index file in use from pagecache, so the serch service must
+use direct I/O read.
+
+Please apply this patch on these kernel versions, or please use the method
+on kernel 5.5 to fix this problem.
+
+Fixes: 9fe55eea7e4b ("Fix race when checking i_size on direct i/o read")
+Reviewed-by: Jan Kara <jack@suse.cz>
+Co-developed-by: Wang Long <wanglong19@meituan.com>
+Signed-off-by: Wang Long <wanglong19@meituan.com>
+Signed-off-by: Jiang Ying <jiangying8582@126.com>
+---
+ fs/ext4/inode.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 516faa2..a66b0ac 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3821,6 +3821,11 @@ static ssize_t ext4_direct_IO_read(struct kiocb *iocb, struct iov_iter *iter)
+ 	struct inode *inode = mapping->host;
+ 	size_t count = iov_iter_count(iter);
+ 	ssize_t ret;
++	loff_t offset = iocb->ki_pos;
++	loff_t size = i_size_read(inode);
++
++	if (offset >= size)
++		return 0;
+ 
+ 	/*
+ 	 * Shared inode_lock is enough for us - it protects against concurrent
+-- 
+1.8.3.1
+
