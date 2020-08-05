@@ -2,98 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4280A23D03B
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6583F23D069
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728500AbgHETpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 15:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728959AbgHETpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 15:45:49 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B10DDC06174A
-        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 12:45:48 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id x24so7568316lfe.11
-        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 12:45:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YMknd1+dlXX/Q3YM8+W65fV77VdzsmUF/OU4h6Xq9xE=;
-        b=ZAog/SvHzVeXNMZb2Fj5fRotY3ezW+cicXN46stQ1/EcG2JvDXQPNisMdRpFYwto3Q
-         Dv3M/sBUceZ5Dyhdv1XWGkFmj4MJymVOF7batv5qAvZjxsoQDutBTN4BJSi6RVDxcp3D
-         +gb2PdLmzPW3FgOKTKFIsirWz5+LHUS5bP2gk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YMknd1+dlXX/Q3YM8+W65fV77VdzsmUF/OU4h6Xq9xE=;
-        b=eCb4J4P5dk9zTDxYVizmlsL7b/nK60e1YzsrrFsmRK1X9JJWDRv9nanYT+HRXVeznO
-         dyKN0Molve/M4VEfB0ogePED839jrd6+nuVCVFzYZSfrk111xDKP/8p7miLGjKK1DnG7
-         01mp+zlRgBTMPf/LOJlJAfeJca1wzcOLfT3j1VIRdp7zWRXqafBmm5UnGYwulvFH463n
-         pqsCUq8lLB3AIfY87Zwgb/xTm6DcBpkNhEzGdopCPnGUxxLVbF7SVwgTE/K4Ut3fGSq0
-         mzgUTZ8fxunSWDKzw15E8bnCjGhCLcwDHaH/wZQgY2a7bYEfXwTT5emaztfF1dwcyXin
-         dDzA==
-X-Gm-Message-State: AOAM533iYGwA/n+4eicNZQZxdGAt1nrG8f0t/imWJfMUGiJ3QRP+MYFu
-        cadFpZRWNocCx6eDo9nmBLvvhuh08O8=
-X-Google-Smtp-Source: ABdhPJyOu2EYTx8d/QLa/ewkNqscLoPj0lyp36g+oHISHEZZ4Uk2VAbboavAGnD2SziKC3/YN6eXew==
-X-Received: by 2002:ac2:4adb:: with SMTP id m27mr2344337lfp.90.1596656745828;
-        Wed, 05 Aug 2020 12:45:45 -0700 (PDT)
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com. [209.85.167.44])
-        by smtp.gmail.com with ESMTPSA id i7sm1377916ljg.54.2020.08.05.12.45.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Aug 2020 12:45:43 -0700 (PDT)
-Received: by mail-lf1-f44.google.com with SMTP id x24so7568168lfe.11
-        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 12:45:42 -0700 (PDT)
-X-Received: by 2002:ac2:522b:: with SMTP id i11mr2306959lfl.30.1596656741926;
- Wed, 05 Aug 2020 12:45:41 -0700 (PDT)
+        id S1728622AbgHETs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 15:48:26 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:17862 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728262AbgHETsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 15:48:23 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f2b0ca40000>; Wed, 05 Aug 2020 12:46:44 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 05 Aug 2020 12:48:23 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Wed, 05 Aug 2020 12:48:23 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 5 Aug
+ 2020 19:48:23 +0000
+Received: from [127.0.1.1] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 5 Aug 2020 19:48:15 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.14 0/8] 4.14.193-rc1 review
+In-Reply-To: <20200805153507.005753845@linuxfoundation.org>
+References: <20200805153507.005753845@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-References: <20200805153506.978105994@linuxfoundation.org> <CA+G9fYv_aX36Kq_RD5dAL_By4AFq=-ZY_qh7VhLG=HJQv5mDzg@mail.gmail.com>
- <71a132bf-5ddb-a97a-9b65-6767fd806ee9@roeck-us.net> <CAHk-=wi0WGMs6+Jz6rXbQO4mfzf8LGVc3TwmCdz0OwRtj7GgMQ@mail.gmail.com>
- <7e1c9df5-d334-461d-56fc-53625c6ca163@roeck-us.net>
-In-Reply-To: <7e1c9df5-d334-461d-56fc-53625c6ca163@roeck-us.net>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 5 Aug 2020 12:45:25 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wj1m3VFa6Sz96gxNjKCOH21jDuuODm46-VAukD5YGc1yA@mail.gmail.com>
-Message-ID: <CAHk-=wj1m3VFa6Sz96gxNjKCOH21jDuuODm46-VAukD5YGc1yA@mail.gmail.com>
-Subject: Re: [PATCH 5.7 0/6] 5.7.14-rc1 review
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Marc Zyngier <maz@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Willy Tarreau <w@1wt.eu>,
-        Grygorii Strashko <grygorii.strashko@ti.com>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <0cd9e08356fe47ba8f3542411afce6ac@HQMAIL107.nvidia.com>
+Date:   Wed, 5 Aug 2020 19:48:15 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1596656804; bh=rK0I5ND/1OHxVi73SaFzoC2RHgKUAtovTWzdQvuD8M0=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=VcjPxVIOuHu72eSsp6egvhraT4c8cwD8CnQhxIUaoIfffYEZ2gBncEPQPksIZPwEi
+         IJPo4grukEtqycYGpA9Iv+LPf1B6xKHRr6hFPbtrgIlc62VHAHR2yOK3d8QSp0JDYz
+         R236mwvAJKqmFOtxLmG7vD+XoZzGY3a1Ds0d3Vu6hZQlF/pXSMTDxiNfPm3IMkDdas
+         TDr9JaMJNxVb+Tr6wSbHsCGyMPkiDal4VioH/Cvg4aO/SlpTup+BnRd3YVvVqmqadk
+         qUZ9FT8JuXHNn6sIzaRzf0SEhrVOXbnN5u0JzTqBpdFNtiy8VaFz/fbvnTW+wKhGt4
+         WayXMtUTRm2lg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 5, 2020 at 12:24 PM Guenter Roeck <linux@roeck-us.net> wrote:
->
-> On 8/5/20 11:37 AM, Linus Torvalds wrote:
-> >
-> > Because the trivial fix would be something like the appended, which is
-> > the right thing to do anyway.
->
-> Correct.
+On Wed, 05 Aug 2020 17:53:26 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.193 release.
+> There are 8 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 07 Aug 2020 15:34:53 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.193-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I'll take that as an Ack, and also remove the crazy reverse include
-from archrandom.h that most definitely shouldn't be there.
+All tests passing for Tegra ...
 
-It's now commit 585524081ecd ("random: random.h should include
-archrandom.h, not the other way around") in my tree, because a grep
-for "archrandom.h" shows that now the only place it exists is
-<linux/random.h> and a few files that cannot possibly affect arm64
-(because they are on x86 and powerpc, neither of which has that insane
-reverse include).
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    30 tests:	30 pass, 0 fail
 
-               Linus
+Linux version:	4.14.193-rc1-ge8ffd3efac22
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Jon
