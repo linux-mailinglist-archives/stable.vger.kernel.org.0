@@ -2,140 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA5C23CF94
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B7323CF12
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 21:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728477AbgHETWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 15:22:47 -0400
-Received: from mail-dm6nam10on2073.outbound.protection.outlook.com ([40.107.93.73]:61664
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728851AbgHERlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 13:41:14 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=U4I54Zo606C/ut2vJWhPXvvMO7Ppdve6lvL6a7qrGFwsbiqbqW9XTyb9HC7k8/RFW0l93hz5zvtYnUTpVR8hIwnu2TPKcUgPI23VVtApHvjDgNemFdlmQeC60Rd8NKS/elhNaKfPjyYa1uxBrm0U+X4g2/h09HY8Jm8oDzsheeRsF5LU2RFYlY5cTT4Rofcsd6SG6fOB9ccpw1nJY5guOhFH1XqXkXbOJFN8UmYXPdxW7qz0FPoEFKicwbKFTigNrQIG+ofdaSnG/gj85AHZQV+GyrYKMs+kXRdxTlwFJyycf+DrEImoxZW5KuLmuAMo7Vka87U2FyiCIEPid8ERqg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DprzQBfuFauV2loh/P4pR3y2wnwOTpPmYmhnevmSvhA=;
- b=Q3K2mYpJHhS0sA0/k19p/jpfDxj38zwFU0P72tyPoiNgFD9TFb1qkQZUq7NQxEp7ImqrwVwWkjGMCgeNJwQDdasdXSvylfogiChT795x+8/lLxlQBtUA3wzQXwoXMTjBYHIem9prt0zoQU1RF98Jix97e7LU6V9rat7g+j5bpcXGg21vsnqsx4huZD+XvlviaPik2WoixmDt7uZSH/KReaKLNxXw6gb4rQqEJJnz4kMIhGHuhJzfMcnA3e2wEVQ0C+Bzx5mTr4ggdNsDBbVazwuwlH/9ZSKMx4bsqMp8A/jOk1IAc+tvNxr8IW46PBZMbdn3Rdf7Iuueg9mjtG71dQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=permerror action=none header.from=amd.com; dkim=none (message not
- signed); arc=none
+        id S1728575AbgHETNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 15:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728621AbgHESYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 14:24:25 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F09C061575;
+        Wed,  5 Aug 2020 11:24:25 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id d19so1415585pgl.10;
+        Wed, 05 Aug 2020 11:24:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DprzQBfuFauV2loh/P4pR3y2wnwOTpPmYmhnevmSvhA=;
- b=1G9w3O80Ge+xjA2efEvVoJ4bAmzbMIl720AWoQsFYwkWdfIY3Gn7as8wkx+o6XMSv9/xI2gQweC+t69YRjYjZHjUSZQEGghsGofg4xKRWmvewTUKfYdPgHZ5bD+TIHLv4JueRtjbVoipdW8bc0O6Mkg9rpyJcGB+BZU8u52lJy4=
-Received: from MWHPR02CA0011.namprd02.prod.outlook.com (2603:10b6:300:4b::21)
- by BYAPR12MB3368.namprd12.prod.outlook.com (2603:10b6:a03:dc::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3239.20; Wed, 5 Aug
- 2020 17:41:10 +0000
-Received: from CO1NAM11FT011.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:4b:cafe::1d) by MWHPR02CA0011.outlook.office365.com
- (2603:10b6:300:4b::21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3261.18 via Frontend
- Transport; Wed, 5 Aug 2020 17:41:10 +0000
-X-MS-Exchange-Authentication-Results: spf=none (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
- header.d=none;lists.freedesktop.org; dmarc=permerror action=none
- header.from=amd.com;
-Received-SPF: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-Received: from SATLEXMB01.amd.com (165.204.84.17) by
- CO1NAM11FT011.mail.protection.outlook.com (10.13.175.186) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.3261.16 via Frontend Transport; Wed, 5 Aug 2020 17:41:09 +0000
-Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB01.amd.com
- (10.181.40.142) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 5 Aug 2020
- 12:41:05 -0500
-Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 5 Aug 2020
- 12:41:05 -0500
-Received: from localhost.localdomain (10.180.168.240) by SATLEXMB02.amd.com
- (10.181.40.143) with Microsoft SMTP Server id 15.1.1713.5 via Frontend
- Transport; Wed, 5 Aug 2020 12:41:04 -0500
-From:   Qingqing Zhuo <qingqing.zhuo@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
-        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
-        <Qingqing.Zhuo@amd.com>, <Eryk.Brol@amd.com>,
-        Jaehyun Chung <jaehyun.chung@amd.com>, <stable@vger.kernel.org>
-Subject: [PATCH 9/9] drm/amd/display: Blank stream before destroying HDCP session
-Date:   Wed, 5 Aug 2020 13:40:58 -0400
-Message-ID: <20200805174058.11736-10-qingqing.zhuo@amd.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200805174058.11736-1-qingqing.zhuo@amd.com>
-References: <20200805174058.11736-1-qingqing.zhuo@amd.com>
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=sesb+iOajMrkthKitgXHyu1N3R51OJyrL241Xs6whr8=;
+        b=chNJhfF7a+/eQFIbz8EN66bcNCKTFuLcvelW5TuPxN4hdyLi7eWIXZZSH2gBrk/JUo
+         b7qK0y5fVrx1I1EYXGcnauESoF0La+GysDkT8s1uIo3y0AefGOvNE9c3CjYH65iWeD8/
+         GC2VrsbKdQA6yDOO8FWZyncn9nXhB+C4UrlB67IWspLd5mz53EAbuMyPYIdwauunvOv4
+         Map3/4Rq1W3FJSXXtqV4lsdkNdrJ/ovYxqQDuHs4tYBmPw/huOgtFJCOoLsnL33uZf32
+         RdlUugTIw2kSTrpn6mda882UUKZ4seU/17PpirFgDaf5SV7J1DUZCgIQWhsTT76wGu2Y
+         Oq9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=sesb+iOajMrkthKitgXHyu1N3R51OJyrL241Xs6whr8=;
+        b=Yq0z9gABYNsu3F1Q0r2rO6l2ZSo+cF1GjgrLVc7ewUYjT4GnqOCtYueGID0735EwQ4
+         CPsdMHQKnp+9IY37xIUEb2CIepPkW03VRKtd33eHBrgdftzJuxHoV0u6oPnWQ71CQ2xB
+         x8CZZPCfxFSPl0rszCrKCRfztfdrQyiQSozBLPimsxlQo2bEaNtHsRrjDSBaaDeeaGJC
+         xRKzp2mmCWp2rVaMlbHLPV/6n1PhGmWT50LzHPWBPwYKLkspSsfaMksMVdRB6lw2RGpA
+         4NFPmdhzNSLEeeO15CYo5E0a1ZpEA5UHbNvVEK5YD9GcB8K7qYyexreT7f3vH6SUhEsm
+         z7DQ==
+X-Gm-Message-State: AOAM532ScrqlfD3D9oCVguPsgCe7g6saKeIYWtnjVU6MxPBvKhBRA5nT
+        7dCHPxdus9LxgTDN2Frent6RhbgA
+X-Google-Smtp-Source: ABdhPJwKLNOLC8w3MreF/H6NQ6gI/veJY+Itb1bCqCCkcsYAmS/VSOhslcfnVigCbZHx8w/cv0IZHw==
+X-Received: by 2002:a62:1d1:: with SMTP id 200mr4409861pfb.161.1596651865244;
+        Wed, 05 Aug 2020 11:24:25 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l16sm4493848pff.167.2020.08.05.11.24.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Aug 2020 11:24:24 -0700 (PDT)
+Subject: Re: [PATCH 5.7 0/6] 5.7.14-rc1 review
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Marc Zyngier <maz@kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>, w@1wt.eu,
+        Grygorii Strashko <grygorii.strashko@ti.com>
+References: <20200805153506.978105994@linuxfoundation.org>
+ <CA+G9fYv_aX36Kq_RD5dAL_By4AFq=-ZY_qh7VhLG=HJQv5mDzg@mail.gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <71a132bf-5ddb-a97a-9b65-6767fd806ee9@roeck-us.net>
+Date:   Wed, 5 Aug 2020 11:24:22 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 2b5ec078-2cea-4d5b-305a-08d83966bd74
-X-MS-TrafficTypeDiagnostic: BYAPR12MB3368:
-X-Microsoft-Antispam-PRVS: <BYAPR12MB33680A9AF58D8BADF4F741B1FB4B0@BYAPR12MB3368.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1850;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0f2ncPeyP3SorbljQS4yqocxchyEdgXl/YL8xIXVrgSB/O9pfKTvkMbWd2ukHV5gO8gayN95oTH+J85UpYFsYQm3TUrkSEMO+XKHfIl6GVlhg6PHmQT3cHWguj2+gSBBkFb3wmuF/GGiQphk2GI6mlEpdxVL0QKosX0GLYZ+tb3kPRh6mcY5M1V1UkLJAgVbx5FzDAjYV4HxLpVFN0egl7SKcK95cd0IwyqVsJMhPfyrbp4l289cESijwg3s3GzFZCU4SZl1l8bNwjC1ICpD+339d33wyCTGiIPxFyAwpbLqY07VQnWbQtHXs/rX1mQu5iENPoJ/9vnNtqiS16ADdb6rsEy9YgmvEnFX1bGgDA3aF9hJH5PSNhFsFUHEebKAUs15bspppcaMMxQ8KIp2dg==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SATLEXMB01.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFTY:;SFS:(4636009)(136003)(376002)(396003)(346002)(39860400002)(46966005)(26005)(8676002)(70586007)(82310400002)(6916009)(36756003)(356005)(70206006)(83380400001)(81166007)(186003)(44832011)(478600001)(2616005)(4326008)(5660300002)(426003)(336012)(1076003)(316002)(82740400003)(8936002)(54906003)(47076004)(86362001)(6666004)(2906002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2020 17:41:09.9171
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2b5ec078-2cea-4d5b-305a-08d83966bd74
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB01.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT011.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3368
+In-Reply-To: <CA+G9fYv_aX36Kq_RD5dAL_By4AFq=-ZY_qh7VhLG=HJQv5mDzg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaehyun Chung <jaehyun.chung@amd.com>
+On 8/5/20 10:39 AM, Naresh Kamboju wrote:
+> On Wed, 5 Aug 2020 at 21:22, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+>>
+>> This is the start of the stable review cycle for the 5.7.14 release.
+>> There are 6 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Fri, 07 Aug 2020 15:34:53 +0000.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.14-rc1.gz
+>> or in the git tree and branch at:
+>>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+>> and the diffstat can be found below.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+>> -------------
+>> Pseudo-Shortlog of commits:
+>>
+>> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>     Linux 5.7.14-rc1
+>>
+>> Marc Zyngier <maz@kernel.org>
+>>     arm64: Workaround circular dependency in pointer_auth.h
+>>
+>> Linus Torvalds <torvalds@linux-foundation.org>
+>>     random32: move the pseudo-random 32-bit definitions to prandom.h
+>>
+>> Linus Torvalds <torvalds@linux-foundation.org>
+>>     random32: remove net_rand_state from the latent entropy gcc plugin
+>>
+>> Willy Tarreau <w@1wt.eu>
+>>     random: fix circular include dependency on arm64 after addition of percpu.h
+>>
+>> Grygorii Strashko <grygorii.strashko@ti.com>
+>>     ARM: percpu.h: fix build error
+>>
+>> Willy Tarreau <w@1wt.eu>
+>>     random32: update the net random state on interrupt and activity
+>>
+> 
+> [ sorry if it is not interesting ! ]
+> 
+> While building with old gcc-7.3.0 the build breaks for arm64
+> whereas build PASS on gcc-8, gcc-9 and gcc-10.
+> 
+> with gcc 7.3.0 build breaks log,
+> 
+Same with older versions of gcc. I don't see the problem with the
+mainline kernel.
 
-[Why]
-Stream disable sequence incorretly destroys HDCP session while stream is
-not blanked and while audio is not muted. This sequence causes a flash
-of corruption during mode change and an audio click.
+I think this is caused by more recursive includes.
+arch/arm64/include/asm/archrandom.h includes include/linux/random.h
+which includes arch/arm64/include/asm/archrandom.h to get the definition
+of arch_get_random_seed_long_early (which it won't get because of
+the recursion).
 
-[How]
-Change sequence to blank stream before destroying HDCP session. Audio will
-also be muted by blanking the stream.
+What I don't really understand is how this works with new versions
+of gcc.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jaehyun Chung <jaehyun.chung@amd.com>
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
----
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Guenter
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 4bd6e03a7ef3..117d8aaf2a9b 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -3286,12 +3286,11 @@ void core_link_disable_stream(struct pipe_ctx *pipe_ctx)
- 		core_link_set_avmute(pipe_ctx, true);
- 	}
- 
-+	dc->hwss.blank_stream(pipe_ctx);
- #if defined(CONFIG_DRM_AMD_DC_HDCP)
- 	update_psp_stream_config(pipe_ctx, true);
- #endif
- 
--	dc->hwss.blank_stream(pipe_ctx);
--
- 	if (pipe_ctx->stream->signal == SIGNAL_TYPE_DISPLAY_PORT_MST)
- 		deallocate_mst_payload(pipe_ctx);
- 
--- 
-2.17.1
+> In file included from arch/arm64/include/asm/archrandom.h:9:0,
+>                  from arch/arm64/kernel/kaslr.c:14:
+> include/linux/random.h: In function 'arch_get_random_seed_long_early':
+> include/linux/random.h:149:9: error: implicit declaration of function
+> 'arch_get_random_seed_long'; did you mean
+> 'arch_get_random_seed_long_early'?
+> [-Werror=implicit-function-declaration]
+>   return arch_get_random_seed_long(v);
+>          ^~~~~~~~~~~~~~~~~~~~~~~~~
+>          arch_get_random_seed_long_early
+> include/linux/random.h: In function 'arch_get_random_long_early':
+> include/linux/random.h:157:9: error: implicit declaration of function
+> 'arch_get_random_long'; did you mean 'get_random_long'?
+> [-Werror=implicit-function-declaration]
+>   return arch_get_random_long(v);
+>          ^~~~~~~~~~~~~~~~~~~~
+>          get_random_long
+> In file included from arch/arm64/kernel/kaslr.c:14:0:
+> arch/arm64/include/asm/archrandom.h: At top level:
+> arch/arm64/include/asm/archrandom.h:30:33: error: conflicting types
+> for 'arch_get_random_long'
+>  static inline bool __must_check arch_get_random_long(unsigned long *v)
+>                                  ^~~~~~~~~~~~~~~~~~~~
+> In file included from arch/arm64/include/asm/archrandom.h:9:0,
+>                  from arch/arm64/kernel/kaslr.c:14:
+> include/linux/random.h:157:9: note: previous implicit declaration of
+> 'arch_get_random_long' was here
+>   return arch_get_random_long(v);
+>          ^~~~~~~~~~~~~~~~~~~~
+> In file included from arch/arm64/kernel/kaslr.c:14:0:
+> arch/arm64/include/asm/archrandom.h:40:33: error: conflicting types
+> for 'arch_get_random_seed_long'
+>  static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+>                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+> In file included from arch/arm64/include/asm/archrandom.h:9:0,
+>                  from arch/arm64/kernel/kaslr.c:14:
+> include/linux/random.h:149:9: note: previous implicit declaration of
+> 'arch_get_random_seed_long' was here
+>   return arch_get_random_seed_long(v);
+>          ^~~~~~~~~~~~~~~~~~~~~~~~~
+> In file included from arch/arm64/kernel/kaslr.c:14:0:
+> arch/arm64/include/asm/archrandom.h:72:1: error: redefinition of
+> 'arch_get_random_seed_long_early'
+>  arch_get_random_seed_long_early(unsigned long *v)
+>  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> In file included from arch/arm64/include/asm/archrandom.h:9:0,
+>                  from arch/arm64/kernel/kaslr.c:14:
+> include/linux/random.h:146:27: note: previous definition of
+> 'arch_get_random_seed_long_early' was here
+>  static inline bool __init arch_get_random_seed_long_early(unsigned long *v)
+> 
+> 
 
