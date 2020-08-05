@@ -2,103 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9908823D3B2
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 23:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 137CB23D3C7
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 00:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725996AbgHEV5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 17:57:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38692 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725920AbgHEV5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 17:57:15 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66865C061575
-        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 14:57:14 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id t6so16579675qvw.1
-        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 14:57:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=U7VYDn64dFaNrOzrZ1JpPjis8QfdUcSYrZFIEVpa150=;
-        b=pygcnPN8FmJyLMaqx0BahUHPEgV9af9Wif1UPO32Sn+S78hL86xiR93+YJ8En7jucW
-         1zyJjc1nzFu4cYHZhfGuv8xAUgrmpuy6VP7pPYCqhdkWXfnAVT7GJGG/SIlBaPtlmDQR
-         rUE+MN/w6+9+/lLK6pu2bPiPDJgZnFkyRE5aK37iQrEExzuX040WCB6I8DlndzsN+Ts5
-         6DCoDH0VL3GzYbO2UuUH32R2HyDuydg2cEf3XxN3snRJEwSZAEHWSxbJz4ZWDoTVaiFH
-         xfBWu5HVYIVEyo4gpU6/bIBkhcawRzdIUEbmpL7rfQwk0Z66vW9vrqVXnRzPaN/Dd4np
-         4S/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=U7VYDn64dFaNrOzrZ1JpPjis8QfdUcSYrZFIEVpa150=;
-        b=D8/QcJjbk9ZvXllzZV3lf4a3mVlnREVn6AAiaoiJmchhY4ODVfIse5M3Fp1U1u59lC
-         EUUFwsdZlExlGhw/Yf/TgVC4k5DT6FGC0oENV8tlUp1qighv+bKKsEkVycLM4rwJ5JSW
-         G1Kt6uhZOS+E5BS23CpzApv6hnUP46eS4fjH7fiX6cgHoCL36vGacxmMuZO+R88cZ98g
-         DOx8UqHbE98HdyGjthbAN+JMKpByxSOwKXTmmW/HAn9t/XpokDOwn06T6NAhk1vP0Qsg
-         ehomoax8j1QRQR2JdQaBhgD7GqgMm36Ao2P5JgRX3R7YUSV4QGJVnEPAEpJ3M+sKlGtm
-         Ieig==
-X-Gm-Message-State: AOAM532AffoU/bOJ0OR8sf/njF/6Jm8Ro8cURfOtHCNJlu4f2gOeRLmk
-        /nvRN3SVgj67PpOtdYHZFOeNhNXu
-X-Google-Smtp-Source: ABdhPJyasR4viBs6qQJwscOrvafdrd+ZcVSQ8bekePelSg3ruhcyEEIKl51KCHClsnwDMkvYajMW8A==
-X-Received: by 2002:a05:6214:290:: with SMTP id l16mr5968990qvv.187.1596664632359;
-        Wed, 05 Aug 2020 14:57:12 -0700 (PDT)
-Received: from localhost.localdomain ([71.219.66.138])
-        by smtp.gmail.com with ESMTPSA id n85sm2522286qkn.80.2020.08.05.14.57.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2020 14:57:11 -0700 (PDT)
-From:   Alex Deucher <alexdeucher@gmail.com>
-X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
-To:     stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Huang Rui <ray.huang@amd.com>
-Subject: [PATCH] drm/amdgpu: fix ordering of psp suspend
-Date:   Wed,  5 Aug 2020 17:57:00 -0400
-Message-Id: <20200805215700.451808-1-alexander.deucher@amd.com>
-X-Mailer: git-send-email 2.25.4
+        id S1725920AbgHEWGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 18:06:36 -0400
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:55809 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725830AbgHEWGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 18:06:36 -0400
+Received: from callcc.thunk.org (pool-96-230-252-158.bstnma.fios.verizon.net [96.230.252.158])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 075M5ouk012945
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 5 Aug 2020 18:05:51 -0400
+Received: by callcc.thunk.org (Postfix, from userid 15806)
+        id 5A870420263; Wed,  5 Aug 2020 18:05:50 -0400 (EDT)
+Date:   Wed, 5 Aug 2020 18:05:50 -0400
+From:   tytso@mit.edu
+To:     Marc Plumb <lkml.mplumb@gmail.com>
+Cc:     Willy Tarreau <w@1wt.eu>, netdev@vger.kernel.org,
+        aksecurity@gmail.com, torvalds@linux-foundation.org,
+        edumazet@google.com, Jason@zx2c4.com, luto@kernel.org,
+        keescook@chromium.org, tglx@linutronix.de, peterz@infradead.org,
+        stable@vger.kernel.org
+Subject: Re: Flaw in "random32: update the net random state on interrupt and
+ activity"
+Message-ID: <20200805220550.GA785826@mit.edu>
+References: <9f74230f-ba4d-2e19-5751-79dc2ab59877@gmail.com>
+ <20200805024941.GA17301@1wt.eu>
+ <20200805153432.GE497249@mit.edu>
+ <c200297c-85a5-dd50-9497-6fcf7f07b727@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c200297c-85a5-dd50-9497-6fcf7f07b727@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ordering of psp_tmr_terminate() and psp_asd_unload()
-got reversed when the patches were applied to stable.
+On Wed, Aug 05, 2020 at 09:06:40AM -0700, Marc Plumb wrote:
+> Isn't get_random_u32 the function you wrote to do that? If this needs to be
+> cryptographically secure, that's an existing option that's safe.
+> 
+> The fundamental question is: Why is this attack on net_rand_state problem?
+> It's Working as Designed. Why is it a major enough problem to risk harming
+> cryptographically important functions?
 
-Fixes: 22ff658396b446 ("drm/amdgpu: asd function needs to be unloaded in suspend phase")
-Fixes: 2c41c968c6f648 ("drm/amdgpu: add TMR destory function for psp")
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.7.x
-Cc: Huang Rui <ray.huang@amd.com>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+I haven't looked at the users of net_rand_state, but historically, the
+networking subsystem has a expressed a (perceived?) need for *very* fast
+mostly-random-but-if-doens't-have-to-be-perfect-numbers-our-benchmarks-
+are-way-more-important numbers.   As in, if there are extra cache line
+misses, our benchmarks would suffer and that's not acceptable.
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 3c6f60c5b1a5..088f43ebdceb 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -1679,15 +1679,15 @@ static int psp_suspend(void *handle)
- 		}
- 	}
- 
--	ret = psp_tmr_terminate(psp);
-+	ret = psp_asd_unload(psp);
- 	if (ret) {
--		DRM_ERROR("Falied to terminate tmr\n");
-+		DRM_ERROR("Failed to unload asd\n");
- 		return ret;
- 	}
- 
--	ret = psp_asd_unload(psp);
-+	ret = psp_tmr_terminate(psp);
- 	if (ret) {
--		DRM_ERROR("Failed to unload asd\n");
-+		DRM_ERROR("Falied to terminate tmr\n");
- 		return ret;
- 	}
- 
--- 
-2.25.4
+One of the problems here is that it's not sufficient for the average case
+to be fast, but once in every N operations, we need to do something that
+requires Real Crypto, and so that Nth time, there would be an extra lag
+and that would be the end of the world (at least as far as networking
+benchmarks are concerned, anyway).   So in other words, it's not enough for
+the average time to run get_random_u32() to be fast, they care about the 95th or
+99th percentile number of get_random_u32() to be fast as well.
 
+An example of this would be for TCP sequence number generation; it's
+not *really* something that needs to be secure, and if we rekey the
+RNG every 5 minutes, so long as the best case attack takes at most,
+say, an hour, if the worst the attacker can do is to be able to carry
+out an man-in-the-middle attack without being physically in between
+the source and the destination --- well, if you *really* cared about
+security the TCP connection would be protected using TLS anyway.  See
+RFC 1948 (later updated by RFC 6528) for an argument along these
+lines.
+
+> This whole thing is making the fundamental mistake of all amateur
+> cryptographers of trying to create your own cryptographic primitive. You're
+> trying to invent a secure stream cipher. Either don't try to make
+> net_rand_state secure, or use a known secure primitive.
+
+Well, technically it's not supposed to be a secure cryptographic
+primitive.  net_rand_state is used in the call prandom_u32(), so the
+only supposed guarantee is PSEUDO random.
+
+That being said, a quick "get grep prandom_u32" shows that there are a
+*huge* number of uses of prandom_u32() and whether they are all
+appropriate uses of prandom_u32(), or kernel developers are using it
+because "I haz a ne3D for spE3d" but in fact it's for a security
+critical application is a pretty terrifying question.  If we start
+seeing CVE's getting filed caused by inappropriate uses of
+prandom_u32, to be honest, it won't surprise me.
+
+						- Ted
