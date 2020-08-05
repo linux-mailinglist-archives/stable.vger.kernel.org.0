@@ -2,76 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D6523C39A
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 04:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA1923C3B2
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 04:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726799AbgHECsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Aug 2020 22:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57884 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbgHECsO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Aug 2020 22:48:14 -0400
-Received: from ZenIV.linux.org.uk (zeniv.linux.org.uk [IPv6:2002:c35c:fd02::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2986C06174A;
-        Tue,  4 Aug 2020 19:48:13 -0700 (PDT)
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1k39TL-009Y7j-1q; Wed, 05 Aug 2020 02:48:07 +0000
-Date:   Wed, 5 Aug 2020 03:48:07 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Palmer Dabbelt <palmer@dabbelt.com>
-Cc:     macro@wdc.com, linux-riscv@lists.infradead.org,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] riscv: ptrace: Use the correct API for `fcsr' access
-Message-ID: <20200805024807.GM1236603@ZenIV.linux.org.uk>
-References: <20200805020745.GL1236603@ZenIV.linux.org.uk>
- <mhng-cd1ff2e9-7d34-4d56-8d79-b2d02a239290@palmerdabbelt-glaptop1>
+        id S1726130AbgHECt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Aug 2020 22:49:56 -0400
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:39399 "EHLO 1wt.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725950AbgHECt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Aug 2020 22:49:56 -0400
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 0752nfDC017394;
+        Wed, 5 Aug 2020 04:49:41 +0200
+Date:   Wed, 5 Aug 2020 04:49:41 +0200
+From:   Willy Tarreau <w@1wt.eu>
+To:     Marc Plumb <lkml.mplumb@gmail.com>
+Cc:     tytso@mit.edu, netdev@vger.kernel.org, aksecurity@gmail.com,
+        torvalds@linux-foundation.org, edumazet@google.com,
+        Jason@zx2c4.com, luto@kernel.org, keescook@chromium.org,
+        tglx@linutronix.de, peterz@infradead.org, stable@vger.kernel.org
+Subject: Re: Flaw in "random32: update the net random state on interrupt and
+ activity"
+Message-ID: <20200805024941.GA17301@1wt.eu>
+References: <9f74230f-ba4d-2e19-5751-79dc2ab59877@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <mhng-cd1ff2e9-7d34-4d56-8d79-b2d02a239290@palmerdabbelt-glaptop1>
+In-Reply-To: <9f74230f-ba4d-2e19-5751-79dc2ab59877@gmail.com>
+User-Agent: Mutt/1.6.1 (2016-04-27)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 04, 2020 at 07:20:05PM -0700, Palmer Dabbelt wrote:
-> On Tue, 04 Aug 2020 19:07:45 PDT (-0700), viro@zeniv.linux.org.uk wrote:
-> > On Tue, Aug 04, 2020 at 07:01:01PM -0700, Palmer Dabbelt wrote:
-> > 
-> > > > We currently have @start_pos fixed at 0 across all calls, which works as
-> > > > a result of the implementation, in particular because we have no padding
-> > > > between the FP general registers and the FP control and status register,
-> > > > but appears not to have been the intent of the API and is not what other
-> > > > ports do, requiring one to study the copy handlers to understand what is
-> > > > going on here.
-> > 
-> > start_pos *is* fixed at 0 and it's going to go away, along with the
-> > sodding user_regset_copyout() very shortly.  ->get() is simply a bad API.
-> > See vfs.git#work.regset for replacement.  And ->put() is also going to be
-> > taken out and shot (next cycle, most likely).
+Hi Marc,
+
+On Tue, Aug 04, 2020 at 05:52:36PM -0700, Marc Plumb wrote:
+> Seeding two PRNGs with the same entropy causes two problems. The minor one
+> is that you're double counting entropy. The major one is that anyone who can
+> determine the state of one PRNG can determine the state of the other.
 > 
-> I'm not sure I understand what you're saying, but given that branch replaces
-> all of this I guess it's best to just do nothing on our end here?
+> The net_rand_state PRNG is effectively a 113 bit LFSR, so anyone who can see
+> any 113 bits of output can determine the complete internal state.
+> 
+> The output of the net_rand_state PRNG is used to determine how data is sent
+> to the network, so the output is effectively broadcast to anyone watching
+> network traffic. Therefore anyone watching the network traffic can determine
+> the seed data being fed to the net_rand_state PRNG.
 
-It doesn't replace ->put() (for now); it _does_ replace ->get() and AFAICS the
-replacement is much saner:
+The problem this patch is trying to work around is that the reporter
+(Amit) was able to determine the entire net_rand_state after observing
+a certain number of packets due to this trivial LFSR and the fact that
+its internal state between two reseedings only depends on the number
+of calls to read it. (please note that regarding this point I'll
+propose a patch to replace that PRNG to stop directly exposing the
+internal state to the network).
 
-static int riscv_fpr_get(struct task_struct *target,
-                         const struct user_regset *regset,
-                         struct membuf to)
-{
-	struct __riscv_d_ext_state *fstate = &target->thread.fstate;
+If you look closer at the patch, you'll see that in one interrupt
+the patch only uses any 32 out of the 128 bits of fast_pool to
+update only 32 bits of the net_rand_state. As such, the sequence
+observed on the network also depends on the remaining bits of
+net_rand_state, while the 96 other bits of the fast_pool are not
+exposed there.
 
-	membuf_write(&to, fstate, offsetof(struct __riscv_d_ext_state, fcsr));
-	membuf_store(&to, fstate->fcsr);
-	return membuf_zero(&to, 4);     // explicitly pad
-}
+> Since this is the same
+> seed data being fed to get_random_bytes, it allows an attacker to determine
+> the state and there output of /dev/random. I sincerely hope that this was
+> not the intended goal. :)
 
-user_regset_copyout() calling conventions are atrocious and so are those of
-regset ->get().  The best thing to do with both is to take them out of their
-misery and be done with that.  Do you see any problems with riscv gdbserver
-on current linux-next?  If not, I'd rather see that "API" simply go away...
-If there are problems, I would very much prefer fixes on top of what's done
-in that branch.
+Not only was this obviously not the goal, but I'd be particularly
+interested in seeing this reality demonstrated, considering that
+the whole 128 bits of fast_pool together count as a single bit of
+entropy, and that as such, even if you were able to figure the
+value of the 32 bits leaked to net_rand_state, you'd still have to
+guess the 96 other bits for each single entropy bit :-/
+
+Regards,
+Willy
