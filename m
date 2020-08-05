@@ -2,16 +2,16 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BA623C910
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69D023C92C
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbgHEJUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 05:20:38 -0400
-Received: from sonic317-34.consmr.mail.ne1.yahoo.com ([66.163.184.45]:40394
-        "EHLO sonic317-34.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728511AbgHEJRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 05:17:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596619035; bh=dGwizWYnZGK91DDxdP+Qz2TpW7F6J5jDYhhs+LKiHMg=; h=Date:From:Reply-To:Subject:References:From:Subject; b=IjmFhclrG2pBO7pPAX/5qd0CcUY9/ueaPcTQnPb6SNttjxiqaIsPmTSC2dnLbmzG8+jetf+zFKjqF8ZyARav8cEUb5LLH2ksYrM2siTlNkwSfE8ul80pOPjqbxqmDxi7B3xF16t7VTLcLHpoFuIYYutG/ufwo74P8UlfkDruJfoOWsRm/8/HuH/twMxo9rnh3SySM0XYnhR9gzRA2K9/eWMXe/bpg1A1/Fa9gOv1kLPshbtlhRWZwJK8BfOXkvjwtMwAFT+X4hsso9DYDucf/OqIHW1IPu7jE4AVOnOzMdHlLxNrr/sXbb/JUdPUuhELNge+yhRVC9A3kx6pluhXhw==
+        id S1728103AbgHEJaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 05:30:39 -0400
+Received: from sonic302-21.consmr.mail.ne1.yahoo.com ([66.163.186.147]:33905
+        "EHLO sonic302-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727968AbgHEJ30 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 05:29:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596619766; bh=dGwizWYnZGK91DDxdP+Qz2TpW7F6J5jDYhhs+LKiHMg=; h=Date:From:Reply-To:Subject:References:From:Subject; b=G5tYT1o9IO5oRosW2yWXZKmNO5DB7sAuRwGmMzioZVutj3aNwzCUcsIOvmCOyEEIZ20VeN4IMbe8pIRP3PU5y/gwHa6MPsjJWKH06qHXMCTNxR0d0Tq2MVihRVbMXsKj3vSGkY0tyJKHEVKJB90H0XreI0OHAgMuYP/jgdYGskI8LGXp5xPoi2xq8mPLqCB7mkenL1JGOy9znWRJc+UYNlqW81hZPN+QsjRoSqmFdCMTSBmU85uNJw/ZFmUbq5VhO5u3yQ4Xd0u8odTZmSERMwiXz9Zs9IjeRjJVCdZ1//4mH5UEZjf9Zt6uI4afY/k4VTDvtL561Eaeb6xZgnS4gg==
 X-YMail-OSG: MOfkdwUVM1n2dljO54Oy5F0yf8FvQ8Hta4wVKbONOBVTdNvkmf8Po_ogQYGLOkl
  ESNddd43rmjA6tXrqnPSGoSWkNnzULQHqJUuPMj8IuPFfwLzi8YLG4RtDz5b5eXBc9tJKT0DDo6M
  TZQpZnYTv2IkTZOhkL1iqCo9LuoEKIOzraIVFynEGtT6hs4T8AuY5Kgoa8RrzB69WSeq_STrucjr
@@ -30,7 +30,7 @@ X-YMail-OSG: MOfkdwUVM1n2dljO54Oy5F0yf8FvQ8Hta4wVKbONOBVTdNvkmf8Po_ogQYGLOkl
  .e0oZdgh00N.z6nFpBSlb84qtftsRpM8YdTht7PA_1pPtxbCr481_TMCPY5NS2cxTOOllWW0H7i9
  _.khe.MLAp8XZCDpwitJIjh_RAoitIYgzoQnbZN.ZIWj8VSiBhgt7UlhgunCbpY4Rur.QEkobgTH
  vujit9W_nJSTEJwNEpb4V1e3GMhZPzAZ4PNk-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Wed, 5 Aug 2020 09:17:15 +0000
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Wed, 5 Aug 2020 09:29:26 +0000
 Date:   Wed, 5 Aug 2020 09:17:14 +0000 (UTC)
 From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
 Reply-To: mrahmedmuzashah@gmail.com
