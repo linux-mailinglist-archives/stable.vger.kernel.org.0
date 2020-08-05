@@ -2,74 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69D023C92C
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8526223C942
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728103AbgHEJaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 05:30:39 -0400
-Received: from sonic302-21.consmr.mail.ne1.yahoo.com ([66.163.186.147]:33905
-        "EHLO sonic302-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727968AbgHEJ30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 05:29:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596619766; bh=dGwizWYnZGK91DDxdP+Qz2TpW7F6J5jDYhhs+LKiHMg=; h=Date:From:Reply-To:Subject:References:From:Subject; b=G5tYT1o9IO5oRosW2yWXZKmNO5DB7sAuRwGmMzioZVutj3aNwzCUcsIOvmCOyEEIZ20VeN4IMbe8pIRP3PU5y/gwHa6MPsjJWKH06qHXMCTNxR0d0Tq2MVihRVbMXsKj3vSGkY0tyJKHEVKJB90H0XreI0OHAgMuYP/jgdYGskI8LGXp5xPoi2xq8mPLqCB7mkenL1JGOy9znWRJc+UYNlqW81hZPN+QsjRoSqmFdCMTSBmU85uNJw/ZFmUbq5VhO5u3yQ4Xd0u8odTZmSERMwiXz9Zs9IjeRjJVCdZ1//4mH5UEZjf9Zt6uI4afY/k4VTDvtL561Eaeb6xZgnS4gg==
-X-YMail-OSG: MOfkdwUVM1n2dljO54Oy5F0yf8FvQ8Hta4wVKbONOBVTdNvkmf8Po_ogQYGLOkl
- ESNddd43rmjA6tXrqnPSGoSWkNnzULQHqJUuPMj8IuPFfwLzi8YLG4RtDz5b5eXBc9tJKT0DDo6M
- TZQpZnYTv2IkTZOhkL1iqCo9LuoEKIOzraIVFynEGtT6hs4T8AuY5Kgoa8RrzB69WSeq_STrucjr
- 7OiiuWA9KLOGNNA6QNJZ06eVHNY5ukrrFodayaBydBaWtskVsg3ti.2DUGFDG8esFGv0RRzhnH2D
- z4L6a4zyJ1Hn0avvNDYuJ.e_eGY17LrRtADijcL6s833FoSskRmkrCPAjuZSPPkw2GRoD840WPdx
- ZREoUeuhe8UXQHIbAMyjMoBb19R7W3QkTpf4VvwnFBxinNOLwG8RKZdD1HPPkDIW96ycWm_q3ttu
- E0j_3xbOnvYP07R6kiqBs9QaNqCF8h9LsE.9NrtMA7BkTJBZYhFEx4Qq4jI_kj_hQyaJAkLrsd36
- ow0JCKrNUZD0hXqx41w1nV.lxyrhz02mTfRUcmjPakcljaCSP_hotsCIf2v8BC16XYhl.mu9Fvln
- 0Tons3u150Qp8YT_C5U9udiV6CTbgm1H6q5Mi9woziJChlV1YXyc1MaMfasBdvx3eFuy6Oz7K.pp
- PBOmqk5KhYNA2qOjTfVrWIcKMSem0d.GzsJkBwXCZFCA56ofST8UGhlUk9L.Wi97oFWOfcDu6P4G
- mOE3ylMp1_PjC3nR7L21rS8d0SG70eF.dRAlpjDSPQ4KPvCnC7ocINw5EW18XK8wwa6LzfQQl9BL
- 9aLLSpZhEQXr9rrVo9h0RG2R37PQQa6lXNE9P4pq2RnfZJsjByafWorrhtqEuf70npEc_EJfboQr
- uVGftVgHfSKd7nyPNGgUGrdVmHqMSQPqbsXHh7aF4ErTDaLiw2eU7RqWB13IUtocRIiOPDHX18eE
- MQQMXsrxF471TEmsZk7pFMcuMqat4ENBksQCTtwYJTcNO_ODYcYwa2kFQlrt036_NJ4L8189TyFU
- NV6mwu4FSWpkd8VxOabYpzjkzUn7zIgD2G54Z962peXEPLL5SCUgxoJRgbk_Fguhj3mD1r_SfF7L
- .e0oZdgh00N.z6nFpBSlb84qtftsRpM8YdTht7PA_1pPtxbCr481_TMCPY5NS2cxTOOllWW0H7i9
- _.khe.MLAp8XZCDpwitJIjh_RAoitIYgzoQnbZN.ZIWj8VSiBhgt7UlhgunCbpY4Rur.QEkobgTH
- vujit9W_nJSTEJwNEpb4V1e3GMhZPzAZ4PNk-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Wed, 5 Aug 2020 09:29:26 +0000
-Date:   Wed, 5 Aug 2020 09:17:14 +0000 (UTC)
-From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
-Reply-To: mrahmedmuzashah@gmail.com
-Message-ID: <448492924.173057.1596619034851@mail.yahoo.com>
-Subject: =?UTF-8?Q?Sch=C3=B6nen_Tag,?=
+        id S1728119AbgHEJey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 05:34:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60570 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726604AbgHEJew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 05:34:52 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD8B72075A;
+        Wed,  5 Aug 2020 09:34:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596620092;
+        bh=Cfh6QCLeq5XjsIJn+9NmstpBF1m0cXk6I1N0W9SvAN4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EUIAcsFLQiJmiMLh47EkNLaeazsYf9w3EZ++KQvhPEJ+73hhTC+iku/nn455JIS87
+         2ea/AfmB8S1LES1JxrZAjhzas9vM0Z7ht5RG50pnXIOJjIiG6ARKojocFKIowjprZo
+         fE0kEPls5Qv3TG2EEuGXRtDRaYTiEbTSX1riDog8=
+Date:   Wed, 5 Aug 2020 11:35:10 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.7 000/116] 5.7.13-rc3 review
+Message-ID: <20200805093510.GA1388764@kroah.com>
+References: <20200804085233.484875373@linuxfoundation.org>
+ <20200804192418.GD186129@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <448492924.173057.1596619034851.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16436 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200804192418.GD186129@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sch=C3=B6nen Tag,
+On Tue, Aug 04, 2020 at 12:24:18PM -0700, Guenter Roeck wrote:
+> On Tue, Aug 04, 2020 at 10:53:53AM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.7.13 release.
+> > There are 116 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 06 Aug 2020 08:51:59 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build results:
+> 	total: 155 pass: 155 fail: 0
+> Qemu test results:
+> 	total: 431 pass: 431 fail: 0
 
-Bitte entschuldigen Sie, dass Sie einen =C3=9Cberraschungsbrief geschrieben=
- haben. Ich bin Herr Ahmed Muzashah, Account Manager bei einer Investmentba=
-nk hier in Burkina Faso. Ich habe ein sehr wichtiges Gesch=C3=A4ft, das ich=
- mit Ihnen besprechen m=C3=B6chte. In meinem Konto ist ein Kontoentwurf er=
-=C3=B6ffnet Ich habe die M=C3=B6glichkeit, den verbleibenden Fonds (15,8 Mi=
-llionen US-Dollar) von f=C3=BCnfzehn Millionen achthunderttausend US-Dollar=
- eines meiner Bankkunden zu =C3=BCbertragen, der beim Zusammenbruch der Wel=
-t gestorben ist Handelszentrum in den Vereinigten Staaten am 11. September =
-2001.
+Thanks for testing all of these and letting me know.
 
-Ich m=C3=B6chte diese Mittel investieren und Sie unserer Bank f=C3=BCr dies=
-en Deal vorstellen. Alles, was ich ben=C3=B6tige, ist Ihre ehrliche Zusamme=
-narbeit und ich garantiere Ihnen, dass dies unter einer legitimen Vereinbar=
-ung durchgef=C3=BChrt wird, die uns vor Gesetzesverst=C3=B6=C3=9Fen sch=C3=
-=BCtzt Ich bin damit einverstanden, dass 40% dieses Geldes f=C3=BCr Sie als=
- meinen ausl=C3=A4ndischen Partner, 50% f=C3=BCr mich und 10% f=C3=BCr die =
-Schaffung der Grundlage f=C3=BCr die weniger Privilegien in Ihrem Land best=
-immt sind. Wenn Sie wirklich an meinem Vorschlag interessiert sind, werden =
-weitere Einzelheiten der =C3=9Cbertragung ber=C3=BCcksichtigt Sie werden an=
- Sie weitergeleitet, sobald ich Ihre Bereitschaftsmail f=C3=BCr eine erfolg=
-reiche =C3=9Cberweisung erhalte.
-
-Dein,
-Mr.Ahmed Muzashah,
+greg k-h
