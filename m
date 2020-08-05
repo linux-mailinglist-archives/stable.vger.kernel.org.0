@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318E323C70C
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 09:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC59123C780
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 10:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725963AbgHEHii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 03:38:38 -0400
-Received: from mail-m964.mail.126.com ([123.126.96.4]:36342 "EHLO
-        mail-m964.mail.126.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725983AbgHEHih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 03:38:37 -0400
+        id S1728321AbgHEILj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 04:11:39 -0400
+Received: from mail-m963.mail.126.com ([123.126.96.3]:45078 "EHLO
+        mail-m963.mail.126.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727873AbgHEILc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 04:11:32 -0400
+X-Greylist: delayed 1820 seconds by postgrey-1.27 at vger.kernel.org; Wed, 05 Aug 2020 04:11:30 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
         s=s110527; h=From:Subject:Date:Message-Id; bh=DOCU5HntHDoMHJxp9H
-        qyRoF18SUiP/lo+VubNRBp8Xc=; b=Nu3by3850DqlQbsM3JfwhbaoDTs0M517vu
-        whCR84Wi2xa5Y/WCxKT357WDAgJTi23qTs4myC80qOJ/jdI9EPm/FTicIRTuMl8X
-        UgUh2WJiYss5aLqjZxzZHivHVJ623yEkrAs8V/KYR5C3L4fdraTg/bGzSYp/3OwZ
-        XBuxuJOHI=
+        qyRoF18SUiP/lo+VubNRBp8Xc=; b=elrI9UxbmjQNB0rK6F6YWTE2lDa8tE8zbR
+        sqWJYIS/zvwuPzHfShuAD2FQA4nDraE31PXz17ER2dAE0PU7hUwxxOxqilroJczV
+        ZtkloXhThdUE0BKDmC3kl7x99Ztd5nMyANryddNpyJVNF0lzKN1+WMDpx2j10Rq1
+        8up9jsWhw=
 Received: from xr-hulk-k8s-node1933.gh.sankuai.com (unknown [101.236.11.3])
-        by smtp9 (Coremail) with SMTP id NeRpCgDn7y+xYSpfzH34Ew--.23S2;
-        Wed, 05 Aug 2020 15:37:31 +0800 (CST)
+        by smtp8 (Coremail) with SMTP id NORpCgAXPFdyYipfzVkEBw--.113S2;
+        Wed, 05 Aug 2020 15:40:40 +0800 (CST)
 From:   Jiang Ying <jiangying8582@126.com>
 To:     tytso@mit.edu, adilger.kernel@dilger.ca,
         linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     wanglong19@meituan.com, heguanjun@meituan.com
-Subject: [PATCH] ext4: fix direct I/O read error
-Date:   Wed,  5 Aug 2020 15:37:21 +0800
-Message-Id: <1596613041-173057-1-git-send-email-jiangying8582@126.com>
+Cc:     wanglong19@meituan.com, heguanjun@meituan.com, jack@suse.cz
+Subject: [PATCH v4] ext4: fix direct I/O read error
+Date:   Wed,  5 Aug 2020 15:40:34 +0800
+Message-Id: <1596613234-174664-1-git-send-email-jiangying8582@126.com>
 X-Mailer: git-send-email 1.8.3.1
-X-CM-TRANSID: NeRpCgDn7y+xYSpfzH34Ew--.23S2
+X-CM-TRANSID: NORpCgAXPFdyYipfzVkEBw--.113S2
 X-Coremail-Antispam: 1Uf129KBjvJXoWxAw47WFW8tw4rCr1UZr4xZwb_yoWrXr4rpF
         sxCa15WrWkZr4rCanFk3W7Za4Fy3yDGFWUXF98uw1UZr43Kr9YyrW8KF1UGayUGrWF9w4F
-        qFZ8tryfXw1UZFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UEfOcUUUUU=
+        qFZ8tryfXw1UZFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jOTmhUUUUU=
 X-Originating-IP: [101.236.11.3]
-X-CM-SenderInfo: xmld0wp1lqwmqvysqiyswou0bp/1tbi7xt3AFpD+oBi7wAAst
+X-CM-SenderInfo: xmld0wp1lqwmqvysqiyswou0bp/1tbimhh3AFpEAtE9tQAAsw
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
