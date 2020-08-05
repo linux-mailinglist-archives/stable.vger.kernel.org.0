@@ -2,89 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9473A23D1D8
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E06523D1C6
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 22:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726998AbgHEUGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 16:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50662 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727004AbgHEQeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 12:34:36 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01A7B233FA;
-        Wed,  5 Aug 2020 15:53:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596642827;
-        bh=yFYTa998NKrtDfXdDzp1QLN7+n8qgvxQI8H6upuXPM0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2CAA+zLs41rHPezyGRZksu6+YhrO0485Rcl6azROb/J4aLyHFqROJyFENqOPgnh2
-         SNPJiK4nvOeqzCXVd1QLtZRN8s4RrWQ9lcCoYmf97ky9Q6n8ETo25yLewbQIRNZg+d
-         xWc1h0MPStsqfvMMlOKf/CO9tv5aH7p9Naeft+Js=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Nicolas Pitre <nico@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 4.14 8/8] ARM: 8702/1: head-common.S: Clear lr before jumping to start_kernel()
-Date:   Wed,  5 Aug 2020 17:53:34 +0200
-Message-Id: <20200805153507.382671788@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200805153507.005753845@linuxfoundation.org>
-References: <20200805153507.005753845@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729390AbgHEUGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 16:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44614 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727093AbgHEQfG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 12:35:06 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF68C001FD2
+        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 09:00:44 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id u185so22959423pfu.1
+        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 09:00:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yDjoTAL+ODpi4HR97d7sPyGRn6pUw6OUqHGVQ5CYyYI=;
+        b=yTT+UYRokQRMYlmTQdzuHLfdRY0qVZszSLkBzrDn6Iu1ANR8jWIO0kACpSISHeKBvL
+         pyCDLb6ocFOWQzqGNQbSyhVmUGLcIy2Fy3O2dTH9gK3drNf7aJfNz+iWFAj2NojwhrZB
+         7ZJZNmF+Kd2OeccjGyHskHjBcq8c3wih9YqHH5eybhyp5xAukJ2B1WISKr6TeXOT5PGu
+         Nqf5DRWjSjwEsfQFzprMXD/tHBZshAr3842F+w0VvdR65F1tdccJ1GqEpBKdjLm9WEtM
+         5OwhByAVyKWUaUp+5uwdXNrZ1yY9pkF9YHutSKXHZ/IclypyaMjlx9k99aQceg6cxGXf
+         2PZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yDjoTAL+ODpi4HR97d7sPyGRn6pUw6OUqHGVQ5CYyYI=;
+        b=q0U4ygM5ldn2IkFpzgZTyx8yDKlzaRGSASJz2wOfy8ap4t7cyYYHO4MbnBgbUNYJpj
+         cwX9CkQyFkQdWB2B40NsJX6hqRq9/HLexdilL4pMNelI2YpGPqp2Rj5MRVDqk8mP4P1x
+         OdzGJ7Q8ULy9zEXGQgnsUy1h1eBb81eSLFqWt/PqTVrqSaDl1bf4s8fHBe+hPqMWyQIk
+         kH9kWWlfVmBKcXfu3Oo1UrstYiqdQDHTr5UTx78p3AYYKdw85J3RDJuqfAijvobFxmaQ
+         PX8pfuycRItZcvoh4HxUQ/KcHamj2+SkTKeigF77ADv3VKqLcyEZXRtv9Jj65PwdjGnw
+         0rHw==
+X-Gm-Message-State: AOAM5322nR7sjkeLSjgTHCzcu1P4Qe4M2rLHyB1gSQEhHIAaoAaNvsGA
+        xBt3Qhw349vXqooSVHAY1zQyvNB2t7o=
+X-Google-Smtp-Source: ABdhPJxW+U1Mdh6Uf5Fa0Gf/dSxRCruNiV1LR8FFmZCDuhVy6eZHf6HKDg11/Ctj0/mXnYG5U+RjiA==
+X-Received: by 2002:a63:fd03:: with SMTP id d3mr3578596pgh.76.1596643240785;
+        Wed, 05 Aug 2020 09:00:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g5sm4202906pfh.168.2020.08.05.09.00.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2020 09:00:40 -0700 (PDT)
+Message-ID: <5f2ad7a8.1c69fb81.a17a1.a552@mx.google.com>
+Date:   Wed, 05 Aug 2020 09:00:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.137
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.19.y baseline: 144 runs, 1 regressions (v4.19.137)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+stable/linux-4.19.y baseline: 144 runs, 1 regressions (v4.19.137)
 
-commit 59b6359dd92d18f5dc04b14a4c926fa08ab66f7c upstream.
+Regressions Summary
+-------------------
 
-If CONFIG_DEBUG_LOCK_ALLOC=y, the kernel log is spammed with a few
-hundred identical messages:
-
-    unwind: Unknown symbol address c0800300
-    unwind: Index not found c0800300
-
-c0800300 is the return address from the last subroutine call (to
-__memzero()) in __mmap_switched().  Apparently having this address in
-the link register confuses the unwinder.
-
-To fix this, reset the link register to zero before jumping to
-start_kernel().
-
-Fixes: 9520b1a1b5f7a348 ("ARM: head-common.S: speed up startup code")
-Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-
----
- arch/arm/kernel/head-common.S |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/arch/arm/kernel/head-common.S
-+++ b/arch/arm/kernel/head-common.S
-@@ -101,6 +101,7 @@ __mmap_switched:
- 	str	r2, [r6]			@ Save atags pointer
- 	cmp	r7, #0
- 	strne	r0, [r7]			@ Save control register values
-+	mov	lr, #0
- 	b	start_kernel
- ENDPROC(__mmap_switched)
- 
+platform        | arch | lab          | compiler | defconfig          | res=
+ults
+----------------+------+--------------+----------+--------------------+----=
+----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 0/1=
+    =
 
 
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
+/v4.19.137/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.19.y
+  Describe: v4.19.137
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      c076c79e03c6094e578df5d210fde808b3ad32e6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch | lab          | compiler | defconfig          | res=
+ults
+----------------+------+--------------+----------+--------------------+----=
+----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 0/1=
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2aa12c850e2b6a8a52c1cc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.137/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.137/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2aa12c850e2b6a8a52c=
+1cd
+      new failure (last pass: v4.19.136) =20
