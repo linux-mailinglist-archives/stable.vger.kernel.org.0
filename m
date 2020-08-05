@@ -2,75 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D743323C99C
-	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BCCA23C9A1
+	for <lists+stable@lfdr.de>; Wed,  5 Aug 2020 11:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726571AbgHEJyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 05:54:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38666 "EHLO mail.kernel.org"
+        id S1728350AbgHEJzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 05:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726550AbgHEJvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 05:51:52 -0400
+        id S1727972AbgHEJy1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 05:54:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C5732173E;
-        Wed,  5 Aug 2020 09:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D37220792;
+        Wed,  5 Aug 2020 09:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596621112;
-        bh=Eqk7MjvnWxQK1x/nn99iki3wP79uGrG2FxYKqg58rEc=;
+        s=default; t=1596621261;
+        bh=YHxmFzC+i8NL+lLlcDEA7V7cryScK1yFI5iWFnAXZ7g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hGaHdttDj4rGsig6k6PFI/0xrX/Oya19Ddh3RNXrG25Z36vB16NIJIXKUv7914Gas
-         WKe6TW6tKh+ny13k2jD+AHF63SyDmdrJWQ99GGAufbuAMCcTG5DQJ+lBLnc38Xa02N
-         JuwNWIGBUbUo1upZg05Ld7gLBavXHJl0Hc+G3yB0=
-Date:   Wed, 5 Aug 2020 11:52:02 +0200
+        b=yLj59uDj6wytOjCdhqd+HC6siugHCSEu23VMBzTdtUZ2EEuXshboHtaSY8l4owDyP
+         RRV3IZR/VcJQC+2VUEqg/wjBdOzqlL/dk8HbXp7xpK4BYLjJkiYKGCPJKIJT3HZKPI
+         nBWmLihJP2ftAFhii9CO7s3GybtPgKavhhEcod+o=
+Date:   Wed, 5 Aug 2020 11:54:39 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     John Garry <john.garry@huawei.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        yanaijie <yanaijie@huawei.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Ewan Milne <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Tomas Henzl <thenzl@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Hannes Reinecke <hare@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.14 01/51] scsi: libsas: direct call probe and destruct
-Message-ID: <20200805095202.GA1634853@kroah.com>
-References: <20200803121849.488233135@linuxfoundation.org>
- <20200803121849.564535738@linuxfoundation.org>
- <8743227b-adb3-ed1f-3559-e562555ac045@huawei.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH 5.7 000/121] 5.7.13-rc2 review
+Message-ID: <20200805095439.GB1634853@kroah.com>
+References: <20200804072435.385370289@linuxfoundation.org>
+ <CA+G9fYs35Eiq1QFM0MOj6Y7gC=YKaiknCPgcJpJ5NMW4Y7qnYQ@mail.gmail.com>
+ <20200804082130.GA1768075@kroah.com>
+ <CAHk-=whJ=shbf-guMGZkGvxh9fVmbrvUuiWO48+PDFG7J9A9qw@mail.gmail.com>
+ <c32ad2216ca3dd83d6d3d740512db9de@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8743227b-adb3-ed1f-3559-e562555ac045@huawei.com>
+In-Reply-To: <c32ad2216ca3dd83d6d3d740512db9de@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 03, 2020 at 01:57:14PM +0100, John Garry wrote:
-> On 03/08/2020 13:19, Greg Kroah-Hartman wrote:
-> > From: Jason Yan <yanaijie@huawei.com>
+On Tue, Aug 04, 2020 at 10:23:06PM +0100, Marc Zyngier wrote:
+> On 2020-08-04 19:33, Linus Torvalds wrote:
+> > On Tue, Aug 4, 2020 at 1:21 AM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > > 
+> > > So Linus's tree is also broken here.
 > > 
-> > [ Upstream commit 0558f33c06bb910e2879e355192227a8e8f0219d ]
-> > 
+> > No, there's 835d1c3a9879 ("arm64: Drop unnecessary include from
+> > asm/smp.h") upstream.
 > 
-> Hi Greg,
+> My bet is that Greg ended up with this patch backported to
+> 5.7, but doesn't have 62a679cb2825 ("arm64: simplify ptrauth
+> initialization") as the latter isn't a fix.
 > 
-> This patch was one of a series from Jason to fix this WARN issue, below:
-> 
-> https://lore.kernel.org/linux-scsi/8f6e3763-2b04-23e8-f1ec-8ed3c58f55d3@huawei.com/
-> 
-> I'm doubtful that it should be taken in isolation. Maybe 1 or 2 other
-> patches are required.
-> 
-> The WARN was really annoying, so we could spend a bit of time to test a
-> backport of what is strictly required. Let us know.
+> I don't think any of these two patches are worth backporting,
+> to be honest.
 
-Ok, I'll drop this for now, if you want to submit the patch series fully
-backported, we will be glad to review it.
+I didn't have either of those patches, so I can try applying them to see
+if the build errors go away.  But if you don't think they should be
+applied, what should I do?
+
+Here's what I did have queued up:
+
+f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+aa54ea903abb ("ARM: percpu.h: fix build error")
+1c9df907da83 ("random: fix circular include dependency on arm64 after addition of percpu.h")
+83bdc7275e62 ("random32: remove net_rand_state from the latent entropy gcc plugin")
+c0842fbc1b18 ("random32: move the pseudo-random 32-bit definitions to prandom.h")
+
+And that caused the builds to blow up.
+
+So, what should I do here?
 
 thanks,
 
