@@ -2,109 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56EE023DF24
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:38:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77A223DEE0
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729495AbgHFRii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 13:38:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55144 "EHLO mail.kernel.org"
+        id S1728723AbgHFRdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 13:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729811AbgHFRbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Aug 2020 13:31:43 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        id S1729891AbgHFRcF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Aug 2020 13:32:05 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 714F82311E;
-        Thu,  6 Aug 2020 13:11:33 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.93)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1k3fgC-006KUf-3J; Thu, 06 Aug 2020 09:11:32 -0400
-Message-ID: <20200806131131.981451078@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Thu, 06 Aug 2020 09:11:10 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>
-Subject: [for-linus][PATCH 2/3] tracing: Use trace_sched_process_free() instead of exit() for pid
- tracing
-References: <20200806131108.374130743@goodmis.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id B218C23105;
+        Thu,  6 Aug 2020 14:44:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596725061;
+        bh=E95cVZz1kZmYgQvozvQIvX6d9sYlP/p5sA+n/8nxaZ0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=diInIpATfbYcs2/AKyzNe4XmDCTQ/l8PzvghBx7FLd2FjF6HDtViPWJXxzPe8yxix
+         yo3ClYUPlRuYCcOrmiIux+2RUd8JEy+JnOdOx4D8eS4z5teHfXkXOCyJKWBDDStZwj
+         10ihxJtCATfefOIvDRGzwlD2JgL0oKIqARLTRHO0=
+Date:   Thu, 6 Aug 2020 16:44:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alex Deucher <alexdeucher@gmail.com>
+Cc:     "for 3.8" <stable@vger.kernel.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>
+Subject: Re: [PATCH] drm/amdgpu: fix ordering of psp suspend
+Message-ID: <20200806144435.GB2891564@kroah.com>
+References: <20200805215700.451808-1-alexander.deucher@amd.com>
+ <20200806070103.GC2582961@kroah.com>
+ <CADnq5_N0P8S5X4bqsavjNJ5KgZUKN=3cDrigiH=W8-3PiEv49w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADnq5_N0P8S5X4bqsavjNJ5KgZUKN=3cDrigiH=W8-3PiEv49w@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+On Thu, Aug 06, 2020 at 09:42:51AM -0400, Alex Deucher wrote:
+> On Thu, Aug 6, 2020 at 7:10 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Wed, Aug 05, 2020 at 05:57:00PM -0400, Alex Deucher wrote:
+> > > The ordering of psp_tmr_terminate() and psp_asd_unload()
+> > > got reversed when the patches were applied to stable.
+> > >
+> > > Fixes: 22ff658396b446 ("drm/amdgpu: asd function needs to be unloaded in suspend phase")
+> > > Fixes: 2c41c968c6f648 ("drm/amdgpu: add TMR destory function for psp")
+> > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > Cc: stable@vger.kernel.org # 5.7.x
+> > > Cc: Huang Rui <ray.huang@amd.com>
+> > > ---
+> > >  drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 8 ++++----
+> > >  1 file changed, 4 insertions(+), 4 deletions(-)
+> >
+> > What is the git commit id of this patch in Linus's tree?
+> 
+> It doesn't exist in Linus' tree.  The order is correct in 5.8 and
+> newer.  The order got reversed when the patches were applied to
+> stable.
 
-On exit, if a process is preempted after the trace_sched_process_exit()
-tracepoint but before the process is done exiting, then when it gets
-scheduled in, the function tracers will not filter it properly against the
-function tracing pid filters.
+Than this needs to be explicitly called out and documented in the patch,
+otherwise we have no idea what is going on...
 
-That is because the function tracing pid filters hooks to the
-sched_process_exit() tracepoint to remove the exiting task's pid from the
-filter list. Because the filtering happens at the sched_switch tracepoint,
-when the exiting task schedules back in to finish up the exit, it will no
-longer be in the function pid filtering tables.
+thanks,
 
-This was noticeable in the notrace self tests on a preemptable kernel, as
-the tests would fail as it exits and preempted after being taken off the
-notrace filter table and on scheduling back in it would not be in the
-notrace list, and then the ending of the exit function would trace. The test
-detected this and would fail.
-
-Cc: stable@vger.kernel.org
-Cc: Namhyung Kim <namhyung@kernel.org>
-Fixes: 1e10486ffee0a ("ftrace: Add 'function-fork' trace option")
-Fixes: c37775d57830a ("tracing: Add infrastructure to allow set_event_pid to follow children"
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/trace/ftrace.c       | 4 ++--
- kernel/trace/trace_events.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 4e3a5d79c078..76f2dd6fd414 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6985,12 +6985,12 @@ void ftrace_pid_follow_fork(struct trace_array *tr, bool enable)
- 	if (enable) {
- 		register_trace_sched_process_fork(ftrace_pid_follow_sched_process_fork,
- 						  tr);
--		register_trace_sched_process_exit(ftrace_pid_follow_sched_process_exit,
-+		register_trace_sched_process_free(ftrace_pid_follow_sched_process_exit,
- 						  tr);
- 	} else {
- 		unregister_trace_sched_process_fork(ftrace_pid_follow_sched_process_fork,
- 						    tr);
--		unregister_trace_sched_process_exit(ftrace_pid_follow_sched_process_exit,
-+		unregister_trace_sched_process_free(ftrace_pid_follow_sched_process_exit,
- 						    tr);
- 	}
- }
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index f6f55682d3e2..a85effb2373b 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -538,12 +538,12 @@ void trace_event_follow_fork(struct trace_array *tr, bool enable)
- 	if (enable) {
- 		register_trace_prio_sched_process_fork(event_filter_pid_sched_process_fork,
- 						       tr, INT_MIN);
--		register_trace_prio_sched_process_exit(event_filter_pid_sched_process_exit,
-+		register_trace_prio_sched_process_free(event_filter_pid_sched_process_exit,
- 						       tr, INT_MAX);
- 	} else {
- 		unregister_trace_sched_process_fork(event_filter_pid_sched_process_fork,
- 						    tr);
--		unregister_trace_sched_process_exit(event_filter_pid_sched_process_exit,
-+		unregister_trace_sched_process_free(event_filter_pid_sched_process_exit,
- 						    tr);
- 	}
- }
--- 
-2.26.2
-
-
+greg k-h
