@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6D723D823
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 10:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3416D23D828
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 10:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728669AbgHFIqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 04:46:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
+        id S1728717AbgHFIwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 04:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728078AbgHFIqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 04:46:38 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EEEEC061574
-        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 01:46:38 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id j9so36368686ilc.11
-        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 01:46:38 -0700 (PDT)
+        with ESMTP id S1728598AbgHFIwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 04:52:01 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9670FC061574
+        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 01:52:00 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id y18so31335299ilp.10
+        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 01:52:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=AUV9gwNNNAz81m3MmOY2nRo3UHjqXanOCYEOS2ok5fQ=;
-        b=IB6QoC49uRVwqBk5+hSBpu3XAUc3D91Th49QxMSL8T2PaFqfDo6+z36IM+FelVoZr3
-         VXZRTp0n9P+csfMH3xmk2W3D/Ugme45j+R6/cJ+5p8nYgnEHqb/pAxCUcUkjmcammuwv
-         J3z0cFopM8PQUfuO4eebv8qK0VrAYpUCLTkvKY0bIkx7mJNiIlVLjwjSUcmtj/bGj2w/
-         DWi8lX7oRLOIdN1Z4d42y+d5bUn333dJ/UpcVx+BZSvS11GFuAYANr8VGHj1GQ3Udjc1
-         N0Srczs+PVMsenhEsWOuqBcj/pqmTi/P2Bn0i5TtsZvxOcu3Z4bOFYx+0jw9EdbR2APp
-         LBZQ==
+        bh=VaSV/iOvU4KTpuYFNqKMq1HFqHP5k5kT1iej1ya7KdQ=;
+        b=tDn2Fk6RhwRhI/ZdCNLFMXX8oTnr1BGydvcryTFZLifDcdTJ33JCpN+J6BYeM6k9KO
+         KFJHdLqpNuisjDFG3rCZd2ReM2Ho8wGVuZXeISHpl56E18GE/M3qz7Oz3a3MBkfRcN62
+         p1kdotbeYQCoOX9pepWkSv0jP8T/nqmFBaUUQ++cxyOUgmyFmA5kraGMewqOKpjAXw0o
+         /x3EwYzg+AC3ywQdAUCNWUnilEdTNQDJktiVhls1MdZ02dqfXUmWuylPb8YbjX0PqKrH
+         yLU8Hm1PU0lxGm17SbjBihDIV/NWX4X/tTj8lxQfcrxLiNnBtz61+WBs5rkAoZqOaChG
+         +eFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=AUV9gwNNNAz81m3MmOY2nRo3UHjqXanOCYEOS2ok5fQ=;
-        b=XKMz9eTXHbW0GjVHG+1LMAtrjEIlXeezZW+cbet2aNsCybUALw62xbn5gSBJpohYs7
-         zBDO6/SSPucdP0EVCzQNuhry6jiZf0TIifHZjTcxah7iR8M8gPtTtamcHldzF5hzYBiL
-         DPGqlKg7AQgfJS1sEdNvgvSC5ZmAiypnS41Ba73sEX+0oHeOi2SW4CpG+TfLiD84Tt4n
-         wq5Fp5KdEOCcbr+BnL7rRqg7KdLyQP+KDmAp7c+a2Zf79GPezylVSS1kzAVynAP9g/io
-         YleM1vCwjNmsun+WbhkrDBUm3yycayrUlAh7nc3AsYcF7LP7R4jRQpVqDqTAv0/xMgc3
-         lPJw==
-X-Gm-Message-State: AOAM530LtiF9p4MXXwCPx2GUzuKalyNRfmxIVh/1E0sj6lqwSa5Y9nMS
-        UKhSWluIe0Xpq+FnccGRkjAcyofS38SSfv7quaMoxA==
-X-Google-Smtp-Source: ABdhPJzLlBUXOZ0bsydfJN0TKPYyEaw2QrCqQUV0BErxjUj2+aqp7Si1oKDVuCs402dztEcDZAYvsNfO+dcnHrmskOY=
-X-Received: by 2002:a92:96c7:: with SMTP id g190mr9039730ilh.252.1596703597262;
- Thu, 06 Aug 2020 01:46:37 -0700 (PDT)
+        bh=VaSV/iOvU4KTpuYFNqKMq1HFqHP5k5kT1iej1ya7KdQ=;
+        b=lIb1zgZMgxa13wMIGkdrHGOEv+qOu4ybRdvBN2tjR9NL8ApcjqZQ+gp4z2Vfg25saS
+         jP0m+RyYXqr1+91pPiY9Yrh+dHWm5OSvnPQK8Z4Q2KJhAjq79xzqYJNnyEaDBIzWUkWQ
+         0KGNfLNTJuw0VWvNXljLdFSS1JtdtQ6U618+t8+Nzo8/iO9Yud11U1/z4/me37r2OWxi
+         x7oQ1lpLFStmsizGC3pfeZfgcfoRmvQFnnDykoczqQvEebyyJu4YGkHL578yNkZecCPK
+         hP7YZ9gG5as6W9TiwByW6W7CId/F8h6opyDZdXvj52le42mXVCQJ9xkMhN5Hm+mtGSv2
+         uFiA==
+X-Gm-Message-State: AOAM530BFq00vRvqmFYgf0zigGEIPtE2Y6pxt9tFNDJ4IRjLsRZLjx+z
+        bXhd1iyDyxyrRU2QJyluMuGvzPNIAtdGJCur5WUf1g==
+X-Google-Smtp-Source: ABdhPJzGpNbmtnmC6ma4yk3rvNm7OdHnI1PDjmt9Qpv76QdRLXqmmEKMgXT9m4eEF1glYKlS2oM8/jelYTGC7QG/uZQ=
+X-Received: by 2002:a92:1d1:: with SMTP id 200mr9616426ilb.71.1596703919933;
+ Thu, 06 Aug 2020 01:51:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200805195916.183355405@linuxfoundation.org>
-In-Reply-To: <20200805195916.183355405@linuxfoundation.org>
+References: <20200805153507.053638231@linuxfoundation.org>
+In-Reply-To: <20200805153507.053638231@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 6 Aug 2020 14:16:26 +0530
-Message-ID: <CA+G9fYs-vNeH=BCbFZAA28-C=dE+iajWEF+0vvgZMwr=yw-5xA@mail.gmail.com>
-Subject: Re: [PATCH 5.7 0/7] 5.7.14-rc2 review
+Date:   Thu, 6 Aug 2020 14:21:48 +0530
+Message-ID: <CA+G9fYujKYgN1r168ot8Kvx2SNtYOgAj8gBCYxQ6ek9mUzndrg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 0/9] 5.4.57-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -66,29 +66,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Aug 2020 at 01:29, Greg Kroah-Hartman
+On Wed, 5 Aug 2020 at 21:23, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.7.14 release.
-> There are 7 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.57 release.
+> There are 9 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Fri, 07 Aug 2020 19:59:06 +0000.
+> Responses should be made by Fri, 07 Aug 2020 15:34:53 +0000.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.7.14-rc2.gz
+5.4.57-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.7.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
-
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -96,22 +95,21 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.7.14-rc2
+kernel: 5.4.57-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.7.y
-git commit: 0ceaad177e510974c093f79a5d1f3bb058a4fdf2
-git describe: v5.7.13-8-g0ceaad177e51
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.7-oe/bui=
-ld/v5.7.13-8-g0ceaad177e51
+git branch: linux-5.4.y
+git commit: 1c4819817cd892724f91e5d253eec5f746243602
+git describe: v5.4.56-10-g1c4819817cd8
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
+ld/v5.4.56-10-g1c4819817cd8
 
 
-No regressions (compared to build v5.7.12-117-gd3223abaf6fd)
+No regressions (compared to build v5.4.55-87-g47b594b8993f)
 
+No fixes (compared to build v5.4.55-87-g47b594b8993f)
 
-No fixes (compared to build v5.7.12-117-gd3223abaf6fd)
-
-Ran 30546 total tests in the following environments and test suites.
+Ran 35321 total tests in the following environments and test suites.
 
 Environments
 --------------
