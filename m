@@ -2,68 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A70A723DE1B
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBD023DE75
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729774AbgHFRWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 13:22:24 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47452 "EHLO
+        id S1730308AbgHFR0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 13:26:05 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22440 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730280AbgHFRWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 13:22:13 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 076G3MKd018954;
-        Thu, 6 Aug 2020 12:23:50 -0400
+        by vger.kernel.org with ESMTP id S1729382AbgHFRCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 13:02:11 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 076G3lXs090085;
+        Thu, 6 Aug 2020 12:23:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=+cTwhbygt9oXS8OQzrjWUKCZsveWYmpge80Pn1UtJ58=;
- b=IjNACWBq5n1KZw4C8l24loFhuHrTZFYYtZqmw/GpWuHZnTTunMOTWcWKVPfk8asR2rjH
- XfUORZW+udDy/cqiIebfK4iUFBeo7ReyxT3Ti6ozbTSpTOCaKA93D5HJmYZYxwENdmSG
- +mQbuF7AIqbK3+R+TCQVAgmHpe/rZdwMgbJRVEQ+zF+AHj2tuBX8DkkF4CwGi4EncsV/
- 1afd3l/ChDhcCYt/uvD0X8qNTpO02EBCNF6Re8Lw5UShZP1eDMI6b2J7JSV44I8lxRAV
- iUZC5ywRiQnUA0VhPyTEZKqqRhsgve4y5Lx8l8Pc5qfKr9reqNadVNoKzecshf5D0gKO 9g== 
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 32ra0rus1u-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=08+CvwZd3NBwkRf4jkw0qJZMdmj8MOEEF+dNWSwz6AQ=;
+ b=XTZBpikGySfkheo243yhkllt9hZWhT+d3Iwlis6RYEGuPDol7I8u2/jQur2Idu9wUI/r
+ TBC6P8W5fgIsj8QvdB0FA+cg1H0LaKnLvIAJtaEEV59s6dAQMp+O32ISJB0ozR+5s5lJ
+ j2ZppiCjS1YXMGqX93ELYdbd0DQovfzWqBt7l110SiDQcxSI7bYTRI9cULGfmIXgxJM5
+ 4WHk/ouqxjsk56TcEwF2UjkWeD7WwRpTDNvmbUCnNbFEG/dU6CcYOP+D+OMCvmOZCy9y
+ rLKaqtn6p9O3zne2laTHXrrG0nPChJCYhr5VA6iPDnAUmlNdlM2+jHwqZqjCnVwS6lY9 Jg== 
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 32rgnf9qps-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Aug 2020 12:23:49 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 076GKjjn023371;
-        Thu, 6 Aug 2020 16:23:49 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma04dal.us.ibm.com with ESMTP id 32n019nm9m-1
+        Thu, 06 Aug 2020 12:23:54 -0400
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 076GKE8V008401;
+        Thu, 6 Aug 2020 16:23:53 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma01wdc.us.ibm.com with ESMTP id 32n018jtcn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Aug 2020 16:23:49 +0000
+        Thu, 06 Aug 2020 16:23:53 +0000
 Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 076GNjkQ51511762
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 076GNqYZ58458380
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 6 Aug 2020 16:23:45 GMT
+        Thu, 6 Aug 2020 16:23:52 GMT
 Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 61C0878063;
-        Thu,  6 Aug 2020 16:23:47 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1FE867805E;
+        Thu,  6 Aug 2020 16:23:52 +0000 (GMT)
 Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7247A7805C;
-        Thu,  6 Aug 2020 16:23:45 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2C73A7805C;
+        Thu,  6 Aug 2020 16:23:50 +0000 (GMT)
 Received: from skywalker.ibmuc.com (unknown [9.199.37.237])
         by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  6 Aug 2020 16:23:45 +0000 (GMT)
+        Thu,  6 Aug 2020 16:23:49 +0000 (GMT)
 From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 To:     linuxppc-dev@lists.ozlabs.org, mpe@ellerman.id.au
 Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 1/4] powerpc/drmem: Make lmb_size 64 bit
-Date:   Thu,  6 Aug 2020 21:53:26 +0530
-Message-Id: <20200806162329.276534-1-aneesh.kumar@linux.ibm.com>
+Subject: [PATCH v2 3/4] powerpc/memhotplug: Make lmb size 64bit
+Date:   Thu,  6 Aug 2020 21:53:28 +0530
+Message-Id: <20200806162329.276534-3-aneesh.kumar@linux.ibm.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200806162329.276534-1-aneesh.kumar@linux.ibm.com>
+References: <20200806162329.276534-1-aneesh.kumar@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
  definitions=2020-08-06_13:2020-08-06,2020-08-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- mlxlogscore=999 lowpriorityscore=0 suspectscore=0 bulkscore=0
- clxscore=1011 spamscore=0 priorityscore=1501 impostorscore=0 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxlogscore=999 malwarescore=0 adultscore=0 mlxscore=0
+ phishscore=0 suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2006250000 definitions=main-2008060112
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -78,31 +81,97 @@ This was found by code audit.
 Cc: stable@vger.kernel.org
 Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 ---
- arch/powerpc/include/asm/drmem.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../platforms/pseries/hotplug-memory.c        | 37 +++++++++++--------
+ 1 file changed, 22 insertions(+), 15 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
-index 17ccc6474ab6..d719cbac34b2 100644
---- a/arch/powerpc/include/asm/drmem.h
-+++ b/arch/powerpc/include/asm/drmem.h
-@@ -21,7 +21,7 @@ struct drmem_lmb {
- struct drmem_lmb_info {
- 	struct drmem_lmb        *lmbs;
- 	int                     n_lmbs;
--	u32                     lmb_size;
-+	u64                     lmb_size;
- };
- 
- extern struct drmem_lmb_info *drmem_info;
-@@ -67,7 +67,7 @@ struct of_drconf_cell_v2 {
- #define DRCONF_MEM_RESERVED	0x00000080
- #define DRCONF_MEM_HOTREMOVABLE	0x00000100
- 
--static inline u32 drmem_lmb_size(void)
-+static inline u64 drmem_lmb_size(void)
- {
- 	return drmem_info->lmb_size;
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
+index 5d545b78111f..1fe3204c843a 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -277,7 +277,7 @@ static int dlpar_offline_lmb(struct drmem_lmb *lmb)
+ 	return dlpar_change_lmb_state(lmb, false);
  }
+ 
+-static int pseries_remove_memblock(unsigned long base, unsigned int memblock_size)
++static int pseries_remove_memblock(unsigned long base, unsigned long memblock_size)
+ {
+ 	unsigned long block_sz, start_pfn;
+ 	int sections_per_block;
+@@ -308,9 +308,9 @@ static int pseries_remove_memblock(unsigned long base, unsigned int memblock_siz
+ 
+ static int pseries_remove_mem_node(struct device_node *np)
+ {
+-	const __be32 *regs;
++	const __be32 *prop;
+ 	unsigned long base;
+-	unsigned int lmb_size;
++	unsigned long lmb_size;
+ 	int ret = -EINVAL;
+ 
+ 	/*
+@@ -322,12 +322,16 @@ static int pseries_remove_mem_node(struct device_node *np)
+ 	/*
+ 	 * Find the base address and size of the memblock
+ 	 */
+-	regs = of_get_property(np, "reg", NULL);
+-	if (!regs)
++	prop = of_get_property(np, "reg", NULL);
++	if (!prop)
+ 		return ret;
+ 
+-	base = be64_to_cpu(*(unsigned long *)regs);
+-	lmb_size = be32_to_cpu(regs[3]);
++	/*
++	 * "reg" property represents (addr,size) tuple.
++	 */
++	base = of_read_number(prop, mem_addr_cells);
++	prop += mem_addr_cells;
++	lmb_size = of_read_number(prop, mem_size_cells);
+ 
+ 	pseries_remove_memblock(base, lmb_size);
+ 	return 0;
+@@ -557,7 +561,7 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
+ 
+ #else
+ static inline int pseries_remove_memblock(unsigned long base,
+-					  unsigned int memblock_size)
++					  unsigned long memblock_size)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -878,9 +882,9 @@ int dlpar_memory(struct pseries_hp_errorlog *hp_elog)
+ 
+ static int pseries_add_mem_node(struct device_node *np)
+ {
+-	const __be32 *regs;
++	const __be32 *prop;
+ 	unsigned long base;
+-	unsigned int lmb_size;
++	unsigned long lmb_size;
+ 	int ret = -EINVAL;
+ 
+ 	/*
+@@ -892,12 +896,15 @@ static int pseries_add_mem_node(struct device_node *np)
+ 	/*
+ 	 * Find the base and size of the memblock
+ 	 */
+-	regs = of_get_property(np, "reg", NULL);
+-	if (!regs)
++	prop = of_get_property(np, "reg", NULL);
++	if (!prop)
+ 		return ret;
+-
+-	base = be64_to_cpu(*(unsigned long *)regs);
+-	lmb_size = be32_to_cpu(regs[3]);
++	/*
++	 * "reg" property represents (addr,size) tuple.
++	 */
++	base = of_read_number(prop, mem_addr_cells);
++	prop += mem_addr_cells;
++	lmb_size = of_read_number(prop, mem_size_cells);
+ 
+ 	/*
+ 	 * Update memory region to represent the memory add
 -- 
 2.26.2
 
