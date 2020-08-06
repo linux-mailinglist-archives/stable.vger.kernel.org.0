@@ -2,93 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D06023DCB9
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 18:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF5823DCBF
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 18:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729556AbgHFQz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 12:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44070 "EHLO
+        id S1729523AbgHFQzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 12:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729832AbgHFQzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 12:55:17 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDEDC0A8898
-        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 07:47:07 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id y3so44274568wrl.4
-        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 07:47:07 -0700 (PDT)
+        with ESMTP id S1729820AbgHFQzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 12:55:08 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F02C0A889C
+        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 07:49:48 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id s23so36513727qtq.12
+        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 07:49:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=03JEwr6ezb5WWFreHJCUvLbiyQ1gojnKvciKIU/PzlY=;
-        b=iAkbtawshGBABEDnza01Bc07vMR2dTMuDCVjbvNB9SsvWpz1nmyNcoO/nYuUCLlXju
-         dQJiPnlpGQ/lz52OCIg+ghEPWjSLvkCwXcBlkgOvgMe8NuUCImLG6OiwrSy6STi8kk6I
-         UMkmEOidzvyUlV0xUQs6U1pVSc/bLc4FKHKrLBxF9OtKb+yYyFiV0+3BiKLpmRckGL/s
-         ntz17M3ZGY58JKqs2t6ideE7gsLXW52iBg+ZmpjpD3jeeC2w+zR3bzPCBS7ytbeNT02u
-         oW7bdS/L4YQb7opclFzUS4yCPcOzTy5WoscOkevzylfEIsfuZW2ylaudgTBEdaT2ym87
-         UjoA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SL+1v+RarsORJEz5ZKUjCCITEv9GWVrRtEq5OdvpGSU=;
+        b=be/bJ/XSwQ2+bp7+EHKhH9v8S9feUIa618Riwv9FyEswMWdWaaD7B13Gpu82NaaWV/
+         LGucCNQYVMAll6T2L1bs6CB/pS/CL7TsHeoXGcfQloGN7S00hr4jAmKD7Am84fRrzOCo
+         gRZlsuTwCpnfbVNaYOfHeMVce+P67nndc+MtKHYvP7AceCq5KiHjVcQtZQGsj0M8bnLq
+         Kw2IEjoTm0f4YoSWUtO6KMfHaQ8OzXvSEa0AvVt6R55RMvH4a4OedEYHsJoRS1CYk4P1
+         xY60pCILrTOG7KeSZs01qNMak3uLcAvx1bCn8ohzgLk8tBMPFLW0Cy4jwzD6j/TnouYp
+         53Mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=03JEwr6ezb5WWFreHJCUvLbiyQ1gojnKvciKIU/PzlY=;
-        b=kbdb8FXShz9olL18rtfluQjvlJUpIYnLPDDDHIPXNVCiLVQRYFgG0qw97iPTCkR0LT
-         +gtm2bIV7zjsVft6c+h+WGR/xzZ/yFbHK5mElggoukXIFKafkvKKEWWpTfaJ1npQ1Knw
-         38+uKOFAR1hDBbusvo2F5XfM8uwtADDnbKHq70dQNTCk9WVUqcnsNlStuv7NlKG/VyUp
-         4kMxZ7lGWESJmnFFxg5cc9024jAzfsP43NxXopOuvfaumPq1vB/ql+JyvWWqeX4j2W6t
-         JFLKZ+yCSc4GnF+WTYkgOO5bBjF1w/TIzxnvjXVUImeqeGlGxK/rl/ZQhkB8txqw1RhY
-         XOSQ==
-X-Gm-Message-State: AOAM531BmD7rpWV5p2j1TBfJ6ZCtN2NoiLFRhlbLSgQWorsnpgHTE7go
-        pN/Rf+0H9wm9I6k/SiOcrXngmoc3SxTgwkzvQlw=
-X-Google-Smtp-Source: ABdhPJwZB8/4YFjZU9cfZAILMo9aXfSB/wrc/L3cR/+1BeQ/wibWpqbZPiHhL4sccFPPAr9mnwiYd/LxYxcgsPVjzjY=
-X-Received: by 2002:a5d:494b:: with SMTP id r11mr8192850wrs.419.1596725220690;
- Thu, 06 Aug 2020 07:47:00 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200805215700.451808-1-alexander.deucher@amd.com>
- <20200806070103.GC2582961@kroah.com> <CADnq5_N0P8S5X4bqsavjNJ5KgZUKN=3cDrigiH=W8-3PiEv49w@mail.gmail.com>
- <20200806144435.GB2891564@kroah.com>
-In-Reply-To: <20200806144435.GB2891564@kroah.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SL+1v+RarsORJEz5ZKUjCCITEv9GWVrRtEq5OdvpGSU=;
+        b=NKdzgcqfr37so8KeuHzVNdOrET54c8mkVbAq2CgsGgT77SA1msydkZgxS7WE4m0Vka
+         w0D1dxrHx4myIbV/XVwhOvaOW/JUUUr9IA0FGHt0l3ESFVltp8SiicNUfAst034qQi/y
+         GoLNn7++5bGeCZ2+95kMXaiuV1o6ilpBA037XfKBxZI4hNyt8/kemH6h1TV5EBN+/FOp
+         a9JPrsgFTTeWSfJ9rcWMVOUoGISHslU/oC98Rgs4uCbGcx8IAu/Sx0ZbCVS0x3m822Fh
+         feHjU9q/dO7oOiKGbQAOtDNeMc8oKm8HCRLkKIGQ2Ammo467t5SDB0hTnHN/B7bhctgw
+         qxsg==
+X-Gm-Message-State: AOAM531tJmawtsAaBH0Nj9haeohPeJTVHcc1rrS0E80hf7qmzkaGkPUO
+        I1D/TaO9u0qIimwJgDfSHrFPM8e+
+X-Google-Smtp-Source: ABdhPJytHCyznPJbD0iBXkih349b0qMHsKI92mWvxS/z9dPY4rHKRkdf0HCKA25NadwMBHumH1Cwzg==
+X-Received: by 2002:ac8:1b0f:: with SMTP id y15mr9467153qtj.144.1596725387888;
+        Thu, 06 Aug 2020 07:49:47 -0700 (PDT)
+Received: from localhost.localdomain ([71.219.66.138])
+        by smtp.gmail.com with ESMTPSA id q7sm4407702qkf.35.2020.08.06.07.49.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Aug 2020 07:49:47 -0700 (PDT)
 From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Thu, 6 Aug 2020 10:46:49 -0400
-Message-ID: <CADnq5_MeCDbjn4zXwqr6RMhax0jYBWL7-jgWFaO4v=Zbdzp1TQ@mail.gmail.com>
-Subject: Re: [PATCH] drm/amdgpu: fix ordering of psp suspend
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "for 3.8" <stable@vger.kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
+X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
+To:     stable@vger.kernel.org
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
         Huang Rui <ray.huang@amd.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v2] drm/amdgpu: fix ordering of psp suspend
+Date:   Thu,  6 Aug 2020 10:49:39 -0400
+Message-Id: <20200806144939.466297-1-alexander.deucher@amd.com>
+X-Mailer: git-send-email 2.25.4
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 6, 2020 at 10:44 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Thu, Aug 06, 2020 at 09:42:51AM -0400, Alex Deucher wrote:
-> > On Thu, Aug 6, 2020 at 7:10 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Wed, Aug 05, 2020 at 05:57:00PM -0400, Alex Deucher wrote:
-> > > > The ordering of psp_tmr_terminate() and psp_asd_unload()
-> > > > got reversed when the patches were applied to stable.
-> > > >
-> > > > Fixes: 22ff658396b446 ("drm/amdgpu: asd function needs to be unloaded in suspend phase")
-> > > > Fixes: 2c41c968c6f648 ("drm/amdgpu: add TMR destory function for psp")
-> > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > > > Cc: stable@vger.kernel.org # 5.7.x
-> > > > Cc: Huang Rui <ray.huang@amd.com>
-> > > > ---
-> > > >  drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 8 ++++----
-> > > >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > >
-> > > What is the git commit id of this patch in Linus's tree?
-> >
-> > It doesn't exist in Linus' tree.  The order is correct in 5.8 and
-> > newer.  The order got reversed when the patches were applied to
-> > stable.
->
-> Than this needs to be explicitly called out and documented in the patch,
-> otherwise we have no idea what is going on...
+The ordering of psp_tmr_terminate() and psp_asd_unload()
+got reversed when the patches were applied to stable.
 
-I'll respin and make it explicit.  thanks!
+This patch does not exist in Linus' tree because the ordering
+is correct there.  It got reversed when the patches were applied
+to stable.  This patch is for stable only.
 
-Alex
+Fixes: 22ff658396b446 ("drm/amdgpu: asd function needs to be unloaded in suspend phase")
+Fixes: 2c41c968c6f648 ("drm/amdgpu: add TMR destory function for psp")
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.7.x
+Cc: Huang Rui <ray.huang@amd.com>
+---
+
+Make the description more explicit as to why this patch is only for stable.
+
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index 3c6f60c5b1a5..088f43ebdceb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -1679,15 +1679,15 @@ static int psp_suspend(void *handle)
+ 		}
+ 	}
+ 
+-	ret = psp_tmr_terminate(psp);
++	ret = psp_asd_unload(psp);
+ 	if (ret) {
+-		DRM_ERROR("Falied to terminate tmr\n");
++		DRM_ERROR("Failed to unload asd\n");
+ 		return ret;
+ 	}
+ 
+-	ret = psp_asd_unload(psp);
++	ret = psp_tmr_terminate(psp);
+ 	if (ret) {
+-		DRM_ERROR("Failed to unload asd\n");
++		DRM_ERROR("Falied to terminate tmr\n");
+ 		return ret;
+ 	}
+ 
+-- 
+2.25.4
+
