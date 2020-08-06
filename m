@@ -2,80 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0631D23DF26
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F4823DEDE
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730412AbgHFRis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 13:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55136 "EHLO mail.kernel.org"
+        id S1729578AbgHFRdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 13:33:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729797AbgHFRbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Aug 2020 13:31:43 -0400
+        id S1729903AbgHFRcF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Aug 2020 13:32:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 621EE22CA1;
-        Thu,  6 Aug 2020 11:10:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36A2922CAF;
+        Thu,  6 Aug 2020 11:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596712210;
-        bh=hyKCuLswWkb/pY/lN2LjImaCtKgtFYObNfTpDJ2/zkM=;
+        s=default; t=1596712212;
+        bh=EBG5noCPf3hsffiJxbyTLsGHbvKaQ8YSkj29Tp6pgqs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RtMFGzIXm57iKoTgFoTBzTxWGVox3PRRAiGOpTXtY4P/Bxt0p2P6vuSkSk/2vgrb1
-         Ja7PCDZk42sHtYzSg+eRrScR13RTx6L3aoSkj8Vtl5UE3V4RSR8zhsKQZr/7s35QkR
-         pxNrWLGoO0MIUOUfDZUaQl/vPrwTY8pOs3SamKUc=
-Date:   Thu, 6 Aug 2020 09:05:52 +0200
+        b=LGgIEfg4DK+e9lI12t1JcRwHSyOXrah9Cvrd92x/Bp20mcheMF+0N3Pqy7EO0pIeR
+         Xs7QA3Nx+5a1tCS76l6z5uuSMUt5Tg0kfeBnpr/kE6leX0IzMahFBVN3kSttU9xXpC
+         aLFwYjN3W3UYIOuteDGltfjWTpJ/KbdOO8QBzklE=
+Date:   Thu, 6 Aug 2020 09:08:34 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.7 0/7] 5.7.14-rc2 review
-Message-ID: <20200806070552.GD2582961@kroah.com>
-References: <20200805195916.183355405@linuxfoundation.org>
- <fb74b2c119a047e2933b5d375f0fe703@HQMAIL101.nvidia.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Subject: Re: stable rc 4.9- v4.9.232-51-g1f47445197d2 - build breaks on
+ arm64, arm, x86_64 and i386.
+Message-ID: <20200806070834.GE2582961@kroah.com>
+References: <CA+G9fYu4tshr3YUqqU-y8vXtoMVt5BgHtmFXqMUa_457_-8D-A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <fb74b2c119a047e2933b5d375f0fe703@HQMAIL101.nvidia.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYu4tshr3YUqqU-y8vXtoMVt5BgHtmFXqMUa_457_-8D-A@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 06, 2020 at 06:24:28AM +0000, Jon Hunter wrote:
-> On Wed, 05 Aug 2020 21:59:33 +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.7.14 release.
-> > There are 7 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 07 Aug 2020 19:59:06 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.14-rc2.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Wed, Aug 05, 2020 at 10:34:44PM +0530, Naresh Kamboju wrote:
+> stable rc 4.9 build breaks on arm64, arm, x86_64 and i386.
 > 
-> All tests passing for Tegra ...
+> Here are the build log failures on arm64.
 > 
-> Test results for stable-v5.7:
->     11 builds:	11 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     56 tests:	56 pass, 0 fail
+>     git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>     target_arch: arm64
+>     toolchain: gcc-9
+>     git_short_log: 1f47445197d2 (\Linux 4.9.233-rc1\)
+>     git_sha: 1f47445197d2c8eecafa2b996f635aa89851c123
+>     git_describe: v4.9.232-51-g1f47445197d2
+>     kernel_version: 4.9.233-rc1
 > 
-> Linux version:	5.7.14-rc2-g0ceaad177e51
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
+> make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm64
+> CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
+> aarch64-linux-gnu-gcc" O=build Image
+> #
+> ../arch/arm64/kernel/hw_breakpoint.c: In function ‘arch_bp_generic_fields’:
+> ../arch/arm64/kernel/hw_breakpoint.c:352:5: note: parameter passing
+> for argument of type ‘struct arch_hw_breakpoint_ctrl’ changed in GCC
+> 9.1
+>   352 | int arch_bp_generic_fields(struct arch_hw_breakpoint_ctrl ctrl,
+>       |     ^~~~~~~~~~~~~~~~~~~~~~
 
-Thanks so much for testing all of these and letting me know.
+Is this warning new?
+
+> ../fs/ext4/inode.c: In function ‘ext4_direct_IO’:
+> ../fs/ext4/inode.c:3610:9: error: redefinition of ‘offset’
+>  3610 |  loff_t offset = iocb->ki_pos;
+>       |         ^~~~~~
+> ../fs/ext4/inode.c:3608:9: note: previous definition of ‘offset’ was here
+>  3608 |  loff_t offset = iocb->ki_pos;
+>       |         ^~~~~~
+
+Sorry I missed these, now dropped the offending patch from 4.4 and 4.9
+queues.
 
 greg k-h
