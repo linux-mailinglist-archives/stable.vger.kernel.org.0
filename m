@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8291B23D509
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 03:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2A623D50A
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 03:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726776AbgHFBYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 21:24:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41164 "EHLO mail.kernel.org"
+        id S1726793AbgHFBYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 21:24:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725999AbgHFBYF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 21:24:05 -0400
+        id S1726150AbgHFBYG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 21:24:06 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0429722D02;
-        Thu,  6 Aug 2020 01:24:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3B2122B40;
+        Thu,  6 Aug 2020 01:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596677045;
-        bh=w7oOPtgJ+ScgoDdAUvZLH9X4O+2nesOXsGkl1QQd+cI=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=DX1jcTZjI63VeaYBz0RLaX13YPrk3/XsyJ+OzsRzIY35uO/laiRxXUHsa9dZO6G7j
-         pUHwPhw1qC5oeZto3YyCroLzlU+e1qSTEjEHW+WEG6rUGP5aO3t0KsM2dkp4x9uFy9
-         AJRHvjmlhGT17l2PFXVyqiwz2PswfVjYa4uNS8uo=
-Date:   Thu, 06 Aug 2020 01:24:04 +0000
+        s=default; t=1596677046;
+        bh=XNByyhL9Y2whfuo7uld8tDXRV7zi64mizD0FKxzuXz4=;
+        h=Date:From:To:To:To:Cc:CC:Cc:Subject:In-Reply-To:References:From;
+        b=VDJIboO0JjgLTrerPPFVXtVvJM7f2Tc70CIBir4TkP2+5t5dEDHKN53JuSspENC+b
+         NwFq25Qs/aPGQh787I1U/bL0+QzsxD/oajq+//wiA3P4blJQjS9MzzPxUGPWm94lMX
+         LKjATQBSeXjIn8U62IreLnln3Aij6y6iDmbQ7ugk=
+Date:   Thu, 06 Aug 2020 01:24:05 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     Felipe Balbi <balbi@kernel.org>
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
+To:     Jan Kara <jack@suse.cz>
+To:     Ted Tso <tytso@mit.edu>
+Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>
+CC:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
-In-Reply-To: <febe1ba310b638f5013e64835c1cc4210e0b799a.1596151437.git.thinhn@synopsys.com>
-References: <febe1ba310b638f5013e64835c1cc4210e0b799a.1596151437.git.thinhn@synopsys.com>
-Message-Id: <20200806012405.0429722D02@mail.kernel.org>
+Subject: Re: [PATCH] ext4: Fix checking of entry validity
+In-Reply-To: <20200731162135.8080-1-jack@suse.cz>
+References: <20200731162135.8080-1-jack@suse.cz>
+Message-Id: <20200806012405.E3B2122B40@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,23 +45,35 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)").
+fixing commit: 109ba779d6cc ("ext4: check for directory entries too close to block end").
 
-The bot has tested the following trees: v5.7.11, v5.4.54.
+The bot has tested the following trees: v5.7.11, v5.4.54, v4.19.135, v4.14.190, v4.9.231, v4.4.231.
 
-v5.7.11: Failed to apply! Possible dependencies:
-    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
-    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
-    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
-    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
-    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+v5.7.11: Build OK!
+v5.4.54: Build OK!
+v4.19.135: Build OK!
+v4.14.190: Build OK!
+v4.9.231: Failed to apply! Possible dependencies:
+    364443cbcfe7 ("ext4: convert DAX reads to iomap infrastructure")
+    39bc88e5e38e ("arm64: Disable TTBR0_EL1 during normal kernel execution")
+    7046ae35329f ("ext4: Add iomap support for inline data")
+    7c0f6ba682b9 ("Replace <asm/uaccess.h> with <linux/uaccess.h> globally")
+    9cf09d68b89a ("arm64: xen: Enable user access before a privcmd hvc call")
+    b886ee3e778e ("ext4: Support case-insensitive file name lookups")
+    bd38967d406f ("arm64: Factor out PAN enabling/disabling into separate uaccess_* macros")
+    ee73f9a52a34 ("ext4: convert to new i_version API")
+    eeca7ea1baa9 ("ext4: use current_time() for inode timestamps")
 
-v5.4.54: Failed to apply! Possible dependencies:
-    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
-    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
-    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
-    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
-    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+v4.4.231: Failed to apply! Possible dependencies:
+    12735f881952 ("ext4: pre-zero allocated blocks for DAX IO")
+    2dcba4781fa3 ("ext4: get rid of EXT4_GET_BLOCKS_NO_LOCK flag")
+    364443cbcfe7 ("ext4: convert DAX reads to iomap infrastructure")
+    7046ae35329f ("ext4: Add iomap support for inline data")
+    705965bd6dfa ("ext4: rename and split get blocks functions")
+    b886ee3e778e ("ext4: Support case-insensitive file name lookups")
+    ba5843f51d46 ("ext4: use pre-zeroed blocks for DAX page faults")
+    c86d8db33a92 ("ext4: implement allocation of pre-zeroed blocks")
+    ee73f9a52a34 ("ext4: convert to new i_version API")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
