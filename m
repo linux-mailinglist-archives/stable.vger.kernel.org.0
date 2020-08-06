@@ -2,126 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54BDF23D5B8
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 05:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2880C23D5D5
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 05:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730146AbgHFDUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 23:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60034 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730137AbgHFDUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 23:20:04 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7DEC061574
-        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 20:20:04 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id p8so9849645pgn.13
-        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 20:20:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=J1Y29ItJoP21e0FKYPWdn5WtBeJcYxO0IfQhpHnIOdA=;
-        b=XiX6coiTdfbiJuV+ya3uSGORx55tiI1KT0DF5GJnL9sUjej9KAommo8ET9SLaPJIQ1
-         kb8cJ1A0OEvEsPfH24WCF7GiQt1cHfRrJiV++djFyWI9FHxyXLBlOgNzJ2yslB1Sznqp
-         vy6/Gm/AQURWi939r6HQN5OJuG2Q9vXfY6mw2JtQR1CffBejLGguyfGxS/h0UDqwJ5YR
-         RcAtl3XVXkat28vZGLqloXWICSyhtXqdzliYw7yS38/1k2NAZtQNWcoQOWp6eSPp+Yvw
-         bcr8o0We6H2hVT7H5N21bLKdGydD/eCeGmnJHo+Fp84gtkzYG4WkTKgq51WXYJEjcXuE
-         IO/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=J1Y29ItJoP21e0FKYPWdn5WtBeJcYxO0IfQhpHnIOdA=;
-        b=qUaO+/r+KgYd+toXHEuTQftBXYyDBtaTrPWIQiVxqZgKTIu585K3XnLPIVou3YMkuv
-         7OxfQ7qX7xaWZALAzOKmRpmUk3YRPg+JyR52HQFoccEqjan1CUT+Dxn47qsTT8L830Vd
-         onEKUQwAd2uK705J1OdtsUdhfaVs/JxjeNBKUnNYQ9M7t885ryNOJE5frjy8ORTuJaGV
-         3iD1DHHzxYo67U46bnTC14a61gs/vIASxwXkzEkjkZpLveMSpI1DcZP/qr0MS2GKm85u
-         VMXL3jHzHEeOlpUqv1IvEFc2Co1T5kbU3A+lAYfai5zxgK963zVhIjobc9VR9epSDAPa
-         ZDdA==
-X-Gm-Message-State: AOAM533uyAzGmlv6FP2xMYkiSLiXnBBzsv4kFM2hTD3P61zdr3PRrEDS
-        5kGwffu+qAOqhe5/RPrPRHbtFdAcKRc=
-X-Google-Smtp-Source: ABdhPJx4dTbxA7RWAXBeCBGP4FBuwO7+JvQcC0g0F9raVpSChajMkEDTJ25o6ajY0rP+Ji2Qgd74/A==
-X-Received: by 2002:a62:1a56:: with SMTP id a83mr6171368pfa.314.1596684002115;
-        Wed, 05 Aug 2020 20:20:02 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l1sm2364142pgi.51.2020.08.05.20.20.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2020 20:20:01 -0700 (PDT)
-Message-ID: <5f2b76e1.1c69fb81.5b3fa.77ed@mx.google.com>
-Date:   Wed, 05 Aug 2020 20:20:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1732323AbgHFDlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 23:41:44 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:58497 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732314AbgHFDll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 23:41:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596685300;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zoLDRmI7Vggm06qAqodgqHAbTxSYnUGfusqeBW2FcOU=;
+        b=AoVZrJSWUg1m0ppKo0IKKYwx/PvVt1oyPD/J55Goee+4hcC2Jmeop3lSwwmVLtPDgO0Pdx
+        lWTmlaYbKlwwslFKBvcxoSE87dMo9+7wNp65dao/8MRWkR+6NiSokq3cP8s/vwc7R3fY8R
+        GJhrynIHowJmq3+PU901LbTM9+drHn8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-380-qOyVo8r0PK6lIWvE36wnkQ-1; Wed, 05 Aug 2020 23:41:36 -0400
+X-MC-Unique: qOyVo8r0PK6lIWvE36wnkQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9FF7A18C63D1;
+        Thu,  6 Aug 2020 03:41:35 +0000 (UTC)
+Received: from [10.72.13.140] (ovpn-13-140.pek2.redhat.com [10.72.13.140])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CE15F183AB;
+        Thu,  6 Aug 2020 03:41:29 +0000 (UTC)
+Subject: Re: [PATCH] vdpasim: protect concurrent access to iommu iotlb
+To:     Sasha Levin <sashal@kernel.org>, Max Gurtovoy <maxg@mellanox.com>,
+        mst@redhat.com
+Cc:     stable@vger.kernel.org
+References: <20200731073822.13326-1-jasowang@redhat.com>
+ <20200806012410.8C84322CF7@mail.kernel.org>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <3e73eddd-5c74-dbc7-a77b-05e1ed078c92@redhat.com>
+Date:   Thu, 6 Aug 2020 11:41:24 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.136-60-g2f4ec68a8dc8
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 135 runs,
- 1 regressions (v4.19.136-60-g2f4ec68a8dc8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200806012410.8C84322CF7@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 135 runs, 1 regressions (v4.19.136-60-g2f4=
-ec68a8dc8)
 
-Regressions Summary
--------------------
+On 2020/8/6 上午9:24, Sasha Levin wrote:
+> Hi
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag
+> fixing commit: .
+>
+> The bot has tested the following trees: v5.7.11, v5.4.54, v4.19.135, v4.14.190, v4.9.231, v4.4.231.
+>
+> v5.7.11: Build OK!
+> v5.4.54: Failed to apply! Possible dependencies:
+>      2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>      961e9c84077f ("vDPA: introduce vDPA bus")
+>
+> v4.19.135: Failed to apply! Possible dependencies:
+>      2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>      961e9c84077f ("vDPA: introduce vDPA bus")
+>
+> v4.14.190: Failed to apply! Possible dependencies:
+>      2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>      7b95fec6d2ff ("virtio: make VIRTIO a menuconfig to ease disabling it all")
+>      961e9c84077f ("vDPA: introduce vDPA bus")
+>
+> v4.9.231: Failed to apply! Possible dependencies:
+>      0d7f4f0594fc ("MAINTAINERS: update rmk's entries")
+>      2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>      384fe7a4d732 ("drivers: net: xgene-v2: Add DMA descriptor")
+>      3b3f9a75d931 ("drivers: net: xgene-v2: Add base driver")
+>      404a5c392dcc ("MAINTAINERS: fix virtio file pattern")
+>      51c5d8447bd7 ("MMC: meson: initial support for GX platforms")
+>      6bc37fac30cf ("arm64: dts: add Allwinner A64 SoC .dtsi")
+>      70dbd9b258d5 ("MAINTAINERS: Add entry for APM X-Gene SoC Ethernet (v2) driver")
+>      7683e9e52925 ("Properly alphabetize MAINTAINERS file")
+>      81ccd0cab29b ("drivers: net: xgene-v2: Add mac configuration")
+>      872d1ba47bdc ("MAINTAINERS: Add Actions Semi Owl section")
+>      87c586a6a0e1 ("MAINTAINERS: Update the Allwinner sunXi entry")
+>      961e9c84077f ("vDPA: introduce vDPA bus")
+>      b105bcdaaa0e ("drivers: net: xgene-v2: Add transmit and receive")
+>      b26bff6e52d8 ("MAINTAINERS: Add device tree bindings to mv88e6xx section")
+>      c0a6a5ae6b5d ("MAINTAINERS: copy virtio on balloon_compaction.c")
+>      d5d4602e0405 ("Staging: iio: fix a MAINTAINERS entry")
+>      dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+>      fd33f3eca6bf ("MAINTAINERS: Add maintainers for the meson clock driver")
+>
+> v4.4.231: Failed to apply! Possible dependencies:
+>      02038fd6645a ("crypto: Added Chelsio Menu to the Kconfig file")
+>      06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+>      2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>      404a5c392dcc ("MAINTAINERS: fix virtio file pattern")
+>      433cd2c617bf ("crypto: rockchip - add crypto driver for rk3288")
+>      6f99612e2500 ("tpm: Proxy driver for supporting multiple emulated TPMs")
+>      961e9c84077f ("vDPA: introduce vDPA bus")
+>      c0a6a5ae6b5d ("MAINTAINERS: copy virtio on balloon_compaction.c")
+>      dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+
+The patch tries to fix a bug which is a commit introduced in 5.4.
+
+So I think backporting it to 5.4 stable should be sufficient.
+
+Thanks
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.136-60-g2f4ec68a8dc8/plan/baseline/
+>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.136-60-g2f4ec68a8dc8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2f4ec68a8dc81295799b14aaebf6dd12aec9a2fa =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2b458a4c80a4342c52c1e5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-36-60-g2f4ec68a8dc8/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-36-60-g2f4ec68a8dc8/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f2b458a4c80a4342c52c=
-1e6
-      failing since 50 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
-ail: v4.19.126-113-gd694d4388e88) =20
