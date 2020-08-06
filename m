@@ -2,99 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C10523DE2E
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78BEE23DE56
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728674AbgHFRXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 13:23:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45080 "EHLO
+        id S1729324AbgHFRYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 13:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729557AbgHFRFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 13:05:18 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A505AC034626;
-        Thu,  6 Aug 2020 06:34:57 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id kq25so37378698ejb.3;
-        Thu, 06 Aug 2020 06:34:57 -0700 (PDT)
+        with ESMTP id S1729880AbgHFRDg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 13:03:36 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44517C034628
+        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 06:43:13 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id 88so44020221wrh.3
+        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 06:43:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=rHqK38RuQ1sMAtSHsZ2jsHuSBhnKgRChw9PQXC5x/g8=;
-        b=sHWsqQ3TaSk6xJtrxM7Zc2Si/hyLogx7R6vH44UqXNDLOarqWO/Vwyj5oMFdsWhsrq
-         vXDe+POevMDU6Qf182IB0fgloTCU8P58rQAb/o3VmZS8mt7vs97r4K/faIC4dqGN4S/I
-         uA0IpIurwug134o9qyzqFXZxk4EtAOAojb9Gp7cU3iNfBPhaSAZNSquAnQclz3EdEzNQ
-         4gWTte+o0J7cVAlT9UNY3fdAKLHzw6XP0FNAS3cT05jhD+aK/24wmYZfVsn/HHX7qYjc
-         ZRNJZCokPsmV/7mTUxcySkX9qKCivK9hIKO4kxK4iGGHNun7KSL9ySXvV4MSchWCd27O
-         nhnw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mmxr6ODtW3F7I7f0JcLe8XihaHT+mhwOKI2TY5ezmF0=;
+        b=EZtQDYnhnqdiPVVm7psBtCS+W7AG95jrxdC4x1x5RLLg3Vu1l/BqvE2qxkDjpMhICE
+         WRx0siJqzd4OwvmT6V/B/CQkKvWNFpK/GBxK2oVnJJMtyADKHMZthR973/Ey75Tx3Hwn
+         NH6rfgsciGnQsqYqudbAXrq7pZyt0CcW9xRvRdRVZk2cU1t7hkvkR/njYqTESIQkzCa1
+         AG+DaWTtO4yJgyyN6HBnKA3zj2yhdQ4f6ZzHNCf5ILQvUnQOYhC4Th65qzeGPdYwz7F1
+         dJjYCckKLF68h9yFFbOc5RockzDMlzTF7nDEVOk8sor5yH9R13t2cPy3sMsFyFbBY1Q+
+         XgMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=rHqK38RuQ1sMAtSHsZ2jsHuSBhnKgRChw9PQXC5x/g8=;
-        b=MDH22ed5+bqcQVZK4f+9E0rkxEjXWY3t/Xmaabx0fRknsNgpWkUhDQuBUBCxUEz0CQ
-         rAP43EuxpTQgYEmnpBxktf0bkPf5ZEy5Bxl70TbGR4wdVRFQK0rO2+uXT7suTaiMSgb1
-         x+Zj1in+GPu/JKS3R1+8e6+3evBGjMWNpEAW+i/AMWylWtQyJVLTKKccQkHKb0TJNXj1
-         AejYIGcrSdDz35MMHo/QespaOpfDppW7gxbYtTHArjvcxARZ++zPUxT4seEZDWF6MyOg
-         vEv1WiEFU7Q3cO9n0VmdQOD+UeYYuJRpcvwDkFycl6qeJaSvhsejwSTVvhcO8Xy16XJB
-         bOew==
-X-Gm-Message-State: AOAM533hyNv5PUTK6NVVx6At/x5X9od2YJ6a6JizsXsa59yPmDYb+Cnk
-        JfFoIvW4QkGwNYwRKVrdICc=
-X-Google-Smtp-Source: ABdhPJxA45bEMOJ9OTb4XWQbJNSFMMrPISkudFSUfT5Q7ezhysd1aO9TdtNGzvcZBPBZPfEKv3sVkg==
-X-Received: by 2002:a17:906:a201:: with SMTP id r1mr4317065ejy.432.1596720896099;
-        Thu, 06 Aug 2020 06:34:56 -0700 (PDT)
-Received: from gmail.com (54033286.catv.pool.telekom.hu. [84.3.50.134])
-        by smtp.gmail.com with ESMTPSA id x1sm3665602ejc.119.2020.08.06.06.34.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2020 06:34:54 -0700 (PDT)
-Date:   Thu, 6 Aug 2020 15:34:52 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     kernel test robot <rong.a.chen@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>, tglx@linutronix.de,
-        mingo@redhat.com, vishal.l.verma@intel.com, x86@kernel.org,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>, linux-nvdimm@lists.01.org,
-        linux-kernel@vger.kernel.org, 0day robot <lkp@intel.com>,
-        lkp@lists.01.org
-Subject: Re: [x86/copy_mc] a0ac629ebe: fio.read_iops -43.3% regression
-Message-ID: <20200806133452.GA2077191@gmail.com>
-References: <159630256804.3143511.8894023468833792004.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20200803094257.GA23458@shao2-debian>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mmxr6ODtW3F7I7f0JcLe8XihaHT+mhwOKI2TY5ezmF0=;
+        b=CpMuG7k1OlvRfgSLuMuNCuBJW4wKkecC2SM/0EjIm14WB6CrbFHzZMtZYA/d9Goga0
+         xqdM56UHpLawH+Efy18OxDaPwVulaF/YrOP1+kWJCcqVu+SBrHaiBPxARY3KkhDlTXAD
+         kva/RI635qgRQgKosi1oGeTTrR3x70tYOqw1mXut3UWJya26OUL4sr1ukUsXKKM1fkfx
+         2e2S8fKgRt8JoYEim0jctr8yNcMsCRPNmSx/tkde14wh2Lt6wwRm1RFev8UiAF1Zo5AF
+         qW9278Rh6k6RUtwRO5vZd6bxEEEroiVagOC396fXwaflghiX3VvnjUnW33NWKCBY6YJB
+         jBsA==
+X-Gm-Message-State: AOAM5329ZFlOT5IcMjRL/5FX6Zr8eA9Le+vFLDqCmta1DxGISbQTT2Kh
+        QOXf3ActVwXZLP5gLPZ3CDAJ3PQU688b/6AjbrI=
+X-Google-Smtp-Source: ABdhPJwvwTP0QUORbCyKyPgOqHMwSNKx90drUplBvqE9YxC2Fsqr6u8rqBsK9csrVOEoXYR7zDBfxo0oAgOaOWvLVbU=
+X-Received: by 2002:adf:fd41:: with SMTP id h1mr8042434wrs.124.1596721382136;
+ Thu, 06 Aug 2020 06:43:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200803094257.GA23458@shao2-debian>
+References: <20200805215700.451808-1-alexander.deucher@amd.com> <20200806070103.GC2582961@kroah.com>
+In-Reply-To: <20200806070103.GC2582961@kroah.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Thu, 6 Aug 2020 09:42:51 -0400
+Message-ID: <CADnq5_N0P8S5X4bqsavjNJ5KgZUKN=3cDrigiH=W8-3PiEv49w@mail.gmail.com>
+Subject: Re: [PATCH] drm/amdgpu: fix ordering of psp suspend
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "for 3.8" <stable@vger.kernel.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Aug 6, 2020 at 7:10 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Aug 05, 2020 at 05:57:00PM -0400, Alex Deucher wrote:
+> > The ordering of psp_tmr_terminate() and psp_asd_unload()
+> > got reversed when the patches were applied to stable.
+> >
+> > Fixes: 22ff658396b446 ("drm/amdgpu: asd function needs to be unloaded in suspend phase")
+> > Fixes: 2c41c968c6f648 ("drm/amdgpu: add TMR destory function for psp")
+> > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > Cc: stable@vger.kernel.org # 5.7.x
+> > Cc: Huang Rui <ray.huang@amd.com>
+> > ---
+> >  drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> What is the git commit id of this patch in Linus's tree?
 
-* kernel test robot <rong.a.chen@intel.com> wrote:
+It doesn't exist in Linus' tree.  The order is correct in 5.8 and
+newer.  The order got reversed when the patches were applied to
+stable.
 
-> Greeting,
-> 
-> FYI, we noticed a -43.3% regression of fio.read_iops due to commit:
-> 
-> 
-> commit: a0ac629ebe7b3d248cb93807782a00d9142fdb98 ("x86/copy_mc: Introduce copy_mc_generic()")
-> url: https://github.com/0day-ci/linux/commits/Dan-Williams/Renovate-memcpy_mcsafe-with-copy_mc_to_-user-kernel/20200802-014046
-> 
-> 
-> in testcase: fio-basic
-> on test machine: 96 threads Intel(R) Xeon(R) Gold 6252 CPU @ 2.10GHz with 256G memory
-> with following parameters:
+Alex
 
-So this performance regression, if it isn't a spurious result, looks 
-concerning. Is this expected?
-
-Thanks,
-
-	Ingo
+>
+> thanks,
+>
+> greg k-h
