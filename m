@@ -2,176 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBD023DE75
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0AF23DD6C
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730308AbgHFR0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 13:26:05 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22440 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729382AbgHFRCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 13:02:11 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 076G3lXs090085;
-        Thu, 6 Aug 2020 12:23:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=08+CvwZd3NBwkRf4jkw0qJZMdmj8MOEEF+dNWSwz6AQ=;
- b=XTZBpikGySfkheo243yhkllt9hZWhT+d3Iwlis6RYEGuPDol7I8u2/jQur2Idu9wUI/r
- TBC6P8W5fgIsj8QvdB0FA+cg1H0LaKnLvIAJtaEEV59s6dAQMp+O32ISJB0ozR+5s5lJ
- j2ZppiCjS1YXMGqX93ELYdbd0DQovfzWqBt7l110SiDQcxSI7bYTRI9cULGfmIXgxJM5
- 4WHk/ouqxjsk56TcEwF2UjkWeD7WwRpTDNvmbUCnNbFEG/dU6CcYOP+D+OMCvmOZCy9y
- rLKaqtn6p9O3zne2laTHXrrG0nPChJCYhr5VA6iPDnAUmlNdlM2+jHwqZqjCnVwS6lY9 Jg== 
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 32rgnf9qps-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Aug 2020 12:23:54 -0400
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 076GKE8V008401;
-        Thu, 6 Aug 2020 16:23:53 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma01wdc.us.ibm.com with ESMTP id 32n018jtcn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Aug 2020 16:23:53 +0000
-Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 076GNqYZ58458380
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 6 Aug 2020 16:23:52 GMT
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1FE867805E;
-        Thu,  6 Aug 2020 16:23:52 +0000 (GMT)
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C73A7805C;
-        Thu,  6 Aug 2020 16:23:50 +0000 (GMT)
-Received: from skywalker.ibmuc.com (unknown [9.199.37.237])
-        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  6 Aug 2020 16:23:49 +0000 (GMT)
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-To:     linuxppc-dev@lists.ozlabs.org, mpe@ellerman.id.au
-Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        id S1730166AbgHFRJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 13:09:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730028AbgHFRGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 13:06:01 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84FD8C034600;
+        Thu,  6 Aug 2020 10:00:44 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id x6so12005136pgx.12;
+        Thu, 06 Aug 2020 10:00:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=NLT43nTelEOprq8u7oeswEavW3NBJsJ52FtmKVX81fo=;
+        b=IAyZjT8YL/t+Dof+pq9jvDbNtM+SaGw6+OI4icNf67RlX6kJmIpjJDZvFUdCSEWLdq
+         4acCAf6+0jGzciBRldkvWyP04bpvNzphxwuZEarjg5gSzTiBNZHFiRiDahCm9Xe5Tfyz
+         55pf95eRc8t2S7wbIq8Teybp3fg21HrGNUJFzFBTcSuGADCIKZgRr5rgitwHN+XFn2uO
+         W5W9D33BSE8aTLA6DPc4zUbsBfBHNF+vdPKPos6CHPVM0DT7sh0oydVazdxka6IKgt7d
+         s/4aWgOfrMpESOQzOHgbxt+HPRR5Reqgmag81lN7Pt2QC2KN61ctl+jB8gHwDghlgW08
+         tIOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=NLT43nTelEOprq8u7oeswEavW3NBJsJ52FtmKVX81fo=;
+        b=B+1/G+0bVMvlWtLtbMfilgvLEEkJZlp6Uxmrn5V4hUaNtvb/TLUYekC4qpmWfwEZUv
+         jlnoMv3rmKaUYPCD3Swzv4PbBBjnoEYJ5pLKEsmgUwan1VjgsN7b8xQhjPrFnFMVC9s9
+         0kI5bW1PWxYHJl1DD+863Fj9ieLebbM7Bcv+Uwio14FP2V0vLiooAWtgypqJ+s9bl1CN
+         0oTO5fF7t8cxYCwtFn6nm4JVG9yu/IdfDZ92Q2O9dDpN+7E0Zl0duaa4+F1dA++jE2j3
+         Zmv/JI4TuQpvGnTxDzs81c2I7XUshDObJ9/Knh1Fao8BhuxwgEog5wsaGwBd+I/gl8/A
+         Lo+w==
+X-Gm-Message-State: AOAM532LpXAy1A7kW9N2JKoiGd0OaAQo7oa7i85RF78ypWkyQo9HSCQF
+        5tZ380/wR6fkAPHAguAPcHpQk4EhXcE8VA==
+X-Google-Smtp-Source: ABdhPJwYXSAv6gX++vHBHf0QWqMmWr6cR73RB82vN4bBP6HKSory/Emn19+h+yrQuVA6N3LoEgoLDw==
+X-Received: by 2002:a62:fcca:: with SMTP id e193mr6495630pfh.316.1596733243751;
+        Thu, 06 Aug 2020 10:00:43 -0700 (PDT)
+Received: from ?IPv6:2001:569:7bc3:ce00:a4b2:4936:f0f6:3eff? (node-1w7jr9qsv51tb41p80xpg7667.ipv6.telus.net. [2001:569:7bc3:ce00:a4b2:4936:f0f6:3eff])
+        by smtp.gmail.com with ESMTPSA id x23sm8467642pfi.60.2020.08.06.10.00.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Aug 2020 10:00:43 -0700 (PDT)
+Subject: Re: Flaw in "random32: update the net random state on interrupt and
+ activity"
+To:     tytso@mit.edu
+Cc:     Willy Tarreau <w@1wt.eu>, netdev@vger.kernel.org,
+        aksecurity@gmail.com, torvalds@linux-foundation.org,
+        edumazet@google.com, Jason@zx2c4.com, luto@kernel.org,
+        keescook@chromium.org, tglx@linutronix.de, peterz@infradead.org,
         stable@vger.kernel.org
-Subject: [PATCH v2 3/4] powerpc/memhotplug: Make lmb size 64bit
-Date:   Thu,  6 Aug 2020 21:53:28 +0530
-Message-Id: <20200806162329.276534-3-aneesh.kumar@linux.ibm.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200806162329.276534-1-aneesh.kumar@linux.ibm.com>
-References: <20200806162329.276534-1-aneesh.kumar@linux.ibm.com>
+References: <9f74230f-ba4d-2e19-5751-79dc2ab59877@gmail.com>
+ <20200805024941.GA17301@1wt.eu> <20200805153432.GE497249@mit.edu>
+ <c200297c-85a5-dd50-9497-6fcf7f07b727@gmail.com>
+ <20200805220550.GA785826@mit.edu>
+From:   Marc Plumb <lkml.mplumb@gmail.com>
+Message-ID: <334b350c-a2ed-ab42-ab30-cc3520664218@gmail.com>
+Date:   Thu, 6 Aug 2020 10:00:42 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-06_13:2020-08-06,2020-08-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 mlxlogscore=999 malwarescore=0 adultscore=0 mlxscore=0
- phishscore=0 suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008060112
+In-Reply-To: <20200805220550.GA785826@mit.edu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Similar to commit 89c140bbaeee ("pseries: Fix 64 bit logical memory block panic")
-make sure different variables tracking lmb_size are updated to be 64 bit.
 
-This was found by code audit.
+On 2020-08-05 3:05 p.m., tytso@mit.edu wrote:
+>
+> Well, technically it's not supposed to be a secure cryptographic
+> primitive.  net_rand_state is used in the call prandom_u32(), so the
+> only supposed guarantee is PSEUDO random.
+>
+> That being said, a quick "get grep prandom_u32" shows that there are a
+> *huge* number of uses of prandom_u32() and whether they are all
+> appropriate uses of prandom_u32(), or kernel developers are using it
+> because "I haz a ne3D for spE3d" but in fact it's for a security
+> critical application is a pretty terrifying question.  If we start
+> seeing CVE's getting filed caused by inappropriate uses of
+> prandom_u32, to be honest, it won't surprise me.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
----
- .../platforms/pseries/hotplug-memory.c        | 37 +++++++++++--------
- 1 file changed, 22 insertions(+), 15 deletions(-)
+The danger I'm worried about it's misuse of prandom_u32. That would mean 
+one function would have weak random numbers. I'm worried about the 
+disclosure of the entropy that is the basis for the good random numbers 
+because that would undermine the security of the people who are using 
+the right functions for their task.
 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
-index 5d545b78111f..1fe3204c843a 100644
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -277,7 +277,7 @@ static int dlpar_offline_lmb(struct drmem_lmb *lmb)
- 	return dlpar_change_lmb_state(lmb, false);
- }
- 
--static int pseries_remove_memblock(unsigned long base, unsigned int memblock_size)
-+static int pseries_remove_memblock(unsigned long base, unsigned long memblock_size)
- {
- 	unsigned long block_sz, start_pfn;
- 	int sections_per_block;
-@@ -308,9 +308,9 @@ static int pseries_remove_memblock(unsigned long base, unsigned int memblock_siz
- 
- static int pseries_remove_mem_node(struct device_node *np)
- {
--	const __be32 *regs;
-+	const __be32 *prop;
- 	unsigned long base;
--	unsigned int lmb_size;
-+	unsigned long lmb_size;
- 	int ret = -EINVAL;
- 
- 	/*
-@@ -322,12 +322,16 @@ static int pseries_remove_mem_node(struct device_node *np)
- 	/*
- 	 * Find the base address and size of the memblock
- 	 */
--	regs = of_get_property(np, "reg", NULL);
--	if (!regs)
-+	prop = of_get_property(np, "reg", NULL);
-+	if (!prop)
- 		return ret;
- 
--	base = be64_to_cpu(*(unsigned long *)regs);
--	lmb_size = be32_to_cpu(regs[3]);
-+	/*
-+	 * "reg" property represents (addr,size) tuple.
-+	 */
-+	base = of_read_number(prop, mem_addr_cells);
-+	prop += mem_addr_cells;
-+	lmb_size = of_read_number(prop, mem_size_cells);
- 
- 	pseries_remove_memblock(base, lmb_size);
- 	return 0;
-@@ -557,7 +561,7 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
- 
- #else
- static inline int pseries_remove_memblock(unsigned long base,
--					  unsigned int memblock_size)
-+					  unsigned long memblock_size)
- {
- 	return -EOPNOTSUPP;
- }
-@@ -878,9 +882,9 @@ int dlpar_memory(struct pseries_hp_errorlog *hp_elog)
- 
- static int pseries_add_mem_node(struct device_node *np)
- {
--	const __be32 *regs;
-+	const __be32 *prop;
- 	unsigned long base;
--	unsigned int lmb_size;
-+	unsigned long lmb_size;
- 	int ret = -EINVAL;
- 
- 	/*
-@@ -892,12 +896,15 @@ static int pseries_add_mem_node(struct device_node *np)
- 	/*
- 	 * Find the base and size of the memblock
- 	 */
--	regs = of_get_property(np, "reg", NULL);
--	if (!regs)
-+	prop = of_get_property(np, "reg", NULL);
-+	if (!prop)
- 		return ret;
--
--	base = be64_to_cpu(*(unsigned long *)regs);
--	lmb_size = be32_to_cpu(regs[3]);
-+	/*
-+	 * "reg" property represents (addr,size) tuple.
-+	 */
-+	base = of_read_number(prop, mem_addr_cells);
-+	prop += mem_addr_cells;
-+	lmb_size = of_read_number(prop, mem_size_cells);
- 
- 	/*
- 	 * Update memory region to represent the memory add
--- 
-2.26.2
-
+Having said that, auditing all uses of prandom_u32 would be useful, but 
+a different issue.
