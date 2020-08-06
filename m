@@ -2,87 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4659723DFED
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F229A23DF22
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 19:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728190AbgHFRzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 13:55:25 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:47567 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726094AbgHFQ2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 12:28:51 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id DD4E45C00B9;
-        Thu,  6 Aug 2020 08:42:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 06 Aug 2020 08:42:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=k
-        /oYHigm5ltMM6TCZ6JdWua9TtSkFYq1K/Gc18YYZus=; b=Tjx3HiGIcuhNCHxQM
-        HyUCw3fyXmaTgB1k9kF8viQNMHbx0SYgrBmXmOD5sXFtlkULz3zltHNDyVMP0Lxu
-        fzOw6j4VWcKWMEfoMoPY0uE+lDCb6JJr9VU40DQd/3gRPIj2nWyrwnpUsNBggluk
-        LdyGG91nhEW8mkYFfgXngd9PBgOC6bCyHUIsaFPMgE3kEAeMN0R6JBabesL4KC9M
-        1GpU709y3UJ+bhN7MILL8DzwSg2Pt3BHTKjxWafe6FyoNTReRtI6AP4xoldzbl/v
-        vgPcaSXhYI7B3I6zQm1ogXYlId1qC+2gCK/rCamL2ZEGIVvmIRKDs4gJ63yxU51T
-        9wOsw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=k/oYHigm5ltMM6TCZ6JdWua9TtSkFYq1K/Gc18YYZ
-        us=; b=WNYLthCFcfdagx9wC6rmR1YDWTQ16n0s5e6EAY/CdDLhqtmF/C955nM7k
-        Ezgv8dlVP7DNDxkOPr/PK0nWbZf/p5JprZHmZh51yfcve5zPE18a31NE4+rQLtGo
-        xdIcI/nvI3pQH+VpAhq6qVJTPEUVnPOIKrzk7mBKNDZoBS2w0SSehtczMt8HfgtG
-        7D1UJL+CUkXP54WA0VdTFRdVl3h8Y6siTN/7eO/uuxnpccHl426M7rLhnSqdfHus
-        aAJx4/1jicdue9D3nUZoaB+n7yXxNtA3UwRyYr++3rF6Lob1XdQaQmS1iy/jrpHn
-        7ozdYexF2/7XskDgwzqit8GCBkt+g==
-X-ME-Sender: <xms:r_orXz4dR0fCtNeqBs3iuMiFGo8xBDd7-QCZhRg5D0xdge7qC5l5jQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrkedtgdehiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtugfgjgesthekre
-    dttddtjeenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
-    necuggftrfgrthhtvghrnhepueehkeehlefffeeiudetfeekjeffvdeuheejjeffheelud
-    fgteekvdelkeduuddvnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:r_orX45Dqz5_yZTeCkIZcqhadBRy1tNQDZxxAdSeayddZDHRRkE0ag>
-    <xmx:r_orX6ev5e_6JfUpcXJkcvFOG5dlg5qVzH042bUb5YIGL4tkHEdqJg>
-    <xmx:r_orX0JAc4UEidVCey9cXQsa4UFiUoRbqaqgH_E_2Kpzv_4o2FpLPw>
-    <xmx:r_orX_9NztIlqn63SEIJCbAqASABoVxa0kP6Zs_ULcQD6_ZdD_L_Jg>
+        id S1728365AbgHFRih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 13:38:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55152 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729819AbgHFRbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Aug 2020 13:31:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A373430600B1;
-        Thu,  6 Aug 2020 08:42:22 -0400 (EDT)
-Date:   Thu, 6 Aug 2020 14:42:34 +0200
-From:   Greg KH <greg@kroah.com>
-To:     =?utf-8?B?5aec6L+O?= <jiangying8582@126.com>
-Cc:     tytso@mit.edu, adilger.kernel@dilger.ca,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        jack@suse.cz, stable@vger.kernel.org, sashal@kernel.org,
-        wanglong19@meituan.com, heguanjun@meituan.com
-Subject: Re: [PATCH v6] ext4: fix direct I/O read error for kernel stable rc
- 4.9
-Message-ID: <20200806124234.GA2876088@kroah.com>
-References: <1596715264-3645-1-git-send-email-jiangying8582@126.com>
- <d00c156.5be6.173c3a83482.Coremail.jiangying8582@126.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5773723109;
+        Thu,  6 Aug 2020 12:44:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596717854;
+        bh=3ou9omZc4Nra39WBs2vjwo4o71UySqGYORcZDy+9Of0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=muSooC1zKf0fyERxc69b+JeSq4moOoQrnp+6V7oRuGvIV4DKdpmNaoqtI0FshKW1E
+         YkZO3GZ/vgWLO077nzlSpOTNBJdd5BpwMfmpA94C6+S+tGeHsWX3ri8cnVxpyqsLJC
+         5ZbvmTyOmK/We90L/Gu9I0vZ05qbOzFxCpacBz4A=
+Date:   Thu, 6 Aug 2020 14:44:28 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.7 0/7] 5.7.14-rc2 review
+Message-ID: <20200806124428.GC2876088@kroah.com>
+References: <20200805195916.183355405@linuxfoundation.org>
+ <CA+G9fYs-vNeH=BCbFZAA28-C=dE+iajWEF+0vvgZMwr=yw-5xA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <d00c156.5be6.173c3a83482.Coremail.jiangying8582@126.com>
+In-Reply-To: <CA+G9fYs-vNeH=BCbFZAA28-C=dE+iajWEF+0vvgZMwr=yw-5xA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 06, 2020 at 08:04:07PM +0800, 姜迎 wrote:
+On Thu, Aug 06, 2020 at 02:16:26PM +0530, Naresh Kamboju wrote:
+> On Thu, 6 Aug 2020 at 01:29, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.7.14 release.
+> > There are 7 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Fri, 07 Aug 2020 19:59:06 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.14-rc2.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
 > 
-> 
-> Hi all,
-> This patch is used to fix checkpatch error on kernel stable rc 4.9.
-> I have built pass and tested pass, thanks!
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-Now queued up, thanks!
+Great, thanks for testing all of these and letting me know.
 
 greg k-h
