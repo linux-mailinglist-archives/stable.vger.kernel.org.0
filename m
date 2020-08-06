@@ -2,159 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B70523D4A1
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 02:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C5C23D4CA
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 02:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726932AbgHFAcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 20:32:53 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:15092 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726643AbgHFAcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Aug 2020 20:32:43 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f2b4f470000>; Wed, 05 Aug 2020 17:31:03 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 05 Aug 2020 17:32:42 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 05 Aug 2020 17:32:42 -0700
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 6 Aug
- 2020 00:32:42 +0000
-Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 6 Aug 2020 00:32:41 +0000
-Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.172.190]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f2b4fa80005>; Wed, 05 Aug 2020 17:32:41 -0700
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-To:     <adrian.hunter@intel.com>, <ulf.hansson@linaro.org>,
-        <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
-        <robh+dt@kernel.org>
-CC:     <skomatineni@nvidia.com>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH v3 6/6] sdhci: tegra: Add missing TMCLK for data timeout
-Date:   Wed, 5 Aug 2020 17:32:29 -0700
-Message-ID: <1596673949-1571-7-git-send-email-skomatineni@nvidia.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1596673949-1571-1-git-send-email-skomatineni@nvidia.com>
-References: <1596673949-1571-1-git-send-email-skomatineni@nvidia.com>
-X-NVConfidentiality: public
+        id S1726026AbgHFAnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 20:43:51 -0400
+Received: from smtp.gentoo.org ([140.211.166.183]:59468 "EHLO smtp.gentoo.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725999AbgHFAnt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 20:43:49 -0400
+Subject: Re: [PATCH] MIPS: SGI-IP27: always enable NUMA in Kconfig
+To:     Mike Rapoport <rppt@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     Paul Burton <paulburton@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        kernel test robot <lkp@intel.com>, stable@vger.kernel.org
+References: <20200805125141.24987-1-rppt@kernel.org>
+From:   Joshua Kinard <kumba@gentoo.org>
+Openpgp: preference=signencrypt
+Message-ID: <11255b1d-5488-9ede-fbca-a176a0572a33@gentoo.org>
+Date:   Wed, 5 Aug 2020 20:43:45 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1596673863; bh=aHzYdDXR84MKrg3nz1lWAfpccaeup6RxAewWG5fW9rM=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         Content-Type;
-        b=YQvWxTlqcDcg8OnInEWNxQYeK6Q+GhZ0gsJOWiH+HQxjYwMhioJwErKVGF9tXKVe7
-         SR8cfkINueaTpxllgR7tDYrpi2WgyUx46XGa2BiqoFQaTVkq1k3DgcSLmFhnV2d33M
-         36+Yg4v7UVIw6BoRmx4f3r5il3Roe8TjJOKaBbyzXqdaa5TgfycnBticHbBdoS2Mma
-         m/1KO0tIcwXzNAUE8iaKqNbXgdK+exYRzkuB9WH1vZ1T+c8j8bnO9wq1Q90Y8Htnea
-         KXeaZ2nyym1aSMTIx0rh9HXLcYlM4DD5P1OApfeH/57tfWXAmqI91/dT3RECGjw/SM
-         +509I6qabNrzA==
+In-Reply-To: <20200805125141.24987-1-rppt@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
+On 8/5/2020 08:51, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> When a configuration has NUMA disabled and SGI_IP27 enabled, the build
+> fails:
+> 
+>   CC      kernel/bounds.s
+>   CC      arch/mips/kernel/asm-offsets.s
+> In file included from arch/mips/include/asm/topology.h:11,
+>                  from include/linux/topology.h:36,
+>                  from include/linux/gfp.h:9,
+>                  from include/linux/slab.h:15,
+>                  from include/linux/crypto.h:19,
+>                  from include/crypto/hash.h:11,
+>                  from include/linux/uio.h:10,
+>                  from include/linux/socket.h:8,
+>                  from include/linux/compat.h:15,
+>                  from arch/mips/kernel/asm-offsets.c:12:
+> include/linux/topology.h: In function 'numa_node_id':
+> arch/mips/include/asm/mach-ip27/topology.h:16:27: error: implicit declaration of function 'cputonasid'; did you mean 'cpu_vpe_id'? [-Werror=implicit-function-declaration]
+>  #define cpu_to_node(cpu) (cputonasid(cpu))
+>                            ^~~~~~~~~~
+> include/linux/topology.h:119:9: note: in expansion of macro 'cpu_to_node'
+>   return cpu_to_node(raw_smp_processor_id());
+>          ^~~~~~~~~~~
+> include/linux/topology.h: In function 'cpu_cpu_mask':
+> arch/mips/include/asm/mach-ip27/topology.h:19:7: error: implicit declaration of function 'hub_data' [-Werror=implicit-function-declaration]
+>       &hub_data(node)->h_cpus)
+>        ^~~~~~~~
+> include/linux/topology.h:210:9: note: in expansion of macro 'cpumask_of_node'
+>   return cpumask_of_node(cpu_to_node(cpu));
+>          ^~~~~~~~~~~~~~~
+> arch/mips/include/asm/mach-ip27/topology.h:19:21: error: invalid type argument of '->' (have 'int')
+>       &hub_data(node)->h_cpus)
+>                      ^~
+> include/linux/topology.h:210:9: note: in expansion of macro 'cpumask_of_node'
+>   return cpumask_of_node(cpu_to_node(cpu));
+>          ^~~~~~~~~~~~~~~
+> 
+> Before switch from discontigmem to sparsemem, there always was
+> CONFIG_NEED_MULTIPLE_NODES=y because it was selected by DISCONTIGMEM.
+> Without DISCONTIGMEM it is possible to have SPARSEMEM without NUMA for
+> SGI_IP27 and as many things there rely on custom node definition, the
+> build breaks.
+> 
+> As Thomas noted "... there are right now too many places in IP27 code,
+> which assumes NUMA enabled", the simplest solution would be to always
+> enable NUMA for SGI-IP27 builds.
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Fixes: 397dc00e249e ("mips: sgi-ip27: switch from DISCONTIGMEM to SPARSEMEM")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/mips/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+> index 6fee1a133e9d..a7e40bb1e5bc 100644
+> --- a/arch/mips/Kconfig
+> +++ b/arch/mips/Kconfig
+> @@ -678,6 +678,7 @@ config SGI_IP27
+>  	select SYS_SUPPORTS_NUMA
+>  	select SYS_SUPPORTS_SMP
+>  	select MIPS_L1_CACHE_SHIFT_7
+> +	select NUMA
+>  	help
+>  	  This are the SGI Origin 200, Origin 2000 and Onyx 2 Graphics
+>  	  workstations.  To compile a Linux kernel that runs on these, say Y
+> 
 
-Tegra210 and later has a separate sdmmc_legacy_tm (TMCLK) used by Tegra
-SDMMC hawdware for data timeout to achive better timeout than using
-SDCLK and using TMCLK is recommended.
-
-USE_TMCLK_FOR_DATA_TIMEOUT bit in Tegra SDMMC register
-SDHCI_TEGRA_VENDOR_SYS_SW_CTRL can be used to choose either TMCLK or
-SDCLK for data timeout.
-
-Default USE_TMCLK_FOR_DATA_TIMEOUT bit is set to 1 and TMCLK is used
-for data timeout by Tegra SDMMC hardware and having TMCLK not enabled
-is not recommended.
-
-So, this patch fixes it.
-
-Fixes: b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
-Cc: stable <stable@vger.kernel.org> # 5.4
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- drivers/mmc/host/sdhci-tegra.c | 41 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
-
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 31ed321..c0b9405 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -140,6 +140,7 @@ struct sdhci_tegra_autocal_offsets {
- struct sdhci_tegra {
- 	const struct sdhci_tegra_soc_data *soc_data;
- 	struct gpio_desc *power_gpio;
-+	struct clk *tmclk;
- 	bool ddr_signaling;
- 	bool pad_calib_required;
- 	bool pad_control_available;
-@@ -1611,6 +1612,44 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- 		goto err_power_req;
- 	}
- 
-+	/*
-+	 * Tegra210 has a separate SDMMC_LEGACY_TM clock used for host
-+	 * timeout clock and SW can choose TMCLK or SDCLK for hardware
-+	 * data timeout through the bit USE_TMCLK_FOR_DATA_TIMEOUT of
-+	 * the register SDHCI_TEGRA_VENDOR_SYS_SW_CTRL.
-+	 *
-+	 * USE_TMCLK_FOR_DATA_TIMEOUT bit default is set to 1 and SDMMC uses
-+	 * 12Mhz TMCLK which is advertised in host capability register.
-+	 * With TMCLK of 12Mhz provides maximum data timeout period that can
-+	 * be achieved is 11s better than using SDCLK for data timeout.
-+	 *
-+	 * So, TMCLK is set to 12Mhz and kept enabled all the time on SoC's
-+	 * supporting SDR104 mode and when not using SDCLK for data timeout.
-+	 */
-+
-+	if ((soc_data->nvquirks & NVQUIRK_ENABLE_SDR104) &&
-+	    !(soc_data->pdata->quirks & SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK)) {
-+		clk = devm_clk_get(&pdev->dev, "tmclk");
-+		if (IS_ERR(clk)) {
-+			rc = PTR_ERR(clk);
-+			if (rc == -EPROBE_DEFER)
-+				goto err_power_req;
-+
-+			dev_warn(&pdev->dev, "failed to get tmclk: %d\n", rc);
-+			clk = NULL;
-+		}
-+
-+		clk_set_rate(clk, 12000000);
-+		rc = clk_prepare_enable(clk);
-+		if (rc) {
-+			dev_err(&pdev->dev,
-+				"failed to enable tmclk: %d\n", rc);
-+			goto err_power_req;
-+		}
-+
-+		tegra_host->tmclk = clk;
-+	}
-+
- 	clk = devm_clk_get(mmc_dev(host->mmc), NULL);
- 	if (IS_ERR(clk)) {
- 		rc = PTR_ERR(clk);
-@@ -1654,6 +1693,7 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- err_rst_get:
- 	clk_disable_unprepare(pltfm_host->clk);
- err_clk_get:
-+	clk_disable_unprepare(tegra_host->tmclk);
- err_power_req:
- err_parse_dt:
- 	sdhci_pltfm_free(pdev);
-@@ -1671,6 +1711,7 @@ static int sdhci_tegra_remove(struct platform_device *pdev)
- 	reset_control_assert(tegra_host->rst);
- 	usleep_range(2000, 4000);
- 	clk_disable_unprepare(pltfm_host->clk);
-+	clk_disable_unprepare(tegra_host->tmclk);
- 
- 	sdhci_pltfm_free(pdev);
- 
--- 
-2.7.4
-
+Reviewed-by: Joshua Kinard <kumba@gentoo.org>
