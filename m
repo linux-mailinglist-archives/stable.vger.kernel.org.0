@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2A623D50A
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 03:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECD423D50C
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 03:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726793AbgHFBYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Aug 2020 21:24:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41202 "EHLO mail.kernel.org"
+        id S1726150AbgHFBYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Aug 2020 21:24:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726150AbgHFBYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Aug 2020 21:24:06 -0400
+        id S1725999AbgHFBYH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Aug 2020 21:24:07 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3B2122B40;
-        Thu,  6 Aug 2020 01:24:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4A1E22D02;
+        Thu,  6 Aug 2020 01:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596677046;
-        bh=XNByyhL9Y2whfuo7uld8tDXRV7zi64mizD0FKxzuXz4=;
-        h=Date:From:To:To:To:Cc:CC:Cc:Subject:In-Reply-To:References:From;
-        b=VDJIboO0JjgLTrerPPFVXtVvJM7f2Tc70CIBir4TkP2+5t5dEDHKN53JuSspENC+b
-         NwFq25Qs/aPGQh787I1U/bL0+QzsxD/oajq+//wiA3P4blJQjS9MzzPxUGPWm94lMX
-         LKjATQBSeXjIn8U62IreLnln3Aij6y6iDmbQ7ugk=
-Date:   Thu, 06 Aug 2020 01:24:05 +0000
+        s=default; t=1596677047;
+        bh=Fj3lh2uz+HmLxisc5l6KGDQ06xcGE8Rex7nHCJv4MWM=;
+        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=kGacGqB4DLxXe66JgEBEGnMlPkpOF0Wx0vEk0avL8QPjn3IFWjrImMl7UfIFQ8Jxz
+         lX4FNjF3nyPF8ZEOwq32MLyAA6TRdtZzmk/Ldb9wqjzPXKeMKZ2qKjcDG8u5dWY/oy
+         +LfFzl7306QshbMSHDJlgs1VmxO4Xt43CNAYLBpE=
+Date:   Thu, 06 Aug 2020 01:24:06 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>
-CC:     stable@vger.kernel.org
+To:     Kees Cook <keescook@chromium.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+To:     Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] ext4: Fix checking of entry validity
-In-Reply-To: <20200731162135.8080-1-jack@suse.cz>
-References: <20200731162135.8080-1-jack@suse.cz>
-Message-Id: <20200806012405.E3B2122B40@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v5 13/36] vmlinux.lds.h: add PGO and AutoFDO input sections
+In-Reply-To: <20200731230820.1742553-14-keescook@chromium.org>
+References: <20200731230820.1742553-14-keescook@chromium.org>
+Message-Id: <20200806012406.D4A1E22D02@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,36 +46,84 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 109ba779d6cc ("ext4: check for directory entries too close to block end").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.7.11, v5.4.54, v4.19.135, v4.14.190, v4.9.231, v4.4.231.
 
-v5.7.11: Build OK!
-v5.4.54: Build OK!
-v4.19.135: Build OK!
-v4.14.190: Build OK!
+v5.7.11: Failed to apply! Possible dependencies:
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+
+v5.4.54: Failed to apply! Possible dependencies:
+    441110a547f8 ("vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes")
+    6434efbd9aef ("s390: Move RO_DATA into "text" PT_LOAD Program Header")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    6fc4000656a1 ("powerpc: Remove PT_NOTE workaround")
+    7a42d41d9dc2 ("x86/vmlinux: Restore "text" Program Header with dummy section")
+    eaf937075c9a ("vmlinux.lds.h: Move NOTES into RO_DATA")
+    fbe6a8e618a2 ("vmlinux.lds.h: Move Program Header restoration into NOTES macro")
+
+v4.19.135: Failed to apply! Possible dependencies:
+    15426ca43d88 ("s390: rescue initrd as early as possible")
+    369f91c37451 ("s390/decompressor: rework uncompressed image info collection")
+    3bad719b4954 ("powerpc/prom_init: Make of_workarounds static")
+    441110a547f8 ("vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes")
+    4e62d4588500 ("s390: clean up stacks setup")
+    5f69e38885c3 ("powerpc/prom_init: Move __prombss to it's own section and store it in .bss")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf80712 ("powerpc/ftrace: Handle large kernel configs")
+    8f75582a2fb6 ("s390: remove decompressor's head.S")
+    d1b52a4388ff ("s390: introduce .boot.data section")
+    e63334e556d9 ("powerpc/prom_init: Replace __initdata with __prombss when applicable")
+    eaf937075c9a ("vmlinux.lds.h: Move NOTES into RO_DATA")
+    fbe6a8e618a2 ("vmlinux.lds.h: Move Program Header restoration into NOTES macro")
+
+v4.14.190: Failed to apply! Possible dependencies:
+    01417c6cc7dc ("powerpc/64: Change soft_enabled from flag to bitmask")
+    0b63acf4a0eb ("powerpc/64: Move set_soft_enabled() and rename")
+    1696d0fb7fcd ("powerpc/64: Set DSCR default initially from SPR")
+    4e26bc4a4ed6 ("powerpc/64: Rename soft_enabled to irq_soft_mask")
+    5080332c2c89 ("powerpc/64s: Add workaround for P9 vector CI load issue")
+    5633e85b2c31 ("powerpc64: Add .opd based function descriptor dereference")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf80712 ("powerpc/ftrace: Handle large kernel configs")
+    9f83e00f4cc1 ("powerpc/64: Improve inline asm in arch_local_irq_disable")
+    ae30cc05bed2 ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b5c1bd62c054 ("powerpc/64: Fix arch_local_irq_disable() prototype")
+    c2e480ba8227 ("powerpc/64: Add #defines for paca->soft_enabled flags")
+    ea678ac627e0 ("powerpc64/ftrace: Add a field in paca to disable ftrace in unsafe code paths")
+    ff967900c9d4 ("powerpc/64: Fix latency tracing for lazy irq replay")
+
 v4.9.231: Failed to apply! Possible dependencies:
-    364443cbcfe7 ("ext4: convert DAX reads to iomap infrastructure")
-    39bc88e5e38e ("arm64: Disable TTBR0_EL1 during normal kernel execution")
-    7046ae35329f ("ext4: Add iomap support for inline data")
-    7c0f6ba682b9 ("Replace <asm/uaccess.h> with <linux/uaccess.h> globally")
-    9cf09d68b89a ("arm64: xen: Enable user access before a privcmd hvc call")
-    b886ee3e778e ("ext4: Support case-insensitive file name lookups")
-    bd38967d406f ("arm64: Factor out PAN enabling/disabling into separate uaccess_* macros")
-    ee73f9a52a34 ("ext4: convert to new i_version API")
-    eeca7ea1baa9 ("ext4: use current_time() for inode timestamps")
+    096ff2ddba83 ("powerpc/ftrace/64: Split further based on -mprofile-kernel")
+    2f59be5b970b ("powerpc/ftrace: Restore LR from pt_regs")
+    454656155110 ("powerpc/asm: Use OFFSET macro in asm-offsets.c")
+    5633e85b2c31 ("powerpc64: Add .opd based function descriptor dereference")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf80712 ("powerpc/ftrace: Handle large kernel configs")
+    700e64377c2c ("powerpc/ftrace: Move stack setup and teardown code into ftrace_graph_caller()")
+    7853f9c029ac ("powerpc: Split ftrace bits into a separate file")
+    99ad503287da ("powerpc: Add a prototype for mcount() so it can be versioned")
+    a97a65d53d9f ("KVM: PPC: Book3S: 64-bit CONFIG_RELOCATABLE support for interrupts")
+    ae30cc05bed2 ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b3a7864c6feb ("powerpc/ftrace: Add prototype for prepare_ftrace_return()")
+    c02e0349d7e9 ("powerpc/ftrace: Fix the comments for ftrace_modify_code")
+    c4f3b52ce7b1 ("powerpc/64s: Disallow system reset vs system reset reentrancy")
+    d3918e7fd4a2 ("KVM: PPC: Book3S: Change interrupt call to reduce scratch space use on HV")
+    ea678ac627e0 ("powerpc64/ftrace: Add a field in paca to disable ftrace in unsafe code paths")
 
 v4.4.231: Failed to apply! Possible dependencies:
-    12735f881952 ("ext4: pre-zero allocated blocks for DAX IO")
-    2dcba4781fa3 ("ext4: get rid of EXT4_GET_BLOCKS_NO_LOCK flag")
-    364443cbcfe7 ("ext4: convert DAX reads to iomap infrastructure")
-    7046ae35329f ("ext4: Add iomap support for inline data")
-    705965bd6dfa ("ext4: rename and split get blocks functions")
-    b886ee3e778e ("ext4: Support case-insensitive file name lookups")
-    ba5843f51d46 ("ext4: use pre-zeroed blocks for DAX page faults")
-    c86d8db33a92 ("ext4: implement allocation of pre-zeroed blocks")
-    ee73f9a52a34 ("ext4: convert to new i_version API")
+    0f4c4af06eec ("kbuild: -ffunction-sections fix for archs with conflicting sections")
+    2aedcd098a94 ("kbuild: suppress annoying "... is up to date." message")
+    9895c03d4811 ("kbuild: record needed exported symbols for modules")
+    a5967db9af51 ("kbuild: allow architectures to use thin archives instead of ld -r")
+    b67067f1176d ("kbuild: allow archs to select link dead code/data elimination")
+    b9ab5ebb14ec ("objtool: Add CONFIG_STACK_VALIDATION option")
+    c1a95fda2a40 ("kbuild: add fine grained build dependencies for exported symbols")
+    cb87481ee89d ("kbuild: linker script do not match C names unless LD_DEAD_CODE_DATA_ELIMINATION is configured")
+    cf4f21938e13 ("kbuild: Allow to specify composite modules with modname-m")
+    e4aca4595005 ("kbuild: de-duplicate fixdep usage")
+    f235541699bc ("export.h: allow for per-symbol configurable EXPORT_SYMBOL()")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
