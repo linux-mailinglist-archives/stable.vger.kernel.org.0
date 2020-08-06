@@ -2,134 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB3523E140
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 20:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA1F23E12A
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 20:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729154AbgHFSl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 14:41:56 -0400
-Received: from foss.arm.com ([217.140.110.172]:46570 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728322AbgHFSXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Aug 2020 14:23:31 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1FCCA1FB;
-        Thu,  6 Aug 2020 11:11:26 -0700 (PDT)
-Received: from [10.57.35.143] (unknown [10.57.35.143])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1BB813F7D7;
-        Thu,  6 Aug 2020 11:11:24 -0700 (PDT)
-Subject: Re: [tip: perf/core] perf/core: Fix endless multiplex timer
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     linux-kernel@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        x86 <x86@kernel.org>
-References: <20200305123851.GX2596@hirez.programming.kicks-ass.net>
- <158470908175.28353.4859180707604949658.tip-bot2@tip-bot2>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <abd1dde6-2761-ae91-195c-cd7c4e4515c6@arm.com>
-Date:   Thu, 6 Aug 2020 19:11:24 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
-MIME-Version: 1.0
-In-Reply-To: <158470908175.28353.4859180707604949658.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+        id S1728608AbgHFSlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 14:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58828 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727796AbgHFS3z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 14:29:55 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0405FC0617A4
+        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 11:29:52 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id a14so52781389ybm.13
+        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 11:29:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=+IG/dxdpIhFOg5NsrzFXy6SAE8mZFW/9Sk3pQFlLR/4=;
+        b=aqhdeEeYxs4pIJ7U2ovDFyNnuGPXWzRfKQ10Xub61whpV9tbm2cil6TFTO/f1I0asV
+         Jkm5iEj3REOVhxGYnDQDW9Vyad2O2p91LMVYkD1fdaXSuu2OvPO9WG1VrOWStwcbxXzZ
+         AaMCgi88DzldY8DzC5b/E6Xr0eTQvkemByeALsUT2qQW/ovsBZbfkzt0qb0t6wGDSK8q
+         zeV8thFiYRKXT51DfC+CnEFhs9Z1fgeEX3Ea+a0ZEJIREVYuNOhIIE4s+d4oHfAL0TLI
+         7ppVzqf6bPuxq8Et9E+O1VG9H8UtDwzlOIysJD97bqAaoJhaTLuPtKTLJaTeFyY4k/2J
+         2+qA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=+IG/dxdpIhFOg5NsrzFXy6SAE8mZFW/9Sk3pQFlLR/4=;
+        b=gkmIsrmC20X2GL+le2XJmXoiSMavAmZsu/m+isCzILegLHaZGmuuOzcmSnCCSMm9zj
+         59i04yRK2o6At9noh1oDYBZ6U6v5adpJrvfyIUGWU03tIwuJZWKtzWTKNgXZ0mjdMzdf
+         uc+6tyIFMe+maZL7aU4Ba7D6mIjNmBkp2k+809D+G2CruNxDIf7hi8a3evhoRxjXjcCj
+         BjSB5xbleJw4IiH0EAcy4EmBOJaduB0lboa+DaNzXWzuEzNFD/HzXHMKFBgIgrpE41Ch
+         L8J4AxROqA3rOrGOLdFGnoAGBU6+XVh8sDcJfxm7rF92bMzFJV65VGKW4BT38Pp6CWlY
+         z8ng==
+X-Gm-Message-State: AOAM533jNopI71NwGMR77Y9U2RefShiI7fZJSgIAbEaV+Q9DfNgkZC4+
+        zeJSw+Twq3wUuDjR9Bxpyy7zoH4ECFt6Vb3GcAs=
+X-Google-Smtp-Source: ABdhPJwZABlBX0pahoVpPDOus1FAsJYKYjfJy30hapIE6fqPyT+k2q2xJ16rKioJ7N6yL6pFeQR2DssnVu/ZwHHkgC0=
+X-Received: by 2002:a25:f30c:: with SMTP id c12mr15528680ybs.471.1596738591183;
+ Thu, 06 Aug 2020 11:29:51 -0700 (PDT)
+Date:   Thu,  6 Aug 2020 11:29:39 -0700
+Message-Id: <20200806182940.720057-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
+Subject: [PATCH net resend] bitfield.h: don't compile-time validate _val in FIELD_FIT
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     David Miller <davem@davemloft.net>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Alex Elder <elder@linaro.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@chromium.org>, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-03-20 12:58, tip-bot2 for Peter Zijlstra wrote:
-> The following commit has been merged into the perf/core branch of tip:
-> 
-> Commit-ID:     90c91dfb86d0ff545bd329d3ddd72c147e2ae198
-> Gitweb:        https://git.kernel.org/tip/90c91dfb86d0ff545bd329d3ddd72c147e2ae198
-> Author:        Peter Zijlstra <peterz@infradead.org>
-> AuthorDate:    Thu, 05 Mar 2020 13:38:51 +01:00
-> Committer:     Peter Zijlstra <peterz@infradead.org>
-> CommitterDate: Fri, 20 Mar 2020 13:06:22 +01:00
-> 
-> perf/core: Fix endless multiplex timer
-> 
-> Kan and Andi reported that we fail to kill rotation when the flexible
-> events go empty, but the context does not. XXX moar
-> 
-> Fixes: fd7d55172d1e ("perf/cgroups: Don't rotate events for cgroups unnecessarily")
+From: Jakub Kicinski <kuba@kernel.org>
 
-Can this patch (commit 90c91dfb86d0 ("perf/core: Fix endless multiplex 
-timer") upstream) be applied to stable please? For PMU drivers built as 
-modules, the bug can actually kill the system, since the runaway hrtimer 
-loop keeps calling pmu->{enable,disable} after all the events have been 
-closed and dropped their references to pmu->module. Thus legitimately 
-unloading the module once things have got into this state quickly 
-results in a crash when those callbacks disappear.
+When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
+compiler to deduce a case where _val can only have the value of -1 at
+compile time. Specifically,
 
-(FWIW I spent about two days fighting with this while testing a new 
-driver as a module against the 5.3 kernel installed on someone else's 
-machine, assuming it was a bug in my code...)
+/* struct bpf_insn: _s32 imm */
+u64 imm = insn->imm; /* sign extend */
+if (imm >> 32) { /* non-zero only if insn->imm is negative */
+  /* inlined from ur_load_imm_any */
+  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
+  if (__builtin_constant_p(__imm) && __imm > 255)
+    compiletime_assert_XXX()
 
-Robin.
+This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
+checks that a given value is representable in one byte (interpreted as
+unsigned).
 
-> Reported-by: Andi Kleen <ak@linux.intel.com>
-> Reported-by: Kan Liang <kan.liang@linux.intel.com>
-> Tested-by: Kan Liang <kan.liang@linux.intel.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Link: https://lkml.kernel.org/r/20200305123851.GX2596@hirez.programming.kicks-ass.net
-> ---
->   kernel/events/core.c | 20 ++++++++++++++------
->   1 file changed, 14 insertions(+), 6 deletions(-)
-> 
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index ccf8d4f..b5a68d2 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -2291,6 +2291,7 @@ __perf_remove_from_context(struct perf_event *event,
->   
->   	if (!ctx->nr_events && ctx->is_active) {
->   		ctx->is_active = 0;
-> +		ctx->rotate_necessary = 0;
->   		if (ctx->task) {
->   			WARN_ON_ONCE(cpuctx->task_ctx != ctx);
->   			cpuctx->task_ctx = NULL;
-> @@ -3188,12 +3189,6 @@ static void ctx_sched_out(struct perf_event_context *ctx,
->   	if (!ctx->nr_active || !(is_active & EVENT_ALL))
->   		return;
->   
-> -	/*
-> -	 * If we had been multiplexing, no rotations are necessary, now no events
-> -	 * are active.
-> -	 */
-> -	ctx->rotate_necessary = 0;
-> -
->   	perf_pmu_disable(ctx->pmu);
->   	if (is_active & EVENT_PINNED) {
->   		list_for_each_entry_safe(event, tmp, &ctx->pinned_active, active_list)
-> @@ -3203,6 +3198,13 @@ static void ctx_sched_out(struct perf_event_context *ctx,
->   	if (is_active & EVENT_FLEXIBLE) {
->   		list_for_each_entry_safe(event, tmp, &ctx->flexible_active, active_list)
->   			group_sched_out(event, cpuctx, ctx);
-> +
-> +		/*
-> +		 * Since we cleared EVENT_FLEXIBLE, also clear
-> +		 * rotate_necessary, is will be reset by
-> +		 * ctx_flexible_sched_in() when needed.
-> +		 */
-> +		ctx->rotate_necessary = 0;
->   	}
->   	perf_pmu_enable(ctx->pmu);
->   }
-> @@ -3985,6 +3987,12 @@ ctx_event_to_rotate(struct perf_event_context *ctx)
->   				      typeof(*event), group_node);
->   	}
->   
-> +	/*
-> +	 * Unconditionally clear rotate_necessary; if ctx_flexible_sched_in()
-> +	 * finds there are unschedulable events, it will set it again.
-> +	 */
-> +	ctx->rotate_necessary = 0;
-> +
->   	return event;
->   }
->   
-> 
+FIELD_FIT() should return true or false at runtime for whether a value
+can fit for not. Don't break the build over a value that's too large for
+the mask. We'd prefer to keep the inlining and compiler optimizations
+though we know this case will always return false.
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
+Reported-by: Masahiro Yamada <masahiroy@kernel.org>
+Debugged-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Alex Elder <elder@linaro.org>
+---
+Note: resent patch 1/2 as per Jakub on
+https://lore.kernel.org/netdev/20200708230402.1644819-1-ndesaulniers@google.com/
+
+ include/linux/bitfield.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
+index 48ea093ff04c..4e035aca6f7e 100644
+--- a/include/linux/bitfield.h
++++ b/include/linux/bitfield.h
+@@ -77,7 +77,7 @@
+  */
+ #define FIELD_FIT(_mask, _val)						\
+ 	({								\
+-		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
++		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
+ 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
+ 	})
+ 
+-- 
+2.27.0.383.g050319c2ae-goog
+
