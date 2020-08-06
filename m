@@ -2,191 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7943323D63B
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 07:01:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1812C23D6C5
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 08:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725272AbgHFFBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 01:01:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725271AbgHFFBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 01:01:42 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E32DC061574
-        for <stable@vger.kernel.org>; Wed,  5 Aug 2020 22:01:42 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id s26so24266257pfm.4
-        for <stable@vger.kernel.org>; Wed, 05 Aug 2020 22:01:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bqZrZFN/gw+brU5EyQMGW9X4WoqNtkE9qoA2DLbZweM=;
-        b=Flw3MzoZgxuNhTtqitRxtLvqvUMWdvV4N9IMYTx3anlKQ+YCSFcfBtf4RjdR29VO5+
-         RSfSM/CMbQYrKGxrDNep4IW2ffagNG0FccH/Cl5bbUWM/72Y2qEaMSlIdzdssm3zvICk
-         pFAL00WIBU/Cr76PHEmfj2HT1Bpi0VtC42cYY/IYod20DdmTCM32IM1eFTCLQd0fgb0k
-         TokkI6OjGIrwYjbnKez9vhaIDS60A4MuNUUbaLWrez5s5AdAZPSRuNri2q+GaKI6QQDW
-         MlYQ+M4saXDiZN6ycXsu+tdUWPZAsqAex6HkO7ZCzNtvcWbIndy0b64220aInu4b0YJM
-         UvIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bqZrZFN/gw+brU5EyQMGW9X4WoqNtkE9qoA2DLbZweM=;
-        b=o4vz/akiG4NxBHPeHpOKFmmuv/yE9OWlOePEwm+RTV/SVOB36fQfKPZ5UeqpL8YzEL
-         Ry0TtrvaeLkA3G97E+3P5x+zMCKHKnqSTMicb0pIO6tTMR3QWWNIvVA5S8zIiSCtb/EL
-         H/iVM6Kn7PgFsQWUZNjGViwlSbdwZkNi0ylgL+W2IMskh5nUADO1k6coKTwwhFowFN9r
-         823+xJ1v+7IF6yCBN5CCV3CfFAgsQ4MtFNcO9788TUwpMK6A2xXBSFnGWFyAaF0ICOjt
-         tUEDo+79ePC04iHjs0l5JlUhb/fN2OnmD9cOMN582TJoOqQ7jGNq719vDS5TErrytvy7
-         PNhA==
-X-Gm-Message-State: AOAM532lqBkD5hdeIBFtCxxTAcutd79IMFSrDqCATejhZxQJFVQMXvhi
-        hcfi4f0Fm1HYt2MdDm4WQuYhEl3nmQg=
-X-Google-Smtp-Source: ABdhPJzV/6/ev7ub54wa9AoU+l2um8NSCjakfiWwqby2gG27E9u4mervsGL8K03xhf9HJUFGv3kQXA==
-X-Received: by 2002:aa7:9a4c:: with SMTP id x12mr6651142pfj.307.1596690097917;
-        Wed, 05 Aug 2020 22:01:37 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b26sm6548003pff.54.2020.08.05.22.01.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2020 22:01:37 -0700 (PDT)
-Message-ID: <5f2b8eb1.1c69fb81.5e8ef.21ac@mx.google.com>
-Date:   Wed, 05 Aug 2020 22:01:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726901AbgHFGYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 02:24:34 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:3042 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726051AbgHFGYe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 02:24:34 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f2ba1ed0002>; Wed, 05 Aug 2020 23:23:41 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 05 Aug 2020 23:24:31 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 05 Aug 2020 23:24:31 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 6 Aug
+ 2020 06:24:31 +0000
+Received: from [127.0.1.1] (10.124.1.5) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 6 Aug 2020 06:24:28 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.7 0/7] 5.7.14-rc2 review
+In-Reply-To: <20200805195916.183355405@linuxfoundation.org>
+References: <20200805195916.183355405@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.55-97-g1c4819817cd8
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y baseline: 147 runs,
- 3 regressions (v5.4.55-97-g1c4819817cd8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <fb74b2c119a047e2933b5d375f0fe703@HQMAIL101.nvidia.com>
+Date:   Thu, 6 Aug 2020 06:24:28 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1596695021; bh=i0ZywK+lSqNkDxG6NKQmq/JmVropILoT9472TFbw3oU=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=Wa8Z1bjluYJFy7NuNei8Am5pDwa6D1GinhdljqwE8fqZxYL/unHsXUXStw8oiwG2/
+         1eabzY+l4S4HQDPYPcmvSk+pVE4KG5+wiQtB8st23vv6ln78VQIHjV+Eh+QJSiTIqu
+         d4TiO2CoBC+NzjbERQCgfboFAlJdS6hMnBaia3gnpaIurBSxGxwvbEdZ5Iz72cz4bN
+         hcMpOaNC1WCcxzsLz7+v/cCvCbdzBBvrqVXWEnOdUh19hd8LNV0nEhTnHxrZM2VO6e
+         andkReBp8JKprqyKc+PDpCZ7JbZa6boKFf6nGFXLFBnEYwUEFllJCp7Q8PV9Ksbrhe
+         Ag9ezvAKhinCw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 147 runs, 3 regressions (v5.4.55-97-g1c4819=
-817cd8)
+On Wed, 05 Aug 2020 21:59:33 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.14 release.
+> There are 7 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 07 Aug 2020 19:59:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.14-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Regressions Summary
--------------------
+All tests passing for Tegra ...
 
-platform              | arch  | lab          | compiler | defconfig        =
-  | results
-----------------------+-------+--------------+----------+------------------=
---+--------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
-  | 0/1    =
+Test results for stable-v5.7:
+    11 builds:	11 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
 
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
-  | 4/5    =
+Linux version:	5.7.14-rc2-g0ceaad177e51
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-omap3-beagle-xm       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
-g | 0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.55-97-g1c4819817cd8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.55-97-g1c4819817cd8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1c4819817cd892724f91e5d253eec5f746243602 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
-  | results
-----------------------+-------+--------------+----------+------------------=
---+--------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
-  | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2b5b61e706f22fae52c1dc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.55-=
-97-g1c4819817cd8/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
-d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.55-=
-97-g1c4819817cd8/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
-d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f2b5b61e706f22fae52c=
-1dd
-      failing since 116 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
-il: v5.4.30-81-gf163418797b9) =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
-  | results
-----------------------+-------+--------------+----------+------------------=
---+--------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
-  | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2b5c15fe04af32db52c1a6
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.55-=
-97-g1c4819817cd8/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.55-=
-97-g1c4819817cd8/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f2b5c15fe04af32=
-db52c1a9
-      new failure (last pass: v5.4.55-87-g47b594b8993f)
-      2 lines =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
-  | results
-----------------------+-------+--------------+----------+------------------=
---+--------
-omap3-beagle-xm       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
-g | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2b5eb121fdbb72d052c1a6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.55-=
-97-g1c4819817cd8/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-b=
-eagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.55-=
-97-g1c4819817cd8/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-b=
-eagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f2b5eb121fdbb72d052c=
-1a7
-      new failure (last pass: v5.4.55-87-g47b594b8993f) =20
+Jon
