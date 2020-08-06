@@ -2,121 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA1F23E12A
-	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 20:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9928C23E189
+	for <lists+stable@lfdr.de>; Thu,  6 Aug 2020 20:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbgHFSlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 14:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727796AbgHFS3z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 14:29:55 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0405FC0617A4
-        for <stable@vger.kernel.org>; Thu,  6 Aug 2020 11:29:52 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id a14so52781389ybm.13
-        for <stable@vger.kernel.org>; Thu, 06 Aug 2020 11:29:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=+IG/dxdpIhFOg5NsrzFXy6SAE8mZFW/9Sk3pQFlLR/4=;
-        b=aqhdeEeYxs4pIJ7U2ovDFyNnuGPXWzRfKQ10Xub61whpV9tbm2cil6TFTO/f1I0asV
-         Jkm5iEj3REOVhxGYnDQDW9Vyad2O2p91LMVYkD1fdaXSuu2OvPO9WG1VrOWStwcbxXzZ
-         AaMCgi88DzldY8DzC5b/E6Xr0eTQvkemByeALsUT2qQW/ovsBZbfkzt0qb0t6wGDSK8q
-         zeV8thFiYRKXT51DfC+CnEFhs9Z1fgeEX3Ea+a0ZEJIREVYuNOhIIE4s+d4oHfAL0TLI
-         7ppVzqf6bPuxq8Et9E+O1VG9H8UtDwzlOIysJD97bqAaoJhaTLuPtKTLJaTeFyY4k/2J
-         2+qA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=+IG/dxdpIhFOg5NsrzFXy6SAE8mZFW/9Sk3pQFlLR/4=;
-        b=gkmIsrmC20X2GL+le2XJmXoiSMavAmZsu/m+isCzILegLHaZGmuuOzcmSnCCSMm9zj
-         59i04yRK2o6At9noh1oDYBZ6U6v5adpJrvfyIUGWU03tIwuJZWKtzWTKNgXZ0mjdMzdf
-         uc+6tyIFMe+maZL7aU4Ba7D6mIjNmBkp2k+809D+G2CruNxDIf7hi8a3evhoRxjXjcCj
-         BjSB5xbleJw4IiH0EAcy4EmBOJaduB0lboa+DaNzXWzuEzNFD/HzXHMKFBgIgrpE41Ch
-         L8J4AxROqA3rOrGOLdFGnoAGBU6+XVh8sDcJfxm7rF92bMzFJV65VGKW4BT38Pp6CWlY
-         z8ng==
-X-Gm-Message-State: AOAM533jNopI71NwGMR77Y9U2RefShiI7fZJSgIAbEaV+Q9DfNgkZC4+
-        zeJSw+Twq3wUuDjR9Bxpyy7zoH4ECFt6Vb3GcAs=
-X-Google-Smtp-Source: ABdhPJwZABlBX0pahoVpPDOus1FAsJYKYjfJy30hapIE6fqPyT+k2q2xJ16rKioJ7N6yL6pFeQR2DssnVu/ZwHHkgC0=
-X-Received: by 2002:a25:f30c:: with SMTP id c12mr15528680ybs.471.1596738591183;
- Thu, 06 Aug 2020 11:29:51 -0700 (PDT)
-Date:   Thu,  6 Aug 2020 11:29:39 -0700
-Message-Id: <20200806182940.720057-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.28.0.163.g6104cc2f0b6-goog
-Subject: [PATCH net resend] bitfield.h: don't compile-time validate _val in FIELD_FIT
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Alex Elder <elder@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726094AbgHFSxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 14:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725272AbgHFSxj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Aug 2020 14:53:39 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7197B206A2;
+        Thu,  6 Aug 2020 18:53:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596740019;
+        bh=w//eizxwsAVrv+YPmS3JX4NMqcajxqnj5JXlDU41V9Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qmg8P7JiHebGl+XnPaxN10Hvl7XUXGsKieVGY6wx5pNCJU+TL9eSSZLg14F1BMhzS
+         9IIlLt0mBO+mNtjhJmQcaCT/TwDyaHy55xIKOUqjg59mz9C5HlUGlEFkfYxQS8ImI0
+         lILF5Q/NmyZtnDqz12wG8Y1zccsQ3dy651vOsQAw=
+Date:   Thu, 6 Aug 2020 20:53:53 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        linux-kernel@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        x86 <x86@kernel.org>
+Subject: Re: [tip: perf/core] perf/core: Fix endless multiplex timer
+Message-ID: <20200806185353.GA2942033@kroah.com>
+References: <20200305123851.GX2596@hirez.programming.kicks-ass.net>
+ <158470908175.28353.4859180707604949658.tip-bot2@tip-bot2>
+ <abd1dde6-2761-ae91-195c-cd7c4e4515c6@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <abd1dde6-2761-ae91-195c-cd7c4e4515c6@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+On Thu, Aug 06, 2020 at 07:11:24PM +0100, Robin Murphy wrote:
+> On 2020-03-20 12:58, tip-bot2 for Peter Zijlstra wrote:
+> > The following commit has been merged into the perf/core branch of tip:
+> > 
+> > Commit-ID:     90c91dfb86d0ff545bd329d3ddd72c147e2ae198
+> > Gitweb:        https://git.kernel.org/tip/90c91dfb86d0ff545bd329d3ddd72c147e2ae198
+> > Author:        Peter Zijlstra <peterz@infradead.org>
+> > AuthorDate:    Thu, 05 Mar 2020 13:38:51 +01:00
+> > Committer:     Peter Zijlstra <peterz@infradead.org>
+> > CommitterDate: Fri, 20 Mar 2020 13:06:22 +01:00
+> > 
+> > perf/core: Fix endless multiplex timer
+> > 
+> > Kan and Andi reported that we fail to kill rotation when the flexible
+> > events go empty, but the context does not. XXX moar
+> > 
+> > Fixes: fd7d55172d1e ("perf/cgroups: Don't rotate events for cgroups unnecessarily")
+> 
+> Can this patch (commit 90c91dfb86d0 ("perf/core: Fix endless multiplex
+> timer") upstream) be applied to stable please? For PMU drivers built as
+> modules, the bug can actually kill the system, since the runaway hrtimer
+> loop keeps calling pmu->{enable,disable} after all the events have been
+> closed and dropped their references to pmu->module. Thus legitimately
+> unloading the module once things have got into this state quickly results in
+> a crash when those callbacks disappear.
+> 
+> (FWIW I spent about two days fighting with this while testing a new driver
+> as a module against the 5.3 kernel installed on someone else's machine,
+> assuming it was a bug in my code...)
 
-When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
-compiler to deduce a case where _val can only have the value of -1 at
-compile time. Specifically,
+What exactly kernel(s) do you wish for it to be applied to?  It's
+already in the latest stable releases of 5.7.y.
 
-/* struct bpf_insn: _s32 imm */
-u64 imm = insn->imm; /* sign extend */
-if (imm >> 32) { /* non-zero only if insn->imm is negative */
-  /* inlined from ur_load_imm_any */
-  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
-  if (__builtin_constant_p(__imm) && __imm > 255)
-    compiletime_assert_XXX()
+thanks,
 
-This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
-checks that a given value is representable in one byte (interpreted as
-unsigned).
-
-FIELD_FIT() should return true or false at runtime for whether a value
-can fit for not. Don't break the build over a value that's too large for
-the mask. We'd prefer to keep the inlining and compiler optimizations
-though we know this case will always return false.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
-Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-Debugged-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Alex Elder <elder@linaro.org>
----
-Note: resent patch 1/2 as per Jakub on
-https://lore.kernel.org/netdev/20200708230402.1644819-1-ndesaulniers@google.com/
-
- include/linux/bitfield.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
-index 48ea093ff04c..4e035aca6f7e 100644
---- a/include/linux/bitfield.h
-+++ b/include/linux/bitfield.h
-@@ -77,7 +77,7 @@
-  */
- #define FIELD_FIT(_mask, _val)						\
- 	({								\
--		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
-+		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
- 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
- 	})
- 
--- 
-2.27.0.383.g050319c2ae-goog
-
+greg k-h
