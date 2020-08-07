@@ -2,152 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3AF23F3A0
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 22:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1AB623F3A4
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 22:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725934AbgHGUOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 16:14:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41920 "EHLO
+        id S1726155AbgHGUQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 16:16:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgHGUOT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 16:14:19 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03DF8C061756
-        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 13:14:19 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id l60so1473994pjb.3
-        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 13:14:18 -0700 (PDT)
+        with ESMTP id S1726078AbgHGUQX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 16:16:23 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93EB6C061756
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 13:16:23 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id p8so1489635pgn.13
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 13:16:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zHQ5mU14z0wASr81YlmAMCgRH0pG+/QERQ0Zffpwo6Q=;
-        b=n9pzo2JWNggDYq7O0BhJ9y/Bvn8p0IqdhxFcprIn4ibwQxIHI9nVKfz3/GCFvSoNj0
-         oiY0IMuNgmdulZaRbKKH4f1fyMtnwWIG+XaRNp/4b77J5Ios2/1ljAfYQ4Edso66l54d
-         woUvQmzEIEOR7sDY7HSmJoQzaGq++8E/MM2+L+4jR1UflsM1kzKSLAZvk79iQNzpqwJe
-         9h1Tfg/xSeQYOLwNDrFAw+LNdghu6cCol6pKTlXXsfmEMl6R9BWbot2TqYEwK6IyPr5N
-         wzxL/yVH8N82yi+nEC/FwgVjqQf9m43JK7Ni0+76HB6wAJRysygmp+Qlx+qmfEiRxRNL
-         +qrg==
+        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
+        h=content-transfer-encoding:from:mime-version:subject:date:message-id
+         :references:cc:in-reply-to:to;
+        bh=fHFtBYCexj4BTZ6Y1duEdpJc2jxlS5kQFzTI7bYy0g0=;
+        b=ZoiOg1BcUV1vC31wWklIDX8vWaYA8yKQvsHwTMtIPX2Tv/+0Zf+DLEQYBJ/3KOa+vJ
+         Dt/N4ivAO7QN76a/KSK4EYdeHg9KpRHzSjqBr73StK4ERdm91cLa51ltxVctnGmE0QDc
+         M+a456Nxb15G2L05ayRolTeCFW0FJfkoZYIj03urtCujBfEMeRZO8nAGnrXL/u7LgJQP
+         NY2CBhcRZQ4Yhp/n7i+mva0hM1/84beD70Noc7gGQfZNF8/Yy7NiQIVJG6EemXP2CkTM
+         ++Y5/YAAVy39rGGGuygVzHn2XtrFtbNEKV4K3Gdp7mD3P6D0Twvw3fXvf1Gc4HL6DOz5
+         +gGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zHQ5mU14z0wASr81YlmAMCgRH0pG+/QERQ0Zffpwo6Q=;
-        b=h3mZnMEiqAmVU24tLTmrKSBDmDY4/fiIouJP5o5+99GfFslKRoMaXsV8IWSg+9Lkf9
-         U28MEKscqlXvnkbOnzoJmA953v7S1c27zJSUe9nULQrUDK6mkLrx9+GlpFleKRvPFrx3
-         JE2BUHg5WOzMC9ZQV56uhU6zlNjBimQYIEtgobFu6kbbh2tdwEIMS/NpbcvCRc2RyfEB
-         nPyjn+S8CUbxN59P18hTiWuVzVXQhYpg2911yUaZcJhdZ81MyTM/eX+r9HvtH3pR7HNb
-         35tVqvaI2QqtjWa6O7ITHgFw3SvLsk9GkUI7vyfV02iPt2rAiJ762U42H14xJsS236tH
-         olDA==
-X-Gm-Message-State: AOAM533zYG+ScKnBwkkU9qOmd9bShWnolmRJKYuru54DcCZVeGcNQADI
-        NjBIiuTBMJ3MAKXQ9vDrFRCrRiHUCKg=
-X-Google-Smtp-Source: ABdhPJzCluAJi/EWtrmGTISbLjz+0qUfiCf4Pa/21ZavyDgmNfkniRTqjiJRymvS+IxVn9KedVqbnA==
-X-Received: by 2002:a17:90b:194d:: with SMTP id nk13mr14084343pjb.220.1596831256460;
-        Fri, 07 Aug 2020 13:14:16 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z25sm13586388pfn.159.2020.08.07.13.14.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Aug 2020 13:14:15 -0700 (PDT)
-Message-ID: <5f2db617.1c69fb81.a44bf.0315@mx.google.com>
-Date:   Fri, 07 Aug 2020 13:14:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=fHFtBYCexj4BTZ6Y1duEdpJc2jxlS5kQFzTI7bYy0g0=;
+        b=cKJiZ7jgQpbCK/5e76ZvsqplPBIkiDdvHxjfVh4kjgN01Ox9hQxg3M7JaX8bMUSnZR
+         ecM2pvAAIYP1+9Eyf30gqfAZYxkszAoWPoCs3b2SpP/LMU5Xpw3PCGpue+LV/TYGOt8y
+         xIPqHYxiYCsm1y+Yk9EBYwpBfpKeIjtqq+tNS1ZaYDmcccWHaEwm3Wmkudp/jgEwhy1H
+         UTjPGiW9WYapl/FUbrNbLWuwUdGTxgvP2SrKe9VS8kwwLUk+dZKuWJk6w+uRoW04Njkn
+         lrDc5tAokjlktMTu9+j0vCw/r8+Eevzvq5SbUTAiNfXXO3nAKUGsniKJ4r+jtW8/Ugtu
+         vnOg==
+X-Gm-Message-State: AOAM532r3ZCLKy+SYNuqgGXZtg2CX39N+CzqlhwBRjrEa01aUYyr3zDZ
+        qWikjMLmsXezQwLDIeXfi2eACg==
+X-Google-Smtp-Source: ABdhPJy+gNQx1Nl4qUpu13pz7V/+o8pmrs5auDLurGg+1uV2K7unGLFfSz4my0BkpLwLY513K4PlsQ==
+X-Received: by 2002:aa7:8398:: with SMTP id u24mr14302059pfm.107.1596831383021;
+        Fri, 07 Aug 2020 13:16:23 -0700 (PDT)
+Received: from ?IPv6:2601:646:c200:1ef2:f4fb:685d:a35f:e88c? ([2601:646:c200:1ef2:f4fb:685d:a35f:e88c])
+        by smtp.gmail.com with ESMTPSA id z189sm13521576pfb.178.2020.08.07.13.16.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 07 Aug 2020 13:16:22 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.57
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.4.y baseline: 138 runs, 2 regressions (v5.4.57)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+From:   Andy Lutomirski <luto@amacapital.net>
+Mime-Version: 1.0 (1.0)
+Subject: Re: Flaw in "random32: update the net random state on interrupt and activity"
+Date:   Fri, 7 Aug 2020 13:16:20 -0700
+Message-Id: <57399571-280E-48CF-8F72-516F7178748C@amacapital.net>
+References: <CAHk-=whPgKZRfK_Kfo6Oo+Aek-Z_U_Dxv9Y3HuNuHb5t=jLbcA@mail.gmail.com>
+Cc:     Willy Tarreau <w@1wt.eu>, Marc Plumb <lkml.mplumb@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>, Netdev <netdev@vger.kernel.org>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andrew Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>
+In-Reply-To: <CAHk-=whPgKZRfK_Kfo6Oo+Aek-Z_U_Dxv9Y3HuNuHb5t=jLbcA@mail.gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+X-Mailer: iPhone Mail (17G68)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 138 runs, 2 regressions (v5.4.57)
-
-Regressions Summary
--------------------
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 4/5    =
 
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.57/plan/baseline/
+> On Aug 7, 2020, at 12:57 PM, Linus Torvalds <torvalds@linux-foundation.org=
+> wrote:
+>=20
+> =EF=BB=BFOn Fri, Aug 7, 2020 at 12:33 PM Andy Lutomirski <luto@amacapital.=
+net> wrote:
+>>=20
+>> No one said we have to do only one ChaCha20 block per slow path hit.
+>=20
+> Sure, doing more might be better for amortizing the cost.
+>=20
+> But you have to be very careful about latency spikes. I would be
+> *really* nervous about doing a whole page at a time, when this is
+> called from routines that literally expect it to be less than 50
+> cycles.
+>=20
+> So I would seriously suggest you look at a much smaller buffer. Maybe
+> not a single block, but definitely not multiple kB either.
+>=20
+> Maybe something like 2 cachelines might be ok, but there's a reason
+> the current code only works with 16 bytes (or whatever) and only does
+> simple operations with no looping.
+>=20
+> That's why I think you might look at a single double-round ChaCha20
+> instead. Maybe do it for two blocks - by the time you wrap around,
+> you'll have done more than a full ChaCaa20.
+>=20
+> That would imnsho *much* better than doing some big block, and have
+> huge latency spikes and flush a large portion of your L1 when they
+> happen. Nasty nasty behavior.
+>=20
+> I really think the whole "we can amortize it with bigger blocks" is
+> complete and utter garbage. It's classic "benchmarketing" crap.
+>=20
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.57
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      d9939285fc818425ae92bd99f8c97b6b9ef3bb88 =
+I think this will come down to actual measurements :). If the cost of one bl=
+ock of cache-cold ChaCha20 is 100 cycles of actual computation and 200 cycle=
+s of various cache misses, then let=E2=80=99s do more than one block.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2d82712b65479e4252c1a6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.57/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.57/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f2d82712b65479e4252c=
-1a7
-      failing since 50 days (last pass: v5.4.46, first fail: v5.4.47) =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f2d81b6603ff3a69152c1cb
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.57/arm=
-64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.57/arm=
-64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f2d81b6603ff3a6=
-9152c1ce
-      new failure (last pass: v5.4.56)
-      3 lines =20
+I=E2=80=99ll get something working and we=E2=80=99ll see.=20=
