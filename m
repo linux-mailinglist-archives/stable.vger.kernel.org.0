@@ -2,96 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0DE723EB04
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 11:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE7823EC17
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 13:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726750AbgHGJ4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 05:56:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60158 "EHLO
+        id S1726418AbgHGLH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 07:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726511AbgHGJ4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 05:56:39 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A07C061574
-        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 02:56:39 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id s189so1331491iod.2
-        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 02:56:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=8W//fnDnmt3F+0hfS4F9TV4KjGy2oX8pvVRb2b4ERrs=;
-        b=isXfGAPxTGKsQLYGwEn6Pjl/RtTzm/hJOZCZJ+/YezcMVKq9uTaMC4QMKvVscau1o0
-         BmRBlGQEngXK5ygsBK9m3E1AoK0DA/Z0N2KHCgiIQGuFF05vdYliIxwObMqrfFJYdHg5
-         UhM00ibTnGpYba7jmv2HNsD0O+BhjZiELRPAZOzoHc5Uo2i8er0Ib/Y1XmIsvVEVtp4E
-         2w98WXJcLUbi095jicn4Yjxkk/KpSZx4Lk2amb88xkdxBZZe5F6DYs7dzlTWuoivGz1v
-         DHQBr6z9sXD302P7lwIGAb2JezZ29L50jUuA1nmdCSxyeOZLFKurYj1KLGord4530+sL
-         YLgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=8W//fnDnmt3F+0hfS4F9TV4KjGy2oX8pvVRb2b4ERrs=;
-        b=S84bfkp5uFSUBB0cWWSSX6jZ2zkbWLBDltU1OutnwSxt1ErvaXZzZ+AYdYV8+3WsFQ
-         W4u8OQQU3ocKdrBzRInVbubGXxt+p6g1zuaPIWfRzczZYF04fJx0C5EoYjtZ7zMgnt5T
-         CyOE7O/OHfuwfY17Gsd7aP6RM4uazMBu93yV2XLqzgj7c8XsT2mysfbe7oO/OCTZjHSE
-         amoDbPiAM9Dh8rfpZg2/oXMSQAGPYe1pAexebaaXDQ7BN+sUbuYlOioB8eNIri82C3lG
-         G9PeY7VF91CaAyE5fx00vMyhrSUobqZrssO03pJaH7VbeAIFYiugna55Hh+OkvfY8FMY
-         zbXw==
-X-Gm-Message-State: AOAM532iIo6ymuOil2JSr2/kEY97RXBNJpS+luiNbSS/fX5MXja4+ACI
-        nUuhLTubzii8Lx0ETZ+Llh8u5jsqscgLsG/U5UU=
-X-Google-Smtp-Source: ABdhPJwVSsq3tW0IJofwnIbtm6E4aOjucgVg+tbyLYlFHZ5xvTTMA3mIOVv/swQibUfcxIDOa4CXUrdS3smmx12UDRw=
-X-Received: by 2002:a02:dc3:: with SMTP id 186mr3814488jax.46.1596794198587;
- Fri, 07 Aug 2020 02:56:38 -0700 (PDT)
+        with ESMTP id S1727104AbgHGKxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 06:53:37 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821CDC0617A2
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 03:52:15 -0700 (PDT)
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1k3zym-0004nB-Ib; Fri, 07 Aug 2020 12:52:04 +0200
+Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1k3zyk-0007IK-6V; Fri, 07 Aug 2020 12:52:02 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     dev.kurt@vandijck-laurijssen.be, mkl@pengutronix.de,
+        wg@grandegger.com
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
+        syzbot+5322482fe520b02aea30@syzkaller.appspotmail.com,
+        linux-stable <stable@vger.kernel.org>, kernel@pengutronix.de,
+        linux-can@vger.kernel.org, netdev@vger.kernel.org,
+        David Jander <david@protonic.nl>
+Subject: [PATCH v1 2/5] can: j1939: transport: j1939_session_tx_dat(): fix use-after-free read in j1939_tp_txtimer()
+Date:   Fri,  7 Aug 2020 12:51:57 +0200
+Message-Id: <20200807105200.26441-3-o.rempel@pengutronix.de>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200807105200.26441-1-o.rempel@pengutronix.de>
+References: <20200807105200.26441-1-o.rempel@pengutronix.de>
 MIME-Version: 1.0
-Received: by 2002:a92:4b0d:0:0:0:0:0 with HTTP; Fri, 7 Aug 2020 02:56:37 -0700 (PDT)
-Reply-To: suleman1945mohammed@gmail.com
-From:   Suleman Mohammed <colonel.floyd.william.sumo@gmail.com>
-Date:   Fri, 7 Aug 2020 02:56:37 -0700
-Message-ID: <CALFc2EO1antq5bWcPK2PGKjAv+BO+eZ-ynPdSasKyGbZ3Z4Gyw@mail.gmail.com>
-Subject: I am Mr.Suleman Mohammed
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
+The current stack implementation do not support ECTS requests of not
+aligned TP sized blocks.
 
-Hello Dear,
+If ECTS will request a block with size and offset spanning two TP
+blocks, this will cause memcpy() to read beyond the queued skb (which
+does only contain one TP sized block).
 
-I am Mr.Suleman Mohammed and I work with UNITED BANK OF AFRICA. Please
-Can you use ATM Visa card to withdraw money at ATM cash machine in
-your country? I want to transfer money to you from my country; it=E2=80=99s
-part of money taken by some old politician that was forced out of
-power.
+Sometimes KASAN will detect this read if the memory region beyond the
+skb was previously allocated and freed. In other situations it will stay
+undetected. The ETP transfer in any case will be corrupted.
 
-I will change the account details to yours, and apply for a visa card
-with your details in our bank, they will send the visa card to you and
-you will be withdrawing money with it and always send my own
-percentage of the money, and the money we are talking about is
-$6.5Million us dollars.
+This patch adds a sanity check to avoid this kind of read and abort the
+session with error J1939_XTP_ABORT_ECTS_TOO_BIG.
 
-Whatever amount you withdraw daily, you will send 50% to me and you
-will take 50%, the visa card and the bank account will be on your
-name, I will be waiting for your information as soon as possible.
-Your name.......................... .................
+Reported-by: syzbot+5322482fe520b02aea30@syzkaller.appspotmail.com
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+---
+ net/can/j1939/transport.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-Age........................... ......................
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index b135c5e2a86e..30957c9a8eb7 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -787,6 +787,18 @@ static int j1939_session_tx_dat(struct j1939_session *session)
+ 		if (len > 7)
+ 			len = 7;
+ 
++		if (offset + len > se_skb->len) {
++			netdev_err_once(priv->ndev,
++					"%s: 0x%p: requested data outside of queued buffer: offset %i, len %i, pkt.tx: %i\n",
++					__func__, session, skcb->offset, se_skb->len , session->pkt.tx);
++			return -EOVERFLOW;
++		}
++
++		if (!len) {
++			ret = -ENOBUFS;
++			break;
++		}
++
+ 		memcpy(&dat[1], &tpdat[offset], len);
+ 		ret = j1939_tp_tx_dat(session, dat, len + 1);
+ 		if (ret < 0) {
+@@ -1120,6 +1132,9 @@ static enum hrtimer_restart j1939_tp_txtimer(struct hrtimer *hrtimer)
+ 		 * cleanup including propagation of the error to user space.
+ 		 */
+ 		break;
++	case -EOVERFLOW:
++		j1939_session_cancel(session, J1939_XTP_ABORT_ECTS_TOO_BIG);
++		break;
+ 	case 0:
+ 		session->tx_retry = 0;
+ 		break;
+-- 
+2.28.0
 
-Sex........................... ......................
-
-Country....................... ......................
-
-Occupation.................... ......................
-
-Phone number........................ ................
-
-
-Best Regards.
-
-Mr.Suleman Mohammed
-
-MAIL.....mmsuleyman100@gmail.com
