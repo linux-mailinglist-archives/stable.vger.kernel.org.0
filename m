@@ -2,142 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C3823F2E2
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 20:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5D123F2E9
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 20:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725934AbgHGSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 14:45:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
+        id S1725970AbgHGS41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 14:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgHGSpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 14:45:35 -0400
-Received: from mail-ej1-x64a.google.com (mail-ej1-x64a.google.com [IPv6:2a00:1450:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6F7C061756
-        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 11:45:35 -0700 (PDT)
-Received: by mail-ej1-x64a.google.com with SMTP id m24so1163068eje.20
-        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 11:45:34 -0700 (PDT)
+        with ESMTP id S1725893AbgHGS41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 14:56:27 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF229C061756
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 11:56:26 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id j21so1365159pgi.9
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 11:56:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=wezATDNNHijFNE8xRUw9gZpSNfPJzDDYffclJLmDegw=;
-        b=Hmvu85Ig5+eMHoqbRy5HPVSnec2zEqocJw1NoD68Ca/eOvN6JSA0aSxIRPamb3tiG3
-         SS+DRbPKXnpUX2lZhARRkPsCHGMwBrqWfih+8alBYQuasKfxE5bhC4bRc1AP9FceWJ1J
-         o2t4Hsm+BVunSB3f0uNr98v7dxVRaIlZS4qvCTypWegpTwUhksQAd4ELZaL7x6ZkRiP9
-         7of3EezJULI5Gg0/tiobEtoEWKmumB5cYd3dtJFZQlC+KO00jI4YGZvLff41Ea88lK82
-         DN/wVn9Qc8xtJiIJhxt7v6or8hndo2XY8PJuFnfKHJ//YkxyIpffsdt3N4cwznY2w8Eu
-         mw3Q==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MUHL709k108JrQYQrNvEQBTkZPoUW9DPduj/gPQk6lE=;
+        b=aqXNf95DtlsPNHiWUBjA0g3l1Ja4NGHid1gMoxy0sHuS+hLzYIwrLe0HoCRkCqzVPx
+         8YqDR9otNcsY5GcUo3eFbPHvdm7h5ssM+oB00XQ4NV17bOpqt6n3biXvRP3+qLfIfpx5
+         YfmD1/79U3wFg5HNYR74VzTshyIUPRtrRQraXUwSxRk73rgRGNgywn6AePGXA2SSdcTS
+         WBzQJssopCdnc8PjAFhZ+q46VnLyRqw4SN2lacABZkQtWDRWk4Rbc96u/9v1GTZx1ATm
+         azoS91tCNMz9f/NjFylHxseDipzK7u9Z/gsqKxh2/53k0bDn30W0LRQY4xET85AR918a
+         lORQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=wezATDNNHijFNE8xRUw9gZpSNfPJzDDYffclJLmDegw=;
-        b=Eg6GQvR5LgwxS6/zEhn2kEVr8/OXNc3TZUNVHIcmdSWNL/ZZvZOgLQcXoxjzX3z2Au
-         JFkc7yHTd6mAcCVWTtQA4Y7NZTmRwflEnXK08uNk+ZxKkjuK7/473vr+2V4eBjJJzg2r
-         ZpTzQLOhPJ2vdX/ktbOBUsxtlVBLsQBH5wRH1NqH/Srd4Tq4sZ1PF8Anka2plJ80Kt5o
-         BkNgQSbFt6r+Z3ynrNnc0+wFrlZP+1DBQIenOg19pX7ZxRJQ2Kz6DDyx1p/uIoqbQNNS
-         4Nk0K+2A6JFDm5koNt0U6m1S/FNJpuVnJZXYSvNe8FsIRol0cuixhXdYKcDJpsXBd8Vw
-         cncw==
-X-Gm-Message-State: AOAM531AT2HzZe9VDWC/SjReGCrM5/WfdOHLEP2vw/061wUuNzoQ64rT
-        XLKba4zOVCHagf812hC2FrDs7F1aoaKO+Gq9YB+i/bCzy6C/5EdKq934D9KWO66ZXSDGQQcYt2k
-        bryS/2+7tqeaN01zWIsLCIdpPVRs6uMwrcEd0JJneYlGz69AIwhj+SOclLc8=
-X-Google-Smtp-Source: ABdhPJxYhdNIsXK3tA0Au2KEzhLLlPefX9bnAqyJR6Zlqug2vqTdl60J/DGFHdopwCQujLtxJMRUNKUpOA==
-X-Received: by 2002:a17:906:4aca:: with SMTP id u10mr10503073ejt.320.1596825933057;
- Fri, 07 Aug 2020 11:45:33 -0700 (PDT)
-Date:   Fri,  7 Aug 2020 20:45:00 +0200
-Message-Id: <20200807184500.3711845-1-jannh@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.28.0.236.gb10cc79966-goog
-Subject: [PATCH 4.4+4.9] binder: Prevent context manager from incrementing ref 0
-From:   Jann Horn <jannh@google.com>
-To:     stable@vger.kernel.org
-Cc:     maco@android.com, tkjos@google.com
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MUHL709k108JrQYQrNvEQBTkZPoUW9DPduj/gPQk6lE=;
+        b=HuHOysuFPTOF5OBrOMhfAj8Ntfz4OvuFVYdhbzJqqNyJ+MtlSSDhVBGswDk365W5TK
+         1Egqdi3CNjMdkneMqGJOQHO/xMKbgfNB/tDt8uLr/ncgzBlNxpJIlAMDk+0i8z/8+PPw
+         1/x88+7nTE8v9pU3NmLXuboQtrCzAkJbl8azx/Z2VYIaM0iMqi+WTX7RrI9rjnCIY0Ys
+         vhfIzJ+ib4Z48ktLOeGPDHZu39KcohqrkeBsUORFWi/il5ENcuX2Cpwdmf2jCN0+Qk9l
+         jK5p7oLljmXxQLQvoCCw1StvtKUgLZX5lXntOdA3kXWfEx89KX0snJubGJC6TFIK+bms
+         aBBA==
+X-Gm-Message-State: AOAM532PROlrjcXUZBVzKDz9ALRMylbWH5CHqw7AvLME0WxrMNAasOxi
+        dkhL0RDDLPc2oi+Kcmz/bCzuXNxheDg=
+X-Google-Smtp-Source: ABdhPJwYyM6GBEJ359Q3RXJVSfsWtClRxa1wjOxxE2pBb9NkmhM/NI8Hgv2oPiIAVthxnF1zshyASw==
+X-Received: by 2002:aa7:8757:: with SMTP id g23mr14240442pfo.283.1596826585076;
+        Fri, 07 Aug 2020 11:56:25 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o134sm13769083pfg.200.2020.08.07.11.56.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2020 11:56:24 -0700 (PDT)
+Message-ID: <5f2da3d8.1c69fb81.cdb1b.0421@mx.google.com>
+Date:   Fri, 07 Aug 2020 11:56:24 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.193
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.14.y baseline: 119 runs, 1 regressions (v4.14.193)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
+stable/linux-4.14.y baseline: 119 runs, 1 regressions (v4.14.193)
 
-Binder is designed such that a binder_proc never has references to
-itself. If this rule is violated, memory corruption can occur when a
-process sends a transaction to itself; see e.g.
-<https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
+Regressions Summary
+-------------------
 
-There is a remaining edgecase through which such a transaction-to-self
-can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
-access:
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
 
- - task A opens /dev/binder twice, creating binder_proc instances P1
-   and P2
- - P1 becomes context manager
- - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
-   handle table
- - P1 dies (by closing the /dev/binder fd and waiting a bit)
- - P2 becomes context manager
- - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
-   handle table
-   [this triggers a warning: "binder: 1974:1974 tried to acquire
-   reference to desc 0, got 1 instead"]
- - task B opens /dev/binder once, creating binder_proc instance P3
- - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
-   transaction)
- - P2 receives the handle and uses it to call P3 (two-way transaction)
- - P3 calls P2 (via magic handle 0) (two-way transaction)
- - P2 calls P2 (via handle 1) (two-way transaction)
 
-And then, if P2 does *NOT* accept the incoming transaction work, but
-instead closes the binder fd, we get a crash.
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.193/plan/baseline/
 
-Solve it by preventing the context manager from using ACQUIRE on ref 0.
-There shouldn't be any legitimate reason for the context manager to do
-that.
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.193
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      14b58326976de6ef3998eefec1dd7f8b38b97a75 =
 
-Additionally, print a warning if someone manages to find another way to
-trigger a transaction-to-self bug in the future.
 
-Cc: stable@vger.kernel.org
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Acked-by: Todd Kjos <tkjos@google.com>
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Martijn Coenen <maco@android.com>
-Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[manual backport: remove fine-grained locking and error reporting that
-                  don't exist in <=4.9]
-Signed-off-by: Jann Horn <jannh@google.com>
----
- drivers/android/binder.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index e12288c245b5..f4c0b6295945 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -1427,6 +1427,10 @@ static void binder_transaction(struct binder_proc *proc,
- 			return_error = BR_DEAD_REPLY;
- 			goto err_dead_binder;
- 		}
-+		if (WARN_ON(proc == target_proc)) {
-+			return_error = BR_FAILED_REPLY;
-+			goto err_invalid_target_handle;
-+		}
- 		if (security_binder_transaction(proc->tsk,
- 						target_proc->tsk) < 0) {
- 			return_error = BR_FAILED_REPLY;
-@@ -1830,6 +1834,11 @@ static int binder_thread_write(struct binder_proc *proc,
- 			ptr += sizeof(uint32_t);
- 			if (target == 0 && binder_context_mgr_node &&
- 			    (cmd == BC_INCREFS || cmd == BC_ACQUIRE)) {
-+				if (binder_context_mgr_node->proc == proc) {
-+					binder_user_error("%d:%d context manager tried to acquire desc 0\n",
-+							  proc->pid, thread->pid);
-+					return -EINVAL;
-+				}
- 				ref = binder_get_ref_for_node(proc,
- 					       binder_context_mgr_node);
- 				if (ref->desc != target) {
+Test Regressions
+---------------- =
 
-base-commit: 8d6b541290cb9293bd2a7bb00c1d58d01abe183b
--- 
-2.28.0.236.gb10cc79966-goog
 
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2d6f405065496c3952c1b3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.193/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.193/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2d6f405065496c3952c=
+1b4
+      failing since 126 days (last pass: v4.14.172, first fail: v4.14.175) =
+=20
