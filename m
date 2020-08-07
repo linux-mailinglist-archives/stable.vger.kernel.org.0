@@ -2,108 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9609B23F27B
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 20:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7AF323F28C
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 20:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726038AbgHGSHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 14:07:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50752 "EHLO
+        id S1726361AbgHGSKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 14:10:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725934AbgHGSHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 14:07:34 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106E2C061756;
-        Fri,  7 Aug 2020 11:07:34 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id v13so2666880oiv.13;
-        Fri, 07 Aug 2020 11:07:34 -0700 (PDT)
+        with ESMTP id S1726201AbgHGSKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 14:10:37 -0400
+Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2958C061756
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 11:10:36 -0700 (PDT)
+Received: by mail-lj1-x232.google.com with SMTP id v4so3169155ljd.0
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 11:10:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=7F5o5gH/tEwEajzpI7fTjneSGKfDGJAlpNidTq6oDnU=;
-        b=h+X+IDG5dLANG+FOYNwmT/mCzl4Eb5Ny4ytokQkbBAz6vm7JzGxrWxCh6OV0G41Ykp
-         S2ejLI8XMS4YUc+lMRsIWn0uc7CVSjSzAeAGa27laMge9LsOK2CPGIijmkWa+E7ks4K0
-         jJ5r4IpBgYA1ztYzjHeBvXUzdb1kVTFDMdG0Wwao/aFVgz3IeaDxX45YwG1kBfoVjr22
-         IQaqs8IXPcgqnbByfxJJ/zRFIJmL6RBbpsQsFv2tYI2QJYdeia+uouapjk95vdMma8/l
-         mz3+NKks7GOgRHY2CkxNuKWAPs34MlpC7/xXPigdPv7wQe+sT98EW4iDrialwFEl6PR0
-         M5/A==
+         :cc:content-transfer-encoding;
+        bh=ZuMZhLaLnOL/xHC8VZQJDfaqHK+dWPlzzoa/rHVDySY=;
+        b=hp3wruGBgMl3qDowQy031caRIO4JiMrZVpDijEr1AkV+ZTBT55IiLiOnOOYUAfiLNJ
+         vpXZ5maf7VrbTancPdYdV5CSaDlXcoWjNjxXQLcvYpo+SfeAQ6K3YqTTiDXRwPbMuBYh
+         2TEW+2b62x8SXQcL767MXDD6KRoZvSOoL63RU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7F5o5gH/tEwEajzpI7fTjneSGKfDGJAlpNidTq6oDnU=;
-        b=SmmL9mvd/4mdRUDlpR+iskhLsGdfsC255WxNb3r/HdWcWOFvybZiryZC8jACkfsxH4
-         n2qYXfJvt2M0tMRmJ2Pn0OQYNaVwQLMsiltq9eaKPYhwPhKA+drV4fojUmVp74X4MFbw
-         T7aoUT7X+2RlbtNDNR/F21o3XT+w70bVTf7f0c+wRvBHL7yEvKuuQ/ayVzFCJKv/rOo/
-         9BGVgNSQxuY/rzuNS6oSqOQBRVgUDIP5OUHQtZv+3Rfzpt/d0E07W9B2yv9FXZVtxRQz
-         Oy02sleNi3SAWZoesUipl2d+UK7yIllNzIN9h/o05rBzL/+cnyX4OHSWN9HGLFPUF+VO
-         k+TQ==
-X-Gm-Message-State: AOAM532gw8Mc7TkqSNQFzJr+o5tEUeOvTMrZVKSLdlpXUMwfSdE290S7
-        5VpLiknNUUijIS9Ls8QkYJzTYLrJ5aW+EoYv3vpfzOd8sZo=
-X-Google-Smtp-Source: ABdhPJwAwFyKTWZBNEByGdfE4mVSiUP2K7OvxM69x0Fq4mUmGEi6WMVAeDWuVNdDDca6vu4Gvg3YPhC4XatMWkG74EA=
-X-Received: by 2002:aca:2306:: with SMTP id e6mr12413148oie.108.1596823653421;
- Fri, 07 Aug 2020 11:07:33 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZuMZhLaLnOL/xHC8VZQJDfaqHK+dWPlzzoa/rHVDySY=;
+        b=E6S/76mZVyAKT5zz0PfIWGRQUiyrpOt8NIyhXgLi57orC0pwrjJVao2mxdtGHUorCb
+         igub1/ZQEG29PVl7EXmhGBnTgX59g+Pa+Mjtf+8bkR+9yNIV0/0a6JSxqI0xAqLp7gsM
+         vJrxMNAwW43dczNQpFMDCrD+WTqULj5LMrYuMVmTndUC8RxLET/h/pWC5ZXfduz+uFBv
+         WoYpmjzxPTROfF82/g2WN9HOgy+Nic7x4ml1Jd35xy2yVaM0mKU7+klZY+mr/3PHfBUd
+         YHD5flSCyXeH1V4cFPDIF76S1XvRoU20jPOgrXjib4h/buFizqKVqnof1qbqsk4l2Fj4
+         Nhyw==
+X-Gm-Message-State: AOAM5313G/MolAkbaD993h+QB+qnDODUxYz0AG5mSFO0m9cT4U5Blf95
+        FdgDVZ3DfRGXq3khA7VAWRGuQVZcNAs=
+X-Google-Smtp-Source: ABdhPJy2dgVCPmFk7OBMlWyVRHnhjrdQyEar02w4yc1NXZayYyQmNy+oVEk7nDzbVr1BxIAE+9WfcQ==
+X-Received: by 2002:a2e:9a03:: with SMTP id o3mr7036767lji.48.1596823833949;
+        Fri, 07 Aug 2020 11:10:33 -0700 (PDT)
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com. [209.85.167.54])
+        by smtp.gmail.com with ESMTPSA id l26sm4506441lfj.22.2020.08.07.11.10.32
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 07 Aug 2020 11:10:33 -0700 (PDT)
+Received: by mail-lf1-f54.google.com with SMTP id s9so1462799lfs.4
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 11:10:32 -0700 (PDT)
+X-Received: by 2002:ac2:58d5:: with SMTP id u21mr6821303lfo.31.1596823832127;
+ Fri, 07 Aug 2020 11:10:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200730205112.2099429-1-ndesaulniers@google.com> <20200730205112.2099429-2-ndesaulniers@google.com>
-In-Reply-To: <20200730205112.2099429-2-ndesaulniers@google.com>
-From:   Nathan Huckleberry <nhuck15@gmail.com>
-Date:   Fri, 7 Aug 2020 13:07:21 -0500
-Message-ID: <CAN=-RxtoXCG5h2qirsrLG2P37pjjMEHgfAv-7+NSVUy9_LPaYQ@mail.gmail.com>
-Subject: Re: [PATCH 1/4] ARM: backtrace-clang: check for NULL lr
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Russell King <linux@armlinux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        clang-built-linux@googlegroups.com,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Lvqiang Huang <lvqiang.huang@unisoc.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Miles Chen <miles.chen@mediatek.com>, stable@vger.kernel.org
+References: <20200807174302.GA6740@1wt.eu> <C74EC3BC-F892-416F-A95C-4ACFC96EEECE@amacapital.net>
+In-Reply-To: <C74EC3BC-F892-416F-A95C-4ACFC96EEECE@amacapital.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 7 Aug 2020 11:10:16 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wj4p3wCZpD2QU-d_RPTAsGiAUWHMiiVUv6N3qxx4w9f7A@mail.gmail.com>
+Message-ID: <CAHk-=wj4p3wCZpD2QU-d_RPTAsGiAUWHMiiVUv6N3qxx4w9f7A@mail.gmail.com>
+Subject: Re: Flaw in "random32: update the net random state on interrupt and activity"
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Willy Tarreau <w@1wt.eu>, Marc Plumb <lkml.mplumb@gmail.com>,
+        "Theodore Ts'o" <tytso@mit.edu>, Netdev <netdev@vger.kernel.org>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andrew Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 30, 2020 at 3:51 PM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
+On Fri, Aug 7, 2020 at 10:55 AM Andy Lutomirski <luto@amacapital.net> wrote=
+:
 >
-> If the link register was zeroed out, do not attempt to use it for
-> address calculations for which there are currently no fixup handlers,
-> which can lead to a panic during unwind. Since panicking triggers
-> another unwind, this can lead to an infinite loop.  If this occurs
-> during start_kernel(), this can prevent a kernel from booting.
->
-> commit 59b6359dd92d ("ARM: 8702/1: head-common.S: Clear lr before jumping to start_kernel()")
-> intentionally zeros out the link register in __mmap_switched which tail
-> calls into start kernel. Test for this condition so that we can stop
-> unwinding when initiated within start_kernel() correctly.
->
-> Cc: stable@vger.kernel.org
-> Fixes: commit 6dc5fd93b2f1 ("ARM: 8900/1: UNWINDER_FRAME_POINTER implementation for Clang")
-> Reported-by: Miles Chen <miles.chen@mediatek.com>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> ---
->  arch/arm/lib/backtrace-clang.S | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/arch/arm/lib/backtrace-clang.S b/arch/arm/lib/backtrace-clang.S
-> index 6174c45f53a5..5388ac664c12 100644
-> --- a/arch/arm/lib/backtrace-clang.S
-> +++ b/arch/arm/lib/backtrace-clang.S
-> @@ -144,6 +144,8 @@ for_each_frame:     tst     frame, mask             @ Check for address exceptions
->   */
->  1003:          ldr     sv_lr, [sv_fp, #4]      @ get saved lr from next frame
->
-> +               tst     sv_lr, #0               @ If there's no previous lr,
-> +               beq     finished_setup          @ we're done.
->                 ldr     r0, [sv_lr, #-4]        @ get call instruction
->                 ldr     r3, .Lopcode+4
->                 and     r2, r3, r0              @ is this a bl call
-> --
-> 2.28.0.163.g6104cc2f0b6-goog
->
+> I think the real random.c can run plenty fast. It=E2=80=99s ChaCha20 plus=
+ ludicrous overhead right now.
 
-Reviewed-by: Nathan Huckleberry <nhuck15@gmail.com>
+I doubt it.
+
+I tried something very much like that in user space to just see how
+many cycles it ended up being.
+
+I made a "just raw ChaCha20", and it was already much too slow for
+what some of the networking people claim to want.
+
+And maybe they are asking for too much, but if they think it's too
+slow, they'll not use it, and then we're back to square one.
+
+Now, what *might* be acceptable is to not do ChaCha20, but simply do a
+single double-round of it.
+
+So after doing 10 prandom_u32() calls, you'd have done a full
+ChaCha20. I didn't actually try that, but from looking at the costs
+from trying the full thing, I think it might be in the right ballpark.
+
+How does that sound to people?
+
+                 Linus
