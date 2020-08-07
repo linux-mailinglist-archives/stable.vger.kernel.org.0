@@ -2,111 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B98923E731
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 08:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D0623E748
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 08:26:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726038AbgHGGWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 02:22:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58760 "EHLO mail.kernel.org"
+        id S1726256AbgHGG0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 02:26:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725379AbgHGGWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Aug 2020 02:22:20 -0400
+        id S1725805AbgHGG0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Aug 2020 02:26:13 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33CC122C9F;
-        Fri,  7 Aug 2020 06:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7140222D07;
+        Fri,  7 Aug 2020 06:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596781339;
-        bh=oSdNly9aIeyibSd9/S4eMSMD5jPf3sak6mS/2Aqks1A=;
+        s=default; t=1596781572;
+        bh=9vvKDgJBhmzpnVGlr68RQj6uv0/viRH/J2s/tIT/nEI=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=XX7RS8XNlUeUGQWfrxFpo/0uT/lGY26j6IKgkZFLpueXaBLdAiIAABur7zi8FVCzf
-         X+Ll7btLzEg5Vtp8Je/89OT1Mo6vwK+wKDRRfAnjetFf6NoKI+axYh8c4husXYnb8N
-         i7rENz9gdA3cZhTqQnGazowo0YSklM5Shbt6IGhw=
-Date:   Thu, 06 Aug 2020 23:22:18 -0700
+        b=a4g+Y6A011ftX0aX5yfLd9TjTdvHz+k/6/3a6E9wVVQetmWPC0EPetpepwDCy5teH
+         Qdxj1pN60obk5rDaWXKGd+XrtH1PKVNXdjkXcS2WCuGorPzG3ZaINPzSyjGO8ZW84j
+         QAIlx5noJnrZTuBsd5qLw+GWRW/eCyMOl/may8IY=
+Date:   Thu, 06 Aug 2020 23:26:11 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, guro@fb.com, hannes@cmpxchg.org,
-        linux-mm@kvack.org, mhocko@suse.com, mkoutny@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, tj@kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 093/163] mm/page_counter.c: fix protection usage
- propagation
-Message-ID: <20200807062218.U7OzBph9t%akpm@linux-foundation.org>
+To:     aarcange@redhat.com, akpm@linux-foundation.org, linux-mm@kvack.org,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        peterx@redhat.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org
+Subject:  [patch 157/163] mm/hugetlb: fix calculation of
+ adjust_range_if_pmd_sharing_possible
+Message-ID: <20200807062611.RGbHdqUiZ%akpm@linux-foundation.org>
 In-Reply-To: <20200806231643.a2711a608dd0f18bff2caf2b@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=46rom: Michal Koutn=C3=BD <mkoutny@suse.com>
-Subject: mm/page_counter.c: fix protection usage propagation
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
 
-When workload runs in cgroups that aren't directly below root cgroup and
-their parent specifies reclaim protection, it may end up ineffective.
+This is found by code observation only.
 
-The reason is that propagate_protected_usage() is not called in all
-hierarchy up.  All the protected usage is incorrectly accumulated in the
-workload's parent.  This means that siblings_low_usage is overestimated
-and effective protection underestimated.  Even though it is transitional
-phenomenon (uncharge path does correct propagation and fixes the wrong
-children_low_usage), it can undermine the intended protection
-unexpectedly.
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
 
-We have noticed this problem while seeing a swap out in a descendant of a
-protected memcg (intermediate node) while the parent was conveniently
-under its protection limit and the memory pressure was external to that
-hierarchy.  Michal has pinpointed this down to the wrong
-siblings_low_usage which led to the unwanted reclaim.
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
 
-The fix is simply updating children_low_usage in respective ancestors also
-in the charging path.
+Mike said:
 
-Link: http://lkml.kernel.org/r/20200803153231.15477-1-mhocko@kernel.org
-Fixes: 230671533d64 ("mm: memory.low hierarchical behavior")
-Signed-off-by: Michal Koutn=C3=BD <mkoutny@suse.com>
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.18+]
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+: 
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+: 
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+: 
+: 1) for a single page
+: 2) for range == entire vma
+: 
+: In those cases, the current code should produce the correct results.
+: 
+: To be safe, let's just cc stable.
+
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/page_counter.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/hugetlb.c |   24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
---- a/mm/page_counter.c~mm-fix-protection-usage-propagation
-+++ a/mm/page_counter.c
-@@ -72,7 +72,7 @@ void page_counter_charge(struct page_cou
- 		long new;
-=20
- 		new =3D atomic_long_add_return(nr_pages, &c->usage);
--		propagate_protected_usage(counter, new);
-+		propagate_protected_usage(c, new);
- 		/*
- 		 * This is indeed racy, but we can live with some
- 		 * inaccuracy in the watermark.
-@@ -116,7 +116,7 @@ bool page_counter_try_charge(struct page
- 		new =3D atomic_long_add_return(nr_pages, &c->usage);
- 		if (new > c->max) {
- 			atomic_long_sub(nr_pages, &c->usage);
--			propagate_protected_usage(counter, new);
-+			propagate_protected_usage(c, new);
- 			/*
- 			 * This is racy, but we can live with some
- 			 * inaccuracy in the failcnt.
-@@ -125,7 +125,7 @@ bool page_counter_try_charge(struct page
- 			*fail =3D c;
- 			goto failed;
- 		}
--		propagate_protected_usage(counter, new);
-+		propagate_protected_usage(c, new);
- 		/*
- 		 * Just like with failcnt, we can live with some
- 		 * inaccuracy in the watermark.
+--- a/mm/hugetlb.c~mm-hugetlb-fix-calculation-of-adjust_range_if_pmd_sharing_possible
++++ a/mm/hugetlb.c
+@@ -5314,25 +5314,21 @@ static bool vma_shareable(struct vm_area
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr;
++	unsigned long a_start, a_end;
+ 
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
+ 
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
 _
