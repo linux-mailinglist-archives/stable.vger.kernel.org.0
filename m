@@ -2,170 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80F6023E785
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 09:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C6223E7A4
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 09:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726450AbgHGHEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 03:04:07 -0400
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:39482 "EHLO 1wt.eu"
+        id S1726806AbgHGHR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 03:17:26 -0400
+Received: from mga05.intel.com ([192.55.52.43]:18216 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725805AbgHGHEG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Aug 2020 03:04:06 -0400
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 07773GxM006383;
-        Fri, 7 Aug 2020 09:03:16 +0200
-Date:   Fri, 7 Aug 2020 09:03:16 +0200
-From:   Willy Tarreau <w@1wt.eu>
-To:     Marc Plumb <lkml.mplumb@gmail.com>
-Cc:     tytso@mit.edu, netdev@vger.kernel.org, aksecurity@gmail.com,
-        torvalds@linux-foundation.org, edumazet@google.com,
-        Jason@zx2c4.com, luto@kernel.org, keescook@chromium.org,
-        tglx@linutronix.de, peterz@infradead.org, stable@vger.kernel.org
-Subject: Re: Flaw in "random32: update the net random state on interrupt and
- activity"
-Message-ID: <20200807070316.GA6357@1wt.eu>
-References: <9f74230f-ba4d-2e19-5751-79dc2ab59877@gmail.com>
- <20200805024941.GA17301@1wt.eu>
- <20200805153432.GE497249@mit.edu>
- <c200297c-85a5-dd50-9497-6fcf7f07b727@gmail.com>
- <20200805193824.GA17981@1wt.eu>
- <344f15dd-a324-fe44-54d4-c87719283e35@gmail.com>
- <20200806063035.GC18515@1wt.eu>
- <50b046ee-d449-8e6c-1267-f4060b527c06@gmail.com>
+        id S1726038AbgHGHRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Aug 2020 03:17:25 -0400
+IronPort-SDR: niAEalFBLdxcA0n6bWAWRGSlTyRCVVM+xsZX5yPp00mtpSa7D+u6SdMx9Wezu+fJwYENOITMy5
+ 0aWZUo/sSINw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9705"; a="237871146"
+X-IronPort-AV: E=Sophos;i="5.75,444,1589266800"; 
+   d="scan'208";a="237871146"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2020 00:17:24 -0700
+IronPort-SDR: TW2/Rs+oqVNyglT8SzPM1QCZ+r337k9xEfMIf6xTm3CR693d7jRwYZJWOfJqpBWRiswXg1Gb0R
+ FKA72pWheM4Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,444,1589266800"; 
+   d="scan'208";a="289534895"
+Received: from shao2-debian.sh.intel.com (HELO localhost) ([10.239.13.3])
+  by orsmga003.jf.intel.com with ESMTP; 07 Aug 2020 00:17:20 -0700
+Date:   Fri, 7 Aug 2020 15:16:43 +0800
+From:   kernel test robot <rong.a.chen@intel.com>
+To:     Ingo Molnar <mingo@kernel.org>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Vishal L Verma <vishal.l.verma@intel.com>,
+        X86 ML <x86@kernel.org>, stable <stable@vger.kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        0day robot <lkp@intel.com>, lkp@lists.01.org
+Subject: Re: [x86/copy_mc] a0ac629ebe: fio.read_iops -43.3% regression
+Message-ID: <20200807071643.GL23458@shao2-debian>
+References: <159630256804.3143511.8894023468833792004.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20200803094257.GA23458@shao2-debian>
+ <20200806133452.GA2077191@gmail.com>
+ <CAPcyv4hS7K0Arrd+C0LhjrFH=yGJf3g55_WkHOET4z58AcWrJw@mail.gmail.com>
+ <20200806153500.GC2131635@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <50b046ee-d449-8e6c-1267-f4060b527c06@gmail.com>
-User-Agent: Mutt/1.6.1 (2016-04-27)
+In-Reply-To: <20200806153500.GC2131635@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 06, 2020 at 10:18:55AM -0700, Marc Plumb wrote:
-> Willy,
+On Thu, Aug 06, 2020 at 05:35:00PM +0200, Ingo Molnar wrote:
 > 
+> * Dan Williams <dan.j.williams@intel.com> wrote:
 > 
-> On 2020-08-05 11:30 p.m., Willy Tarreau wrote:
-> > On Wed, Aug 05, 2020 at 03:21:11PM -0700, Marc Plumb wrote:
-> > > There is nothing wrong with perturbing net_rand_state, the sin is doing it
-> > > with the raw entropy that is also the seed for your CPRNG. Use the output of
-> > > a CPRNG to perturb the pool all you want, but don't do things that bit by
-> > > bit reveal the entropy that is being fed into the CPRNG.
-> > This is interesting because I think some of us considered it exactly the
-> > other way around, i.e. we're not copying exact bits but just taking a
-> > pseudo-random part of such bits at one point in time, to serve as an
-> > increment among other ones. And given that these bits were collected
-> > over time from not very secret sources, they appeared to be of lower
-> > risk than the output.
-> 
-> No. The output of a CPRNG can't be used to determine the internal state. The
-> input can. The input entropy is the one thing that cannot be produced by a
-> deterministic computer, so they are the crown jewels of this. It's much much
-> safer to use the output.
-
-OK, noted.
-
-> > I didn't know about SFC32, it looks like a variation of the large family
-> > of xorshift generators, which is thus probably quite suitable as well
-> > for this task. Having used xoroshiro128** myself in another project, I
-> > found it overkill for this task compared to MSWS but I definitely agree
-> > that any of them is more suited to the task than the current one.
+> > On Thu, Aug 6, 2020 at 6:35 AM Ingo Molnar <mingo@kernel.org> wrote:
+> > >
+> > >
+> > > * kernel test robot <rong.a.chen@intel.com> wrote:
+> > >
+> > > > Greeting,
+> > > >
+> > > > FYI, we noticed a -43.3% regression of fio.read_iops due to commit:
+> > > >
+> > > >
+> > > > commit: a0ac629ebe7b3d248cb93807782a00d9142fdb98 ("x86/copy_mc: Introduce copy_mc_generic()")
+> > > > url: https://github.com/0day-ci/linux/commits/Dan-Williams/Renovate-memcpy_mcsafe-with-copy_mc_to_-user-kernel/20200802-014046
+> > > >
+> > > >
+> > > > in testcase: fio-basic
+> > > > on test machine: 96 threads Intel(R) Xeon(R) Gold 6252 CPU @ 2.10GHz with 256G memory
+> > > > with following parameters:
+> > >
+> > > So this performance regression, if it isn't a spurious result, looks
+> > > concerning. Is this expected?
 > > 
-> It's actually a chaotic generator (not a linear one like an xorshift
-> generator), which gives it weaker period guarantees which makes it more
-> difficult to reverse. With a counter added to help the period length.
+> > This is not expected and I think delays these patches until I'm back
+> > from leave in a few weeks. I know that we might lose some inlining
+> > effect due to replacing native memcpy, but I did not expect it would
+> > have an impact like this. In my testing I was seeing a performance
+> > improvement from replacing the careful / open-coded copy with rep;
+> > mov;, which increases the surprise of this result.
 > 
-> I'll trust Amit that SFC32 isn't strong enough and look at other options --
-> I just thought of it as better, and faster than the existing one with the
-> same state size. Maybe a larger state is needed.
+> It would be nice to double check this on the kernel-test-robot side as 
+> well, to make sure it's not a false positive.
+> 
 
-Just to give a heads up on this, here's what I'm having pending regarding
-MSWS:
+Hi Ingo,
 
-  struct rnd_state {
-        uint64_t x, w;
-        uint64_t seed;
-        uint64_t noise;
-  };
+We recompiled the kernels with option "-falign-functions=32", and the
+regression still exists:
 
-  uint32_t msws32(struct rnd_state *state)
-  {
-        uint64_t x;
+7476b91d4db369d8  a0ac629ebe7b3d248cb9380778  testcase/testparams/testbox
+----------------  --------------------------  ---------------------------
+         %stddev      change         %stddev
+             \          |                \  
+     22103             -43%      12551        fio-basic/2M-performance-2pmem-xfs-libaio-dax-50%-200s-read-200G-tb-ucode=0x5002f01/lkp-csl-2sp6
+     22103             -43%      12551        GEO-MEAN fio.read_iops
 
-        x  = state->w += state->seed;
-        x += state->x * state->x;
-        x  = state->x = (x >> 32) | (x << 32);
-        x -= state->noise++;
-        return x ^ (x >> 32);
-  }
-
-It passes PractRand without any warning after 1 TB of data:
-
-  rng=RNG_stdin, seed=unknown
-  length= 512 megabytes (2^29 bytes), time= 2.0 seconds
-    no anomalies in 229 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 1 gigabyte (2^30 bytes), time= 4.3 seconds
-    no anomalies in 248 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 2 gigabytes (2^31 bytes), time= 8.3 seconds
-    no anomalies in 266 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 4 gigabytes (2^32 bytes), time= 15.8 seconds
-    no anomalies in 282 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 8 gigabytes (2^33 bytes), time= 31.3 seconds
-    no anomalies in 299 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 16 gigabytes (2^34 bytes), time= 61.9 seconds
-    no anomalies in 315 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 32 gigabytes (2^35 bytes), time= 119 seconds
-    no anomalies in 328 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 64 gigabytes (2^36 bytes), time= 242 seconds
-    no anomalies in 344 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 128 gigabytes (2^37 bytes), time= 483 seconds
-    no anomalies in 359 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 256 gigabytes (2^38 bytes), time= 940 seconds
-    no anomalies in 372 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 512 gigabytes (2^39 bytes), time= 1906 seconds
-    no anomalies in 387 test result(s)
-  
-  rng=RNG_stdin, seed=unknown
-  length= 1 terabyte (2^40 bytes), time= 3826 seconds
-    no anomalies in 401 test result(s)
-
-The two modifications compared to the original msws are:
-
-  - mix bits on output so that we don't reveal the internal
-    state upon each call ;
-
-  - combination of the output with an independent noise
-    variable whose purpose was to be updated upon IRQ
-    and/or CPU usage and/or invocations. But on this point,
-    while implementing it I figured that updating it on each
-    invocation did already provide the frequent updates we
-    were missing in Tausworthe that required the interrupt
-    updates. I'd definitely update in update_process_times()
-    so that it's not reduced to a pure counter, but the
-    results, speed and simplicity look encouraging.
-
-I'll try to work on finishing the patch proposal this week-end.
-
-Regards,
-Willy
+Best Regards,
+Rong Chen
