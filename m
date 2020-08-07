@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44F9523E602
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 04:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09B123E604
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 04:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726078AbgHGCqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 22:46:32 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:58166 "EHLO
+        id S1726200AbgHGCqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 22:46:37 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:57052 "EHLO
         smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726058AbgHGCqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 22:46:31 -0400
-Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
+        by vger.kernel.org with ESMTP id S1726058AbgHGCqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 22:46:37 -0400
+Received: from mailhost.synopsys.com (sv2-mailhost1.synopsys.com [10.205.2.133])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 0853FC0C28;
-        Fri,  7 Aug 2020 02:46:31 +0000 (UTC)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id F1D04408EF;
+        Fri,  7 Aug 2020 02:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1596768391; bh=HKTcfx7fgfr/QBBN5dB5SuLBdfs3r0af/HkOfZtBRsI=;
+        t=1596768397; bh=958otJzrCCYip3bSAyN/Iy/an6KYxnXX8t2UmC0ryRA=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=MUPiXwI6BSKhyEMrwhy4qTh/IbAPxx4ski+mXjKVb5zP12USt4UxqlQJm4hCtWovD
-         DQgfoJn4/XqrELvjTZesrBw7LmS4u09S5MR7D5qVqDxy6CldUdC67DKV/auVjoQSpN
-         J9RbEl5x+Csl3geIpNINwazWy2817gnXUYZm6t6L3htlG5U9Mg4G5O41d1e8GlCsj9
-         NVe4n15JkeFhmrzpV5UIbtMKOc5dz29ye6H6CNfDEQkPXmaghbyOYIU2W0gi8rAIDX
-         lRMb/4tqJPzdo2JzKMziBO1Ajemb0b46YcN3wO1vSiUt9pDioqz/JLEvUvG9MyXlf0
-         txUkPD30fc3Gw==
+        b=jcEEiQrG2uHt3JU8MFhcC6kP83PWzETj1OjvbuUNNDzGP+XlZcOf2j78ZGlbieBqP
+         o+zf9i0I6jLKqbJ0nhKB0X9dUhUqRP5XT/0mNgf0Bd40OG2Di7K/iXM+TVZBTziivZ
+         e1w/VTJORzfSEH/jPY5WDdTmfkTqrra+p3J+FzXAHdGrio4wDvJzlp8THG0V22yxV8
+         rUQw7LxpC+X4QWoMzcETVBUVEYoxVx/g7cY8YhwcvTM1FPYqYaSz1ysRuJqrz/NbDe
+         LgZOxXz7Pwz0Lrr7FCQPP8TIzfRVcqBazvJXOUlrtqjXy08Q2GcW8WIrQf5HTwX0f9
+         6aV1XxkLY0yDQ==
 Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 8EF53A006F;
-        Fri,  7 Aug 2020 02:46:29 +0000 (UTC)
-Received: by te-lab16 (sSMTP sendmail emulation); Thu, 06 Aug 2020 19:46:29 -0700
-Date:   Thu, 06 Aug 2020 19:46:29 -0700
-Message-Id: <14acf1f4680fbd9b8d6b60a748a17ee6a04380a8.1596767991.git.thinhn@synopsys.com>
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id DB670A0096;
+        Fri,  7 Aug 2020 02:46:35 +0000 (UTC)
+Received: by te-lab16 (sSMTP sendmail emulation); Thu, 06 Aug 2020 19:46:35 -0700
+Date:   Thu, 06 Aug 2020 19:46:35 -0700
+Message-Id: <08ab69d55ff0c9537b843a1f1d6099374116a6f3.1596767991.git.thinhn@synopsys.com>
 In-Reply-To: <cover.1596767991.git.thinhn@synopsys.com>
 References: <cover.1596767991.git.thinhn@synopsys.com>
 X-SNPS-Relay: synopsys.com
 From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH v2 2/7] usb: dwc3: gadget: Fix handling ZLP
+Subject: [PATCH v2 3/7] usb: dwc3: gadget: Handle ZLP for sg requests
 To:     Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
@@ -48,80 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The usb_request->zero doesn't apply for isoc. Also, if we prepare a
-0-length (ZLP) TRB for the OUT direction, we need to prepare an extra
-TRB to pad up to the MPS alignment. Use the same bounce buffer for the
-ZLP TRB and the extra pad TRB.
+Currently dwc3 doesn't handle usb_request->zero for SG requests. This
+change checks and prepares extra TRBs for the ZLP for SG requests.
 
 Cc: stable@vger.kernel.org
-Fixes: d6e5a549cc4d ("usb: dwc3: simplify ZLP handling")
 Fixes: 04c03d10e507 ("usb: dwc3: gadget: handle request->zero")
 Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
 ---
  Changes in v2:
  - None
 
- drivers/usb/dwc3/gadget.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index f9231253cbed..df603a817a98 100644
+index df603a817a98..c2a0f64f8d1e 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -1199,6 +1199,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
- 				req->request.no_interrupt,
- 				req->request.is_last);
- 	} else if (req->request.zero && req->request.length &&
-+		   !usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
- 		   (IS_ALIGNED(req->request.length, maxp))) {
- 		struct dwc3	*dwc = dep->dwc;
- 		struct dwc3_trb	*trb;
-@@ -1208,14 +1209,25 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
- 		/* prepare normal TRB */
- 		dwc3_prepare_one_trb(dep, req, length, true, 0);
- 
--		/* Now prepare one extra TRB to handle ZLP */
-+		/* Prepare one extra TRB to handle ZLP */
- 		trb = &dep->trb_pool[dep->trb_enqueue];
- 		req->num_trbs++;
- 		__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
--				false, 1, req->request.stream_id,
-+				!req->direction, 1, req->request.stream_id,
- 				req->request.short_not_ok,
- 				req->request.no_interrupt,
- 				req->request.is_last);
+@@ -1143,6 +1143,37 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 					req->request.short_not_ok,
+ 					req->request.no_interrupt,
+ 					req->request.is_last);
++		} else if (req->request.zero && req->request.length &&
++			   !usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
++			   !rem && !chain) {
++			struct dwc3	*dwc = dep->dwc;
++			struct dwc3_trb	*trb;
 +
-+		/* Prepare one more TRB to handle MPS alignment for OUT */
-+		if (!req->direction) {
++			req->needs_extra_trb = true;
++
++			/* Prepare normal TRB */
++			dwc3_prepare_one_trb(dep, req, trb_length, true, i);
++
++			/* Prepare one extra TRB to handle ZLP */
 +			trb = &dep->trb_pool[dep->trb_enqueue];
 +			req->num_trbs++;
-+			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp,
-+					       false, 1, req->request.stream_id,
++			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
++					       !req->direction, 1,
++					       req->request.stream_id,
 +					       req->request.short_not_ok,
 +					       req->request.no_interrupt,
 +					       req->request.is_last);
-+		}
- 	} else {
- 		dwc3_prepare_one_trb(dep, req, length, false, 0);
- 	}
-@@ -2690,8 +2702,17 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
- 				status);
- 
- 	if (req->needs_extra_trb) {
-+		unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
 +
- 		ret = dwc3_gadget_ep_reclaim_trb_linear(dep, req, event,
- 				status);
-+
-+		/* Reclaim MPS padding TRB for ZLP */
-+		if (!req->direction && req->request.zero && req->request.length &&
-+		    !usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
-+		    (IS_ALIGNED(req->request.length, maxp)))
-+			ret = dwc3_gadget_ep_reclaim_trb_linear(dep, req, event, status);
-+
- 		req->needs_extra_trb = false;
- 	}
- 
++			/* Prepare one more TRB to handle MPS alignment */
++			if (!req->direction) {
++				trb = &dep->trb_pool[dep->trb_enqueue];
++				req->num_trbs++;
++				__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp,
++						       false, 1, req->request.stream_id,
++						       req->request.short_not_ok,
++						       req->request.no_interrupt,
++						       req->request.is_last);
++			}
+ 		} else {
+ 			dwc3_prepare_one_trb(dep, req, trb_length, chain, i);
+ 		}
 -- 
 2.28.0
 
