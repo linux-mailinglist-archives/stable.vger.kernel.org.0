@@ -2,105 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E621323EDED
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 15:14:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28DE523EDFE
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 15:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726569AbgHGNOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 09:14:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60724 "EHLO mail.kernel.org"
+        id S1726030AbgHGNSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 09:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726710AbgHGNOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Aug 2020 09:14:17 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726015AbgHGNSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Aug 2020 09:18:06 -0400
+Received: from linux-8ccs (p57a236d4.dip0.t-ipconnect.de [87.162.54.212])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D31C22C9F;
-        Fri,  7 Aug 2020 13:14:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C6FE2086A;
+        Fri,  7 Aug 2020 13:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596806056;
-        bh=FtlvdFU0rYHu3NtmhLjOvAgzY9+CtYRM9ziRa0ODO0A=;
+        s=default; t=1596806285;
+        bh=S2wyd+msyX0RsCyjg1qnONILIrisgL6mcDR+I/3UAgo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gmZIGCEcgfuVdz+6J2O7xd/KbPIF8Kt0i6lVH1/0GwDcP4ahviudYfWt2hAY9j7B+
-         aWdmlsXly326kOqV/BPhToRn3VR8LfDF+AQAJNY0pdH7uq8FP5GpGuc8TV3OPPvqvs
-         KY2003KRA8He4FRGu9xn2B11aFr5mnbTQA8dFXSc=
-Date:   Fri, 7 Aug 2020 15:14:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     Will Deacon <will.deacon@arm.com>, Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
-        <kvmarm@lists.cs.columbia.edu>
-Subject: Re: [PATCH stable v4.9 v2] arm64: entry: Place an SB sequence
- following an ERET instruction
-Message-ID: <20200807131429.GB664450@kroah.com>
-References: <20200709195034.15185-1-f.fainelli@gmail.com>
- <20200720130411.GB494210@kroah.com>
- <df1de420-ac59-3647-3b81-a0c163783225@gmail.com>
- <9c29080e-8b3a-571c-3296-e0487fa473fa@gmail.com>
+        b=Ctg3C11wquOZehuDJvdToTfrZ9PMiDzLTFZgQHAQ27/yFmbckJwSp2Iny/5mlovZj
+         8w0OqfXkB6BR11GGwvZaKxh4nEXjOR8I14BWWJvklTPoN5Hqpd2IPGM0kRtl4b27Ak
+         mt6g2cPlHsjx2+mynxjbP21+TuxU6rTa4N/j0KF8=
+Date:   Fri, 7 Aug 2020 15:18:00 +0200
+From:   Jessica Yu <jeyu@kernel.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH 1/2] module: Correctly truncate sysfs sections output
+Message-ID: <20200807131800.GA10261@linux-8ccs>
+References: <20200807063539.2620154-1-keescook@chromium.org>
+ <20200807063539.2620154-2-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <9c29080e-8b3a-571c-3296-e0487fa473fa@gmail.com>
+In-Reply-To: <20200807063539.2620154-2-keescook@chromium.org>
+X-OS:   Linux linux-8ccs 5.8.0-rc6-lp150.12.61-default+ x86_64
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 06, 2020 at 01:00:54PM -0700, Florian Fainelli wrote:
-> 
-> 
-> On 7/20/2020 11:26 AM, Florian Fainelli wrote:
-> > On 7/20/20 6:04 AM, Greg KH wrote:
-> >> On Thu, Jul 09, 2020 at 12:50:23PM -0700, Florian Fainelli wrote:
-> >>> From: Will Deacon <will.deacon@arm.com>
-> >>>
-> >>> commit 679db70801da9fda91d26caf13bf5b5ccc74e8e8 upstream
-> >>>
-> >>> Some CPUs can speculate past an ERET instruction and potentially perform
-> >>> speculative accesses to memory before processing the exception return.
-> >>> Since the register state is often controlled by a lower privilege level
-> >>> at the point of an ERET, this could potentially be used as part of a
-> >>> side-channel attack.
-> >>>
-> >>> This patch emits an SB sequence after each ERET so that speculation is
-> >>> held up on exception return.
-> >>>
-> >>> Signed-off-by: Will Deacon <will.deacon@arm.com>
-> >>> [florian: Adjust hyp-entry.S to account for the label
-> >>>  added change to hyp/entry.S]
-> >>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> >>> ---
-> >>> Changes in v2:
-> >>>
-> >>> - added missing hunk in hyp/entry.S per Will's feedback
-> >>
-> >> What about 4.19.y and 4.14.y trees?  I can't take something for 4.9.y
-> >> and then have a regression if someone moves to a newer release, right?
-> > 
-> > Sure, send you candidates for 4.14 and 4.19.
-> 
-> Greg, did you have a chance to queue those changes for 4.9, 4.14 and 4.19?
-> 
-> https://lore.kernel.org/linux-arm-kernel/20200720182538.13304-1-f.fainelli@gmail.com/
-> https://lore.kernel.org/linux-arm-kernel/20200720182937.14099-1-f.fainelli@gmail.com/
-> https://lore.kernel.org/linux-arm-kernel/20200709195034.15185-1-f.fainelli@gmail.com/
++++ Kees Cook [06/08/20 23:35 -0700]:
+>The only-root-readable /sys/module/$module/sections/$section files
+>did not truncate their output to the available buffer size. While most
+>paths into the kernfs read handlers end up using PAGE_SIZE buffers,
+>it's possible to get there through other paths (e.g. splice, sendfile).
+>Actually limit the output to the "count" passed into the read function,
+>and report it back correctly. *sigh*
+>
+>Reported-by: kernel test robot <lkp@intel.com>
+>Link: https://lore.kernel.org/lkml/20200805002015.GE23458@shao2-debian
+>Fixes: ed66f991bb19 ("module: Refactor section attr into bin attribute")
+>Cc: stable@vger.kernel.org
+>Cc: Jessica Yu <jeyu@kernel.org>
+>Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Nope, I was waiting for Will's "ack" for these.
+Oof, thanks for fixing this!
 
-thanks,
+Acked-by: Jessica Yu <jeyu@kernel.org>
 
-greg k-h
+>---
+> kernel/module.c | 22 +++++++++++++++++++---
+> 1 file changed, 19 insertions(+), 3 deletions(-)
+>
+>diff --git a/kernel/module.c b/kernel/module.c
+>index aa183c9ac0a2..08c46084d8cc 100644
+>--- a/kernel/module.c
+>+++ b/kernel/module.c
+>@@ -1520,18 +1520,34 @@ struct module_sect_attrs {
+> 	struct module_sect_attr attrs[];
+> };
+>
+>+#define MODULE_SECT_READ_SIZE (3 /* "0x", "\n" */ + (BITS_PER_LONG / 4))
+> static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
+> 				struct bin_attribute *battr,
+> 				char *buf, loff_t pos, size_t count)
+> {
+> 	struct module_sect_attr *sattr =
+> 		container_of(battr, struct module_sect_attr, battr);
+>+	char bounce[MODULE_SECT_READ_SIZE + 1];
+>+	size_t wrote;
+>
+> 	if (pos != 0)
+> 		return -EINVAL;
+>
+>-	return sprintf(buf, "0x%px\n",
+>-		       kallsyms_show_value(file->f_cred) ? (void *)sattr->address : NULL);
+>+	/*
+>+	 * Since we're a binary read handler, we must account for the
+>+	 * trailing NUL byte that sprintf will write: if "buf" is
+>+	 * too small to hold the NUL, or the NUL is exactly the last
+>+	 * byte, the read will look like it got truncated by one byte.
+>+	 * Since there is no way to ask sprintf nicely to not write
+>+	 * the NUL, we have to use a bounce buffer.
+>+	 */
+>+	wrote = scnprintf(bounce, sizeof(bounce), "0x%px\n",
+>+			 kallsyms_show_value(file->f_cred)
+>+				? (void *)sattr->address : NULL);
+>+	count = min(count, wrote);
+>+	memcpy(buf, bounce, count);
+>+
+>+	return count;
+> }
+>
+> static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
+>@@ -1580,7 +1596,7 @@ static void add_sect_attrs(struct module *mod, const struct load_info *info)
+> 			goto out;
+> 		sect_attrs->nsections++;
+> 		sattr->battr.read = module_sect_read;
+>-		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
+>+		sattr->battr.size = MODULE_SECT_READ_SIZE;
+> 		sattr->battr.attr.mode = 0400;
+> 		*(gattr++) = &(sattr++)->battr;
+> 	}
+>-- 
+>2.25.1
+>
