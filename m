@@ -2,141 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 121F523F316
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 21:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD8E23F319
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 21:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726530AbgHGTcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 15:32:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33282 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725893AbgHGTcp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Aug 2020 15:32:45 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 550B9204EC;
-        Fri,  7 Aug 2020 19:32:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596828763;
-        bh=hGcru2JSer3MpZfoxGSOpqOSU2mQifE57/0Zud94SVI=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=ZT6gdCVBZEkXFJJPPWErK0oBetvQDeO90fj+tixuebpw9qUVfxmCHr8PuPHjq9Bk6
-         44G9/mPHiE49DIdDGV3hvOTP2y0JCaSHljs4CuC4XASKx8EloIdgSgocqFjFP+Klua
-         BfPWMc9LYH+qa7YOcLbMIGpsSmnEUaJB6DUZlF8k=
-Date:   Fri, 07 Aug 2020 12:32:42 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     catalin.marinas@arm.com, hannes@cmpxchg.org, hdanton@sina.com,
-        hughd@google.com, josef@toxicpanda.com,
-        kirill.shutemov@linux.intel.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, will.deacon@arm.com, willy@infradead.org,
-        xuyu@linux.alibaba.com, yang.shi@linux.alibaba.com
-Subject:  [nacked]
- mm-avoid-access-flag-update-tlb-flush-for-retried-page-fault.patch removed
- from -mm tree
-Message-ID: <20200807193242.CtxqvgfOg%akpm@linux-foundation.org>
-In-Reply-To: <20200806231643.a2711a608dd0f18bff2caf2b@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726067AbgHGTdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 15:33:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35674 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725934AbgHGTdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 15:33:36 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E52C061756
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 12:33:36 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id k13so1555851plk.13
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 12:33:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
+        h=content-transfer-encoding:from:mime-version:subject:date:message-id
+         :references:cc:in-reply-to:to;
+        bh=Fe3n4VKi5pnRtKW300kvfqgX0VVWYhsFPHjehF7XRBE=;
+        b=SMyQBWpI+mFMexUmvNUQ28U0pv88RirS8gjAfM49Uoh1VeLhRMEj+Pw5CjTQrZl/jP
+         JqNoQgH1b5XtWnBkkyn7npXU2rdHlMhHXwXhnkR2iqgOJ/f8Zj7b2vcHcMX+gAAP+79U
+         YtuqK/upQCc+AU6mqIPKaBzRSi/HN+dSTUoQWoayMGgO/kw8OaL6IY5ZrbyICGxy13zY
+         BD9y44/sfeZRxATKzbPF6qBzZb7DsQCHvWlahjeKxDQXZEli0oa3DyNlFpGXCYcp/g6V
+         Yq3Moi0FzBVpvZOwqQnniWK+UhsgVD/0L6FTsEgBLN2Zv9vwt4taM4Mlu3T3Xtr95428
+         DvQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=Fe3n4VKi5pnRtKW300kvfqgX0VVWYhsFPHjehF7XRBE=;
+        b=J5YF7VlhN9JpMaiOlXYXMXDYDQT6+JkA6Ep1IW++n0lSGPSGfPwGl4FaUv7gZWmwkB
+         posn6WCguc0IxjcZSdb+TPyz2tDvo0qkVhu82qWd1LzjOLXBX7teC7J1nBJelzVGij0W
+         ErxFkY2SIpeAZDHrK/vT+Q/QlJNPVxcawUwxRZ2ZZfTkjzM4ian4hSxqGJC2JtG0HWKZ
+         4UBXfaJ0egTZ+xfJS+/DUBJC1G8oxggEYd2TjUyI+Ft/UrCh0wM8elNR76cNcxIUIoSF
+         4RzQM8xVfS/rV/et4cmVLHmb31ux5nNvIrv3Bn6cY7J/05uPza8p7gmDI1iFrMuJQCMP
+         mNHw==
+X-Gm-Message-State: AOAM533EeEPCZgXMo9fOjyHyU00dLaGXJwUPjfLCeB41UodoJt8msp/p
+        okHtqrv5ZzDlKkwHgAGrY2rVTg==
+X-Google-Smtp-Source: ABdhPJzRVqrlSAkjcool3cxdgTtmDIV9HWgXynw2vZLeHB8tQBAN8NsSacGsykGS8/IoYPQPIgRoQw==
+X-Received: by 2002:a17:902:9042:: with SMTP id w2mr14304485plz.9.1596828815729;
+        Fri, 07 Aug 2020 12:33:35 -0700 (PDT)
+Received: from ?IPv6:2601:646:c200:1ef2:431:59:d011:24a4? ([2601:646:c200:1ef2:431:59:d011:24a4])
+        by smtp.gmail.com with ESMTPSA id o192sm15611184pfg.81.2020.08.07.12.33.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 07 Aug 2020 12:33:34 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From:   Andy Lutomirski <luto@amacapital.net>
+Mime-Version: 1.0 (1.0)
+Subject: Re: Flaw in "random32: update the net random state on interrupt and activity"
+Date:   Fri, 7 Aug 2020 12:33:33 -0700
+Message-Id: <BF4C5741-7433-4E96-B856-B25B049C9E49@amacapital.net>
+References: <CAHk-=whf+_rWROqPUMr=Do0n1ADhkEeEFL0tY+M60TJZtdrq2A@mail.gmail.com>
+Cc:     Willy Tarreau <w@1wt.eu>, Marc Plumb <lkml.mplumb@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>, Netdev <netdev@vger.kernel.org>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andrew Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>
+In-Reply-To: <CAHk-=whf+_rWROqPUMr=Do0n1ADhkEeEFL0tY+M60TJZtdrq2A@mail.gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+X-Mailer: iPhone Mail (17G68)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/memory.c: avoid access flag update TLB flush for retried page fault
-has been removed from the -mm tree.  Its filename was
-     mm-avoid-access-flag-update-tlb-flush-for-retried-page-fault.patch
 
-This patch was dropped because it was nacked
+> On Aug 7, 2020, at 12:21 PM, Linus Torvalds <torvalds@linux-foundation.org=
+> wrote:
+>=20
+> =EF=BB=BFOn Fri, Aug 7, 2020 at 12:08 PM Andy Lutomirski <luto@amacapital.=
+net> wrote:
+>> 4 cycles per byte on Core 2
+>=20
+> I took the reference C implementation as-is, and just compiled it with
+> O2, so my numbers may not be what some heavily optimized case does.
+>=20
+> But it was way more than that, even when amortizing for "only need to
+> do it every 8 cases". I think the 4 cycles/byte might be some "zero
+> branch mispredicts" case when you've fully unrolled the thing, but
+> then you'll be taking I$ misses out of the wazoo, since by definition
+> this won't be in your L1 I$ at all (only called every 8 times).
+>=20
+> Sure, it might look ok on microbenchmarks where it does stay hot the
+> cache all the time, but that's not realistic. I
 
-------------------------------------------------------
-From: Yang Shi <yang.shi@linux.alibaba.com>
-Subject: mm/memory.c: avoid access flag update TLB flush for retried page fault
+No one said we have to do only one ChaCha20 block per slow path hit.  In fac=
+t, the more we reduce the number of rounds, the more time we spend on I$ mis=
+ses, branch mispredictions, etc, so reducing rounds may be barking up the wr=
+ong tree entirely.  We probably don=E2=80=99t want to have more than one pag=
+e=20
 
-Recently we found regression when running will_it_scale/page_fault3 test
-on ARM64.  Over 70% down for the multi processes cases and over 20% down
-for the multi threads cases.  It turns out the regression is caused by
-commit 89b15332af7c0312a41e50846819ca6613b58b4c ("mm: drop mmap_sem before
-calling balance_dirty_pages() in write fault").
-
-The test mmaps a memory size file then write to the mapping, this would
-make all memory dirty and trigger dirty pages throttle, that upstream
-commit would release mmap_sem then retry the page fault.  The retried page
-fault would see correct PTEs installed by the first try then update dirty
-bit and clear read-only bit and flush TLBs for ARM.  The regression is
-caused by the excessive TLB flush.  It is fine on x86 since x86 doesn't
-clear read-only bit so there is no need to flush TLB for this case.
-
-The page fault would be retried due to:
-1. Waiting for page readahead
-2. Waiting for page swapped in
-3. Waiting for dirty pages throttling
-
-The first two cases don't have PTEs set up at all, so the retried page
-fault would install the PTEs, so they don't reach there.  But the #3 case
-usually has PTEs installed, the retried page fault would reach the dirty
-bit and read-only bit update.  But it seems not necessary to modify those
-bits again for #3 since they should be already set by the first page fault
-try.
-
-Of course the parallel page fault may set up PTEs, but we just need care
-about write fault.  If the parallel page fault setup a writable and dirty
-PTE then the retried fault doesn't need do anything extra.  If the
-parallel page fault setup a clean read-only PTE, the retried fault should
-just call do_wp_page() then return as the below code snippet shows:
-
-if (vmf->flags & FAULT_FLAG_WRITE) {
-        if (!pte_write(entry))
-            return do_wp_page(vmf);
-}
-
-With this fix the test result get back to normal.
-
-[yang.shi@linux.alibaba.com: incorporate comment from Will Deacon, update commit log per discussion]
-  Link: http://lkml.kernel.org/r/1594848990-55657-1-git-send-email-yang.shi@linux.alibaba.com
-Link: http://lkml.kernel.org/r/1594148072-91273-1-git-send-email-yang.shi@linux.alibaba.com
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Xu Yu <xuyu@linux.alibaba.com>
-Debugged-by: Xu Yu <xuyu@linux.alibaba.com>
-Tested-by: Xu Yu <xuyu@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Josef Bacik <josef@toxicpanda.com>
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memory.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
---- a/mm/memory.c~mm-avoid-access-flag-update-tlb-flush-for-retried-page-fault
-+++ a/mm/memory.c
-@@ -4241,8 +4241,14 @@ static vm_fault_t handle_pte_fault(struc
- 	if (vmf->flags & FAULT_FLAG_WRITE) {
- 		if (!pte_write(entry))
- 			return do_wp_page(vmf);
--		entry = pte_mkdirty(entry);
- 	}
-+
-+	if (vmf->flags & FAULT_FLAG_TRIED)
-+		goto unlock;
-+
-+	if (vmf->flags & FAULT_FLAG_WRITE)
-+		entry = pte_mkdirty(entry);
-+
- 	entry = pte_mkyoung(entry);
- 	if (ptep_set_access_flags(vmf->vma, vmf->address, vmf->pte, entry,
- 				vmf->flags & FAULT_FLAG_WRITE)) {
-_
-
-Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
-
-mm-filemap-clear-idle-flag-for-writes.patch
-mm-filemap-add-missing-fgp_-flags-in-kerneldoc-comment-for-pagecache_get_page.patch
-mm-thp-remove-debug_cow-switch.patch
-
+I wonder if AES-NI adds any value here.  AES-CTR is almost a drop-in replace=
+ment for ChaCha20, and maybe the performance for a cache-cold short run is b=
+etter.=
