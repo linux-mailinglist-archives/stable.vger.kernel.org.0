@@ -2,138 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32BD023F29B
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 20:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C3823F2E2
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 20:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726344AbgHGSRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 14:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52302 "EHLO
+        id S1725934AbgHGSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 14:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725934AbgHGSRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 14:17:32 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DABD1C061756;
-        Fri,  7 Aug 2020 11:17:31 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id 9so2489322wmj.5;
-        Fri, 07 Aug 2020 11:17:31 -0700 (PDT)
+        with ESMTP id S1725893AbgHGSpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 14:45:35 -0400
+Received: from mail-ej1-x64a.google.com (mail-ej1-x64a.google.com [IPv6:2a00:1450:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6F7C061756
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 11:45:35 -0700 (PDT)
+Received: by mail-ej1-x64a.google.com with SMTP id m24so1163068eje.20
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 11:45:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=+RLcMf039Fja7+NVYfWd7LsUb0HLd5N8YbD0HQCYGKs=;
-        b=hEYA/snmkEnBTWT41qnElh5RISovyGYu/KkzthXY5h6DXG3W0hdwlPVFr/1TAoXzeN
-         g3hdpKG0rlvrSWBRhz3pHgXCOMaLU4F64766xythYWHQHlIEwrrFLdcqeFPRyJmojb1E
-         heapMjHWiXzttkUCvdfk+AGwfd5/QdZ4kkv5nO1iVEmH96vtecMuYb4rsXnqnFW2BoXK
-         pLMpM+R+B5IagfhSenzb51rHcZH1tGJMgwVOQRwG6S2/ilDdHL7Dd/kVhwIF3HsUKr17
-         VHBukSpEB9zVSSuJ5A3A0ny9PKP+RldiUG6Jami6ucXsNk21I6t1AdOCQvr0jFMJott7
-         F22A==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=wezATDNNHijFNE8xRUw9gZpSNfPJzDDYffclJLmDegw=;
+        b=Hmvu85Ig5+eMHoqbRy5HPVSnec2zEqocJw1NoD68Ca/eOvN6JSA0aSxIRPamb3tiG3
+         SS+DRbPKXnpUX2lZhARRkPsCHGMwBrqWfih+8alBYQuasKfxE5bhC4bRc1AP9FceWJ1J
+         o2t4Hsm+BVunSB3f0uNr98v7dxVRaIlZS4qvCTypWegpTwUhksQAd4ELZaL7x6ZkRiP9
+         7of3EezJULI5Gg0/tiobEtoEWKmumB5cYd3dtJFZQlC+KO00jI4YGZvLff41Ea88lK82
+         DN/wVn9Qc8xtJiIJhxt7v6or8hndo2XY8PJuFnfKHJ//YkxyIpffsdt3N4cwznY2w8Eu
+         mw3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=+RLcMf039Fja7+NVYfWd7LsUb0HLd5N8YbD0HQCYGKs=;
-        b=FQmI4RAVFODthMteDm97WeLLFTiXRNRoWxCrZhcRAtMYB0J/u1IvGSRK9Eo8FWTN8y
-         rViufjyZnyj/SPSpN3JfZBRdCy2axQ5KpFXd9n449IzbQjetMoxrSFZSxYR0XOaH+pXX
-         o6+IWseA3ZTl+Q5ACk69DxTHSmEI1qvSF3exVNtBHXA3mxjPVAvzi4QftuTwaEz7+3fH
-         0gwt9db24CUDtIW/IAg5RLFK4aUm5sT+eqUxzVyhbtKzeIOxybp3fS2lJsONOV35TK5A
-         +U0Ib2kLWEPP1aA7buXYfinpl52gUwpn15rWqvjJenBpVVFE/h+dz6DoxNbGQLFUmrAe
-         /Bxg==
-X-Gm-Message-State: AOAM530WGKmnqBs1R8mukzy80klq9uUWXvwm70j4e+jgoED5ApkR7DHd
-        tvQBDXNLFqFvBmu55BJslmw=
-X-Google-Smtp-Source: ABdhPJw1gAmZHJQX55Ci8aLNAo0vKfunS/WHs1CJQjlHAcjBEZCQV97jdptYDEHSsVMoBeR0Tazsvg==
-X-Received: by 2002:a7b:c38a:: with SMTP id s10mr14609217wmj.13.1596824250547;
-        Fri, 07 Aug 2020 11:17:30 -0700 (PDT)
-Received: from [10.230.30.107] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id k184sm11289988wme.1.2020.08.07.11.17.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 07 Aug 2020 11:17:29 -0700 (PDT)
-Subject: Re: [PATCH stable v4.9 v2] arm64: entry: Place an SB sequence
- following an ERET instruction
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
-        <kvmarm@lists.cs.columbia.edu>
-References: <20200709195034.15185-1-f.fainelli@gmail.com>
- <20200720130411.GB494210@kroah.com>
- <df1de420-ac59-3647-3b81-a0c163783225@gmail.com>
- <9c29080e-8b3a-571c-3296-e0487fa473fa@gmail.com>
- <20200807131429.GB664450@kroah.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <fb3be972-106e-e171-1c2f-6df20ce186d6@gmail.com>
-Date:   Fri, 7 Aug 2020 11:17:23 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Firefox/68.0 Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20200807131429.GB664450@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=wezATDNNHijFNE8xRUw9gZpSNfPJzDDYffclJLmDegw=;
+        b=Eg6GQvR5LgwxS6/zEhn2kEVr8/OXNc3TZUNVHIcmdSWNL/ZZvZOgLQcXoxjzX3z2Au
+         JFkc7yHTd6mAcCVWTtQA4Y7NZTmRwflEnXK08uNk+ZxKkjuK7/473vr+2V4eBjJJzg2r
+         ZpTzQLOhPJ2vdX/ktbOBUsxtlVBLsQBH5wRH1NqH/Srd4Tq4sZ1PF8Anka2plJ80Kt5o
+         BkNgQSbFt6r+Z3ynrNnc0+wFrlZP+1DBQIenOg19pX7ZxRJQ2Kz6DDyx1p/uIoqbQNNS
+         4Nk0K+2A6JFDm5koNt0U6m1S/FNJpuVnJZXYSvNe8FsIRol0cuixhXdYKcDJpsXBd8Vw
+         cncw==
+X-Gm-Message-State: AOAM531AT2HzZe9VDWC/SjReGCrM5/WfdOHLEP2vw/061wUuNzoQ64rT
+        XLKba4zOVCHagf812hC2FrDs7F1aoaKO+Gq9YB+i/bCzy6C/5EdKq934D9KWO66ZXSDGQQcYt2k
+        bryS/2+7tqeaN01zWIsLCIdpPVRs6uMwrcEd0JJneYlGz69AIwhj+SOclLc8=
+X-Google-Smtp-Source: ABdhPJxYhdNIsXK3tA0Au2KEzhLLlPefX9bnAqyJR6Zlqug2vqTdl60J/DGFHdopwCQujLtxJMRUNKUpOA==
+X-Received: by 2002:a17:906:4aca:: with SMTP id u10mr10503073ejt.320.1596825933057;
+ Fri, 07 Aug 2020 11:45:33 -0700 (PDT)
+Date:   Fri,  7 Aug 2020 20:45:00 +0200
+Message-Id: <20200807184500.3711845-1-jannh@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.236.gb10cc79966-goog
+Subject: [PATCH 4.4+4.9] binder: Prevent context manager from incrementing ref 0
+From:   Jann Horn <jannh@google.com>
+To:     stable@vger.kernel.org
+Cc:     maco@android.com, tkjos@google.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
 
+Binder is designed such that a binder_proc never has references to
+itself. If this rule is violated, memory corruption can occur when a
+process sends a transaction to itself; see e.g.
+<https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
 
-On 8/7/2020 6:14 AM, Greg KH wrote:
-> On Thu, Aug 06, 2020 at 01:00:54PM -0700, Florian Fainelli wrote:
->>
->>
->> On 7/20/2020 11:26 AM, Florian Fainelli wrote:
->>> On 7/20/20 6:04 AM, Greg KH wrote:
->>>> On Thu, Jul 09, 2020 at 12:50:23PM -0700, Florian Fainelli wrote:
->>>>> From: Will Deacon <will.deacon@arm.com>
->>>>>
->>>>> commit 679db70801da9fda91d26caf13bf5b5ccc74e8e8 upstream
->>>>>
->>>>> Some CPUs can speculate past an ERET instruction and potentially perform
->>>>> speculative accesses to memory before processing the exception return.
->>>>> Since the register state is often controlled by a lower privilege level
->>>>> at the point of an ERET, this could potentially be used as part of a
->>>>> side-channel attack.
->>>>>
->>>>> This patch emits an SB sequence after each ERET so that speculation is
->>>>> held up on exception return.
->>>>>
->>>>> Signed-off-by: Will Deacon <will.deacon@arm.com>
->>>>> [florian: Adjust hyp-entry.S to account for the label
->>>>>  added change to hyp/entry.S]
->>>>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
->>>>> ---
->>>>> Changes in v2:
->>>>>
->>>>> - added missing hunk in hyp/entry.S per Will's feedback
->>>>
->>>> What about 4.19.y and 4.14.y trees?  I can't take something for 4.9.y
->>>> and then have a regression if someone moves to a newer release, right?
->>>
->>> Sure, send you candidates for 4.14 and 4.19.
->>
->> Greg, did you have a chance to queue those changes for 4.9, 4.14 and 4.19?
->>
->> https://lore.kernel.org/linux-arm-kernel/20200720182538.13304-1-f.fainelli@gmail.com/
->> https://lore.kernel.org/linux-arm-kernel/20200720182937.14099-1-f.fainelli@gmail.com/
->> https://lore.kernel.org/linux-arm-kernel/20200709195034.15185-1-f.fainelli@gmail.com/
-> 
-> Nope, I was waiting for Will's "ack" for these.
+There is a remaining edgecase through which such a transaction-to-self
+can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
+access:
 
-OK, Will, can you review those? Thanks
+ - task A opens /dev/binder twice, creating binder_proc instances P1
+   and P2
+ - P1 becomes context manager
+ - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
+   handle table
+ - P1 dies (by closing the /dev/binder fd and waiting a bit)
+ - P2 becomes context manager
+ - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
+   handle table
+   [this triggers a warning: "binder: 1974:1974 tried to acquire
+   reference to desc 0, got 1 instead"]
+ - task B opens /dev/binder once, creating binder_proc instance P3
+ - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
+   transaction)
+ - P2 receives the handle and uses it to call P3 (two-way transaction)
+ - P3 calls P2 (via magic handle 0) (two-way transaction)
+ - P2 calls P2 (via handle 1) (two-way transaction)
+
+And then, if P2 does *NOT* accept the incoming transaction work, but
+instead closes the binder fd, we get a crash.
+
+Solve it by preventing the context manager from using ACQUIRE on ref 0.
+There shouldn't be any legitimate reason for the context manager to do
+that.
+
+Additionally, print a warning if someone manages to find another way to
+trigger a transaction-to-self bug in the future.
+
+Cc: stable@vger.kernel.org
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+Acked-by: Todd Kjos <tkjos@google.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Martijn Coenen <maco@android.com>
+Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[manual backport: remove fine-grained locking and error reporting that
+                  don't exist in <=4.9]
+Signed-off-by: Jann Horn <jannh@google.com>
+---
+ drivers/android/binder.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index e12288c245b5..f4c0b6295945 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1427,6 +1427,10 @@ static void binder_transaction(struct binder_proc *proc,
+ 			return_error = BR_DEAD_REPLY;
+ 			goto err_dead_binder;
+ 		}
++		if (WARN_ON(proc == target_proc)) {
++			return_error = BR_FAILED_REPLY;
++			goto err_invalid_target_handle;
++		}
+ 		if (security_binder_transaction(proc->tsk,
+ 						target_proc->tsk) < 0) {
+ 			return_error = BR_FAILED_REPLY;
+@@ -1830,6 +1834,11 @@ static int binder_thread_write(struct binder_proc *proc,
+ 			ptr += sizeof(uint32_t);
+ 			if (target == 0 && binder_context_mgr_node &&
+ 			    (cmd == BC_INCREFS || cmd == BC_ACQUIRE)) {
++				if (binder_context_mgr_node->proc == proc) {
++					binder_user_error("%d:%d context manager tried to acquire desc 0\n",
++							  proc->pid, thread->pid);
++					return -EINVAL;
++				}
+ 				ref = binder_get_ref_for_node(proc,
+ 					       binder_context_mgr_node);
+ 				if (ref->desc != target) {
+
+base-commit: 8d6b541290cb9293bd2a7bb00c1d58d01abe183b
 -- 
-Florian
+2.28.0.236.gb10cc79966-goog
+
