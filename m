@@ -2,86 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41EA723EC20
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 13:14:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CC723EDCB
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 15:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728394AbgHGLOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 07:14:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40586 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727783AbgHGKxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 06:53:37 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390E5C0617A1
-        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 03:52:12 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1k3zym-0004nC-IY; Fri, 07 Aug 2020 12:52:04 +0200
-Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1k3zyk-0007Jp-9r; Fri, 07 Aug 2020 12:52:02 +0200
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     dev.kurt@vandijck-laurijssen.be, mkl@pengutronix.de,
-        wg@grandegger.com
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com,
-        linux-stable <stable@vger.kernel.org>, kernel@pengutronix.de,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        David Jander <david@protonic.nl>
-Subject: [PATCH v1 3/5] can: j1939: socket: j1939_sk_bind(): make sure ml_priv is allocated
-Date:   Fri,  7 Aug 2020 12:51:58 +0200
-Message-Id: <20200807105200.26441-4-o.rempel@pengutronix.de>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200807105200.26441-1-o.rempel@pengutronix.de>
-References: <20200807105200.26441-1-o.rempel@pengutronix.de>
+        id S1726167AbgHGNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 09:13:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725815AbgHGNNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Aug 2020 09:13:11 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5077F221E2;
+        Fri,  7 Aug 2020 13:13:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596805990;
+        bh=RIROhGCUr6NfNZISR9NQfCWS8Ha9p5SdQ9TURZQvdCE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0FO90bdO6KMgNNPYC5unU8kW23VZcvv0qZiXLzMRtq/EIGVuKxkE31J3KUpFyerys
+         TgprBZL/lMT43rGUKLf4CqL/Ng77OEg02Rq3M0BSD5MfvFodS5jQXh3IBMqnGeDZaN
+         52TUuviux1KmHWP+1Z71F2PqFUfikXg79I/dlHFk=
+Date:   Fri, 7 Aug 2020 15:13:23 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Saeed Mahameed <saeedm@mellanox.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        netdev@vger.kernel.org, Roi Dayan <roid@mellanox.com>
+Subject: Re: [PATCH 4.19] net/mlx5e: Don't support phys switch id if not in
+ switchdev mode
+Message-ID: <20200807131323.GA664450@kroah.com>
+References: <20200807020542.636290-1-saeedm@mellanox.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200807020542.636290-1-saeedm@mellanox.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch adds check to ensure that the struct net_device::ml_priv is
-allocated, as it is used later by the j1939 stack.
+On Thu, Aug 06, 2020 at 07:05:42PM -0700, Saeed Mahameed wrote:
+> From: Roi Dayan <roid@mellanox.com>
+> 
+> Support for phys switch id ndo added for representors and if
+> we do not have representors there is no need to support it.
+> Since each port return different switch id supporting this
+> block support for creating bond over PFs and attaching to bridge
+> in legacy mode.
+> 
+> This bug doesn't exist upstream as the code got refactored and the
+> netdev api is totally different.
+> 
+> Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
+> Signed-off-by: Roi Dayan <roid@mellanox.com>
+> Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+> ---
+> Hi Greg,
+> 
+> Sorry for submitting a non upstream patch, but this bug is
+> bothering some users on 4.19-stable kernels and it doesn't exist
+> upstream, so i hope you are ok with backporting this one liner patch.
 
-The allocation is done by all mainline CAN network drivers, but when using
-bond or team devices this is not the case.
+Also queued up to 4.9.y and 4.14.y.
 
-Bail out if no ml_priv is allocated.
+thanks,
 
-Reported-by: syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
----
- net/can/j1939/socket.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index b9a17c2ee16f..27542de233c7 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -467,6 +467,14 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 			goto out_release_sock;
- 		}
- 
-+		if (!ndev->ml_priv) {
-+			netdev_warn_once(ndev,
-+					 "No CAN mid layer private allocated, please fix your driver and use alloc_candev()!\n");
-+			dev_put(ndev);
-+			ret = -ENODEV;
-+			goto out_release_sock;
-+		}
-+
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
- 		if (IS_ERR(priv)) {
--- 
-2.28.0
-
+greg k-h
