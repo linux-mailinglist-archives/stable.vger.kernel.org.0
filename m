@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9330423EE2F
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 15:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80F1A23EE30
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 15:28:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726159AbgHGN2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 09:28:39 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:36633 "EHLO
+        id S1726186AbgHGN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 09:28:44 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:47635 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725970AbgHGN2i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 09:28:38 -0400
+        by vger.kernel.org with ESMTP id S1726015AbgHGN2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 09:28:39 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id E1EDAAB0;
-        Fri,  7 Aug 2020 09:28:36 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id A7E53AD6;
+        Fri,  7 Aug 2020 09:28:38 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 07 Aug 2020 09:28:37 -0400
+  by compute1.internal (MEProxy); Fri, 07 Aug 2020 09:28:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YjH9+2
-        Zcn3XK7ZvTh4uH4BUpv2cJ0Mq62B9BxC1Udp0=; b=RCz3EtwIuLQ/eblA488oLC
-        zAd/U7ojv3asYVnAU8iK+cl2D+NljutjIkO+KAwYrHaVctw1VFJJOH9q/NrLhmW8
-        RbgGMwLvvJQMghhswLyS0DGhZULYC51ORsutitLE1E/Ac8nBcy58T9c3adDSCYOR
-        Z30dBZrVTEVTNKh3AzkjnRxaPYg6XXjRaQZHEiOWIpfWBB9V+utCFzMb1+I46l0/
-        wDOPlf2+uaXvzThDv9U0t9YzTF9N1xLrCrKD3hVtmINfOfB//VEqQO2PiC4GSgVQ
-        q3VUhVmPLVBoHrAbVNjqol2pTpVRlMowSIfehBOwjO3NJR333PotAZAMbYPv9DiA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2Ba1/J
+        lxZT33MsHVjGFMWiOG3tldS336PVrodDx3EtU=; b=o8Vi7kb+qX5STdzXDOgkED
+        SO6lwOAeeHXa3rUf8TQAbkD9INCVydFAclj2iKDjKzDH80iuM0jGWpvNlRGBDag5
+        cWBWNUNnuo35x71M206efpj17jlu/DiF5arhMXQNJNtOMIOJMvEHPvlLV/2bm4OA
+        CpSMPTjQ3+YqN3mCgng4c3lPmcnv4+3T+kmuz8wbuw+GsMl9oZaftxWhlc06hXZI
+        nhZBwx+ZahH5SoOdI13MlsZZ0wK/TT5koS2iUFMM3+hvk/ouVqZAoxA/89ug7cqV
+        N7qMs0s2+KvLGBOY0mtnM/muOi8HGIWRCX/h3TJz3U1aeUEAo7CgRD3otfKI3K2g
         ==
-X-ME-Sender: <xms:BFctX9BsyVoA0QG5NabrbKiBPS823wOrLwT97xm0k8QGDV_-_U84aA>
+X-ME-Sender: <xms:BlctX09hMZFxcDPQuI9rU2eq7cCxoPAh02jxL3FeH3Qh6zYmLdJr1w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrkedvgdeiiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:BFctX7hQPJdUhE-yTfrYTA9LV9qc2bAWH5zVXIXIPdtaxyeyxOWmmw>
-    <xmx:BFctX4kGNIYnjRf9NU30_YM0wt2kZZynhiEm-wKjkj9fKysSTEqucg>
-    <xmx:BFctX3xKNfvgXD4pqf_LbCxD5rGeOgGXOHm07RIJlaocWNb7J7lA5Q>
-    <xmx:BFctX5PiRFflLDfOGbEv3GX-ZRGOvT5TgNQ3Aovob_98G32FFODGqVzfg64>
+X-ME-Proxy: <xmx:BlctX8uEPa4h9i7KSEkJ1HZT17AIjm0wR_EiuoJ8IIswkB03pXBQNQ>
+    <xmx:BlctX6BEBOJvaRvhIuXj4Rnx9rP5Bhn0XhsopkxmUkyiWUZCe-_u-g>
+    <xmx:BlctX0dk3FnZbosdS1jGMkhKYr4vB-PBlBdpfItCd1oWSbCkVJMpjQ>
+    <xmx:BlctXwZmg2FaG7H7kxkJRk76yrw9Wj82UJ88UZ4faNJJHdx_sPg2YN0n5fo>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1495D3280064;
-        Fri,  7 Aug 2020 09:28:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Smack: fix use-after-free in smk_write_relabel_self()" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C9EA03280066;
+        Fri,  7 Aug 2020 09:28:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Smack: fix use-after-free in smk_write_relabel_self()" failed to apply to 4.9-stable tree
 To:     ebiggers@google.com, casey@schaufler-ca.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 07 Aug 2020 15:28:41 +0200
-Message-ID: <159680692182136@kroah.com>
+Message-ID: <159680692190131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
