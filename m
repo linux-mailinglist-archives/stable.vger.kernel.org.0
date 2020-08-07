@@ -2,100 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A32CA23F51D
-	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 01:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C2323F51F
+	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 01:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726066AbgHGXL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 19:11:56 -0400
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:39531 "EHLO 1wt.eu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbgHGXL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Aug 2020 19:11:56 -0400
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 077NBfSc006872;
-        Sat, 8 Aug 2020 01:11:41 +0200
-Date:   Sat, 8 Aug 2020 01:11:41 +0200
-From:   Willy Tarreau <w@1wt.eu>
-To:     Marc Plumb <lkml.mplumb@gmail.com>
-Cc:     tytso@mit.edu, netdev@vger.kernel.org, aksecurity@gmail.com,
-        torvalds@linux-foundation.org, edumazet@google.com,
-        Jason@zx2c4.com, luto@kernel.org, keescook@chromium.org,
-        tglx@linutronix.de, peterz@infradead.org, stable@vger.kernel.org
-Subject: Re: Flaw in "random32: update the net random state on interrupt and
- activity"
-Message-ID: <20200807231141.GA6867@1wt.eu>
-References: <20200805193824.GA17981@1wt.eu>
- <344f15dd-a324-fe44-54d4-c87719283e35@gmail.com>
- <20200806063035.GC18515@1wt.eu>
- <50b046ee-d449-8e6c-1267-f4060b527c06@gmail.com>
- <20200807070316.GA6357@1wt.eu>
- <a1833e06-1ce5-9a2b-f518-92e7c6b47d4f@gmail.com>
- <20200807174302.GA6740@1wt.eu>
- <9148811b-64f9-a18c-ddeb-b1ff4b34890e@gmail.com>
- <20200807221913.GA6846@1wt.eu>
- <9ae4be33-fdeb-b882-d705-bccfacda1c4e@gmail.com>
+        id S1726045AbgHGXL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 19:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726096AbgHGXL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 19:11:56 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B17CC061756
+        for <stable@vger.kernel.org>; Fri,  7 Aug 2020 16:11:56 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id g19so1923509plq.0
+        for <stable@vger.kernel.org>; Fri, 07 Aug 2020 16:11:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=E+DMSS6bxYanbDs6j85lhEzzi3WlaocbqTmp4ISXv8U=;
+        b=qiQ0mUZvUssIDYVZb3/rJ9awigpp8WuoihtPtlChr6p5dbb5FskIW9CAq6ShzIE8Rg
+         xepuknU66hQPRh0CR/pC78glNdS0abEntF0RBHy/713m43NBZ+5xBPqzuZ53J6zSeJAb
+         qgwIdPPIl6jkVRq4VZAYLxf6I4M/4N7KMu3EF8K+YVKS1CsUp06fHJmQbfVmGM1yASFk
+         GpZhtcO4/1c+oLoYcFuLgHxtTVSoGf/UPFIBzeaGdldy3eg519qukLjYL4pcN51Hp6P5
+         8lu72I+BBW/p276ZX98Xt5Noi5kpTbvOEcj+rfF5rjHsnBVl7cvdrIwx7lNgHFTNZr37
+         aahw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=E+DMSS6bxYanbDs6j85lhEzzi3WlaocbqTmp4ISXv8U=;
+        b=uL8CH4sAYIFNMw+iXvae40dCPEMEx6NeMcIENf5GT26jBtmwP1SZe/Fpt23hnbLv+2
+         /K/VUzA0mCUFhAtBP0j1bch4/GqyM/RrK/t3B3gYP3YdN3M+tKaK4BBm3H42VD7K8bWG
+         hfUO4uwO9qPRxcrvlXWPniOGEvbQjnMc7OFTQL6pxxw2dtDWsSTcGcNWzE3gg29PhN0b
+         m9t3v75BxnRkn5gx9dvw3P2+kmrcQaeYyyoD0IeHUO7TVzbpW6vN9k1OxctSQgiI2Nq0
+         dxs/D9oCH2U+0ChBZz+w64XRPWGzTf8YP167ybw4xxVftn0FC5XUHrzJPVV+u0TipIOS
+         2B0Q==
+X-Gm-Message-State: AOAM532c34avj68jkwniEpKK2LGyi6SCL3y9T9ylhjwGTi8K1ICckzB1
+        eGC0upB+kOjb60AfUYcxE134es3OKRs=
+X-Google-Smtp-Source: ABdhPJwmDZEGJk05bFYVq7dldofuAD3LqGOC0f665zimWDknMVuEIfvUA8WQ1JMeoiXoBbpadFr7sQ==
+X-Received: by 2002:a17:90a:bb81:: with SMTP id v1mr14935588pjr.168.1596841915237;
+        Fri, 07 Aug 2020 16:11:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c4sm12404791pfo.163.2020.08.07.16.11.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2020 16:11:54 -0700 (PDT)
+Message-ID: <5f2ddfba.1c69fb81.b7c16.e214@mx.google.com>
+Date:   Fri, 07 Aug 2020 16:11:54 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9ae4be33-fdeb-b882-d705-bccfacda1c4e@gmail.com>
-User-Agent: Mutt/1.6.1 (2016-04-27)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.57
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 131 runs, 2 regressions (v5.4.57)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 07, 2020 at 03:45:48PM -0700, Marc Plumb wrote:
-> Willy,
-> 
-> 
-> On 2020-08-07 3:19 p.m., Willy Tarreau wrote:
-> > On Fri, Aug 07, 2020 at 12:59:48PM -0700, Marc Plumb wrote:
-> > > 
-> > > If I can figure the state out once,
-> > Yes but how do you take that as granted ? This state doesn't appear
-> > without its noise counterpart,
-> 
-> Amit has shown attacks that can deduce the full internal state from 4-5
-> packets with a weak PRNG. If the noise is added less often than that, an
-> attacker can figure out the entire state at which point the partial
-> reseeding doesn't help. If the noise is added more often than that, and it's
-> raw timing events, then it's only adding a few bits of entropy so its easy
-> to guess (and it weakens dev/random). If the noise is added more often, and
-> it's from the output of a CPRNG, then we have all the performance/latency
-> problems from the CPRNG itself, so we might as well use it directly.
+stable-rc/linux-5.4.y baseline: 131 runs, 2 regressions (v5.4.57)
 
-His attacks is based on the fact that internal state bits leak as-is.
-So it is possible to collect them and perform the inverse operation to
-reconstruct the input.
+Regressions Summary
+-------------------
 
-Here the output is made by mixing two input bits with two noise bits
-and produce one single output bit. So for each output bit you see,
-you don't have just one possible input bit, but 16 possibilities.
-That's 128 bits of internal changing states that once combined result
-in 32 bits. For each 32-bit output you still have 2^96 possible
-internal (x,noise) states producing it. And that's without counting
-on the 64-bit seed that you still don't know but can be deduced from
-two guessed 128 bit states (assuming that can be brute-forced at all,
-of course).
+platform              | arch | lab          | compiler | defconfig         =
+ | results
+----------------------+------+--------------+----------+-------------------=
+-+--------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
+ | 0/1    =
 
-For sure there are plenty of number theories allowing you to
-significantly reduce the space you need to work on to brute-force
-this but it will definitely remain above 2^32 attempts for each
-iteration, which is the floor you have without the noise part,
-while the whole internal state will be reseeded every minute
-anyway.
+omap3-beagle-xm       | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 0/1    =
 
-I mean, I'm not trying to sell this thing, I'm just trying to defend
-that we use a reasonable tool for a reasonable protection level. And
-yes, probably that 15 years from now, someone will say "hey look, I
-can brute-force this thing in less than a minute on my 1024-core 39th
-gen core i7 machine with 2^60 operations per second, why don't we use
-our CPU's native 10 picosecond AES1024 instruction instead ?" and we'll
-say "well, it's an old story and it's probably about time to change it
-again".
 
-I don't see anything wrong with evolving this way, matching concrete
-needs more than pure theory.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.57/plan/baseline/
 
-Regards,
-Willy
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.57
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d9939285fc818425ae92bd99f8c97b6b9ef3bb88 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab          | compiler | defconfig         =
+ | results
+----------------------+------+--------------+----------+-------------------=
+-+--------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
+ | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2da754fd71c5858352c1c6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.57/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.57/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2da754fd71c5858352c=
+1c7
+      failing since 118 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
+il: v5.4.30-81-gf163418797b9) =
+
+
+
+platform              | arch | lab          | compiler | defconfig         =
+ | results
+----------------------+------+--------------+----------+-------------------=
+-+--------
+omap3-beagle-xm       | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2da9803336ddfa4552c1a6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.57/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.57/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2da9803336ddfa4552c=
+1a7
+      failing since 1 day (last pass: v5.4.55-87-g47b594b8993f, first fail:=
+ v5.4.55-97-g1c4819817cd8) =20
