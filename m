@@ -2,107 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C09B123E604
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 04:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98AC123E636
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 05:20:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726200AbgHGCqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Aug 2020 22:46:37 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:57052 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726058AbgHGCqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Aug 2020 22:46:37 -0400
-Received: from mailhost.synopsys.com (sv2-mailhost1.synopsys.com [10.205.2.133])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        id S1726058AbgHGDUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Aug 2020 23:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51030 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726038AbgHGDUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Aug 2020 23:20:17 -0400
+Received: from dhcp-10-100-145-180.wdl.wdc.com (unknown [199.255.45.60])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id F1D04408EF;
-        Fri,  7 Aug 2020 02:46:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1596768397; bh=958otJzrCCYip3bSAyN/Iy/an6KYxnXX8t2UmC0ryRA=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=jcEEiQrG2uHt3JU8MFhcC6kP83PWzETj1OjvbuUNNDzGP+XlZcOf2j78ZGlbieBqP
-         o+zf9i0I6jLKqbJ0nhKB0X9dUhUqRP5XT/0mNgf0Bd40OG2Di7K/iXM+TVZBTziivZ
-         e1w/VTJORzfSEH/jPY5WDdTmfkTqrra+p3J+FzXAHdGrio4wDvJzlp8THG0V22yxV8
-         rUQw7LxpC+X4QWoMzcETVBUVEYoxVx/g7cY8YhwcvTM1FPYqYaSz1ysRuJqrz/NbDe
-         LgZOxXz7Pwz0Lrr7FCQPP8TIzfRVcqBazvJXOUlrtqjXy08Q2GcW8WIrQf5HTwX0f9
-         6aV1XxkLY0yDQ==
-Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id DB670A0096;
-        Fri,  7 Aug 2020 02:46:35 +0000 (UTC)
-Received: by te-lab16 (sSMTP sendmail emulation); Thu, 06 Aug 2020 19:46:35 -0700
-Date:   Thu, 06 Aug 2020 19:46:35 -0700
-Message-Id: <08ab69d55ff0c9537b843a1f1d6099374116a6f3.1596767991.git.thinhn@synopsys.com>
-In-Reply-To: <cover.1596767991.git.thinhn@synopsys.com>
-References: <cover.1596767991.git.thinhn@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH v2 3/7] usb: dwc3: gadget: Handle ZLP for sg requests
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C7222072D;
+        Fri,  7 Aug 2020 03:20:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596770417;
+        bh=YKzqKSC5GPsC8hJnxF1Hb41vxHgIXfwocmztNoE+9eY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=v7JNGTP35/tFers/C4eli7hMicVoDtFIHd+Y/SKAa8lxI37laEoteP0KGlMAVJtQs
+         DuQ2h4zWQ1C/InpadGdNfYqAnHr6mXgKiskFv+NbeZijrfFxHFVERUC8yqERQ7L4ap
+         +Dtgo//wFf46AyDG2TakRpECQEljuV9NEcR6ymkg=
+Date:   Thu, 6 Aug 2020 20:20:15 -0700
+From:   Keith Busch <kbusch@kernel.org>
+To:     Bart Van Assche <bvanassche@acm.org>
+Cc:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Eric Deal <eric.deal@wdc.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] block: fix get_max_io_size()
+Message-ID: <20200807032015.GB3797376@dhcp-10-100-145-180.wdl.wdc.com>
+References: <20200806215837.3968445-1-kbusch@kernel.org>
+ <88d4db76-b912-8987-cfac-a2b926fbfe3d@acm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <88d4db76-b912-8987-cfac-a2b926fbfe3d@acm.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently dwc3 doesn't handle usb_request->zero for SG requests. This
-change checks and prepares extra TRBs for the ZLP for SG requests.
+On Thu, Aug 06, 2020 at 05:28:17PM -0700, Bart Van Assche wrote:
+> I think we agree that get_max_io_size() should never return zero. However, the above
+> change seems wrong to me because it will cause get_max_io_size() to return zero if
+> the logical block size is larger than 512 bytes and if sectors < lbs. 
 
-Cc: stable@vger.kernel.org
-Fixes: 04c03d10e507 ("usb: dwc3: gadget: handle request->zero")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
----
- Changes in v2:
- - None
-
- drivers/usb/dwc3/gadget.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index df603a817a98..c2a0f64f8d1e 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1143,6 +1143,37 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
- 					req->request.short_not_ok,
- 					req->request.no_interrupt,
- 					req->request.is_last);
-+		} else if (req->request.zero && req->request.length &&
-+			   !usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
-+			   !rem && !chain) {
-+			struct dwc3	*dwc = dep->dwc;
-+			struct dwc3_trb	*trb;
-+
-+			req->needs_extra_trb = true;
-+
-+			/* Prepare normal TRB */
-+			dwc3_prepare_one_trb(dep, req, trb_length, true, i);
-+
-+			/* Prepare one extra TRB to handle ZLP */
-+			trb = &dep->trb_pool[dep->trb_enqueue];
-+			req->num_trbs++;
-+			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
-+					       !req->direction, 1,
-+					       req->request.stream_id,
-+					       req->request.short_not_ok,
-+					       req->request.no_interrupt,
-+					       req->request.is_last);
-+
-+			/* Prepare one more TRB to handle MPS alignment */
-+			if (!req->direction) {
-+				trb = &dep->trb_pool[dep->trb_enqueue];
-+				req->num_trbs++;
-+				__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp,
-+						       false, 1, req->request.stream_id,
-+						       req->request.short_not_ok,
-+						       req->request.no_interrupt,
-+						       req->request.is_last);
-+			}
- 		} else {
- 			dwc3_prepare_one_trb(dep, req, trb_length, chain, i);
- 		}
--- 
-2.28.0
-
+I'm pretty sure we have more problems if 'sectors' isn't a multiple
+of the logical block size.
