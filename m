@@ -2,100 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5C623F403
-	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 22:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD1123F405
+	for <lists+stable@lfdr.de>; Fri,  7 Aug 2020 22:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726426AbgHGUx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Aug 2020 16:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47906 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725934AbgHGUxZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Aug 2020 16:53:25 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC88C061756;
-        Fri,  7 Aug 2020 13:53:25 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id i26so2183986edv.4;
-        Fri, 07 Aug 2020 13:53:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uDdO7KYbxhxTk2FOJVbqBVzcbLgZ7jU5XfocoxoIBgI=;
-        b=oMkbbQecdxBGwszkCSHjbswohitljIgQwkOQWaGukPotDPUE+7V5FqR8o21TlFSPZM
-         VZFDmTR6WqPYKfGFGayZpJHlShZEQsgXE1YKOTOlOIJLLidt928lE7XmfS66hfv25SrU
-         xbfpNpACS7a9qXUxwR26fHO3cV40IevWLB88M2CW5+ilqTNkGaA9vLebcRDqL63ZgECr
-         IIa/53RI/TYMdm7dJNZZzTKitXZdWmhzOOvHbv7xWK36UGYk3T/S9DC2+KF6Q3mp36eU
-         QBN96wXQGcKI+A12i+/kNwzHqS+QWQ695pqsYp54nfgxil0ad2eeyKq6h1BkjEIVnmGU
-         ycGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uDdO7KYbxhxTk2FOJVbqBVzcbLgZ7jU5XfocoxoIBgI=;
-        b=JJGxKkBn1VGugG1jOgFDq4TUH5TTUCa7y2m7yNizxnmlnmcb2T7rK7toCCEj4rDlW/
-         Kq6ZY4L0SvGWZiGgV4lX9hFP+CTiArdHXs/BIh4CtSaqy6pz94u8kCCab57vSS3ZMo2b
-         OyK5DnhklTmT4O70adMqyQjZ0huqHCDzeKxlQaMzId+fTh7NoTLcxrgRj98XSpmZbcuF
-         N5+aTR4XEBHJqrA6zMPGX9T18bl0Jzhjph0jea/N6wGQwnyxYGb+9TIkAihyvi5hevgu
-         SOuqQAKz3rsbAm8Xtl5DfuGz2MSMd0ZI0m4vPqPS7dW0hkbTdJbDt79L96db/GawEO+i
-         ceWA==
-X-Gm-Message-State: AOAM531WajbJrbvEZZJwXcWYSIKydv2gFWs+oJPTuP9uLwSBej9xQUH1
-        BxDSh6SyfTvxWHHmx1pju7gAfQS9L7qW2L/Hpkg=
-X-Google-Smtp-Source: ABdhPJw2DTnQO7A+X9ua1LSB52QrGpIJx4BF1Nb+Lgekbo+gJCkfmnEsq56kQIekJo8f6pdqErfZ/G2lea1hf2CtIvQ=
-X-Received: by 2002:a05:6402:1d92:: with SMTP id dk18mr10324663edb.206.1596833604283;
- Fri, 07 Aug 2020 13:53:24 -0700 (PDT)
+        id S1725934AbgHGUz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Aug 2020 16:55:26 -0400
+Received: from mga17.intel.com ([192.55.52.151]:62789 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725893AbgHGUz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Aug 2020 16:55:26 -0400
+IronPort-SDR: Gq6rGAGUsu5Arzw1n5q9EmC9F8QHy1/HtBIDYdShtJPj2zKW8Qy/Jg8/LPlirmTp6kvn5W92Qm
+ +y1Nb4B4I9Dg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9706"; a="133260785"
+X-IronPort-AV: E=Sophos;i="5.75,447,1589266800"; 
+   d="scan'208";a="133260785"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2020 13:55:26 -0700
+IronPort-SDR: zZ0Ec+8tzcQogXgyu9epNBR/EvA9YiK4FhN2PKW13DD+o875Wvmwy3wAiowUyCIftSa874R86Q
+ HbWrtarXLVPw==
+X-IronPort-AV: E=Sophos;i="5.75,447,1589266800"; 
+   d="scan'208";a="325878060"
+Received: from jbrandeb-desk.jf.intel.com ([10.166.244.152])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2020 13:55:25 -0700
+From:   Jesse Brandeburg <jesse.brandeburg@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        aleksandr.loktionov@intel.com
+Subject: [PATCH stable 0/4] i40e fixes for stable
+Date:   Fri,  7 Aug 2020 13:55:13 -0700
+Message-Id: <20200807205517.1740307-1-jesse.brandeburg@intel.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-References: <20200806231643.a2711a608dd0f18bff2caf2b@linux-foundation.org>
- <20200807061706.unk5_0KtC%akpm@linux-foundation.org> <CAHk-=wiK1oh8T_GNdnQk4UERuWmLQMnXuia8CpJ5QVzSAKuffQ@mail.gmail.com>
-In-Reply-To: <CAHk-=wiK1oh8T_GNdnQk4UERuWmLQMnXuia8CpJ5QVzSAKuffQ@mail.gmail.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Fri, 7 Aug 2020 13:53:07 -0700
-Message-ID: <CAHbLzkrSQ8CT5jaT-8LFtnEg-63qdZNoHe6XBc3F4orxuHt-7A@mail.gmail.com>
-Subject: Re: [patch 001/163] mm/memory.c: avoid access flag update TLB flush
- for retried page fault
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Hillf Danton <hdanton@sina.com>,
-        Hugh Dickins <hughd@google.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linux-MM <linux-mm@kvack.org>, mm-commits@vger.kernel.org,
-        stable <stable@vger.kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Yu Xu <xuyu@linux.alibaba.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 7, 2020 at 11:17 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Thu, Aug 6, 2020 at 11:17 PM Andrew Morton <akpm@linux-foundation.org> wrote:
-> >
-> > From: Yang Shi <yang.shi@linux.alibaba.com>
-> > Subject: mm/memory.c: avoid access flag update TLB flush for retried page fault
->
-> This is not the safe version that just avoids the extra TLB flush.
->
-> This is - once again - the thing that skips the whole mkdirty and page
-> table update too.
->
-> I'm not taking it this time _either_.
+These stable fixes were not correctly noted as fixes when
+originally submitted for 5.2-rc1. We are addressing the internal
+gap that led to this miss.
 
-I'm supposed Catalin would submit his proposal (flush local TLB for
-spurious TLB fault on ARM) for this specific regression per the
-discussion, right?
+Please consider these patches for all stable kernels older than
+5.2.0, I tried on 4.19 and 3 out of 4 apply cleanly with a cherry
+pick from Linus' tree, but one of them I had to rebase, so I'm
+just sending the whole series.
 
-And, the more general spurious TLB fault problem sounds not that
-urgent since it should be very rare.
+If you'd rather I send one at a time in the format specified at
+option 2) of the stable documentation, please just let me know.
 
->
-> Andrew, please flush this garbage from your system.
->
->                  Linus
->
+Patch 4 depends on patch 1.
+
+I tried to follow the stable commit format for each of the
+individual patches, referencing the upstream commit ID. I also
+added a "Fixes" to each, trying to assist the automation in
+knowing how far back to backport.
+
+Shortlog:
+
+Grzegorz Siwik (1):
+  i40e: Wrong truncation from u16 to u8
+
+Martyna Szapar (2):
+  i40e: Fix of memory leak and integer truncation in i40e_virtchnl.c
+  i40e: Memory leak in i40e_config_iwarp_qvlist
+
+Sergey Nemov (1):
+  i40e: add num_vectors checker in iwarp handler
+
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 51 +++++++++++++------
+ 1 file changed, 36 insertions(+), 15 deletions(-)
+
+-- 
+2.25.4
