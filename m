@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC3723F9FD
+	by mail.lfdr.de (Postfix) with ESMTP id AC7F323F9FE
 	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:39:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728626AbgHHXjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728634AbgHHXjq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 8 Aug 2020 19:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54684 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728622AbgHHXjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:39:44 -0400
+        id S1727797AbgHHXjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:39:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A13F120716;
-        Sat,  8 Aug 2020 23:39:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D00B920855;
+        Sat,  8 Aug 2020 23:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929983;
-        bh=yH+DAPdtU3IVv54d4VVXWRQgzC7pzyB7IRbaGehowlw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=to7lIy4RgjD6nSK196zFJaD87Vjyk46CUtMQwbwxJywTLjWv8nwMxEndTHNb+QfVe
-         1f0Z2ulyYnKb0cP2LbI1zAMOuH5bsdHgFwjCoP59lkQaoyDFbaLGTYrXJ30bFcb0y7
-         pjiNAIPFnk1mPs/lgwQJogoUGwB51mUH+AFP9dQQ=
+        s=default; t=1596929984;
+        bh=xm0scWgzMNXX8bY1xq1gncLZTXDqTEw3T28QhQlMysI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=xVdbpA1ycZ71TKgQsh3j6CwYn2Pd2SU7xu1kS+kM/4wDSz9J8/kw6bgVHYrQ+mhf+
+         8H8LbOkqcbVVP5BLsfaLrB0reDujK9oF7oPH2OOteRmKmhVaBQANAcc446iXmZbRju
+         k5I+G7iaKHSy71r6ZMGsHV5xzoK8PnQ+xgQ4LSPc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 01/21] x86/mce/inject: Fix a wrong assignment of i_mce.status
-Date:   Sat,  8 Aug 2020 19:39:21 -0400
-Message-Id: <20200808233941.3619277-1-sashal@kernel.org>
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        Peng Liu <iwtbavbm@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/21] sched/fair: Fix NOHZ next idle balance
+Date:   Sat,  8 Aug 2020 19:39:22 -0400
+Message-Id: <20200808233941.3619277-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200808233941.3619277-1-sashal@kernel.org>
+References: <20200808233941.3619277-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,36 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit 5d7f7d1d5e01c22894dee7c9c9266500478dca99 ]
+[ Upstream commit 3ea2f097b17e13a8280f1f9386c331b326a3dbef ]
 
-The original code is a nop as i_mce.status is or'ed with part of itself,
-fix it.
+With commit:
+  'b7031a02ec75 ("sched/fair: Add NOHZ_STATS_KICK")'
+rebalance_domains of the local cfs_rq happens before others idle cpus have
+updated nohz.next_balance and its value is overwritten.
 
-Fixes: a1300e505297 ("x86/ras/mce_amd_inj: Trigger deferred and thresholding errors interrupts")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Link: https://lkml.kernel.org/r/20200611023238.3830-1-zhenzhong.duan@gmail.com
+Move the update of nohz.next_balance for other idles cpus before balancing
+and updating the next_balance of local cfs_rq.
+
+Also, the nohz.next_balance is now updated only if all idle cpus got a
+chance to rebalance their domains and the idle balance has not been aborted
+because of new activities on the CPU. In case of need_resched, the idle
+load balance will be kick the next jiffie in order to address remaining
+ilb.
+
+Fixes: b7031a02ec75 ("sched/fair: Add NOHZ_STATS_KICK")
+Reported-by: Peng Liu <iwtbavbm@gmail.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Acked-by: Mel Gorman <mgorman@suse.de>
+Link: https://lkml.kernel.org/r/20200609123748.18636-1-vincent.guittot@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce-inject.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce-inject.c b/arch/x86/kernel/cpu/mcheck/mce-inject.c
-index 1ceccc4a5472c..9cc524be3c949 100644
---- a/arch/x86/kernel/cpu/mcheck/mce-inject.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce-inject.c
-@@ -518,7 +518,7 @@ static void do_inject(void)
- 	 */
- 	if (inj_type == DFR_INT_INJ) {
- 		i_mce.status |= MCI_STATUS_DEFERRED;
--		i_mce.status |= (i_mce.status & ~MCI_STATUS_UC);
-+		i_mce.status &= ~MCI_STATUS_UC;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d8c249e6dcb7e..696d08a4593ef 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9208,7 +9208,12 @@ static void kick_ilb(unsigned int flags)
+ {
+ 	int ilb_cpu;
+ 
+-	nohz.next_balance++;
++	/*
++	 * Increase nohz.next_balance only when if full ilb is triggered but
++	 * not if we only update stats.
++	 */
++	if (flags & NOHZ_BALANCE_KICK)
++		nohz.next_balance = jiffies+1;
+ 
+ 	ilb_cpu = find_new_ilb();
+ 
+@@ -9503,6 +9508,14 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
+ 		}
  	}
  
- 	/*
++	/*
++	 * next_balance will be updated only when there is a need.
++	 * When the CPU is attached to null domain for ex, it will not be
++	 * updated.
++	 */
++	if (likely(update_next_balance))
++		nohz.next_balance = next_balance;
++
+ 	/* Newly idle CPU doesn't need an update */
+ 	if (idle != CPU_NEWLY_IDLE) {
+ 		update_blocked_averages(this_cpu);
+@@ -9523,14 +9536,6 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
+ 	if (has_blocked_load)
+ 		WRITE_ONCE(nohz.has_blocked, 1);
+ 
+-	/*
+-	 * next_balance will be updated only when there is a need.
+-	 * When the CPU is attached to null domain for ex, it will not be
+-	 * updated.
+-	 */
+-	if (likely(update_next_balance))
+-		nohz.next_balance = next_balance;
+-
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
