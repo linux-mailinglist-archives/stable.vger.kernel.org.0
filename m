@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D56F023FB79
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7AC23FB78
 	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728428AbgHHXt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49878 "EHLO mail.kernel.org"
+        id S1727823AbgHHXtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:49:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727112AbgHHXhC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:37:02 -0400
+        id S1727799AbgHHXhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:37:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DB4C20855;
-        Sat,  8 Aug 2020 23:37:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F7AD206C3;
+        Sat,  8 Aug 2020 23:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929821;
-        bh=i8CA6/j1VbHk5HL5gl8INswoxQFjy/h3zO5JJS8sS7M=;
+        s=default; t=1596929823;
+        bh=9SWCTvbJ98KOQ9GVIu50Cbq1XurQ6Ach9phYfuzlA6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4NO4VrTvvhI4QCIuCjVhZFgTutmQN2OaqI3WLl0cdA7Yec5GwL6UPPE7nG3+oQom
-         Y2qJ1/SyvhnLFf4NrlI80Tg+SA6IWZ7DaEi8hpyHHTnDLNGziMOOq4MQKuPgvJnw//
-         Imf/5jSG3RuTig9sPIEpeaPtohMi7MuWTtMGZ4Oo=
+        b=FJxmcYOK1bSGKK8b3eNwlLrYwMEYEaE4giFiND/XxjTcLJ3RzYlEzaxOvSZvjxnvX
+         msubXlZ2gcIJMl3wmsZvxf7gl3DkAedoNlhs9Nj34sUnXEwg7h5PdmmST5IAspX7h8
+         rB9oH/I01DxrRTBy7fPXiGf0wJjlZOatdf7D9JCE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 55/72] scripts/selinux/mdp: fix initial SID handling
-Date:   Sat,  8 Aug 2020 19:35:24 -0400
-Message-Id: <20200808233542.3617339-55-sashal@kernel.org>
+Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Marc Zyngier <maz@kernel.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 56/72] irqchip/ti-sci-inta: Fix return value about devm_ioremap_resource()
+Date:   Sat,  8 Aug 2020 19:35:25 -0400
+Message-Id: <20200808233542.3617339-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -43,67 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 382c2b5d23b4245f1818f69286db334355488dc4 ]
+[ Upstream commit 4b127a14cb1385dd355c7673d975258d5d668922 ]
 
-commit e3e0b582c321 ("selinux: remove unused initial SIDs and improve
-handling") broke scripts/selinux/mdp since the unused initial SID names
-were removed and the corresponding generation of policy initial SID
-definitions by mdp was not updated accordingly.  Fix it.  With latest
-upstream checkpolicy it is no longer necessary to include the SID context
-definitions for the unused initial SIDs but retain them for compatibility
-with older checkpolicy.
+When call function devm_ioremap_resource(), we should use IS_ERR()
+to check the return value and return PTR_ERR() if failed.
 
-Fixes: e3e0b582c321 ("selinux: remove unused initial SIDs and improve handling")
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 9f1463b86c13 ("irqchip/ti-sci-inta: Add support for Interrupt Aggregator driver")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Link: https://lore.kernel.org/r/1591437017-5295-2-git-send-email-yangtiezhu@loongson.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/selinux/mdp/mdp.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/irqchip/irq-ti-sci-inta.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
-index 576d11a60417b..6ceb88eb9b590 100644
---- a/scripts/selinux/mdp/mdp.c
-+++ b/scripts/selinux/mdp/mdp.c
-@@ -67,8 +67,14 @@ int main(int argc, char *argv[])
+diff --git a/drivers/irqchip/irq-ti-sci-inta.c b/drivers/irqchip/irq-ti-sci-inta.c
+index 7e3ebf6ed2cd1..be0a35d917962 100644
+--- a/drivers/irqchip/irq-ti-sci-inta.c
++++ b/drivers/irqchip/irq-ti-sci-inta.c
+@@ -572,7 +572,7 @@ static int ti_sci_inta_irq_domain_probe(struct platform_device *pdev)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	inta->base = devm_ioremap_resource(dev, res);
+ 	if (IS_ERR(inta->base))
+-		return -ENODEV;
++		return PTR_ERR(inta->base);
  
- 	initial_sid_to_string_len = sizeof(initial_sid_to_string) / sizeof (char *);
- 	/* print out the sids */
--	for (i = 1; i < initial_sid_to_string_len; i++)
--		fprintf(fout, "sid %s\n", initial_sid_to_string[i]);
-+	for (i = 1; i < initial_sid_to_string_len; i++) {
-+		const char *name = initial_sid_to_string[i];
-+
-+		if (name)
-+			fprintf(fout, "sid %s\n", name);
-+		else
-+			fprintf(fout, "sid unused%d\n", i);
-+	}
- 	fprintf(fout, "\n");
- 
- 	/* print out the class permissions */
-@@ -126,9 +132,16 @@ int main(int argc, char *argv[])
- #define OBJUSERROLETYPE "user_u:object_r:base_t"
- 
- 	/* default sids */
--	for (i = 1; i < initial_sid_to_string_len; i++)
--		fprintf(fout, "sid %s " SUBJUSERROLETYPE "%s\n",
--			initial_sid_to_string[i], mls ? ":" SYSTEMLOW : "");
-+	for (i = 1; i < initial_sid_to_string_len; i++) {
-+		const char *name = initial_sid_to_string[i];
-+
-+		if (name)
-+			fprintf(fout, "sid %s ", name);
-+		else
-+			fprintf(fout, "sid unused%d\n", i);
-+		fprintf(fout, SUBJUSERROLETYPE "%s\n",
-+			mls ? ":" SYSTEMLOW : "");
-+	}
- 	fprintf(fout, "\n");
- 
- #define FS_USE(behavior, fstype)			    \
+ 	domain = irq_domain_add_linear(dev_of_node(dev),
+ 				       ti_sci_get_num_resources(inta->vint),
 -- 
 2.25.1
 
