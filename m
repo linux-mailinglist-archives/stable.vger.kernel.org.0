@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9434723F9F3
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:39:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FEFE23FAA0
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:44:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbgHHXjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54058 "EHLO mail.kernel.org"
+        id S1728851AbgHHXoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728528AbgHHXjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:39:21 -0400
+        id S1728486AbgHHXjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:39:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86B8B20791;
-        Sat,  8 Aug 2020 23:39:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD9342073E;
+        Sat,  8 Aug 2020 23:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929961;
-        bh=i4zhqUPJ+dMplr2JiLDz7Y+XOtarvFX1bYE2TU8H5W8=;
+        s=default; t=1596929962;
+        bh=r9cARwlmRmQB2cn/JMr7t+CaD0wcuI04mAkfiugb6E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPt7TBdGnlxCJ+s4LUU12GN7i6pgVcWxyrZYX2Y1+wB2j5LxatNj9eq5rrl9kZJZs
-         +UdcqqujiSjXQkNBDH4kxClLD9lV+okWau3XykmJsVs9C2rp7AHNXuoNDGQ5RnM0jl
-         77XnyLZgYavjvdeQDnUdXihFQI/vyx3BxuUPlu6I=
+        b=VrvGBGRJDU5q6G4ZKA2eKaYIqs1Oe515RKwTNbfaiyn+ApfM1xfXi886J2mYVoveI
+         xFLJsNBIx1nO+WsseUSVwDk9egM3BIipZjswXFa/WG4zm0ZmxypGdiFSbw0+Pqm85F
+         TzmWTQPiY/Ea+teZQ5E0x2eZ0EjCTNDG7EDOfNTE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 24/40] ARM: dts: sunxi: bananapi-m2-plus-v1.2: Add regulator supply to all CPU cores
-Date:   Sat,  8 Aug 2020 19:38:28 -0400
-Message-Id: <20200808233844.3618823-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 25/40] ARM: dts: sunxi: bananapi-m2-plus-v1.2: Fix CPU supply voltages
+Date:   Sat,  8 Aug 2020 19:38:29 -0400
+Message-Id: <20200808233844.3618823-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
 References: <20200808233844.3618823-1-sashal@kernel.org>
@@ -45,45 +45,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 55b271af765b0e03d1ff29502f81644b1a3c87fd ]
+[ Upstream commit e4dae01bf08b754de79072441c357737220b873f ]
 
-The device tree currently only assigns the a supply for the first CPU
-core, when in reality the regulator supply is shared by all four cores.
-This might cause an issue if the implementation does not realize the
-sharing of the supply.
+The Bananapi M2+ uses a GPIO line to change the effective resistance of
+the CPU supply regulator's feedback resistor network. The voltages
+described in the device tree were given directly by the vendor. This
+turns out to be slightly off compared to the real values.
 
-Assign the same regulator supply to the remaining CPU cores to address
-this.
+The updated voltages are based on calculations of the feedback resistor
+network, and verified down to three decimal places with a multi-meter.
 
 Fixes: 6eeb4180d4b9 ("ARM: dts: sunxi: h3-h5: Add Bananapi M2+ v1.2 device trees")
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20200717160053.31191-3-wens@kernel.org
+Link: https://lore.kernel.org/r/20200717160053.31191-4-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
-index 22466afd38a3a..a628b5ee72b65 100644
+index a628b5ee72b65..235994a4a2ebb 100644
 --- a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
 +++ b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
-@@ -28,3 +28,15 @@ reg_vdd_cpux: vdd-cpux {
- &cpu0 {
- 	cpu-supply = <&reg_vdd_cpux>;
+@@ -16,12 +16,12 @@ reg_vdd_cpux: vdd-cpux {
+ 		regulator-type = "voltage";
+ 		regulator-boot-on;
+ 		regulator-always-on;
+-		regulator-min-microvolt = <1100000>;
+-		regulator-max-microvolt = <1300000>;
++		regulator-min-microvolt = <1108475>;
++		regulator-max-microvolt = <1308475>;
+ 		regulator-ramp-delay = <50>; /* 4ms */
+ 		gpios = <&r_pio 0 1 GPIO_ACTIVE_HIGH>; /* PL1 */
+ 		gpios-states = <0x1>;
+-		states = <1100000 0>, <1300000 1>;
++		states = <1108475 0>, <1308475 1>;
+ 	};
  };
-+
-+&cpu1 {
-+	cpu-supply = <&reg_vdd_cpux>;
-+};
-+
-+&cpu2 {
-+	cpu-supply = <&reg_vdd_cpux>;
-+};
-+
-+&cpu3 {
-+	cpu-supply = <&reg_vdd_cpux>;
-+};
+ 
 -- 
 2.25.1
 
