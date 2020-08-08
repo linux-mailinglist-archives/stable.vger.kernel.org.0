@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4953523F9E5
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D33923FAC7
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbgHHXi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53318 "EHLO mail.kernel.org"
+        id S1728093AbgHHXpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:45:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726828AbgHHXiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:38:55 -0400
+        id S1728354AbgHHXi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:38:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49520221E2;
-        Sat,  8 Aug 2020 23:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 672A62177B;
+        Sat,  8 Aug 2020 23:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929935;
-        bh=iVo0GPoeKyLafUTHicn9yxl086QZHMa+h8QT9zS3jU8=;
+        s=default; t=1596929936;
+        bh=DBiaXqIuFdlZnQECKgMrDMKXCs/X1vQkapo9xw7XxWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=he6n+iYdQuSqv5TV+tTqC+83M6qJqicOKvlLKglhq52FlbkTY5gMRWrmywF0+IoGm
-         /ikTOXWWqMSWLaluK6gKYZ5AZMre5Hzth85hOAbn6OgMAPTONg7rxoEjuCjvrhMeUP
-         mQp4KKPIXdXEOxzlByvWNJ3FV//fzaKvmGkvSTBY=
+        b=PFR6hvJ744GEBfSJ5MUw6GYQFuW0GtqV1YjOra74ECZDawllcTeEiZZKDLIkyJ+D5
+         NzYOYiFVuJejfTne9gcsWvl5WnhPT9LEY7veUDHQBsxEd1EV0Z4La6eP7eSak7CDcT
+         HBYoZ1wPy05J6MJqJp7HkfbRq7Y8WUbXHPKjFvY8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 08/40] crc-t10dif: Fix potential crypto notify dead-lock
-Date:   Sat,  8 Aug 2020 19:38:12 -0400
-Message-Id: <20200808233844.3618823-8-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/40] arm64: dts: qcom: msm8916: Replace invalid bias-pull-none property
+Date:   Sat,  8 Aug 2020 19:38:13 -0400
+Message-Id: <20200808233844.3618823-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
 References: <20200808233844.3618823-1-sashal@kernel.org>
@@ -44,155 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 3906f640224dbe7714b52b66d7d68c0812808e19 ]
+[ Upstream commit 1b6a1a162defe649c5599d661b58ac64bb6f31b6 ]
 
-The crypto notify call occurs with a read mutex held so you must
-not do any substantial work directly.  In particular, you cannot
-call crypto_alloc_* as they may trigger further notifications
-which may dead-lock in the presence of another writer.
+msm8916-pins.dtsi specifies "bias-pull-none" for most of the audio
+pin configurations. This was likely copied from the qcom kernel fork
+where the same property was used for these audio pins.
 
-This patch fixes this by postponing the work into a work queue and
-taking the same lock in the module init function.
+However, "bias-pull-none" actually does not exist at all - not in
+mainline and not in downstream. I can only guess that the original
+intention was to configure "no pull", i.e. bias-disable.
 
-While we're at it this patch also ensures that all RCU accesses are
-marked appropriately (tested with sparse).
+Change it to that instead.
 
-Finally this also reveals a race condition in module param show
-function as it may be called prior to the module init function.
-It's fixed by testing whether crct10dif_tfm is NULL (this is true
-iff the init function has not completed assuming fallback is false).
-
-Fixes: 11dcb1037f40 ("crc-t10dif: Allow current transform to be...")
-Fixes: b76377543b73 ("crc-t10dif: Pick better transform if one...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 143bb9ad85b7 ("arm64: dts: qcom: add audio pinctrls")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200605185916.318494-2-stephan@gerhold.net
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/crc-t10dif.c | 54 +++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8916-pins.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/lib/crc-t10dif.c b/lib/crc-t10dif.c
-index 8cc01a6034165..c9acf1c12cfcb 100644
---- a/lib/crc-t10dif.c
-+++ b/lib/crc-t10dif.c
-@@ -19,39 +19,46 @@
- static struct crypto_shash __rcu *crct10dif_tfm;
- static struct static_key crct10dif_fallback __read_mostly;
- static DEFINE_MUTEX(crc_t10dif_mutex);
-+static struct work_struct crct10dif_rehash_work;
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+index 242aaea688040..1235830ffd0b7 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+@@ -508,7 +508,7 @@ pinconf {
+ 				pins = "gpio63", "gpio64", "gpio65", "gpio66",
+ 				       "gpio67", "gpio68";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
+ 		cdc_pdm_lines_sus: pdm_lines_off {
+@@ -537,7 +537,7 @@ pinconf {
+ 				pins = "gpio113", "gpio114", "gpio115",
+ 				       "gpio116";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
  
--static int crc_t10dif_rehash(struct notifier_block *self, unsigned long val, void *data)
-+static int crc_t10dif_notify(struct notifier_block *self, unsigned long val, void *data)
- {
- 	struct crypto_alg *alg = data;
--	struct crypto_shash *new, *old;
+@@ -565,7 +565,7 @@ pinmux {
+ 			pinconf {
+ 				pins = "gpio110";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
  
- 	if (val != CRYPTO_MSG_ALG_LOADED ||
- 	    static_key_false(&crct10dif_fallback) ||
- 	    strncmp(alg->cra_name, CRC_T10DIF_STRING, strlen(CRC_T10DIF_STRING)))
- 		return 0;
- 
-+	schedule_work(&crct10dif_rehash_work);
-+	return 0;
-+}
-+
-+static void crc_t10dif_rehash(struct work_struct *work)
-+{
-+	struct crypto_shash *new, *old;
-+
- 	mutex_lock(&crc_t10dif_mutex);
- 	old = rcu_dereference_protected(crct10dif_tfm,
- 					lockdep_is_held(&crc_t10dif_mutex));
- 	if (!old) {
- 		mutex_unlock(&crc_t10dif_mutex);
--		return 0;
-+		return;
- 	}
- 	new = crypto_alloc_shash("crct10dif", 0, 0);
- 	if (IS_ERR(new)) {
- 		mutex_unlock(&crc_t10dif_mutex);
--		return 0;
-+		return;
- 	}
- 	rcu_assign_pointer(crct10dif_tfm, new);
- 	mutex_unlock(&crc_t10dif_mutex);
- 
- 	synchronize_rcu();
- 	crypto_free_shash(old);
--	return 0;
- }
- 
- static struct notifier_block crc_t10dif_nb = {
--	.notifier_call = crc_t10dif_rehash,
-+	.notifier_call = crc_t10dif_notify,
- };
- 
- __u16 crc_t10dif_update(__u16 crc, const unsigned char *buffer, size_t len)
-@@ -86,19 +93,26 @@ EXPORT_SYMBOL(crc_t10dif);
- 
- static int __init crc_t10dif_mod_init(void)
- {
-+	struct crypto_shash *tfm;
-+
-+	INIT_WORK(&crct10dif_rehash_work, crc_t10dif_rehash);
- 	crypto_register_notifier(&crc_t10dif_nb);
--	crct10dif_tfm = crypto_alloc_shash("crct10dif", 0, 0);
--	if (IS_ERR(crct10dif_tfm)) {
-+	mutex_lock(&crc_t10dif_mutex);
-+	tfm = crypto_alloc_shash("crct10dif", 0, 0);
-+	if (IS_ERR(tfm)) {
- 		static_key_slow_inc(&crct10dif_fallback);
--		crct10dif_tfm = NULL;
-+		tfm = NULL;
- 	}
-+	RCU_INIT_POINTER(crct10dif_tfm, tfm);
-+	mutex_unlock(&crc_t10dif_mutex);
- 	return 0;
- }
- 
- static void __exit crc_t10dif_mod_fini(void)
- {
- 	crypto_unregister_notifier(&crc_t10dif_nb);
--	crypto_free_shash(crct10dif_tfm);
-+	cancel_work_sync(&crct10dif_rehash_work);
-+	crypto_free_shash(rcu_dereference_protected(crct10dif_tfm, 1));
- }
- 
- module_init(crc_t10dif_mod_init);
-@@ -106,11 +120,27 @@ module_exit(crc_t10dif_mod_fini);
- 
- static int crc_t10dif_transform_show(char *buffer, const struct kernel_param *kp)
- {
-+	struct crypto_shash *tfm;
-+	const char *name;
-+	int len;
-+
- 	if (static_key_false(&crct10dif_fallback))
- 		return sprintf(buffer, "fallback\n");
- 
--	return sprintf(buffer, "%s\n",
--		crypto_tfm_alg_driver_name(crypto_shash_tfm(crct10dif_tfm)));
-+	rcu_read_lock();
-+	tfm = rcu_dereference(crct10dif_tfm);
-+	if (!tfm) {
-+		len = sprintf(buffer, "init\n");
-+		goto unlock;
-+	}
-+
-+	name = crypto_tfm_alg_driver_name(crypto_shash_tfm(tfm));
-+	len = sprintf(buffer, "%s\n", name);
-+
-+unlock:
-+	rcu_read_unlock();
-+
-+	return len;
- }
- 
- module_param_call(transform, NULL, crc_t10dif_transform_show, NULL, 0644);
+@@ -591,7 +591,7 @@ pinmux {
+ 			pinconf {
+ 				pins = "gpio116";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
+ 		ext_mclk_tlmm_lines_sus: mclk_lines_off {
+@@ -619,7 +619,7 @@ pinconf {
+ 				pins = "gpio112", "gpio117", "gpio118",
+ 					"gpio119";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
+ 		ext_sec_tlmm_lines_sus: tlmm_lines_off {
 -- 
 2.25.1
 
