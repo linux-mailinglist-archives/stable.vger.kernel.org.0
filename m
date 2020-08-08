@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E4723FAC3
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:45:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35DA023FAC1
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbgHHXoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:44:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53488 "EHLO mail.kernel.org"
+        id S1727782AbgHHXos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:44:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728332AbgHHXjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:39:01 -0400
+        id S1728453AbgHHXjC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:39:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 160B620748;
-        Sat,  8 Aug 2020 23:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CEF520716;
+        Sat,  8 Aug 2020 23:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929940;
-        bh=drw5bpymsEmzse0AQE94EHwiijtRpGBgXRZNsFvsyBE=;
+        s=default; t=1596929942;
+        bh=tE+/jS+BvX9zc+s1uCDMixr7naVAWq9W2jUqiuF35ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NpZCWtnq71kpXJ9iYHfq59ckJG1JzewA3B0h+ZiagwtbXVuENCQGR684Fox9k0d5R
-         koO/RvSS0l7uQn+DUx7ulBEUpr/wBoZE9wUQlxmhvcwCpRgLK9nLHIBRLcogi1n8mH
-         O47902uCqJdlx0drmF1mdDufD6ufHJbmba3y3JvM=
+        b=jSfZ9LUzF44Ah0eLvDQLlk+ZL0x/Btc8hdJTsbIP63pf2V5iBjMSWFcF/+Ow83RIZ
+         hYcjZ8uRgeth2avOU8N0/HRzzWDPJd42qLohzl/ir+AdJMSDLQny7qTQvIefFsHiDF
+         Can0edn0dNySH0RR8J+MPrSmf/JXCdpGwvpgmjxA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+Cc:     Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 12/40] ARM: exynos: MCPM: Restore big.LITTLE cpuidle support
-Date:   Sat,  8 Aug 2020 19:38:16 -0400
-Message-Id: <20200808233844.3618823-12-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 13/40] firmware: arm_scmi: Fix SCMI genpd domain probing
+Date:   Sat,  8 Aug 2020 19:38:17 -0400
+Message-Id: <20200808233844.3618823-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
 References: <20200808233844.3618823-1-sashal@kernel.org>
@@ -46,70 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit ea9dd8f61c8a890843f68e8dc0062ce78365aab8 ]
+[ Upstream commit e0f1a30cf184821499eeb67daedd7a3f21bbcb0b ]
 
-Call exynos_cpu_power_up(cpunr) unconditionally. This is needed by the
-big.LITTLE cpuidle driver and has no side-effects on other code paths.
+When, at probe time, an SCMI communication failure inhibits the capacity
+to query power domains states, such domains should be skipped.
 
-The additional soft-reset call during little core power up has been added
-to properly boot all cores on the Exynos5422-based boards with secure
-firmware (like Odroid XU3/XU4 family). This however broke big.LITTLE
-CPUidle driver, which worked only on boards without secure firmware (like
-Peach-Pit/Pi Chromebooks). Apply the workaround only when board is
-running under secure firmware.
+Registering partially initialized SCMI power domains with genpd will
+causes kernel panic.
 
-Fixes: 833b5794e330 ("ARM: EXYNOS: reset Little cores when cpu is up")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+ arm-scmi timed out in resp(caller: scmi_power_state_get+0xa4/0xd0)
+ scmi-power-domain scmi_dev.2: failed to get state for domain 9
+ Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+ Mem abort info:
+   ESR = 0x96000006
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000006
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp=00000009f3691000
+ [0000000000000000] pgd=00000009f1ca0003, p4d=00000009f1ca0003, pud=00000009f35ea003, pmd=0000000000000000
+ Internal error: Oops: 96000006 [#1] PREEMPT SMP
+ CPU: 2 PID: 381 Comm: bash Not tainted 5.8.0-rc1-00011-gebd118c2cca8 #2
+ Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Jan  3 2020
+ Internal error: Oops: 96000006 [#1] PREEMPT SMP
+ pstate: 80000005 (Nzcv daif -PAN -UAO BTYPE=--)
+ pc : of_genpd_add_provider_onecell+0x98/0x1f8
+ lr : of_genpd_add_provider_onecell+0x48/0x1f8
+ Call trace:
+  of_genpd_add_provider_onecell+0x98/0x1f8
+  scmi_pm_domain_probe+0x174/0x1e8
+  scmi_dev_probe+0x90/0xe0
+  really_probe+0xe4/0x448
+  driver_probe_device+0xfc/0x168
+  device_driver_attach+0x7c/0x88
+  bind_store+0xe8/0x128
+  drv_attr_store+0x2c/0x40
+  sysfs_kf_write+0x4c/0x60
+  kernfs_fop_write+0x114/0x230
+  __vfs_write+0x24/0x50
+  vfs_write+0xbc/0x1e0
+  ksys_write+0x70/0xf8
+  __arm64_sys_write+0x24/0x30
+  el0_svc_common.constprop.3+0x94/0x160
+  do_el0_svc+0x2c/0x98
+  el0_sync_handler+0x148/0x1a8
+  el0_sync+0x158/0x180
+
+Do not register any power domain that failed to be queried with genpd.
+
+Fixes: 898216c97ed2 ("firmware: arm_scmi: add device power domain support using genpd")
+Link: https://lore.kernel.org/r/20200619220330.12217-1-cristian.marussi@arm.com
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-exynos/mcpm-exynos.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/firmware/arm_scmi/scmi_pm_domain.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/mach-exynos/mcpm-exynos.c b/arch/arm/mach-exynos/mcpm-exynos.c
-index 9a681b421ae11..cd861c57d5adf 100644
---- a/arch/arm/mach-exynos/mcpm-exynos.c
-+++ b/arch/arm/mach-exynos/mcpm-exynos.c
-@@ -26,6 +26,7 @@
- #define EXYNOS5420_USE_L2_COMMON_UP_STATE	BIT(30)
+diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+index 87f737e01473c..041f8152272bf 100644
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -85,7 +85,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 	for (i = 0; i < num_domains; i++, scmi_pd++) {
+ 		u32 state;
  
- static void __iomem *ns_sram_base_addr __ro_after_init;
-+static bool secure_firmware __ro_after_init;
+-		domains[i] = &scmi_pd->genpd;
++		if (handle->power_ops->state_get(handle, i, &state)) {
++			dev_warn(dev, "failed to get state for domain %d\n", i);
++			continue;
++		}
  
- /*
-  * The common v7_exit_coherency_flush API could not be used because of the
-@@ -58,15 +59,16 @@ static void __iomem *ns_sram_base_addr __ro_after_init;
- static int exynos_cpu_powerup(unsigned int cpu, unsigned int cluster)
- {
- 	unsigned int cpunr = cpu + (cluster * EXYNOS5420_CPUS_PER_CLUSTER);
-+	bool state;
+ 		scmi_pd->domain = i;
+ 		scmi_pd->handle = handle;
+@@ -94,13 +97,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 		scmi_pd->genpd.power_off = scmi_pd_power_off;
+ 		scmi_pd->genpd.power_on = scmi_pd_power_on;
  
- 	pr_debug("%s: cpu %u cluster %u\n", __func__, cpu, cluster);
- 	if (cpu >= EXYNOS5420_CPUS_PER_CLUSTER ||
- 		cluster >= EXYNOS5420_NR_CLUSTERS)
- 		return -EINVAL;
- 
--	if (!exynos_cpu_power_state(cpunr)) {
--		exynos_cpu_power_up(cpunr);
+-		if (handle->power_ops->state_get(handle, i, &state)) {
+-			dev_warn(dev, "failed to get state for domain %d\n", i);
+-			continue;
+-		}
 -
-+	state = exynos_cpu_power_state(cpunr);
-+	exynos_cpu_power_up(cpunr);
-+	if (!state && secure_firmware) {
- 		/*
- 		 * This assumes the cluster number of the big cores(Cortex A15)
- 		 * is 0 and the Little cores(Cortex A7) is 1.
-@@ -258,6 +260,8 @@ static int __init exynos_mcpm_init(void)
- 		return -ENOMEM;
+ 		pm_genpd_init(&scmi_pd->genpd, NULL,
+ 			      state == SCMI_POWER_STATE_GENERIC_OFF);
++
++		domains[i] = &scmi_pd->genpd;
  	}
  
-+	secure_firmware = exynos_secure_firmware_available();
-+
- 	/*
- 	 * To increase the stability of KFC reset we need to program
- 	 * the PMU SPARE3 register
+ 	scmi_pd_data->domains = domains;
 -- 
 2.25.1
 
