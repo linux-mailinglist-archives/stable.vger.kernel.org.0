@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F7423FB7F
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD24423FB4E
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728084AbgHHXtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:49:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
+        id S1727116AbgHHXg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727104AbgHHXg4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:36:56 -0400
+        id S1727112AbgHHXg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:36:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74D2F206E9;
-        Sat,  8 Aug 2020 23:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6ED6206C3;
+        Sat,  8 Aug 2020 23:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929815;
-        bh=PkKczme5tW5pmLkOMAZI0L7Dfxsl6ApuLO0C0aQmgH4=;
+        s=default; t=1596929816;
+        bh=pheYLl1F1b+RkUaS318nzLCRhq4G0ZZVeOC/26y6vwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ewEmXvHEUz/v5ymIVQSLy6frQ42+Hn04Dd43L67E7MFWp4AEB86nfu+Ebogw85gRl
-         4Awgh1UmvsgTQWF/A+iVTBmybzwEVmLcioDv3sDdXbpXtECqpJEW/W67teHos0w7TK
-         LMZQmCNPOk0O947YAVMxkjqrspn+QOF7juNwciSg=
+        b=SnPxvsMyJzcP/ix5LR91EdtFwsFIMmA9joFrHdwrPULcEKjN11LdehMxyH88ude17
+         wHENC8QwcxRFcjicddBUwXo8vo8qXfd4mVZi1wfP2wdBR+XXOZO1XlRsoETlTfo7dO
+         6CEa4/Ic92R5gvMnfZlErujOKch/013QgXynaIOg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Hewitt <christianshewitt@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 50/72] arm64: dts: meson: fix mmc0 tuning error on Khadas VIM3
-Date:   Sat,  8 Aug 2020 19:35:19 -0400
-Message-Id: <20200808233542.3617339-50-sashal@kernel.org>
+Cc:     Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 51/72] soc: qcom: pdr: Reorder the PD state indication ack
+Date:   Sat,  8 Aug 2020 19:35:20 -0400
+Message-Id: <20200808233542.3617339-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -45,60 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit f1bb924e8f5b50752a80fa5b48c43003680a7b64 ]
+[ Upstream commit 72fe996f9643043c8f84e32c0610975b01aa555b ]
 
-Similar to other G12B devices using the W400 dtsi, I see reports of mmc0
-tuning errors on VIM3 after a few hours uptime:
+The Protection Domains (PD) have a mechanism to keep its resources
+enabled until the PD down indication is acked. Reorder the PD state
+indication ack so that clients get to release the relevant resources
+before the PD goes down.
 
-[12483.917391] mmc0: tuning execution failed: -5
-[30535.551221] mmc0: tuning execution failed: -5
-[35359.953671] mmc0: tuning execution failed: -5
-[35561.875332] mmc0: tuning execution failed: -5
-[61733.348709] mmc0: tuning execution failed: -5
-
-I do not see the same on VIM3L, so remove sd-uhs-sdr50 from the common dtsi
-to silence the error, then (re)add it to the VIM3L dts.
-
-Fixes: 4f26cc1c96c9 ("arm64: dts: khadas-vim3: move common nodes into meson-khadas-vim3.dtsi")
-Fixes: 700ab8d83927 ("arm64: dts: khadas-vim3: add support for the SM1 based VIM3L")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200721015950.11816-1-christianshewitt@gmail.com
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
+Reported-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20200701195954.9007-1-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi     | 1 -
- arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts | 4 ++++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/pdr_interface.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
-index 1ef1e3672b967..ff5ba85b7562e 100644
---- a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
-@@ -270,7 +270,6 @@ &sd_emmc_a {
+diff --git a/drivers/soc/qcom/pdr_interface.c b/drivers/soc/qcom/pdr_interface.c
+index bdcf16f88a97f..4c9225f15c4e6 100644
+--- a/drivers/soc/qcom/pdr_interface.c
++++ b/drivers/soc/qcom/pdr_interface.c
+@@ -278,13 +278,15 @@ static void pdr_indack_work(struct work_struct *work)
  
- 	bus-width = <4>;
- 	cap-sd-highspeed;
--	sd-uhs-sdr50;
- 	max-frequency = <100000000>;
+ 	list_for_each_entry_safe(ind, tmp, &pdr->indack_list, node) {
+ 		pds = ind->pds;
+-		pdr_send_indack_msg(pdr, pds, ind->transaction_id);
  
- 	non-removable;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-index dbbf29a0dbf6d..026b21708b078 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-@@ -88,6 +88,10 @@ &pcie {
- 	status = "okay";
- };
+ 		mutex_lock(&pdr->status_lock);
+ 		pds->state = ind->curr_state;
+ 		pdr->status(pds->state, pds->service_path, pdr->priv);
+ 		mutex_unlock(&pdr->status_lock);
  
-+&sd_emmc_a {
-+	sd-uhs-sdr50;
-+};
++		/* Ack the indication after clients release the PD resources */
++		pdr_send_indack_msg(pdr, pds, ind->transaction_id);
 +
- &usb {
- 	phys = <&usb2_phy0>, <&usb2_phy1>;
- 	phy-names = "usb2-phy0", "usb2-phy1";
+ 		mutex_lock(&pdr->list_lock);
+ 		list_del(&ind->node);
+ 		mutex_unlock(&pdr->list_lock);
 -- 
 2.25.1
 
