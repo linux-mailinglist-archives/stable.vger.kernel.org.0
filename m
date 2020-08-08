@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC16823F993
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F10423F998
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726750AbgHHXgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48622 "EHLO mail.kernel.org"
+        id S1726820AbgHHXgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:36:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726734AbgHHXgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:36:16 -0400
+        id S1726762AbgHHXgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:36:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E14F3206C3;
-        Sat,  8 Aug 2020 23:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2754F206D8;
+        Sat,  8 Aug 2020 23:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929775;
-        bh=o1hp91tWbFC0JPymhREMXQpAYm591TzRF4KoNiOC+jo=;
+        s=default; t=1596929776;
+        bh=D/f7KeSvbnpfeuO5AHy05pktd39Vhn5bLwVvks2iLkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxVSXyTwJQiomJmbtis3eV1j337nhlfolEwQ1qYdgzfGNMIUF/optASeNj3URw11M
-         PNcWYIdrpg2gABxF95cWNnDJIgQuuYLNcYUV90nVoFM7dXQjYrwZZPGAxAfbctCPE+
-         lIu/PW9kxcvUcT8zjtnf7aOtspnzhgZO3JzaV1Bw=
+        b=VZkma3nj6Qj4gESbZp0bc0DmthshN/Sl/UlQt0+yhAShQw+XONLM6axOPjQRLwUz/
+         Hhg7FJlJF5CIKzCyivCM2wXYrsnQApQOB4d0Q5tH1XR74AtR7Drg3+ERQpfp7iflfH
+         0OnJ5EHlKDspqzcLelsahaFlt/WekqdYr7Re/+6k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qais Yousef <qais.yousef@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 25/72] sched/uclamp: Fix initialization of struct uclamp_rq
-Date:   Sat,  8 Aug 2020 19:34:54 -0400
-Message-Id: <20200808233542.3617339-25-sashal@kernel.org>
+Cc:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 26/72] crypto: qat - allow xts requests not multiple of block
+Date:   Sat,  8 Aug 2020 19:34:55 -0400
+Message-Id: <20200808233542.3617339-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -45,73 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit d81ae8aac85ca2e307d273f6dc7863a721bf054e ]
+[ Upstream commit 528f776df67c440361b2847b4da400d8754bf030 ]
 
-struct uclamp_rq was zeroed out entirely in assumption that in the first
-call to uclamp_rq_inc() they'd be initialized correctly in accordance to
-default settings.
+Allow AES-XTS requests that are not multiple of the block size.
+If a request is smaller than the block size, return -EINVAL.
 
-But when next patch introduces a static key to skip
-uclamp_rq_{inc,dec}() until userspace opts in to use uclamp, schedutil
-will fail to perform any frequency changes because the
-rq->uclamp[UCLAMP_MAX].value is zeroed at init and stays as such. Which
-means all rqs are capped to 0 by default.
+This fixes the following issue reported by the crypto testmgr self-test:
 
-Fix it by making sure we do proper initialization at init without
-relying on uclamp_rq_inc() doing it later.
+  alg: skcipher: qat_aes_xts encryption failed on test vector "random: len=116 klen=64"; expected_error=0, actual_error=-22, cfg="random: inplace may_sleep use_finup src_divs=[<reimport>45.85%@+4077, <flush>54.15%@alignmask+18]"
 
-Fixes: 69842cba9ace ("sched/uclamp: Add CPU's clamp buckets refcounting")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Lukasz Luba <lukasz.luba@arm.com>
-Link: https://lkml.kernel.org/r/20200630112123.12076-2-qais.yousef@arm.com
+Fixes: 96ee111a659e ("crypto: qat - return error for block...")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/crypto/qat/qat_common/qat_algs.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 2142c67676826..c3cbdc436e2e4 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1237,6 +1237,20 @@ static void uclamp_fork(struct task_struct *p)
- 	}
+diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
+index e14d3dd291f09..1b050391c0c90 100644
+--- a/drivers/crypto/qat/qat_common/qat_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_algs.c
+@@ -55,6 +55,7 @@
+ #include <crypto/hmac.h>
+ #include <crypto/algapi.h>
+ #include <crypto/authenc.h>
++#include <crypto/xts.h>
+ #include <linux/dma-mapping.h>
+ #include "adf_accel_devices.h"
+ #include "adf_transport.h"
+@@ -1102,6 +1103,14 @@ static int qat_alg_skcipher_blk_encrypt(struct skcipher_request *req)
+ 	return qat_alg_skcipher_encrypt(req);
  }
  
-+static void __init init_uclamp_rq(struct rq *rq)
++static int qat_alg_skcipher_xts_encrypt(struct skcipher_request *req)
 +{
-+	enum uclamp_id clamp_id;
-+	struct uclamp_rq *uc_rq = rq->uclamp;
++	if (req->cryptlen < XTS_BLOCK_SIZE)
++		return -EINVAL;
 +
-+	for_each_clamp_id(clamp_id) {
-+		uc_rq[clamp_id] = (struct uclamp_rq) {
-+			.value = uclamp_none(clamp_id)
-+		};
-+	}
-+
-+	rq->uclamp_flags = 0;
++	return qat_alg_skcipher_encrypt(req);
 +}
 +
- static void __init init_uclamp(void)
+ static int qat_alg_skcipher_decrypt(struct skcipher_request *req)
  {
- 	struct uclamp_se uc_max = {};
-@@ -1245,11 +1259,8 @@ static void __init init_uclamp(void)
+ 	struct crypto_skcipher *stfm = crypto_skcipher_reqtfm(req);
+@@ -1161,6 +1170,15 @@ static int qat_alg_skcipher_blk_decrypt(struct skcipher_request *req)
  
- 	mutex_init(&uclamp_mutex);
- 
--	for_each_possible_cpu(cpu) {
--		memset(&cpu_rq(cpu)->uclamp, 0,
--				sizeof(struct uclamp_rq)*UCLAMP_CNT);
--		cpu_rq(cpu)->uclamp_flags = 0;
--	}
-+	for_each_possible_cpu(cpu)
-+		init_uclamp_rq(cpu_rq(cpu));
- 
- 	for_each_clamp_id(clamp_id) {
- 		uclamp_se_set(&init_task.uclamp_req[clamp_id],
+ 	return qat_alg_skcipher_decrypt(req);
+ }
++
++static int qat_alg_skcipher_xts_decrypt(struct skcipher_request *req)
++{
++	if (req->cryptlen < XTS_BLOCK_SIZE)
++		return -EINVAL;
++
++	return qat_alg_skcipher_decrypt(req);
++}
++
+ static int qat_alg_aead_init(struct crypto_aead *tfm,
+ 			     enum icp_qat_hw_auth_algo hash,
+ 			     const char *hash_name)
+@@ -1354,8 +1372,8 @@ static struct skcipher_alg qat_skciphers[] = { {
+ 	.init = qat_alg_skcipher_init_tfm,
+ 	.exit = qat_alg_skcipher_exit_tfm,
+ 	.setkey = qat_alg_skcipher_xts_setkey,
+-	.decrypt = qat_alg_skcipher_blk_decrypt,
+-	.encrypt = qat_alg_skcipher_blk_encrypt,
++	.decrypt = qat_alg_skcipher_xts_decrypt,
++	.encrypt = qat_alg_skcipher_xts_encrypt,
+ 	.min_keysize = 2 * AES_MIN_KEY_SIZE,
+ 	.max_keysize = 2 * AES_MAX_KEY_SIZE,
+ 	.ivsize = AES_BLOCK_SIZE,
 -- 
 2.25.1
 
