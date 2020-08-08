@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DA023FAC1
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0522A23FAB8
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727782AbgHHXos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:44:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53498 "EHLO mail.kernel.org"
+        id S1728480AbgHHXjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728453AbgHHXjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:39:02 -0400
+        id S1728461AbgHHXjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:39:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CEF520716;
-        Sat,  8 Aug 2020 23:39:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7616920885;
+        Sat,  8 Aug 2020 23:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929942;
-        bh=tE+/jS+BvX9zc+s1uCDMixr7naVAWq9W2jUqiuF35ew=;
+        s=default; t=1596929943;
+        bh=lWgkR05ZLdyajB7h9qa3gzGicGf+5etfvA1S5tRgY10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSfZ9LUzF44Ah0eLvDQLlk+ZL0x/Btc8hdJTsbIP63pf2V5iBjMSWFcF/+Ow83RIZ
-         hYcjZ8uRgeth2avOU8N0/HRzzWDPJd42qLohzl/ir+AdJMSDLQny7qTQvIefFsHiDF
-         Can0edn0dNySH0RR8J+MPrSmf/JXCdpGwvpgmjxA=
+        b=gN0DpA5A3imi7ihUKgcwsH6vPOS/R1dfzCqIU0UXhweoLsK13yzCvHj6Nw/FXFMce
+         Npt3lIEg6UsAx/24WuooPirjYx32ag3LkIJHK4ZF3x0QaJ7rO8dJPDIu8sGjGbA4ld
+         ctHqRckuFX/ZpGX+GafV2TiovCF9LciWPc94IzTc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 13/40] firmware: arm_scmi: Fix SCMI genpd domain probing
-Date:   Sat,  8 Aug 2020 19:38:17 -0400
-Message-Id: <20200808233844.3618823-13-sashal@kernel.org>
+Cc:     Alim Akhtar <alim.akhtar@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/40] arm64: dts: exynos: Fix silent hang after boot on Espresso
+Date:   Sat,  8 Aug 2020 19:38:18 -0400
+Message-Id: <20200808233844.3618823-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
 References: <20200808233844.3618823-1-sashal@kernel.org>
@@ -44,99 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Alim Akhtar <alim.akhtar@samsung.com>
 
-[ Upstream commit e0f1a30cf184821499eeb67daedd7a3f21bbcb0b ]
+[ Upstream commit b072714bfc0e42c984b8fd6e069f3ca17de8137a ]
 
-When, at probe time, an SCMI communication failure inhibits the capacity
-to query power domains states, such domains should be skipped.
+Once regulators are disabled after kernel boot, on Espresso board silent
+hang observed because of LDO7 being disabled.  LDO7 actually provide
+power to CPU cores and non-cpu blocks circuitries.  Keep this regulator
+always-on to fix this hang.
 
-Registering partially initialized SCMI power domains with genpd will
-causes kernel panic.
-
- arm-scmi timed out in resp(caller: scmi_power_state_get+0xa4/0xd0)
- scmi-power-domain scmi_dev.2: failed to get state for domain 9
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
- Mem abort info:
-   ESR = 0x96000006
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000006
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=00000009f3691000
- [0000000000000000] pgd=00000009f1ca0003, p4d=00000009f1ca0003, pud=00000009f35ea003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- CPU: 2 PID: 381 Comm: bash Not tainted 5.8.0-rc1-00011-gebd118c2cca8 #2
- Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Jan  3 2020
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- pstate: 80000005 (Nzcv daif -PAN -UAO BTYPE=--)
- pc : of_genpd_add_provider_onecell+0x98/0x1f8
- lr : of_genpd_add_provider_onecell+0x48/0x1f8
- Call trace:
-  of_genpd_add_provider_onecell+0x98/0x1f8
-  scmi_pm_domain_probe+0x174/0x1e8
-  scmi_dev_probe+0x90/0xe0
-  really_probe+0xe4/0x448
-  driver_probe_device+0xfc/0x168
-  device_driver_attach+0x7c/0x88
-  bind_store+0xe8/0x128
-  drv_attr_store+0x2c/0x40
-  sysfs_kf_write+0x4c/0x60
-  kernfs_fop_write+0x114/0x230
-  __vfs_write+0x24/0x50
-  vfs_write+0xbc/0x1e0
-  ksys_write+0x70/0xf8
-  __arm64_sys_write+0x24/0x30
-  el0_svc_common.constprop.3+0x94/0x160
-  do_el0_svc+0x2c/0x98
-  el0_sync_handler+0x148/0x1a8
-  el0_sync+0x158/0x180
-
-Do not register any power domain that failed to be queried with genpd.
-
-Fixes: 898216c97ed2 ("firmware: arm_scmi: add device power domain support using genpd")
-Link: https://lore.kernel.org/r/20200619220330.12217-1-cristian.marussi@arm.com
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 9589f7721e16 ("arm64: dts: Add S2MPS15 PMIC node on exynos7-espresso")
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/scmi_pm_domain.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/exynos/exynos7-espresso.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-index 87f737e01473c..041f8152272bf 100644
---- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
-+++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-@@ -85,7 +85,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 	for (i = 0; i < num_domains; i++, scmi_pd++) {
- 		u32 state;
+diff --git a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
+index 080e0f56e108f..61ee7b6a31594 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
++++ b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
+@@ -157,6 +157,7 @@ ldo7_reg: LDO7 {
+ 				regulator-min-microvolt = <700000>;
+ 				regulator-max-microvolt = <1150000>;
+ 				regulator-enable-ramp-delay = <125>;
++				regulator-always-on;
+ 			};
  
--		domains[i] = &scmi_pd->genpd;
-+		if (handle->power_ops->state_get(handle, i, &state)) {
-+			dev_warn(dev, "failed to get state for domain %d\n", i);
-+			continue;
-+		}
- 
- 		scmi_pd->domain = i;
- 		scmi_pd->handle = handle;
-@@ -94,13 +97,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 		scmi_pd->genpd.power_off = scmi_pd_power_off;
- 		scmi_pd->genpd.power_on = scmi_pd_power_on;
- 
--		if (handle->power_ops->state_get(handle, i, &state)) {
--			dev_warn(dev, "failed to get state for domain %d\n", i);
--			continue;
--		}
--
- 		pm_genpd_init(&scmi_pd->genpd, NULL,
- 			      state == SCMI_POWER_STATE_GENERIC_OFF);
-+
-+		domains[i] = &scmi_pd->genpd;
- 	}
- 
- 	scmi_pd_data->domains = domains;
+ 			ldo8_reg: LDO8 {
 -- 
 2.25.1
 
