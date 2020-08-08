@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E793623F878
-	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 20:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE09F23F879
+	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 20:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726256AbgHHSex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 14:34:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49148 "EHLO
+        id S1726338AbgHHShf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 14:37:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726307AbgHHSer (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Aug 2020 14:34:47 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CEC1C061A29
-        for <stable@vger.kernel.org>; Sat,  8 Aug 2020 11:34:46 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id t6so2645409pjr.0
-        for <stable@vger.kernel.org>; Sat, 08 Aug 2020 11:34:46 -0700 (PDT)
+        with ESMTP id S1726307AbgHHShe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Aug 2020 14:37:34 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90FC9C061756;
+        Sat,  8 Aug 2020 11:37:34 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id p3so2679609pgh.3;
+        Sat, 08 Aug 2020 11:37:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=8L0zIz5uql2UDcF0yxiWlDIlb1DvTyWqTU6t0oIjvB0=;
-        b=mysIfieigwANGx/0ERzmeZqX37FaXAeRDZPgSRZ/FfLCQ8bAbqXa9bkzOhgj8ZgK24
-         ibr0RBW0R80Z7yKAUHh6hl2CVzk7catBuWJt/Mw8RkmRIESvZKlIX957dEi3DJ30rVu3
-         uki11r0A7kmpCN7Js1deaSqGW0HueSwocrhmt4VssYFHt7sziI6PCGKQTFQl96y2hNIM
-         nltYPPmd9TavRQNoUp1xaDsNaUqsDbTN40IiNKOj/41L+au/v5MOSYJczvwfqwyjjtWO
-         J1wK32go5y9MNaovHmy+796wAr99suS80TPZwnp/gpPUsAlvCdxuAopGwhgU3aeyHznd
-         V9iQ==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=E2HEcTXnQvxfyOU/9ep7TLdb0ZWR8Mv/2sU679c6wow=;
+        b=hreHI/4z4gnMY2MsrUHeUlwsPkiZWg5h72Fy63z5HJTURdX0b/EDfhyL+3V/iECZL0
+         8EWb5a1vq2nZkIrjs6zbBVrKHymnm1f3YH9DSPB7jcWuXbgc1eABRjVRr6PulL5u32+Z
+         XtKD9YNv4/h+bwVMbFCqtfavMWn5tMZwrYgKpBBjLPlR8Iv3tAAmo4I8W7io6rfZnpJG
+         7z1FqihIxrtRPdvmHFnQPpXcvbFOE+KHk5nNmruZeHxP88/0eeTjpTPdT3L/0Q3coDUY
+         er+FJi7aOvW2r/DKmWGhUCzMVGuv4Il/ApdihfubGbjPn6DyNKIjqVk2y4PDeFZ1VPlS
+         LCIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=8L0zIz5uql2UDcF0yxiWlDIlb1DvTyWqTU6t0oIjvB0=;
-        b=XQV3DCcNUVTvDtGAb+F5Sow6zs9ryaUEXP7RzEID82nXrQ7rKgjFUmVn6cYc0QrDr3
-         t58KlvXDviqRcfANWA4t/ATwkAZwUcX0FCaT9XjyXjzU3osjVL0olHEAoG/M5qllIqyX
-         rJJY5+zLR+FcZRlb3TeUFDv/HU1inQW3fNVVENmpXcbV6xvkFdY3ccK4ctJEpX0mCKpo
-         Lz0RfIdGXvvfhpPeT+ELsMhAzoZ44xPZcUktX+X/rlr9arrBflE69purR1h5pA5uo4Vc
-         K/wpiTnYSXPpkwOEejJhIblUSBPlRGdE1KvIEMVSPZrDLB4pQtOCotsrPRFMqXH4jl9N
-         vRlQ==
-X-Gm-Message-State: AOAM530oSnZIzIDyLZoyD+l1BqYI4oP8vPsRBEpQ03HtxwgAKKoGnmXW
-        ptFc7zjYqKxDhXgOp+EnVjJo4w==
-X-Google-Smtp-Source: ABdhPJxo+hkqXHMtyf7ZAMeF8G4gypvPh6zvCTcSOeANN6lLrYOk+ikzZ3Ra0f4jA844RUCtO5yphw==
-X-Received: by 2002:a17:902:7e86:: with SMTP id z6mr17362785pla.161.1596911685590;
-        Sat, 08 Aug 2020 11:34:45 -0700 (PDT)
-Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id j142sm17955584pfd.100.2020.08.08.11.34.44
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=E2HEcTXnQvxfyOU/9ep7TLdb0ZWR8Mv/2sU679c6wow=;
+        b=fzOpVstk4E1VDsrw/9ZeapkJ52j7IjBQwljEePdRN+3j+V30prIAifl2bWEQ1LooGm
+         jSKisPTq7UfJ5Gf9tIS28Cr6m6Okr+NVINrhvmQNNaW1ssHmKMPe9lxOpxLF7r9fQ3CC
+         lrkPIFQfQxdYwio+qpkxcWCLpPMPXwIBV7ijHnahtLRIM0A/izPfp6cuXfrrTnV0yIh6
+         xypZC6k5QdrX7O1MW5zkOOX0I6EES4TTqQYfWwaGJPKjb5XDG4LQGtaqSF3HZPIpzyGK
+         blVl+Nk0B8eB7iBgCS2nA8BelK0XKZ1OQsJ59zPBaZnUYmHgycuACD4KqATgX3oI5O+C
+         Golg==
+X-Gm-Message-State: AOAM533Io0VUPkh/zmvnPHva6LShCJYN9MU6pzDzSc7oZUL+LCWuLSUg
+        9uU/xjsygEdIRj1wsLufeCgnHW1s
+X-Google-Smtp-Source: ABdhPJz3FrHRgj5GwEumJjVbaMn5fGL88iRBUP3Q9C6cKXPRZ/gU+kCYqJLXbfdmfUDrLxLU24vqtQ==
+X-Received: by 2002:a65:58c4:: with SMTP id e4mr15939810pgu.108.1596911853996;
+        Sat, 08 Aug 2020 11:37:33 -0700 (PDT)
+Received: from octofox.hsd1.ca.comcast.net ([2601:641:400:e00:19b7:f650:7bbe:a7fb])
+        by smtp.gmail.com with ESMTPSA id q2sm17066767pff.107.2020.08.08.11.37.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 08 Aug 2020 11:34:45 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     peterz@infradead.org, Jens Axboe <axboe@kernel.dk>,
-        stable@vger.kernel.org, Josef <josef.grieb@gmail.com>
-Subject: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task isn't running
-Date:   Sat,  8 Aug 2020 12:34:39 -0600
-Message-Id: <20200808183439.342243-3-axboe@kernel.dk>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200808183439.342243-1-axboe@kernel.dk>
-References: <20200808183439.342243-1-axboe@kernel.dk>
+        Sat, 08 Aug 2020 11:37:33 -0700 (PDT)
+From:   Max Filippov <jcmvbkbc@gmail.com>
+To:     linux-xtensa@linux-xtensa.org
+Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] binfmt_flat: revert "binfmt_flat: don't offset the data start"
+Date:   Sat,  8 Aug 2020 11:37:13 -0700
+Message-Id: <20200808183713.12425-1-jcmvbkbc@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -64,65 +64,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-An earlier commit:
+binfmt_flat loader uses the gap between text and data to store data
+segment pointers for the libraries. Even in the absence of shared
+libraries it stores at least one pointer to the executable's own data
+segment. Text and data can go back to back in the flat binary image and
+without offsetting data segment last few instructions in the text
+segment may get corrupted by the data segment pointer.
 
-b7db41c9e03b ("io_uring: fix regression with always ignoring signals in io_cqring_wait()")
+Fix it by reverting commit a2357223c50a ("binfmt_flat: don't offset the
+data start").
 
-ensured that we didn't get stuck waiting for eventfd reads when it's
-registered with the io_uring ring for event notification, but we still
-have a gap where the task can be waiting on other events in the kernel
-and need a bigger nudge to make forward progress.
-
-Ensure that we use signaled notifications for a task that isn't currently
-running, to be certain the work is seen and processed immediately.
-
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Josef <josef.grieb@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Fixes: a2357223c50a ("binfmt_flat: don't offset the data start")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 ---
- fs/io_uring.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ fs/binfmt_flat.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e9b27cdaa735..443eecdfeda9 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1712,21 +1712,27 @@ static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb)
- 	struct io_ring_ctx *ctx = req->ctx;
- 	int ret, notify = TWA_RESUME;
+diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
+index f2f9086ebe98..b9c658e0548e 100644
+--- a/fs/binfmt_flat.c
++++ b/fs/binfmt_flat.c
+@@ -576,7 +576,7 @@ static int load_flat_file(struct linux_binprm *bprm,
+ 			goto err;
+ 		}
  
-+	ret = __task_work_add(tsk, cb);
-+	if (unlikely(ret))
-+		return ret;
-+
- 	/*
- 	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
--	 * If we're not using an eventfd, then TWA_RESUME is always fine,
--	 * as we won't have dependencies between request completions for
--	 * other kernel wait conditions.
-+	 * For any other work, use signaled wakeups if the task isn't
-+	 * running to avoid dependencies between tasks or threads. If
-+	 * the issuing task is currently waiting in the kernel on a thread,
-+	 * and same thread is waiting for a completion event, then we need
-+	 * to ensure that the issuing task processes task_work. TWA_SIGNAL
-+	 * is needed for that.
- 	 */
- 	if (ctx->flags & IORING_SETUP_SQPOLL)
- 		notify = 0;
--	else if (ctx->cq_ev_fd)
-+	else if (READ_ONCE(tsk->state) != TASK_RUNNING)
- 		notify = TWA_SIGNAL;
+-		len = data_len + extra;
++		len = data_len + extra + MAX_SHARED_LIBS * sizeof(unsigned long);
+ 		len = PAGE_ALIGN(len);
+ 		realdatastart = vm_mmap(NULL, 0, len,
+ 			PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 0);
+@@ -590,7 +590,9 @@ static int load_flat_file(struct linux_binprm *bprm,
+ 			vm_munmap(textpos, text_len);
+ 			goto err;
+ 		}
+-		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
++		datapos = ALIGN(realdatastart +
++				MAX_SHARED_LIBS * sizeof(unsigned long),
++				FLAT_DATA_ALIGN);
  
--	ret = task_work_add(tsk, cb, notify);
--	if (!ret)
--		wake_up_process(tsk);
--	return ret;
-+	__task_work_notify(tsk, notify);
-+	wake_up_process(tsk);
-+	return 0;
- }
+ 		pr_debug("Allocated data+bss+stack (%u bytes): %lx\n",
+ 			 data_len + bss_len + stack_len, datapos);
+@@ -620,7 +622,7 @@ static int load_flat_file(struct linux_binprm *bprm,
+ 		memp_size = len;
+ 	} else {
  
- static void __io_req_task_cancel(struct io_kiocb *req, int error)
+-		len = text_len + data_len + extra;
++		len = text_len + data_len + extra + MAX_SHARED_LIBS * sizeof(u32);
+ 		len = PAGE_ALIGN(len);
+ 		textpos = vm_mmap(NULL, 0, len,
+ 			PROT_READ | PROT_EXEC | PROT_WRITE, MAP_PRIVATE, 0);
+@@ -635,7 +637,9 @@ static int load_flat_file(struct linux_binprm *bprm,
+ 		}
+ 
+ 		realdatastart = textpos + ntohl(hdr->data_start);
+-		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
++		datapos = ALIGN(realdatastart +
++				MAX_SHARED_LIBS * sizeof(u32),
++				FLAT_DATA_ALIGN);
+ 
+ 		reloc = (__be32 __user *)
+ 			(datapos + (ntohl(hdr->reloc_start) - text_len));
+@@ -652,9 +656,8 @@ static int load_flat_file(struct linux_binprm *bprm,
+ 					 (text_len + full_data
+ 						  - sizeof(struct flat_hdr)),
+ 					 0);
+-			if (datapos != realdatastart)
+-				memmove((void *)datapos, (void *)realdatastart,
+-						full_data);
++			memmove((void *) datapos, (void *) realdatastart,
++					full_data);
+ #else
+ 			/*
+ 			 * This is used on MMU systems mainly for testing.
+@@ -710,7 +713,8 @@ static int load_flat_file(struct linux_binprm *bprm,
+ 		if (IS_ERR_VALUE(result)) {
+ 			ret = result;
+ 			pr_err("Unable to read code+data+bss, errno %d\n", ret);
+-			vm_munmap(textpos, text_len + data_len + extra);
++			vm_munmap(textpos, text_len + data_len + extra +
++				MAX_SHARED_LIBS * sizeof(u32));
+ 			goto err;
+ 		}
+ 	}
 -- 
-2.28.0
+2.20.1
 
