@@ -2,35 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F5423FB32
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC54C23F9C0
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726836AbgHHXrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:47:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50886 "EHLO mail.kernel.org"
+        id S1728095AbgHHXhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728071AbgHHXhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:37:43 -0400
+        id S1728082AbgHHXhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:37:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1178D20748;
-        Sat,  8 Aug 2020 23:37:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E7DA20716;
+        Sat,  8 Aug 2020 23:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929862;
-        bh=K1Ma8cAdRm4cq5FiYwAP+gpk459mF5A3ggKalD13s7U=;
+        s=default; t=1596929864;
+        bh=8WVwH/e7F9oAesCSxg6xuqukzrPdUAdmdrqQJ3+jvhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjyyn0XfKD2a9rVcRxqcuiRLIBWLrBJAah1/qqGdjuVx9fw3XjCiiNMaHJKRRflT6
-         oHEl+FNhwCAmuNn32nok42dt7ouEMf0N7HUR3+RYpRNbRcf+sWiA0gHmmBCsM9nxoM
-         IW1+lF1vrh9kR5uXIYBZ/JCjiK3ifVvKGe96HOOY=
+        b=tJ8tbhxmU2r2mGqajqidDQ5ju6G/VG2dBHrZUErRzpyASolDy1uq67nEM0aAtjLdc
+         5AwmWxT7do2trbWgKC4Xtun+TyxHPbqNET6oiDgYy5lDxvDWqmoq3fNeRrjgtH6ZuW
+         aHJtn6wy7OfNqqcFfkhR5r1OyrzvxRnEnY+HUATA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 14/58] memory: tegra: Fix an error handling path in tegra186_emc_probe()
-Date:   Sat,  8 Aug 2020 19:36:40 -0400
-Message-Id: <20200808233724.3618168-14-sashal@kernel.org>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>,
+        syzbot+603294af2d01acfdd6da@syzkaller.appspotmail.com,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Omar Sandoval <osandov@fb.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        yu kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 15/58] blktrace: fix debugfs use after free
+Date:   Sat,  8 Aug 2020 19:36:41 -0400
+Message-Id: <20200808233724.3618168-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233724.3618168-1-sashal@kernel.org>
 References: <20200808233724.3618168-1-sashal@kernel.org>
@@ -43,79 +53,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit c3d4eb3bf6ad32466555b31094f33a299444f795 ]
+[ Upstream commit bad8e64fb19d3a0de5e564d9a7271c31bd684369 ]
 
-The call to tegra_bpmp_get() must be balanced by a call to
-tegra_bpmp_put() in case of error, as already done in the remove
-function.
+On commit 6ac93117ab00 ("blktrace: use existing disk debugfs directory")
+merged on v4.12 Omar fixed the original blktrace code for request-based
+drivers (multiqueue). This however left in place a possible crash, if you
+happen to abuse blktrace while racing to remove / add a device.
 
-Add an error handling path and corresponding goto.
+We used to use asynchronous removal of the request_queue, and with that
+the issue was easier to reproduce. Now that we have reverted to
+synchronous removal of the request_queue, the issue is still possible to
+reproduce, its however just a bit more difficult.
 
-Fixes: 52d15dd23f0b ("memory: tegra: Support DVFS on Tegra186 and later")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+We essentially run two instances of break-blktrace which add/remove
+a loop device, and setup a blktrace and just never tear the blktrace
+down. We do this twice in parallel. This is easily reproduced with the
+script run_0004.sh from break-blktrace [0].
+
+We can end up with two types of panics each reflecting where we
+race, one a failed blktrace setup:
+
+[  252.426751] debugfs: Directory 'loop0' with parent 'block' already present!
+[  252.432265] BUG: kernel NULL pointer dereference, address: 00000000000000a0
+[  252.436592] #PF: supervisor write access in kernel mode
+[  252.439822] #PF: error_code(0x0002) - not-present page
+[  252.442967] PGD 0 P4D 0
+[  252.444656] Oops: 0002 [#1] SMP NOPTI
+[  252.446972] CPU: 10 PID: 1153 Comm: break-blktrace Tainted: G            E     5.7.0-rc2-next-20200420+ #164
+[  252.452673] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+[  252.456343] RIP: 0010:down_write+0x15/0x40
+[  252.458146] Code: eb ca e8 ae 22 8d ff cc cc cc cc cc cc cc cc cc cc cc cc
+               cc cc 0f 1f 44 00 00 55 48 89 fd e8 52 db ff ff 31 c0 ba 01 00
+               00 00 <f0> 48 0f b1 55 00 75 0f 48 8b 04 25 c0 8b 01 00 48 89
+               45 08 5d
+[  252.463638] RSP: 0018:ffffa626415abcc8 EFLAGS: 00010246
+[  252.464950] RAX: 0000000000000000 RBX: ffff958c25f0f5c0 RCX: ffffff8100000000
+[  252.466727] RDX: 0000000000000001 RSI: ffffff8100000000 RDI: 00000000000000a0
+[  252.468482] RBP: 00000000000000a0 R08: 0000000000000000 R09: 0000000000000001
+[  252.470014] R10: 0000000000000000 R11: ffff958d1f9227ff R12: 0000000000000000
+[  252.471473] R13: ffff958c25ea5380 R14: ffffffff8cce15f1 R15: 00000000000000a0
+[  252.473346] FS:  00007f2e69dee540(0000) GS:ffff958c2fc80000(0000) knlGS:0000000000000000
+[  252.475225] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  252.476267] CR2: 00000000000000a0 CR3: 0000000427d10004 CR4: 0000000000360ee0
+[  252.477526] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  252.478776] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  252.479866] Call Trace:
+[  252.480322]  simple_recursive_removal+0x4e/0x2e0
+[  252.481078]  ? debugfs_remove+0x60/0x60
+[  252.481725]  ? relay_destroy_buf+0x77/0xb0
+[  252.482662]  debugfs_remove+0x40/0x60
+[  252.483518]  blk_remove_buf_file_callback+0x5/0x10
+[  252.484328]  relay_close_buf+0x2e/0x60
+[  252.484930]  relay_open+0x1ce/0x2c0
+[  252.485520]  do_blk_trace_setup+0x14f/0x2b0
+[  252.486187]  __blk_trace_setup+0x54/0xb0
+[  252.486803]  blk_trace_ioctl+0x90/0x140
+[  252.487423]  ? do_sys_openat2+0x1ab/0x2d0
+[  252.488053]  blkdev_ioctl+0x4d/0x260
+[  252.488636]  block_ioctl+0x39/0x40
+[  252.489139]  ksys_ioctl+0x87/0xc0
+[  252.489675]  __x64_sys_ioctl+0x16/0x20
+[  252.490380]  do_syscall_64+0x52/0x180
+[  252.491032]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+And the other on the device removal:
+
+[  128.528940] debugfs: Directory 'loop0' with parent 'block' already present!
+[  128.615325] BUG: kernel NULL pointer dereference, address: 00000000000000a0
+[  128.619537] #PF: supervisor write access in kernel mode
+[  128.622700] #PF: error_code(0x0002) - not-present page
+[  128.625842] PGD 0 P4D 0
+[  128.627585] Oops: 0002 [#1] SMP NOPTI
+[  128.629871] CPU: 12 PID: 544 Comm: break-blktrace Tainted: G            E     5.7.0-rc2-next-20200420+ #164
+[  128.635595] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+[  128.640471] RIP: 0010:down_write+0x15/0x40
+[  128.643041] Code: eb ca e8 ae 22 8d ff cc cc cc cc cc cc cc cc cc cc cc cc
+               cc cc 0f 1f 44 00 00 55 48 89 fd e8 52 db ff ff 31 c0 ba 01 00
+               00 00 <f0> 48 0f b1 55 00 75 0f 65 48 8b 04 25 c0 8b 01 00 48 89
+               45 08 5d
+[  128.650180] RSP: 0018:ffffa9c3c05ebd78 EFLAGS: 00010246
+[  128.651820] RAX: 0000000000000000 RBX: ffff8ae9a6370240 RCX: ffffff8100000000
+[  128.653942] RDX: 0000000000000001 RSI: ffffff8100000000 RDI: 00000000000000a0
+[  128.655720] RBP: 00000000000000a0 R08: 0000000000000002 R09: ffff8ae9afd2d3d0
+[  128.657400] R10: 0000000000000056 R11: 0000000000000000 R12: 0000000000000000
+[  128.659099] R13: 0000000000000000 R14: 0000000000000003 R15: 00000000000000a0
+[  128.660500] FS:  00007febfd995540(0000) GS:ffff8ae9afd00000(0000) knlGS:0000000000000000
+[  128.662204] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  128.663426] CR2: 00000000000000a0 CR3: 0000000420042003 CR4: 0000000000360ee0
+[  128.664776] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  128.666022] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  128.667282] Call Trace:
+[  128.667801]  simple_recursive_removal+0x4e/0x2e0
+[  128.668663]  ? debugfs_remove+0x60/0x60
+[  128.669368]  debugfs_remove+0x40/0x60
+[  128.669985]  blk_trace_free+0xd/0x50
+[  128.670593]  __blk_trace_remove+0x27/0x40
+[  128.671274]  blk_trace_shutdown+0x30/0x40
+[  128.671935]  blk_release_queue+0x95/0xf0
+[  128.672589]  kobject_put+0xa5/0x1b0
+[  128.673188]  disk_release+0xa2/0xc0
+[  128.673786]  device_release+0x28/0x80
+[  128.674376]  kobject_put+0xa5/0x1b0
+[  128.674915]  loop_remove+0x39/0x50 [loop]
+[  128.675511]  loop_control_ioctl+0x113/0x130 [loop]
+[  128.676199]  ksys_ioctl+0x87/0xc0
+[  128.676708]  __x64_sys_ioctl+0x16/0x20
+[  128.677274]  do_syscall_64+0x52/0x180
+[  128.677823]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The common theme here is:
+
+debugfs: Directory 'loop0' with parent 'block' already present
+
+This crash happens because of how blktrace uses the debugfs directory
+where it places its files. Upon init we always create the same directory
+which would be needed by blktrace but we only do this for make_request
+drivers (multiqueue) block drivers. When you race a removal of these
+devices with a blktrace setup you end up in a situation where the
+make_request recursive debugfs removal will sweep away the blktrace
+files and then later blktrace will also try to remove individual
+dentries which are already NULL. The inverse is also possible and hence
+the two types of use after frees.
+
+We don't create the block debugfs directory on init for these types of
+block devices:
+
+  * request-based block driver block devices
+  * every possible partition
+  * scsi-generic
+
+And so, this race should in theory only be possible with make_request
+drivers.
+
+We can fix the UAF by simply re-using the debugfs directory for
+make_request drivers (multiqueue) and only creating the ephemeral
+directory for the other type of block devices. The new clarifications
+on relying on the q->blk_trace_mutex *and* also checking for q->blk_trace
+*prior* to processing a blktrace ensures the debugfs directories are
+only created if no possible directory name clashes are possible.
+
+This goes tested with:
+
+  o nvme partitions
+  o ISCSI with tgt, and blktracing against scsi-generic with:
+    o block
+    o tape
+    o cdrom
+    o media changer
+  o blktests
+
+This patch is part of the work which disputes the severity of
+CVE-2019-19770 which shows this issue is not a core debugfs issue, but
+a misuse of debugfs within blktace.
+
+Fixes: 6ac93117ab00 ("blktrace: use existing disk debugfs directory")
+Reported-by: syzbot+603294af2d01acfdd6da@syzkaller.appspotmail.com
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Omar Sandoval <osandov@fb.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Nicolai Stange <nstange@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/tegra186-emc.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ kernel/trace/blktrace.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra186-emc.c b/drivers/memory/tegra/tegra186-emc.c
-index 97f26bc77ad41..c900948881d5b 100644
---- a/drivers/memory/tegra/tegra186-emc.c
-+++ b/drivers/memory/tegra/tegra186-emc.c
-@@ -185,7 +185,7 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 	if (IS_ERR(emc->clk)) {
- 		err = PTR_ERR(emc->clk);
- 		dev_err(&pdev->dev, "failed to get EMC clock: %d\n", err);
--		return err;
-+		goto put_bpmp;
- 	}
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 085fceca33774..ac59476c77ae0 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -520,10 +520,18 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 	if (!bt->msg_data)
+ 		goto err;
  
- 	platform_set_drvdata(pdev, emc);
-@@ -201,7 +201,7 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 	err = tegra_bpmp_transfer(emc->bpmp, &msg);
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "failed to EMC DVFS pairs: %d\n", err);
--		return err;
-+		goto put_bpmp;
- 	}
+-	ret = -ENOENT;
+-
+-	dir = debugfs_lookup(buts->name, blk_debugfs_root);
+-	if (!dir)
++#ifdef CONFIG_BLK_DEBUG_FS
++	/*
++	 * When tracing whole make_request drivers (multiqueue) block devices,
++	 * reuse the existing debugfs directory created by the block layer on
++	 * init. For request-based block devices, all partitions block devices,
++	 * and scsi-generic block devices we create a temporary new debugfs
++	 * directory that will be removed once the trace ends.
++	 */
++	if (queue_is_mq(q) && bdev && bdev == bdev->bd_contains)
++		dir = q->debugfs_dir;
++	else
++#endif
+ 		bt->dir = dir = debugfs_create_dir(buts->name, blk_debugfs_root);
  
- 	emc->debugfs.min_rate = ULONG_MAX;
-@@ -211,8 +211,10 @@ static int tegra186_emc_probe(struct platform_device *pdev)
+ 	bt->dev = dev;
+@@ -564,8 +572,6 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
  
- 	emc->dvfs = devm_kmalloc_array(&pdev->dev, emc->num_dvfs,
- 				       sizeof(*emc->dvfs), GFP_KERNEL);
--	if (!emc->dvfs)
--		return -ENOMEM;
-+	if (!emc->dvfs) {
-+		err = -ENOMEM;
-+		goto put_bpmp;
-+	}
- 
- 	dev_dbg(&pdev->dev, "%u DVFS pairs:\n", emc->num_dvfs);
- 
-@@ -237,7 +239,7 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 			"failed to set rate range [%lu-%lu] for %pC\n",
- 			emc->debugfs.min_rate, emc->debugfs.max_rate,
- 			emc->clk);
--		return err;
-+		goto put_bpmp;
- 	}
- 
- 	emc->debugfs.root = debugfs_create_dir("emc", NULL);
-@@ -254,6 +256,10 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 			    emc, &tegra186_emc_debug_max_rate_fops);
- 
- 	return 0;
-+
-+put_bpmp:
-+	tegra_bpmp_put(emc->bpmp);
-+	return err;
- }
- 
- static int tegra186_emc_remove(struct platform_device *pdev)
+ 	ret = 0;
+ err:
+-	if (dir && !bt->dir)
+-		dput(dir);
+ 	if (ret)
+ 		blk_trace_free(bt);
+ 	return ret;
 -- 
 2.25.1
 
