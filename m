@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE4F23F9F1
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9434723F9F3
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:39:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728529AbgHHXjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:39:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53992 "EHLO mail.kernel.org"
+        id S1728534AbgHHXjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728523AbgHHXjU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:39:20 -0400
+        id S1728528AbgHHXjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:39:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65FB720748;
-        Sat,  8 Aug 2020 23:39:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86B8B20791;
+        Sat,  8 Aug 2020 23:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929960;
-        bh=sF5VfJy25+hafkXHOrfSJKp4kxFC0hlEVXFCa6eqSVU=;
+        s=default; t=1596929961;
+        bh=i4zhqUPJ+dMplr2JiLDz7Y+XOtarvFX1bYE2TU8H5W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRu+0oBlPJ8FyMs0uxmnSQzMleSAtGYwM8N1t8GhnzfMGReY51h3g84TFu5oEHIIW
-         Qa5VOhso+ZSHbWxxmuq0O28NnD05szq54u7eiwmGwZCf25HCeWmIiRsSVYMWa3GjUQ
-         BqpFFsX7z7vz7uCWTdYsKivAhbPFMvfnssSTkJqw=
+        b=NPt7TBdGnlxCJ+s4LUU12GN7i6pgVcWxyrZYX2Y1+wB2j5LxatNj9eq5rrl9kZJZs
+         +UdcqqujiSjXQkNBDH4kxClLD9lV+okWau3XykmJsVs9C2rp7AHNXuoNDGQ5RnM0jl
+         77XnyLZgYavjvdeQDnUdXihFQI/vyx3BxuUPlu6I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 23/40] ARM: at91: pm: add missing put_device() call in at91_pm_sram_init()
-Date:   Sat,  8 Aug 2020 19:38:27 -0400
-Message-Id: <20200808233844.3618823-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 24/40] ARM: dts: sunxi: bananapi-m2-plus-v1.2: Add regulator supply to all CPU cores
+Date:   Sat,  8 Aug 2020 19:38:28 -0400
+Message-Id: <20200808233844.3618823-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
 References: <20200808233844.3618823-1-sashal@kernel.org>
@@ -44,62 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit f87a4f022c44e5b87e842a9f3e644fba87e8385f ]
+[ Upstream commit 55b271af765b0e03d1ff29502f81644b1a3c87fd ]
 
-if of_find_device_by_node() succeed, at91_pm_sram_init() doesn't have
-a corresponding put_device(). Thus add a jump target to fix the exception
-handling for this function implementation.
+The device tree currently only assigns the a supply for the first CPU
+core, when in reality the regulator supply is shared by all four cores.
+This might cause an issue if the implementation does not realize the
+sharing of the supply.
 
-Fixes: d2e467905596 ("ARM: at91: pm: use the mmio-sram pool to access SRAM")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200604123301.3905837-1-yukuai3@huawei.com
+Assign the same regulator supply to the remaining CPU cores to address
+this.
+
+Fixes: 6eeb4180d4b9 ("ARM: dts: sunxi: h3-h5: Add Bananapi M2+ v1.2 device trees")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20200717160053.31191-3-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/pm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index 52665f30d236d..6bc3000deb86e 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -592,13 +592,13 @@ static void __init at91_pm_sram_init(void)
- 	sram_pool = gen_pool_get(&pdev->dev, NULL);
- 	if (!sram_pool) {
- 		pr_warn("%s: sram pool unavailable!\n", __func__);
--		return;
-+		goto out_put_device;
- 	}
- 
- 	sram_base = gen_pool_alloc(sram_pool, at91_pm_suspend_in_sram_sz);
- 	if (!sram_base) {
- 		pr_warn("%s: unable to alloc sram!\n", __func__);
--		return;
-+		goto out_put_device;
- 	}
- 
- 	sram_pbase = gen_pool_virt_to_phys(sram_pool, sram_base);
-@@ -606,12 +606,17 @@ static void __init at91_pm_sram_init(void)
- 					at91_pm_suspend_in_sram_sz, false);
- 	if (!at91_suspend_sram_fn) {
- 		pr_warn("SRAM: Could not map\n");
--		return;
-+		goto out_put_device;
- 	}
- 
- 	/* Copy the pm suspend handler to SRAM */
- 	at91_suspend_sram_fn = fncpy(at91_suspend_sram_fn,
- 			&at91_pm_suspend_in_sram, at91_pm_suspend_in_sram_sz);
-+	return;
+diff --git a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
+index 22466afd38a3a..a628b5ee72b65 100644
+--- a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
++++ b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
+@@ -28,3 +28,15 @@ reg_vdd_cpux: vdd-cpux {
+ &cpu0 {
+ 	cpu-supply = <&reg_vdd_cpux>;
+ };
 +
-+out_put_device:
-+	put_device(&pdev->dev);
-+	return;
- }
- 
- static bool __init at91_is_pm_mode_active(int pm_mode)
++&cpu1 {
++	cpu-supply = <&reg_vdd_cpux>;
++};
++
++&cpu2 {
++	cpu-supply = <&reg_vdd_cpux>;
++};
++
++&cpu3 {
++	cpu-supply = <&reg_vdd_cpux>;
++};
 -- 
 2.25.1
 
