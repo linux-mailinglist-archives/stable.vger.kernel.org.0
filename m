@@ -2,56 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9004923F750
-	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 13:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C42BA23F75D
+	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 13:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726142AbgHHLJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 07:09:05 -0400
-Received: from [125.140.134.231] ([125.140.134.231]:59169 "EHLO
-        WIN-DAONO245HJF" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726238AbgHHLJE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Aug 2020 07:09:04 -0400
-Received: from User ([185.191.231.247]) by WIN-DAONO245HJF with Microsoft SMTPSVC(8.5.9600.16384);
-         Sat, 8 Aug 2020 20:08:24 +0900
-Reply-To: <williiamrichard2999@yahoo.com>
-From:   "williams richard" <richardwilliamsrichard355@gmail.com>
-Subject: INVESTMENT PARTNER
-Date:   Sat, 8 Aug 2020 04:08:31 -0700
+        id S1726190AbgHHL25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 07:28:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41296 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726076AbgHHL24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 07:28:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF5BD221E5;
+        Sat,  8 Aug 2020 11:28:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596886135;
+        bh=vBFMhdAEamx/FNEl4l+v1WdLPZvkH2+eLo10uDinHqg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ue2UD2xWyI1T6gnQ/OY0ZX3oh8RfImSbhbHzKASzdDO/Weq3v/FUFSeWJHskqyoTv
+         2hZ+k/CmDVj9NBVI/cEjmMB8FlTIOWThqmcerd6ksiGVBjBdhFd7n8bNENq/gvCBH7
+         vOa0vtQpd/5OHwJqEUKFWyiTd/2064kSZSXw6XBU=
+Date:   Sat, 8 Aug 2020 13:29:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     Thomas Zimmermann <tzimmermann@suse.de>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Dave Airlie <airlied@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>, armijn@tjaldur.nl,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        stable <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: WTF: patch "[PATCH] drm/mgag200: Remove declaration of
+ mgag200_mmap() from header" was seriously submitted to be applied to the
+ 5.8-stable tree?
+Message-ID: <20200808112908.GA3063898@kroah.com>
+References: <159680700523135@kroah.com>
+ <a92e73b9-c3da-76f6-9405-b2456fe68ce6@suse.de>
+ <CAKMK7uFJVzm1avAOZd0kPAzRUQkTQv3LtrjafjpjXh4K8TaAHg@mail.gmail.com>
+ <20200808102512.GA3039253@kroah.com>
+ <CAKMK7uF2zeOS714mq2Y29TgjLB7h3A51FhKs70YL+kK84DCyRQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <WIN-DAONO245HJFvh7w00af71c1@WIN-DAONO245HJF>
-X-OriginalArrivalTime: 08 Aug 2020 11:08:25.0209 (UTC) FILETIME=[3C773E90:01D66D74]
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKMK7uF2zeOS714mq2Y29TgjLB7h3A51FhKs70YL+kK84DCyRQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir/Madam
+On Sat, Aug 08, 2020 at 01:02:34PM +0200, Daniel Vetter wrote:
+> On Sat, Aug 8, 2020 at 12:24 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Sat, Aug 08, 2020 at 11:13:54AM +0200, Daniel Vetter wrote:
+> > > On Fri, Aug 7, 2020 at 3:54 PM Thomas Zimmermann <tzimmermann@suse.de> wrote:
+> > > >
+> > > > Hi
+> > > >
+> > > > Am 07.08.20 um 15:30 schrieb gregkh@linuxfoundation.org:
+> > > > > The patch below was submitted to be applied to the 5.8-stable tree.
+> > > > >
+> > > > > I fail to see how this patch meets the stable kernel rules as found at
+> > > > > Documentation/process/stable-kernel-rules.rst.
+> > > > >
+> > > > > I could be totally wrong, and if so, please respond to
+> > > > > <stable@vger.kernel.org> and let me know why this patch should be
+> > > > > applied.  Otherwise, it is now dropped from my patch queues, never to be
+> > > > > seen again.
+> > > >
+> > > > Sorry for the noise. There's no reason this should go into stable.
+> > >
+> > > We have a little script in our maintainer toolbox for bugfixes, which
+> > > generates the Fixes: line, adds everyone from the original commit to
+> > > the cc: list and also adds Cc: stable if that sha1 the patch fixes is
+> > > in a release already.
+> > >
+> > > I guess we trained people a bit too much on using Fixes: tags like
+> > > that with the tooling, since they often do that for checkpatch stuff
+> > > and spelling fixes like this here too. I think the autoselect bot also
+> > > loves Fixes: tags a bit too much for its own good.
+> > >
+> > > Not sure what to do, since telling people to "please sprinkle less
+> > > Fixes: tags" doesn't sound great either. I also don't want to tell
+> > > people to use the maintainer toolbox less, the autogenerated cc: list
+> > > is generally the right thing to do. Maybe best if the stable team
+> > > catches the obvious ones before adding them to the stable queue, if
+> > > you're ok with that Greg?
+> >
+> > As I think this is the first time that I've had this problem for a DRM
+> > submission, I don't think it's a big issue yet at all, so whatever you
+> > are doing today is fine.
+> >
+> > I do think that the number of patches submitted for stable for
+> > drm-related issues feels very very low given the rate of change and
+> > number of overall patches you all submit to the kernel, so if anything,
+> > you all should be increasing the number of times you tag stuff for
+> > stable, not reducing it :)
+> 
+> Ok, sounds like we should encourage people to use the Fixes: tag and
+> auto-cc tooling more, not less.
+> 
+> I also crunched some quick numbers:
+> commits with cc: stable in drm/amd: 2.6%
+> ... in drm/i915: 2.5%
+> ... drm overall: 2.3%
+> drivers/ overall: 3.1%
+> 
+> So from a quick look no big outliers at least, maybe not quite enough
+> cc: stable from smaller drivers (i915+amd is about 60% of everything
+> in drm). This is for the past year. Compared to drivers/ overall a bit
+> lower, but not drastically so. At least if I didn't screw up my
+> scripting.
 
+Seems about right, so on those averages, you have missed about 40-50
+patches that should have been cc:ed stable.
 
-I work as an agent to some Investors. Do you need a business loan or
-funds for a business idea or want to expand but need huge funding? We
-are expanding our investment presence by granting debt loan to fund
-viable and lucrative projects. If you have any project that needs
-funding, kindly revert to me with your business plan and if we find
-your business to be worthy of investment, you will be promptly
-contacted and both parties will meet face to face and have a
-round-table meeting together.
+However, you are comparing yourself against stuff like drivers/net/
+which shouldn't have cc: stable for most stuff (as per the networking
+workflow), and other subsystems that seem to never want to cc: stable
+for various reasons (offenders not mentioned to be nice...)
 
-Good documentation will be carried out between you and the Investor
-before putting down his funds.
+So let's bump that number up a bit, maybe you are missing 100 patches
+this past year that should have been backported?
 
-Regards
+Feels like you all could tag more, even if the number is only 40-50 :)
 
+Oh wait, are you sure you don't count the horrid "double commits" where
+you backport something from your development branch to your "for linus"
+branch, and have cc: stable on both, so that during the -rc1 merge
+window I see a ton of commits that are already in the tree?  That would
+inflate your numbers a lot more so your real percentages might be a lot
+lower...
 
+fun with math.
 
-williams richard 
-
-via  williiamrichard2999@yahoo.com
+greg k-h
