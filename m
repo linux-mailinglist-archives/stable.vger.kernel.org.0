@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBBA623FAB2
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4953523F9E5
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726734AbgHHXi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53282 "EHLO mail.kernel.org"
+        id S1728426AbgHHXi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728389AbgHHXiy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:38:54 -0400
+        id S1726828AbgHHXiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:38:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23F4A2177B;
-        Sat,  8 Aug 2020 23:38:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49520221E2;
+        Sat,  8 Aug 2020 23:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929933;
-        bh=U+gWfkrY3BsVuOe18g1jlpr8DJgrJunvSINNKdy/Hcs=;
+        s=default; t=1596929935;
+        bh=iVo0GPoeKyLafUTHicn9yxl086QZHMa+h8QT9zS3jU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xv4UIP8TqIkOP4N3vGUgwJLjNyMj9tCxj19kF4OufTndeFWDV4peZAAxOaiKHvbj5
-         t6HMMx8VzGzuRp8hpBl92yG1w1uCHR/n37NLo4hohMM8z6RzHzUmPFJADhA/NO5sCG
-         hynX6q/x07Wk5Y+XWdBCDSkM4CNuBTt1I0AWuWfI=
+        b=he6n+iYdQuSqv5TV+tTqC+83M6qJqicOKvlLKglhq52FlbkTY5gMRWrmywF0+IoGm
+         /ikTOXWWqMSWLaluK6gKYZ5AZMre5Hzth85hOAbn6OgMAPTONg7rxoEjuCjvrhMeUP
+         mQp4KKPIXdXEOxzlByvWNJ3FV//fzaKvmGkvSTBY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/40] EDAC: Fix reference count leaks
-Date:   Sat,  8 Aug 2020 19:38:11 -0400
-Message-Id: <20200808233844.3618823-7-sashal@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 08/40] crc-t10dif: Fix potential crypto notify dead-lock
+Date:   Sat,  8 Aug 2020 19:38:12 -0400
+Message-Id: <20200808233844.3618823-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
 References: <20200808233844.3618823-1-sashal@kernel.org>
@@ -42,57 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 17ed808ad243192fb923e4e653c1338d3ba06207 ]
+[ Upstream commit 3906f640224dbe7714b52b66d7d68c0812808e19 ]
 
-When kobject_init_and_add() returns an error, it should be handled
-because kobject_init_and_add() takes a reference even when it fails. If
-this function returns an error, kobject_put() must be called to properly
-clean up the memory associated with the object.
+The crypto notify call occurs with a read mutex held so you must
+not do any substantial work directly.  In particular, you cannot
+call crypto_alloc_* as they may trigger further notifications
+which may dead-lock in the presence of another writer.
 
-Therefore, replace calling kfree() and call kobject_put() and add a
-missing kobject_put() in the edac_device_register_sysfs_main_kobj()
-error path.
+This patch fixes this by postponing the work into a work queue and
+taking the same lock in the module init function.
 
- [ bp: Massage and merge into a single patch. ]
+While we're at it this patch also ensures that all RCU accesses are
+marked appropriately (tested with sparse).
 
-Fixes: b2ed215a3338 ("Kobject: change drivers/edac to use kobject_init_and_add")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200528202238.18078-1-wu000273@umn.edu
-Link: https://lkml.kernel.org/r/20200528203526.20908-1-wu000273@umn.edu
+Finally this also reveals a race condition in module param show
+function as it may be called prior to the module init function.
+It's fixed by testing whether crct10dif_tfm is NULL (this is true
+iff the init function has not completed assuming fallback is false).
+
+Fixes: 11dcb1037f40 ("crc-t10dif: Allow current transform to be...")
+Fixes: b76377543b73 ("crc-t10dif: Pick better transform if one...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_device_sysfs.c | 1 +
- drivers/edac/edac_pci_sysfs.c    | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ lib/crc-t10dif.c | 54 +++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 42 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/edac/edac_device_sysfs.c b/drivers/edac/edac_device_sysfs.c
-index 0e7ea3591b781..5e75937537997 100644
---- a/drivers/edac/edac_device_sysfs.c
-+++ b/drivers/edac/edac_device_sysfs.c
-@@ -275,6 +275,7 @@ int edac_device_register_sysfs_main_kobj(struct edac_device_ctl_info *edac_dev)
+diff --git a/lib/crc-t10dif.c b/lib/crc-t10dif.c
+index 8cc01a6034165..c9acf1c12cfcb 100644
+--- a/lib/crc-t10dif.c
++++ b/lib/crc-t10dif.c
+@@ -19,39 +19,46 @@
+ static struct crypto_shash __rcu *crct10dif_tfm;
+ static struct static_key crct10dif_fallback __read_mostly;
+ static DEFINE_MUTEX(crc_t10dif_mutex);
++static struct work_struct crct10dif_rehash_work;
  
- 	/* Error exit stack */
- err_kobj_reg:
-+	kobject_put(&edac_dev->kobj);
- 	module_put(edac_dev->owner);
+-static int crc_t10dif_rehash(struct notifier_block *self, unsigned long val, void *data)
++static int crc_t10dif_notify(struct notifier_block *self, unsigned long val, void *data)
+ {
+ 	struct crypto_alg *alg = data;
+-	struct crypto_shash *new, *old;
  
- err_out:
-diff --git a/drivers/edac/edac_pci_sysfs.c b/drivers/edac/edac_pci_sysfs.c
-index 72c9eb9fdffbe..53042af7262e2 100644
---- a/drivers/edac/edac_pci_sysfs.c
-+++ b/drivers/edac/edac_pci_sysfs.c
-@@ -386,7 +386,7 @@ static int edac_pci_main_kobj_setup(void)
+ 	if (val != CRYPTO_MSG_ALG_LOADED ||
+ 	    static_key_false(&crct10dif_fallback) ||
+ 	    strncmp(alg->cra_name, CRC_T10DIF_STRING, strlen(CRC_T10DIF_STRING)))
+ 		return 0;
  
- 	/* Error unwind statck */
- kobject_init_and_add_fail:
--	kfree(edac_pci_top_main_kobj);
-+	kobject_put(edac_pci_top_main_kobj);
++	schedule_work(&crct10dif_rehash_work);
++	return 0;
++}
++
++static void crc_t10dif_rehash(struct work_struct *work)
++{
++	struct crypto_shash *new, *old;
++
+ 	mutex_lock(&crc_t10dif_mutex);
+ 	old = rcu_dereference_protected(crct10dif_tfm,
+ 					lockdep_is_held(&crc_t10dif_mutex));
+ 	if (!old) {
+ 		mutex_unlock(&crc_t10dif_mutex);
+-		return 0;
++		return;
+ 	}
+ 	new = crypto_alloc_shash("crct10dif", 0, 0);
+ 	if (IS_ERR(new)) {
+ 		mutex_unlock(&crc_t10dif_mutex);
+-		return 0;
++		return;
+ 	}
+ 	rcu_assign_pointer(crct10dif_tfm, new);
+ 	mutex_unlock(&crc_t10dif_mutex);
  
- kzalloc_fail:
- 	module_put(THIS_MODULE);
+ 	synchronize_rcu();
+ 	crypto_free_shash(old);
+-	return 0;
+ }
+ 
+ static struct notifier_block crc_t10dif_nb = {
+-	.notifier_call = crc_t10dif_rehash,
++	.notifier_call = crc_t10dif_notify,
+ };
+ 
+ __u16 crc_t10dif_update(__u16 crc, const unsigned char *buffer, size_t len)
+@@ -86,19 +93,26 @@ EXPORT_SYMBOL(crc_t10dif);
+ 
+ static int __init crc_t10dif_mod_init(void)
+ {
++	struct crypto_shash *tfm;
++
++	INIT_WORK(&crct10dif_rehash_work, crc_t10dif_rehash);
+ 	crypto_register_notifier(&crc_t10dif_nb);
+-	crct10dif_tfm = crypto_alloc_shash("crct10dif", 0, 0);
+-	if (IS_ERR(crct10dif_tfm)) {
++	mutex_lock(&crc_t10dif_mutex);
++	tfm = crypto_alloc_shash("crct10dif", 0, 0);
++	if (IS_ERR(tfm)) {
+ 		static_key_slow_inc(&crct10dif_fallback);
+-		crct10dif_tfm = NULL;
++		tfm = NULL;
+ 	}
++	RCU_INIT_POINTER(crct10dif_tfm, tfm);
++	mutex_unlock(&crc_t10dif_mutex);
+ 	return 0;
+ }
+ 
+ static void __exit crc_t10dif_mod_fini(void)
+ {
+ 	crypto_unregister_notifier(&crc_t10dif_nb);
+-	crypto_free_shash(crct10dif_tfm);
++	cancel_work_sync(&crct10dif_rehash_work);
++	crypto_free_shash(rcu_dereference_protected(crct10dif_tfm, 1));
+ }
+ 
+ module_init(crc_t10dif_mod_init);
+@@ -106,11 +120,27 @@ module_exit(crc_t10dif_mod_fini);
+ 
+ static int crc_t10dif_transform_show(char *buffer, const struct kernel_param *kp)
+ {
++	struct crypto_shash *tfm;
++	const char *name;
++	int len;
++
+ 	if (static_key_false(&crct10dif_fallback))
+ 		return sprintf(buffer, "fallback\n");
+ 
+-	return sprintf(buffer, "%s\n",
+-		crypto_tfm_alg_driver_name(crypto_shash_tfm(crct10dif_tfm)));
++	rcu_read_lock();
++	tfm = rcu_dereference(crct10dif_tfm);
++	if (!tfm) {
++		len = sprintf(buffer, "init\n");
++		goto unlock;
++	}
++
++	name = crypto_tfm_alg_driver_name(crypto_shash_tfm(tfm));
++	len = sprintf(buffer, "%s\n", name);
++
++unlock:
++	rcu_read_unlock();
++
++	return len;
+ }
+ 
+ module_param_call(transform, NULL, crc_t10dif_transform_show, NULL, 0644);
 -- 
 2.25.1
 
