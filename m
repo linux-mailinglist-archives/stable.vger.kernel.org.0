@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FF523FAF6
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E36F023FAF3
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbgHHXqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S1727843AbgHHXqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:46:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728225AbgHHXiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:38:22 -0400
+        id S1728278AbgHHXiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:38:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFEE12075D;
-        Sat,  8 Aug 2020 23:38:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54CD020825;
+        Sat,  8 Aug 2020 23:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929901;
-        bh=J+aZmfAKvOLUYQRQl3GbWUWySDDk2hUEA4pacKAj9Zg=;
+        s=default; t=1596929903;
+        bh=PkKczme5tW5pmLkOMAZI0L7Dfxsl6ApuLO0C0aQmgH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJ3JS6dLp5DrMjIvzzP3B4MAOCP1o+XmzJiakNhHBKK95qHmXpxWvtwXLakKR7LPV
-         2CiSQGidi/B2qwLWcMaAP+T4AlmxK8j35Cix9X5qk7EWuYW+3cFmkcZ6fW57o6CvyD
-         cd+6Lt0W/uJ00Ly1As99PbbTQumAqpMvVhoJJbrs=
+        b=0asBzYcDcPKJ1XcwNEWBgH7bvtXSBwxytS95onbG66uccHC8rsYxpP0t+LgqXhyXR
+         YgFCKfRQQWqOgAoX1rD6Aqq4t4wsjwHDho5My4qLhxaP0qHt35l0IAvkUdp1LlWRy9
+         0AKmis6WAT6M+QV1VWwmuEHY3ucScnveQJe80dlQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Vyukov <dvyukov@google.com>,
-        Hristo Venev <hristo@venev.name>, io-uring@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 41/58] io_uring: fix sq array offset calculation
-Date:   Sat,  8 Aug 2020 19:37:07 -0400
-Message-Id: <20200808233724.3618168-41-sashal@kernel.org>
+Cc:     Christian Hewitt <christianshewitt@gmail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 42/58] arm64: dts: meson: fix mmc0 tuning error on Khadas VIM3
+Date:   Sat,  8 Aug 2020 19:37:08 -0400
+Message-Id: <20200808233724.3618168-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233724.3618168-1-sashal@kernel.org>
 References: <20200808233724.3618168-1-sashal@kernel.org>
@@ -44,49 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Vyukov <dvyukov@google.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit b36200f543ff07a1cb346aa582349141df2c8068 ]
+[ Upstream commit f1bb924e8f5b50752a80fa5b48c43003680a7b64 ]
 
-rings_size() sets sq_offset to the total size of the rings (the returned
-value which is used for memory allocation). This is wrong: sq array should
-be located within the rings, not after them. Set sq_offset to where it
-should be.
+Similar to other G12B devices using the W400 dtsi, I see reports of mmc0
+tuning errors on VIM3 after a few hours uptime:
 
-Fixes: 75b28affdd6a ("io_uring: allocate the two rings together")
-Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Hristo Venev <hristo@venev.name>
-Cc: io-uring@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[12483.917391] mmc0: tuning execution failed: -5
+[30535.551221] mmc0: tuning execution failed: -5
+[35359.953671] mmc0: tuning execution failed: -5
+[35561.875332] mmc0: tuning execution failed: -5
+[61733.348709] mmc0: tuning execution failed: -5
+
+I do not see the same on VIM3L, so remove sd-uhs-sdr50 from the common dtsi
+to silence the error, then (re)add it to the VIM3L dts.
+
+Fixes: 4f26cc1c96c9 ("arm64: dts: khadas-vim3: move common nodes into meson-khadas-vim3.dtsi")
+Fixes: 700ab8d83927 ("arm64: dts: khadas-vim3: add support for the SM1 based VIM3L")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/20200721015950.11816-1-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi     | 1 -
+ arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts | 4 ++++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4e09af1d5d223..4bfc595153c72 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7133,6 +7133,9 @@ static unsigned long rings_size(unsigned sq_entries, unsigned cq_entries,
- 		return SIZE_MAX;
- #endif
+diff --git a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
+index 1ef1e3672b967..ff5ba85b7562e 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
+@@ -270,7 +270,6 @@ &sd_emmc_a {
  
-+	if (sq_offset)
-+		*sq_offset = off;
+ 	bus-width = <4>;
+ 	cap-sd-highspeed;
+-	sd-uhs-sdr50;
+ 	max-frequency = <100000000>;
+ 
+ 	non-removable;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
+index dbbf29a0dbf6d..026b21708b078 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
+@@ -88,6 +88,10 @@ &pcie {
+ 	status = "okay";
+ };
+ 
++&sd_emmc_a {
++	sd-uhs-sdr50;
++};
 +
- 	sq_array_size = array_size(sizeof(u32), sq_entries);
- 	if (sq_array_size == SIZE_MAX)
- 		return SIZE_MAX;
-@@ -7140,9 +7143,6 @@ static unsigned long rings_size(unsigned sq_entries, unsigned cq_entries,
- 	if (check_add_overflow(off, sq_array_size, &off))
- 		return SIZE_MAX;
- 
--	if (sq_offset)
--		*sq_offset = off;
--
- 	return off;
- }
- 
+ &usb {
+ 	phys = <&usb2_phy0>, <&usb2_phy1>;
+ 	phy-names = "usb2-phy0", "usb2-phy1";
 -- 
 2.25.1
 
