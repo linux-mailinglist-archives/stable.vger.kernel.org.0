@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 281BF23F9B0
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7E523FB72
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727866AbgHHXhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:37:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S1726935AbgHHXtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:49:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727850AbgHHXhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:37:11 -0400
+        id S1727864AbgHHXhM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:37:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F231F206C3;
-        Sat,  8 Aug 2020 23:37:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35BA72073E;
+        Sat,  8 Aug 2020 23:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929830;
-        bh=0AgMrIP7GP2rYQZIrGzD4CARHK1GDj4u+58ZN43cdUU=;
+        s=default; t=1596929832;
+        bh=EuYOFVLnvPo1+2S5w/3/GkQEHKQPzj6YFWOX9TrrUfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tODXCzQGtLJCBotl1l3dqedb3xpFFVlk1JUDfhkIZc+uJpjJCNmYyZuSqQerHOmST
-         kEf56fe2QMLexvygchBNVV4PL80ZaoOioDBD9YayJ2KoGRiLwJAQPfpa4vMNWywnXo
-         IGh6nDVjfkULlwEi9W5gGVkr7qF7JWZ7N0+r8Uno=
+        b=ARKLd2XpVdLSC6lKZTBTvUmRKZmEoh53WU1HuiINjgioZA7ugKsQa7P4NMgVaMgnq
+         W1zzCnUFEKUeN3Kf5aFrHJuF2VYHAdf16S8aeGyHLXRwrv2ieu+aYBiTjqv9ENyTgq
+         v2Bvd32eLCOhrwG5i2M72MY2RtCLJb9XIZ/o+f9Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Jianmin Lv <lvjianmin@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 62/72] irqchip/loongson-liointc: Fix potential dead lock
-Date:   Sat,  8 Aug 2020 19:35:31 -0400
-Message-Id: <20200808233542.3617339-62-sashal@kernel.org>
+Cc:     Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
+Subject: [PATCH AUTOSEL 5.8 63/72] kunit: tool: fix broken default args in unit tests
+Date:   Sat,  8 Aug 2020 19:35:32 -0400
+Message-Id: <20200808233542.3617339-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -44,35 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit fa03587cad9bd32aa552377de4f05c50181a35a8 ]
+[ Upstream commit 6816fe61bda8c819c368ad2002cd27172ecb79de ]
 
-In the function liointc_set_type(), we need to call the function
-irq_gc_unlock_irqrestore() before returning.
+Commit ddbd60c779b4 ("kunit: use --build_dir=.kunit as default") changed
+the default build directory for KUnit tests, but failed to update
+associated unit tests for kunit_tool, so update them.
 
-Fixes: dbb152267908 ("irqchip: Add driver for Loongson I/O Local Interrupt Controller")
-Reported-by: Jianmin Lv <lvjianmin@loongson.cn>
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/1594087972-21715-8-git-send-email-yangtiezhu@loongson.cn
+Fixes: ddbd60c779b4 ("kunit: use --build_dir=.kunit as default")
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-loongson-liointc.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/kunit/kunit_tool_test.py | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/irqchip/irq-loongson-liointc.c b/drivers/irqchip/irq-loongson-liointc.c
-index 63b61474a0cc2..6ef86a334c62d 100644
---- a/drivers/irqchip/irq-loongson-liointc.c
-+++ b/drivers/irqchip/irq-loongson-liointc.c
-@@ -114,6 +114,7 @@ static int liointc_set_type(struct irq_data *data, unsigned int type)
- 		liointc_set_bit(gc, LIOINTC_REG_INTC_POL, mask, false);
- 		break;
- 	default:
-+		irq_gc_unlock_irqrestore(gc, flags);
- 		return -EINVAL;
- 	}
- 	irq_gc_unlock_irqrestore(gc, flags);
+diff --git a/tools/testing/kunit/kunit_tool_test.py b/tools/testing/kunit/kunit_tool_test.py
+index f9eeaea94cad1..ee942d80bdd02 100755
+--- a/tools/testing/kunit/kunit_tool_test.py
++++ b/tools/testing/kunit/kunit_tool_test.py
+@@ -258,14 +258,14 @@ class KUnitMainTest(unittest.TestCase):
+ 	def test_build_passes_args_pass(self):
+ 		kunit.main(['build'], self.linux_source_mock)
+ 		assert self.linux_source_mock.build_reconfig.call_count == 0
+-		self.linux_source_mock.build_um_kernel.assert_called_once_with(False, 8, '', None)
++		self.linux_source_mock.build_um_kernel.assert_called_once_with(False, 8, '.kunit', None)
+ 		assert self.linux_source_mock.run_kernel.call_count == 0
+ 
+ 	def test_exec_passes_args_pass(self):
+ 		kunit.main(['exec'], self.linux_source_mock)
+ 		assert self.linux_source_mock.build_reconfig.call_count == 0
+ 		assert self.linux_source_mock.run_kernel.call_count == 1
+-		self.linux_source_mock.run_kernel.assert_called_once_with(build_dir='', timeout=300)
++		self.linux_source_mock.run_kernel.assert_called_once_with(build_dir='.kunit', timeout=300)
+ 		self.print_mock.assert_any_call(StrContains('Testing complete.'))
+ 
+ 	def test_run_passes_args_pass(self):
+@@ -273,7 +273,7 @@ class KUnitMainTest(unittest.TestCase):
+ 		assert self.linux_source_mock.build_reconfig.call_count == 1
+ 		assert self.linux_source_mock.run_kernel.call_count == 1
+ 		self.linux_source_mock.run_kernel.assert_called_once_with(
+-			build_dir='', timeout=300)
++			build_dir='.kunit', timeout=300)
+ 		self.print_mock.assert_any_call(StrContains('Testing complete.'))
+ 
+ 	def test_exec_passes_args_fail(self):
+@@ -313,7 +313,7 @@ class KUnitMainTest(unittest.TestCase):
+ 	def test_exec_timeout(self):
+ 		timeout = 3453
+ 		kunit.main(['exec', '--timeout', str(timeout)], self.linux_source_mock)
+-		self.linux_source_mock.run_kernel.assert_called_once_with(build_dir='', timeout=timeout)
++		self.linux_source_mock.run_kernel.assert_called_once_with(build_dir='.kunit', timeout=timeout)
+ 		self.print_mock.assert_any_call(StrContains('Testing complete.'))
+ 
+ 	def test_run_timeout(self):
+@@ -321,7 +321,7 @@ class KUnitMainTest(unittest.TestCase):
+ 		kunit.main(['run', '--timeout', str(timeout)], self.linux_source_mock)
+ 		assert self.linux_source_mock.build_reconfig.call_count == 1
+ 		self.linux_source_mock.run_kernel.assert_called_once_with(
+-			build_dir='', timeout=timeout)
++			build_dir='.kunit', timeout=timeout)
+ 		self.print_mock.assert_any_call(StrContains('Testing complete.'))
+ 
+ 	def test_run_builddir(self):
 -- 
 2.25.1
 
