@@ -2,99 +2,262 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C71D23F93B
-	for <lists+stable@lfdr.de>; Sat,  8 Aug 2020 23:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE0A23F982
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725950AbgHHVyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 17:54:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51314 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726009AbgHHVyL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Aug 2020 17:54:11 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D020C061A27
-        for <stable@vger.kernel.org>; Sat,  8 Aug 2020 14:54:11 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id t14so4932474wmi.3
-        for <stable@vger.kernel.org>; Sat, 08 Aug 2020 14:54:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=jkRzw9X+EX3L+3zQqU4QCdPigGYnW5BHQWzwy20q+e8=;
-        b=DlFTFplM19pyP6oFwa7ythHXboaykp94s5faUYF5FYM59OmnIb6aydp4dstIjLUmEE
-         eX2eVMw9JEwCg22d4wSa0MMcsXTRt565EiAUyiMwoUKw220/r4uKZyIWFkhu4TP2E+gv
-         hp3hQhhnvPpeBQqETqvJFKHAdapw71D8u3yBdh6LbShnRvn9J4jrMDZkycuGimbB2Hb4
-         KMBTnUVNsd7AeBnNqAUtlFnTMj+AyaL6k5PX8NSJsJOGYjYBh8M1TfHNc6F8vMVQiq6v
-         dlCr7Ky1DdgIbNOaf4qun5EwS/xuGT7LvrvZgY7BHxXXmE+Y0v23Ha/ON5fkmsl30JyB
-         JHXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=jkRzw9X+EX3L+3zQqU4QCdPigGYnW5BHQWzwy20q+e8=;
-        b=oc5Z/BR3fsT56PdBJumpUqoqw3WBQb51UioJMdFDupqqOM6x6uYwm30ee9h4Q5XBcY
-         /60s3te1iJ63tTGpgZk6qMsI80MoMb0maZJcVfo9iiFOFJksqQC3eDUTsPZ6+qelhc58
-         EG4rSSaaKXj1WWFYc6uR85LHcvMD2FSAeHIOOBuEWcyVhoCQ2gbewdguQDelnvwshuEq
-         /acLwTuRDFYAzdXqIp6iZ7GG78yhRU2buP/3cdGSEJiB7GH3AjX77mXNlWnx+Z893J8l
-         wldm4U+bKLcGQCD2mkaYTbc3VJr+vrKYt5Q6p3QqRDMGs0c09ebgXq+/DP0vYDy9dTvC
-         b+8Q==
-X-Gm-Message-State: AOAM5339FC/M3urznPh1yR7pz5zYybS605SPoi6l+a2sUqpcR8c2T+6T
-        EFDeSMSQoUUyy+EQW53Vv0qWuOYoxgCySRtm2CE=
-X-Google-Smtp-Source: ABdhPJy9vqFKnlAuoaoiDZnFAcx7IHJArVrp3G4xtaiT7i+Gc2CHc8+ww07dBhM5Z3di/71dn9877TB0AWJ7zHlH838=
-X-Received: by 2002:a1c:bcd6:: with SMTP id m205mr17936108wmf.47.1596923649862;
- Sat, 08 Aug 2020 14:54:09 -0700 (PDT)
+        id S1726050AbgHHXfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47938 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725950AbgHHXfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:35:45 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DF4A206C3;
+        Sat,  8 Aug 2020 23:35:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596929744;
+        bh=CrbNmZ6FMVsPMZu0i7WiMTRVaTILOfMy4YBuKJ5xS6w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VEK8RwyWfbKk2PJHsJrOlYhvBkIsGxtAzNkuxbEqRocb9sGyp/jZ2rMBuglA9pxgY
+         ahqs4w69x+r7YoicB+5JpCyz/4J8Bjr+Ri7ONf3hpADDlTWnO4UxsA/yhBpU2NZXZs
+         lAUU4Ibp9k+MjmIKQzAe6sUH89jg4FuD3hu0yG1w=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Erwan Le Ray <erwan.leray@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 01/72] ARM: dts: stm32: fix uart nodes ordering in stm32mp15-pinctrl
+Date:   Sat,  8 Aug 2020 19:34:30 -0400
+Message-Id: <20200808233542.3617339-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Received: by 2002:adf:94c6:0:0:0:0:0 with HTTP; Sat, 8 Aug 2020 14:54:09 -0700 (PDT)
-Reply-To: mrs.sophia202@list.ru
-From:   "Mrs. Sophia Robin" <mrs.aishamuammar.gaddafi@gmail.com>
-Date:   Sat, 8 Aug 2020 14:54:09 -0700
-Message-ID: <CAKDKtgyFbBBjCNsFKvhyAtx3nK6a5HM3k-oUz1tGq+tE56wAEg@mail.gmail.com>
-Subject: Hello My Dearest
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello My Dearest
+From: Erwan Le Ray <erwan.leray@st.com>
 
-Please I appeal to you to exercise a little patience and read through
-my mail carefully, I am contacting you personally for investment
-assistance and a long term business relationship in your Country.
+[ Upstream commit f6b43d89d3b5a31bf4251a26c61e92bf659e74c5 ]
 
-I am Mrs. Sophia Robin a citizen of the united state of America; I
-work in HSBC Bank in Milan Italy as a Telex Manager charge of wire
-transfer and online banking department.
+Fix usart and uart nodes ordering. Several usart nodes didn't respect
+expecting ordering.
 
-I am contacting you for an important and  urgent business transaction,
-I  want the bank to transfer the money left by Dr. Cheng Chao,  A
-Chinese  Politicians who  died, March 17th 2020 without any trace of
-his family member,  he used our bank to launder money overseas through
-the help of their Political advisers. And most of the funds which they
-transferred out of the shores of China were gold and oil money that
-was supposed to have been used to develop the continent.
+Fixes: 077e0638fc83 ("ARM: dts: stm32: Add alternate pinmux for USART2 pins on stm32mp15")
 
-Can you invest this money and also help the poor? The amount value at
-($15.5million Dollars), left in his account still unclaimed, if you
-know that you are capable to invest this fund into any  profitable
-business in your country kindly send me your details information as
-listed below to enable me draft you an application form of claim along
-with the deposit certificate which you are going to fill with your
-bank account detail necessary and contact the HSBC Bank in Italy  for
-immediate transfer of the Amounted sum into your bank account direct.
+Signed-off-by: Erwan Le Ray <erwan.leray@st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 102 +++++++++++------------
+ 1 file changed, 51 insertions(+), 51 deletions(-)
 
-Percentage share will be 60, for me/ 40, for you.
+diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+index 7eb858732d6d0..b31923a9498b5 100644
+--- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+@@ -1574,143 +1574,143 @@ pins2 {
+ 		};
+ 	};
+ 
+-	usart2_pins_a: usart2-0 {
++	uart4_pins_a: uart4-0 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('F', 5, AF7)>, /* USART2_TX */
+-				 <STM32_PINMUX('D', 4, AF7)>; /* USART2_RTS */
++			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('D', 6, AF7)>, /* USART2_RX */
+-				 <STM32_PINMUX('D', 3, AF7)>; /* USART2_CTS_NSS */
++			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	usart2_sleep_pins_a: usart2-sleep-0 {
+-		pins {
+-			pinmux = <STM32_PINMUX('F', 5, ANALOG)>, /* USART2_TX */
+-				 <STM32_PINMUX('D', 4, ANALOG)>, /* USART2_RTS */
+-				 <STM32_PINMUX('D', 6, ANALOG)>, /* USART2_RX */
+-				 <STM32_PINMUX('D', 3, ANALOG)>; /* USART2_CTS_NSS */
+-		};
+-	};
+-
+-	usart2_pins_b: usart2-1 {
++	uart4_pins_b: uart4-1 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('F', 5, AF7)>, /* USART2_TX */
+-				 <STM32_PINMUX('A', 1, AF7)>; /* USART2_RTS */
++			pinmux = <STM32_PINMUX('D', 1, AF8)>; /* UART4_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('F', 4, AF7)>, /* USART2_RX */
+-				 <STM32_PINMUX('E', 15, AF7)>; /* USART2_CTS_NSS */
++			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	usart2_sleep_pins_b: usart2-sleep-1 {
+-		pins {
+-			pinmux = <STM32_PINMUX('F', 5, ANALOG)>, /* USART2_TX */
+-				 <STM32_PINMUX('A', 1, ANALOG)>, /* USART2_RTS */
+-				 <STM32_PINMUX('F', 4, ANALOG)>, /* USART2_RX */
+-				 <STM32_PINMUX('E', 15, ANALOG)>; /* USART2_CTS_NSS */
+-		};
+-	};
+-
+-	usart3_pins_a: usart3-0 {
++	uart4_pins_c: uart4-2 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('B', 10, AF7)>; /* USART3_TX */
++			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
++			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	uart4_pins_a: uart4-0 {
++	uart7_pins_a: uart7-0 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
++			pinmux = <STM32_PINMUX('E', 8, AF7)>; /* UART4_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
++			pinmux = <STM32_PINMUX('E', 7, AF7)>, /* UART4_RX */
++				 <STM32_PINMUX('E', 10, AF7)>, /* UART4_CTS */
++				 <STM32_PINMUX('E', 9, AF7)>; /* UART4_RTS */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	uart4_pins_b: uart4-1 {
++	uart7_pins_b: uart7-1 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('D', 1, AF8)>; /* UART4_TX */
++			pinmux = <STM32_PINMUX('F', 7, AF7)>; /* UART7_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
++			pinmux = <STM32_PINMUX('F', 6, AF7)>; /* UART7_RX */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	uart4_pins_c: uart4-2 {
++	uart8_pins_a: uart8-0 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
++			pinmux = <STM32_PINMUX('E', 1, AF8)>; /* UART8_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
++			pinmux = <STM32_PINMUX('E', 0, AF8)>; /* UART8_RX */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	uart7_pins_a: uart7-0 {
++	usart2_pins_a: usart2-0 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('E', 8, AF7)>; /* UART4_TX */
++			pinmux = <STM32_PINMUX('F', 5, AF7)>, /* USART2_TX */
++				 <STM32_PINMUX('D', 4, AF7)>; /* USART2_RTS */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('E', 7, AF7)>, /* UART4_RX */
+-				 <STM32_PINMUX('E', 10, AF7)>, /* UART4_CTS */
+-				 <STM32_PINMUX('E', 9, AF7)>; /* UART4_RTS */
++			pinmux = <STM32_PINMUX('D', 6, AF7)>, /* USART2_RX */
++				 <STM32_PINMUX('D', 3, AF7)>; /* USART2_CTS_NSS */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	uart7_pins_b: uart7-1 {
++	usart2_sleep_pins_a: usart2-sleep-0 {
++		pins {
++			pinmux = <STM32_PINMUX('F', 5, ANALOG)>, /* USART2_TX */
++				 <STM32_PINMUX('D', 4, ANALOG)>, /* USART2_RTS */
++				 <STM32_PINMUX('D', 6, ANALOG)>, /* USART2_RX */
++				 <STM32_PINMUX('D', 3, ANALOG)>; /* USART2_CTS_NSS */
++		};
++	};
++
++	usart2_pins_b: usart2-1 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('F', 7, AF7)>; /* UART7_TX */
++			pinmux = <STM32_PINMUX('F', 5, AF7)>, /* USART2_TX */
++				 <STM32_PINMUX('A', 1, AF7)>; /* USART2_RTS */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('F', 6, AF7)>; /* UART7_RX */
++			pinmux = <STM32_PINMUX('F', 4, AF7)>, /* USART2_RX */
++				 <STM32_PINMUX('E', 15, AF7)>; /* USART2_CTS_NSS */
+ 			bias-disable;
+ 		};
+ 	};
+ 
+-	uart8_pins_a: uart8-0 {
++	usart2_sleep_pins_b: usart2-sleep-1 {
++		pins {
++			pinmux = <STM32_PINMUX('F', 5, ANALOG)>, /* USART2_TX */
++				 <STM32_PINMUX('A', 1, ANALOG)>, /* USART2_RTS */
++				 <STM32_PINMUX('F', 4, ANALOG)>, /* USART2_RX */
++				 <STM32_PINMUX('E', 15, ANALOG)>; /* USART2_CTS_NSS */
++		};
++	};
++
++	usart3_pins_a: usart3-0 {
+ 		pins1 {
+-			pinmux = <STM32_PINMUX('E', 1, AF8)>; /* UART8_TX */
++			pinmux = <STM32_PINMUX('B', 10, AF7)>; /* USART3_TX */
+ 			bias-disable;
+ 			drive-push-pull;
+ 			slew-rate = <0>;
+ 		};
+ 		pins2 {
+-			pinmux = <STM32_PINMUX('E', 0, AF8)>; /* UART8_RX */
++			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
+ 			bias-disable;
+ 		};
+ 	};
+-- 
+2.25.1
 
-(1) Your full name..................................................
-(2) Your address....................................................
-(3) Your Nationality.................................................
-(4) Your Age / Sex.....................................................
-(5) Your Occupation............................................
-(6) Your marital status......................................
-(7) Your direct telephone number..................
-(8) your ID Card.......................................
-
-Thanks with my best regards.
-Mrs. Sophia Robin
-Telex / Online Banking Manager
-Milan Italy  (H.S.B.C)
