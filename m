@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC4523FB75
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1718823FB59
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726929AbgHHXtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49974 "EHLO mail.kernel.org"
+        id S1727840AbgHHXhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:37:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbgHHXhG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:37:06 -0400
+        id S1727834AbgHHXhH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:37:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E96EE206E9;
-        Sat,  8 Aug 2020 23:37:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4969220716;
+        Sat,  8 Aug 2020 23:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929825;
-        bh=AiOlWcS4Nc4rzG2Flyr2zCMjKAcNKrD8KD3GG6vV3I8=;
+        s=default; t=1596929827;
+        bh=BSX9EcTnUekZaIJkQio+Eo14SvKz1ux0nZh1+7uibnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3WQ4MPQ8x2mNgB65qSOE7LG44d1llo0Uj1t0a3S5T7tPnXhgTE9fGKVDrlRfgZy6
-         5C65AHYz448IiBNg/bvUUd1U9c8lmKrEzskitvQqT5KY20EEAWsbltpeq/8I499qSS
-         qu5cfk9E0YxMG8VoNlHPyceLHgO3Knn80mRANoDQ=
+        b=nTaSD538e8S5vKBicQoars1cYk23evCgKf+9YQYwzKAtiLu48xb+xrNXYZDL4hh0H
+         BJ4YhwYqvMOWPhxAO17a6C9LDRWwyVMPSpOM4guvv7ZmbTi1XmUypYF7FZSjDtlur5
+         rcghnF7FO+/4SUAE2FNqHZtGSXESD4Nlhs33Facw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        "Guilherme G . Piccoli" <gpiccoli@canonical.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 58/72] md: raid0/linear: fix dereference before null check on pointer mddev
-Date:   Sat,  8 Aug 2020 19:35:27 -0400
-Message-Id: <20200808233542.3617339-58-sashal@kernel.org>
+Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 59/72] irqchip/loongson-htvec: Fix potential resource leak
+Date:   Sat,  8 Aug 2020 19:35:28 -0400
+Message-Id: <20200808233542.3617339-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -44,52 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 9a5a85972c073f720d81a7ebd08bfe278e6e16db ]
+[ Upstream commit 652d54e77a438cf38a5731d8f9983c81e72dc429 ]
 
-Pointer mddev is being dereferenced with a test_bit call before mddev
-is being null checked, this may cause a null pointer dereference. Fix
-this by moving the null pointer checks to sanity check mddev before
-it is dereferenced.
+In the function htvec_of_init(), system resource "parent_irq"
+was not released in an error case. Thus add a jump target for
+the completion of the desired exception handling.
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: 62f7b1989c02 ("md raid0/linear: Mark array as 'broken' and fail BIOs if a member is gone")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: 818e915fbac5 ("irqchip: Add Loongson HyperTransport Vector support")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/1594087972-21715-4-git-send-email-yangtiezhu@loongson.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/irqchip/irq-loongson-htvec.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index f567f536b529b..90756450b9588 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -470,17 +470,18 @@ static blk_qc_t md_make_request(struct request_queue *q, struct bio *bio)
- 	struct mddev *mddev = bio->bi_disk->private_data;
- 	unsigned int sectors;
- 
--	if (unlikely(test_bit(MD_BROKEN, &mddev->flags)) && (rw == WRITE)) {
-+	if (mddev == NULL || mddev->pers == NULL) {
- 		bio_io_error(bio);
- 		return BLK_QC_T_NONE;
+diff --git a/drivers/irqchip/irq-loongson-htvec.c b/drivers/irqchip/irq-loongson-htvec.c
+index 1ece9337c78dc..b36d403383230 100644
+--- a/drivers/irqchip/irq-loongson-htvec.c
++++ b/drivers/irqchip/irq-loongson-htvec.c
+@@ -192,7 +192,7 @@ static int htvec_of_init(struct device_node *node,
+ 	if (!priv->htvec_domain) {
+ 		pr_err("Failed to create IRQ domain\n");
+ 		err = -ENOMEM;
+-		goto iounmap_base;
++		goto irq_dispose;
  	}
  
--	blk_queue_split(q, &bio);
--
--	if (mddev == NULL || mddev->pers == NULL) {
-+	if (unlikely(test_bit(MD_BROKEN, &mddev->flags)) && (rw == WRITE)) {
- 		bio_io_error(bio);
- 		return BLK_QC_T_NONE;
- 	}
-+
-+	blk_queue_split(q, &bio);
-+
- 	if (mddev->ro == 1 && unlikely(rw == WRITE)) {
- 		if (bio_sectors(bio) != 0)
- 			bio->bi_status = BLK_STS_IOERR;
+ 	htvec_reset(priv);
+@@ -203,6 +203,9 @@ static int htvec_of_init(struct device_node *node,
+ 
+ 	return 0;
+ 
++irq_dispose:
++	for (; i > 0; i--)
++		irq_dispose_mapping(parent_irq[i - 1]);
+ iounmap_base:
+ 	iounmap(priv->base);
+ free_priv:
 -- 
 2.25.1
 
