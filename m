@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84C9423FBDA
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C8C23FBD0
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726395AbgHHXfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:35:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48052 "EHLO mail.kernel.org"
+        id S1726428AbgHHXfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726382AbgHHXfu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:35:50 -0400
+        id S1726398AbgHHXfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:35:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14630206E9;
-        Sat,  8 Aug 2020 23:35:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A7A7206D8;
+        Sat,  8 Aug 2020 23:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929749;
-        bh=2q+FXrg/9QdRjh2msUUDlUOpPof9RzO6120MvHd8tJ0=;
+        s=default; t=1596929751;
+        bh=3SszuFnMRkh91EddoT1fiCaR7YvhFDLhQ6A0QGRX8Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4faTbskhp8CoY7wYib0JxA0/10phuow8bPnVaHQ3Dva4IXGokVeE1k9qRDY2KG7q
-         jywLDsuSW8rylVeM05VUwusEJ5GhvcVtcoSn0+4V90JuNY/PS8nmJlz0eknVjzsOiW
-         PB9/GDykdoMWL1H+6ic5L3f/llGdwJP3O86deZ6Y=
+        b=0hH8xFtHk5Hdk3/dmJYZhxQfTsKtKRHSJRPPIETly5j5sNUOhy0Bs8UktHmczmoI6
+         6xErPRi9GxOpLFEHLy+I9fxdpPDEnUDS0lAPoXEr5g7cXEQONNU/RK9YRDjVgJnkGx
+         YtM5j9eVoTfAqZuKX6OXnkKKw1JnlDDBlDi3hotg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Giovanni Gherdovich <ggherdovich@suse.cz>,
+        Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 05/72] x86, sched: check for counters overflow in frequency invariant accounting
-Date:   Sat,  8 Aug 2020 19:34:34 -0400
-Message-Id: <20200808233542.3617339-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 06/72] x86, sched: Bail out of frequency invariance if turbo frequency is unknown
+Date:   Sat,  8 Aug 2020 19:34:35 -0400
+Message-Id: <20200808233542.3617339-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -46,134 +47,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Giovanni Gherdovich <ggherdovich@suse.cz>
 
-[ Upstream commit e2b0d619b400ae326f954a018a1d65d736c237c5 ]
+[ Upstream commit 51beea8862a3095559862df39554f05042e1195b ]
 
-The product mcnt * arch_max_freq_ratio can overflows u64.
-
-For context, a large value for arch_max_freq_ratio would be 5000,
-corresponding to a turbo_freq/base_freq ratio of 5 (normally it's more like
-1500-2000). A large increment frequency for the MPERF counter would be 5GHz
-(the base clock of all CPUs on the market today is less than that). With
-these figures, a CPU would need to go without a scheduler tick for around 8
-days for the u64 overflow to happen. It is unlikely, but the check is
-warranted.
-
-Under similar conditions, the difference acnt of two consecutive APERF
-readings can overflow as well.
-
-In these circumstances is appropriate to disable frequency invariant
-accounting: the feature relies on measures of the clock frequency done at
-every scheduler tick, which need to be "fresh" to be at all meaningful.
-
-A note on i386: prior to version 5.1, the GCC compiler didn't have the
-builtin function __builtin_mul_overflow. In these GCC versions the macro
-check_mul_overflow needs __udivdi3() to do (u64)a/b, which the kernel
-doesn't provide. For this reason this change fails to build on i386 if
-GCC<5.1, and we protect the entire frequency invariant code behind
-CONFIG_X86_64 (special thanks to "kbuild test robot" <lkp@intel.com>).
+There may be CPUs that support turbo boost but don't declare any turbo
+ratio, i.e. their MSR_TURBO_RATIO_LIMIT is all zeroes. In that condition
+scale-invariant calculations can't be performed.
 
 Fixes: 1567c3e3467c ("x86, sched: Add support for frequency invariance")
+Suggested-by: Ricardo Neri <ricardo.neri-calderon@linux.intel.com>
 Signed-off-by: Giovanni Gherdovich <ggherdovich@suse.cz>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lkml.kernel.org/r/20200531182453.15254-2-ggherdovich@suse.cz
+Tested-by: Ricardo Neri <ricardo.neri-calderon@linux.intel.com>
+Link: https://lkml.kernel.org/r/20200531182453.15254-3-ggherdovich@suse.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/topology.h |  2 +-
- arch/x86/kernel/smpboot.c       | 33 ++++++++++++++++++++++++++++-----
- 2 files changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/kernel/smpboot.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/topology.h b/arch/x86/include/asm/topology.h
-index 79d8d54963303..f4234575f3fdb 100644
---- a/arch/x86/include/asm/topology.h
-+++ b/arch/x86/include/asm/topology.h
-@@ -193,7 +193,7 @@ static inline void sched_clear_itmt_support(void)
- }
- #endif /* CONFIG_SCHED_MC_PRIO */
- 
--#ifdef CONFIG_SMP
-+#if defined(CONFIG_SMP) && defined(CONFIG_X86_64)
- #include <asm/cpufeature.h>
- 
- DECLARE_STATIC_KEY_FALSE(arch_scale_freq_key);
 diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index ffbd9a3d78d84..18d292fc466cb 100644
+index 18d292fc466cb..20e1cea262e4b 100644
 --- a/arch/x86/kernel/smpboot.c
 +++ b/arch/x86/kernel/smpboot.c
-@@ -56,6 +56,7 @@
- #include <linux/cpuidle.h>
- #include <linux/numa.h>
- #include <linux/pgtable.h>
-+#include <linux/overflow.h>
- 
- #include <asm/acpi.h>
- #include <asm/desc.h>
-@@ -1777,6 +1778,7 @@ void native_play_dead(void)
- 
- #endif
- 
-+#ifdef CONFIG_X86_64
- /*
-  * APERF/MPERF frequency ratio computation.
-  *
-@@ -2048,11 +2050,19 @@ static void init_freq_invariance(bool secondary)
+@@ -2002,9 +2002,11 @@ static bool intel_set_max_freq_ratio(void)
+ 	/*
+ 	 * Some hypervisors advertise X86_FEATURE_APERFMPERF
+ 	 * but then fill all MSR's with zeroes.
++	 * Some CPUs have turbo boost but don't declare any turbo ratio
++	 * in MSR_TURBO_RATIO_LIMIT.
+ 	 */
+-	if (!base_freq) {
+-		pr_debug("Couldn't determine cpu base frequency, necessary for scale-invariant accounting.\n");
++	if (!base_freq || !turbo_freq) {
++		pr_debug("Couldn't determine cpu base or turbo frequency, necessary for scale-invariant accounting.\n");
+ 		return false;
  	}
- }
  
-+static void disable_freq_invariance_workfn(struct work_struct *work)
-+{
-+	static_branch_disable(&arch_scale_freq_key);
-+}
-+
-+static DECLARE_WORK(disable_freq_invariance_work,
-+		    disable_freq_invariance_workfn);
-+
- DEFINE_PER_CPU(unsigned long, arch_freq_scale) = SCHED_CAPACITY_SCALE;
- 
- void arch_scale_freq_tick(void)
- {
--	u64 freq_scale;
-+	u64 freq_scale = SCHED_CAPACITY_SCALE;
- 	u64 aperf, mperf;
- 	u64 acnt, mcnt;
- 
-@@ -2064,19 +2074,32 @@ void arch_scale_freq_tick(void)
- 
- 	acnt = aperf - this_cpu_read(arch_prev_aperf);
- 	mcnt = mperf - this_cpu_read(arch_prev_mperf);
--	if (!mcnt)
--		return;
- 
- 	this_cpu_write(arch_prev_aperf, aperf);
- 	this_cpu_write(arch_prev_mperf, mperf);
- 
--	acnt <<= 2*SCHED_CAPACITY_SHIFT;
--	mcnt *= arch_max_freq_ratio;
-+	if (check_shl_overflow(acnt, 2*SCHED_CAPACITY_SHIFT, &acnt))
-+		goto error;
-+
-+	if (check_mul_overflow(mcnt, arch_max_freq_ratio, &mcnt) || !mcnt)
-+		goto error;
- 
- 	freq_scale = div64_u64(acnt, mcnt);
-+	if (!freq_scale)
-+		goto error;
- 
- 	if (freq_scale > SCHED_CAPACITY_SCALE)
- 		freq_scale = SCHED_CAPACITY_SCALE;
- 
- 	this_cpu_write(arch_freq_scale, freq_scale);
-+	return;
-+
-+error:
-+	pr_warn("Scheduler frequency invariance went wobbly, disabling!\n");
-+	schedule_work(&disable_freq_invariance_work);
-+}
-+#else
-+static inline void init_freq_invariance(bool secondary)
-+{
- }
-+#endif /* CONFIG_X86_64 */
 -- 
 2.25.1
 
