@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8E023FA88
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC3723F9FD
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:39:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgHHXnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:43:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54594 "EHLO mail.kernel.org"
+        id S1728626AbgHHXjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728613AbgHHXjl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:39:41 -0400
+        id S1728622AbgHHXjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:39:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF5F420748;
-        Sat,  8 Aug 2020 23:39:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A13F120716;
+        Sat,  8 Aug 2020 23:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929980;
-        bh=lbL7P2kqhPvQnOmd05EN1QjyhRu02oRHZ6JHPQepo6Y=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HqvPqYUUbFCnnF5ZwEM+eTloJDHGwPvbfoBrZqGPDCfabTMgI6hZTKRJSc98qg97J
-         oliYzVlbTosTRu+l7iYL+7kzvsGCZKb0KXe70GkgOLkhVOcC08NGw4Vo0lbyqEHg/D
-         u0RuKocszO9HpyBlj/MKuEiZ/FrSwlskCAWjjD3c=
+        s=default; t=1596929983;
+        bh=yH+DAPdtU3IVv54d4VVXWRQgzC7pzyB7IRbaGehowlw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=to7lIy4RgjD6nSK196zFJaD87Vjyk46CUtMQwbwxJywTLjWv8nwMxEndTHNb+QfVe
+         1f0Z2ulyYnKb0cP2LbI1zAMOuH5bsdHgFwjCoP59lkQaoyDFbaLGTYrXJ30bFcb0y7
+         pjiNAIPFnk1mPs/lgwQJogoUGwB51mUH+AFP9dQQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>, Martin Wilck <mwilck@suse.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 40/40] nvme-multipath: do not fall back to __nvme_find_path() for non-optimized paths
-Date:   Sat,  8 Aug 2020 19:38:44 -0400
-Message-Id: <20200808233844.3618823-40-sashal@kernel.org>
+Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 01/21] x86/mce/inject: Fix a wrong assignment of i_mce.status
+Date:   Sat,  8 Aug 2020 19:39:21 -0400
+Message-Id: <20200808233941.3619277-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200808233844.3618823-1-sashal@kernel.org>
-References: <20200808233844.3618823-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,46 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-[ Upstream commit fbd6a42d8932e172921c7de10468a2e12c34846b ]
+[ Upstream commit 5d7f7d1d5e01c22894dee7c9c9266500478dca99 ]
 
-When nvme_round_robin_path() finds a valid namespace we should be using it;
-falling back to __nvme_find_path() for non-optimized paths will cause the
-result from nvme_round_robin_path() to be ignored for non-optimized paths.
+The original code is a nop as i_mce.status is or'ed with part of itself,
+fix it.
 
-Fixes: 75c10e732724 ("nvme-multipath: round-robin I/O policy")
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: a1300e505297 ("x86/ras/mce_amd_inj: Trigger deferred and thresholding errors interrupts")
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Link: https://lkml.kernel.org/r/20200611023238.3830-1-zhenzhong.duan@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce-inject.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 38d25d7c6bca3..484aad0d0c9c6 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -275,10 +275,13 @@ inline struct nvme_ns *nvme_find_path(struct nvme_ns_head *head)
- 	struct nvme_ns *ns;
+diff --git a/arch/x86/kernel/cpu/mcheck/mce-inject.c b/arch/x86/kernel/cpu/mcheck/mce-inject.c
+index 1ceccc4a5472c..9cc524be3c949 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce-inject.c
++++ b/arch/x86/kernel/cpu/mcheck/mce-inject.c
+@@ -518,7 +518,7 @@ static void do_inject(void)
+ 	 */
+ 	if (inj_type == DFR_INT_INJ) {
+ 		i_mce.status |= MCI_STATUS_DEFERRED;
+-		i_mce.status |= (i_mce.status & ~MCI_STATUS_UC);
++		i_mce.status &= ~MCI_STATUS_UC;
+ 	}
  
- 	ns = srcu_dereference(head->current_path[node], &head->srcu);
--	if (READ_ONCE(head->subsys->iopolicy) == NVME_IOPOLICY_RR && ns)
--		ns = nvme_round_robin_path(head, node, ns);
--	if (unlikely(!ns || !nvme_path_is_optimized(ns)))
--		ns = __nvme_find_path(head, node);
-+	if (unlikely(!ns))
-+		return __nvme_find_path(head, node);
-+
-+	if (READ_ONCE(head->subsys->iopolicy) == NVME_IOPOLICY_RR)
-+		return nvme_round_robin_path(head, node, ns);
-+	if (unlikely(!nvme_path_is_optimized(ns)))
-+		return __nvme_find_path(head, node);
- 	return ns;
- }
- 
+ 	/*
 -- 
 2.25.1
 
