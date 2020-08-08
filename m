@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D203623FB6C
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A12B23FB69
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726646AbgHHXsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:48:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50236 "EHLO mail.kernel.org"
+        id S1727906AbgHHXsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:48:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727918AbgHHXhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:37:19 -0400
+        id S1726469AbgHHXhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:37:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5044920723;
-        Sat,  8 Aug 2020 23:37:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CB0F206E9;
+        Sat,  8 Aug 2020 23:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929839;
-        bh=gWkKBLqrFyWOSdK7if2G2dxRkh8/ELMIAsFk2X3V7AE=;
+        s=default; t=1596929840;
+        bh=QDAW9zoveqrWFCuC7xBLGn80jtKBU8onUkR3R7/heiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IB/cFFM0zT4GRvyWKBohqxUcDspXp9KNpMl+qU8Vz+vnPcuw8pfLOTcuHDdlmRD1v
-         822u4L7/5UJ5pyD3LeqyFTHj9f0q8ILy3FJSr2BXLsj6pFYNs1hlwiQutdfdN8DxBT
-         6dVL9UkctAfm2xOl0FzTaKnQLDWTtmhmdUSCiUag=
+        b=AcwZA6Y+ypqr2wkInlkOpVtuLEsfUZeJoy/SZdl3IkdRwjGE7xBfVZjuzh2AkeJkz
+         +TC3EYFLvI7t0mMfKzi5BxM77X2sXquLXVQUVMA282C+eN7J/7xXwH2LCrhVW7njQ1
+         fY3q3y9xxeQ0u0Z/ZsdJFi7+uargv+Ujvok4oKqY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>, Hannes Reinecke <hare@suse.de>,
+Cc:     Hannes Reinecke <hare@suse.de>, Martin Wilck <mwilck@suse.com>,
         Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 69/72] nvme-multipath: fix logic for non-optimized paths
-Date:   Sat,  8 Aug 2020 19:35:38 -0400
-Message-Id: <20200808233542.3617339-69-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 70/72] nvme-multipath: do not fall back to __nvme_find_path() for non-optimized paths
+Date:   Sat,  8 Aug 2020 19:35:39 -0400
+Message-Id: <20200808233542.3617339-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
@@ -44,40 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 3f6e3246db0e6f92e784965d9d0edb8abe6c6b74 ]
+[ Upstream commit fbd6a42d8932e172921c7de10468a2e12c34846b ]
 
-Handle the special case where we have exactly one optimized path,
-which we should keep using in this case.
+When nvme_round_robin_path() finds a valid namespace we should be using it;
+falling back to __nvme_find_path() for non-optimized paths will cause the
+result from nvme_round_robin_path() to be ignored for non-optimized paths.
 
 Fixes: 75c10e732724 ("nvme-multipath: round-robin I/O policy")
-Signed off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
 Signed-off-by: Hannes Reinecke <hare@suse.de>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/nvme/host/multipath.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 66509472fe06a..fe8f7f123fac7 100644
+index fe8f7f123fac7..57d51148e71b6 100644
 --- a/drivers/nvme/host/multipath.c
 +++ b/drivers/nvme/host/multipath.c
-@@ -246,6 +246,12 @@ static struct nvme_ns *nvme_round_robin_path(struct nvme_ns_head *head,
- 			fallback = ns;
- 	}
+@@ -272,10 +272,13 @@ inline struct nvme_ns *nvme_find_path(struct nvme_ns_head *head)
+ 	struct nvme_ns *ns;
  
-+	/* No optimized path found, re-check the current path */
-+	if (!nvme_path_is_disabled(old) &&
-+	    old->ana_state == NVME_ANA_OPTIMIZED) {
-+		found = old;
-+		goto out;
-+	}
- 	if (!fallback)
- 		return NULL;
- 	found = fallback;
+ 	ns = srcu_dereference(head->current_path[node], &head->srcu);
+-	if (READ_ONCE(head->subsys->iopolicy) == NVME_IOPOLICY_RR && ns)
+-		ns = nvme_round_robin_path(head, node, ns);
+-	if (unlikely(!ns || !nvme_path_is_optimized(ns)))
+-		ns = __nvme_find_path(head, node);
++	if (unlikely(!ns))
++		return __nvme_find_path(head, node);
++
++	if (READ_ONCE(head->subsys->iopolicy) == NVME_IOPOLICY_RR)
++		return nvme_round_robin_path(head, node, ns);
++	if (unlikely(!nvme_path_is_optimized(ns)))
++		return __nvme_find_path(head, node);
+ 	return ns;
+ }
+ 
 -- 
 2.25.1
 
