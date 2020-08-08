@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A969A23FBB5
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 042CD23FBB8
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726959AbgHHXgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:36:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49186 "EHLO mail.kernel.org"
+        id S1726965AbgHHXue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Aug 2020 19:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726935AbgHHXgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:36:35 -0400
+        id S1726944AbgHHXgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Aug 2020 19:36:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E837206C3;
-        Sat,  8 Aug 2020 23:36:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7749E20716;
+        Sat,  8 Aug 2020 23:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596929795;
-        bh=uiIpGsEYTqwL6nQJ02O5kTo3YTu+/mkyN/E6AG/P8pM=;
+        s=default; t=1596929796;
+        bh=WY+eO/9Lahljm8HW8woM/npGtNCkHd0cv1BtYYsClx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4HsklInVhAAE+r1pxZvszRr3vg6bs0tUrYr9JhyIH23SK41a+bOG1EstShHNE1Lh
-         +ZVHuGZHltKSyCD+qGfp4M3SL9OhozWnnlO37Z2lAWbo7y8ncdKPr7EWry6Wj7m+1p
-         7KZunv757XTYq63cgSW6QjQZxMYRnzmxJS7VVE8M=
+        b=saogdyKJo1qG8cIn2cht3KIxaC+EDwTettzFkt43W6XCG7/erulgQ8V/559HnFWQm
+         5zqj4wpR/VTnf9U4xDB6J8IE3RCSF/tEXGhP644SVkxM3H4nJcgcp1FWnOomInY3ct
+         BunfTQ8qpnCzHV8T5GWepx/zT+vikiLcYnNGxxFk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+Cc:     yu kuai <yukuai3@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 34/72] ARM: dts: gose: Fix ports node name for adv7612
-Date:   Sat,  8 Aug 2020 19:35:03 -0400
-Message-Id: <20200808233542.3617339-34-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 35/72] ARM: at91: pm: add missing put_device() call in at91_pm_sram_init()
+Date:   Sat,  8 Aug 2020 19:35:04 -0400
+Message-Id: <20200808233542.3617339-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200808233542.3617339-1-sashal@kernel.org>
 References: <20200808233542.3617339-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,35 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 59692ac5a7bb8c97ff440fc8917828083fbc38d6 ]
+[ Upstream commit f87a4f022c44e5b87e842a9f3e644fba87e8385f ]
 
-When adding the adv7612 device node the ports node was misspelled as
-port, fix this.
+if of_find_device_by_node() succeed, at91_pm_sram_init() doesn't have
+a corresponding put_device(). Thus add a jump target to fix the exception
+handling for this function implementation.
 
-Fixes: bc63cd87f3ce924f ("ARM: dts: gose: add HDMI input")
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/20200713111016.523189-1-niklas.soderlund+renesas@ragnatech.se
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: d2e467905596 ("ARM: at91: pm: use the mmio-sram pool to access SRAM")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20200604123301.3905837-1-yukuai3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/r8a7793-gose.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-at91/pm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r8a7793-gose.dts b/arch/arm/boot/dts/r8a7793-gose.dts
-index a378b54867bb4..10c3536b8e3d9 100644
---- a/arch/arm/boot/dts/r8a7793-gose.dts
-+++ b/arch/arm/boot/dts/r8a7793-gose.dts
-@@ -394,7 +394,7 @@ hdmi-in@4c {
- 			interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
- 			default-input = <0>;
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 074bde64064e4..2aab043441e8f 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -592,13 +592,13 @@ static void __init at91_pm_sram_init(void)
+ 	sram_pool = gen_pool_get(&pdev->dev, NULL);
+ 	if (!sram_pool) {
+ 		pr_warn("%s: sram pool unavailable!\n", __func__);
+-		return;
++		goto out_put_device;
+ 	}
  
--			port {
-+			ports {
- 				#address-cells = <1>;
- 				#size-cells = <0>;
+ 	sram_base = gen_pool_alloc(sram_pool, at91_pm_suspend_in_sram_sz);
+ 	if (!sram_base) {
+ 		pr_warn("%s: unable to alloc sram!\n", __func__);
+-		return;
++		goto out_put_device;
+ 	}
  
+ 	sram_pbase = gen_pool_virt_to_phys(sram_pool, sram_base);
+@@ -606,12 +606,17 @@ static void __init at91_pm_sram_init(void)
+ 					at91_pm_suspend_in_sram_sz, false);
+ 	if (!at91_suspend_sram_fn) {
+ 		pr_warn("SRAM: Could not map\n");
+-		return;
++		goto out_put_device;
+ 	}
+ 
+ 	/* Copy the pm suspend handler to SRAM */
+ 	at91_suspend_sram_fn = fncpy(at91_suspend_sram_fn,
+ 			&at91_pm_suspend_in_sram, at91_pm_suspend_in_sram_sz);
++	return;
++
++out_put_device:
++	put_device(&pdev->dev);
++	return;
+ }
+ 
+ static bool __init at91_is_pm_mode_active(int pm_mode)
 -- 
 2.25.1
 
