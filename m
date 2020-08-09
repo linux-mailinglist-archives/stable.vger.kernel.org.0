@@ -2,195 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C206D23FEC0
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 16:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD2423FF0E
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 17:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgHIOTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Aug 2020 10:19:20 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:28704 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726352AbgHIOTU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Aug 2020 10:19:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1596982758;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NWuhdRNFsPxXU+Bf130T3sVhhKplhtrUijH7YH5SeWo=;
-        b=QCKmPtpRlq6UEkQvumQ0idbVWkFdLh3y5lg9/wYr70V0EZ3t0NyqqHVRqZFT+cl5xkavkK
-        PbE0vcgFgU0klAwXfVKbS6+AIb1IPTpqhwVDb9fj+eqQGhplTwRW9mIc0dvwz6Lp8f1EJ/
-        81x8+5gHxJi/HtnN5Vn2i6O3kOq9+JQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-206-ooPjd17bN3mek-Oa8UqE8g-1; Sun, 09 Aug 2020 10:19:14 -0400
-X-MC-Unique: ooPjd17bN3mek-Oa8UqE8g-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726200AbgHIPxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Aug 2020 11:53:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55104 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726175AbgHIPxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Aug 2020 11:53:06 -0400
+Received: from localhost (unknown [70.37.104.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3784F8015F0;
-        Sun,  9 Aug 2020 14:19:13 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-112-24.ams2.redhat.com [10.36.112.24])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F1A9589528;
-        Sun,  9 Aug 2020 14:19:11 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4/4] usb: typec: ucsi: Hold con->lock for the entire duration of ucsi_register_port()
-Date:   Sun,  9 Aug 2020 16:19:04 +0200
-Message-Id: <20200809141904.4317-5-hdegoede@redhat.com>
-In-Reply-To: <20200809141904.4317-1-hdegoede@redhat.com>
-References: <20200809141904.4317-1-hdegoede@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+        by mail.kernel.org (Postfix) with ESMTPSA id AF3DD206B6;
+        Sun,  9 Aug 2020 15:53:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596988385;
+        bh=bvzSHpepcIpsk01JPm9/jnJXQQBNbZgDPOOUGXrs9zk=;
+        h=Date:From:To:To:To:To:CC:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=OibV+d1BMmpxoJNs5u7y4xANzls9uXo1GYSp1zUjDHf+bKoNatL8T0rsI5gqhnG+l
+         tEtQqe21eyz75TXFFH5a60qk5oI1X4u+fiLjTiT+YV84SZV3tMsb40R22zN68nrNy8
+         XAeTxrU3Kbe/UvjS2ek/C6SR0EUeNVN4nifSYKjM=
+Date:   Sun, 09 Aug 2020 15:53:05 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Qingqing Zhuo <qingqing.zhuo@amd.com>
+To:     Jaehyun Chung <jaehyun.chung@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 9/9] drm/amd/display: Blank stream before destroying HDCP session
+In-Reply-To: <20200805174058.11736-10-qingqing.zhuo@amd.com>
+References: <20200805174058.11736-10-qingqing.zhuo@amd.com>
+Message-Id: <20200809155305.AF3DD206B6@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race
-during registration") made the ucsi code hold con->lock in
-ucsi_register_displayport(). But we really don't want any interactions
-with the connector to run before the port-registration process is fully
-complete.
+Hi
 
-This commit moves the taking of con->lock from ucsi_register_displayport()
-into ucsi_register_port() to achieve this.
+[This is an automated email]
 
-Cc: stable@vger.kernel.org
-Fixes: 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race during registration")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/usb/typec/ucsi/displayport.c |  9 +-------
- drivers/usb/typec/ucsi/ucsi.c        | 31 ++++++++++++++++++++--------
- 2 files changed, 23 insertions(+), 17 deletions(-)
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-diff --git a/drivers/usb/typec/ucsi/displayport.c b/drivers/usb/typec/ucsi/displayport.c
-index 048381c058a5..261131c9e37c 100644
---- a/drivers/usb/typec/ucsi/displayport.c
-+++ b/drivers/usb/typec/ucsi/displayport.c
-@@ -288,8 +288,6 @@ struct typec_altmode *ucsi_register_displayport(struct ucsi_connector *con,
- 	struct typec_altmode *alt;
- 	struct ucsi_dp *dp;
- 
--	mutex_lock(&con->lock);
--
- 	/* We can't rely on the firmware with the capabilities. */
- 	desc->vdo |= DP_CAP_DP_SIGNALING | DP_CAP_RECEPTACLE;
- 
-@@ -298,15 +296,12 @@ struct typec_altmode *ucsi_register_displayport(struct ucsi_connector *con,
- 	desc->vdo |= all_assignments << 16;
- 
- 	alt = typec_port_register_altmode(con->port, desc);
--	if (IS_ERR(alt)) {
--		mutex_unlock(&con->lock);
-+	if (IS_ERR(alt))
- 		return alt;
--	}
- 
- 	dp = devm_kzalloc(&alt->dev, sizeof(*dp), GFP_KERNEL);
- 	if (!dp) {
- 		typec_unregister_altmode(alt);
--		mutex_unlock(&con->lock);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
-@@ -319,7 +314,5 @@ struct typec_altmode *ucsi_register_displayport(struct ucsi_connector *con,
- 	alt->ops = &ucsi_displayport_ops;
- 	typec_altmode_set_drvdata(alt, dp);
- 
--	mutex_unlock(&con->lock);
--
- 	return alt;
- }
-diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
-index 182e34aa65ed..2999217c8109 100644
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -898,12 +898,15 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 	con->num = index + 1;
- 	con->ucsi = ucsi;
- 
-+	/* Delay other interactions with the con until registration is complete */
-+	mutex_lock(&con->lock);
-+
- 	/* Get connector capability */
- 	command = UCSI_GET_CONNECTOR_CAPABILITY;
- 	command |= UCSI_CONNECTOR_NUMBER(con->num);
- 	ret = ucsi_send_command(ucsi, command, &con->cap, sizeof(con->cap));
- 	if (ret < 0)
--		return ret;
-+		goto out;
- 
- 	if (con->cap.op_mode & UCSI_CONCAP_OPMODE_DRP)
- 		cap->data = TYPEC_PORT_DRD;
-@@ -935,26 +938,32 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 
- 	ret = ucsi_register_port_psy(con);
- 	if (ret)
--		return ret;
-+		goto out;
- 
- 	/* Register the connector */
- 	con->port = typec_register_port(ucsi->dev, cap);
--	if (IS_ERR(con->port))
--		return PTR_ERR(con->port);
-+	if (IS_ERR(con->port)) {
-+		ret = PTR_ERR(con->port);
-+		goto out;
-+	}
- 
- 	/* Alternate modes */
- 	ret = ucsi_register_altmodes(con, UCSI_RECIPIENT_CON);
--	if (ret)
-+	if (ret) {
- 		dev_err(ucsi->dev, "con%d: failed to register alt modes\n",
- 			con->num);
-+		goto out;
-+	}
- 
- 	/* Get the status */
- 	command = UCSI_GET_CONNECTOR_STATUS | UCSI_CONNECTOR_NUMBER(con->num);
- 	ret = ucsi_send_command(ucsi, command, &con->status, sizeof(con->status));
- 	if (ret < 0) {
- 		dev_err(ucsi->dev, "con%d: failed to get status\n", con->num);
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
-+	ret = 0; /* ucsi_send_command() returns length on success */
- 
- 	switch (UCSI_CONSTAT_PARTNER_TYPE(con->status.flags)) {
- 	case UCSI_CONSTAT_PARTNER_TYPE_UFP:
-@@ -979,17 +988,21 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 
- 	if (con->partner) {
- 		ret = ucsi_register_altmodes(con, UCSI_RECIPIENT_SOP);
--		if (ret)
-+		if (ret) {
- 			dev_err(ucsi->dev,
- 				"con%d: failed to register alternate modes\n",
- 				con->num);
--		else
-+			ret = 0;
-+		} else {
- 			ucsi_altmode_update_active(con);
-+		}
- 	}
- 
- 	trace_ucsi_register_port(con->num, &con->status);
- 
--	return 0;
-+out:
-+	mutex_unlock(&con->lock);
-+	return ret;
- }
- 
- /**
+The bot has tested the following trees: v5.8, v5.7.13, v5.4.56, v4.19.137, v4.14.192, v4.9.232, v4.4.232.
+
+v5.8: Build OK!
+v5.7.13: Failed to apply! Possible dependencies:
+    4cf7c42739cc ("drm/amd/display: Set/Reset avmute when disable/enable stream")
+
+v5.4.56: Failed to apply! Possible dependencies:
+    2b77dcc5e5aa ("drm/amd/display: rename core_dc to dc")
+    2f752e914d94 ("drm/amd/display: Remove connect DIG FE to its BE during timing programming")
+    48af9b91b129 ("drm/amd/display: Don't allocate payloads if link lost")
+    4cf7c42739cc ("drm/amd/display: Set/Reset avmute when disable/enable stream")
+    7f7652ee8c8c ("drm/amd/display: enable single dp seamless boot")
+    8cc426d79be1 ("drm/amd/display: Program DSC during timing programming")
+    9ae1b27f31d0 ("drm/amd/display: fix hotplug during display off")
+    ab4a4072f260 ("drm/amd/display: exit PSR during detection")
+    d4252eee1f7c ("drm/amd/display: Add debugfs entry to force YUV420 output")
+    d462fcf5012b ("drm/amd/display: Update hdcp display config")
+    e0d08a40a63b ("drm/amd/display: Add debugfs entry for reading psr state")
+    e78a312f81c8 ("drm/amd/display: use requested_dispclk_khz instead of clk")
+    ef5a7d266e82 ("drm/amd/display: skip enable stream on disconnected display")
+
+v4.19.137: Failed to apply! Possible dependencies:
+    11c3ee48bd7c ("drm/amdgpu/display: add support for LVDS (v5)")
+    1a9e3d4569fc ("drm/amd/display: Set DSC before DIG front-end is connected to its back-end")
+    1e7e86c43f38 ("drm/amd/display: decouple front and backend pgm using dpms_off as backend enable flag")
+    2f752e914d94 ("drm/amd/display: Remove connect DIG FE to its BE during timing programming")
+    4cf7c42739cc ("drm/amd/display: Set/Reset avmute when disable/enable stream")
+    8c3db1284a01 ("drm/amdgpu: fill in amdgpu_dm_remove_sink_from_freesync_module")
+    98e6436d3af5 ("drm/amd/display: Refactor FreeSync module")
+    aa9c4abe466a ("drm/amd/display: Refactor FPGA-specific link setup")
+
+v4.14.192: Failed to apply! Possible dependencies:
+    1b0c0f9dc5ca ("drm/amdgpu: move userptr BOs to CPU domain during CS v2")
+    2f752e914d94 ("drm/amd/display: Remove connect DIG FE to its BE during timing programming")
+    3fe89771cb0a ("drm/amdgpu: stop reserving the BO in the MMU callback v3")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    4cf7c42739cc ("drm/amd/display: Set/Reset avmute when disable/enable stream")
+    60de1c1740f3 ("drm/amdgpu: use a rw_semaphore for MMU notifiers")
+    71021265a6f0 ("drm/amd/display: Clear test pattern when enabling stream")
+    9a18999640fa ("drm/amdgpu: move MMU notifier related defines to amdgpu_mn.h")
+    9cca0b8e5df0 ("drm/amdgpu: move amdgpu_cs_sysvm_access_required into find_mapping")
+    a216ab09955d ("drm/amdgpu: fix userptr put_page handling")
+    b72cf4fca2bb ("drm/amdgpu: move taking mmap_sem into get_user_pages v2")
+    ca666a3c298f ("drm/amdgpu: stop using BO status for user pages")
+
+v4.9.232: Failed to apply! Possible dependencies:
+    1cec20f0ea0e ("dma-buf: Restart reservation_object_wait_timeout_rcu() after writes")
+    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
+    2f752e914d94 ("drm/amd/display: Remove connect DIG FE to its BE during timing programming")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    4cf7c42739cc ("drm/amd/display: Set/Reset avmute when disable/enable stream")
+    71021265a6f0 ("drm/amd/display: Clear test pattern when enabling stream")
+    78010cd9736e ("dma-buf/fence: add an lockdep_assert_held()")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
+
+v4.4.232: Failed to apply! Possible dependencies:
+    0f477c6dea70 ("staging/android/sync: add sync_fence_create_dma")
+    1f7371b2a5fa ("drm/amd/powerplay: add basic powerplay framework")
+    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
+    288912cb95d1 ("drm/amdgpu: use $(src) in Makefile (v2)")
+    2f752e914d94 ("drm/amd/display: Remove connect DIG FE to its BE during timing programming")
+    375fb53ec1be ("staging: android: replace explicit NULL comparison")
+    395dec6f6bc5 ("Documentation: add doc for sync_file_get_fence()")
+    4325198180e5 ("drm/amdgpu: remove GART page addr array")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    4cf7c42739cc ("drm/amd/display: Set/Reset avmute when disable/enable stream")
+    62304fb1fc08 ("dma-buf/sync_file: de-stage sync_file")
+    71021265a6f0 ("drm/amd/display: Clear test pattern when enabling stream")
+    a1d29476d666 ("drm/amdgpu: optionally enable GART debugfs file")
+    a8fe58cec351 ("drm/amd: add ACP driver support")
+    b70f014d58b9 ("drm/amdgpu: change default sched jobs to 32")
+    c784c82a3fd6 ("Documentation: add Sync File doc")
+    d4cab38e153d ("staging/android: prepare sync_file for de-staging")
+    d7fdb0ae9d11 ("staging/android: rename sync_fence to sync_file")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fac8434dab96 ("Documentation: Fix some grammar mistakes in sync_file.txt")
+    fdba11f4079e ("drm/amdgpu: move all Kconfig options to amdgpu/Kconfig")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
 -- 
-2.26.2
-
+Thanks
+Sasha
