@@ -2,117 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 932E423FE54
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 14:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805F623FEBA
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 16:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726120AbgHIMyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Aug 2020 08:54:10 -0400
-Received: from crapouillou.net ([89.234.176.41]:33422 "EHLO crapouillou.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726009AbgHIMyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Aug 2020 08:54:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1596977646; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:references; bh=cnkmqD3TG3gz8m5XcYrWDZ+GrLOHBws185ObzDx76W4=;
-        b=koKnTka2TQh1Pi5bezaIUxvSZNqIOH73m0JLB50SXT/kS7HRy7RE3eYCxF0kylxdMBaKtz
-        r9SBDWb9XR5VPe1KBCjk0EHZ5Hw2sMjWvsHqhuynBpq810w3G5kunugipyx8SQ0lKVHCmG
-        tn2xrwbelnBWR2TEEIiThPD3FT4ktgo=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Bin Liu <b-liu@ti.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Johan Hovold <johan@kernel.org>, od@zcrc.me,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
-Subject: [PATCH] usb: musb: Fix runtime PM race in musb_queue_resume_work
-Date:   Sun,  9 Aug 2020 14:53:59 +0200
-Message-Id: <20200809125359.31025-1-paul@crapouillou.net>
+        id S1726323AbgHIOTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Aug 2020 10:19:15 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:52618 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726229AbgHIOTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Aug 2020 10:19:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596982751;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3SxBwwd/jGFDYXHUnTvTxkgkCOmK+BmPZI0Qya15sKI=;
+        b=L4LON/UD5yJMLt0Ybma+Es28iR+5GkwBCMaxU57iRjFYyAoR5hgBcXrl/YtjXV73iegfKv
+        +QF/v7y0NIh+mb04REXo8YDumfWy/4Z6xkkB4DQnt4FjH1cr9qGwmqV3zoVZhJS/FmnGDb
+        6F3ssDWb5bW3i/qHm+urfCO4TQ9/Tok=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-232-rbjyxjQ3NQi0B5g-dDpI3g-1; Sun, 09 Aug 2020 10:19:09 -0400
+X-MC-Unique: rbjyxjQ3NQi0B5g-dDpI3g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9EBB457;
+        Sun,  9 Aug 2020 14:19:08 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-112-24.ams2.redhat.com [10.36.112.24])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 67A8989528;
+        Sun,  9 Aug 2020 14:19:07 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] usb: typec: ucsi: Fix AB BA lock inversion
+Date:   Sun,  9 Aug 2020 16:19:01 +0200
+Message-Id: <20200809141904.4317-2-hdegoede@redhat.com>
+In-Reply-To: <20200809141904.4317-1-hdegoede@redhat.com>
+References: <20200809141904.4317-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-musb_queue_resume_work() would call the provided callback if the runtime
-PM status was 'active'. Otherwise, it would enqueue the request if the
-hardware was still suspended (musb->is_runtime_suspended is true).
+Lockdep reports an AB BA lock inversion between ucsi_init() and
+ucsi_handle_connector_change():
 
-This causes a race with the runtime PM handlers, as it is possible to be
-in the case where the runtime PM status is not yet 'active', but the
-hardware has been awaken (PM resume function has been called).
+AB order:
 
-When hitting the race, the resume work was not enqueued, which probably
-triggered other bugs further down the stack. For instance, a telnet
-connection on Ingenic SoCs would result in a 50/50 chance of a
-segmentation fault somewhere in the musb code.
+1. ucsi_init takes ucsi->ppm_lock (it runs with that locked for the
+   duration of the function)
+2. usci_init eventually end up calling ucsi_register_displayport,
+   which takes ucsi_connector->lock
 
-Rework the code so that either we call the callback directly if
-(musb->is_runtime_suspended == 0), or enqueue the query otherwise.
+BA order:
 
-Fixes: ea2f35c01d5e ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
-Cc: stable@vger.kernel.org # v4.9
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+1. ucsi_handle_connector_change work is started, takes ucsi_connector->lock
+2. ucsi_handle_connector_change calls ucsi_send_command which takes
+   ucsi->ppm_lock
+
+The ppm_lock really only needs to be hold during 2 functions:
+ucsi_reset_ppm() and ucsi_run_command().
+
+This commit fixes the AB BA lock inversion by making ucsi_init drop the
+ucsi->ppm_lock before it starts registering ports; and replacing any
+ucsi_run_command() calls after this point with ucsi_send_command()
+(which is a wrapper around run_command taking the lock while handling
+the command).
+
+Some of the replacing of ucsi_run_command with ucsi_send_command
+in the helpers used during port registration also fixes a number of
+code paths after registration which call ucsi_run_command() without
+holding the ppm_lock:
+1. ucsi_altmode_update_active() call in ucsi/displayport.c
+2. ucsi_register_altmodes() call from ucsi_handle_connector_change()
+   (through ucsi_partner_change())
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/usb/musb/musb_core.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/usb/typec/ucsi/ucsi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index 384a8039a7fd..462c10d7455a 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2241,32 +2241,35 @@ int musb_queue_resume_work(struct musb *musb,
- {
- 	struct musb_pending_work *w;
- 	unsigned long flags;
-+	bool is_suspended;
- 	int error;
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index d0c63afaf345..d9d93f83b2a6 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -205,7 +205,7 @@ void ucsi_altmode_update_active(struct ucsi_connector *con)
+ 	int i;
  
- 	if (WARN_ON(!callback))
- 		return -EINVAL;
+ 	command = UCSI_GET_CURRENT_CAM | UCSI_CONNECTOR_NUMBER(con->num);
+-	ret = ucsi_run_command(con->ucsi, command, &cur, sizeof(cur));
++	ret = ucsi_send_command(con->ucsi, command, &cur, sizeof(cur));
+ 	if (ret < 0) {
+ 		if (con->ucsi->version > 0x0100) {
+ 			dev_err(con->ucsi->dev,
+@@ -354,7 +354,7 @@ ucsi_register_altmodes_nvidia(struct ucsi_connector *con, u8 recipient)
+ 		command |= UCSI_GET_ALTMODE_RECIPIENT(recipient);
+ 		command |= UCSI_GET_ALTMODE_CONNECTOR_NUMBER(con->num);
+ 		command |= UCSI_GET_ALTMODE_OFFSET(i);
+-		len = ucsi_run_command(con->ucsi, command, &alt, sizeof(alt));
++		len = ucsi_send_command(con->ucsi, command, &alt, sizeof(alt));
+ 		/*
+ 		 * We are collecting all altmodes first and then registering.
+ 		 * Some type-C device will return zero length data beyond last
+@@ -431,7 +431,7 @@ static int ucsi_register_altmodes(struct ucsi_connector *con, u8 recipient)
+ 		command |= UCSI_GET_ALTMODE_RECIPIENT(recipient);
+ 		command |= UCSI_GET_ALTMODE_CONNECTOR_NUMBER(con->num);
+ 		command |= UCSI_GET_ALTMODE_OFFSET(i);
+-		len = ucsi_run_command(con->ucsi, command, alt, sizeof(alt));
++		len = ucsi_send_command(con->ucsi, command, alt, sizeof(alt));
+ 		if (len <= 0)
+ 			return len;
  
--	if (pm_runtime_active(musb->controller))
--		return callback(musb, data);
-+	spin_lock_irqsave(&musb->list_lock, flags);
-+	is_suspended = musb->is_runtime_suspended;
-+
-+	if (is_suspended) {
-+		w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
-+		if (!w) {
-+			error = -ENOMEM;
-+			goto out_unlock;
-+		}
+@@ -904,7 +904,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ 	/* Get connector capability */
+ 	command = UCSI_GET_CONNECTOR_CAPABILITY;
+ 	command |= UCSI_CONNECTOR_NUMBER(con->num);
+-	ret = ucsi_run_command(ucsi, command, &con->cap, sizeof(con->cap));
++	ret = ucsi_send_command(ucsi, command, &con->cap, sizeof(con->cap));
+ 	if (ret < 0)
+ 		return ret;
  
--	w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
--	if (!w)
--		return -ENOMEM;
-+		w->callback = callback;
-+		w->data = data;
+@@ -953,8 +953,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
  
--	w->callback = callback;
--	w->data = data;
--	spin_lock_irqsave(&musb->list_lock, flags);
--	if (musb->is_runtime_suspended) {
- 		list_add_tail(&w->node, &musb->pending_list);
- 		error = 0;
--	} else {
--		dev_err(musb->controller, "could not add resume work %p\n",
--			callback);
--		devm_kfree(musb->controller, w);
--		error = -EINPROGRESS;
+ 	/* Get the status */
+ 	command = UCSI_GET_CONNECTOR_STATUS | UCSI_CONNECTOR_NUMBER(con->num);
+-	ret = ucsi_run_command(ucsi, command, &con->status,
+-			       sizeof(con->status));
++	ret = ucsi_send_command(ucsi, command, &con->status, sizeof(con->status));
+ 	if (ret < 0) {
+ 		dev_err(ucsi->dev, "con%d: failed to get status\n", con->num);
+ 		return 0;
+@@ -1044,6 +1043,8 @@ int ucsi_init(struct ucsi *ucsi)
+ 		goto err_reset;
  	}
-+
-+out_unlock:
- 	spin_unlock_irqrestore(&musb->list_lock, flags);
  
-+	if (!is_suspended)
-+		error = callback(musb, data);
++	mutex_unlock(&ucsi->ppm_lock);
 +
- 	return error;
- }
- EXPORT_SYMBOL_GPL(musb_queue_resume_work);
+ 	/* Register all connectors */
+ 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
+ 		ret = ucsi_register_port(ucsi, i);
+@@ -1054,12 +1055,10 @@ int ucsi_init(struct ucsi *ucsi)
+ 	/* Enable all notifications */
+ 	ucsi->ntfy = UCSI_ENABLE_NTFY_ALL;
+ 	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
+-	ret = ucsi_run_command(ucsi, command, NULL, 0);
++	ret = ucsi_send_command(ucsi, command, NULL, 0);
+ 	if (ret < 0)
+ 		goto err_unregister;
+ 
+-	mutex_unlock(&ucsi->ppm_lock);
+-
+ 	return 0;
+ 
+ err_unregister:
+@@ -1071,6 +1070,7 @@ int ucsi_init(struct ucsi *ucsi)
+ 		con->port = NULL;
+ 	}
+ 
++	mutex_lock(&ucsi->ppm_lock);
+ err_reset:
+ 	ucsi_reset_ppm(ucsi);
+ err:
 -- 
-2.28.0
+2.26.2
 
