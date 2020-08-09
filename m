@@ -2,102 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E7F23FA26
-	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 01:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E04A623FD11
+	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 09:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728968AbgHHXlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Aug 2020 19:41:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728964AbgHHXlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Aug 2020 19:41:06 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F23AF2073E;
-        Sat,  8 Aug 2020 23:41:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596930065;
-        bh=ty18EZHzNNsdgv8w9u5VplsWbIv4nX7VRyU0h2WE+W4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FquCIY2UG7fUnooFz52yf7uRMxwuvCZzq+TwtzM1A19WwDVxGdj0tp+MeB5LeG0Ob
-         0R0/1WmcjI5VQwmwb+PrSSn+9Ok4e5JVqMRQ1hQRNW8QkoIi0E95AjHCBy99YJayWO
-         QKQOJOWw5FS0wbkBlgPrNuUQmZZ43+5z8n0sGemo=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Dinh Nguyen <dinguyen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 5/5] ARM: socfpga: PM: add missing put_device() call in socfpga_setup_ocram_self_refresh()
-Date:   Sat,  8 Aug 2020 19:40:53 -0400
-Message-Id: <20200808234054.3619873-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200808234054.3619873-1-sashal@kernel.org>
-References: <20200808234054.3619873-1-sashal@kernel.org>
+        id S1726229AbgHIHCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Aug 2020 03:02:44 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:34473 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726097AbgHIHCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Aug 2020 03:02:43 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id D8A3432B;
+        Sun,  9 Aug 2020 03:02:41 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Sun, 09 Aug 2020 03:02:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=C
+        ZZOeMqfhadfPcRVRLEsanj8bFOrmOCOkNkjdY/+IQw=; b=iOlq4ZByc7Alv9IH/
+        yhYW0x3s7Bg8eWaVfeo/Urd0lYZaiuGV3OLcOyZdiqDhxFcRkbxUmF6gswCweMqC
+        7H5+QcvNBooe/L00C7Mpc+hod3aXMEjU5bVXIAoAQ7KeyVOqebp0Oss8vUrF8hWP
+        Z7VS6hN4m4XRB8X9pA8J7TGD+PfzkqXXaSy8zf5wywp73Jirq0oVNvukADpIC+ZB
+        D8LVCS2cijO6uROZM5huLStFPSkKSOTtWTi2j1BYPW7nI78eWNpCtyJUrU0CSS0U
+        4p3jFOIkRHMcPRS3YBn9xw8oZVjzisxD/AMusBHhpQ2QIEgmrUKzOx6ErkC2ioS3
+        wErFA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=CZZOeMqfhadfPcRVRLEsanj8bFOrmOCOkNkjdY/+I
+        Qw=; b=jm9i3TlHGIxgFq4x28OBgYxE4Ndx5ZDsWD9O8paOB4pbvcR+ItUHgXSmy
+        K9X1bd0uwQ6dIaPL2p3rxo3fLcos/tBJdBjRz+LRlPCl/cLR9ktCYHrZFTxO4l/H
+        wMa/OMN9km4YAneQ/Z4L4nmTt6bWVipVgIVWRKVOXBHPgiy6O9Vfjj9pyUqKXl3m
+        dQMie/g293HIK9W2mOEUhtujomGKx1SZES00sLpwEQBa7bkDkqZx3E8roV5legz/
+        nICVoXEChozdkh4xJrR7tvG+c6bgWewMYPf9oD0tJY9op5E9bhsmxHGNapGBK03U
+        jsUHikABVxrZHZCKBRUkp4NAVptig==
+X-ME-Sender: <xms:kJ8vX1wjCiwkkWiKHZsHc5aYJ0R-Ht9w0wkUr1xJ9Rxeih6fpzsEtg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrkeehgdduudegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueehke
+    ehlefffeeiudetfeekjeffvdeuheejjeffheeludfgteekvdelkeduuddvnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:kJ8vX1TS24QAOAXGvSUmBnHO1gdjX3hfK8wzv6qlWv4_u97GV9w_2A>
+    <xmx:kJ8vX_VdYMUy8kyLNmvMi-btXBBKzXfKSzD72Kex5-LmXFMZTWtpIA>
+    <xmx:kJ8vX3iLMfdG1CgjYqQL1V7sMnsl3M80JnhCQgGMpTH5TpqzuyDrrQ>
+    <xmx:kZ8vX50X93O7uC7azEGm0ugsvxktCsnocNNZ3kxNlS2LL5_uI4DGXw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 639D1306005F;
+        Sun,  9 Aug 2020 03:02:40 -0400 (EDT)
+Date:   Sun, 9 Aug 2020 09:02:35 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc:     Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        kvm@vger.kernel.org, linux-mips@vger.kernel.org,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Huacai Chen <chenhuacai@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: VZ: Only include loongson_regs.h for CPU_LOONGSON64
+Message-ID: <20200809070235.GA1098081@kroah.com>
+References: <1596891052-24052-1-git-send-email-chenhc@lemote.com>
+ <20200808153123.GC369184@kroah.com>
+ <2b2937d0-eae6-a489-07bd-c40ded02ce89@flygoat.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <2b2937d0-eae6-a489-07bd-c40ded02ce89@flygoat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+On Sat, Aug 08, 2020 at 11:35:54PM +0800, Jiaxun Yang wrote:
+> 
+> 
+> 在 2020/8/8 下午11:31, Greg KH 写道:
+> > On Sat, Aug 08, 2020 at 08:50:52PM +0800, Huacai Chen wrote:
+> > > Only Loongson64 platform has and needs loongson_regs.h, including it
+> > > unconditionally will cause build errors.
+> > > 
+> > > Fixes: 7f2a83f1c2a941ebfee5 ("KVM: MIPS: Add CPUCFG emulation for Loongson-3")
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: kernel test robot <lkp@intel.com>
+> > > Signed-off-by: Huacai Chen <chenhc@lemote.com>
+> > > ---
+> > >   arch/mips/kvm/vz.c | 2 ++
+> > >   1 file changed, 2 insertions(+)
+> > > 
+> > > diff --git a/arch/mips/kvm/vz.c b/arch/mips/kvm/vz.c
+> > > index 3932f76..a474578 100644
+> > > --- a/arch/mips/kvm/vz.c
+> > > +++ b/arch/mips/kvm/vz.c
+> > > @@ -29,7 +29,9 @@
+> > >   #include <linux/kvm_host.h>
+> > >   #include "interrupt.h"
+> > > +#ifdef CONFIG_CPU_LOONGSON64
+> > >   #include "loongson_regs.h"
+> > > +#endif
+> > The fix for this should be in the .h file, no #ifdef should be needed in
+> > a .c file.
+> 
+> The header file can only be reached when CONFIG_CPU_LOONGSON64 is
+> selected...
+> Otherwise the include path of this file won't be a part of CFLAGS.
 
-[ Upstream commit 3ad7b4e8f89d6bcc9887ca701cf2745a6aedb1a0 ]
-
-if of_find_device_by_node() succeed, socfpga_setup_ocram_self_refresh
-doesn't have a corresponding put_device(). Thus add a jump target to
-fix the exception handling for this function implementation.
-
-Fixes: 44fd8c7d4005 ("ARM: socfpga: support suspend to ram")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/arm/mach-socfpga/pm.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm/mach-socfpga/pm.c b/arch/arm/mach-socfpga/pm.c
-index c378ab0c24317..93f2245c97750 100644
---- a/arch/arm/mach-socfpga/pm.c
-+++ b/arch/arm/mach-socfpga/pm.c
-@@ -60,14 +60,14 @@ static int socfpga_setup_ocram_self_refresh(void)
- 	if (!ocram_pool) {
- 		pr_warn("%s: ocram pool unavailable!\n", __func__);
- 		ret = -ENODEV;
--		goto put_node;
-+		goto put_device;
- 	}
- 
- 	ocram_base = gen_pool_alloc(ocram_pool, socfpga_sdram_self_refresh_sz);
- 	if (!ocram_base) {
- 		pr_warn("%s: unable to alloc ocram!\n", __func__);
- 		ret = -ENOMEM;
--		goto put_node;
-+		goto put_device;
- 	}
- 
- 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
-@@ -78,7 +78,7 @@ static int socfpga_setup_ocram_self_refresh(void)
- 	if (!suspend_ocram_base) {
- 		pr_warn("%s: __arm_ioremap_exec failed!\n", __func__);
- 		ret = -ENOMEM;
--		goto put_node;
-+		goto put_device;
- 	}
- 
- 	/* Copy the code that puts DDR in self refresh to ocram */
-@@ -92,6 +92,8 @@ static int socfpga_setup_ocram_self_refresh(void)
- 	if (!socfpga_sdram_self_refresh_in_ocram)
- 		ret = -EFAULT;
- 
-+put_device:
-+	put_device(&pdev->dev);
- put_node:
- 	of_node_put(np);
- 
--- 
-2.25.1
-
+That sounds like you should fix up the path of this file in the
+#include line as well :)
