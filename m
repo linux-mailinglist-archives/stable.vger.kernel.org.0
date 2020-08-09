@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4DE23FDB7
+	by mail.lfdr.de (Postfix) with ESMTP id ED07823FDB8
 	for <lists+stable@lfdr.de>; Sun,  9 Aug 2020 12:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726009AbgHIKem convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 9 Aug 2020 06:34:42 -0400
+        id S1726120AbgHIKep convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 9 Aug 2020 06:34:45 -0400
 Received: from mail.furshetcrimea.ru ([193.27.243.220]:45898 "EHLO
         furshetcrimea.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725710AbgHIKel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Aug 2020 06:34:41 -0400
+        with ESMTP id S1725710AbgHIKep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Aug 2020 06:34:45 -0400
 Received: from [41.217.58.131] (account info@furshetcrimea.ru HELO [192.168.8.101])
   by furshetcrimea.ru (CommuniGate Pro SMTP 6.1.10)
-  with ESMTPA id 11418991; Sun, 09 Aug 2020 11:45:08 +0300
+  with ESMTPA id 11420832; Sun, 09 Aug 2020 11:49:40 +0300
 Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
@@ -21,11 +21,11 @@ Content-Description: Mail message body
 Subject: Bei Interesse antworten.
 To:     Recipients <info@furshetcrimea.ru>
 From:   info@furshetcrimea.ru
-Date:   Sun, 09 Aug 2020 09:32:28 +0100
+Date:   Sun, 09 Aug 2020 09:36:58 +0100
 Reply-To: mattiassjoborg751@gmail.com
 X-Antivirus: Avast (VPS 200808-4, 08/08/2020), Outbound message
 X-Antivirus-Status: Clean
-Message-ID: <auto-000011418991@furshetcrimea.ru>
+Message-ID: <auto-000011420832@furshetcrimea.ru>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
