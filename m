@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4A9240A25
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5F9F240A05
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728512AbgHJPZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58944 "EHLO mail.kernel.org"
+        id S1728842AbgHJPhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:37:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727897AbgHJPZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:25:15 -0400
+        id S1728616AbgHJP0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:26:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4D9A208A9;
-        Mon, 10 Aug 2020 15:25:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB05D20772;
+        Mon, 10 Aug 2020 15:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073114;
-        bh=Kar1TO+w8C9msoAYDYhGQr9h51j/i+i5CDeZxA15Dpk=;
+        s=default; t=1597073178;
+        bh=x7ozp1mq3C1BY63eMKEcpS3peJBmk+UfyCtDfXhOuww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wT4kjo/+kSO19CkDq0+4dyn5mperyQv1YhTSMwxBONHl0L7ZzS/EDi2X58mjLiWDB
-         oHueuisyp3NYEoEFXTX5EU7QpoAUTqRqRquboFgh9uCIfh/PUccI9wgTGnMY4w2VL3
-         zFzDO7kmg6/0XXCWuggOQfH3+gL4kt2eNCCHYEvc=
+        b=O19SBIeQk3JW4bUCq77m7CBQKbKnuvlgDD7yLnsyuBoOvQn8jXLEqXOO2zYdl33M+
+         EBbmyeL6qE55G1tB+DYKLgtVBpDTFXrNtCL+JvHFtFiNCJ2Pv0aH/FAgcIDr4pe+lF
+         xjP1r5TiuEYf2Y6IFyys2ulkTOUEOCWnkeo+uPZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, laurent brando <laurent.brando@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Yangbo Lu <yangbo.lu@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 41/79] net: mscc: ocelot: fix hardware timestamp dequeue logic
-Date:   Mon, 10 Aug 2020 17:21:00 +0200
-Message-Id: <20200810151814.300679197@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com,
+        Suren Baghdasaryan <surenb@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [PATCH 5.4 14/67] staging: android: ashmem: Fix lockdep warning for write operation
+Date:   Mon, 10 Aug 2020 17:21:01 +0200
+Message-Id: <20200810151810.131585891@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: laurent brando <laurent.brando@nxp.com>
+From: Suren Baghdasaryan <surenb@google.com>
 
-[ Upstream commit 5fd82200d870a5dd3e509c98ef2041f580b2c0e1 ]
+commit 3e338d3c95c735dc3265a86016bb4c022ec7cadc upstream.
 
-The next hw timestamp should be snapshoot to the read registers
-only once the current timestamp has been read.
-If none of the pending skbs matches the current HW timestamp
-just gracefully flush the available timestamp by reading it.
+syzbot report [1] describes a deadlock when write operation against an
+ashmem fd executed at the time when ashmem is shrinking its cache results
+in the following lock sequence:
 
-Signed-off-by: laurent brando <laurent.brando@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(fs_reclaim);
+                                lock(&sb->s_type->i_mutex_key#13);
+                                lock(fs_reclaim);
+   lock(&sb->s_type->i_mutex_key#13);
+
+kswapd takes fs_reclaim and then inode_lock while generic_perform_write
+takes inode_lock and then fs_reclaim. However ashmem does not support
+writing into backing shmem with a write syscall. The only way to change
+its content is to mmap it and operate on mapped memory. Therefore the race
+that lockdep is warning about is not valid. Resolve this by introducing a
+separate lockdep class for the backing shmem inodes.
+
+[1]: https://lkml.kernel.org/lkml/0000000000000b5f9d059aa2037f@google.com/
+
+Reported-by: syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lore.kernel.org/r/20200730192632.3088194-1-surenb@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mscc/ocelot.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/android/ashmem.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index efb3965a3e42b..76dbf9ac8ad50 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -749,21 +749,21 @@ void ocelot_get_txtstamp(struct ocelot *ocelot)
+--- a/drivers/staging/android/ashmem.c
++++ b/drivers/staging/android/ashmem.c
+@@ -95,6 +95,15 @@ static DEFINE_MUTEX(ashmem_mutex);
+ static struct kmem_cache *ashmem_area_cachep __read_mostly;
+ static struct kmem_cache *ashmem_range_cachep __read_mostly;
  
- 		spin_unlock_irqrestore(&port->tx_skbs.lock, flags);
- 
--		/* Next ts */
--		ocelot_write(ocelot, SYS_PTP_NXT_PTP_NXT, SYS_PTP_NXT);
-+		/* Get the h/w timestamp */
-+		ocelot_get_hwtimestamp(ocelot, &ts);
- 
- 		if (unlikely(!skb_match))
- 			continue;
- 
--		/* Get the h/w timestamp */
--		ocelot_get_hwtimestamp(ocelot, &ts);
--
- 		/* Set the timestamp into the skb */
- 		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
- 		shhwtstamps.hwtstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
- 		skb_tstamp_tx(skb_match, &shhwtstamps);
- 
- 		dev_kfree_skb_any(skb_match);
++/*
++ * A separate lockdep class for the backing shmem inodes to resolve the lockdep
++ * warning about the race between kswapd taking fs_reclaim before inode_lock
++ * and write syscall taking inode_lock and then fs_reclaim.
++ * Note that such race is impossible because ashmem does not support write
++ * syscalls operating on the backing shmem.
++ */
++static struct lock_class_key backing_shmem_inode_class;
 +
-+		/* Next ts */
-+		ocelot_write(ocelot, SYS_PTP_NXT_PTP_NXT, SYS_PTP_NXT);
- 	}
- }
- EXPORT_SYMBOL(ocelot_get_txtstamp);
--- 
-2.25.1
-
+ static inline unsigned long range_size(struct ashmem_range *range)
+ {
+ 	return range->pgend - range->pgstart + 1;
+@@ -396,6 +405,7 @@ static int ashmem_mmap(struct file *file
+ 	if (!asma->file) {
+ 		char *name = ASHMEM_NAME_DEF;
+ 		struct file *vmfile;
++		struct inode *inode;
+ 
+ 		if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0')
+ 			name = asma->name;
+@@ -407,6 +417,8 @@ static int ashmem_mmap(struct file *file
+ 			goto out;
+ 		}
+ 		vmfile->f_mode |= FMODE_LSEEK;
++		inode = file_inode(vmfile);
++		lockdep_set_class(&inode->i_rwsem, &backing_shmem_inode_class);
+ 		asma->file = vmfile;
+ 		/*
+ 		 * override mmap operation of the vmfile so that it can't be
 
 
