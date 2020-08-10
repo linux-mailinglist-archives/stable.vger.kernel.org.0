@@ -2,123 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FE0240C56
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 19:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E6C240C62
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 19:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727853AbgHJRsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 13:48:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57724 "EHLO
+        id S1727003AbgHJRvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 13:51:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727003AbgHJRsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 13:48:46 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B073DC061756;
-        Mon, 10 Aug 2020 10:48:45 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id kq25so10273054ejb.3;
-        Mon, 10 Aug 2020 10:48:45 -0700 (PDT)
+        with ESMTP id S1726820AbgHJRvg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 13:51:36 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC254C061787
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 10:51:35 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id f9so294827pju.4
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 10:51:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Wy7QyDpFuzkHPrzR9VLX8BuWPNLwEm7m4KeC1bb6KKo=;
-        b=JMWfnEbb4LjkZ3+Yq8xPRKK+w2Nrs8eZAszU1coBAJwcuuP5rxJPxhOUZeouSlSxYT
-         r+5ozBDt8x0pcsdEGgE1kOS7JliyLgxTLrrLU7kaEsDAvgczpI9SDbYSqkV8PlI5fgrP
-         IMZidoJV0Nb2SpzpReN3GspH31LWngN3MVWok7FmQkQZix4ZsjGclzLNrl8PCZfyMLJP
-         fsWcOa1FNz6lXvNPuvFzIWwcYjWiPS0g4IHcj+Jj6UCnkzq949zPXAQPAawDd4T/UFCD
-         eJ7oKxPedFEjibsBu0u2El44VfEXf0aVVzF65g/9eXVM8hen4d9khdhvKVza4x/KA/Jb
-         91fA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=bmgbqvJzM5mhwZqqR48ors7DLnJTAGMh4F4F9pwaoIQ=;
+        b=VgSuZToR+k7daP1v5DhnXLx/YyjhlmSfQvkmTUA+sAzerrFeL9Z95b9UK92lElgY5k
+         iOmWAGlN4NrCk4CNHqzbeS4VgvY5ClH5Vnz1NXpDX17+r2lbcncCtGdgF+Id7hbVASnl
+         ZSWT21+0OpbPJEdpPlAPcZOka5n6OZHZBTpgPD2QGzzDnfNvyIpnho7FezeYxc777OAH
+         RTk9F6s9RQoV4bEyfCRTgRJ5cklNLZ0ogKgek7J8hEfwm6kiHyLtGH5iwvz7ofNVsEke
+         cPBaORZWrgZixGhB+BGhVc+3OCo6DmaiDdYknMaNgXdDw8SrYW32rHoRUycGjz8z2uza
+         eA3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Wy7QyDpFuzkHPrzR9VLX8BuWPNLwEm7m4KeC1bb6KKo=;
-        b=aDIcCQaWpAg4fOggv2lhJcxd08SiJoq6mP4NTLtiJkfxjzE0uGIVEk+JXBgF92NtYb
-         te6nD5HRmf/TIsG0G6gPVFCCpoiKhdrSXq4HmBZOxiQwLsperAef6Pyry4Qbhzunu6QV
-         KRC42gu75AGkZb9AvUw3ezylLok7p41JotRCy0XHL2ecWdrDZHXjkqNVj8Sgack6r6Ug
-         QA/ar0pHxFQhi/jpIbm7ADvA5VlrUccbkAefAi6p+oXgsV/dtKUCtGhRgSORt2ecEXyX
-         dWktLYUyM5dglpUN4se8TG7PbS7RXeYxv1k8SR6mMGtfy1+qyEyh4FkseSBfWqhp90D3
-         8g0g==
-X-Gm-Message-State: AOAM531s2CIppQcD1t7KTtolM/6UBo4fTZBNnc5tLYBXfPHmYG+KmYM8
-        Ab6QazIyUmv7K+FPwh16xZqV0yT/HKMjDb1PR9g=
-X-Google-Smtp-Source: ABdhPJw7r6HquCXHI4BiI9C7jkR2ziLS9yOn7t4kE+lHXbpm0evpqv5sarboSgnlI1vWCvakAgkGBBxP4z5gMIr+kXc=
-X-Received: by 2002:a17:906:3993:: with SMTP id h19mr4692664eje.111.1597081722348;
- Mon, 10 Aug 2020 10:48:42 -0700 (PDT)
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=bmgbqvJzM5mhwZqqR48ors7DLnJTAGMh4F4F9pwaoIQ=;
+        b=QoRg+bTvDx3lMiIrkeLeGM50v1UDHnmGx0nQ9TOYOJBBDmnJbyHYGsga2Wp+fkkXoA
+         ty18uD23bXLoufnycX5Ewol5L1tQGuh0YJiWlPv7gFaS3s+BXzsmfskQ9cyxgTeZJgeR
+         i6kc4L+RagGk0oMMkWYSpispb84PJ8Uo5f/nEPD7Hq+WZSqbkoK2iU5B9nal1YZKPvNg
+         3+06XJdZlAZ28xXliJlPxA0WzqGtqr+Ilqnmp/WKAQdKTSWU/n/+027W+6dSlhDVZuy3
+         GP5rsM2sFFp6YXY80OkYG8dUzWhmRa6ltveBnnTqfv2+b47VXS/hX6wK2k3lk6z+WEJM
+         u5Ow==
+X-Gm-Message-State: AOAM530umPO005FlxY1yucO4MyzYDx8UbQE+ChC9akfcTo8cqWC1UbEB
+        GYD6QLeWf9SRhHU0SEZkWX/dedl1iTE=
+X-Google-Smtp-Source: ABdhPJxY8ndp+UT844LyPCh5Sycfvtt8xTRcgs9eITe+mV+8szGz82nnCE/IxQuEG6IMIO8uWiuFRw==
+X-Received: by 2002:a17:90a:cd06:: with SMTP id d6mr449680pju.202.1597081895057;
+        Mon, 10 Aug 2020 10:51:35 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id s2sm179379pjb.33.2020.08.10.10.51.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Aug 2020 10:51:34 -0700 (PDT)
+Subject: Re: [PATCH 1/2] kernel: split task_work_add() into two separate
+ helpers
+From:   Jens Axboe <axboe@kernel.dk>
+To:     peterz@infradead.org
+Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org
+References: <20200808183439.342243-1-axboe@kernel.dk>
+ <20200808183439.342243-2-axboe@kernel.dk>
+ <20200810113740.GR2674@hirez.programming.kicks-ass.net>
+ <ae401501-ede0-eb08-12b7-1d50f6b3eaa5@kernel.dk>
+Message-ID: <a420842b-40af-8e39-591e-ae70d797e241@kernel.dk>
+Date:   Mon, 10 Aug 2020 11:51:33 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20200806231643.a2711a608dd0f18bff2caf2b@linux-foundation.org>
- <20200807061706.unk5_0KtC%akpm@linux-foundation.org> <CAHk-=wiK1oh8T_GNdnQk4UERuWmLQMnXuia8CpJ5QVzSAKuffQ@mail.gmail.com>
- <CAHbLzkrSQ8CT5jaT-8LFtnEg-63qdZNoHe6XBc3F4orxuHt-7A@mail.gmail.com> <CAHk-=wjoOtcAvkYQThDQ5u+jFqbtwOsSJH1DtLDfokMOd4K93w@mail.gmail.com>
-In-Reply-To: <CAHk-=wjoOtcAvkYQThDQ5u+jFqbtwOsSJH1DtLDfokMOd4K93w@mail.gmail.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Mon, 10 Aug 2020 10:48:19 -0700
-Message-ID: <CAHbLzkrRyFrDKpCBH6X7kSOKJxrPg34ccX2ik6u4zO94=94BtQ@mail.gmail.com>
-Subject: Re: [patch 001/163] mm/memory.c: avoid access flag update TLB flush
- for retried page fault
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Hillf Danton <hdanton@sina.com>,
-        Hugh Dickins <hughd@google.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linux-MM <linux-mm@kvack.org>, mm-commits@vger.kernel.org,
-        stable <stable@vger.kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Yu Xu <xuyu@linux.alibaba.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <ae401501-ede0-eb08-12b7-1d50f6b3eaa5@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 7, 2020 at 9:34 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Fri, Aug 7, 2020 at 1:53 PM Yang Shi <shy828301@gmail.com> wrote:
-> >
-> > I'm supposed Catalin would submit his proposal (flush local TLB for
-> > spurious TLB fault on ARM) for this specific regression per the
-> > discussion, right?
->
-> I think arm64 should do that regardless, yes.
->
-> But I would also be ok with a version that does the FAULT_FLAG_TRIED
-> testing, but does it only for that spurious TLB flushing.
->
-> This "let's not update the page tables at all" is wrong, when the only
-> problem was the TLB flushing.
->
-> So changing the current (but quesitonable)
->
->                 if (vmf->flags & FAULT_FLAG_WRITE)
->                         flush_tlb_fix_spurious_fault(vmf->vma, vmf->address);
->
-> to be
->
->                 if (vmf->flags & (FAULT_FLAG_WRITE | FAULT_FLAG_TRIED))
->                         flush_tlb_fix_spurious_fault(vmf->vma, vmf->address);
+On 8/10/20 9:01 AM, Jens Axboe wrote:
+> On 8/10/20 5:37 AM, peterz@infradead.org wrote:
+>> On Sat, Aug 08, 2020 at 12:34:38PM -0600, Jens Axboe wrote:
+>>> Some callers may need to make signaling decisions based on the state
+>>> of the targeted task, and that can only safely be done post adding
+>>> the task_work to the task. Split task_work_add() into:
+>>>
+>>> __task_work_add()	- adds the work item
+>>> __task_work_notify()	- sends the notification
+>>>
+>>> No functional changes in this patch.
+>>
+>> Might be nice to mention __task_work_add() is now inline.
+> 
+> OK, will mention that.
 
-It looks the retried fault still flush TLB with this change.
+Added a note of that in the commit message, otherwise the patch is
+unchanged:
 
-Shouldn't we do something like this to skip spurious TLB flush:
+https://git.kernel.dk/cgit/linux-block/commit/?h=io_uring-5.9&id=67e5aca3cb1bd40de0392fea5a661eae2372d6cc
 
-@@ -4251,6 +4251,9 @@ static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
-                                vmf->flags & FAULT_FLAG_WRITE)) {
-                update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
-        } else {
-+               if (vmf->flags & FAULT_FLAG_TRIED)
-+                       goto unlock;
-+
-                /*
-                 * This is needed only for protection faults but the arch code
-                 * is not yet telling us if this is a protection fault or not.
+Are you happy with this one now, given that we cannot easily make
+the exit_work const?
 
->
-> would be fine.
->
-> But this patch that changes any semantics outside just the flushin gis
-> a complete no-no.
->
->                 Linus
+-- 
+Jens Axboe
+
