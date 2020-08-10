@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3344240897
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B39824089E
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727840AbgHJPWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
+        id S1728289AbgHJPXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:23:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727867AbgHJPWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:22:43 -0400
+        id S1728287AbgHJPXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:23:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E0A120768;
-        Mon, 10 Aug 2020 15:22:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EDAD20782;
+        Mon, 10 Aug 2020 15:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072962;
-        bh=t9H3WW3HSu9TxPPbh+BJneKjwG8jK5KJoQmUWWF9c+Y=;
+        s=default; t=1597072984;
+        bh=317EpMwDFiRhWwkPj/R6GWOmMwQrCN5rBjTVaLkskPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4k88RaqJxqJugaKseGpMduHH6L2+5UCDoJKSwyQMJpsl9B4dwLd1o8U1UKbwAKhR
-         2cJ95O3FVm38u4Kxuy6DrE8S8Bk9ulCnq01ZUFgKcCK3tmgV4LYa4ilLgLZEM6gO3i
-         eRIJ6zYlRIFVxkUJulvzGEHPH+Yh/qWP3CPcKDcY=
+        b=iGYgI8aZjN31mh+EQdfe7VUAd5DD14LCwXrYUaEkq/+3VllTneUHz3G9qkSr+UATx
+         oR+l+yLnS2o7meqQl7fb7NkN4aNRSF3DrRR/xRzLyv91hxvyHmjvGFu9ohvHnflZDC
+         7AOWPAeMe01lHK+/rZcf/Iy2/6xRfmeinfFhh8Aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
-        Jann Horn <jannh@google.com>, Martijn Coenen <maco@android.com>
-Subject: [PATCH 5.7 19/79] binder: Prevent context manager from incrementing ref 0
-Date:   Mon, 10 Aug 2020 17:20:38 +0200
-Message-Id: <20200810151813.105496945@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 5.7 26/79] leds: lm36274: fix use-after-free on unbind
+Date:   Mon, 10 Aug 2020 17:20:45 +0200
+Message-Id: <20200810151813.515474344@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
 References: <20200810151812.114485777@linuxfoundation.org>
@@ -43,92 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
+commit a0972fff09479dd09b731360a3a0b09e4fb4d415 upstream.
 
-Binder is designed such that a binder_proc never has references to
-itself. If this rule is violated, memory corruption can occur when a
-process sends a transaction to itself; see e.g.
-<https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
+Several MFD child drivers register their class devices directly under
+the parent device. This means you cannot use devres so that
+deregistration ends up being tied to the parent device, something which
+leads to use-after-free on driver unbind when the class device is
+released while still being registered.
 
-There is a remaining edgecase through which such a transaction-to-self
-can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
-access:
-
- - task A opens /dev/binder twice, creating binder_proc instances P1
-   and P2
- - P1 becomes context manager
- - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
-   handle table
- - P1 dies (by closing the /dev/binder fd and waiting a bit)
- - P2 becomes context manager
- - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
-   handle table
-   [this triggers a warning: "binder: 1974:1974 tried to acquire
-   reference to desc 0, got 1 instead"]
- - task B opens /dev/binder once, creating binder_proc instance P3
- - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
-   transaction)
- - P2 receives the handle and uses it to call P3 (two-way transaction)
- - P3 calls P2 (via magic handle 0) (two-way transaction)
- - P2 calls P2 (via handle 1) (two-way transaction)
-
-And then, if P2 does *NOT* accept the incoming transaction work, but
-instead closes the binder fd, we get a crash.
-
-Solve it by preventing the context manager from using ACQUIRE on ref 0.
-There shouldn't be any legitimate reason for the context manager to do
-that.
-
-Additionally, print a warning if someone manages to find another way to
-trigger a transaction-to-self bug in the future.
-
-Cc: stable@vger.kernel.org
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Acked-by: Todd Kjos <tkjos@google.com>
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Martijn Coenen <maco@android.com>
-Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
+Fixes: 11e1bbc116a7 ("leds: lm36274: Introduce the TI LM36274 LED driver")
+Cc: stable <stable@vger.kernel.org>     # 5.3
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/leds/leds-lm36274.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2982,6 +2982,12 @@ static void binder_transaction(struct bi
- 			goto err_dead_binder;
- 		}
- 		e->to_node = target_node->debug_id;
-+		if (WARN_ON(proc == target_proc)) {
-+			return_error = BR_FAILED_REPLY;
-+			return_error_param = -EINVAL;
-+			return_error_line = __LINE__;
-+			goto err_invalid_target_handle;
-+		}
- 		if (security_binder_transaction(proc->tsk,
- 						target_proc->tsk) < 0) {
- 			return_error = BR_FAILED_REPLY;
-@@ -3635,10 +3641,17 @@ static int binder_thread_write(struct bi
- 				struct binder_node *ctx_mgr_node;
- 				mutex_lock(&context->context_mgr_node_lock);
- 				ctx_mgr_node = context->binder_context_mgr_node;
--				if (ctx_mgr_node)
-+				if (ctx_mgr_node) {
-+					if (ctx_mgr_node->proc == proc) {
-+						binder_user_error("%d:%d context manager tried to acquire desc 0\n",
-+								  proc->pid, thread->pid);
-+						mutex_unlock(&context->context_mgr_node_lock);
-+						return -EINVAL;
-+					}
- 					ret = binder_inc_ref_for_node(
- 							proc, ctx_mgr_node,
- 							strong, NULL, &rdata);
-+				}
- 				mutex_unlock(&context->context_mgr_node_lock);
- 			}
- 			if (ret)
+--- a/drivers/leds/leds-lm36274.c
++++ b/drivers/leds/leds-lm36274.c
+@@ -133,7 +133,7 @@ static int lm36274_probe(struct platform
+ 	lm36274_data->pdev = pdev;
+ 	lm36274_data->dev = lmu->dev;
+ 	lm36274_data->regmap = lmu->regmap;
+-	dev_set_drvdata(&pdev->dev, lm36274_data);
++	platform_set_drvdata(pdev, lm36274_data);
+ 
+ 	ret = lm36274_parse_dt(lm36274_data);
+ 	if (ret) {
+@@ -147,8 +147,16 @@ static int lm36274_probe(struct platform
+ 		return ret;
+ 	}
+ 
+-	return devm_led_classdev_register(lm36274_data->dev,
+-					 &lm36274_data->led_dev);
++	return led_classdev_register(lm36274_data->dev, &lm36274_data->led_dev);
++}
++
++static int lm36274_remove(struct platform_device *pdev)
++{
++	struct lm36274 *lm36274_data = platform_get_drvdata(pdev);
++
++	led_classdev_unregister(&lm36274_data->led_dev);
++
++	return 0;
+ }
+ 
+ static const struct of_device_id of_lm36274_leds_match[] = {
+@@ -159,6 +167,7 @@ MODULE_DEVICE_TABLE(of, of_lm36274_leds_
+ 
+ static struct platform_driver lm36274_driver = {
+ 	.probe  = lm36274_probe,
++	.remove = lm36274_remove,
+ 	.driver = {
+ 		.name = "lm36274-leds",
+ 	},
 
 
