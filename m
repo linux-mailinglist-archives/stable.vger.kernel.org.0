@@ -2,81 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2F524079B
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 16:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0DD2407C4
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 16:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbgHJOa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 10:30:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55622 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726111AbgHJOa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 10:30:59 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34535C061756
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 07:30:59 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id l7so3228797ils.2
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 07:30:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
-        b=WdHVtX++i/DD8URwpOo0KD+7zzZYBbPm+psQaxAAVYnmzfLIPslYvRYf0zxxm/2DQm
-         YqTUVNZxQ8rmBxv1C7RHvm3NH1W980vI/HvVD8Fj2eTpgwMGToacxyuHI/CKWrVLPjCq
-         CrKj39o1kLX56zT/NRhdFj/Ow1v+2oOZjH3y6iYLEereQECX6bJm6y2zaazMzFaEegLL
-         H+ggyUDdh/CkFiSmY6pHW6uwwvG/qizW8nm3izrGHZvOfjXgS/VNUS0u7BWF6R8ApzBz
-         i7/iQoCOz+XOnmKPaLW3mMjajMhmzvoljsUEE7knJAph2lG7D58x2ffbIb30Z3YxSCqO
-         /OSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
-        b=lgs8voNsBCzyPY4gbB2pjIWg4esBOii1AcFNd5xksXeIRi/G7XxGAxB+LfofoDC8fG
-         e9ycxCvdsgueCbz7gUf1sIFLh7Bp015V+z5api6/J+ZIbLfTi6o38Cjx5rxb3UQlmrPq
-         ovz5VcmhoTV7URep4LlM41F3TFsHEco+SmZTymhNalMs/RVls7HVR82+bwVNXvwMVa9R
-         Bnxsi9ZcV11ZCRRQKIur4ns0JOoe3IFIblkvc47X4Z/Bq4uDrBhGvGM1VUu1Q8XNmD1y
-         MitkxgfXMpNSYRQx73xSCWmpjvTjMC8fDPG6Oa+bMm/9TduwGyvpG4epDXQm9QztIZlV
-         aT3w==
-X-Gm-Message-State: AOAM533BgcKJIJLRWVM4Hukqg1eeW1pqvpBiA44PECZfiCNYznJdkft4
-        Ly5yPGtbfpbpecoKyYAlRdbq4ERJ3yo4lkjzCuU=
-X-Google-Smtp-Source: ABdhPJzZHW/B7LWUdxA8OmfEOcEgSerjrJCCdTA+f65I5AmRCddtCO9Qzd1Zavc73ZFFWMkDszFicaKGm9+tTaVYWyI=
-X-Received: by 2002:a92:5f19:: with SMTP id t25mr6645526ilb.119.1597069858516;
- Mon, 10 Aug 2020 07:30:58 -0700 (PDT)
+        id S1726386AbgHJOnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 10:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51884 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726111AbgHJOnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 10:43:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14FA62070B;
+        Mon, 10 Aug 2020 14:43:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597070592;
+        bh=/dliYkcOMZBCd6uDgNO5YcrLeA10NcPqA8PJOLpaIOU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H01YEjbFCc1V0c8fgXNH6OB0z2D/pV3uQbGu+lgS63K19nK+QNyQ6rpAUiFrtdlAg
+         yaIVX0De/wONzT33wFDCGa1fmLoXsu0ov2DgRrxWEIVQhf7z2aD+vhk7BPDmCrPLbF
+         fH9ZmS9TuynVDVrXcWq/fQhfT+Boyjhi/aP0/9is=
+Date:   Mon, 10 Aug 2020 16:43:22 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sedat Dilek <sedat.dilek@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        stable@vger.kernel.org
+Subject: Re: Base for <linux-stable-rc.git#queue/5.8>
+Message-ID: <20200810144322.GA3761375@kroah.com>
+References: <CA+icZUW_f4d5_yDg0_Ox8nVd_6R=JNc8Bo9TgEzjLUy_1MdXOw@mail.gmail.com>
+ <20200810100125.GA2405194@kroah.com>
+ <20200810100149.GB2405194@kroah.com>
+ <CA+icZUWzsHect3v_31-PE_qRfXk7hbORY8JpSkjQmoEFqMykiQ@mail.gmail.com>
+ <20200810140551.GH2975990@sasha-vm>
+ <CA+icZUU18HcsT8E4umxgHPWDwdR4YbaX29=Lk4-7AvW2=4c=hw@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a02:7086:0:0:0:0:0 with HTTP; Mon, 10 Aug 2020 07:30:58
- -0700 (PDT)
-Reply-To: asita.hussain0@gmail.com
-From:   "Asita.Hussain" <rosalinspagnolo7@gmail.com>
-Date:   Mon, 10 Aug 2020 07:30:58 -0700
-Message-ID: <CAPpWv6nOq42zJHNEMjf2W5c4YkycMRe6Dkb1XPH+P3j2v9WxCQ@mail.gmail.com>
-Subject: Hello my good friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+icZUU18HcsT8E4umxgHPWDwdR4YbaX29=Lk4-7AvW2=4c=hw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-From Mr. Asita Hussain
-This message might meet you in utmost surprise.
-I am a banker by profession in Burkina-Faso, West Africa and currently
-holding the post of manager in account and auditing department in our
-bank. I have the opportunity of transferring the left over funds ($
-25.5 Million Dollars 15 kilos of Gold bar) belonging to our deceased
-customer who died along with his entire family in a bomb attack.
-Please indicate your willingness by sending the below information for
-more clarification and easy communication.
-Please Contact me with the following information's for more details.
-(1) YOUR FULL NAME.......................
-(2) YOUR AGE AND SEX......................
-(3) YOUR CONTACT ADDRESS...............
-(4) YOUR PRIVATE PHONE N0..........
-(5) FAX NUMBER..............
-(6) YOUR COUNTRY OF ORIGIN.................
-(7) YOUR OCCUPATION.................... .....
- Please Contact me for more details in this E-mail address
-(asita.hussain0@gmail.com)
-Trusting to hear from you immediately.
-Thanks & Best Regards,
-From Mr. Asita Hussain
+On Mon, Aug 10, 2020 at 04:29:55PM +0200, Sedat Dilek wrote:
+> On Mon, Aug 10, 2020 at 4:05 PM Sasha Levin <sashal@kernel.org> wrote:
+> >
+> > On Mon, Aug 10, 2020 at 12:11:40PM +0200, Sedat Dilek wrote:
+> > >On Mon, Aug 10, 2020 at 12:01 PM Greg Kroah-Hartman
+> > ><gregkh@linuxfoundation.org> wrote:
+> > >>
+> > >> On Mon, Aug 10, 2020 at 12:01:25PM +0200, Greg Kroah-Hartman wrote:
+> > >> > On Mon, Aug 10, 2020 at 11:52:30AM +0200, Sedat Dilek wrote:
+> > >> > > [ Hope I have the correct CC for linux-stable ML ]
+> > >> > >
+> > >> > > Hi Greg and Sasha,
+> > >> > >
+> > >> > > The base for <linux-stable-rc.git#queue/5.8> is Linux v5.7.14 where it
+> > >> > > should be Linux v5.8.
+> > >> >
+> > >> > What exactly do you mean by "#queue/5.8"?
+> > >> >
+> > >> > Is that a branch name?  Ah, never seen those before, maybe they are
+> > >> > something that Sasha creates?
+> > >>
+> > >> But yes, you are right, it seems to mirror queue/5.7 at the moment,
+> > >> which isn't correct.
+> > >>
+> > >> thanks,
+> > >
+> > >[ CC correct stable ML ]
+> > >
+> > >Exactly.
+> > >
+> > >With <linux-stable-rc.git#queue/5.8> I mean [1].
+> >
+> > Ah, thanks for pointing it out! I've fixed the script and pushed out a
+> > correct queue-5.8 branch.
+> >
+> 
+> Thanks Sasha.
+> 
+> Would you mind to take the random/random32 patches from Linus mainline
+> for queue/5.8 (see Linux v5.7.14)?
+
+Hm, most of them are already in 5.8.0, what ones are missing?  Let me go
+check...
+
+greg k-h
