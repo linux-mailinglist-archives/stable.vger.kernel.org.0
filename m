@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F7AF240905
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45030240908
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728830AbgHJP2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:28:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
+        id S1728060AbgHJP2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728826AbgHJP2E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:28:04 -0400
+        id S1728836AbgHJP2K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1A5522D06;
-        Mon, 10 Aug 2020 15:28:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EA1B22CF7;
+        Mon, 10 Aug 2020 15:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073284;
-        bh=4nkJzd1xAtuqBem7AfzJHJ9Xk/3U80G8JQIvWQ7fp9U=;
+        s=default; t=1597073289;
+        bh=Fa9O2AMPRvGAT3i4ukHBUsjceL2YOacHwR9V4CKYVHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z70RUEh4LAQkhagi1veC7mOQIMnsVFi4pFVfVI4v2C2QSyPhz9Ym56xN0b6Jhok8f
-         vxVTphQwpB0xOit0s9SNYsyWrrsZjFcw8baB2vSO9bQOWcgVU6504hTy1+1xkBaTCx
-         TvNWGfKi9DxTKiAmY85Hye8hH9ME1W6kF9RxnhHk=
+        b=trj2DLpiJHUgMnUy/dAlQyPhQ9luBAiSW19lGODkZiAWQN2czPe6vDtXstDLuhsFe
+         7K8OJzKNuupUVh6pel650N67JxTrl68sFDrhroenl2JPjzRkkBNxjP6xjYIrJFvkPH
+         YaWly1gNWKK8LTpn+5F0YRA8vcsmu/taz0mPoplk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
+        stable@vger.kernel.org, ch3332xr@gmail.com,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 50/67] ipv4: Silence suspicious RCU usage warning
-Date:   Mon, 10 Aug 2020 17:21:37 +0200
-Message-Id: <20200810151811.937927394@linuxfoundation.org>
+Subject: [PATCH 5.4 51/67] ipv6: fix memory leaks on IPV6_ADDRFORM path
+Date:   Mon, 10 Aug 2020 17:21:38 +0200
+Message-Id: <20200810151811.990324030@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
 References: <20200810151809.438685785@linuxfoundation.org>
@@ -44,80 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 83f3522860f702748143e022f1a546547314c715 ]
+[ Upstream commit 8c0de6e96c9794cb523a516c465991a70245da1c ]
 
-fib_trie_unmerge() is called with RTNL held, but not from an RCU
-read-side critical section. This leads to the following warning [1] when
-the FIB alias list in a leaf is traversed with
-hlist_for_each_entry_rcu().
+IPV6_ADDRFORM causes resource leaks when converting an IPv6 socket
+to IPv4, particularly struct ipv6_ac_socklist. Similar to
+struct ipv6_mc_socklist, we should just close it on this path.
 
-Since the function is always called with RTNL held and since
-modification of the list is protected by RTNL, simply use
-hlist_for_each_entry() and silence the warning.
+This bug can be easily reproduced with the following C program:
 
-[1]
-WARNING: suspicious RCU usage
-5.8.0-rc4-custom-01520-gc1f937f3f83b #30 Not tainted
------------------------------
-net/ipv4/fib_trie.c:1867 RCU-list traversed in non-reader section!!
+  #include <stdio.h>
+  #include <string.h>
+  #include <sys/types.h>
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
 
-other info that might help us debug this:
+  int main()
+  {
+    int s, value;
+    struct sockaddr_in6 addr;
+    struct ipv6_mreq m6;
 
-rcu_scheduler_active = 2, debug_locks = 1
-1 lock held by ip/164:
- #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
+    s = socket(AF_INET6, SOCK_DGRAM, 0);
+    addr.sin6_family = AF_INET6;
+    addr.sin6_port = htons(5000);
+    inet_pton(AF_INET6, "::ffff:192.168.122.194", &addr.sin6_addr);
+    connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
-stack backtrace:
-CPU: 0 PID: 164 Comm: ip Not tainted 5.8.0-rc4-custom-01520-gc1f937f3f83b #30
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
-Call Trace:
- dump_stack+0x100/0x184
- lockdep_rcu_suspicious+0x153/0x15d
- fib_trie_unmerge+0x608/0xdb0
- fib_unmerge+0x44/0x360
- fib4_rule_configure+0xc8/0xad0
- fib_nl_newrule+0x37a/0x1dd0
- rtnetlink_rcv_msg+0x4f7/0xbd0
- netlink_rcv_skb+0x17a/0x480
- rtnetlink_rcv+0x22/0x30
- netlink_unicast+0x5ae/0x890
- netlink_sendmsg+0x98a/0xf40
- ____sys_sendmsg+0x879/0xa00
- ___sys_sendmsg+0x122/0x190
- __sys_sendmsg+0x103/0x1d0
- __x64_sys_sendmsg+0x7d/0xb0
- do_syscall_64+0x54/0xa0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7fc80a234e97
-Code: Bad RIP value.
-RSP: 002b:00007ffef8b66798 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc80a234e97
-RDX: 0000000000000000 RSI: 00007ffef8b66800 RDI: 0000000000000003
-RBP: 000000005f141b1c R08: 0000000000000001 R09: 0000000000000000
-R10: 00007fc80a2a8ac0 R11: 0000000000000246 R12: 0000000000000001
-R13: 0000000000000000 R14: 00007ffef8b67008 R15: 0000556fccb10020
+    inet_pton(AF_INET6, "fe80::AAAA", &m6.ipv6mr_multiaddr);
+    m6.ipv6mr_interface = 5;
+    setsockopt(s, SOL_IPV6, IPV6_JOIN_ANYCAST, &m6, sizeof(m6));
 
-Fixes: 0ddcf43d5d4a ("ipv4: FIB Local/MAIN table collapse")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+    value = AF_INET;
+    setsockopt(s, SOL_IPV6, IPV6_ADDRFORM, &value, sizeof(value));
+
+    close(s);
+    return 0;
+  }
+
+Reported-by: ch3332xr@gmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_trie.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/addrconf.h   |    1 +
+ net/ipv6/anycast.c       |   17 ++++++++++++-----
+ net/ipv6/ipv6_sockglue.c |    1 +
+ 3 files changed, 14 insertions(+), 5 deletions(-)
 
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -1751,7 +1751,7 @@ struct fib_table *fib_trie_unmerge(struc
- 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
- 		struct key_vector *local_l = NULL, *local_tp;
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -273,6 +273,7 @@ int ipv6_sock_ac_join(struct sock *sk, i
+ 		      const struct in6_addr *addr);
+ int ipv6_sock_ac_drop(struct sock *sk, int ifindex,
+ 		      const struct in6_addr *addr);
++void __ipv6_sock_ac_close(struct sock *sk);
+ void ipv6_sock_ac_close(struct sock *sk);
  
--		hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
-+		hlist_for_each_entry(fa, &l->leaf, fa_list) {
- 			struct fib_alias *new_fa;
+ int __ipv6_dev_ac_inc(struct inet6_dev *idev, const struct in6_addr *addr);
+--- a/net/ipv6/anycast.c
++++ b/net/ipv6/anycast.c
+@@ -183,7 +183,7 @@ int ipv6_sock_ac_drop(struct sock *sk, i
+ 	return 0;
+ }
  
- 			if (local_tb->tb_id != fa->tb_id)
+-void ipv6_sock_ac_close(struct sock *sk)
++void __ipv6_sock_ac_close(struct sock *sk)
+ {
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
+ 	struct net_device *dev = NULL;
+@@ -191,10 +191,7 @@ void ipv6_sock_ac_close(struct sock *sk)
+ 	struct net *net = sock_net(sk);
+ 	int	prev_index;
+ 
+-	if (!np->ipv6_ac_list)
+-		return;
+-
+-	rtnl_lock();
++	ASSERT_RTNL();
+ 	pac = np->ipv6_ac_list;
+ 	np->ipv6_ac_list = NULL;
+ 
+@@ -211,6 +208,16 @@ void ipv6_sock_ac_close(struct sock *sk)
+ 		sock_kfree_s(sk, pac, sizeof(*pac));
+ 		pac = next;
+ 	}
++}
++
++void ipv6_sock_ac_close(struct sock *sk)
++{
++	struct ipv6_pinfo *np = inet6_sk(sk);
++
++	if (!np->ipv6_ac_list)
++		return;
++	rtnl_lock();
++	__ipv6_sock_ac_close(sk);
+ 	rtnl_unlock();
+ }
+ 
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -205,6 +205,7 @@ static int do_ipv6_setsockopt(struct soc
+ 
+ 			fl6_free_socklist(sk);
+ 			__ipv6_sock_mc_close(sk);
++			__ipv6_sock_ac_close(sk);
+ 
+ 			/*
+ 			 * Sock is moving from IPv6 to IPv4 (sk_prot), so
 
 
