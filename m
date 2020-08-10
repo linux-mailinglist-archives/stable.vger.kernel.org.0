@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03858240F14
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41BB3240F08
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbgHJTSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
+        id S1729959AbgHJTOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:14:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729948AbgHJTOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:14:06 -0400
+        id S1729264AbgHJTOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:14:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98F18207FF;
-        Mon, 10 Aug 2020 19:14:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1524B22BED;
+        Mon, 10 Aug 2020 19:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086845;
-        bh=uRyO4yW0oWApsXVUw1zk0cQsJJLPndkA72/KstVeyrY=;
+        s=default; t=1597086847;
+        bh=h4djccU8SRHv5HAmTc/Lbs8dPuas84jJHHnm4Ggawq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yp0Z9Gq2oUWg+RHjJINRBxr1PWxyMuu5UaFyiGI/2GavsrSG3K6KQLm3cCZn8PfVr
-         WibtizRpyCSuMZ67j5rLM07oLEPbi82IwDHba5z+ErSBw+Hsu8ceo6zehjco5eFwD2
-         5lTTwnbDVgN41VgB4OI2hjXZQDR59tdJ99LoAfTA=
+        b=jF7TTUIKK9qajq2WX43m9/ty/UDvfxTJRvR8zRarVP5IZ/q9CxQrS3xXM19egwydb
+         1uYN0nczMDCwd0FUJB+RqctfdBzFxZLJhwJX0V6EKiTYOraJ+RM67GqUxCaM1QayRK
+         26Gys+hBdhfMa31iUiymI/zsXhckLlUY/hWrUd74=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bolarinwa Olayemi Saheed <refactormyself@gmail.com>,
-        Bjorn Helgaas <bjorn@helgaas.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 14/22] iwlegacy: Check the return value of pcie_capability_read_*()
-Date:   Mon, 10 Aug 2020 15:13:36 -0400
-Message-Id: <20200810191345.3795166-14-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 15/22] gpu: host1x: debug: Fix multiple channels emitting messages simultaneously
+Date:   Mon, 10 Aug 2020 15:13:37 -0400
+Message-Id: <20200810191345.3795166-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191345.3795166-1-sashal@kernel.org>
 References: <20200810191345.3795166-1-sashal@kernel.org>
@@ -45,43 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bolarinwa Olayemi Saheed <refactormyself@gmail.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 9018fd7f2a73e9b290f48a56b421558fa31e8b75 ]
+[ Upstream commit 35681862808472a0a4b9a8817ae2789c0b5b3edc ]
 
-On failure pcie_capability_read_dword() sets it's last parameter, val
-to 0. However, with Patch 14/14, it is possible that val is set to ~0 on
-failure. This would introduce a bug because (x & x) == (~0 & x).
+Once channel's job is hung, it dumps the channel's state into KMSG before
+tearing down the offending job. If multiple channels hang at once, then
+they dump messages simultaneously, making the debug info unreadable, and
+thus, useless. This patch adds mutex which allows only one channel to emit
+debug messages at a time.
 
-This bug can be avoided without changing the function's behaviour if the
-return value of pcie_capability_read_dword is checked to confirm success.
-
-Check the return value of pcie_capability_read_dword() to ensure success.
-
-Suggested-by: Bjorn Helgaas <bjorn@helgaas.com>
-Signed-off-by: Bolarinwa Olayemi Saheed <refactormyself@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200713175529.29715-3-refactormyself@gmail.com
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlegacy/common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/host1x/debug.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlegacy/common.c b/drivers/net/wireless/intel/iwlegacy/common.c
-index 6e6b124f0d5e3..3ca84577803cc 100644
---- a/drivers/net/wireless/intel/iwlegacy/common.c
-+++ b/drivers/net/wireless/intel/iwlegacy/common.c
-@@ -4302,8 +4302,8 @@ il_apm_init(struct il_priv *il)
- 	 *    power savings, even without L1.
- 	 */
- 	if (il->cfg->set_l0s) {
--		pcie_capability_read_word(il->pci_dev, PCI_EXP_LNKCTL, &lctl);
--		if (lctl & PCI_EXP_LNKCTL_ASPM_L1) {
-+		ret = pcie_capability_read_word(il->pci_dev, PCI_EXP_LNKCTL, &lctl);
-+		if (!ret && (lctl & PCI_EXP_LNKCTL_ASPM_L1)) {
- 			/* L1-ASPM enabled; disable(!) L0S  */
- 			il_set_bit(il, CSR_GIO_REG,
- 				   CSR_GIO_REG_VAL_L0S_ENABLED);
+diff --git a/drivers/gpu/host1x/debug.c b/drivers/gpu/host1x/debug.c
+index 2aae0e63214c2..0b8c23c399c2a 100644
+--- a/drivers/gpu/host1x/debug.c
++++ b/drivers/gpu/host1x/debug.c
+@@ -25,6 +25,8 @@
+ #include "debug.h"
+ #include "channel.h"
+ 
++static DEFINE_MUTEX(debug_lock);
++
+ unsigned int host1x_debug_trace_cmdbuf;
+ 
+ static pid_t host1x_debug_force_timeout_pid;
+@@ -49,12 +51,14 @@ static int show_channel(struct host1x_channel *ch, void *data, bool show_fifo)
+ 	struct output *o = data;
+ 
+ 	mutex_lock(&ch->cdma.lock);
++	mutex_lock(&debug_lock);
+ 
+ 	if (show_fifo)
+ 		host1x_hw_show_channel_fifo(m, ch, o);
+ 
+ 	host1x_hw_show_channel_cdma(m, ch, o);
+ 
++	mutex_unlock(&debug_lock);
+ 	mutex_unlock(&ch->cdma.lock);
+ 
+ 	return 0;
 -- 
 2.25.1
 
