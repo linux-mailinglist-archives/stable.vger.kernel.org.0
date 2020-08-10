@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01763240F3A
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF43240F37
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729830AbgHJTNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729835AbgHJTNn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Aug 2020 15:13:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44922 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728466AbgHJTNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:13:41 -0400
+        id S1729826AbgHJTNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:13:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F29B22BED;
-        Mon, 10 Aug 2020 19:13:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0D442224D;
+        Mon, 10 Aug 2020 19:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086821;
-        bh=y3+g7EZTyn6i975gKp0Mp3Bv6elrogf8OcOKszMUTU4=;
+        s=default; t=1597086822;
+        bh=45VWdcIbF/o2v52taxnXd8WBDS6fFL77M2ekQL3Ub8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wh40ia9boI2ZaMJxmyV5jCdZk5Cf2fLVx3tMMaPiKZfrM+EGM98Vh0CmxaHgmfXaC
-         Xwt/KIza/co4YIsJKH+bk0YHcJC320uBVY5oW7rMZuBRe3BCDOatk82EFIlYP3ry/U
-         ryPHUUWVqfJDG5dVDFi+uivqT9FOquVLN7drAeUc=
+        b=iTs0bkox31Jo1+rr0s9L/C8bOo3dQSg5sjzG+8k16pA1q6bztYrxzGfYpgKUgLYU7
+         F1FdTepueP9ZXFhWlZmB8FnJELi/D825qDhwlsFAJ20i148x/J4MZ7Rfjnq0JYNckj
+         ovLxaQfsVZtuXZP2nlp83uDFq9mwf1jYGo63YCaQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, Hannes Reinecke <hare@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 29/31] bcache: fix super block seq numbers comparision in register_cache_set()
-Date:   Mon, 10 Aug 2020 15:12:57 -0400
-Message-Id: <20200810191259.3794858-29-sashal@kernel.org>
+Cc:     Erik Kaneda <erik.kaneda@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Subject: [PATCH AUTOSEL 4.19 30/31] ACPICA: Do not increment operation_region reference counts for field units
+Date:   Mon, 10 Aug 2020 15:12:58 -0400
+Message-Id: <20200810191259.3794858-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191259.3794858-1-sashal@kernel.org>
 References: <20200810191259.3794858-1-sashal@kernel.org>
@@ -43,76 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Erik Kaneda <erik.kaneda@intel.com>
 
-[ Upstream commit 117f636ea695270fe492d0c0c9dfadc7a662af47 ]
+[ Upstream commit 6a54ebae6d047c988a31f5ac5a64ab5cf83797a2 ]
 
-In register_cache_set(), c is pointer to struct cache_set, and ca is
-pointer to struct cache, if ca->sb.seq > c->sb.seq, it means this
-registering cache has up to date version and other members, the in-
-memory version and other members should be updated to the newer value.
+ACPICA commit e17b28cfcc31918d0db9547b6b274b09c413eb70
 
-But current implementation makes a cache set only has a single cache
-device, so the above assumption works well except for a special case.
-The execption is when a cache device new created and both ca->sb.seq and
-c->sb.seq are 0, because the super block is never flushed out yet. In
-the location for the following if() check,
-2156         if (ca->sb.seq > c->sb.seq) {
-2157                 c->sb.version           = ca->sb.version;
-2158                 memcpy(c->sb.set_uuid, ca->sb.set_uuid, 16);
-2159                 c->sb.flags             = ca->sb.flags;
-2160                 c->sb.seq               = ca->sb.seq;
-2161                 pr_debug("set version = %llu\n", c->sb.version);
-2162         }
-c->sb.version is not initialized yet and valued 0. When ca->sb.seq is 0,
-the if() check will fail (because both values are 0), and the cache set
-version, set_uuid, flags and seq won't be updated.
+Object reference counts are used as a part of ACPICA's garbage
+collection mechanism. This mechanism keeps track of references to
+heap-allocated structures such as the ACPI operand objects.
 
-The above problem is hiden for current code, because the bucket size is
-compatible among different super block version. And the next time when
-running cache set again, ca->sb.seq will be larger than 0 and cache set
-super block version will be updated properly.
+Recent server firmware has revealed that this reference count can
+overflow on large servers that declare many field units under the
+same operation_region. This occurs because each field unit declaration
+will add a reference count to the source operation_region.
 
-But if the large bucket feature is enabled,  sb->bucket_size is the low
-16bits of the bucket size. For a power of 2 value, when the actual
-bucket size exceeds 16bit width, sb->bucket_size will always be 0. Then
-read_super_common() will fail because the if() check to
-is_power_of_2(sb->bucket_size) is false. This is how the long time
-hidden bug is triggered.
+This change solves the reference count overflow for operation_regions
+objects by preventing fieldunits from incrementing their
+operation_region's reference count. Each operation_region's reference
+count will not be changed by named objects declared under the Field
+operator. During namespace deletion, the operation_region namespace
+node will be deleted and each fieldunit will be deleted without
+touching the deleted operation_region object.
 
-This patch modifies the if() check to the following way,
-2156         if (ca->sb.seq > c->sb.seq || c->sb.seq == 0) {
-Then cache set's version, set_uuid, flags and seq will always be updated
-corectly including for a new created cache device.
-
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://github.com/acpica/acpica/commit/e17b28cf
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/exprep.c   | 4 ----
+ drivers/acpi/acpica/utdelete.c | 6 +-----
+ 2 files changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 68ebc2759c2ef..46ad0bf18e1fd 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -2013,7 +2013,14 @@ static const char *register_cache_set(struct cache *ca)
- 	    sysfs_create_link(&c->kobj, &ca->kobj, buf))
- 		goto err;
+diff --git a/drivers/acpi/acpica/exprep.c b/drivers/acpi/acpica/exprep.c
+index 738f3c732363a..228feeea555f1 100644
+--- a/drivers/acpi/acpica/exprep.c
++++ b/drivers/acpi/acpica/exprep.c
+@@ -473,10 +473,6 @@ acpi_status acpi_ex_prep_field_value(struct acpi_create_field_info *info)
+ 				    (u8)access_byte_width;
+ 			}
+ 		}
+-		/* An additional reference for the container */
+-
+-		acpi_ut_add_reference(obj_desc->field.region_obj);
+-
+ 		ACPI_DEBUG_PRINT((ACPI_DB_BFIELD,
+ 				  "RegionField: BitOff %X, Off %X, Gran %X, Region %p\n",
+ 				  obj_desc->field.start_field_bit_offset,
+diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
+index 8cc4392c61f33..0dc8dea815823 100644
+--- a/drivers/acpi/acpica/utdelete.c
++++ b/drivers/acpi/acpica/utdelete.c
+@@ -563,11 +563,6 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 			next_object = object->buffer_field.buffer_obj;
+ 			break;
  
--	if (ca->sb.seq > c->sb.seq) {
-+	/*
-+	 * A special case is both ca->sb.seq and c->sb.seq are 0,
-+	 * such condition happens on a new created cache device whose
-+	 * super block is never flushed yet. In this case c->sb.version
-+	 * and other members should be updated too, otherwise we will
-+	 * have a mistaken super block version in cache set.
-+	 */
-+	if (ca->sb.seq > c->sb.seq || c->sb.seq == 0) {
- 		c->sb.version		= ca->sb.version;
- 		memcpy(c->sb.set_uuid, ca->sb.set_uuid, 16);
- 		c->sb.flags             = ca->sb.flags;
+-		case ACPI_TYPE_LOCAL_REGION_FIELD:
+-
+-			next_object = object->field.region_obj;
+-			break;
+-
+ 		case ACPI_TYPE_LOCAL_BANK_FIELD:
+ 
+ 			next_object = object->bank_field.bank_obj;
+@@ -608,6 +603,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 			}
+ 			break;
+ 
++		case ACPI_TYPE_LOCAL_REGION_FIELD:
+ 		case ACPI_TYPE_REGION:
+ 		default:
+ 
 -- 
 2.25.1
 
