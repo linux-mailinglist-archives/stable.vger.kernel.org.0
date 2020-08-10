@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A53240A83
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9BA6240A78
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:43:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727879AbgHJPUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50194 "EHLO mail.kernel.org"
+        id S1726653AbgHJPTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:19:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727871AbgHJPUB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:20:01 -0400
+        id S1725869AbgHJPT3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:19:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F8012075F;
-        Mon, 10 Aug 2020 15:19:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CFAC2075F;
+        Mon, 10 Aug 2020 15:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072800;
-        bh=l9XwJXWcp75cXAQkDOclRahP8X8KR0Zlv2D4/1b++3w=;
+        s=default; t=1597072768;
+        bh=zn1+86pPO0MeKxVnkura4kzFBwLZ2uBgm92quMahL+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4Qs/93Lua3yGJzN8ErxzpY8vbBCV+ciGRhc28sNRhX5EwijLiHlk+VzpKs44CWyM
-         iOuRLhsIQVtZDmVaAdVZEo6QwjxNPxAfRuGwVi1QBudgfvHJedB/lW1N3Z74INvEr9
-         C29Liz9kdMXXP/wiHTPkNmv/p04s8wfVNxtlF12g=
+        b=QrnCZwk+EdjgayOpUfkazEUdBC9PIv/H4tDbD7GiNexh4Xk8dprOYzwi+jjrZIG1b
+         EDFZVBS9yi48ErFaC+5e0si9o2Rkq1GGZEtAp1OCflSTNGmxvMTMMOIr5XdJRXo6WU
+         X4gO6l3R0B+jPUNZMiY6T20MdlaU1jlv5cJ2Dxuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 07/38] ALSA: hda/realtek: Add alc269/alc662 pin-tables for Loongson-3 laptops
-Date:   Mon, 10 Aug 2020 17:18:57 +0200
-Message-Id: <20200810151804.258078905@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+1a54a94bd32716796edd@syzkaller.appspotmail.com,
+        syzbot+9d2abfef257f3e2d4713@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.8 11/38] ALSA: seq: oss: Serialize ioctls
+Date:   Mon, 10 Aug 2020 17:19:01 +0200
+Message-Id: <20200810151804.447913452@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151803.920113428@linuxfoundation.org>
 References: <20200810151803.920113428@linuxfoundation.org>
@@ -43,184 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f1ec5be17b9aafbc5f573da023850566b43d8e5e upstream.
+commit 80982c7e834e5d4e325b6ce33757012ecafdf0bb upstream.
 
-There are several Loongson-3 based laptops produced by CZC or Lemote,
-they use alc269/alc662 codecs and need specific pin-tables, this patch
-add their pin-tables.
+Some ioctls via OSS sequencer API may race and lead to UAF when the
+port create and delete are performed concurrently, as spotted by a
+couple of syzkaller cases.  This patch is an attempt to address it by
+serializing the ioctls with the existing register_mutex.
 
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Basically OSS sequencer API is an obsoleted interface and was designed
+without much consideration of the concurrency.  There are very few
+applications with it, and the concurrent performance isn't asked,
+hence this "big hammer" approach should be good enough.
+
+Reported-by: syzbot+1a54a94bd32716796edd@syzkaller.appspotmail.com
+Reported-by: syzbot+9d2abfef257f3e2d4713@syzkaller.appspotmail.com
+Suggested-by: Hillf Danton <hdanton@sina.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1596360400-32425-1-git-send-email-chenhc@lemote.com
+Link: https://lore.kernel.org/r/20200804185815.2453-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |  114 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 114 insertions(+)
+ sound/core/seq/oss/seq_oss.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6166,6 +6166,11 @@ enum {
- 	ALC289_FIXUP_ASUS_GA502,
- 	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
- 	ALC285_FIXUP_HP_GPIO_AMP_INIT,
-+	ALC269_FIXUP_CZC_B20,
-+	ALC269_FIXUP_CZC_TMI,
-+	ALC269_FIXUP_CZC_L101,
-+	ALC269_FIXUP_LEMOTE_A1802,
-+	ALC269_FIXUP_LEMOTE_A190X,
- };
+--- a/sound/core/seq/oss/seq_oss.c
++++ b/sound/core/seq/oss/seq_oss.c
+@@ -168,10 +168,16 @@ static long
+ odev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	struct seq_oss_devinfo *dp;
++	long rc;
++
+ 	dp = file->private_data;
+ 	if (snd_BUG_ON(!dp))
+ 		return -ENXIO;
+-	return snd_seq_oss_ioctl(dp, cmd, arg);
++
++	mutex_lock(&register_mutex);
++	rc = snd_seq_oss_ioctl(dp, cmd, arg);
++	mutex_unlock(&register_mutex);
++	return rc;
+ }
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7404,6 +7409,89 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC285_FIXUP_HP_GPIO_LED
- 	},
-+	[ALC269_FIXUP_CZC_B20] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x12, 0x411111f0 },
-+			{ 0x14, 0x90170110 }, /* speaker */
-+			{ 0x15, 0x032f1020 }, /* HP out */
-+			{ 0x17, 0x411111f0 },
-+			{ 0x18, 0x03ab1040 }, /* mic */
-+			{ 0x19, 0xb7a7013f },
-+			{ 0x1a, 0x0181305f },
-+			{ 0x1b, 0x411111f0 },
-+			{ 0x1d, 0x411111f0 },
-+			{ 0x1e, 0x411111f0 },
-+			{ }
-+		},
-+		.chain_id = ALC269_FIXUP_DMIC,
-+	},
-+	[ALC269_FIXUP_CZC_TMI] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x12, 0x4000c000 },
-+			{ 0x14, 0x90170110 }, /* speaker */
-+			{ 0x15, 0x0421401f }, /* HP out */
-+			{ 0x17, 0x411111f0 },
-+			{ 0x18, 0x04a19020 }, /* mic */
-+			{ 0x19, 0x411111f0 },
-+			{ 0x1a, 0x411111f0 },
-+			{ 0x1b, 0x411111f0 },
-+			{ 0x1d, 0x40448505 },
-+			{ 0x1e, 0x411111f0 },
-+			{ 0x20, 0x8000ffff },
-+			{ }
-+		},
-+		.chain_id = ALC269_FIXUP_DMIC,
-+	},
-+	[ALC269_FIXUP_CZC_L101] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x12, 0x40000000 },
-+			{ 0x14, 0x01014010 }, /* speaker */
-+			{ 0x15, 0x411111f0 }, /* HP out */
-+			{ 0x16, 0x411111f0 },
-+			{ 0x18, 0x01a19020 }, /* mic */
-+			{ 0x19, 0x02a19021 },
-+			{ 0x1a, 0x0181302f },
-+			{ 0x1b, 0x0221401f },
-+			{ 0x1c, 0x411111f0 },
-+			{ 0x1d, 0x4044c601 },
-+			{ 0x1e, 0x411111f0 },
-+			{ }
-+		},
-+		.chain_id = ALC269_FIXUP_DMIC,
-+	},
-+	[ALC269_FIXUP_LEMOTE_A1802] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x12, 0x40000000 },
-+			{ 0x14, 0x90170110 }, /* speaker */
-+			{ 0x17, 0x411111f0 },
-+			{ 0x18, 0x03a19040 }, /* mic1 */
-+			{ 0x19, 0x90a70130 }, /* mic2 */
-+			{ 0x1a, 0x411111f0 },
-+			{ 0x1b, 0x411111f0 },
-+			{ 0x1d, 0x40489d2d },
-+			{ 0x1e, 0x411111f0 },
-+			{ 0x20, 0x0003ffff },
-+			{ 0x21, 0x03214020 },
-+			{ }
-+		},
-+		.chain_id = ALC269_FIXUP_DMIC,
-+	},
-+	[ALC269_FIXUP_LEMOTE_A190X] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x14, 0x99130110 }, /* speaker */
-+			{ 0x15, 0x0121401f }, /* HP out */
-+			{ 0x18, 0x01a19c20 }, /* rear  mic */
-+			{ 0x19, 0x99a3092f }, /* front mic */
-+			{ 0x1b, 0x0201401f }, /* front lineout */
-+			{ }
-+		},
-+		.chain_id = ALC269_FIXUP_DMIC,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7693,9 +7781,14 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3bf8, "Quanta FL1", ALC269_FIXUP_PCM_44K),
- 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
- 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
-+	SND_PCI_QUIRK(0x1b35, 0x1235, "CZC B20", ALC269_FIXUP_CZC_B20),
-+	SND_PCI_QUIRK(0x1b35, 0x1236, "CZC TMI", ALC269_FIXUP_CZC_TMI),
-+	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
-+	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
- 
- #if 0
- 	/* Below is a quirk table taken from the old code.
-@@ -8951,6 +9044,7 @@ enum {
- 	ALC662_FIXUP_LED_GPIO1,
- 	ALC662_FIXUP_IDEAPAD,
- 	ALC272_FIXUP_MARIO,
-+	ALC662_FIXUP_CZC_ET26,
- 	ALC662_FIXUP_CZC_P10T,
- 	ALC662_FIXUP_SKU_IGNORE,
- 	ALC662_FIXUP_HP_RP5800,
-@@ -9020,6 +9114,25 @@ static const struct hda_fixup alc662_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc272_fixup_mario,
- 	},
-+	[ALC662_FIXUP_CZC_ET26] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{0x12, 0x403cc000},
-+			{0x14, 0x90170110}, /* speaker */
-+			{0x15, 0x411111f0},
-+			{0x16, 0x411111f0},
-+			{0x18, 0x01a19030}, /* mic */
-+			{0x19, 0x90a7013f}, /* int-mic */
-+			{0x1a, 0x01014020},
-+			{0x1b, 0x0121401f},
-+			{0x1c, 0x411111f0},
-+			{0x1d, 0x411111f0},
-+			{0x1e, 0x40478e35},
-+			{}
-+		},
-+		.chained = true,
-+		.chain_id = ALC662_FIXUP_SKU_IGNORE
-+	},
- 	[ALC662_FIXUP_CZC_P10T] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -9403,6 +9516,7 @@ static const struct snd_pci_quirk alc662
- 	SND_PCI_QUIRK(0x1849, 0x5892, "ASRock B150M", ALC892_FIXUP_ASROCK_MOBO),
- 	SND_PCI_QUIRK(0x19da, 0xa130, "Zotac Z68", ALC662_FIXUP_ZOTAC_Z68),
- 	SND_PCI_QUIRK(0x1b0a, 0x01b8, "ACER Veriton", ALC662_FIXUP_ACER_VERITON),
-+	SND_PCI_QUIRK(0x1b35, 0x1234, "CZC ET26", ALC662_FIXUP_CZC_ET26),
- 	SND_PCI_QUIRK(0x1b35, 0x2206, "CZC P10T", ALC662_FIXUP_CZC_P10T),
- 	SND_PCI_QUIRK(0x1025, 0x0566, "Acer Aspire Ethos 8951G", ALC669_FIXUP_ACER_ASPIRE_ETHOS),
- 
+ #ifdef CONFIG_COMPAT
 
 
