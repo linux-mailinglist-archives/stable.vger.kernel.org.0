@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F9F240A05
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04175240A28
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbgHJPhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:37:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60202 "EHLO mail.kernel.org"
+        id S1728629AbgHJPi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:38:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728616AbgHJP0S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:26:18 -0400
+        id S1728515AbgHJPZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:25:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB05D20772;
-        Mon, 10 Aug 2020 15:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A936D2177B;
+        Mon, 10 Aug 2020 15:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073178;
-        bh=x7ozp1mq3C1BY63eMKEcpS3peJBmk+UfyCtDfXhOuww=;
+        s=default; t=1597073120;
+        bh=gQWng/bO5oR+BA08SNco2VcnZgToS77LbevgmS+C7z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O19SBIeQk3JW4bUCq77m7CBQKbKnuvlgDD7yLnsyuBoOvQn8jXLEqXOO2zYdl33M+
-         EBbmyeL6qE55G1tB+DYKLgtVBpDTFXrNtCL+JvHFtFiNCJ2Pv0aH/FAgcIDr4pe+lF
-         xjP1r5TiuEYf2Y6IFyys2ulkTOUEOCWnkeo+uPZI=
+        b=M2MsDR/mgy+GY1zdE3fCH/e44HbUVY0B15+NvJmdHaRlIlDiH9w/LGNql2SykRLQw
+         qq97XvdXQUeSshQ0XJU3KEStj9+s5El/83LEUNptBbOz35lm2XhH4D4RVX5LfV7/JJ
+         LosVcbXydg40MlCPrK80fy5RKJk4zCNtcFZ9zKTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com,
-        Suren Baghdasaryan <surenb@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Subject: [PATCH 5.4 14/67] staging: android: ashmem: Fix lockdep warning for write operation
-Date:   Mon, 10 Aug 2020 17:21:01 +0200
-Message-Id: <20200810151810.131585891@linuxfoundation.org>
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Alain Volmat <alain.volmat@st.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 43/79] i2c: slave: add sanity check when unregistering
+Date:   Mon, 10 Aug 2020 17:21:02 +0200
+Message-Id: <20200810151814.399625446@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 3e338d3c95c735dc3265a86016bb4c022ec7cadc upstream.
+[ Upstream commit 8808981baf96e1b3dea1f08461e4d958aa0dbde1 ]
 
-syzbot report [1] describes a deadlock when write operation against an
-ashmem fd executed at the time when ashmem is shrinking its cache results
-in the following lock sequence:
-
-Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(fs_reclaim);
-                                lock(&sb->s_type->i_mutex_key#13);
-                                lock(fs_reclaim);
-   lock(&sb->s_type->i_mutex_key#13);
-
-kswapd takes fs_reclaim and then inode_lock while generic_perform_write
-takes inode_lock and then fs_reclaim. However ashmem does not support
-writing into backing shmem with a write syscall. The only way to change
-its content is to mmap it and operate on mapped memory. Therefore the race
-that lockdep is warning about is not valid. Resolve this by introducing a
-separate lockdep class for the backing shmem inodes.
-
-[1]: https://lkml.kernel.org/lkml/0000000000000b5f9d059aa2037f@google.com/
-
-Reported-by: syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Link: https://lore.kernel.org/r/20200730192632.3088194-1-surenb@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Alain Volmat <alain.volmat@st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/android/ashmem.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/i2c/i2c-core-slave.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/android/ashmem.c
-+++ b/drivers/staging/android/ashmem.c
-@@ -95,6 +95,15 @@ static DEFINE_MUTEX(ashmem_mutex);
- static struct kmem_cache *ashmem_area_cachep __read_mostly;
- static struct kmem_cache *ashmem_range_cachep __read_mostly;
- 
-+/*
-+ * A separate lockdep class for the backing shmem inodes to resolve the lockdep
-+ * warning about the race between kswapd taking fs_reclaim before inode_lock
-+ * and write syscall taking inode_lock and then fs_reclaim.
-+ * Note that such race is impossible because ashmem does not support write
-+ * syscalls operating on the backing shmem.
-+ */
-+static struct lock_class_key backing_shmem_inode_class;
-+
- static inline unsigned long range_size(struct ashmem_range *range)
+diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
+index 549751347e6c7..1589179d5eb92 100644
+--- a/drivers/i2c/i2c-core-slave.c
++++ b/drivers/i2c/i2c-core-slave.c
+@@ -58,6 +58,9 @@ int i2c_slave_unregister(struct i2c_client *client)
  {
- 	return range->pgend - range->pgstart + 1;
-@@ -396,6 +405,7 @@ static int ashmem_mmap(struct file *file
- 	if (!asma->file) {
- 		char *name = ASHMEM_NAME_DEF;
- 		struct file *vmfile;
-+		struct inode *inode;
+ 	int ret;
  
- 		if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0')
- 			name = asma->name;
-@@ -407,6 +417,8 @@ static int ashmem_mmap(struct file *file
- 			goto out;
- 		}
- 		vmfile->f_mode |= FMODE_LSEEK;
-+		inode = file_inode(vmfile);
-+		lockdep_set_class(&inode->i_rwsem, &backing_shmem_inode_class);
- 		asma->file = vmfile;
- 		/*
- 		 * override mmap operation of the vmfile so that it can't be
++	if (IS_ERR_OR_NULL(client))
++		return -EINVAL;
++
+ 	if (!client->adapter->algo->unreg_slave) {
+ 		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
+ 		return -EOPNOTSUPP;
+-- 
+2.25.1
+
 
 
