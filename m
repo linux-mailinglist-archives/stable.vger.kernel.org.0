@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 952F3240F92
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:23:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE9B240F94
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729624AbgHJTMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:12:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
+        id S1729326AbgHJTXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:23:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729618AbgHJTMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:12:46 -0400
+        id S1729619AbgHJTMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:12:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C51042224D;
-        Mon, 10 Aug 2020 19:12:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15F1622B49;
+        Mon, 10 Aug 2020 19:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086765;
-        bh=Xod+VzE1VPgUVP0IyRAqLiqOrCbqQE3tlugT8HfZHb8=;
+        s=default; t=1597086766;
+        bh=K1hirN2sBpFZcADEX5DOg98QwrA5CvrnN4JSkIwDI64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeBRXlG3XOiwwSN99vZ4n4FLoQQaAmhERZRnjioXtyPeb+xGqohWu79NFfqsvVY4Q
-         0zmSxqZj+Rfvs6mbua7MhDxiHVTYRCMNeyTS5eK/vHXFBPt494bMr7Q875iQO/+Wps
-         mKEip7sNbR6REeNWTx6wSntkCEUPbd6p9uigTtOA=
+        b=k+COgtKJPZI4PMqcbgbCxripOKmXZgSVA/8yXv+V7BfKqxqjYsOadz4WGirNcdYAO
+         b7rpqO1SCFof43A+g1LxSPOyPYrgU3SxVQCbwzC86pTvB57P0oDzyzghYxOj+S/gaI
+         6uX3nZbzsqATGI9Aym1KvoLR1IsA+H+NmFVqk43M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shannon Nelson <snelson@pensando.io>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 36/45] ionic: update eid test for overflow
-Date:   Mon, 10 Aug 2020 15:11:44 -0400
-Message-Id: <20200810191153.3794446-36-sashal@kernel.org>
+Cc:     shirley her <shirley.her@bayhubtech.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 37/45] mmc: sdhci-pci-o2micro: Bug fix for O2 host controller Seabird1
+Date:   Mon, 10 Aug 2020 15:11:45 -0400
+Message-Id: <20200810191153.3794446-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191153.3794446-1-sashal@kernel.org>
 References: <20200810191153.3794446-1-sashal@kernel.org>
@@ -43,33 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: shirley her <shirley.her@bayhubtech.com>
 
-[ Upstream commit 3fbc9bb6ca32d12d4d32a7ae32abef67ac95f889 ]
+[ Upstream commit cdd2b769789ae1a030e1a26f6c37c5833cabcb34 ]
 
-Fix up our comparison to better handle a potential (but largely
-unlikely) wrap around.
+To fix support for the O2 host controller Seabird1, set the quirk
+SDHCI_QUIRK2_PRESET_VALUE_BROKEN and the capability bit MMC_CAP2_NO_SDIO.
+Moreover, assign the ->get_cd() callback.
 
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Shirley Her <shirley.her@bayhubtech.com>
+Link: https://lore.kernel.org/r/20200721011733.8416-1-shirley.her@bayhubtech.com
+[Ulf: Updated the commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index c00ec9a020973..e66002251596b 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -666,7 +666,7 @@ static bool ionic_notifyq_service(struct ionic_cq *cq,
- 	eid = le64_to_cpu(comp->event.eid);
+diff --git a/drivers/mmc/host/sdhci-pci-o2micro.c b/drivers/mmc/host/sdhci-pci-o2micro.c
+index fa8105087d684..41a2394313dd0 100644
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -561,6 +561,12 @@ int sdhci_pci_o2_probe_slot(struct sdhci_pci_slot *slot)
+ 			slot->host->mmc_host_ops.get_cd = sdhci_o2_get_cd;
+ 		}
  
- 	/* Have we run out of new completions to process? */
--	if (eid <= lif->last_eid)
-+	if ((s64)(eid - lif->last_eid) <= 0)
- 		return false;
++		if (chip->pdev->device == PCI_DEVICE_ID_O2_SEABIRD1) {
++			slot->host->mmc_host_ops.get_cd = sdhci_o2_get_cd;
++			host->mmc->caps2 |= MMC_CAP2_NO_SDIO;
++			host->quirks2 |= SDHCI_QUIRK2_PRESET_VALUE_BROKEN;
++		}
++
+ 		host->mmc_host_ops.execute_tuning = sdhci_o2_execute_tuning;
  
- 	lif->last_eid = eid;
+ 		if (chip->pdev->device != PCI_DEVICE_ID_O2_FUJIN2)
 -- 
 2.25.1
 
