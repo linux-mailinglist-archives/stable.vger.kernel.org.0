@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A0D240944
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AEBB240975
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgHJPax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
+        id S1728565AbgHJPcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:32:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728898AbgHJPat (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:49 -0400
+        id S1728629AbgHJPav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:30:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7290207FF;
-        Mon, 10 Aug 2020 15:30:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E0C720774;
+        Mon, 10 Aug 2020 15:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073448;
-        bh=yDP87lINzHFiLkOkm6RlyKNPAAeN6uTzlS7Nkl4gNvc=;
+        s=default; t=1597073451;
+        bh=G9NxIXCH0bjECpC9RNT5/j8tAX+qRyVYFRyKLO9ualk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0SVUtQX8HrIOabhrD4KQuXftMCjRgVGdT+wdM9H3BIzaLgDB8O54gTPO539lkhlj9
-         xidKUfz3XGDuZqjGeuiF4NABqsubwXtvoUNAqrfHaAW52Sdg+YM0RcHvnqh14g2BSe
-         WI50e79oVSQkhsu/iI/SMwa6LXov3lLCIT6/dSXw=
+        b=PjBcCqpKcCF3FP1Q/JjZzXp6bzzn8eTFpZngmiTCkroya5IJV2a653IleLi2j4qoy
+         ZHd7LFv0hAhjn5jrqDIhaT+eD1VobkLQiI9Q+qVPUVLvA2pkRaQDt4Zwp1MTecyOD0
+         KJYC2fXUo6oIE0NwSWwOkE4slEgXyE9WplRZxOX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org,
+        syzbot+b54969381df354936d96@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 42/48] selftests/net: relax cpu affinity requirement in msg_zerocopy test
-Date:   Mon, 10 Aug 2020 17:22:04 +0200
-Message-Id: <20200810151806.286411554@linuxfoundation.org>
+Subject: [PATCH 4.19 43/48] rxrpc: Fix race between recvmsg and sendmsg on immediate call failure
+Date:   Mon, 10 Aug 2020 17:22:05 +0200
+Message-Id: <20200810151806.336320258@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
 References: <20200810151804.199494191@linuxfoundation.org>
@@ -44,46 +46,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 16f6458f2478b55e2b628797bc81a4455045c74e ]
+[ Upstream commit 65550098c1c4db528400c73acf3e46bfa78d9264 ]
 
-The msg_zerocopy test pins the sender and receiver threads to separate
-cores to reduce variance between runs.
+There's a race between rxrpc_sendmsg setting up a call, but then failing to
+send anything on it due to an error, and recvmsg() seeing the call
+completion occur and trying to return the state to the user.
 
-But it hardcodes the cores and skips core 0, so it fails on machines
-with the selected cores offline, or simply fewer cores.
+An assertion fails in rxrpc_recvmsg() because the call has already been
+released from the socket and is about to be released again as recvmsg deals
+with it.  (The recvmsg_q queue on the socket holds a ref, so there's no
+problem with use-after-free.)
 
-The test mainly gives code coverage in automated runs. The throughput
-of zerocopy ('-z') and non-zerocopy runs is logged for manual
-inspection.
+We also have to be careful not to end up reporting an error twice, in such
+a way that both returns indicate to userspace that the user ID supplied
+with the call is no longer in use - which could cause the client to
+malfunction if it recycles the user ID fast enough.
 
-Continue even when sched_setaffinity fails. Just log to warn anyone
-interpreting the data.
+Fix this by the following means:
 
-Fixes: 07b65c5b31ce ("test: add msg_zerocopy test")
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Colin Ian King <colin.king@canonical.com>
+ (1) When sendmsg() creates a call after the point that the call has been
+     successfully added to the socket, don't return any errors through
+     sendmsg(), but rather complete the call and let recvmsg() retrieve
+     them.  Make sendmsg() return 0 at this point.  Further calls to
+     sendmsg() for that call will fail with ESHUTDOWN.
+
+     Note that at this point, we haven't send any packets yet, so the
+     server doesn't yet know about the call.
+
+ (2) If sendmsg() returns an error when it was expected to create a new
+     call, it means that the user ID wasn't used.
+
+ (3) Mark the call disconnected before marking it completed to prevent an
+     oops in rxrpc_release_call().
+
+ (4) recvmsg() will then retrieve the error and set MSG_EOR to indicate
+     that the user ID is no longer known by the kernel.
+
+An oops like the following is produced:
+
+	kernel BUG at net/rxrpc/recvmsg.c:605!
+	...
+	RIP: 0010:rxrpc_recvmsg+0x256/0x5ae
+	...
+	Call Trace:
+	 ? __init_waitqueue_head+0x2f/0x2f
+	 ____sys_recvmsg+0x8a/0x148
+	 ? import_iovec+0x69/0x9c
+	 ? copy_msghdr_from_user+0x5c/0x86
+	 ___sys_recvmsg+0x72/0xaa
+	 ? __fget_files+0x22/0x57
+	 ? __fget_light+0x46/0x51
+	 ? fdget+0x9/0x1b
+	 do_recvmmsg+0x15e/0x232
+	 ? _raw_spin_unlock+0xa/0xb
+	 ? vtime_delta+0xf/0x25
+	 __x64_sys_recvmmsg+0x2c/0x2f
+	 do_syscall_64+0x4c/0x78
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 357f5ef64628 ("rxrpc: Call rxrpc_release_call() on error in rxrpc_new_client_call()")
+Reported-by: syzbot+b54969381df354936d96@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/msg_zerocopy.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/rxrpc/call_object.c |   27 +++++++++++++++++++--------
+ net/rxrpc/conn_object.c |    8 +++++---
+ net/rxrpc/recvmsg.c     |    2 +-
+ net/rxrpc/sendmsg.c     |    3 +++
+ 4 files changed, 28 insertions(+), 12 deletions(-)
 
---- a/tools/testing/selftests/net/msg_zerocopy.c
-+++ b/tools/testing/selftests/net/msg_zerocopy.c
-@@ -125,9 +125,8 @@ static int do_setcpu(int cpu)
- 	CPU_ZERO(&mask);
- 	CPU_SET(cpu, &mask);
- 	if (sched_setaffinity(0, sizeof(mask), &mask))
--		error(1, 0, "setaffinity %d", cpu);
--
--	if (cfg_verbose)
-+		fprintf(stderr, "cpu: unable to pin, may increase variance.\n");
-+	else if (cfg_verbose)
- 		fprintf(stderr, "cpu: %u\n", cpu);
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -290,7 +290,7 @@ struct rxrpc_call *rxrpc_new_client_call
+ 	 */
+ 	ret = rxrpc_connect_call(rx, call, cp, srx, gfp);
+ 	if (ret < 0)
+-		goto error;
++		goto error_attached_to_socket;
  
- 	return 0;
+ 	trace_rxrpc_call(call, rxrpc_call_connected, atomic_read(&call->usage),
+ 			 here, NULL);
+@@ -310,18 +310,29 @@ struct rxrpc_call *rxrpc_new_client_call
+ error_dup_user_ID:
+ 	write_unlock(&rx->call_lock);
+ 	release_sock(&rx->sk);
+-	ret = -EEXIST;
+-
+-error:
+ 	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
+-				    RX_CALL_DEAD, ret);
++				    RX_CALL_DEAD, -EEXIST);
+ 	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
+-			 here, ERR_PTR(ret));
++			 here, ERR_PTR(-EEXIST));
+ 	rxrpc_release_call(rx, call);
+ 	mutex_unlock(&call->user_mutex);
+ 	rxrpc_put_call(call, rxrpc_call_put);
+-	_leave(" = %d", ret);
+-	return ERR_PTR(ret);
++	_leave(" = -EEXIST");
++	return ERR_PTR(-EEXIST);
++
++	/* We got an error, but the call is attached to the socket and is in
++	 * need of release.  However, we might now race with recvmsg() when
++	 * completing the call queues it.  Return 0 from sys_sendmsg() and
++	 * leave the error to recvmsg() to deal with.
++	 */
++error_attached_to_socket:
++	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
++			 here, ERR_PTR(ret));
++	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
++	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
++				    RX_CALL_DEAD, ret);
++	_leave(" = c=%08x [err]", call->debug_id);
++	return call;
+ }
+ 
+ /*
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -215,9 +215,11 @@ void rxrpc_disconnect_call(struct rxrpc_
+ 
+ 	call->peer->cong_cwnd = call->cong_cwnd;
+ 
+-	spin_lock_bh(&conn->params.peer->lock);
+-	hlist_del_rcu(&call->error_link);
+-	spin_unlock_bh(&conn->params.peer->lock);
++	if (!hlist_unhashed(&call->error_link)) {
++		spin_lock_bh(&call->peer->lock);
++		hlist_del_rcu(&call->error_link);
++		spin_unlock_bh(&call->peer->lock);
++	}
+ 
+ 	if (rxrpc_is_client_call(call))
+ 		return rxrpc_disconnect_client_call(call);
+--- a/net/rxrpc/recvmsg.c
++++ b/net/rxrpc/recvmsg.c
+@@ -530,7 +530,7 @@ try_again:
+ 			goto error_unlock_call;
+ 	}
+ 
+-	if (msg->msg_name) {
++	if (msg->msg_name && call->peer) {
+ 		struct sockaddr_rxrpc *srx = msg->msg_name;
+ 		size_t len = sizeof(call->peer->srx);
+ 
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -654,6 +654,9 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *
+ 		if (IS_ERR(call))
+ 			return PTR_ERR(call);
+ 		/* ... and we have the call lock. */
++		ret = 0;
++		if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE)
++			goto out_put_unlock;
+ 	} else {
+ 		switch (READ_ONCE(call->state)) {
+ 		case RXRPC_CALL_UNINITIALISED:
 
 
