@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1CEA2410D5
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65C42410D7
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728442AbgHJTJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728514AbgHJTJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Aug 2020 15:09:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728489AbgHJTJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:09:27 -0400
+        id S1728492AbgHJTJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:09:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E7CA21775;
-        Mon, 10 Aug 2020 19:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92D1E22B45;
+        Mon, 10 Aug 2020 19:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086566;
-        bh=1hUmOdoEj32TW0X8WVtmQHKVAglxkLerFvsfjtaXHtE=;
+        s=default; t=1597086567;
+        bh=cBJbYSQY8TZQCT0eXnANmfIOvzV3nWmaS0vZYyZEUrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVp04AFdJRnwSredpHavZgeoqHimx1ZRsbBXTuBFPKnrw6iH0mQ7+tTD01DdBXRwq
-         CChEyHxQsbW2YHnTaM6zRe0znXzC4FZ/n7NntIJ3UtbZZo/hAHUTXQCs9F/KPlimh/
-         L/COOoJbmyIJEMAqG8Rw7weoRQzB9PnFLeLx7Ijc=
+        b=iMkWFeqiTVD1ecgXFeu7i/Mw0rxC5eIZPn4H4ut2jMn4d4yB9AHzUDZsy2apozYCD
+         hS5bSYRtkkKHMzqtWsfB8pEmqEA54y9LmAeIsJxuN2PfFmsWv9pIXQjH5iQaJDNWDI
+         IGhCJZk+7YFcMP9IgOTQjiYQeXLfaUnzSEci+a0Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, etnaviv@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 19/64] drm/etnaviv: fix ref count leak via pm_runtime_get_sync
-Date:   Mon, 10 Aug 2020 15:08:14 -0400
-Message-Id: <20200810190859.3793319-19-sashal@kernel.org>
+Cc:     Shannon Nelson <snelson@pensando.io>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 20/64] ionic: rearrange reset and bus-master control
+Date:   Mon, 10 Aug 2020 15:08:15 -0400
+Message-Id: <20200810190859.3793319-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810190859.3793319-1-sashal@kernel.org>
 References: <20200810190859.3793319-1-sashal@kernel.org>
@@ -44,97 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit c5d5a32ead1e3a61a07a1e59eb52a53e4a6b2a7f ]
+[ Upstream commit 6a6014e2fb276753d4dc9b803370e7af7f57e30b ]
 
-in etnaviv_gpu_submit, etnaviv_gpu_recover_hang, etnaviv_gpu_debugfs,
-and etnaviv_gpu_init the call to pm_runtime_get_sync increments the
-counter even in case of failure, leading to incorrect ref count.
-In case of failure, decrement the ref count before returning.
+We can prevent potential incorrect DMA access attempts from the
+NIC by enabling bus-master after the reset, and by disabling
+bus-master earlier in cleanup.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-index a31eeff2b297a..7c9f3f9ba1235 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -722,7 +722,7 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
- 	ret = pm_runtime_get_sync(gpu->dev);
- 	if (ret < 0) {
- 		dev_err(gpu->dev, "Failed to enable GPU power domain\n");
--		return ret;
-+		goto pm_put;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
+index 2924cde440aa8..85c686c16741f 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
+@@ -247,12 +247,11 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		goto err_out_pci_disable_device;
  	}
  
- 	etnaviv_hw_identify(gpu);
-@@ -819,6 +819,7 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
+-	pci_set_master(pdev);
+ 	pcie_print_link_status(pdev);
  
- fail:
- 	pm_runtime_mark_last_busy(gpu->dev);
-+pm_put:
- 	pm_runtime_put_autosuspend(gpu->dev);
+ 	err = ionic_map_bars(ionic);
+ 	if (err)
+-		goto err_out_pci_clear_master;
++		goto err_out_pci_disable_device;
  
- 	return ret;
-@@ -859,7 +860,7 @@ int etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
- 
- 	ret = pm_runtime_get_sync(gpu->dev);
- 	if (ret < 0)
--		return ret;
-+		goto pm_put;
- 
- 	dma_lo = gpu_read(gpu, VIVS_FE_DMA_LOW);
- 	dma_hi = gpu_read(gpu, VIVS_FE_DMA_HIGH);
-@@ -1003,6 +1004,7 @@ int etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
- 	ret = 0;
- 
- 	pm_runtime_mark_last_busy(gpu->dev);
-+pm_put:
- 	pm_runtime_put_autosuspend(gpu->dev);
- 
- 	return ret;
-@@ -1016,7 +1018,7 @@ void etnaviv_gpu_recover_hang(struct etnaviv_gpu *gpu)
- 	dev_err(gpu->dev, "recover hung GPU!\n");
- 
- 	if (pm_runtime_get_sync(gpu->dev) < 0)
--		return;
-+		goto pm_put;
- 
- 	mutex_lock(&gpu->lock);
- 
-@@ -1035,6 +1037,7 @@ void etnaviv_gpu_recover_hang(struct etnaviv_gpu *gpu)
- 
- 	mutex_unlock(&gpu->lock);
- 	pm_runtime_mark_last_busy(gpu->dev);
-+pm_put:
- 	pm_runtime_put_autosuspend(gpu->dev);
- }
- 
-@@ -1308,8 +1311,10 @@ struct dma_fence *etnaviv_gpu_submit(struct etnaviv_gem_submit *submit)
- 
- 	if (!submit->runtime_resumed) {
- 		ret = pm_runtime_get_sync(gpu->dev);
--		if (ret < 0)
-+		if (ret < 0) {
-+			pm_runtime_put_noidle(gpu->dev);
- 			return NULL;
-+		}
- 		submit->runtime_resumed = true;
+ 	/* Configure the device */
+ 	err = ionic_setup(ionic);
+@@ -260,6 +259,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		dev_err(dev, "Cannot setup device: %d, aborting\n", err);
+ 		goto err_out_unmap_bars;
  	}
++	pci_set_master(pdev);
  
-@@ -1326,6 +1331,7 @@ struct dma_fence *etnaviv_gpu_submit(struct etnaviv_gem_submit *submit)
- 	ret = event_alloc(gpu, nr_events, event);
- 	if (ret) {
- 		DRM_ERROR("no free events\n");
-+		pm_runtime_put_noidle(gpu->dev);
- 		return NULL;
- 	}
- 
+ 	err = ionic_identify(ionic);
+ 	if (err) {
+@@ -350,6 +350,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	ionic_reset(ionic);
+ err_out_teardown:
+ 	ionic_dev_teardown(ionic);
++	pci_clear_master(pdev);
+ 	/* Don't fail the probe for these errors, keep
+ 	 * the hw interface around for inspection
+ 	 */
+@@ -358,8 +359,6 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ err_out_unmap_bars:
+ 	ionic_unmap_bars(ionic);
+ 	pci_release_regions(pdev);
+-err_out_pci_clear_master:
+-	pci_clear_master(pdev);
+ err_out_pci_disable_device:
+ 	pci_disable_device(pdev);
+ err_out_debugfs_del_dev:
+@@ -389,9 +388,9 @@ static void ionic_remove(struct pci_dev *pdev)
+ 	ionic_port_reset(ionic);
+ 	ionic_reset(ionic);
+ 	ionic_dev_teardown(ionic);
++	pci_clear_master(pdev);
+ 	ionic_unmap_bars(ionic);
+ 	pci_release_regions(pdev);
+-	pci_clear_master(pdev);
+ 	pci_disable_device(pdev);
+ 	ionic_debugfs_del_dev(ionic);
+ 	mutex_destroy(&ionic->dev_cmd_lock);
 -- 
 2.25.1
 
