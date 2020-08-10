@@ -2,122 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDCB3240939
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B468824091D
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729065AbgHJPaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:30:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37064 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729063AbgHJPaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:16 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728101AbgHJP3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36320 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728649AbgHJP25 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 11:28:57 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEABAC061756;
+        Mon, 10 Aug 2020 08:28:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=Gxr9Wg9+yp2z13ZJTC6Dw97Pj6/kna+6WtFiBzohkno=; b=JZhwJYJJi0HJ+Matj3JwxdHq4T
+        Nh62m9VTnl5pOLSKA3wPSfTOPVeNihvFYJGmhp/3MEiCyNO7DwVbSzTovrCvLG3SMe2Cqx2vQ8W9i
+        KDRG05zQfojO+sCH+QYH1u3s6uKvEX5WNNw3Z/mjr1uE0niosmUG5f0rA7PQbyjQPuFsrdGuUz+c0
+        g4VBRqfKwTxcZPSQYsV4quKOYvYLFfG8RtJA9yxpbSztmS+Sr6Ej+hUMORVRfsMt+tyAMoI3vflMU
+        Rpwl+d8jAfyK9H7NJHYFX+mKL63VIwkLrepyF0LBLnFXhYZyGmB4fwpxw/dBvOEUkDhcctyyzvwjk
+        xwR3hvag==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1k59jL-0006oH-9L; Mon, 10 Aug 2020 15:28:55 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2DB620791;
-        Mon, 10 Aug 2020 15:30:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073416;
-        bh=MW7J+hsXgn9nQY2RcNiaq6t9NpgkfUGMv8o3WrLLBRI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEQe//z5f/BuDqgm4HpNEj8eAvYAGns5a610y+yPmAWptG1J+YnVSfms5u29WGuTJ
-         jz8FqRx+7IrLE8rOfwz7OCbRHxPsjkyFGwVMVy8XKp0YHo0ISCOQaf1Q+DOKxdMcY6
-         c5M1eR/KecaPW114IKCsyKSP34aZ2NX9Rn3Q0Ygw=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 32/48] ipv4: Silence suspicious RCU usage warning
-Date:   Mon, 10 Aug 2020 17:21:54 +0200
-Message-Id: <20200810151805.790694863@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-References: <20200810151804.199494191@linuxfoundation.org>
-User-Agent: quilt/0.66
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 58BE930797C;
+        Mon, 10 Aug 2020 17:28:54 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 4AA582BB8FCE9; Mon, 10 Aug 2020 17:28:54 +0200 (CEST)
+Date:   Mon, 10 Aug 2020 17:28:54 +0200
+From:   peterz@infradead.org
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] kernel: split task_work_add() into two separate
+ helpers
+Message-ID: <20200810152854.GA2674@hirez.programming.kicks-ass.net>
+References: <20200808183439.342243-1-axboe@kernel.dk>
+ <20200808183439.342243-2-axboe@kernel.dk>
+ <20200810113740.GR2674@hirez.programming.kicks-ass.net>
+ <ae401501-ede0-eb08-12b7-1d50f6b3eaa5@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <ae401501-ede0-eb08-12b7-1d50f6b3eaa5@kernel.dk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+On Mon, Aug 10, 2020 at 09:01:02AM -0600, Jens Axboe wrote:
 
-[ Upstream commit 83f3522860f702748143e022f1a546547314c715 ]
+> >> +struct callback_head work_exited = {
+> >> +	.next = NULL	/* all we need is ->next == NULL */
+> >> +};
+> > 
+> > Would it make sense to make this const ? Esp. with the thing exposed,
+> > sticking it in R/O memory might avoid a mistake somewhere.
+> 
+> That was my original intent, but that makes 'head' in task_work_run()
+> const as well, and cmpxchg() doesn't like that:
+> 
+> kernel/task_work.c: In function ‘task_work_run’:
+> ./arch/x86/include/asm/cmpxchg.h:89:29: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+>    89 |  __typeof__(*(ptr)) __new = (new);    \
+>       |                             ^
+> ./arch/x86/include/asm/cmpxchg.h:134:2: note: in expansion of macro ‘__raw_cmpxchg’
+>   134 |  __raw_cmpxchg((ptr), (old), (new), (size), LOCK_PREFIX)
+>       |  ^~~~~~~~~~~~~
+> ./arch/x86/include/asm/cmpxchg.h:149:2: note: in expansion of macro ‘__cmpxchg’
+>   149 |  __cmpxchg(ptr, old, new, sizeof(*(ptr)))
+>       |  ^~~~~~~~~
+> ./include/asm-generic/atomic-instrumented.h:1685:2: note: in expansion of macro ‘arch_cmpxchg’
+>  1685 |  arch_cmpxchg(__ai_ptr, __VA_ARGS__);    \
+>       |  ^~~~~~~~~~~~
+> kernel/task_work.c:126:12: note: in expansion of macro ‘cmpxchg’
+>   126 |   } while (cmpxchg(&task->task_works, work, head) != work);
+>       |            ^~~~~~~
+> 
+> which is somewhat annoying. Because there's really no good reason why it
+> can't be const, it'll just require the changes to dig a bit deeper.
 
-fib_trie_unmerge() is called with RTNL held, but not from an RCU
-read-side critical section. This leads to the following warning [1] when
-the FIB alias list in a leaf is traversed with
-hlist_for_each_entry_rcu().
-
-Since the function is always called with RTNL held and since
-modification of the list is protected by RTNL, simply use
-hlist_for_each_entry() and silence the warning.
-
-[1]
-WARNING: suspicious RCU usage
-5.8.0-rc4-custom-01520-gc1f937f3f83b #30 Not tainted
------------------------------
-net/ipv4/fib_trie.c:1867 RCU-list traversed in non-reader section!!
-
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-1 lock held by ip/164:
- #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
-
-stack backtrace:
-CPU: 0 PID: 164 Comm: ip Not tainted 5.8.0-rc4-custom-01520-gc1f937f3f83b #30
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
-Call Trace:
- dump_stack+0x100/0x184
- lockdep_rcu_suspicious+0x153/0x15d
- fib_trie_unmerge+0x608/0xdb0
- fib_unmerge+0x44/0x360
- fib4_rule_configure+0xc8/0xad0
- fib_nl_newrule+0x37a/0x1dd0
- rtnetlink_rcv_msg+0x4f7/0xbd0
- netlink_rcv_skb+0x17a/0x480
- rtnetlink_rcv+0x22/0x30
- netlink_unicast+0x5ae/0x890
- netlink_sendmsg+0x98a/0xf40
- ____sys_sendmsg+0x879/0xa00
- ___sys_sendmsg+0x122/0x190
- __sys_sendmsg+0x103/0x1d0
- __x64_sys_sendmsg+0x7d/0xb0
- do_syscall_64+0x54/0xa0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7fc80a234e97
-Code: Bad RIP value.
-RSP: 002b:00007ffef8b66798 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc80a234e97
-RDX: 0000000000000000 RSI: 00007ffef8b66800 RDI: 0000000000000003
-RBP: 000000005f141b1c R08: 0000000000000001 R09: 0000000000000000
-R10: 00007fc80a2a8ac0 R11: 0000000000000246 R12: 0000000000000001
-R13: 0000000000000000 R14: 00007ffef8b67008 R15: 0000556fccb10020
-
-Fixes: 0ddcf43d5d4a ("ipv4: FIB Local/MAIN table collapse")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/fib_trie.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -1749,7 +1749,7 @@ struct fib_table *fib_trie_unmerge(struc
- 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
- 		struct key_vector *local_l = NULL, *local_tp;
- 
--		hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
-+		hlist_for_each_entry(fa, &l->leaf, fa_list) {
- 			struct fib_alias *new_fa;
- 
- 			if (local_tb->tb_id != fa->tb_id)
-
-
+Bah! Best I can come up with is casting the const away there, what a
+mess :-(
