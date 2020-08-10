@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E203F240957
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED88240A22
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729046AbgHJPaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:30:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36678 "EHLO mail.kernel.org"
+        id S1727930AbgHJPix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:38:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729038AbgHJPaA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:00 -0400
+        id S1728523AbgHJPZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:25:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA6522D07;
-        Mon, 10 Aug 2020 15:29:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BC912078E;
+        Mon, 10 Aug 2020 15:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073400;
-        bh=JviOPlayrNp5TUqYGsqdv/rzayIkoShqBQoDfszUVDA=;
+        s=default; t=1597073128;
+        bh=xn6WjHRNun+91wxlEFjur4mhWmoemTK089x9wa+Bzf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwPP1m6qzEK2KLrnfWn+WM94jPKDnfPgKz5i/T/frwTh4wO6iq3FdGCOVttZ6s18t
-         d3Fmt/ph0ABVndbLhrhgsigRqt4Pu+cxxFNX8hcmqjornxnnv2tcvFgnaVi80J+cH4
-         WQHKhASocZlo7H41iczZl4m9G4wg9uFclknJmywk=
+        b=2qSytlaKGmRp5+Ij7GWvhGFGKiRlChUjxNSy6nW7LQv/abq3nqvuPRMpCpsFSIC/E
+         7/wL12Kf16Ee6fOnohGOTmWrEkuiGX1ZGQf9pIUtaVcTyrB9DnAW6FgnvhBiUC1ZIz
+         A9g5wybZhQ6QaMPiudH9RJpYt9a2VAj1UJR8gQLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1a54a94bd32716796edd@syzkaller.appspotmail.com,
-        syzbot+9d2abfef257f3e2d4713@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 06/48] ALSA: seq: oss: Serialize ioctls
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Matteo Croce <mcroce@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.7 69/79] net: mvpp2: fix memory leak in mvpp2_rx
 Date:   Mon, 10 Aug 2020 17:21:28 +0200
-Message-Id: <20200810151804.528955642@linuxfoundation.org>
+Message-Id: <20200810151815.638917711@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-References: <20200810151804.199494191@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 80982c7e834e5d4e325b6ce33757012ecafdf0bb upstream.
+[ Upstream commit d6526926de7397a97308780911565e31a6b67b59 ]
 
-Some ioctls via OSS sequencer API may race and lead to UAF when the
-port create and delete are performed concurrently, as spotted by a
-couple of syzkaller cases.  This patch is an attempt to address it by
-serializing the ioctls with the existing register_mutex.
+Release skb memory in mvpp2_rx() if mvpp2_rx_refill routine fails
 
-Basically OSS sequencer API is an obsoleted interface and was designed
-without much consideration of the concurrency.  There are very few
-applications with it, and the concurrent performance isn't asked,
-hence this "big hammer" approach should be good enough.
-
-Reported-by: syzbot+1a54a94bd32716796edd@syzkaller.appspotmail.com
-Reported-by: syzbot+9d2abfef257f3e2d4713@syzkaller.appspotmail.com
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200804185815.2453-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: b5015854674b ("net: mvpp2: fix refilling BM pools in RX path")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Matteo Croce <mcroce@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/core/seq/oss/seq_oss.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/seq/oss/seq_oss.c
-+++ b/sound/core/seq/oss/seq_oss.c
-@@ -181,10 +181,16 @@ static long
- odev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	struct seq_oss_devinfo *dp;
-+	long rc;
-+
- 	dp = file->private_data;
- 	if (snd_BUG_ON(!dp))
- 		return -ENXIO;
--	return snd_seq_oss_ioctl(dp, cmd, arg);
-+
-+	mutex_lock(&register_mutex);
-+	rc = snd_seq_oss_ioctl(dp, cmd, arg);
-+	mutex_unlock(&register_mutex);
-+	return rc;
- }
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -2981,6 +2981,7 @@ static int mvpp2_rx(struct mvpp2_port *p
+ 		err = mvpp2_rx_refill(port, bm_pool, pool);
+ 		if (err) {
+ 			netdev_err(port->dev, "failed to refill BM pools\n");
++			dev_kfree_skb_any(skb);
+ 			goto err_drop_frame;
+ 		}
  
- #ifdef CONFIG_COMPAT
 
 
