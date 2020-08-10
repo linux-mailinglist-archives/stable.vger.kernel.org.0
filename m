@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5DD2410E6
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4822410E5
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728461AbgHJTJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:09:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S1728544AbgHJTdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:33:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728450AbgHJTJW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:09:22 -0400
+        id S1728471AbgHJTJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:09:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB94B20885;
-        Mon, 10 Aug 2020 19:09:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4372B22B49;
+        Mon, 10 Aug 2020 19:09:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086561;
-        bh=kbuDP+M988482p05npem60kQat8V2wwECI9KCrdipsk=;
+        s=default; t=1597086563;
+        bh=Z6K4uvy4C7W23CznrC/gasZ1erGhoQ4x23h6wbcUX98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdL2u9HTyI7Wj7FnOt8JHS9nu+WRm2UGykaxf20TSXurVwivfRdsxTbme0Y13CTR0
-         WzkqX9Si3LG7x7k8LMByN68ORPgm3V9LllobXUuR4vvvYTWkC/ZhHHhgzBGSbD0ts0
-         i3WXxmRggozCwOtzy5GSpSaef7mu/2smAOfJtceA=
+        b=Jf7Q2dzHhdFCZMsThE3Y6aMHd55nuHrVl7QGk3+1ljqgoahosDQm1TmnF8F7wiXvN
+         Nmmda7Djm+Ag2vL7gAOuNc2xerryx0Jf7DRe5O3Li7FGNkL5aLpcC5QNcj/y2lziDp
+         boNLtoefnWVmw+0WBeG2xWU2HsM7rr7e7fWoTRMU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aaron Ma <aaron.ma@canonical.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Dave Airlie <airlied@gmail.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 16/64] rtw88: 8822ce: add support for device ID 0xc82f
-Date:   Mon, 10 Aug 2020 15:08:11 -0400
-Message-Id: <20200810190859.3793319-16-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.8 17/64] drm/nouveau/kms/nv50-: Fix disabling dithering
+Date:   Mon, 10 Aug 2020 15:08:12 -0400
+Message-Id: <20200810190859.3793319-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810190859.3793319-1-sashal@kernel.org>
 References: <20200810190859.3793319-1-sashal@kernel.org>
@@ -44,41 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit 7d428b1c9ffc9ddcdd64c6955836bbb17a233ef3 ]
+[ Upstream commit fb2420b701edbf96c2b6d557f0139902f455dc2b ]
 
-New device ID 0xc82f found on Lenovo ThinkCenter.
-Tested it with c822 driver, works good.
+While we expose the ability to turn off hardware dithering for nouveau,
+we actually make the mistake of turning it on anyway, due to
+dithering_depth containing a non-zero value if our dithering depth isn't
+also set to 6 bpc.
 
-PCI id:
-03:00.0 Network controller [0280]: Realtek Semiconductor Co., Ltd.
-Device [10ec:c82f]
-        Subsystem: Lenovo Device [17aa:c02f]
+So, fix it by never enabling dithering when it's disabled.
 
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200612082745.204400-1-aaron.ma@canonical.com
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
+Acked-by: Dave Airlie <airlied@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200627194657.156514-6-lyude@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/rtw8822ce.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/nouveau/dispnv50/head.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8822ce.c b/drivers/net/wireless/realtek/rtw88/rtw8822ce.c
-index 7b6bd990651e1..026ac49ce6e3c 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8822ce.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8822ce.c
-@@ -11,6 +11,10 @@ static const struct pci_device_id rtw_8822ce_id_table[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0xC822),
- 		.driver_data = (kernel_ulong_t)&rtw8822c_hw_spec
- 	},
-+	{
-+		PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0xC82F),
-+		.driver_data = (kernel_ulong_t)&rtw8822c_hw_spec
-+	},
- 	{}
- };
- MODULE_DEVICE_TABLE(pci, rtw_8822ce_id_table);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
+index 8f6455697ba72..ed6819519f6d8 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+@@ -84,18 +84,20 @@ nv50_head_atomic_check_dither(struct nv50_head_atom *armh,
+ {
+ 	u32 mode = 0x00;
+ 
+-	if (asyc->dither.mode == DITHERING_MODE_AUTO) {
+-		if (asyh->base.depth > asyh->or.bpc * 3)
+-			mode = DITHERING_MODE_DYNAMIC2X2;
+-	} else {
+-		mode = asyc->dither.mode;
+-	}
++	if (asyc->dither.mode) {
++		if (asyc->dither.mode == DITHERING_MODE_AUTO) {
++			if (asyh->base.depth > asyh->or.bpc * 3)
++				mode = DITHERING_MODE_DYNAMIC2X2;
++		} else {
++			mode = asyc->dither.mode;
++		}
+ 
+-	if (asyc->dither.depth == DITHERING_DEPTH_AUTO) {
+-		if (asyh->or.bpc >= 8)
+-			mode |= DITHERING_DEPTH_8BPC;
+-	} else {
+-		mode |= asyc->dither.depth;
++		if (asyc->dither.depth == DITHERING_DEPTH_AUTO) {
++			if (asyh->or.bpc >= 8)
++				mode |= DITHERING_DEPTH_8BPC;
++		} else {
++			mode |= asyc->dither.depth;
++		}
+ 	}
+ 
+ 	asyh->dither.enable = mode;
 -- 
 2.25.1
 
