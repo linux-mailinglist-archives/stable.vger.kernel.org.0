@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23953240904
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3951C2408D1
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728823AbgHJP2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34038 "EHLO mail.kernel.org"
+        id S1728532AbgHJPZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:25:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728813AbgHJP2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:28:02 -0400
+        id S1728431AbgHJPZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:25:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECA2222BEA;
-        Mon, 10 Aug 2020 15:28:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 802EB20855;
+        Mon, 10 Aug 2020 15:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073281;
-        bh=m6QPd7om/CNzyzYTtns+TG26/HpS+Xk2eHDuxiJVcO0=;
+        s=default; t=1597073132;
+        bh=QWK7XBR5gvkHC3LExaNmD7qFaj0SX1A+sVIAOWe7vgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=shE4bCkGQJNHdi19pUECz2+AS0jx2yoKnFg/XYhcUJzllyJmXPsf+KBCZg/KbTjBE
-         QrfkFAsT3XuS7xIlfPecAQwe/Yez/14NwUWf96uSV88/3oiR0JAD/xiLiRP3VdwCdF
-         zRy4Ys/DP015wr/qUK4Ig+GB7IvR6iPkgnKnPHn8=
+        b=1LGP4cupAHkDULejeqtybmsDaNf5/9aXeSyhfmeXqecs3KocLdFC+OaFXtJNCmD3E
+         mKobAoXHA8JA65AiPPihDiCV5k3JSBT9Edv9k8BQBVcLNuYwzNtVpEHwMm4LRqmdfa
+         seOCsrCRntwxU08B+1IMGgJSpKk+p5zim6X4uYbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Chauvet <kwizart@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Manikanta Maddireddy <mmaddireddy@nvidia.com>
-Subject: [PATCH 5.4 49/67] PCI: tegra: Revert tegra124 raw_violation_fixup
-Date:   Mon, 10 Aug 2020 17:21:36 +0200
-Message-Id: <20200810151811.886438587@linuxfoundation.org>
+        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.7 78/79] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY to runtime
+Date:   Mon, 10 Aug 2020 17:21:37 +0200
+Message-Id: <20200810151816.065858854@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,159 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Chauvet <kwizart@gmail.com>
+From: Bruno Meneguele <bmeneg@redhat.com>
 
-commit e7b856dfcec6d3bf028adee8c65342d7035914a1 upstream.
+commit 311aa6aafea446c2f954cc19d66425bfed8c4b0b upstream.
 
-As reported in https://bugzilla.kernel.org/206217 , raw_violation_fixup
-is causing more harm than good in some common use-cases.
+The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appraise="
+modes - log, fix, enforce - at run time, but not when IMA architecture
+specific policies are enabled.  This prevents properly labeling the
+filesystem on systems where secure boot is supported, but not enabled on the
+platform.  Only when secure boot is actually enabled should these IMA
+appraise modes be disabled.
 
-This patch is a partial revert of commit:
+This patch removes the compile time dependency and makes it a runtime
+decision, based on the secure boot state of that platform.
 
-191cd6fb5d2c ("PCI: tegra: Add SW fixup for RAW violations")
+Test results as follows:
 
-and fixes the following regression since then.
+-> x86-64 with secure boot enabled
 
-* Description:
+[    0.015637] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+[    0.015668] ima: Secure boot enabled: ignoring ima_appraise=fix boot parameter option
 
-When both the NIC and MMC are used one can see the following message:
+-> powerpc with secure boot disabled
 
-  NETDEV WATCHDOG: enp1s0 (r8169): transmit queue 0 timed out
+[    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+[    0.000000] Secure boot mode disabled
 
-and
+-> Running the system without secure boot and with both options set:
 
-  pcieport 0000:00:02.0: AER: Uncorrected (Non-Fatal) error received: 0000:01:00.0
-  r8169 0000:01:00.0: AER: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-  r8169 0000:01:00.0: AER:   device [10ec:8168] error status/mask=00004000/00400000
-  r8169 0000:01:00.0: AER:    [14] CmpltTO                (First)
-  r8169 0000:01:00.0: AER: can't recover (no error_detected callback)
-  pcieport 0000:00:02.0: AER: device recovery failed
+CONFIG_IMA_APPRAISE_BOOTPARAM=y
+CONFIG_IMA_ARCH_POLICY=y
 
-After that, the ethernet NIC is not functional anymore even after
-reloading the r8169 module. After a reboot, this is reproducible by
-copying a large file over the NIC to the MMC.
+Audit prompts "missing-hash" but still allow execution and, consequently,
+filesystem labeling:
 
-For some reason this is not reproducible when files are copied to a tmpfs.
+type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
+uid=root auid=root ses=2
+subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
+cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
+res=no
 
-* Little background on the fixup, by Manikanta Maddireddy:
-  "In the internal testing with dGPU on Tegra124, CmplTO is reported by
-dGPU. This happened because FIFO queue in AFI(AXI to PCIe) module
-get full by upstream posted writes. Back to back upstream writes
-interleaved with infrequent reads, triggers RAW violation and CmpltTO.
-This is fixed by reducing the posted write credits and by changing
-updateFC timer frequency. These settings are fixed after stress test.
-
-In the current case, RTL NIC is also reporting CmplTO. These settings
-seems to be aggravating the issue instead of fixing it."
-
-Link: https://lore.kernel.org/r/20200718100710.15398-1-kwizart@gmail.com
-Fixes: 191cd6fb5d2c ("PCI: tegra: Add SW fixup for RAW violations")
-Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Manikanta Maddireddy <mmaddireddy@nvidia.com>
 Cc: stable@vger.kernel.org
+Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
+Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+Cc: stable@vger.kernel.org # 5.0
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/pci-tegra.c |   32 --------------------------------
- 1 file changed, 32 deletions(-)
+ security/integrity/ima/Kconfig        |    2 +-
+ security/integrity/ima/ima_appraise.c |    6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -181,13 +181,6 @@
+--- a/security/integrity/ima/Kconfig
++++ b/security/integrity/ima/Kconfig
+@@ -232,7 +232,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
  
- #define AFI_PEXBIAS_CTRL_0		0x168
- 
--#define RP_PRIV_XP_DL		0x00000494
--#define  RP_PRIV_XP_DL_GEN2_UPD_FC_TSHOLD	(0x1ff << 1)
--
--#define RP_RX_HDR_LIMIT		0x00000e00
--#define  RP_RX_HDR_LIMIT_PW_MASK	(0xff << 8)
--#define  RP_RX_HDR_LIMIT_PW		(0x0e << 8)
--
- #define RP_ECTL_2_R1	0x00000e84
- #define  RP_ECTL_2_R1_RX_CTLE_1C_MASK		0xffff
- 
-@@ -323,7 +316,6 @@ struct tegra_pcie_soc {
- 	bool program_uphy;
- 	bool update_clamp_threshold;
- 	bool program_deskew_time;
--	bool raw_violation_fixup;
- 	bool update_fc_timer;
- 	bool has_cache_bars;
- 	struct {
-@@ -669,23 +661,6 @@ static void tegra_pcie_apply_sw_fixup(st
- 		writel(value, port->base + RP_VEND_CTL0);
- 	}
- 
--	/* Fixup for read after write violation. */
--	if (soc->raw_violation_fixup) {
--		value = readl(port->base + RP_RX_HDR_LIMIT);
--		value &= ~RP_RX_HDR_LIMIT_PW_MASK;
--		value |= RP_RX_HDR_LIMIT_PW;
--		writel(value, port->base + RP_RX_HDR_LIMIT);
--
--		value = readl(port->base + RP_PRIV_XP_DL);
--		value |= RP_PRIV_XP_DL_GEN2_UPD_FC_TSHOLD;
--		writel(value, port->base + RP_PRIV_XP_DL);
--
--		value = readl(port->base + RP_VEND_XP);
--		value &= ~RP_VEND_XP_UPDATE_FC_THRESHOLD_MASK;
--		value |= soc->update_fc_threshold;
--		writel(value, port->base + RP_VEND_XP);
--	}
--
- 	if (soc->update_fc_timer) {
- 		value = readl(port->base + RP_VEND_XP);
- 		value &= ~RP_VEND_XP_UPDATE_FC_THRESHOLD_MASK;
-@@ -2511,7 +2486,6 @@ static const struct tegra_pcie_soc tegra
- 	.program_uphy = true,
- 	.update_clamp_threshold = false,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = false,
- 	.has_cache_bars = true,
- 	.ectl.enable = false,
-@@ -2541,7 +2515,6 @@ static const struct tegra_pcie_soc tegra
- 	.program_uphy = true,
- 	.update_clamp_threshold = false,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = false,
- 	.has_cache_bars = false,
- 	.ectl.enable = false,
-@@ -2554,8 +2527,6 @@ static const struct tegra_pcie_soc tegra
- 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
- 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
- 	.pads_refclk_cfg0 = 0x44ac44ac,
--	/* FC threshold is bit[25:18] */
--	.update_fc_threshold = 0x03fc0000,
- 	.has_pex_clkreq_en = true,
- 	.has_pex_bias_ctrl = true,
- 	.has_intr_prsnt_sense = true,
-@@ -2565,7 +2536,6 @@ static const struct tegra_pcie_soc tegra
- 	.program_uphy = true,
- 	.update_clamp_threshold = true,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = true,
- 	.update_fc_timer = false,
- 	.has_cache_bars = false,
- 	.ectl.enable = false,
-@@ -2589,7 +2559,6 @@ static const struct tegra_pcie_soc tegra
- 	.program_uphy = true,
- 	.update_clamp_threshold = true,
- 	.program_deskew_time = true,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = true,
- 	.has_cache_bars = false,
- 	.ectl = {
-@@ -2631,7 +2600,6 @@ static const struct tegra_pcie_soc tegra
- 	.program_uphy = false,
- 	.update_clamp_threshold = false,
- 	.program_deskew_time = false,
--	.raw_violation_fixup = false,
- 	.update_fc_timer = false,
- 	.has_cache_bars = false,
- 	.ectl.enable = false,
+ config IMA_APPRAISE_BOOTPARAM
+ 	bool "ima_appraise boot parameter"
+-	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
++	depends on IMA_APPRAISE
+ 	default y
+ 	help
+ 	  This option enables the different "ima_appraise=" modes
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -19,6 +19,12 @@
+ static int __init default_appraise_setup(char *str)
+ {
+ #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
++	if (arch_ima_get_secureboot()) {
++		pr_info("Secure boot enabled: ignoring ima_appraise=%s boot parameter option",
++			str);
++		return 1;
++	}
++
+ 	if (strncmp(str, "off", 3) == 0)
+ 		ima_appraise = 0;
+ 	else if (strncmp(str, "log", 3) == 0)
 
 
