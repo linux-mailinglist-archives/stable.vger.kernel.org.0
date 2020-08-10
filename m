@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1E3240A85
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A811240A96
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726046AbgHJPW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53192 "EHLO mail.kernel.org"
+        id S1728231AbgHJPmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:42:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727801AbgHJPWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:22:23 -0400
+        id S1725873AbgHJPW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:22:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15B0F20656;
-        Mon, 10 Aug 2020 15:22:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C07E72075F;
+        Mon, 10 Aug 2020 15:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072942;
-        bh=x7ozp1mq3C1BY63eMKEcpS3peJBmk+UfyCtDfXhOuww=;
+        s=default; t=1597072945;
+        bh=PvXo4XK8AZRqUTr2CoG0DPYsgX5nyXoeG9ZFRmeqqhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0iQivmxDb+dqWeRz1jchQx76StioTKemusTc1nY2KfF5C2txFPsI+ZSqI1NVT5bNq
-         6VXzMgwa/7GqDd9hC6hB0mvusJgcKB1Omapa/ZGoi/VwlaQVGp2Kw6a2dRKINly1yJ
-         BDy5gqVc9jkBsiHGK3wLBkO5JdFWC6oJijLVni9g=
+        b=kcOcI9ZyhMQsy2+ifnffLh3YGgH3G1QcUt1B+6tV9iLSpCv1gwrOGefnd8Uz8sYMj
+         TjFMGs/yUqHPGuvUgrBpcWJRmyRTTl8+eQLLKdngxLhLIj+SKRbr0cPkKuPzvpnTrM
+         mvZaR3EZQFUJoKihdNFpPE+rld/yurb0QfTuzSUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com,
-        Suren Baghdasaryan <surenb@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Subject: [PATCH 5.7 12/79] staging: android: ashmem: Fix lockdep warning for write operation
-Date:   Mon, 10 Aug 2020 17:20:31 +0200
-Message-Id: <20200810151812.729806559@linuxfoundation.org>
+        syzbot+80899a8a8efe8968cde7@syzkaller.appspotmail.com,
+        Rustam Kovhaev <rkovhaev@gmail.com>
+Subject: [PATCH 5.7 13/79] staging: rtl8712: handle firmware load failure
+Date:   Mon, 10 Aug 2020 17:20:32 +0200
+Message-Id: <20200810151812.778369620@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
 References: <20200810151812.114485777@linuxfoundation.org>
@@ -45,77 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit 3e338d3c95c735dc3265a86016bb4c022ec7cadc upstream.
+commit b4383c971bc5263efe2b0915ba67ebf2bf3f1ee5 upstream.
 
-syzbot report [1] describes a deadlock when write operation against an
-ashmem fd executed at the time when ashmem is shrinking its cache results
-in the following lock sequence:
+when firmware fails to load we should not call unregister_netdev()
+this patch fixes a race condition between rtl871x_load_fw_cb() and
+r871xu_dev_remove() and fixes the bug reported by syzbot
 
-Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(fs_reclaim);
-                                lock(&sb->s_type->i_mutex_key#13);
-                                lock(fs_reclaim);
-   lock(&sb->s_type->i_mutex_key#13);
-
-kswapd takes fs_reclaim and then inode_lock while generic_perform_write
-takes inode_lock and then fs_reclaim. However ashmem does not support
-writing into backing shmem with a write syscall. The only way to change
-its content is to mmap it and operate on mapped memory. Therefore the race
-that lockdep is warning about is not valid. Resolve this by introducing a
-separate lockdep class for the backing shmem inodes.
-
-[1]: https://lkml.kernel.org/lkml/0000000000000b5f9d059aa2037f@google.com/
-
-Reported-by: syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Reported-by: syzbot+80899a8a8efe8968cde7@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=80899a8a8efe8968cde7
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Link: https://lore.kernel.org/r/20200730192632.3088194-1-surenb@google.com
+Link: https://lore.kernel.org/r/20200716151324.1036204-1-rkovhaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/android/ashmem.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/staging/rtl8712/hal_init.c |    3 ++-
+ drivers/staging/rtl8712/usb_intf.c |   11 ++++++++---
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/android/ashmem.c
-+++ b/drivers/staging/android/ashmem.c
-@@ -95,6 +95,15 @@ static DEFINE_MUTEX(ashmem_mutex);
- static struct kmem_cache *ashmem_area_cachep __read_mostly;
- static struct kmem_cache *ashmem_range_cachep __read_mostly;
- 
-+/*
-+ * A separate lockdep class for the backing shmem inodes to resolve the lockdep
-+ * warning about the race between kswapd taking fs_reclaim before inode_lock
-+ * and write syscall taking inode_lock and then fs_reclaim.
-+ * Note that such race is impossible because ashmem does not support write
-+ * syscalls operating on the backing shmem.
-+ */
-+static struct lock_class_key backing_shmem_inode_class;
-+
- static inline unsigned long range_size(struct ashmem_range *range)
+--- a/drivers/staging/rtl8712/hal_init.c
++++ b/drivers/staging/rtl8712/hal_init.c
+@@ -33,7 +33,6 @@ static void rtl871x_load_fw_cb(const str
  {
- 	return range->pgend - range->pgstart + 1;
-@@ -396,6 +405,7 @@ static int ashmem_mmap(struct file *file
- 	if (!asma->file) {
- 		char *name = ASHMEM_NAME_DEF;
- 		struct file *vmfile;
-+		struct inode *inode;
+ 	struct _adapter *adapter = context;
  
- 		if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0')
- 			name = asma->name;
-@@ -407,6 +417,8 @@ static int ashmem_mmap(struct file *file
- 			goto out;
- 		}
- 		vmfile->f_mode |= FMODE_LSEEK;
-+		inode = file_inode(vmfile);
-+		lockdep_set_class(&inode->i_rwsem, &backing_shmem_inode_class);
- 		asma->file = vmfile;
- 		/*
- 		 * override mmap operation of the vmfile so that it can't be
+-	complete(&adapter->rtl8712_fw_ready);
+ 	if (!firmware) {
+ 		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
+ 		struct usb_interface *usb_intf = adapter->pusb_intf;
+@@ -41,11 +40,13 @@ static void rtl871x_load_fw_cb(const str
+ 		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
+ 		usb_put_dev(udev);
+ 		usb_set_intfdata(usb_intf, NULL);
++		complete(&adapter->rtl8712_fw_ready);
+ 		return;
+ 	}
+ 	adapter->fw = firmware;
+ 	/* firmware available - start netdev */
+ 	register_netdev(adapter->pnetdev);
++	complete(&adapter->rtl8712_fw_ready);
+ }
+ 
+ static const char firmware_file[] = "rtlwifi/rtl8712u.bin";
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -595,13 +595,17 @@ static void r871xu_dev_remove(struct usb
+ 	if (pnetdev) {
+ 		struct _adapter *padapter = netdev_priv(pnetdev);
+ 
+-		usb_set_intfdata(pusb_intf, NULL);
+-		release_firmware(padapter->fw);
+ 		/* never exit with a firmware callback pending */
+ 		wait_for_completion(&padapter->rtl8712_fw_ready);
++		pnetdev = usb_get_intfdata(pusb_intf);
++		usb_set_intfdata(pusb_intf, NULL);
++		if (!pnetdev)
++			goto firmware_load_fail;
++		release_firmware(padapter->fw);
+ 		if (drvpriv.drv_registered)
+ 			padapter->surprise_removed = true;
+-		unregister_netdev(pnetdev); /* will call netdev_close() */
++		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++			unregister_netdev(pnetdev); /* will call netdev_close() */
+ 		flush_scheduled_work();
+ 		udelay(1);
+ 		/* Stop driver mlme relation timer */
+@@ -614,6 +618,7 @@ static void r871xu_dev_remove(struct usb
+ 		 */
+ 		usb_put_dev(udev);
+ 	}
++firmware_load_fail:
+ 	/* If we didn't unplug usb dongle and remove/insert module, driver
+ 	 * fails on sitesurvey for the first time when device is up.
+ 	 * Reset usb port for sitesurvey fail issue.
 
 
