@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B39824089E
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 363BC2408A2
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728289AbgHJPXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
+        id S1727772AbgHJPXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:23:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728287AbgHJPXF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:23:05 -0400
+        id S1728306AbgHJPXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:23:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EDAD20782;
-        Mon, 10 Aug 2020 15:23:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E4A12080C;
+        Mon, 10 Aug 2020 15:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072984;
-        bh=317EpMwDFiRhWwkPj/R6GWOmMwQrCN5rBjTVaLkskPo=;
+        s=default; t=1597072996;
+        bh=FVS1rwU/d7kpluk2AmFSvZlK16GV3N0vXDMvPzBHcPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGYgI8aZjN31mh+EQdfe7VUAd5DD14LCwXrYUaEkq/+3VllTneUHz3G9qkSr+UATx
-         oR+l+yLnS2o7meqQl7fb7NkN4aNRSF3DrRR/xRzLyv91hxvyHmjvGFu9ohvHnflZDC
-         7AOWPAeMe01lHK+/rZcf/Iy2/6xRfmeinfFhh8Aw=
+        b=elM/uiP63MA/ZbmBDW3wH8E6HRF6H/fHsiAwBQUV2LbVoqel97VCJCsu7oTJZTlqa
+         qBQ8UroIBmetQKDmZ6qQeybJaLmwXMRrcwB8vuuvkKrJ5y3iUh+apu5qOS+o6GapKI
+         fD0esma+WFb/ocFhrgbJPb9iqtXwp5UChMruXH4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 5.7 26/79] leds: lm36274: fix use-after-free on unbind
-Date:   Mon, 10 Aug 2020 17:20:45 +0200
-Message-Id: <20200810151813.515474344@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.7 30/79] gpio: max77620: Fix missing release of interrupt
+Date:   Mon, 10 Aug 2020 17:20:49 +0200
+Message-Id: <20200810151813.769499894@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
 References: <20200810151812.114485777@linuxfoundation.org>
@@ -43,64 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit a0972fff09479dd09b731360a3a0b09e4fb4d415 upstream.
+commit 2a5e6f7eede8cd1c4bac0b8ec6491cec4e75c99a upstream.
 
-Several MFD child drivers register their class devices directly under
-the parent device. This means you cannot use devres so that
-deregistration ends up being tied to the parent device, something which
-leads to use-after-free on driver unbind when the class device is
-released while still being registered.
+The requested interrupt is never released by the driver. Fix this by
+using the resource-managed variant of request_threaded_irq().
 
-Fixes: 11e1bbc116a7 ("leds: lm36274: Introduce the TI LM36274 LED driver")
-Cc: stable <stable@vger.kernel.org>     # 5.3
-Cc: Dan Murphy <dmurphy@ti.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: ab3dd9cc24d4 ("gpio: max77620: Fix interrupt handling")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: <stable@vger.kernel.org> # 5.5+
+Link: https://lore.kernel.org/r/20200709171203.12950-3-digetx@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/leds/leds-lm36274.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-max77620.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/leds/leds-lm36274.c
-+++ b/drivers/leds/leds-lm36274.c
-@@ -133,7 +133,7 @@ static int lm36274_probe(struct platform
- 	lm36274_data->pdev = pdev;
- 	lm36274_data->dev = lmu->dev;
- 	lm36274_data->regmap = lmu->regmap;
--	dev_set_drvdata(&pdev->dev, lm36274_data);
-+	platform_set_drvdata(pdev, lm36274_data);
+--- a/drivers/gpio/gpio-max77620.c
++++ b/drivers/gpio/gpio-max77620.c
+@@ -305,8 +305,9 @@ static int max77620_gpio_probe(struct pl
+ 	gpiochip_irqchip_add_nested(&mgpio->gpio_chip, &max77620_gpio_irqchip,
+ 				    0, handle_edge_irq, IRQ_TYPE_NONE);
  
- 	ret = lm36274_parse_dt(lm36274_data);
- 	if (ret) {
-@@ -147,8 +147,16 @@ static int lm36274_probe(struct platform
+-	ret = request_threaded_irq(gpio_irq, NULL, max77620_gpio_irqhandler,
+-				   IRQF_ONESHOT, "max77620-gpio", mgpio);
++	ret = devm_request_threaded_irq(&pdev->dev, gpio_irq, NULL,
++					max77620_gpio_irqhandler, IRQF_ONESHOT,
++					"max77620-gpio", mgpio);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to request IRQ: %d\n", ret);
  		return ret;
- 	}
- 
--	return devm_led_classdev_register(lm36274_data->dev,
--					 &lm36274_data->led_dev);
-+	return led_classdev_register(lm36274_data->dev, &lm36274_data->led_dev);
-+}
-+
-+static int lm36274_remove(struct platform_device *pdev)
-+{
-+	struct lm36274 *lm36274_data = platform_get_drvdata(pdev);
-+
-+	led_classdev_unregister(&lm36274_data->led_dev);
-+
-+	return 0;
- }
- 
- static const struct of_device_id of_lm36274_leds_match[] = {
-@@ -159,6 +167,7 @@ MODULE_DEVICE_TABLE(of, of_lm36274_leds_
- 
- static struct platform_driver lm36274_driver = {
- 	.probe  = lm36274_probe,
-+	.remove = lm36274_remove,
- 	.driver = {
- 		.name = "lm36274-leds",
- 	},
 
 
