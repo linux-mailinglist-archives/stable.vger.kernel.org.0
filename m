@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECDA72408E4
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A7E2408B5
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728200AbgHJP0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60598 "EHLO mail.kernel.org"
+        id S1728117AbgHJPYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:24:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728374AbgHJP0i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:26:38 -0400
+        id S1728162AbgHJPYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:24:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BAC322BEA;
-        Mon, 10 Aug 2020 15:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB6D222D2B;
+        Mon, 10 Aug 2020 15:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073197;
-        bh=RF1YYZcrR8jAOi1ZJRiN7u4xbfpSyq4rjhuxrTj5BHc=;
+        s=default; t=1597073048;
+        bh=cb3+F3jaEzT00l1EOCp55bQnkmNyBnJlpDVGn6CA520=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myUUAzb+3GD3bQrjJ8fn0ga9gOW+WQ2KjJIAfFP5BUXZ5dJWS5eNabreO2ERXL1Kg
-         9818bgcJfOU6LtC54rpk5KICVQsA4PpkXpnl1gDQt3UGgubXcvNJQyG/fQVp5wS1/r
-         yzxC8MvHq2+myhKtzelYFXou81EehHUtUG2WnrFg=
+        b=GI1jiG8J7HHlvhQm6GO1b87zk4JCeLEIVgRyeiPM7bzJSzfj/qht5rsgP2EQzu/bV
+         FoTttGSMPvxHIqhLI0IfJDDo6YykRRCwA1iL9luUkaZ0tjfVM/zVQ8+dGzrnMGbKEH
+         WYdLnYcj2FSqjwzuU5ATPMTsLwC8puDcNOOnrrZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Dave Airlie <airlied@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.4 20/67] omapfb: dss: Fix max fclk divider for omap36xx
-Date:   Mon, 10 Aug 2020 17:21:07 +0200
-Message-Id: <20200810151810.420588550@linuxfoundation.org>
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 49/79] igb: reinit_locked() should be called with rtnl_lock
+Date:   Mon, 10 Aug 2020 17:21:08 +0200
+Message-Id: <20200810151814.681132424@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-commit 254503a2b186caa668a188dbbd7ab0d25149c0a5 upstream.
+[ Upstream commit 024a8168b749db7a4aa40a5fbdfa04bf7e77c1c0 ]
 
-The drm/omap driver was fixed to correct an issue where using a
-divider of 32 breaks the DSS despite the TRM stating 32 is a valid
-number.  Through experimentation, it appears that 31 works, and
-it is consistent with the value used by the drm/omap driver.
+We observed two panics involving races with igb_reset_task.
+The first panic is caused by this race condition:
 
-This patch fixes the divider for fbdev driver instead of the drm.
+	kworker			reboot -f
 
-Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
-Cc: <stable@vger.kernel.org> #4.5+
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Dave Airlie <airlied@gmail.com>
-Cc: Rob Clark <robdclark@gmail.com>
-[b.zolnierkie: mark patch as applicable to stable 4.5+ (was 4.9+)]
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200630182636.439015-1-aford173@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	igb_reset_task
+	igb_reinit_locked
+	igb_down
+	napi_synchronize
+				__igb_shutdown
+				igb_clear_interrupt_scheme
+				igb_free_q_vectors
+				igb_free_q_vector
+				adapter->q_vector[v_idx] = NULL;
+	napi_disable
+	Panics trying to access
+	adapter->q_vector[v_idx].napi_state
 
+The second panic (a divide error) is caused by this race:
+
+kworker		reboot -f	tx packet
+
+igb_reset_task
+		__igb_shutdown
+		rtnl_lock()
+		...
+		igb_clear_interrupt_scheme
+		igb_free_q_vectors
+		adapter->num_tx_queues = 0
+		...
+		rtnl_unlock()
+rtnl_lock()
+igb_reinit_locked
+igb_down
+igb_up
+netif_tx_start_all_queues
+				dev_hard_start_xmit
+				igb_xmit_frame
+				igb_tx_queue_mapping
+				Panics on
+				r_idx % adapter->num_tx_queues
+
+This commit applies to igb_reset_task the same changes that
+were applied to ixgbe in commit 2f90b8657ec9 ("ixgbe: this patch
+adds support for DCB to the kernel and ixgbe driver"),
+commit 8f4c5c9fb87a ("ixgbe: reinit_locked() should be called with
+rtnl_lock") and commit 88adce4ea8f9 ("ixgbe: fix possible race in
+reset subtask").
+
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/omap2/omapfb/dss/dss.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
-+++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
-@@ -833,7 +833,7 @@ static const struct dss_features omap34x
- };
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index b46bff8fe0568..b35d599fc78ea 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -6224,9 +6224,18 @@ static void igb_reset_task(struct work_struct *work)
+ 	struct igb_adapter *adapter;
+ 	adapter = container_of(work, struct igb_adapter, reset_task);
  
- static const struct dss_features omap3630_dss_feats = {
--	.fck_div_max		=	32,
-+	.fck_div_max		=	31,
- 	.dss_fck_multiplier	=	1,
- 	.parent_clk_name	=	"dpll4_ck",
- 	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
++	rtnl_lock();
++	/* If we're already down or resetting, just bail */
++	if (test_bit(__IGB_DOWN, &adapter->state) ||
++	    test_bit(__IGB_RESETTING, &adapter->state)) {
++		rtnl_unlock();
++		return;
++	}
++
+ 	igb_dump(adapter);
+ 	netdev_err(adapter->netdev, "Reset adapter\n");
+ 	igb_reinit_locked(adapter);
++	rtnl_unlock();
+ }
+ 
+ /**
+-- 
+2.25.1
+
 
 
