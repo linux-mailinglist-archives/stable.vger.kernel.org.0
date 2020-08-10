@@ -2,121 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6747224056C
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 13:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C58324057C
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 13:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726330AbgHJLnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 07:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58072 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726141AbgHJLnB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 07:43:01 -0400
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A231C061756;
-        Mon, 10 Aug 2020 04:43:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=rUV8TXBIF69VSVuOkNWllqKBBv485GNQxeZ0WslsuZ8=; b=BdG9w4gzRBOt0kOfkwBh8eN1lc
-        Edl/E9w5HnGanLdGs1iPbmWqMD7K4OBdBrq4HuQn3+PCMAI0NJoZuHAny3xzlNgmpkl8df4AykuOk
-        PggZEZnx800pQNGzKRsCfSkqAwljfFW+VOy/5afvknkEvSyzqaRq5m09t1u1OykVn+jEM4uOBdLbH
-        h0vD6yDoalhD1c4WCXi1mbyqg+XkPa44l/JA3d5zx1zzRQVZztf0UYHlylEbVYrHhwIXW2qocmLRg
-        cB6swyEDDFTW+nl07poOPQxjcugzBeeEIx0Vh5FTYKSfVu0W5yC6on3QbiAYEHTSADkQ0q4ofAay3
-        bomoP3hw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1k56Cf-0005Ca-Ru; Mon, 10 Aug 2020 11:42:58 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        id S1726412AbgHJLzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 07:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34968 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726143AbgHJLzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 07:55:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 71D35300DAE;
-        Mon, 10 Aug 2020 13:42:56 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 5506823D39366; Mon, 10 Aug 2020 13:42:56 +0200 (CEST)
-Date:   Mon, 10 Aug 2020 13:42:56 +0200
-From:   peterz@infradead.org
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org,
-        Josef <josef.grieb@gmail.com>
-Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
- isn't running
-Message-ID: <20200810114256.GS2674@hirez.programming.kicks-ass.net>
-References: <20200808183439.342243-1-axboe@kernel.dk>
- <20200808183439.342243-3-axboe@kernel.dk>
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50DC7206C3;
+        Mon, 10 Aug 2020 11:55:36 +0000 (UTC)
+Date:   Mon, 10 Aug 2020 13:55:48 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Jann Horn <jannh@google.com>
+Cc:     stable@vger.kernel.org, maco@android.com, tkjos@google.com
+Subject: Re: [PATCH 4.4+4.9] binder: Prevent context manager from
+ incrementing ref 0
+Message-ID: <20200810115548.GA2931116@kroah.com>
+References: <20200807184500.3711845-1-jannh@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200808183439.342243-3-axboe@kernel.dk>
+In-Reply-To: <20200807184500.3711845-1-jannh@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 08, 2020 at 12:34:39PM -0600, Jens Axboe wrote:
-> An earlier commit:
+On Fri, Aug 07, 2020 at 08:45:00PM +0200, Jann Horn wrote:
+> commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
 > 
-> b7db41c9e03b ("io_uring: fix regression with always ignoring signals in io_cqring_wait()")
+> Binder is designed such that a binder_proc never has references to
+> itself. If this rule is violated, memory corruption can occur when a
+> process sends a transaction to itself; see e.g.
+> <https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
 > 
-> ensured that we didn't get stuck waiting for eventfd reads when it's
-> registered with the io_uring ring for event notification, but we still
-> have a gap where the task can be waiting on other events in the kernel
-> and need a bigger nudge to make forward progress.
+> There is a remaining edgecase through which such a transaction-to-self
+> can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
+> access:
 > 
-> Ensure that we use signaled notifications for a task that isn't currently
-> running, to be certain the work is seen and processed immediately.
+>  - task A opens /dev/binder twice, creating binder_proc instances P1
+>    and P2
+>  - P1 becomes context manager
+>  - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
+>    handle table
+>  - P1 dies (by closing the /dev/binder fd and waiting a bit)
+>  - P2 becomes context manager
+>  - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
+>    handle table
+>    [this triggers a warning: "binder: 1974:1974 tried to acquire
+>    reference to desc 0, got 1 instead"]
+>  - task B opens /dev/binder once, creating binder_proc instance P3
+>  - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
+>    transaction)
+>  - P2 receives the handle and uses it to call P3 (two-way transaction)
+>  - P3 calls P2 (via magic handle 0) (two-way transaction)
+>  - P2 calls P2 (via handle 1) (two-way transaction)
 > 
-> Cc: stable@vger.kernel.org # v5.7+
-> Reported-by: Josef <josef.grieb@gmail.com>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> ---
->  fs/io_uring.c | 22 ++++++++++++++--------
->  1 file changed, 14 insertions(+), 8 deletions(-)
+> And then, if P2 does *NOT* accept the incoming transaction work, but
+> instead closes the binder fd, we get a crash.
 > 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index e9b27cdaa735..443eecdfeda9 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -1712,21 +1712,27 @@ static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb)
->  	struct io_ring_ctx *ctx = req->ctx;
->  	int ret, notify = TWA_RESUME;
->  
-> +	ret = __task_work_add(tsk, cb);
-> +	if (unlikely(ret))
-> +		return ret;
-> +
->  	/*
->  	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
-> -	 * If we're not using an eventfd, then TWA_RESUME is always fine,
-> -	 * as we won't have dependencies between request completions for
-> -	 * other kernel wait conditions.
-> +	 * For any other work, use signaled wakeups if the task isn't
-> +	 * running to avoid dependencies between tasks or threads. If
-> +	 * the issuing task is currently waiting in the kernel on a thread,
-> +	 * and same thread is waiting for a completion event, then we need
-> +	 * to ensure that the issuing task processes task_work. TWA_SIGNAL
-> +	 * is needed for that.
->  	 */
->  	if (ctx->flags & IORING_SETUP_SQPOLL)
->  		notify = 0;
-> -	else if (ctx->cq_ev_fd)
-> +	else if (READ_ONCE(tsk->state) != TASK_RUNNING)
->  		notify = TWA_SIGNAL;
->  
-> -	ret = task_work_add(tsk, cb, notify);
-> -	if (!ret)
-> -		wake_up_process(tsk);
-> -	return ret;
-> +	__task_work_notify(tsk, notify);
-> +	wake_up_process(tsk);
-> +	return 0;
->  }
+> Solve it by preventing the context manager from using ACQUIRE on ref 0.
+> There shouldn't be any legitimate reason for the context manager to do
+> that.
+> 
+> Additionally, print a warning if someone manages to find another way to
+> trigger a transaction-to-self bug in the future.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+> Acked-by: Todd Kjos <tkjos@google.com>
+> Signed-off-by: Jann Horn <jannh@google.com>
+> Reviewed-by: Martijn Coenen <maco@android.com>
+> Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> [manual backport: remove fine-grained locking and error reporting that
+>                   don't exist in <=4.9]
+> Signed-off-by: Jann Horn <jannh@google.com>
 
-Wait.. so the only change here is that you look at tsk->state, _after_
-doing __task_work_add(), but nothing, not the Changelog nor the comment
-explains this.
+Thanks for the backport, now queued up.
 
-So you're relying on __task_work_add() being an smp_mb() vs the add, and
-you order this against the smp_mb() in set_current_state() ?
-
-This really needs spelling out.
+greg k-h
