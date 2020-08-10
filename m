@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2F224102B
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1795C241028
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729101AbgHJT2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:28:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
+        id S1729227AbgHJTLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:11:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729208AbgHJTLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:11:15 -0400
+        id S1728288AbgHJTLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:11:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CC9E2078D;
-        Mon, 10 Aug 2020 19:11:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF19D21775;
+        Mon, 10 Aug 2020 19:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086675;
-        bh=HM15DRQruEOLK3MMp93V+owjUYiahA5zhe7I8I3MwYo=;
+        s=default; t=1597086676;
+        bh=4atO9yVMgJ17YnbD6VFtB6McPjIh2o7LSlKJaMp2yVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXrfmxFKNhmsuc4dMNeGbxUm+ekcmDgVh6NHHmGL1bscDyGD2yQMw52BcZFWumLoj
-         HUarsb8bvCLBlR/IsTjeN6pSv8A+l4iyzZY8aqtvU/lRCdCdRwP+5hbFhUfUGEizjN
-         YqdsuzRue4bVv81NnOTR2RlAxUt8x0uEh0+tZZMI=
+        b=sxJH9MUMx5RBJunMNE7TRSP/L0FOX2gwK0nHh5M+I5YhBbOVBalNx5XobuBQ6lvLq
+         wuZxe1pQn1kYai2DtTJsjf/YVay5BG4qpy1aSpyaw55u+eKOzYvljSUzu2xqOjt3IT
+         0YHoZwdBhaDrDG4BOrkr5nntnBJ+YsMDazR4CqEg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 34/60] drm/amdgpu/display: properly guard the calls to swSMU functions
-Date:   Mon, 10 Aug 2020 15:10:02 -0400
-Message-Id: <20200810191028.3793884-34-sashal@kernel.org>
+Cc:     Evan Quan <evan.quan@amd.com>, kernel test robot <lkp@intel.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 35/60] drm/amd/powerplay: fix compile error with ARCH=arc
+Date:   Mon, 10 Aug 2020 15:10:03 -0400
+Message-Id: <20200810191028.3793884-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191028.3793884-1-sashal@kernel.org>
 References: <20200810191028.3793884-1-sashal@kernel.org>
@@ -43,43 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 4072327a2622af8688b88f5cd0a472136d3bf33d ]
+[ Upstream commit 9822ba2ead1baa3de4860ad9472f652c4cc78c9c ]
 
-It's only applicable on newer asics.  We could end up here when
-using DC on older asics like SI or KV.
+Fix the compile error below:
+drivers/gpu/drm/amd/amdgpu/../powerplay/smu_v11_0.c: In function 'smu_v11_0_init_microcode':
+>> arch/arc/include/asm/bug.h:22:2: error: implicit declaration of function 'pr_warn'; did you mean 'pci_warn'? [-Werror=implicit-function-declaration]
+      22 |  pr_warn("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
+         |  ^~~~~~~
+drivers/gpu/drm/amd/amdgpu/../powerplay/smu_v11_0.c:176:3: note: in expansion of macro 'BUG'
+     176 |   BUG();
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1170
-Reviewed-by: Evan Quan <evan.quan@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/powerplay/smu_v11_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
-index 7cee8070cb113..5c6a6ae48d396 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
-@@ -106,7 +106,7 @@ bool dm_pp_apply_display_requirements(
- 			adev->powerplay.pp_funcs->display_configuration_change(
- 				adev->powerplay.pp_handle,
- 				&adev->pm.pm_display_cfg);
--		else
-+		else if (adev->smu.ppt_funcs)
- 			smu_display_configuration_change(smu,
- 							 &adev->pm.pm_display_cfg);
+diff --git a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
+index 655ba4fb05dcd..48af305d42d54 100644
+--- a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
++++ b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
+@@ -159,7 +159,8 @@ int smu_v11_0_init_microcode(struct smu_context *smu)
+ 		chip_name = "navi12";
+ 		break;
+ 	default:
+-		BUG();
++		dev_err(adev->dev, "Unsupported ASIC type %d\n", adev->asic_type);
++		return -EINVAL;
+ 	}
  
-@@ -592,7 +592,7 @@ void pp_rv_set_wm_ranges(struct pp_smu *pp,
- 	if (pp_funcs && pp_funcs->set_watermarks_for_clocks_ranges)
- 		pp_funcs->set_watermarks_for_clocks_ranges(pp_handle,
- 							   &wm_with_clock_ranges);
--	else
-+	else if (adev->smu.ppt_funcs)
- 		smu_set_watermarks_for_clock_ranges(&adev->smu,
- 				&wm_with_clock_ranges);
- }
+ 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_smc.bin", chip_name);
 -- 
 2.25.1
 
