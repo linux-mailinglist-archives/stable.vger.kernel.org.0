@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C3A240E88
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:14:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91E1240F21
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729904AbgHJTN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:13:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45518 "EHLO mail.kernel.org"
+        id S1729907AbgHJTN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:13:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729893AbgHJTN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:13:56 -0400
+        id S1729903AbgHJTN5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:13:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93FC122B49;
-        Mon, 10 Aug 2020 19:13:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 085DA22BEB;
+        Mon, 10 Aug 2020 19:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086835;
-        bh=ZYzY6ErG/NfSQMyGO+ymxwRPG0Hb5eEKj9Iv+PmCo5M=;
+        s=default; t=1597086836;
+        bh=F42HExEd9J2JUtD6rRXQCBAOZWp5jdvHA403Tsg9tX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7atsh4PWRP3j5M0E2fDvXXRP5x8IIfi6Z861pAoxDqOySxEPqKVIillUdwyCJ6Yv
-         mcJpz8zcwqGP6ST4p+iJbjVRp2stDexQNNl+4BFBTjgaMmsZKVQNRIaTdl4U7k54UF
-         TePh2q44ZO87MXX4lybeEODKPK0yXFqeTLpPA6+0=
+        b=VDxsw9/6i/gKohLdTKBKWOep72Hbg/yUJanQYgJ2i9U8W92aCzu4oGTLBPFxIBpom
+         z0TN6/92au64YYe0IFOBV2nVORLPyHDrKVniO9tEhHNYHyXodv/BENqao2Wi4RDcIZ
+         U9ta6En1Rdf6ktNuK4/TKIh+qi0xg5kU7KGtnHtc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 07/22] arm64: dts: hisilicon: hikey: fixes to comply with adi, adv7533 DT binding
-Date:   Mon, 10 Aug 2020 15:13:29 -0400
-Message-Id: <20200810191345.3795166-7-sashal@kernel.org>
+Cc:     Aditya Pakki <pakki001@umn.edu>, Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 08/22] drm/nouveau: fix multiple instances of reference count leaks
+Date:   Mon, 10 Aug 2020 15:13:30 -0400
+Message-Id: <20200810191345.3795166-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191345.3795166-1-sashal@kernel.org>
 References: <20200810191345.3795166-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,66 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit bbe28fc3cbabbef781bcdf847615d52ce2e26e42 ]
+[ Upstream commit 659fb5f154c3434c90a34586f3b7aa1c39cf6062 ]
 
-hi3660-hikey960.dts:
-  Define a 'ports' node for 'adv7533: adv7533@39' and the
-  'adi,dsi-lanes' property to make it compliant with the adi,adv7533 DT
-  binding.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+ref count before returning the error.
 
-  This fills the requirements to meet the binding requirements,
-  remote endpoints are not defined.
-
-hi6220-hikey.dts:
-  Change property name s/pd-gpio/pd-gpios, gpio properties should be
-  plural. This is just a cosmetic change.
-
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts | 11 +++++++++++
- arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts    |  2 +-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_drm.c | 8 ++++++--
+ drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts b/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
-index e9f87cb61ade7..8587912e1eb00 100644
---- a/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
-+++ b/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
-@@ -210,6 +210,17 @@ adv7533: adv7533@39 {
- 		status = "ok";
- 		compatible = "adi,adv7533";
- 		reg = <0x39>;
-+		adi,dsi-lanes = <4>;
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			port@0 {
-+				reg = <0>;
-+			};
-+			port@1 {
-+				reg = <1>;
-+			};
-+		};
- 	};
- };
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index d00524a5d7f08..fb6b1d0f7fef3 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -840,8 +840,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
  
-diff --git a/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts b/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
-index 6887cc1a743d4..f78e6468b02fc 100644
---- a/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
-+++ b/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
-@@ -513,7 +513,7 @@ adv7533: adv7533@39 {
- 		reg = <0x39>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <1 2>;
--		pd-gpio = <&gpio0 4 0>;
-+		pd-gpios = <&gpio0 4 0>;
- 		adi,dsi-lanes = <4>;
- 		#sound-dai-cells = <0>;
+ 	/* need to bring up power immediately if opening device */
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
  
+ 	get_task_comm(tmpname, current);
+ 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
+@@ -930,8 +932,10 @@ nouveau_drm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	long ret;
+ 
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
+ 
+ 	switch (_IOC_NR(cmd) - DRM_COMMAND_BASE) {
+ 	case DRM_NOUVEAU_NVIF:
+diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
+index 60ffb70bb9089..c6149b5be073e 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_gem.c
++++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
+@@ -42,8 +42,10 @@ nouveau_gem_object_del(struct drm_gem_object *gem)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (WARN_ON(ret < 0 && ret != -EACCES))
++	if (WARN_ON(ret < 0 && ret != -EACCES)) {
++		pm_runtime_put_autosuspend(dev);
+ 		return;
++	}
+ 
+ 	if (gem->import_attach)
+ 		drm_prime_gem_destroy(gem, nvbo->bo.sg);
 -- 
 2.25.1
 
