@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CEA240961
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 343B42409AA
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728385AbgHJPaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:30:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
+        id S1729209AbgHJPeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729125AbgHJPap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:45 -0400
+        id S1728411AbgHJP3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:29:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5CF920791;
-        Mon, 10 Aug 2020 15:30:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5985722B47;
+        Mon, 10 Aug 2020 15:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073445;
-        bh=HQuKcHKaMPUKXcAswKyAx8FwNMuuuNSyoqwuF+jeTs8=;
+        s=default; t=1597073344;
+        bh=Q6Pgy7o0Afz1Zbw9ftExXRtrFW699yUW2rEsF5uilYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CK1Blwm0V3tYI+1np2632NwTYlwDLfrx42T7g8maGYXTlimNOxJMmIYv8cN0XocaZ
-         jt5/suA6XV5TuQ/beKRfskrZuWAewfw7zQH5rKjyqLfdWk5KDJIPHoDZoSCSbAQ600
-         CguVBjS60wzTxCFiKltvuWBQ2gZmJ/laNmFmbYCs=
+        b=2hYav89hGd0dR2aXKNaO4J46rScfk2Wibdi2+usK87jye+y5o1EVbhaMwjWLn+Rte
+         RqW3BPS54przlw6ORiD1dC+kd/6ygJHC0hsopwEODdwLaV3mbf4kQu0SJZjtOlSWA6
+         XEPWyTXxKlX+sHvFpbNnqepdmgnOcxA9SjkaXmtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 24/48] usb: hso: check for return value in hso_serial_common_create()
-Date:   Mon, 10 Aug 2020 17:21:46 +0200
-Message-Id: <20200810151805.404508512@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 60/67] net: gre: recompute gre csum for sctp over gre tunnels
+Date:   Mon, 10 Aug 2020 17:21:47 +0200
+Message-Id: <20200810151812.471999373@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-References: <20200810151804.199494191@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit e911e99a0770f760377c263bc7bac1b1593c6147 ]
+[ Upstream commit 622e32b7d4a6492cf5c1f759ef833f817418f7b3 ]
 
-in case of an error tty_register_device_attr() returns ERR_PTR(),
-add IS_ERR() check
+The GRE tunnel can be used to transport traffic that does not rely on a
+Internet checksum (e.g. SCTP). The issue can be triggered creating a GRE
+or GRETAP tunnel and transmitting SCTP traffic ontop of it where CRC
+offload has been disabled. In order to fix the issue we need to
+recompute the GRE csum in gre_gso_segment() not relying on the inner
+checksum.
+The issue is still present when we have the CRC offload enabled.
+In this case we need to disable the CRC offload if we require GRE
+checksum since otherwise skb_checksum() will report a wrong value.
 
-Reported-and-tested-by: syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=67b2bd0e34f952d0321e
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90017accff61 ("sctp: Add GSO support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv4/gre_offload.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index 61b9d33681484..bff268b4a9a46 100644
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2274,12 +2274,14 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
+--- a/net/ipv4/gre_offload.c
++++ b/net/ipv4/gre_offload.c
+@@ -15,12 +15,12 @@ static struct sk_buff *gre_gso_segment(s
+ 				       netdev_features_t features)
+ {
+ 	int tnl_hlen = skb_inner_mac_header(skb) - skb_transport_header(skb);
++	bool need_csum, need_recompute_csum, gso_partial;
+ 	struct sk_buff *segs = ERR_PTR(-EINVAL);
+ 	u16 mac_offset = skb->mac_header;
+ 	__be16 protocol = skb->protocol;
+ 	u16 mac_len = skb->mac_len;
+ 	int gre_offset, outer_hlen;
+-	bool need_csum, gso_partial;
  
- 	minor = get_free_serial_index();
- 	if (minor < 0)
--		goto exit;
-+		goto exit2;
+ 	if (!skb->encapsulation)
+ 		goto out;
+@@ -41,6 +41,7 @@ static struct sk_buff *gre_gso_segment(s
+ 	skb->protocol = skb->inner_protocol;
  
- 	/* register our minor number */
- 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
- 			tty_drv, minor, &serial->parent->interface->dev,
- 			serial->parent, hso_serial_dev_groups);
-+	if (IS_ERR(serial->parent->dev))
-+		goto exit2;
+ 	need_csum = !!(skb_shinfo(skb)->gso_type & SKB_GSO_GRE_CSUM);
++	need_recompute_csum = skb->csum_not_inet;
+ 	skb->encap_hdr_csum = need_csum;
  
- 	/* fill in specific data for later use */
- 	serial->minor = minor;
-@@ -2324,6 +2326,7 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
- 	return 0;
- exit:
- 	hso_serial_tty_unregister(serial);
-+exit2:
- 	hso_serial_common_free(serial);
- 	return -1;
- }
--- 
-2.25.1
-
+ 	features &= skb->dev->hw_enc_features;
+@@ -98,7 +99,15 @@ static struct sk_buff *gre_gso_segment(s
+ 		}
+ 
+ 		*(pcsum + 1) = 0;
+-		*pcsum = gso_make_checksum(skb, 0);
++		if (need_recompute_csum && !skb_is_gso(skb)) {
++			__wsum csum;
++
++			csum = skb_checksum(skb, gre_offset,
++					    skb->len - gre_offset, 0);
++			*pcsum = csum_fold(csum);
++		} else {
++			*pcsum = gso_make_checksum(skb, 0);
++		}
+ 	} while ((skb = skb->next));
+ out:
+ 	return segs;
 
 
