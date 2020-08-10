@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CC5240EBA
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDFD240EB9
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbgHJTOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47396 "EHLO mail.kernel.org"
+        id S1730108AbgHJTOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:14:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730102AbgHJTOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:14:50 -0400
+        id S1730107AbgHJTOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:14:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FC3322CAF;
-        Mon, 10 Aug 2020 19:14:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC97122B49;
+        Mon, 10 Aug 2020 19:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086890;
-        bh=BfPjhQ44U9DE3oZzImTFIZQyBr/WqCe9IVpkANI4hnw=;
+        s=default; t=1597086892;
+        bh=6XdUHVcTHv4Q3XUDPQswzH/xyKNtLCKSI1GvwszQ5Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FvmAKii1siy0HJFqwX1SFK/WzgSG5JyShXidIsvolIB+RjhfUSbyYvj6T9/aEdUq+
-         eWMt5EUuh6L5aaqj+4SHuUG8Z5XysbxyF1xu0vO262TgdJ0XwxBsnp6j9tCw1/YXF1
-         o2TRpsreYgP2X71rxdGSpDi1QYI3i8dYOe0hG8Ls=
+        b=tLzSwDmS6616gawJAXOj+p8fCX58KaO+PCTMpuqm2e4vWyaC4QlpL85R9LCeooiqk
+         0K+NH9V89CRjtILHjG02Ay09Doz/nLyHtGBJY0Pfn/SUqDbiE9wyrxxtNO85X435r/
+         F04xs6vBiHlqhU8CYWuRmXYexaINq8uPwi0pGTog=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 04/16] drm/radeon: Fix reference count leaks caused by pm_runtime_get_sync
-Date:   Mon, 10 Aug 2020 15:14:31 -0400
-Message-Id: <20200810191443.3795581-4-sashal@kernel.org>
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 05/16] video: fbdev: neofb: fix memory leak in neo_scan_monitor()
+Date:   Mon, 10 Aug 2020 15:14:32 -0400
+Message-Id: <20200810191443.3795581-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191443.3795581-1-sashal@kernel.org>
 References: <20200810191443.3795581-1-sashal@kernel.org>
@@ -44,72 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 9fb10671011143d15b6b40d6d5fa9c52c57e9d63 ]
+[ Upstream commit edcb3895a751c762a18d25c8d9846ce9759ed7e1 ]
 
-On calling pm_runtime_get_sync() the reference count of the device
-is incremented. In case of failure, decrement the
-reference count before returning the error.
+neofb_probe() calls neo_scan_monitor() that can successfully allocate a
+memory for info->monspecs.modedb and proceed to case 0x03. There it does
+not free the memory and returns -1. neofb_probe() goes to label
+err_scan_monitor, thus, it does not free this memory through calling
+fb_destroy_modedb() as well. We can not go to label err_init_hw since
+neo_scan_monitor() can fail during memory allocation. So, the patch frees
+the memory directly for case 0x03.
 
-Acked-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200630195451.18675-1-novikov@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_display.c | 4 +++-
- drivers/gpu/drm/radeon/radeon_drv.c     | 4 +++-
- drivers/gpu/drm/radeon/radeon_kms.c     | 4 +++-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/neofb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
-index 4572bfba017c5..17c73b8c90e71 100644
---- a/drivers/gpu/drm/radeon/radeon_display.c
-+++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -660,8 +660,10 @@ radeon_crtc_set_config(struct drm_mode_set *set)
- 	dev = set->crtc->dev;
- 
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
- 
- 	ret = drm_crtc_helper_set_config(set);
- 
-diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
-index 5b6a6f5b3619e..401403a3ea50c 100644
---- a/drivers/gpu/drm/radeon/radeon_drv.c
-+++ b/drivers/gpu/drm/radeon/radeon_drv.c
-@@ -527,8 +527,10 @@ long radeon_drm_ioctl(struct file *filp,
- 	long ret;
- 	dev = file_priv->minor->dev;
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
- 
- 	ret = drm_ioctl(filp, cmd, arg);
- 	
-diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
-index d290a8a09036e..41caf7da90548 100644
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -631,8 +631,10 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 	file_priv->driver_priv = NULL;
- 
- 	r = pm_runtime_get_sync(dev->dev);
--	if (r < 0)
-+	if (r < 0) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return r;
-+	}
- 
- 	/* new gpu have virtual address space support */
- 	if (rdev->family >= CHIP_CAYMAN) {
+diff --git a/drivers/video/fbdev/neofb.c b/drivers/video/fbdev/neofb.c
+index db023a97d1eae..e243254a57214 100644
+--- a/drivers/video/fbdev/neofb.c
++++ b/drivers/video/fbdev/neofb.c
+@@ -1820,6 +1820,7 @@ static int neo_scan_monitor(struct fb_info *info)
+ #else
+ 		printk(KERN_ERR
+ 		       "neofb: Only 640x480, 800x600/480 and 1024x768 panels are currently supported\n");
++		kfree(info->monspecs.modedb);
+ 		return -1;
+ #endif
+ 	default:
 -- 
 2.25.1
 
