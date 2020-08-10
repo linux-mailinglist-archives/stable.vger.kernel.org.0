@@ -2,197 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD892411AC
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 22:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E8F2411AE
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 22:25:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726621AbgHJUZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 16:25:10 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:41792 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbgHJUZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 16:25:09 -0400
+        id S1726632AbgHJUZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 16:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726505AbgHJUZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 16:25:51 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C595AC061756
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 13:25:51 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id t10so5677079plz.10
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 13:25:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1597091109; x=1628627109;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=MWdkqs6e+BzOeVCwuOJoUnoLGVkp8F5Pva2KxDiCN8M=;
-  b=vQc3XCsN2IFRgBnNlE0bWE1qWKO6ebwWwVt4BS0EuFiHGGg7lznE/K17
-   OnZVbHjUHeMis+xBz9BTs8ow29l6qhnH9W+IFEvgpjIXNF1MLrfr3dA7R
-   WWGFcPyOofYcS0AINqRsAGA8KO/AocTOLzfZkYvQB+78MTYVfwZAOdE0r
-   c=;
-IronPort-SDR: l36PoT/P34qNOLHL7o3nOL025gV3/x+gMVel4Se9U535PxRQyBZR9zor+zyjWD/CqDeJbZZS7G
- PuwuA5Sn0DuQ==
-X-IronPort-AV: E=Sophos;i="5.75,458,1589241600"; 
-   d="scan'208";a="46987154"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1d-37fd6b3d.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 10 Aug 2020 20:25:07 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1d-37fd6b3d.us-east-1.amazon.com (Postfix) with ESMTPS id F13BD28219C;
-        Mon, 10 Aug 2020 20:25:03 +0000 (UTC)
-Received: from EX13D13UWB002.ant.amazon.com (10.43.161.21) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 10 Aug 2020 20:25:03 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
- EX13D13UWB002.ant.amazon.com (10.43.161.21) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 10 Aug 2020 20:25:03 +0000
-Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
- (172.23.141.97) by mail-relay.amazon.com (10.43.162.232) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Mon, 10 Aug 2020 20:25:03 +0000
-Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id 24F6EC13FC; Mon, 10 Aug 2020 20:25:03 +0000 (UTC)
-From:   Frank van der Linden <fllinden@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     <fllinden@amazon.com>, <tglx@linutronix.de>
-Subject: [PATCH 5.4] genirq/affinity: Make affinity setting if activated opt-in
-Date:   Mon, 10 Aug 2020 20:25:03 +0000
-Message-ID: <20200810202503.22317-1-fllinden@amazon.com>
-X-Mailer: git-send-email 2.16.6
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=RRLcm95D7HwMHaQnVWovL6Jt789Auw0R/IxjYUIgfDI=;
+        b=jIn+6dVX0w6H1UkPp5bq5zh8cKwk6cgHdlGreLxuRjrDnHNacJ3LPEa29/bA4Xsbt4
+         n7rZd7hq9bDILOditfdn9ZyW6YNUqf8SPUoS1k+4mIozPv6ZwSkzxDHgaxzc8Dvp5OIk
+         KtJmXANS/zNbdksrYadq3n/gm8o0rxMvc6KL0yxdWp6K8Bd7FPTlJl2Ku4ao40vBqg6E
+         kJs1BTpGD8V5uQfEtShDsSjYYVeqU+jhxHFhG/XqYTIXkk7DBffhPxXKo1zkJlJokM7y
+         Sz8WTaLQuKi34Ix8E4NCGfThA166KSwN6nFDSe3FYNn7m6+wlB2O6yRGRz6KuCawLjlh
+         eV1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RRLcm95D7HwMHaQnVWovL6Jt789Auw0R/IxjYUIgfDI=;
+        b=pepnGGgGbrIoNGfGcy6JWYCbWIRBiv+dZXbG7i9hGmdMrovG7BrsL+6eBXh2iBZnCD
+         uXdB+m8jYKneQb+Dg5/PrJr8mjC1ffZ2/k/yWVVnjxBMzNSb6KXee+sb9wum9GaGvnVX
+         VraGlQ9/3tav13oBpL2szcL7/jmgmt2Jc/7mocBP4fMDVnQhXCv14dDl+RYI7/hCedHy
+         AwtfFzYvl9swz9DKRzkJKBtPISYSz4UAmJvMmdiA1z8ksDWgB9spwleDoAhxPiZcuJzK
+         s1XbkvOfnq4b4o3zAFGCIBXK4CG5LKOi0tFjNFakWuSkEY1K+6plyae+UCVtmpKNWwzF
+         NEjA==
+X-Gm-Message-State: AOAM530Jtf0YnjY18H9k5FJLO7fgvWCNnuzkIr9LDyTtXlEjZFNE0GEU
+        znBRKS3rGhigu+A8xypRjd2//g==
+X-Google-Smtp-Source: ABdhPJzNkt4Nzse2R+VrHUxk9eshJpjIXsfDLUFSztzOeH4EaCdRt7ZtsITBM2udJ2RqyRVPhbr/Nw==
+X-Received: by 2002:a17:90a:1a02:: with SMTP id 2mr973622pjk.95.1597091151271;
+        Mon, 10 Aug 2020 13:25:51 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id e20sm375038pjr.28.2020.08.10.13.25.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Aug 2020 13:25:50 -0700 (PDT)
+Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
+ isn't running
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org,
+        Josef <josef.grieb@gmail.com>, Oleg Nesterov <oleg@redhat.com>
+References: <20200808183439.342243-1-axboe@kernel.dk>
+ <20200808183439.342243-3-axboe@kernel.dk>
+ <20200810114256.GS2674@hirez.programming.kicks-ass.net>
+ <a6ee0a6d-5136-4fe9-8906-04fe6420aad9@kernel.dk>
+ <07df8ab4-16a8-8537-b4fe-5438bd8110cf@kernel.dk>
+ <20200810201213.GB3982@worktop.programming.kicks-ass.net>
+ <4a8fa719-330f-d380-522f-15d79c74ca9a@kernel.dk>
+Message-ID: <faf2c2ae-834e-8fa2-12f3-ae07f8a68e14@kernel.dk>
+Date:   Mon, 10 Aug 2020 14:25:48 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <4a8fa719-330f-d380-522f-15d79c74ca9a@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+On 8/10/20 2:13 PM, Jens Axboe wrote:
+>> Would it be clearer to write it like so perhaps?
+>>
+>> 	/*
+>> 	 * Optimization; when the task is RUNNING we can do with a
+>> 	 * cheaper TWA_RESUME notification because,... <reason goes
+>> 	 * here>. Otherwise do the more expensive, but always correct
+>> 	 * TWA_SIGNAL.
+>> 	 */
+>> 	if (READ_ONCE(tsk->state) == TASK_RUNNING) {
+>> 		__task_work_notify(tsk, TWA_RESUME);
+>> 		if (READ_ONCE(tsk->state) == TASK_RUNNING)
+>> 			return;
+>> 	}
+>> 	__task_work_notify(tsk, TWA_SIGNAL);
+>> 	wake_up_process(tsk);
+> 
+> Yeah that is easier to read, wasn't a huge fan of the loop since it's
+> only a single retry kind of condition. I'll adopt this suggestion,
+> thanks!
 
-commit f0c7baca180046824e07fc5f1326e83a8fd150c7 upstream.
+Re-write it a bit on top of that, just turning it into two separate
+READ_ONCE, and added appropriate comments. For the SQPOLL case, the
+wake_up_process() is enough, so we can clean up that if/else.
 
-John reported that on a RK3288 system the perf per CPU interrupts are all
-affine to CPU0 and provided the analysis:
+https://git.kernel.dk/cgit/linux-block/commit/?h=io_uring-5.9&id=49bc5c16483945982cf81b0109d7da7cd9ee55ed
 
- "It looks like what happens is that because the interrupts are not per-CPU
-  in the hardware, armpmu_request_irq() calls irq_force_affinity() while
-  the interrupt is deactivated and then request_irq() with IRQF_PERCPU |
-  IRQF_NOBALANCING.
-
-  Now when irq_startup() runs with IRQ_STARTUP_NORMAL, it calls
-  irq_setup_affinity() which returns early because IRQF_PERCPU and
-  IRQF_NOBALANCING are set, leaving the interrupt on its original CPU."
-
-This was broken by the recent commit which blocked interrupt affinity
-setting in hardware before activation of the interrupt. While this works in
-general, it does not work for this particular case. As contrary to the
-initial analysis not all interrupt chip drivers implement an activate
-callback, the safe cure is to make the deferred interrupt affinity setting
-at activation time opt-in.
-
-Implement the necessary core logic and make the two irqchip implementations
-for which this is required opt-in. In hindsight this would have been the
-right thing to do, but ...
-
-Fixes: baedb87d1b53 ("genirq/affinity: Handle affinity setting on inactive interrupts correctly")
-Reported-by: John Keeping <john@metanate.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87blk4tzgm.fsf@nanos.tec.linutronix.de
----
- arch/x86/kernel/apic/vector.c    |  4 ++++
- drivers/irqchip/irq-gic-v3-its.c |  5 ++++-
- include/linux/irq.h              | 13 +++++++++++++
- kernel/irq/manage.c              |  6 +++++-
- 4 files changed, 26 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index 18c0dca08163..557b153c9ee6 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -554,6 +554,10 @@ static int x86_vector_alloc_irqs(struct irq_domain *domain, unsigned int virq,
- 		irqd->chip_data = apicd;
- 		irqd->hwirq = virq + i;
- 		irqd_set_single_target(irqd);
-+
-+		/* Don't invoke affinity setter on deactivated interrupts */
-+		irqd_set_affinity_on_activate(irqd);
-+
- 		/*
- 		 * Legacy vectors are already assigned when the IOAPIC
- 		 * takes them over. They stay on the same vector. This is
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 263cf9240b16..7966b19ceba7 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2581,6 +2581,7 @@ static int its_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
- 	msi_alloc_info_t *info = args;
- 	struct its_device *its_dev = info->scratchpad[0].ptr;
- 	struct its_node *its = its_dev->its;
-+	struct irq_data *irqd;
- 	irq_hw_number_t hwirq;
- 	int err;
- 	int i;
-@@ -2600,7 +2601,9 @@ static int its_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
- 
- 		irq_domain_set_hwirq_and_chip(domain, virq + i,
- 					      hwirq + i, &its_irq_chip, its_dev);
--		irqd_set_single_target(irq_desc_get_irq_data(irq_to_desc(virq + i)));
-+		irqd = irq_get_irq_data(virq + i);
-+		irqd_set_single_target(irqd);
-+		irqd_set_affinity_on_activate(irqd);
- 		pr_debug("ID:%d pID:%d vID:%d\n",
- 			 (int)(hwirq + i - its_dev->event_map.lpi_base),
- 			 (int)(hwirq + i), virq + i);
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index ab9d956e21b3..be00e0ae5e31 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -211,6 +211,8 @@ struct irq_data {
-  * IRQD_CAN_RESERVE		- Can use reservation mode
-  * IRQD_MSI_NOMASK_QUIRK	- Non-maskable MSI quirk for affinity change
-  *				  required
-+ * IRQD_AFFINITY_ON_ACTIVATE	- Affinity is set on activation. Don't call
-+ *				  irq_chip::irq_set_affinity() when deactivated.
-  */
- enum {
- 	IRQD_TRIGGER_MASK		= 0xf,
-@@ -234,6 +236,7 @@ enum {
- 	IRQD_DEFAULT_TRIGGER_SET	= (1 << 25),
- 	IRQD_CAN_RESERVE		= (1 << 26),
- 	IRQD_MSI_NOMASK_QUIRK		= (1 << 27),
-+	IRQD_AFFINITY_ON_ACTIVATE	= (1 << 29),
- };
- 
- #define __irqd_to_state(d) ACCESS_PRIVATE((d)->common, state_use_accessors)
-@@ -408,6 +411,16 @@ static inline bool irqd_msi_nomask_quirk(struct irq_data *d)
- 	return __irqd_to_state(d) & IRQD_MSI_NOMASK_QUIRK;
- }
- 
-+static inline void irqd_set_affinity_on_activate(struct irq_data *d)
-+{
-+	__irqd_to_state(d) |= IRQD_AFFINITY_ON_ACTIVATE;
-+}
-+
-+static inline bool irqd_affinity_on_activate(struct irq_data *d)
-+{
-+	return __irqd_to_state(d) & IRQD_AFFINITY_ON_ACTIVATE;
-+}
-+
- #undef __irqd_to_state
- 
- static inline irq_hw_number_t irqd_to_hwirq(struct irq_data *d)
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index df73685de114..3b1d0a4725a4 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -281,12 +281,16 @@ static bool irq_set_affinity_deactivated(struct irq_data *data,
- 	struct irq_desc *desc = irq_data_to_desc(data);
- 
- 	/*
-+	 * Handle irq chips which can handle affinity only in activated
-+	 * state correctly
-+	 *
- 	 * If the interrupt is not yet activated, just store the affinity
- 	 * mask and do not call the chip driver at all. On activation the
- 	 * driver has to make sure anyway that the interrupt is in a
- 	 * useable state so startup works.
- 	 */
--	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
-+	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) ||
-+	    irqd_is_activated(data) || !irqd_affinity_on_activate(data))
- 		return false;
- 
- 	cpumask_copy(desc->irq_common_data.affinity, mask);
 -- 
-2.17.2
+Jens Axboe
 
