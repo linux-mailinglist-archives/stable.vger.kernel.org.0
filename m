@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B105240A80
+	by mail.lfdr.de (Postfix) with ESMTP id BC865240A81
 	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgHJPTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:19:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49952 "EHLO mail.kernel.org"
+        id S1727853AbgHJPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727833AbgHJPTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:19:49 -0400
+        id S1727848AbgHJPTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:19:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F237420772;
-        Mon, 10 Aug 2020 15:19:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AAA32075F;
+        Mon, 10 Aug 2020 15:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072788;
-        bh=6Z0wpNCnyCWnQvnEZI5gwp9SLhd+PbsBcvUv0+XNS44=;
+        s=default; t=1597072794;
+        bh=3X7s2lFTfOUlpo3YbsSrxkM+p5Ee7qer5W9pPiGJ1Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFDdIkT/i+CeNjZhTnBos/TvbkdvNo62dnA0M7XV/1q888dJSr1xT4Nv5sL7hh7cS
-         J9BaEmO3652LdxMYYSu2iIp3gm8V3Q7hyEj1d/4RfWtTjIAiNib+OKlwCklhHvr3Un
-         XDjmpuxiNAE5ei0/SEl+mLKqw3dLpbnZagU0MZDw=
+        b=RzfvgDTP6fhBNF3A6uyz5BFsON7bjnuOdr4TYz74KvNncgLO/AfwImh+i61r8s/iw
+         YkT9GQk9ig65gB0hQ5e6uOhU4jmp2IHa2ZXQt9srmiRnT7oI2OZ1CV+J+E52r/UNr3
+         ObmErO0OcxrvZsTwh4BYwhPmiI7TjpkmEqunOdOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Christoph Jung <jung@codemercs.com>
-Subject: [PATCH 5.8 03/38] USB: iowarrior: fix up report size handling for some devices
-Date:   Mon, 10 Aug 2020 17:18:53 +0200
-Message-Id: <20200810151804.077969759@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Forest Crossman <cyrozap@gmail.com>
+Subject: [PATCH 5.8 05/38] usb: xhci: Fix ASMedia ASM1142 DMA addressing
+Date:   Mon, 10 Aug 2020 17:18:55 +0200
+Message-Id: <20200810151804.158216098@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151803.920113428@linuxfoundation.org>
 References: <20200810151803.920113428@linuxfoundation.org>
@@ -43,79 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Forest Crossman <cyrozap@gmail.com>
 
-commit 17a82716587e9d7c3b246a789add490b2b5dcab6 upstream.
+commit ec37198acca7b4c17b96247697406e47aafe0605 upstream.
 
-In previous patches that added support for new iowarrior devices, the
-handling of the report size was not done correct.
+I've confirmed that the ASMedia ASM1142 has the same problem as the
+ASM2142/ASM3142, in that it too reports that it supports 64-bit DMA
+addresses when in fact it does not. As with the ASM2142/ASM3142, this
+can cause problems on systems where the upper bits matter, and adding
+the XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
 
-Fix that up and update the copyright date for the driver
-
-Reworked from an original patch written by Christoph Jung.
-
-Fixes: bab5417f5f01 ("USB: misc: iowarrior: add support for the 100 device")
-Fixes: 5f6f8da2d7b5 ("USB: misc: iowarrior: add support for the 28 and 28L devices")
-Fixes: 461d8deb26a7 ("USB: misc: iowarrior: add support for 2 OEMed devices")
-Cc: stable <stable@kernel.org>
-Reported-by: Christoph Jung <jung@codemercs.com>
-Link: https://lore.kernel.org/r/20200726094939.1268978-1-gregkh@linuxfoundation.org
+Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200728042408.180529-3-cyrozap@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |   35 +++++++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 10 deletions(-)
+ drivers/usb/host/xhci-pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -2,8 +2,9 @@
- /*
-  *  Native support for the I/O-Warrior USB devices
-  *
-- *  Copyright (c) 2003-2005  Code Mercenaries GmbH
-- *  written by Christian Lucht <lucht@codemercs.com>
-+ *  Copyright (c) 2003-2005, 2020  Code Mercenaries GmbH
-+ *  written by Christian Lucht <lucht@codemercs.com> and
-+ *  Christoph Jung <jung@codemercs.com>
-  *
-  *  based on
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_1			0x43bc
+ #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
+ #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
++#define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
+ #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
  
-@@ -802,14 +803,28 @@ static int iowarrior_probe(struct usb_in
+ static const char hcd_name[] = "xhci_hcd";
+@@ -268,7 +269,8 @@ static void xhci_pci_quirks(struct devic
+ 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+-		pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI)
++	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
+ 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
  
- 	/* we have to check the report_size often, so remember it in the endianness suitable for our machine */
- 	dev->report_size = usb_endpoint_maxp(dev->int_in_endpoint);
--	if ((dev->interface->cur_altsetting->desc.bInterfaceNumber == 0) &&
--	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
--	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
--	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
--	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
--	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)))
--		/* IOWarrior56 has wMaxPacketSize different from report size */
--		dev->report_size = 7;
-+
-+	/*
-+	 * Some devices need the report size to be different than the
-+	 * endpoint size.
-+	 */
-+	if (dev->interface->cur_altsetting->desc.bInterfaceNumber == 0) {
-+		switch (dev->product_id) {
-+		case USB_DEVICE_ID_CODEMERCS_IOW56:
-+		case USB_DEVICE_ID_CODEMERCS_IOW56AM:
-+			dev->report_size = 7;
-+			break;
-+
-+		case USB_DEVICE_ID_CODEMERCS_IOW28:
-+		case USB_DEVICE_ID_CODEMERCS_IOW28L:
-+			dev->report_size = 4;
-+			break;
-+
-+		case USB_DEVICE_ID_CODEMERCS_IOW100:
-+			dev->report_size = 13;
-+			break;
-+		}
-+	}
- 
- 	/* create the urb and buffer for reading */
- 	dev->int_in_urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
 
 
