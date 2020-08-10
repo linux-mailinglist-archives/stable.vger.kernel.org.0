@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27921240924
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:29:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44C62408FD
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728162AbgHJP3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35718 "EHLO mail.kernel.org"
+        id S1728624AbgHJP1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:27:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728949AbgHJP3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:29:21 -0400
+        id S1728187AbgHJP1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51EA622CF7;
-        Mon, 10 Aug 2020 15:29:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CC8A22D02;
+        Mon, 10 Aug 2020 15:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073360;
-        bh=dFH48hGfWYx3KGZvcwBY4eyeETJ9b+C5bqC8OTrUd6g=;
+        s=default; t=1597073270;
+        bh=4JW7OyqRYkP5zzdgiz2Q8q8HeE53NdcNMwb63Oxftro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrQnFNujWsAcih+t4qIy/NlDwcqPYpF+od29EfOXLyP5yHHDQuANRD4SIVqbXnnmu
-         CJmz9aXyKJVn+aFfR9MkngLf4eySMb6btOCvQ2Udc8zvlnaRLGf7sFFBVsfplfYurs
-         KDQDNKpgKSDDDPTgPvTaV3KQLmV0j6xIrmz+8h1E=
+        b=woezmWnHxKULjFFWrnkkmBa9XGJWCbuUIX9a3V+QLQUEJc4VTJ3bjss7ZvB9GGFoL
+         zN/dc6TdA/rLKbpPeMdJHQSHkIqVJ1BhN1Oca0fz6TPTa0RhZJAE0tmXkjYMXCsliI
+         9RRAhtnpMqKLsIP6w0BxXEMgqI4XO6oOK2WGbQ3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.19 10/48] Bluetooth: Prevent out-of-bounds read in hci_inquiry_result_with_rssi_evt()
+        stable@vger.kernel.org,
+        Philippe Duplessis-Guindon <pduplessis@efficios.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 45/67] tools lib traceevent: Fix memory leak in process_dynamic_array_len
 Date:   Mon, 10 Aug 2020 17:21:32 +0200
-Message-Id: <20200810151804.717015492@linuxfoundation.org>
+Message-Id: <20200810151811.658615679@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-References: <20200810151804.199494191@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Philippe Duplessis-Guindon <pduplessis@efficios.com>
 
-commit 629b49c848ee71244203934347bd7730b0ddee8d upstream.
+[ Upstream commit e24c6447ccb7b1a01f9bf0aec94939e6450c0b4d ]
 
-Check `num_rsp` before using it as for-loop counter. Add `unlock` label.
+I compiled with AddressSanitizer and I had these memory leaks while I
+was using the tep_parse_format function:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Direct leak of 28 byte(s) in 4 object(s) allocated from:
+        #0 0x7fb07db49ffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
+        #1 0x7fb07a724228 in extend_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:985
+        #2 0x7fb07a724c21 in __read_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1140
+        #3 0x7fb07a724f78 in read_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1206
+        #4 0x7fb07a725191 in __read_expect_type /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1291
+        #5 0x7fb07a7251df in read_expect_type /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1299
+        #6 0x7fb07a72e6c8 in process_dynamic_array_len /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:2849
+        #7 0x7fb07a7304b8 in process_function /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3161
+        #8 0x7fb07a730900 in process_arg_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3207
+        #9 0x7fb07a727c0b in process_arg /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1786
+        #10 0x7fb07a731080 in event_read_print_args /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3285
+        #11 0x7fb07a731722 in event_read_print /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3369
+        #12 0x7fb07a740054 in __tep_parse_format /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6335
+        #13 0x7fb07a74047a in __parse_event /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6389
+        #14 0x7fb07a740536 in tep_parse_format /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6431
+        #15 0x7fb07a785acf in parse_event ../../../src/fs-src/fs.c:251
+        #16 0x7fb07a785ccd in parse_systems ../../../src/fs-src/fs.c:284
+        #17 0x7fb07a786fb3 in read_metadata ../../../src/fs-src/fs.c:593
+        #18 0x7fb07a78760e in ftrace_fs_source_init ../../../src/fs-src/fs.c:727
+        #19 0x7fb07d90c19c in add_component_with_init_method_data ../../../../src/lib/graph/graph.c:1048
+        #20 0x7fb07d90c87b in add_source_component_with_initialize_method_data ../../../../src/lib/graph/graph.c:1127
+        #21 0x7fb07d90c92a in bt_graph_add_source_component ../../../../src/lib/graph/graph.c:1152
+        #22 0x55db11aa632e in cmd_run_ctx_create_components_from_config_components ../../../src/cli/babeltrace2.c:2252
+        #23 0x55db11aa6fda in cmd_run_ctx_create_components ../../../src/cli/babeltrace2.c:2347
+        #24 0x55db11aa780c in cmd_run ../../../src/cli/babeltrace2.c:2461
+        #25 0x55db11aa8a7d in main ../../../src/cli/babeltrace2.c:2673
+        #26 0x7fb07d5460b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x270b2)
 
+The token variable in the process_dynamic_array_len function is
+allocated in the read_expect_type function, but is not freed before
+calling the read_token function.
+
+Free the token variable before calling read_token in order to plug the
+leak.
+
+Signed-off-by: Philippe Duplessis-Guindon <pduplessis@efficios.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/linux-trace-devel/20200730150236.5392-1-pduplessis@efficios.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/lib/traceevent/event-parse.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -3948,6 +3948,9 @@ static void hci_inquiry_result_with_rssi
- 		struct inquiry_info_with_rssi_and_pscan_mode *info;
- 		info = (void *) (skb->data + 1);
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index 798284f511f16..4559a15e66570 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -2861,6 +2861,7 @@ process_dynamic_array_len(struct tep_event *event, struct tep_print_arg *arg,
+ 	if (read_expected(TEP_EVENT_DELIM, ")") < 0)
+ 		goto out_err;
  
-+		if (skb->len < num_rsp * sizeof(*info) + 1)
-+			goto unlock;
-+
- 		for (; num_rsp; num_rsp--, info++) {
- 			u32 flags;
++	free_token(token);
+ 	type = read_token(&token);
+ 	*tok = token;
  
-@@ -3969,6 +3972,9 @@ static void hci_inquiry_result_with_rssi
- 	} else {
- 		struct inquiry_info_with_rssi *info = (void *) (skb->data + 1);
- 
-+		if (skb->len < num_rsp * sizeof(*info) + 1)
-+			goto unlock;
-+
- 		for (; num_rsp; num_rsp--, info++) {
- 			u32 flags;
- 
-@@ -3989,6 +3995,7 @@ static void hci_inquiry_result_with_rssi
- 		}
- 	}
- 
-+unlock:
- 	hci_dev_unlock(hdev);
- }
- 
+-- 
+2.25.1
+
 
 
