@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D65C42410D7
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07F52410DA
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728514AbgHJTJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:09:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
+        id S1728535AbgHJTJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728492AbgHJTJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:09:28 -0400
+        id S1728522AbgHJTJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:09:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92D1E22B45;
-        Mon, 10 Aug 2020 19:09:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE48D22CA1;
+        Mon, 10 Aug 2020 19:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086567;
-        bh=cBJbYSQY8TZQCT0eXnANmfIOvzV3nWmaS0vZYyZEUrE=;
+        s=default; t=1597086568;
+        bh=hNul+hpMOhhwF35fU5uL+jxA8siVHVf4No5zO0w65EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMkWFeqiTVD1ecgXFeu7i/Mw0rxC5eIZPn4H4ut2jMn4d4yB9AHzUDZsy2apozYCD
-         hS5bSYRtkkKHMzqtWsfB8pEmqEA54y9LmAeIsJxuN2PfFmsWv9pIXQjH5iQaJDNWDI
-         IGhCJZk+7YFcMP9IgOTQjiYQeXLfaUnzSEci+a0Q=
+        b=ncjRr/4T9gZRR/vagqYNyissyW9Fa5VLDHAC++lVcybtp+dqZK8iMkDbIys4eMAMR
+         6ZhtVTww0n25A0BZMNJIKP2/7DNYiq2D+orhiEXKsjo4cjXe2UrTciCmKCION3oF2j
+         XTA8Oo51HsCj8beZG+ypAbcLKUw22E71QD0r2okg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shannon Nelson <snelson@pensando.io>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 20/64] ionic: rearrange reset and bus-master control
-Date:   Mon, 10 Aug 2020 15:08:15 -0400
-Message-Id: <20200810190859.3793319-20-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 21/64] memory: samsung: exynos5422-dmc: Do not ignore return code of regmap_read()
+Date:   Mon, 10 Aug 2020 15:08:16 -0400
+Message-Id: <20200810190859.3793319-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810190859.3793319-1-sashal@kernel.org>
 References: <20200810190859.3793319-1-sashal@kernel.org>
@@ -43,75 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 6a6014e2fb276753d4dc9b803370e7af7f57e30b ]
+[ Upstream commit c4f16e96d8fdd62ef12898fc0965c42093bed237 ]
 
-We can prevent potential incorrect DMA access attempts from the
-NIC by enabling bus-master after the reset, and by disabling
-bus-master earlier in cleanup.
+Check for regmap_read() return code before using the read value in
+following write in exynos5_switch_timing_regs().  Pass reading error
+code to the callers.
 
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This does not introduce proper error handling for such failed reads (and
+obviously regmap_write() error is still ignored) because the driver
+ignored this in all places.  Therefor it only fixes reported issue while
+matching current driver coding style:
+
+       drivers/memory/samsung/exynos5422-dmc.c: In function 'exynos5_switch_timing_regs':
+    >> drivers/memory/samsung/exynos5422-dmc.c:216:6: warning: variable 'ret' set but not used [-Wunused-but-set-variable]
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/memory/samsung/exynos5422-dmc.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-index 2924cde440aa8..85c686c16741f 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-@@ -247,12 +247,11 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		goto err_out_pci_disable_device;
- 	}
+diff --git a/drivers/memory/samsung/exynos5422-dmc.c b/drivers/memory/samsung/exynos5422-dmc.c
+index 25196d6268e21..85b31d3de57ad 100644
+--- a/drivers/memory/samsung/exynos5422-dmc.c
++++ b/drivers/memory/samsung/exynos5422-dmc.c
+@@ -270,12 +270,14 @@ static int find_target_freq_idx(struct exynos5_dmc *dmc,
+  * This function switches between these banks according to the
+  * currently used clock source.
+  */
+-static void exynos5_switch_timing_regs(struct exynos5_dmc *dmc, bool set)
++static int exynos5_switch_timing_regs(struct exynos5_dmc *dmc, bool set)
+ {
+ 	unsigned int reg;
+ 	int ret;
  
--	pci_set_master(pdev);
- 	pcie_print_link_status(pdev);
+ 	ret = regmap_read(dmc->clk_regmap, CDREX_LPDDR3PHY_CON3, &reg);
++	if (ret)
++		return ret;
  
- 	err = ionic_map_bars(ionic);
- 	if (err)
--		goto err_out_pci_clear_master;
-+		goto err_out_pci_disable_device;
+ 	if (set)
+ 		reg |= EXYNOS5_TIMING_SET_SWI;
+@@ -283,6 +285,8 @@ static void exynos5_switch_timing_regs(struct exynos5_dmc *dmc, bool set)
+ 		reg &= ~EXYNOS5_TIMING_SET_SWI;
  
- 	/* Configure the device */
- 	err = ionic_setup(ionic);
-@@ -260,6 +259,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		dev_err(dev, "Cannot setup device: %d, aborting\n", err);
- 		goto err_out_unmap_bars;
- 	}
-+	pci_set_master(pdev);
+ 	regmap_write(dmc->clk_regmap, CDREX_LPDDR3PHY_CON3, reg);
++
++	return 0;
+ }
  
- 	err = ionic_identify(ionic);
- 	if (err) {
-@@ -350,6 +350,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	ionic_reset(ionic);
- err_out_teardown:
- 	ionic_dev_teardown(ionic);
-+	pci_clear_master(pdev);
- 	/* Don't fail the probe for these errors, keep
- 	 * the hw interface around for inspection
+ /**
+@@ -516,7 +520,7 @@ exynos5_dmc_switch_to_bypass_configuration(struct exynos5_dmc *dmc,
+ 	/*
+ 	 * Delays are long enough, so use them for the new coming clock.
  	 */
-@@ -358,8 +359,6 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- err_out_unmap_bars:
- 	ionic_unmap_bars(ionic);
- 	pci_release_regions(pdev);
--err_out_pci_clear_master:
--	pci_clear_master(pdev);
- err_out_pci_disable_device:
- 	pci_disable_device(pdev);
- err_out_debugfs_del_dev:
-@@ -389,9 +388,9 @@ static void ionic_remove(struct pci_dev *pdev)
- 	ionic_port_reset(ionic);
- 	ionic_reset(ionic);
- 	ionic_dev_teardown(ionic);
-+	pci_clear_master(pdev);
- 	ionic_unmap_bars(ionic);
- 	pci_release_regions(pdev);
--	pci_clear_master(pdev);
- 	pci_disable_device(pdev);
- 	ionic_debugfs_del_dev(ionic);
- 	mutex_destroy(&ionic->dev_cmd_lock);
+-	exynos5_switch_timing_regs(dmc, USE_MX_MSPLL_TIMINGS);
++	ret = exynos5_switch_timing_regs(dmc, USE_MX_MSPLL_TIMINGS);
+ 
+ 	return ret;
+ }
+@@ -577,7 +581,9 @@ exynos5_dmc_change_freq_and_volt(struct exynos5_dmc *dmc,
+ 
+ 	clk_set_rate(dmc->fout_bpll, target_rate);
+ 
+-	exynos5_switch_timing_regs(dmc, USE_BPLL_TIMINGS);
++	ret = exynos5_switch_timing_regs(dmc, USE_BPLL_TIMINGS);
++	if (ret)
++		goto disable_clocks;
+ 
+ 	ret = clk_set_parent(dmc->mout_mclk_cdrex, dmc->mout_bpll);
+ 	if (ret)
 -- 
 2.25.1
 
