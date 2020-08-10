@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2912241036
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2593E241026
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:28:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729485AbgHJT2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39300 "EHLO mail.kernel.org"
+        id S1729198AbgHJTLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729173AbgHJTLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:11:11 -0400
+        id S1729178AbgHJTLN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:11:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2D55207FF;
-        Mon, 10 Aug 2020 19:11:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 788AB22CBE;
+        Mon, 10 Aug 2020 19:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086670;
-        bh=tJYe3sdJ50MfFH8HSB5ARx5zC3LFkfTzC/sJ4lY5EjQ=;
+        s=default; t=1597086672;
+        bh=4WTP4Ogj32dlekRkN0sF2w84Av0Agk7t6IC5sMNZfM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdAFsXo9VOKUjwRBNLrABjXxGG4ogerlMA7optwQfKpG5p2frVt/ZoJD4f4+oK9ZM
-         nmc5JRHRdrZZnTXbwid4/ZR7XX5iYA9Z2KF996Lbpc/sd2mzTYeworvy4YeJ+2eMzz
-         eidzvfCwMc+5MMrd903W+4GGj40nhFl/gtD9X2fo=
+        b=Fh6AGZ3VDVMQtxADFGVv7JbZUN8arSTF+BP6V2GFWLtN/EdFWbg3zVyHTzv1fjLP0
+         OvnCbn38N8jgvI1k0nB6WkgqHV4n6IbK1LuOmh1ZktbNGVNuIcYB4rx5V02YB2+vFl
+         9js4lChX9+XqeEbVp2Y80QvUqq8Hdh9i4F0Wv/yM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Shakeel Butt <shakeelb@google.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 31/60] mm/mmap.c: Add cond_resched() for exit_mmap() CPU stalls
-Date:   Mon, 10 Aug 2020 15:09:59 -0400
-Message-Id: <20200810191028.3793884-31-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>, Wenjing Liu <Wenjing.Liu@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 32/60] drm/amd/display: Improve DisplayPort monitor interop
+Date:   Mon, 10 Aug 2020 15:10:00 -0400
+Message-Id: <20200810191028.3793884-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191028.3793884-1-sashal@kernel.org>
 References: <20200810191028.3793884-1-sashal@kernel.org>
@@ -45,81 +46,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@kernel.org>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit 0a3b3c253a1eb2c7fe7f34086d46660c909abeb3 ]
+[ Upstream commit eec3303de3378cdfaa0bb86f43546dbbd88f94e2 ]
 
-A large process running on a heavily loaded system can encounter the
-following RCU CPU stall warning:
+[Why]
+DC is very fast at link training and stream enablement
+which causes issues such as blackscreens for non-compliant
+monitors.
 
-  rcu: INFO: rcu_sched self-detected stall on CPU
-  rcu: 	3-....: (20998 ticks this GP) idle=4ea/1/0x4000000000000002 softirq=556558/556558 fqs=5190
-  	(t=21013 jiffies g=1005461 q=132576)
-  NMI backtrace for cpu 3
-  CPU: 3 PID: 501900 Comm: aio-free-ring-w Kdump: loaded Not tainted 5.2.9-108_fbk12_rc3_3858_gb83b75af7909 #1
-  Hardware name: Wiwynn   HoneyBadger/PantherPlus, BIOS HBM6.71 02/03/2016
-  Call Trace:
-   <IRQ>
-   dump_stack+0x46/0x60
-   nmi_cpu_backtrace.cold.3+0x13/0x50
-   ? lapic_can_unplug_cpu.cold.27+0x34/0x34
-   nmi_trigger_cpumask_backtrace+0xba/0xca
-   rcu_dump_cpu_stacks+0x99/0xc7
-   rcu_sched_clock_irq.cold.87+0x1aa/0x397
-   ? tick_sched_do_timer+0x60/0x60
-   update_process_times+0x28/0x60
-   tick_sched_timer+0x37/0x70
-   __hrtimer_run_queues+0xfe/0x270
-   hrtimer_interrupt+0xf4/0x210
-   smp_apic_timer_interrupt+0x5e/0x120
-   apic_timer_interrupt+0xf/0x20
-   </IRQ>
-  RIP: 0010:kmem_cache_free+0x223/0x300
-  Code: 88 00 00 00 0f 85 ca 00 00 00 41 8b 55 18 31 f6 f7 da 41 f6 45 0a 02 40 0f 94 c6 83 c6 05 9c 41 5e fa e8 a0 a7 01 00 41 56 9d <49> 8b 47 08 a8 03 0f 85 87 00 00 00 65 48 ff 08 e9 3d fe ff ff 65
-  RSP: 0018:ffffc9000e8e3da8 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
-  RAX: 0000000000020000 RBX: ffff88861b9de960 RCX: 0000000000000030
-  RDX: fffffffffffe41e8 RSI: 000060777fe3a100 RDI: 000000000001be18
-  RBP: ffffea00186e7780 R08: ffffffffffffffff R09: ffffffffffffffff
-  R10: ffff88861b9dea28 R11: ffff88887ffde000 R12: ffffffff81230a1f
-  R13: ffff888854684dc0 R14: 0000000000000206 R15: ffff8888547dbc00
-   ? remove_vma+0x4f/0x60
-   remove_vma+0x4f/0x60
-   exit_mmap+0xd6/0x160
-   mmput+0x4a/0x110
-   do_exit+0x278/0xae0
-   ? syscall_trace_enter+0x1d3/0x2b0
-   ? handle_mm_fault+0xaa/0x1c0
-   do_group_exit+0x3a/0xa0
-   __x64_sys_exit_group+0x14/0x20
-   do_syscall_64+0x42/0x100
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[How]
+After debugging with scaler vendors we implement the
+minimum delays at the necessary locations to ensure
+the monitor does not hang.  Delays are generic due to
+lack of IEEE OUI information on the failing displays.
 
-And on a PREEMPT=n kernel, the "while (vma)" loop in exit_mmap() can run
-for a very long time given a large process.  This commit therefore adds
-a cond_resched() to this loop, providing RCU any needed quiescent states.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: <linux-mm@kvack.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Acked-by: Tony Cheng <Tony.Cheng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c    |  4 +++-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 16 ++++++++++------
+ .../amd/display/dc/dce110/dce110_hw_sequencer.c  | 11 ++++++++++-
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index bb1822ac99090..55bb456fd0d0f 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -3171,6 +3171,7 @@ void exit_mmap(struct mm_struct *mm)
- 		if (vma->vm_flags & VM_ACCOUNT)
- 			nr_accounted += vma_pages(vma);
- 		vma = remove_vma(vma);
-+		cond_resched();
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 67cfff1586e9f..3f157bcc174b9 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3146,9 +3146,11 @@ void core_link_disable_stream(struct pipe_ctx *pipe_ctx)
+ 			write_i2c_redriver_setting(pipe_ctx, false);
+ 		}
  	}
- 	vm_unacct_memory(nr_accounted);
+-	dc->hwss.disable_stream(pipe_ctx);
+ 
+ 	disable_link(pipe_ctx->stream->link, pipe_ctx->stream->signal);
++
++	dc->hwss.disable_stream(pipe_ctx);
++
+ 	if (pipe_ctx->stream->timing.flags.DSC) {
+ 		if (dc_is_dp_signal(pipe_ctx->stream->signal))
+ 			dp_set_dsc_enable(pipe_ctx, false);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index caa090d0b6acc..1ada01322cd2c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1103,6 +1103,10 @@ static inline enum link_training_result perform_link_training_int(
+ 	dpcd_pattern.v1_4.TRAINING_PATTERN_SET = DPCD_TRAINING_PATTERN_VIDEOIDLE;
+ 	dpcd_set_training_pattern(link, dpcd_pattern);
+ 
++	/* delay 5ms after notifying sink of idle pattern before switching output */
++	if (link->connector_signal != SIGNAL_TYPE_EDP)
++		msleep(5);
++
+ 	/* 4. mainlink output idle pattern*/
+ 	dp_set_hw_test_pattern(link, DP_TEST_PATTERN_VIDEO_MODE, NULL, 0);
+ 
+@@ -1552,6 +1556,12 @@ bool perform_link_training_with_retries(
+ 	struct dc_link *link = stream->link;
+ 	enum dp_panel_mode panel_mode = dp_get_panel_mode(link);
+ 
++	/* We need to do this before the link training to ensure the idle pattern in SST
++	 * mode will be sent right after the link training
++	 */
++	link->link_enc->funcs->connect_dig_be_to_fe(link->link_enc,
++							pipe_ctx->stream_res.stream_enc->id, true);
++
+ 	for (j = 0; j < attempts; ++j) {
+ 
+ 		dp_enable_link_phy(
+@@ -1568,12 +1578,6 @@ bool perform_link_training_with_retries(
+ 
+ 		dp_set_panel_mode(link, panel_mode);
+ 
+-		/* We need to do this before the link training to ensure the idle pattern in SST
+-		 * mode will be sent right after the link training
+-		 */
+-		link->link_enc->funcs->connect_dig_be_to_fe(link->link_enc,
+-								pipe_ctx->stream_res.stream_enc->id, true);
+-
+ 		if (link->aux_access_disabled) {
+ 			dc_link_dp_perform_link_training_skip_aux(link, link_setting);
+ 			return true;
+diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+index 10527593868cc..24ca592c90df5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+@@ -1090,8 +1090,17 @@ void dce110_blank_stream(struct pipe_ctx *pipe_ctx)
+ 		dc_link_set_abm_disable(link);
+ 	}
+ 
+-	if (dc_is_dp_signal(pipe_ctx->stream->signal))
++	if (dc_is_dp_signal(pipe_ctx->stream->signal)) {
+ 		pipe_ctx->stream_res.stream_enc->funcs->dp_blank(pipe_ctx->stream_res.stream_enc);
++
++		/*
++		 * After output is idle pattern some sinks need time to recognize the stream
++		 * has changed or they enter protection state and hang.
++		 */
++		if (!dc_is_embedded_signal(pipe_ctx->stream->signal))
++			msleep(60);
++	}
++
  }
+ 
+ 
 -- 
 2.25.1
 
