@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A59240A0A
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4A9240A25
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728865AbgHJPiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:38:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60170 "EHLO mail.kernel.org"
+        id S1728512AbgHJPZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728513AbgHJP0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:26:16 -0400
+        id S1727897AbgHJPZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A633520658;
-        Mon, 10 Aug 2020 15:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4D9A208A9;
+        Mon, 10 Aug 2020 15:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073175;
-        bh=zn1+86pPO0MeKxVnkura4kzFBwLZ2uBgm92quMahL+U=;
+        s=default; t=1597073114;
+        bh=Kar1TO+w8C9msoAYDYhGQr9h51j/i+i5CDeZxA15Dpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xiRcf4xYT7BiD6YplR7z6trVKxNHQjl66fz4OIFBneB0+aNwQIwCIoR6B7D6VXkwb
-         F5yR9XVJNS8M75XdSMlWgbp8FaE/ztd/UYmZJvFjZ7HqlledP7td368kyNlyzsynE8
-         MFj0HDE6nVtq28fTgEjjqg7Dmy+0suXwTvU8sHHo=
+        b=wT4kjo/+kSO19CkDq0+4dyn5mperyQv1YhTSMwxBONHl0L7ZzS/EDi2X58mjLiWDB
+         oHueuisyp3NYEoEFXTX5EU7QpoAUTqRqRquboFgh9uCIfh/PUccI9wgTGnMY4w2VL3
+         zFzDO7kmg6/0XXCWuggOQfH3+gL4kt2eNCCHYEvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1a54a94bd32716796edd@syzkaller.appspotmail.com,
-        syzbot+9d2abfef257f3e2d4713@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 13/67] ALSA: seq: oss: Serialize ioctls
+        stable@vger.kernel.org, laurent brando <laurent.brando@nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Yangbo Lu <yangbo.lu@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 41/79] net: mscc: ocelot: fix hardware timestamp dequeue logic
 Date:   Mon, 10 Aug 2020 17:21:00 +0200
-Message-Id: <20200810151810.080801939@linuxfoundation.org>
+Message-Id: <20200810151814.300679197@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: laurent brando <laurent.brando@nxp.com>
 
-commit 80982c7e834e5d4e325b6ce33757012ecafdf0bb upstream.
+[ Upstream commit 5fd82200d870a5dd3e509c98ef2041f580b2c0e1 ]
 
-Some ioctls via OSS sequencer API may race and lead to UAF when the
-port create and delete are performed concurrently, as spotted by a
-couple of syzkaller cases.  This patch is an attempt to address it by
-serializing the ioctls with the existing register_mutex.
+The next hw timestamp should be snapshoot to the read registers
+only once the current timestamp has been read.
+If none of the pending skbs matches the current HW timestamp
+just gracefully flush the available timestamp by reading it.
 
-Basically OSS sequencer API is an obsoleted interface and was designed
-without much consideration of the concurrency.  There are very few
-applications with it, and the concurrent performance isn't asked,
-hence this "big hammer" approach should be good enough.
-
-Reported-by: syzbot+1a54a94bd32716796edd@syzkaller.appspotmail.com
-Reported-by: syzbot+9d2abfef257f3e2d4713@syzkaller.appspotmail.com
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200804185815.2453-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: laurent brando <laurent.brando@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/oss/seq_oss.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/ocelot.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/sound/core/seq/oss/seq_oss.c
-+++ b/sound/core/seq/oss/seq_oss.c
-@@ -168,10 +168,16 @@ static long
- odev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	struct seq_oss_devinfo *dp;
-+	long rc;
-+
- 	dp = file->private_data;
- 	if (snd_BUG_ON(!dp))
- 		return -ENXIO;
--	return snd_seq_oss_ioctl(dp, cmd, arg);
-+
-+	mutex_lock(&register_mutex);
-+	rc = snd_seq_oss_ioctl(dp, cmd, arg);
-+	mutex_unlock(&register_mutex);
-+	return rc;
- }
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index efb3965a3e42b..76dbf9ac8ad50 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -749,21 +749,21 @@ void ocelot_get_txtstamp(struct ocelot *ocelot)
  
- #ifdef CONFIG_COMPAT
+ 		spin_unlock_irqrestore(&port->tx_skbs.lock, flags);
+ 
+-		/* Next ts */
+-		ocelot_write(ocelot, SYS_PTP_NXT_PTP_NXT, SYS_PTP_NXT);
++		/* Get the h/w timestamp */
++		ocelot_get_hwtimestamp(ocelot, &ts);
+ 
+ 		if (unlikely(!skb_match))
+ 			continue;
+ 
+-		/* Get the h/w timestamp */
+-		ocelot_get_hwtimestamp(ocelot, &ts);
+-
+ 		/* Set the timestamp into the skb */
+ 		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
+ 		shhwtstamps.hwtstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
+ 		skb_tstamp_tx(skb_match, &shhwtstamps);
+ 
+ 		dev_kfree_skb_any(skb_match);
++
++		/* Next ts */
++		ocelot_write(ocelot, SYS_PTP_NXT_PTP_NXT, SYS_PTP_NXT);
+ 	}
+ }
+ EXPORT_SYMBOL(ocelot_get_txtstamp);
+-- 
+2.25.1
+
 
 
