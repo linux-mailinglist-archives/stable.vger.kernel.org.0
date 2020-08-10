@@ -2,115 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 935112406B3
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 15:39:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FB482406DF
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 15:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726814AbgHJNjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 09:39:22 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:38973 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726569AbgHJNjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 09:39:21 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id BC1CE5C00CB;
-        Mon, 10 Aug 2020 09:39:20 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 10 Aug 2020 09:39:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=ZhnjRGAeCHne7uifxiQGpe/FnFE
-        ts4/XW5+zaLnq0GM=; b=VZxGuHIqZ53gH4vxAv9D8kS7Y1Wkpk8/UpEKX2/Jd4R
-        0jNMxmfEidh5lDaOHwsg8aTHlxE9630Ds6UFEAzROuBiMzJfyzxik/jgxEWeXSbl
-        AOVIDCensKMEOBpvJlZoMRncCL8w6RFRpf/PzWFbcjpLP44mrnZrkWJ4VuZACXW3
-        JCAcm9waJnSGJ4Z9gENb4in6qoHShz8tcNnixrwaa5FqfA7knqIT3zSwZU8lfN78
-        +3EKgq47lv/kDmTZr0XDBp1Wj+2HfnCqY8nx4Tvh9OqUzy+lixoaOKW/3kn2NuMt
-        ADnjn/jxM0YNK4F9+bH5TjNfLhVexA1f9PPQ1+8M8MQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZhnjRG
-        AeCHne7uifxiQGpe/FnFEts4/XW5+zaLnq0GM=; b=Ww39GGaupB6eegXScjEkWI
-        wc7fxiIX0bB7UmNngS4yNBd9xNBr8pNKXBHv2vfY5vOq9DzkJG9mh5b5pgZ3+Jge
-        Cmq6aahpWHjQP2IjqG57W91DHOIiBSI9JGkJW5IjFAdX7wjaKSOK7d9SekAb3UMC
-        JdLTgkbfKsh6AGwP/ak/h+i0LD2fSURSfRD+jJzOLo/L1MkyGPDvM2065zojVsi3
-        yUYAMXW5gyCiyeWnDgXSi3FDSF+5Kf0u2pgTkQ06PNnpd34vPAy6t69U+6Tu00wU
-        eMSjPhmV6tFVs1F8t5T9x6Dd31m1dL6JHcIIIxpp0xvjx5J3feM8epb322NZ6xQw
-        ==
-X-ME-Sender: <xms:CE4xX2STEyw-vcazPigCYVVsVzxdBxA5_sRzDMoyHVLcP01sNvJnOg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrkeekgdeijecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
-    keeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:CE4xX7y15zoPHuTNw-n5ulKV4T28ysCmG9wkWikWStb-N0ESXqgN1g>
-    <xmx:CE4xXz2hn8qvfUO4IQiCvIFFxfA802T1GHpt9kntk1YWBz8A-C0x6A>
-    <xmx:CE4xXyDh838Ip0dsY_ubIwB0PxuBTyrvkKw5TsExmeKDdHiV--7ElQ>
-    <xmx:CE4xX3bwOXyS-XTZDso5t8QOeVPbycsxldtHfZx_mSBjoxho_ud3Nw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F170630600B1;
-        Mon, 10 Aug 2020 09:39:19 -0400 (EDT)
-Date:   Mon, 10 Aug 2020 15:39:31 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org, linux-security-module@vger.kernel.org,
-        syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 4.19/4.14/4.9/4.4] Smack: fix use-after-free in
- smk_write_relabel_self()
-Message-ID: <20200810133931.GB3491228@kroah.com>
-References: <20200807161324.1690303-1-ebiggers@kernel.org>
+        id S1726806AbgHJNmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 09:42:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727065AbgHJNmp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 09:42:45 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B87AC061756
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 06:42:44 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id 77so7538250ilc.5
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 06:42:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
+        b=roZF/4fN2t70YigDT3hpuHSjK2M0AWr6iQvMLmQU6X5WL2X8DTXOgeLyGZOmkB6Wbt
+         vZddvqpzftU8uv2siD5AAmvtAg5a7ZjYjUgSVjIl3FsbgDZbDoBhpnsD7kE/X4pgqiU0
+         HMKyBIL207PwxSW0G31wf+Wu2hjHsW6jP+73cYQYSR5K4xoIkywKmcrQcuPOtdFE8cXI
+         HPndGRdjrtsyIZhKGMzXp+WTfprxnjeuBkaMS4Ve2K7luyS09OOSlOG7Rrq66G9Ngtqx
+         dKybaOzx11oJZXDCAYCpFMklMHcg/pQJBEhLSvhqe5iqqZVcsQdQAedk8VLuVf2nVAdR
+         tGrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
+        b=CNanehHWYsuQgyBFCrivh0g2xln4cRYTLmPS0NVkm/Agz5Q1V7w75HwfOQO1dSo/2G
+         8b8EYwPyOVRQJz+ZR0XdEBRcZf32k0MjCnZSRuYpT4IUzK619xLGDButhyLj58h+c65N
+         ++53DhZHEBw9R8JVtFWxaFPMSdLFJHTlKil2FEySKvLGCOPzN0+xBGiyOdVLrYbjL9SV
+         0d88KoMxaFEAKnOy2sKEooTwqk2kL1lhcSSfOe9TK9wtTN/OyN850twKTJgu2wFXhFmQ
+         43fr8QE2vZsDKS1CBa7l3VoHLcFfkLIeIWNPxV0FTgHuYr5PTg21LpUFamWbi2dGZdBK
+         HHdQ==
+X-Gm-Message-State: AOAM530CWd5xZNP6gr0jAhTY8NFgwB2Urk4fqquMLnDYuuIPKKX/cxY5
+        gwJAj6iENKjXX8hWgcfq9bhtI1vWH/ZBJKnaNxI=
+X-Google-Smtp-Source: ABdhPJzxhYsJOK0LyWDAWqJrgbzrPu78F850di47rFiFsxceYqC4UxDDKNLtJ4eh/uSf+W+RTtrWgA6LCo/OlTRMJLg=
+X-Received: by 2002:a92:354d:: with SMTP id c74mr16373286ila.27.1597066963784;
+ Mon, 10 Aug 2020 06:42:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200807161324.1690303-1-ebiggers@kernel.org>
+Received: by 2002:a05:6638:1403:0:0:0:0 with HTTP; Mon, 10 Aug 2020 06:42:43
+ -0700 (PDT)
+From:   Donna Louise <donnalouisemchince@gmail.com>
+Date:   Mon, 10 Aug 2020 01:42:43 -1200
+X-Google-Sender-Auth: 3RSGS4niTTb0EJDtlMGAL96R7ac
+Message-ID: <CAGPv-0H0_6PnaB_00Ozuaa1SNyJx_R=zSSnz-X=m5T1Zj5KKJQ@mail.gmail.com>
+Subject: Hello,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 07, 2020 at 09:13:24AM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> commit beb4ee6770a89646659e6a2178538d2b13e2654e upstream.
-> 
-> smk_write_relabel_self() frees memory from the task's credentials with
-> no locking, which can easily cause a use-after-free because multiple
-> tasks can share the same credentials structure.
-> 
-> Fix this by using prepare_creds() and commit_creds() to correctly modify
-> the task's credentials.
-> 
-> Reproducer for "BUG: KASAN: use-after-free in smk_write_relabel_self":
-> 
-> 	#include <fcntl.h>
-> 	#include <pthread.h>
-> 	#include <unistd.h>
-> 
-> 	static void *thrproc(void *arg)
-> 	{
-> 		int fd = open("/sys/fs/smackfs/relabel-self", O_WRONLY);
-> 		for (;;) write(fd, "foo", 3);
-> 	}
-> 
-> 	int main()
-> 	{
-> 		pthread_t t;
-> 		pthread_create(&t, NULL, thrproc, NULL);
-> 		thrproc(NULL);
-> 	}
-> 
-> Reported-by: syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
-> Fixes: 38416e53936e ("Smack: limited capability for changing process label")
-> Cc: <stable@vger.kernel.org> # v4.4+
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  security/smack/smackfs.c | 13 +++++++++++--
->  1 file changed, 11 insertions(+), 2 deletions(-)
+ Dear Friend,
 
-Thanks for the backport, now queued up.
+  I am glad to know you, but God knows you better and he knows why he
+has directed me to you at this point in time so do not be surprised at
+all. My name is Mrs. Donna Louise McInnes, a widow, i have been
+suffering from ovarian cancer disease. At this moment i am about to
+end the race like this because the illness has gotten to a very bad
+stage, without any family members and no child. I hope that you will
+not expose or betray this trust and confidence that I am about to
+entrust to you for the mutual benefit of the orphans and the less
+privileged ones. I have some funds I inherited from my late husband,
+the sum of ($11.000.000 Eleven million dollars.) deposited in the
+Bank.  Having known my present health status, I decided to entrust
+this fund to you believing that you will utilize it the way i am going
+to instruct herein.
 
-greg k-h
+Therefore I need you to assist me and reclaim this money and use it
+for Charity works, for orphanages and giving justice and help to the
+poor, needy and to promote the words of God and the effort that the
+house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
+
+It will be my great pleasure to compensate you with 35 % percent of
+the total money for your personal use, 5 % percent for any expenses
+that may occur during the international transfer process while 60% of
+the money will go to the charity project.
+
+All I require from you is sincerity and the ability to complete God's
+task without any failure. It will be my pleasure to see that the bank
+has finally released and transferred the fund into your bank account
+therein your country even before I die here in the hospital, because
+of my present health status everything needs to be processed rapidly
+as soon as possible. I am waiting for your immediate reply, if only
+you are interested for further details of the transaction and
+execution of this charitable project.
+
+Best Regards your friend Mrs.
+Donna Louise McInnes.
