@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3951C2408D1
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7AF240905
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728532AbgHJPZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:25:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59378 "EHLO mail.kernel.org"
+        id S1728830AbgHJP2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728431AbgHJPZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:25:33 -0400
+        id S1728826AbgHJP2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 802EB20855;
-        Mon, 10 Aug 2020 15:25:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1A5522D06;
+        Mon, 10 Aug 2020 15:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073132;
-        bh=QWK7XBR5gvkHC3LExaNmD7qFaj0SX1A+sVIAOWe7vgc=;
+        s=default; t=1597073284;
+        bh=4nkJzd1xAtuqBem7AfzJHJ9Xk/3U80G8JQIvWQ7fp9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1LGP4cupAHkDULejeqtybmsDaNf5/9aXeSyhfmeXqecs3KocLdFC+OaFXtJNCmD3E
-         mKobAoXHA8JA65AiPPihDiCV5k3JSBT9Edv9k8BQBVcLNuYwzNtVpEHwMm4LRqmdfa
-         seOCsrCRntwxU08B+1IMGgJSpKk+p5zim6X4uYbU=
+        b=z70RUEh4LAQkhagi1veC7mOQIMnsVFi4pFVfVI4v2C2QSyPhz9Ym56xN0b6Jhok8f
+         vxVTphQwpB0xOit0s9SNYsyWrrsZjFcw8baB2vSO9bQOWcgVU6504hTy1+1xkBaTCx
+         TvNWGfKi9DxTKiAmY85Hye8hH9ME1W6kF9RxnhHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.7 78/79] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY to runtime
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 50/67] ipv4: Silence suspicious RCU usage warning
 Date:   Mon, 10 Aug 2020 17:21:37 +0200
-Message-Id: <20200810151816.065858854@linuxfoundation.org>
+Message-Id: <20200810151811.937927394@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bruno Meneguele <bmeneg@redhat.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-commit 311aa6aafea446c2f954cc19d66425bfed8c4b0b upstream.
+[ Upstream commit 83f3522860f702748143e022f1a546547314c715 ]
 
-The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appraise="
-modes - log, fix, enforce - at run time, but not when IMA architecture
-specific policies are enabled.  This prevents properly labeling the
-filesystem on systems where secure boot is supported, but not enabled on the
-platform.  Only when secure boot is actually enabled should these IMA
-appraise modes be disabled.
+fib_trie_unmerge() is called with RTNL held, but not from an RCU
+read-side critical section. This leads to the following warning [1] when
+the FIB alias list in a leaf is traversed with
+hlist_for_each_entry_rcu().
 
-This patch removes the compile time dependency and makes it a runtime
-decision, based on the secure boot state of that platform.
+Since the function is always called with RTNL held and since
+modification of the list is protected by RTNL, simply use
+hlist_for_each_entry() and silence the warning.
 
-Test results as follows:
+[1]
+WARNING: suspicious RCU usage
+5.8.0-rc4-custom-01520-gc1f937f3f83b #30 Not tainted
+-----------------------------
+net/ipv4/fib_trie.c:1867 RCU-list traversed in non-reader section!!
 
--> x86-64 with secure boot enabled
+other info that might help us debug this:
 
-[    0.015637] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-[    0.015668] ima: Secure boot enabled: ignoring ima_appraise=fix boot parameter option
+rcu_scheduler_active = 2, debug_locks = 1
+1 lock held by ip/164:
+ #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
 
--> powerpc with secure boot disabled
+stack backtrace:
+CPU: 0 PID: 164 Comm: ip Not tainted 5.8.0-rc4-custom-01520-gc1f937f3f83b #30
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+Call Trace:
+ dump_stack+0x100/0x184
+ lockdep_rcu_suspicious+0x153/0x15d
+ fib_trie_unmerge+0x608/0xdb0
+ fib_unmerge+0x44/0x360
+ fib4_rule_configure+0xc8/0xad0
+ fib_nl_newrule+0x37a/0x1dd0
+ rtnetlink_rcv_msg+0x4f7/0xbd0
+ netlink_rcv_skb+0x17a/0x480
+ rtnetlink_rcv+0x22/0x30
+ netlink_unicast+0x5ae/0x890
+ netlink_sendmsg+0x98a/0xf40
+ ____sys_sendmsg+0x879/0xa00
+ ___sys_sendmsg+0x122/0x190
+ __sys_sendmsg+0x103/0x1d0
+ __x64_sys_sendmsg+0x7d/0xb0
+ do_syscall_64+0x54/0xa0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fc80a234e97
+Code: Bad RIP value.
+RSP: 002b:00007ffef8b66798 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc80a234e97
+RDX: 0000000000000000 RSI: 00007ffef8b66800 RDI: 0000000000000003
+RBP: 000000005f141b1c R08: 0000000000000001 R09: 0000000000000000
+R10: 00007fc80a2a8ac0 R11: 0000000000000246 R12: 0000000000000001
+R13: 0000000000000000 R14: 00007ffef8b67008 R15: 0000556fccb10020
 
-[    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-[    0.000000] Secure boot mode disabled
-
--> Running the system without secure boot and with both options set:
-
-CONFIG_IMA_APPRAISE_BOOTPARAM=y
-CONFIG_IMA_ARCH_POLICY=y
-
-Audit prompts "missing-hash" but still allow execution and, consequently,
-filesystem labeling:
-
-type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
-uid=root auid=root ses=2
-subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
-cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
-res=no
-
-Cc: stable@vger.kernel.org
-Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
-Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
-Cc: stable@vger.kernel.org # 5.0
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 0ddcf43d5d4a ("ipv4: FIB Local/MAIN table collapse")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- security/integrity/ima/Kconfig        |    2 +-
- security/integrity/ima/ima_appraise.c |    6 ++++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ net/ipv4/fib_trie.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -232,7 +232,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -1751,7 +1751,7 @@ struct fib_table *fib_trie_unmerge(struc
+ 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
+ 		struct key_vector *local_l = NULL, *local_tp;
  
- config IMA_APPRAISE_BOOTPARAM
- 	bool "ima_appraise boot parameter"
--	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
-+	depends on IMA_APPRAISE
- 	default y
- 	help
- 	  This option enables the different "ima_appraise=" modes
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -19,6 +19,12 @@
- static int __init default_appraise_setup(char *str)
- {
- #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
-+	if (arch_ima_get_secureboot()) {
-+		pr_info("Secure boot enabled: ignoring ima_appraise=%s boot parameter option",
-+			str);
-+		return 1;
-+	}
-+
- 	if (strncmp(str, "off", 3) == 0)
- 		ima_appraise = 0;
- 	else if (strncmp(str, "log", 3) == 0)
+-		hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
++		hlist_for_each_entry(fa, &l->leaf, fa_list) {
+ 			struct fib_alias *new_fa;
+ 
+ 			if (local_tb->tb_id != fa->tb_id)
 
 
