@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3F1240A48
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81482409B6
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728119AbgHJPYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57252 "EHLO mail.kernel.org"
+        id S1728583AbgHJP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728416AbgHJPYS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:24:18 -0400
+        id S1728431AbgHJP2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADC1220825;
-        Mon, 10 Aug 2020 15:24:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D0FD22B47;
+        Mon, 10 Aug 2020 15:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073057;
-        bh=ced6ACKeiVQz70N1jpmr7sSe/5mq+5lAuhok2wNXuMM=;
+        s=default; t=1597073298;
+        bh=r2wB0aJLPGIcYysXlzd3muBworOTlc0Q9hAFlcDDMU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+VSdgIbmC8PDS4q7jLZ50SM4QFATseNzOP50DMHcUiXxJZHxS+xHrf9j5kVNnSRu
-         6mqIPH+Z6V1YWfNdltR2lXJDbgRPIXhC2auJCYsUePjrasdPds5y/8Oa36L2g5j6SC
-         YHqVQ4GjzTOYDMH2BnhnwWgJjhRXt+mBkvrbOJX4=
+        b=qV1cf4GbJt+/0Ay/RvOcfYZgch32App7ZNGRP7FIggltmGIUfZ0sq9nHY/ZNng5lQ
+         7hinp7GQAF7kbcIb3f9P6oqEdVMqtPR+xrJQxgAXk/YYvV83WsSRWWR9zoQkxwbn4D
+         Q7JfbeGtXk9/Y7+sv9kP12VYEth17Bbptw/8B6f4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Frank van der Linden <fllinden@amazon.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.7 52/79] xattr: break delegations in {set,remove}xattr
-Date:   Mon, 10 Aug 2020 17:21:11 +0200
-Message-Id: <20200810151814.820572804@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.4 25/67] mtd: properly check all write ioctls for permissions
+Date:   Mon, 10 Aug 2020 17:21:12 +0200
+Message-Id: <20200810151810.668444031@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,181 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank van der Linden <fllinden@amazon.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 08b5d5014a27e717826999ad20e394a8811aae92 upstream.
+commit f7e6b19bc76471ba03725fe58e0c218a3d6266c3 upstream.
 
-set/removexattr on an exported filesystem should break NFS delegations.
-This is true in general, but also for the upcoming support for
-RFC 8726 (NFSv4 extended attribute support). Make sure that they do.
+When doing a "write" ioctl call, properly check that we have permissions
+to do so before copying anything from userspace or anything else so we
+can "fail fast".  This includes also covering the MEMWRITE ioctl which
+previously missed checking for this.
 
-Additionally, they need to grow a _locked variant, since callers might
-call this with i_rwsem held (like the NFS server code).
-
-Cc: stable@vger.kernel.org # v4.9+
-Cc: linux-fsdevel@vger.kernel.org
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[rw: Fixed locking issue]
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xattr.c            |   84 +++++++++++++++++++++++++++++++++++++++++++++-----
- include/linux/xattr.h |    2 +
- 2 files changed, 79 insertions(+), 7 deletions(-)
+ drivers/mtd/mtdchar.c |   56 +++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 47 insertions(+), 9 deletions(-)
 
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -204,10 +204,22 @@ int __vfs_setxattr_noperm(struct dentry
- 	return error;
- }
+--- a/drivers/mtd/mtdchar.c
++++ b/drivers/mtd/mtdchar.c
+@@ -354,9 +354,6 @@ static int mtdchar_writeoob(struct file
+ 	uint32_t retlen;
+ 	int ret = 0;
  
+-	if (!(file->f_mode & FMODE_WRITE))
+-		return -EPERM;
 -
-+/**
-+ * __vfs_setxattr_locked: set an extended attribute while holding the inode
-+ * lock
-+ *
-+ *  @dentry - object to perform setxattr on
-+ *  @name - xattr name to set
-+ *  @value - value to set @name to
-+ *  @size - size of @value
-+ *  @flags - flags to pass into filesystem operations
-+ *  @delegated_inode - on return, will contain an inode pointer that
-+ *  a delegation was broken on, NULL if none.
-+ */
- int
--vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
--		size_t size, int flags)
-+__vfs_setxattr_locked(struct dentry *dentry, const char *name,
-+		const void *value, size_t size, int flags,
-+		struct inode **delegated_inode)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -216,15 +228,40 @@ vfs_setxattr(struct dentry *dentry, cons
- 	if (error)
- 		return error;
+ 	if (length > 4096)
+ 		return -EINVAL;
  
--	inode_lock(inode);
- 	error = security_inode_setxattr(dentry, name, value, size, flags);
- 	if (error)
- 		goto out;
+@@ -641,6 +638,48 @@ static int mtdchar_ioctl(struct file *fi
  
-+	error = try_break_deleg(inode, delegated_inode);
-+	if (error)
-+		goto out;
-+
- 	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
+ 	pr_debug("MTD_ioctl\n");
  
- out:
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(__vfs_setxattr_locked);
++	/*
++	 * Check the file mode to require "dangerous" commands to have write
++	 * permissions.
++	 */
++	switch (cmd) {
++	/* "safe" commands */
++	case MEMGETREGIONCOUNT:
++	case MEMGETREGIONINFO:
++	case MEMGETINFO:
++	case MEMREADOOB:
++	case MEMREADOOB64:
++	case MEMLOCK:
++	case MEMUNLOCK:
++	case MEMISLOCKED:
++	case MEMGETOOBSEL:
++	case MEMGETBADBLOCK:
++	case MEMSETBADBLOCK:
++	case OTPSELECT:
++	case OTPGETREGIONCOUNT:
++	case OTPGETREGIONINFO:
++	case OTPLOCK:
++	case ECCGETLAYOUT:
++	case ECCGETSTATS:
++	case MTDFILEMODE:
++	case BLKPG:
++	case BLKRRPART:
++		break;
 +
-+int
-+vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
-+		size_t size, int flags)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	struct inode *delegated_inode = NULL;
-+	int error;
++	/* "dangerous" commands */
++	case MEMERASE:
++	case MEMERASE64:
++	case MEMWRITEOOB:
++	case MEMWRITEOOB64:
++	case MEMWRITE:
++		if (!(file->f_mode & FMODE_WRITE))
++			return -EPERM;
++		break;
 +
-+retry_deleg:
-+	inode_lock(inode);
-+	error = __vfs_setxattr_locked(dentry, name, value, size, flags,
-+	    &delegated_inode);
- 	inode_unlock(inode);
-+
-+	if (delegated_inode) {
-+		error = break_deleg_wait(&delegated_inode);
-+		if (!error)
-+			goto retry_deleg;
++	default:
++		return -ENOTTY;
 +	}
- 	return error;
- }
- EXPORT_SYMBOL_GPL(vfs_setxattr);
-@@ -378,8 +415,18 @@ __vfs_removexattr(struct dentry *dentry,
- }
- EXPORT_SYMBOL(__vfs_removexattr);
- 
-+/**
-+ * __vfs_removexattr_locked: set an extended attribute while holding the inode
-+ * lock
-+ *
-+ *  @dentry - object to perform setxattr on
-+ *  @name - name of xattr to remove
-+ *  @delegated_inode - on return, will contain an inode pointer that
-+ *  a delegation was broken on, NULL if none.
-+ */
- int
--vfs_removexattr(struct dentry *dentry, const char *name)
-+__vfs_removexattr_locked(struct dentry *dentry, const char *name,
-+		struct inode **delegated_inode)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -388,11 +435,14 @@ vfs_removexattr(struct dentry *dentry, c
- 	if (error)
- 		return error;
- 
--	inode_lock(inode);
- 	error = security_inode_removexattr(dentry, name);
- 	if (error)
- 		goto out;
- 
-+	error = try_break_deleg(inode, delegated_inode);
-+	if (error)
-+		goto out;
 +
- 	error = __vfs_removexattr(dentry, name);
+ 	switch (cmd) {
+ 	case MEMGETREGIONCOUNT:
+ 		if (copy_to_user(argp, &(mtd->numeraseregions), sizeof(int)))
+@@ -688,9 +727,6 @@ static int mtdchar_ioctl(struct file *fi
+ 	{
+ 		struct erase_info *erase;
  
- 	if (!error) {
-@@ -401,12 +451,32 @@ vfs_removexattr(struct dentry *dentry, c
+-		if(!(file->f_mode & FMODE_WRITE))
+-			return -EPERM;
+-
+ 		erase=kzalloc(sizeof(struct erase_info),GFP_KERNEL);
+ 		if (!erase)
+ 			ret = -ENOMEM;
+@@ -983,9 +1019,6 @@ static int mtdchar_ioctl(struct file *fi
+ 		ret = 0;
+ 		break;
+ 	}
+-
+-	default:
+-		ret = -ENOTTY;
  	}
  
- out:
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(__vfs_removexattr_locked);
-+
-+int
-+vfs_removexattr(struct dentry *dentry, const char *name)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	struct inode *delegated_inode = NULL;
-+	int error;
-+
-+retry_deleg:
-+	inode_lock(inode);
-+	error = __vfs_removexattr_locked(dentry, name, &delegated_inode);
- 	inode_unlock(inode);
-+
-+	if (delegated_inode) {
-+		error = break_deleg_wait(&delegated_inode);
-+		if (!error)
-+			goto retry_deleg;
-+	}
-+
- 	return error;
- }
- EXPORT_SYMBOL_GPL(vfs_removexattr);
+ 	return ret;
+@@ -1029,6 +1062,11 @@ static long mtdchar_compat_ioctl(struct
+ 		struct mtd_oob_buf32 buf;
+ 		struct mtd_oob_buf32 __user *buf_user = argp;
  
--
- /*
-  * Extended attribute SET operations
-  */
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -52,8 +52,10 @@ ssize_t vfs_getxattr(struct dentry *, co
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
- int __vfs_setxattr(struct dentry *, struct inode *, const char *, const void *, size_t, int);
- int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
-+int __vfs_setxattr_locked(struct dentry *, const char *, const void *, size_t, int, struct inode **);
- int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
- int __vfs_removexattr(struct dentry *, const char *);
-+int __vfs_removexattr_locked(struct dentry *, const char *, struct inode **);
- int vfs_removexattr(struct dentry *, const char *);
- 
- ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size);
++		if (!(file->f_mode & FMODE_WRITE)) {
++			ret = -EPERM;
++			break;
++		}
++
+ 		if (copy_from_user(&buf, argp, sizeof(buf)))
+ 			ret = -EFAULT;
+ 		else
 
 
