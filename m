@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FE424094A
+	by mail.lfdr.de (Postfix) with ESMTP id B501A24094B
 	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729166AbgHJPbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729169AbgHJPbG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Aug 2020 11:31:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38254 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728661AbgHJPbD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:31:03 -0400
+        id S1728622AbgHJPbG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:31:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FB69207FF;
-        Mon, 10 Aug 2020 15:31:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 507AB2080C;
+        Mon, 10 Aug 2020 15:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073463;
-        bh=tYygRtCCqYPvmOEPK2ySkKydBlf7eZqGSMwcgYZbsb4=;
+        s=default; t=1597073465;
+        bh=N98FjzgorEjTBLATZ61u6SCyC3kXTLPSWDm1Auha4ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnoB2x53wtEBhH7zGS1ktboosmHONliEvHZMXxermW0684mHY42SyLIAEuv9JycZJ
-         acEro8tE0sA6DHQ+LRxoHBP9SgaavQKDKo5mhnhpGX9CNTSEis5vgKFZupQCJLWiLx
-         qgHrIUTJNs2hFOvWiCPXaJz+8+9MuHOSK1SnIRSs=
+        b=iLaFtAc91irn9XUuQV5MEzQjAGTWzEhubsIwDzK+1KNHNYNOEDS11smDUhR8ainoj
+         UgmYUYbVCzGaMEtPNNrzCS4S8jYa9CJAOhcYUxQM8Kx6l/GKDwtL1YhwLwZ7ow1kc6
+         QUw6Ow1rHhATiLtuD9wDF0NydvcCN8fm6M9pdNfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Martyna Szapar <martyna.szapar@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>
-Subject: [PATCH 4.19 47/48] i40e: Memory leak in i40e_config_iwarp_qvlist
-Date:   Mon, 10 Aug 2020 17:22:09 +0200
-Message-Id: <20200810151806.541597863@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 4.19 48/48] Smack: fix use-after-free in smk_write_relabel_self()
+Date:   Mon, 10 Aug 2020 17:22:10 +0200
+Message-Id: <20200810151806.591377001@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
 References: <20200810151804.199494191@linuxfoundation.org>
@@ -45,84 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martyna Szapar <martyna.szapar@intel.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 0b63644602cfcbac849f7ea49272a39e90fa95eb ]
+commit beb4ee6770a89646659e6a2178538d2b13e2654e upstream.
 
-Added freeing the old allocation of vf->qvlist_info in function
-i40e_config_iwarp_qvlist before overwriting it with
-the new allocation.
+smk_write_relabel_self() frees memory from the task's credentials with
+no locking, which can easily cause a use-after-free because multiple
+tasks can share the same credentials structure.
 
-Fixes: e3219ce6a7754 ("i40e: Add support for client interface for IWARP driver")
-Signed-off-by: Martyna Szapar <martyna.szapar@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Fix this by using prepare_creds() and commit_creds() to correctly modify
+the task's credentials.
+
+Reproducer for "BUG: KASAN: use-after-free in smk_write_relabel_self":
+
+	#include <fcntl.h>
+	#include <pthread.h>
+	#include <unistd.h>
+
+	static void *thrproc(void *arg)
+	{
+		int fd = open("/sys/fs/smackfs/relabel-self", O_WRONLY);
+		for (;;) write(fd, "foo", 3);
+	}
+
+	int main()
+	{
+		pthread_t t;
+		pthread_create(&t, NULL, thrproc, NULL);
+		thrproc(NULL);
+	}
+
+Reported-by: syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
+Fixes: 38416e53936e ("Smack: limited capability for changing process label")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   23 +++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -441,6 +441,7 @@ static int i40e_config_iwarp_qvlist(stru
- 	u32 v_idx, i, reg_idx, reg;
- 	u32 next_q_idx, next_q_type;
- 	u32 msix_vf, size;
-+	int ret = 0;
+---
+ security/smack/smackfs.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -2746,7 +2746,6 @@ static int smk_open_relabel_self(struct
+ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	struct task_smack *tsp = current_security();
+ 	char *data;
+ 	int rc;
+ 	LIST_HEAD(list_tmp);
+@@ -2771,11 +2770,21 @@ static ssize_t smk_write_relabel_self(st
+ 	kfree(data);
  
- 	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
- 
-@@ -449,16 +450,19 @@ static int i40e_config_iwarp_qvlist(stru
- 			 "Incorrect number of iwarp vectors %u. Maximum %u allowed.\n",
- 			 qvlist_info->num_vectors,
- 			 msix_vf);
--		goto err;
-+		ret = -EINVAL;
-+		goto err_out;
- 	}
- 
- 	size = sizeof(struct virtchnl_iwarp_qvlist_info) +
- 	       (sizeof(struct virtchnl_iwarp_qv_info) *
- 						(qvlist_info->num_vectors - 1));
-+	kfree(vf->qvlist_info);
- 	vf->qvlist_info = kzalloc(size, GFP_KERNEL);
--	if (!vf->qvlist_info)
--		return -ENOMEM;
--
-+	if (!vf->qvlist_info) {
-+		ret = -ENOMEM;
-+		goto err_out;
-+	}
- 	vf->qvlist_info->num_vectors = qvlist_info->num_vectors;
- 
- 	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
-@@ -469,8 +473,10 @@ static int i40e_config_iwarp_qvlist(stru
- 		v_idx = qv_info->v_idx;
- 
- 		/* Validate vector id belongs to this vf */
--		if (!i40e_vc_isvalid_vector_id(vf, v_idx))
--			goto err;
-+		if (!i40e_vc_isvalid_vector_id(vf, v_idx)) {
-+			ret = -EINVAL;
-+			goto err_free;
+ 	if (!rc || (rc == -EINVAL && list_empty(&list_tmp))) {
++		struct cred *new;
++		struct task_smack *tsp;
++
++		new = prepare_creds();
++		if (!new) {
++			rc = -ENOMEM;
++			goto out;
 +		}
- 
- 		vf->qvlist_info->qv_info[i] = *qv_info;
- 
-@@ -512,10 +518,11 @@ static int i40e_config_iwarp_qvlist(stru
++		tsp = new->security;
+ 		smk_destroy_label_list(&tsp->smk_relabel);
+ 		list_splice(&list_tmp, &tsp->smk_relabel);
++		commit_creds(new);
+ 		return count;
  	}
- 
- 	return 0;
--err:
-+err_free:
- 	kfree(vf->qvlist_info);
- 	vf->qvlist_info = NULL;
--	return -EINVAL;
-+err_out:
-+	return ret;
+-
++out:
+ 	smk_destroy_label_list(&list_tmp);
+ 	return rc;
  }
- 
- /**
 
 
