@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4860E2409D9
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B872409A1
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729182AbgHJPgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
+        id S1728958AbgHJPd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728738AbgHJP1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:27:23 -0400
+        id S1728685AbgHJP3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:29:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9814322B47;
-        Mon, 10 Aug 2020 15:27:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D348422BF3;
+        Mon, 10 Aug 2020 15:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073241;
-        bh=9MYJ4viWV0IEtWiX47EV+1kFx/B6YnfEQUrVtqU1GEY=;
+        s=default; t=1597073358;
+        bh=5j1N6fY856atSdd1yo4YTw/tK7vOcoJ8AervVVeA2Bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NelwukzVD9Gr2drTEf7sfWRmwfN99DDuRHGbQMn5RYwDJJ2Nu9mqXUk6vkYxf08pc
-         SPxeBhBq+2sgiSIXtiXRScU9TIWph9wqkQmzmDZn5ga0UcenaSTmh9s5jhksmST+Ik
-         Udf3XrHK7poegBN/AJvb/ADFeJ7Vcc/COp1GO7nM=
+        b=B/tH84fRrLa/g0IkiMiMrzL41cr02cNQx0/BlDbd/3+Ioti9IPmhMl7CsWqZ3xPc7
+         rxERmk4BQKsSNbq/BLsMjwnMyV7hPlOtl91sM+FE8fMxG9lZm24+WtvnIAXmJWDiwb
+         8SyhaRruiaEIGpHCspsMbaxXVe29FSUWe07eUaRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Alain Volmat <alain.volmat@st.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/67] i2c: slave: improve sanity check when registering
+        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 01/48] USB: serial: qcserial: add EM7305 QDL product ID
 Date:   Mon, 10 Aug 2020 17:21:23 +0200
-Message-Id: <20200810151811.220025603@linuxfoundation.org>
+Message-Id: <20200810151804.281474167@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
+References: <20200810151804.199494191@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,38 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Erik Ekman <erik@kryo.se>
 
-[ Upstream commit 1b1be3bf27b62f5abcf85c6f3214bdb9c7526685 ]
+commit d2a4309c1ab6df424b2239fe2920d6f26f808d17 upstream.
 
-Add check for ERR_PTR and simplify code while here.
+When running qmi-firmware-update on the Sierra Wireless EM7305 in a Toshiba
+laptop, it changed product ID to 0x9062 when entering QDL mode:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Alain Volmat <alain.volmat@st.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+usb 2-4: new high-speed USB device number 78 using xhci_hcd
+usb 2-4: New USB device found, idVendor=1199, idProduct=9062, bcdDevice= 0.00
+usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+usb 2-4: Product: EM7305
+usb 2-4: Manufacturer: Sierra Wireless, Incorporated
+
+The upgrade could complete after running
+ # echo 1199 9062 > /sys/bus/usb-serial/drivers/qcserial/new_id
+
+qcserial 2-4:1.0: Qualcomm USB modem converter detected
+usb 2-4: Qualcomm USB modem converter now attached to ttyUSB0
+
+Signed-off-by: Erik Ekman <erik@kryo.se>
+Link: https://lore.kernel.org/r/20200717185118.3640219-1-erik@kryo.se
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/i2c/i2c-core-slave.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/serial/qcserial.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
-index 5427f047faf06..549751347e6c7 100644
---- a/drivers/i2c/i2c-core-slave.c
-+++ b/drivers/i2c/i2c-core-slave.c
-@@ -18,10 +18,8 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
- {
- 	int ret;
- 
--	if (!client || !slave_cb) {
--		WARN(1, "insufficient data\n");
-+	if (WARN(IS_ERR_OR_NULL(client) || !slave_cb, "insufficient data\n"))
- 		return -EINVAL;
--	}
- 
- 	if (!(client->flags & I2C_CLIENT_SLAVE))
- 		dev_warn(&client->dev, "%s: client slave flag not set. You might see address collisions\n",
--- 
-2.25.1
-
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -155,6 +155,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x9056)},	/* Sierra Wireless Modem */
+ 	{DEVICE_SWI(0x1199, 0x9060)},	/* Sierra Wireless Modem */
+ 	{DEVICE_SWI(0x1199, 0x9061)},	/* Sierra Wireless Modem */
++	{DEVICE_SWI(0x1199, 0x9062)},	/* Sierra Wireless EM7305 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9063)},	/* Sierra Wireless EM7305 */
+ 	{DEVICE_SWI(0x1199, 0x9070)},	/* Sierra Wireless MC74xx */
+ 	{DEVICE_SWI(0x1199, 0x9071)},	/* Sierra Wireless MC74xx */
 
 
