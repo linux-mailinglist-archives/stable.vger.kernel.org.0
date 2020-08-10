@@ -2,139 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F6B2411FB
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 23:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90258241215
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 23:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726643AbgHJVBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 17:01:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59052 "EHLO
+        id S1726637AbgHJVGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 17:06:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbgHJVBM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 17:01:12 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFD9C061756;
-        Mon, 10 Aug 2020 14:01:12 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id f24so10820176ejx.6;
-        Mon, 10 Aug 2020 14:01:12 -0700 (PDT)
+        with ESMTP id S1726596AbgHJVGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 17:06:52 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DE3C061787
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 14:06:52 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id d4so704816pjx.5
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 14:06:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=kZV6bGMnFRnrq6awOAaMSY2e30ls2hMzYSKPF5lCwco=;
-        b=HRjs9aREtAntyg4GqciKpndEpWsARkaC7dDydsKhlctnpTnTRTNeOF3Up8j1kN4DUF
-         cEZ+smciWZ2F3S8Sd61Y+99pMrJpPbXnmBgY6poR9bOCt1rtubnx9aF4BNDC67qk9U9Q
-         7QHegpaEHT7ofoXyj5JhNOi+YfttJYAejA0voW7tWh66Z6ZRTXcPQ2+IdtvVLwMCVp2l
-         G9KYDA2abpN+yB9VBB4Jm/Z0neY6h4S8emT12USfuWpz5coeO1P1pwA35thBYaKdNLmJ
-         9XeSlYQiHEHrDK9DS/BavI8jtk4EQ673TCApP3AkPwcg6i+5CCehtrJvZzry7WBjuzjA
-         FkjQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=65PCk5SRNHyL/BfqXi/pgagDm9eZ2xLVmswic72CUmM=;
+        b=JyQ6cmNA50SChN9ECNN/xKZ5BE0SUDDpzn4SAz+6Ctk2kbBWeP4ptboAUsrtgz9K2n
+         ttiroGZlkogNrgktOcLWwUkwWllxalvQk8ih4h1bT0cbWjbyyDFlh+6g1mvIh8/rhMjg
+         CA/SgMMy9omSnEdVcRaMrj+5yJXlLDqThleTfndbBZrzRMRDmX7SAxLZQDgyMmzROXcS
+         IBZRiIJmuaB3IU5dP1TnmqLk8gPZjt5J411RpGtdY6vLvKzbZoX6bEzwVVmqUe0p/06V
+         FIHl/9rfan9zDp5AJYZenHhPy0+/6kB/aMuLsMB3QdMvkYLi6Uej6YsEH82pBmfoHXOr
+         clMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=kZV6bGMnFRnrq6awOAaMSY2e30ls2hMzYSKPF5lCwco=;
-        b=XeKuDCbmhxraP1iK9adqUIxPMajRHiIgL/cNOnZvgf4lbKrf4ibwR5Dt/93E++et2h
-         rhteQ2VQyVDhtaR/8qE5Gb9DhllSURS4/g1L206me2dnRDIaUJqeoTf02AghHcWB/Owh
-         hidB9V2uecSngEt1AYPOQC4tcqrfGrSA89fJ1jiyjaV0EK3Z4thFWVLUlS5cZGrWfYrg
-         IG9972KrbxWS6W+6ilD5elVCZdTjHvreAh3l+o412w4w+I2FTMao7A7jNYvB52RN3Z+B
-         SIoyOOWuVksFU+nJ27qoYI53q+rQEKvnV7D7WSW3Evz98EqLFt6CEHn+N+g3FCOfPRAd
-         juoA==
-X-Gm-Message-State: AOAM530aEv956FqHTWDnmbu8zlSzRoZfDT+f1EsZ26v6rbcoNnJQOAtE
-        SKzAiUm/Wsv22Pj0Icfk9sQMOuEz
-X-Google-Smtp-Source: ABdhPJwPdRlGb+eBi6Cmds3+VrJd/bOoHNKk9G6ECH60Dx+BX7NZQ5jb2vI7+BoVAA0Om5WDBykP9g==
-X-Received: by 2002:a17:906:eb90:: with SMTP id mh16mr22574283ejb.10.1597093270829;
-        Mon, 10 Aug 2020 14:01:10 -0700 (PDT)
-Received: from skbuf ([86.126.22.216])
-        by smtp.gmail.com with ESMTPSA id e6sm13928333ejd.14.2020.08.10.14.01.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2020 14:01:10 -0700 (PDT)
-Date:   Tue, 11 Aug 2020 00:01:08 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 03/60] net: mscc: ocelot: fix encoding
- destination ports into multicast IPv4 address
-Message-ID: <20200810210108.ystlnglj4atyfrfh@skbuf>
-References: <20200810191028.3793884-1-sashal@kernel.org>
- <20200810191028.3793884-3-sashal@kernel.org>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=65PCk5SRNHyL/BfqXi/pgagDm9eZ2xLVmswic72CUmM=;
+        b=CWEIQfb2tzM/pSPFAMQSlN5PA31LFpbvVojpQS2emkZlMuUWhh0nqS+JTSzzvgMoRJ
+         wsz3HppP8rDL+5MqPW8ijqa7GBUEh98IdwoijBa6Es8uxqz3akHAJ99DJgGNGHGP3jsv
+         jvzo9eWTNngEX4g6x17Dc5cz68BMyA48eZ1zmRAQplIBBCWd/OFoh3y1jrlyIgBnr5EU
+         jada6uAVid+G6jjBE+4xZnkUUxht8K3cAWOLvl78gyABgcAYVvju9e8Sk2fTdh+UV0uh
+         AD1/BbOR2NCGAAczGWLC1kj6ImUrciQKf/jxOwLSMjvvqNf59dEtjxvQrH/aIxUJHbrO
+         GCJA==
+X-Gm-Message-State: AOAM5319CvlW9U4fMxgeVAskg5xVAC3m0Haf8Lw7k+tsxevaytbDGXeD
+        4um+GEJZpu2HgRcXxkZ4h7v2Xg==
+X-Google-Smtp-Source: ABdhPJx7xK/i1aR83T01Xj3xe67REy62YfW96YHpiSER0dou9qmg7jobePF6SNNI8Hbkp/GDwYGfaQ==
+X-Received: by 2002:a17:90a:1347:: with SMTP id y7mr1101864pjf.183.1597093611448;
+        Mon, 10 Aug 2020 14:06:51 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id a16sm20859079pgj.27.2020.08.10.14.06.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Aug 2020 14:06:50 -0700 (PDT)
+Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
+ isn't running
+To:     Jann Horn <jannh@google.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Josef <josef.grieb@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>
+References: <20200808183439.342243-1-axboe@kernel.dk>
+ <20200808183439.342243-3-axboe@kernel.dk>
+ <20200810114256.GS2674@hirez.programming.kicks-ass.net>
+ <a6ee0a6d-5136-4fe9-8906-04fe6420aad9@kernel.dk>
+ <07df8ab4-16a8-8537-b4fe-5438bd8110cf@kernel.dk>
+ <20200810201213.GB3982@worktop.programming.kicks-ass.net>
+ <4a8fa719-330f-d380-522f-15d79c74ca9a@kernel.dk>
+ <faf2c2ae-834e-8fa2-12f3-ae07f8a68e14@kernel.dk>
+ <CAG48ez0+=+Q0tjdFxjbbZbZJNkimYL9Bd5odr0T9oWwty6qgoQ@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <03c0e282-5317-ea45-8760-2c3f56eec0c0@kernel.dk>
+Date:   Mon, 10 Aug 2020 15:06:49 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200810191028.3793884-3-sashal@kernel.org>
+In-Reply-To: <CAG48ez0+=+Q0tjdFxjbbZbZJNkimYL9Bd5odr0T9oWwty6qgoQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On 8/10/20 2:35 PM, Jann Horn wrote:
+> On Mon, Aug 10, 2020 at 10:25 PM Jens Axboe <axboe@kernel.dk> wrote:
+>> On 8/10/20 2:13 PM, Jens Axboe wrote:
+>>>> Would it be clearer to write it like so perhaps?
+>>>>
+>>>>      /*
+>>>>       * Optimization; when the task is RUNNING we can do with a
+>>>>       * cheaper TWA_RESUME notification because,... <reason goes
+>>>>       * here>. Otherwise do the more expensive, but always correct
+>>>>       * TWA_SIGNAL.
+>>>>       */
+>>>>      if (READ_ONCE(tsk->state) == TASK_RUNNING) {
+>>>>              __task_work_notify(tsk, TWA_RESUME);
+>>>>              if (READ_ONCE(tsk->state) == TASK_RUNNING)
+>>>>                      return;
+>>>>      }
+>>>>      __task_work_notify(tsk, TWA_SIGNAL);
+>>>>      wake_up_process(tsk);
+>>>
+>>> Yeah that is easier to read, wasn't a huge fan of the loop since it's
+>>> only a single retry kind of condition. I'll adopt this suggestion,
+>>> thanks!
+>>
+>> Re-write it a bit on top of that, just turning it into two separate
+>> READ_ONCE, and added appropriate comments. For the SQPOLL case, the
+>> wake_up_process() is enough, so we can clean up that if/else.
+>>
+>> https://git.kernel.dk/cgit/linux-block/commit/?h=io_uring-5.9&id=49bc5c16483945982cf81b0109d7da7cd9ee55ed
+> 
+> I think I'm starting to understand the overall picture here, and I
+> think if my understanding is correct, your solution isn't going to
+> work properly.
+> 
+> My understanding of the scenario you're trying to address is:
+> 
+>  - task A starts up io_uring
+>  - task A tells io_uring to bump the counter of an eventfd E when work
+> has been completed
+>  - task A submits some work ("read a byte from file descriptor X", or
+> something like that)
+>  - io_uring internally starts an asynchronous I/O operation, with a callback C
+>  - task A calls read(E, &counter, sizeof(counter)) to wait for events
+> to be processed
+>  - the async I/O operation finishes, C is invoked, and C schedules
+> task_work for task A
+> 
+> And here you run into a deadlock, because the task_work will only run
+> when task A returns from the syscall, but the syscall will only return
+> once the task_work is executing and has finished the I/O operation.
+> 
+> 
+> If that is the scenario you're trying to solve here (where you're
+> trying to force a task that's in the middle of some syscall that's
+> completely unrelated to io_uring to return back to syscall context), I
+> don't think this will work: It might well be that the task has e.g.
+> just started entering the read() syscall, and is *about to* block, but
+> is currently still running.
 
-On Mon, Aug 10, 2020 at 03:09:31PM -0400, Sasha Levin wrote:
-> From: Vladimir Oltean <vladimir.oltean@nxp.com>
-> 
-> [ Upstream commit 0897ecf7532577bda3dbcb043ce046a96948889d ]
-> 
-> The ocelot hardware designers have made some hacks to support multicast
-> IPv4 and IPv6 addresses. Normally, the MAC table matches on MAC
-> addresses and the destination ports are selected through the DEST_IDX
-> field of the respective MAC table entry. The DEST_IDX points to a Port
-> Group ID (PGID) which contains the bit mask of ports that frames should
-> be forwarded to. But there aren't a lot of PGIDs (only 80 or so) and
-> there are clearly many more IP multicast addresses than that, so it
-> doesn't scale to use this PGID mechanism, so something else was done.
-> Since the first portion of the MAC address is known, the hack they did
-> was to use a single PGID for _flooding_ unknown IPv4 multicast
-> (PGID_MCIPV4 == 62), but for known IP multicast, embed the destination
-> ports into the first 3 bytes of the MAC address recorded in the MAC
-> table.
-> 
-> The VSC7514 datasheet explains it like this:
-> 
->     3.9.1.5 IPv4 Multicast Entries
-> 
->     MAC table entries with the ENTRY_TYPE = 2 settings are interpreted
->     as IPv4 multicast entries.
->     IPv4 multicasts entries match IPv4 frames, which are classified to
->     the specified VID, and which have DMAC = 0x01005Exxxxxx, where
->     xxxxxx is the lower 24 bits of the MAC address in the entry.
->     Instead of a lookup in the destination mask table (PGID), the
->     destination set is programmed as part of the entry MAC address. This
->     is shown in the following table.
-> 
->     Table 78: IPv4 Multicast Destination Mask
-> 
->         Destination Ports            Record Bit Field
->         ---------------------------------------------
->         Ports 10-0                   MAC[34-24]
-> 
->     Example: All IPv4 multicast frames in VLAN 12 with MAC 01005E112233 are
->     to be forwarded to ports 3, 8, and 9. This is done by inserting the
->     following entry in the MAC table entry:
->     VALID = 1
->     VID = 12
->     MAC = 0x000308112233
->     ENTRY_TYPE = 2
->     DEST_IDX = 0
-> 
-> But this procedure is not at all what's going on in the driver. In fact,
-> the code that embeds the ports into the MAC address looks like it hasn't
-> actually been tested. This patch applies the procedure described in the
-> datasheet.
-> 
-> Since there are many other fixes to be made around multicast forwarding
-> until it works properly, there is no real reason for this patch to be
-> backported to stable trees, or considered a real fix of something that
-> should have worked.
-> 
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
+Your understanding of the scenario appears to be correct, and as far as
+I can tell, also your analysis of why the existing approach doesn't
+fully close it. You're right in that the task could currently be on its
+way to blocking, but still running. And for that case, TWA_RESUME isn't
+going to cut it.
 
-Could you please drop this patch from the 'stable' queues for 5.7 and
-5.8? I haven't tested it on older kernels and without the other patches
-sent in that series. I would like to avoid unexpected regressions if
-possible.
+Ugh. This basically means I have to use TWA_SIGNAL regardless of state,
+unless SQPOLL is used. That's not optimal.
 
-Thanks,
--Vladimir
+Alternatively:
+
+if (tsk->state != TASK_RUNNING || task_in_kernel(tsk))
+	notify = TWA_SIGNAL;
+else
+	notify = TWA_RESUME;
+
+should work as far as I can tell, but I don't even know if there's a
+reliable way to do task_in_kernel(). But I suspect this kind of check
+would still save the day, as we're not really expecting the common case
+to be that the task is in the kernel on the way to blocking. And it'd be
+kind of annoying to have to cater to that scenario by slowing down the
+fast path.
+
+Suggestions?
+
+-- 
+Jens Axboe
+
