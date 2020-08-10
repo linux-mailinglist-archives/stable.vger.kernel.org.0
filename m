@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24931240A04
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F2A240A29
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728741AbgHJPhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:37:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
+        id S1728518AbgHJPi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:38:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728466AbgHJP0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:26:22 -0400
+        id S1728519AbgHJPZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:25:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B130F208A9;
-        Mon, 10 Aug 2020 15:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6368320772;
+        Mon, 10 Aug 2020 15:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073181;
-        bh=PvXo4XK8AZRqUTr2CoG0DPYsgX5nyXoeG9ZFRmeqqhI=;
+        s=default; t=1597073123;
+        bh=LkQW149vxvATCcnfXNY3V0vJIT4un2JITToFateBwLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=liRr2yVHVOUvjbthHnVqamC5XQFQsZA9QdPe6E6mWz8w4xW0nNmn3uSi7HuR8EiPR
-         YC7EFRkjT3A+f6osmxYHgLC0UOxqeXHNIiLwZNKENCnFxjQYFM4K7RyceD/7tOQO2u
-         PBFRMNw49Josve8M/MiBiLHeohhZk36lTWEFHYvo=
+        b=Dl/Lp5T2JI13LmCQQhhNktEA7piuv5k7yViWiO00oKlSw1zjho8RvtPX/d8KVrpm4
+         qC0Ep9TKAY+mL2H29ujzPhJWyr3lFVlO6oWh2Czyqa02nCHJ95GbWX+9mDkYCqNydP
+         HX+pnY9s9DjUHCcpHJm8vnK1z5sb2HiSHrOUm4HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+80899a8a8efe8968cde7@syzkaller.appspotmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>
-Subject: [PATCH 5.4 15/67] staging: rtl8712: handle firmware load failure
-Date:   Mon, 10 Aug 2020 17:21:02 +0200
-Message-Id: <20200810151810.180199211@linuxfoundation.org>
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
+Subject: [PATCH 5.7 44/79] usb: hso: check for return value in hso_serial_common_create()
+Date:   Mon, 10 Aug 2020 17:21:03 +0200
+Message-Id: <20200810151814.450888103@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +47,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit b4383c971bc5263efe2b0915ba67ebf2bf3f1ee5 upstream.
+[ Upstream commit e911e99a0770f760377c263bc7bac1b1593c6147 ]
 
-when firmware fails to load we should not call unregister_netdev()
-this patch fixes a race condition between rtl871x_load_fw_cb() and
-r871xu_dev_remove() and fixes the bug reported by syzbot
+in case of an error tty_register_device_attr() returns ERR_PTR(),
+add IS_ERR() check
 
-Reported-by: syzbot+80899a8a8efe8968cde7@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=80899a8a8efe8968cde7
+Reported-and-tested-by: syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=67b2bd0e34f952d0321e
 Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200716151324.1036204-1-rkovhaev@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/hal_init.c |    3 ++-
- drivers/staging/rtl8712/usb_intf.c |   11 ++++++++---
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/net/usb/hso.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8712/hal_init.c
-+++ b/drivers/staging/rtl8712/hal_init.c
-@@ -33,7 +33,6 @@ static void rtl871x_load_fw_cb(const str
- {
- 	struct _adapter *adapter = context;
+diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
+index 5f123a8cf68ed..d2fdb5430d272 100644
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2261,12 +2261,14 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
  
--	complete(&adapter->rtl8712_fw_ready);
- 	if (!firmware) {
- 		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
- 		struct usb_interface *usb_intf = adapter->pusb_intf;
-@@ -41,11 +40,13 @@ static void rtl871x_load_fw_cb(const str
- 		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
- 		usb_put_dev(udev);
- 		usb_set_intfdata(usb_intf, NULL);
-+		complete(&adapter->rtl8712_fw_ready);
- 		return;
- 	}
- 	adapter->fw = firmware;
- 	/* firmware available - start netdev */
- 	register_netdev(adapter->pnetdev);
-+	complete(&adapter->rtl8712_fw_ready);
+ 	minor = get_free_serial_index();
+ 	if (minor < 0)
+-		goto exit;
++		goto exit2;
+ 
+ 	/* register our minor number */
+ 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
+ 			tty_drv, minor, &serial->parent->interface->dev,
+ 			serial->parent, hso_serial_dev_groups);
++	if (IS_ERR(serial->parent->dev))
++		goto exit2;
+ 
+ 	/* fill in specific data for later use */
+ 	serial->minor = minor;
+@@ -2311,6 +2313,7 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
+ 	return 0;
+ exit:
+ 	hso_serial_tty_unregister(serial);
++exit2:
+ 	hso_serial_common_free(serial);
+ 	return -1;
  }
- 
- static const char firmware_file[] = "rtlwifi/rtl8712u.bin";
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -595,13 +595,17 @@ static void r871xu_dev_remove(struct usb
- 	if (pnetdev) {
- 		struct _adapter *padapter = netdev_priv(pnetdev);
- 
--		usb_set_intfdata(pusb_intf, NULL);
--		release_firmware(padapter->fw);
- 		/* never exit with a firmware callback pending */
- 		wait_for_completion(&padapter->rtl8712_fw_ready);
-+		pnetdev = usb_get_intfdata(pusb_intf);
-+		usb_set_intfdata(pusb_intf, NULL);
-+		if (!pnetdev)
-+			goto firmware_load_fail;
-+		release_firmware(padapter->fw);
- 		if (drvpriv.drv_registered)
- 			padapter->surprise_removed = true;
--		unregister_netdev(pnetdev); /* will call netdev_close() */
-+		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
-+			unregister_netdev(pnetdev); /* will call netdev_close() */
- 		flush_scheduled_work();
- 		udelay(1);
- 		/* Stop driver mlme relation timer */
-@@ -614,6 +618,7 @@ static void r871xu_dev_remove(struct usb
- 		 */
- 		usb_put_dev(udev);
- 	}
-+firmware_load_fail:
- 	/* If we didn't unplug usb dongle and remove/insert module, driver
- 	 * fails on sitesurvey for the first time when device is up.
- 	 * Reset usb port for sitesurvey fail issue.
+-- 
+2.25.1
+
 
 
