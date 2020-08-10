@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F2A240A29
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D1852409F5
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728518AbgHJPi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
+        id S1728118AbgHJP00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:26:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728519AbgHJPZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:25:23 -0400
+        id S1728290AbgHJP0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:26:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6368320772;
-        Mon, 10 Aug 2020 15:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68D8B20772;
+        Mon, 10 Aug 2020 15:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073123;
-        bh=LkQW149vxvATCcnfXNY3V0vJIT4un2JITToFateBwLA=;
+        s=default; t=1597073183;
+        bh=srrFngW9COZ0NBOZJ12ulz2veNOxnhxSRLVj9eaA6Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dl/Lp5T2JI13LmCQQhhNktEA7piuv5k7yViWiO00oKlSw1zjho8RvtPX/d8KVrpm4
-         qC0Ep9TKAY+mL2H29ujzPhJWyr3lFVlO6oWh2Czyqa02nCHJ95GbWX+9mDkYCqNydP
-         HX+pnY9s9DjUHCcpHJm8vnK1z5sb2HiSHrOUm4HE=
+        b=r9vqoCdIqg7VkhBzyPYVvw81QR31yrE99ta1K4z1jhHB3eFq4ljWlRsaj+C5HeIX1
+         oaiFBbwHHqyt8CvU9BAqZD7v27N8swNhM8zdbClvjY/N007OBbOiZ1nrqYIPtyhuer
+         029d2nGrK85ZZsu5zCLnChVzMbyf2nRCzWTqRQDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
-Subject: [PATCH 5.7 44/79] usb: hso: check for return value in hso_serial_common_create()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dinghao Liu <dinghao.liu@zju.edu.cn>
+Subject: [PATCH 5.4 16/67] Staging: rtl8188eu: rtw_mlme: Fix uninitialized variable authmode
 Date:   Mon, 10 Aug 2020 17:21:03 +0200
-Message-Id: <20200810151814.450888103@linuxfoundation.org>
+Message-Id: <20200810151810.227925994@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit e911e99a0770f760377c263bc7bac1b1593c6147 ]
+commit 11536442a3b4e1de6890ea5e805908debb74f94a upstream.
 
-in case of an error tty_register_device_attr() returns ERR_PTR(),
-add IS_ERR() check
+The variable authmode can be uninitialized. The danger would be if
+it equals to _WPA_IE_ID_ (0xdd) or _WPA2_IE_ID_ (0x33). We can avoid
+this by setting it to zero instead. This is the approach that was
+used in the rtl8723bs driver.
 
-Reported-and-tested-by: syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=67b2bd0e34f952d0321e
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7b464c9fa5cc ("staging: r8188eu: Add files for new driver - part 4")
+Co-developed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200728072153.9202-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/hso.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8188eu/core/rtw_mlme.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index 5f123a8cf68ed..d2fdb5430d272 100644
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2261,12 +2261,14 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
+--- a/drivers/staging/rtl8188eu/core/rtw_mlme.c
++++ b/drivers/staging/rtl8188eu/core/rtw_mlme.c
+@@ -1729,9 +1729,11 @@ int rtw_restruct_sec_ie(struct adapter *
+ 	if ((ndisauthmode == Ndis802_11AuthModeWPA) ||
+ 	    (ndisauthmode == Ndis802_11AuthModeWPAPSK))
+ 		authmode = _WPA_IE_ID_;
+-	if ((ndisauthmode == Ndis802_11AuthModeWPA2) ||
++	else if ((ndisauthmode == Ndis802_11AuthModeWPA2) ||
+ 	    (ndisauthmode == Ndis802_11AuthModeWPA2PSK))
+ 		authmode = _WPA2_IE_ID_;
++	else
++		authmode = 0x0;
  
- 	minor = get_free_serial_index();
- 	if (minor < 0)
--		goto exit;
-+		goto exit2;
- 
- 	/* register our minor number */
- 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
- 			tty_drv, minor, &serial->parent->interface->dev,
- 			serial->parent, hso_serial_dev_groups);
-+	if (IS_ERR(serial->parent->dev))
-+		goto exit2;
- 
- 	/* fill in specific data for later use */
- 	serial->minor = minor;
-@@ -2311,6 +2313,7 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
- 	return 0;
- exit:
- 	hso_serial_tty_unregister(serial);
-+exit2:
- 	hso_serial_common_free(serial);
- 	return -1;
- }
--- 
-2.25.1
-
+ 	if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
+ 		memcpy(out_ie+ielength, psecuritypriv->wps_ie, psecuritypriv->wps_ie_len);
 
 
