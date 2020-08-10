@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4142409BD
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8570A24099B
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728611AbgHJPf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:35:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34358 "EHLO mail.kernel.org"
+        id S1728990AbgHJP3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:29:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728329AbgHJP2Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:28:16 -0400
+        id S1728986AbgHJP3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:29:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 189CC22CF7;
-        Mon, 10 Aug 2020 15:28:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FD0F22D02;
+        Mon, 10 Aug 2020 15:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073295;
-        bh=huoOYfcKyaUOK8hL/8fSmuObPoGf1DDnVZ56Nnv6+pE=;
+        s=default; t=1597073380;
+        bh=HhvuGrhIoMOLBd1KuBa1rj5Gqz6wjjeu2yg+vgrPcn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCtTVjY2e6vXTjOX6FTnU99PpcuPcvoz2HxzSARFl6cAzOZP10vYw2smva5ux87rP
-         b212KqnyASa5Ua2F2m4xrBGZUz6z4RH13Fpt1Zv1rNo52KkiD7wqCWsKqsjKs+iOjK
-         9kbD73J9XTP2h91K2OrZ+NnqpdqKCHdYH3aJylbc=
+        b=OcqOwsrVK28NTdnSAI5yEH21CL9nTZ5XZFD6AnPW1BxELnFAMapV4UZECxEJITRpp
+         UhEjMLQCyW77399MD3nrO6mcOfkdbCTJ3M+y1Fv3HDVsnxAkenWiOG2RDyxjHpyR2c
+         fneGa1lRt7BZI2U5iAHTL6dcMt4XAobQvPDwmKwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Landen Chao <landen.chao@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 53/67] net: ethernet: mtk_eth_soc: fix MTU warnings
+        stable@vger.kernel.org, Amitoj Kaur Chawla <amitoj1606@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 4.19 18/48] leds: 88pm860x: fix use-after-free on unbind
 Date:   Mon, 10 Aug 2020 17:21:40 +0200
-Message-Id: <20200810151812.102839623@linuxfoundation.org>
+Message-Id: <20200810151805.114105793@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
+References: <20200810151804.199494191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Landen Chao <landen.chao@mediatek.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 555a893303872e044fb86f0a5834ce78d41ad2e2 ]
+commit eca21c2d8655387823d695b26e6fe78cf3975c05 upstream.
 
-in recent kernel versions there are warnings about incorrect MTU size
-like these:
+Several MFD child drivers register their class devices directly under
+the parent device. This means you cannot blindly do devres conversions
+so that deregistration ends up being tied to the parent device,
+something which leads to use-after-free on driver unbind when the class
+device is released while still being registered.
 
-eth0: mtu greater than device maximum
-mtk_soc_eth 1b100000.ethernet eth0: error -22 setting MTU to include DSA overhead
-
-Fixes: bfcb813203e6 ("net: dsa: configure the MTU for switch ports")
-Fixes: 72579e14a1d3 ("net: dsa: don't fail to probe if we couldn't set the MTU")
-Fixes: 7a4c53bee332 ("net: report invalid mtu value via netlink extack")
-Signed-off-by: Landen Chao <landen.chao@mediatek.com>
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 375446df95ee ("leds: 88pm860x: Use devm_led_classdev_register")
+Cc: stable <stable@vger.kernel.org>     # 4.6
+Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mediatek/mtk_eth_soc.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2878,6 +2878,8 @@ static int mtk_add_mac(struct mtk_eth *e
- 	eth->netdev[id]->irq = eth->irq[0];
- 	eth->netdev[id]->dev.of_node = np;
+---
+ drivers/leds/leds-88pm860x.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+--- a/drivers/leds/leds-88pm860x.c
++++ b/drivers/leds/leds-88pm860x.c
+@@ -207,21 +207,33 @@ static int pm860x_led_probe(struct platf
+ 	data->cdev.brightness_set_blocking = pm860x_led_set;
+ 	mutex_init(&data->lock);
  
-+	eth->netdev[id]->max_mtu = MTK_MAX_RX_LENGTH - MTK_RX_ETH_HLEN;
+-	ret = devm_led_classdev_register(chip->dev, &data->cdev);
++	ret = led_classdev_register(chip->dev, &data->cdev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Failed to register LED: %d\n", ret);
+ 		return ret;
+ 	}
+ 	pm860x_led_set(&data->cdev, 0);
++
++	platform_set_drvdata(pdev, data);
 +
  	return 0;
+ }
  
- free_netdev:
++static int pm860x_led_remove(struct platform_device *pdev)
++{
++	struct pm860x_led *data = platform_get_drvdata(pdev);
++
++	led_classdev_unregister(&data->cdev);
++
++	return 0;
++}
+ 
+ static struct platform_driver pm860x_led_driver = {
+ 	.driver	= {
+ 		.name	= "88pm860x-led",
+ 	},
+ 	.probe	= pm860x_led_probe,
++	.remove	= pm860x_led_remove,
+ };
+ 
+ module_platform_driver(pm860x_led_driver);
 
 
