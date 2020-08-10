@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C6624084C
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0667B240872
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbgHJPTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49742 "EHLO mail.kernel.org"
+        id S1728155AbgHJPVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726888AbgHJPTk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:19:40 -0400
+        id S1728150AbgHJPVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:21:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61286207BB;
-        Mon, 10 Aug 2020 15:19:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66E712065D;
+        Mon, 10 Aug 2020 15:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072779;
-        bh=VOPjOURGlZwgIah6yUjOeqwg005U9YKaz3GSlAKIVak=;
+        s=default; t=1597072870;
+        bh=AHMq8wBLEzqNtjrtty1SYheHzrNvr5w95CEMtXa8YW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPw2z8GCcM0vwpggUcpRhoBPPVr/SPb0m8g9a2jZIkmSXJ2stdTGFxdbHLdh6qb0v
-         FlUQAnOvat8cMDYrrFcQ21IfDxYKgHEQnG9b4nxZASthLxYiX1FG2qsfQr8y2uRKcv
-         L8QItKavm1ezvtor9cVK3No70eOq0YZ7BMoJMASI=
+        b=pjHCx/EL5Bym6AG9ffoN+EKaD+WEvRf2E2CY4gashTI3C/2zcJRvKr2nTn1izQUtW
+         zRpRZthKvT4AJk7GzF71UavCyvTTo65TzhoNmPViGUNw8fjHYO+zKWt9kNUIuxFdT8
+         vgy0NjB4F/wXZchvvYAk2D8ey+DV315i5HOH3PZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d8489a79b781849b9c46@syzkaller.appspotmail.com,
-        Peilin Ye <yepeilin.cs@gmail.com>,
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
         Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.8 15/38] Bluetooth: Fix slab-out-of-bounds read in hci_extended_inquiry_result_evt()
-Date:   Mon, 10 Aug 2020 17:19:05 +0200
-Message-Id: <20200810151804.642329635@linuxfoundation.org>
+Subject: [PATCH 5.8 17/38] Bluetooth: Prevent out-of-bounds read in hci_inquiry_result_with_rssi_evt()
+Date:   Mon, 10 Aug 2020 17:19:07 +0200
+Message-Id: <20200810151804.739117891@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151803.920113428@linuxfoundation.org>
 References: <20200810151803.920113428@linuxfoundation.org>
@@ -47,37 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 51c19bf3d5cfaa66571e4b88ba2a6f6295311101 upstream.
+commit 629b49c848ee71244203934347bd7730b0ddee8d upstream.
 
-Check upon `num_rsp` is insufficient. A malformed event packet with a
-large `num_rsp` number makes hci_extended_inquiry_result_evt() go out
-of bounds. Fix it.
+Check `num_rsp` before using it as for-loop counter. Add `unlock` label.
 
-This patch fixes the following syzbot bug:
-
-    https://syzkaller.appspot.com/bug?id=4bf11aa05c4ca51ce0df86e500fce486552dc8d2
-
-Reported-by: syzbot+d8489a79b781849b9c46@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_event.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
 --- a/net/bluetooth/hci_event.c
 +++ b/net/bluetooth/hci_event.c
-@@ -4382,7 +4382,7 @@ static void hci_extended_inquiry_result_
+@@ -4166,6 +4166,9 @@ static void hci_inquiry_result_with_rssi
+ 		struct inquiry_info_with_rssi_and_pscan_mode *info;
+ 		info = (void *) (skb->data + 1);
  
- 	BT_DBG("%s num_rsp %d", hdev->name, num_rsp);
++		if (skb->len < num_rsp * sizeof(*info) + 1)
++			goto unlock;
++
+ 		for (; num_rsp; num_rsp--, info++) {
+ 			u32 flags;
  
--	if (!num_rsp)
-+	if (!num_rsp || skb->len < num_rsp * sizeof(*info) + 1)
- 		return;
+@@ -4187,6 +4190,9 @@ static void hci_inquiry_result_with_rssi
+ 	} else {
+ 		struct inquiry_info_with_rssi *info = (void *) (skb->data + 1);
  
- 	if (hci_dev_test_flag(hdev, HCI_PERIODIC_INQ))
++		if (skb->len < num_rsp * sizeof(*info) + 1)
++			goto unlock;
++
+ 		for (; num_rsp; num_rsp--, info++) {
+ 			u32 flags;
+ 
+@@ -4207,6 +4213,7 @@ static void hci_inquiry_result_with_rssi
+ 		}
+ 	}
+ 
++unlock:
+ 	hci_dev_unlock(hdev);
+ }
+ 
 
 
