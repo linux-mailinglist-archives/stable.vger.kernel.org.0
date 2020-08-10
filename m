@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A793F241189
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 22:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69C9241195
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 22:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726507AbgHJUNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 16:13:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51688 "EHLO
+        id S1726507AbgHJUQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 16:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726457AbgHJUNP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 16:13:15 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67213C061787
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 13:13:15 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id h12so5560954pgm.7
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 13:13:15 -0700 (PDT)
+        with ESMTP id S1726310AbgHJUQj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 16:16:39 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F078BC061787
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 13:16:39 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id l60so643855pjb.3
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 13:16:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=cVMQ8g3SCerSphZvzyir1ZlhBkHMU3rkUgZOamEcMx8=;
-        b=mZoQI4/u+JxzP6jCOLero52fI9EqkS5rEuIu4XflTfotzQqCr8CynCETKb5U8OellB
-         uDWGJyUsPs/PVJHoMgZSMHxHzzC72utThHkIVNjlVtHF5IBtOIey90OYQPcMAjZrgpve
-         vKgRbUzYa/uTkVv020ncDqwYQlSzAI9hqrWgXnH3Ri6sMGfLvmgSPhcjes3sFbQ5YGzP
-         x69G5bu2tWVo/RRaLGoCd6xyEoTsNeFv7gXBq1d+8pKfm3BgurrWmVDWie4/aIy7LFrF
-         D43kU4BFBQCGct3qP/CeulETeKH9t75u1uvZiEkyDnSbkMk/8DfG1QedyxOv8ziJMAvq
-         OgXw==
+        bh=0arKLvml0m+DT+Vh3G9XF/qsgSjLN36L2lo966JcA2k=;
+        b=uO92z1Cc+VMQDCMVrvmfaWD+1TgmM2ebbClnJ1HM5ZHIdUyYzDr+DbBj2T3/t4tscT
+         zkE5IiSaS85RcoFxmlrCgi0cjT+556JTQ1eEsWiGkN5JiQ4xHUa4rCXGkoGDiT9fQt61
+         Yom3fdpmHVnrZkCPHC4/+MYGEdE2/E4cDrSn2wGLXfXlHvolT6hsQinFOx9yJ8zP7omq
+         qVHVYK++775Tx5Geqo/njAy9b8FunD2D2l3Qt9c8EcjWGkeVQznEhkBHfN/u15TQJg/r
+         OC5qxrEFCQtxxQSvtOFh+i4WZ+gYWiK83Epb25LgI5jnjJ7DLGv7aBG5nLcm8oDv7VlL
+         i3OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=cVMQ8g3SCerSphZvzyir1ZlhBkHMU3rkUgZOamEcMx8=;
-        b=M7QCPZTWIi7OyTcTPumrO/mph6Y7+kA8dVu0zoJ3qLidSMFVj7+GUdrMY1HvjXMSb7
-         mV4HYQjaSMGaB/PK4bosnACMBmRv/nHO8n6EVqCRjKwEtqxI54qoz5zNQajfVEoTEJlV
-         6sTqNZbiO2cjaU1FNbYC1mfXVUpldcKmflFrcfM/kYmsyhuJVDnLZdoU2kUMNn7Zbfa4
-         DqexqCOxpHm4hGcyhUIa1nLIjfRyhChmBIOTrRoXRV2rLj7ylzbq/I9aAM4UrQEtfSy3
-         Dc3av3gLbmEaMScoQ6YBJa1YVWj2u/XX5YZ+YK6reJi0KliWuY7cx2iR9RmLVEfoki5X
-         DAbQ==
-X-Gm-Message-State: AOAM533n7xiJfSqPiEaP+cPJjX2y+Zt2JQ9sGqq6X47wWbFgxaTm3b2O
-        08gT+V7MzCUeR6Qyv4wfE/43HA==
-X-Google-Smtp-Source: ABdhPJzdBHPY2D9W9vBeoeJ2rKw5KG42XKN9xqsyQu6JlvZbqLt6fVTxb5gGF3uTBwoYu6ZR3ibdIw==
-X-Received: by 2002:a63:5b07:: with SMTP id p7mr22664877pgb.250.1597090394853;
-        Mon, 10 Aug 2020 13:13:14 -0700 (PDT)
+        bh=0arKLvml0m+DT+Vh3G9XF/qsgSjLN36L2lo966JcA2k=;
+        b=W2T3VQC4FAviH2wJqL3epyr0cNeT+j8I6BqLUwTZx8p9PQbht/Ui+03/kcYl99Mvus
+         O0mo+Y3y2+wpgamL9stO6GyPUa2vKIe1usGQIvmnD8/t24NFjlSoyxW8pXtwA3tRM0Sw
+         NdlhQMcysrxx2bvH8r0yWaFNw0U2S2vqVBw3rNSqciA9ln6ZxzfKMB45dYgcxvwOC+n7
+         e8TNiz5SLyN+OtMdjHyGH5hBqMbqhgfBhiM84aSVZVLhzPkbGaESAKK9gtcC+/Szgplr
+         fp6NXe4VlFZewu33nZPFY7czmnpNDvINLYWpCzXHaGZshOYrIsDcC8M1fnN+dxz/np3c
+         932Q==
+X-Gm-Message-State: AOAM533jcAi/HxFashxdW3UKaZ2vyfAxHo/SWOfbSu+bEfyrq1mta9uN
+        t/dCxPynp03vGlKkZHewGwGQwQ==
+X-Google-Smtp-Source: ABdhPJzOTmqu/HeKYrR9DpvzQvZNZ88Rw6YZayzvUt3wOSIB/AII0XpqnRR2CW8QH7+4Zr3XgU9QHw==
+X-Received: by 2002:a17:902:a418:: with SMTP id p24mr26748875plq.55.1597090599428;
+        Mon, 10 Aug 2020 13:16:39 -0700 (PDT)
 Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id ez7sm359786pjb.10.2020.08.10.13.13.13
+        by smtp.gmail.com with ESMTPSA id y29sm22981976pfr.11.2020.08.10.13.16.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Aug 2020 13:13:14 -0700 (PDT)
+        Mon, 10 Aug 2020 13:16:38 -0700 (PDT)
 Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
  isn't running
 To:     Peter Zijlstra <peterz@infradead.org>
@@ -60,8 +60,8 @@ References: <20200808183439.342243-1-axboe@kernel.dk>
  <07df8ab4-16a8-8537-b4fe-5438bd8110cf@kernel.dk>
  <20200810201213.GB3982@worktop.programming.kicks-ass.net>
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <4a8fa719-330f-d380-522f-15d79c74ca9a@kernel.dk>
-Date:   Mon, 10 Aug 2020 14:13:12 -0600
+Message-ID: <1b2d9682-b53c-2e28-4b74-81039ac3a6bc@kernel.dk>
+Date:   Mon, 10 Aug 2020 14:16:37 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
@@ -123,43 +123,9 @@ On 8/10/20 2:12 PM, Peter Zijlstra wrote:
 > presume it is because we'll do task_work_run() somewhere before we
 > block, but having an explicit reference here might help someone new to
 > this make sense of it all.
-> 
->> +		 * to have a race between the check and the notification. This
->> +		 * only applies for TWA_RESUME, as TWA_SIGNAL is safe with a
->> +		 * sleeping task
->> +		 */
->> +		do {
->> +			if (READ_ONCE(tsk->state) != TASK_RUNNING)
->> +				notify = TWA_SIGNAL;
->> +			else if (notified)
->> +				break;
->> +			__task_work_notify(tsk, notify);
->> +			notified = true;
->> +		} while (notify != TWA_SIGNAL);
->> +	}
->>  	wake_up_process(tsk);
->>  	return 0;
->>  }
-> 
-> Would it be clearer to write it like so perhaps?
-> 
-> 	/*
-> 	 * Optimization; when the task is RUNNING we can do with a
-> 	 * cheaper TWA_RESUME notification because,... <reason goes
-> 	 * here>. Otherwise do the more expensive, but always correct
-> 	 * TWA_SIGNAL.
-> 	 */
-> 	if (READ_ONCE(tsk->state) == TASK_RUNNING) {
-> 		__task_work_notify(tsk, TWA_RESUME);
-> 		if (READ_ONCE(tsk->state) == TASK_RUNNING)
-> 			return;
-> 	}
-> 	__task_work_notify(tsk, TWA_SIGNAL);
-> 	wake_up_process(tsk);
 
-Yeah that is easier to read, wasn't a huge fan of the loop since it's
-only a single retry kind of condition. I'll adopt this suggestion,
-thanks!
+Right, it's because we're sure to run task_work in that case. I'll
+update the comment.
 
 -- 
 Jens Axboe
