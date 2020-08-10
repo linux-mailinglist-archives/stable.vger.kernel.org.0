@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAB1240914
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 252AF240918
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728904AbgHJP2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:28:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34880 "EHLO mail.kernel.org"
+        id S1728915AbgHJP2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728899AbgHJP2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:28:45 -0400
+        id S1728888AbgHJP2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FE9F22B47;
-        Mon, 10 Aug 2020 15:28:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC9DD22BF3;
+        Mon, 10 Aug 2020 15:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073324;
-        bh=/WDC1K6IwjpeqrSiEcyEoHJxhvNKb6efaSsBjR82Dj8=;
+        s=default; t=1597073327;
+        bh=XwGvhSoj3D63taX6wl6XnChPzp2QKG2HGHuDlB+YTno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a94mm2W6eFdEaUMQCfjyZKAm14l9SfZQqdr1sCxlbZoAEHVUka4ZGZBUBoi+vOKwP
-         AzsPc45xjHE5t4lHxapg5cJvDdRKnCNbG3CYnhMa5UE5fEMjwy4HRRhsmsJs2IHb04
-         BjzxnaXmE+EoJ+KfpbBexzxhXDEJNEjJtF9dthMc=
+        b=N0yBAOK7O7Gtm0GpHce73i85szRet3RJZFtjxi2RxlB1JDNCigybg3cAmpXWQJmXL
+         wMh9kmqo2rI7m7CpHQ2T1qSK2Pzonu1yOZ/WycsEH57xOGOZbRU6sWUo/Q/sAK4WkK
+         9O9NglKQXdO3sRWj21t9Gilyd/siOiDxkdYre0xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianfeng Wang <jfwang@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Kevin Yang <yyd@google.com>, Yuchung Cheng <ycheng@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 65/67] tcp: apply a floor of 1 for RTT samples from TCP timestamps
-Date:   Mon, 10 Aug 2020 17:21:52 +0200
-Message-Id: <20200810151812.702529304@linuxfoundation.org>
+        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.4 66/67] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY to runtime
+Date:   Mon, 10 Aug 2020 17:21:53 +0200
+Message-Id: <20200810151812.752660880@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
 References: <20200810151809.438685785@linuxfoundation.org>
@@ -46,54 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianfeng Wang <jfwang@google.com>
+From: Bruno Meneguele <bmeneg@redhat.com>
 
-[ Upstream commit 730e700e2c19d87e578ff0e7d8cb1d4a02b036d2 ]
+commit 311aa6aafea446c2f954cc19d66425bfed8c4b0b upstream.
 
-For retransmitted packets, TCP needs to resort to using TCP timestamps
-for computing RTT samples. In the common case where the data and ACK
-fall in the same 1-millisecond interval, TCP senders with millisecond-
-granularity TCP timestamps compute a ca_rtt_us of 0. This ca_rtt_us
-of 0 propagates to rs->rtt_us.
+The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appraise="
+modes - log, fix, enforce - at run time, but not when IMA architecture
+specific policies are enabled.  This prevents properly labeling the
+filesystem on systems where secure boot is supported, but not enabled on the
+platform.  Only when secure boot is actually enabled should these IMA
+appraise modes be disabled.
 
-This value of 0 can cause performance problems for congestion control
-modules. For example, in BBR, the zero min_rtt sample can bring the
-min_rtt and BDP estimate down to 0, reduce snd_cwnd and result in a
-low throughput. It would be hard to mitigate this with filtering in
-the congestion control module, because the proper floor to apply would
-depend on the method of RTT sampling (using timestamp options or
-internally-saved transmission timestamps).
+This patch removes the compile time dependency and makes it a runtime
+decision, based on the secure boot state of that platform.
 
-This fix applies a floor of 1 for the RTT sample delta from TCP
-timestamps, so that seq_rtt_us, ca_rtt_us, and rs->rtt_us will be at
-least 1 * (USEC_PER_SEC / TCP_TS_HZ).
+Test results as follows:
 
-Note that the receiver RTT computation in tcp_rcv_rtt_measure() and
-min_rtt computation in tcp_update_rtt_min() both already apply a floor
-of 1 timestamp tick, so this commit makes the code more consistent in
-avoiding this edge case of a value of 0.
+-> x86-64 with secure boot enabled
 
-Signed-off-by: Jianfeng Wang <jfwang@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Kevin Yang <yyd@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    0.015637] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+[    0.015668] ima: Secure boot enabled: ignoring ima_appraise=fix boot parameter option
+
+-> powerpc with secure boot disabled
+
+[    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
+[    0.000000] Secure boot mode disabled
+
+-> Running the system without secure boot and with both options set:
+
+CONFIG_IMA_APPRAISE_BOOTPARAM=y
+CONFIG_IMA_ARCH_POLICY=y
+
+Audit prompts "missing-hash" but still allow execution and, consequently,
+filesystem labeling:
+
+type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
+uid=root auid=root ses=2
+subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
+cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
+res=no
+
+Cc: stable@vger.kernel.org
+Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
+Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+Cc: stable@vger.kernel.org # 5.0
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_input.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2944,6 +2944,8 @@ static bool tcp_ack_update_rtt(struct so
- 		u32 delta = tcp_time_stamp(tp) - tp->rx_opt.rcv_tsecr;
+---
+ security/integrity/ima/Kconfig        |    2 +-
+ security/integrity/ima/ima_appraise.c |    6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+--- a/security/integrity/ima/Kconfig
++++ b/security/integrity/ima/Kconfig
+@@ -227,7 +227,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
  
- 		if (likely(delta < INT_MAX / (USEC_PER_SEC / TCP_TS_HZ))) {
-+			if (!delta)
-+				delta = 1;
- 			seq_rtt_us = delta * (USEC_PER_SEC / TCP_TS_HZ);
- 			ca_rtt_us = seq_rtt_us;
- 		}
+ config IMA_APPRAISE_BOOTPARAM
+ 	bool "ima_appraise boot parameter"
+-	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
++	depends on IMA_APPRAISE
+ 	default y
+ 	help
+ 	  This option enables the different "ima_appraise=" modes
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -18,6 +18,12 @@
+ static int __init default_appraise_setup(char *str)
+ {
+ #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
++	if (arch_ima_get_secureboot()) {
++		pr_info("Secure boot enabled: ignoring ima_appraise=%s boot parameter option",
++			str);
++		return 1;
++	}
++
+ 	if (strncmp(str, "off", 3) == 0)
+ 		ima_appraise = 0;
+ 	else if (strncmp(str, "log", 3) == 0)
 
 
