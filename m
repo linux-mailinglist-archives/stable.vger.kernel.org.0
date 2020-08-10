@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D22E9240FDF
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86834240FD7
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbgHJTZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41038 "EHLO mail.kernel.org"
+        id S1729458AbgHJTZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:25:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728558AbgHJTMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:12:03 -0400
+        id S1729466AbgHJTME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:12:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39241207FF;
-        Mon, 10 Aug 2020 19:12:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDA8E21775;
+        Mon, 10 Aug 2020 19:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086722;
-        bh=POih9G7UqkC5Ul1MYzi3N3eD1nRn5F7/aPLt0IzppNQ=;
+        s=default; t=1597086723;
+        bh=2jF6y1ho6QClZOL+V94Un9aPqfIgQnMFVFaYRGB3EAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDoX9vNxr2Pp7U1klJUD3xzbQdTjaIdI9H0AD/0r1LnR5YrD/1DBjNz13OJMtvrkW
-         1uGOyTouZAX3hmhOh5W4lFqLMLVmb1TMnBChF9+QtQdoeyOocIOOX6af/WL7nrPLJk
-         rMyc8ib64UTy2IEWPnNuGTkJij3acBEs+uRr9CHY=
+        b=byTnCqo4rT9gQ1o8eYIspfPwjtGD5Rylr+nF5NwmKwVnCZ/cK8/XtYVngxxYqL022
+         POD87p4jbERS5YoMq0Nhcxxl8HshRpUv2JteSrG06QBMIBDRLMirkr2sYWXhHX/Twz
+         MsXdC7lRUC6CcdT/euA8mvP8o9138PBu7I7ZkdM8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Xiao <Jack.Xiao@amd.com>,
+Cc:     Aditya Pakki <pakki001@umn.edu>, Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 06/45] drm/amdgpu: avoid dereferencing a NULL pointer
-Date:   Mon, 10 Aug 2020 15:11:14 -0400
-Message-Id: <20200810191153.3794446-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 07/45] drm/radeon: Fix reference count leaks caused by pm_runtime_get_sync
+Date:   Mon, 10 Aug 2020 15:11:15 -0400
+Message-Id: <20200810191153.3794446-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191153.3794446-1-sashal@kernel.org>
 References: <20200810191153.3794446-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,74 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xiao <Jack.Xiao@amd.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 55611b507fd6453d26030c0c0619fdf0c262766d ]
+[ Upstream commit 9fb10671011143d15b6b40d6d5fa9c52c57e9d63 ]
 
-Check if irq_src is NULL to avoid dereferencing a NULL pointer,
-for MES ring is uneccessary to recieve an interrupt notification.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Signed-off-by: Jack Xiao <Jack.Xiao@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+Acked-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/radeon/radeon_display.c | 4 +++-
+ drivers/gpu/drm/radeon/radeon_drv.c     | 4 +++-
+ drivers/gpu/drm/radeon/radeon_kms.c     | 4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index 23085b352cf2d..c212d5fc665c6 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -404,7 +404,9 @@ int amdgpu_fence_driver_start_ring(struct amdgpu_ring *ring,
- 		ring->fence_drv.gpu_addr = adev->uvd.inst[ring->me].gpu_addr + index;
- 	}
- 	amdgpu_fence_write(ring, atomic_read(&ring->fence_drv.last_seq));
--	amdgpu_irq_get(adev, irq_src, irq_type);
-+
-+	if (irq_src)
-+		amdgpu_irq_get(adev, irq_src, irq_type);
+diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
+index 0826efd9b5f51..f9f74150d0d73 100644
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -631,8 +631,10 @@ radeon_crtc_set_config(struct drm_mode_set *set,
+ 	dev = set->crtc->dev;
  
- 	ring->fence_drv.irq_src = irq_src;
- 	ring->fence_drv.irq_type = irq_type;
-@@ -539,8 +541,9 @@ void amdgpu_fence_driver_fini(struct amdgpu_device *adev)
- 			/* no need to trigger GPU reset as we are unloading */
- 			amdgpu_fence_driver_force_completion(ring);
- 		}
--		amdgpu_irq_put(adev, ring->fence_drv.irq_src,
--			       ring->fence_drv.irq_type);
-+		if (ring->fence_drv.irq_src)
-+			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
-+				       ring->fence_drv.irq_type);
- 		drm_sched_fini(&ring->sched);
- 		del_timer_sync(&ring->fence_drv.fallback_timer);
- 		for (j = 0; j <= ring->fence_drv.num_fences_mask; ++j)
-@@ -576,8 +579,9 @@ void amdgpu_fence_driver_suspend(struct amdgpu_device *adev)
- 		}
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
  
- 		/* disable the interrupt */
--		amdgpu_irq_put(adev, ring->fence_drv.irq_src,
--			       ring->fence_drv.irq_type);
-+		if (ring->fence_drv.irq_src)
-+			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
-+				       ring->fence_drv.irq_type);
- 	}
- }
+ 	ret = drm_crtc_helper_set_config(set, ctx);
  
-@@ -603,8 +607,9 @@ void amdgpu_fence_driver_resume(struct amdgpu_device *adev)
- 			continue;
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 6128792ab8836..7d417b9a52501 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -555,8 +555,10 @@ long radeon_drm_ioctl(struct file *filp,
+ 	long ret;
+ 	dev = file_priv->minor->dev;
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
  
- 		/* enable the interrupt */
--		amdgpu_irq_get(adev, ring->fence_drv.irq_src,
--			       ring->fence_drv.irq_type);
-+		if (ring->fence_drv.irq_src)
-+			amdgpu_irq_get(adev, ring->fence_drv.irq_src,
-+				       ring->fence_drv.irq_type);
- 	}
- }
+ 	ret = drm_ioctl(filp, cmd, arg);
+ 	
+diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
+index 2bb0187c5bc78..709c4ef5e7d59 100644
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -638,8 +638,10 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ 	file_priv->driver_priv = NULL;
  
+ 	r = pm_runtime_get_sync(dev->dev);
+-	if (r < 0)
++	if (r < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return r;
++	}
+ 
+ 	/* new gpu have virtual address space support */
+ 	if (rdev->family >= CHIP_CAYMAN) {
 -- 
 2.25.1
 
