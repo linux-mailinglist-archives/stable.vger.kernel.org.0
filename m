@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DF02410B6
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 683692410BB
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728687AbgHJTJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:09:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36694 "EHLO mail.kernel.org"
+        id S1728779AbgHJTcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:32:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728674AbgHJTJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:09:53 -0400
+        id S1728688AbgHJTJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:09:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6094221E2;
-        Mon, 10 Aug 2020 19:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C5212224D;
+        Mon, 10 Aug 2020 19:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086592;
-        bh=D3e2sCJnG9+J5kUil6HoKlVF6yIWV36S5MEhl2IJmDg=;
+        s=default; t=1597086594;
+        bh=k296qi7HxlZgUoe/DmXhlF3VYg7LH0YX2UM5pcMqG7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ewiMCR0tjKgmc4isYmGv3N/dowGjUcVcyuPYXylQHMwijXcmrDRlrNZUYECbXeqY2
-         Ig3Sx2qmNJZnAOXeJMfStIr9e5gTooDRrnL6xrYzuIPK0md85Nsgqtf1oNhneCJEKn
-         NpbwdBR6OmxDoPsF2fF+pZmaOMQ69JvSj0gt42/w=
+        b=u//yaQ+NFLErxMbEvqSPHO5g8y/x57VZ0xuhBxUZXHy/1fz6sr1hz9F1GLV6ZnOGL
+         j3S07WREztvSzkKCYUlgKxyHAk4zxnn2usDiV3FAIFuSJoYrVU3Q1LLRQmsSjmUUvt
+         drGXW7dkjiz3olOGNbyEgSXWJ595bEUUT6PIv77w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>, kernel test robot <lkp@intel.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 39/64] drm/amd/powerplay: fix compile error with ARCH=arc
-Date:   Mon, 10 Aug 2020 15:08:34 -0400
-Message-Id: <20200810190859.3793319-39-sashal@kernel.org>
+Cc:     Wenbo Zhang <ethercflow@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 40/64] bpf: Fix fds_example SIGSEGV error
+Date:   Mon, 10 Aug 2020 15:08:35 -0400
+Message-Id: <20200810190859.3793319-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810190859.3793319-1-sashal@kernel.org>
 References: <20200810190859.3793319-1-sashal@kernel.org>
@@ -44,41 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Wenbo Zhang <ethercflow@gmail.com>
 
-[ Upstream commit 9822ba2ead1baa3de4860ad9472f652c4cc78c9c ]
+[ Upstream commit eef8a42d6ce087d1c81c960ae0d14f955b742feb ]
 
-Fix the compile error below:
-drivers/gpu/drm/amd/amdgpu/../powerplay/smu_v11_0.c: In function 'smu_v11_0_init_microcode':
->> arch/arc/include/asm/bug.h:22:2: error: implicit declaration of function 'pr_warn'; did you mean 'pci_warn'? [-Werror=implicit-function-declaration]
-      22 |  pr_warn("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
-         |  ^~~~~~~
-drivers/gpu/drm/amd/amdgpu/../powerplay/smu_v11_0.c:176:3: note: in expansion of macro 'BUG'
-     176 |   BUG();
+The `BPF_LOG_BUF_SIZE`'s value is `UINT32_MAX >> 8`, so define an array
+with it on stack caused an overflow.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wenbo Zhang <ethercflow@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200710092035.28919-1-ethercflow@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/smu_v11_0.c | 3 ++-
+ samples/bpf/fds_example.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
-index aa76c2cea7471..7897be877b961 100644
---- a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
-+++ b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
-@@ -164,7 +164,8 @@ int smu_v11_0_init_microcode(struct smu_context *smu)
- 		chip_name = "navi12";
- 		break;
- 	default:
--		BUG();
-+		dev_err(adev->dev, "Unsupported ASIC type %d\n", adev->asic_type);
-+		return -EINVAL;
- 	}
+diff --git a/samples/bpf/fds_example.c b/samples/bpf/fds_example.c
+index d5992f7872328..59f45fef51109 100644
+--- a/samples/bpf/fds_example.c
++++ b/samples/bpf/fds_example.c
+@@ -30,6 +30,8 @@
+ #define BPF_M_MAP	1
+ #define BPF_M_PROG	2
  
- 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_smc.bin", chip_name);
++char bpf_log_buf[BPF_LOG_BUF_SIZE];
++
+ static void usage(void)
+ {
+ 	printf("Usage: fds_example [...]\n");
+@@ -57,7 +59,6 @@ static int bpf_prog_create(const char *object)
+ 		BPF_EXIT_INSN(),
+ 	};
+ 	size_t insns_cnt = sizeof(insns) / sizeof(struct bpf_insn);
+-	char bpf_log_buf[BPF_LOG_BUF_SIZE];
+ 	struct bpf_object *obj;
+ 	int prog_fd;
+ 
 -- 
 2.25.1
 
