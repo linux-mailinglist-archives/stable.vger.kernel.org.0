@@ -2,122 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37432407C8
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 16:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5132407CD
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 16:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgHJOqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 10:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58012 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726464AbgHJOqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 10:46:30 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02368C061756
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 07:46:30 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id o21so9072178oie.12
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 07:46:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=tZmr9YCihl2pStkHH7P60J5/yFudIQias0fnPTJ54t0=;
-        b=M1nUiK7bL+fFbOgnczGKUgFPId/7yRGt/QOQKnQBT+SQ38JKBlierRG8R+jWNYpU1F
-         f77a+MeehseAYQrcsnA8vjfa0aX6aNd6JfhuZEVm8Oj4V2j3w9R1yhLTCqckQDY0xwBy
-         w8stopWn79gdgR6DT1E4U5hGbZb1hthUwU8yMhl5bPf/Yb1fcs0VogtWr+Qov7v0Rjdv
-         FGkk6i9xHPeLABI15WVoMgbqmyg+356rvxFpPBfD6p3vZ+ENaZOZ6Zkb4KFFkfrGGQVi
-         aPQMY/sPvBg0obbUJ+mKgmKlF2o+VlkUwPdFmvcN95vxRcKgsZSsXVBbr3DJseQk/RaX
-         7ldA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=tZmr9YCihl2pStkHH7P60J5/yFudIQias0fnPTJ54t0=;
-        b=qfxW29+3lhfFVHYNG8UWiiLK0x2myg+8db5rTSnqBLoacfru0tDxIhdQcT+O7LmEct
-         oZZgREdr5MSfjK6Ve3vQjtTMhmintD97Ec/VTD7lS0RvB3m7SGQljGAn77pzyGKGezcy
-         W48HHSI3BAYuAFvnRNMT05Sg/jr7CX8hmkpQnA86Wt2wLMH/Vx9x8ECAMuLDrUjf4scU
-         KP1e7OyK9oKDpATWgdS+NpK4Q60guuY1ihnppH81T+4PyxbtkU/CtsLqX/12BPvCCa4x
-         /Z3nBKxVdPbEPEpzGavhCZ1+jRL5v6okO7nRXvxh6dVTzAiTEsStwrzs8BFXnZ3ZZKsO
-         NthA==
-X-Gm-Message-State: AOAM532fIc7zvTY/sblQuRG+Lguhc0jWsoxhjHVQBAwX1o9b0gw1WTMm
-        bh2iWA7rUCBRW7Q+zkoV+lQXjvvUzHWOAzyJUhw=
-X-Google-Smtp-Source: ABdhPJxKKI2HEdw+e11/GH/E8o0zdlVwdmdfwSnW+5Ae1s6CR1780c0UXmD50FLLdHwcKE4v7sAP5init8oQVTGN+4k=
-X-Received: by 2002:aca:724f:: with SMTP id p76mr978298oic.35.1597070789469;
- Mon, 10 Aug 2020 07:46:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+icZUW_f4d5_yDg0_Ox8nVd_6R=JNc8Bo9TgEzjLUy_1MdXOw@mail.gmail.com>
- <20200810100125.GA2405194@kroah.com> <20200810100149.GB2405194@kroah.com>
- <CA+icZUWzsHect3v_31-PE_qRfXk7hbORY8JpSkjQmoEFqMykiQ@mail.gmail.com>
- <20200810140551.GH2975990@sasha-vm> <CA+icZUU18HcsT8E4umxgHPWDwdR4YbaX29=Lk4-7AvW2=4c=hw@mail.gmail.com>
- <20200810144322.GA3761375@kroah.com>
-In-Reply-To: <20200810144322.GA3761375@kroah.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Mon, 10 Aug 2020 16:46:18 +0200
-Message-ID: <CA+icZUVEOYnuuK2Ah1AzDpu9Fp0Rf_Ny+sVVF_TYYPT0h-Q6Sw@mail.gmail.com>
-Subject: Re: Base for <linux-stable-rc.git#queue/5.8>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>,
+        id S1727055AbgHJOrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 10:47:24 -0400
+Received: from mga05.intel.com ([192.55.52.43]:7735 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727049AbgHJOrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 10:47:21 -0400
+IronPort-SDR: LlS/wbmE54YM8XUPPyPXiA6IqZePut+3CA6Xir8rvoH6JuyCoDN1XHvnn6IbvWb5baXCVsM9cP
+ 5iJMEv7I7o0A==
+X-IronPort-AV: E=McAfee;i="6000,8403,9708"; a="238375922"
+X-IronPort-AV: E=Sophos;i="5.75,457,1589266800"; 
+   d="scan'208";a="238375922"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2020 07:47:19 -0700
+IronPort-SDR: 1mWDLBi3hbirNy6kMkQPhTRClHMkh6Z15RH8fXzb54yxJi2SwO7zS2xFFn7pnLUOQdlPMvdB/V
+ WkVv99Asi19A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,457,1589266800"; 
+   d="scan'208";a="326530843"
+Received: from chadjitt-mobl1.ger.corp.intel.com (HELO [10.249.44.177]) ([10.249.44.177])
+  by fmsmga002.fm.intel.com with ESMTP; 10 Aug 2020 07:47:18 -0700
+Subject: Re: [PATCH] drm/i915/display: Fix NV12 sub plane atomic state
+To:     Uma Shankar <uma.shankar@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     alex.zuo@intel.com, Abhishek Kumar <abhishek4.kumar@intel.com>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+References: <20200810151602.20757-1-uma.shankar@intel.com>
+From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Message-ID: <c73e1ba2-dec8-c95c-dbb4-efeffe21cfb4@linux.intel.com>
+Date:   Mon, 10 Aug 2020 16:47:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
+MIME-Version: 1.0
+In-Reply-To: <20200810151602.20757-1-uma.shankar@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 10, 2020 at 4:43 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Op 10-08-2020 om 17:16 schreef Uma Shankar:
+> From: Abhishek Kumar <abhishek4.kumar@intel.com>
 >
-> On Mon, Aug 10, 2020 at 04:29:55PM +0200, Sedat Dilek wrote:
-> > On Mon, Aug 10, 2020 at 4:05 PM Sasha Levin <sashal@kernel.org> wrote:
-> > >
-> > > On Mon, Aug 10, 2020 at 12:11:40PM +0200, Sedat Dilek wrote:
-> > > >On Mon, Aug 10, 2020 at 12:01 PM Greg Kroah-Hartman
-> > > ><gregkh@linuxfoundation.org> wrote:
-> > > >>
-> > > >> On Mon, Aug 10, 2020 at 12:01:25PM +0200, Greg Kroah-Hartman wrote:
-> > > >> > On Mon, Aug 10, 2020 at 11:52:30AM +0200, Sedat Dilek wrote:
-> > > >> > > [ Hope I have the correct CC for linux-stable ML ]
-> > > >> > >
-> > > >> > > Hi Greg and Sasha,
-> > > >> > >
-> > > >> > > The base for <linux-stable-rc.git#queue/5.8> is Linux v5.7.14 where it
-> > > >> > > should be Linux v5.8.
-> > > >> >
-> > > >> > What exactly do you mean by "#queue/5.8"?
-> > > >> >
-> > > >> > Is that a branch name?  Ah, never seen those before, maybe they are
-> > > >> > something that Sasha creates?
-> > > >>
-> > > >> But yes, you are right, it seems to mirror queue/5.7 at the moment,
-> > > >> which isn't correct.
-> > > >>
-> > > >> thanks,
-> > > >
-> > > >[ CC correct stable ML ]
-> > > >
-> > > >Exactly.
-> > > >
-> > > >With <linux-stable-rc.git#queue/5.8> I mean [1].
-> > >
-> > > Ah, thanks for pointing it out! I've fixed the script and pushed out a
-> > > correct queue-5.8 branch.
-> > >
-> >
-> > Thanks Sasha.
-> >
-> > Would you mind to take the random/random32 patches from Linus mainline
-> > for queue/5.8 (see Linux v5.7.14)?
+> For NV12 display sub plane is also configured and drivers internally
+> create plane atomic state. Driver copies all of the param of main
+> plane atomic state to sub planer atomic state but in sub plane
+> atomic state crtc is not added ,so when drm atomic state is configured
+> for commit ,fake commit handler is created for sub plane and also
+> state is not cleared when NV12 buffer is not displayed.
 >
-> Hm, most of them are already in 5.8.0, what ones are missing?  Let me go
-> check...
+> Fixes: 1f594b209fe1 ("drm/i915: Remove special case slave handling during hw programming")
+> Change-Id: I447b16bf433dfb5b43b2e4cade258fc775aee065
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Abhishek Kumar <abhishek4.kumar@intel.com>
+> Signed-off-by: Uma Shankar <uma.shankar@intel.com>
+> ---
+>  drivers/gpu/drm/i915/display/intel_display.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 >
+> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+> index 522c772a2111..76da2189b01d 100644
+> --- a/drivers/gpu/drm/i915/display/intel_display.c
+> +++ b/drivers/gpu/drm/i915/display/intel_display.c
+> @@ -12502,6 +12502,7 @@ static int icl_check_nv12_planes(struct intel_crtc_state *crtc_state)
+>  	struct intel_atomic_state *state = to_intel_atomic_state(crtc_state->uapi.state);
+>  	struct intel_plane *plane, *linked;
+>  	struct intel_plane_state *plane_state;
+> +	int ret;
+>  	int i;
+>  
+>  	if (INTEL_GEN(dev_priv) < 11)
+> @@ -12576,6 +12577,11 @@ static int icl_check_nv12_planes(struct intel_crtc_state *crtc_state)
+>  		linked_state->uapi.src = plane_state->uapi.src;
+>  		linked_state->uapi.dst = plane_state->uapi.dst;
+>  
+> +		/* Update Linked plane crtc same as of main plane */
+> +		ret = drm_atomic_set_crtc_for_plane(&linked_state->uapi, plane_state->uapi.crtc);
+> +		if(ret)
+> +			return ret;
+> +
+>  		if (icl_is_hdr_plane(dev_priv, plane->id)) {
+>  			if (linked->id == PLANE_SPRITE5)
+>  				plane_state->cus_ctl |= PLANE_CUS_PLANE_7;
 
-For x86-64 I have:
+That shouldnt be done, uapi.crtc should be NULL for the slave plane.
 
-$ KTAG="v5.8" ; git log --oneline $KTAG..
-0765242c3a25 (HEAD -> for-5.8/random-5.9) random: random.h should
-include archrandom.h, not the other way around
-ba4ac1491cff random32: move the pseudo-random 32-bit definitions to prandom.h
-
-- Sedat -
