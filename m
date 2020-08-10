@@ -2,95 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF0D2411AF
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 22:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6EF12411BE
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 22:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726143AbgHJU1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 16:27:43 -0400
-Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:51183 "EHLO
-        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbgHJU1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 16:27:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1597091262; x=1628627262;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=iwpO3dpinVS829lPIRAR+vT6k9fh6hMuVQXSkv+p8sA=;
-  b=oz3jcEuS9WIFUYFqrohXwYU7DKWaDMvxn7g2yxMGVa43Us6Nuvz000fd
-   uznc6CLpW/ErToCIr/FLzRkkEHRX/wpnTz3xNCyC1BbxrEeXGAuuhJH1M
-   tHFNshufaJWVwaWXeRopLbAoAFaOMCswTAmRU4EYgWxrKSZhp8mNupeFJ
-   8=;
-IronPort-SDR: AqVlnbtkZ4Yx3Ju+CpUl4xg/tfrM+dj/1wOOgVmrSmsiX7r7JZA7IVEmwKf4rzvZUsYqqqwJaM
- no5etGrFCWOg==
-X-IronPort-AV: E=Sophos;i="5.75,458,1589241600"; 
-   d="scan'208";a="47071912"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1a-e34f1ddc.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-6002.iad6.amazon.com with ESMTP; 10 Aug 2020 20:27:42 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1a-e34f1ddc.us-east-1.amazon.com (Postfix) with ESMTPS id 75E3DA1900;
-        Mon, 10 Aug 2020 20:27:41 +0000 (UTC)
-Received: from EX13D05UEE004.ant.amazon.com (10.43.62.189) by
- EX13MTAUEE002.ant.amazon.com (10.43.62.24) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 10 Aug 2020 20:27:40 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (10.43.62.24) by
- EX13D05UEE004.ant.amazon.com (10.43.62.189) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 10 Aug 2020 20:27:40 +0000
-Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
- (172.23.141.97) by mail-relay.amazon.com (10.43.62.224) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Mon, 10 Aug 2020 20:27:40 +0000
-Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id 197A7C13FC; Mon, 10 Aug 2020 20:27:40 +0000 (UTC)
-Date:   Mon, 10 Aug 2020 20:27:40 +0000
-From:   Frank van der Linden <fllinden@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     <tglx@linutronix.de>
-Subject: Re: [PATCH 5.4] genirq/affinity: Make affinity setting if activated
- opt-in
-Message-ID: <20200810202740.GA22367@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com>
-References: <20200810202503.22317-1-fllinden@amazon.com>
+        id S1726453AbgHJUcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 16:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54674 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726396AbgHJUcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 16:32:46 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08550C061756;
+        Mon, 10 Aug 2020 13:32:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=/neesKfvNQRJRo2TVOQugH982rXifErtdvQUIJ3WJC8=; b=P2NO+wRbRdox0RYw3nD7H9RcfU
+        jbifNUwgJEmd94DT3sJuUqtqB8vIwHJO2UMPzW2vZchfpVXNaCtO5bw6aPDYVro3NJtmZ/57GvKL9
+        BV4ZDCyJ1cX6ND8uI8leTzP+moGIo5h9b7XxoQ9v2t9xNW7mnVM/ozjHPrhqYmSy10WYpMiGU700y
+        3Ntw555yFv67/ypIa0c9Ogq43bFYyYIPJSLCYXKkFby9es0YisY9oqtSW0rOYujSGaADrVdm/XAyA
+        VBGYAKEL4myRWCCg3XzX2TvJrs20oaYhDUz3ctSr+y9rF6ee2JjfdPe2Ede6SPjnSKl9BNmCEs5sR
+        WiJ7Z/Fw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1k5ETK-0000Qm-FU; Mon, 10 Aug 2020 20:32:42 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+        id BEA77980D39; Mon, 10 Aug 2020 22:32:40 +0200 (CEST)
+Date:   Mon, 10 Aug 2020 22:32:40 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org,
+        Josef <josef.grieb@gmail.com>, Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
+ isn't running
+Message-ID: <20200810203240.GE3982@worktop.programming.kicks-ass.net>
+References: <20200808183439.342243-1-axboe@kernel.dk>
+ <20200808183439.342243-3-axboe@kernel.dk>
+ <20200810114256.GS2674@hirez.programming.kicks-ass.net>
+ <a6ee0a6d-5136-4fe9-8906-04fe6420aad9@kernel.dk>
+ <07df8ab4-16a8-8537-b4fe-5438bd8110cf@kernel.dk>
+ <20200810201213.GB3982@worktop.programming.kicks-ass.net>
+ <4a8fa719-330f-d380-522f-15d79c74ca9a@kernel.dk>
+ <faf2c2ae-834e-8fa2-12f3-ae07f8a68e14@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200810202503.22317-1-fllinden@amazon.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <faf2c2ae-834e-8fa2-12f3-ae07f8a68e14@kernel.dk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 10, 2020 at 08:25:03PM +0000, Frank van der Linden wrote:
-> From: Thomas Gleixner <tglx@linutronix.de>
+On Mon, Aug 10, 2020 at 02:25:48PM -0600, Jens Axboe wrote:
+> On 8/10/20 2:13 PM, Jens Axboe wrote:
+> >> Would it be clearer to write it like so perhaps?
+> >>
+> >> 	/*
+> >> 	 * Optimization; when the task is RUNNING we can do with a
+> >> 	 * cheaper TWA_RESUME notification because,... <reason goes
+> >> 	 * here>. Otherwise do the more expensive, but always correct
+> >> 	 * TWA_SIGNAL.
+> >> 	 */
+> >> 	if (READ_ONCE(tsk->state) == TASK_RUNNING) {
+> >> 		__task_work_notify(tsk, TWA_RESUME);
+> >> 		if (READ_ONCE(tsk->state) == TASK_RUNNING)
+> >> 			return;
+> >> 	}
+> >> 	__task_work_notify(tsk, TWA_SIGNAL);
+> >> 	wake_up_process(tsk);
+> > 
+> > Yeah that is easier to read, wasn't a huge fan of the loop since it's
+> > only a single retry kind of condition. I'll adopt this suggestion,
+> > thanks!
 > 
-> commit f0c7baca180046824e07fc5f1326e83a8fd150c7 upstream.
+> Re-write it a bit on top of that, just turning it into two separate
+> READ_ONCE, and added appropriate comments. For the SQPOLL case, the
+> wake_up_process() is enough, so we can clean up that if/else.
 > 
-> John reported that on a RK3288 system the perf per CPU interrupts are all
-> affine to CPU0 and provided the analysis:
-> 
->  "It looks like what happens is that because the interrupts are not per-CPU
->   in the hardware, armpmu_request_irq() calls irq_force_affinity() while
->   the interrupt is deactivated and then request_irq() with IRQF_PERCPU |
->   IRQF_NOBALANCING.
-> 
->   Now when irq_startup() runs with IRQ_STARTUP_NORMAL, it calls
->   irq_setup_affinity() which returns early because IRQF_PERCPU and
->   IRQF_NOBALANCING are set, leaving the interrupt on its original CPU."
-> 
-> This was broken by the recent commit which blocked interrupt affinity
-> setting in hardware before activation of the interrupt. While this works in
-> general, it does not work for this particular case. As contrary to the
-> initial analysis not all interrupt chip drivers implement an activate
-> callback, the safe cure is to make the deferred interrupt affinity setting
-> at activation time opt-in.
-> 
-> Implement the necessary core logic and make the two irqchip implementations
-> for which this is required opt-in. In hindsight this would have been the
-> right thing to do, but ...
+> https://git.kernel.dk/cgit/linux-block/commit/?h=io_uring-5.9&id=49bc5c16483945982cf81b0109d7da7cd9ee55ed
 
-I backported this one since it had a minor conflict, so while the main
-one was Cc-ed to stable@, it didn't get picked up.
+OK, that works for me, thanks!
 
-Ran it through all our regression tests and the reproducer case, and it's
-fine.
-
-- Frank
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
