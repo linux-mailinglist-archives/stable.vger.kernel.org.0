@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB436240A10
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7D0240A64
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728418AbgHJPiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:38:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60000 "EHLO mail.kernel.org"
+        id S1728334AbgHJPlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728617AbgHJP0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:26:03 -0400
+        id S1727880AbgHJPXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:23:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA29220772;
-        Mon, 10 Aug 2020 15:26:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0CF2207FF;
+        Mon, 10 Aug 2020 15:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073163;
-        bh=5j1N6fY856atSdd1yo4YTw/tK7vOcoJ8AervVVeA2Bk=;
+        s=default; t=1597072999;
+        bh=3RsfUAp7aGDaL2Wks05J/+SuJ3XwH3Ysi/8Wj7A4IOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07modz3Ig5gYPc0yZkpZ6HUVf1R4qPGNdxT9x4eIypTA/r78mRxDnKQ2cH2QtAz90
-         Kpxcf7x1oZH4rfNbx6VVUcwZAtu8SmYkg33pix4sIGa9EeHPsS1S3h75/WXom7VJfH
-         9vS8/0fvpbAqGwihQyEOhgFDImm7s32nyh1DJLKs=
+        b=B4J2aNCFwnkhgiNEEDAJbJ7i1OWXIyqMpPyHCjpELRBj76oj561IONCFuvAypoteN
+         DzsTV1doUt2/JNRL4PZUmSjXp7l+XpmyxqFNCRf/mg1jrPuSF2n3gZY17RQInLg6dm
+         lZMDLefVzRZcZN7VNOuGW+1PlOWZMxVA8Nd4KZns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 01/67] USB: serial: qcserial: add EM7305 QDL product ID
-Date:   Mon, 10 Aug 2020 17:20:48 +0200
-Message-Id: <20200810151809.514561300@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ee09bda7017345f1fbe6@syzkaller.appspotmail.com,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 31/79] bpf: Fix NULL pointer dereference in __btf_resolve_helper_id()
+Date:   Mon, 10 Aug 2020 17:20:50 +0200
+Message-Id: <20200810151813.824095381@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,44 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit d2a4309c1ab6df424b2239fe2920d6f26f808d17 upstream.
+[ Upstream commit 5b801dfb7feb2738975d80223efc2fc193e55573 ]
 
-When running qmi-firmware-update on the Sierra Wireless EM7305 in a Toshiba
-laptop, it changed product ID to 0x9062 when entering QDL mode:
+Prevent __btf_resolve_helper_id() from dereferencing `btf_vmlinux`
+as NULL. This patch fixes the following syzbot bug:
 
-usb 2-4: new high-speed USB device number 78 using xhci_hcd
-usb 2-4: New USB device found, idVendor=1199, idProduct=9062, bcdDevice= 0.00
-usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-usb 2-4: Product: EM7305
-usb 2-4: Manufacturer: Sierra Wireless, Incorporated
+    https://syzkaller.appspot.com/bug?id=f823224ada908fa5c207902a5a62065e53ca0fcc
 
-The upgrade could complete after running
- # echo 1199 9062 > /sys/bus/usb-serial/drivers/qcserial/new_id
-
-qcserial 2-4:1.0: Qualcomm USB modem converter detected
-usb 2-4: Qualcomm USB modem converter now attached to ttyUSB0
-
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Link: https://lore.kernel.org/r/20200717185118.3640219-1-erik@kryo.se
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+ee09bda7017345f1fbe6@syzkaller.appspotmail.com
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20200714180904.277512-1-yepeilin.cs@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/btf.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -155,6 +155,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x1199, 0x9056)},	/* Sierra Wireless Modem */
- 	{DEVICE_SWI(0x1199, 0x9060)},	/* Sierra Wireless Modem */
- 	{DEVICE_SWI(0x1199, 0x9061)},	/* Sierra Wireless Modem */
-+	{DEVICE_SWI(0x1199, 0x9062)},	/* Sierra Wireless EM7305 QDL */
- 	{DEVICE_SWI(0x1199, 0x9063)},	/* Sierra Wireless EM7305 */
- 	{DEVICE_SWI(0x1199, 0x9070)},	/* Sierra Wireless MC74xx */
- 	{DEVICE_SWI(0x1199, 0x9071)},	/* Sierra Wireless MC74xx */
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index d1f5d428c9fe2..6cafc596631c3 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -4011,6 +4011,11 @@ static int __btf_resolve_helper_id(struct bpf_verifier_log *log, void *fn,
+ 	const char *tname, *sym;
+ 	u32 btf_id, i;
+ 
++	if (!btf_vmlinux) {
++		bpf_log(log, "btf_vmlinux doesn't exist\n");
++		return -EINVAL;
++	}
++
+ 	if (IS_ERR(btf_vmlinux)) {
+ 		bpf_log(log, "btf_vmlinux is malformed\n");
+ 		return -EINVAL;
+-- 
+2.25.1
+
 
 
