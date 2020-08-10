@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD9E240D7F
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B748E240D9B
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728376AbgHJTJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35412 "EHLO mail.kernel.org"
+        id S1728615AbgHJTJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:09:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728400AbgHJTJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:09:17 -0400
+        id S1728600AbgHJTJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:09:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 804F322B45;
-        Mon, 10 Aug 2020 19:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DE2D2224D;
+        Mon, 10 Aug 2020 19:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086556;
-        bh=xVNJuHkAildX0xCTS4AHRtF9UgkFpucBy56ZAeDRSXo=;
+        s=default; t=1597086579;
+        bh=CaGu3jCShAi6zK9n0jAB+MVmHli5uXnzyL5xTif5KX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjBweOYd+EOcNdn1G1er77BjvKtiexXiz8uU3doAIPh17Yi15c4qTG+GQQ4eprb6W
-         284mz00Q68UpeeGJXHIbn8cJN4MBel+GHWnNlqiCAAnfJxq5v/HCM1v0ynKclETtH9
-         AhrLKpIhvt2ioZOnoy5FLYdr/WyzWOUJZeED29B4=
+        b=kRPK5HfMhmgjyJPuHWZq4XjNYUfRjZwaZZrS1ElDpv73KRpjULYZvP4UAj3cJDXuQ
+         Z8PeULWe5LQSLuKq0F8LlhzAMKD1ypbmYn0t+UzdmhW0eMJk8c4Q+Fu19N7uPtDyBZ
+         HzZEJfZMpMNC8VzBLG1QlhassuUQHf7Y5PkmDYcs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Antonino Daplas <adaplas@gmail.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fbdev@vger.kernel.org,
+Cc:     Michael Tretter <m.tretter@pengutronix.de>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 12/64] video: fbdev: savage: fix memory leak on error handling path in probe
-Date:   Mon, 10 Aug 2020 15:08:07 -0400
-Message-Id: <20200810190859.3793319-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 29/64] drm/debugfs: fix plain echo to connector "force" attribute
+Date:   Mon, 10 Aug 2020 15:08:24 -0400
+Message-Id: <20200810190859.3793319-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810190859.3793319-1-sashal@kernel.org>
 References: <20200810190859.3793319-1-sashal@kernel.org>
@@ -45,42 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-[ Upstream commit e8d35898a78e34fc854ed9680bc3f9caedab08cd ]
+[ Upstream commit c704b17071c4dc571dca3af4e4151dac51de081a ]
 
-savagefb_probe() calls savage_init_fb_info() that can successfully
-allocate memory for info->pixmap.addr but then fail when
-fb_alloc_cmap() fails. savagefb_probe() goes to label failed_init and
-does not free allocated memory. It is not valid to go to label
-failed_mmio since savage_init_fb_info() can fail during memory
-allocation as well. So, the patch free allocated memory on the error
-handling path in savage_init_fb_info() itself.
+Using plain echo to set the "force" connector attribute fails with
+-EINVAL, because echo appends a newline to the output.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Replace strcmp with sysfs_streq to also accept strings that end with a
+newline.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Cc: Antonino Daplas <adaplas@gmail.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200619162136.9010-1-novikov@ispras.ru
+v2: use sysfs_streq instead of stripping trailing whitespace
+
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170817104307.17124-1-m.tretter@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/savage/savagefb_driver.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/drm_debugfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/video/fbdev/savage/savagefb_driver.c b/drivers/video/fbdev/savage/savagefb_driver.c
-index 3c8ae87f0ea7d..3fd87aeb6c798 100644
---- a/drivers/video/fbdev/savage/savagefb_driver.c
-+++ b/drivers/video/fbdev/savage/savagefb_driver.c
-@@ -2157,6 +2157,8 @@ static int savage_init_fb_info(struct fb_info *info, struct pci_dev *dev,
- 			info->flags |= FBINFO_HWACCEL_COPYAREA |
- 				       FBINFO_HWACCEL_FILLRECT |
- 				       FBINFO_HWACCEL_IMAGEBLIT;
-+		else
-+			kfree(info->pixmap.addr);
- 	}
- #endif
- 	return err;
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index 2bea221307037..bfe4602f206b4 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -311,13 +311,13 @@ static ssize_t connector_write(struct file *file, const char __user *ubuf,
+ 
+ 	buf[len] = '\0';
+ 
+-	if (!strcmp(buf, "on"))
++	if (sysfs_streq(buf, "on"))
+ 		connector->force = DRM_FORCE_ON;
+-	else if (!strcmp(buf, "digital"))
++	else if (sysfs_streq(buf, "digital"))
+ 		connector->force = DRM_FORCE_ON_DIGITAL;
+-	else if (!strcmp(buf, "off"))
++	else if (sysfs_streq(buf, "off"))
+ 		connector->force = DRM_FORCE_OFF;
+-	else if (!strcmp(buf, "unspecified"))
++	else if (sysfs_streq(buf, "unspecified"))
+ 		connector->force = DRM_FORCE_UNSPECIFIED;
+ 	else
+ 		return -EINVAL;
 -- 
 2.25.1
 
