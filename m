@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FC4624097D
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C2FC24097A
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728458AbgHJPcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
+        id S1729075AbgHJPcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729057AbgHJPaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:22 -0400
+        id S1729079AbgHJPaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:30:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89C1820791;
-        Mon, 10 Aug 2020 15:30:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AF7520791;
+        Mon, 10 Aug 2020 15:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073422;
-        bh=STaAiDozz5Ey94ASQtqCmUMNQiuV/yBML8B1zscPEZ0=;
+        s=default; t=1597073425;
+        bh=iUtBz3wDtIp/7HNgFnqlL/txe0+7TWtlKGlPE0Ita6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Um8zrUZLsngtYTP7TyyrZxq2uMFVZV3xwFgJOmYZpsfOenMiTczeKKOzGP3ybnvmk
-         Esa+vGKWmzuHa2Y45waM3y7YtL7/bknAkJHYb2srlKJcOkbtwGnvUInxJEXH6m8EGX
-         7nZoyPSKnSwfVyK+FpaeGf3azu2SColLy6XWoqZo=
+        b=U+AzgNnOCSz3U8fuIb+mG1HWRSTbxJOjji3eFfXGFOiu/VCMoU5OwfSkYK0MLEHq0
+         pq8SOCjH3eU8F8yIHe0X18Sx6cUfsqAKAfaY+gjx51/4atEJBmIMU8tTqHynuc/RiB
+         5dOeD93SBkeV2udRPsTHjXNHqEhzRNl/B+R+KzcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Landen Chao <landen.chao@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 34/48] net: ethernet: mtk_eth_soc: fix MTU warnings
-Date:   Mon, 10 Aug 2020 17:21:56 +0200
-Message-Id: <20200810151805.896505636@linuxfoundation.org>
+Subject: [PATCH 4.19 35/48] vxlan: Ensure FDB dump is performed under RCU
+Date:   Mon, 10 Aug 2020 17:21:57 +0200
+Message-Id: <20200810151805.943341960@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
 References: <20200810151804.199494191@linuxfoundation.org>
@@ -45,38 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Landen Chao <landen.chao@mediatek.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 555a893303872e044fb86f0a5834ce78d41ad2e2 ]
+[ Upstream commit b5141915b5aec3b29a63db869229e3741ebce258 ]
 
-in recent kernel versions there are warnings about incorrect MTU size
-like these:
+The commit cited below removed the RCU read-side critical section from
+rtnl_fdb_dump() which means that the ndo_fdb_dump() callback is invoked
+without RCU protection.
 
-eth0: mtu greater than device maximum
-mtk_soc_eth 1b100000.ethernet eth0: error -22 setting MTU to include DSA overhead
+This results in the following warning [1] in the VXLAN driver, which
+relied on the callback being invoked from an RCU read-side critical
+section.
 
-Fixes: bfcb813203e6 ("net: dsa: configure the MTU for switch ports")
-Fixes: 72579e14a1d3 ("net: dsa: don't fail to probe if we couldn't set the MTU")
-Fixes: 7a4c53bee332 ("net: report invalid mtu value via netlink extack")
-Signed-off-by: Landen Chao <landen.chao@mediatek.com>
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fix this by calling rcu_read_lock() in the VXLAN driver, as already done
+in the bridge driver.
+
+[1]
+WARNING: suspicious RCU usage
+5.8.0-rc4-custom-01521-g481007553ce6 #29 Not tainted
+-----------------------------
+drivers/net/vxlan.c:1379 RCU-list traversed in non-reader section!!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+1 lock held by bridge/166:
+ #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: netlink_dump+0xea/0x1090
+
+stack backtrace:
+CPU: 1 PID: 166 Comm: bridge Not tainted 5.8.0-rc4-custom-01521-g481007553ce6 #29
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+Call Trace:
+ dump_stack+0x100/0x184
+ lockdep_rcu_suspicious+0x153/0x15d
+ vxlan_fdb_dump+0x51e/0x6d0
+ rtnl_fdb_dump+0x4dc/0xad0
+ netlink_dump+0x540/0x1090
+ __netlink_dump_start+0x695/0x950
+ rtnetlink_rcv_msg+0x802/0xbd0
+ netlink_rcv_skb+0x17a/0x480
+ rtnetlink_rcv+0x22/0x30
+ netlink_unicast+0x5ae/0x890
+ netlink_sendmsg+0x98a/0xf40
+ __sys_sendto+0x279/0x3b0
+ __x64_sys_sendto+0xe6/0x1a0
+ do_syscall_64+0x54/0xa0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fe14fa2ade0
+Code: Bad RIP value.
+RSP: 002b:00007fff75bb5b88 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 00005614b1ba0020 RCX: 00007fe14fa2ade0
+RDX: 000000000000011c RSI: 00007fff75bb5b90 RDI: 0000000000000003
+RBP: 00007fff75bb5b90 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00005614b1b89160
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+
+Fixes: 5e6d24358799 ("bridge: netlink dump interface at par with brctl")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/vxlan.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2452,6 +2452,8 @@ static int mtk_add_mac(struct mtk_eth *e
- 	eth->netdev[id]->irq = eth->irq[0];
- 	eth->netdev[id]->dev.of_node = np;
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -975,6 +975,7 @@ static int vxlan_fdb_dump(struct sk_buff
+ 	for (h = 0; h < FDB_HASH_SIZE; ++h) {
+ 		struct vxlan_fdb *f;
  
-+	eth->netdev[id]->max_mtu = MTK_MAX_RX_LENGTH - MTK_RX_ETH_HLEN;
-+
- 	return 0;
++		rcu_read_lock();
+ 		hlist_for_each_entry_rcu(f, &vxlan->fdb_head[h], hlist) {
+ 			struct vxlan_rdst *rd;
  
- free_netdev:
+@@ -987,12 +988,15 @@ static int vxlan_fdb_dump(struct sk_buff
+ 						     cb->nlh->nlmsg_seq,
+ 						     RTM_NEWNEIGH,
+ 						     NLM_F_MULTI, rd);
+-				if (err < 0)
++				if (err < 0) {
++					rcu_read_unlock();
+ 					goto out;
++				}
+ skip:
+ 				*idx += 1;
+ 			}
+ 		}
++		rcu_read_unlock();
+ 	}
+ out:
+ 	return err;
 
 
