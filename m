@@ -2,147 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38607240814
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D93DA24082D
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727079AbgHJPCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:02:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60428 "EHLO
+        id S1725862AbgHJPJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:09:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727028AbgHJPCF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 11:02:05 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC0DC061756
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 08:02:04 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id m34so5009844pgl.11
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 08:02:04 -0700 (PDT)
+        with ESMTP id S1725849AbgHJPJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 11:09:29 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D600C061756
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 08:09:29 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id t7so7535874otp.0
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 08:09:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=XXTc852665Y5dsLYW5XRosX8Q2COZS7MKbDS43FkS30=;
-        b=MESL5CjpRPvBFz/14o9/AiUlXs7gSim5mtMQugG52UnmT9tzzotQQbu3esXv6LyG9g
-         3TyuQRolRJJrasyqQkHOQIVxdIvU505Rv8RYW3lo70MQtxFeiS7CcuBcxLw+tVlJy4Ld
-         40Go64bNywUSGfXAJt13pZKUu9FgFuOooCTvJYekkzH4Zs2gXdbbu4G+/SQYKSrpX4mu
-         /GsD+P3BXXkNiN8yZyOUVvxGBN5AB5Q9/eS6oG5+o5LxNjtpuFBp7gCxmBzhfUMZzhf2
-         2gG1RtgmjLg7Cp17ngLVNTGGQul3c0qmCQdTecTzXUjN5ypkvgPCkqSqLVJVK+ub6CK4
-         52JQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=h8qg97YaQxMd/fuxc+B7/Hbk1asFVViYWnaVuKq1naE=;
+        b=uQFPqO6FO9BFY+X1L8H70nqMynJ68CS7GxIDefxZQX8yKR7Y7Qa6ZfE6Vp3JfoDIbM
+         J58OvAiMrfMBkbjCY/SHhz0qvxZvgAouMOL4Vn57JqY+t3I82o/FkLP333l5oB4gQWco
+         6Ue/zMG6a9EG7UYSnXGRROdrlgmdhqgwbsQTWk8ouThl2YwVGAnVxhEUkquOccczxYl7
+         Wu8H+MW/McZ/dKItwB0Uas405UxrikZQEgcZ+v5sH2cnJFrWJinC5Mrpn7DdEoNwNOft
+         uuLlVuFYo+Qp14rvEKVdZ2kkQ6LmsCogWmSo723oWudqVsUoaply9V3GGT3HcfMEhYQU
+         YAzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=XXTc852665Y5dsLYW5XRosX8Q2COZS7MKbDS43FkS30=;
-        b=gz2IOEh/WwuKccUux0BM6ybnlUjD4xqETZChhPlV0YuGBcNzvegp8ZQ3zhlV4ExlR0
-         llPkvfCHSp/AGq3a43DavPwj/2s8204MjSQX0FyfPhSIJr86KQBuhpx03YRU7jajN+YP
-         cmJ0jKsQfrUzax8Mt46XU1YsKN1YXcIrPc5RO12fOJoLSEZeCtNIEU1Jr4aWLEnxlNzk
-         gcwvRlBi6anEOo/biJ7Qo9sQrILB9N0R9zMF9bOKG7QCYKKJBxgRE7m2B8nJyvMjjczP
-         gcHeBPEQKbQstMGXNaLVMQi6/8JtCEg3Z1IdOc3mpMk2QjwoWjCnHD7u03uM1KpTXpoI
-         D4AA==
-X-Gm-Message-State: AOAM531o8WTT0hAO5vCnIFPBdVpq7iq4fjhWk5P5pcAPV4V/HRZd0DB9
-        khTTNau95YQK3j+WmzTi71NTTQ==
-X-Google-Smtp-Source: ABdhPJxwrh+6JvNDZxTyh7vjjwNGKcs9GzGsyeI8TCmU9ARzqmrq54fToqMpxAcuvYdwrhoaMMDAWw==
-X-Received: by 2002:a63:955c:: with SMTP id t28mr21574439pgn.18.1597071724094;
-        Mon, 10 Aug 2020 08:02:04 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id g129sm22287622pfb.33.2020.08.10.08.02.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Aug 2020 08:02:03 -0700 (PDT)
-Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
- isn't running
-To:     peterz@infradead.org
-Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org,
-        Josef <josef.grieb@gmail.com>
-References: <20200808183439.342243-1-axboe@kernel.dk>
- <20200808183439.342243-3-axboe@kernel.dk>
- <20200810114256.GS2674@hirez.programming.kicks-ass.net>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <a6ee0a6d-5136-4fe9-8906-04fe6420aad9@kernel.dk>
-Date:   Mon, 10 Aug 2020 09:02:02 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=h8qg97YaQxMd/fuxc+B7/Hbk1asFVViYWnaVuKq1naE=;
+        b=HlNqMTGcY0aZMbSz9miZCwNygq3C9c3t1/gfqu0TPngZ3wgcSkW/jtTbBFacjeSRbw
+         G8/9l8ZLXXkSza+fR/yFejuxA1TyMBTD4jkfGr4JIdCAMrL3boPE2N/GWS/HK3e4MxDJ
+         hgA+hVhN5UjcIXnZbqsyc7LxgxfMj09h9Li487cjI1YwGRMh3boRA896uciUjsA/BQHv
+         zXVJgaKM2tTq5feyR+EyMLZb/ZjLCj385DvzTLenZwRL1ZikbIm2I2rWvFDWkSm1owiI
+         A8K9QvXbIvnHMEQT69l3P2oMkxyVHZ1JFk/LX4gIh61clf6e7vZRMGZV1UUVDa6Js5ra
+         ahMA==
+X-Gm-Message-State: AOAM53095D7bVluMswNTGDNzsMugjQ50OHC1+4bnWYQM+8aujHfm/oZp
+        OZ3Z9b4lZ/HmkniLcgStlH8ESAPNFX378BndNfwNdTQELnE=
+X-Google-Smtp-Source: ABdhPJxvIf/X8x/vMI08Ha87pSf4XAkbN6WsVYBE0kVIRNuSz3lNIcdLLVPiijXyYFv4ehgh4YlrRbnfkRqMkfkgY58=
+X-Received: by 2002:a9d:7997:: with SMTP id h23mr1249685otm.28.1597072168710;
+ Mon, 10 Aug 2020 08:09:28 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200810114256.GS2674@hirez.programming.kicks-ass.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CA+icZUW_f4d5_yDg0_Ox8nVd_6R=JNc8Bo9TgEzjLUy_1MdXOw@mail.gmail.com>
+ <20200810100125.GA2405194@kroah.com> <20200810100149.GB2405194@kroah.com>
+ <CA+icZUWzsHect3v_31-PE_qRfXk7hbORY8JpSkjQmoEFqMykiQ@mail.gmail.com>
+ <20200810140551.GH2975990@sasha-vm> <CA+icZUU18HcsT8E4umxgHPWDwdR4YbaX29=Lk4-7AvW2=4c=hw@mail.gmail.com>
+ <20200810144322.GA3761375@kroah.com> <CA+icZUVEOYnuuK2Ah1AzDpu9Fp0Rf_Ny+sVVF_TYYPT0h-Q6Sw@mail.gmail.com>
+ <20200810145751.GA3961561@kroah.com> <CA+icZUU=kSmepa4pok6vV8FzrL1AGmo6DpkHV_9PSpbBA4iMdg@mail.gmail.com>
+ <20200810150106.GA3962761@kroah.com>
+In-Reply-To: <20200810150106.GA3962761@kroah.com>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Mon, 10 Aug 2020 17:09:17 +0200
+Message-ID: <CA+icZUXvL3z+Xu22onDH9uFUTaaKDnC=t+KC+SEFAGdNR4q_dQ@mail.gmail.com>
+Subject: Re: Base for <linux-stable-rc.git#queue/5.8>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/10/20 5:42 AM, peterz@infradead.org wrote:
-> On Sat, Aug 08, 2020 at 12:34:39PM -0600, Jens Axboe wrote:
->> An earlier commit:
->>
->> b7db41c9e03b ("io_uring: fix regression with always ignoring signals in io_cqring_wait()")
->>
->> ensured that we didn't get stuck waiting for eventfd reads when it's
->> registered with the io_uring ring for event notification, but we still
->> have a gap where the task can be waiting on other events in the kernel
->> and need a bigger nudge to make forward progress.
->>
->> Ensure that we use signaled notifications for a task that isn't currently
->> running, to be certain the work is seen and processed immediately.
->>
->> Cc: stable@vger.kernel.org # v5.7+
->> Reported-by: Josef <josef.grieb@gmail.com>
->> Signed-off-by: Jens Axboe <axboe@kernel.dk>
->> ---
->>  fs/io_uring.c | 22 ++++++++++++++--------
->>  1 file changed, 14 insertions(+), 8 deletions(-)
->>
->> diff --git a/fs/io_uring.c b/fs/io_uring.c
->> index e9b27cdaa735..443eecdfeda9 100644
->> --- a/fs/io_uring.c
->> +++ b/fs/io_uring.c
->> @@ -1712,21 +1712,27 @@ static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb)
->>  	struct io_ring_ctx *ctx = req->ctx;
->>  	int ret, notify = TWA_RESUME;
->>  
->> +	ret = __task_work_add(tsk, cb);
->> +	if (unlikely(ret))
->> +		return ret;
->> +
->>  	/*
->>  	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
->> -	 * If we're not using an eventfd, then TWA_RESUME is always fine,
->> -	 * as we won't have dependencies between request completions for
->> -	 * other kernel wait conditions.
->> +	 * For any other work, use signaled wakeups if the task isn't
->> +	 * running to avoid dependencies between tasks or threads. If
->> +	 * the issuing task is currently waiting in the kernel on a thread,
->> +	 * and same thread is waiting for a completion event, then we need
->> +	 * to ensure that the issuing task processes task_work. TWA_SIGNAL
->> +	 * is needed for that.
->>  	 */
->>  	if (ctx->flags & IORING_SETUP_SQPOLL)
->>  		notify = 0;
->> -	else if (ctx->cq_ev_fd)
->> +	else if (READ_ONCE(tsk->state) != TASK_RUNNING)
->>  		notify = TWA_SIGNAL;
->>  
->> -	ret = task_work_add(tsk, cb, notify);
->> -	if (!ret)
->> -		wake_up_process(tsk);
->> -	return ret;
->> +	__task_work_notify(tsk, notify);
->> +	wake_up_process(tsk);
->> +	return 0;
->>  }
-> 
-> Wait.. so the only change here is that you look at tsk->state, _after_
-> doing __task_work_add(), but nothing, not the Changelog nor the comment
-> explains this.
-> 
-> So you're relying on __task_work_add() being an smp_mb() vs the add, and
-> you order this against the smp_mb() in set_current_state() ?
-> 
-> This really needs spelling out.
+On Mon, Aug 10, 2020 at 5:00 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Aug 10, 2020 at 04:59:22PM +0200, Sedat Dilek wrote:
+> > On Mon, Aug 10, 2020 at 4:57 PM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Mon, Aug 10, 2020 at 04:46:18PM +0200, Sedat Dilek wrote:
+> > > > On Mon, Aug 10, 2020 at 4:43 PM Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org> wrote:
+> > > > >
+> > > > > On Mon, Aug 10, 2020 at 04:29:55PM +0200, Sedat Dilek wrote:
+> > > > > > On Mon, Aug 10, 2020 at 4:05 PM Sasha Levin <sashal@kernel.org> wrote:
+> > > > > > >
+> > > > > > > On Mon, Aug 10, 2020 at 12:11:40PM +0200, Sedat Dilek wrote:
+> > > > > > > >On Mon, Aug 10, 2020 at 12:01 PM Greg Kroah-Hartman
+> > > > > > > ><gregkh@linuxfoundation.org> wrote:
+> > > > > > > >>
+> > > > > > > >> On Mon, Aug 10, 2020 at 12:01:25PM +0200, Greg Kroah-Hartman wrote:
+> > > > > > > >> > On Mon, Aug 10, 2020 at 11:52:30AM +0200, Sedat Dilek wrote:
+> > > > > > > >> > > [ Hope I have the correct CC for linux-stable ML ]
+> > > > > > > >> > >
+> > > > > > > >> > > Hi Greg and Sasha,
+> > > > > > > >> > >
+> > > > > > > >> > > The base for <linux-stable-rc.git#queue/5.8> is Linux v5.7.14 where it
+> > > > > > > >> > > should be Linux v5.8.
+> > > > > > > >> >
+> > > > > > > >> > What exactly do you mean by "#queue/5.8"?
+> > > > > > > >> >
+> > > > > > > >> > Is that a branch name?  Ah, never seen those before, maybe they are
+> > > > > > > >> > something that Sasha creates?
+> > > > > > > >>
+> > > > > > > >> But yes, you are right, it seems to mirror queue/5.7 at the moment,
+> > > > > > > >> which isn't correct.
+> > > > > > > >>
+> > > > > > > >> thanks,
+> > > > > > > >
+> > > > > > > >[ CC correct stable ML ]
+> > > > > > > >
+> > > > > > > >Exactly.
+> > > > > > > >
+> > > > > > > >With <linux-stable-rc.git#queue/5.8> I mean [1].
+> > > > > > >
+> > > > > > > Ah, thanks for pointing it out! I've fixed the script and pushed out a
+> > > > > > > correct queue-5.8 branch.
+> > > > > > >
+> > > > > >
+> > > > > > Thanks Sasha.
+> > > > > >
+> > > > > > Would you mind to take the random/random32 patches from Linus mainline
+> > > > > > for queue/5.8 (see Linux v5.7.14)?
+> > > > >
+> > > > > Hm, most of them are already in 5.8.0, what ones are missing?  Let me go
+> > > > > check...
+> > > > >
+> > > >
+> > > > For x86-64 I have:
+> > > >
+> > > > $ KTAG="v5.8" ; git log --oneline $KTAG..
+> > > > 0765242c3a25 (HEAD -> for-5.8/random-5.9) random: random.h should
+> > > > include archrandom.h, not the other way around
+> > > > ba4ac1491cff random32: move the pseudo-random 32-bit definitions to prandom.h
+> > >
+> > > I have no idea what these commits mean, sorry.
+> > >
+> > > The linux-stable-rc tree is rebased all the time, and I don't know what
+> > > the queue/ directories are, Sasha uses those for stuff.
+> > >
+> > > So if you could provide the upstream git commit id that you are missing
+> > > here, that would be great.
+> > >
+> > > thanks,
+> > >
+> >
+> > My apologies...
+> >
+> > commit c0842fbc1b18c7a044e6ff3e8fa78bfa822c7d1a
+> > random32: move the pseudo-random 32-bit definitions to prandom.h
+> >
+> > commit 585524081ecdcde1c719e63916c514866d898217
+> > random: random.h should include archrandom.h, not the other way around
+>
+> Great, those are the two I queued up about 5 minutes ago.  I'll try to
+> push out a -rc for 5.8 later today with these fixes in it.
+>
+> thanks,
+>
 
-I'll update the changelog, it suffers a bit from having been reused from
-the earlier versions. Thanks for checking!
+For arm64 (as said I am here on x86-64):
 
--- 
-Jens Axboe
+commit 9bceb80b3cc483e6763c39a4928402fa82815d3e
+"arm64: kaslr: Use standard early random function"
 
+- Sedat -
