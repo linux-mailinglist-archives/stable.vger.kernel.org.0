@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88521240942
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5D69240945
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729121AbgHJPal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37700 "EHLO mail.kernel.org"
+        id S1728909AbgHJPax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:30:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729115AbgHJPak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:40 -0400
+        id S1728622AbgHJPan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:30:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C6BC20791;
-        Mon, 10 Aug 2020 15:30:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C63A20774;
+        Mon, 10 Aug 2020 15:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073439;
-        bh=zZFORStaZXvfpALaYEp5lJ3bO9RAW3xz5oKg83SFFtE=;
+        s=default; t=1597073442;
+        bh=wsSGHvZX2jKD9riWH4tXyy4sw108LeNGRYC5pfnkURE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIEey57BkFzNjyzOPyABy/nAkDh6a+itHh8O0NgMJvgfb8Kb1O7uxmqvhYDIf2M4q
-         Zi1/huefJU6xt1v1e/Nx6LFqIadtBA0xNJdeTiUdjjOx87O4vaVXgwTjoOgtkao298
-         MOB97Ui836tqJz4yej1HrGmGRkU4Ag0lZ/o7LAMw=
+        b=g27Lh8/x9qGrodbOkcPXXN6Be+GE45ryKv+ZeyNgCbmQpY8dHS9nFJDAOLl6H/WGO
+         2r5DZcIFai/WjMzlgC4PyQWPqm6juGPHAm0FG7V/h7gl8UUoytO5mO37J8uObRrSth
+         XOTnM5LqckHSPV7eN3gZziss+ChndmKrK9S21B0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Guillaume Nault <gnault@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 40/48] openvswitch: Prevent kernel-infoleak in ovs_ct_put_key()
-Date:   Mon, 10 Aug 2020 17:22:02 +0200
-Message-Id: <20200810151806.189853359@linuxfoundation.org>
+Subject: [PATCH 4.19 41/48] Revert "vxlan: fix tos value before xmit"
+Date:   Mon, 10 Aug 2020 17:22:03 +0200
+Message-Id: <20200810151806.237304741@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
 References: <20200810151804.199494191@linuxfoundation.org>
@@ -44,81 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 9aba6c5b49254d5bee927d81593ed4429e91d4ae ]
+[ Upstream commit a0dced17ad9dc08b1b25e0065b54c97a318e6e8b ]
 
-ovs_ct_put_key() is potentially copying uninitialized kernel stack memory
-into socket buffers, since the compiler may leave a 3-byte hole at the end
-of `struct ovs_key_ct_tuple_ipv4` and `struct ovs_key_ct_tuple_ipv6`. Fix
-it by initializing `orig` with memset().
+This reverts commit 71130f29979c7c7956b040673e6b9d5643003176.
 
-Fixes: 9dd7f8907c37 ("openvswitch: Add original direction conntrack tuple to sw_flow_key.")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+In commit 71130f29979c ("vxlan: fix tos value before xmit") we want to
+make sure the tos value are filtered by RT_TOS() based on RFC1349.
+
+       0     1     2     3     4     5     6     7
+    +-----+-----+-----+-----+-----+-----+-----+-----+
+    |   PRECEDENCE    |          TOS          | MBZ |
+    +-----+-----+-----+-----+-----+-----+-----+-----+
+
+But RFC1349 has been obsoleted by RFC2474. The new DSCP field defined like
+
+       0     1     2     3     4     5     6     7
+    +-----+-----+-----+-----+-----+-----+-----+-----+
+    |          DS FIELD, DSCP           | ECN FIELD |
+    +-----+-----+-----+-----+-----+-----+-----+-----+
+
+So with
+
+IPTOS_TOS_MASK          0x1E
+RT_TOS(tos)		((tos)&IPTOS_TOS_MASK)
+
+the first 3 bits DSCP info will get lost.
+
+To take all the DSCP info in xmit, we should revert the patch and just push
+all tos bits to ip_tunnel_ecn_encap(), which will handling ECN field later.
+
+Fixes: 71130f29979c ("vxlan: fix tos value before xmit")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/conntrack.c |   38 ++++++++++++++++++++------------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ drivers/net/vxlan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -283,10 +283,6 @@ void ovs_ct_fill_key(const struct sk_buf
- 	ovs_ct_update_key(skb, NULL, key, false, false);
- }
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -2223,7 +2223,7 @@ static void vxlan_xmit_one(struct sk_buf
+ 		ndst = &rt->dst;
+ 		skb_tunnel_check_pmtu(skb, ndst, VXLAN_HEADROOM);
  
--#define IN6_ADDR_INITIALIZER(ADDR) \
--	{ (ADDR).s6_addr32[0], (ADDR).s6_addr32[1], \
--	  (ADDR).s6_addr32[2], (ADDR).s6_addr32[3] }
--
- int ovs_ct_put_key(const struct sw_flow_key *swkey,
- 		   const struct sw_flow_key *output, struct sk_buff *skb)
- {
-@@ -308,24 +304,30 @@ int ovs_ct_put_key(const struct sw_flow_
+-		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
++		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
+ 		ttl = ttl ? : ip4_dst_hoplimit(&rt->dst);
+ 		err = vxlan_build_skb(skb, ndst, sizeof(struct iphdr),
+ 				      vni, md, flags, udp_sum);
+@@ -2260,7 +2260,7 @@ static void vxlan_xmit_one(struct sk_buf
  
- 	if (swkey->ct_orig_proto) {
- 		if (swkey->eth.type == htons(ETH_P_IP)) {
--			struct ovs_key_ct_tuple_ipv4 orig = {
--				output->ipv4.ct_orig.src,
--				output->ipv4.ct_orig.dst,
--				output->ct.orig_tp.src,
--				output->ct.orig_tp.dst,
--				output->ct_orig_proto,
--			};
-+			struct ovs_key_ct_tuple_ipv4 orig;
-+
-+			memset(&orig, 0, sizeof(orig));
-+			orig.ipv4_src = output->ipv4.ct_orig.src;
-+			orig.ipv4_dst = output->ipv4.ct_orig.dst;
-+			orig.src_port = output->ct.orig_tp.src;
-+			orig.dst_port = output->ct.orig_tp.dst;
-+			orig.ipv4_proto = output->ct_orig_proto;
-+
- 			if (nla_put(skb, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV4,
- 				    sizeof(orig), &orig))
- 				return -EMSGSIZE;
- 		} else if (swkey->eth.type == htons(ETH_P_IPV6)) {
--			struct ovs_key_ct_tuple_ipv6 orig = {
--				IN6_ADDR_INITIALIZER(output->ipv6.ct_orig.src),
--				IN6_ADDR_INITIALIZER(output->ipv6.ct_orig.dst),
--				output->ct.orig_tp.src,
--				output->ct.orig_tp.dst,
--				output->ct_orig_proto,
--			};
-+			struct ovs_key_ct_tuple_ipv6 orig;
-+
-+			memset(&orig, 0, sizeof(orig));
-+			memcpy(orig.ipv6_src, output->ipv6.ct_orig.src.s6_addr32,
-+			       sizeof(orig.ipv6_src));
-+			memcpy(orig.ipv6_dst, output->ipv6.ct_orig.dst.s6_addr32,
-+			       sizeof(orig.ipv6_dst));
-+			orig.src_port = output->ct.orig_tp.src;
-+			orig.dst_port = output->ct.orig_tp.dst;
-+			orig.ipv6_proto = output->ct_orig_proto;
-+
- 			if (nla_put(skb, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV6,
- 				    sizeof(orig), &orig))
- 				return -EMSGSIZE;
+ 		skb_tunnel_check_pmtu(skb, ndst, VXLAN6_HEADROOM);
+ 
+-		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
++		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
+ 		ttl = ttl ? : ip6_dst_hoplimit(ndst);
+ 		skb_scrub_packet(skb, xnet);
+ 		err = vxlan_build_skb(skb, ndst, sizeof(struct ipv6hdr),
 
 
