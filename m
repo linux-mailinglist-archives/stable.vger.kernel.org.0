@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A6A240A50
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7182409BB
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728320AbgHJPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
+        id S1728838AbgHJP2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728412AbgHJPYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:24:15 -0400
+        id S1728835AbgHJP2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A373522BEA;
-        Mon, 10 Aug 2020 15:24:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DE6A22BEA;
+        Mon, 10 Aug 2020 15:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073054;
-        bh=nErNdcHxe7fNmWMQZ0e1CC+OfPEax1G/+sj5K2VsKn8=;
+        s=default; t=1597073286;
+        bh=OzsmA25owFxj0rqitKR2MBowKesqp44jQTh/7yr6E94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIr9Kt95Vio9+MKWjKp2rOy0RheYo/+g9esMLBGR3WmFvKxJQvwcSxGUBEP4RL2K4
-         EITdPBo+HLFAQdM235u75cqId6ATtvdCYIk42T9tnBQstVR8Eh0udF8WIxVZFjyU1U
-         hvaPOn14jK/1eeMmlDusjjGsE+f7WOSz6GQCJ0sk=
+        b=eBwoNjuq6kFjCIfTLv+0HHrpcGG7FzuGmdYZI95lttqJnCeQSZA+eHOawl482Jpux
+         rVxVeZR2PnJYagy7aYeyuFos6rkeyuVi0Drf35M4m014zrN/2sDovEo//4APKUNyrE
+         J9AcuLSmmih8qOwKmyAiPHbtnnVSswBHU245h2DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Philippe Duplessis-Guindon <pduplessis@efficios.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 51/79] tools lib traceevent: Fix memory leak in process_dynamic_array_len
-Date:   Mon, 10 Aug 2020 17:21:10 +0200
-Message-Id: <20200810151814.777851992@linuxfoundation.org>
+        =?UTF-8?q?=E5=BC=A0=E4=BA=91=E6=B5=B7?= <zhangyunhai@nsfocus.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Kyungtae Kim <kt0755@gmail.com>, linux-fbdev@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Solar Designer <solar@openwall.com>,
+        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
+        Anthony Liguori <aliguori@amazon.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 5.4 24/67] vgacon: Fix for missing check in scrollback handling
+Date:   Mon, 10 Aug 2020 17:21:11 +0200
+Message-Id: <20200810151810.614334777@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +51,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philippe Duplessis-Guindon <pduplessis@efficios.com>
+From: Yunhai Zhang <zhangyunhai@nsfocus.com>
 
-[ Upstream commit e24c6447ccb7b1a01f9bf0aec94939e6450c0b4d ]
+commit ebfdfeeae8c01fcb2b3b74ffaf03876e20835d2d upstream.
 
-I compiled with AddressSanitizer and I had these memory leaks while I
-was using the tep_parse_format function:
+vgacon_scrollback_update() always leaves enbough room in the scrollback
+buffer for the next call, but if the console size changed that room
+might not actually be enough, and so we need to re-check.
 
-    Direct leak of 28 byte(s) in 4 object(s) allocated from:
-        #0 0x7fb07db49ffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
-        #1 0x7fb07a724228 in extend_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:985
-        #2 0x7fb07a724c21 in __read_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1140
-        #3 0x7fb07a724f78 in read_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1206
-        #4 0x7fb07a725191 in __read_expect_type /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1291
-        #5 0x7fb07a7251df in read_expect_type /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1299
-        #6 0x7fb07a72e6c8 in process_dynamic_array_len /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:2849
-        #7 0x7fb07a7304b8 in process_function /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3161
-        #8 0x7fb07a730900 in process_arg_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3207
-        #9 0x7fb07a727c0b in process_arg /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1786
-        #10 0x7fb07a731080 in event_read_print_args /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3285
-        #11 0x7fb07a731722 in event_read_print /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3369
-        #12 0x7fb07a740054 in __tep_parse_format /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6335
-        #13 0x7fb07a74047a in __parse_event /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6389
-        #14 0x7fb07a740536 in tep_parse_format /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6431
-        #15 0x7fb07a785acf in parse_event ../../../src/fs-src/fs.c:251
-        #16 0x7fb07a785ccd in parse_systems ../../../src/fs-src/fs.c:284
-        #17 0x7fb07a786fb3 in read_metadata ../../../src/fs-src/fs.c:593
-        #18 0x7fb07a78760e in ftrace_fs_source_init ../../../src/fs-src/fs.c:727
-        #19 0x7fb07d90c19c in add_component_with_init_method_data ../../../../src/lib/graph/graph.c:1048
-        #20 0x7fb07d90c87b in add_source_component_with_initialize_method_data ../../../../src/lib/graph/graph.c:1127
-        #21 0x7fb07d90c92a in bt_graph_add_source_component ../../../../src/lib/graph/graph.c:1152
-        #22 0x55db11aa632e in cmd_run_ctx_create_components_from_config_components ../../../src/cli/babeltrace2.c:2252
-        #23 0x55db11aa6fda in cmd_run_ctx_create_components ../../../src/cli/babeltrace2.c:2347
-        #24 0x55db11aa780c in cmd_run ../../../src/cli/babeltrace2.c:2461
-        #25 0x55db11aa8a7d in main ../../../src/cli/babeltrace2.c:2673
-        #26 0x7fb07d5460b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x270b2)
+The check should be in the loop since vgacon_scrollback_cur->tail is
+updated in the loop and count may be more than 1 when triggered by CSI M,
+as Jiri's PoC:
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
 
-The token variable in the process_dynamic_array_len function is
-allocated in the read_expect_type function, but is not freed before
-calling the read_token function.
+int main(int argc, char** argv)
+{
+        int fd = open("/dev/tty1", O_RDWR);
+        unsigned short size[3] = {25, 200, 0};
+        ioctl(fd, 0x5609, size); // VT_RESIZE
 
-Free the token variable before calling read_token in order to plug the
-leak.
+        write(fd, "\e[1;1H", 6);
+        for (int i = 0; i < 30; i++)
+                write(fd, "\e[10M", 5);
+}
 
-Signed-off-by: Philippe Duplessis-Guindon <pduplessis@efficios.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/linux-trace-devel/20200730150236.5392-1-pduplessis@efficios.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It leads to various crashes as vgacon_scrollback_update writes out of
+the buffer:
+ BUG: unable to handle page fault for address: ffffc900001752a0
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ RIP: 0010:mutex_unlock+0x13/0x30
+...
+ Call Trace:
+  n_tty_write+0x1a0/0x4d0
+  tty_write+0x1a0/0x2e0
+
+Or to KASAN reports:
+BUG: KASAN: slab-out-of-bounds in vgacon_scroll+0x57a/0x8ed
+
+This fixes CVE-2020-14331.
+
+Reported-by: 张云海 <zhangyunhai@nsfocus.com>
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Fixes: 15bdab959c9b ([PATCH] vgacon: Add support for soft scrollback)
+Cc: stable@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Solar Designer <solar@openwall.com>
+Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc: Anthony Liguori <aliguori@amazon.com>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Yunhai Zhang <zhangyunhai@nsfocus.com>
+Link: https://lore.kernel.org/r/9fb43895-ca91-9b07-ebfd-808cf854ca95@nsfocus.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/lib/traceevent/event-parse.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/console/vgacon.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
-index 010e60d5a0817..cb0d29865ee93 100644
---- a/tools/lib/traceevent/event-parse.c
-+++ b/tools/lib/traceevent/event-parse.c
-@@ -2861,6 +2861,7 @@ process_dynamic_array_len(struct tep_event *event, struct tep_print_arg *arg,
- 	if (read_expected(TEP_EVENT_DELIM, ")") < 0)
- 		goto out_err;
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -251,6 +251,10 @@ static void vgacon_scrollback_update(str
+ 	p = (void *) (c->vc_origin + t * c->vc_size_row);
  
-+	free_token(token);
- 	type = read_token(&token);
- 	*tok = token;
- 
--- 
-2.25.1
-
+ 	while (count--) {
++		if ((vgacon_scrollback_cur->tail + c->vc_size_row) >
++		    vgacon_scrollback_cur->size)
++			vgacon_scrollback_cur->tail = 0;
++
+ 		scr_memcpyw(vgacon_scrollback_cur->data +
+ 			    vgacon_scrollback_cur->tail,
+ 			    p, c->vc_size_row);
 
 
