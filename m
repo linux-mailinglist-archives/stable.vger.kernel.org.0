@@ -2,122 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B501A24094B
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0970A240A08
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729169AbgHJPbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:31:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38292 "EHLO mail.kernel.org"
+        id S1728976AbgHJPh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:37:58 -0400
+Received: from mx2.suse.de ([195.135.220.15]:58402 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728622AbgHJPbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:31:06 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 507AB2080C;
-        Mon, 10 Aug 2020 15:31:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073465;
-        bh=N98FjzgorEjTBLATZ61u6SCyC3kXTLPSWDm1Auha4ZE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLaFtAc91irn9XUuQV5MEzQjAGTWzEhubsIwDzK+1KNHNYNOEDS11smDUhR8ainoj
-         UgmYUYbVCzGaMEtPNNrzCS4S8jYa9CJAOhcYUxQM8Kx6l/GKDwtL1YhwLwZ7ow1kc6
-         QUw6Ow1rHhATiLtuD9wDF0NydvcCN8fm6M9pdNfI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.19 48/48] Smack: fix use-after-free in smk_write_relabel_self()
-Date:   Mon, 10 Aug 2020 17:22:10 +0200
-Message-Id: <20200810151806.591377001@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-References: <20200810151804.199494191@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728926AbgHJPh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:37:57 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 8B80AACA2;
+        Mon, 10 Aug 2020 15:38:16 +0000 (UTC)
+Message-ID: <1899fe01e1eb5c23270541e1833b12365818c150.camel@suse.com>
+Subject: Re: [PATCH AUTOSEL 5.8 70/72] nvme-multipath: do not fall back to
+ __nvme_find_path() for non-optimized paths
+From:   Martin Wilck <mwilck@suse.com>
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Hannes Reinecke <hare@suse.de>, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org
+Date:   Mon, 10 Aug 2020 17:37:54 +0200
+In-Reply-To: <20200808233542.3617339-70-sashal@kernel.org>
+References: <20200808233542.3617339-1-sashal@kernel.org>
+         <20200808233542.3617339-70-sashal@kernel.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.36.4 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Sat, 2020-08-08 at 19:35 -0400, Sasha Levin wrote:
+> From: Hannes Reinecke <hare@suse.de>
+> 
+> [ Upstream commit fbd6a42d8932e172921c7de10468a2e12c34846b ]
+> 
+> When nvme_round_robin_path() finds a valid namespace we should be
+> using it;
+> falling back to __nvme_find_path() for non-optimized paths will cause
+> the
+> result from nvme_round_robin_path() to be ignored for non-optimized
+> paths.
+> 
+> Fixes: 75c10e732724 ("nvme-multipath: round-robin I/O policy")
+> Signed-off-by: Martin Wilck <mwilck@suse.com>
+> Signed-off-by: Hannes Reinecke <hare@suse.de>
+> Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/nvme/host/multipath.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
 
-commit beb4ee6770a89646659e6a2178538d2b13e2654e upstream.
+Hello Sasha,
 
-smk_write_relabel_self() frees memory from the task's credentials with
-no locking, which can easily cause a use-after-free because multiple
-tasks can share the same credentials structure.
+this patch needs a fix that I recently submitted to linux-nvme.
+The same holds for the respective 5.7 and 5.4 AUTOSEL patches.
 
-Fix this by using prepare_creds() and commit_creds() to correctly modify
-the task's credentials.
+http://lists.infradead.org/pipermail/linux-nvme/2020-August/018570.html
 
-Reproducer for "BUG: KASAN: use-after-free in smk_write_relabel_self":
-
-	#include <fcntl.h>
-	#include <pthread.h>
-	#include <unistd.h>
-
-	static void *thrproc(void *arg)
-	{
-		int fd = open("/sys/fs/smackfs/relabel-self", O_WRONLY);
-		for (;;) write(fd, "foo", 3);
-	}
-
-	int main()
-	{
-		pthread_t t;
-		pthread_create(&t, NULL, thrproc, NULL);
-		thrproc(NULL);
-	}
-
-Reported-by: syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
-Fixes: 38416e53936e ("Smack: limited capability for changing process label")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- security/smack/smackfs.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
-
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -2746,7 +2746,6 @@ static int smk_open_relabel_self(struct
- static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
- 				size_t count, loff_t *ppos)
- {
--	struct task_smack *tsp = current_security();
- 	char *data;
- 	int rc;
- 	LIST_HEAD(list_tmp);
-@@ -2771,11 +2770,21 @@ static ssize_t smk_write_relabel_self(st
- 	kfree(data);
- 
- 	if (!rc || (rc == -EINVAL && list_empty(&list_tmp))) {
-+		struct cred *new;
-+		struct task_smack *tsp;
-+
-+		new = prepare_creds();
-+		if (!new) {
-+			rc = -ENOMEM;
-+			goto out;
-+		}
-+		tsp = new->security;
- 		smk_destroy_label_list(&tsp->smk_relabel);
- 		list_splice(&list_tmp, &tsp->smk_relabel);
-+		commit_creds(new);
- 		return count;
- 	}
--
-+out:
- 	smk_destroy_label_list(&list_tmp);
- 	return rc;
- }
+Regards,
+Martin
 
 
