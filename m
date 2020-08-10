@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BC52404F5
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 12:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 541712404F6
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 12:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbgHJK7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 06:59:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33782 "EHLO mx2.suse.de"
+        id S1726330AbgHJK7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 06:59:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34082 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726330AbgHJK7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 06:59:16 -0400
+        id S1726304AbgHJK7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 06:59:49 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 10C66AD43;
-        Mon, 10 Aug 2020 10:59:35 +0000 (UTC)
-Date:   Mon, 10 Aug 2020 12:59:14 +0200
-Message-ID: <s5heeoe6a2l.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id 47F98ACB5;
+        Mon, 10 Aug 2020 11:00:08 +0000 (UTC)
+Date:   Mon, 10 Aug 2020 12:59:48 +0200
+Message-ID: <s5hd03y6a1n.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Hector Martin <marcan@marcan.st>
 Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
-In-Reply-To: <20200810082400.225858-1-marcan@marcan.st>
-References: <20200810082400.225858-1-marcan@marcan.st>
+Subject: Re: [PATCH] ALSA: usb-audio: add quirk for Pioneer DDJ-RB
+In-Reply-To: <20200810082502.225979-1-marcan@marcan.st>
+References: <20200810082502.225979-1-marcan@marcan.st>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -33,27 +33,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 Aug 2020 10:24:00 +0200,
+On Mon, 10 Aug 2020 10:25:02 +0200,
 Hector Martin wrote:
 > 
-> Further investigation of the L-R swap problem on the MS2109 reveals that
-> the problem isn't that the channels are swapped, but rather that they
-> are swapped and also out of phase by one sample. In other words, the
-> issue is actually that the very first frame that comes from the hardware
-> is a half-frame containing only the right channel, and after that
-> everything becomes offset.
-> 
-> So introduce a new quirk field to drop the very first 2 bytes that come
-> in after the format is configured and a capture stream starts. This puts
-> the channels in phase and in the correct order.
+> This is just another Pioneer device with fixed endpoints. Input is dummy
+> but used as feedback (it always returns silence).
 > 
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Hector Martin <marcan@marcan.st>
 
-Hm, that's fairly weird behavior, but the workaround looks simple
-enough, so now I applied as is.
+Applied, thanks.
 
-
-thanks,
 
 Takashi
