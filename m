@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0155240E0D
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A634241051
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729058AbgHJTKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38372 "EHLO mail.kernel.org"
+        id S1729560AbgHJT3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:29:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729048AbgHJTKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:10:48 -0400
+        id S1729054AbgHJTKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:10:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32BF1221E2;
-        Mon, 10 Aug 2020 19:10:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2B3A22B47;
+        Mon, 10 Aug 2020 19:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086647;
-        bh=f0TvdLWrFg3KJ50cdX7dVr/N1tMDi3X7bwk7QEQNf/E=;
+        s=default; t=1597086648;
+        bh=QEuPLD1HFICe5Me7VJga6gs3ZjqUmsBZRqF24c5m6FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6wFnucxTLgdxuaCUtad+jlPclbl+/osbYS0i90ghopIm5NZPUX9Zfg0lz9/cjIS2
-         YIsNrZNow/6NWcIM+1eAms/JP3u8FGr+9+EOsYwZ/PxSTf9tz06WGfVCRFektF3YWh
-         KZOVD/fNkYUxZC1FGloJTMEykrdeoyAIGoouupyM=
+        b=hQ8qZxXCqWLZYGOmEVLeBlLoaMEiqm1x1YJy8zeGhBdFay+GSNeCfR9xp2V4+xn2O
+         CcdyPA/ZwG22r6or3WKJUz36FrwDdh8UOUuu/7O7qSDLUFlpRNL+2xrilogeEORmlt
+         G3AcpQByTFmUsR8+0pURVEXM0mtGSo94yb2nwpI8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 13/60] video: fbdev: neofb: fix memory leak in neo_scan_monitor()
-Date:   Mon, 10 Aug 2020 15:09:41 -0400
-Message-Id: <20200810191028.3793884-13-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 14/60] bus: ti-sysc: Add missing quirk flags for usb_host_hs
+Date:   Mon, 10 Aug 2020 15:09:42 -0400
+Message-Id: <20200810191028.3793884-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191028.3793884-1-sashal@kernel.org>
 References: <20200810191028.3793884-1-sashal@kernel.org>
@@ -48,44 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit edcb3895a751c762a18d25c8d9846ce9759ed7e1 ]
+[ Upstream commit 4254632dba27271f6de66efd87e444ee405dee29 ]
 
-neofb_probe() calls neo_scan_monitor() that can successfully allocate a
-memory for info->monspecs.modedb and proceed to case 0x03. There it does
-not free the memory and returns -1. neofb_probe() goes to label
-err_scan_monitor, thus, it does not free this memory through calling
-fb_destroy_modedb() as well. We can not go to label err_init_hw since
-neo_scan_monitor() can fail during memory allocation. So, the patch frees
-the memory directly for case 0x03.
+Similar to what we have for the legacy platform data, we need to
+configure SWSUP_SIDLE and SWSUP_MSTANDBY quirks for usb_host_hs.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+These are needed to drop the legacy platform data for usb_host_hs.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200630195451.18675-1-novikov@ispras.ru
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/neofb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/ti-sysc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/neofb.c b/drivers/video/fbdev/neofb.c
-index e6ea853c17238..5a363ce9b4cbe 100644
---- a/drivers/video/fbdev/neofb.c
-+++ b/drivers/video/fbdev/neofb.c
-@@ -1820,6 +1820,7 @@ static int neo_scan_monitor(struct fb_info *info)
- #else
- 		printk(KERN_ERR
- 		       "neofb: Only 640x480, 800x600/480 and 1024x768 panels are currently supported\n");
-+		kfree(info->monspecs.modedb);
- 		return -1;
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 3b0417a014946..ae4cf4667633f 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -1402,6 +1402,10 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
+ 	SYSC_QUIRK("tptc", 0, 0, -ENODEV, -ENODEV, 0x40007c00, 0xffffffff,
+ 		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
++	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, 0x14, 0x50700100, 0xffffffff,
++		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
++	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, -ENODEV, 0x50700101, 0xffffffff,
++		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
+ 	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
+ 		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
+ 	SYSC_QUIRK("usb_otg_hs", 0, 0, 0x10, -ENODEV, 0x4ea2080d, 0xffffffff,
+@@ -1473,8 +1477,6 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	SYSC_QUIRK("tpcc", 0, 0, -ENODEV, -ENODEV, 0x40014c00, 0xffffffff, 0),
+ 	SYSC_QUIRK("usbhstll", 0, 0, 0x10, 0x14, 0x00000004, 0xffffffff, 0),
+ 	SYSC_QUIRK("usbhstll", 0, 0, 0x10, 0x14, 0x00000008, 0xffffffff, 0),
+-	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, 0x14, 0x50700100, 0xffffffff, 0),
+-	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, -ENODEV, 0x50700101, 0xffffffff, 0),
+ 	SYSC_QUIRK("venc", 0x58003000, 0, -ENODEV, -ENODEV, 0x00000002, 0xffffffff, 0),
+ 	SYSC_QUIRK("vfpe", 0, 0, 0x104, -ENODEV, 0x4d001200, 0xffffffff, 0),
  #endif
- 	default:
 -- 
 2.25.1
 
