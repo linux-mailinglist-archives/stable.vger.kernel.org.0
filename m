@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 483F32408BD
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE9024090F
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728433AbgHJPYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
+        id S1728092AbgHJP2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728092AbgHJPYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:24:32 -0400
+        id S1728872AbgHJP2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE084208A9;
-        Mon, 10 Aug 2020 15:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB1A822B47;
+        Mon, 10 Aug 2020 15:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073071;
-        bh=VPcoJjwYf9ftsQbGg8bZOcfLJhNY5VAsjs1ezIR6lv8=;
+        s=default; t=1597073310;
+        bh=lI6E/4lPK/biapph8fLlSw8m7Ev/Xq7lJP/iubY+u2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1fsP6aGmWlMLnyXUeKdGeBg7IGQnmb2oRKnfmaLIehYGMB7j2ssNt9wUMDuR6hmq
-         UDm3OHeX75IVFiXlN/2v0wIeYXtm1gA5XHdQxlpxieZiclrie9Bi9fqK1Mo39lb6x4
-         u6n/d7zjLzx0OThZlBrHHeLvILLSBVMPWNLMsYf0=
+        b=Pm58t3gGRT1m+YUcG219xUmcWw8RanZLzEJx7D7LHOIfBe2T9GqNMzpIGRT9PFKEO
+         nyX5+MNPxhwvY9w1MgeBFeUCZ8IAl64r+r0nQkbADYqdHgB2/r4GI0liZMO0OXUidD
+         KQ6WIjH56e4lhkood0wzgd0LxIGDhFyog7/qeis8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ch3332xr@gmail.com,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 56/79] ipv6: fix memory leaks on IPV6_ADDRFORM path
-Date:   Mon, 10 Aug 2020 17:21:15 +0200
-Message-Id: <20200810151815.018347336@linuxfoundation.org>
+        stable@vger.kernel.org, Amitoj Kaur Chawla <amitoj1606@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 5.4 29/67] leds: lm3533: fix use-after-free on unbind
+Date:   Mon, 10 Aug 2020 17:21:16 +0200
+Message-Id: <20200810151810.872209269@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
+In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
+References: <20200810151809.438685785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,115 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 8c0de6e96c9794cb523a516c465991a70245da1c ]
+commit d584221e683bbd173738603b83a315f27d27d043 upstream.
 
-IPV6_ADDRFORM causes resource leaks when converting an IPv6 socket
-to IPv4, particularly struct ipv6_ac_socklist. Similar to
-struct ipv6_mc_socklist, we should just close it on this path.
+Several MFD child drivers register their class devices directly under
+the parent device. This means you cannot blindly do devres conversions
+so that deregistration ends up being tied to the parent device,
+something which leads to use-after-free on driver unbind when the class
+device is released while still being registered.
 
-This bug can be easily reproduced with the following C program:
-
-  #include <stdio.h>
-  #include <string.h>
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
-
-  int main()
-  {
-    int s, value;
-    struct sockaddr_in6 addr;
-    struct ipv6_mreq m6;
-
-    s = socket(AF_INET6, SOCK_DGRAM, 0);
-    addr.sin6_family = AF_INET6;
-    addr.sin6_port = htons(5000);
-    inet_pton(AF_INET6, "::ffff:192.168.122.194", &addr.sin6_addr);
-    connect(s, (struct sockaddr *)&addr, sizeof(addr));
-
-    inet_pton(AF_INET6, "fe80::AAAA", &m6.ipv6mr_multiaddr);
-    m6.ipv6mr_interface = 5;
-    setsockopt(s, SOL_IPV6, IPV6_JOIN_ANYCAST, &m6, sizeof(m6));
-
-    value = AF_INET;
-    setsockopt(s, SOL_IPV6, IPV6_ADDRFORM, &value, sizeof(value));
-
-    close(s);
-    return 0;
-  }
-
-Reported-by: ch3332xr@gmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 50154e29e5cc ("leds: lm3533: Use devm_led_classdev_register")
+Cc: stable <stable@vger.kernel.org>     # 4.6
+Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/addrconf.h   |    1 +
- net/ipv6/anycast.c       |   17 ++++++++++++-----
- net/ipv6/ipv6_sockglue.c |    1 +
- 3 files changed, 14 insertions(+), 5 deletions(-)
 
---- a/include/net/addrconf.h
-+++ b/include/net/addrconf.h
-@@ -276,6 +276,7 @@ int ipv6_sock_ac_join(struct sock *sk, i
- 		      const struct in6_addr *addr);
- int ipv6_sock_ac_drop(struct sock *sk, int ifindex,
- 		      const struct in6_addr *addr);
-+void __ipv6_sock_ac_close(struct sock *sk);
- void ipv6_sock_ac_close(struct sock *sk);
+---
+ drivers/leds/leds-lm3533.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+--- a/drivers/leds/leds-lm3533.c
++++ b/drivers/leds/leds-lm3533.c
+@@ -694,7 +694,7 @@ static int lm3533_led_probe(struct platf
  
- int __ipv6_dev_ac_inc(struct inet6_dev *idev, const struct in6_addr *addr);
---- a/net/ipv6/anycast.c
-+++ b/net/ipv6/anycast.c
-@@ -183,7 +183,7 @@ int ipv6_sock_ac_drop(struct sock *sk, i
+ 	platform_set_drvdata(pdev, led);
+ 
+-	ret = devm_led_classdev_register(pdev->dev.parent, &led->cdev);
++	ret = led_classdev_register(pdev->dev.parent, &led->cdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register LED %d\n", pdev->id);
+ 		return ret;
+@@ -704,13 +704,18 @@ static int lm3533_led_probe(struct platf
+ 
+ 	ret = lm3533_led_setup(led, pdata);
+ 	if (ret)
+-		return ret;
++		goto err_deregister;
+ 
+ 	ret = lm3533_ctrlbank_enable(&led->cb);
+ 	if (ret)
+-		return ret;
++		goto err_deregister;
+ 
+ 	return 0;
++
++err_deregister:
++	led_classdev_unregister(&led->cdev);
++
++	return ret;
+ }
+ 
+ static int lm3533_led_remove(struct platform_device *pdev)
+@@ -720,6 +725,7 @@ static int lm3533_led_remove(struct plat
+ 	dev_dbg(&pdev->dev, "%s\n", __func__);
+ 
+ 	lm3533_ctrlbank_disable(&led->cb);
++	led_classdev_unregister(&led->cdev);
+ 
  	return 0;
  }
- 
--void ipv6_sock_ac_close(struct sock *sk)
-+void __ipv6_sock_ac_close(struct sock *sk)
- {
- 	struct ipv6_pinfo *np = inet6_sk(sk);
- 	struct net_device *dev = NULL;
-@@ -191,10 +191,7 @@ void ipv6_sock_ac_close(struct sock *sk)
- 	struct net *net = sock_net(sk);
- 	int	prev_index;
- 
--	if (!np->ipv6_ac_list)
--		return;
--
--	rtnl_lock();
-+	ASSERT_RTNL();
- 	pac = np->ipv6_ac_list;
- 	np->ipv6_ac_list = NULL;
- 
-@@ -211,6 +208,16 @@ void ipv6_sock_ac_close(struct sock *sk)
- 		sock_kfree_s(sk, pac, sizeof(*pac));
- 		pac = next;
- 	}
-+}
-+
-+void ipv6_sock_ac_close(struct sock *sk)
-+{
-+	struct ipv6_pinfo *np = inet6_sk(sk);
-+
-+	if (!np->ipv6_ac_list)
-+		return;
-+	rtnl_lock();
-+	__ipv6_sock_ac_close(sk);
- 	rtnl_unlock();
- }
- 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -205,6 +205,7 @@ static int do_ipv6_setsockopt(struct soc
- 
- 			fl6_free_socklist(sk);
- 			__ipv6_sock_mc_close(sk);
-+			__ipv6_sock_ac_close(sk);
- 
- 			/*
- 			 * Sock is moving from IPv6 to IPv4 (sk_prot), so
 
 
