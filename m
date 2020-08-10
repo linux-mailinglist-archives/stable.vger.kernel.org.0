@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7D72409A5
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB01240965
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728522AbgHJPeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:34:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35424 "EHLO mail.kernel.org"
+        id S1728694AbgHJPbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727969AbgHJP3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:29:11 -0400
+        id S1729177AbgHJPbO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:31:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E94722B47;
-        Mon, 10 Aug 2020 15:29:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D03FD20791;
+        Mon, 10 Aug 2020 15:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073350;
-        bh=97QJhoJYDeam/oMbkKOnP6nfbKvfx2kmikgCEsZvy+k=;
+        s=default; t=1597073474;
+        bh=ZyWuUtROHZf3ZDH6q3M+Ty6NXtyMPtEnfvtiWpfN87I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2uaY/TNxG6OG8ANyr/RtlWOq4kVZJvLW21n6/7Tt3xWSUhq+qdZwILMNPOtaUdph
-         RYFRne439P5Y8w/wn+YXnsT9Tvihp98MO9i/KpSxOdUarjYkxFDym7mpniEWO0gFMn
-         i02rZj7HJ30iK+7mGwDI0ZjWnccU+UMnW8B3Eosc=
+        b=KNKFJG3pUHYmk1wMODJwco4cyFnb/99Zb9vf7VuzV5F7bSZQ+EPB/hpAVsTlM4lu2
+         QJxQJqgbXkTur1a5wwfRROCpdAwhVMY9nyugFOslWHs4+v4lvpXdtBTODamXqFeedN
+         lbGUUHiZYoYCANebxaSkxyQ6t28Kl5EoA0brWLe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 62/67] openvswitch: Prevent kernel-infoleak in ovs_ct_put_key()
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/48] igb: reinit_locked() should be called with rtnl_lock
 Date:   Mon, 10 Aug 2020 17:21:49 +0200
-Message-Id: <20200810151812.564468225@linuxfoundation.org>
+Message-Id: <20200810151805.549199604@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
+References: <20200810151804.199494191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-[ Upstream commit 9aba6c5b49254d5bee927d81593ed4429e91d4ae ]
+[ Upstream commit 024a8168b749db7a4aa40a5fbdfa04bf7e77c1c0 ]
 
-ovs_ct_put_key() is potentially copying uninitialized kernel stack memory
-into socket buffers, since the compiler may leave a 3-byte hole at the end
-of `struct ovs_key_ct_tuple_ipv4` and `struct ovs_key_ct_tuple_ipv6`. Fix
-it by initializing `orig` with memset().
+We observed two panics involving races with igb_reset_task.
+The first panic is caused by this race condition:
 
-Fixes: 9dd7f8907c37 ("openvswitch: Add original direction conntrack tuple to sw_flow_key.")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	kworker			reboot -f
+
+	igb_reset_task
+	igb_reinit_locked
+	igb_down
+	napi_synchronize
+				__igb_shutdown
+				igb_clear_interrupt_scheme
+				igb_free_q_vectors
+				igb_free_q_vector
+				adapter->q_vector[v_idx] = NULL;
+	napi_disable
+	Panics trying to access
+	adapter->q_vector[v_idx].napi_state
+
+The second panic (a divide error) is caused by this race:
+
+kworker		reboot -f	tx packet
+
+igb_reset_task
+		__igb_shutdown
+		rtnl_lock()
+		...
+		igb_clear_interrupt_scheme
+		igb_free_q_vectors
+		adapter->num_tx_queues = 0
+		...
+		rtnl_unlock()
+rtnl_lock()
+igb_reinit_locked
+igb_down
+igb_up
+netif_tx_start_all_queues
+				dev_hard_start_xmit
+				igb_xmit_frame
+				igb_tx_queue_mapping
+				Panics on
+				r_idx % adapter->num_tx_queues
+
+This commit applies to igb_reset_task the same changes that
+were applied to ixgbe in commit 2f90b8657ec9 ("ixgbe: this patch
+adds support for DCB to the kernel and ixgbe driver"),
+commit 8f4c5c9fb87a ("ixgbe: reinit_locked() should be called with
+rtnl_lock") and commit 88adce4ea8f9 ("ixgbe: fix possible race in
+reset subtask").
+
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/conntrack.c |   38 ++++++++++++++++++++------------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -276,10 +276,6 @@ void ovs_ct_fill_key(const struct sk_buf
- 	ovs_ct_update_key(skb, NULL, key, false, false);
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 36db874f3c928..d85eb80d82497 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -6226,9 +6226,18 @@ static void igb_reset_task(struct work_struct *work)
+ 	struct igb_adapter *adapter;
+ 	adapter = container_of(work, struct igb_adapter, reset_task);
+ 
++	rtnl_lock();
++	/* If we're already down or resetting, just bail */
++	if (test_bit(__IGB_DOWN, &adapter->state) ||
++	    test_bit(__IGB_RESETTING, &adapter->state)) {
++		rtnl_unlock();
++		return;
++	}
++
+ 	igb_dump(adapter);
+ 	netdev_err(adapter->netdev, "Reset adapter\n");
+ 	igb_reinit_locked(adapter);
++	rtnl_unlock();
  }
  
--#define IN6_ADDR_INITIALIZER(ADDR) \
--	{ (ADDR).s6_addr32[0], (ADDR).s6_addr32[1], \
--	  (ADDR).s6_addr32[2], (ADDR).s6_addr32[3] }
--
- int ovs_ct_put_key(const struct sw_flow_key *swkey,
- 		   const struct sw_flow_key *output, struct sk_buff *skb)
- {
-@@ -301,24 +297,30 @@ int ovs_ct_put_key(const struct sw_flow_
- 
- 	if (swkey->ct_orig_proto) {
- 		if (swkey->eth.type == htons(ETH_P_IP)) {
--			struct ovs_key_ct_tuple_ipv4 orig = {
--				output->ipv4.ct_orig.src,
--				output->ipv4.ct_orig.dst,
--				output->ct.orig_tp.src,
--				output->ct.orig_tp.dst,
--				output->ct_orig_proto,
--			};
-+			struct ovs_key_ct_tuple_ipv4 orig;
-+
-+			memset(&orig, 0, sizeof(orig));
-+			orig.ipv4_src = output->ipv4.ct_orig.src;
-+			orig.ipv4_dst = output->ipv4.ct_orig.dst;
-+			orig.src_port = output->ct.orig_tp.src;
-+			orig.dst_port = output->ct.orig_tp.dst;
-+			orig.ipv4_proto = output->ct_orig_proto;
-+
- 			if (nla_put(skb, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV4,
- 				    sizeof(orig), &orig))
- 				return -EMSGSIZE;
- 		} else if (swkey->eth.type == htons(ETH_P_IPV6)) {
--			struct ovs_key_ct_tuple_ipv6 orig = {
--				IN6_ADDR_INITIALIZER(output->ipv6.ct_orig.src),
--				IN6_ADDR_INITIALIZER(output->ipv6.ct_orig.dst),
--				output->ct.orig_tp.src,
--				output->ct.orig_tp.dst,
--				output->ct_orig_proto,
--			};
-+			struct ovs_key_ct_tuple_ipv6 orig;
-+
-+			memset(&orig, 0, sizeof(orig));
-+			memcpy(orig.ipv6_src, output->ipv6.ct_orig.src.s6_addr32,
-+			       sizeof(orig.ipv6_src));
-+			memcpy(orig.ipv6_dst, output->ipv6.ct_orig.dst.s6_addr32,
-+			       sizeof(orig.ipv6_dst));
-+			orig.src_port = output->ct.orig_tp.src;
-+			orig.dst_port = output->ct.orig_tp.dst;
-+			orig.ipv6_proto = output->ct_orig_proto;
-+
- 			if (nla_put(skb, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV6,
- 				    sizeof(orig), &orig))
- 				return -EMSGSIZE;
+ /**
+-- 
+2.25.1
+
 
 
