@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D685A241099
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:31:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 763DF241096
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729076AbgHJTba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:31:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37198 "EHLO mail.kernel.org"
+        id S1729123AbgHJTbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:31:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbgHJTKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:10:09 -0400
+        id S1728836AbgHJTKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:10:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DAC22078D;
-        Mon, 10 Aug 2020 19:10:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12081221E2;
+        Mon, 10 Aug 2020 19:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086608;
-        bh=A7WEO00NBgNA67+f8S0LHnXokPYYK/LbMQpTTHWvqJE=;
+        s=default; t=1597086609;
+        bh=Bkk7uSPyPlKR0GzH9CuZpxOaO+KfwSErAJhcc2HJeWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLRaAXkdBmTLNnEZPNlnnlAVT3iXS8UWliUtLTg929PBzN4+os7TBaH/BQh4irDTU
-         tFC/Dw71y3QvdX+F/lT69D+wwrAdACU9BcMk8piyIOOuqIkyyfebsXvddMto9HUCAa
-         DeuMcoe3QP5dzq3cWL/WEBfM8x5l4OISaL8uaGC0=
+        b=npuTQ4O9wUiF5gdZjsC7rY/3AvM9K/cUJnkwB2Urpxs/Y65ra+wHOSSyXXre4jz8l
+         r/hyB8GUKNy45u1iwWn2NYmfH3zKzxfP+GaQV1xUKquhFhUoTnexoA0ZhuaTRfAHPq
+         5T0crfrHr82yrHYhHwPCLvk8+pffORNq1zU1WTVk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Dmitry Golovin <dima@golovin.in>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Dennis Zhou <dennis@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.8 50/64] x86/uaccess: Make __get_user_size() Clang compliant on 32-bit
-Date:   Mon, 10 Aug 2020 15:08:45 -0400
-Message-Id: <20200810190859.3793319-50-sashal@kernel.org>
+Cc:     shirley her <shirley.her@bayhubtech.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 51/64] mmc: sdhci-pci-o2micro: Bug fix for O2 host controller Seabird1
+Date:   Mon, 10 Aug 2020 15:08:46 -0400
+Message-Id: <20200810190859.3793319-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810190859.3793319-1-sashal@kernel.org>
 References: <20200810190859.3793319-1-sashal@kernel.org>
@@ -50,113 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: shirley her <shirley.her@bayhubtech.com>
 
-[ Upstream commit 158807de5822d1079e162a3762956fd743dd483e ]
+[ Upstream commit cdd2b769789ae1a030e1a26f6c37c5833cabcb34 ]
 
-Clang fails to compile __get_user_size() on 32-bit for the following code:
+To fix support for the O2 host controller Seabird1, set the quirk
+SDHCI_QUIRK2_PRESET_VALUE_BROKEN and the capability bit MMC_CAP2_NO_SDIO.
+Moreover, assign the ->get_cd() callback.
 
-      long long val;
-
-      __get_user(val, usrptr);
-
-with: error: invalid output size for constraint '=q'
-
-GCC compiles the same code without complaints.
-
-The reason is that GCC and Clang are architecturally different, which leads
-to subtle issues for code that's invalid but clearly dead, i.e. with code
-that emulates polymorphism with the preprocessor and sizeof.
-
-GCC will perform semantic analysis after early inlining and dead code
-elimination, so it will not warn on invalid code that's dead. Clang
-strictly performs optimizations after semantic analysis, so it will warn
-for dead code.
-
-Neither Clang nor GCC like this very much with -m32:
-
-long long ret;
-asm ("movb $5, %0" : "=q" (ret));
-
-However, GCC can tolerate this variant:
-
-long long ret;
-switch (sizeof(ret)) {
-case 1:
-        asm ("movb $5, %0" : "=q" (ret));
-        break;
-case 8:;
-}
-
-Clang, on the other hand, won't accept that because it validates the inline
-asm for the '1' case before the optimisation phase where it realises that
-it wouldn't have to emit it anyway.
-
-If LLVM (Clang's "back end") fails such as during instruction selection or
-register allocation, it cannot provide accurate diagnostics (warnings /
-errors) that contain line information, as the AST has been discarded from
-memory at that point.
-
-While there have been early discussions about having C/C++ specific
-language optimizations in Clang via the use of MLIR, which would enable
-such earlier optimizations, such work is not scoped and likely a multi-year
-endeavor.
-
-It was discussed to change the asm output constraint for the one byte case
-from "=q" to "=r". While it works for 64-bit, it fails on 32-bit. With '=r'
-the compiler could fail to chose a register accessible as high/low which is
-required for the byte operation. If that happens the assembly will fail.
-
-Use a local temporary variable of type 'unsigned char' as output for the
-byte copy inline asm and then assign it to the real output variable. This
-prevents Clang from failing the semantic analysis in the above case.
-
-The resulting code for the actual one byte copy is not affected as the
-temporary variable is optimized out.
-
-[ tglx: Amended changelog ]
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Reported-by: David Woodhouse <dwmw2@infradead.org>
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Acked-by: Dennis Zhou <dennis@kernel.org>
-Link: https://bugs.llvm.org/show_bug.cgi?id=33587
-Link: https://github.com/ClangBuiltLinux/linux/issues/3
-Link: https://github.com/ClangBuiltLinux/linux/issues/194
-Link: https://github.com/ClangBuiltLinux/linux/issues/781
-Link: https://lore.kernel.org/lkml/20180209161833.4605-1-dwmw2@infradead.org/
-Link: https://lore.kernel.org/lkml/CAK8P3a1EBaWdbAEzirFDSgHVJMtWjuNt2HGG8z+vpXeNHwETFQ@mail.gmail.com/
-Link: https://lkml.kernel.org/r/20200720204925.3654302-12-ndesaulniers@google.com
+Signed-off-by: Shirley Her <shirley.her@bayhubtech.com>
+Link: https://lore.kernel.org/r/20200721011733.8416-1-shirley.her@bayhubtech.com
+[Ulf: Updated the commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/uaccess.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 18dfa07d3ef0d..2f3e8f2a958f6 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -314,11 +314,14 @@ do {									\
+diff --git a/drivers/mmc/host/sdhci-pci-o2micro.c b/drivers/mmc/host/sdhci-pci-o2micro.c
+index e2a846885902f..ed3c605fcf0c4 100644
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -561,6 +561,12 @@ static int sdhci_pci_o2_probe_slot(struct sdhci_pci_slot *slot)
+ 			slot->host->mmc_host_ops.get_cd = sdhci_o2_get_cd;
+ 		}
  
- #define __get_user_size(x, ptr, size, retval)				\
- do {									\
-+	unsigned char x_u8__;						\
-+									\
- 	retval = 0;							\
- 	__chk_user_ptr(ptr);						\
- 	switch (size) {							\
- 	case 1:								\
--		__get_user_asm(x, ptr, retval, "b", "=q");		\
-+		__get_user_asm(x_u8__, ptr, retval, "b", "=q");		\
-+		(x) = x_u8__;						\
- 		break;							\
- 	case 2:								\
- 		__get_user_asm(x, ptr, retval, "w", "=r");		\
++		if (chip->pdev->device == PCI_DEVICE_ID_O2_SEABIRD1) {
++			slot->host->mmc_host_ops.get_cd = sdhci_o2_get_cd;
++			host->mmc->caps2 |= MMC_CAP2_NO_SDIO;
++			host->quirks2 |= SDHCI_QUIRK2_PRESET_VALUE_BROKEN;
++		}
++
+ 		host->mmc_host_ops.execute_tuning = sdhci_o2_execute_tuning;
+ 
+ 		if (chip->pdev->device != PCI_DEVICE_ID_O2_FUJIN2)
 -- 
 2.25.1
 
