@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A101B240999
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0EC5240A14
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728964AbgHJP3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:29:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35954 "EHLO mail.kernel.org"
+        id S1728952AbgHJPiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:38:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728959AbgHJP3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:29:31 -0400
+        id S1728613AbgHJPZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:25:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E12D022D07;
-        Mon, 10 Aug 2020 15:29:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E01DA20658;
+        Mon, 10 Aug 2020 15:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073370;
-        bh=p4V3sOMcIcLg6bOq8lNuDQ3c0vE6GzxHlypxaeyenpk=;
+        s=default; t=1597073157;
+        bh=LoCBf9smeqKX90IxjUKH7UtGhuBKcdKjGFseDosWpvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeCvXyjWstIb+Ig3fWKBHEVYfLL9qsUrg1q91AUOpTElFVN6DIebanmjtsUdaXYqh
-         a9UsGUuxPKD/XM4ulbrZGOiBE7Oxpco5uUIr8wj4zG+hHwE3MgSYtlVvOi7OEQ4b2t
-         pISwb/VIALlizBgPHqbHX6GoSXNCryDEulZ54UTE=
+        b=RdCZFuWycpAmThkbxzZE4jOO3I8WqZXDjRRdZW7OL7+3Q6rptxFyrBSi5Z7JMER9I
+         dJwykivaK8xiwr4DLcbnwuAuSJcpKTlIHYRrr/Guzv2t+vp+jK7VP3ZTE5QMNIfh5X
+         F9W5GHmBZzq/7TGp2PK3+6XeYM8gYXlbEb4XYr3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.19 14/48] mtd: properly check all write ioctls for permissions
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.7 77/79] mptcp: fix bogus sendmsg() return code under pressure
 Date:   Mon, 10 Aug 2020 17:21:36 +0200
-Message-Id: <20200810151804.911709325@linuxfoundation.org>
+Message-Id: <20200810151816.018579465@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-References: <20200810151804.199494191@linuxfoundation.org>
+In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
+References: <20200810151812.114485777@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,120 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit f7e6b19bc76471ba03725fe58e0c218a3d6266c3 upstream.
+[ Upstream commit 8555c6bfd5fddb1cf363d3cd157d70a1bb27f718 ]
 
-When doing a "write" ioctl call, properly check that we have permissions
-to do so before copying anything from userspace or anything else so we
-can "fail fast".  This includes also covering the MEMWRITE ioctl which
-previously missed checking for this.
+In case of memory pressure, mptcp_sendmsg() may call
+sk_stream_wait_memory() after succesfully xmitting some
+bytes. If the latter fails we currently return to the
+user-space the error code, ignoring the succeful xmit.
 
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Cc: stable <stable@kernel.org>
+Address the issue always checking for the xmitted bytes
+before mptcp_sendmsg() completes.
+
+Fixes: f296234c98a8 ("mptcp: Add handling of incoming MP_JOIN requests")
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[rw: Fixed locking issue]
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mtd/mtdchar.c |   56 +++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 47 insertions(+), 9 deletions(-)
+ net/mptcp/protocol.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/mtd/mtdchar.c
-+++ b/drivers/mtd/mtdchar.c
-@@ -368,9 +368,6 @@ static int mtdchar_writeoob(struct file
- 	uint32_t retlen;
- 	int ret = 0;
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -802,7 +802,6 @@ fallback:
  
--	if (!(file->f_mode & FMODE_WRITE))
--		return -EPERM;
--
- 	if (length > 4096)
- 		return -EINVAL;
+ 	mptcp_set_timeout(sk, ssk);
+ 	if (copied) {
+-		ret = copied;
+ 		tcp_push(ssk, msg->msg_flags, mss_now, tcp_sk(ssk)->nonagle,
+ 			 size_goal);
  
-@@ -655,6 +652,48 @@ static int mtdchar_ioctl(struct file *fi
+@@ -815,7 +814,7 @@ fallback:
+ 	release_sock(ssk);
+ out:
+ 	release_sock(sk);
+-	return ret;
++	return copied ? : ret;
+ }
  
- 	pr_debug("MTD_ioctl\n");
- 
-+	/*
-+	 * Check the file mode to require "dangerous" commands to have write
-+	 * permissions.
-+	 */
-+	switch (cmd) {
-+	/* "safe" commands */
-+	case MEMGETREGIONCOUNT:
-+	case MEMGETREGIONINFO:
-+	case MEMGETINFO:
-+	case MEMREADOOB:
-+	case MEMREADOOB64:
-+	case MEMLOCK:
-+	case MEMUNLOCK:
-+	case MEMISLOCKED:
-+	case MEMGETOOBSEL:
-+	case MEMGETBADBLOCK:
-+	case MEMSETBADBLOCK:
-+	case OTPSELECT:
-+	case OTPGETREGIONCOUNT:
-+	case OTPGETREGIONINFO:
-+	case OTPLOCK:
-+	case ECCGETLAYOUT:
-+	case ECCGETSTATS:
-+	case MTDFILEMODE:
-+	case BLKPG:
-+	case BLKRRPART:
-+		break;
-+
-+	/* "dangerous" commands */
-+	case MEMERASE:
-+	case MEMERASE64:
-+	case MEMWRITEOOB:
-+	case MEMWRITEOOB64:
-+	case MEMWRITE:
-+		if (!(file->f_mode & FMODE_WRITE))
-+			return -EPERM;
-+		break;
-+
-+	default:
-+		return -ENOTTY;
-+	}
-+
- 	switch (cmd) {
- 	case MEMGETREGIONCOUNT:
- 		if (copy_to_user(argp, &(mtd->numeraseregions), sizeof(int)))
-@@ -702,9 +741,6 @@ static int mtdchar_ioctl(struct file *fi
- 	{
- 		struct erase_info *erase;
- 
--		if(!(file->f_mode & FMODE_WRITE))
--			return -EPERM;
--
- 		erase=kzalloc(sizeof(struct erase_info),GFP_KERNEL);
- 		if (!erase)
- 			ret = -ENOMEM;
-@@ -997,9 +1033,6 @@ static int mtdchar_ioctl(struct file *fi
- 		ret = 0;
- 		break;
- 	}
--
--	default:
--		ret = -ENOTTY;
- 	}
- 
- 	return ret;
-@@ -1043,6 +1076,11 @@ static long mtdchar_compat_ioctl(struct
- 		struct mtd_oob_buf32 buf;
- 		struct mtd_oob_buf32 __user *buf_user = argp;
- 
-+		if (!(file->f_mode & FMODE_WRITE)) {
-+			ret = -EPERM;
-+			break;
-+		}
-+
- 		if (copy_from_user(&buf, argp, sizeof(buf)))
- 			ret = -EFAULT;
- 		else
+ static void mptcp_wait_data(struct sock *sk, long *timeo)
 
 
