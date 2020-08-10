@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEF92409A9
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D6F24096A
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729260AbgHJPeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
+        id S1728177AbgHJPbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728920AbgHJP24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:28:56 -0400
+        id S1728723AbgHJPb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:31:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7BE122B47;
-        Mon, 10 Aug 2020 15:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2316320774;
+        Mon, 10 Aug 2020 15:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073336;
-        bh=qeZvfDHiqugdAsX3cDYN3Pb3rFFOXn3FnRXjPQcaDf4=;
+        s=default; t=1597073488;
+        bh=2PCh6oLuxOyKaB0b/W2A72/vMsTCi5EUt/McGv1HIXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/j2gLVt52l9u6rtDSTeiJNgVoHgZeefaLxYydk1npSzu5k8jd8uAAwDvuY3doW07
-         Fsc5I8EV6G+5DbncM9D8S7xGDw1SOmxQ8gVRf4Biay8HzIRulczTfoLiDruY0G5SdM
-         byqCbzWBmo9o5kfxrTm5MKWBn0Ur6qWuM2mz26Fw=
+        b=q2LXODy7++fog29JxXbUe8nPJCnH5lMLxIiCzSSYfvpEG3/xBbWe+hb61IjBaygLe
+         YDxyfin/jua6BB5FKggTm3h0/1U7ym8395OJy/Q4PBK9Mr7WsEakIEN6NhbKcJML9s
+         4UitCrb/9bvNcMigEmCE6lGnAQC2ArL9TTJ/8RVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christopher KOBAYASHI <chris@disavowed.jp>,
-        Doug Brown <doug@downtowndougbrown.com>,
-        Vincent Duvert <vincent.ldev@duvert.net>,
-        Lukas Wunner <lukas@wunner.de>,
-        Yue Haibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 57/67] appletalk: Fix atalk_proc_init() return path
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Alain Volmat <alain.volmat@st.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/48] i2c: slave: improve sanity check when registering
 Date:   Mon, 10 Aug 2020 17:21:44 +0200
-Message-Id: <20200810151812.321216539@linuxfoundation.org>
+Message-Id: <20200810151805.310493685@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
-References: <20200810151809.438685785@linuxfoundation.org>
+In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
+References: <20200810151804.199494191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Duvert <vincent.ldev@duvert.net>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit d0f6ba2ef2c1c95069509e71402e7d6d43452512 ]
+[ Upstream commit 1b1be3bf27b62f5abcf85c6f3214bdb9c7526685 ]
 
-Add a missing return statement to atalk_proc_init so it doesn't return
--ENOMEM when successful.  This allows the appletalk module to load
-properly.
+Add check for ERR_PTR and simplify code while here.
 
-Fixes: e2bcd8b0ce6e ("appletalk: use remove_proc_subtree to simplify procfs code")
-Link: https://www.downtowndougbrown.com/2020/08/hacking-up-a-fix-for-the-broken-appletalk-kernel-module-in-linux-5-1-and-newer/
-Reported-by: Christopher KOBAYASHI <chris@disavowed.jp>
-Reported-by: Doug Brown <doug@downtowndougbrown.com>
-Signed-off-by: Vincent Duvert <vincent.ldev@duvert.net>
-[lukas: add missing tags]
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v5.1+
-Cc: Yue Haibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Alain Volmat <alain.volmat@st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/appletalk/atalk_proc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/i2c-core-slave.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/appletalk/atalk_proc.c
-+++ b/net/appletalk/atalk_proc.c
-@@ -229,6 +229,8 @@ int __init atalk_proc_init(void)
- 				     sizeof(struct aarp_iter_state), NULL))
- 		goto out;
+diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
+index 47a9f70a24a97..88959c8580ce0 100644
+--- a/drivers/i2c/i2c-core-slave.c
++++ b/drivers/i2c/i2c-core-slave.c
+@@ -22,10 +22,8 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
+ {
+ 	int ret;
  
-+	return 0;
-+
- out:
- 	remove_proc_subtree("atalk", init_net.proc_net);
- 	return -ENOMEM;
+-	if (!client || !slave_cb) {
+-		WARN(1, "insufficient data\n");
++	if (WARN(IS_ERR_OR_NULL(client) || !slave_cb, "insufficient data\n"))
+ 		return -EINVAL;
+-	}
+ 
+ 	if (!(client->flags & I2C_CLIENT_SLAVE))
+ 		dev_warn(&client->dev, "%s: client slave flag not set. You might see address collisions\n",
+-- 
+2.25.1
+
 
 
