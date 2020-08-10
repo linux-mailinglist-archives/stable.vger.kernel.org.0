@@ -2,97 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB482406DF
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 15:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6FD62406FB
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 15:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726806AbgHJNmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 09:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48246 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727065AbgHJNmp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 09:42:45 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B87AC061756
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 06:42:44 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id 77so7538250ilc.5
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 06:42:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
-        b=roZF/4fN2t70YigDT3hpuHSjK2M0AWr6iQvMLmQU6X5WL2X8DTXOgeLyGZOmkB6Wbt
-         vZddvqpzftU8uv2siD5AAmvtAg5a7ZjYjUgSVjIl3FsbgDZbDoBhpnsD7kE/X4pgqiU0
-         HMKyBIL207PwxSW0G31wf+Wu2hjHsW6jP+73cYQYSR5K4xoIkywKmcrQcuPOtdFE8cXI
-         HPndGRdjrtsyIZhKGMzXp+WTfprxnjeuBkaMS4Ve2K7luyS09OOSlOG7Rrq66G9Ngtqx
-         dKybaOzx11oJZXDCAYCpFMklMHcg/pQJBEhLSvhqe5iqqZVcsQdQAedk8VLuVf2nVAdR
-         tGrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
-        b=CNanehHWYsuQgyBFCrivh0g2xln4cRYTLmPS0NVkm/Agz5Q1V7w75HwfOQO1dSo/2G
-         8b8EYwPyOVRQJz+ZR0XdEBRcZf32k0MjCnZSRuYpT4IUzK619xLGDButhyLj58h+c65N
-         ++53DhZHEBw9R8JVtFWxaFPMSdLFJHTlKil2FEySKvLGCOPzN0+xBGiyOdVLrYbjL9SV
-         0d88KoMxaFEAKnOy2sKEooTwqk2kL1lhcSSfOe9TK9wtTN/OyN850twKTJgu2wFXhFmQ
-         43fr8QE2vZsDKS1CBa7l3VoHLcFfkLIeIWNPxV0FTgHuYr5PTg21LpUFamWbi2dGZdBK
-         HHdQ==
-X-Gm-Message-State: AOAM530CWd5xZNP6gr0jAhTY8NFgwB2Urk4fqquMLnDYuuIPKKX/cxY5
-        gwJAj6iENKjXX8hWgcfq9bhtI1vWH/ZBJKnaNxI=
-X-Google-Smtp-Source: ABdhPJzxhYsJOK0LyWDAWqJrgbzrPu78F850di47rFiFsxceYqC4UxDDKNLtJ4eh/uSf+W+RTtrWgA6LCo/OlTRMJLg=
-X-Received: by 2002:a92:354d:: with SMTP id c74mr16373286ila.27.1597066963784;
- Mon, 10 Aug 2020 06:42:43 -0700 (PDT)
+        id S1726831AbgHJNwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 09:52:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51212 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726633AbgHJNwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 09:52:07 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EF6120734;
+        Mon, 10 Aug 2020 13:52:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597067526;
+        bh=ky8q12nps6XR1CLk7mITGJzp58pN0JcVTRBo/U1W5HA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CXtTV469HiDRgKLf7lCfrE861GdEHlCOGufh8AGEATb3DH7n9K720rbLh/jzDSWxR
+         uCebORZ1l6VoNMaxq76myLR1CieaiCHSPjPc1eVzZYWvGh8+D/htMZ4DqG7ccuiuLQ
+         vqQAIImR+HzHCmQHxQPdc2CYvOyY4odOyjQn3FRw=
+Date:   Mon, 10 Aug 2020 15:52:18 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chuck Lever <chuck.lever@oracle.com>,
+        Timo Rothenpieler <timo@rothenpieler.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: Backport request: nfsd: Fix NFSv4 READ on RDMA when using readv
+Message-ID: <20200810135218.GC3491228@kroah.com>
+References: <9cc28958-b715-5e51-e0c8-6f1821d2bfe0@rothenpieler.org>
 MIME-Version: 1.0
-Received: by 2002:a05:6638:1403:0:0:0:0 with HTTP; Mon, 10 Aug 2020 06:42:43
- -0700 (PDT)
-From:   Donna Louise <donnalouisemchince@gmail.com>
-Date:   Mon, 10 Aug 2020 01:42:43 -1200
-X-Google-Sender-Auth: 3RSGS4niTTb0EJDtlMGAL96R7ac
-Message-ID: <CAGPv-0H0_6PnaB_00Ozuaa1SNyJx_R=zSSnz-X=m5T1Zj5KKJQ@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9cc28958-b715-5e51-e0c8-6f1821d2bfe0@rothenpieler.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
- Dear Friend,
+On Tue, Aug 04, 2020 at 10:47:26PM +0200, Timo Rothenpieler wrote:
+> Sorry if this is not the right approach to this, but I'd like to request a
+> backport of 412055398b9e67e07347a936fc4a6adddabe9cf4, "nfsd: Fix NFSv4 READ
+> on RDMA when using readv" to Linux 5.4.
+> 
+> The patch applies cleanly and fixes a rare but severe issue with NFS over
+> RDMA, which I just spent several days tracking down to that patch, with
+> major help from linux-nfs/rdma.
+> 
+> I have right now manually applied it to my 5.4 Kernel and can confirm it
+> fixes the issue.
 
-  I am glad to know you, but God knows you better and he knows why he
-has directed me to you at this point in time so do not be surprised at
-all. My name is Mrs. Donna Louise McInnes, a widow, i have been
-suffering from ovarian cancer disease. At this moment i am about to
-end the race like this because the illness has gotten to a very bad
-stage, without any family members and no child. I hope that you will
-not expose or betray this trust and confidence that I am about to
-entrust to you for the mutual benefit of the orphans and the less
-privileged ones. I have some funds I inherited from my late husband,
-the sum of ($11.000.000 Eleven million dollars.) deposited in the
-Bank.  Having known my present health status, I decided to entrust
-this fund to you believing that you will utilize it the way i am going
-to instruct herein.
+It's good to cc: the developers/maintainers of the patch you are asking
+about, to see if they object or not.
 
-Therefore I need you to assist me and reclaim this money and use it
-for Charity works, for orphanages and giving justice and help to the
-poor, needy and to promote the words of God and the effort that the
-house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
+Chuck, any objection for the above patch being added to 5.4 and maybe
+4.19?
 
-It will be my great pleasure to compensate you with 35 % percent of
-the total money for your personal use, 5 % percent for any expenses
-that may occur during the international transfer process while 60% of
-the money will go to the charity project.
+thanks,
 
-All I require from you is sincerity and the ability to complete God's
-task without any failure. It will be my pleasure to see that the bank
-has finally released and transferred the fund into your bank account
-therein your country even before I die here in the hospital, because
-of my present health status everything needs to be processed rapidly
-as soon as possible. I am waiting for your immediate reply, if only
-you are interested for further details of the transaction and
-execution of this charitable project.
-
-Best Regards your friend Mrs.
-Donna Louise McInnes.
+greg k-h
