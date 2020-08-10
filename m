@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45030240908
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC4224090A
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728060AbgHJP2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:28:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34254 "EHLO mail.kernel.org"
+        id S1728846AbgHJP2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:28:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbgHJP2K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:28:10 -0400
+        id S1728533AbgHJP2N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:28:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EA1B22CF7;
-        Mon, 10 Aug 2020 15:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 650A122B47;
+        Mon, 10 Aug 2020 15:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073289;
-        bh=Fa9O2AMPRvGAT3i4ukHBUsjceL2YOacHwR9V4CKYVHY=;
+        s=default; t=1597073292;
+        bh=u/EJEC7fwlnjfYmjRVebmZuNlug14uzNDm4KhwNNuzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trj2DLpiJHUgMnUy/dAlQyPhQ9luBAiSW19lGODkZiAWQN2czPe6vDtXstDLuhsFe
-         7K8OJzKNuupUVh6pel650N67JxTrl68sFDrhroenl2JPjzRkkBNxjP6xjYIrJFvkPH
-         YaWly1gNWKK8LTpn+5F0YRA8vcsmu/taz0mPoplk=
+        b=US/L+ZmnemVgUoYp4LsbREieE1xEYHXjA3DXwFfRcegljFdTQEzH91myUhnL0Nidm
+         H8j3QX9s0jjFCyqGD+q1NENBXmbiJXw1Ub2DtbcIiSZuI/CGFMbVn/5I/BTOoLluGw
+         0osEb7hnvAgKNESRDCfDWxqPcObyricZbFIjwpgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ch3332xr@gmail.com,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 51/67] ipv6: fix memory leaks on IPV6_ADDRFORM path
-Date:   Mon, 10 Aug 2020 17:21:38 +0200
-Message-Id: <20200810151811.990324030@linuxfoundation.org>
+Subject: [PATCH 5.4 52/67] ipv6: Fix nexthop refcnt leak when creating ipv6 route info
+Date:   Mon, 10 Aug 2020 17:21:39 +0200
+Message-Id: <20200810151812.040621550@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151809.438685785@linuxfoundation.org>
 References: <20200810151809.438685785@linuxfoundation.org>
@@ -44,115 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 8c0de6e96c9794cb523a516c465991a70245da1c ]
+[ Upstream commit 706ec919164622ff5ce822065472d0f30a9e9dd2 ]
 
-IPV6_ADDRFORM causes resource leaks when converting an IPv6 socket
-to IPv4, particularly struct ipv6_ac_socklist. Similar to
-struct ipv6_mc_socklist, we should just close it on this path.
+ip6_route_info_create() invokes nexthop_get(), which increases the
+refcount of the "nh".
 
-This bug can be easily reproduced with the following C program:
+When ip6_route_info_create() returns, local variable "nh" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-  #include <stdio.h>
-  #include <string.h>
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
+The reference counting issue happens in one exception handling path of
+ip6_route_info_create(). When nexthops can not be used with source
+routing, the function forgets to decrease the refcnt increased by
+nexthop_get(), causing a refcnt leak.
 
-  int main()
-  {
-    int s, value;
-    struct sockaddr_in6 addr;
-    struct ipv6_mreq m6;
+Fix this issue by pulling up the error source routing handling when
+nexthops can not be used with source routing.
 
-    s = socket(AF_INET6, SOCK_DGRAM, 0);
-    addr.sin6_family = AF_INET6;
-    addr.sin6_port = htons(5000);
-    inet_pton(AF_INET6, "::ffff:192.168.122.194", &addr.sin6_addr);
-    connect(s, (struct sockaddr *)&addr, sizeof(addr));
-
-    inet_pton(AF_INET6, "fe80::AAAA", &m6.ipv6mr_multiaddr);
-    m6.ipv6mr_interface = 5;
-    setsockopt(s, SOL_IPV6, IPV6_JOIN_ANYCAST, &m6, sizeof(m6));
-
-    value = AF_INET;
-    setsockopt(s, SOL_IPV6, IPV6_ADDRFORM, &value, sizeof(value));
-
-    close(s);
-    return 0;
-  }
-
-Reported-by: ch3332xr@gmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Fixes: f88d8ea67fbd ("ipv6: Plumb support for nexthop object in a fib6_info")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/addrconf.h   |    1 +
- net/ipv6/anycast.c       |   17 ++++++++++++-----
- net/ipv6/ipv6_sockglue.c |    1 +
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ net/ipv6/route.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/net/addrconf.h
-+++ b/include/net/addrconf.h
-@@ -273,6 +273,7 @@ int ipv6_sock_ac_join(struct sock *sk, i
- 		      const struct in6_addr *addr);
- int ipv6_sock_ac_drop(struct sock *sk, int ifindex,
- 		      const struct in6_addr *addr);
-+void __ipv6_sock_ac_close(struct sock *sk);
- void ipv6_sock_ac_close(struct sock *sk);
- 
- int __ipv6_dev_ac_inc(struct inet6_dev *idev, const struct in6_addr *addr);
---- a/net/ipv6/anycast.c
-+++ b/net/ipv6/anycast.c
-@@ -183,7 +183,7 @@ int ipv6_sock_ac_drop(struct sock *sk, i
- 	return 0;
- }
- 
--void ipv6_sock_ac_close(struct sock *sk)
-+void __ipv6_sock_ac_close(struct sock *sk)
- {
- 	struct ipv6_pinfo *np = inet6_sk(sk);
- 	struct net_device *dev = NULL;
-@@ -191,10 +191,7 @@ void ipv6_sock_ac_close(struct sock *sk)
- 	struct net *net = sock_net(sk);
- 	int	prev_index;
- 
--	if (!np->ipv6_ac_list)
--		return;
--
--	rtnl_lock();
-+	ASSERT_RTNL();
- 	pac = np->ipv6_ac_list;
- 	np->ipv6_ac_list = NULL;
- 
-@@ -211,6 +208,16 @@ void ipv6_sock_ac_close(struct sock *sk)
- 		sock_kfree_s(sk, pac, sizeof(*pac));
- 		pac = next;
- 	}
-+}
-+
-+void ipv6_sock_ac_close(struct sock *sk)
-+{
-+	struct ipv6_pinfo *np = inet6_sk(sk);
-+
-+	if (!np->ipv6_ac_list)
-+		return;
-+	rtnl_lock();
-+	__ipv6_sock_ac_close(sk);
- 	rtnl_unlock();
- }
- 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -205,6 +205,7 @@ static int do_ipv6_setsockopt(struct soc
- 
- 			fl6_free_socklist(sk);
- 			__ipv6_sock_mc_close(sk);
-+			__ipv6_sock_ac_close(sk);
- 
- 			/*
- 			 * Sock is moving from IPv6 to IPv4 (sk_prot), so
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3686,14 +3686,14 @@ static struct fib6_info *ip6_route_info_
+ 	rt->fib6_src.plen = cfg->fc_src_len;
+ #endif
+ 	if (nh) {
+-		if (!nexthop_get(nh)) {
+-			NL_SET_ERR_MSG(extack, "Nexthop has been deleted");
+-			goto out;
+-		}
+ 		if (rt->fib6_src.plen) {
+ 			NL_SET_ERR_MSG(extack, "Nexthops can not be used with source routing");
+ 			goto out;
+ 		}
++		if (!nexthop_get(nh)) {
++			NL_SET_ERR_MSG(extack, "Nexthop has been deleted");
++			goto out;
++		}
+ 		rt->nh = nh;
+ 		fib6_nh = nexthop_fib6_nh(rt->nh);
+ 	} else {
 
 
