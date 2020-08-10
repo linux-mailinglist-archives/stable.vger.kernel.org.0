@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D73E240ED2
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815E6240ED0
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730092AbgHJTQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
+        id S1729464AbgHJTQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:16:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730043AbgHJTOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:14:44 -0400
+        id S1730085AbgHJTOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:14:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03DB522D71;
-        Mon, 10 Aug 2020 19:14:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24B5E207FF;
+        Mon, 10 Aug 2020 19:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086883;
-        bh=DgRfjOAL99Bcig5Syjy1M8Hb2R8D2sQIhGar/tiO4I0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIpP/qKabKzn3P+x5kr6eWoP3izo/+C/hhPO/XhI2+/FActFz3p0vUooWXVaSvBBe
-         SRDRZtf2gyaYdX8RhNree/XlSfbFNuvevW4YGRYq4HFFE6m0t7rpIPyDBNoduvomG9
-         v7lzaR2u3/K/EJNWK35uF+80VrPliXzjXKzaDfQY=
+        s=default; t=1597086886;
+        bh=/gOzTMPZIOTgJFu167RPmJPiUuZ4b9Oq/6VRU/ZXW68=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KGhr1KmOvowzfh/FSTyAjmp+azx5q9wzMGaHASASv+DN3CV11qTyLQthAF93N5Nd1
+         9dJmpbrt6O0WgdcvIttBgLsUWGnpMM2cI0GFEacRsnDDelQqJpg2CNhZNrHu1z/O2K
+         bhVhFlwF/GbJNQL/9qIh8i2WXdRBihWjRS1HDL20=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Erik Kaneda <erik.kaneda@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 4.9 17/17] ACPICA: Do not increment operation_region reference counts for field units
-Date:   Mon, 10 Aug 2020 15:14:18 -0400
-Message-Id: <20200810191418.3795394-17-sashal@kernel.org>
+Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>, Jyri Sarha <jsarha@ti.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 01/16] drm/tilcdc: fix leak & null ref in panel_connector_get_modes
+Date:   Mon, 10 Aug 2020 15:14:28 -0400
+Message-Id: <20200810191443.3795581-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200810191418.3795394-1-sashal@kernel.org>
-References: <20200810191418.3795394-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,78 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Kaneda <erik.kaneda@intel.com>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-[ Upstream commit 6a54ebae6d047c988a31f5ac5a64ab5cf83797a2 ]
+[ Upstream commit 3f9c1c872cc97875ddc8d63bc9fe6ee13652b933 ]
 
-ACPICA commit e17b28cfcc31918d0db9547b6b274b09c413eb70
+If videomode_from_timings() returns true, the mode allocated with
+drm_mode_create will be leaked.
 
-Object reference counts are used as a part of ACPICA's garbage
-collection mechanism. This mechanism keeps track of references to
-heap-allocated structures such as the ACPI operand objects.
+Also, the return value of drm_mode_create() is never checked, and thus
+could cause NULL deref.
 
-Recent server firmware has revealed that this reference count can
-overflow on large servers that declare many field units under the
-same operation_region. This occurs because each field unit declaration
-will add a reference count to the source operation_region.
+Fix these two issues.
 
-This change solves the reference count overflow for operation_regions
-objects by preventing fieldunits from incrementing their
-operation_region's reference count. Each operation_region's reference
-count will not be changed by named objects declared under the Field
-operator. During namespace deletion, the operation_region namespace
-node will be deleted and each fieldunit will be deleted without
-touching the deleted operation_region object.
-
-Link: https://github.com/acpica/acpica/commit/e17b28cf
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200429104234.18910-1-tomi.valkeinen@ti.com
+Reviewed-by: Jyri Sarha <jsarha@ti.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exprep.c   | 4 ----
- drivers/acpi/acpica/utdelete.c | 6 +-----
- 2 files changed, 1 insertion(+), 9 deletions(-)
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/exprep.c b/drivers/acpi/acpica/exprep.c
-index aed8d34592209..c2c391d5c5a1c 100644
---- a/drivers/acpi/acpica/exprep.c
-+++ b/drivers/acpi/acpica/exprep.c
-@@ -507,10 +507,6 @@ acpi_status acpi_ex_prep_field_value(struct acpi_create_field_info *info)
- 				    (u8)access_byte_width;
- 			}
- 		}
--		/* An additional reference for the container */
--
--		acpi_ut_add_reference(obj_desc->field.region_obj);
--
- 		ACPI_DEBUG_PRINT((ACPI_DB_BFIELD,
- 				  "RegionField: BitOff %X, Off %X, Gran %X, Region %p\n",
- 				  obj_desc->field.start_field_bit_offset,
-diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
-index 529d6c38ea7ce..03a2282ceb9ca 100644
---- a/drivers/acpi/acpica/utdelete.c
-+++ b/drivers/acpi/acpica/utdelete.c
-@@ -591,11 +591,6 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
- 			next_object = object->buffer_field.buffer_obj;
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+index 0af8bed7ce1ee..08d8f608be632 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+@@ -177,12 +177,16 @@ static int panel_connector_get_modes(struct drm_connector *connector)
+ 	int i;
+ 
+ 	for (i = 0; i < timings->num_timings; i++) {
+-		struct drm_display_mode *mode = drm_mode_create(dev);
++		struct drm_display_mode *mode;
+ 		struct videomode vm;
+ 
+ 		if (videomode_from_timings(timings, &vm, i))
  			break;
  
--		case ACPI_TYPE_LOCAL_REGION_FIELD:
--
--			next_object = object->field.region_obj;
--			break;
--
- 		case ACPI_TYPE_LOCAL_BANK_FIELD:
++		mode = drm_mode_create(dev);
++		if (!mode)
++			break;
++
+ 		drm_display_mode_from_videomode(&vm, mode);
  
- 			next_object = object->bank_field.bank_obj;
-@@ -636,6 +631,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
- 			}
- 			break;
- 
-+		case ACPI_TYPE_LOCAL_REGION_FIELD:
- 		case ACPI_TYPE_REGION:
- 		default:
- 
+ 		mode->type = DRM_MODE_TYPE_DRIVER;
 -- 
 2.25.1
 
