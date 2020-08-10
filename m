@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74CC24093E
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4E7240940
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgHJPaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:30:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37578 "EHLO mail.kernel.org"
+        id S1728605AbgHJPaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:30:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728605AbgHJPae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:30:34 -0400
+        id S1728318AbgHJPah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:30:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3918820774;
-        Mon, 10 Aug 2020 15:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 655DA20774;
+        Mon, 10 Aug 2020 15:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073433;
-        bh=0ZrsPUjG0hdVMilu3PldGC8BakCU6TEwpGp5jBD+8ro=;
+        s=default; t=1597073436;
+        bh=yCnOv7z6QR8V//pqvrVl+elidpg/YiHVrVZ9pqUErzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PUc7HbYRbdVej6t0nCYIco3gg1MqugfwPXohPoRehBa9MBLNxHL+ESZz+UHKlWlV
-         O/xRAlDr/8U9ofHcNRWq3wVfpXfi/Uri87DzEfcqOiFdmukKGairq+mbyTxB3dXKse
-         UT9+wVu0KKd2L6m27eYFz3xbEwQ1qrW9jGnKk4EA=
+        b=0Eix6MotZRTq77L5XkIg+eDqmqRe63MhzXhclL4qi4X4zuon3BscF7ytxw35Te6q2
+         vPOEPqGLRPIaxyFyHiwbzKzBhepZ0+dveAdZh9YWrUSXtufKd9m4BRuAANNlzGIFzK
+         OZCXQ11voLLBu2b6Jvo7gEmO5wIPWie0NFMnkFGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, "Rafael P." <rparrazo@redhat.com>,
+        Dean Nelson <dnelson@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 38/48] net: gre: recompute gre csum for sctp over gre tunnels
-Date:   Mon, 10 Aug 2020 17:22:00 +0200
-Message-Id: <20200810151806.093646552@linuxfoundation.org>
+Subject: [PATCH 4.19 39/48] net: thunderx: use spin_lock_bh in nicvf_set_rx_mode_task()
+Date:   Mon, 10 Aug 2020 17:22:01 +0200
+Message-Id: <20200810151806.141225080@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
 References: <20200810151804.199494191@linuxfoundation.org>
@@ -44,69 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 622e32b7d4a6492cf5c1f759ef833f817418f7b3 ]
+[ Upstream commit bab9693a9a8c6dd19f670408ec1e78e12a320682 ]
 
-The GRE tunnel can be used to transport traffic that does not rely on a
-Internet checksum (e.g. SCTP). The issue can be triggered creating a GRE
-or GRETAP tunnel and transmitting SCTP traffic ontop of it where CRC
-offload has been disabled. In order to fix the issue we need to
-recompute the GRE csum in gre_gso_segment() not relying on the inner
-checksum.
-The issue is still present when we have the CRC offload enabled.
-In this case we need to disable the CRC offload if we require GRE
-checksum since otherwise skb_checksum() will report a wrong value.
+A dead lock was triggered on thunderx driver:
 
-Fixes: 90017accff61 ("sctp: Add GSO support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+        CPU0                    CPU1
+        ----                    ----
+   [01] lock(&(&nic->rx_mode_wq_lock)->rlock);
+                           [11] lock(&(&mc->mca_lock)->rlock);
+                           [12] lock(&(&nic->rx_mode_wq_lock)->rlock);
+   [02] <Interrupt> lock(&(&mc->mca_lock)->rlock);
+
+The path for each is:
+
+  [01] worker_thread() -> process_one_work() -> nicvf_set_rx_mode_task()
+  [02] mld_ifc_timer_expire()
+  [11] ipv6_add_dev() -> ipv6_dev_mc_inc() -> igmp6_group_added() ->
+  [12] dev_mc_add() -> __dev_set_rx_mode() -> nicvf_set_rx_mode()
+
+To fix it, it needs to disable bh on [1], so that the timer on [2]
+wouldn't be triggered until rx_mode_wq_lock is released. So change
+to use spin_lock_bh() instead of spin_lock().
+
+Thanks to Paolo for helping with this.
+
+v1->v2:
+  - post to netdev.
+
+Reported-by: Rafael P. <rparrazo@redhat.com>
+Tested-by: Dean Nelson <dnelson@redhat.com>
+Fixes: 469998c861fa ("net: thunderx: prevent concurrent data re-writing by nicvf_set_rx_mode")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/gre_offload.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cavium/thunder/nicvf_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/gre_offload.c
-+++ b/net/ipv4/gre_offload.c
-@@ -19,12 +19,12 @@ static struct sk_buff *gre_gso_segment(s
- 				       netdev_features_t features)
- {
- 	int tnl_hlen = skb_inner_mac_header(skb) - skb_transport_header(skb);
-+	bool need_csum, need_recompute_csum, gso_partial;
- 	struct sk_buff *segs = ERR_PTR(-EINVAL);
- 	u16 mac_offset = skb->mac_header;
- 	__be16 protocol = skb->protocol;
- 	u16 mac_len = skb->mac_len;
- 	int gre_offset, outer_hlen;
--	bool need_csum, gso_partial;
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+@@ -2015,11 +2015,11 @@ static void nicvf_set_rx_mode_task(struc
+ 	/* Save message data locally to prevent them from
+ 	 * being overwritten by next ndo_set_rx_mode call().
+ 	 */
+-	spin_lock(&nic->rx_mode_wq_lock);
++	spin_lock_bh(&nic->rx_mode_wq_lock);
+ 	mode = vf_work->mode;
+ 	mc = vf_work->mc;
+ 	vf_work->mc = NULL;
+-	spin_unlock(&nic->rx_mode_wq_lock);
++	spin_unlock_bh(&nic->rx_mode_wq_lock);
  
- 	if (!skb->encapsulation)
- 		goto out;
-@@ -45,6 +45,7 @@ static struct sk_buff *gre_gso_segment(s
- 	skb->protocol = skb->inner_protocol;
- 
- 	need_csum = !!(skb_shinfo(skb)->gso_type & SKB_GSO_GRE_CSUM);
-+	need_recompute_csum = skb->csum_not_inet;
- 	skb->encap_hdr_csum = need_csum;
- 
- 	features &= skb->dev->hw_enc_features;
-@@ -102,7 +103,15 @@ static struct sk_buff *gre_gso_segment(s
- 		}
- 
- 		*(pcsum + 1) = 0;
--		*pcsum = gso_make_checksum(skb, 0);
-+		if (need_recompute_csum && !skb_is_gso(skb)) {
-+			__wsum csum;
-+
-+			csum = skb_checksum(skb, gre_offset,
-+					    skb->len - gre_offset, 0);
-+			*pcsum = csum_fold(csum);
-+		} else {
-+			*pcsum = gso_make_checksum(skb, 0);
-+		}
- 	} while ((skb = skb->next));
- out:
- 	return segs;
+ 	__nicvf_set_rx_mode_task(mode, mc, nic);
+ }
 
 
