@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBC02400EA
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 04:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 404482400EB
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 04:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726361AbgHJCdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Aug 2020 22:33:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37362 "EHLO mail.kernel.org"
+        id S1726370AbgHJCdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Aug 2020 22:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726219AbgHJCdu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Aug 2020 22:33:50 -0400
+        id S1726219AbgHJCdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Aug 2020 22:33:52 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3652206CD;
-        Mon, 10 Aug 2020 02:33:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A82A3206C3;
+        Mon, 10 Aug 2020 02:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597026829;
-        bh=lbkyxV1P7nWYNF0cXQ3+4zFx8IUBGz6+5Ha3FnO0Sc8=;
+        s=default; t=1597026832;
+        bh=Ht0tdOtQGI9SWE4ZcV9bVWpQm0KNiHHVysILtEkmPLA=;
         h=Date:From:To:Subject:From;
-        b=VuihkWCyGNxS2g7Diah4HDpuORoU2aHqU7WE1LoNLpa5iu8kMlwMms5UdBbkbNPAd
-         wOhVKqnpO6J8iLLHvvkR/8aTNJXnmkJw2E3jrkD5ruAXT+p12tNa4zSllDZv8Wi19S
-         Nqy6Ra++Gj6BkLpUWhmHA+6ZCAJy761NFGv4MuQo=
-Date:   Sun, 09 Aug 2020 19:33:48 -0700
+        b=gW0j0dkPu0O5s8vLgs9MnoXDrggdsBli3LKSR+RWjzh9upZ3X0WYVWfRSLB5N72Sk
+         uJ2PKp5VdxIDRQgaqWZl2Bi8WU5aWb0a3msZaFCWGodduybooEh3FBbc+kRlVQpJHh
+         QuDSCIeAMqMALhSJLVLNaISEp3SBZ5eYOsgXzR0o=
+Date:   Sun, 09 Aug 2020 19:33:51 -0700
 From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, dan.j.williams@intel.com,
-        david@redhat.com, hannes@cmpxchg.org, mgorman@techsingularity.net,
-        mhocko@suse.com, minchan@kernel.org, mm-commits@vger.kernel.org,
-        richard.weiyang@gmail.com, richard.weiyang@linux.alibaba.com,
-        stable@vger.kernel.org, ying.huang@intel.com
-Subject:  [merged]
- =?US-ASCII?Q?mm-shuffle-dont-move-pages-between-zones-and-dont-read-garba?=
- =?US-ASCII?Q?ge-memmaps.patch?= removed from -mm tree
-Message-ID: <20200810023348.yVOCGVpkJ%akpm@linux-foundation.org>
+To:     axboe@kernel.dk, hch@lst.de, jannh@google.com,
+        keescook@chromium.org, luto@amacapital.net,
+        mathieu.desnoyers@efficios.com, mm-commits@vger.kernel.org,
+        npiggin@gmail.com, peterz@infradead.org, stable@vger.kernel.org,
+        will@kernel.org
+Subject:  [merged] mm-fix-kthread_use_mm-vs-tlb-invalidate.patch
+ removed from -mm tree
+Message-ID: <20200810023351.SpZE0POf7%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,109 +41,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/shuffle: don't move pages between zones and don't read garbage memmaps
+     Subject: mm: fix kthread_use_mm() vs TLB invalidate
 has been removed from the -mm tree.  Its filename was
-     mm-shuffle-dont-move-pages-between-zones-and-dont-read-garbage-memmaps.patch
+     mm-fix-kthread_use_mm-vs-tlb-invalidate.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: David Hildenbrand <david@redhat.com>
-Subject: mm/shuffle: don't move pages between zones and don't read garbage memmaps
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: mm: fix kthread_use_mm() vs TLB invalidate
 
-Especially with memory hotplug, we can have offline sections (with a
-garbage memmap) and overlapping zones.  We have to make sure to only touch
-initialized memmaps (online sections managed by the buddy) and that the
-zone matches, to not move pages between zones.
+For SMP systems using IPI based TLB invalidation, looking at
+current->active_mm is entirely reasonable.  This then presents the
+following race condition:
 
-To test if this can actually happen, I added a simple
 
-	BUG_ON(page_zone(page_i) != page_zone(page_j));
+  CPU0			CPU1
 
-right before the swap.  When hotplugging a 256M DIMM to a 4G x86-64 VM and
-onlining the first memory block "online_movable" and the second memory
-block "online_kernel", it will trigger the BUG, as both zones (NORMAL and
-MOVABLE) overlap.
+  flush_tlb_mm(mm)	use_mm(mm)
+    <send-IPI>
+			  tsk->active_mm = mm;
+			  <IPI>
+			    if (tsk->active_mm == mm)
+			      // flush TLBs
+			  </IPI>
+			  switch_mm(old_mm,mm,tsk);
 
-This might result in all kinds of weird situations (e.g., double
-allocations, list corruptions, unmovable allocations ending up in the
-movable zone).
 
-Link: http://lkml.kernel.org/r/20200624094741.9918-2-david@redhat.com
-Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[5.2+]
+Where it is possible the IPI flushed the TLBs for @old_mm, not @mm,
+because the IPI lands before we actually switched.
+
+Avoid this by disabling IRQs across changing ->active_mm and
+switch_mm().
+
+Of the (SMP) architectures that have IPI based TLB invalidate:
+
+  Alpha    - checks active_mm
+  ARC      - ASID specific
+  IA64     - checks active_mm
+  MIPS     - ASID specific flush
+  OpenRISC - shoots down world
+  PARISC   - shoots down world
+  SH       - ASID specific
+  SPARC    - ASID specific
+  x86      - N/A
+  xtensa   - checks active_mm
+
+So at the very least Alpha, IA64 and Xtensa are suspect.
+
+On top of this, for scheduler consistency we need at least preemption
+disabled across changing tsk->mm and doing switch_mm(), which is
+currently provided by task_lock(), but that's not sufficient for
+PREEMPT_RT.
+
+[akpm@linux-foundation.org: add comment]
+Link: http://lkml.kernel.org/r/20200721154106.GE10769@hirez.programming.kicks-ass.net
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: Andy Lutomirski <luto@amacapital.net>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/shuffle.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/kthread.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/mm/shuffle.c~mm-shuffle-dont-move-pages-between-zones-and-dont-read-garbage-memmaps
-+++ a/mm/shuffle.c
-@@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store
-  * For two pages to be swapped in the shuffle, they must be free (on a
-  * 'free_area' lru), have the same order, and have the same migratetype.
-  */
--static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
-+static struct page * __meminit shuffle_valid_page(struct zone *zone,
-+						  unsigned long pfn, int order)
- {
--	struct page *page;
-+	struct page *page = pfn_to_online_page(pfn);
+--- a/kernel/kthread.c~mm-fix-kthread_use_mm-vs-tlb-invalidate
++++ a/kernel/kthread.c
+@@ -1241,13 +1241,16 @@ void kthread_use_mm(struct mm_struct *mm
+ 	WARN_ON_ONCE(tsk->mm);
  
- 	/*
- 	 * Given we're dealing with randomly selected pfns in a zone we
- 	 * need to ask questions like...
- 	 */
+ 	task_lock(tsk);
++	/* Hold off tlb flush IPIs while switching mm's */
++	local_irq_disable();
+ 	active_mm = tsk->active_mm;
+ 	if (active_mm != mm) {
+ 		mmgrab(mm);
+ 		tsk->active_mm = mm;
+ 	}
+ 	tsk->mm = mm;
+-	switch_mm(active_mm, mm, tsk);
++	switch_mm_irqs_off(active_mm, mm, tsk);
++	local_irq_enable();
+ 	task_unlock(tsk);
+ #ifdef finish_arch_post_lock_switch
+ 	finish_arch_post_lock_switch();
+@@ -1276,9 +1279,11 @@ void kthread_unuse_mm(struct mm_struct *
  
--	/* ...is the pfn even in the memmap? */
--	if (!pfn_valid_within(pfn))
-+	/* ... is the page managed by the buddy? */
-+	if (!page)
- 		return NULL;
- 
--	/* ...is the pfn in a present section or a hole? */
--	if (!pfn_in_present_section(pfn))
-+	/* ... is the page assigned to the same zone? */
-+	if (page_zone(page) != zone)
- 		return NULL;
- 
- 	/* ...is the page free and currently on a free_area list? */
--	page = pfn_to_page(pfn);
- 	if (!PageBuddy(page))
- 		return NULL;
- 
-@@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zon
- 		 * page_j randomly selected in the span @zone_start_pfn to
- 		 * @spanned_pages.
- 		 */
--		page_i = shuffle_valid_page(i, order);
-+		page_i = shuffle_valid_page(z, i, order);
- 		if (!page_i)
- 			continue;
- 
-@@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zon
- 			j = z->zone_start_pfn +
- 				ALIGN_DOWN(get_random_long() % z->spanned_pages,
- 						order_pages);
--			page_j = shuffle_valid_page(j, order);
-+			page_j = shuffle_valid_page(z, j, order);
- 			if (page_j && page_j != page_i)
- 				break;
- 		}
+ 	task_lock(tsk);
+ 	sync_mm_rss(mm);
++	local_irq_disable();
+ 	tsk->mm = NULL;
+ 	/* active_mm is still 'mm' */
+ 	enter_lazy_tlb(mm, tsk);
++	local_irq_enable();
+ 	task_unlock(tsk);
+ }
+ EXPORT_SYMBOL_GPL(kthread_unuse_mm);
 _
 
-Patches currently in -mm which might be from david@redhat.com are
+Patches currently in -mm which might be from peterz@infradead.org are
 
 
