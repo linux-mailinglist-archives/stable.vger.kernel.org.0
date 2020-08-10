@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FC0240EC9
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8206B240ECC
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730093AbgHJTOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:14:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47298 "EHLO mail.kernel.org"
+        id S1729339AbgHJTQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:16:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730082AbgHJTOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:14:48 -0400
+        id S1730092AbgHJTOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:14:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89F9A22C9E;
-        Mon, 10 Aug 2020 19:14:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A56222BEB;
+        Mon, 10 Aug 2020 19:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086887;
-        bh=2R3z984rFOdN8uqAPoe8cJ/10YD+Q32bNKUVBayTgo8=;
+        s=default; t=1597086888;
+        bh=rkIkLFMimB7x9/DIDpwBmJitV76NacxY2sxEGNkNxco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQd/sxIDtDz2nTZ9Kzjwk8Uuvm8sXBBxmWdKtyaHwSOpvtKqXefEmJN6lxb7iH6PK
-         qpd5BA2XFZhXYzz/J3duEnrcEEk3IgZsOYrohUf2Voj5ws7d/dstZSgFTyVWBhIG7/
-         IaBUrD5uMh7HN0O0h9hAHhV6rlwv/YGKdkjrB8G8=
+        b=ReJM0dCDh3ScUBEc1PJ21OmHM8rFsNyTl6zAwYSuc06miZMFcTo9SuDmFU71VbNBQ
+         VwZZ8clKzUcl85g6zIEO9qNYyOQp+/ZrJmhR0DnvkSOTI32i8tSXcONGemy8qK3a6B
+         MVTsGOIQ0kxyL8qTqjZcFRPXTfAuebChh6+MHXF8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lihong Kou <koulihong@huawei.com>,
-        syzbot+96414aa0033c363d8458@syzkaller.appspotmail.com,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 02/16] Bluetooth: add a mutex lock to avoid UAF in do_enale_set
-Date:   Mon, 10 Aug 2020 15:14:29 -0400
-Message-Id: <20200810191443.3795581-2-sashal@kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 03/16] fs/btrfs: Add cond_resched() for try_release_extent_mapping() stalls
+Date:   Mon, 10 Aug 2020 15:14:30 -0400
+Message-Id: <20200810191443.3795581-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200810191443.3795581-1-sashal@kernel.org>
 References: <20200810191443.3795581-1-sashal@kernel.org>
@@ -45,140 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lihong Kou <koulihong@huawei.com>
+From: "Paul E. McKenney" <paulmck@kernel.org>
 
-[ Upstream commit f9c70bdc279b191da8d60777c627702c06e4a37d ]
+[ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
 
-In the case we set or free the global value listen_chan in
-different threads, we can encounter the UAF problems because
-the method is not protected by any lock, add one to avoid
-this bug.
+Very large I/Os can cause the following RCU CPU stall warning:
 
-BUG: KASAN: use-after-free in l2cap_chan_close+0x48/0x990
-net/bluetooth/l2cap_core.c:730
-Read of size 8 at addr ffff888096950000 by task kworker/1:102/2868
+RIP: 0010:rb_prev+0x8/0x50
+Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
+89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
+RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
+RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
+RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
+RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
+R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
+R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
+ __lookup_extent_mapping+0xa0/0x110
+ try_release_extent_mapping+0xdc/0x220
+ btrfs_releasepage+0x45/0x70
+ shrink_page_list+0xa39/0xb30
+ shrink_inactive_list+0x18f/0x3b0
+ shrink_lruvec+0x38e/0x6b0
+ shrink_node+0x14d/0x690
+ do_try_to_free_pages+0xc6/0x3e0
+ try_to_free_mem_cgroup_pages+0xe6/0x1e0
+ reclaim_high.constprop.73+0x87/0xc0
+ mem_cgroup_handle_over_high+0x66/0x150
+ exit_to_usermode_loop+0x82/0xd0
+ do_syscall_64+0xd4/0x100
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-CPU: 1 PID: 2868 Comm: kworker/1:102 Not tainted 5.5.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine,
-BIOS Google 01/01/2011
-Workqueue: events do_enable_set
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1fb/0x318 lib/dump_stack.c:118
- print_address_description+0x74/0x5c0 mm/kasan/report.c:374
- __kasan_report+0x149/0x1c0 mm/kasan/report.c:506
- kasan_report+0x26/0x50 mm/kasan/common.c:641
- __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
- l2cap_chan_close+0x48/0x990 net/bluetooth/l2cap_core.c:730
- do_enable_set+0x660/0x900 net/bluetooth/6lowpan.c:1074
- process_one_work+0x7f5/0x10f0 kernel/workqueue.c:2264
- worker_thread+0xbbc/0x1630 kernel/workqueue.c:2410
- kthread+0x332/0x350 kernel/kthread.c:255
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+On a PREEMPT=n kernel, the try_release_extent_mapping() function's
+"while" loop might run for a very long time on a large I/O.  This commit
+therefore adds a cond_resched() to this loop, providing RCU any needed
+quiescent states.
 
-Allocated by task 2870:
- save_stack mm/kasan/common.c:72 [inline]
- set_track mm/kasan/common.c:80 [inline]
- __kasan_kmalloc+0x118/0x1c0 mm/kasan/common.c:515
- kasan_kmalloc+0x9/0x10 mm/kasan/common.c:529
- kmem_cache_alloc_trace+0x221/0x2f0 mm/slab.c:3551
- kmalloc include/linux/slab.h:555 [inline]
- kzalloc include/linux/slab.h:669 [inline]
- l2cap_chan_create+0x50/0x320 net/bluetooth/l2cap_core.c:446
- chan_create net/bluetooth/6lowpan.c:640 [inline]
- bt_6lowpan_listen net/bluetooth/6lowpan.c:959 [inline]
- do_enable_set+0x6a4/0x900 net/bluetooth/6lowpan.c:1078
- process_one_work+0x7f5/0x10f0 kernel/workqueue.c:2264
- worker_thread+0xbbc/0x1630 kernel/workqueue.c:2410
- kthread+0x332/0x350 kernel/kthread.c:255
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-
-Freed by task 2870:
- save_stack mm/kasan/common.c:72 [inline]
- set_track mm/kasan/common.c:80 [inline]
- kasan_set_free_info mm/kasan/common.c:337 [inline]
- __kasan_slab_free+0x12e/0x1e0 mm/kasan/common.c:476
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:485
- __cache_free mm/slab.c:3426 [inline]
- kfree+0x10d/0x220 mm/slab.c:3757
- l2cap_chan_destroy net/bluetooth/l2cap_core.c:484 [inline]
- kref_put include/linux/kref.h:65 [inline]
- l2cap_chan_put+0x170/0x190 net/bluetooth/l2cap_core.c:498
- do_enable_set+0x66c/0x900 net/bluetooth/6lowpan.c:1075
- process_one_work+0x7f5/0x10f0 kernel/workqueue.c:2264
- worker_thread+0xbbc/0x1630 kernel/workqueue.c:2410
- kthread+0x332/0x350 kernel/kthread.c:255
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-
-The buggy address belongs to the object at ffff888096950000
- which belongs to the cache kmalloc-2k of size 2048
-The buggy address is located 0 bytes inside of
- 2048-byte region [ffff888096950000, ffff888096950800)
-The buggy address belongs to the page:
-page:ffffea00025a5400 refcount:1 mapcount:0 mapping:ffff8880aa400e00 index:0x0
-flags: 0xfffe0000000200(slab)
-raw: 00fffe0000000200 ffffea00027d1548 ffffea0002397808 ffff8880aa400e00
-raw: 0000000000000000 ffff888096950000 0000000100000001 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88809694ff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff88809694ff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff888096950000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                   ^
- ffff888096950080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff888096950100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Reported-by: syzbot+96414aa0033c363d8458@syzkaller.appspotmail.com
-Signed-off-by: Lihong Kou <koulihong@huawei.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/extent_io.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index 4cd6b8d811ffa..11602902884ba 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -57,6 +57,7 @@ static bool enable_6lowpan;
- /* We are listening incoming connections via this channel
-  */
- static struct l2cap_chan *listen_chan;
-+static DEFINE_MUTEX(set_lock);
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 42b7409d4cc55..2f9f738ecf84a 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4437,6 +4437,8 @@ int try_release_extent_mapping(struct extent_map_tree *map,
  
- struct lowpan_peer {
- 	struct list_head list;
-@@ -1195,12 +1196,14 @@ static void do_enable_set(struct work_struct *work)
- 
- 	enable_6lowpan = set_enable->flag;
- 
-+	mutex_lock(&set_lock);
- 	if (listen_chan) {
- 		l2cap_chan_close(listen_chan, 0);
- 		l2cap_chan_put(listen_chan);
- 	}
- 
- 	listen_chan = bt_6lowpan_listen();
-+	mutex_unlock(&set_lock);
- 
- 	kfree(set_enable);
- }
-@@ -1252,11 +1255,13 @@ static ssize_t lowpan_control_write(struct file *fp,
- 		if (ret == -EINVAL)
- 			return ret;
- 
-+		mutex_lock(&set_lock);
- 		if (listen_chan) {
- 			l2cap_chan_close(listen_chan, 0);
- 			l2cap_chan_put(listen_chan);
- 			listen_chan = NULL;
+ 			/* once for us */
+ 			free_extent_map(em);
++
++			cond_resched(); /* Allow large-extent preemption. */
  		}
-+		mutex_unlock(&set_lock);
- 
- 		if (conn) {
- 			struct lowpan_peer *peer;
+ 	}
+ 	return try_release_extent_state(map, tree, page, mask);
 -- 
 2.25.1
 
