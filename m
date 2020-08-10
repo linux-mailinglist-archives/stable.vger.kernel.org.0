@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30611240854
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C258240849
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727891AbgHJPUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:20:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50336 "EHLO mail.kernel.org"
+        id S1726769AbgHJPT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727880AbgHJPUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:20:06 -0400
+        id S1725869AbgHJPT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:19:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 349AB22B4B;
-        Mon, 10 Aug 2020 15:20:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B937207BB;
+        Mon, 10 Aug 2020 15:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072805;
-        bh=y27Zhu8F9W1JK886ANmln+6mHUPnci9sProeWuTqNfQ=;
+        s=default; t=1597072765;
+        bh=XSqucGMa32wJj88uZBFYJ2AD4Hy2/Cjd6juWq2PmRHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thaHSn7pEH+CF/jfuiGeZP44L0KIBV4GVZQws96g5XEp0fi0mAYnB/ezKBf06/IvD
-         BjA04RHpkjDOC/ts8C1a6YWa+QT/q8lqYmDgZlT3IKyaOAhV/d1GRYDWvJ9xWMeYgC
-         0rSZygu8fA047QnPEkXkXCrC7Y/4VPpF5KvWALnQ=
+        b=175tJjZtT+gKtVID6pBj5pUcoOi+jpemEzEUD+0naK0/W9xVmpJO+OvW7IUbCSHEP
+         0h/M7AsHsBL2z2xx4KoorbzBCmT6kEyR1hn0BUlM/yPp5WJ5vaMzrItVBTbM8omYJC
+         gjwS4PIq1aWwHX4PRq8r74lenz6ouj6r2WLMgL1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 09/38] ALSA: hda/ca0132 - Fix ZxR Headphone gain control get value.
-Date:   Mon, 10 Aug 2020 17:18:59 +0200
-Message-Id: <20200810151804.360159192@linuxfoundation.org>
+Subject: [PATCH 5.8 10/38] ALSA: hda/ca0132 - Fix AE-5 microphone selection commands.
+Date:   Mon, 10 Aug 2020 17:19:00 +0200
+Message-Id: <20200810151804.399701106@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151803.920113428@linuxfoundation.org>
 References: <20200810151803.920113428@linuxfoundation.org>
@@ -45,35 +45,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Connor McAdams <conmanx360@gmail.com>
 
-commit a00dc409de455b64e6cb2f6d40cdb8237cdb2e83 upstream.
+commit 7fe3530427e52dd53cd7366914864e29215180a4 upstream.
 
-When the ZxR headphone gain control was added, the ca0132_switch_get
-function was not updated, which meant that the changes to the control
-state were not saved when entering/exiting alsamixer.
+The ca0113 command had the wrong group_id, 0x48 when it should've been
+0x30. The front microphone selection should now work.
 
 Signed-off-by: Connor McAdams <conmanx360@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200803002928.8638-1-conmanx360@gmail.com
+Link: https://lore.kernel.org/r/20200803002928.8638-3-conmanx360@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_ca0132.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/sound/pci/hda/patch_ca0132.c
 +++ b/sound/pci/hda/patch_ca0132.c
-@@ -5749,6 +5749,11 @@ static int ca0132_switch_get(struct snd_
- 		return 0;
- 	}
- 
-+	if (nid == ZXR_HEADPHONE_GAIN) {
-+		*valp = spec->zxr_gain_set;
-+		return 0;
-+	}
-+
- 	return 0;
- }
- 
+@@ -4672,7 +4672,7 @@ static int ca0132_alt_select_in(struct h
+ 			tmp = FLOAT_ONE;
+ 			break;
+ 		case QUIRK_AE5:
+-			ca0113_mmio_command_set(codec, 0x48, 0x28, 0x00);
++			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
+ 			tmp = FLOAT_THREE;
+ 			break;
+ 		default:
+@@ -4718,7 +4718,7 @@ static int ca0132_alt_select_in(struct h
+ 			r3di_gpio_mic_set(codec, R3DI_REAR_MIC);
+ 			break;
+ 		case QUIRK_AE5:
+-			ca0113_mmio_command_set(codec, 0x48, 0x28, 0x00);
++			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
+ 			break;
+ 		default:
+ 			break;
+@@ -4757,7 +4757,7 @@ static int ca0132_alt_select_in(struct h
+ 			tmp = FLOAT_ONE;
+ 			break;
+ 		case QUIRK_AE5:
+-			ca0113_mmio_command_set(codec, 0x48, 0x28, 0x3f);
++			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x3f);
+ 			tmp = FLOAT_THREE;
+ 			break;
+ 		default:
 
 
