@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326DA24086E
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:21:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E35D240871
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728135AbgHJPVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:21:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51858 "EHLO mail.kernel.org"
+        id S1728142AbgHJPVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:21:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728127AbgHJPVE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:21:04 -0400
+        id S1727981AbgHJPVH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:21:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C93522065D;
-        Mon, 10 Aug 2020 15:21:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C89BD20768;
+        Mon, 10 Aug 2020 15:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597072864;
-        bh=wkqj1qoeprJlvfQN9/RlfNpdpvKWXthNynLbTT69KSw=;
+        s=default; t=1597072867;
+        bh=317EpMwDFiRhWwkPj/R6GWOmMwQrCN5rBjTVaLkskPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWDFcW8ylnkGtc9+FykMh4HI5I844QhFvC+NpIOpkjOfVywG5OVMDLOVIFWQwpBSd
-         UPfxpR6emS3TMgQmL9PgoJj3k0SjVO9CKgYCuL+VGerVQ22syNFTjVsCm7UapHMBac
-         tTYKSt4k69fEhJN0vNsCgTTC01ajoIxkCcSvaqZM=
+        b=o5srTFp9lsv3Nt7IZ/DQ/4nRba2NrKGT6WgoP2zJ3yhlaWoRgwtdnS85IfkQXYpat
+         gpAMlZl8FBd99w8FhZtbpwCqI1jOVPkv0ATtZ6MdPuL2h5z5XXbjl3HAKOM/ZomMCn
+         OBJ9WnwJj+ynyMHbOExqTEFWyn+M96R66+fn61pA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amitoj Kaur Chawla <amitoj1606@gmail.com>,
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
         Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 5.8 25/38] leds: wm831x-status: fix use-after-free on unbind
-Date:   Mon, 10 Aug 2020 17:19:15 +0200
-Message-Id: <20200810151805.135568635@linuxfoundation.org>
+Subject: [PATCH 5.8 26/38] leds: lm36274: fix use-after-free on unbind
+Date:   Mon, 10 Aug 2020 17:19:16 +0200
+Message-Id: <20200810151805.185190710@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151803.920113428@linuxfoundation.org>
 References: <20200810151803.920113428@linuxfoundation.org>
@@ -45,59 +45,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 47a459ecc800a17109d0c496a4e21e478806ee40 upstream.
+commit a0972fff09479dd09b731360a3a0b09e4fb4d415 upstream.
 
 Several MFD child drivers register their class devices directly under
-the parent device. This means you cannot blindly do devres conversions
-so that deregistration ends up being tied to the parent device,
-something which leads to use-after-free on driver unbind when the class
-device is released while still being registered.
+the parent device. This means you cannot use devres so that
+deregistration ends up being tied to the parent device, something which
+leads to use-after-free on driver unbind when the class device is
+released while still being registered.
 
-Fixes: 8d3b6a4001ce ("leds: wm831x-status: Use devm_led_classdev_register")
-Cc: stable <stable@vger.kernel.org>     # 4.6
-Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Fixes: 11e1bbc116a7 ("leds: lm36274: Introduce the TI LM36274 LED driver")
+Cc: stable <stable@vger.kernel.org>     # 5.3
+Cc: Dan Murphy <dmurphy@ti.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/leds/leds-wm831x-status.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/leds/leds-lm36274.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/leds/leds-wm831x-status.c
-+++ b/drivers/leds/leds-wm831x-status.c
-@@ -269,12 +269,23 @@ static int wm831x_status_probe(struct pl
- 	drvdata->cdev.blink_set = wm831x_status_blink_set;
- 	drvdata->cdev.groups = wm831x_status_groups;
+--- a/drivers/leds/leds-lm36274.c
++++ b/drivers/leds/leds-lm36274.c
+@@ -133,7 +133,7 @@ static int lm36274_probe(struct platform
+ 	lm36274_data->pdev = pdev;
+ 	lm36274_data->dev = lmu->dev;
+ 	lm36274_data->regmap = lmu->regmap;
+-	dev_set_drvdata(&pdev->dev, lm36274_data);
++	platform_set_drvdata(pdev, lm36274_data);
  
--	ret = devm_led_classdev_register(wm831x->dev, &drvdata->cdev);
-+	ret = led_classdev_register(wm831x->dev, &drvdata->cdev);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Failed to register LED: %d\n", ret);
+ 	ret = lm36274_parse_dt(lm36274_data);
+ 	if (ret) {
+@@ -147,8 +147,16 @@ static int lm36274_probe(struct platform
  		return ret;
  	}
  
-+	platform_set_drvdata(pdev, drvdata);
-+
-+	return 0;
+-	return devm_led_classdev_register(lm36274_data->dev,
+-					 &lm36274_data->led_dev);
++	return led_classdev_register(lm36274_data->dev, &lm36274_data->led_dev);
 +}
 +
-+static int wm831x_status_remove(struct platform_device *pdev)
++static int lm36274_remove(struct platform_device *pdev)
 +{
-+	struct wm831x_status *drvdata = platform_get_drvdata(pdev);
++	struct lm36274 *lm36274_data = platform_get_drvdata(pdev);
 +
-+	led_classdev_unregister(&drvdata->cdev);
++	led_classdev_unregister(&lm36274_data->led_dev);
 +
- 	return 0;
++	return 0;
  }
  
-@@ -283,6 +294,7 @@ static struct platform_driver wm831x_sta
- 		   .name = "wm831x-status",
- 		   },
- 	.probe = wm831x_status_probe,
-+	.remove = wm831x_status_remove,
- };
+ static const struct of_device_id of_lm36274_leds_match[] = {
+@@ -159,6 +167,7 @@ MODULE_DEVICE_TABLE(of, of_lm36274_leds_
  
- module_platform_driver(wm831x_status_driver);
+ static struct platform_driver lm36274_driver = {
+ 	.probe  = lm36274_probe,
++	.remove = lm36274_remove,
+ 	.driver = {
+ 		.name = "lm36274-leds",
+ 	},
 
 
