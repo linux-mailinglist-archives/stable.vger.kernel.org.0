@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCB0240FDC
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E1E240FE7
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 21:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729439AbgHJTL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 15:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
+        id S1729483AbgHJT0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 15:26:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729434AbgHJTLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 15:11:55 -0400
+        id S1728539AbgHJTL5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 15:11:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B8BB207FF;
-        Mon, 10 Aug 2020 19:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2F8E22B47;
+        Mon, 10 Aug 2020 19:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597086715;
-        bh=6LmQh1e/NqQGj+89BAr9m4CJNhDun1U7OdbG+iIs+F8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BuLL5duUR/37nkcuVy063AFHi/sBcNGwbU1W3QWZLmsOkObMR2p54E157SEukJbej
-         auUTxH2cE8gKWXH+BJTVW633/ailXzOaDzyS8mupnqwUzyn9p/+Dm8ZNMlh9hgo6GC
-         BXd/A9fpcrPous52Ap1B/KAEwS/PB5YbQJmFUAok=
+        s=default; t=1597086716;
+        bh=VdDv/tPrzl9Gjvzoe32tHMeY4aINAE3rMv3C+4ryWME=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qD+rLN+AqL+qKuz47bcWti9eVXB4aEWzje0Mi88LJ0wHDl5GkhMksu22InZscTvVL
+         NsLvxTDmvfNozvwn130LYDoWX6EywAKtigM8eunt3wFhYqTfEzIZWPGnCxbI+Ixc9Q
+         F4CM072UtlK4NWcFHxmngK4KFEbMz3u92DaDjBX4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>, Jyri Sarha <jsarha@ti.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 01/45] drm/tilcdc: fix leak & null ref in panel_connector_get_modes
-Date:   Mon, 10 Aug 2020 15:11:09 -0400
-Message-Id: <20200810191153.3794446-1-sashal@kernel.org>
+Cc:     Maulik Shah <mkshah@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/45] soc: qcom: rpmh-rsc: Set suppress_bind_attrs flag
+Date:   Mon, 10 Aug 2020 15:11:10 -0400
+Message-Id: <20200810191153.3794446-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200810191153.3794446-1-sashal@kernel.org>
+References: <20200810191153.3794446-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,49 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Maulik Shah <mkshah@codeaurora.org>
 
-[ Upstream commit 3f9c1c872cc97875ddc8d63bc9fe6ee13652b933 ]
+[ Upstream commit 1a53ce9ab4faeb841b33d62d23283dc76c0e7c5a ]
 
-If videomode_from_timings() returns true, the mode allocated with
-drm_mode_create will be leaked.
+rpmh-rsc driver is fairly core to system and should not be removable
+once its probed. However it allows to unbind driver from sysfs using
+below command which results into a crash on sc7180.
 
-Also, the return value of drm_mode_create() is never checked, and thus
-could cause NULL deref.
+echo 18200000.rsc > /sys/bus/platform/drivers/rpmh/unbind
 
-Fix these two issues.
+Lets prevent unbind at runtime by setting suppress_bind_attrs flag.
 
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200429104234.18910-1-tomi.valkeinen@ti.com
-Reviewed-by: Jyri Sarha <jsarha@ti.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Maulik Shah <mkshah@codeaurora.org>
+Link: https://lore.kernel.org/r/1592808805-2437-1-git-send-email-mkshah@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_panel.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/rpmh-rsc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-index 5584e656b8575..8c4fd1aa4c2db 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-@@ -143,12 +143,16 @@ static int panel_connector_get_modes(struct drm_connector *connector)
- 	int i;
+diff --git a/drivers/soc/qcom/rpmh-rsc.c b/drivers/soc/qcom/rpmh-rsc.c
+index 0ba1f465db122..8924fcd9f5f59 100644
+--- a/drivers/soc/qcom/rpmh-rsc.c
++++ b/drivers/soc/qcom/rpmh-rsc.c
+@@ -715,6 +715,7 @@ static struct platform_driver rpmh_driver = {
+ 	.driver = {
+ 		  .name = "rpmh",
+ 		  .of_match_table = rpmh_drv_match,
++		  .suppress_bind_attrs = true,
+ 	},
+ };
  
- 	for (i = 0; i < timings->num_timings; i++) {
--		struct drm_display_mode *mode = drm_mode_create(dev);
-+		struct drm_display_mode *mode;
- 		struct videomode vm;
- 
- 		if (videomode_from_timings(timings, &vm, i))
- 			break;
- 
-+		mode = drm_mode_create(dev);
-+		if (!mode)
-+			break;
-+
- 		drm_display_mode_from_videomode(&vm, mode);
- 
- 		mode->type = DRM_MODE_TYPE_DRIVER;
 -- 
 2.25.1
 
