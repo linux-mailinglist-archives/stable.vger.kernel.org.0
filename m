@@ -2,123 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DB02403AB
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 10:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CBD2403CC
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 11:03:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726466AbgHJI4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 04:56:55 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:56858 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726135AbgHJI4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 04:56:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597049813;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QK1lBf3fdqSyygn/hbL7QdHaPZhuIx0fYdi0xlJuh6M=;
-        b=e/dPn4g5cZokbrEVkyKUecljO9P+/fflzb+zqFnJvAvaveDx7hCuKOfLSIhJt9m0GNekAv
-        97nQf2wEzjEEPVc/1Hsqt4WGqPesj9V9msMzxvM3W2U+l8lsl5jdFB2pOtYfxeNnER2FW1
-        RsRDNgv2qtBsmnJAbIF1+bdqNLzGCco=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-458-7AaFmr6-PcCgrabLy7pSjQ-1; Mon, 10 Aug 2020 04:56:51 -0400
-X-MC-Unique: 7AaFmr6-PcCgrabLy7pSjQ-1
-Received: by mail-wr1-f71.google.com with SMTP id w1so3964514wro.4
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 01:56:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QK1lBf3fdqSyygn/hbL7QdHaPZhuIx0fYdi0xlJuh6M=;
-        b=BTtL9mmtw/U7/djc242C64SflvMGoOR5Z/ceo9hBkIzTgA5gwt1/wpzB8q9J68Jfc5
-         nMrvQTzzxQPas66c9c/qXFqNOGfp/cv86mkL+9HvozGw1svRZxCwzJdBOSd1L6wGd9s4
-         xqppkHuYEUlHqJd79SuftOMM8NNSdLT0b0T7C4+ypmF5Q3FwsHYnbSiYay4Q+sKYtmBR
-         oDqW/ImoeFq6xharFqed3QPZLz1J8c+uBCFF0B0KLzTr5oV0G6Y7vzWVkJWZUZLhO/OV
-         lFXiRe4w83bFb0poSkVyhKdDhwo0ZeMYixX2T9c04T+QZwSsFOlI0rzeznvSmS/8kNal
-         MQpg==
-X-Gm-Message-State: AOAM5334zyMmrqg9VmA31+9IJUfUD7ya2SLZqQyqxOfJg1YQ5LYKVwvP
-        oiL2Q6ioldo9/aeXL1LW7ZQr32FPC8NtwAv+F6JugmCp/RBHr84keiZ6dkU9wj7bnDgyJd/3aZ+
-        n6pKlI+nirsQFI6KV
-X-Received: by 2002:adf:de09:: with SMTP id b9mr24016621wrm.409.1597049810471;
-        Mon, 10 Aug 2020 01:56:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwbLVCWnrRjOybrhtLaR57NXiNKoVkHe0cAFaru2+iqq7APVclTt+MtrDeQRn4Qbj2QB8kQAA==
-X-Received: by 2002:adf:de09:: with SMTP id b9mr24016610wrm.409.1597049810240;
-        Mon, 10 Aug 2020 01:56:50 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:5d6c:f50:4462:5103? ([2001:b07:6468:f312:5d6c:f50:4462:5103])
-        by smtp.gmail.com with ESMTPSA id g3sm22278906wrb.59.2020.08.10.01.56.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Aug 2020 01:56:49 -0700 (PDT)
-Subject: Re: [PATCH] MIPS: VZ: Only include loongson_regs.h for CPU_LOONGSON64
-To:     Greg KH <greg@kroah.com>
+        id S1725984AbgHJJDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 05:03:02 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:57861 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725846AbgHJJDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 05:03:02 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id C72B6962;
+        Mon, 10 Aug 2020 05:03:00 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 10 Aug 2020 05:03:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=VG6tNsG0RQy55zYOkAinJYjKMdZ
+        FHRBkeUHlia4o90M=; b=HDUdAe1hVoXJfEe99XTPijxWUPe7Sc5+uB1fr54TKNA
+        sU/OOE9R0rk3/bl4QZK+Qcd2wyXSlwPiPgUpI4l5z0Ab0FtIvxKbz0Of3yawIWxm
+        i31StgLWMs0B4hDbjMgwmNjhin8iC1pTHymVTFG812IlXmAflxDCypkRmdH2StJq
+        h0SL5uLeUUVfInkhvHzHVIfwsO6x5yBW5IQVPKdhGYirYNKLj2fk8se3Vded5qg7
+        yO1/eZMRTRjPMip8LZO/1WRLfhT5txyK75zVUxdrQsyep75CAal75MVEKbs4mCqA
+        6oaDn/ve5MK3IN9DRDfeN9Ztqgkd9O1we/D/R2QsMnQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VG6tNs
+        G0RQy55zYOkAinJYjKMdZFHRBkeUHlia4o90M=; b=VIt7RVIGkeGHcN5Ka5USZR
+        ozufruCDfUR88DUnZubD8SaeOpzNgGsRaVkzzrkeECfIFTRZjZ+8aqaHO14Xs4vq
+        xkfaCjCTsgggAWBMUyQ+F4qNA+ZfgFkLVcjt2MHtTnIWTNWQz6ZJq2tBDD8n4rrx
+        TiolRIMwmNkaqhCWdMw8zJqEzTxLIsvEVxbjYq/SjGzMZCFTx31meKOQCp7O/e+k
+        dv8jLyWNWrQ2H+y5wHjtnYkUmgVVf0Wr95qQ9kbryz3SfSV5Piir6H5izm5US5Kb
+        Di7ikJZOXvahgi5njY+OCJXBpUiUzDkMfJIAQ/i4SPwKXyIQfEJWdk49e6U/+alw
+        ==
+X-ME-Sender: <xms:Qw0xX6_5FGk5EsZbJdmlMHWBUj6GCcaDdZTKzsisvx-_0EN1mu_8lA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrkeekgdduudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
+    keeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:Qw0xX6uli82vHuT6rXOnT00jQ06sdFuNokCNgYz_TM4B7ZJOFSbpdw>
+    <xmx:Qw0xXwCEUfZ6N9WlR6r7Q-rxnTogrJMqIJJMortSPu2eGOp2g-aQWA>
+    <xmx:Qw0xXyegMBLWo8jbAzkjhQ_218Ng3FYMM-zu4BiFv_fAgH2GWNFruw>
+    <xmx:RA0xX7AoAEczNCxsY9Wiqb8UmBOAL_F8iValxWJFJxQwKHRo0oF-cA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3A1633060067;
+        Mon, 10 Aug 2020 05:02:59 -0400 (EDT)
+Date:   Mon, 10 Aug 2020 11:03:10 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
         Huacai Chen <chenhc@lemote.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
         kvm@vger.kernel.org, linux-mips@vger.kernel.org,
         Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>, stable@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+        Huacai Chen <chenhuacai@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: VZ: Only include loongson_regs.h for CPU_LOONGSON64
+Message-ID: <20200810090310.GA1837172@kroah.com>
 References: <1596891052-24052-1-git-send-email-chenhc@lemote.com>
  <20200808153123.GC369184@kroah.com>
  <2b2937d0-eae6-a489-07bd-c40ded02ce89@flygoat.com>
  <20200809070235.GA1098081@kroah.com>
  <5ffc7bb1-8e3f-227a-7ad0-cec5fc32a96a@redhat.com>
  <20200810074417.GA1529187@kroah.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <5522eef8-0da5-7f73-b2f8-2d0c19bb5819@redhat.com>
-Date:   Mon, 10 Aug 2020 10:56:48 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+ <5522eef8-0da5-7f73-b2f8-2d0c19bb5819@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200810074417.GA1529187@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5522eef8-0da5-7f73-b2f8-2d0c19bb5819@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/08/20 09:44, Greg KH wrote:
->> There is more #ifdef CONFIG_CPU_LOONGSON64 in arch/mips/kvm/vz.c, and
->> more #include "loongson_regs.h" in arch/mips.  So while I agree with
->> Greg that this idiom is quite unusual, it seems to be the expected way
->> to use this header.  I queued the patch.
-> Or you all could fix it up to work properly like all other #include
-> lines in the kernel source tree.  There's no reason mips should be
-> "special" here, right?
+On Mon, Aug 10, 2020 at 10:56:48AM +0200, Paolo Bonzini wrote:
+> On 10/08/20 09:44, Greg KH wrote:
+> >> There is more #ifdef CONFIG_CPU_LOONGSON64 in arch/mips/kvm/vz.c, and
+> >> more #include "loongson_regs.h" in arch/mips.  So while I agree with
+> >> Greg that this idiom is quite unusual, it seems to be the expected way
+> >> to use this header.  I queued the patch.
+> > Or you all could fix it up to work properly like all other #include
+> > lines in the kernel source tree.  There's no reason mips should be
+> > "special" here, right?
+> 
+> It's not just this #include, there's a couple dozen mach-* directories;
+> changing how they work would be up to the MIPS maintainers (CCed), and
+> it would certainly not be a patch that can be merged in stable@ kernels.
+> 
+> arch/mips/kernel/cpu-probe.c has the same
+> 
+> #ifdef CONFIG_CPU_LOONGSON64
+> #include <loongson_regs.h>
+> 
+> for example, so apparently they're good with this.  So if I don't pick
+> up the patch to fix the build it would be in all likelihood merged by
+> MIPS maintainers.  The only difference will be how long the build
+> remains broken and the fact that they need to worry about KVM despite
+> the presence of a specific maintainer.
 
-It's not just this #include, there's a couple dozen mach-* directories;
-changing how they work would be up to the MIPS maintainers (CCed), and
-it would certainly not be a patch that can be merged in stable@ kernels.
+Ok, fair enough, but in the long-run, this should probably be fixed up
+"properly" if this arch is still being maintained.
 
-arch/mips/kernel/cpu-probe.c has the same
+thanks,
 
-#ifdef CONFIG_CPU_LOONGSON64
-#include <loongson_regs.h>
-
-for example, so apparently they're good with this.  So if I don't pick
-up the patch to fix the build it would be in all likelihood merged by
-MIPS maintainers.  The only difference will be how long the build
-remains broken and the fact that they need to worry about KVM despite
-the presence of a specific maintainer.
-
-KVM could of course just #include <asm/mach-loongson64/loongson_regs.h>,
-which would be found unconditionally.  But there is some assembly in the
-header, so even if it would compile (I didn't check) it seems wrong to
-include it unconditionally and in fact it would be the only case of a
-file including <asm/mach-*/*.h> even if it is not compiled for that
-platform.
-
-Another alternative would be to move CONFIG_CPU_LOONGSON64 code out of
-arch/mips/kvm/vz.c and include it with obj-$(CONFIG_CPU_LOONGSON64).
-I'll gladly accept a patch to do that, but I won't write it since I
-don't have access to the hardware in order to test it.  For now, and for
-the immediate purpose of not breaking the build, when in Rome I'll do as
-the Romans do.
-
-Paolo
-
+greg k-h
