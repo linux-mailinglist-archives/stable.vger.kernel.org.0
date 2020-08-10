@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC7D240A53
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2078C240A3E
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727982AbgHJPX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:23:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56198 "EHLO mail.kernel.org"
+        id S1729173AbgHJPjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:39:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728392AbgHJPXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:23:54 -0400
+        id S1728022AbgHJPY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:24:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCD8020782;
-        Mon, 10 Aug 2020 15:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B998720825;
+        Mon, 10 Aug 2020 15:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073034;
-        bh=YPDX0crp7GERTlrl95GtvjvBnhsR8R4/6rjI44AeOc0=;
+        s=default; t=1597073065;
+        bh=g4gZpvmCh1C2tPvJFrDv3lgWuiyVOG7WLVFC5VpKfaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WgF4qe7ZetUpdcCbeISChIHyzaWi2EcWPbBUtLCwY7qSXNHqE2RRFDomjOGCYbEcl
-         hZ/LQlPce91Us8SR/T30Bvvtm2ogPo1pisE+5ORnzpy9ZIT6e7sy6n/vSXEDkvzrHZ
-         C6P3dG3/mLJLKs86x0kQ1HzzTjc53uoLsrvwUphI=
+        b=gFXMYT5uJDCx7hXML9aO5tYOhG2keJx0fui0BSYfQghJfE7ZLezJq1FYeUUSFjxsT
+         FeOsYJ6B1AQ6/UUiS45WGtxjBeedyh1BBDMsaDJy2fzAbnSGCKPffS+E1kXqKp5ViB
+         GI5bunivMlYh1U0pb8hcy4cBrkkk9UD+xDXqU+24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 36/79] io_uring: fix lockup in io_fail_links()
-Date:   Mon, 10 Aug 2020 17:20:55 +0200
-Message-Id: <20200810151814.064738321@linuxfoundation.org>
+        stable@vger.kernel.org, kyounghwan sohn <kyounghwan.sohn@sk.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 37/79] nvme-pci: prevent SK hynix PC400 from using Write Zeroes command
+Date:   Mon, 10 Aug 2020 17:20:56 +0200
+Message-Id: <20200810151814.113273733@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
 References: <20200810151812.114485777@linuxfoundation.org>
@@ -43,54 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 4ae6dbd683860b9edc254ea8acf5e04b5ae242e5 ]
+[ Upstream commit 5611ec2b9814bc91f7b0a8d804c1fc152e2025d9 ]
 
-io_fail_links() doesn't consider REQ_F_COMP_LOCKED leading to nested
-spin_lock(completion_lock) and lockup.
+After commit 6e02318eaea5 ("nvme: add support for the Write Zeroes
+command"), SK hynix PC400 becomes very slow with the following error
+message:
 
-[  197.680409] rcu: INFO: rcu_preempt detected expedited stalls on
-	CPUs/tasks: { 6-... } 18239 jiffies s: 1421 root: 0x40/.
-[  197.680411] rcu: blocking rcu_node structures:
-[  197.680412] Task dump for CPU 6:
-[  197.680413] link-timeout    R  running task        0  1669
-	1 0x8000008a
-[  197.680414] Call Trace:
-[  197.680420]  ? io_req_find_next+0xa0/0x200
-[  197.680422]  ? io_put_req_find_next+0x2a/0x50
-[  197.680423]  ? io_poll_task_func+0xcf/0x140
-[  197.680425]  ? task_work_run+0x67/0xa0
-[  197.680426]  ? do_exit+0x35d/0xb70
-[  197.680429]  ? syscall_trace_enter+0x187/0x2c0
-[  197.680430]  ? do_group_exit+0x43/0xa0
-[  197.680448]  ? __x64_sys_exit_group+0x18/0x20
-[  197.680450]  ? do_syscall_64+0x52/0xa0
-[  197.680452]  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  224.567695] blk_update_request: operation not supported error, dev nvme1n1, sector 499384320 op 0x9:(WRITE_ZEROES) flags 0x1000000 phys_seg 0 prio class 0]
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+SK Hynix PC400 has a buggy firmware that treats NLB as max value instead
+of a range, so the NLB passed isn't a valid value to the firmware.
+
+According to SK hynix there are three commands are affected:
+- Write Zeroes
+- Compare
+- Write Uncorrectable
+
+Right now only Write Zeroes is implemented, so disable it completely on
+SK hynix PC400.
+
+BugLink: https://bugs.launchpad.net/bugs/1872383
+Cc: kyounghwan sohn <kyounghwan.sohn@sk.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4e09af1d5d223..fb9dc865c9eaa 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4260,10 +4260,9 @@ static void io_poll_task_handler(struct io_kiocb *req, struct io_kiocb **nxt)
- 
- 	hash_del(&req->hash_node);
- 	io_poll_complete(req, req->result, 0);
--	req->flags |= REQ_F_COMP_LOCKED;
--	io_put_req_find_next(req, nxt);
- 	spin_unlock_irq(&ctx->completion_lock);
- 
-+	io_put_req_find_next(req, nxt);
- 	io_cqring_ev_posted(ctx);
- }
- 
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 10d65f27879fd..45e29c6c3234c 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3130,6 +3130,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 	{ PCI_DEVICE(0x1cc1, 0x8201),   /* ADATA SX8200PNP 512GB */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
+ 		.driver_data = NVME_QUIRK_SINGLE_VECTOR },
 -- 
 2.25.1
 
