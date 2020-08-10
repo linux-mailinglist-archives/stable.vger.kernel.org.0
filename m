@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F60240A5F
-	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1E3240A85
+	for <lists+stable@lfdr.de>; Mon, 10 Aug 2020 17:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728042AbgHJPkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 11:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55598 "EHLO mail.kernel.org"
+        id S1726046AbgHJPW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 11:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728080AbgHJPXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:23:43 -0400
+        id S1727801AbgHJPWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Aug 2020 11:22:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33DE622D04;
-        Mon, 10 Aug 2020 15:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15B0F20656;
+        Mon, 10 Aug 2020 15:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597073022;
-        bh=y27Zhu8F9W1JK886ANmln+6mHUPnci9sProeWuTqNfQ=;
+        s=default; t=1597072942;
+        bh=x7ozp1mq3C1BY63eMKEcpS3peJBmk+UfyCtDfXhOuww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K7FVyPQZGe7+xStSlOYto07zY+aCgC7edgdZ6QCilJhUk895GYn1S6LXkTx4dk75n
-         aVPaRz4rNuJ+QdnyF1l6Pr5JVFt2ogy321S+3+ynFflkSN46cw2BbGmMComYvSW1o8
-         4tmLYUMiZTmU/jFm3lnFuWsY6Q25NGE+gdcU4j4Q=
+        b=0iQivmxDb+dqWeRz1jchQx76StioTKemusTc1nY2KfF5C2txFPsI+ZSqI1NVT5bNq
+         6VXzMgwa/7GqDd9hC6hB0mvusJgcKB1Omapa/ZGoi/VwlaQVGp2Kw6a2dRKINly1yJ
+         BDy5gqVc9jkBsiHGK3wLBkO5JdFWC6oJijLVni9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.7 09/79] ALSA: hda/ca0132 - Fix ZxR Headphone gain control get value.
-Date:   Mon, 10 Aug 2020 17:20:28 +0200
-Message-Id: <20200810151812.590690226@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com,
+        Suren Baghdasaryan <surenb@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [PATCH 5.7 12/79] staging: android: ashmem: Fix lockdep warning for write operation
+Date:   Mon, 10 Aug 2020 17:20:31 +0200
+Message-Id: <20200810151812.729806559@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
 References: <20200810151812.114485777@linuxfoundation.org>
@@ -43,37 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor McAdams <conmanx360@gmail.com>
+From: Suren Baghdasaryan <surenb@google.com>
 
-commit a00dc409de455b64e6cb2f6d40cdb8237cdb2e83 upstream.
+commit 3e338d3c95c735dc3265a86016bb4c022ec7cadc upstream.
 
-When the ZxR headphone gain control was added, the ca0132_switch_get
-function was not updated, which meant that the changes to the control
-state were not saved when entering/exiting alsamixer.
+syzbot report [1] describes a deadlock when write operation against an
+ashmem fd executed at the time when ashmem is shrinking its cache results
+in the following lock sequence:
 
-Signed-off-by: Connor McAdams <conmanx360@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200803002928.8638-1-conmanx360@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(fs_reclaim);
+                                lock(&sb->s_type->i_mutex_key#13);
+                                lock(fs_reclaim);
+   lock(&sb->s_type->i_mutex_key#13);
+
+kswapd takes fs_reclaim and then inode_lock while generic_perform_write
+takes inode_lock and then fs_reclaim. However ashmem does not support
+writing into backing shmem with a write syscall. The only way to change
+its content is to mmap it and operate on mapped memory. Therefore the race
+that lockdep is warning about is not valid. Resolve this by introducing a
+separate lockdep class for the backing shmem inodes.
+
+[1]: https://lkml.kernel.org/lkml/0000000000000b5f9d059aa2037f@google.com/
+
+Reported-by: syzbot+7a0d9d0b26efefe61780@syzkaller.appspotmail.com
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lore.kernel.org/r/20200730192632.3088194-1-surenb@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/staging/android/ashmem.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -5749,6 +5749,11 @@ static int ca0132_switch_get(struct snd_
- 		return 0;
- 	}
+--- a/drivers/staging/android/ashmem.c
++++ b/drivers/staging/android/ashmem.c
+@@ -95,6 +95,15 @@ static DEFINE_MUTEX(ashmem_mutex);
+ static struct kmem_cache *ashmem_area_cachep __read_mostly;
+ static struct kmem_cache *ashmem_range_cachep __read_mostly;
  
-+	if (nid == ZXR_HEADPHONE_GAIN) {
-+		*valp = spec->zxr_gain_set;
-+		return 0;
-+	}
++/*
++ * A separate lockdep class for the backing shmem inodes to resolve the lockdep
++ * warning about the race between kswapd taking fs_reclaim before inode_lock
++ * and write syscall taking inode_lock and then fs_reclaim.
++ * Note that such race is impossible because ashmem does not support write
++ * syscalls operating on the backing shmem.
++ */
++static struct lock_class_key backing_shmem_inode_class;
 +
- 	return 0;
- }
+ static inline unsigned long range_size(struct ashmem_range *range)
+ {
+ 	return range->pgend - range->pgstart + 1;
+@@ -396,6 +405,7 @@ static int ashmem_mmap(struct file *file
+ 	if (!asma->file) {
+ 		char *name = ASHMEM_NAME_DEF;
+ 		struct file *vmfile;
++		struct inode *inode;
  
+ 		if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0')
+ 			name = asma->name;
+@@ -407,6 +417,8 @@ static int ashmem_mmap(struct file *file
+ 			goto out;
+ 		}
+ 		vmfile->f_mode |= FMODE_LSEEK;
++		inode = file_inode(vmfile);
++		lockdep_set_class(&inode->i_rwsem, &backing_shmem_inode_class);
+ 		asma->file = vmfile;
+ 		/*
+ 		 * override mmap operation of the vmfile so that it can't be
 
 
