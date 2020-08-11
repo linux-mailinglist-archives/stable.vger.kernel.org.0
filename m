@@ -2,126 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C312414EC
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 04:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60FD2415D8
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 06:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726868AbgHKCXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 22:23:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726380AbgHKCXe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 22:23:34 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1970C06174A
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 19:23:34 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id d22so6787577pfn.5
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 19:23:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=GWv1uwypx2T8C1b+WeUeV7jhQRUSaVaHpoBV1X7jB3g=;
-        b=O9CR0GoA6UuDfveWDMHCtCzyH9eb3AxwHc/xM2kX3f7yVXYlnrkAL/eETn59FDLMXM
-         eukW+nbfuOouaR7x/NJ8fBHTIQTJpXgjrZdd9GCdpxQ3rBvx6aCMo+3WgixOJGt6Nr5e
-         km/QjL8IYy669gMAMgVnB2LhIv2deSF0AFIH6vL+kadpi1UznzneGamMs1hxKbVNCMaf
-         HjtuUkM37YYGL1ftEU5mTI/2ojZLlUQygDcWVL5mdI4nj0sGhLaNAAhTsRtteexbsoaF
-         7LyDUqWXxEhXyUaPJKTSuSPrz6Wd39BqpXOBUsow/NKMrWS631GuSSxMyvtODGrxL4uT
-         CU3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=GWv1uwypx2T8C1b+WeUeV7jhQRUSaVaHpoBV1X7jB3g=;
-        b=f35cDm+Od69JElZUKwc4OyQ/w08VoZLnfJKTTdnE25CRKdkcGO1/ZtDNJrDtiL7Ljo
-         0IbWqQsJz64Vs+QaJ/n7Jf2VXeH85uFg62FxmsvBESt9R8w9L7Z+k599OLO50Fzo5K3t
-         7zSKj8XyYDgde6vykAoVJhVmRiyRi07zB4MR7SIEYxccXhnzQ5qZW8AFJu6wSFLzGzmb
-         QXyb/AoqY3DNeD3K4F5zM6h82N2IrUNyyz6aHuew76gR06BU0YDkr2OdUopw1/IT6U/b
-         vXq3T20cLjx/I0PdJwf8yDFrFeDOoqmHwo331H4K6rxeWMMmYTHzQCJAuNOC3TuILkwc
-         eUBA==
-X-Gm-Message-State: AOAM530OKYrKuxhrzb9OyPSB3PjtIGVE5fztsLbjDSwnOIi807qCM8JC
-        j9kkTbeE29fHlZkizV68/noqdGmzD+g=
-X-Google-Smtp-Source: ABdhPJzVo744heom2VK72FTR+XZF7dAdxQXBdJ+OjXFJfwtQvq/AWtBdWrwgiO4YjedyHfgl2SzQWA==
-X-Received: by 2002:a63:380d:: with SMTP id f13mr23514886pga.16.1597112613873;
-        Mon, 10 Aug 2020 19:23:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 196sm5992108pfc.178.2020.08.10.19.23.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2020 19:23:33 -0700 (PDT)
-Message-ID: <5f320125.1c69fb81.782f4.90b5@mx.google.com>
-Date:   Mon, 10 Aug 2020 19:23:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.7.14-80-g693b1e00f859
-X-Kernelci-Branch: linux-5.7.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.7.y baseline: 167 runs,
- 1 regressions (v5.7.14-80-g693b1e00f859)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726512AbgHKErV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 00:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53994 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725942AbgHKErU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Aug 2020 00:47:20 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9BA420678;
+        Tue, 11 Aug 2020 04:47:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597121239;
+        bh=ikuSH+1oUEZvKdtoHqz34iMQ+sH8q0+imzl5I6D/kO0=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=YBqnizdi32T3RnrsEHkPkmo5rdbIxHt/CFn5hsfarBYsWq6UwJTLQoOyimDpCOaBt
+         zL5eiaZ9xCZ4xZwHw9/1ONjE1GiGmlDI5SbHaZUSsGwDDy5M2NFVyKY6ZQFdZbf9yw
+         GkKyWV5JFarII7hC7ksi/tUZUZ8PHcYKpXtnAvac=
+Date:   Mon, 10 Aug 2020 21:47:19 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     aneesh.kumar@linux.ibm.com, harish@linux.ibm.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
+Subject:  + mm-vunmap-add-cond_resched-in-vunmap_pmd_range.patch
+ added to -mm tree
+Message-ID: <20200811044719.nX8eEIgxm%akpm@linux-foundation.org>
+In-Reply-To: <20200806231643.a2711a608dd0f18bff2caf2b@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.7.y baseline: 167 runs, 1 regressions (v5.7.14-80-g693b1e=
-00f859)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm/vunmap: add cond_resched() in vunmap_pmd_range
+has been added to the -mm tree.  Its filename is
+     mm-vunmap-add-cond_resched-in-vunmap_pmd_range.patch
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-vunmap-add-cond_resched-in-vunmap_pmd_range.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vunmap-add-cond_resched-in-vunmap_pmd_range.patch
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
-el/v5.7.14-80-g693b1e00f859/plan/baseline/
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.7.y
-  Describe: v5.7.14-80-g693b1e00f859
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      693b1e00f859c9979003e6728adb23f20c9784a2 =
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Subject: mm/vunmap: add cond_resched() in vunmap_pmd_range
 
+Like zap_pte_range add cond_resched so that we can avoid softlockups as
+reported below.  On non-preemptible kernel with large I/O map region (like
+the one we get when using persistent memory with sector mode), an unmap of
+the namespace can report below softlockups.
 
-Test Regressions
----------------- =
+22724.027334] watchdog: BUG: soft lockup - CPU#49 stuck for 23s! [ndctl:50777]
+ NIP [c0000000000dc224] plpar_hcall+0x38/0x58
+ LR [c0000000000d8898] pSeries_lpar_hpte_invalidate+0x68/0xb0
+ Call Trace:
+ [c0000004e87a7780] [c0000004fb197c00] 0xc0000004fb197c00 (unreliable)
+ [c0000004e87a7810] [c00000000007f4e4] flush_hash_page+0x114/0x200
+ [c0000004e87a7890] [c0000000000833cc] hpte_need_flush+0x2dc/0x540
+ [c0000004e87a7950] [c0000000003f5798] vunmap_page_range+0x538/0x6f0
+ [c0000004e87a7a70] [c0000000003f76d0] free_unmap_vmap_area+0x30/0x70
+ [c0000004e87a7aa0] [c0000000003f7a6c] remove_vm_area+0xfc/0x140
+ [c0000004e87a7ad0] [c0000000003f7dd8] __vunmap+0x68/0x270
+ [c0000004e87a7b50] [c000000000079de4] __iounmap.part.0+0x34/0x60
+ [c0000004e87a7bb0] [c000000000376394] memunmap+0x54/0x70
+ [c0000004e87a7bd0] [c000000000881d7c] release_nodes+0x28c/0x300
+ [c0000004e87a7c40] [c00000000087a65c] device_release_driver_internal+0x16c/0x280
+ [c0000004e87a7c80] [c000000000876fc4] unbind_store+0x124/0x170
+ [c0000004e87a7cd0] [c000000000875be4] drv_attr_store+0x44/0x60
+ [c0000004e87a7cf0] [c00000000057c734] sysfs_kf_write+0x64/0x90
+ [c0000004e87a7d10] [c00000000057bc10] kernfs_fop_write+0x1b0/0x290
+ [c0000004e87a7d60] [c000000000488e6c] __vfs_write+0x3c/0x70
+ [c0000004e87a7d80] [c00000000048c868] vfs_write+0xd8/0x260
+ [c0000004e87a7dd0] [c00000000048ccac] ksys_write+0xdc/0x130
+ [c0000004e87a7e20] [c00000000000b588] system_call+0x5c/0x70
 
+Link: http://lkml.kernel.org/r/20200807075933.310240-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ mm/vmalloc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+--- a/mm/vmalloc.c~mm-vunmap-add-cond_resched-in-vunmap_pmd_range
++++ a/mm/vmalloc.c
+@@ -104,6 +104,8 @@ static void vunmap_pmd_range(pud_t *pud,
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+ 		vunmap_pte_range(pmd, addr, next, mask);
++
++		cond_resched();
+ 	} while (pmd++, addr = next, addr != end);
+ }
+ 
+_
 
+Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
 
-  Details:     https://kernelci.org/test/plan/id/5f31cd15c877623b4752c1b3
+mm-vunmap-add-cond_resched-in-vunmap_pmd_range.patch
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.14-=
-80-g693b1e00f859/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
-d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.14-=
-80-g693b1e00f859/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
-d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f31cd15c877623b4752c=
-1b4
-      failing since 25 days (last pass: v5.7.8-167-gc2fb28a4b6e4, first fai=
-l: v5.7.9) =20
