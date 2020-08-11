@@ -2,95 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02E9624139E
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 01:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D81241427
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 02:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726722AbgHJXMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 19:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51220 "EHLO
+        id S1727031AbgHKA3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 20:29:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726970AbgHJXMx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 19:12:53 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD215C06174A
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 16:12:51 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id v6so8651155ota.13
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 16:12:51 -0700 (PDT)
+        with ESMTP id S1725969AbgHKA3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 20:29:54 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A118CC06174A
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 17:29:52 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id l60so955903pjb.3
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 17:29:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=SU7C5n0mjZgBQ0rPDuKYOoV0ucFHKRmKd1+rkblTeo8=;
-        b=G4qB9y699W6Tzpa3363a9KER4rMzBEBY+csm7xk7oWiMyr3KKdnEmCyH01yCtjRcpK
-         eJJepQSDtDcdUPCfyZ+Fx9Yw3xgTZnfsX+1m6GR9i/rxemYVGo2EtxgMkkAP4j0Q/DtP
-         52R0G4RfPd7nuEYCIESOhV1rF2kpoOOLtlksY=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=x8DzXM31uHcm3/Qx76xuYZ8/9y7DUmCCApyW5/h4V0Y=;
+        b=1Hdke4I1R6MnAtvI3g1R9qKTBcleL1ofNmcfZhmqN7Q9Qpc7UTexX6KoyrBn1Wtx7J
+         cGVQzWx+Vrs9lHPkDFgfgiLk6LAagiSAkvLNX4c4liJsrsmD1Tp/kAyo+jEiSiM7MZtj
+         eKLnQNqLym68y+CCXbHTKcimjj6+dLj9UNfz5aQRsESLFpDYNFLwlTaR70RbaL2rPY/v
+         8INdCCMxAvq1cELAorVaFN7Jmp0cY24l1swuok4m+DZdm8n3Q9eOs9USFHXEX53FyFPO
+         PlWU8c9cabtXt+XFNhTjtOPp4HFDPRrGf3MAX5fJUBl73TMM7sxp52RyyN5kCNtbxMbO
+         Nn0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SU7C5n0mjZgBQ0rPDuKYOoV0ucFHKRmKd1+rkblTeo8=;
-        b=c/AKOuzr87y7jSo8I7h4n1LirGxxaxmZrDxjqXhgIvkU8izrddmYmaJuASQgX+fdFv
-         fPSBXrB5He/gppD4JSAeKrt9L7kgy1eqsbN5Poo/jPDeM4dmefxTwAlk6w4ModotyLFK
-         G+tmvxJy+ZDUKr72NhGudWZ92KpYPALitkD+qRNZzIRX7BpiLJjzwf4NrIwbdA7HsxE1
-         EQsh9/n+U1G3FNJPNzY5GS9vLqPpfude32X8o4CLfsAdVxJ3g9CmE097EY46VntgmrIl
-         KjlrPAFauH2y3M7lCjAJuxN/YhqaUAgq4Mw8a9DbAub/GXeWi9Y2LvesZxZelsVOU9h4
-         vsgw==
-X-Gm-Message-State: AOAM530vIKTGsCeYxpybzYXP+fDb3VICl0Y9jQfbXw9aTT/ApiZSTUtG
-        zDDAw9dsB2dfY42JElc5/kq8+A==
-X-Google-Smtp-Source: ABdhPJyIzznkB3XtO0QPID7PAzRM5l8q1dR2dWWHNIjl2NGwXaermQjcy/s51YfWoC2HyFbVKRmIjg==
-X-Received: by 2002:a9d:7405:: with SMTP id n5mr2782246otk.286.1597101171176;
-        Mon, 10 Aug 2020 16:12:51 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id i10sm3945874oie.42.2020.08.10.16.12.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Aug 2020 16:12:50 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/48] 4.19.139-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, skhan@linuxfoundation.org
-References: <20200810151804.199494191@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <abdf0790-e2b7-c36c-ab0b-b01e4df817d3@linuxfoundation.org>
-Date:   Mon, 10 Aug 2020 17:12:49 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=x8DzXM31uHcm3/Qx76xuYZ8/9y7DUmCCApyW5/h4V0Y=;
+        b=K4RGh/LPYRPrvQ7bjGyjzdU3r/ecaTmjs2HiudDCgvUU50DRIUIfokgPUHIXYJtIUN
+         Y5n5UDMX2yE8KncldFIzWZKSVY47JvC3BMhzr6jh8+19wYN0uXKAFbaZBQx2I6DwIaGH
+         3OP+bKT67g6riGkF5Ocf8DSmbJdMJKqLzauum9kft7TUXyxPoCNDvM/IA6OP4iM27Y3O
+         VPvb9Ck7Q3Dz483n++emWsqzcaGfJVDG4/n0rV0MMDnsL9v1lP4wETrmHYTWBRzL3wMa
+         AEgZopZbW2DC6eEJPmun1NbktG6o0VZpZey/AIY72A9J8CTWzK4fkF2X9jgS4qtythi8
+         Pouw==
+X-Gm-Message-State: AOAM533iwPvjgb18GDak0fv75B0qmnhgS8gtyT5kfVLZd6DyBMj5doyt
+        OAl7XjctYwmiLRT6txK4b1s/cozvmnk=
+X-Google-Smtp-Source: ABdhPJxPdu3fMMzuwku80MYiLoXTYyi7yFCZjtCcGCcNzeqJ79Xi8t+SqRm4m6RwDk6HUQlHrvGa/g==
+X-Received: by 2002:a17:90a:d34b:: with SMTP id i11mr1892942pjx.125.1597105791667;
+        Mon, 10 Aug 2020 17:29:51 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s67sm25842967pfs.117.2020.08.10.17.29.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2020 17:29:50 -0700 (PDT)
+Message-ID: <5f31e67e.1c69fb81.38d49.e26a@mx.google.com>
+Date:   Mon, 10 Aug 2020 17:29:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.57-68-g133d9613b2c8
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 167 runs,
+ 1 regressions (v5.4.57-68-g133d9613b2c8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/10/20 9:21 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.139 release.
-> There are 48 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 12 Aug 2020 15:17:47 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.139-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+stable-rc/linux-5.4.y baseline: 167 runs, 1 regressions (v5.4.57-68-g133d96=
+13b2c8)
 
-Compiled and booted on my test system. No dmesg regressions.
+Regressions Summary
+-------------------
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
 
-thanks,
--- Shuah
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.57-68-g133d9613b2c8/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.57-68-g133d9613b2c8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      133d9613b2c88c60658eda244e2658dd07294b5e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f31af97eeb45179ab52c1c9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.57-=
+68-g133d9613b2c8/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.57-=
+68-g133d9613b2c8/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f31af97eeb45179ab52c=
+1ca
+      failing since 121 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
+il: v5.4.30-81-gf163418797b9) =20
