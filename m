@@ -2,126 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1132F241B5C
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 15:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B17E241B99
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 15:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbgHKNGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 09:06:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37992 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728506AbgHKNGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 09:06:24 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE14C06174A
-        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 06:06:24 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id o1so6805048plk.1
-        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 06:06:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=kqgrbgaDbYSWjzibEGpg4nka7M4G8sEc7lFMN/sJpKA=;
-        b=TAj+vpG8IS8cYJZ+IAY60l/htOSbR/qIZUhksnHHgX1FY4pOQtEY6CFi3HC48NXtyS
-         NjccgTp+0FfL6tKvJkV+CXOYGcPH1uJcAp87SthFqpFLosxVqQHGLOfYnP/9VmugagWs
-         OoN7Rn9rlcwKOBvCXgkzaw/OZ/YyjaFTEyWEKcJJwRLl+TMddPW+JoZuIHTKgZ+wUbtT
-         kjqbsdBzEAXN71Vj1po7VpOrS0qyftbn2GQ/WkVB2cjPfW+Bb2yU7YvfV0HVGzJrf4pE
-         FYFhD8AlZ/wJPKWS5o4/a6rRnRxOYGyii5+f44/z38Qyi3zKFJWX7eHgT4OUnUUMF7Te
-         oE2Q==
+        id S1728550AbgHKNhg convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 Aug 2020 09:37:36 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:43238 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728516AbgHKNhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 09:37:36 -0400
+Received: from mail-pl1-f200.google.com ([209.85.214.200])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1k5UT7-0008SG-Mz
+        for stable@vger.kernel.org; Tue, 11 Aug 2020 13:37:33 +0000
+Received: by mail-pl1-f200.google.com with SMTP id d2so5734600plo.2
+        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 06:37:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kqgrbgaDbYSWjzibEGpg4nka7M4G8sEc7lFMN/sJpKA=;
-        b=kcib7gwptPDKLfiHVgKiQ6WJza4fF/Bkbqtd3MhCeSramC9FeKbcQahBUbnb40MtSS
-         e+XCMPtxbkbeRSnAxx0O4xb7wJl5LMxooY6hKFCCD9JVcN/yQKkXf1B20dtFbReNH4eL
-         VSTTjDTf9g4SA7S/nRONtsimzpmSxZKua6PJ3ZXaRrS9IoRLJRNq0zPzgj11nMoVa6k1
-         zV4ukNmLo+ihsYFqU/PKmUwn30bf8zeHHSoHxFl2oo4E7J6qFuVx8BsdG56ABGrwwwoc
-         CZeaDiC97UGlJ5n3gqRdrKMnAH9/vFNe2lHkpIxV/g3IYm50VQjxP7+jA+VtkUpIcFFI
-         UF6Q==
-X-Gm-Message-State: AOAM532jB9Tq7ggY4J4O3bmMqYiri/kgKWAIY1Ls0wOXItSSrj8Tdwnc
-        JSt3Qszo13FHgzNCaKw07lG3Yg==
-X-Google-Smtp-Source: ABdhPJwF+bHd6KY2p1P8e9lx9oFImI5KZZLHZ+E6L7JgNPeCpkJOeRRWvVQbICk8vNLW8FvDyRKtfg==
-X-Received: by 2002:a17:902:6b0a:: with SMTP id o10mr761491plk.249.1597151184016;
-        Tue, 11 Aug 2020 06:06:24 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id c4sm22966780pfo.163.2020.08.11.06.06.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Aug 2020 06:06:23 -0700 (PDT)
-Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
- isn't running
-To:     Oleg Nesterov <oleg@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     Jann Horn <jannh@google.com>, io-uring <io-uring@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Josef <josef.grieb@gmail.com>
-References: <20200810211057.GG3982@worktop.programming.kicks-ass.net>
- <5628f79b-6bfb-b054-742a-282663cb2565@kernel.dk>
- <CAG48ez2dEyxe_ioQaDC3JTdSyLsdOiFKZvk6LGP00ELSfSvhvg@mail.gmail.com>
- <1629f8a9-cee0-75f1-810a-af32968c4055@kernel.dk>
- <dfc3bf88-39a3-bd38-b7b6-5435262013d5@kernel.dk>
- <CAG48ez2EzOpWZbhnuBxVBXjRbLZULJJeeTBsdbL6Hzh9-1YYhA@mail.gmail.com>
- <20200811064516.GA21797@redhat.com>
- <20200811065659.GQ3982@worktop.programming.kicks-ass.net>
- <20200811071401.GB21797@redhat.com>
- <20200811074538.GS3982@worktop.programming.kicks-ass.net>
- <20200811081033.GD21797@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <efc48e5e-d4fc-bbaf-467c-24210eb77d9b@kernel.dk>
-Date:   Tue, 11 Aug 2020 07:06:21 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20200811081033.GD21797@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=agF91uPxkI85KxuPLWs+qcpOYVX+83uXg176lLmnz+E=;
+        b=rba//yjiGJmwtBbkkBLaxBJFjweOhH671/MrCvMw90u/tdNoNmbo3+RBt5O7OZAPiy
+         jQ21LoUFUpI61WCqH59UyacYnCgpw3bYZZDMQBjrkK83y0l4wWMqSJk5hDv39DCtVDVE
+         NiZuPgGmfAz5no7e5DadP0qCVVm/GEoqrSappv/LlNmyiG86sOcrq5wfbHJwBzxIeaF8
+         a3woVVyuTaoBXyAxyIgmzOwlQZHS4k8Iwb/BJOBBX1+J6RBzegQEJtjBA6k5dXCDa/Q2
+         +g+yBUkoMmS+4Vkjn3JXPPxQqMi3Lf11tZJLr4M4R3ulWJ5ns45+h5/9jqTByN4aLcS3
+         QYTg==
+X-Gm-Message-State: AOAM532leleUi4uMT7db5G6kyiIohTYrU9ww6gOhukxlvSRFSxLtwpaU
+        zCjnujP89YwvuqRSA6/OIYpKqPxANn5hCB1VGHOCFtYKCVs51lk6OHCNrqM1Vk3fglw54ubc1sX
+        H2cf4lAwI6BqKLL+fKaYV29f5BnnU2YLbiw==
+X-Received: by 2002:a62:3583:: with SMTP id c125mr6518660pfa.1.1597153052071;
+        Tue, 11 Aug 2020 06:37:32 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwiX4u6AakcFd2PZAL2henPGnVpR5m1dyEdLYoNJc98JtYYu4TErVex4B4iOfbD/epnpuh2Hg==
+X-Received: by 2002:a62:3583:: with SMTP id c125mr6518628pfa.1.1597153051646;
+        Tue, 11 Aug 2020 06:37:31 -0700 (PDT)
+Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
+        by smtp.gmail.com with ESMTPSA id u65sm10579783pfb.102.2020.08.11.06.37.29
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 11 Aug 2020 06:37:31 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.1\))
+Subject: Re: [PATCH v2] HID: i2c-hid: Always sleep 1ms after I2C_HID_PWR_ON
+ commands
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+In-Reply-To: <20200811125900.338705-1-hdegoede@redhat.com>
+Date:   Tue, 11 Aug 2020 21:37:28 +0800
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, stable@vger.kernel.org,
+        Andrea Borgia <andrea@borgia.bo.it>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <141CAECB-B76A-41D0-9D2D-4955DAAEBF77@canonical.com>
+References: <20200811125900.338705-1-hdegoede@redhat.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+X-Mailer: Apple Mail (2.3608.120.23.2.1)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/11/20 2:10 AM, Oleg Nesterov wrote:
-> On 08/11, Peter Zijlstra wrote:
->>
->> On Tue, Aug 11, 2020 at 09:14:02AM +0200, Oleg Nesterov wrote:
->>> On 08/11, Peter Zijlstra wrote:
->>>>
->>>> On Tue, Aug 11, 2020 at 08:45:16AM +0200, Oleg Nesterov wrote:
->>>>>
->>>>> ->jobctl is always modified with ->siglock held, do we really need
->>>>> WRITE_ONCE() ?
->>>>
->>>> In theory, yes. The compiler doesn't know about locks, it can tear
->>>> writes whenever it feels like it.
->>>
->>> Yes, but why does this matter? Could you spell please?
->>
->> Ah, well, that I don't konw. Why do we need the READ_ONCE() ?
->>
->> It does:
->>
->>> +               if (!(task->jobctl & JOBCTL_TASK_WORK) &&
->>> +                   lock_task_sighand(task, &flags)) {
->>
->> and the lock_task_sighand() implies barrier(), so I thought the reason
->> for the READ_ONCE() was load-tearing, and then we need WRITE_ONCE() to
->> avoid store-tearing.
+Hi Hans,
+
+> On Aug 11, 2020, at 20:59, Hans de Goede <hdegoede@redhat.com> wrote:
 > 
-> I don't think we really need READ_ONCE() for correctness, compiler can't
-> reorder this LOAD with cmpxchg() above, and I think we don't care about
-> load-tearing.
+> Before this commit i2c_hid_parse() consists of the following steps:
 > 
-> But I guess we need READ_ONCE() or data_race() to shut kcsan up.
+> 1. Send power on cmd
+> 2. usleep_range(1000, 5000)
+> 3. Send reset cmd
+> 4. Wait for reset to complete (device interrupt, or msleep(100))
+> 5. Send power on cmd
+> 6. Try to read HID descriptor
+> 
+> Notice how there is an usleep_range(1000, 5000) after the first power-on
+> command, but not after the second power-on command.
+> 
+> Testing has shown that at least on the BMAX Y13 laptop's i2c-hid touchpad,
+> not having a delay after the second power-on command causes the HID
+> descriptor to read as all zeros.
+> 
+> In case we hit this on other devices too, the descriptor being all zeros
+> can be recognized by the following message being logged many, many times:
+> 
+> hid-generic 0018:0911:5288.0002: unknown main item tag 0x0
+> 
+> At the same time as the BMAX Y13's touchpad issue was debugged,
+> Kai-Heng was working on debugging some issues with Goodix i2c-hid
+> touchpads. It turns out that these need a delay after a PWR_ON command
+> too, otherwise they stop working after a suspend/resume cycle.
+> According to Goodix a delay of minimal 60ms is needed.
+> 
+> Having multiple cases where we need a delay after sending the power-on
+> command, seems to indicate that we should always sleep after the power-on
+> command.
+> 
+> This commit fixes the mentioned issues by moving the existing 1ms sleep to
+> the i2c_hid_set_power() function and changing it to a 60ms sleep.
 
-Thanks, reading through this thread makes me feel better. I agree that
-we'll need READ_ONCE() just to shut up analyzers.
+Thanks for your patch.
 
-I'd really like to get this done at the same time as the io_uring
-change. Are you open to doing the READ_ONCE() based JOBCTL_TASK_WORK
-addition for 5.9? Alternatively we can retain the 1/2 patch from this
-series and I'll open-code it in io_uring, but seems pointless as
-io_uring is the only user of TWA_SIGNAL in the kernel anyway.
+The subject is still "1ms" instead of "60ms".
 
--- 
-Jens Axboe
+Kai-Heng
+
+> 
+> Cc: stable@vger.kernel.org
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208247
+> Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Reported-and-tested-by: Andrea Borgia <andrea@borgia.bo.it>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v2:
+> - Add Kai-Heng's case, with Goodix touchpads needing a delay after PWR_ON too,
+>  to the commit message
+> - Add a Reported-by tag for Kai-Heng
+> - Increase the delay to 60ms
+> ---
+> drivers/hid/i2c-hid/i2c-hid-core.c | 22 +++++++++++++---------
+> 1 file changed, 13 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 294c84e136d7..dbd04492825d 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -420,6 +420,19 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
+> 		dev_err(&client->dev, "failed to change power setting.\n");
+> 
+> set_pwr_exit:
+> +
+> +	/*
+> +	 * The HID over I2C specification states that if a DEVICE needs time
+> +	 * after the PWR_ON request, it should utilise CLOCK stretching.
+> +	 * However, it has been observered that the Windows driver provides a
+> +	 * 1ms sleep between the PWR_ON and RESET requests.
+> +	 * According to Goodix Windows even waits 60 ms after (other?)
+> +	 * PWR_ON requests. Testing has confirmed that several devices
+> +	 * will not work properly without a delay after a PWR_ON request.
+> +	 */
+> +	if (!ret && power_state == I2C_HID_PWR_ON)
+> +		msleep(60);
+> +
+> 	return ret;
+> }
+> 
+> @@ -441,15 +454,6 @@ static int i2c_hid_hwreset(struct i2c_client *client)
+> 	if (ret)
+> 		goto out_unlock;
+> 
+> -	/*
+> -	 * The HID over I2C specification states that if a DEVICE needs time
+> -	 * after the PWR_ON request, it should utilise CLOCK stretching.
+> -	 * However, it has been observered that the Windows driver provides a
+> -	 * 1ms sleep between the PWR_ON and RESET requests and that some devices
+> -	 * rely on this.
+> -	 */
+> -	usleep_range(1000, 5000);
+> -
+> 	i2c_hid_dbg(ihid, "resetting...\n");
+> 
+> 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
+> -- 
+> 2.28.0
+> 
 
