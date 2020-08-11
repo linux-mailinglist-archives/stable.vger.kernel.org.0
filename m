@@ -2,80 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67845241AED
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 14:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC23241B23
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 14:46:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbgHKMZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 08:25:56 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:41444 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728651AbgHKMZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 08:25:06 -0400
-Received: from [114.253.245.60] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1k5TKx-00025J-Ts; Tue, 11 Aug 2020 12:25:04 +0000
-From:   Hui Wang <hui.wang@canonical.com>
-To:     alsa-devel@alsa-project.org, tiwai@suse.de,
-        kai.heng.feng@canonical.com
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] ALSA: hda - reverse the setting value in the micmute_led_set
-Date:   Tue, 11 Aug 2020 20:24:30 +0800
-Message-Id: <20200811122430.6546-1-hui.wang@canonical.com>
-X-Mailer: git-send-email 2.17.1
+        id S1728526AbgHKMqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 08:46:34 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:39428 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726966AbgHKMqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 08:46:34 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id EAB7F1C0BD8; Tue, 11 Aug 2020 14:46:29 +0200 (CEST)
+Date:   Tue, 11 Aug 2020 14:46:14 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Martyna Szapar <martyna.szapar@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: Re: [PATCH 4.19 47/48] i40e: Memory leak in i40e_config_iwarp_qvlist
+Message-ID: <20200811124614.2myealhkhnla6v3a@duo.ucw.cz>
+References: <20200810151804.199494191@linuxfoundation.org>
+ <20200810151806.541597863@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="pkqhj7nvnn7tsqgk"
+Content-Disposition: inline
+In-Reply-To: <20200810151806.541597863@linuxfoundation.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Before the micmute_led_set() is introduced, the function of
-alc_gpio_micmute_update() will set the gpio value with the
-!micmute_led.led_value, and the machines have the correct micmute led
-status. After the micmute_led_set() is introduced, it sets the gpio
-value with !!micmute_led.led_value, so the led status is not correct
-anymore, we need to set micmute_led_polarity = 1 to workaround it.
 
-Now we fix the micmute_led_set() and remove micmute_led_polarity = 1.
+--pkqhj7nvnn7tsqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: 87dc36482cab ("ALSA: hda/realtek - Add LED class support for micmute LED")
-Reported-and-suggested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- sound/pci/hda/patch_realtek.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+Hi!
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 09d93dd88713..073029aeaf3c 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4125,7 +4125,7 @@ static int micmute_led_set(struct led_classdev *led_cdev,
- 	struct alc_spec *spec = codec->spec;
- 
- 	alc_update_gpio_led(codec, spec->gpio_mic_led_mask,
--			    spec->micmute_led_polarity, !!brightness);
-+			    spec->micmute_led_polarity, !brightness);
- 	return 0;
- }
- 
-@@ -4162,8 +4162,6 @@ static void alc285_fixup_hp_gpio_led(struct hda_codec *codec,
- {
- 	struct alc_spec *spec = codec->spec;
- 
--	spec->micmute_led_polarity = 1;
--
- 	alc_fixup_hp_gpio_led(codec, action, 0x04, 0x01);
- }
- 
-@@ -4414,7 +4412,6 @@ static void alc233_fixup_lenovo_line2_mic_hotkey(struct hda_codec *codec,
- {
- 	struct alc_spec *spec = codec->spec;
- 
--	spec->micmute_led_polarity = 1;
- 	alc_fixup_hp_gpio_led(codec, action, 0, 0x04);
- 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
- 		spec->init_amp = ALC_INIT_DEFAULT;
--- 
-2.17.1
+> From: Martyna Szapar <martyna.szapar@intel.com>
+>=20
+> [ Upstream commit 0b63644602cfcbac849f7ea49272a39e90fa95eb ]
+>=20
+> Added freeing the old allocation of vf->qvlist_info in function
+> i40e_config_iwarp_qvlist before overwriting it with
+> the new allocation.
 
+Ok, but this also other error paths:
+
+> --- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+> +++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+> @@ -449,16 +450,19 @@ static int i40e_config_iwarp_qvlist(stru
+>  			 "Incorrect number of iwarp vectors %u. Maximum %u allowed.\n",
+>  			 qvlist_info->num_vectors,
+>  			 msix_vf);
+> -		goto err;
+> +		ret =3D -EINVAL;
+> +		goto err_out;
+>  	}
+
+And it is no longer freeing data qvlist_info() in this path. Is that
+correct? Should it goto err_free instead?=20
+
+> @@ -512,10 +518,11 @@ static int i40e_config_iwarp_qvlist(stru
+>  	}
+> =20
+>  	return 0;
+> -err:
+> +err_free:
+>  	kfree(vf->qvlist_info);
+>  	vf->qvlist_info =3D NULL;
+> -	return -EINVAL;
+> +err_out:
+> +	return ret;
+>  }
+
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--pkqhj7nvnn7tsqgk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXzKTFgAKCRAw5/Bqldv6
+8nD1AJ9hp8KEZX9mmHBxiUCrpm+Gq6mugACfR7ihn9zGN+1XhiI1cZej7g1gahQ=
+=eSCO
+-----END PGP SIGNATURE-----
+
+--pkqhj7nvnn7tsqgk--
