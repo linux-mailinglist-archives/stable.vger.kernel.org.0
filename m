@@ -2,100 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC23241B23
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 14:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF71241B27
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 14:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728526AbgHKMqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 08:46:34 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:39428 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726966AbgHKMqe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 08:46:34 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id EAB7F1C0BD8; Tue, 11 Aug 2020 14:46:29 +0200 (CEST)
-Date:   Tue, 11 Aug 2020 14:46:14 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Martyna Szapar <martyna.szapar@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>
-Subject: Re: [PATCH 4.19 47/48] i40e: Memory leak in i40e_config_iwarp_qvlist
-Message-ID: <20200811124614.2myealhkhnla6v3a@duo.ucw.cz>
-References: <20200810151804.199494191@linuxfoundation.org>
- <20200810151806.541597863@linuxfoundation.org>
+        id S1728081AbgHKMrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 08:47:21 -0400
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:42046 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726966AbgHKMrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 08:47:21 -0400
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id B549F3C0579;
+        Tue, 11 Aug 2020 14:47:18 +0200 (CEST)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id BXIy4wo0d5QG; Tue, 11 Aug 2020 14:47:13 +0200 (CEST)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 01C963C009D;
+        Tue, 11 Aug 2020 14:47:09 +0200 (CEST)
+Received: from lxhi-065.adit-jv.com (10.72.94.12) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 11 Aug
+ 2020 14:47:08 +0200
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Dongli Zhang <dongli.zhang@oracle.com>
+CC:     <linux-mm@kvack.org>, <stable@vger.kernel.org>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH] mm: slub: fix conversion of freelist_corrupted()
+Date:   Tue, 11 Aug 2020 14:46:56 +0200
+Message-ID: <20200811124656.10308-1-erosca@de.adit-jv.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="pkqhj7nvnn7tsqgk"
-Content-Disposition: inline
-In-Reply-To: <20200810151806.541597863@linuxfoundation.org>
-User-Agent: NeoMutt/20180716
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.72.94.12]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Commit 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in
+deactivate_slab()") suffered an update when picked up from LKML [1].
 
---pkqhj7nvnn7tsqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Specifically, relocating 'freelist = NULL' into 'freelist_corrupted()'
+created a no-op statement. Fix it by sticking to the behavior intended
+in the original patch [1]. Prefer the lowest-line-count solution.
 
-Hi!
+[1] https://lore.kernel.org/linux-mm/20200331031450.12182-1-dongli.zhang@oracle.com/
 
-> From: Martyna Szapar <martyna.szapar@intel.com>
->=20
-> [ Upstream commit 0b63644602cfcbac849f7ea49272a39e90fa95eb ]
->=20
-> Added freeing the old allocation of vf->qvlist_info in function
-> i40e_config_iwarp_qvlist before overwriting it with
-> the new allocation.
+Fixes: 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in deactivate_slab()")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+---
+ mm/slub.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Ok, but this also other error paths:
+diff --git a/mm/slub.c b/mm/slub.c
+index 68c02b2eecd9..9a3e963b02a3 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -677,7 +677,6 @@ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
+ 	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
+ 	    !check_valid_pointer(s, page, nextfree)) {
+ 		object_err(s, page, freelist, "Freechain corrupt");
+-		freelist = NULL;
+ 		slab_fix(s, "Isolate corrupted freechain");
+ 		return true;
+ 	}
+@@ -2184,8 +2183,10 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+ 		 * 'freelist' is already corrupted.  So isolate all objects
+ 		 * starting at 'freelist'.
+ 		 */
+-		if (freelist_corrupted(s, page, freelist, nextfree))
++		if (freelist_corrupted(s, page, freelist, nextfree)) {
++			freelist = NULL;
+ 			break;
++		}
+ 
+ 		do {
+ 			prior = page->freelist;
+-- 
+2.28.0
 
-> --- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-> +++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-> @@ -449,16 +450,19 @@ static int i40e_config_iwarp_qvlist(stru
->  			 "Incorrect number of iwarp vectors %u. Maximum %u allowed.\n",
->  			 qvlist_info->num_vectors,
->  			 msix_vf);
-> -		goto err;
-> +		ret =3D -EINVAL;
-> +		goto err_out;
->  	}
-
-And it is no longer freeing data qvlist_info() in this path. Is that
-correct? Should it goto err_free instead?=20
-
-> @@ -512,10 +518,11 @@ static int i40e_config_iwarp_qvlist(stru
->  	}
-> =20
->  	return 0;
-> -err:
-> +err_free:
->  	kfree(vf->qvlist_info);
->  	vf->qvlist_info =3D NULL;
-> -	return -EINVAL;
-> +err_out:
-> +	return ret;
->  }
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---pkqhj7nvnn7tsqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXzKTFgAKCRAw5/Bqldv6
-8nD1AJ9hp8KEZX9mmHBxiUCrpm+Gq6mugACfR7ihn9zGN+1XhiI1cZej7g1gahQ=
-=eSCO
------END PGP SIGNATURE-----
-
---pkqhj7nvnn7tsqgk--
