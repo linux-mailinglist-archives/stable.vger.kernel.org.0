@@ -2,79 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F11B2241795
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 09:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B552417A6
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 09:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbgHKHtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 03:49:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728060AbgHKHtc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 03:49:32 -0400
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DB1C06174A;
-        Tue, 11 Aug 2020 00:49:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=+TJ/vqDKzK90+hFON4erIAG/H/xM0Uf9CVDVNzbr/jk=; b=vUsE5pszqbqW+rNKIucpamldWG
-        3N4ra9yWtZ2GOn2xWUVuvTb/C4UYILB8oGyLb8Z8s/UXVDkudXC2uNvkaWG48NBaZgjYj865BvILd
-        79eNl4Yc0PcNTEbS/sdRdfujaQBVIws9QUB9KuLSyVDIRnDPmGVBO+LEAngsK5chgDEdpXEGUYHki
-        sVuy7bpLgdQzz1E5ODMSYsHgQ5YceLrGjwJmY2VuUfVfRW4VOZSOBd/sEBxtvSo+6ymAmTDrInC4V
-        eoFKmvSjnPisOvi0NLuEwHRSl6mRAROd+OrCVG+iWUMwakhfxvpPRFQIMl2iqSKHzumeMsdgL1UgP
-        qrMbHwkg==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1k5P2F-0000at-Cy; Tue, 11 Aug 2020 07:49:27 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 915A0980C9D; Tue, 11 Aug 2020 09:49:25 +0200 (CEST)
-Date:   Tue, 11 Aug 2020 09:49:25 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Oleg Nesterov <oleg@redhat.com>
-Cc:     Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>,
-        io-uring <io-uring@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Josef <josef.grieb@gmail.com>
-Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
- isn't running
-Message-ID: <20200811074925.GT3982@worktop.programming.kicks-ass.net>
-References: <20200810211057.GG3982@worktop.programming.kicks-ass.net>
- <5628f79b-6bfb-b054-742a-282663cb2565@kernel.dk>
- <CAG48ez2dEyxe_ioQaDC3JTdSyLsdOiFKZvk6LGP00ELSfSvhvg@mail.gmail.com>
- <1629f8a9-cee0-75f1-810a-af32968c4055@kernel.dk>
- <dfc3bf88-39a3-bd38-b7b6-5435262013d5@kernel.dk>
- <CAG48ez2EzOpWZbhnuBxVBXjRbLZULJJeeTBsdbL6Hzh9-1YYhA@mail.gmail.com>
- <20200811064516.GA21797@redhat.com>
- <20200811065659.GQ3982@worktop.programming.kicks-ass.net>
- <20200811071401.GB21797@redhat.com>
- <20200811072637.GC21797@redhat.com>
+        id S1728134AbgHKH4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 03:56:05 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:11132 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728095AbgHKH4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 03:56:05 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f324f070000>; Tue, 11 Aug 2020 00:55:51 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 11 Aug 2020 00:56:04 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 11 Aug 2020 00:56:04 -0700
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 11 Aug
+ 2020 07:56:04 +0000
+Received: from [127.0.1.1] (10.124.1.5) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Tue, 11 Aug 2020 07:56:02 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.19 00/48] 4.19.139-rc1 review
+In-Reply-To: <20200810151804.199494191@linuxfoundation.org>
+References: <20200810151804.199494191@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200811072637.GC21797@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <7d75d490b4ff4513ac0d9dbeb167532d@HQMAIL105.nvidia.com>
+Date:   Tue, 11 Aug 2020 07:56:02 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1597132551; bh=YG/+swQExQULGx6223RTBGGDK9PODesTfgYs7G7X77U=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=UunPB2sq/Kp2egfJHwnVmTUdfi/5UgZoiWT0a0a9jsp/cCmJY/pcCsLEyz/1x/IXc
+         iqzDWTFazWrF4+4TwMNMxiDUmZU+QB0fiL9AyL6Vp2ZNIidW2sGP9lMP0otX4QTJfA
+         vECZjMg4JHyO/P/Y8oyv2x23x5Ou1JQcqcgrJdQHLkNAKdCEg6cdkMFK7CroK0akiz
+         eHgq5QMhG0GtYeGkcyHwFgHennwxwMQ/dQSB8yUkkCHV0uqLkvLlOPq6cWROIoFE+d
+         3Vi4TzJAXfqMOaTmjg447LhfkuM3Hs2MbfrIZ+SHKMcSPFEhVEsafrX9AHVa/rRyuM
+         rvfXt/3vTpiyg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 11, 2020 at 09:26:37AM +0200, Oleg Nesterov wrote:
-> On 08/11, Oleg Nesterov wrote:
-> >
-> > On 08/11, Peter Zijlstra wrote:
-> > >
-> > > On Tue, Aug 11, 2020 at 08:45:16AM +0200, Oleg Nesterov wrote:
-> > > >
-> > > > ->jobctl is always modified with ->siglock held, do we really need
-> > > > WRITE_ONCE() ?
-> > >
-> > > In theory, yes. The compiler doesn't know about locks, it can tear
-> > > writes whenever it feels like it.
-> >
-> > Yes, but why does this matter? Could you spell please?
+On Mon, 10 Aug 2020 17:21:22 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.139 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Do you mean that compiler can temporary set/clear JOBCTL_TASK_WORK
-> when it sets/clears another bit?
+> Responses should be made by Wed, 12 Aug 2020 15:17:47 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.139-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Possibly, afaict the compiler is allowed to 'spill' intermediate state
-into the variable. If any intermediate state has the bit clear,...
+All tests passing for Tegra ...
+
+Test results for stable-v4.19:
+    11 builds:	11 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    38 tests:	38 pass, 0 fail
+
+Linux version:	4.19.139-rc1-gb0e1bc72f7dd
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Jon
