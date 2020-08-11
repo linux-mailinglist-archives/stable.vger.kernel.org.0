@@ -2,120 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3BF8241E85
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 18:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D961241E8A
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 18:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729219AbgHKQm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 12:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47230 "EHLO mail.kernel.org"
+        id S1728970AbgHKQpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 12:45:07 -0400
+Received: from mga01.intel.com ([192.55.52.88]:10736 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729205AbgHKQm5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Aug 2020 12:42:57 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19747206DC;
-        Tue, 11 Aug 2020 16:42:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597164176;
-        bh=GI6OEs1EfIlNFpfrrNWl3O0cjrdYTbDR04UTKujfyXE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RZBca4EWElRWJlHtTDeWGhKFRJVENyEt/Hllb0Llzwu6v+APOx2fBW3d1tiHbm/sH
-         BVyaYaGxrgceaNfydKWpeqKem4u07/v7bTtL3EbQ0BzHtt8z1lA66dUArDrY8id0lC
-         SiiaPJhBFhy31BOx4BCTpIuzKAHJyEnBNu8vdbJs=
-Date:   Tue, 11 Aug 2020 12:42:55 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Vladimir Oltean <olteanv@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 03/60] net: mscc: ocelot: fix encoding
- destination ports into multicast IPv4 address
-Message-ID: <20200811164255.GJ2975990@sasha-vm>
-References: <20200810191028.3793884-1-sashal@kernel.org>
- <20200810191028.3793884-3-sashal@kernel.org>
- <20200810210108.ystlnglj4atyfrfh@skbuf>
+        id S1728844AbgHKQpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Aug 2020 12:45:06 -0400
+IronPort-SDR: LEm0IEe3ItJ7CmA1O2Z4PSpoWx2wtpnq8jntfJqd/Uw0cczla5zelcACOSBeVTOU2Mg+iSsP6F
+ ovi7lLzTYcaw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9710"; a="171818111"
+X-IronPort-AV: E=Sophos;i="5.76,301,1592895600"; 
+   d="scan'208";a="171818111"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2020 09:45:06 -0700
+IronPort-SDR: Xyr4BmkhoH5allwCx1J2v5ZZj/pn9A6anrpHZfhvC5mWpsgUNVQEa2eTLRmFdndIgK62uHknbN
+ xhXdPQQG9BOA==
+X-IronPort-AV: E=Sophos;i="5.76,301,1592895600"; 
+   d="scan'208";a="332550145"
+Received: from jbrandeb-mobl3.amr.corp.intel.com (HELO localhost) ([10.209.73.16])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2020 09:45:05 -0700
+Date:   Tue, 11 Aug 2020 09:45:04 -0700
+From:   Jesse Brandeburg <jesse.brandeburg@intel.com>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Martyna Szapar <martyna.szapar@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        "Jeff Kirsher" <jeffrey.t.kirsher@intel.com>
+Subject: Re: [PATCH 4.19 47/48] i40e: Memory leak in
+ i40e_config_iwarp_qvlist
+Message-ID: <20200811094504.000068bb@intel.com>
+In-Reply-To: <20200811124614.2myealhkhnla6v3a@duo.ucw.cz>
+References: <20200810151804.199494191@linuxfoundation.org>
+        <20200810151806.541597863@linuxfoundation.org>
+        <20200811124614.2myealhkhnla6v3a@duo.ucw.cz>
+X-Mailer: Claws Mail 3.12.0 (GTK+ 2.24.28; i686-w64-mingw32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200810210108.ystlnglj4atyfrfh@skbuf>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 11, 2020 at 12:01:08AM +0300, Vladimir Oltean wrote:
->Hi Sasha,
->
->On Mon, Aug 10, 2020 at 03:09:31PM -0400, Sasha Levin wrote:
->> From: Vladimir Oltean <vladimir.oltean@nxp.com>
->>
->> [ Upstream commit 0897ecf7532577bda3dbcb043ce046a96948889d ]
->>
->> The ocelot hardware designers have made some hacks to support multicast
->> IPv4 and IPv6 addresses. Normally, the MAC table matches on MAC
->> addresses and the destination ports are selected through the DEST_IDX
->> field of the respective MAC table entry. The DEST_IDX points to a Port
->> Group ID (PGID) which contains the bit mask of ports that frames should
->> be forwarded to. But there aren't a lot of PGIDs (only 80 or so) and
->> there are clearly many more IP multicast addresses than that, so it
->> doesn't scale to use this PGID mechanism, so something else was done.
->> Since the first portion of the MAC address is known, the hack they did
->> was to use a single PGID for _flooding_ unknown IPv4 multicast
->> (PGID_MCIPV4 == 62), but for known IP multicast, embed the destination
->> ports into the first 3 bytes of the MAC address recorded in the MAC
->> table.
->>
->> The VSC7514 datasheet explains it like this:
->>
->>     3.9.1.5 IPv4 Multicast Entries
->>
->>     MAC table entries with the ENTRY_TYPE = 2 settings are interpreted
->>     as IPv4 multicast entries.
->>     IPv4 multicasts entries match IPv4 frames, which are classified to
->>     the specified VID, and which have DMAC = 0x01005Exxxxxx, where
->>     xxxxxx is the lower 24 bits of the MAC address in the entry.
->>     Instead of a lookup in the destination mask table (PGID), the
->>     destination set is programmed as part of the entry MAC address. This
->>     is shown in the following table.
->>
->>     Table 78: IPv4 Multicast Destination Mask
->>
->>         Destination Ports            Record Bit Field
->>         ---------------------------------------------
->>         Ports 10-0                   MAC[34-24]
->>
->>     Example: All IPv4 multicast frames in VLAN 12 with MAC 01005E112233 are
->>     to be forwarded to ports 3, 8, and 9. This is done by inserting the
->>     following entry in the MAC table entry:
->>     VALID = 1
->>     VID = 12
->>     MAC = 0x000308112233
->>     ENTRY_TYPE = 2
->>     DEST_IDX = 0
->>
->> But this procedure is not at all what's going on in the driver. In fact,
->> the code that embeds the ports into the MAC address looks like it hasn't
->> actually been tested. This patch applies the procedure described in the
->> datasheet.
->>
->> Since there are many other fixes to be made around multicast forwarding
->> until it works properly, there is no real reason for this patch to be
->> backported to stable trees, or considered a real fix of something that
->> should have worked.
->>
->> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
->> Signed-off-by: David S. Miller <davem@davemloft.net>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->
->Could you please drop this patch from the 'stable' queues for 5.7 and
->5.8? I haven't tested it on older kernels and without the other patches
->sent in that series. I would like to avoid unexpected regressions if
->possible.
+On Tue, 11 Aug 2020 14:46:14 +0200
+Pavel Machek <pavel@denx.de> wrote:
 
-Will do, thanks!
+> > --- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+> > +++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+> > @@ -449,16 +450,19 @@ static int i40e_config_iwarp_qvlist(stru
+> >  			 "Incorrect number of iwarp vectors %u.
+> > Maximum %u allowed.\n", qvlist_info->num_vectors,
+> >  			 msix_vf);
+> > -		goto err;
+> > +		ret = -EINVAL;
+> > +		goto err_out;
+> >  	}
+> 
+> And it is no longer freeing data qvlist_info() in this path. Is that
+> correct? Should it goto err_free instead? 
 
--- 
-Thanks,
-Sasha
+Hi Pavel, thanks for the review.
+
+I believe it is still correct, the logic is a bit convoluted, but
+tracing back, I see that the caller in i40e_main.c allocates a buffer,
+calls this function (eventually) with that memory cast to the *input*
+variable qvlist_info, and then the top caller frees the original buffer.
+
+One thing that I'll admit is confusing here is that the *input* struct
+qvlist_info is different than the vf->qvlist_info struct managed by
+this function. Maybe that they have the same name was confusing to you?
+It confused me for a moment while I investigated, but I believe there
+is no actual problem.
+
+The reason for the function working this way is that the input data is
+from the VF message, and the driver data structures in the PF (i40e)
+driver representing state of the VF are managed separately. 
+
+Jesse
