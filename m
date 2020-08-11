@@ -2,90 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 927842417AD
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 09:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685552417B5
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 09:58:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728094AbgHKH5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 03:57:15 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:7533 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726397AbgHKH5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 03:57:15 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f324f250003>; Tue, 11 Aug 2020 00:56:21 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 11 Aug 2020 00:57:15 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 11 Aug 2020 00:57:15 -0700
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 11 Aug
- 2020 07:57:14 +0000
-Received: from [127.0.1.1] (10.124.1.5) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Tue, 11 Aug 2020 07:57:11 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.7 00/79] 5.7.15-rc1 review
-In-Reply-To: <20200810151812.114485777@linuxfoundation.org>
-References: <20200810151812.114485777@linuxfoundation.org>
-X-NVConfidentiality: public
+        id S1728064AbgHKH6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 03:58:23 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59894 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726397AbgHKH6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Aug 2020 03:58:23 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id DF995AB9F;
+        Tue, 11 Aug 2020 07:58:42 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 14D22DAFD3; Tue, 11 Aug 2020 09:57:21 +0200 (CEST)
+Date:   Tue, 11 Aug 2020 09:57:20 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.4 03/16] fs/btrfs: Add cond_resched() for
+ try_release_extent_mapping() stalls
+Message-ID: <20200811075720.GL2026@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, "Paul E. McKenney" <paulmck@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+References: <20200810191443.3795581-1-sashal@kernel.org>
+ <20200810191443.3795581-3-sashal@kernel.org>
 MIME-Version: 1.0
-Message-ID: <f818fdeba70943789019f4ce0d460da3@HQMAIL101.nvidia.com>
-Date:   Tue, 11 Aug 2020 07:57:11 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1597132581; bh=YRfVP4P9KvQ+aZcdgpTUJEsKKlF0fjzJp5dKuYjEASo=;
-        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
-         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
-         Content-Transfer-Encoding;
-        b=N0JSKc4CU3KHzvNYG4N6puBNEuZZ+izrk7x8bsgUvW026u67o8pLcspFJHO1bTVd8
-         TJUg/gI+P4S6qKw1LOpjJKCGPF7MkTN8TFwV0z4f5sWLCzj8SpaWIkiaQC3oY7QmOC
-         xrS29xXOhHzChObr6coERY0D8yl5tiitFS3iwpKP1qmQk9XJwRasDtoUbz8EULFZzE
-         2lJIal0t5XNLKuc+e5lhXzkBKQZJZYftXkdOgvxRlHpaDrYx45I3ZOGkvosxVJ8yiS
-         5XSjgkHuqUWk+Fu74RYpUaAD1ifsY1ssciClC5t0GXjE1t22etanQxbIVaF++t3SO7
-         w9NN6GxiaVuFA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200810191443.3795581-3-sashal@kernel.org>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 Aug 2020 17:20:19 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.7.15 release.
-> There are 79 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Aug 10, 2020 at 03:14:30PM -0400, Sasha Levin wrote:
+> From: "Paul E. McKenney" <paulmck@kernel.org>
 > 
-> Responses should be made by Wed, 12 Aug 2020 15:17:47 +0000.
-> Anything received after that time might be too late.
+> [ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
-> and the diffstat can be found below.
+> Very large I/Os can cause the following RCU CPU stall warning:
 > 
-> thanks,
+> RIP: 0010:rb_prev+0x8/0x50
+> Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
+> 89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
+> RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
+> RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
+> RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
+> RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
+> R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
+> R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
+>  __lookup_extent_mapping+0xa0/0x110
+>  try_release_extent_mapping+0xdc/0x220
+>  btrfs_releasepage+0x45/0x70
+>  shrink_page_list+0xa39/0xb30
+>  shrink_inactive_list+0x18f/0x3b0
+>  shrink_lruvec+0x38e/0x6b0
+>  shrink_node+0x14d/0x690
+>  do_try_to_free_pages+0xc6/0x3e0
+>  try_to_free_mem_cgroup_pages+0xe6/0x1e0
+>  reclaim_high.constprop.73+0x87/0xc0
+>  mem_cgroup_handle_over_high+0x66/0x150
+>  exit_to_usermode_loop+0x82/0xd0
+>  do_syscall_64+0xd4/0x100
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 > 
-> greg k-h
+> On a PREEMPT=n kernel, the try_release_extent_mapping() function's
+> "while" loop might run for a very long time on a large I/O.  This commit
+> therefore adds a cond_resched() to this loop, providing RCU any needed
+> quiescent states.
+> 
+> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 
-All tests passing for Tegra ...
+Paul,
 
-Test results for stable-v5.7:
-    11 builds:	11 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    56 tests:	56 pass, 0 fail
+this patch was well hidden in some huge RCU pile
+(https://lore.kernel.org/lkml/20200623002147.25750-11-paulmck@kernel.org/)
 
-Linux version:	5.7.15-rc1-g693b1e00f859
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Jon
+I wonder why you haven't CCed linux-btrfs, I spotted the patch queued
+for stable by incidentally. The timestamp is from June, that's quite
+some time ago. We can deal with one more patch and I tend to reply with
+acks quickly for easy patches like this to not block other peoples work
+but I'm a bit disappointed by sidestepping maintained subsystems. It's
+not just this patch, it happens from time time only to increase the
+disapointement.
