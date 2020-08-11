@@ -2,159 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97033241482
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 03:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 975B3241489
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 03:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727094AbgHKBUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Aug 2020 21:20:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42472 "EHLO
+        id S1727094AbgHKBZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Aug 2020 21:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727088AbgHKBUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 21:20:48 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4525AC06174A
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 18:20:48 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id d22so6718829pfn.5
-        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 18:20:48 -0700 (PDT)
+        with ESMTP id S1727930AbgHKBZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Aug 2020 21:25:15 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22B4C061756
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 18:25:14 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id t11so6018614plr.5
+        for <stable@vger.kernel.org>; Mon, 10 Aug 2020 18:25:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MgRJKkm/RNv18EIHtqBkMipK7P60FWqXFozx81+Se/s=;
-        b=IC91l++Bv1wpI8Z0lXNFRccSLL3jbkHryK1mn5r1l+Y4OdilXKvpwNrEXjyP6mFiWJ
-         9COT7UeJOhehQbiVlC4g6YKGylu0G/QIXctxidVwPsU+LCX8WqombfHMqYrUB8+h4NhF
-         l/cZ5q3ez0Qx1tyOmrMpG8MmCzLd2k1zWLeR/tsDuslH81BuXpCU8NwlyWd3ZbEot3NM
-         D49psJ5A14gTpr/nsTkIJ6sRgIy3Scrzur0LTnRsna12scK+agNOIthKuFjrl9bkwwYP
-         8qf/6UyTQCtyJc5lWldwdLr5KRvTeEOopSF6Zsg6xHnWZSMhR7zeI353oNzLgkBNYK6g
-         bs1w==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=PCpfFhVUaRaWr6RthgpF9Kzm/HJjZsLLuTqDdDfEeJo=;
+        b=GRRaih/uF2Fj9QRRqaeXSp060VJRmf2HUVA8kO0fyrDYKrIihfJF+m4bcqOqPa7I4c
+         N/BOmFlWoX05vnCiy+fAHnFHcFJmFXIUZSSUp/zW8bF+JFrrVLnKTHNG0d3QKHM+X6lD
+         QlGq1oYnxCJFRPduCya2O0WaIRD+yj0kEELEILn80M+OdjPzah+Nhc4Nvf52aUqhvDt9
+         RT62beivdIo+oVDq2FL6Hf1ta23uWA+a3+sKDS5CsMD68nBEs2wOOyKClrKOIkvWnXmm
+         fWG20RvZrAwwULAKhsShjrEEYGHCeVxtAItPY7+puTuH1dC0NDY12vtjWY9o3MkkOXcP
+         y0Tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MgRJKkm/RNv18EIHtqBkMipK7P60FWqXFozx81+Se/s=;
-        b=aWdI3kEfAPMlM8D0rFnNotAuLxosJE0ydvByzxtSfz2Su2CUw17b7Uul7knQRONbKA
-         Pbijhn58jGa9ZQgkmiwKQsCKpOJLJ4BvfCdw1J4axQrcCqu+o19y4e8Csr+c3K/Mz+O5
-         0gkhD/Ddk2DPLF1LPHRgb5lY2I8axcqMlHGF5VeGDese8HlMltj5JoYOzeE5feUyT2ma
-         36P2SQiIdjso0gSwwHsMskH7E3OsNHjcXSrlk+Chw3pFZYIP2L+n4jaghuOTwsuuQsHE
-         f+gA52HQNHxZv9zvJtYk9+5v7WPcgjabMvjal7DTQ5mz5jZ8yhdBwloi0l8evszRuCdX
-         /QvA==
-X-Gm-Message-State: AOAM5328XDDaFnhYYrj1Z33Ej8gGPzdKDK4qV4FzG37PUgBtLykJpH17
-        Gu3WOspiGIFBqbLurCkxyNVPdaNUT2s=
-X-Google-Smtp-Source: ABdhPJwq/RAw8gq+48kR/6zDpYe+QgptkQhDxHaCLRN27ORRBN3UkHaU/nSQNVI0Q6KYSUlUZL7HEA==
-X-Received: by 2002:a63:5160:: with SMTP id r32mr20220394pgl.112.1597108847376;
-        Mon, 10 Aug 2020 18:20:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s185sm22008990pgc.18.2020.08.10.18.20.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2020 18:20:46 -0700 (PDT)
-Message-ID: <5f31f26e.1c69fb81.4a5aa.c32b@mx.google.com>
-Date:   Mon, 10 Aug 2020 18:20:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PCpfFhVUaRaWr6RthgpF9Kzm/HJjZsLLuTqDdDfEeJo=;
+        b=uhB+p4LPdTFYJK65jmBe3uD4UAZP8qg2ZyAMMuTXDXmErWwQIgUTjnBYc96EumQSCC
+         fSVXywfxI5qkekVALtWKrs/uGtYNhnKC6i1Q2RsvG1RLK5o26S+6TfSDIGdf3o+OjqZk
+         okGy6WjCVDdmG5OCGuhot3XHx85bv7mfBsohP1rFUAacZIQGkxQ9rq41tM0w8CMOEjzt
+         Ku8fgu68djmV0N79O+MDjfp6vMrhUrx/KV1PC1CQ49g/zQ/yXBoXnBlmp0ODxHYc6tJj
+         zx4Nn14eoTOfmSABqdr8lJFNpdN9rPn60mzvHJhVtbERT4eFE3Hk8eumG0G7k6vTZgoI
+         lTew==
+X-Gm-Message-State: AOAM532maWg70/QsvsEW7iPfvdmwBBseceVd6H7lF9niauOiBx/xmTHu
+        HZ8Xn4GgWW6xl7GNoeVXPDUOZZM/Nvw=
+X-Google-Smtp-Source: ABdhPJy6ZRX599Qb4c20ndcyS+2w/BW3ofi9VGW/qu9/wIua4zCGR63q5jRXQzMcdH29G9kgmwSXDA==
+X-Received: by 2002:a17:902:9683:: with SMTP id n3mr26229324plp.65.1597109114159;
+        Mon, 10 Aug 2020 18:25:14 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id a26sm19410236pgm.20.2020.08.10.18.25.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Aug 2020 18:25:13 -0700 (PDT)
+Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
+ isn't running
+To:     Jann Horn <jannh@google.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        io-uring <io-uring@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Josef <josef.grieb@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>
+References: <20200808183439.342243-1-axboe@kernel.dk>
+ <20200808183439.342243-3-axboe@kernel.dk>
+ <20200810114256.GS2674@hirez.programming.kicks-ass.net>
+ <a6ee0a6d-5136-4fe9-8906-04fe6420aad9@kernel.dk>
+ <07df8ab4-16a8-8537-b4fe-5438bd8110cf@kernel.dk>
+ <20200810201213.GB3982@worktop.programming.kicks-ass.net>
+ <4a8fa719-330f-d380-522f-15d79c74ca9a@kernel.dk>
+ <faf2c2ae-834e-8fa2-12f3-ae07f8a68e14@kernel.dk>
+ <CAG48ez0+=+Q0tjdFxjbbZbZJNkimYL9Bd5odr0T9oWwty6qgoQ@mail.gmail.com>
+ <03c0e282-5317-ea45-8760-2c3f56eec0c0@kernel.dk>
+ <20200810211057.GG3982@worktop.programming.kicks-ass.net>
+ <5628f79b-6bfb-b054-742a-282663cb2565@kernel.dk>
+ <CAG48ez2dEyxe_ioQaDC3JTdSyLsdOiFKZvk6LGP00ELSfSvhvg@mail.gmail.com>
+ <1629f8a9-cee0-75f1-810a-af32968c4055@kernel.dk>
+ <dfc3bf88-39a3-bd38-b7b6-5435262013d5@kernel.dk>
+ <CAG48ez2EzOpWZbhnuBxVBXjRbLZULJJeeTBsdbL6Hzh9-1YYhA@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <bdfb29ff-1a17-0813-9bed-21f2583d971e@kernel.dk>
+Date:   Mon, 10 Aug 2020 19:25:11 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.193-43-g288931e8c436
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 147 runs,
- 2 regressions (v4.14.193-43-g288931e8c436)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CAG48ez2EzOpWZbhnuBxVBXjRbLZULJJeeTBsdbL6Hzh9-1YYhA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 147 runs, 2 regressions (v4.14.193-43-g288=
-931e8c436)
+On 8/10/20 4:41 PM, Jann Horn wrote:
+> On Tue, Aug 11, 2020 at 12:01 AM Jens Axboe <axboe@kernel.dk> wrote:
+>> On 8/10/20 3:28 PM, Jens Axboe wrote:
+>>> On 8/10/20 3:26 PM, Jann Horn wrote:
+>>>> On Mon, Aug 10, 2020 at 11:12 PM Jens Axboe <axboe@kernel.dk> wrote:
+>>>>> On 8/10/20 3:10 PM, Peter Zijlstra wrote:
+>>>>>> On Mon, Aug 10, 2020 at 03:06:49PM -0600, Jens Axboe wrote:
+>>>>>>
+>>>>>>> should work as far as I can tell, but I don't even know if there's a
+>>>>>>> reliable way to do task_in_kernel().
+>>>>>>
+>>>>>> Only on NOHZ_FULL, and tracking that is one of the things that makes it
+>>>>>> so horribly expensive.
+>>>>>
+>>>>> Probably no other way than to bite the bullet and just use TWA_SIGNAL
+>>>>> unconditionally...
+>>>>
+>>>> Why are you trying to avoid using TWA_SIGNAL? Is there a specific part
+>>>> of handling it that's particularly slow?
+>>>
+>>> Not particularly slow, but it's definitely heavier than TWA_RESUME. And
+>>> as we're driving any pollable async IO through this, just trying to
+>>> ensure it's as light as possible.
+>>>
+>>> It's not a functional thing, just efficiency.
+>>
+>> Ran some quick testing in a vm, which is worst case for this kind of
+>> thing as any kind of mucking with interrupts is really slow. And the hit
+>> is substantial. Though with the below, we're basically at parity again.
+>> Just for discussion...
+>>
+>>
+>> diff --git a/kernel/task_work.c b/kernel/task_work.c
+>> index 5c0848ca1287..ea2c683c8563 100644
+>> --- a/kernel/task_work.c
+>> +++ b/kernel/task_work.c
+>> @@ -42,7 +42,8 @@ task_work_add(struct task_struct *task, struct callback_head *work, int notify)
+>>                 set_notify_resume(task);
+>>                 break;
+>>         case TWA_SIGNAL:
+>> -               if (lock_task_sighand(task, &flags)) {
+>> +               if (!(task->jobctl & JOBCTL_TASK_WORK) &&
+>> +                   lock_task_sighand(task, &flags)) {
+>>                         task->jobctl |= JOBCTL_TASK_WORK;
+>>                         signal_wake_up(task, 0);
+>>                         unlock_task_sighand(task, &flags);
+> 
+> I think that should work in theory, but if you want to be able to do a
+> proper unlocked read of task->jobctl here, then I think you'd have to
+> use READ_ONCE() here and make all existing writes to ->jobctl use
+> WRITE_ONCE().
+> 
+> Also, I think that to make this work, stuff like get_signal() will
+> need to use memory barriers to ensure that reads from ->task_works are
+> ordered after ->jobctl has been cleared - ideally written such that on
+> the fastpath, the memory barrier doesn't execute.
 
-Regressions Summary
--------------------
+I wonder if it's possible to just make it safe for the io_uring case,
+since a bigger change would make this performance regression persistent
+in this release... Would still require the split add/notification patch,
+but that one is trivial.
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+-- 
+Jens Axboe
 
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.193-43-g288931e8c436/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.193-43-g288931e8c436
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      288931e8c4364aa6ad46ed925bb3c469262a10bc =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f31b9a1bf0103fdfb52c1ba
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-93-43-g288931e8c436/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-93-43-g288931e8c436/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f31b9a1bf0103fdfb52c=
-1bb
-      failing since 17 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
-fail: v4.14.189) =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f31b9ef258f1f8e7452c1b4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-93-43-g288931e8c436/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-93-43-g288931e8c436/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f31b9ef258f1f8e7452c=
-1b5
-      failing since 132 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23) =20
