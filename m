@@ -2,99 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 429152417FE
-	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 10:10:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C08C4241818
+	for <lists+stable@lfdr.de>; Tue, 11 Aug 2020 10:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728158AbgHKIKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 04:10:41 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:35422 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727998AbgHKIKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 04:10:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597133440;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ETM5SVJgSYa28QAQrXzkvKzwfyNa1RWXhMMsF/tbcjU=;
-        b=Ry1jfhA/4kYEQLqyobDyRiZ1TofbbK6Gx7L+9cMbLLoBVWvJgm21L1RmYPRPFnFVl2Eeob
-        VOvi7L4BzhT590GLE9isFDRCh9jHSgwshuJt2cCxiyWUrlgcu871OaQrAgN5jvIPck4gSp
-        Y/l1hGdKl5rlvsgYdPk9AWfJ5dsocJQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-356-H20mh8tYNymRfg1oA-_Fkw-1; Tue, 11 Aug 2020 04:10:38 -0400
-X-MC-Unique: H20mh8tYNymRfg1oA-_Fkw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 01C998015F0;
-        Tue, 11 Aug 2020 08:10:37 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.192.186])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 547D617B9B;
-        Tue, 11 Aug 2020 08:10:35 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Tue, 11 Aug 2020 10:10:36 +0200 (CEST)
-Date:   Tue, 11 Aug 2020 10:10:34 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>,
-        io-uring <io-uring@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Josef <josef.grieb@gmail.com>
-Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
- isn't running
-Message-ID: <20200811081033.GD21797@redhat.com>
-References: <20200810211057.GG3982@worktop.programming.kicks-ass.net>
- <5628f79b-6bfb-b054-742a-282663cb2565@kernel.dk>
- <CAG48ez2dEyxe_ioQaDC3JTdSyLsdOiFKZvk6LGP00ELSfSvhvg@mail.gmail.com>
- <1629f8a9-cee0-75f1-810a-af32968c4055@kernel.dk>
- <dfc3bf88-39a3-bd38-b7b6-5435262013d5@kernel.dk>
- <CAG48ez2EzOpWZbhnuBxVBXjRbLZULJJeeTBsdbL6Hzh9-1YYhA@mail.gmail.com>
- <20200811064516.GA21797@redhat.com>
- <20200811065659.GQ3982@worktop.programming.kicks-ass.net>
- <20200811071401.GB21797@redhat.com>
- <20200811074538.GS3982@worktop.programming.kicks-ass.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200811074538.GS3982@worktop.programming.kicks-ass.net>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+        id S1728266AbgHKIR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 04:17:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50074 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728253AbgHKIR0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 04:17:26 -0400
+Received: from baptiste.telenet-ops.be (baptiste.telenet-ops.be [IPv6:2a02:1800:120:4::f00:13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E49F9C061787
+        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 01:17:25 -0700 (PDT)
+Received: from ramsan ([84.195.186.194])
+        by baptiste.telenet-ops.be with bizsmtp
+        id E8HH230014C55Sk018HHG0; Tue, 11 Aug 2020 10:17:20 +0200
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan with esmtp (Exim 4.90_1)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1k5PTA-0000UC-Tn; Tue, 11 Aug 2020 10:17:16 +0200
+Received: from geert by rox.of.borg with local (Exim 4.90_1)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1k5PTA-0001g9-RW; Tue, 11 Aug 2020 10:17:16 +0200
+From:   Geert Uytterhoeven <geert+renesas@glider.be>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        linux-ide@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH v2] ata: sata_rcar: Fix DMA boundary mask
+Date:   Tue, 11 Aug 2020 10:17:12 +0200
+Message-Id: <20200811081712.4981-1-geert+renesas@glider.be>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/11, Peter Zijlstra wrote:
->
-> On Tue, Aug 11, 2020 at 09:14:02AM +0200, Oleg Nesterov wrote:
-> > On 08/11, Peter Zijlstra wrote:
-> > >
-> > > On Tue, Aug 11, 2020 at 08:45:16AM +0200, Oleg Nesterov wrote:
-> > > >
-> > > > ->jobctl is always modified with ->siglock held, do we really need
-> > > > WRITE_ONCE() ?
-> > >
-> > > In theory, yes. The compiler doesn't know about locks, it can tear
-> > > writes whenever it feels like it.
-> >
-> > Yes, but why does this matter? Could you spell please?
->
-> Ah, well, that I don't konw. Why do we need the READ_ONCE() ?
->
-> It does:
->
-> > +               if (!(task->jobctl & JOBCTL_TASK_WORK) &&
-> > +                   lock_task_sighand(task, &flags)) {
->
-> and the lock_task_sighand() implies barrier(), so I thought the reason
-> for the READ_ONCE() was load-tearing, and then we need WRITE_ONCE() to
-> avoid store-tearing.
+Before commit 9495b7e92f716ab2 ("driver core: platform: Initialize
+dma_parms for platform devices"), the R-Car SATA device didn't have DMA
+parameters.  Hence the DMA boundary mask supplied by its driver was
+silently ignored, as __scsi_init_queue() doesn't check the return value
+of dma_set_seg_boundary(), and the default value of 0xffffffff was used.
 
-I don't think we really need READ_ONCE() for correctness, compiler can't
-reorder this LOAD with cmpxchg() above, and I think we don't care about
-load-tearing.
+Now the device has gained DMA parameters, the driver-supplied value is
+used, and the following warning is printed on Salvator-XS:
 
-But I guess we need READ_ONCE() or data_race() to shut kcsan up.
+    DMA-API: sata_rcar ee300000.sata: mapping sg segment across boundary [start=0x00000000ffffe000] [end=0x00000000ffffefff] [boundary=0x000000001ffffffe]
+    WARNING: CPU: 5 PID: 38 at kernel/dma/debug.c:1233 debug_dma_map_sg+0x298/0x300
 
-Oleg.
+(the range of start/end values depend on whether IOMMU support is
+ enabled or not)
+
+The issue here is that SATA_RCAR_DMA_BOUNDARY doesn't have bit 0 set, so
+any typical end value, which is odd, will trigger the check.
+
+Fix this by increasing the DMA boundary value by 1.
+
+Fixes: 8bfbeed58665dbbf ("sata_rcar: correct 'sata_rcar_sht'")
+Fixes: 9495b7e92f716ab2 ("driver core: platform: Initialize dma_parms for platform devices")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: stable <stable@vger.kernel.org>
+---
+v2:
+  - Add Reviewed-by, Tested-by, Cc.
+
+This is a fix for a regression in v5.7-rc5 that fell through the cracks.
+https://lore.kernel.org/linux-ide/20200513110426.22472-1-geert+renesas@glider.be/
+
+As by default the DMA debug code prints the first error only, this issue
+may be hidden on plain v5.7-rc5, where the FCP driver triggers a similar
+warning.  Merging commit dd844fb8e50b12e6 ("media: platform: fcp: Set
+appropriate DMA parameters", in v5.8-rc1) from the media tree fixes the
+FCP issue, and exposes the SATA issue.
+
+I added the second fixes tag because that commit is already being
+backported to stable kernels, and this patch thus needs backporting,
+too.
+---
+ drivers/ata/sata_rcar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/ata/sata_rcar.c b/drivers/ata/sata_rcar.c
+index 141ac600b64c87ef..44b0ed8f6bb8a120 100644
+--- a/drivers/ata/sata_rcar.c
++++ b/drivers/ata/sata_rcar.c
+@@ -120,7 +120,7 @@
+ /* Descriptor table word 0 bit (when DTA32M = 1) */
+ #define SATA_RCAR_DTEND			BIT(0)
+ 
+-#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFEUL
++#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFFUL
+ 
+ /* Gen2 Physical Layer Control Registers */
+ #define RCAR_GEN2_PHY_CTL1_REG		0x1704
+-- 
+2.17.1
 
