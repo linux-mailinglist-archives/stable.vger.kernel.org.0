@@ -2,70 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AAB2429C1
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 14:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 686282429F0
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 15:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbgHLMvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 08:51:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59594 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726722AbgHLMvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 08:51:36 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7723AC06174A;
-        Wed, 12 Aug 2020 05:51:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=1BOYYaOKtqrBkKeeYxmAJRigV3uKydm40c6msuVCcwA=; b=C3DuZ4T8MqBw8ViK7uH0FXX4m1
-        ns8VWzEbXnAE1tPnOpEeyMdnmTzOKxFSK7cGAKaJupx/rmWSbDF4lSk1mKGFpqj4c7fSXyF6q3bgN
-        PXIx3qGWenSlQ/7z9gYZsHKUx4+qxYXYKQQSHla/+Ky/gGyWD+pl7kXvmt/HYEr+2OzjreCCJZ4dY
-        2Re7f5yRZcg2McQtclHCaNQVlKWF5TiI5OxHtiBWO00gRgWYTRaeHC6xYEbFaiQLNqa1HIuAxEYe3
-        3+GfbNAfp725ors/HjPLY2tERnMBQiHf8X05ztsNEWgCUjBD6ljjaN4hmqxKU+SI9bW9rodUmKqNG
-        RprVEbnw==;
-Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1k5qDz-00069g-Lq; Wed, 12 Aug 2020 12:51:23 +0000
-Date:   Wed, 12 Aug 2020 13:51:23 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org
-Subject: Re: [PATCH] block: allow for_each_bvec to support zero len bvec
-Message-ID: <20200812125123.GA17456@casper.infradead.org>
-References: <20200810031915.2209658-1-ming.lei@redhat.com>
- <db57f8ca-b3c3-76ec-1e49-d8f8161ba78d@i-love.sakura.ne.jp>
- <20200810162331.GA2215158@T590>
- <20200812090039.GA2317340@T590>
- <242fc33d-686b-928d-415e-8b519c56a62c@i-love.sakura.ne.jp>
- <20200812124712.GA2331687@T590>
+        id S1727977AbgHLNCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 09:02:39 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:18681 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727906AbgHLNCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 09:02:38 -0400
+X-UUID: 406736eff46c4b1880a72bdaefd7245d-20200812
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=xVTG3i3NZ+1cOXWR7yCUvveG4pS/BEjPy1kRWzM1V+Y=;
+        b=kddPrpoqCaWMbFRZer5U93e4t9/aHgAQSTy/LAmfyf0PlDi25nkl4fbGEHMuSRb6ilHQvhkj3cv/Rn4bdxGykFZRjTj2WDgsBsOkpC6a2Xq/rzQNW1H2oqzrGZXQiSigESzrKepQM5+ld4UHPCWL7AoZzKsyb2VLdn349I5DOx0=;
+X-UUID: 406736eff46c4b1880a72bdaefd7245d-20200812
+Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw01.mediatek.com
+        (envelope-from <wenbin.mei@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1908127229; Wed, 12 Aug 2020 21:02:33 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 12 Aug 2020 21:02:30 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 12 Aug 2020 21:02:30 +0800
+From:   Wenbin Mei <wenbin.mei@mediatek.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Chaotian Jing <chaotian.jing@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        <linux-mmc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <srv_heupstream@mediatek.com>
+Subject: [v2,0/3] add optional reset property arm64: dts: mt7622: add reset node for mmc device  mmc: mediatek: add optional module reset property Documentation/devicetree/bindings/mmc/mtk-sd.txt |  2 ++ arch/arm64/boot/dts/mediatek/mt7622.dtsi         |  2 ++ drivers/mmc/host/mtk-sd.c                        | 13 +++++++++++++ 3 files changed, 17 insertions(+)
+Date:   Wed, 12 Aug 2020 21:01:26 +0800
+Message-ID: <20200812130129.13519-1-wenbin.mei@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200812124712.GA2331687@T590>
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 12, 2020 at 08:47:12PM +0800, Ming Lei wrote:
-> On Wed, Aug 12, 2020 at 07:03:59PM +0900, Tetsuo Handa wrote:
-> > On 2020/08/12 18:00, Ming Lei wrote:
-> > > BTW, for_each_bvec won't be called in the above splice test code.
-> > 
-> > Please uncomment the // lines when testing for_each_bvec() case.
-> 
-> What is the '//' lines?
+LS0NCjIuMTguMA0K
 
-The lines in the test-case which begin with the sequence '//'.
-
-> > This is a test case for testing all empty pages.
-> 
-> But the case for testing all empty pages is not related with this patch,
-> is it?
-> 
-> 
-> Thanks,
-> Ming
-> 
