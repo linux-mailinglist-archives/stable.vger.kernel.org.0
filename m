@@ -2,153 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A11242A48
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 15:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8FD8242A9E
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 15:52:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728018AbgHLNZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 09:25:47 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:54297 "EHLO
-        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728056AbgHLNZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 09:25:46 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id A6F7E5803D8;
-        Wed, 12 Aug 2020 09:25:44 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 Aug 2020 09:25:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=ogsRn8UJvYnJnHmnmoJD8EeRCxv
-        OuB0FI3xBqc0qcuQ=; b=lIPY4fVS/yyIBCu1HgDe/hcTkqorszv3Knz35oiXGxo
-        25RZMhsPABOSsbX5pqdYE7aD/GPKLPdNTxSqyNvdDo9EEEbwRTDiuckF00b9FEXL
-        PeLn/goTNMAHalcs/sK07UwI2HAcYuOn1xMso0zGO2ln5TLDAonjPwJeEd6ozHs1
-        mdUb3o/rg98N+6CK+/x1+5s5bT81wkZ/tR+oxA7TEezvyHXcUzidJUck18HaX13/
-        h/YcciJ92M359yzD5dqDq2t7+Ymn7fzfyx4yFfTH6HTXecZEtydoiDYROW3TOUaI
-        qFS/vw7gw248kdqHLwq5oqjRd1dI2BcTFMsFDK0LI7Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ogsRn8
-        UJvYnJnHmnmoJD8EeRCxvOuB0FI3xBqc0qcuQ=; b=j6q48OfkZkL6IhRSVkrHag
-        3QhD/klT3dNA5dOCQ6K6Dw+8cNat4Zorh/qx+KOQC6dHElclKdVrD+TCLpivJevO
-        Obq6M0lG1E37fC814+uhcOWEQb2UyW4/vzUX4t8qT4CjmYRBJUSplSYookVg/WUD
-        6yiCdPsUORGpkNjZl773Pf1qSGEunmVf9zIt8LzJUUfTHoYztR/wuttth1VvdFix
-        NOFgCfDDfIw4DY9AhTWGDRjlRs7rQhTMZcGkclPmanxYH+BiOg2MicJspeRR26e+
-        R9pmxkLrx8SWNtOcuxs/bgMBPuY/PDsYFgY2KFZROy5ddQaPtNN+K55DhKRsrPyw
-        ==
-X-ME-Sender: <xms:2O0zX5T5Qj95O1-mTPmVA_mMJte538fKlYq_YAkw-8B3nNGF1rNeBg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrledvgdeifecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsth
-    gvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhm
-X-ME-Proxy: <xmx:2O0zXyxYJdCmoSSma5ECQPwlNv1CvWD6_PNcNGK6vxqeJUkh0lcx5g>
-    <xmx:2O0zX-1qDpX9rRtegMpKmfcTRHbdD7_oC2X5UB3wbEXZVpmm6IsxPg>
-    <xmx:2O0zXxDhk8h2P_vhj0t36IKfEcnaHsbKL-pZhpw7yxGBmY1sosxbnQ>
-    <xmx:2O0zX9Nloy36PNgGgACebPlvIfM1zIlboHBNMPEWroLg42gjgO89EA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0A9F0328005D;
-        Wed, 12 Aug 2020 09:25:44 -0400 (EDT)
-Date:   Wed, 12 Aug 2020 15:25:55 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Wenbin Mei <wenbin.mei@mediatek.com>
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-mmc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, srv_heupstream@mediatek.com
-Subject: Re: [v2,3/3] mmc: mediatek: add optional module reset property
-Message-ID: <20200812132555.GD2489711@kroah.com>
-References: <20200812130129.13519-1-wenbin.mei@mediatek.com>
- <20200812130129.13519-4-wenbin.mei@mediatek.com>
+        id S1728087AbgHLNwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 09:52:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727817AbgHLNwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 09:52:20 -0400
+Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7C92C061383
+        for <stable@vger.kernel.org>; Wed, 12 Aug 2020 06:52:19 -0700 (PDT)
+Received: by mail-ua1-x943.google.com with SMTP id s29so632316uae.1
+        for <stable@vger.kernel.org>; Wed, 12 Aug 2020 06:52:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8InXO4IHlwCJ/3LHKr2wC5cvoqCeqc4wxbX8rXjUiPg=;
+        b=N+kSkmDigJZm9bdYj2CCq6cRuTJusMts4MyrYLhaepzh1SFeONS44pX8HelNsXmkpt
+         Sar1XiJvk4yffabWSLuwN6z7snQ+dFjiNxSHvBEnAwmsfgNATsdM1HHNgVZ0t9hUvslm
+         ipOuT2PSmwUT1HfAGS8oOlizyFM9mh0PMN6DY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8InXO4IHlwCJ/3LHKr2wC5cvoqCeqc4wxbX8rXjUiPg=;
+        b=PQsYhL81GOPeUaBxDPBuZmi/zB3O5gkwEC3fkrsqCfM97s6z2geS/WSFkopRV8U66r
+         xT3JPlQlAilzpnqkeQFaD5Vkh4OdUgAWJTGBma6pBSKk1o4GeNHqKVeQk+CKuYMDnFWw
+         2kuBB4Gvl5Fh3KvXtkA/gDIKb2un5GotdNAU+d9kW4Bwoi8ZHxqWj2JBD+TXbewa04pr
+         2L3q+y40rcqwPO2y2mPy5Scldsu2HXdQ0hbI++lA++KooNgVtQR/0y9kYwKvRbxJHznN
+         yZZqUHvAfUbfgrIv0i4Gu89E5GDWq/aiK08J2VDbreBIii9A7dRFxBqnVODgkjWzC3DG
+         lXtw==
+X-Gm-Message-State: AOAM533e5zii3LZZQQpgnM1NBkLd9zdCJ6tS3MaKZehaVVoiUM0P+/03
+        0kmpfEHrVwNkFrAQMTOCNFlVWuWoQJg=
+X-Google-Smtp-Source: ABdhPJznYXSj0UUElHK3IfcjJ9tFGpF91KVcCtupelYEIvlCWVVOoEQ7d6OQrN34GgbqRW78dCnvzw==
+X-Received: by 2002:a9f:25c1:: with SMTP id 59mr27073091uaf.49.1597240338658;
+        Wed, 12 Aug 2020 06:52:18 -0700 (PDT)
+Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com. [209.85.222.42])
+        by smtp.gmail.com with ESMTPSA id u24sm276402vsk.12.2020.08.12.06.52.17
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Aug 2020 06:52:17 -0700 (PDT)
+Received: by mail-ua1-f42.google.com with SMTP id g20so620151uap.8
+        for <stable@vger.kernel.org>; Wed, 12 Aug 2020 06:52:17 -0700 (PDT)
+X-Received: by 2002:ab0:3114:: with SMTP id e20mr27858800ual.104.1597240337098;
+ Wed, 12 Aug 2020 06:52:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200812130129.13519-4-wenbin.mei@mediatek.com>
+References: <20200215021232.1149-1-mdtipton@codeaurora.org> <158378825407.66766.14135857856613969751@swboyd.mtv.corp.google.com>
+In-Reply-To: <158378825407.66766.14135857856613969751@swboyd.mtv.corp.google.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Wed, 12 Aug 2020 06:52:05 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=WsD7w9oqbUUKJwWSRsfZ9qTLy9KyNp8i+BShi7S-R92w@mail.gmail.com>
+Message-ID: <CAD=FV=WsD7w9oqbUUKJwWSRsfZ9qTLy9KyNp8i+BShi7S-R92w@mail.gmail.com>
+Subject: Re: [PATCH] clk: qcom: clk-rpmh: Wait for completion when enabling clocks
+To:     Stephen Boyd <sboyd@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Mike Tipton <mdtipton@codeaurora.org>,
+        Taniya Das <tdas@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Andy Gross <agross@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 12, 2020 at 09:01:29PM +0800, Wenbin Mei wrote:
-> This patch fixs eMMC-Access on mt7622/Bpi-64.
-> Before we got these Errors on mounting eMMC ion R64:
-> [   48.664925] blk_update_request: I/O error, dev mmcblk0, sector 204800 op 0x1:(WRITE)
-> flags 0x800 phys_seg 1 prio class 0
-> [   48.676019] Buffer I/O error on dev mmcblk0p1, logical block 0, lost sync page write
-> 
-> This patch adds a optional reset management for msdc.
-> Sometimes the bootloader does not bring msdc register
-> to default state, so need reset the msdc controller.
-> 
-> Fixes: 966580ad236e ("mmc: mediatek: add support for MT7622 SoC")
-> Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
-> Tested-by: Frank Wunderlich <frank-w@public-files.de>
-> ---
->  drivers/mmc/host/mtk-sd.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-> index 39e7fc54c438..2b243c03c9b2 100644
-> --- a/drivers/mmc/host/mtk-sd.c
-> +++ b/drivers/mmc/host/mtk-sd.c
-> @@ -22,6 +22,7 @@
->  #include <linux/slab.h>
->  #include <linux/spinlock.h>
->  #include <linux/interrupt.h>
-> +#include <linux/reset.h>
->  
->  #include <linux/mmc/card.h>
->  #include <linux/mmc/core.h>
-> @@ -434,6 +435,7 @@ struct msdc_host {
->  	struct msdc_save_para save_para; /* used when gate HCLK */
->  	struct msdc_tune_para def_tune_para; /* default tune setting */
->  	struct msdc_tune_para saved_tune_para; /* tune result of CMD21/CMD19 */
-> +	struct reset_control *reset;
->  };
->  
->  static const struct mtk_mmc_compatible mt8135_compat = {
-> @@ -1516,6 +1518,12 @@ static void msdc_init_hw(struct msdc_host *host)
->  	u32 val;
->  	u32 tune_reg = host->dev_comp->pad_tune_reg;
->  
-> +	if (!IS_ERR(host->reset)) {
-> +		reset_control_assert(host->reset);
-> +		usleep_range(10, 50);
-> +		reset_control_deassert(host->reset);
-> +	}
-> +
->  	/* Configure to MMC/SD mode, clock free running */
->  	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_MODE | MSDC_CFG_CKPDN);
->  
-> @@ -2273,6 +2281,11 @@ static int msdc_drv_probe(struct platform_device *pdev)
->  	if (IS_ERR(host->src_clk_cg))
->  		host->src_clk_cg = NULL;
->  
-> +	host->reset = devm_reset_control_get_optional_exclusive(&pdev->dev,
-> +								"hrst");
-> +	if (PTR_ERR(host->reset) == -EPROBE_DEFER)
-> +		return PTR_ERR(host->reset);
-> +
->  	host->irq = platform_get_irq(pdev, 0);
->  	if (host->irq < 0) {
->  		ret = -EINVAL;
-> -- 
-> 2.18.0
+Hi,
 
-<formletter>
+On Mon, Mar 9, 2020 at 2:11 PM Stephen Boyd <sboyd@kernel.org> wrote:
+>
+> Quoting Mike Tipton (2020-02-14 18:12:32)
+> > The current implementation always uses rpmh_write_async, which doesn't
+> > wait for completion. That's fine for disable requests since there's no
+> > immediate need for the clocks and they can be disabled in the
+> > background. However, for enable requests we need to ensure the clocks
+> > are actually enabled before returning to the client. Otherwise, clients
+> > can end up accessing their HW before the necessary clocks are enabled,
+> > which can lead to bus errors.
+> >
+> > Use the synchronous version of this API (rpmh_write) for enable requests
+> > in the active set to ensure completion.
+> >
+> > Completion isn't required for sleep/wake sets, since they don't take
+> > effect until after we enter sleep. All rpmh requests are automatically
+> > flushed prior to entering sleep.
+> >
+> > Fixes: 9c7e47025a6b ("clk: qcom: clk-rpmh: Add QCOM RPMh clock driver")
+> > Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
+> > ---
+>
+> Applied to clk-next but I squashed in some changes to make it easier for
+> me to read.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+This landed upstream as commit dad4e7fda4bd ("clk: qcom: clk-rpmh:
+Wait for completion when enabling clocks") but seemed to have missed
+stable.  Can stable pick it up?  It has a Fixes tag so presumably it
+should be easy to track down where it needs to go.
 
-</formletter>
+Thanks!
+
+-Doug
