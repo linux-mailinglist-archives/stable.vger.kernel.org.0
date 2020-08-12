@@ -2,96 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2E1242883
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 13:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22548242895
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 13:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726698AbgHLLC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 07:02:28 -0400
-Received: from mailout06.rmx.de ([94.199.90.92]:44187 "EHLO mailout06.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726404AbgHLLC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Aug 2020 07:02:27 -0400
-Received: from kdin01.retarus.com (kdin01.dmz1.retloc [172.19.17.48])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout06.rmx.de (Postfix) with ESMTPS id 4BRRcG0M7Sz9tNn;
-        Wed, 12 Aug 2020 13:02:22 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin01.retarus.com (Postfix) with ESMTPS id 4BRRbx2bRCz2xjY;
-        Wed, 12 Aug 2020 13:02:05 +0200 (CEST)
-Received: from n95hx1g2.localnet (192.168.54.41) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Wed, 12 Aug
- 2020 13:01:52 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Lars-Peter Clausen <lars@metafoo.de>
-CC:     Jonathan Cameron <jic23@kernel.org>, <stable@vger.kernel.org>,
-        "Hartmut Knaack" <knaack.h@gmx.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        <linux-iio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] iio: trigger: sysfs: Disable irqs before calling iio_trigger_poll()
-Date:   Wed, 12 Aug 2020 13:01:51 +0200
-Message-ID: <3847827.rc3nFVyU9p@n95hx1g2>
-Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-In-Reply-To: <a59d204e-aeb0-2649-5e6f-f07815713d1a@metafoo.de>
-References: <20200727145714.4377-1-ceggers@arri.de> <4871626.01MspNxQH7@n95hx1g2> <a59d204e-aeb0-2649-5e6f-f07815713d1a@metafoo.de>
+        id S1726453AbgHLLYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 07:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726404AbgHLLYO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 07:24:14 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5356C06174A;
+        Wed, 12 Aug 2020 04:24:13 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id d22so877440pfn.5;
+        Wed, 12 Aug 2020 04:24:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9+WajxCq7gTYxJQxz4BklwsXaVQmRwBfSGv+L76EXJk=;
+        b=ecicS9VZv9HYbYw5uW+HOhpoCA9mG7Ds4jcUUcSnWo5LW+O4JdKS6cZm7EBb0sl8pZ
+         fotKQKF8sYohP++PnzDYZLiwdW99f9JgWLtuwcMPRP8loDiqQquYoVgTNUcy3m/EN73h
+         HB7hoLWLYYAluZcW3T7FbXZRorvMJ4A6TPaYvQLwa7pJixKtgE3ZKlvuBKBxiDfflLSw
+         xP7uguGcCwWjxoVIawi9/zme1lugd3mOu4dvnmedoQeqJdrl/VpTTGouMerEKnd/mnpF
+         v9Re5+eYIx+jYsF+RgjRgbzxzNQBp4tGvvuxLKgRbBD1ogY9CcfjQLgdjtFtOxQ1IsMv
+         lKBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=9+WajxCq7gTYxJQxz4BklwsXaVQmRwBfSGv+L76EXJk=;
+        b=A8vMGlfEuK5B0IUmqN2eA2RircaxlZI2oH8Xekb5NUnP9vRJDRmg/yq5tEtn5cDde1
+         X5oiX4IropSzodg0QPTeBRs1zNL27Ei0C4YtcXw5CUby/ZifUmv4GAlU5g/FQGluM3/Q
+         YwUA7o7mh2ZLnNwb/BEtUtKOhDOBpgV2SHhqc4CGSfwFLF+mjRkMF/FG14di39cxr5ZR
+         9wQmuS515CLf7TgvO+i6aN+6xRrrWr6vUNDUNjJPm5v+k4IhIGKIiG6YvpcPMQRyHRRm
+         vfJdmHyBZbhYUzMWMfcakcAVpjsw4uuKgpFTex+bstWxbtdEnjBgAl4wW8t4Sispo9lw
+         OaGw==
+X-Gm-Message-State: AOAM5300gOHc+g86KdVab3D7PafMrboUA5tWR0hNxT6GhYn7ZvuuIlBP
+        ZTCscuy6n/BavYeyeRuThZU=
+X-Google-Smtp-Source: ABdhPJyAxGGCmZs1UUyztQFKQGC3+UREwAgvsOBRFVJ8aUZLNMAttG/s9j8yZKTMOkwbSiThNxWDgg==
+X-Received: by 2002:aa7:8c56:: with SMTP id e22mr10200501pfd.238.1597231452333;
+        Wed, 12 Aug 2020 04:24:12 -0700 (PDT)
+Received: from localhost.localdomain ([45.124.203.19])
+        by smtp.gmail.com with ESMTPSA id m19sm2081536pgd.21.2020.08.12.04.24.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Aug 2020 04:24:10 -0700 (PDT)
+From:   Joel Stanley <joel@jms.id.au>
+To:     Oskar Senft <osk@google.com>, Jeremy Kerr <jk@ozlabs.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] ARM: aspeed: g5: Do not set sirq polarity
+Date:   Wed, 12 Aug 2020 20:54:00 +0930
+Message-Id: <20200812112400.2406734-1-joel@jms.id.au>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-X-Originating-IP: [192.168.54.41]
-X-RMX-ID: 20200812-130211-4BRRbx2bRCz2xjY-0@kdin01
-X-RMX-SOURCE: 217.111.95.66
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lars
+A feature was added to the aspeed vuart driver to configure the vuart
+interrupt (sirq) polarity according to the LPC/eSPI strapping register.
 
-On Monday, 3 August 2020, 08:52:54 CEST, Lars-Peter Clausen wrote:
-> On 8/3/20 8:44 AM, Christian Eggers wrote:
-> > ...
-> > is my patch sufficient, or would you prefer a different solution?
-> 
-> The code in normal upstream is correct, there is no need to patch it
-> since iio_sysfs_trigger_work() always runs with IRQs disabled.
-> 
-> >> Are you using a non-upstream kernel? Maybe a RT kernel?
-> > 
-> > I use v5.4.<almost-latest>-rt
-> 
-> That explains it. Have a look at
-> 0200-irqwork-push-most-work-into-softirq-context.patch.
-> 
-> The right fix for this issue is to add the following snippet to the RT
-> patchset.
-> 
-> diff --git a/drivers/iio/trigger/iio-trig-sysfs.c
-> b/drivers/iio/trigger/iio-trig-sysfs.c
-> --- a/drivers/iio/trigger/iio-trig-sysfs.c
-> +++ b/drivers/iio/trigger/iio-trig-sysfs.c
-> @@ -161,6 +161,7 @@ static int iio_sysfs_trigger_probe(int id)
->       iio_trigger_set_drvdata(t->trig, t);
-> 
->       init_irq_work(&t->work, iio_sysfs_trigger_work);
-> +    t->work.flags = IRQ_WORK_HARD_IRQ;
-> 
->       ret = iio_trigger_register(t->trig);
->       if (ret)
+Systems that depend on a active low behaviour (sirq_polarity set to 0)
+such as OpenPower boxes also use LPC, so this relationship does not
+hold.
 
-I can confirm that this works for iio-trig-sysfs on 5.4.54-rt32. Currently I 
-do not use iio-trig-hrtimer, but if I remember correctly, the problem was also 
-present there.
+The property was added for a Tyan S7106 system which is not supported
+in the kernel tree. Should this or other systems wish to use this
+feature of the driver they should add it to the machine specific device
+tree.
 
-Do you want to apply your patch for mainline? In contrast to v5.4, 
-IRQ_WORK_HARD_IRQ is already available there (moved to smp_types.h). 
-Unfortunately I cannot test it on mainline for now, as my BSP stuff is not 
-ported yet.
+Fixes: c791fc76bc72 ("arm: dts: aspeed: Add vuart aspeed,sirq-polarity-sense...")
+Cc: stable@vger.kernel.org
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+---
+ arch/arm/boot/dts/aspeed-g5.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-Best regards
-Christian
-
-
-
+diff --git a/arch/arm/boot/dts/aspeed-g5.dtsi b/arch/arm/boot/dts/aspeed-g5.dtsi
+index 27e5c5cf7712..664630a0e084 100644
+--- a/arch/arm/boot/dts/aspeed-g5.dtsi
++++ b/arch/arm/boot/dts/aspeed-g5.dtsi
+@@ -410,7 +410,6 @@ vuart: serial@1e787000 {
+ 				interrupts = <8>;
+ 				clocks = <&syscon ASPEED_CLK_APB>;
+ 				no-loopback-test;
+-				aspeed,sirq-polarity-sense = <&syscon 0x70 25>;
+ 				status = "disabled";
+ 			};
+ 
+-- 
+2.28.0
 
