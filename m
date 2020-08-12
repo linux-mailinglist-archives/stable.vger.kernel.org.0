@@ -2,57 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E92242376
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 02:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E1B24237C
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 02:43:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbgHLAmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 20:42:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726255AbgHLAmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 20:42:01 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794E9C06174A;
-        Tue, 11 Aug 2020 17:42:01 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id dd12so319777qvb.0;
-        Tue, 11 Aug 2020 17:42:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=xKVZMt/dePQM4MuKFNd6Ajk9D8rVSs9BrWtvNC9qc9Q=;
-        b=eUizsHu8R2pQS6jRVnAREKzRnltxbHGsHDlbgl5HiZ8T5WP5v7R/FdXEW5olp9Ng4m
-         l+bFua7uNOEktthT8oYm4yfGaNTfxvC66ef1WD9u+GtMj3ENvmgEKl9eOksAcY8lu8Qm
-         1K7I6by5x4eB0w4Iuf5XNtn5c90/CC9bdgZPoJ1GssLh3FVQGF4hZpbCur0oV53CKL8z
-         w930PnLmAWlzYH7IkdedzATG4omTW+TFM8xH8gI2nTzShFENKKPraETMzUBJjQrNCfHH
-         ccB/MSJUxR2xoQJzlWkIXPiAwqg7vVGVIW6H5gqZfugaLeHstlrWLHNy/BAlS+wUfQc3
-         L8Ww==
+        id S1726310AbgHLAnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 20:43:11 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:33579 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726143AbgHLAnL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 20:43:11 -0400
+Received: by mail-qk1-f193.google.com with SMTP id p4so685734qkf.0;
+        Tue, 11 Aug 2020 17:43:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:date:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=xKVZMt/dePQM4MuKFNd6Ajk9D8rVSs9BrWtvNC9qc9Q=;
-        b=nTCMeobPWgHCvE30bJMnUr8OZ6EkjxWu1DcmndUfVT1wuC3Py/Zf907ky2hNkkRc6N
-         Q7goBzQ08na8IsOvHIUveh7g2N0tJfVyOyNHnfTPOBzFTDnYYILHA1gN5wnANZkrr/Jj
-         ZRjD9HBC5PBYMkNYms2We1V4JczIBoFHMhvoPz+BrkkaX0AxOpEvHct5dSqa8GShujTJ
-         WTrd9kuglRXafb6dbIRN0NM8tpVw3O+2z2ncFj/fB2W7AN/BrHVRkq1gEre8Hg7wZdHT
-         UbnkVwxKVOR1lH/kQQUvuiFfSAXXuhyPAS2tJ/gkvqD2MAgVu84EahVniAj2yhmFkNKZ
-         mEgQ==
-X-Gm-Message-State: AOAM530xNHexvhepuSnlUTSfpTF5heNU67dFXjFHl/YHhVekffjP+Qj6
-        ivVJISo3XqiYyGVUr1L1c+U=
-X-Google-Smtp-Source: ABdhPJzOLnPrJZZPql96/UdA/v/SB+X6pwhuRB/dd7/mwcEzvawX/rCxuGUowLW4sIq7ayJZcY9Wag==
-X-Received: by 2002:ad4:4089:: with SMTP id l9mr4196623qvp.175.1597192920425;
-        Tue, 11 Aug 2020 17:42:00 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=GCDImrRgW3iCWcpk2/WqD39sC7GwesCsUaBl58SFiQk=;
+        b=PoH0BzxBnfdXZMDSBo6OEj5QWb5mst9LLE7YPEqOCButpr32c+Q0LmGFoAmlTfvTNT
+         lQFEqqjKUs2Xm5chKOoYo/qFRYYejqoNIdCzmcEOsoZ5LkP6Np4/lQFsFRiiZNLSftWO
+         uLsERcWu8zG+fSJrTVD6F1Bob/8isnTfyJ31uxLco/YVSmC/yvSTWIlDBs6gUzPru557
+         sy7WQS26f7JzNAgoReH2LX1OmYZulLvFqJFoAqHNerzh6JuUSxoH44fi+yG6FwCmtOGn
+         4dcEIHISfbKEdNaMOy59zNVppto4rqhgpklN5UwSz8jDiCQbhgBG5A/m/kmNjMk3hHSz
+         yrmQ==
+X-Gm-Message-State: AOAM532MxVBnByZGPyQ0hTIJYGHDWltSVpUzqrkq2v5piWQe0sxx2OxV
+        wnPG8tIq/ZoSwz/1oiM+IZQ=
+X-Google-Smtp-Source: ABdhPJzw++bT0HF3bP2CRKw/mU0GoHv5y3se5aR+Iut3/cRRo4mbJTF32+0nEvHbyQxtm+Wq5sUNtw==
+X-Received: by 2002:a37:a354:: with SMTP id m81mr3762457qke.277.1597192989829;
+        Tue, 11 Aug 2020 17:43:09 -0700 (PDT)
 Received: from rani.riverdale.lan ([2001:470:1f07:5f3::b55f])
-        by smtp.gmail.com with ESMTPSA id w58sm544891qth.95.2020.08.11.17.41.59
+        by smtp.gmail.com with ESMTPSA id x13sm549749qts.23.2020.08.11.17.43.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Aug 2020 17:41:59 -0700 (PDT)
+        Tue, 11 Aug 2020 17:43:09 -0700 (PDT)
 From:   Arvind Sankar <nivedita@alum.mit.edu>
-X-Google-Original-From: Arvind Sankar <arvind@rani.riverdale.lan>
-Date:   Tue, 11 Aug 2020 20:41:58 -0400
 To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Thomas Gleixner <tglx@linutronix.de>,
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Fangrui Song <maskray@google.com>,
         clang-built-linux <clang-built-linux@googlegroups.com>,
@@ -62,91 +45,93 @@ Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
         Masahiro Yamada <masahiroy@kernel.org>,
         Ard Biesheuvel <ardb@kernel.org>,
         Kees Cook <keescook@chromium.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Subject: Re: [PATCH] x86/boot/compressed: Disable relocation relaxation for
- non-pie link
-Message-ID: <20200812004158.GA1447296@rani.riverdale.lan>
-References: <CAKwvOd=ypa8xE-kaDa7XtzPsBH8=Xu_pZj2rnWaeawNs=3dDkw@mail.gmail.com>
- <20200811173655.1162093-1-nivedita@alum.mit.edu>
- <CAKwvOdnjLfQ0fWsrFYDJ2O+qFAfEFnTEEnW-aHrPha8G3_WTrg@mail.gmail.com>
- <20200811224436.GA1302731@rani.riverdale.lan>
- <CAKwvOdnvyVapAJBchivu8SxoQriKEu1bAimm8688EH=uq5YMqA@mail.gmail.com>
- <20200811234340.GA1318440@rani.riverdale.lan>
- <CAKwvOdn5gCjcAVHZ3jHU+q=mD5rmFAHpEyHyLf7ixtdaQ3Z-PQ@mail.gmail.com>
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Subject: [PATCH v2] x86/boot/compressed: Disable relocation relaxation
+Date:   Tue, 11 Aug 2020 20:43:08 -0400
+Message-Id: <20200812004308.1448603-1-nivedita@alum.mit.edu>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200812004158.GA1447296@rani.riverdale.lan>
+References: <20200812004158.GA1447296@rani.riverdale.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdn5gCjcAVHZ3jHU+q=mD5rmFAHpEyHyLf7ixtdaQ3Z-PQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 11, 2020 at 04:51:23PM -0700, Nick Desaulniers wrote:
-> On Tue, Aug 11, 2020 at 4:43 PM Arvind Sankar <nivedita@alum.mit.edu> wrote:
-> >
-> > On Tue, Aug 11, 2020 at 04:04:40PM -0700, Nick Desaulniers wrote:
-> > > On Tue, Aug 11, 2020 at 3:44 PM Arvind Sankar <nivedita@alum.mit.edu> wrote:
-> > > >
-> > > > On Tue, Aug 11, 2020 at 10:58:40AM -0700, Nick Desaulniers wrote:
-> > > > > > Cc: stable@vger.kernel.org # 4.19.x
-> > > > >
-> > > > > Thanks Arvind, good write up.  Just curious about this stable tag, how
-> > > > > come you picked 4.19?  I can see boot failures in our CI for x86+LLD
-> > > > > back to 4.9.  Can we amend that tag to use `# 4.9`? I'd be happy to
-> > > > > help submit backports should they fail to apply cleanly.
-> > > > > https://travis-ci.com/github/ClangBuiltLinux/continuous-integration/builds/179237488
-> > > > >
-> > > >
-> > > > 4.19 renamed LDFLAGS to KBUILD_LDFLAGS. For 4.4, 4.9 and 4.14 the patch
-> > > > needs to be modified, KBUILD_LDFLAGS -> LDFLAGS, so I figured we should
-> > > > submit backports separately. For 4.19 onwards, it should apply without
-> > > > changes I think.
-> > >
-> > > Cool, sounds good.  I'll keep an eye out for when stable goes to pick this up.
-> > >
-> > > tglx, Ingo, BP, can we pretty please get this in tip/urgent for
-> > > inclusion into 5.9?
-> > > --
-> > > Thanks,
-> > > ~Nick Desaulniers
-> >
-> > Another alternative is to just do this unconditionally instead of even
-> > checking for the -pie flag. None of the GOTPCRELs are in the
-> > decompressor, so they shouldn't be performance-sensitive at all.
-> >
-> > It still wouldn't apply cleanly to all the stable versions, but
-> > backporting would be even simpler.
-> >
-> > What do you think?
-> >
-> > diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-> > index 3962f592633d..10c2ba59d192 100644
-> > --- a/arch/x86/boot/compressed/Makefile
-> > +++ b/arch/x86/boot/compressed/Makefile
-> > @@ -43,6 +43,7 @@ KBUILD_CFLAGS += -Wno-pointer-sign
-> >  KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
-> >  KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
-> >  KBUILD_CFLAGS += -D__DISABLE_EXPORTS
-> > +KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
-> 
-> We'd still want it for KBUILD_AFLAGS, too, just to be safe. Maybe a
+The x86-64 psABI [0] specifies special relocation types
+(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
+Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
+can take advantage of for optimization (relaxation) at link time. This
+is supported by LLD and binutils versions 2.26 onwards.
 
-KBUILD_CFLAGS gets included into KBUILD_AFLAGS, so this already does
-that.
+The compressed kernel is position-independent code, however, when using
+LLD or binutils versions before 2.27, it must be linked without the -pie
+option. In this case, the linker may optimize certain instructions into
+a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
 
-> one line comment to the effect of `# remove me once we can link as
-> -pie` would help us rip off this band-aid in the future?  It's more
-> obvious that the added hunk can be reverted once -pie linkage is
-> achieved with the current patch; either are fine by me.  Thanks!
-> 
-> >
-> >  KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
-> >  GCOV_PROFILE := n
-> 
-> 
-> 
-> -- 
-> Thanks,
-> ~Nick Desaulniers
+This potential issue has been present with LLD and binutils-2.26 for a
+long time, but it has never manifested itself before now:
+- LLD and binutils-2.26 only relax
+	movq	foo@GOTPCREL(%rip), %reg
+  to
+	leaq	foo(%rip), %reg
+  which is still position-independent, rather than
+	mov	$foo, %reg
+  which is permitted by the psABI when -pie is not enabled.
+- gcc happens to only generate GOTPCREL relocations on mov instructions.
+- clang does generate GOTPCREL relocations on non-mov instructions, but
+  when building the compressed kernel, it uses its integrated assembler
+  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
+  which has so far defaulted to not generating the GOTPCRELX
+  relocations.
+
+Nick Desaulniers reports [1,2]:
+  A recent change [3] to a default value of configuration variable
+  (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
+  integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
+  relocations. LLD will relax instructions with these relocations based
+  on whether the image is being linked as position independent or not.
+  When not, then LLD will relax these instructions to use absolute
+  addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
+  Clang and linked with LLD to fail to boot.
+
+Patch series [4] is a solution to allow the compressed kernel to be
+linked with -pie unconditionally, but even if merged is unlikely to be
+backported. As a simple solution that can be applied to stable as well,
+prevent the assembler from generating the relaxed relocation types using
+the -mrelax-relocations=no option. For ease of backporting, do this
+unconditionally.
+
+[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
+[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
+[2] https://github.com/ClangBuiltLinux/linux/issues/1121
+[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
+[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+---
+ arch/x86/boot/compressed/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 3962f592633d..ff7894f39e0e 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -43,6 +43,8 @@ KBUILD_CFLAGS += -Wno-pointer-sign
+ KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+ KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
+ KBUILD_CFLAGS += -D__DISABLE_EXPORTS
++# Disable relocation relaxation in case the link is not PIE.
++KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
+ 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
+-- 
+2.26.2
+
