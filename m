@@ -2,120 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB769243058
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 23:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6852430DB
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 00:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726547AbgHLVEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 17:04:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57338 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726531AbgHLVEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Aug 2020 17:04:40 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61993207F7;
-        Wed, 12 Aug 2020 21:04:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597266279;
-        bh=mhMH2MNfhL+woMUzcJZxil/pqKH3XMqdQ09l8W6G0tA=;
-        h=Date:From:To:Subject:From;
-        b=SFmeyPFYbVMsLKowbhQfscwQdT5r2ATNYWs6GIKSzw1PReOw54AyEc2kWxcOsXyjD
-         DYavHyd/8YhuLnCxooKZb5INO+UtCWpb5/yehw8uMofTk+FAwJI+s+3bIqmeoiPoO8
-         JQtlG4P/Bxsa5yTvfOcrgGkrO346pLSLYHKEPj9I=
-Date:   Wed, 12 Aug 2020 14:04:39 -0700
-From:   akpm@linux-foundation.org
-To:     anenbupt@gmail.com, ebiggers@google.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk
-Subject:  [merged]
- fs-minix-reject-too-large-maximum-file-size.patch removed from -mm tree
-Message-ID: <20200812210439.H8TEzkZx7%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726578AbgHLWg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 18:36:26 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:62003 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726546AbgHLWg0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 18:36:26 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22111007-1500050 
+        for multiple; Wed, 12 Aug 2020 23:36:23 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: [PATCH 1/3] drm/i915: Cancel outstanding work after disabling heartbeats on an engine
+Date:   Wed, 12 Aug 2020 23:36:19 +0100
+Message-Id: <20200812223621.22292-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+We only allow persistent requests to remain on the GPU past the closure
+of their containing context (and process) so long as they are continuously
+checked for hangs or allow other requests to preempt them, as we need to
+ensure forward progress of the system. If we allow persistent contexts
+to remain on the system after the the hangcheck mechanism is disabled,
+the system may grind to a halt. On disabling the mechanism, we sent a
+pulse along the engine to remove all executing contexts from the engine
+which would check for hung contexts -- but we did not prevent those
+contexts from being resubmitted if they survived the final hangcheck.
 
-The patch titled
-     Subject: fs/minix: reject too-large maximum file size
-has been removed from the -mm tree.  Its filename was
-     fs-minix-reject-too-large-maximum-file-size.patch
-
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Eric Biggers <ebiggers@google.com>
-Subject: fs/minix: reject too-large maximum file size
-
-If the minix filesystem tries to map a very large logical block number to
-its on-disk location, block_to_path() can return offsets that are too
-large, causing out-of-bounds memory accesses when accessing indirect index
-blocks.  This should be prevented by the check against the maximum file
-size, but this doesn't work because the maximum file size is read directly
-from the on-disk superblock and isn't validated itself.
-
-Fix this by validating the maximum file size at mount time.
-
-Link: http://lkml.kernel.org/r/20200628060846.682158-4-ebiggers@kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com
-Reported-by: syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com
-Reported-by: syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+Testcase: igt/gem_ctx_persistence/heartbeat-stop
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v5.7+
 ---
+ drivers/gpu/drm/i915/gt/intel_engine.h | 9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c    | 5 +++++
+ 2 files changed, 14 insertions(+)
 
- fs/minix/inode.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
-
---- a/fs/minix/inode.c~fs-minix-reject-too-large-maximum-file-size
-+++ a/fs/minix/inode.c
-@@ -150,6 +150,23 @@ static int minix_remount (struct super_b
- 	return 0;
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
+index 08e2c000dcc3..a90cb91c8246 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine.h
+@@ -337,4 +337,13 @@ intel_engine_has_preempt_reset(const struct intel_engine_cs *engine)
+ 	return intel_engine_has_preemption(engine);
  }
  
-+static bool minix_check_superblock(struct minix_sb_info *sbi)
++static inline bool
++intel_engine_has_heartbeat(const struct intel_engine_cs *engine)
 +{
-+	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
++	if (!IS_ACTIVE(CONFIG_DRM_I915_HEARTBEAT_INTERVAL))
 +		return false;
 +
-+	/*
-+	 * s_max_size must not exceed the block mapping limitation.  This check
-+	 * is only needed for V1 filesystems, since V2/V3 support an extra level
-+	 * of indirect blocks which places the limit well above U32_MAX.
-+	 */
-+	if (sbi->s_version == MINIX_V1 &&
-+	    sbi->s_max_size > (7 + 512 + 512*512) * BLOCK_SIZE)
-+		return false;
-+
-+	return true;
++	return engine->props.heartbeat_interval_ms;
 +}
 +
- static int minix_fill_super(struct super_block *s, void *data, int silent)
- {
- 	struct buffer_head *bh;
-@@ -228,11 +245,12 @@ static int minix_fill_super(struct super
- 	} else
- 		goto out_no_fs;
+ #endif /* _INTEL_RINGBUFFER_H_ */
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 0208e917d14a..92efca606f91 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -542,8 +542,13 @@ bool __i915_request_submit(struct i915_request *request)
+ 	if (i915_request_completed(request))
+ 		goto xfer;
  
-+	if (!minix_check_superblock(sbi))
-+		goto out_illegal_sb;
++	if (unlikely(intel_context_is_closed(request->context) &&
++		     !intel_engine_has_heartbeat(engine)))
++		intel_context_set_banned(request->context);
 +
- 	/*
- 	 * Allocate the buffer map to keep the superblock small.
- 	 */
--	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
--		goto out_illegal_sb;
- 	i = (sbi->s_imap_blocks + sbi->s_zmap_blocks) * sizeof(bh);
- 	map = kzalloc(i, GFP_KERNEL);
- 	if (!map)
-_
-
-Patches currently in -mm which might be from ebiggers@google.com are
-
+ 	if (unlikely(intel_context_is_banned(request->context)))
+ 		i915_request_set_error_once(request, -EIO);
++
+ 	if (unlikely(fatal_error(request->fence.error)))
+ 		__i915_request_skip(request);
+ 
+-- 
+2.20.1
 
