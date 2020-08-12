@@ -2,100 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3527B24272D
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 11:06:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 099B4242740
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 11:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727027AbgHLJGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 05:06:31 -0400
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:47837 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726517AbgHLJGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 05:06:31 -0400
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id 230163C0579;
-        Wed, 12 Aug 2020 11:06:29 +0200 (CEST)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id AtrILPphwTim; Wed, 12 Aug 2020 11:06:24 +0200 (CEST)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 2A1D53C009D;
-        Wed, 12 Aug 2020 11:06:24 +0200 (CEST)
-Received: from lxhi-065.adit-jv.com (10.72.94.23) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Wed, 12 Aug
- 2020 11:06:23 +0200
-Date:   Wed, 12 Aug 2020 11:06:18 +0200
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>, <linux-mm@kvack.org>,
-        <stable@vger.kernel.org>, Eugeniu Rosca <roscaeugeniu@gmail.com>
-Subject: Re: [PATCH] mm: slub: fix conversion of freelist_corrupted()
-Message-ID: <20200812090618.GA11872@lxhi-065.adit-jv.com>
-References: <20200811124656.10308-1-erosca@de.adit-jv.com>
- <20200811134909.536004dcfc4c78204313dcd2@linux-foundation.org>
+        id S1726618AbgHLJNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 05:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726601AbgHLJNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 05:13:33 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F13AC06174A;
+        Wed, 12 Aug 2020 02:13:33 -0700 (PDT)
+Date:   Wed, 12 Aug 2020 09:13:29 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1597223610;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YtQguOBpLy+ZK3wfcPbucBpUN9YGIesOWZl+59cOgmA=;
+        b=XDYJH3L/fJTg0uZURUWOUU+FVEp4y9Q5horXSNMatMdefHd1jv+UgT8Le2M/w/RfOP9MSJ
+        SI1rfnZJTuHqhu5fIU4MXl2rOgPuwrqj2g9V7BcODpkjuC6lYhX2mgMO2XujCjMJBzV3WZ
+        wOhRNZ0i7aqJMhdrZ9PO5UXsTxvaMQDmd9E71ytH6nTqRSYbFlXctNMYfPlw44HsxA37YQ
+        b1YZXQwb9RNZidSjbQ2t/onmpxzv8YxhawVjc8nrm/n2elte8y1UR7JK2rF4vjb//chuDJ
+        cacpm0uABDmad0SoVanJHuYST8qezvU621x3Ge+jZ7USxpOq+jGxD4y3aNUFNg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1597223610;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YtQguOBpLy+ZK3wfcPbucBpUN9YGIesOWZl+59cOgmA=;
+        b=AyPrIXC4Sk8jefmqeGtnO19FKendAy/6eDAGN/BqMdNGtcNNVfBVkUiiP2Lia3qO3Xustq
+        7Sa1+e0IWXKs6MDA==
+From:   "tip-bot2 for Guenter Roeck" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] genirq/PM: Always unlock IRQ descriptor in rearm_wake_irq()
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200811180001.80203-1-linux@roeck-us.net>
+References: <20200811180001.80203-1-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20200811134909.536004dcfc4c78204313dcd2@linux-foundation.org>
-X-Originating-IP: [10.72.94.23]
+Message-ID: <159722360956.3192.16144465573431608980.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Andrew,
+The following commit has been merged into the irq/urgent branch of tip:
 
-On Tue, Aug 11, 2020 at 01:49:09PM -0700, Andrew Morton wrote:
-> On Tue, 11 Aug 2020 14:46:56 +0200 Eugeniu Rosca <erosca@de.adit-jv.com> wrote:
-> 
-> > Commit 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in
-> > deactivate_slab()") suffered an update when picked up from LKML [1].
-> > 
-> > Specifically, relocating 'freelist = NULL' into 'freelist_corrupted()'
-> > created a no-op statement. Fix it by sticking to the behavior intended
-> > in the original patch [1]. Prefer the lowest-line-count solution.
-> > 
-> > [1] https://lore.kernel.org/linux-mm/20200331031450.12182-1-dongli.zhang@oracle.com/
-> > 
-> > ...
-> >
-> > --- a/mm/slub.c
-> > +++ b/mm/slub.c
-> > @@ -677,7 +677,6 @@ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
-> >  	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
-> >  	    !check_valid_pointer(s, page, nextfree)) {
-> >  		object_err(s, page, freelist, "Freechain corrupt");
-> > -		freelist = NULL;
-> >  		slab_fix(s, "Isolate corrupted freechain");
-> >  		return true;
-> >  	}
-> > @@ -2184,8 +2183,10 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
-> >  		 * 'freelist' is already corrupted.  So isolate all objects
-> >  		 * starting at 'freelist'.
-> >  		 */
-> > -		if (freelist_corrupted(s, page, freelist, nextfree))
-> > +		if (freelist_corrupted(s, page, freelist, nextfree)) {
-> > +			freelist = NULL;
-> >  			break;
-> > +		}
-> >  
-> >  		do {
-> >  			prior = page->freelist;
-> 
-> Looks right.
-> 
-> What are the runtime effects of this change?  In other words, what are
-> the end user visible effects of the present defect?
+Commit-ID:     e27b1636e9337d1a1d174b191e53d0f86421a822
+Gitweb:        https://git.kernel.org/tip/e27b1636e9337d1a1d174b191e53d0f86421a822
+Author:        Guenter Roeck <linux@roeck-us.net>
+AuthorDate:    Tue, 11 Aug 2020 11:00:01 -07:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Wed, 12 Aug 2020 11:04:05 +02:00
 
-Thank you for the prompt feedback.
+genirq/PM: Always unlock IRQ descriptor in rearm_wake_irq()
 
-The issue popped up as a result of static analysis and code review.
-Therefore, I lack any specific runtime behavior example being fixed.
-Nevertheless, I think this does not diminish the concern expressed in
-the description of the patch.
+rearm_wake_irq() does not unlock the irq descriptor if the interrupt
+is not suspended or if wakeup is not enabled on it.
 
--- 
-Best regards,
-Eugeniu Rosca
+Restucture the exit conditions so the unlock is always ensured.
+
+Fixes: 3a79bc63d9075 ("PCI: irq: Introduce rearm_wake_irq()")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200811180001.80203-1-linux@roeck-us.net
+
+---
+ kernel/irq/pm.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/irq/pm.c b/kernel/irq/pm.c
+index 8f557fa..c6c7e18 100644
+--- a/kernel/irq/pm.c
++++ b/kernel/irq/pm.c
+@@ -185,14 +185,18 @@ void rearm_wake_irq(unsigned int irq)
+ 	unsigned long flags;
+ 	struct irq_desc *desc = irq_get_desc_buslock(irq, &flags, IRQ_GET_DESC_CHECK_GLOBAL);
+ 
+-	if (!desc || !(desc->istate & IRQS_SUSPENDED) ||
+-	    !irqd_is_wakeup_set(&desc->irq_data))
++	if (!desc)
+ 		return;
+ 
++	if (!(desc->istate & IRQS_SUSPENDED) ||
++	    !irqd_is_wakeup_set(&desc->irq_data))
++		goto unlock;
++
+ 	desc->istate &= ~IRQS_SUSPENDED;
+ 	irqd_set(&desc->irq_data, IRQD_WAKEUP_ARMED);
+ 	__enable_irq(desc);
+ 
++unlock:
+ 	irq_put_desc_busunlock(desc, flags);
+ }
+ 
