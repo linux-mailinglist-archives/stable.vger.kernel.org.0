@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DDE243050
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 23:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E00F243051
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 23:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbgHLVCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 17:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
+        id S1726606AbgHLVCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 17:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726528AbgHLVCU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Aug 2020 17:02:20 -0400
+        id S1726564AbgHLVCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Aug 2020 17:02:31 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2FF7207F7;
-        Wed, 12 Aug 2020 21:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C53712078B;
+        Wed, 12 Aug 2020 21:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597266139;
-        bh=91WhLQqXQB4/3dEqcVgcqRmOGGlZ5yB7vF2MFJ3jiaU=;
+        s=default; t=1597266149;
+        bh=qdY1eu2FTFptQo3VHIWPIz6D8O8ybpgDxYUbSLg5n4o=;
         h=Date:From:To:Subject:From;
-        b=e45d7y0SNNgg+fXYy1le7YAZ2r0/Ldn4b3XYrEaFMo30exs/gRoO3fj3RPXkJQFx6
-         K6TsU1VaUsWnsaGmVpaL8SBvATXU+RM3skMzo/S+Dq3oG6NXOMxu/+jFJrvSDHGliI
-         xOhk0CXnLt2gR+tpwI4qwscIimLoiMiFJ1An3hts=
-Date:   Wed, 12 Aug 2020 14:02:18 -0700
+        b=eM/4kJ3veNfzyP5yseosVicQLbLN/ZKsDZq7tENUE9DT2sqvxQaIUNwLheAhT1LAa
+         24IQ8hRljHzJWsonKWW1m1VV2LdlZq050TUJwxv42AFYvNZTd2r6xqYI0gOFR2FBTb
+         AKLrm6m9qeCwFeHY+E3mdI6aFZJg0aiA3YNBuO9c=
+Date:   Wed, 12 Aug 2020 14:02:28 -0700
 From:   akpm@linux-foundation.org
-To:     guro@fb.com, iamjoonsoo.kim@lge.com, kyungmin.park@samsung.com,
-        m.szyprowski@samsung.com, mike.kravetz@oracle.com,
-        mina86@mina86.com, mm-commits@vger.kernel.org,
-        song.bao.hua@hisilicon.com, stable@vger.kernel.org
+To:     bhe@redhat.com, bp@alien8.de, catalin.marinas@arm.com,
+        dalias@libc.org, dan.j.williams@intel.com,
+        dave.hansen@linux.intel.com, dave.jiang@intel.com,
+        david@redhat.com, fenghua.yu@intel.com, hpa@zytor.com,
+        hslester96@gmail.com, Jonathan.Cameron@Huawei.com,
+        justin.he@arm.com, Kaly.Xin@arm.com, logang@deltatee.com,
+        luto@kernel.org, masahiroy@kernel.org, mhocko@suse.com,
+        mingo@redhat.com, mm-commits@vger.kernel.org, peterz@infradead.org,
+        rppt@linux.ibm.com, stable@vger.kernel.org, tglx@linutronix.de,
+        tony.luck@intel.com, vishal.l.verma@intel.com, will@kernel.org,
+        ysato@users.sourceforge.jp
 Subject:  [merged]
- cma-dont-quit-at-first-error-when-activating-reserved-areas.patch removed
- from -mm tree
-Message-ID: <20200812210218.Bei0iztuR%akpm@linux-foundation.org>
+ mm-memory_hotplug-fix-unpaired-mem_hotplug_begin-done.patch removed from
+ -mm tree
+Message-ID: <20200812210228.Z9NG7Ie2s%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,137 +48,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: cma: don't quit at first error when activating reserved areas
+     Subject: mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
 has been removed from the -mm tree.  Its filename was
-     cma-dont-quit-at-first-error-when-activating-reserved-areas.patch
+     mm-memory_hotplug-fix-unpaired-mem_hotplug_begin-done.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: cma: don't quit at first error when activating reserved areas
+From: Jia He <justin.he@arm.com>
+Subject: mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
 
-The routine cma_init_reserved_areas is designed to activate all
-reserved cma areas.  It quits when it first encounters an error.
-This can leave some areas in a state where they are reserved but
-not activated.  There is no feedback to code which performed the
-reservation.  Attempting to allocate memory from areas in such a
-state will result in a BUG.
+When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
+online at that time), mem_hotplug_begin/done is unpaired in such case.
 
-Modify cma_init_reserved_areas to always attempt to activate all
-areas.  The called routine, cma_activate_area is responsible for
-leaving the area in a valid state.  No one is making active use
-of returned error codes, so change the routine to void.
+Therefore a warning:
+ Call Trace:
+  percpu_up_write+0x33/0x40
+  try_remove_memory+0x66/0x120
+  ? _cond_resched+0x19/0x30
+  remove_memory+0x2b/0x40
+  dev_dax_kmem_remove+0x36/0x72 [kmem]
+  device_release_driver_internal+0xf0/0x1c0
+  device_release_driver+0x12/0x20
+  bus_remove_device+0xe1/0x150
+  device_del+0x17b/0x3e0
+  unregister_dev_dax+0x29/0x60
+  devm_action_release+0x15/0x20
+  release_nodes+0x19a/0x1e0
+  devres_release_all+0x3f/0x50
+  device_release_driver_internal+0x100/0x1c0
+  driver_detach+0x4c/0x8f
+  bus_remove_driver+0x5c/0xd0
+  driver_unregister+0x31/0x50
+  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
 
-How to reproduce:  This example uses kernelcore, hugetlb and cma
-as an easy way to reproduce.  However, this is a more general cma
-issue.
-
-Two node x86 VM 16GB total, 8GB per node
-Kernel command line parameters, kernelcore=4G hugetlb_cma=8G
-Related boot time messages,
-  hugetlb_cma: reserve 8192 MiB, up to 4096 MiB per node
-  cma: Reserved 4096 MiB at 0x0000000100000000
-  hugetlb_cma: reserved 4096 MiB on node 0
-  cma: Reserved 4096 MiB at 0x0000000300000000
-  hugetlb_cma: reserved 4096 MiB on node 1
-  cma: CMA area hugetlb could not be activated
-
- # echo 8 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  ...
-  Call Trace:
-    bitmap_find_next_zero_area_off+0x51/0x90
-    cma_alloc+0x1a5/0x310
-    alloc_fresh_huge_page+0x78/0x1a0
-    alloc_pool_huge_page+0x6f/0xf0
-    set_max_huge_pages+0x10c/0x250
-    nr_hugepages_store_common+0x92/0x120
-    ? __kmalloc+0x171/0x270
-    kernfs_fop_write+0xc1/0x1a0
-    vfs_write+0xc7/0x1f0
-    ksys_write+0x5f/0xe0
-    do_syscall_64+0x4d/0x90
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Link: http://lkml.kernel.org/r/20200730163123.6451-1-mike.kravetz@oracle.com
-Fixes: c64be2bb1c6e ("drivers: add Contiguous Memory Allocator")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Barry Song <song.bao.hua@hisilicon.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Michal Nazarewicz <mina86@mina86.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200710031619.18762-3-justin.he@arm.com
+Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
+Signed-off-by: Jia He <justin.he@arm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: <stable@vger.kernel.org>	[5.6+]
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Chuhong Yuan <hslester96@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+Cc: Kaly Xin <Kaly.Xin@arm.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/cma.c |   23 +++++++++--------------
- 1 file changed, 9 insertions(+), 14 deletions(-)
+ mm/memory_hotplug.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/mm/cma.c~cma-dont-quit-at-first-error-when-activating-reserved-areas
-+++ a/mm/cma.c
-@@ -93,17 +93,15 @@ static void cma_clear_bitmap(struct cma
- 	mutex_unlock(&cma->lock);
+--- a/mm/memory_hotplug.c~mm-memory_hotplug-fix-unpaired-mem_hotplug_begin-done
++++ a/mm/memory_hotplug.c
+@@ -1757,7 +1757,7 @@ static int __ref try_remove_memory(int n
+ 	 */
+ 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
+ 	if (rc)
+-		goto done;
++		return rc;
+ 
+ 	/* remove memmap entry */
+ 	firmware_map_remove(start, start + size, "System RAM");
+@@ -1781,9 +1781,8 @@ static int __ref try_remove_memory(int n
+ 
+ 	try_offline_node(nid);
+ 
+-done:
+ 	mem_hotplug_done();
+-	return rc;
++	return 0;
  }
  
--static int __init cma_activate_area(struct cma *cma)
-+static void __init cma_activate_area(struct cma *cma)
- {
- 	unsigned long base_pfn = cma->base_pfn, pfn = base_pfn;
- 	unsigned i = cma->count >> pageblock_order;
- 	struct zone *zone;
- 
- 	cma->bitmap = bitmap_zalloc(cma_bitmap_maxno(cma), GFP_KERNEL);
--	if (!cma->bitmap) {
--		cma->count = 0;
--		return -ENOMEM;
--	}
-+	if (!cma->bitmap)
-+		goto out_error;
- 
- 	WARN_ON_ONCE(!pfn_valid(pfn));
- 	zone = page_zone(pfn_to_page(pfn));
-@@ -133,25 +131,22 @@ static int __init cma_activate_area(stru
- 	spin_lock_init(&cma->mem_head_lock);
- #endif
- 
--	return 0;
-+	return;
- 
- not_in_zone:
--	pr_err("CMA area %s could not be activated\n", cma->name);
- 	bitmap_free(cma->bitmap);
-+out_error:
- 	cma->count = 0;
--	return -EINVAL;
-+	pr_err("CMA area %s could not be activated\n", cma->name);
-+	return;
- }
- 
- static int __init cma_init_reserved_areas(void)
- {
- 	int i;
- 
--	for (i = 0; i < cma_area_count; i++) {
--		int ret = cma_activate_area(&cma_areas[i]);
--
--		if (ret)
--			return ret;
--	}
-+	for (i = 0; i < cma_area_count; i++)
-+		cma_activate_area(&cma_areas[i]);
- 
- 	return 0;
- }
+ /**
 _
 
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
+Patches currently in -mm which might be from justin.he@arm.com are
 
 
