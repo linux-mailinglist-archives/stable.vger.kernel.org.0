@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 297882423B7
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 03:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A07EC2423BB
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 03:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726517AbgHLBbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 21:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59264 "EHLO mail.kernel.org"
+        id S1726235AbgHLBcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 21:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726609AbgHLBbk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Aug 2020 21:31:40 -0400
+        id S1726531AbgHLBcF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Aug 2020 21:32:05 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9BB620829;
-        Wed, 12 Aug 2020 01:31:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBD55206B2;
+        Wed, 12 Aug 2020 01:32:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597195899;
-        bh=Q6rApmQDZq4TeKb8rhD6Grm+mRm2ZCIupR/XKyeYeTA=;
+        s=default; t=1597195924;
+        bh=gFsJfQTsHVBklo2noIvAaivjZuyl2sPhMLKPktO/beU=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=tun4aQW8B6L9tSru65vVl8Ktq5k/qZ+kcStRwR6omnE37B79qG0t8rlIgudXmB65r
-         82fvv7UbKpMSVz4L5nn3m0PbUy1BULxThOjBZtG3x0n+UAKXS456sPV9idRl8qIyPj
-         Zfp7r6JH9X1utTJ2p6id4L0rHgLpS7WSwnx9peLs=
-Date:   Tue, 11 Aug 2020 18:31:38 -0700
+        b=LG0fqlfHHccdBcury3qaI4W3jNZ5qXea8dJ5ZB1KdrdePvP9eMnRAvdLeDva6vi6s
+         4Gv9JINo4vwQqAHFfpG40X3oASTn93VZ5B3wXqQ9MA3UiV3SCO64CLAdOmwywsp79A
+         Xu2fIZH75/strLlTyTt1SFjnCRXVKusWdBHqzCH8=
+Date:   Tue, 11 Aug 2020 18:32:03 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     aarcange@redhat.com, akpm@linux-foundation.org,
-        aneesh.kumar@linux.vnet.ibm.com, dave@stgolabs.net,
-        hughd@google.com, kirill.shutemov@linux.intel.com,
-        linux-mm@kvack.org, mhocko@kernel.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
-        prakash.sangappa@oracle.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, willy@infradead.org
-Subject:  [patch 026/165] hugetlbfs: remove call to huge_pte_alloc
- without i_mmap_rwsem
-Message-ID: <20200812013138.uoXpEHoev%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, guro@fb.com, iamjoonsoo.kim@lge.com,
+        kyungmin.park@samsung.com, linux-mm@kvack.org,
+        m.szyprowski@samsung.com, mike.kravetz@oracle.com,
+        mina86@mina86.com, mm-commits@vger.kernel.org,
+        song.bao.hua@hisilicon.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 034/165] cma: don't quit at first error when
+ activating reserved areas
+Message-ID: <20200812013203.Dh6_amkhG%akpm@linux-foundation.org>
 In-Reply-To: <20200811182949.e12ae9a472e3b5e27e16ad6c@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
@@ -43,161 +42,125 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlbfs: remove call to huge_pte_alloc without i_mmap_rwsem
+Subject: cma: don't quit at first error when activating reserved areas
 
-Commit c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing
-synchronization") requires callers of huge_pte_alloc to hold i_mmap_rwsem
-in at least read mode.  This is because the explicit locking in
-huge_pmd_share (called by huge_pte_alloc) was removed.  When restructuring
-the code, the call to huge_pte_alloc in the else block at the beginning of
-hugetlb_fault was missed.
+The routine cma_init_reserved_areas is designed to activate all
+reserved cma areas.  It quits when it first encounters an error.
+This can leave some areas in a state where they are reserved but
+not activated.  There is no feedback to code which performed the
+reservation.  Attempting to allocate memory from areas in such a
+state will result in a BUG.
 
-Unfortunately, that else clause is exercised when there is no page table
-entry.  This will likely lead to a call to huge_pmd_share.  If
-huge_pmd_share thinks pmd sharing is possible, it will traverse the
-mapping tree (i_mmap) without holding i_mmap_rwsem.  If someone else is
-modifying the tree, bad things such as addressing exceptions or worse
-could happen.
+Modify cma_init_reserved_areas to always attempt to activate all
+areas.  The called routine, cma_activate_area is responsible for
+leaving the area in a valid state.  No one is making active use
+of returned error codes, so change the routine to void.
 
-Simply remove the else clause.  It should have been removed previously. 
-The code following the else will call huge_pte_alloc with the appropriate
-locking.
+How to reproduce:  This example uses kernelcore, hugetlb and cma
+as an easy way to reproduce.  However, this is a more general cma
+issue.
 
-To prevent this type of issue in the future, add routines to assert that
-i_mmap_rwsem is held, and call these routines in huge pmd sharing
-routines.
+Two node x86 VM 16GB total, 8GB per node
+Kernel command line parameters, kernelcore=4G hugetlb_cma=8G
+Related boot time messages,
+  hugetlb_cma: reserve 8192 MiB, up to 4096 MiB per node
+  cma: Reserved 4096 MiB at 0x0000000100000000
+  hugetlb_cma: reserved 4096 MiB on node 0
+  cma: Reserved 4096 MiB at 0x0000000300000000
+  hugetlb_cma: reserved 4096 MiB on node 1
+  cma: CMA area hugetlb could not be activated
 
-Link: http://lkml.kernel.org/r/e670f327-5cf9-1959-96e4-6dc7cc30d3d5@oracle.com
-Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
+ # echo 8 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ...
+  Call Trace:
+    bitmap_find_next_zero_area_off+0x51/0x90
+    cma_alloc+0x1a5/0x310
+    alloc_fresh_huge_page+0x78/0x1a0
+    alloc_pool_huge_page+0x6f/0xf0
+    set_max_huge_pages+0x10c/0x250
+    nr_hugepages_store_common+0x92/0x120
+    ? __kmalloc+0x171/0x270
+    kernfs_fop_write+0xc1/0x1a0
+    vfs_write+0xc7/0x1f0
+    ksys_write+0x5f/0xe0
+    do_syscall_64+0x4d/0x90
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Link: http://lkml.kernel.org/r/20200730163123.6451-1-mike.kravetz@oracle.com
+Fixes: c64be2bb1c6e ("drivers: add Contiguous Memory Allocator")
 Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Kirill A.Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Prakash Sangappa <prakash.sangappa@oracle.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Barry Song <song.bao.hua@hisilicon.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Michal Nazarewicz <mina86@mina86.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/fs.h      |   10 ++++++++++
- include/linux/hugetlb.h |    8 +++++---
- mm/hugetlb.c            |   15 +++++++--------
- mm/rmap.c               |    2 +-
- 4 files changed, 23 insertions(+), 12 deletions(-)
+ mm/cma.c |   23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
 
---- a/include/linux/fs.h~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/include/linux/fs.h
-@@ -518,6 +518,16 @@ static inline void i_mmap_unlock_read(st
- 	up_read(&mapping->i_mmap_rwsem);
+--- a/mm/cma.c~cma-dont-quit-at-first-error-when-activating-reserved-areas
++++ a/mm/cma.c
+@@ -93,17 +93,15 @@ static void cma_clear_bitmap(struct cma
+ 	mutex_unlock(&cma->lock);
  }
  
-+static inline void i_mmap_assert_locked(struct address_space *mapping)
-+{
-+	lockdep_assert_held(&mapping->i_mmap_rwsem);
-+}
-+
-+static inline void i_mmap_assert_write_locked(struct address_space *mapping)
-+{
-+	lockdep_assert_held_write(&mapping->i_mmap_rwsem);
-+}
-+
- /*
-  * Might pages of this file be mapped into userspace?
-  */
---- a/include/linux/hugetlb.h~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/include/linux/hugetlb.h
-@@ -164,7 +164,8 @@ pte_t *huge_pte_alloc(struct mm_struct *
- 			unsigned long addr, unsigned long sz);
- pte_t *huge_pte_offset(struct mm_struct *mm,
- 		       unsigned long addr, unsigned long sz);
--int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep);
-+int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
-+				unsigned long *addr, pte_t *ptep);
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end);
- struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
-@@ -203,8 +204,9 @@ static inline struct address_space *huge
- 	return NULL;
- }
- 
--static inline int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr,
--					pte_t *ptep)
-+static inline int huge_pmd_unshare(struct mm_struct *mm,
-+					struct vm_area_struct *vma,
-+					unsigned long *addr, pte_t *ptep)
+-static int __init cma_activate_area(struct cma *cma)
++static void __init cma_activate_area(struct cma *cma)
  {
+ 	unsigned long base_pfn = cma->base_pfn, pfn = base_pfn;
+ 	unsigned i = cma->count >> pageblock_order;
+ 	struct zone *zone;
+ 
+ 	cma->bitmap = bitmap_zalloc(cma_bitmap_maxno(cma), GFP_KERNEL);
+-	if (!cma->bitmap) {
+-		cma->count = 0;
+-		return -ENOMEM;
+-	}
++	if (!cma->bitmap)
++		goto out_error;
+ 
+ 	WARN_ON_ONCE(!pfn_valid(pfn));
+ 	zone = page_zone(pfn_to_page(pfn));
+@@ -133,25 +131,22 @@ static int __init cma_activate_area(stru
+ 	spin_lock_init(&cma->mem_head_lock);
+ #endif
+ 
+-	return 0;
++	return;
+ 
+ not_in_zone:
+-	pr_err("CMA area %s could not be activated\n", cma->name);
+ 	bitmap_free(cma->bitmap);
++out_error:
+ 	cma->count = 0;
+-	return -EINVAL;
++	pr_err("CMA area %s could not be activated\n", cma->name);
++	return;
+ }
+ 
+ static int __init cma_init_reserved_areas(void)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < cma_area_count; i++) {
+-		int ret = cma_activate_area(&cma_areas[i]);
+-
+-		if (ret)
+-			return ret;
+-	}
++	for (i = 0; i < cma_area_count; i++)
++		cma_activate_area(&cma_areas[i]);
+ 
  	return 0;
  }
---- a/mm/hugetlb.c~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/mm/hugetlb.c
-@@ -3967,7 +3967,7 @@ void __unmap_hugepage_range(struct mmu_g
- 			continue;
- 
- 		ptl = huge_pte_lock(h, mm, ptep);
--		if (huge_pmd_unshare(mm, &address, ptep)) {
-+		if (huge_pmd_unshare(mm, vma, &address, ptep)) {
- 			spin_unlock(ptl);
- 			/*
- 			 * We just unmapped a page of PMDs by clearing a PUD.
-@@ -4554,10 +4554,6 @@ vm_fault_t hugetlb_fault(struct mm_struc
- 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry)))
- 			return VM_FAULT_HWPOISON_LARGE |
- 				VM_FAULT_SET_HINDEX(hstate_index(h));
--	} else {
--		ptep = huge_pte_alloc(mm, haddr, huge_page_size(h));
--		if (!ptep)
--			return VM_FAULT_OOM;
- 	}
- 
- 	/*
-@@ -5034,7 +5030,7 @@ unsigned long hugetlb_change_protection(
- 		if (!ptep)
- 			continue;
- 		ptl = huge_pte_lock(h, mm, ptep);
--		if (huge_pmd_unshare(mm, &address, ptep)) {
-+		if (huge_pmd_unshare(mm, vma, &address, ptep)) {
- 			pages++;
- 			spin_unlock(ptl);
- 			shared_pmd = true;
-@@ -5415,12 +5411,14 @@ out:
-  * returns: 1 successfully unmapped a shared pte page
-  *	    0 the underlying pte page is not shared, or it is the last user
-  */
--int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
-+int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
-+					unsigned long *addr, pte_t *ptep)
- {
- 	pgd_t *pgd = pgd_offset(mm, *addr);
- 	p4d_t *p4d = p4d_offset(pgd, *addr);
- 	pud_t *pud = pud_offset(p4d, *addr);
- 
-+	i_mmap_assert_write_locked(vma->vm_file->f_mapping);
- 	BUG_ON(page_count(virt_to_page(ptep)) == 0);
- 	if (page_count(virt_to_page(ptep)) == 1)
- 		return 0;
-@@ -5438,7 +5436,8 @@ pte_t *huge_pmd_share(struct mm_struct *
- 	return NULL;
- }
- 
--int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
-+int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
-+				unsigned long *addr, pte_t *ptep)
- {
- 	return 0;
- }
---- a/mm/rmap.c~hugetlbfs-remove-call-to-huge_pte_alloc-without-i_mmap_rwsem
-+++ a/mm/rmap.c
-@@ -1469,7 +1469,7 @@ static bool try_to_unmap_one(struct page
- 			 * do this outside rmap routines.
- 			 */
- 			VM_BUG_ON(!(flags & TTU_RMAP_LOCKED));
--			if (huge_pmd_unshare(mm, &address, pvmw.pte)) {
-+			if (huge_pmd_unshare(mm, vma, &address, pvmw.pte)) {
- 				/*
- 				 * huge_pmd_unshare unmapped an entire PMD
- 				 * page.  There is no way of knowing exactly
 _
