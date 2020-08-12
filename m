@@ -2,122 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B922423C1
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 03:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5642423CC
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 03:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbgHLBdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 21:33:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726492AbgHLBdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 21:33:46 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A977FC06174A
-        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 18:33:45 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id kr4so326425pjb.2
-        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 18:33:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OZsE1sWUoYMWGzMPhiePTP3YwjmZH8UiI+0yejkaD/Y=;
-        b=bI00qKV+tmXpb2+CyC23TZAZsH1uAsLbPRAAgaQYPMBrTuAKEfSoR+HWWpLu+TBwAZ
-         GGAJ1rsx9NWN5QSRxLGUj0a+1oCZ+HChr5AeMISywIi3qu4BNRwPTDaHdLWpvEsehrS0
-         knuL3lGqzPFyA80vQm71SYkR6gAtuo21dzMCcT6XIBIvcF5qTsxg7DrIDzK7GIB6CDsI
-         fxTq8wVFsgq7T1OM5GdQFu1qyzEgKAP6ySQGPQ10bSWmSe8sPrPem/2esF/+XePgsnX9
-         smztlhMXl4L8yvjj/eImpO0PXImKTUpt+yXuuYF3utWJD6L4Y9W/yrVLk1MAG5Os3lWt
-         YnwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OZsE1sWUoYMWGzMPhiePTP3YwjmZH8UiI+0yejkaD/Y=;
-        b=ULMh4GQHYCmx5sqNsJVS8nbXE4smwq4opWCxF2mHAMaHPfJDmt5bkv29zCmfkdtjmY
-         1zR0kDdo/C3DBikJ9TCwdCU5aII29h/isWsB+tZlIanA5L7RcWf7bZh3VIWDGDZoCV/M
-         c8di3WFsJN8tyddwHwejtgj8BKxEBMkEy/MjOvnaRzJEjA/DJuzXmzUJQ02bcYiFL+do
-         NWoKc+0mufp+xflOIYNHrIBkFGgW5YAeiU4hpsopQmGnb0QhmDiy1fnA+yDS9dluUBxq
-         +p0wG2bIw8/ZQkmIovFbQ+zI//sf1GxYRaZLrM6r9UYRDeSWl2DORYTAkvPp0BkryH+5
-         wozQ==
-X-Gm-Message-State: AOAM533nYZ/NquqxQ0GHRGGOs/+4bk8dpGg4qXQrhggB9YQsLfdRQndp
-        VkhMVbdk3JMEaT3Q2QpHQUg9uoaEdQA=
-X-Google-Smtp-Source: ABdhPJxWOJeVVk11VkrQQbXLCrPIJbSHon0/MQzeEbGGJ9E47nsmD+gBylMc0EqwvkySG2+6vVjuYQ==
-X-Received: by 2002:a17:902:bb82:: with SMTP id m2mr3279155pls.115.1597196023825;
-        Tue, 11 Aug 2020 18:33:43 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q2sm384868pgs.90.2020.08.11.18.33.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Aug 2020 18:33:43 -0700 (PDT)
-Message-ID: <5f3346f7.1c69fb81.37f1b.17f5@mx.google.com>
-Date:   Tue, 11 Aug 2020 18:33:43 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.7.15
-X-Kernelci-Branch: linux-5.7.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.7.y baseline: 188 runs, 1 regressions (v5.7.15)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726469AbgHLBf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 21:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36362 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726430AbgHLBf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Aug 2020 21:35:26 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C1EB2054F;
+        Wed, 12 Aug 2020 01:35:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597196125;
+        bh=OUfkmlnS9oZDsBG34zAmOqH1i91rmucGYG8ZFVQCZhk=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=gn3eSNf+3iC7Qi4l74deScdTZucjEOXTEllC1Sw6N3pBIarpdpGTfr263Jd6AEifF
+         ubhsx35QPjDpQCaI+fc4KF3Ltt2yHoq155wMsF17MJLWIl2H7zhK8GcxSXDSEZyXsR
+         y1OiC2mq9khv1bp7ZL8rj1rLE5l/99MCCYFv7gMw=
+Date:   Tue, 11 Aug 2020 18:35:24 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, anenbupt@gmail.com, ebiggers@google.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        viro@zeniv.linux.org.uk
+Subject:  [patch 098/165] fs/minix: check return value of
+ sb_getblk()
+Message-ID: <20200812013524.C4dEigLKz%akpm@linux-foundation.org>
+In-Reply-To: <20200811182949.e12ae9a472e3b5e27e16ad6c@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.7.y baseline: 188 runs, 1 regressions (v5.7.15)
+From: Eric Biggers <ebiggers@google.com>
+Subject: fs/minix: check return value of sb_getblk()
 
-Regressions Summary
--------------------
+Patch series "fs/minix: fix syzbot bugs and set s_maxbytes".
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+This series fixes all syzbot bugs in the minix filesystem:
 
+	KASAN: null-ptr-deref Write in get_block
+	KASAN: use-after-free Write in get_block
+	KASAN: use-after-free Read in get_block
+	WARNING in inc_nlink
+	KMSAN: uninit-value in get_block
+	WARNING in drop_nlink
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
-el/v5.7.15/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.7.y
-  Describe: v5.7.15
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0e446529d34888ac57fe059ec32e9114a381c800 =
+It also fixes the minix filesystem to set s_maxbytes correctly, so that
+userspace sees the correct behavior when exceeding the max file size.
 
 
+This patch (of 6):
 
-Test Regressions
----------------- =
+sb_getblk() can fail, so check its return value.
 
+This fixes a NULL pointer dereference.
 
+Originally from Qiujun Huang.
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+Link: http://lkml.kernel.org/r/20200628060846.682158-1-ebiggers@kernel.org
+Link: http://lkml.kernel.org/r/20200628060846.682158-2-ebiggers@kernel.org
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reported-by: syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ fs/minix/itree_common.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-  Details:     https://kernelci.org/test/plan/id/5f331373a01cd8f3f152c1cc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.15/=
-arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.15/=
-arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f331373a01cd8f3f152c=
-1cd
-      failing since 26 days (last pass: v5.7.8-167-gc2fb28a4b6e4, first fai=
-l: v5.7.9) =20
+--- a/fs/minix/itree_common.c~fs-minix-check-return-value-of-sb_getblk
++++ a/fs/minix/itree_common.c
+@@ -75,6 +75,7 @@ static int alloc_branch(struct inode *in
+ 	int n = 0;
+ 	int i;
+ 	int parent = minix_new_block(inode);
++	int err = -ENOSPC;
+ 
+ 	branch[0].key = cpu_to_block(parent);
+ 	if (parent) for (n = 1; n < num; n++) {
+@@ -85,6 +86,11 @@ static int alloc_branch(struct inode *in
+ 			break;
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
++		if (!bh) {
++			minix_free_block(inode, nr);
++			err = -ENOMEM;
++			break;
++		}
+ 		lock_buffer(bh);
+ 		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+@@ -103,7 +109,7 @@ static int alloc_branch(struct inode *in
+ 		bforget(branch[i].bh);
+ 	for (i = 0; i < n; i++)
+ 		minix_free_block(inode, block_to_cpu(branch[i].key));
+-	return -ENOSPC;
++	return err;
+ }
+ 
+ static inline int splice_branch(struct inode *inode,
+_
