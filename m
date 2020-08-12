@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7765F2430DC
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 00:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF12F243141
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 00:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbgHLWg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 18:36:29 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:62003 "EHLO
+        id S1726523AbgHLW7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 18:59:21 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:62170 "EHLO
         fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726531AbgHLWg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 18:36:29 -0400
+        with ESMTP id S1726067AbgHLW7U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 18:59:20 -0400
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22111009-1500050 
-        for multiple; Wed, 12 Aug 2020 23:36:23 +0100
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22111066-1500050 
+        for multiple; Wed, 12 Aug 2020 23:59:17 +0100
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: [PATCH 3/3] drm/i915/gem: Always test execution status on closing the context
-Date:   Wed, 12 Aug 2020 23:36:21 +0100
-Message-Id: <20200812223621.22292-3-chris@chris-wilson.co.uk>
+Subject: [PATCH] drm/i915/gem: Always test execution status on closing the context
+Date:   Wed, 12 Aug 2020 23:59:14 +0100
+Message-Id: <20200812225914.25973-1-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200812223621.22292-1-chris@chris-wilson.co.uk>
-References: <20200812223621.22292-1-chris@chris-wilson.co.uk>
+In-Reply-To: <20200812223621.22292-3-chris@chris-wilson.co.uk>
+References: <20200812223621.22292-3-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -40,11 +40,11 @@ Testcase: igt/gem_ctx_persistence/heartbeat-close
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: <stable@vger.kernel.org> # v5.7+
 ---
- drivers/gpu/drm/i915/gem/i915_gem_context.c | 24 ++++++++-------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_context.c | 26 ++++++++-------------
+ 1 file changed, 10 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index db893f6c516b..49715ae71386 100644
+index db893f6c516b..ba8ef1225f58 100644
 --- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
 +++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
 @@ -431,8 +431,7 @@ static bool __cancel_engine(struct intel_engine_cs *engine)
@@ -75,6 +75,15 @@ index db893f6c516b..49715ae71386 100644
  			continue;
  
  		/*
+@@ -521,7 +520,7 @@ static void kill_engines(struct i915_gem_engines *engines)
+ 		engine = active_engine(ce);
+ 
+ 		/* First attempt to gracefully cancel the context */
+-		if (engine && !__cancel_engine(engine))
++		if (engine && !__cancel_engine(engine) && ban)
+ 			/*
+ 			 * If we are unable to send a preemptive pulse to bump
+ 			 * the context from the GPU, we have to resort to a full
 @@ -531,8 +530,10 @@ static void kill_engines(struct i915_gem_engines *engines)
  	}
  }
