@@ -2,50 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E959C242935
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 14:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 970182429A0
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 14:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726829AbgHLMR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 08:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39944 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726698AbgHLMR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Aug 2020 08:17:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727964AbgHLMrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 08:47:31 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:28531 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727885AbgHLMra (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 08:47:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597236449;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=iJ+bto3hsBFNbeIoX6uybLtb1Yx2r+7qubJDKxuEY7w=;
+        b=I2M1SBlEaoPvuThc9EtMbH9jv6s96asxpWJ3Ta/1uHz5WHCiesajkMZJxBoTL0mPJRMJ16
+        ESFN/8i6/fUuYsIrPDLgbvDSj/7vviG/eEnIAYy++ribLTNZjaxa4nlrhu/PxcILHvrb1z
+        3BstfJo02Wsc++r3yGRZfLhf13+vFDM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-474-wYCtx2zNM0q_EUiaEFCHhA-1; Wed, 12 Aug 2020 08:47:25 -0400
+X-MC-Unique: wYCtx2zNM0q_EUiaEFCHhA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FEF4207DA;
-        Wed, 12 Aug 2020 12:17:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597234676;
-        bh=Vx3SUapsiak1SXoO4I605KbSoXPU/IvEEMX9g6E2uus=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Reyo1Q0Uey/CL9hFpd0wnRVzELCgO9nFFmuxBnSRqHn07mgyRpTJCC/3F80JJJnit
-         zOFkSMbw/YaGrQz9hgDdRcU17oXXi5HtYgfFvWMTbZsGXPoGmfgd+b1Aqziom+stXb
-         wZZl7ySnjR9gbiQPbpU5JfLsq001OCfyVMqCWPL0=
-Date:   Wed, 12 Aug 2020 14:18:06 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Plamen Lyutov <plamen.lyutov@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Nvme patch
-Message-ID: <20200812121806.GA2095697@kroah.com>
-References: <CAOLo7rqADzuZ6nXwhDNO4e0-CBoPa3=JVQxoMcDTZtOOOR2Wfw@mail.gmail.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E23AB107ACCA;
+        Wed, 12 Aug 2020 12:47:23 +0000 (UTC)
+Received: from T590 (ovpn-13-156.pek2.redhat.com [10.72.13.156])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id B9193600DA;
+        Wed, 12 Aug 2020 12:47:16 +0000 (UTC)
+Date:   Wed, 12 Aug 2020 20:47:12 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] block: allow for_each_bvec to support zero len bvec
+Message-ID: <20200812124712.GA2331687@T590>
+References: <20200810031915.2209658-1-ming.lei@redhat.com>
+ <db57f8ca-b3c3-76ec-1e49-d8f8161ba78d@i-love.sakura.ne.jp>
+ <20200810162331.GA2215158@T590>
+ <20200812090039.GA2317340@T590>
+ <242fc33d-686b-928d-415e-8b519c56a62c@i-love.sakura.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAOLo7rqADzuZ6nXwhDNO4e0-CBoPa3=JVQxoMcDTZtOOOR2Wfw@mail.gmail.com>
+In-Reply-To: <242fc33d-686b-928d-415e-8b519c56a62c@i-love.sakura.ne.jp>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 12, 2020 at 03:10:01PM +0300, Plamen Lyutov wrote:
-> Is it possible 5bedd3afee8eb01ccd256f0cd2cc0fa6f841417a to be
-> backported to 5.4.xx to fix c64141c68f725068440fbc13eb63dbb283e99168
-> as it was backported to 5.7 as
-> 02963f5752032ab987fae7b450d5e1e357e7425b to fix
-> e2cb0c5635ecf7d8f2bde9971edbe00a0b8b8536
+On Wed, Aug 12, 2020 at 07:03:59PM +0900, Tetsuo Handa wrote:
+> On 2020/08/12 18:00, Ming Lei wrote:
+> > BTW, for_each_bvec won't be called in the above splice test code.
+> 
+> Please uncomment the // lines when testing for_each_bvec() case.
 
-Now queued up, thanks.
+What is the '//' lines?
 
-greg k-h
+> This is a test case for testing all empty pages.
+
+But the case for testing all empty pages is not related with this patch,
+is it?
+
+
+Thanks,
+Ming
+
