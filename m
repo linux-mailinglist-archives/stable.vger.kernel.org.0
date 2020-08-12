@@ -2,109 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 795D62423CE
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 03:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2366B2423E7
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 04:01:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726501AbgHLBfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 21:35:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36514 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726402AbgHLBfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Aug 2020 21:35:32 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41AB220678;
-        Wed, 12 Aug 2020 01:35:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597196131;
-        bh=DtsMZM/R7Ghz1cP12OeJnMMtEq8agJUF6qSxR0PISec=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=CTXO676enYQ0yM62FU6EDSe7LUtJan+WOlp4RGMjvCzCkzK+joIudFqn1h+UARqGi
-         UfZogeppVe3Tc6NOfWWaoj070YD4cCN1jYDX+HLQcCGbybRfceiukCko49pevI2Amf
-         o9bqhtNnz1jrV0Zo3C8K8b2xdz5iK6bZMKSdIz0c=
-Date:   Tue, 11 Aug 2020 18:35:30 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, anenbupt@gmail.com, ebiggers@google.com,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        viro@zeniv.linux.org.uk
-Subject:  [patch 100/165] fs/minix: reject too-large maximum file
- size
-Message-ID: <20200812013530.pczEExpRx%akpm@linux-foundation.org>
-In-Reply-To: <20200811182949.e12ae9a472e3b5e27e16ad6c@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726333AbgHLCBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 22:01:09 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:41904 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726235AbgHLCBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Aug 2020 22:01:09 -0400
+Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id B315B9617494B5F5982D;
+        Wed, 12 Aug 2020 10:01:05 +0800 (CST)
+Received: from [10.164.122.247] (10.164.122.247) by smtp.huawei.com
+ (10.3.19.214) with Microsoft SMTP Server (TLS) id 14.3.487.0; Wed, 12 Aug
+ 2020 10:01:04 +0800
+Subject: Re: [PATCH] erofs: avoid duplicated permission check for "trusted."
+ xattrs
+To:     Gao Xiang <hsiangkao@redhat.com>, <linux-erofs@lists.ozlabs.org>
+CC:     LKML <linux-kernel@vger.kernel.org>, Chao Yu <chao@kernel.org>,
+        Hongyu Jin <hongyu.jin@unisoc.com>, <stable@vger.kernel.org>
+References: <20200811070020.6339-1-hsiangkao@redhat.com>
+From:   Chao Yu <yuchao0@huawei.com>
+Message-ID: <18a6a9b7-5967-1929-920a-e34e446944ac@huawei.com>
+Date:   Wed, 12 Aug 2020 10:01:03 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <20200811070020.6339-1-hsiangkao@redhat.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.164.122.247]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
-Subject: fs/minix: reject too-large maximum file size
+On 2020/8/11 15:00, Gao Xiang wrote:
+> Don't recheck it since xattr_permission() already
+> checks CAP_SYS_ADMIN capability.
+> 
+> Just follow 5d3ce4f70172 ("f2fs: avoid duplicated permission check for "trusted." xattrs")
+> 
+> Reported-by: Hongyu Jin <hongyu.jin@unisoc.com>
+> [ Gao Xiang: since it could cause some complex Android overlay
+>    permission issue as well on android-5.4+, so it'd be better to
+>    backport to 5.4+ rather than pure cleanup on mainline. ]
+> Cc: <stable@vger.kernel.org> # 5.4+
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
-If the minix filesystem tries to map a very large logical block number to
-its on-disk location, block_to_path() can return offsets that are too
-large, causing out-of-bounds memory accesses when accessing indirect index
-blocks.  This should be prevented by the check against the maximum file
-size, but this doesn't work because the maximum file size is read directly
-from the on-disk superblock and isn't validated itself.
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 
-Fix this by validating the maximum file size at mount time.
-
-Link: http://lkml.kernel.org/r/20200628060846.682158-4-ebiggers@kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com
-Reported-by: syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com
-Reported-by: syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/minix/inode.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
-
---- a/fs/minix/inode.c~fs-minix-reject-too-large-maximum-file-size
-+++ a/fs/minix/inode.c
-@@ -150,6 +150,23 @@ static int minix_remount (struct super_b
- 	return 0;
- }
- 
-+static bool minix_check_superblock(struct minix_sb_info *sbi)
-+{
-+	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
-+		return false;
-+
-+	/*
-+	 * s_max_size must not exceed the block mapping limitation.  This check
-+	 * is only needed for V1 filesystems, since V2/V3 support an extra level
-+	 * of indirect blocks which places the limit well above U32_MAX.
-+	 */
-+	if (sbi->s_version == MINIX_V1 &&
-+	    sbi->s_max_size > (7 + 512 + 512*512) * BLOCK_SIZE)
-+		return false;
-+
-+	return true;
-+}
-+
- static int minix_fill_super(struct super_block *s, void *data, int silent)
- {
- 	struct buffer_head *bh;
-@@ -228,11 +245,12 @@ static int minix_fill_super(struct super
- 	} else
- 		goto out_no_fs;
- 
-+	if (!minix_check_superblock(sbi))
-+		goto out_illegal_sb;
-+
- 	/*
- 	 * Allocate the buffer map to keep the superblock small.
- 	 */
--	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
--		goto out_illegal_sb;
- 	i = (sbi->s_imap_blocks + sbi->s_zmap_blocks) * sizeof(bh);
- 	map = kzalloc(i, GFP_KERNEL);
- 	if (!map)
-_
+Thanks,
