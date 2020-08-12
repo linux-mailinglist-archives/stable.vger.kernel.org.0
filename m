@@ -2,136 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E1B24237C
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 02:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5783242383
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 02:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726310AbgHLAnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Aug 2020 20:43:11 -0400
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:33579 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726143AbgHLAnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 20:43:11 -0400
-Received: by mail-qk1-f193.google.com with SMTP id p4so685734qkf.0;
-        Tue, 11 Aug 2020 17:43:10 -0700 (PDT)
+        id S1726143AbgHLAvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Aug 2020 20:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33764 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbgHLAvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Aug 2020 20:51:03 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D49C06174A
+        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 17:51:03 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id f5so323528plr.9
+        for <stable@vger.kernel.org>; Tue, 11 Aug 2020 17:51:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7fVOypavZ0YNvjhPAV9S3Mq8Uz0iJvMkCY/wI4h4PJ8=;
+        b=hqRsbIe1VDUiG1coAT49Iab6pKfTYXzSv+oFCpPmGctzxKJ6P+ZzuweWyqr+QNLzfR
+         U5AX8udUq4n1yjWmDnUPjJXcRzeSS5NXlagrgizo4P0NbSXZoGm+pN8xLK0mA8XwJcku
+         +4AZSFECOSWmn8Ig2E/RFqhG0MmRjzMzgmlrUOKnqioBuyscfH2C8W8ARMxdsx6mOdfW
+         qxKaWwzx3U5PZGYK+utKAmwy+NoO4gQKyE9/tBMC9L+ytlrXLAkDGXWTCF3r/+XvZ47V
+         7+KozJz7kxayTCuot5xQh6CBht23vRB/vp5KqXbf+zKL2Jc+kRU+xP/ZN64hQ4BAw1l6
+         oaBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=GCDImrRgW3iCWcpk2/WqD39sC7GwesCsUaBl58SFiQk=;
-        b=PoH0BzxBnfdXZMDSBo6OEj5QWb5mst9LLE7YPEqOCButpr32c+Q0LmGFoAmlTfvTNT
-         lQFEqqjKUs2Xm5chKOoYo/qFRYYejqoNIdCzmcEOsoZ5LkP6Np4/lQFsFRiiZNLSftWO
-         uLsERcWu8zG+fSJrTVD6F1Bob/8isnTfyJ31uxLco/YVSmC/yvSTWIlDBs6gUzPru557
-         sy7WQS26f7JzNAgoReH2LX1OmYZulLvFqJFoAqHNerzh6JuUSxoH44fi+yG6FwCmtOGn
-         4dcEIHISfbKEdNaMOy59zNVppto4rqhgpklN5UwSz8jDiCQbhgBG5A/m/kmNjMk3hHSz
-         yrmQ==
-X-Gm-Message-State: AOAM532MxVBnByZGPyQ0hTIJYGHDWltSVpUzqrkq2v5piWQe0sxx2OxV
-        wnPG8tIq/ZoSwz/1oiM+IZQ=
-X-Google-Smtp-Source: ABdhPJzw++bT0HF3bP2CRKw/mU0GoHv5y3se5aR+Iut3/cRRo4mbJTF32+0nEvHbyQxtm+Wq5sUNtw==
-X-Received: by 2002:a37:a354:: with SMTP id m81mr3762457qke.277.1597192989829;
-        Tue, 11 Aug 2020 17:43:09 -0700 (PDT)
-Received: from rani.riverdale.lan ([2001:470:1f07:5f3::b55f])
-        by smtp.gmail.com with ESMTPSA id x13sm549749qts.23.2020.08.11.17.43.09
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7fVOypavZ0YNvjhPAV9S3Mq8Uz0iJvMkCY/wI4h4PJ8=;
+        b=Fq3zT2/e8EzOTTA2fjCf/jEAmHJkmCR8WmpAJfm7wB0HejK2kU5Z7OQFrTw3HLmc62
+         8hGsB9ThNIFgGRKKg0oFWyUhb8ShjyqOtR8u5P8y8dkuccIdsBrw7buFrr+//PJuhglG
+         A52ze9W4ZB9CD3k5b1VOShTDFIcFcuKOIWVd3DOAKa5iUtZqtvwUiXjkQWRyxeS3rKsk
+         HypWHj+xmd42Iuk3y6nSwT/Vj3/xDz/8EGSuw/MMrrrXcPcaLIA5D6Bfeb6Niinq6ULY
+         +zsOC5NrU8vl6zWmEeNBdbMv891zeW+ymGbfXVZj8Xh2rESmcMrpP/H1K7GlMt0stNDf
+         tbhw==
+X-Gm-Message-State: AOAM531L6K77IUMxf49Zo48m6YAI0BARMlG6sVmiTSGkrRNhBi1C6szg
+        RLRaK5i+04uSz27RLd5BzzXl2QECV9Y=
+X-Google-Smtp-Source: ABdhPJwszreRg70aFeCUbinmUcexbbfsWgmLFoHIGV48V0UXGsSevohcvLSrHODr9qP4QlsPZh6VwQ==
+X-Received: by 2002:a17:90a:414d:: with SMTP id m13mr3545019pjg.163.1597193462947;
+        Tue, 11 Aug 2020 17:51:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e29sm277222pfj.92.2020.08.11.17.51.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Aug 2020 17:43:09 -0700 (PDT)
-From:   Arvind Sankar <nivedita@alum.mit.edu>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Fangrui Song <maskray@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        e5ten.arch@gmail.com,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2] x86/boot/compressed: Disable relocation relaxation
-Date:   Tue, 11 Aug 2020 20:43:08 -0400
-Message-Id: <20200812004308.1448603-1-nivedita@alum.mit.edu>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200812004158.GA1447296@rani.riverdale.lan>
-References: <20200812004158.GA1447296@rani.riverdale.lan>
+        Tue, 11 Aug 2020 17:51:02 -0700 (PDT)
+Message-ID: <5f333cf6.1c69fb81.db03e.14e9@mx.google.com>
+Date:   Tue, 11 Aug 2020 17:51:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.193
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y baseline: 156 runs, 4 regressions (v4.14.193)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The x86-64 psABI [0] specifies special relocation types
-(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
-Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
-can take advantage of for optimization (relaxation) at link time. This
-is supported by LLD and binutils versions 2.26 onwards.
+stable-rc/linux-4.14.y baseline: 156 runs, 4 regressions (v4.14.193)
 
-The compressed kernel is position-independent code, however, when using
-LLD or binutils versions before 2.27, it must be linked without the -pie
-option. In this case, the linker may optimize certain instructions into
-a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
+Regressions Summary
+-------------------
 
-This potential issue has been present with LLD and binutils-2.26 for a
-long time, but it has never manifested itself before now:
-- LLD and binutils-2.26 only relax
-	movq	foo@GOTPCREL(%rip), %reg
-  to
-	leaq	foo(%rip), %reg
-  which is still position-independent, rather than
-	mov	$foo, %reg
-  which is permitted by the psABI when -pie is not enabled.
-- gcc happens to only generate GOTPCREL relocations on mov instructions.
-- clang does generate GOTPCREL relocations on non-mov instructions, but
-  when building the compressed kernel, it uses its integrated assembler
-  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
-  which has so far defaulted to not generating the GOTPCRELX
-  relocations.
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-Nick Desaulniers reports [1,2]:
-  A recent change [3] to a default value of configuration variable
-  (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
-  integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
-  relocations. LLD will relax instructions with these relocations based
-  on whether the image is being linked as position independent or not.
-  When not, then LLD will relax these instructions to use absolute
-  addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
-  Clang and linked with LLD to fail to boot.
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
 
-Patch series [4] is a solution to allow the compressed kernel to be
-linked with -pie unconditionally, but even if merged is unlikely to be
-backported. As a simple solution that can be applied to stable as well,
-prevent the assembler from generating the relaxed relocation types using
-the -mrelax-relocations=no option. For ease of backporting, do this
-unconditionally.
+qemu_i386             | i386  | lab-baylibre | gcc-8    | i386_defconfig  |=
+ 0/1    =
 
-[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
-[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
-[2] https://github.com/ClangBuiltLinux/linux/issues/1121
-[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
-[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
+qemu_i386-uefi        | i386  | lab-baylibre | gcc-8    | i386_defconfig  |=
+ 0/1    =
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
----
- arch/x86/boot/compressed/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 3962f592633d..ff7894f39e0e 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -43,6 +43,8 @@ KBUILD_CFLAGS += -Wno-pointer-sign
- KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
- KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
- KBUILD_CFLAGS += -D__DISABLE_EXPORTS
-+# Disable relocation relaxation in case the link is not PIE.
-+KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
- 
- KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
- GCOV_PROFILE := n
--- 
-2.26.2
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.193/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.193
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      14b58326976de6ef3998eefec1dd7f8b38b97a75 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2dbedb81ed4cd00952c1bd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2dbedb81ed4cd00952c=
+1be
+      failing since 14 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
+fail: v4.14.189) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2dbfa669c1545a8852c1ad
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2dbfa669c1545a8852c=
+1ae
+      failing since 129 days (last pass: v4.14.172-114-g734382e2d26e, first=
+ fail: v4.14.174-131-g234ce78cac23) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+qemu_i386             | i386  | lab-baylibre | gcc-8    | i386_defconfig  |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2dc6ce46ede0774352c1a6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2dc6ce46ede0774352c=
+1a7
+      new failure (last pass: v4.14.193-43-g288931e8c436) =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+qemu_i386-uefi        | i386  | lab-baylibre | gcc-8    | i386_defconfig  |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f2dc6ba2918e21a7052c1b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+93/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f2dc6ba2918e21a7052c=
+1b2
+      new failure (last pass: v4.14.193-43-g288931e8c436) =20
