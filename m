@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B2C24280C
-	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 12:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07762242847
+	for <lists+stable@lfdr.de>; Wed, 12 Aug 2020 12:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727822AbgHLKI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 06:08:27 -0400
-Received: from mout.gmx.net ([212.227.17.21]:52737 "EHLO mout.gmx.net"
+        id S1726595AbgHLKd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 06:33:59 -0400
+Received: from mout.gmx.net ([212.227.17.21]:55981 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbgHLKI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Aug 2020 06:08:27 -0400
+        id S1726404AbgHLKd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Aug 2020 06:33:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1597226878;
-        bh=UkqjCxKKHV1HDyi41mZtq9yMhrKx967IftYVnHuBMGo=;
+        s=badeba3b8450; t=1597228421;
+        bh=kyxDKOrNtFwAET7ssBuwQAdW/EMV3Yiruqvshw/MQC8=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=CVa57jyqOd+wAZ7HXJCaZTcWrbj9dKyv+WghkaTGAXpiP2JsIvR0EQYgZWjbrGYiO
-         lsBWgX1QG8ZF82HjYytXjIkoJrHZCMtWf3yQ1+ICaGkXnM6d6nfr+pmeun5MhEhTqE
-         zqpiozDA1NGXVxf3FFncbmNurNIBF6Kx6a5QKPTs=
+        b=F9oHOFd2NE49uWlyTBzMzsO0oF/XRpAZ+oojzB4cv+rcTAaknj3nNAdioxWIXyE5K
+         fRs17zeH8O3XXiVG2KtZ3d+SQkt3yBESKsjN/l5voxMCdsdPOtQjXKSa1pWP2xBOSi
+         AHEzJVMgNHbMMrQpL1vTOBIbpsmi9BCaVUh2JTEE=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from [185.53.41.139] ([185.53.41.139]) by web-mail.gmx.net
  (3c-app-gmx-bap56.server.lan [172.19.172.126]) (via HTTP); Wed, 12 Aug 2020
- 12:07:58 +0200
+ 12:33:41 +0200
 MIME-Version: 1.0
-Message-ID: <trinity-5b810acf-eb8f-452e-b08a-30e1fe46226d-1597226878715@3c-app-gmx-bap56>
+Message-ID: <trinity-a4a4e709-ca8d-4867-8f90-d0ddbfca05cb-1597228420620@3c-app-gmx-bap56>
 From:   Frank Wunderlich <frank-w@public-files.de>
 To:     Wenbin Mei <wenbin.mei@mediatek.com>
 Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
@@ -36,34 +36,33 @@ Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Chaotian Jing <chaotian.jing@mediatek.com>,
         stable@vger.kernel.org
-Subject: Aw: [PATCH 3/3] mmc: mediatek: add optional module reset property
+Subject: Aw: [PATCH 2/3] arm64: dts: mt7622: add reset node for mmc device
 Content-Type: text/plain; charset=UTF-8
-Date:   Wed, 12 Aug 2020 12:07:58 +0200
+Date:   Wed, 12 Aug 2020 12:33:41 +0200
 Importance: normal
 Sensitivity: Normal
-In-Reply-To: <20200812093726.10123-4-wenbin.mei@mediatek.com>
+In-Reply-To: <20200812093726.10123-3-wenbin.mei@mediatek.com>
 References: <20200812093726.10123-1-wenbin.mei@mediatek.com>
- <20200812093726.10123-4-wenbin.mei@mediatek.com>
+ <20200812093726.10123-3-wenbin.mei@mediatek.com>
 X-UI-Message-Type: mail
 X-Priority: 3
-X-Provags-ID: V03:K1:t+v+dbXvTKFePvkpJQAkYHe5HoNVIemuMfLD56cl7pscYB573WfuroyNnOcU3eKU+Ux0w
- Bzr/Ckkf3ghFKTc0HwsL4hjb7JZpcAuLKIGlYRTDdvf/jlTHtulh0AIxWzbgZD0o/QUDiCzNjkkT
- sO5kefkm7G1UW6cNByINedYydy1x5x1KSNZ4caJ/jgdEUkwBF3dN/4r2t4BJSmLaKk6FpWb6i+m/
- LIO56ZvPG/DHOzaEApF96sk+MKAwEB1GS2joHA8xJDYDQNhmgLVskiKFp++wXff8gvYfNKazeZL8
- Bo=
+X-Provags-ID: V03:K1:gfeTfH9cl5G8lIBSMXcX0ttEubv7Ajx1wwPT2iBKRJ8x3w1qe/q3Aq2pU6G5w045XTeaU
+ X3ie2/s10R6kks7/xbD1Thbuozc+5ABCC2Am3V7c0VHKbNgHXHKbBPCnlOP3yA6NpDTgQGfnLfXq
+ mt68050gHBqeVdojky2SpvZFPnuyuXuTIKNpYZQDJlmALzYVzEsr7oh5nBHW3UOVkKg9+6w/Yd7C
+ mosrh9PR2Acwn92c2U2/n4y7rw6QPDbkY6e14wwmYMzPyk45sRS9ZKLVepc6Kb+jqmWobwfkqN7j
+ Zk=
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:1lebNj6ihXA=:yKrs1mlHJa1VH4DNmWf8T7
- QJv04DKWPHCKukADg6WgoibuSsh8OqnB3RcbFU3Hime9w81JXHzcUKJZhuZcawE6T0x8wLLKD
- JiDKf7eLoturt4bAUdUxm1LFnv2JmFegH1M35dhP0jeqQbe8FxWjYrS9hg53qbKvLsipJwhnN
- 92goZdJzEhOQbDBdxP8Vtq2F62SWwzwnixojAUFr8ieyEdQAojALTxVrP6q5a8gxqhCIDeoV4
- THzEuSaCf33VF+3EIRe59nHodktmpEc42dTqERD8uQWsd0cfPmh6Ieb5eSfhGbHDoScIK7EO6
- w/ETHBOlzdCYaknwVuG9lGJu2/gdYUID21RXu0CJSmF04V/4aALKHIAu/mGfRd0ykYkIfF3Ht
- pNwVjBCIqtZriHaxV+77szPbiiWBK2xEvReXULdqZwX5X0jZkYhtheoWT2z98SDx2hAiNEOUU
- MfPblapX0RDVVZ4p0+02p4WfY2rW2t5fSwFD9AZD9vHdyBxM6LOe3k5B05lY+Ehlp/YZv7UH3
- oBgrvgJ0On8H4UXi5FKrZ0xPqu9qxwDb+Yyre98Ot4FfxvMOUbCHGbQhW4tI71aH7TeLjWBvO
- rLnf0guUcE+asNRp8rcfkVl0RIBrEgcoDSf7iW8OvwIFa4C9I8a0hWHQ9y51edL70I44SAAMB
- zLSiW3Buc5mCvDUdGE+2uhCK5m2ifvaVV4mBafLf+nGumAfwR77CEoehMf1ob2y5Za+0=
-Content-Transfer-Encoding: quoted-printable
+X-UI-Out-Filterresults: notjunk:1;V03:K0:6zVhbMh56Ig=:LxG6KCEOEFw5ug8YyG4aUq
+ I+jIPz9C525zCUaVy4FFHPQrjwvKyfNMVhdvoNAxO76lVanL4HNBm+m2p6TG4qr1wYnRk20f/
+ ppp/o0zMRE4hRqy0nzwabB6XZjhs8iOj7iXl1FjT+atnR3DK6LvDSef+2nZKrAhrsgc1y6TtW
+ rQJ4Glp5O2TaYSJv4vwZlMJT10hIPMxPDSspftOdzccie4sIdOWD03Y6nouD6rbdqpD6QfCS8
+ 3a9K9GqPy9XTqO0THuFMFkBCjBGSGSv/gOc5N+4v0BqrF2CUmS7727+FbOXnBLX5G7Fnc3c0z
+ URfCQ1gYwVCVU7g7VlQZSAyKjXDosXZJdPzJHgnpZB1esDMQjk4szyd6Fj3OiFR4BnW4Ylzdp
+ EESsEPaiOwz1hOkfwJmnrhmIqch1bBhtFKzbXw+P6xMspti9EQAaHAr+hR5MyqCdDdjXPm3SR
+ uHW5qbD2yIiwmCVxwq4sNXPwxj7wbgYJerkmBUy0Sfi5MAiKrm8sefwdJXxGO7Go9eWSM2HLi
+ R3wE2hz33osl8exD//FrrkQitMLMrHexG7/6cOxFEZc1JTUXpnLdIOxLMMe5rCcWdi/zKiRut
+ ggVUvJ162ZiXRbjBBpCIEaO2Qcf/mGKWRUDa+yGGCprJ9ERmqs6kh8XFXmoxGG3hDoE3ePiLc
+ St+5o7ZXfgAdZQElB2i0R6/B+ExcHvo8wclRPylKghS3nXR+p3QK8eiWju9YQ1vWk6qc=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -80,16 +79,7 @@ X-Mailing-List: stable@vger.kernel.org
 > Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
 
 Thanks for posting the fix to Mainline
-
-imho this should contain a fixes-Tag as it fixes eMMC-Access on mt7622/Bpi=
--R64
-
-before we got these Errors on mounting eMMC ion R64:
-
-[   48.664925] blk_update_request: I/O error, dev mmcblk0, sector 204800 o=
-p 0x1:(WRITE) flags 0x800 phys_seg 1 prio class 0
-[   48.676019] Buffer I/O error on dev mmcblk0p1, logical block 0, lost sy=
-nc page write
+same as 3/3, dts-patch is also needed for fixing eMMC-Issue on R64
 
 Fixes: 966580ad236e ("mmc: mediatek: add support for MT7622 SoC")
 Tested-By: Frank Wunderlich <frank-w@public-files.de>
