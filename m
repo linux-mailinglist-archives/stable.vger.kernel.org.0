@@ -2,110 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DAE32434E4
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 09:23:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 850DF24351B
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 09:42:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726106AbgHMHXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 03:23:32 -0400
-Received: from www381.your-server.de ([78.46.137.84]:59098 "EHLO
-        www381.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726048AbgHMHXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 03:23:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=metafoo.de;
-         s=default2002; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID;
-        bh=/rw/ABEPjiEaBAOAgD9xWsMZr2Q2LaEmkUB2HMr+Svs=; b=Gm8ESdJLYpDNxyf/U+jMLWs/pK
-        /2mh67+0zN0hkS66KjpRCgaPdtZ5UIJsPuUcqZpd8y3Q6aw2haFUZUPLyA6TKZgmMkK2u02Bpoo5o
-        3D1ArL1nj9QJemWrceaEGFQvRpKERKbzdgNU9HPAQB3BIZNrJ4fqCmvxsrZOLxOG/18oMA0gYGn3r
-        Jt4aAfIeC0nhw8PJdpbPTFAtmaF3Uq6gHcu58Dqf9jsYELisKLTiKrxIl/i5Ke+35bEYFiEeoeWUf
-        qGdSujWzFXhmyI3ThwvIhOXWgKeqYc6jVMszTr1cnW7V7pLbQIb25uQLIgJXOQVi5VCJj7uJJghf5
-        APhc4y3A==;
-Received: from sslproxy06.your-server.de ([78.46.172.3])
-        by www381.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <lars@metafoo.de>)
-        id 1k67a8-0003PW-H7; Thu, 13 Aug 2020 09:23:24 +0200
-Received: from [2001:a61:2517:6d01:9e5c:8eff:fe01:8578]
-        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <lars@metafoo.de>)
-        id 1k67a8-0003wM-Az; Thu, 13 Aug 2020 09:23:24 +0200
-Subject: Re: [PATCH] iio: trigger: sysfs: Disable irqs before calling
- iio_trigger_poll()
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Jonathan Cameron <jic23@kernel.org>, stable@vger.kernel.org,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20200727145714.4377-1-ceggers@arri.de>
- <4871626.01MspNxQH7@n95hx1g2>
- <a59d204e-aeb0-2649-5e6f-f07815713d1a@metafoo.de>
- <3847827.rc3nFVyU9p@n95hx1g2>
-From:   Lars-Peter Clausen <lars@metafoo.de>
-Message-ID: <f6fc5fbe-5c51-fe9a-670e-4b5201353356@metafoo.de>
-Date:   Thu, 13 Aug 2020 09:23:24 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726107AbgHMHmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 03:42:17 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:56816 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726044AbgHMHmQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 03:42:16 -0400
+Date:   Thu, 13 Aug 2020 07:42:13 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1597304534;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Vsb5e4EQ9u+z+sC8gTRvPpseAUCaW35aJB4LNMO0ENU=;
+        b=DVnf+T73VACu9U9Jx+0nft/Zze1O1dRqSSY0Iu2IKfBvX6sh07GjBBBsp4LQFNOHH2OgDX
+        zCZFh0H3MIf4izYbyDPMhB9XfDcMbqeYLNUjLlfW12hf+K4Uj5hW50rU0kLcGPIV7g0ep8
+        JgnDKUpSw794Ljp+XACEBYCQa2rQ2SIyIJTuCYOtn3hrek1DRKOoFSdrgVEtzh8RPKDiFM
+        MknmHiZ/yRA1jLoXGO1cus/akpL8dsj/qI6y/ys62hc2y9gz+Qp9glSDCan6YQEo2o+vwC
+        SyaOZNKgIxqrPZLuEfZobh7K0sumu0lfU68b7g4At8j1RjOvKLoymJKhVsj7zQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1597304534;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Vsb5e4EQ9u+z+sC8gTRvPpseAUCaW35aJB4LNMO0ENU=;
+        b=MmqNY99fL9J7qmHzcirGdgLBSPNg0aLA3zq5Z7Mo40vvMfGgoWQCjzIK8RBcxgjb8sIH1r
+        QVon0kP+tM8lNoAw==
+From:   "tip-bot2 for Guenter Roeck" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] genirq: Unlock irq descriptor after errors
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200811180012.80269-1-linux@roeck-us.net>
+References: <20200811180012.80269-1-linux@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <3847827.rc3nFVyU9p@n95hx1g2>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Message-ID: <159730453302.3192.18071918978987971140.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Authenticated-Sender: lars@metafoo.de
-X-Virus-Scanned: Clear (ClamAV 0.102.4/25900/Mon Aug 10 14:44:29 2020)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/12/20 1:01 PM, Christian Eggers wrote:
-> Hi Lars
->
-> On Monday, 3 August 2020, 08:52:54 CEST, Lars-Peter Clausen wrote:
->> On 8/3/20 8:44 AM, Christian Eggers wrote:
->>> ...
->>> is my patch sufficient, or would you prefer a different solution?
->> The code in normal upstream is correct, there is no need to patch it
->> since iio_sysfs_trigger_work() always runs with IRQs disabled.
->>
->>>> Are you using a non-upstream kernel? Maybe a RT kernel?
->>> I use v5.4.<almost-latest>-rt
->> That explains it. Have a look at
->> 0200-irqwork-push-most-work-into-softirq-context.patch.
->>
->> The right fix for this issue is to add the following snippet to the RT
->> patchset.
->>
->> diff --git a/drivers/iio/trigger/iio-trig-sysfs.c
->> b/drivers/iio/trigger/iio-trig-sysfs.c
->> --- a/drivers/iio/trigger/iio-trig-sysfs.c
->> +++ b/drivers/iio/trigger/iio-trig-sysfs.c
->> @@ -161,6 +161,7 @@ static int iio_sysfs_trigger_probe(int id)
->>        iio_trigger_set_drvdata(t->trig, t);
->>
->>        init_irq_work(&t->work, iio_sysfs_trigger_work);
->> +    t->work.flags = IRQ_WORK_HARD_IRQ;
->>
->>        ret = iio_trigger_register(t->trig);
->>        if (ret)
-> I can confirm that this works for iio-trig-sysfs on 5.4.54-rt32. Currently I
-> do not use iio-trig-hrtimer, but if I remember correctly, the problem was also
-> present there.
+The following commit has been merged into the irq/urgent branch of tip:
 
-Similar story, I think. On mainline hrtimers run in hardirq mode by 
-default, whereas in RT they run in softirq mode by default. So we 
-haven't see the issue in mainline.
+Commit-ID:     f107cee94ba4d2c7357fde59a1d84346c73d4958
+Gitweb:        https://git.kernel.org/tip/f107cee94ba4d2c7357fde59a1d84346c73d4958
+Author:        Guenter Roeck <linux@roeck-us.net>
+AuthorDate:    Tue, 11 Aug 2020 11:00:12 -07:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 13 Aug 2020 09:35:59 +02:00
 
-To fix this we need to explicitly specify that the IIO hrtimer always 
-needs to run in hardirq mode by using the HRTIMER_MODE_REL_HARD flag. 
-I'll send a patch.
+genirq: Unlock irq descriptor after errors
 
-> Do you want to apply your patch for mainline? In contrast to v5.4,
-> IRQ_WORK_HARD_IRQ is already available there (moved to smp_types.h).
-> Unfortunately I cannot test it on mainline for now, as my BSP stuff is not
-> ported yet.
+In irq_set_irqchip_state(), the irq descriptor is not unlocked after an
+error is encountered. While that should never happen in practice, a buggy
+driver may trigger it. This would result in a lockup, so fix it.
 
-Sounds like a plan :)
+Fixes: 1d0326f352bb ("genirq: Check irq_data_get_irq_chip() return value before use")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200811180012.80269-1-linux@roeck-us.net
 
+---
+ kernel/irq/manage.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index d55ba62..52ac539 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -2731,8 +2731,10 @@ int irq_set_irqchip_state(unsigned int irq, enum irqchip_irq_state which,
+ 
+ 	do {
+ 		chip = irq_data_get_irq_chip(data);
+-		if (WARN_ON_ONCE(!chip))
+-			return -ENODEV;
++		if (WARN_ON_ONCE(!chip)) {
++			err = -ENODEV;
++			goto out_unlock;
++		}
+ 		if (chip->irq_set_irqchip_state)
+ 			break;
+ #ifdef CONFIG_IRQ_DOMAIN_HIERARCHY
+@@ -2745,6 +2747,7 @@ int irq_set_irqchip_state(unsigned int irq, enum irqchip_irq_state which,
+ 	if (data)
+ 		err = chip->irq_set_irqchip_state(data, which, val);
+ 
++out_unlock:
+ 	irq_put_desc_busunlock(desc, flags);
+ 	return err;
+ }
