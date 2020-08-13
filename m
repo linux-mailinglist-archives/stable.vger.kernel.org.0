@@ -2,144 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D7C244023
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 22:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2032440FF
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 23:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbgHMUxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 16:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726499AbgHMUxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 16:53:08 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB549C061757;
-        Thu, 13 Aug 2020 13:53:08 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id u10so3163190plr.7;
-        Thu, 13 Aug 2020 13:53:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:subject:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KMEdmNBQWTzUTOzp1bnF8SX2rCsME0fqtsH4k5tjFgk=;
-        b=BY/RaFL1BVNPFlGHJzyLzey4vsiBfNtRMsw3MUihtFPevNI6wBAodIqL8l9LyiC8Oq
-         Eo21w0GU1xVIaAU2FMgX28MU4LpFfWXG7LZOiSCe0R/mxr8L/6WKNnWW/OPaTZa0B53o
-         auaWm/ULLH4BluQuWM3Ptb6CmqOTrQ3wf7Xp/8XN/Tn5603OECm26w+DcCTMJtNaXmdp
-         5P4+FVUNcAC7KebDKPDI9F01gUfj1ezszF/xQ4G1kPSHW2W3DFX2M7WfibPvOkoiAQnl
-         +w3p5mbG0qTjS+NjvbNWIeaVGsRmDPPrP1xx/Yl/fB3LWVgi4GjTn4XyHDbY7oQiXx+I
-         3eEA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=KMEdmNBQWTzUTOzp1bnF8SX2rCsME0fqtsH4k5tjFgk=;
-        b=Vn5LSwrtCbvUnH3DNMnd7cHbNPNKTFXcs8VMTsBo56E7PVmMZ/c9x9KRUKnEngJ/LD
-         HoA9l61jJ7MYOzk8PHFBWnh+Rwt1TfoZG11spTjdPs7PXVVnpdH9tpcXWobby/KjS4l4
-         z1PvdzJSY+lnlikb3wmhYF/RDQKBcoF6LKE4tWIAZFk9PnYjlgReSw8STbc6ACCueL68
-         jgu36wXjUjXJ87qYEukCQaJudPmT1FqJ0y+EJZUavBRu8ChBuEpdCp198dDPUrrChq0j
-         XXf4BA+eNPAew4irM/9jC/KSPlwkHkN+oU8+y3UC1QzRRqe7oHMmE5e0ypb5YItgUkZ/
-         uuAQ==
-X-Gm-Message-State: AOAM531Bpxw9roDExDN4wEGR8yyNVYiVk5ntXQk7q25ZFKbIg6nrpX15
-        hVXuN0uTltSu2Hs0rO/o2z0=
-X-Google-Smtp-Source: ABdhPJwJ7SDcRA3ZGymFvn6xsKEpJWj4sIm+NKcGlAI2M7tYtar9FKkQpMc6BjAOeT2ZGaSmFR8MVw==
-X-Received: by 2002:a17:90a:8918:: with SMTP id u24mr6329006pjn.7.1597351988125;
-        Thu, 13 Aug 2020 13:53:08 -0700 (PDT)
-Received: from [10.230.30.107] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id z25sm6975261pfg.150.2020.08.13.13.52.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Aug 2020 13:53:07 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH stable v4.9 v2] arm64: entry: Place an SB sequence
- following an ERET instruction
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
-        <kvmarm@lists.cs.columbia.edu>
-References: <20200709195034.15185-1-f.fainelli@gmail.com>
- <20200720130411.GB494210@kroah.com>
- <df1de420-ac59-3647-3b81-a0c163783225@gmail.com>
- <9c29080e-8b3a-571c-3296-e0487fa473fa@gmail.com>
- <20200807131429.GB664450@kroah.com>
- <fb3be972-106e-e171-1c2f-6df20ce186d6@gmail.com>
-Message-ID: <647d771d-441b-39f9-809a-19335ef16036@gmail.com>
-Date:   Thu, 13 Aug 2020 13:52:56 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.1.1
+        id S1726526AbgHMV7r convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 13 Aug 2020 17:59:47 -0400
+Received: from [186.47.21.114] ([186.47.21.114]:56804 "EHLO mail.hmvi.gob.ec"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726205AbgHMV7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Aug 2020 17:59:47 -0400
+X-Greylist: delayed 15459 seconds by postgrey-1.27 at vger.kernel.org; Thu, 13 Aug 2020 17:59:47 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail.hmvi.gob.ec (Postfix) with ESMTP id 5C9D5C033609F;
+        Thu, 13 Aug 2020 11:49:09 -0500 (-05)
+Received: from mail.hmvi.gob.ec ([127.0.0.1])
+        by localhost (mail.hmvi.gob.ec [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 3WuML4FN1P4t; Thu, 13 Aug 2020 11:49:09 -0500 (-05)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.hmvi.gob.ec (Postfix) with ESMTP id 42B3BC0332847;
+        Thu, 13 Aug 2020 11:45:16 -0500 (-05)
+X-Virus-Scanned: amavisd-new at hmvi.gob.ec
+Received: from mail.hmvi.gob.ec ([127.0.0.1])
+        by localhost (mail.hmvi.gob.ec [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id lhoF_RHEgE7R; Thu, 13 Aug 2020 11:45:16 -0500 (-05)
+Received: from [10.73.80.190] (unknown [105.8.3.183])
+        by mail.hmvi.gob.ec (Postfix) with ESMTPSA id E653AC0332852;
+        Thu, 13 Aug 2020 11:43:00 -0500 (-05)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <fb3be972-106e-e171-1c2f-6df20ce186d6@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: =?utf-8?q?Covid_19_Wohlt=C3=A4tigkeitsfonds?=
+To:     Recipients <danny.puetate@mail.hmvi.gob.ec>
+From:   ''Tayeb Souami'' <danny.puetate@mail.hmvi.gob.ec>
+Date:   Thu, 13 Aug 2020 18:42:40 +0200
+Reply-To: Tayebsouam.spende@gmail.com
+Message-Id: <20200813164300.E653AC0332852@mail.hmvi.gob.ec>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Lieber Freund,
+
+Ich bin Herr Tayeb Souami, New Jersey, Vereinigte Staaten von Amerika,
+der Mega-Gewinner von $ 315million In Mega Millions Jackpot, spende ich
+an 5 zufällige Personen, wenn Sie diese E-Mail erhalten, dann wurde Ihre
+E-Mail nach einem Spinball ausgewählt.Ich habe den größten Teil meines
+Vermögens auf eine Reihe von Wohltätigkeitsorganisationen und
+Organisationen verteilt.Ich habe mich freiwillig dazu entschieden, die
+Summe von € 2.000.000,00 an Sie als eine der ausgewählten 5 zu spenden,
+um meine Gewinne zu überprüfen, sehen Sie bitte meine You Tube Seite
+unten.
 
 
-On 8/7/2020 11:17 AM, Florian Fainelli wrote:
-> 
-> 
-> On 8/7/2020 6:14 AM, Greg KH wrote:
->> On Thu, Aug 06, 2020 at 01:00:54PM -0700, Florian Fainelli wrote:
->>>
->>>
->>> On 7/20/2020 11:26 AM, Florian Fainelli wrote:
->>>> On 7/20/20 6:04 AM, Greg KH wrote:
->>>>> On Thu, Jul 09, 2020 at 12:50:23PM -0700, Florian Fainelli wrote:
->>>>>> From: Will Deacon <will.deacon@arm.com>
->>>>>>
->>>>>> commit 679db70801da9fda91d26caf13bf5b5ccc74e8e8 upstream
->>>>>>
->>>>>> Some CPUs can speculate past an ERET instruction and potentially perform
->>>>>> speculative accesses to memory before processing the exception return.
->>>>>> Since the register state is often controlled by a lower privilege level
->>>>>> at the point of an ERET, this could potentially be used as part of a
->>>>>> side-channel attack.
->>>>>>
->>>>>> This patch emits an SB sequence after each ERET so that speculation is
->>>>>> held up on exception return.
->>>>>>
->>>>>> Signed-off-by: Will Deacon <will.deacon@arm.com>
->>>>>> [florian: Adjust hyp-entry.S to account for the label
->>>>>>   added change to hyp/entry.S]
->>>>>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
->>>>>> ---
->>>>>> Changes in v2:
->>>>>>
->>>>>> - added missing hunk in hyp/entry.S per Will's feedback
->>>>>
->>>>> What about 4.19.y and 4.14.y trees?  I can't take something for 4.9.y
->>>>> and then have a regression if someone moves to a newer release, right?
->>>>
->>>> Sure, send you candidates for 4.14 and 4.19.
->>>
->>> Greg, did you have a chance to queue those changes for 4.9, 4.14 and 4.19?
->>>
->>> https://lore.kernel.org/linux-arm-kernel/20200720182538.13304-1-f.fainelli@gmail.com/
->>> https://lore.kernel.org/linux-arm-kernel/20200720182937.14099-1-f.fainelli@gmail.com/
->>> https://lore.kernel.org/linux-arm-kernel/20200709195034.15185-1-f.fainelli@gmail.com/
->>
->> Nope, I was waiting for Will's "ack" for these.
-> 
-> OK, Will, can you review those? Thanks
+UHR MICH HIER: https://www.youtube.com/watch?v=Z6ui8ZDQ6Ks
 
-Will, can you please review those patches?
--- 
-Florian
+
+Das ist dein Spendencode: [TS530342018]
+
+
+Antworten Sie mit dem SPENDE-CODE an diese
+
+E-Mail:Tayebsouam.spende@gmail.com
+
+
+Ich hoffe, Sie und Ihre Familie glücklich zu machen.
+
+
+Grüße
+
+Herr Tayeb Souami
