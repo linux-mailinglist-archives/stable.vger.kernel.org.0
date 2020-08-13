@@ -2,171 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D94612433E6
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 08:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DAE32434E4
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 09:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726499AbgHMGVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 02:21:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51984 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726192AbgHMGVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 02:21:20 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF75CC061757;
-        Wed, 12 Aug 2020 23:21:19 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id v4so4940699ljd.0;
-        Wed, 12 Aug 2020 23:21:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=J4NK2JZREwBhnLoP8/oKs+IVAcm9xle+iSBy8U4z3uI=;
-        b=aMsveTfmby4Jw6uZ+ZeNPtXeBO0gQ0qkTmqC/9GrQOVuWB2lYmn7iPmMxxLa9ydpUl
-         1ylGuVEH+1dx7jR4VZAnJ0/IqCUZA0kh2ntvDKRpJX7EAS7PKDZO25kQN0OBiSsLWgqk
-         6ep8OJjrrrgUCkcHjNkEeZKLo1g1yDwBhwP188aNxjstn2flQIKvfiD5B0G03ZEem1wP
-         gFvA3eKEh+C2hudMtuVXaSRwDie8PLK8REizod4HzNkbb64NndYRRu8+JKDmQPqsVGV9
-         Oafv3T6RBhtsBy13Uy8ZNETtPfwU8vvpoLLHBukwgbdFMCEWpOI2QP+FIC4g+yctIKkV
-         FJhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=J4NK2JZREwBhnLoP8/oKs+IVAcm9xle+iSBy8U4z3uI=;
-        b=Cf8JUl9zvuUJoPIpqFYNvWMnSynq0BYs6ilPYwpf1KtKj/+PO4nVUZRQCOCp8hlxNG
-         Tsx3cq9yNSnRI/B+YPs5v4IkEY2bzJ2AW6IVI3Q7IFcoAYDFmBcLSxNtuMUNrBwooXAv
-         sPDp45XSpZ5DOwLu0dz6oMB49MGovxAX8TckPoMGy+/94NgAmom8KMxy1isqvxuGmLcn
-         RW2YJaDy2vrrOUg5V5II26UVXDGCvqDsxCsdUU909w7kckKMII5bZP60G+URtS+992F1
-         Mx2qHRCiSP2YIfV3IwioQs5WpCNq5RzwbXo9jQOa2aKoFk/GOGEEEb03BVTh0Y+QTZva
-         PYjQ==
-X-Gm-Message-State: AOAM530aob4fD9U6g+Qz8afL9qcZVrhLpYE4m+Ip8vw2zIGw6C+CjEn0
-        8kpelHWnwtJwa7zV0JM2rFc=
-X-Google-Smtp-Source: ABdhPJzAgt09V5g8MNNXCmLRERCspKuYMmlsFKj8ZycK52qZyUCILtyFM0t9o9rPEpdwEPlvkRh5Zg==
-X-Received: by 2002:a2e:3615:: with SMTP id d21mr1286683lja.333.1597299677965;
-        Wed, 12 Aug 2020 23:21:17 -0700 (PDT)
-Received: from a2klaptop.localdomain ([185.199.97.5])
-        by smtp.gmail.com with ESMTPSA id f14sm964060lfd.2.2020.08.12.23.21.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Aug 2020 23:21:17 -0700 (PDT)
-From:   Oleksandr Andrushchenko <andr2000@gmail.com>
-To:     xen-devel@lists.xenproject.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, boris.ostrovsky@oracle.com,
-        jgross@suse.com, airlied@linux.ie, daniel@ffwll.ch
-Cc:     sstabellini@kernel.org, dan.carpenter@oracle.com,
-        intel-gfx@lists.freedesktop.org,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 2/5] drm/xen-front: Fix misused IS_ERR_OR_NULL checks
-Date:   Thu, 13 Aug 2020 09:21:10 +0300
-Message-Id: <20200813062113.11030-3-andr2000@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200813062113.11030-1-andr2000@gmail.com>
-References: <20200813062113.11030-1-andr2000@gmail.com>
+        id S1726106AbgHMHXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 03:23:32 -0400
+Received: from www381.your-server.de ([78.46.137.84]:59098 "EHLO
+        www381.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726048AbgHMHXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 03:23:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=metafoo.de;
+         s=default2002; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID;
+        bh=/rw/ABEPjiEaBAOAgD9xWsMZr2Q2LaEmkUB2HMr+Svs=; b=Gm8ESdJLYpDNxyf/U+jMLWs/pK
+        /2mh67+0zN0hkS66KjpRCgaPdtZ5UIJsPuUcqZpd8y3Q6aw2haFUZUPLyA6TKZgmMkK2u02Bpoo5o
+        3D1ArL1nj9QJemWrceaEGFQvRpKERKbzdgNU9HPAQB3BIZNrJ4fqCmvxsrZOLxOG/18oMA0gYGn3r
+        Jt4aAfIeC0nhw8PJdpbPTFAtmaF3Uq6gHcu58Dqf9jsYELisKLTiKrxIl/i5Ke+35bEYFiEeoeWUf
+        qGdSujWzFXhmyI3ThwvIhOXWgKeqYc6jVMszTr1cnW7V7pLbQIb25uQLIgJXOQVi5VCJj7uJJghf5
+        APhc4y3A==;
+Received: from sslproxy06.your-server.de ([78.46.172.3])
+        by www381.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <lars@metafoo.de>)
+        id 1k67a8-0003PW-H7; Thu, 13 Aug 2020 09:23:24 +0200
+Received: from [2001:a61:2517:6d01:9e5c:8eff:fe01:8578]
+        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <lars@metafoo.de>)
+        id 1k67a8-0003wM-Az; Thu, 13 Aug 2020 09:23:24 +0200
+Subject: Re: [PATCH] iio: trigger: sysfs: Disable irqs before calling
+ iio_trigger_poll()
+To:     Christian Eggers <ceggers@arri.de>
+Cc:     Jonathan Cameron <jic23@kernel.org>, stable@vger.kernel.org,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200727145714.4377-1-ceggers@arri.de>
+ <4871626.01MspNxQH7@n95hx1g2>
+ <a59d204e-aeb0-2649-5e6f-f07815713d1a@metafoo.de>
+ <3847827.rc3nFVyU9p@n95hx1g2>
+From:   Lars-Peter Clausen <lars@metafoo.de>
+Message-ID: <f6fc5fbe-5c51-fe9a-670e-4b5201353356@metafoo.de>
+Date:   Thu, 13 Aug 2020 09:23:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <3847827.rc3nFVyU9p@n95hx1g2>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Authenticated-Sender: lars@metafoo.de
+X-Virus-Scanned: Clear (ClamAV 0.102.4/25900/Mon Aug 10 14:44:29 2020)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+On 8/12/20 1:01 PM, Christian Eggers wrote:
+> Hi Lars
+>
+> On Monday, 3 August 2020, 08:52:54 CEST, Lars-Peter Clausen wrote:
+>> On 8/3/20 8:44 AM, Christian Eggers wrote:
+>>> ...
+>>> is my patch sufficient, or would you prefer a different solution?
+>> The code in normal upstream is correct, there is no need to patch it
+>> since iio_sysfs_trigger_work() always runs with IRQs disabled.
+>>
+>>>> Are you using a non-upstream kernel? Maybe a RT kernel?
+>>> I use v5.4.<almost-latest>-rt
+>> That explains it. Have a look at
+>> 0200-irqwork-push-most-work-into-softirq-context.patch.
+>>
+>> The right fix for this issue is to add the following snippet to the RT
+>> patchset.
+>>
+>> diff --git a/drivers/iio/trigger/iio-trig-sysfs.c
+>> b/drivers/iio/trigger/iio-trig-sysfs.c
+>> --- a/drivers/iio/trigger/iio-trig-sysfs.c
+>> +++ b/drivers/iio/trigger/iio-trig-sysfs.c
+>> @@ -161,6 +161,7 @@ static int iio_sysfs_trigger_probe(int id)
+>>        iio_trigger_set_drvdata(t->trig, t);
+>>
+>>        init_irq_work(&t->work, iio_sysfs_trigger_work);
+>> +    t->work.flags = IRQ_WORK_HARD_IRQ;
+>>
+>>        ret = iio_trigger_register(t->trig);
+>>        if (ret)
+> I can confirm that this works for iio-trig-sysfs on 5.4.54-rt32. Currently I
+> do not use iio-trig-hrtimer, but if I remember correctly, the problem was also
+> present there.
 
-The patch c575b7eeb89f: "drm/xen-front: Add support for Xen PV
-display frontend" from Apr 3, 2018, leads to the following static
-checker warning:
+Similar story, I think. On mainline hrtimers run in hardirq mode by 
+default, whereas in RT they run in softirq mode by default. So we 
+haven't see the issue in mainline.
 
-	drivers/gpu/drm/xen/xen_drm_front_gem.c:140 xen_drm_front_gem_create()
-	warn: passing zero to 'ERR_CAST'
+To fix this we need to explicitly specify that the IIO hrtimer always 
+needs to run in hardirq mode by using the HRTIMER_MODE_REL_HARD flag. 
+I'll send a patch.
 
-drivers/gpu/drm/xen/xen_drm_front_gem.c
-   133  struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
-   134                                                  size_t size)
-   135  {
-   136          struct xen_gem_object *xen_obj;
-   137
-   138          xen_obj = gem_create(dev, size);
-   139          if (IS_ERR_OR_NULL(xen_obj))
-   140                  return ERR_CAST(xen_obj);
+> Do you want to apply your patch for mainline? In contrast to v5.4,
+> IRQ_WORK_HARD_IRQ is already available there (moved to smp_types.h).
+> Unfortunately I cannot test it on mainline for now, as my BSP stuff is not
+> ported yet.
 
-Fix this and the rest of misused places with IS_ERR_OR_NULL in the
-driver.
-
-Fixes:  c575b7eeb89f: "drm/xen-front: Add support for Xen PV display frontend"
-
-Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/gpu/drm/xen/xen_drm_front.c     | 4 ++--
- drivers/gpu/drm/xen/xen_drm_front_gem.c | 8 ++++----
- drivers/gpu/drm/xen/xen_drm_front_kms.c | 2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
-index 1fd458e877ca..51818e76facd 100644
---- a/drivers/gpu/drm/xen/xen_drm_front.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front.c
-@@ -400,8 +400,8 @@ static int xen_drm_drv_dumb_create(struct drm_file *filp,
- 	args->size = args->pitch * args->height;
- 
- 	obj = xen_drm_front_gem_create(dev, args->size);
--	if (IS_ERR_OR_NULL(obj)) {
--		ret = PTR_ERR_OR_ZERO(obj);
-+	if (IS_ERR(obj)) {
-+		ret = PTR_ERR(obj);
- 		goto fail;
- 	}
- 
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.c b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-index f0b85e094111..4ec8a49241e1 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-@@ -83,7 +83,7 @@ static struct xen_gem_object *gem_create(struct drm_device *dev, size_t size)
- 
- 	size = round_up(size, PAGE_SIZE);
- 	xen_obj = gem_create_obj(dev, size);
--	if (IS_ERR_OR_NULL(xen_obj))
-+	if (IS_ERR(xen_obj))
- 		return xen_obj;
- 
- 	if (drm_info->front_info->cfg.be_alloc) {
-@@ -117,7 +117,7 @@ static struct xen_gem_object *gem_create(struct drm_device *dev, size_t size)
- 	 */
- 	xen_obj->num_pages = DIV_ROUND_UP(size, PAGE_SIZE);
- 	xen_obj->pages = drm_gem_get_pages(&xen_obj->base);
--	if (IS_ERR_OR_NULL(xen_obj->pages)) {
-+	if (IS_ERR(xen_obj->pages)) {
- 		ret = PTR_ERR(xen_obj->pages);
- 		xen_obj->pages = NULL;
- 		goto fail;
-@@ -136,7 +136,7 @@ struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
- 	struct xen_gem_object *xen_obj;
- 
- 	xen_obj = gem_create(dev, size);
--	if (IS_ERR_OR_NULL(xen_obj))
-+	if (IS_ERR(xen_obj))
- 		return ERR_CAST(xen_obj);
- 
- 	return &xen_obj->base;
-@@ -194,7 +194,7 @@ xen_drm_front_gem_import_sg_table(struct drm_device *dev,
- 
- 	size = attach->dmabuf->size;
- 	xen_obj = gem_create_obj(dev, size);
--	if (IS_ERR_OR_NULL(xen_obj))
-+	if (IS_ERR(xen_obj))
- 		return ERR_CAST(xen_obj);
- 
- 	ret = gem_alloc_pages_array(xen_obj, size);
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-index 78096bbcd226..ef11b1e4de39 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-@@ -60,7 +60,7 @@ fb_create(struct drm_device *dev, struct drm_file *filp,
- 	int ret;
- 
- 	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
--	if (IS_ERR_OR_NULL(fb))
-+	if (IS_ERR(fb))
- 		return fb;
- 
- 	gem_obj = fb->obj[0];
--- 
-2.17.1
+Sounds like a plan :)
 
