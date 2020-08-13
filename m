@@ -2,107 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACFC9243C44
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 17:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB637243C79
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 17:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726778AbgHMPLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 11:11:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726142AbgHMPLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 11:11:40 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9170C061383
-        for <stable@vger.kernel.org>; Thu, 13 Aug 2020 08:11:39 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id z6so7649106iow.6
-        for <stable@vger.kernel.org>; Thu, 13 Aug 2020 08:11:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:references:to:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=6ARAzTzN5CUt3iEIec1gXbW6uZcjZXtFNQf3WdyA8Cw=;
-        b=eAx22CkjNQD3x8PGuwzaRHkqMf4zKwB9BcZ6h/r9Z/juNsCRoSTJowd71no9/skVbE
-         qioiwuHeHMjOncsjTAsNaSBx8wOO5I9hBWk0Y9I5hane7I8xH5n3cy3FE5p8rMpIU1Bc
-         YB9PgSzK/Rdjs9V7O2xzPynWT16CBccyNsaKU+RyPE0gMRij/DwdeoSCzsLVlE2JQY9g
-         yVpfypIrBIer92kg2wPZa79/Z2itXshXp7plxd/w72/UlYbGP0XM8Y1TdKGrptw5olrr
-         05/lROvax74sA2Z6L2X3Ap4IBgm36g+VqFtWDOwlcH7/T9s88jccQu01bQYRsLpHyP0M
-         Id1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:references:to:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6ARAzTzN5CUt3iEIec1gXbW6uZcjZXtFNQf3WdyA8Cw=;
-        b=YKD9UKfOwMnqgmF921QKoU7143UrBxyP/wstmnQwXOIp5tHg4CYQcOwOWkGaOhZHTS
-         g4c7jzDjHbWCpuu6XJH2V2r1HV6orsGpzvMHZeWmAGTNMLmwH9DJqktPMVoYijdSrQ5+
-         uFzCtzHjlc+BA7RxgHXbb4sAW5/sCr3aFwnmXwo6OyhxfrEYg3OURVGHi6SrOECgBW9R
-         a6If+O84r1Nx8iNFYenV4JdCyT/nxGdX8ro5RV8lkt+vOQCv/Rw1Du5XA8Ec7IC+ylZR
-         /oNvH6dsTmIsIOiTwktUlFWF9UtWapdQJG3yFDaiI/0LYlbKmdJtSDrgIXgd8I2pqa3k
-         9A/w==
-X-Gm-Message-State: AOAM533TxU1RsalMvBYXvihabSkbeK+dmZ2LW3DlbNBulFD9ClptmpSG
-        YpYtpldcIQjCWXv93ShgcN6KwlJj4RA=
-X-Google-Smtp-Source: ABdhPJxiBTXqLt+ObC1M20JS7MpJnp5NsSIpP9Hg3FmxWHh70mgv57EXu+NmIRTBmHTP9FjDXHabHQ==
-X-Received: by 2002:a02:a389:: with SMTP id y9mr5372382jak.82.1597331499112;
-        Thu, 13 Aug 2020 08:11:39 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id m7sm2839033ilq.45.2020.08.13.08.11.38
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Aug 2020 08:11:38 -0700 (PDT)
-Subject: Fwd: [PATCH] fs/io_uring.c: Fix uninitialized variable is referenced
- in io_submit_sqe
-References: <20200813065644.GA91891@ubuntu>
-To:     stable@vger.kernel.org
-From:   Jens Axboe <axboe@kernel.dk>
-X-Forwarded-Message-Id: <20200813065644.GA91891@ubuntu>
-Message-ID: <d62db5aa-c821-367b-6188-e9dc9bd1a0f0@kernel.dk>
-Date:   Thu, 13 Aug 2020 09:11:37 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20200813065644.GA91891@ubuntu>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1726663AbgHMP33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 11:29:29 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17134 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726249AbgHMP32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 11:29:28 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07DF5fWu062752;
+        Thu, 13 Aug 2020 11:29:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id; s=pp1;
+ bh=fEApjQ32ZlCsV+pRD9M5xHULiwiX0puoetNqBdtPEcE=;
+ b=mD8zyB9gXYSZW4HuuN/u4nuYL9t7hhb/1OMkIIfaqbiRc76Tu0CWpmwnqVxMB/NFO9cj
+ iGGIiHwUuIEszjyn3aRpo7fP9Cro4Ro74Xz7F1hNjAiwMqFDVUEYd32CoWcTU6b6gMVw
+ du0Vbszs3be3yPBrgLuj7J1ySUvfwEt29aFAGh6NsxZvQoVgw8W0IUawNm1k9IQ0EcgR
+ y5m7qkH0j6ARFnV9YVpu/SI0n73cSS37ULsiuc2uHPB/fHg8WVKb2QnyuigIQvpmQ0rf
+ OgaqLbOetiPGPZkvooEsX/03TxEOqZLCWSObi/tpRBhOfxqN+U6Cuc7SEnlqbQcn6PNO Qg== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 32w5mwdt78-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Aug 2020 11:29:25 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07DFOo4H024475;
+        Thu, 13 Aug 2020 15:29:23 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 32skp8dpep-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Aug 2020 15:29:23 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07DFTKID27132204
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 13 Aug 2020 15:29:20 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3C717AE05F;
+        Thu, 13 Aug 2020 15:29:20 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D85C6AE057;
+        Thu, 13 Aug 2020 15:29:19 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 13 Aug 2020 15:29:19 +0000 (GMT)
+From:   Steffen Maier <maier@linux.ibm.com>
+To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH] zfcp: fix use-after-free in request timeout handlers
+Date:   Thu, 13 Aug 2020 17:28:56 +0200
+Message-Id: <20200813152856.50088-1-maier@linux.ibm.com>
+X-Mailer: git-send-email 2.17.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-13_14:2020-08-13,2020-08-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ suspectscore=2 clxscore=1011 impostorscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
+ phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2006250000 definitions=main-2008130114
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Before v4.15 commit 75492a51568b ("s390/scsi: Convert timers to use
+timer_setup()"), we intentionally only passed zfcp_adapter as context
+argument to zfcp_fsf_request_timeout_handler(). Since we only trigger
+adapter recovery, it was unnecessary to sync against races between timeout
+and (late) completion.
+Likewise, we only passed zfcp_erp_action as context argument to
+zfcp_erp_timeout_handler(). Since we only wakeup an ERP action, it was
+unnecessary to sync against races between timeout and (late) completion.
 
-Can you queue this up for 5.4 as well? Thanks!
+Meanwhile the timeout handlers get timer_list as context argument
+and do a timer-specific container-of to zfcp_fsf_req which can have
+been freed.
 
+Fix it by making sure that any request timeout handlers, that might
+just have started before del_timer(), are completed by using
+del_timer_sync() instead. This ensures the request free happens
+afterwards.
 
--------- Forwarded Message --------
-Subject: [PATCH] fs/io_uring.c: Fix uninitialized variable is referenced in io_submit_sqe
-Date: Wed, 12 Aug 2020 23:56:44 -0700
-From: Liu Yong <pkfxxxing@gmail.com>
-To: Jens Axboe <axboe@kernel.dk>
-CC: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Space time diagram of potential use-after-free:
 
-the commit <a4d61e66ee4a> ("<io_uring: prevent re-read of sqe->opcode>") 
-caused another vulnerability. After io_get_req(), the sqe_submit struct 
-in req is not initialized, but the following code defaults that 
-req->submit.opcode is available.
+Basic idea is to have 2 or more pending requests whose timeouts run
+out at almost the same time.
 
-Signed-off-by: Liu Yong <pkfxxxing@gmail.com>
+req 1 timeout     ERP thread        req 2 timeout
+----------------  ----------------  ---------------------------------------
+zfcp_fsf_request_timeout_handler
+fsf_req = from_timer(fsf_req, t, timer)
+adapter = fsf_req->adapter
+zfcp_qdio_siosl(adapter)
+zfcp_erp_adapter_reopen(adapter,...)
+                  zfcp_erp_strategy
+                  ...
+                  zfcp_fsf_req_dismiss_all
+                  list_for_each_entry_safe
+                    zfcp_fsf_req_complete 1
+                    del_timer 1
+                    zfcp_fsf_req_free 1
+                    zfcp_fsf_req_complete 2
+                                    zfcp_fsf_request_timeout_handler
+                    del_timer 2
+                                    fsf_req = from_timer(fsf_req, t, timer)
+                    zfcp_fsf_req_free 2
+                                    adapter = fsf_req->adapter
+                                              ^^^^^^^ already freed
+
+Suggested-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+Cc: <stable@vger.kernel.org> #4.15+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 ---
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/scsi/zfcp_fsf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index be3d595a607f..c1aaee061dae 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2559,6 +2559,7 @@ static void io_submit_sqe(struct io_ring_ctx *ctx, struct sqe_submit *s,
- 		goto err;
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index c795f22249d8..140186fe1d1e 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -434,7 +434,7 @@ static void zfcp_fsf_req_complete(struct zfcp_fsf_req *req)
+ 		return;
  	}
  
-+	memcpy(&req->submit, s, sizeof(*s));
- 	ret = io_req_set_file(ctx, s, state, req);
- 	if (unlikely(ret)) {
- err_req:
+-	del_timer(&req->timer);
++	del_timer_sync(&req->timer);
+ 	zfcp_fsf_protstatus_eval(req);
+ 	zfcp_fsf_fsfstatus_eval(req);
+ 	req->handler(req);
+@@ -867,7 +867,7 @@ static int zfcp_fsf_req_send(struct zfcp_fsf_req *req)
+ 	req->qdio_req.qdio_outb_usage = atomic_read(&qdio->req_q_free);
+ 	req->issued = get_tod_clock();
+ 	if (zfcp_qdio_send(qdio, &req->qdio_req)) {
+-		del_timer(&req->timer);
++		del_timer_sync(&req->timer);
+ 		/* lookup request again, list might have changed */
+ 		zfcp_reqlist_find_rm(adapter->req_list, req_id);
+ 		zfcp_erp_adapter_reopen(adapter, 0, "fsrs__1");
 -- 
 2.17.1
 
