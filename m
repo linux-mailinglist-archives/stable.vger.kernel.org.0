@@ -2,46 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 082362431F7
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 03:13:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0A52432D3
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 05:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726531AbgHMBNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 21:13:47 -0400
-Received: from www262.sakura.ne.jp ([202.181.97.72]:54669 "EHLO
-        www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726126AbgHMBNq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Aug 2020 21:13:46 -0400
-Received: from fsav103.sakura.ne.jp (fsav103.sakura.ne.jp [27.133.134.230])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 07D1DSvP094667;
-        Thu, 13 Aug 2020 10:13:28 +0900 (JST)
-        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav103.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav103.sakura.ne.jp);
- Thu, 13 Aug 2020 10:13:28 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav103.sakura.ne.jp)
-Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-        (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 07D1DRUL094663
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
-        Thu, 13 Aug 2020 10:13:28 +0900 (JST)
-        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
-Subject: Re: [PATCH] block: allow for_each_bvec to support zero len bvec
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>
-References: <20200810031915.2209658-1-ming.lei@redhat.com>
- <db57f8ca-b3c3-76ec-1e49-d8f8161ba78d@i-love.sakura.ne.jp>
- <20200810162331.GA2215158@T590>
-From:   Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Message-ID: <4ec1b96f-b23c-6f9c-2dc1-8c3d47689a77@i-love.sakura.ne.jp>
-Date:   Thu, 13 Aug 2020 10:13:27 +0900
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726670AbgHMDdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 23:33:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726609AbgHMDdc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Aug 2020 23:33:32 -0400
+Received: from [10.44.0.192] (unknown [103.48.210.53])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37DAC20715;
+        Thu, 13 Aug 2020 03:33:29 +0000 (UTC)
+Subject: Re: [PATCH] binfmt_flat: revert "binfmt_flat: don't offset the data
+ start"
+To:     Max Filippov <jcmvbkbc@gmail.com>, linux-xtensa@linux-xtensa.org
+Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+References: <20200808183713.12425-1-jcmvbkbc@gmail.com>
+From:   Greg Ungerer <gerg@linux-m68k.org>
+Message-ID: <ae459859-4ee1-6826-68e0-183ca005f740@linux-m68k.org>
+Date:   Thu, 13 Aug 2020 13:33:26 +1000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200810162331.GA2215158@T590>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200808183713.12425-1-jcmvbkbc@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
@@ -49,79 +37,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/08/11 1:23, Ming Lei wrote:
-> The same behavior can be observed on v4.8 too, both v4.8 and v4.18
-> includes 1bdc76aea115. If you apply the fix against v4.8, you can
-> observe the same behavior too.
+Hi Max,
 
-(...snipped...)
+On 9/8/20 4:37 am, Max Filippov wrote:
+> binfmt_flat loader uses the gap between text and data to store data
+> segment pointers for the libraries. Even in the absence of shared
+> libraries it stores at least one pointer to the executable's own data
+> segment. Text and data can go back to back in the flat binary image and
+> without offsetting data segment last few instructions in the text
+> segment may get corrupted by the data segment pointer.
 
-> I think this new issue may be introduced between v4.18 and v5.8.
+Yep, your right, it does.
 
-Bisection reported that both problems ("infinite busy loop lockup" and "premature splice() return") became
-visible since commit a194dfe6e6f6f720 ("pipe: Rearrange sequence in pipe_write() to preallocate slot").
+I will push this into the m68knommu git tree next week (once the merge
+window is closed), and make sure it gets to Linus for rc series soon
+after that.
 
-Therefore, although the bug might have been existed since commit 1bdc76aea115 ("iov_iter: use bvec iterator
-to implement iterate_bvec()"), we need to apply your patch to 5.5+ only.
+Thanks
+Greg
 
------ test case -----
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-
-int main(int argc, char *argv[])
-{
-        static char buffer[4096];
-        const int fd = open("/tmp/testfile", O_WRONLY | O_CREAT, 0600);
-        int pipe_fd[2] = { EOF, EOF };
-        pipe(pipe_fd);
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        memset(buffer, 'a', sizeof(buffer));
-        if (argc > 1)
-                write(pipe_fd[1], buffer, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        memset(buffer, 'b', sizeof(buffer));
-        if (argc > 1)
-                write(pipe_fd[1], buffer, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        memset(buffer, 'c', sizeof(buffer));
-        if (argc > 1)
-                write(pipe_fd[1], buffer, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        memset(buffer, 'd', sizeof(buffer));
-        if (argc > 1)
-                write(pipe_fd[1], buffer, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        write(pipe_fd[1], NULL, sizeof(buffer));
-        splice(pipe_fd[0], NULL, fd, NULL, 65536, 0);
-        return 0;
-}
-
------ bisect log -----
-
-# bad: [e42617b825f8073569da76dc4510bfa019b1c35a] Linux 5.5-rc1
-# good: [219d54332a09e8d8741c1e1982f5eae56099de85] Linux 5.4
-# good: [4d856f72c10ecb060868ed10ff1b1453943fc6c8] Linux 5.3
-# good: [0ecfebd2b52404ae0c54a878c872bb93363ada36] Linux 5.2
-# good: [e93c9c99a629c61837d5a7fc2120cd2b6c70dbdd] Linux 5.1
-# good: [1c163f4c7b3f621efff9b28a47abb36f7378d783] Linux 5.0
-git bisect start 'v5.5-rc1' 'v5.4' 'v5.3' 'v5.2' 'v5.1' 'v5.0' '--' 'fs/splice.c' 'fs/pipe.c' 'include/linux/splice.h' 'include/linux/pipe_fs_i.h'
-# bad: [8f868d68d335a17923dffb6858f8e9b656424699] pipe: Fix missing mask update after pipe_wait()
-git bisect bad 8f868d68d335a17923dffb6858f8e9b656424699
-# bad: [a194dfe6e6f6f7205eea850a420f2bc6a1541209] pipe: Rearrange sequence in pipe_write() to preallocate slot
-git bisect bad a194dfe6e6f6f7205eea850a420f2bc6a1541209
-# good: [6718b6f855a0b4962d54bd625be2718cb820cec6] pipe: Allow pipes to have kernel-reserved slots
-git bisect good 6718b6f855a0b4962d54bd625be2718cb820cec6
-# good: [8446487feba988a92e7649c60367510f0b0445a8] pipe: Conditionalise wakeup in pipe_read()
-git bisect good 8446487feba988a92e7649c60367510f0b0445a8
-# first bad commit: [a194dfe6e6f6f7205eea850a420f2bc6a1541209] pipe: Rearrange sequence in pipe_write() to preallocate slot
-
+> Fix it by reverting commit a2357223c50a ("binfmt_flat: don't offset the
+> data start").
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: a2357223c50a ("binfmt_flat: don't offset the data start")
+> Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+> ---
+>   fs/binfmt_flat.c | 20 ++++++++++++--------
+>   1 file changed, 12 insertions(+), 8 deletions(-)
+> 
+> diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
+> index f2f9086ebe98..b9c658e0548e 100644
+> --- a/fs/binfmt_flat.c
+> +++ b/fs/binfmt_flat.c
+> @@ -576,7 +576,7 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   			goto err;
+>   		}
+>   
+> -		len = data_len + extra;
+> +		len = data_len + extra + MAX_SHARED_LIBS * sizeof(unsigned long);
+>   		len = PAGE_ALIGN(len);
+>   		realdatastart = vm_mmap(NULL, 0, len,
+>   			PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 0);
+> @@ -590,7 +590,9 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   			vm_munmap(textpos, text_len);
+>   			goto err;
+>   		}
+> -		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
+> +		datapos = ALIGN(realdatastart +
+> +				MAX_SHARED_LIBS * sizeof(unsigned long),
+> +				FLAT_DATA_ALIGN);
+>   
+>   		pr_debug("Allocated data+bss+stack (%u bytes): %lx\n",
+>   			 data_len + bss_len + stack_len, datapos);
+> @@ -620,7 +622,7 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   		memp_size = len;
+>   	} else {
+>   
+> -		len = text_len + data_len + extra;
+> +		len = text_len + data_len + extra + MAX_SHARED_LIBS * sizeof(u32);
+>   		len = PAGE_ALIGN(len);
+>   		textpos = vm_mmap(NULL, 0, len,
+>   			PROT_READ | PROT_EXEC | PROT_WRITE, MAP_PRIVATE, 0);
+> @@ -635,7 +637,9 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   		}
+>   
+>   		realdatastart = textpos + ntohl(hdr->data_start);
+> -		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
+> +		datapos = ALIGN(realdatastart +
+> +				MAX_SHARED_LIBS * sizeof(u32),
+> +				FLAT_DATA_ALIGN);
+>   
+>   		reloc = (__be32 __user *)
+>   			(datapos + (ntohl(hdr->reloc_start) - text_len));
+> @@ -652,9 +656,8 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   					 (text_len + full_data
+>   						  - sizeof(struct flat_hdr)),
+>   					 0);
+> -			if (datapos != realdatastart)
+> -				memmove((void *)datapos, (void *)realdatastart,
+> -						full_data);
+> +			memmove((void *) datapos, (void *) realdatastart,
+> +					full_data);
+>   #else
+>   			/*
+>   			 * This is used on MMU systems mainly for testing.
+> @@ -710,7 +713,8 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   		if (IS_ERR_VALUE(result)) {
+>   			ret = result;
+>   			pr_err("Unable to read code+data+bss, errno %d\n", ret);
+> -			vm_munmap(textpos, text_len + data_len + extra);
+> +			vm_munmap(textpos, text_len + data_len + extra +
+> +				MAX_SHARED_LIBS * sizeof(u32));
+>   			goto err;
+>   		}
+>   	}
+> 
