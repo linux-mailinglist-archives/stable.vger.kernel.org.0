@@ -2,124 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4040B243350
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 06:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4422433E5
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 08:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726144AbgHME3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 00:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34850 "EHLO
+        id S1726244AbgHMGVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 02:21:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726107AbgHME3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 00:29:11 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32790C061383
-        for <stable@vger.kernel.org>; Wed, 12 Aug 2020 21:29:11 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id y10so504026plr.11
-        for <stable@vger.kernel.org>; Wed, 12 Aug 2020 21:29:11 -0700 (PDT)
+        with ESMTP id S1726192AbgHMGVS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 02:21:18 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70CBBC061757;
+        Wed, 12 Aug 2020 23:21:18 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id t23so4927940ljc.3;
+        Wed, 12 Aug 2020 23:21:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Ir/TwzXKrJIx51xeXWtP2nIBfHcRYk10KeY/pHei49E=;
-        b=cw5cxSfF05qeFRq/yk4IykzVTQKt+ejdPbbRjGsyg/WGZhkFrKF00uBXuRFmqkBWBm
-         98GqMuTdvn6Mtq462o7lNv0ssoRrhq5Zaqd+sPVDqifRhHFQMCB7ldDQtH38zcb8oicr
-         c2TPJLMk56kk3nZFMw06Qc7bs3wnqYZw2wGnPNJ8QvhGJX/pLIktodr7y8ETRFwa+rK3
-         gFgwLS1CCmHfM7ZsfQNhSuuwymXv1An9GAZonvlgOcr/gen2W33MQX/ksR3PoVLxwTT3
-         5UugXjZLpAx8CUMMcrMtOtNVHhOAxRHoz+oBziu8uolZhrZ8iksDpxLOThUGpPgMo7ql
-         +sww==
+        bh=C9rQWo6syT3cF37ubQbW7IMBpmbXyJ1+Ny4Hmm3+D9g=;
+        b=IdrdS+jhl4Oa2APlUEh5hsmWHLnjlvcEeLbNwd/9wCAajQpSXHE0zHJiFdgcdiK26J
+         WFO1pugdzNj04qdFOagFuIp86Sv+478MpJWML1/H1kFhojn/ZOWrcGdudLoSBrsxQlzR
+         EcAC59A3E3nwwwp9ENtv3ctQM7YTyIq69C2d3wIoR6R4PQMfsF7LGC2lLBut5bKO3Zu/
+         4WoL1gVFon0Xdx/deulTB/UQkk/ztsecEql/JO68s3NP1mEPDzfT/LNeQz9VllyIv0PT
+         9Tj8AssK9SOO8AwcvjXm8WGOQKyaIJFbORNO4CgMimKGYH01+Ebjmr55PZr3TuSs8iQd
+         jupg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=Ir/TwzXKrJIx51xeXWtP2nIBfHcRYk10KeY/pHei49E=;
-        b=oRO+NrNYDeGboNX3iyXLPbLvtgnKKM2b/PZ0yCpoER2Ym998OsVuE7rHTLUnzcZBvd
-         izs5sJA0dZER3YC1DXbvuu8RT063xEjyxicyhA1qi3oPSBGu4ao4Idm14IozG6xFnLQj
-         PCW6Df34awNtrc3R4okUxKsqldmvyvxcDCnRHzWxnHcFkhHoPf4XJdwHyvZUD4bj/F6V
-         EU/grbsV2y5YkUe7NR3lgwXQsdA6dhApjOWUsNTBg/cBWl1uZcBBdrts76FZ8zaFqqF5
-         6cY94tBJztIl7ZZw6FpQnJ9GaafOqXQs8L8Rp3w7Q6OJFiBbJCTrVNYLrk0te6H2k0pQ
-         XJtg==
-X-Gm-Message-State: AOAM530BiQw6EKupamwyZHNb7WwzsJvfbWh4V7NI2WU7Mau/7V5yusO7
-        rZm02gyFeqkScADvhHgfjbFCew==
-X-Google-Smtp-Source: ABdhPJw7kd7Nj7HnhrH5uzzC1xBDC35wPSobc/wx1hyTVReps59e9du1sKbdnJmSDTiVT+nD1YJs9A==
-X-Received: by 2002:a17:902:8b8b:: with SMTP id ay11mr2405922plb.241.1597292950502;
-        Wed, 12 Aug 2020 21:29:10 -0700 (PDT)
-Received: from localhost ([171.79.32.211])
-        by smtp.gmail.com with ESMTPSA id w7sm4008522pfi.164.2020.08.12.21.29.08
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 12 Aug 2020 21:29:09 -0700 (PDT)
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Viresh Kumar <vireshk@kernel.org>, Nishanth Menon <nm@ti.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>, linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Rafael Wysocki <rjw@rjwysocki.net>, mka@chromium.org,
-        sibis@codeaurora.org, "v5 . 3+" <stable@vger.kernel.org>,
-        Sajida Bhanu <sbhanu@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH V2 1/4] opp: Enable resources again if they were disabled earlier
-Date:   Thu, 13 Aug 2020 09:58:58 +0530
-Message-Id: <c6bba235a9a6fd777255bb4f1d16492fdcabc847.1597292833.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.14.1
-In-Reply-To: <1597043179-17903-1-git-send-email-rnayak@codeaurora.org>
-References: <1597043179-17903-1-git-send-email-rnayak@codeaurora.org>
+        bh=C9rQWo6syT3cF37ubQbW7IMBpmbXyJ1+Ny4Hmm3+D9g=;
+        b=WtgnzLvqqWqZnrjILqTcDglSxU4ppYZL3X68FCFQS7LwVAAT5EBRwtxZMTTZdk1M9K
+         9lAKTF1KzSxl5N1RUuFQqPn5eGkpcYjqoXcPqjLfQYLvkkOxOaV6aoD1QoDXnLe4Gyf+
+         Q85Ukd2+3sJGRpADmWPXL4wi05grGDQydKsbWsTfYi9CK4gqcfs5NTnYnW5qAc7LgTCq
+         mGsvL+vEPYPYO37/8uAtA5fHH7q+hUPlcK8fqYTkEB8CHgP3yRKZeY3y9pm8HTKpfhVv
+         cvRvE1hJAbVI/bAvZJKp1SaL014lvkHUv6OT4aJyGX9tZ1mUm3P6mm8cs1WEbtjFnATT
+         5lOg==
+X-Gm-Message-State: AOAM530WIYNmiPw6HP/MhJtwLvprnEAl2bCG6FHdEY5j69MN1VGhVo7q
+        jEuwQYKYZHrYHPtbMVIO+S0=
+X-Google-Smtp-Source: ABdhPJw/Ec8BtgwxAUxLq9z6Cta34KMASOkvjBC0EU4THFS9zVDqv01yrhycLJUzJXCaRxXFKv6jLg==
+X-Received: by 2002:a2e:8098:: with SMTP id i24mr1308903ljg.50.1597299676613;
+        Wed, 12 Aug 2020 23:21:16 -0700 (PDT)
+Received: from a2klaptop.localdomain ([185.199.97.5])
+        by smtp.gmail.com with ESMTPSA id f14sm964060lfd.2.2020.08.12.23.21.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Aug 2020 23:21:16 -0700 (PDT)
+From:   Oleksandr Andrushchenko <andr2000@gmail.com>
+To:     xen-devel@lists.xenproject.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, boris.ostrovsky@oracle.com,
+        jgross@suse.com, airlied@linux.ie, daniel@ffwll.ch
+Cc:     sstabellini@kernel.org, dan.carpenter@oracle.com,
+        intel-gfx@lists.freedesktop.org,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/5] xen/gntdev: Fix dmabuf import with non-zero sgt offset
+Date:   Thu, 13 Aug 2020 09:21:09 +0300
+Message-Id: <20200813062113.11030-2-andr2000@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200813062113.11030-1-andr2000@gmail.com>
+References: <20200813062113.11030-1-andr2000@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@codeaurora.org>
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-dev_pm_opp_set_rate() can now be called with freq = 0 in order
-to either drop performance or bandwidth votes or to disable
-regulators on platforms which support them.
+It is possible that the scatter-gather table during dmabuf import has
+non-zero offset of the data, but user-space doesn't expect that.
+Fix this by failing the import, so user-space doesn't access wrong data.
 
-In such cases, a subsequent call to dev_pm_opp_set_rate() with
-the same frequency ends up returning early because 'old_freq == freq'
+Fixes: bf8dc55b1358 ("xen/gntdev: Implement dma-buf import functionality")
 
-Instead make it fall through and put back the dropped performance
-and bandwidth votes and/or enable back the regulators.
-
-Cc: v5.3+ <stable@vger.kernel.org> # v5.3+
-Fixes: cd7ea582 ("opp: Make dev_pm_opp_set_rate() handle freq = 0 to drop performance votes")
-Reported-by: Sajida Bhanu <sbhanu@codeaurora.org>
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Reported-by: Matthias Kaehlcke <mka@chromium.org>
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-[ Viresh: Don't skip clk_set_rate() and massaged changelog ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Acked-by: Juergen Gross <jgross@suse.com>
+Cc: <stable@vger.kernel.org>
 ---
-Hi Rajendra,
+ drivers/xen/gntdev-dmabuf.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-I wasn't able to test this stuff, please give it a try. I have
-simplified your patch and cleaned up a bunch of stuff as well.
-
- drivers/opp/core.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index bdb028c7793d..9668ea04cc80 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -934,10 +934,13 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
- 
- 	/* Return early if nothing to do */
- 	if (old_freq == freq) {
--		dev_dbg(dev, "%s: old/new frequencies (%lu Hz) are same, nothing to do\n",
--			__func__, freq);
--		ret = 0;
--		goto put_opp_table;
-+		if (!opp_table->required_opp_tables && !opp_table->regulators &&
-+		    !opp_table->paths) {
-+			dev_dbg(dev, "%s: old/new frequencies (%lu Hz) are same, nothing to do\n",
-+				__func__, freq);
-+			ret = 0;
-+			goto put_opp_table;
-+		}
+diff --git a/drivers/xen/gntdev-dmabuf.c b/drivers/xen/gntdev-dmabuf.c
+index 75d3bb948bf3..b1b6eebafd5d 100644
+--- a/drivers/xen/gntdev-dmabuf.c
++++ b/drivers/xen/gntdev-dmabuf.c
+@@ -613,6 +613,14 @@ dmabuf_imp_to_refs(struct gntdev_dmabuf_priv *priv, struct device *dev,
+ 		goto fail_detach;
  	}
  
- 	/*
++	/* Check that we have zero offset. */
++	if (sgt->sgl->offset) {
++		ret = ERR_PTR(-EINVAL);
++		pr_debug("DMA buffer has %d bytes offset, user-space expects 0\n",
++			 sgt->sgl->offset);
++		goto fail_unmap;
++	}
++
+ 	/* Check number of pages that imported buffer has. */
+ 	if (attach->dmabuf->size != gntdev_dmabuf->nr_pages << PAGE_SHIFT) {
+ 		ret = ERR_PTR(-EINVAL);
 -- 
-2.14.1
+2.17.1
 
