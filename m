@@ -2,88 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F6624378F
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 11:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4DB2437A5
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 11:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbgHMJXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 05:23:48 -0400
-Received: from Mailgw01.mediatek.com ([1.203.163.78]:7002 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726053AbgHMJXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 05:23:48 -0400
-X-UUID: 7759f092344547ce8e7f0b537c2b4552-20200813
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=9httdLSXqot72Vjp5bmV2MlVnnvkCGEnLIRNKAXrnXo=;
-        b=PdtLdI5FZjIcgm/8/onP1wilaReV6HrQof46IKb6JH4niGsbHRS2ioi/2eNkUU0lnzQ2tnFgAvwR7TzBCCo/54CF28yfc3FsE5UL6GoQdh0vtL0/VXFEdbNiVhrFfhaFaAOYC4ibJWTdbb7fEBTWlL2DXPFeRSVApBzZH+VNGIA=;
-X-UUID: 7759f092344547ce8e7f0b537c2b4552-20200813
-Received: from mtkcas32.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
-        (envelope-from <wenbin.mei@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLS)
-        with ESMTP id 1322796861; Thu, 13 Aug 2020 17:23:40 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- MTKMBS31N2.mediatek.inc (172.27.4.87) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 13 Aug 2020 17:23:39 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 13 Aug 2020 17:23:39 +0800
-From:   Wenbin Mei <wenbin.mei@mediatek.com>
-To:     <yong.mao@mediatek.com>
-CC:     Wenbin Mei <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
-Subject: [v4,3/3] mmc: mediatek: add optional module reset property
-Date:   Thu, 13 Aug 2020 17:22:02 +0800
-Message-ID: <20200813092202.28341-4-wenbin.mei@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20200813092202.28341-1-wenbin.mei@mediatek.com>
-References: <20200813092202.28341-1-wenbin.mei@mediatek.com>
+        id S1726053AbgHMJ2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 05:28:40 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:63948 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726048AbgHMJ2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 05:28:40 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22114544-1500050 
+        for multiple; Thu, 13 Aug 2020 10:28:34 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gem: Always test execution status on closing the context
+Date:   Thu, 13 Aug 2020 10:28:33 +0100
+Message-Id: <20200813092833.14355-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200812223621.22292-3-chris@chris-wilson.co.uk>
+References: <20200812223621.22292-3-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: E0FB88A6DE9DD62597E522566E86BC570E6B1E23FCE425AC6185B7E8A7D1116B2000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhpcyBwYXRjaCBmaXhzIGVNTUMtQWNjZXNzIG9uIG10NzYyMi9CcGktNjQuDQpCZWZvcmUgd2Ug
-Z290IHRoZXNlIEVycm9ycyBvbiBtb3VudGluZyBlTU1DIGlvbiBSNjQ6DQpbICAgNDguNjY0OTI1
-XSBibGtfdXBkYXRlX3JlcXVlc3Q6IEkvTyBlcnJvciwgZGV2IG1tY2JsazAsIHNlY3RvciAyMDQ4
-MDAgb3AgMHgxOihXUklURSkNCmZsYWdzIDB4ODAwIHBoeXNfc2VnIDEgcHJpbyBjbGFzcyAwDQpb
-ICAgNDguNjc2MDE5XSBCdWZmZXIgSS9PIGVycm9yIG9uIGRldiBtbWNibGswcDEsIGxvZ2ljYWwg
-YmxvY2sgMCwgbG9zdCBzeW5jIHBhZ2Ugd3JpdGUNCg0KVGhpcyBwYXRjaCBhZGRzIGEgb3B0aW9u
-YWwgcmVzZXQgbWFuYWdlbWVudCBmb3IgbXNkYy4NClNvbWV0aW1lcyB0aGUgYm9vdGxvYWRlciBk
-b2VzIG5vdCBicmluZyBtc2RjIHJlZ2lzdGVyDQp0byBkZWZhdWx0IHN0YXRlLCBzbyBuZWVkIHJl
-c2V0IHRoZSBtc2RjIGNvbnRyb2xsZXIuDQoNCkNjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4g
-IyB2NS40Kw0KRml4ZXM6IDk2NjU4MGFkMjM2ZSAoIm1tYzogbWVkaWF0ZWs6IGFkZCBzdXBwb3J0
-IGZvciBNVDc2MjIgU29DIikNClNpZ25lZC1vZmYtYnk6IFdlbmJpbiBNZWkgPHdlbmJpbi5tZWlA
-bWVkaWF0ZWsuY29tPg0KVGVzdGVkLWJ5OiBGcmFuayBXdW5kZXJsaWNoIDxmcmFuay13QHB1Ymxp
-Yy1maWxlcy5kZT4NCi0tLQ0KIGRyaXZlcnMvbW1jL2hvc3QvbXRrLXNkLmMgfCAxMyArKysrKysr
-KysrKysrDQogMSBmaWxlIGNoYW5nZWQsIDEzIGluc2VydGlvbnMoKykNCg0KZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvbW1jL2hvc3QvbXRrLXNkLmMgYi9kcml2ZXJzL21tYy9ob3N0L210ay1zZC5jDQpp
-bmRleCAzOWU3ZmM1NGM0MzguLmZjOTdkNWJmM2EyMCAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvbW1j
-L2hvc3QvbXRrLXNkLmMNCisrKyBiL2RyaXZlcnMvbW1jL2hvc3QvbXRrLXNkLmMNCkBAIC0yMiw2
-ICsyMiw3IEBADQogI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4NCiAjaW5jbHVkZSA8bGludXgvc3Bp
-bmxvY2suaD4NCiAjaW5jbHVkZSA8bGludXgvaW50ZXJydXB0Lmg+DQorI2luY2x1ZGUgPGxpbnV4
-L3Jlc2V0Lmg+DQogDQogI2luY2x1ZGUgPGxpbnV4L21tYy9jYXJkLmg+DQogI2luY2x1ZGUgPGxp
-bnV4L21tYy9jb3JlLmg+DQpAQCAtNDM0LDYgKzQzNSw3IEBAIHN0cnVjdCBtc2RjX2hvc3Qgew0K
-IAlzdHJ1Y3QgbXNkY19zYXZlX3BhcmEgc2F2ZV9wYXJhOyAvKiB1c2VkIHdoZW4gZ2F0ZSBIQ0xL
-ICovDQogCXN0cnVjdCBtc2RjX3R1bmVfcGFyYSBkZWZfdHVuZV9wYXJhOyAvKiBkZWZhdWx0IHR1
-bmUgc2V0dGluZyAqLw0KIAlzdHJ1Y3QgbXNkY190dW5lX3BhcmEgc2F2ZWRfdHVuZV9wYXJhOyAv
-KiB0dW5lIHJlc3VsdCBvZiBDTUQyMS9DTUQxOSAqLw0KKwlzdHJ1Y3QgcmVzZXRfY29udHJvbCAq
-cmVzZXQ7DQogfTsNCiANCiBzdGF0aWMgY29uc3Qgc3RydWN0IG10a19tbWNfY29tcGF0aWJsZSBt
-dDgxMzVfY29tcGF0ID0gew0KQEAgLTE1MTYsNiArMTUxOCwxMiBAQCBzdGF0aWMgdm9pZCBtc2Rj
-X2luaXRfaHcoc3RydWN0IG1zZGNfaG9zdCAqaG9zdCkNCiAJdTMyIHZhbDsNCiAJdTMyIHR1bmVf
-cmVnID0gaG9zdC0+ZGV2X2NvbXAtPnBhZF90dW5lX3JlZzsNCiANCisJaWYgKGhvc3QtPnJlc2V0
-KSB7DQorCQlyZXNldF9jb250cm9sX2Fzc2VydChob3N0LT5yZXNldCk7DQorCQl1c2xlZXBfcmFu
-Z2UoMTAsIDUwKTsNCisJCXJlc2V0X2NvbnRyb2xfZGVhc3NlcnQoaG9zdC0+cmVzZXQpOw0KKwl9
-DQorDQogCS8qIENvbmZpZ3VyZSB0byBNTUMvU0QgbW9kZSwgY2xvY2sgZnJlZSBydW5uaW5nICov
-DQogCXNkcl9zZXRfYml0cyhob3N0LT5iYXNlICsgTVNEQ19DRkcsIE1TRENfQ0ZHX01PREUgfCBN
-U0RDX0NGR19DS1BETik7DQogDQpAQCAtMjI3Myw2ICsyMjgxLDExIEBAIHN0YXRpYyBpbnQgbXNk
-Y19kcnZfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCiAJaWYgKElTX0VSUiho
-b3N0LT5zcmNfY2xrX2NnKSkNCiAJCWhvc3QtPnNyY19jbGtfY2cgPSBOVUxMOw0KIA0KKwlob3N0
-LT5yZXNldCA9IGRldm1fcmVzZXRfY29udHJvbF9nZXRfb3B0aW9uYWxfZXhjbHVzaXZlKCZwZGV2
-LT5kZXYsDQorCQkJCQkJCQkiaHJzdCIpOw0KKwlpZiAoSVNfRVJSKGhvc3QtPnJlc2V0KSkNCisJ
-CXJldHVybiBQVFJfRVJSKGhvc3QtPnJlc2V0KTsNCisNCiAJaG9zdC0+aXJxID0gcGxhdGZvcm1f
-Z2V0X2lycShwZGV2LCAwKTsNCiAJaWYgKGhvc3QtPmlycSA8IDApIHsNCiAJCXJldCA9IC1FSU5W
-QUw7DQotLSANCjIuMTguMA0K
+Verify that if a context is active at the time it is closed, that it is
+either persistent and preemptible (with hangcheck running) or it shall
+be removed from execution.
+
+Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+Testcase: igt/gem_ctx_persistence/heartbeat-close
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v5.7+
+---
+ drivers/gpu/drm/i915/gem/i915_gem_context.c | 48 +++++----------------
+ 1 file changed, 10 insertions(+), 38 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+index db893f6c516b..15d3ccb8f164 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -390,24 +390,6 @@ __context_engines_static(const struct i915_gem_context *ctx)
+ 	return rcu_dereference_protected(ctx->engines, true);
+ }
+ 
+-static bool __reset_engine(struct intel_engine_cs *engine)
+-{
+-	struct intel_gt *gt = engine->gt;
+-	bool success = false;
+-
+-	if (!intel_has_reset_engine(gt))
+-		return false;
+-
+-	if (!test_and_set_bit(I915_RESET_ENGINE + engine->id,
+-			      &gt->reset.flags)) {
+-		success = intel_engine_reset(engine, NULL) == 0;
+-		clear_and_wake_up_bit(I915_RESET_ENGINE + engine->id,
+-				      &gt->reset.flags);
+-	}
+-
+-	return success;
+-}
+-
+ static void __reset_context(struct i915_gem_context *ctx,
+ 			    struct intel_engine_cs *engine)
+ {
+@@ -431,12 +413,7 @@ static bool __cancel_engine(struct intel_engine_cs *engine)
+ 	 * kill the banned context, we fallback to doing a local reset
+ 	 * instead.
+ 	 */
+-	if (IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT) &&
+-	    !intel_engine_pulse(engine))
+-		return true;
+-
+-	/* If we are unable to send a pulse, try resetting this engine. */
+-	return __reset_engine(engine);
++	return intel_engine_pulse(engine) == 0;
+ }
+ 
+ static bool
+@@ -493,7 +470,7 @@ static struct intel_engine_cs *active_engine(struct intel_context *ce)
+ 	return engine;
+ }
+ 
+-static void kill_engines(struct i915_gem_engines *engines)
++static void kill_engines(struct i915_gem_engines *engines, bool ban)
+ {
+ 	struct i915_gem_engines_iter it;
+ 	struct intel_context *ce;
+@@ -508,7 +485,7 @@ static void kill_engines(struct i915_gem_engines *engines)
+ 	for_each_gem_engine(ce, engines, it) {
+ 		struct intel_engine_cs *engine;
+ 
+-		if (intel_context_set_banned(ce))
++		if (ban && intel_context_set_banned(ce))
+ 			continue;
+ 
+ 		/*
+@@ -521,7 +498,7 @@ static void kill_engines(struct i915_gem_engines *engines)
+ 		engine = active_engine(ce);
+ 
+ 		/* First attempt to gracefully cancel the context */
+-		if (engine && !__cancel_engine(engine))
++		if (engine && !__cancel_engine(engine) && ban)
+ 			/*
+ 			 * If we are unable to send a preemptive pulse to bump
+ 			 * the context from the GPU, we have to resort to a full
+@@ -531,8 +508,10 @@ static void kill_engines(struct i915_gem_engines *engines)
+ 	}
+ }
+ 
+-static void kill_stale_engines(struct i915_gem_context *ctx)
++static void kill_context(struct i915_gem_context *ctx)
+ {
++	bool ban = (!i915_gem_context_is_persistent(ctx) ||
++		    !ctx->i915->params.enable_hangcheck);
+ 	struct i915_gem_engines *pos, *next;
+ 
+ 	spin_lock_irq(&ctx->stale.lock);
+@@ -545,7 +524,7 @@ static void kill_stale_engines(struct i915_gem_context *ctx)
+ 
+ 		spin_unlock_irq(&ctx->stale.lock);
+ 
+-		kill_engines(pos);
++		kill_engines(pos, ban);
+ 
+ 		spin_lock_irq(&ctx->stale.lock);
+ 		GEM_BUG_ON(i915_sw_fence_signaled(&pos->fence));
+@@ -557,11 +536,6 @@ static void kill_stale_engines(struct i915_gem_context *ctx)
+ 	spin_unlock_irq(&ctx->stale.lock);
+ }
+ 
+-static void kill_context(struct i915_gem_context *ctx)
+-{
+-	kill_stale_engines(ctx);
+-}
+-
+ static void engines_idle_release(struct i915_gem_context *ctx,
+ 				 struct i915_gem_engines *engines)
+ {
+@@ -596,7 +570,7 @@ static void engines_idle_release(struct i915_gem_context *ctx,
+ 
+ kill:
+ 	if (list_empty(&engines->link)) /* raced, already closed */
+-		kill_engines(engines);
++		kill_engines(engines, true);
+ 
+ 	i915_sw_fence_commit(&engines->fence);
+ }
+@@ -654,9 +628,7 @@ static void context_close(struct i915_gem_context *ctx)
+ 	 * case we opt to forcibly kill off all remaining requests on
+ 	 * context close.
+ 	 */
+-	if (!i915_gem_context_is_persistent(ctx) ||
+-	    !ctx->i915->params.enable_hangcheck)
+-		kill_context(ctx);
++	kill_context(ctx);
+ 
+ 	i915_gem_context_put(ctx);
+ }
+-- 
+2.20.1
 
