@@ -2,155 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D31962431A0
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 02:06:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2CA02431A3
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 02:08:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgHMAGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Aug 2020 20:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S1726531AbgHMAIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Aug 2020 20:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726078AbgHMAGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Aug 2020 20:06:52 -0400
+        id S1726078AbgHMAIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Aug 2020 20:08:02 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E0E020774;
-        Thu, 13 Aug 2020 00:06:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D25A320774;
+        Thu, 13 Aug 2020 00:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597277211;
-        bh=/k+5fqFA2e85qimkdtqp3S+8SyoAlXcnCyoFWgttiuE=;
+        s=default; t=1597277282;
+        bh=pKtuXYVz1xGuYZdygwhBuEOHiHPZxImUOidX/Ua9brY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vy63Gdk44/Tey1L2dsXmoNDAGnlFVT6RQ0vvKuzm52hwXvJDRWOmmSwtkqu1Mulmd
-         RiMIR0+DwuRWMW3iRlz70okoiqrnnYp+sRpYwBkmx2eGG+eNYmAM+zaBLsbgGq6nAl
-         FFIyLSxiR/jg/XTrAsItULx8HsPPOlA8uBAsgxFE=
-Date:   Wed, 12 Aug 2020 20:06:50 -0400
+        b=OnLaSYk7Dud9284Ox7lqs0BxwKOrAbJwHr7co2UUgO6QFGtEJ7DiRCwpisX8HxR+E
+         14wDqLIuQjtjqIqjN5ydOQ7OMdhIpKcxfUtrtKUAYaeizDwFkM4QphtGIYUu6PirO8
+         sAwZDOwTm89LPtbYADrE72YvfOs94i8dbWNE2XWI=
+Date:   Wed, 12 Aug 2020 20:08:00 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "edumazet@google.com" <edumazet@google.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Sasha Levin <Alexander.Levin@microsoft.com>,
-        "w@1wt.eu" <w@1wt.eu>,
-        Joseph Salisbury <Joseph.Salisbury@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "ohering@suse.com" <ohering@suse.com>
-Subject: Re: [PATCH][for v4.4 only] udp: drop corrupt packets earlier to
- avoid data corruption
-Message-ID: <20200813000650.GL2975990@sasha-vm>
-References: <20200728015505.37830-1-decui@microsoft.com>
- <KL1P15301MB0279A6C3BB3ACADE410F8144BF490@KL1P15301MB0279.APCP153.PROD.OUTLOOK.COM>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Erik Faye-Lund <kusmabite@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: Re: Request to pick up couple NVIDIA Tegra ASoC patches into 5.7
+ kernel
+Message-ID: <20200813000800.GM2975990@sasha-vm>
+References: <2db6e1ef-5cea-d479-8a7a-8f336313cb1d@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <KL1P15301MB0279A6C3BB3ACADE410F8144BF490@KL1P15301MB0279.APCP153.PROD.OUTLOOK.COM>
+In-Reply-To: <2db6e1ef-5cea-d479-8a7a-8f336313cb1d@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 07, 2020 at 06:03:00PM +0000, Dexuan Cui wrote:
->> From: Dexuan Cui <decui@microsoft.com>
->> Sent: Monday, July 27, 2020 6:55 PM
->> To: gregkh@linuxfoundation.org; edumazet@google.com;
->> stable@vger.kernel.org
->> Cc: w@1wt.eu; Dexuan Cui <decui@microsoft.com>; Joseph Salisbury
->> <Joseph.Salisbury@microsoft.com>; Michael Kelley <mikelley@microsoft.com>;
->> viro@zeniv.linux.org.uk; netdev@vger.kernel.org; davem@davemloft.net;
->> ohering@suse.com
->> Subject: [PATCH][for v4.4 only] udp: drop corrupt packets earlier to avoid data
->> corruption
->>
->> The v4.4 stable kernel lacks this bugfix:
->> commit 327868212381 ("make skb_copy_datagram_msg() et.al. preserve
->> ->msg_iter on error").
->> As a result, the v4.4 kernel can deliver corrupt data to the application
->> when a corrupt UDP packet is closely followed by a valid UDP packet: the
->> same invocation of the recvmsg() syscall can deliver the corrupt packet's
->> UDP payload to the application with the UDP payload length and the
->> "from IP/Port" of the valid packet.
->>
->> Details:
->>
->> For a UDP packet longer than 76 bytes (see the v5.8-rc6 kernel's
->> include/linux/skbuff.h:3951), Linux delays the UDP checksum verification
->> until the application invokes the syscall recvmsg().
->>
->> In the recvmsg() syscall handler, while Linux is copying the UDP payload
->> to the application's memory, it calculates the UDP checksum. If the
->> calculated checksum doesn't match the received checksum, Linux drops the
->> corrupt UDP packet, and then starts to process the next packet (if any),
->> and if the next packet is valid (i.e. the checksum is correct), Linux
->> will copy the valid UDP packet's payload to the application's receiver
->> buffer.
->>
->> The bug is: before Linux starts to copy the valid UDP packet, the data
->> structure used to track how many more bytes should be copied to the
->> application memory is not reset to what it was when the application just
->> entered the kernel by the syscall! Consequently, only a small portion or
->> none of the valid packet's payload is copied to the application's
->> receive buffer, and later when the application exits from the kernel,
->> actually most of the application's receive buffer contains the payload
->> of the corrupt packet while recvmsg() returns the length of the UDP
->> payload of the valid packet.
->>
->> For the mainline kernel, the bug was fixed in commit 327868212381,
->> but unluckily the bugfix is only backported to v4.9+. It turns out
->> backporting 327868212381 to v4.4 means that some supporting patches
->> must be backported first, so the overall changes seem too big, so the
->> alternative is performs the csum validation earlier and drops the
->> corrupt packets earlier.
->>
->> Signed-off-by: Eric Dumazet <edumazet@google.com>
->> Signed-off-by: Dexuan Cui <decui@microsoft.com>
->> ---
->>  net/ipv4/udp.c | 3 +--
->>  net/ipv6/udp.c | 6 ++----
->>  2 files changed, 3 insertions(+), 6 deletions(-)
->>
->> diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
->> index bb30699..49ab587 100644
->> --- a/net/ipv4/udp.c
->> +++ b/net/ipv4/udp.c
->> @@ -1589,8 +1589,7 @@ int udp_queue_rcv_skb(struct sock *sk, struct
->> sk_buff *skb)
->>  		}
->>  	}
->>
->> -	if (rcu_access_pointer(sk->sk_filter) &&
->> -	    udp_lib_checksum_complete(skb))
->> +	if (udp_lib_checksum_complete(skb))
->>  		goto csum_error;
->>
->>  	if (sk_rcvqueues_full(sk, sk->sk_rcvbuf)) {
->> diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
->> index 73f1112..2d6703d 100644
->> --- a/net/ipv6/udp.c
->> +++ b/net/ipv6/udp.c
->> @@ -686,10 +686,8 @@ int udpv6_queue_rcv_skb(struct sock *sk, struct
->> sk_buff *skb)
->>  		}
->>  	}
->>
->> -	if (rcu_access_pointer(sk->sk_filter)) {
->> -		if (udp_lib_checksum_complete(skb))
->> -			goto csum_error;
->> -	}
->> +	if (udp_lib_checksum_complete(skb))
->> +		goto csum_error;
->>
->>  	if (sk_rcvqueues_full(sk, sk->sk_rcvbuf)) {
->>  		UDP6_INC_STATS_BH(sock_net(sk),
->> --
->> 1.8.3.1
+On Wed, Aug 12, 2020 at 10:14:34PM +0300, Dmitry Osipenko wrote:
+>Hello, stable-kernel maintainers!
 >
->+Sasha
+>Could you please cherry-pick these commits into the v5.7.x kernel?
 >
->This patch is targeted to the linux-4.4.y branch of the stable tree.
+>commit 0de6db30ef79b391cedd749801a49c485d2daf4b
+>Author: Sowjanya Komatineni <skomatineni@nvidia.com>
+>Date:   Mon Jan 13 23:24:17 2020 -0800
+>
+>    ASoC: tegra: Use device managed resource APIs to get the clock
+>
+>commit 1e4e0bf136aa4b4aa59c1e6af19844bd6d807794
+>Author: Sowjanya Komatineni <skomatineni@nvidia.com>
+>Date:   Mon Jan 13 23:24:23 2020 -0800
+>
+>    ASoC: tegra: Add audio mclk parent configuration
+>
+>commit ff5d18cb04f4ecccbcf05b7f83ab6df2a0d95c16
+>Author: Sowjanya Komatineni <skomatineni@nvidia.com>
+>Date:   Mon Jan 13 23:24:24 2020 -0800
+>
+>    ASoC: tegra: Enable audio mclk during tegra_asoc_utils_init()
+>
+>It will fix a huge warnings splat during of kernel boot on NVIDIA Tegra
+>SoCs. For some reason these patches haven't made into 5.7 when it was
+>released and several people complained about the warnings. Thanks in
+>advance!
 
-Eric, will you ack this (or have a missed a previous ack)?
+They never made it in because they don't have a stable tag, a fixes tag,
+or do they sound like they fix a problem :)
+
+Do you have a reference to the issue at hand here?
+
+Either way, 5.7 is alive for only about 1 or 2 weeks, is anyone still
+stuck on 5.7?
 
 -- 
 Thanks,
