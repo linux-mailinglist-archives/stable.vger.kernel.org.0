@@ -2,152 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB637243C79
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 17:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B17EE243D31
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 18:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbgHMP33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 11:29:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17134 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726249AbgHMP32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 11:29:28 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07DF5fWu062752;
-        Thu, 13 Aug 2020 11:29:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id; s=pp1;
- bh=fEApjQ32ZlCsV+pRD9M5xHULiwiX0puoetNqBdtPEcE=;
- b=mD8zyB9gXYSZW4HuuN/u4nuYL9t7hhb/1OMkIIfaqbiRc76Tu0CWpmwnqVxMB/NFO9cj
- iGGIiHwUuIEszjyn3aRpo7fP9Cro4Ro74Xz7F1hNjAiwMqFDVUEYd32CoWcTU6b6gMVw
- du0Vbszs3be3yPBrgLuj7J1ySUvfwEt29aFAGh6NsxZvQoVgw8W0IUawNm1k9IQ0EcgR
- y5m7qkH0j6ARFnV9YVpu/SI0n73cSS37ULsiuc2uHPB/fHg8WVKb2QnyuigIQvpmQ0rf
- OgaqLbOetiPGPZkvooEsX/03TxEOqZLCWSObi/tpRBhOfxqN+U6Cuc7SEnlqbQcn6PNO Qg== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 32w5mwdt78-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Aug 2020 11:29:25 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07DFOo4H024475;
-        Thu, 13 Aug 2020 15:29:23 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 32skp8dpep-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Aug 2020 15:29:23 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07DFTKID27132204
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 13 Aug 2020 15:29:20 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C717AE05F;
-        Thu, 13 Aug 2020 15:29:20 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D85C6AE057;
-        Thu, 13 Aug 2020 15:29:19 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 13 Aug 2020 15:29:19 +0000 (GMT)
-From:   Steffen Maier <maier@linux.ibm.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH] zfcp: fix use-after-free in request timeout handlers
-Date:   Thu, 13 Aug 2020 17:28:56 +0200
-Message-Id: <20200813152856.50088-1-maier@linux.ibm.com>
-X-Mailer: git-send-email 2.17.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-13_14:2020-08-13,2020-08-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- suspectscore=2 clxscore=1011 impostorscore=0 spamscore=0
- priorityscore=1501 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
- phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2006250000 definitions=main-2008130114
+        id S1726305AbgHMQZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 12:25:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726131AbgHMQZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Aug 2020 12:25:38 -0400
+Received: from localhost (unknown [70.37.104.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0244D20658;
+        Thu, 13 Aug 2020 16:25:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597335937;
+        bh=mq48PNtnQj5rHRfgjFX+CHdC2rpatgZUfykW8WLTs/s=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=V01muYME+tXkmaCcUMYc+kY9vcYwcqYqeNIn1i8qjqY+Y36qcgd+Z/B3cwYZZsNm7
+         jj23FtMoXXY45beQyKDVLz5nuV0lRK2ABxq+Wg7UZi8/zYsjVhQxBl8Q8Sv9z41ojk
+         x/WLPyevBCYTQi7Y/FfQRYM2zr4Upo1XgMgCVUQs=
+Date:   Thu, 13 Aug 2020 16:25:36 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] usb: typec: ucsi: Fix 2 unlocked ucsi_run_command calls
+In-Reply-To: <20200809141904.4317-3-hdegoede@redhat.com>
+References: <20200809141904.4317-3-hdegoede@redhat.com>
+Message-Id: <20200813162537.0244D20658@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Before v4.15 commit 75492a51568b ("s390/scsi: Convert timers to use
-timer_setup()"), we intentionally only passed zfcp_adapter as context
-argument to zfcp_fsf_request_timeout_handler(). Since we only trigger
-adapter recovery, it was unnecessary to sync against races between timeout
-and (late) completion.
-Likewise, we only passed zfcp_erp_action as context argument to
-zfcp_erp_timeout_handler(). Since we only wakeup an ERP action, it was
-unnecessary to sync against races between timeout and (late) completion.
+Hi
 
-Meanwhile the timeout handlers get timer_list as context argument
-and do a timer-specific container-of to zfcp_fsf_req which can have
-been freed.
+[This is an automated email]
 
-Fix it by making sure that any request timeout handlers, that might
-just have started before del_timer(), are completed by using
-del_timer_sync() instead. This ensures the request free happens
-afterwards.
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-Space time diagram of potential use-after-free:
+The bot has tested the following trees: v5.8, v5.7.14, v5.4.57, v4.19.138, v4.14.193, v4.9.232, v4.4.232.
 
-Basic idea is to have 2 or more pending requests whose timeouts run
-out at almost the same time.
+v5.8: Build OK!
+v5.7.14: Failed to apply! Possible dependencies:
+    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
 
-req 1 timeout     ERP thread        req 2 timeout
-----------------  ----------------  ---------------------------------------
-zfcp_fsf_request_timeout_handler
-fsf_req = from_timer(fsf_req, t, timer)
-adapter = fsf_req->adapter
-zfcp_qdio_siosl(adapter)
-zfcp_erp_adapter_reopen(adapter,...)
-                  zfcp_erp_strategy
-                  ...
-                  zfcp_fsf_req_dismiss_all
-                  list_for_each_entry_safe
-                    zfcp_fsf_req_complete 1
-                    del_timer 1
-                    zfcp_fsf_req_free 1
-                    zfcp_fsf_req_complete 2
-                                    zfcp_fsf_request_timeout_handler
-                    del_timer 2
-                                    fsf_req = from_timer(fsf_req, t, timer)
-                    zfcp_fsf_req_free 2
-                                    adapter = fsf_req->adapter
-                                              ^^^^^^^ already freed
+v5.4.57: Failed to apply! Possible dependencies:
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    3cf657f07918 ("usb: typec: ucsi: Remove all bit-fields")
+    470ce43a1a81 ("usb: typec: ucsi: Remove struct ucsi_control")
+    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
+    6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
+    bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
 
-Suggested-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Fixes: 75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
-Cc: <stable@vger.kernel.org> #4.15+
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_fsf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+v4.19.138: Failed to apply! Possible dependencies:
+    247c554a14aa ("usb: typec: ucsi: add support for Cypress CCGx")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    470ce43a1a81 ("usb: typec: ucsi: Remove struct ucsi_control")
+    5c9ae5a87573 ("usb: typec: ucsi: ccg: add firmware flashing support")
+    5d438e200215 ("usb: typec: ucsi: ccg: add get_fw_info function")
+    6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
+    81534d5fa973 ("usb: typec: ucsi: Remove debug.h file")
+    a94ecde41f7e ("usb: typec: ucsi: ccg: enable runtime pm support")
+    ad74b8649bea ("usb: typec: ucsi: Preliminary support for alternate modes")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+    f2372b87c386 ("usb: typec: ucsi: displayport: Fix for the mode entering routine")
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index c795f22249d8..140186fe1d1e 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -434,7 +434,7 @@ static void zfcp_fsf_req_complete(struct zfcp_fsf_req *req)
- 		return;
- 	}
- 
--	del_timer(&req->timer);
-+	del_timer_sync(&req->timer);
- 	zfcp_fsf_protstatus_eval(req);
- 	zfcp_fsf_fsfstatus_eval(req);
- 	req->handler(req);
-@@ -867,7 +867,7 @@ static int zfcp_fsf_req_send(struct zfcp_fsf_req *req)
- 	req->qdio_req.qdio_outb_usage = atomic_read(&qdio->req_q_free);
- 	req->issued = get_tod_clock();
- 	if (zfcp_qdio_send(qdio, &req->qdio_req)) {
--		del_timer(&req->timer);
-+		del_timer_sync(&req->timer);
- 		/* lookup request again, list might have changed */
- 		zfcp_reqlist_find_rm(adapter->req_list, req_id);
- 		zfcp_erp_adapter_reopen(adapter, 0, "fsrs__1");
+v4.14.193: Failed to apply! Possible dependencies:
+    0a4c005bd171 ("usb: typec: driver for TI TPS6598x USB Power Delivery controllers")
+    247c554a14aa ("usb: typec: ucsi: add support for Cypress CCGx")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
+    44262fad12a7 ("staging: typec: tcpm: Drop commented out code")
+    4b4e02c83167 ("typec: tcpm: Move out of staging")
+    70cd90be3300 ("staging: typec: pd: Document struct pd_message")
+    76f0c53d08b9 ("usb: typec: fusb302: Move out of staging")
+    81534d5fa973 ("usb: typec: ucsi: Remove debug.h file")
+    956c36c297a2 ("USB: typec: add SPDX identifiers to some files")
+    98076fa64a05 ("staging: typec: tcpm: Document data structures")
+    ad74b8649bea ("usb: typec: ucsi: Preliminary support for alternate modes")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    cf6e06cddf29 ("usb: typec: Start using ERR_PTR")
+
+v4.9.232: Failed to apply! Possible dependencies:
+    0c744ea4f77d ("Linux 4.10-rc2")
+    2bd6bf03f4c1 ("Linux 4.14-rc1")
+    2ea659a9ef48 ("Linux 4.12-rc1")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    49def1853334 ("Linux 4.10-rc4")
+    566cf877a1fc ("Linux 4.10-rc6")
+    5771a8c08880 ("Linux v4.13-rc1")
+    7089db84e356 ("Linux 4.10-rc8")
+    7a308bb3016f ("Linux 4.10-rc5")
+    7ce7d89f4883 ("Linux 4.10-rc1")
+    a121103c9228 ("Linux 4.10-rc3")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+    c1ae3cfa0e89 ("Linux 4.11-rc1")
+    c470abd4fde4 ("Linux 4.10")
+    d5adbfcd5f7b ("Linux 4.10-rc7")
+
+v4.4.232: Failed to apply! Possible dependencies:
+    1001354ca341 ("Linux 4.9-rc1")
+    18558cae0272 ("Linux 4.5-rc4")
+    1a695a905c18 ("Linux 4.7-rc1")
+    29b4817d4018 ("Linux 4.8-rc1")
+    2bd6bf03f4c1 ("Linux 4.14-rc1")
+    2dcd0af568b0 ("Linux 4.6")
+    2ea659a9ef48 ("Linux 4.12-rc1")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    36f90b0a2ddd ("Linux 4.5-rc2")
+    388f7b1d6e8c ("Linux 4.5-rc3")
+    5771a8c08880 ("Linux v4.13-rc1")
+    7ce7d89f4883 ("Linux 4.10-rc1")
+    81f70ba233d5 ("Linux 4.5-rc5")
+    92e963f50fc7 ("Linux 4.5-rc1")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+    b562e44f507e ("Linux 4.5")
+    c1ae3cfa0e89 ("Linux 4.11-rc1")
+    f55532a0c0b8 ("Linux 4.6-rc1")
+    f6cede5b49e8 ("Linux 4.5-rc7")
+    fc77dbd34c5c ("Linux 4.5-rc6")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
 -- 
-2.17.1
-
+Thanks
+Sasha
