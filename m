@@ -2,39 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9726D243520
-	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 09:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60912436DF
+	for <lists+stable@lfdr.de>; Thu, 13 Aug 2020 10:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726102AbgHMHnR convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 13 Aug 2020 03:43:17 -0400
-Received: from ex2016-01.tversu.net ([82.179.130.111]:20744 "EHLO
-        mail.tversu.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726082AbgHMHnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 03:43:17 -0400
-Received: from [192.168.8.106] (129.205.113.172) by ex2013mbx01.tversu.net
- (192.168.21.12) with Microsoft SMTP Server (TLS) id 15.0.1263.5; Thu, 13 Aug
- 2020 10:43:10 +0300
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1726724AbgHMIoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 04:44:55 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:48450 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726081AbgHMIoq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 04:44:46 -0400
+X-UUID: 84138e09abdd45d8bac8f0f5cc1cd53e-20200813
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=UiYITuOicKAGf3efIhr1L/4MAUvnnb66uoIfzUsZtVU=;
+        b=oxHBhMF8vD5OcchOWcI/sOHZbfwKWbIyM0UJodoScWRy4STTC1kQMGROEN1fYDvtcubJ05a3wyp4uIsYW96CdNHato4/JBVQ5L7TYJMzTy6z1DlfRgJNir1QK7NxI9G/mRngoywoS2XQBYXweA2CT0R/GMikO6YjZcoUj8h62lw=;
+X-UUID: 84138e09abdd45d8bac8f0f5cc1cd53e-20200813
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
+        (envelope-from <wenbin.mei@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 881965504; Thu, 13 Aug 2020 16:44:41 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 13 Aug 2020 16:44:39 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 13 Aug 2020 16:44:38 +0800
+From:   Wenbin Mei <wenbin.mei@mediatek.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Chaotian Jing <chaotian.jing@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        <linux-mmc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <srv_heupstream@mediatek.com>,
+        Wenbin Mei <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
+Subject: [v3,1/3] mmc: dt-bindings: Add resets/reset-names for Mediatek MMC bindings
+Date:   Thu, 13 Aug 2020 16:43:38 +0800
+Message-ID: <20200813084340.27292-2-wenbin.mei@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20200813084340.27292-1-wenbin.mei@mediatek.com>
+References: <20200813084340.27292-1-wenbin.mei@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Kredite @ 2%
-To:     Recipients@vger.kernel.org
-From:   Aurora@vger.kernel.org, Finance@vger.kernel.org
-Date:   Thu, 13 Aug 2020 08:42:53 +0100
-Reply-To: <aurora@financialcorporation.cf>
-Message-ID: <2f3830917c2a4f3db21559b3b7dc1300@ex2013mbx01.tversu.net>
-X-Originating-IP: [129.205.113.172]
-X-ClientProxiedBy: ex2013cas01.tversu.net (82.179.131.67) To
- ex2013mbx01.tversu.net (192.168.21.12)
-X-KSE-AntiSpam-Interceptor-Info: trusted connection
-X-KSE-ServerInfo: ex2013mbx01.tversu.net, 9
-X-KSE-Antivirus-Interceptor-Info: scan successful
-X-KSE-Antivirus-Info: Clean
-X-KSE-Dlp-Interceptor-Info: license violation
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mailen Sie uns noch heute für einen Kredit.
+QWRkIGRlc2NyaXB0aW9uIGZvciByZXNldHMvcmVzZXQtbmFtZXMuDQoNCkNjOiA8c3RhYmxlQHZn
+ZXIua2VybmVsLm9yZz4gIyB2NS40Kw0KRml4ZXM6IDk2NjU4MGFkMjM2ZSAoIm1tYzogbWVkaWF0
+ZWs6IGFkZCBzdXBwb3J0IGZvciBNVDc2MjIgU29DIikNClNpZ25lZC1vZmYtYnk6IFdlbmJpbiBN
+ZWkgPHdlbmJpbi5tZWlAbWVkaWF0ZWsuY29tPg0KVGVzdGVkLWJ5OiBGcmFuayBXdW5kZXJsaWNo
+IDxmcmFuay13QHB1YmxpYy1maWxlcy5kZT4NCi0tLQ0KIERvY3VtZW50YXRpb24vZGV2aWNldHJl
+ZS9iaW5kaW5ncy9tbWMvbXRrLXNkLnR4dCB8IDIgKysNCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNl
+cnRpb25zKCspDQoNCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
+Z3MvbW1jL210ay1zZC50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvbW1j
+L210ay1zZC50eHQNCmluZGV4IDhhNTMyZjQ0NTNmMi4uMDlhZWNlYzQ3MDAzIDEwMDY0NA0KLS0t
+IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL21tYy9tdGstc2QudHh0DQorKysg
+Yi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvbW1jL210ay1zZC50eHQNCkBAIC00
+OSw2ICs0OSw4IEBAIE9wdGlvbmFsIHByb3BlcnRpZXM6DQogCQkgICAgIGVycm9yIGNhdXNlZCBi
+eSBzdG9wIGNsb2NrKGZpZm8gZnVsbCkNCiAJCSAgICAgVmFsaWQgcmFuZ2UgPSBbMDoweDddLiBp
+ZiBub3QgcHJlc2VudCwgZGVmYXVsdCB2YWx1ZSBpcyAwLg0KIAkJICAgICBhcHBsaWVkIHRvIGNv
+bXBhdGlibGUgIm1lZGlhdGVrLG10MjcwMS1tbWMiLg0KKy0gcmVzZXRzOiBQaGFuZGxlIGFuZCBy
+ZXNldCBzcGVjaWZpZXIgcGFpciB0byBzb2Z0cmVzZXQgbGluZSBvZiBNU0RDIElQLg0KKy0gcmVz
+ZXQtbmFtZXM6IFNob3VsZCBiZSAiaHJzdCIuDQogDQogRXhhbXBsZXM6DQogbW1jMDogbW1jQDEx
+MjMwMDAwIHsNCi0tIA0KMi4xOC4wDQo=
+
