@@ -2,137 +2,280 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA56244EEB
-	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 21:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A50244EF8
+	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 21:51:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728084AbgHNTnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Aug 2020 15:43:31 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:43550 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726241AbgHNTnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 15:43:31 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07EJh8sL074634;
-        Fri, 14 Aug 2020 19:43:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=SwHfYaaNmDMFFSwAZIoB8OOdCgTGZkhKQNO1QCQNdrY=;
- b=MjWbKYfR+HXY70mJ3a2m4Y7w4XzU8Dy9964Ak1VpzBEpwpENuw4v/IGnriaU04v0ShJu
- pznO3DdPRrBvf7iRswTASLNKLrnea7lsX2WcOAHGM/xuQwr4nm0YIn+gFigMDNhqQF90
- k00dKCjcmzOvFIZ7YMGI8RXFnhz/OMCT1G3bJPvNjuuXBSsjkYkjdyqCbBX8qUA6T9ju
- NRMZ2MZ7Xve5YvoLpGaUaDcGJOVGy+vIkTYbwHZVIT3cKCXVosYuSbvcQroSB+O5Q4g6
- CzNEO9tWOoJRS/9/k7Ufma7ql3Dc0l2yIShwW372xGxO2s8BAz2Do7GwdiGsbiRptfPL 8g== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 32wvp11ctg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 14 Aug 2020 19:43:19 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07EJbjV3138011;
-        Fri, 14 Aug 2020 19:43:19 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3030.oracle.com with ESMTP id 32wvqjhh6p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Aug 2020 19:43:18 +0000
-Received: from abhmp0009.oracle.com (abhmp0009.oracle.com [141.146.116.15])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 07EJhFOR030753;
-        Fri, 14 Aug 2020 19:43:15 GMT
-Received: from [10.159.235.234] (/10.159.235.234)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 14 Aug 2020 19:43:15 +0000
-Subject: Re: [PATCH] mm: slub: fix conversion of freelist_corrupted()
-To:     Eugeniu Rosca <erosca@de.adit-jv.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        stable@vger.kernel.org, Eugeniu Rosca <roscaeugeniu@gmail.com>
-References: <20200811124656.10308-1-erosca@de.adit-jv.com>
- <f93a9f06-8608-6f28-27c0-b17f86dca55b@oracle.com>
- <20200814074644.GA7943@lxhi-065.adit-jv.com>
-From:   Dongli Zhang <dongli.zhang@oracle.com>
-Message-ID: <cbcf9612-adb4-38fd-5c11-852197ec8703@oracle.com>
-Date:   Fri, 14 Aug 2020 12:43:12 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726798AbgHNTvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Aug 2020 15:51:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59578 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726662AbgHNTvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 15:51:41 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C845C061385
+        for <stable@vger.kernel.org>; Fri, 14 Aug 2020 12:51:41 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id 3so8862664wmi.1
+        for <stable@vger.kernel.org>; Fri, 14 Aug 2020 12:51:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ZeZ9Xy6DiMTsE1qes3QZF9FoWJER7R9Dps7seD2Lcos=;
+        b=Tv1LGVkgz8Ur6ku3zH9E93+hllKRcwTyZG5EpZCWVpMwTDlZ8XQMeESmJ97uyrmJJ+
+         3K8aKRBj3IMfMC8hp0+gSrpWTkD4S+hhvc4CN0AAruLlYlTOcW8+wDcGSp9HA1cKywne
+         GjyR8r5u8oeev4My83Vy4sUvg+Jyi4gpRYRFw89wZ0fWhij84mUOwkf2r+9DYbZak072
+         8tchMEEo9fGgMZFSjmFwjJHdqJ95Md5apMbtGmjbMtUYlLgu6ILi9hlvfqqDc7POTZoD
+         QbKo/QVFEG6M5LkrBwmZWzWkpg3EGvU4Bob6xBVLxGFRMSbvN21lxpQv4zwyxw5EwhTV
+         9J1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ZeZ9Xy6DiMTsE1qes3QZF9FoWJER7R9Dps7seD2Lcos=;
+        b=GyKDYQq9bh2J8IPPZm5+itsBtu318073EQukDiq5Rxjp8DB9CAu4ippQEjVukRP/k6
+         aSz+/qyG1TeP8gYmjU1xBOgi0didlr3Bq07f/gulFijMTjoT2SKu5RyU0MEBRgiys6Lk
+         wQeK88ms0F5NIr5sfqAP9nSKAs4Htagz7if4WDyT9kJpvoecclql4b75MfntfufL/ZLV
+         yKBqtE+/QnGJudnx1e7TIL/PetuI9DguRRbk4By11N9zZsHQn6uXccgivGfaxc317gFn
+         /SwZGmJWlMm5x/gtLtPPwf4V7v1xzkvR+caZWDBHdt2YlxA8UCH+unUm7mhRAGX8YVzl
+         ZTgg==
+X-Gm-Message-State: AOAM5332WByuQmzer9EpX4+BZ5Gg5LOMyhqTLImR7OSSNYwwFpezfyq2
+        qX+/7AAU3FJOuMIZkhFa3O4NW5JYQutHAmR4lNYiDuOb
+X-Google-Smtp-Source: ABdhPJxFG7rFieLMiw1j57hM5hHPBuoZug0J3cmHUUlhNSpbU9mYTIc4HK2lhzochFmjdhFIPZMC2QUkhJoOLCzvGpE=
+X-Received: by 2002:a05:600c:2209:: with SMTP id z9mr3770234wml.70.1597434699722;
+ Fri, 14 Aug 2020 12:51:39 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200814074644.GA7943@lxhi-065.adit-jv.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9713 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 bulkscore=0
- malwarescore=0 mlxscore=0 adultscore=0 suspectscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008140146
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9713 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0
- impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
- mlxlogscore=999 clxscore=1015 lowpriorityscore=0 bulkscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008140146
+References: <20200814093842.3048472-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20200814093842.3048472-1-daniel.vetter@ffwll.ch>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Fri, 14 Aug 2020 15:51:28 -0400
+Message-ID: <CADnq5_O5En26SyjtOHGAi8-X3Ois7J7oLJc6cmPJKpfL2torjQ@mail.gmail.com>
+Subject: Re: [PATCH] drm/modeset-lock: Take the modeset BKL for legacy drivers
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Michal Orzel <michalorzel.eng@gmail.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        "for 3.8" <stable@vger.kernel.org>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Aug 14, 2020 at 5:38 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+>
+> This fell off in the conversion in
+>
+> commit 9bcaa3fe58ab7559e71df798bcff6e0795158695
+> Author: Michal Orzel <michalorzel.eng@gmail.com>
+> Date:   Tue Apr 28 19:10:04 2020 +0200
+>
+>     drm: Replace drm_modeset_lock/unlock_all with DRM_MODESET_LOCK_ALL_* helpers
+>
+> but it's caught by the drm_warn_on_modeset_not_all_locked() that the
+> legacy modeset code uses. Since this is the bkl and it's unclear
+> what's all protected, play it safe and grab it again for legacy
+> drivers.
+>
+> Unfortunately this means we need to sprinkle a few more #includes
+> around.
+>
+> Also we need to add the drm_device as a parameter to the _END macro.
+>
+> Finally remove the mute_lock() from setcrtc, since that's now done by
+> the macro.
+>
+> Cc: Alex Deucher <alexdeucher@gmail.com>
+> References: https://gitlab.freedesktop.org/drm/amd/-/issues/1224
+> Fixes: 9bcaa3fe58ab ("drm: Replace drm_modeset_lock/unlock_all with DRM_MODESET_LOCK_ALL_* helpers")
+> Cc: Michal Orzel <michalorzel.eng@gmail.com>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: David Airlie <airlied@linux.ie>
+> Cc: Daniel Vetter <daniel@ffwll.ch>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: <stable@vger.kernel.org> # v5.8+
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> --
+> Patch compiles but otherwise untested, and I'll go on vacations now
+> for 2 weeks. Alex, can you pls take care of this?
 
+Looks good to me.
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 
-On 8/14/20 12:46 AM, Eugeniu Rosca wrote:
-> Hello Dongli,
-> 
-> On Thu, Aug 13, 2020 at 11:57:51PM -0700, Dongli Zhang wrote:
->> On 8/11/20 5:46 AM, Eugeniu Rosca wrote:
->>> Commit 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in
->>> deactivate_slab()") suffered an update when picked up from LKML [1].
->>>
->>> Specifically, relocating 'freelist = NULL' into 'freelist_corrupted()'
->>> created a no-op statement. Fix it by sticking to the behavior intended
->>> in the original patch [1]. Prefer the lowest-line-count solution.
->>>
->>> [1] https://urldefense.com/v3/__https://lore.kernel.org/linux-mm/20200331031450.12182-1-dongli.zhang@oracle.com/__;!!GqivPVa7Brio!LkxH4qJ3WzKnO_nmONLWV-HAougEaefnp8UnI6qC_8j0SS9_9fkO6bOe68flixlQzx8$ 
->>>
->>> Fixes: 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in deactivate_slab()")
->>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>> Cc: Dongli Zhang <dongli.zhang@oracle.com>
->>> Cc: <stable@vger.kernel.org>
->>> Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
->>> ---
->>>  mm/slub.c | 5 +++--
->>>  1 file changed, 3 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/mm/slub.c b/mm/slub.c
->>> index 68c02b2eecd9..9a3e963b02a3 100644
->>> --- a/mm/slub.c
->>> +++ b/mm/slub.c
->>> @@ -677,7 +677,6 @@ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
->>>  	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
->>>  	    !check_valid_pointer(s, page, nextfree)) {
->>>  		object_err(s, page, freelist, "Freechain corrupt");
->>> -		freelist = NULL;
->>>  		slab_fix(s, "Isolate corrupted freechain");
->>>  		return true;
->>>  	}
->>> @@ -2184,8 +2183,10 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
->>>  		 * 'freelist' is already corrupted.  So isolate all objects
->>>  		 * starting at 'freelist'.
->>>  		 */
->>> -		if (freelist_corrupted(s, page, freelist, nextfree))
->>> +		if (freelist_corrupted(s, page, freelist, nextfree)) {
->>> +			freelist = NULL;
->>
->> This is good to me.
->>
->> However, this would confuse people when CONFIG_SLUB_DEBUG is not defined.
->>
->> While reading the source code, people may be curious why to reset freelist when
->> CONFIG_SLUB_DEBUG is even not defined.
-> 
-> This is a fair point. To address it, the `freelist = NULL` assignment
-> should be then moved into the body of freelist_corrupted(). If no
-> concerns on that, I will soon push a v2 implementing this proposal.
-> 
+Also confirmed to fix the issue.  I'll push to drm-misc.
 
-I do have have concern with that if that can make both of static analysis tool
-and the people reading code happy :)
+Thanks!
 
-Thank you very much!
+Alex
 
-Dongli Zhang
+>
+> Thanks, Daniel
+> ---
+>  drivers/gpu/drm/drm_atomic_helper.c | 7 ++++---
+>  drivers/gpu/drm/drm_color_mgmt.c    | 2 +-
+>  drivers/gpu/drm/drm_crtc.c          | 4 +---
+>  drivers/gpu/drm/drm_mode_object.c   | 4 ++--
+>  drivers/gpu/drm/drm_plane.c         | 2 +-
+>  include/drm/drm_modeset_lock.h      | 9 +++++++--
+>  6 files changed, 16 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
+> index f67ee513a7cc..7515a40b2056 100644
+> --- a/drivers/gpu/drm/drm_atomic_helper.c
+> +++ b/drivers/gpu/drm/drm_atomic_helper.c
+> @@ -34,6 +34,7 @@
+>  #include <drm/drm_bridge.h>
+>  #include <drm/drm_damage_helper.h>
+>  #include <drm/drm_device.h>
+> +#include <drm/drm_drv.h>
+>  #include <drm/drm_plane_helper.h>
+>  #include <drm/drm_print.h>
+>  #include <drm/drm_self_refresh_helper.h>
+> @@ -3109,7 +3110,7 @@ void drm_atomic_helper_shutdown(struct drm_device *dev)
+>         if (ret)
+>                 DRM_ERROR("Disabling all crtc's during unload failed with %i\n", ret);
+>
+> -       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>  }
+>  EXPORT_SYMBOL(drm_atomic_helper_shutdown);
+>
+> @@ -3249,7 +3250,7 @@ struct drm_atomic_state *drm_atomic_helper_suspend(struct drm_device *dev)
+>         }
+>
+>  unlock:
+> -       DRM_MODESET_LOCK_ALL_END(ctx, err);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, err);
+>         if (err)
+>                 return ERR_PTR(err);
+>
+> @@ -3330,7 +3331,7 @@ int drm_atomic_helper_resume(struct drm_device *dev,
+>
+>         err = drm_atomic_helper_commit_duplicated_state(state, &ctx);
+>
+> -       DRM_MODESET_LOCK_ALL_END(ctx, err);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, err);
+>         drm_atomic_state_put(state);
+>
+>         return err;
+> diff --git a/drivers/gpu/drm/drm_color_mgmt.c b/drivers/gpu/drm/drm_color_mgmt.c
+> index c93123ff7c21..138ff34b31db 100644
+> --- a/drivers/gpu/drm/drm_color_mgmt.c
+> +++ b/drivers/gpu/drm/drm_color_mgmt.c
+> @@ -294,7 +294,7 @@ int drm_mode_gamma_set_ioctl(struct drm_device *dev,
+>                                      crtc->gamma_size, &ctx);
+>
+>  out:
+> -       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>         return ret;
+>
+>  }
+> diff --git a/drivers/gpu/drm/drm_crtc.c b/drivers/gpu/drm/drm_crtc.c
+> index 283bcc4362ca..aecdd7ea26dc 100644
+> --- a/drivers/gpu/drm/drm_crtc.c
+> +++ b/drivers/gpu/drm/drm_crtc.c
+> @@ -588,7 +588,6 @@ int drm_mode_setcrtc(struct drm_device *dev, void *data,
+>         if (crtc_req->mode_valid && !drm_lease_held(file_priv, plane->base.id))
+>                 return -EACCES;
+>
+> -       mutex_lock(&crtc->dev->mode_config.mutex);
+>         DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx,
+>                                    DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+>
+> @@ -756,8 +755,7 @@ int drm_mode_setcrtc(struct drm_device *dev, void *data,
+>         fb = NULL;
+>         mode = NULL;
+>
+> -       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> -       mutex_unlock(&crtc->dev->mode_config.mutex);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>
+>         return ret;
+>  }
+> diff --git a/drivers/gpu/drm/drm_mode_object.c b/drivers/gpu/drm/drm_mode_object.c
+> index 901b078abf40..db05f386a709 100644
+> --- a/drivers/gpu/drm/drm_mode_object.c
+> +++ b/drivers/gpu/drm/drm_mode_object.c
+> @@ -428,7 +428,7 @@ int drm_mode_obj_get_properties_ioctl(struct drm_device *dev, void *data,
+>  out_unref:
+>         drm_mode_object_put(obj);
+>  out:
+> -       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>         return ret;
+>  }
+>
+> @@ -470,7 +470,7 @@ static int set_property_legacy(struct drm_mode_object *obj,
+>                 break;
+>         }
+>         drm_property_change_valid_put(prop, ref);
+> -       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> +       DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>
+>         return ret;
+>  }
+> diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+> index b7b90b3a2e38..affe1cfed009 100644
+> --- a/drivers/gpu/drm/drm_plane.c
+> +++ b/drivers/gpu/drm/drm_plane.c
+> @@ -792,7 +792,7 @@ static int setplane_internal(struct drm_plane *plane,
+>                                           crtc_x, crtc_y, crtc_w, crtc_h,
+>                                           src_x, src_y, src_w, src_h, &ctx);
+>
+> -       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> +       DRM_MODESET_LOCK_ALL_END(plane->dev, ctx, ret);
+>
+>         return ret;
+>  }
+> diff --git a/include/drm/drm_modeset_lock.h b/include/drm/drm_modeset_lock.h
+> index 4fc9a43ac45a..aafd07388eb7 100644
+> --- a/include/drm/drm_modeset_lock.h
+> +++ b/include/drm/drm_modeset_lock.h
+> @@ -164,6 +164,8 @@ int drm_modeset_lock_all_ctx(struct drm_device *dev,
+>   * is 0, so no error checking is necessary
+>   */
+>  #define DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, flags, ret)               \
+> +       if (!drm_drv_uses_atomic_modeset(dev))                          \
+> +               mutex_lock(&dev->mode_config.mutex);                    \
+>         drm_modeset_acquire_init(&ctx, flags);                          \
+>  modeset_lock_retry:                                                    \
+>         ret = drm_modeset_lock_all_ctx(dev, &ctx);                      \
+> @@ -172,6 +174,7 @@ modeset_lock_retry:                                                 \
+>
+>  /**
+>   * DRM_MODESET_LOCK_ALL_END - Helper to release and cleanup modeset locks
+> + * @dev: drm device
+>   * @ctx: local modeset acquire context, will be dereferenced
+>   * @ret: local ret/err/etc variable to track error status
+>   *
+> @@ -188,7 +191,7 @@ modeset_lock_retry:                                                 \
+>   * to that failure. In both of these cases the code between BEGIN/END will not
+>   * be run, so the failure will reflect the inability to grab the locks.
+>   */
+> -#define DRM_MODESET_LOCK_ALL_END(ctx, ret)                             \
+> +#define DRM_MODESET_LOCK_ALL_END(dev, ctx, ret)                                \
+>  modeset_lock_fail:                                                     \
+>         if (ret == -EDEADLK) {                                          \
+>                 ret = drm_modeset_backoff(&ctx);                        \
+> @@ -196,6 +199,8 @@ modeset_lock_fail:                                                  \
+>                         goto modeset_lock_retry;                        \
+>         }                                                               \
+>         drm_modeset_drop_locks(&ctx);                                   \
+> -       drm_modeset_acquire_fini(&ctx);
+> +       drm_modeset_acquire_fini(&ctx);                                 \
+> +       if (!drm_drv_uses_atomic_modeset(dev))                          \
+> +               mutex_unlock(&dev->mode_config.mutex);
+>
+>  #endif /* DRM_MODESET_LOCK_H_ */
+> --
+> 2.28.0
+>
