@@ -2,67 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FF2244468
-	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 07:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3349244492
+	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 07:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726122AbgHNFAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Aug 2020 01:00:21 -0400
-Received: from sonic306-1.consmr.mail.bf2.yahoo.com ([74.6.132.40]:41005 "EHLO
-        sonic306-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726064AbgHNFAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 01:00:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1597381219; bh=Wbb5kU9+nuXHtr27nxpSCllVwLyRvN526jc5ol4mfd0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=qZrmjQbznCTlGJBwihKDOZHbdaTV8uT9bQt7y8YOi9yMni6EMMrDHcBxD0+T6V/HZTGbcEQpc67m82TQJ6h8S7oHSPIDIC1g1rvzD+HiDRJIMDdmnHJJa9gCsbde2JsDbnIIOXMV41MVWMbQ5fRkpmBESTLRK5JlV1eQ1JcP55kN7SmpnW66q/VTQSlE5h7EIteqEyCCGy2oZjO8xojNgC+qhG4QhpcKFQmJrRmxwVB/9p20ymbcF4Mr5L1T52owVkp56NTusznZtaKyebyIXmNEp6Au3zMHrcYQrmQWkxnTfC4NO6mRAIefwr7nSzk2xXkSkMG34eADJ1LZnx5GMw==
-X-YMail-OSG: qNZImSoVM1kO2ZBGRMaYsYbbpEKFFILbaDxIJFSLIG_y2u9Ej7n7umdO2ovBZZ6
- if07JrvuSP2S5IF7f_G3QT7eEHqQqnjWc32Aek21AVF14aJbQCu7Ulg4FlxvkYJ687mbw7Fm54BF
- 0_Bi4wCX2NRFr7gU2uoD6YYeXYfvyfwjAYvLy0MD.7QApyW9FizLTnfVt6qCAqD6BZrC_H5zAOdJ
- 2DU0vVTceBygXTtuYSQ3K4Y1ZCFpk3vevrYJH4_vi35VpuzwOSZ89wRFw4RWJSiqJoSovVN2EABN
- EUhma3H1TI1xxJ66Br1gAAQwIHwCHLS8t9VDCjmXGYy_xBX.TPp4GYonqZQGyKDG_vwjOG9JrUNk
- ZHv_LkRDioqavMwOKy9O91vgsSBDRumuaZNTN4F7r1k0oxLf1qO1es_.o1SFlxDKPn0RCW_fwxf4
- 1_MfhX.IVF_ULlAk2SqveartgjnfOuev_II.SghsEHh6bj.4_Xg13OMm9atsS5m0.LqVLHEEG.wL
- Nx_Zy5lyYMlkKZavsCCdktSgJOkAfJRXXXS1At9OBtCH4TyEGMEUBwxTodGkv7UocwM3obWiC8H_
- YGFyyD0TNOqaXyRUqj7zdGWtbQLPJrkKkZJ4Tf7DnA0lQeadEdmK40iYnwcrKySrQ4.zF8.92QsE
- oidyJJ1JpI8hS07DC7LTeHfj3efoXjfZMaHG660jiNzOQkWLwtU9QOE4k8u6uWcdmbvAkD.VegYn
- asgKHkAlBP5XET_b3GFOGfuE8CD9Xq1LVLG73NNMG6iWo_CTZmirXTovNAmQ1jtYwMDukblG.6bP
- uUoeF_dSTUE.PuoDSWelv2a8cJZpmrqmEZO9Y.0mphVoyRV0dkg79vDxvtEHTeoKyRrOtobbslPX
- EDF_EG7XbK.58TV3BSRdYZ7F2qOqdI1MqczMylqZBTWHmjJbDUa4YCSAOzwuqts7bAaPCpr98Lhi
- CByczJiw3reM.mlHSs1OyAwy6hERLScR7kCflyvTh.6BEjyEVakCvGUp9qgqCkenFJ9Eb54P6SpP
- Hn4.Sbx1WjqZwcTHwKADW79IQnRH54TER.dcNwYgPEiBD0zW.By5C232zmmPDm8g9KVwCGgCkEnK
- pUtHF3iPHxZXR_IZ9LTvlaz12E9SsY2EiI.zvE_03yDLY7ASJLbu69P_mCfwxUxuXjvt45PsJzYS
- IM4TPUQGcfJvROa7QV4z1ysPvU1HcmVgT84neUGltiorufehXxSpJQTKZVH6g0RNrFjHXsbRW6UQ
- 505706A9PxB7aqLuL2V8NsATiLNsjgU9n746GTYG5x1EgDoj..FthfJEF7FIc962gtR5kZG9fG0l
- 2ahmg9BNPSfCQpXKXHiK3YVWJkWgfgVEmnHkvXKS1d6MGyVCRJzX_swnx
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Fri, 14 Aug 2020 05:00:19 +0000
-Date:   Fri, 14 Aug 2020 05:00:18 +0000 (UTC)
-From:   "Mr.Sawadogo Michel" <sawadogomichel38@gmail.com>
-Reply-To: mr.sawadogomichel1@gmail.com
-Message-ID: <402479655.1394420.1597381218427@mail.yahoo.com>
-Subject: Hello Dear Friend,
+        id S1726091AbgHNFdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Aug 2020 01:33:19 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:35412 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726064AbgHNFdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 01:33:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597383193;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VUlN7/muTmNJU/kOc7+FQne+JPRggvMyrl0TTK+qWtY=;
+        b=Yon4aoA2aaYTZliujyfdiCq8loVUHPkHNh1f7W0A5KU1+M7zkX+dPDqyX2xjVLR+jedlrl
+        VUrXJesT1yOgGWLD0/8D1VGqo00e73HKccyVl/MPehJXNOM4tzyoJWvxKpceGaVT/6yQFs
+        FNj34uDJlT5lHtftrxDemfr1frFWc7c=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-208-DRCPUm6kM4C6PzjYqGed9w-1; Fri, 14 Aug 2020 01:33:12 -0400
+X-MC-Unique: DRCPUm6kM4C6PzjYqGed9w-1
+Received: by mail-wm1-f71.google.com with SMTP id s4so2755556wmh.1
+        for <stable@vger.kernel.org>; Thu, 13 Aug 2020 22:33:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=VUlN7/muTmNJU/kOc7+FQne+JPRggvMyrl0TTK+qWtY=;
+        b=N87mD4YGu2WzuOkj/yhT1GmTRzyRf+5O9U+O+9k2ZxU65iFIR+TPh+7BTh8xdzPg89
+         JeB7KFMk0ClosrdBwZ9QSR5dqUrhjr9MiwqblcgpyJLL73SiGg8KQK+nAjoeFYA+Ng6A
+         XvKnuHxWEDYA4Ye4GAb+mMfo8QHJaktfdZ93LDFNd4a0NEBh1ESY8F2X/VN/RxYR4d8L
+         XWvHqNXGJMsgF9/PvXFY0Z4zFyuF47cPJeqX8T9xSXcueDR8X1f7+VQS0RRJw0Dl3Vjz
+         nmzBQ4pcZ9qrTTd7hgTVMBTHsb2t+4UWb9ixP6OAcMUtff9+yI1MGSzqUiCySjMUgch0
+         NJcA==
+X-Gm-Message-State: AOAM533ssJ5CKllA8YZEAOTsY3rPwDbkTvbIuuqRJFXKF0RoE0NqT3t1
+        rUXlKSqoZZwFHSYJlzustOIKpBeD6l89V+J4k4nkA1SMGvW1obLdbGWDG32UmVwkuISUnDojntP
+        xeQ/JOv8OWX/V/g1c
+X-Received: by 2002:a1c:6a03:: with SMTP id f3mr923851wmc.181.1597383190791;
+        Thu, 13 Aug 2020 22:33:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJza5iAfxNa6Dqa01L8V/HgdeT1QAICg0P0xSswLvZG8jU+ViNYM+qf84nDSz7o0j7lcDNrIUw==
+X-Received: by 2002:a1c:6a03:: with SMTP id f3mr923711wmc.181.1597383188634;
+        Thu, 13 Aug 2020 22:33:08 -0700 (PDT)
+Received: from redhat.com (bzq-79-177-102-128.red.bezeqint.net. [79.177.102.128])
+        by smtp.gmail.com with ESMTPSA id w10sm13227959wmk.0.2020.08.13.22.33.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Aug 2020 22:33:07 -0700 (PDT)
+Date:   Fri, 14 Aug 2020 01:33:04 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Jason Wang <jasowang@redhat.com>, Max Gurtovoy <maxg@mellanox.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] vdpasim: protect concurrent access to iommu iotlb
+Message-ID: <20200814013229-mutt-send-email-mst@kernel.org>
+References: <20200731073822.13326-1-jasowang@redhat.com>
+ <20200813162551.78D1820658@mail.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <402479655.1394420.1597381218427.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16455 YMailNodin Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200813162551.78D1820658@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear Friend,
+On Thu, Aug 13, 2020 at 04:25:50PM +0000, Sasha Levin wrote:
+> Hi
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag
+> fixing commit: .
+> 
+> The bot has tested the following trees: v5.8, v5.7.14, v5.4.57, v4.19.138, v4.14.193, v4.9.232, v4.4.232.
+> 
+> v5.8: Build OK!
+> v5.7.14: Build OK!
+> v5.4.57: Failed to apply! Possible dependencies:
+>     2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>     961e9c84077f ("vDPA: introduce vDPA bus")
+> 
+> v4.19.138: Failed to apply! Possible dependencies:
+>     2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>     961e9c84077f ("vDPA: introduce vDPA bus")
+> 
+> v4.14.193: Failed to apply! Possible dependencies:
+>     2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>     7b95fec6d2ff ("virtio: make VIRTIO a menuconfig to ease disabling it all")
+>     961e9c84077f ("vDPA: introduce vDPA bus")
+> 
+> v4.9.232: Failed to apply! Possible dependencies:
+>     0d7f4f0594fc ("MAINTAINERS: update rmk's entries")
+>     2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>     384fe7a4d732 ("drivers: net: xgene-v2: Add DMA descriptor")
+>     3b3f9a75d931 ("drivers: net: xgene-v2: Add base driver")
+>     404a5c392dcc ("MAINTAINERS: fix virtio file pattern")
+>     51c5d8447bd7 ("MMC: meson: initial support for GX platforms")
+>     6bc37fac30cf ("arm64: dts: add Allwinner A64 SoC .dtsi")
+>     70dbd9b258d5 ("MAINTAINERS: Add entry for APM X-Gene SoC Ethernet (v2) driver")
+>     7683e9e52925 ("Properly alphabetize MAINTAINERS file")
+>     81ccd0cab29b ("drivers: net: xgene-v2: Add mac configuration")
+>     872d1ba47bdc ("MAINTAINERS: Add Actions Semi Owl section")
+>     87c586a6a0e1 ("MAINTAINERS: Update the Allwinner sunXi entry")
+>     961e9c84077f ("vDPA: introduce vDPA bus")
+>     b105bcdaaa0e ("drivers: net: xgene-v2: Add transmit and receive")
+>     b26bff6e52d8 ("MAINTAINERS: Add device tree bindings to mv88e6xx section")
+>     c0a6a5ae6b5d ("MAINTAINERS: copy virtio on balloon_compaction.c")
+>     d5d4602e0405 ("Staging: iio: fix a MAINTAINERS entry")
+>     dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+>     fd33f3eca6bf ("MAINTAINERS: Add maintainers for the meson clock driver")
+> 
+> v4.4.232: Failed to apply! Possible dependencies:
+>     02038fd6645a ("crypto: Added Chelsio Menu to the Kconfig file")
+>     06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+>     2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>     404a5c392dcc ("MAINTAINERS: fix virtio file pattern")
+>     433cd2c617bf ("crypto: rockchip - add crypto driver for rk3288")
+>     6f99612e2500 ("tpm: Proxy driver for supporting multiple emulated TPMs")
+>     961e9c84077f ("vDPA: introduce vDPA bus")
+>     c0a6a5ae6b5d ("MAINTAINERS: copy virtio on balloon_compaction.c")
+>     dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
 
-My name is Mr.Sawadogo Michel. I have decided to seek a confidential co-operation  with you in the execution of the deal described here-under for our both  mutual benefit and I hope you will keep it a top secret because of the nature  of the transaction, During the course of our bank year auditing, I discovered  an unclaimed/abandoned fund, sum total of {US$19.3 Million United State  Dollars} in the bank account that belongs to a Saudi Arabia businessman Who unfortunately lost his life and entire family in a Motor Accident.
+It's a simulator so I am not sure we need it at all.
+Note there's a fix for this patch also upstrean, if it is
+applied we need the fix too I think.
 
-Now our bank has been waiting for any of the relatives to come-up for the claim but nobody has done that. I personally has been unsuccessful in locating any of the relatives, now, I sincerely seek your consent to present you as the next of kin / Will Beneficiary to the deceased so that the proceeds of this account valued at {US$19.3 Million United State Dollars} can be paid to you, which we will share in these percentages ratio, 60% to me and 40% to you. All I request is your utmost sincere co-operation; trust and maximum confidentiality to achieve this project successfully. I have carefully mapped out the moralities for execution of this transaction under a legitimate arrangement to protect you from any breach of the law both in your country and here in Burkina Faso when the fund is being transferred to your bank account.
+> -- 
+> Thanks
+> Sasha
 
-I will have to provide all the relevant document that will be requested to indicate that you are the rightful beneficiary of this legacy and our bank will release the fund to you without any further delay, upon your consideration and acceptance of this offer, please send me the following information as stated below so we can proceed and get this fund transferred to your designated bank account immediately.
-
--Your Full Name:
--Your Contact Address:
--Your direct Mobile telephone Number:
--Your Date of Birth:
--Your occupation:
-
-I await your swift response and re-assurance.
-
-Best regards,
-Mr.Sawadogo Michel.
