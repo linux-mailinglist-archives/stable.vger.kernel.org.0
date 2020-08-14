@@ -2,109 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C436F244FDA
-	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 00:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D67C2245021
+	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 01:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726652AbgHNWb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Aug 2020 18:31:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34208 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726596AbgHNWbz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Aug 2020 18:31:55 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97F2A20716;
-        Fri, 14 Aug 2020 22:31:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597444315;
-        bh=XP66Pq+Ux3vvBHhb4rwTJW8fprvue7ksOhrK7VZMBFc=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=dmHcqfEYyoFIrSaK2Ns6iANFO73RlrHwTq/xLKig7QsH2jELwRtbu0O4DF42uYRaq
-         LgG4DAKWfek47+gc40zjvsBm5bqCny+OYWlGZMiCTcx4faux2IUx9L3FQknY5T1ZRK
-         mNHm6ggN5smXgPhlmMbgKCoeR5LFEmokP1RAOVec=
-Date:   Fri, 14 Aug 2020 15:31:54 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     aarcange@redhat.com, edumazet@google.com, hughd@google.com,
-        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, songliubraving@fb.com,
-        stable@vger.kernel.org, syzkaller@googlegroups.com
-Subject:  +
- khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter.patch added to -mm
- tree
-Message-ID: <20200814223154.GPMju05_c%akpm@linux-foundation.org>
-In-Reply-To: <20200811182949.e12ae9a472e3b5e27e16ad6c@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726229AbgHNXZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Aug 2020 19:25:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726213AbgHNXZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 19:25:40 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA9DC061385;
+        Fri, 14 Aug 2020 16:25:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+        :Reply-To:Content-ID:Content-Description;
+        bh=Y0E0LZUHG1vNnpFUrQvEenCL5ANWUqlMtRfd74+R+f4=; b=ZMi+b2V2BDJLYdZu4LmYyLf93Y
+        LbEZs4mp5zRmDlBM6rUd1xxVkoETDadYCD1tNb4NR1eEnLjlHBmJikkaxQHGKfiYd6gu0QD6k02IW
+        pQtGg2/R9g33xhRbBmD9tEc+56RVqyONxwU2SfIULbdnHuXTXZqv7t1++M9gJIA0YO6QhITj2MXU1
+        6o7LvvXW+a9O619rFSRW6yQ1UuicmRbsdcVnT56Afe8VRCFN1EIzqq6u5iXEeadBdPe+lvlOClcxP
+        XguDnOrVDKZHfhxYAaX0lppoeLvnxXdA82xRSPw8VFNjNYF+fR9zMAh1yH/EX+XgP5/QxVclmiqTG
+        h9k5CJ0Q==;
+Received: from [2601:1c0:6280:3f0::19c2]
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1k6j4q-0003s4-1D; Fri, 14 Aug 2020 23:25:37 +0000
+Subject: Re: [PATCH] x86/hotplug: Silence APIC only after all irq's are
+ migrated
+To:     Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+        tglx@linutronix.de
+Cc:     Sukumar Ghorai <sukumar.ghorai@intel.com>,
+        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
+        Evan Green <evgreen@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org
+References: <20200814213842.31151-1-ashok.raj@intel.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <bb47f196-90e5-3f78-305b-122fc9192867@infradead.org>
+Date:   Fri, 14 Aug 2020 16:25:32 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200814213842.31151-1-ashok.raj@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 8/14/20 2:38 PM, Ashok Raj wrote:
+> When offlining CPU's, fixup_irqs() migrates all interrupts away from the
 
-The patch titled
-     Subject: khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
-has been added to the -mm tree.  Its filename is
-     khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter.patch
+                 CPUs,
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter.patch
+> outgoing CPU to an online CPU. Its always possible the device sent an
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+                                 It's
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> interrupt to the previous CPU destination. Pending interrupt bit in IRR in
+> lapic identifies such interrupts. apic_soft_disable() will not capture any
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+  LAPIC
 
-------------------------------------------------------
-From: Hugh Dickins <hughd@google.com>
-Subject: khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
+> new interrupts in IRR. This causes interrupts from device to be lost during
+> cpu offline. The issue was found when explicitly setting MSI affinity to a
 
-syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
-__khugepaged_enter(): yes, when one thread is about to dump core, has set
-core_state, and is waiting for others, another might do something calling
-__khugepaged_enter(), which now crashes because I lumped the core_state
-test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
-think it's best to lump them together, so just in this exceptional case,
-check mm->mm_users directly instead of khugepaged_test_exit().
+  CPU
 
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
-Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+> CPU and immediately offlining it. It was simple to recreate with a USB
+> ethernet device and doing I/O to it while the CPU is offlined. Lost
+> interrupts happen even when Interrupt Remapping is enabled.
+> 
+> Current code does apic_soft_disable() before migrating interrupts.
+> 
+> native_cpu_disable()
+> {
+> 	...
+> 	apic_soft_disable();
+> 	cpu_disable_common();
+> 	  --> fixup_irqs(); // Too late to capture anything in IRR.
+> }
+> 
+> Just fliping the above call sequence seems to hit the IRR checks
 
- mm/khugepaged.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+       flipping
 
---- a/mm/khugepaged.c~khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter
-+++ a/mm/khugepaged.c
-@@ -466,7 +466,7 @@ int __khugepaged_enter(struct mm_struct
- 		return -ENOMEM;
- 
- 	/* __khugepaged_exit() must not run from under us */
--	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
-+	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
- 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
- 		free_mm_slot(mm_slot);
- 		return 0;
-_
+> and the lost interrupt is fixed for both legacy MSI and when
+> interrupt remapping is enabled.
+> 
+> 
+> Fixes: 60dcaad5736f ("x86/hotplug: Silence APIC and NMI when CPU is dead")
+> Link: https://lore.kernel.org/lkml/875zdarr4h.fsf@nanos.tec.linutronix.de/
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> 
+> To: linux-kernel@vger.kernel.org
+> To: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Sukumar Ghorai <sukumar.ghorai@intel.com>
+> Cc: Srikanth Nandamuri <srikanth.nandamuri@intel.com>
+> Cc: Evan Green <evgreen@chromium.org>
+> Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/x86/kernel/smpboot.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+> index ffbd9a3d78d8..278cc9f92f2f 100644
+> --- a/arch/x86/kernel/smpboot.c
+> +++ b/arch/x86/kernel/smpboot.c
+> @@ -1603,13 +1603,20 @@ int native_cpu_disable(void)
+>  	if (ret)
+>  		return ret;
+>  
+> +	cpu_disable_common();
+>  	/*
+>  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
+>  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
+> -	 * messages.
+> +	 * messages. Its important to do apic_soft_disable() after
 
-Patches currently in -mm which might be from hughd@google.com are
+	             It's
 
-dma-debug-fix-debug_dma_assert_idle-use-rcu_read_lock.patch
-khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter.patch
+> +	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
+> +	 * depends on IRR being set. After apic_soft_disable() CPU preserves
+> +	 * currently set IRR/ISR but new interrupts will not set IRR.
+> +	 * This causes interrupts sent to outgoing cpu before completion
+
+	                                           CPU
+
+> +	 * of irq migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
+
+	      IRQ
+
+> +	 * APIC State after It Has been Software Disabled" section for more
+> +	 * details.
+>  	 */
+>  	apic_soft_disable();
+> -	cpu_disable_common();
+>  
+>  	return 0;
+>  }
+> 
+
+thanks.
+-- 
+~Randy
 
