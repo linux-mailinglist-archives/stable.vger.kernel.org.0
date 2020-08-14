@@ -2,96 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AB352442D2
-	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 03:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B1E2244310
+	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 04:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbgHNBo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Aug 2020 21:44:56 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:60327 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726681AbgHNBoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Aug 2020 21:44:54 -0400
-X-UUID: 372feafcc8cf43b4a9cda9f9ab1202a5-20200814
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=VFjE0n0yP6rYccsrd1vDlg8jm85JSl2DOXPzRxPAWrs=;
-        b=WBlGYSJPB3dX2DcMkh83kUpq6aw52KxoBRhG1jKfnr7DbTYhaA8GR9bbt/3oG1CRLWpep+AE0CSThoA9jv+x8+hCfkiP7ewhU5rUnPLIicdZ9joD5uN0pEarwzaxwGZuuk/UIDaVnKw2v72J44DtB0UcTOcoDLRh19038578zSo=;
-X-UUID: 372feafcc8cf43b4a9cda9f9ab1202a5-20200814
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
-        (envelope-from <wenbin.mei@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 579499826; Fri, 14 Aug 2020 09:44:50 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 14 Aug 2020 09:44:48 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 14 Aug 2020 09:44:47 +0800
-From:   Wenbin Mei <wenbin.mei@mediatek.com>
-To:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>
-CC:     Chaotian Jing <chaotian.jing@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        <linux-mmc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <srv_heupstream@mediatek.com>,
-        Wenbin Mei <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
-Subject: [v5,3/3] mmc: mediatek: add optional module reset property
-Date:   Fri, 14 Aug 2020 09:43:46 +0800
-Message-ID: <20200814014346.6496-4-wenbin.mei@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20200814014346.6496-1-wenbin.mei@mediatek.com>
-References: <20200814014346.6496-1-wenbin.mei@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+        id S1726583AbgHNCjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Aug 2020 22:39:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55510 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726568AbgHNCjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Aug 2020 22:39:01 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19E0F20716;
+        Fri, 14 Aug 2020 02:39:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597372741;
+        bh=cnAL2vIBTt3uq1JMVQ9UJxEMyeOHJf60jhtlt8AtQ7k=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=bx9bEPq4MEH9WmDggsc+eXYZy1/83rgeDPeAFnIb4Nr3aXd4O1J3h+V40kR96jwba
+         hAtNlV3UPvS+7iXxyrIdpfcD8pP16+CMrpDwztceqoVvro32wqHVgFAB7LTM1Lnoti
+         KcR1OYMFy+12YaIi56epd9TMUFWtXNbCbCYaZLQE=
+Date:   Thu, 13 Aug 2020 19:39:00 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     mhiramat@kernel.org, mm-commits@vger.kernel.org,
+        rostedt@goodmis.org, stable@vger.kernel.org
+Subject:  +
+ bootconfig-fix-off-by-one-in-xbc_node_compose_key_after.patch added to -mm
+ tree
+Message-ID: <20200814023900.VVivaKSaJ%akpm@linux-foundation.org>
+In-Reply-To: <20200811182949.e12ae9a472e3b5e27e16ad6c@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhpcyBwYXRjaCBmaXhzIGVNTUMtQWNjZXNzIG9uIG10NzYyMi9CcGktNjQuDQpCZWZvcmUgd2Ug
-Z290IHRoZXNlIEVycm9ycyBvbiBtb3VudGluZyBlTU1DIGlvbiBSNjQ6DQpbICAgNDguNjY0OTI1
-XSBibGtfdXBkYXRlX3JlcXVlc3Q6IEkvTyBlcnJvciwgZGV2IG1tY2JsazAsIHNlY3RvciAyMDQ4
-MDAgb3AgMHgxOihXUklURSkNCmZsYWdzIDB4ODAwIHBoeXNfc2VnIDEgcHJpbyBjbGFzcyAwDQpb
-ICAgNDguNjc2MDE5XSBCdWZmZXIgSS9PIGVycm9yIG9uIGRldiBtbWNibGswcDEsIGxvZ2ljYWwg
-YmxvY2sgMCwgbG9zdCBzeW5jIHBhZ2Ugd3JpdGUNCg0KVGhpcyBwYXRjaCBhZGRzIGEgb3B0aW9u
-YWwgcmVzZXQgbWFuYWdlbWVudCBmb3IgbXNkYy4NClNvbWV0aW1lcyB0aGUgYm9vdGxvYWRlciBk
-b2VzIG5vdCBicmluZyBtc2RjIHJlZ2lzdGVyDQp0byBkZWZhdWx0IHN0YXRlLCBzbyBuZWVkIHJl
-c2V0IHRoZSBtc2RjIGNvbnRyb2xsZXIuDQoNCkNjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4g
-IyB2NS40Kw0KRml4ZXM6IDk2NjU4MGFkMjM2ZSAoIm1tYzogbWVkaWF0ZWs6IGFkZCBzdXBwb3J0
-IGZvciBNVDc2MjIgU29DIikNClNpZ25lZC1vZmYtYnk6IFdlbmJpbiBNZWkgPHdlbmJpbi5tZWlA
-bWVkaWF0ZWsuY29tPg0KUmV2aWV3ZWQtYnk6IFBoaWxpcHAgWmFiZWwgPHAuemFiZWxAcGVuZ3V0
-cm9uaXguZGU+DQpUZXN0ZWQtYnk6IEZyYW5rIFd1bmRlcmxpY2ggPGZyYW5rLXdAcHVibGljLWZp
-bGVzLmRlPg0KLS0tDQogZHJpdmVycy9tbWMvaG9zdC9tdGstc2QuYyB8IDEzICsrKysrKysrKysr
-KysNCiAxIGZpbGUgY2hhbmdlZCwgMTMgaW5zZXJ0aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvZHJp
-dmVycy9tbWMvaG9zdC9tdGstc2QuYyBiL2RyaXZlcnMvbW1jL2hvc3QvbXRrLXNkLmMNCmluZGV4
-IDM5ZTdmYzU0YzQzOC4uZmM5N2Q1YmYzYTIwIDEwMDY0NA0KLS0tIGEvZHJpdmVycy9tbWMvaG9z
-dC9tdGstc2QuYw0KKysrIGIvZHJpdmVycy9tbWMvaG9zdC9tdGstc2QuYw0KQEAgLTIyLDYgKzIy
-LDcgQEANCiAjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KICNpbmNsdWRlIDxsaW51eC9zcGlubG9j
-ay5oPg0KICNpbmNsdWRlIDxsaW51eC9pbnRlcnJ1cHQuaD4NCisjaW5jbHVkZSA8bGludXgvcmVz
-ZXQuaD4NCiANCiAjaW5jbHVkZSA8bGludXgvbW1jL2NhcmQuaD4NCiAjaW5jbHVkZSA8bGludXgv
-bW1jL2NvcmUuaD4NCkBAIC00MzQsNiArNDM1LDcgQEAgc3RydWN0IG1zZGNfaG9zdCB7DQogCXN0
-cnVjdCBtc2RjX3NhdmVfcGFyYSBzYXZlX3BhcmE7IC8qIHVzZWQgd2hlbiBnYXRlIEhDTEsgKi8N
-CiAJc3RydWN0IG1zZGNfdHVuZV9wYXJhIGRlZl90dW5lX3BhcmE7IC8qIGRlZmF1bHQgdHVuZSBz
-ZXR0aW5nICovDQogCXN0cnVjdCBtc2RjX3R1bmVfcGFyYSBzYXZlZF90dW5lX3BhcmE7IC8qIHR1
-bmUgcmVzdWx0IG9mIENNRDIxL0NNRDE5ICovDQorCXN0cnVjdCByZXNldF9jb250cm9sICpyZXNl
-dDsNCiB9Ow0KIA0KIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbXRrX21tY19jb21wYXRpYmxlIG10ODEz
-NV9jb21wYXQgPSB7DQpAQCAtMTUxNiw2ICsxNTE4LDEyIEBAIHN0YXRpYyB2b2lkIG1zZGNfaW5p
-dF9odyhzdHJ1Y3QgbXNkY19ob3N0ICpob3N0KQ0KIAl1MzIgdmFsOw0KIAl1MzIgdHVuZV9yZWcg
-PSBob3N0LT5kZXZfY29tcC0+cGFkX3R1bmVfcmVnOw0KIA0KKwlpZiAoaG9zdC0+cmVzZXQpIHsN
-CisJCXJlc2V0X2NvbnRyb2xfYXNzZXJ0KGhvc3QtPnJlc2V0KTsNCisJCXVzbGVlcF9yYW5nZSgx
-MCwgNTApOw0KKwkJcmVzZXRfY29udHJvbF9kZWFzc2VydChob3N0LT5yZXNldCk7DQorCX0NCisN
-CiAJLyogQ29uZmlndXJlIHRvIE1NQy9TRCBtb2RlLCBjbG9jayBmcmVlIHJ1bm5pbmcgKi8NCiAJ
-c2RyX3NldF9iaXRzKGhvc3QtPmJhc2UgKyBNU0RDX0NGRywgTVNEQ19DRkdfTU9ERSB8IE1TRENf
-Q0ZHX0NLUEROKTsNCiANCkBAIC0yMjczLDYgKzIyODEsMTEgQEAgc3RhdGljIGludCBtc2RjX2Ry
-dl9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KIAlpZiAoSVNfRVJSKGhvc3Qt
-PnNyY19jbGtfY2cpKQ0KIAkJaG9zdC0+c3JjX2Nsa19jZyA9IE5VTEw7DQogDQorCWhvc3QtPnJl
-c2V0ID0gZGV2bV9yZXNldF9jb250cm9sX2dldF9vcHRpb25hbF9leGNsdXNpdmUoJnBkZXYtPmRl
-diwNCisJCQkJCQkJCSJocnN0Iik7DQorCWlmIChJU19FUlIoaG9zdC0+cmVzZXQpKQ0KKwkJcmV0
-dXJuIFBUUl9FUlIoaG9zdC0+cmVzZXQpOw0KKw0KIAlob3N0LT5pcnEgPSBwbGF0Zm9ybV9nZXRf
-aXJxKHBkZXYsIDApOw0KIAlpZiAoaG9zdC0+aXJxIDwgMCkgew0KIAkJcmV0ID0gLUVJTlZBTDsN
-Ci0tIA0KMi4xOC4wDQo=
+
+The patch titled
+     Subject: bootconfig: fix off-by-one in xbc_node_compose_key_after()
+has been added to the -mm tree.  Its filename is
+     bootconfig-fix-off-by-one-in-xbc_node_compose_key_after.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/bootconfig-fix-off-by-one-in-xbc_node_compose_key_after.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/bootconfig-fix-off-by-one-in-xbc_node_compose_key_after.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Subject: bootconfig: fix off-by-one in xbc_node_compose_key_after()
+
+While reviewing some patches for bootconfig, I noticed the following
+code in xbc_node_compose_key_after():
+
+	ret = snprintf(buf, size, "%s%s", xbc_node_get_data(node),
+		       depth ? "." : "");
+	if (ret < 0)
+		return ret;
+	if (ret > size) {
+		size = 0;
+	} else {
+		size -= ret;
+		buf += ret;
+	}
+
+But snprintf() returns the number of bytes that would be written, not
+the number of bytes that are written (ignoring the nul terminator).
+This means that if the number of non null bytes written were to equal
+size, then the nul byte, which snprintf() always adds, will overwrite
+that last byte.
+
+	ret = snprintf(buf, 5, "hello");
+	printf("buf = '%s'
+", buf);
+	printf("ret = %d
+", ret);
+
+produces:
+
+	buf = 'hell'
+	ret = 5
+
+The string was truncated without ret being greater than 5.
+Test (ret >= size) for overwrite.
+
+Link: http://lkml.kernel.org/r/20200813183050.029a6003@oasis.local.home
+Fixes: 76db5a27a827c ("bootconfig: Add Extra Boot Config support")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ lib/bootconfig.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/lib/bootconfig.c~bootconfig-fix-off-by-one-in-xbc_node_compose_key_after
++++ a/lib/bootconfig.c
+@@ -248,7 +248,7 @@ int __init xbc_node_compose_key_after(st
+ 			       depth ? "." : "");
+ 		if (ret < 0)
+ 			return ret;
+-		if (ret > size) {
++		if (ret >= size) {
+ 			size = 0;
+ 		} else {
+ 			size -= ret;
+_
+
+Patches currently in -mm which might be from rostedt@goodmis.org are
+
+bootconfig-fix-off-by-one-in-xbc_node_compose_key_after.patch
 
