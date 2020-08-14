@@ -2,85 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CDFC2448A0
-	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 13:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45876244C5A
+	for <lists+stable@lfdr.de>; Fri, 14 Aug 2020 17:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbgHNLEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Aug 2020 07:04:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727931AbgHNLEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 07:04:39 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771E2C06138B
-        for <stable@vger.kernel.org>; Fri, 14 Aug 2020 04:04:37 -0700 (PDT)
-Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1k6XVg-00040D-DJ; Fri, 14 Aug 2020 13:04:32 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Oleksij Rempel <o.rempel@pengutronix.de>,
-        syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com,
-        linux-stable <stable@vger.kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4/6] can: j1939: socket: j1939_sk_bind(): make sure ml_priv is allocated
-Date:   Fri, 14 Aug 2020 13:04:26 +0200
-Message-Id: <20200814110428.405051-5-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200814110428.405051-1-mkl@pengutronix.de>
-References: <20200814110428.405051-1-mkl@pengutronix.de>
+        id S1727833AbgHNP5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Aug 2020 11:57:42 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:62505 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726285AbgHNP5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Aug 2020 11:57:42 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22129561-1500050 
+        for multiple; Fri, 14 Aug 2020 16:57:38 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/3] drm/i915/gt: Wait for CSB entries on Tigerlake
+Date:   Fri, 14 Aug 2020 16:57:34 +0100
+Message-Id: <20200814155735.29138-2-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200814155735.29138-1-chris@chris-wilson.co.uk>
+References: <20200814155735.29138-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+On Tigerlake, we are seeing a repeat of commit d8f505311717 ("drm/i915/icl:
+Forcibly evict stale csb entries") where, presumably, due to a missing
+Global Observation Point synchronisation, the write pointer of the CSB
+ringbuffer is updated _prior_ to the contents of the ringbuffer. That is
+we see the GPU report more context-switch entries for us to parse, but
+those entries have not been written, leading us to process stale events,
+and eventually report a hung GPU.
 
-This patch adds check to ensure that the struct net_device::ml_priv is
-allocated, as it is used later by the j1939 stack.
+However, this effect appears to be much more severe than we previously
+saw on Icelake (though it might be best if we try the same approach
+there as well and measure), and Bruce suggested the good idea of resetting
+the CSB entry after use so that we can detect when it has been updated by
+the GPU. By instrumenting how long that may be, we can set a reliable
+upper bound for how long we should wait for:
 
-The allocation is done by all mainline CAN network drivers, but when using
-bond or team devices this is not the case.
+    513 late, avg of 61 retries (590 ns), max of 1061 retries (10099 ns)
 
-Bail out if no ml_priv is allocated.
-
-Reported-by: syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20200807105200.26441-4-o.rempel@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2045
+References: d8f505311717 ("drm/i915/icl: Forcibly evict stale csb entries")
+Suggested-by: Bruce Chang <yu.bruce.chang@intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Bruce Chang <yu.bruce.chang@intel.com>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: stable@vger.kernel.org # v5.4
 ---
- net/can/j1939/socket.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index ad973370de12..b93876c57fc4 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -467,6 +467,14 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 			goto out_release_sock;
- 		}
- 
-+		if (!ndev->ml_priv) {
-+			netdev_warn_once(ndev,
-+					 "No CAN mid layer private allocated, please fix your driver and use alloc_candev()!\n");
-+			dev_put(ndev);
-+			ret = -ENODEV;
-+			goto out_release_sock;
-+		}
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index db982fc0f0bc..3b8161c6b601 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -2498,9 +2498,22 @@ invalidate_csb_entries(const u64 *first, const u64 *last)
+  */
+ static inline bool gen12_csb_parse(const u64 *csb)
+ {
+-	u64 entry = READ_ONCE(*csb);
+-	bool ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
+-	bool new_queue =
++	bool ctx_away_valid;
++	bool new_queue;
++	u64 entry;
 +
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
- 		if (IS_ERR(priv)) {
++	/* XXX HSD */
++	entry = READ_ONCE(*csb);
++	if (unlikely(entry == -1)) {
++		preempt_disable();
++		if (wait_for_atomic_us((entry = READ_ONCE(*csb)) != -1, 50))
++			GEM_WARN_ON("50us CSB timeout");
++		preempt_enable();
++	}
++	WRITE_ONCE(*(u64 *)csb, -1);
++
++	ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
++	new_queue =
+ 		lower_32_bits(entry) & GEN12_CTX_STATUS_SWITCHED_TO_NEW_QUEUE;
+ 
+ 	/*
+@@ -3995,6 +4008,8 @@ static void reset_csb_pointers(struct intel_engine_cs *engine)
+ 	WRITE_ONCE(*execlists->csb_write, reset_value);
+ 	wmb(); /* Make sure this is visible to HW (paranoia?) */
+ 
++	/* Check that the GPU does indeed update the CSB entries! */
++	memset(execlists->csb_status, -1, (reset_value + 1) * sizeof(u64));
+ 	invalidate_csb_entries(&execlists->csb_status[0],
+ 			       &execlists->csb_status[reset_value]);
+ 
 -- 
-2.28.0
+2.20.1
 
