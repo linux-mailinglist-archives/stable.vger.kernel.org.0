@@ -2,110 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B648E2452FB
-	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 23:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29EC424520D
+	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 23:38:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729453AbgHOV5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Aug 2020 17:57:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729006AbgHOVwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Aug 2020 17:52:09 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60371C0F26DD
-        for <stable@vger.kernel.org>; Sat, 15 Aug 2020 10:46:45 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id f24so13213985ejx.6
-        for <stable@vger.kernel.org>; Sat, 15 Aug 2020 10:46:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:subject:message-id:mime-version
-         :content-disposition;
-        bh=eywfHkN6w/lFhgBNnTwkJBsdX/9WXxuaVVWtUYroxDA=;
-        b=mDAVm44j8IfXoVl4RDa9PGE6NNsD9+Pt5YOpK2bsf1QVZdAzXgjUQYiFMT8M25pOs+
-         2LDYzqZp6USzieTOesV0U4DQBKlPCvIJLNTUuHGkUcrqqq0t4nxlmZMwY3fallheqBfC
-         ymgRdiwmb6QRoGYzpYdoG9RvibnaXlREHWVI2NNbefiCz5y99Kh01a7FAkvDiTnWtHLP
-         dd/+bdmmsynxdDXAqrwXBSpwAeBhbKr0SEHWvPfUifSr2Jl9aVpRwuTToJWcGwDQV8fm
-         ICbIyM/3wVWnAd1cOCvtzizit8nbfstUj0I/BTlIGdVE5GTizvHxi1c8Q88HQbobvTH9
-         ycMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:subject:message-id
-         :mime-version:content-disposition;
-        bh=eywfHkN6w/lFhgBNnTwkJBsdX/9WXxuaVVWtUYroxDA=;
-        b=BDcUqCoNGj5PEIGc0gdFy5dRxbYHnrzNVjkFtwkOpDhPZxFM0tqnaiP0XseMub82Wi
-         fhp8kEK9h3OUDBM7Sbnrxs8UreG2xnmXBde0yB484iLlQGkVkaqriVns6SpT/ZRfRzzv
-         K/f+DQ10nD32izxWJt3sULtHMWaFL5RstNs1Gg7OqDlrbJwAz33jIVJhmokfDaXYQwgx
-         8ucSmlAf3quXVmObCK8YXnmqYbVBrFGZdE6iYG6wKyJzmIxbuTkvieiISE7nQPK3Dnvq
-         n0LsotBIYw8KyR7pg4aZLpKlHPsQDyOt0VfziwjfoNM+h2Itz1d6v6UgbSKDF9E9iDK6
-         hZcw==
-X-Gm-Message-State: AOAM532sXKSZqzsBsDdWMA33wkLrqwh5CPJmCpbSN6MuUAkoMERXjShA
-        0iJcodpWcnIjUgQvIQYr3f1lUb0iFsI=
-X-Google-Smtp-Source: ABdhPJxCXWv0LJXOc2HR8JhtkiPevCTLfNTQUep7agFc+lPzCtatwOtvDP8zWkvvg0Q0IpUCD1EtuQ==
-X-Received: by 2002:a17:906:b157:: with SMTP id bt23mr8298084ejb.354.1597513603428;
-        Sat, 15 Aug 2020 10:46:43 -0700 (PDT)
-Received: from gmail.com (54033286.catv.pool.telekom.hu. [84.3.50.134])
-        by smtp.gmail.com with ESMTPSA id t18sm9577563edr.79.2020.08.15.10.46.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Aug 2020 10:46:42 -0700 (PDT)
-Date:   Sat, 15 Aug 2020 19:46:40 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     stable kernel team <stable@vger.kernel.org>
-Subject: [edumazet@google.com: Re: [PATCH] x86/fsgsbase/64: Fix NULL deref in
- 86_fsgsbase_read_task]
-Message-ID: <20200815174640.GA2718256@gmail.com>
+        id S1726288AbgHOVie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Aug 2020 17:38:34 -0400
+Received: from mga07.intel.com ([134.134.136.100]:62773 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726004AbgHOVid (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Aug 2020 17:38:33 -0400
+IronPort-SDR: 6Q+OXgm6xMndxUabB+wZh+rPsd/+B2l2and0Lx90OfqVUS+bAelT9mZChwZBqAzULONvbZT0gA
+ eVvE2xaQ2STg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9714"; a="218878052"
+X-IronPort-AV: E=Sophos;i="5.76,317,1592895600"; 
+   d="scan'208";a="218878052"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Aug 2020 12:53:46 -0700
+IronPort-SDR: ufbaN7XDWuZRsutGfXZoxTHSTwlWts13MQM+Kf9bLM8OnjsZXzf2XMESPkRiNDfnQ/+P+QzPwZ
+ QJH7lktserLw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,317,1592895600"; 
+   d="scan'208";a="319240608"
+Received: from cibrouil-mobl1.amr.corp.intel.com (HELO araj-mobl1.jf.intel.com) ([10.254.80.64])
+  by fmsmga004.fm.intel.com with ESMTP; 15 Aug 2020 12:53:45 -0700
+Date:   Sat, 15 Aug 2020 12:53:45 -0700
+From:   "Raj, Ashok" <ashok.raj@linux.intel.com>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+        tglx@linutronix.de, Sukumar Ghorai <sukumar.ghorai@intel.com>,
+        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
+        Evan Green <evgreen@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/hotplug: Silence APIC only after all irq's are
+ migrated
+Message-ID: <20200815195345.GA6022@araj-mobl1.jf.intel.com>
+References: <20200814213842.31151-1-ashok.raj@intel.com>
+ <bb47f196-90e5-3f78-305b-122fc9192867@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <bb47f196-90e5-3f78-305b-122fc9192867@infradead.org>
+User-Agent: Mutt/1.9.1 (2017-09-22)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Randy
 
-hi Greg,
+For some unknown reason my previous response said its taiting to be 
+delivered. 
 
-Please apply upstream 8ab49526b53d to all stable kernels containing 
-07e1d88adaae, which should be v4.20 and higher stable kernels.
+On Fri, Aug 14, 2020 at 04:25:32PM -0700, Randy Dunlap wrote:
+> On 8/14/20 2:38 PM, Ashok Raj wrote:
+> > When offlining CPU's, fixup_irqs() migrates all interrupts away from the
+> 
+>                  CPUs,
 
-Thanks,
+I'll fix all these in the next rev. 
 
-	Ingo
+Just waiting to hear back from Thomas if he has additional ones I can fix
+and resend v2.
 
------ Forwarded message from Eric Dumazet <edumazet@google.com> -----
-
-Date: Sat, 15 Aug 2020 10:38:58 -0700
-From: Eric Dumazet <edumazet@google.com>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <eric.dumazet@gmail.com>, Jann Horn <jannh@google.com>, syzbot <syzkaller@googlegroups.com>, Andy Lutomirski <luto@kernel.org>, "Chang S . Bae" <chang.seok.bae@intel.com>, Andy Lutomirski <luto@amacapital.net>,
-	Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, Dave Hansen <dave.hansen@linux.intel.com>, Denys Vlasenko <dvlasenk@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@linux-foundation.org>, Markus T Metzger
-	<markus.t.metzger@intel.com>, Peter Zijlstra <peterz@infradead.org>, Ravi Shankar <ravi.v.shankar@intel.com>, Rik van Riel <riel@surriel.com>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task
-
-On Sat, Aug 15, 2020 at 4:48 AM Ingo Molnar <mingo@kernel.org> wrote:
->
->
-> * Eric Dumazet <edumazet@google.com> wrote:
->
-> > syzbot found its way in 86_fsgsbase_read_task() [1]
-> >
-> > Fix is to make sure ldt pointer is not NULL.
->
-> Thanks for this fix. Linus has picked it up (inclusive the typos to
-> the x86_fsgsbase_read_task() function name ;-), it's now upstream
-> under:
->
->   8ab49526b53d: ("x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task")
->
-> By the fixes tag it looks like this should probably be backported all
-> the way back to ~v4.20 or so?
-
-This is absolutely right, sorry about the lack of a stable tag.
-
-Most of my patches usually land into David Miller trees, where the
-stable tag is not welcomed.
-We use  Fixes: tags to convey the exact information needed for stable backports.
-
-Thanks.
-
------ End forwarded message -----
+Cheers,
+Ashok
+> 
+> > outgoing CPU to an online CPU. Its always possible the device sent an
+> 
+>                                  It's
+> 
+> > interrupt to the previous CPU destination. Pending interrupt bit in IRR in
+> > lapic identifies such interrupts. apic_soft_disable() will not capture any
+> 
+>   LAPIC
+> 
+> > new interrupts in IRR. This causes interrupts from device to be lost during
+> > cpu offline. The issue was found when explicitly setting MSI affinity to a
+> 
+>   CPU
+> 
+> > CPU and immediately offlining it. It was simple to recreate with a USB
+> > ethernet device and doing I/O to it while the CPU is offlined. Lost
+> > interrupts happen even when Interrupt Remapping is enabled.
+> > 
+> > Current code does apic_soft_disable() before migrating interrupts.
+> > 
+> > native_cpu_disable()
+> > {
+> > 	...
+> > 	apic_soft_disable();
+> > 	cpu_disable_common();
+> > 	  --> fixup_irqs(); // Too late to capture anything in IRR.
+> > }
+> > 
+> > Just fliping the above call sequence seems to hit the IRR checks
+> 
+>        flipping
+> 
+> > and the lost interrupt is fixed for both legacy MSI and when
+> > interrupt remapping is enabled.
+> > 
+> > 
+> > Fixes: 60dcaad5736f ("x86/hotplug: Silence APIC and NMI when CPU is dead")
+> > Link: https://lore.kernel.org/lkml/875zdarr4h.fsf@nanos.tec.linutronix.de/
+> > Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> > 
+> > To: linux-kernel@vger.kernel.org
+> > To: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Sukumar Ghorai <sukumar.ghorai@intel.com>
+> > Cc: Srikanth Nandamuri <srikanth.nandamuri@intel.com>
+> > Cc: Evan Green <evgreen@chromium.org>
+> > Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
+> > Cc: Bjorn Helgaas <bhelgaas@google.com>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  arch/x86/kernel/smpboot.c | 11 +++++++++--
+> >  1 file changed, 9 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+> > index ffbd9a3d78d8..278cc9f92f2f 100644
+> > --- a/arch/x86/kernel/smpboot.c
+> > +++ b/arch/x86/kernel/smpboot.c
+> > @@ -1603,13 +1603,20 @@ int native_cpu_disable(void)
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > +	cpu_disable_common();
+> >  	/*
+> >  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
+> >  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
+> > -	 * messages.
+> > +	 * messages. Its important to do apic_soft_disable() after
+> 
+> 	             It's
+> 
+> > +	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
+> > +	 * depends on IRR being set. After apic_soft_disable() CPU preserves
+> > +	 * currently set IRR/ISR but new interrupts will not set IRR.
+> > +	 * This causes interrupts sent to outgoing cpu before completion
+> 
+> 	                                           CPU
+> 
+> > +	 * of irq migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
+> 
+> 	      IRQ
+> 
+> > +	 * APIC State after It Has been Software Disabled" section for more
+> > +	 * details.
+> >  	 */
+> >  	apic_soft_disable();
+> > -	cpu_disable_common();
+> >  
+> >  	return 0;
+> >  }
+> > 
+> 
+> thanks.
+> -- 
+> ~Randy
+> 
