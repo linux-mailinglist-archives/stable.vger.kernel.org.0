@@ -2,81 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B70224530D
-	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 23:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB0C2452D1
+	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 23:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728432AbgHOV6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Aug 2020 17:58:01 -0400
-Received: from smtprelay0189.hostedemail.com ([216.40.44.189]:50018 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728964AbgHOV6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Aug 2020 17:58:00 -0400
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
-        by smtpgrave01.hostedemail.com (Postfix) with ESMTP id 5BC0718041E63;
-        Sat, 15 Aug 2020 00:52:04 +0000 (UTC)
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay06.hostedemail.com (Postfix) with ESMTP id 2CF8C18026226;
-        Sat, 15 Aug 2020 00:52:04 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:982:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2393:2559:2562:2828:3138:3139:3140:3141:3142:3352:3622:3865:3867:3868:3870:3871:3872:3874:4321:5007:6117:6119:6742:7875:10004:10400:10848:11026:11232:11473:11658:11914:12297:12346:12740:12760:12895:13069:13311:13357:13439:14659:14721:21080:21451:21627:21990:30054:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
-X-HE-Tag: feast89_3216ee827001
-X-Filterd-Recvd-Size: 2404
-Received: from XPS-9350.home (unknown [47.151.133.149])
-        (Authenticated sender: joe@perches.com)
-        by omf11.hostedemail.com (Postfix) with ESMTPA;
-        Sat, 15 Aug 2020 00:52:01 +0000 (UTC)
-Message-ID: <562003af51ca0b08f2108147b8d6e75cec18f3fd.camel@perches.com>
-Subject: Re: [PATCH] lib/string.c: implement stpcpy
-From:   Joe Perches <joe@perches.com>
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     =?ISO-8859-1?Q?D=E1vid_Bolvansk=FD?= <david.bolvansky@gmail.com>,
+        id S1728047AbgHOVzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Aug 2020 17:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729082AbgHOVwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Aug 2020 17:52:25 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7C2C06134E;
+        Fri, 14 Aug 2020 18:40:10 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id s16so8363579qtn.7;
+        Fri, 14 Aug 2020 18:40:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/LJPODsukhk9ilKQ5Nhku7oJFNIdXYTCpu7/+RHvulw=;
+        b=nLw79+rmoA2nElv+xnAFz8nXs/AlqzKnFWwt843zJ3flzcKUwV86WHPBtEYbGdl5NP
+         pnqjP3u+xb17yJYfFXiutjt5y02NnTJhiiK+ZWvPo1FnjYjhvPeBe3k8ZDAidXu43QGq
+         LbWjjCzzatkcCYFiRlFEBJFcPjmZx9Fgp5T/gy4C+x8ofCMVUTXcQS2wYBKnAMzgLLDl
+         N3sNkBhDhQOg6mxoqkBrL4ooaXdjWLbuTEkNTdFlLF3gIpRqhFuBfOXvKMB+hx9XziB0
+         r1Jr4Dar9TLw3jf6AXi2DhpbsoYTRIVyi3C5kYBH4EczNGf1VF+SSu0DtQBoYNU1CoYe
+         mucQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:date:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=/LJPODsukhk9ilKQ5Nhku7oJFNIdXYTCpu7/+RHvulw=;
+        b=lstCFHrmSlFJg/onNcoL1XX4e25IpL/hmpg3514jSmxI1eSsTk/tkDDUK1Kx/foNyQ
+         lwz6Vu9XuSOcEhd7ynpEDawpzoQ1yDB+a6bcNTMIIVFR7wg6oT3mpcNZwCoXIe9wjvpZ
+         LdSRYxFO19hyZhVUy1blD6kM2RFeALJ4Soug8vW9uDeV9CaSeOZOhgztXII1/Key80g5
+         fynfYBI6APR+bBPgHO4eHh0aS7AMYRUK/GZQodrD/U6H2A9bOOmjxUI91BBiOnmrs/CX
+         2lTBBCMZWV4WT22i8rm0H7hm80LQNs2VTbikKy0UiEy1VL+/MBiT9o2zOyPDygPbbTZm
+         0cPA==
+X-Gm-Message-State: AOAM533cp/9KF5gEc5Ts+u5cTo013aK1dl+EUEuK54Ov1fbFXXaRBdOZ
+        jpn3M8HClDAcyKpvI1i15R8=
+X-Google-Smtp-Source: ABdhPJytsRGRgirZNN/jnyKlfg9rTWG21qGTYN95Pon23TrSBl+teD15V1iyGWo9t9zg5J2PXwAGEA==
+X-Received: by 2002:aed:3789:: with SMTP id j9mr4809739qtb.251.1597455608719;
+        Fri, 14 Aug 2020 18:40:08 -0700 (PDT)
+Received: from rani.riverdale.lan ([2001:470:1f07:5f3::b55f])
+        by smtp.gmail.com with ESMTPSA id d124sm9846309qkg.65.2020.08.14.18.40.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2020 18:40:08 -0700 (PDT)
+From:   Arvind Sankar <nivedita@alum.mit.edu>
+X-Google-Original-From: Arvind Sankar <arvind@rani.riverdale.lan>
+Date:   Fri, 14 Aug 2020 21:40:06 -0400
+To:     Arvind Sankar <nivedita@alum.mit.edu>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?utf-8?B?RMOhdmlkIEJvbHZhbnNrw70=?= <david.bolvansky@gmail.com>,
         Eli Friedman <efriedma@quicinc.com>, stable@vger.kernel.org,
         Sami Tolvanen <samitolvanen@google.com>,
-        Tony Luck <tony.luck@intel.com>,
+        Joe Perches <joe@perches.com>, Tony Luck <tony.luck@intel.com>,
         Yury Norov <yury.norov@gmail.com>,
         Daniel Axtens <dja@axtens.net>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
         Dan Williams <dan.j.williams@intel.com>,
         "Joel Fernandes (Google)" <joel@joelfernandes.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Kees Cook <keescook@chromium.org>,
         Alexandru Ardelean <alexandru.ardelean@analog.com>,
         linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Date:   Fri, 14 Aug 2020 17:52:00 -0700
-In-Reply-To: <20200815002417.1512973-1-ndesaulniers@google.com>
+Subject: Re: [PATCH] lib/string.c: implement stpcpy
+Message-ID: <20200815014006.GB99152@rani.riverdale.lan>
 References: <20200815002417.1512973-1-ndesaulniers@google.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.36.4-0ubuntu1 
+ <20200815013310.GA99152@rani.riverdale.lan>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200815013310.GA99152@rani.riverdale.lan>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-08-14 at 17:24 -0700, Nick Desaulniers wrote:
-> LLVM implemented a recent "libcall optimization" that lowers calls to
-> `sprintf(dest, "%s", str)` where the return value is used to
-> `stpcpy(dest, str) - dest`. This generally avoids the machinery involved
-> in parsing format strings.
-[]
-> diff --git a/include/linux/string.h b/include/linux/string.h
-[]
-> @@ -31,6 +31,9 @@ size_t strlcpy(char *, const char *, size_t);
->  #ifndef __HAVE_ARCH_STRSCPY
->  ssize_t strscpy(char *, const char *, size_t);
->  #endif
-> +#ifndef __HAVE_ARCH_STPCPY
-> +extern char *stpcpy(char *__restrict, const char *__restrict__);
+On Fri, Aug 14, 2020 at 09:33:10PM -0400, Arvind Sankar wrote:
+> On Fri, Aug 14, 2020 at 05:24:15PM -0700, Nick Desaulniers wrote:
+> > +#ifndef __HAVE_ARCH_STPCPY
+> > +/**
+> > + * stpcpy - copy a string from src to dest returning a pointer to the new end
+> > + *          of dest, including src's NULL terminator. May overrun dest.
+> > + * @dest: pointer to end of string being copied into. Must be large enough
+> > + *        to receive copy.
+> > + * @src: pointer to the beginning of string being copied from. Must not overlap
+> > + *       dest.
+> > + *
+> > + * stpcpy differs from strcpy in two key ways:
+> > + * 1. inputs must not overlap.
+> > + * 2. return value is the new NULL terminated character. (for strcpy, the
+> > + *    return value is a pointer to src.
+> > + */
+> > +#undef stpcpy
+> > +char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
+> > +{
+> > +	while ((*dest++ = *src++) != '\0')
+> > +		/* nothing */;
+> > +	return dest;
+> > +}
+> > +#endif
+> > +
+> 
+> Won't this return a pointer that's one _past_ the terminating NUL? I
+> think you need the increments to be inside the loop body, rather than as
+> part of the condition.
+> 
+> Nit: NUL is more correct than NULL to refer to the string terminator.
 
-Why use two different forms for __restrict and __restrict__?
-Any real reason to use __restrict__ at all?
-
-It's used nowhere else in the kernel.
-
-$ git grep -w -P '__restrict_{0,2}'
-scripts/genksyms/keywords.c:    // According to rth, c99 defines "_Bool", __restrict", __restrict__", "restrict".  KAO
-scripts/genksyms/keywords.c:    { "__restrict__", RESTRICT_KEYW },
-
-
+Also, strcpy (at least the one in the C standard) is undefined if the
+strings overlap, so that's not really a difference.
