@@ -2,171 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FAE245307
-	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 23:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2FE24520B
+	for <lists+stable@lfdr.de>; Sat, 15 Aug 2020 23:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728602AbgHOV5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Aug 2020 17:57:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728982AbgHOVwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Aug 2020 17:52:04 -0400
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617EAC06135B
-        for <stable@vger.kernel.org>; Fri, 14 Aug 2020 19:09:54 -0700 (PDT)
-Received: by mail-pl1-x64a.google.com with SMTP id d2so6603077plo.2
-        for <stable@vger.kernel.org>; Fri, 14 Aug 2020 19:09:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=54FL2fi4838KNUxBDYGwUIbd4eC5LfouQots9gMJMF0=;
-        b=fPvq6U6A360rPMQQfY80tv926Cd5O3nR4WPkH6JUn3SS4hp8J9vEeuVc8QeEpFMBTo
-         xXoUqxM6lxDduHfN8MJCfliJLBMFyqGypCTtDhu57I8yZD1gzmRxGPsFsc6DfyxonpwQ
-         6kCaIoeHLd7JFEftxyEAgBxGUAAjqVFsKV4936IzdButxXfd4XyOFm//dLBHTd/jc5fb
-         LYh0OmapnhdXPgays9Ex8Eqi2F/ZdVQTvlJLIGBgwpscpX8iuzHC6U3vBvl1MbMN/7fb
-         N8pn4/28tirBW60VwYTiFtv+PPo9JsuEa8A16klsOl/e5uOnISACuAIgTXSZbfn2Z4Um
-         Omjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=54FL2fi4838KNUxBDYGwUIbd4eC5LfouQots9gMJMF0=;
-        b=XEWE/UcZ1XnNjlF4PlKNFv2Y7805Hh4GDs81Rf5OEU2nlcCI0dPl7N5CZVuwcgj28l
-         sxpCwKPPkbZLSNELi0sogTLI2EE3hrWlZP+oAwVocbE9OuBJPS2Ph/YunOOI8NYO8X6m
-         kR/VM+B44IRI2Cc7lxIYsKOSEdtRU7F2/fDlF3VSuu6yrfWHTECe7CgNdPtlVVwr82xv
-         ZxVjEVWecxYSeJ7XYSZ4S0Cf890JsXEL/mJ3djUn49V81yq+HVWiJraz0PMe6V1Mn1Sk
-         wm/Ma4NHvibUcgFLJ7hODVImzfntVBWX625zlSS9NAZAsblQ1Pppf1/kVJ1c94udenD7
-         th5Q==
-X-Gm-Message-State: AOAM533zA/4rJf2v+FujZzwW+ggOwc1faPEfUIbV8TC9sBTo1cHkjS54
-        Fi8GroAai3aPA7vvR3KxGuEPcXmfAhoS8zqkZho=
-X-Google-Smtp-Source: ABdhPJxn7c2rM9XYQqL7VYIyJCPlruhb5XpkLIh39f2LFOz1FHt3BUVCChncetKEKYyR5pNeNBUbYTh/dt1My/lLq5w=
-X-Received: by 2002:a63:df54:: with SMTP id h20mr3416349pgj.319.1597457393328;
- Fri, 14 Aug 2020 19:09:53 -0700 (PDT)
-Date:   Fri, 14 Aug 2020 19:09:44 -0700
-In-Reply-To: <20200815014006.GB99152@rani.riverdale.lan>
-Message-Id: <20200815020946.1538085-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <20200815014006.GB99152@rani.riverdale.lan>
-X-Mailer: git-send-email 2.28.0.220.ged08abb693-goog
-Subject: [PATCH v2] lib/string.c: implement stpcpy
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     "=?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?=" <david.bolvansky@gmail.com>,
-        Eli Friedman <efriedma@quicinc.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Joe Perches <joe@perches.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Kees Cook <keescook@chromium.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+        id S1726593AbgHOVid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Aug 2020 17:38:33 -0400
+Received: from mga07.intel.com ([134.134.136.100]:62772 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726213AbgHOVid (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Aug 2020 17:38:33 -0400
+IronPort-SDR: 0ROQFYf4/BPHv/NtGaje6FYCDcT+flpulRMnvwn09fehS4xpEG0RsbifVmVMKoARvpH56eq4yP
+ KyOPmQmOv/2Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9713"; a="218836801"
+X-IronPort-AV: E=Sophos;i="5.76,314,1592895600"; 
+   d="scan'208";a="218836801"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2020 19:16:59 -0700
+IronPort-SDR: b2aaqcIH1wZ3Chnl5PaiKjRLx+9QWc5M+MXUMCMq66HKUzIOVTuolrb9myYxhkpGoJiDI+bArh
+ hNX6pGV04OEA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,314,1592895600"; 
+   d="scan'208";a="333564935"
+Received: from orsmsx606-2.jf.intel.com (HELO ORSMSX606.amr.corp.intel.com) ([10.22.229.86])
+  by FMSMGA003.fm.intel.com with ESMTP; 14 Aug 2020 19:16:59 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX606.amr.corp.intel.com (10.22.229.19) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Fri, 14 Aug 2020 19:16:59 -0700
+Received: from [10.209.97.116] (10.22.254.132) by ORSMSX610.amr.corp.intel.com
+ (10.22.229.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Fri, 14 Aug
+ 2020 19:16:58 -0700
+Subject: Re: [Intel-gfx] [PATCH 2/3] drm/i915/gt: Wait for CSB entries on
+ Tigerlake
+From:   "Chang, Bruce" <yu.bruce.chang@intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        <intel-gfx@lists.freedesktop.org>
+CC:     <stable@vger.kernel.org>
+References: <20200814155735.29138-1-chris@chris-wilson.co.uk>
+ <20200814155735.29138-2-chris@chris-wilson.co.uk>
+ <4e8f3929-06d9-9183-f5ed-9cf18abf40dc@intel.com>
+ <159743033592.31882.10893400044974332038@build.alporthouse.com>
+ <66272f87-c6c1-2b45-87f4-cf54303ab44b@intel.com>
+Message-ID: <1e1abf15-21ed-5c8a-56b2-da34fc67439d@intel.com>
+Date:   Fri, 14 Aug 2020 19:16:58 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
+MIME-Version: 1.0
+In-Reply-To: <66272f87-c6c1-2b45-87f4-cf54303ab44b@intel.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Originating-IP: [10.22.254.132]
+X-ClientProxiedBy: orsmsx607.amr.corp.intel.com (10.22.229.20) To
+ ORSMSX610.amr.corp.intel.com (10.22.229.23)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLVM implemented a recent "libcall optimization" that lowers calls to
-`sprintf(dest, "%s", str)` where the return value is used to
-`stpcpy(dest, str) - dest`. This generally avoids the machinery involved
-in parsing format strings.  Calling `sprintf` with overlapping arguments
-was clarified in ISO C99 and POSIX.1-2001 to be undefined behavior.
+On 8/14/2020 5:36 PM, Chang, Bruce wrote:
+>
+>>>> @@ -2498,9 +2498,22 @@ invalidate_csb_entries(const u64 *first, 
+>>>> const u64 *last)
+>>>>     */
+>>>>    static inline bool gen12_csb_parse(const u64 *csb)
+>>>>    {
+>>>> -     u64 entry = READ_ONCE(*csb);
+>>>> -     bool ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
+>>>> -     bool new_queue =
+>>>> +     bool ctx_away_valid;
+>>>> +     bool new_queue;
+>>>> +     u64 entry;
+>>>> +
+>>>> +     /* XXX HSD */
+>>>> +     entry = READ_ONCE(*csb);
+>>>> +     if (unlikely(entry == -1)) {
+>>>> +             preempt_disable();
+>>>> +             if (wait_for_atomic_us((entry = READ_ONCE(*csb)) != 
+>>>> -1, 50))
+>>>> +                     GEM_WARN_ON("50us CSB timeout");
+>>> Out tests showed that 10us is not long enough, but 20us worked well. So
+>>> 50us should be good enough.
+>
+> Just realized this may not fully work, as one of the common issue we 
+> run into is that higher 32bit is updated from the HW, but lower 32bit 
+> update at a later time: meaning the csb will read like 
+> 0xFFFFFFFF:xxxxxxxx (low:high) . So this check (!= -1) can still pass 
+> but with a partial invalid csb status. So, we may need to check each 
+> 32bit separately.
+>
+After tested, with the new 64bit read, the above issue never happened so 
+far. So, it seems this only applicable to 32bit read (CSB updated 
+between the two lower and high 32bit reads). Assuming the HW 64bit CSB 
+update is also atomic, the above code should be fine.
 
-`stpcpy` is just like `strcpy` except it returns the pointer to the new
-tail of `dest`. This allows you to chain multiple calls to `stpcpy` in
-one statement.
-
-`stpcpy` was first standardized in POSIX.1-2008.
-
-Implement this so that we don't observe linkage failures due to missing
-symbol definitions for `stpcpy`.
-
-Similar to last year's fire drill with:
-commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
-
-This optimization was introduced into clang-12.
-
-Cc: stable@vger.kernel.org
-Link: https://bugs.llvm.org/show_bug.cgi?id=47162
-Link: https://github.com/ClangBuiltLinux/linux/issues/1126
-Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
-Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
-Link: https://reviews.llvm.org/D85963
-Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
-Suggested-by: Joe Perches <joe@perches.com>
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
-Changes V2:
-* Added Sami's Tested by; though the patch changed implementation, the
-  missing symbol at link time was the problem Sami was observing.
-* Fix __restrict -> __restrict__ typo as per Joe.
-* Drop note about restrict from commit message as per Arvind.
-* Fix NULL -> NUL as per Arvind; NUL is ASCII '\0'. TIL
-* Fix off by one error as per Arvind; I had another off by one error in
-  my test program that was masking this.
-
- include/linux/string.h |  3 +++
- lib/string.c           | 23 +++++++++++++++++++++++
- 2 files changed, 26 insertions(+)
-
-diff --git a/include/linux/string.h b/include/linux/string.h
-index b1f3894a0a3e..7686dbca8582 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -31,6 +31,9 @@ size_t strlcpy(char *, const char *, size_t);
- #ifndef __HAVE_ARCH_STRSCPY
- ssize_t strscpy(char *, const char *, size_t);
- #endif
-+#ifndef __HAVE_ARCH_STPCPY
-+extern char *stpcpy(char *__restrict__, const char *__restrict__);
-+#endif
- 
- /* Wraps calls to strscpy()/memset(), no arch specific code required */
- ssize_t strscpy_pad(char *dest, const char *src, size_t count);
-diff --git a/lib/string.c b/lib/string.c
-index 6012c385fb31..68ddbffbbd58 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -272,6 +272,29 @@ ssize_t strscpy_pad(char *dest, const char *src, size_t count)
- }
- EXPORT_SYMBOL(strscpy_pad);
- 
-+#ifndef __HAVE_ARCH_STPCPY
-+/**
-+ * stpcpy - copy a string from src to dest returning a pointer to the new end
-+ *          of dest, including src's NUL terminator. May overrun dest.
-+ * @dest: pointer to end of string being copied into. Must be large enough
-+ *        to receive copy.
-+ * @src: pointer to the beginning of string being copied from. Must not overlap
-+ *       dest.
-+ *
-+ * stpcpy differs from strcpy in two key ways:
-+ * 1. inputs must not overlap.
-+ * 2. return value is the new NULL terminated character. (for strcpy, the
-+ *    return value is a pointer to src.
-+ */
-+#undef stpcpy
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
-+{
-+	while ((*dest++ = *src++) != '\0')
-+		/* nothing */;
-+	return --dest;
-+}
-+#endif
-+
- #ifndef __HAVE_ARCH_STRCAT
- /**
-  * strcat - Append one %NUL-terminated string to another
--- 
-2.28.0.220.ged08abb693-goog
-
+>>>> +             preempt_enable();
+>>>> +     }
+>>>> +     WRITE_ONCE(*(u64 *)csb, -1);
+>>> A wmb() is probably needed here. it should be ok if CSB is in SMEM, but
+>>> in the case CSB is allocated in LMEM, the memory type will be WC, so 
+>>> the
+>>> memory write (WRITE_ONCE) is potentially still in the write combine
+>>> buffer and not in any cache system, i.e., not visible to HW.
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
