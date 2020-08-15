@@ -2,130 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 465DE2453C9
-	for <lists+stable@lfdr.de>; Sun, 16 Aug 2020 00:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F944245434
+	for <lists+stable@lfdr.de>; Sun, 16 Aug 2020 00:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgHOWFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Aug 2020 18:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48464 "EHLO
+        id S1728091AbgHOWPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Aug 2020 18:15:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729953AbgHOWFn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Aug 2020 18:05:43 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C1AC03D1C0
-        for <stable@vger.kernel.org>; Sat, 15 Aug 2020 13:48:03 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id r11so6196631pfl.11
-        for <stable@vger.kernel.org>; Sat, 15 Aug 2020 13:48:03 -0700 (PDT)
+        with ESMTP id S1727994AbgHOWPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Aug 2020 18:15:42 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6685EC03D1C3
+        for <stable@vger.kernel.org>; Sat, 15 Aug 2020 13:57:01 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id a79so6213581pfa.8
+        for <stable@vger.kernel.org>; Sat, 15 Aug 2020 13:57:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=+4XEEilZNC5EnENDZHqsdd6uXJXrwqlhHae+qHfSvbQ=;
-        b=wKBjH/2Z6uVBPL/Q1S6eaKmilGJG0PbMlbjM2/MHqqWiTs21fSTzY4rXhYSnH3T6R3
-         bcw8+6W1xtjI5xk2hxjx1xp9GXG1nDZ701BjycbNt74xUwK8WLxd0lKsxfyHaDVPWo2B
-         lfAny6hDAFCIRggQn00zshsuBUgS24gh21ZqDri5b7r+3SPd1WnXc7PzzS3M4QNSgGQS
-         WFsrcnA7ymFtXIqXsGctsYc4f69y85l7lGB7o5a2IZr3Xj9f9Xs3aQh9k1hXZ2oYjvMZ
-         hIEDLMd2UZ0Y40qW3rOnkhzg+TducUbrF5sxDLsYOPqEw7tA2YyBQZJFvmUdFKU/rYV7
-         YNuQ==
+        bh=UtBjDqPvO0XxPgS4w2mz5FIgUERc0EMLvaI4Ab10ZQQ=;
+        b=ALUgM3FcF2qEVoH7TniGeuZI28YG4mu8n0qX2RGR2POGI/b0FKkpQKy8WDD0tC0dT1
+         CpoWwlyn4FknyQJQhjOx2qfR6ReXiG3WbYHm/KzYPyZZwIh9C4cM7npX0ICIF8YbXAQX
+         l47yl2FUm9LZPzZluz0jEV4QWZlX9+lzjyFb8DJ6H1xbel7UPK9MrAVDE2K1Yxr+YkGP
+         RW+zt6+uTntEs24vQyJfLU/9fG9lMHHTC4KhjVirZ9rgmofCC9BfFQDjfBAc4GCX7CJT
+         siFosB/+mUhX/nK7lcm35Sp+8LJHyQDwk4ykhd8VxF1FigK0VPwjc7QQAagi2OGc4XHF
+         X5ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=+4XEEilZNC5EnENDZHqsdd6uXJXrwqlhHae+qHfSvbQ=;
-        b=fmF0DLYAjVg9N5YCSS2ZPWjaw8yzRdgu3FcUqvh3Qy1Hlg1iemxpJ/UDU3LmUmflxN
-         SbApFUokexZ9Z6GDfkoAo1MM4M3p4wFllfWfCdkwH0pBQ0IE443saho5MfJEp499dKHc
-         xzdKJMbvFicebDmDlLiw+Yzqm5877JRuYpXUAzMXcjvf6Xki3M6wAgnXuYmDRRu1rVad
-         hX1mNyrM5Rl4CUdxe35gyDd9t9yc55DzHUzNthaWMvppUmEuY5clxQFzZquiFsnvF/l0
-         VTXm7AKnfe4lDUkhw6qlIOSHVULY/Bxrp3tu7CivBnfPTACieOi5pO3rDfPnq18sIcpj
-         a//w==
-X-Gm-Message-State: AOAM532rRqsE58p9MLONI3cFcWsK3Am1cp2B50kEvuuA1Lu1R6xLHV4p
-        B7pfwCG2vyv9Smr1HUFqSzkDLodIfg2iDubAemYD3w==
-X-Google-Smtp-Source: ABdhPJxC5zl4CYpaEzRIiscMTahyf+UsXZafZmLcVqQ1/a88Nf+JxHg2ypnINSncSvy7TGu9nZgRUog3SNaaq/hKkcg=
-X-Received: by 2002:a63:7d8:: with SMTP id 207mr5716072pgh.263.1597524482737;
- Sat, 15 Aug 2020 13:48:02 -0700 (PDT)
+        bh=UtBjDqPvO0XxPgS4w2mz5FIgUERc0EMLvaI4Ab10ZQQ=;
+        b=mX2nSR0IC352Nx0nJBK0KaTCevYQ2NYjzN3Vdw69Zlk7JLUAMXsG/dv9dy8VOgwSAc
+         ANiVi83vUCRAwVkB3DbGOYd1YOYmDDWtowt4sHfHHfR8OhP6lLjOZ3kb/vrvXZe7LhK/
+         O+1U8AkWmLuB8PlhTWGs2pUlLHTmGbnAamJWhtGIWrcQzvspOb7x8/1lFDp9nlUtXJe9
+         rKDoXFmPgyb6DI0bOFX43fPuchs4On6oDw5/DAV7K6Jz04OfODxl6lfi7WJMf3JyLggz
+         W3udzhjCw11ybLPkd+hcD51DWiBGXDkjjmc1/ueMFbRhjJ3JvtD1u015dHY85rK8Rfsk
+         +GWg==
+X-Gm-Message-State: AOAM531nblMsQhE4vBaDVY+G8GGS5gXpmxeZqZbjXEiLKT9j8nP6SkD/
+        GVBbijULzOeMUcfshAz247h4IQ1EvCb9mbF72C9uVA==
+X-Google-Smtp-Source: ABdhPJzczVhCaED7MWfeMK93Dcd77/zRrJQu9LHftmA8LrAopKmTRRIolOVSp11IYSfyOljqyR6hqYHY6bjzXsn0foE=
+X-Received: by 2002:a62:8303:: with SMTP id h3mr6288262pfe.169.1597525020265;
+ Sat, 15 Aug 2020 13:57:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200815014006.GB99152@rani.riverdale.lan> <20200815020946.1538085-1-ndesaulniers@google.com>
- <202008150921.B70721A359@keescook>
-In-Reply-To: <202008150921.B70721A359@keescook>
+References: <20200812004158.GA1447296@rani.riverdale.lan> <20200812004308.1448603-1-nivedita@alum.mit.edu>
+ <CA+icZUVdTT1Vz8ACckj-SQyKi+HxJyttM52s6HUtCDLFCKbFgQ@mail.gmail.com>
+In-Reply-To: <CA+icZUVdTT1Vz8ACckj-SQyKi+HxJyttM52s6HUtCDLFCKbFgQ@mail.gmail.com>
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Sat, 15 Aug 2020 13:47:51 -0700
-Message-ID: <CAKwvOdnyHfx6ayqEoOr3pb_ibKBAG9vj31LuKE+f712W=7LFKA@mail.gmail.com>
-Subject: Re: [PATCH v2] lib/string.c: implement stpcpy
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?B?RMOhdmlkIEJvbHZhbnNrw70=?= <david.bolvansky@gmail.com>,
-        Eli Friedman <efriedma@quicinc.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Joe Perches <joe@perches.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Daniel Axtens <dja@axtens.net>, Ingo Molnar <mingo@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        LKML <linux-kernel@vger.kernel.org>,
+Date:   Sat, 15 Aug 2020 13:56:49 -0700
+Message-ID: <CAKwvOdmHxsLzou=6WN698LOGq9ahWUmztAHfUYYAUcgpH1FGRA@mail.gmail.com>
+Subject: Re: [PATCH v2] x86/boot/compressed: Disable relocation relaxation
+To:     Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Fangrui Song <maskray@google.com>,
         clang-built-linux <clang-built-linux@googlegroups.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+        e5ten.arch@gmail.com,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 15, 2020 at 9:34 AM Kees Cook <keescook@chromium.org> wrote:
+Hi Ingo,
+I saw you picked up Arvind's other series into x86/boot.  Would you
+mind please including this, as well?  Our CI is quite red for x86...
+
+EOM
+
+On Sat, Aug 15, 2020 at 8:49 AM Sedat Dilek <sedat.dilek@gmail.com> wrote:
 >
-> On Fri, Aug 14, 2020 at 07:09:44PM -0700, Nick Desaulniers wrote:
-> > LLVM implemented a recent "libcall optimization" that lowers calls to
-> > `sprintf(dest, "%s", str)` where the return value is used to
-> > `stpcpy(dest, str) - dest`. This generally avoids the machinery involved
-> > in parsing format strings.  Calling `sprintf` with overlapping arguments
-> > was clarified in ISO C99 and POSIX.1-2001 to be undefined behavior.
+> On Wed, Aug 12, 2020 at 2:43 AM Arvind Sankar <nivedita@alum.mit.edu> wrote:
 > >
-> > `stpcpy` is just like `strcpy` except it returns the pointer to the new
-> > tail of `dest`. This allows you to chain multiple calls to `stpcpy` in
-> > one statement.
+> > The x86-64 psABI [0] specifies special relocation types
+> > (R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
+> > Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
+> > can take advantage of for optimization (relaxation) at link time. This
+> > is supported by LLD and binutils versions 2.26 onwards.
+> >
+> > The compressed kernel is position-independent code, however, when using
+> > LLD or binutils versions before 2.27, it must be linked without the -pie
+> > option. In this case, the linker may optimize certain instructions into
+> > a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
+> >
+> > This potential issue has been present with LLD and binutils-2.26 for a
+> > long time, but it has never manifested itself before now:
+> > - LLD and binutils-2.26 only relax
+> >         movq    foo@GOTPCREL(%rip), %reg
+> >   to
+> >         leaq    foo(%rip), %reg
+> >   which is still position-independent, rather than
+> >         mov     $foo, %reg
+> >   which is permitted by the psABI when -pie is not enabled.
+> > - gcc happens to only generate GOTPCREL relocations on mov instructions.
+> > - clang does generate GOTPCREL relocations on non-mov instructions, but
+> >   when building the compressed kernel, it uses its integrated assembler
+> >   (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
+> >   which has so far defaulted to not generating the GOTPCRELX
+> >   relocations.
+> >
+> > Nick Desaulniers reports [1,2]:
+> >   A recent change [3] to a default value of configuration variable
+> >   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
+> >   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
+> >   relocations. LLD will relax instructions with these relocations based
+> >   on whether the image is being linked as position independent or not.
+> >   When not, then LLD will relax these instructions to use absolute
+> >   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
+> >   Clang and linked with LLD to fail to boot.
+> >
+> > Patch series [4] is a solution to allow the compressed kernel to be
+> > linked with -pie unconditionally, but even if merged is unlikely to be
+> > backported. As a simple solution that can be applied to stable as well,
+> > prevent the assembler from generating the relaxed relocation types using
+> > the -mrelax-relocations=no option. For ease of backporting, do this
+> > unconditionally.
+> >
+> > [0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
+> > [1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
+> > [2] https://github.com/ClangBuiltLinux/linux/issues/1121
+> > [3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
+> > [4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
+> >
+> > Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+> > Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> > Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
 >
-> O_O What?
+> Thanks for the patch.
 >
-> No; this is a _terrible_ API: there is no bounds checking, there are no
-> buffer sizes. Anything using the example sprintf() pattern is _already_
-> wrong and must be removed from the kernel. (Yes, I realize that the
-> kernel is *filled* with this bad assumption that "I'll never write more
-> than PAGE_SIZE bytes to this buffer", but that's both theoretically
-> wrong ("640k is enough for anybody") and has been known to be wrong in
-> practice too (e.g. when suddenly your writing routine is reachable by
-> splice(2) and you may not have a PAGE_SIZE buffer).
+> Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
 >
-> But we cannot _add_ another dangerous string API. We're already in a
-> terrible mess trying to remove strcpy[1], strlcpy[2], and strncpy[3]. This
-> needs to be addressed up by removing the unbounded sprintf() uses. (And
-> to do so without introducing bugs related to using snprintf() when
-> scnprintf() is expected[4].)
-
-Well, everything (-next, mainline, stable) is broken right now (with
-ToT Clang) without providing this symbol.  I'm not going to go clean
-the entire kernel's use of sprintf to get our CI back to being green.
-
-Thoughts on not exposing the declaration in the header, and changing
-the comment to be to the effect of:
-"Exists only for optimizing compilers to replace calls to sprintf
-with; generally unsafe as bounds checks aren't performed, do not use."
-It's still a worthwhile optimization to have, even if the use that
-generated it didn't do any bounds checking.
-
+> - Sedat -
 >
-> -Kees
+> [1] https://github.com/ClangBuiltLinux/linux/issues/1120#issuecomment-674409705
 >
-> [1] https://github.com/KSPP/linux/issues/88
-> [2] https://github.com/KSPP/linux/issues/89
-> [3] https://github.com/KSPP/linux/issues/90
-> [4] https://lore.kernel.org/lkml/20200810092100.GA42813@2f5448a72a42/
->
-> --
-> Kees Cook
+> > ---
+> >  arch/x86/boot/compressed/Makefile | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+> > index 3962f592633d..ff7894f39e0e 100644
+> > --- a/arch/x86/boot/compressed/Makefile
+> > +++ b/arch/x86/boot/compressed/Makefile
+> > @@ -43,6 +43,8 @@ KBUILD_CFLAGS += -Wno-pointer-sign
+> >  KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+> >  KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
+> >  KBUILD_CFLAGS += -D__DISABLE_EXPORTS
+> > +# Disable relocation relaxation in case the link is not PIE.
+> > +KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
+> >
+> >  KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+> >  GCOV_PROFILE := n
+> > --
+> > 2.26.2
+> >
+> > --
+> > You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
+> > To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
+> > To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20200812004308.1448603-1-nivedita%40alum.mit.edu.
 
 
 
