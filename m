@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2054B24763D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E3024763B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730339AbgHQTfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:35:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48412 "EHLO mail.kernel.org"
+        id S1730122AbgHQP3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:29:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729425AbgHQP3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:29:35 -0400
+        id S1730118AbgHQP3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:29:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B821323BE2;
-        Mon, 17 Aug 2020 15:29:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1FD82395B;
+        Mon, 17 Aug 2020 15:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678174;
-        bh=I0mBP7wTCEKkZIwHjCDfXcQWyWEOqJFbo3CJkQzU6tM=;
+        s=default; t=1597678180;
+        bh=13F+ddTNTR2GbhipCI3zXN9mb1ex9kWBJSrBb6HSN3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHiCEKVoCE8AHo/GCm4wLGyioymWD3Kkm3HJEqJJnOIfG9IjxzRFy4u3idJKd6nVR
-         VgfiW6a5NVnSzNdlzGSN2O8nTIUBr/k0GoRCDLgs2kSa1qHgy+O2reKXZ3L+twUfSx
-         j973Pa2756YdpInrR50EssfzsCuxvJfnmozls0cc=
+        b=pSwrVtYhMvjNA6mbz+jLpA6pGn/W5L5GgWP68vtaFkb1G0+8DW6C8Ju7hcwiimV/g
+         91v2XQhzNZR3S/85S335WH4nNRmpm9xbXmzkDs4hGmBqVFsgu/cSCzuDFnY3mWO7u7
+         WeVuiMrzeCuQNV3zXd0QizMpHl5s4fcAWcRJISLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 243/464] ima: Fail rule parsing when the KEXEC_CMDLINE hook is combined with an invalid cond
-Date:   Mon, 17 Aug 2020 17:13:16 +0200
-Message-Id: <20200817143845.436176143@linuxfoundation.org>
+Subject: [PATCH 5.8 245/464] staging: rtl8192u: fix a dubious looking mask before a shift
+Date:   Mon, 17 Aug 2020 17:13:18 +0200
+Message-Id: <20200817143845.533077201@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,78 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit db2045f5892a9db7354442bf77f9b03b50ff9ee1 ]
+[ Upstream commit c4283950a9a4d3bf4a3f362e406c80ab14f10714 ]
 
-The KEXEC_CMDLINE hook function only supports the pcr conditional. Make
-this clear at policy load so that IMA policy authors don't assume that
-other conditionals are supported.
+Currently the masking of ret with 0xff and followed by a right shift
+of 8 bits always leaves a zero result.  It appears the mask of 0xff
+is incorrect and should be 0xff00, but I don't have the hardware to
+test this. Fix this to mask the upper 8 bits before shifting.
 
-Since KEXEC_CMDLINE's inception, ima_match_rules() has always returned
-true on any loaded KEXEC_CMDLINE rule without any consideration for
-other conditionals present in the rule. Make it clear that pcr is the
-only supported KEXEC_CMDLINE conditional by returning an error during
-policy load.
+[ Not tested ]
 
-An example of why this is a problem can be explained with the following
-rule:
-
- dont_measure func=KEXEC_CMDLINE obj_type=foo_t
-
-An IMA policy author would have assumed that rule is valid because the
-parser accepted it but the result was that measurements for all
-KEXEC_CMDLINE operations would be disabled.
-
-Fixes: b0935123a183 ("IMA: Define a new hook to measure the kexec boot command line arguments")
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Reviewed-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Addresses-Coverity: ("Operands don't affect result")
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20200716154720.1710252-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/staging/rtl8192u/r8192U_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index a3d72342408ad..a77e0b34e72f7 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -343,6 +343,17 @@ static int ima_lsm_update_rule(struct ima_rule_entry *entry)
- 	return 0;
- }
- 
-+static bool ima_rule_contains_lsm_cond(struct ima_rule_entry *entry)
-+{
-+	int i;
-+
-+	for (i = 0; i < MAX_LSM_RULES; i++)
-+		if (entry->lsm[i].args_p)
-+			return true;
-+
-+	return false;
-+}
-+
- /*
-  * The LSM policy can be reloaded, leaving the IMA LSM based rules referring
-  * to the old, stale LSM policy.  Update the IMA LSM based rules to reflect
-@@ -998,6 +1009,16 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
- 		/* Validation of these hook functions is in ima_parse_rule() */
- 		break;
- 	case KEXEC_CMDLINE:
-+		if (entry->action & ~(MEASURE | DONT_MEASURE))
-+			return false;
-+
-+		if (entry->flags & ~(IMA_FUNC | IMA_PCR))
-+			return false;
-+
-+		if (ima_rule_contains_lsm_cond(entry))
-+			return false;
-+
-+		break;
- 	case KEY_CHECK:
- 		if (entry->action & ~(MEASURE | DONT_MEASURE))
- 			return false;
+diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
+index fcfb9024a83f0..6ec65187bef91 100644
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -2374,7 +2374,7 @@ static int rtl8192_read_eeprom_info(struct net_device *dev)
+ 				ret = eprom_read(dev, (EEPROM_TX_PW_INDEX_CCK >> 1));
+ 				if (ret < 0)
+ 					return ret;
+-				priv->EEPROMTxPowerLevelCCK = ((u16)ret & 0xff) >> 8;
++				priv->EEPROMTxPowerLevelCCK = ((u16)ret & 0xff00) >> 8;
+ 			} else
+ 				priv->EEPROMTxPowerLevelCCK = 0x10;
+ 			RT_TRACE(COMP_EPROM, "CCK Tx Power Levl: 0x%02x\n", priv->EEPROMTxPowerLevelCCK);
 -- 
 2.25.1
 
