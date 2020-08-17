@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA5B246974
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6C5246985
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729425AbgHQPWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:22:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
+        id S1729510AbgHQPXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729414AbgHQPWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:22:05 -0400
+        id S1729506AbgHQPW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:22:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D4C822D3E;
-        Mon, 17 Aug 2020 15:22:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D18B22B40;
+        Mon, 17 Aug 2020 15:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677724;
-        bh=nYm3RprnuRVhwg3iVyxfrb0xM+3RXe/tSRGDEgoHWNw=;
+        s=default; t=1597677778;
+        bh=Q8dKTcq8NnLbarUzPhG1oTEY1y5XX78ntX7b8mdqYkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6669myVyKHEkm06SYxbHGmbCY6i2QamJjKv/EUbpPy78VhEClXV39bD5i8MZSu8y
-         0tjLvShWIrgwv7/Tws7ikdaPvzEMnavXlUDTLGCl0DJm3qFDxBH1zRTIDaYEsyUrWu
-         Kg+a2oTyuqzqMRS1qskZapNdyETa/ORJ94FCLkkw=
+        b=ntFytrDcSQyRjUPLRGs/bN6Bv2Fz8zl8GrZ0gJvNeVRsznQU1WxHPCXOftj69585s
+         PFxm2/hWf8/scEDLjyNK8Sf/JfCrQhLQzwh6L7dnwIRdasfc9TwdciacFRaQMRVByR
+         zVNVhWOgz23KjcmchZWsCtsEORQ+R9VYu+YyoGec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Craig Topper <craig.topper@intel.com>,
+        Craig Topper <craig.topper@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "ClangBuiltLinux" <clang-built-linux@googlegroups.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 084/464] fs/btrfs: Add cond_resched() for try_release_extent_mapping() stalls
-Date:   Mon, 17 Aug 2020 17:10:37 +0200
-Message-Id: <20200817143837.809469765@linuxfoundation.org>
+Subject: [PATCH 5.8 087/464] crypto: aesni - Fix build with LLVM_IAS=1
+Date:   Mon, 17 Aug 2020 17:10:40 +0200
+Message-Id: <20200817143837.955169107@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,60 +48,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Sedat Dilek <sedat.dilek@gmail.com>
 
-[ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
+[ Upstream commit 3347c8a079d67af21760a78cc5f2abbcf06d9571 ]
 
-Very large I/Os can cause the following RCU CPU stall warning:
+When building with LLVM_IAS=1 means using Clang's Integrated Assembly (IAS)
+from LLVM/Clang >= v10.0.1-rc1+ instead of GNU/as from GNU/binutils
+I see the following breakage in Debian/testing AMD64:
 
-RIP: 0010:rb_prev+0x8/0x50
-Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
-89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
-RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
-RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
-RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
-RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
-R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
-R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
- __lookup_extent_mapping+0xa0/0x110
- try_release_extent_mapping+0xdc/0x220
- btrfs_releasepage+0x45/0x70
- shrink_page_list+0xa39/0xb30
- shrink_inactive_list+0x18f/0x3b0
- shrink_lruvec+0x38e/0x6b0
- shrink_node+0x14d/0x690
- do_try_to_free_pages+0xc6/0x3e0
- try_to_free_mem_cgroup_pages+0xe6/0x1e0
- reclaim_high.constprop.73+0x87/0xc0
- mem_cgroup_handle_over_high+0x66/0x150
- exit_to_usermode_loop+0x82/0xd0
- do_syscall_64+0xd4/0x100
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+<instantiation>:15:74: error: too many positional arguments
+ PRECOMPUTE 8*3+8(%rsp), %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7,
+                                                                         ^
+ arch/x86/crypto/aesni-intel_asm.S:1598:2: note: while in macro instantiation
+ GCM_INIT %r9, 8*3 +8(%rsp), 8*3 +16(%rsp), 8*3 +24(%rsp)
+ ^
+<instantiation>:47:2: error: unknown use of instruction mnemonic without a size suffix
+ GHASH_4_ENCRYPT_4_PARALLEL_dec %xmm9, %xmm10, %xmm11, %xmm12, %xmm13, %xmm14, %xmm0, %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7, %xmm8, enc
+ ^
+arch/x86/crypto/aesni-intel_asm.S:1599:2: note: while in macro instantiation
+ GCM_ENC_DEC dec
+ ^
+<instantiation>:15:74: error: too many positional arguments
+ PRECOMPUTE 8*3+8(%rsp), %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7,
+                                                                         ^
+arch/x86/crypto/aesni-intel_asm.S:1686:2: note: while in macro instantiation
+ GCM_INIT %r9, 8*3 +8(%rsp), 8*3 +16(%rsp), 8*3 +24(%rsp)
+ ^
+<instantiation>:47:2: error: unknown use of instruction mnemonic without a size suffix
+ GHASH_4_ENCRYPT_4_PARALLEL_enc %xmm9, %xmm10, %xmm11, %xmm12, %xmm13, %xmm14, %xmm0, %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7, %xmm8, enc
+ ^
+arch/x86/crypto/aesni-intel_asm.S:1687:2: note: while in macro instantiation
+ GCM_ENC_DEC enc
 
-On a PREEMPT=n kernel, the try_release_extent_mapping() function's
-"while" loop might run for a very long time on a large I/O.  This commit
-therefore adds a cond_resched() to this loop, providing RCU any needed
-quiescent states.
+Craig Topper suggested me in ClangBuiltLinux issue #1050:
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> I think the "too many positional arguments" is because the parser isn't able
+> to handle the trailing commas.
+>
+> The "unknown use of instruction mnemonic" is because the macro was named
+> GHASH_4_ENCRYPT_4_PARALLEL_DEC but its being instantiated with
+> GHASH_4_ENCRYPT_4_PARALLEL_dec I guess gas ignores case on the
+> macro instantiation, but llvm doesn't.
+
+First, I removed the trailing comma in the PRECOMPUTE line.
+
+Second, I substituted:
+1. GHASH_4_ENCRYPT_4_PARALLEL_DEC -> GHASH_4_ENCRYPT_4_PARALLEL_dec
+2. GHASH_4_ENCRYPT_4_PARALLEL_ENC -> GHASH_4_ENCRYPT_4_PARALLEL_enc
+
+With these changes I was able to build with LLVM_IAS=1 and boot on bare metal.
+
+I confirmed that this works with Linux-kernel v5.7.5 final.
+
+NOTE: This patch is on top of Linux v5.7 final.
+
+Thanks to Craig and especially Nick for double-checking and his comments.
+
+Suggested-by: Craig Topper <craig.topper@intel.com>
+Suggested-by: Craig Topper <craig.topper@gmail.com>
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: "ClangBuiltLinux" <clang-built-linux@googlegroups.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1050
+Link: https://bugs.llvm.org/show_bug.cgi?id=24494
+Signed-off-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/crypto/aesni-intel_asm.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 60278e52c37ab..eeaee346f5a95 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4516,6 +4516,8 @@ int try_release_extent_mapping(struct page *page, gfp_t mask)
+diff --git a/arch/x86/crypto/aesni-intel_asm.S b/arch/x86/crypto/aesni-intel_asm.S
+index 54e7d15dbd0d5..7d4298e6d4cbd 100644
+--- a/arch/x86/crypto/aesni-intel_asm.S
++++ b/arch/x86/crypto/aesni-intel_asm.S
+@@ -266,7 +266,7 @@ ALL_F:      .octa 0xffffffffffffffffffffffffffffffff
+ 	PSHUFB_XMM %xmm2, %xmm0
+ 	movdqu %xmm0, CurCount(%arg2) # ctx_data.current_counter = iv
  
- 			/* once for us */
- 			free_extent_map(em);
-+
-+			cond_resched(); /* Allow large-extent preemption. */
- 		}
- 	}
- 	return try_release_extent_state(tree, page, mask);
+-	PRECOMPUTE \SUBKEY, %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7,
++	PRECOMPUTE \SUBKEY, %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7
+ 	movdqu HashKey(%arg2), %xmm13
+ 
+ 	CALC_AAD_HASH %xmm13, \AAD, \AADLEN, %xmm0, %xmm1, %xmm2, %xmm3, \
+@@ -978,7 +978,7 @@ _initial_blocks_done\@:
+ * arg1, %arg3, %arg4 are used as pointers only, not modified
+ * %r11 is the data offset value
+ */
+-.macro GHASH_4_ENCRYPT_4_PARALLEL_ENC TMP1 TMP2 TMP3 TMP4 TMP5 \
++.macro GHASH_4_ENCRYPT_4_PARALLEL_enc TMP1 TMP2 TMP3 TMP4 TMP5 \
+ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
+ 
+ 	movdqa	  \XMM1, \XMM5
+@@ -1186,7 +1186,7 @@ aes_loop_par_enc_done\@:
+ * arg1, %arg3, %arg4 are used as pointers only, not modified
+ * %r11 is the data offset value
+ */
+-.macro GHASH_4_ENCRYPT_4_PARALLEL_DEC TMP1 TMP2 TMP3 TMP4 TMP5 \
++.macro GHASH_4_ENCRYPT_4_PARALLEL_dec TMP1 TMP2 TMP3 TMP4 TMP5 \
+ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
+ 
+ 	movdqa	  \XMM1, \XMM5
 -- 
 2.25.1
 
