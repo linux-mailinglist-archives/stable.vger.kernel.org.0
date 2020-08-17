@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D328424785C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 22:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEDE24785E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 22:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbgHQUyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 16:54:23 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:14293 "EHLO
+        id S1726970AbgHQUyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 16:54:55 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:14384 "EHLO
         hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726228AbgHQUyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 16:54:22 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f3aee440002>; Mon, 17 Aug 2020 13:53:24 -0700
+        with ESMTP id S1726969AbgHQUyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 16:54:54 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f3aee650002>; Mon, 17 Aug 2020 13:53:57 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Mon, 17 Aug 2020 13:54:21 -0700
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Mon, 17 Aug 2020 13:54:54 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Mon, 17 Aug 2020 13:54:21 -0700
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 17 Aug
- 2020 20:54:21 +0000
+        by hqpgpgate101.nvidia.com on Mon, 17 Aug 2020 13:54:54 -0700
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 17 Aug
+ 2020 20:54:54 +0000
 Received: from [127.0.1.1] (10.124.1.5) by HQMAIL105.nvidia.com
  (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Mon, 17 Aug 2020 20:54:18 +0000
+ Transport; Mon, 17 Aug 2020 20:54:51 +0000
 From:   Jon Hunter <jonathanh@nvidia.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,34 +31,34 @@ CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
         <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
         <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.19 000/168] 4.19.140-rc1 review
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+Subject: Re: [PATCH 5.4 000/270] 5.4.59-rc1 review
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 X-NVConfidentiality: public
 MIME-Version: 1.0
-Message-ID: <51721a33cb974c4fa64a38f903a733e6@HQMAIL105.nvidia.com>
-Date:   Mon, 17 Aug 2020 20:54:18 +0000
+Message-ID: <4ae9f7f4a2014e609587ff125fb7a4aa@HQMAIL105.nvidia.com>
+Date:   Mon, 17 Aug 2020 20:54:51 +0000
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1597697604; bh=/DFovDGlNwrb4sIMTmmy80ximO6Ugb3PFVLwbquM8wg=;
+        t=1597697637; bh=yOSSmMX+PxKYNLe13sSsvs2QXl9i88QH9GNg+EqfOFE=;
         h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
          X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
          Content-Transfer-Encoding;
-        b=G+GWtkcxwbxyyBmRberhTBsDakk1HCioo8DV2Lu2Jxrt2HDjLSa3Z8R0ziNDg+wSj
-         pyi/aBPJWAkskwAfK2Mib5vzw8ATfMb9VqnRPrRTtktwg6qSH2l4IXWdFK+If3ntvt
-         zuG6XFkeFdJDvH8ZsGQp1Shc88FhOGMx0+zI/+tqsiTRgvK47NQWOTbxWMhL1TSRgC
-         jn8HHQwDw+chyNGG/BUrOH91qfk3IVDiUXls9tsJd3nWovmvVngNgMTCyskwEXWtdt
-         UNt4MkwQpNE7HbaIkh09bt9pbBsuU20MHOSdxaUegy7LBY0+4GBDkPrNg6hCxNHU0P
-         6nbQmIoCMSN6w==
+        b=l/jZvnAbgTjfF5xTaB2AXlvxr9p2nk5g5lk2pf1Qwj2NhlPJZjDMFe8foHj03vw/D
+         6PzjS7lwdm+fo4i+IhwmfAYGXZ19lOaIQw7j+s/ZSBgdoFgubWTUEBxlAxBY2EW5N1
+         wRFeiRFhsJi96iKm01yrX12lLv3X1rLjri+CobzIa0cFCxP07DVmxEi+PK53DAP5KV
+         8FnIS/GiEsx3v90pCHO430jgxry2qd/pqHiFnBwtoAZhAR/Re8Bmr3BuVvJ/UKVY8o
+         AFQBuZNDXTYmLIPjx2XaanCgl3I8oOt6VVDuHMxV+QaV2zqaCPBCRE6rbs/+TKjb7A
+         bHS9JdhAv2Ddg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 17 Aug 2020 17:15:31 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.140 release.
-> There are 168 patches in this series, all will be posted as a response
+On Mon, 17 Aug 2020 17:13:21 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.59 release.
+> There are 270 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -66,9 +66,9 @@ On Mon, 17 Aug 2020 17:15:31 +0200, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.140-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.59-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -77,14 +77,15 @@ On Mon, 17 Aug 2020 17:15:31 +0200, Greg Kroah-Hartman wrote:
 
 All tests passing for Tegra ...
 
-Test results for stable-v4.19:
+Test results for stable-v5.4:
     11 builds:	11 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
 
-Linux version:	4.19.140-rc1-g9950f9b4d350
+Linux version:	5.4.59-rc1-g6982f544144f
 Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
                 tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
 Jon
