@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FE0246C20
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:10:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26125246C63
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388538AbgHQQKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36716 "EHLO mail.kernel.org"
+        id S2388804AbgHQQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:15:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388543AbgHQQK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:29 -0400
+        id S2388799AbgHQQPK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FCE722D06;
-        Mon, 17 Aug 2020 16:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C2CD20578;
+        Mon, 17 Aug 2020 16:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680617;
-        bh=4sgduH5P5O73KnNHItFH0MRZIlGcnmkccmJ2zfLYU+w=;
+        s=default; t=1597680910;
+        bh=VaCrLvSekWJClVn1YBP6qZ2kXCHDNEXrVPAJS2fvwRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1MQRcMmVH5GwIO+Ay987DLlAiQX6OHd3KeyCCthlVa89e8O4krkvw3Ezd2LneYEG
-         DPQkJ+uTSh6h0hWcUSVdrW9WicPkrdGnxSOiossRsIBerw4+1DWWQwhibesK9Q9sif
-         WgTgJ39HJjp8w517It/H1890EoNoms8bUk0OzsjI=
+        b=kv00r9UoCwFy54kY7qY76F04pPW1NVNxrG8ycv/ScXQb3JsmfjvXkL75tJTGpEGgM
+         zJl1x3B5pebUl1+c2TudKETFqSdcL6sO/AnhLSFMuq1182tep5N2vZDbW8G6oHDQIS
+         sPy9Q5vsSHxojZfPGNum0y1PxSBQWzGXOVXYG2DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
-        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 228/270] USB: serial: cp210x: re-enable auto-RTS on open
-Date:   Mon, 17 Aug 2020 17:17:09 +0200
-Message-Id: <20200817143807.141561591@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 099/168] net: dsa: mv88e6xxx: MV88E6097 does not support jumbo configuration
+Date:   Mon, 17 Aug 2020 17:17:10 +0200
+Message-Id: <20200817143738.655691195@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brant Merryman <brant.merryman@silabs.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-commit c7614ff9b73a1e6fb2b1b51396da132ed22fecdb upstream.
+[ Upstream commit 0f3c66a3c7b4e8b9f654b3c998e9674376a51b0f ]
 
-CP210x hardware disables auto-RTS but leaves auto-CTS when in hardware
-flow control mode and UART on cp210x hardware is disabled. When
-re-opening the port, if auto-CTS is enabled on the cp210x, then auto-RTS
-must be re-enabled in the driver.
+The MV88E6097 chip does not support configuring jumbo frames. Prior to
+commit 5f4366660d65 only the 6352, 6351, 6165 and 6320 chips configured
+jumbo mode. The refactor accidentally added the function for the 6097.
+Remove the erroneous function pointer assignment.
 
-Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
-Co-developed-by: Phu Luu <phu.luu@silabs.com>
-Signed-off-by: Phu Luu <phu.luu@silabs.com>
-Link: https://lore.kernel.org/r/ECCF8E73-91F3-4080-BE17-1714BC8818FB@silabs.com
-[ johan: fix up tags and problem description ]
-Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
-Cc: stable <stable@vger.kernel.org>     # 2.6.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 5f4366660d65 ("net: dsa: mv88e6xxx: Refactor setting of jumbo frames")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -915,6 +915,7 @@ static void cp210x_get_termios_port(stru
- 	u32 baud;
- 	u16 bits;
- 	u32 ctl_hs;
-+	u32 flow_repl;
- 
- 	cp210x_read_u32_reg(port, CP210X_GET_BAUDRATE, &baud);
- 
-@@ -1015,6 +1016,22 @@ static void cp210x_get_termios_port(stru
- 	ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
- 	if (ctl_hs & CP210X_SERIAL_CTS_HANDSHAKE) {
- 		dev_dbg(dev, "%s - flow control = CRTSCTS\n", __func__);
-+		/*
-+		 * When the port is closed, the CP210x hardware disables
-+		 * auto-RTS and RTS is deasserted but it leaves auto-CTS when
-+		 * in hardware flow control mode. When re-opening the port, if
-+		 * auto-CTS is enabled on the cp210x, then auto-RTS must be
-+		 * re-enabled in the driver.
-+		 */
-+		flow_repl = le32_to_cpu(flow_ctl.ulFlowReplace);
-+		flow_repl &= ~CP210X_SERIAL_RTS_MASK;
-+		flow_repl |= CP210X_SERIAL_RTS_SHIFT(CP210X_SERIAL_RTS_FLOW_CTL);
-+		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
-+		cp210x_write_reg_block(port,
-+				CP210X_SET_FLOW,
-+				&flow_ctl,
-+				sizeof(flow_ctl));
-+
- 		cflag |= CRTSCTS;
- 	} else {
- 		dev_dbg(dev, "%s - flow control = NONE\n", __func__);
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 43b00e8bcdcd7..6fa8aa69b4180 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2930,7 +2930,6 @@ static const struct mv88e6xxx_ops mv88e6097_ops = {
+ 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
+ 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
+ 	.port_set_ether_type = mv88e6351_port_set_ether_type,
+-	.port_set_jumbo_size = mv88e6165_port_set_jumbo_size,
+ 	.port_egress_rate_limiting = mv88e6095_port_egress_rate_limiting,
+ 	.port_pause_limit = mv88e6097_port_pause_limit,
+ 	.port_disable_learn_limit = mv88e6xxx_port_disable_learn_limit,
+-- 
+2.25.1
+
 
 
