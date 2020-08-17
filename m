@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3C124746F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F4D24746C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387701AbgHQTJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:09:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51992 "EHLO mail.kernel.org"
+        id S2387509AbgHQPmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387497AbgHQPmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:42:08 -0400
+        id S2387503AbgHQPmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1275420825;
-        Mon, 17 Aug 2020 15:42:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03CA920760;
+        Mon, 17 Aug 2020 15:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678927;
-        bh=Qu/3foyaXERMqY1vv8CRgOXlPV4nyRt88WLVppSA5wU=;
+        s=default; t=1597678933;
+        bh=r9cARwlmRmQB2cn/JMr7t+CaD0wcuI04mAkfiugb6E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgJqVUs2ssWPu6VIgXUTMPfGJ8n1/QZwtYOowzX/E7+aTB4z5I+iC4JjxjdIG09M3
-         xAbqrqhKCnnFc7LMKs0XoSQRC+lvbc4H+mYwqO4iENF7g0E2u/GnOnN7py7DsywwAT
-         BiZ9n4Lu4TrszG6HcPbSG+k2iOhJdx1c6gdFecxc=
+        b=UlrNQFiqVa+DQoMwyQZh1KUzFi6YeOg7Tu1A62aSJYiJPhcxFLr8db1z/JwX2t7+o
+         dtlxmfzQpvH5zO8vkU6THhDmj2LuSTdjzOeN5aom+D95CcLQRjcnOmXPdpE4xqh8nm
+         Czi0JY6yeYeiX9VgeQjwLeWnTqrK3+s2I684vxS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dejin Zheng <zhengdejin5@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 038/393] reset: intel: fix a compile warning about REG_OFFSET redefined
-Date:   Mon, 17 Aug 2020 17:11:28 +0200
-Message-Id: <20200817143821.454930538@linuxfoundation.org>
+Subject: [PATCH 5.7 040/393] ARM: dts: sunxi: bananapi-m2-plus-v1.2: Fix CPU supply voltages
+Date:   Mon, 17 Aug 2020 17:11:30 +0200
+Message-Id: <20200817143821.544251963@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,103 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dejin Zheng <zhengdejin5@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 308646785e51976dea7e20d29a1842d14bf0b9bd ]
+[ Upstream commit e4dae01bf08b754de79072441c357737220b873f ]
 
-kernel test robot reports a compile warning about REG_OFFSET redefined
-in the reset-intel-gw.c after merging commit e44ab4e14d6f4 ("regmap:
-Simplify implementation of the regmap_read_poll_timeout() macro"). the
-warning is like that:
+The Bananapi M2+ uses a GPIO line to change the effective resistance of
+the CPU supply regulator's feedback resistor network. The voltages
+described in the device tree were given directly by the vendor. This
+turns out to be slightly off compared to the real values.
 
-drivers/reset/reset-intel-gw.c:18:0: warning: "REG_OFFSET" redefined
- #define REG_OFFSET GENMASK(31, 16)
+The updated voltages are based on calculations of the feedback resistor
+network, and verified down to three decimal places with a multi-meter.
 
-In file included from ./arch/arm/mach-ixp4xx/include/mach/hardware.h:30:0,
-                 from ./arch/arm/mach-ixp4xx/include/mach/io.h:15,
-                 from ./arch/arm/include/asm/io.h:198,
-                 from ./include/linux/io.h:13,
-                 from ./include/linux/iopoll.h:14,
-                 from ./include/linux/regmap.h:20,
-                 from drivers/reset/reset-intel-gw.c:12:
-./arch/arm/mach-ixp4xx/include/mach/platform.h:25:0: note: this is the location of the previous definition
- #define REG_OFFSET 3
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: c9aef213e38cde ("reset: intel: Add system reset controller driver")
-Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: 6eeb4180d4b9 ("ARM: dts: sunxi: h3-h5: Add Bananapi M2+ v1.2 device trees")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20200717160053.31191-4-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-intel-gw.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/reset/reset-intel-gw.c b/drivers/reset/reset-intel-gw.c
-index 854238444616b..effc177db80af 100644
---- a/drivers/reset/reset-intel-gw.c
-+++ b/drivers/reset/reset-intel-gw.c
-@@ -15,9 +15,9 @@
- #define RCU_RST_STAT	0x0024
- #define RCU_RST_REQ	0x0048
+diff --git a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
+index a628b5ee72b65..235994a4a2ebb 100644
+--- a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
++++ b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
+@@ -16,12 +16,12 @@ reg_vdd_cpux: vdd-cpux {
+ 		regulator-type = "voltage";
+ 		regulator-boot-on;
+ 		regulator-always-on;
+-		regulator-min-microvolt = <1100000>;
+-		regulator-max-microvolt = <1300000>;
++		regulator-min-microvolt = <1108475>;
++		regulator-max-microvolt = <1308475>;
+ 		regulator-ramp-delay = <50>; /* 4ms */
+ 		gpios = <&r_pio 0 1 GPIO_ACTIVE_HIGH>; /* PL1 */
+ 		gpios-states = <0x1>;
+-		states = <1100000 0>, <1300000 1>;
++		states = <1108475 0>, <1308475 1>;
+ 	};
+ };
  
--#define REG_OFFSET	GENMASK(31, 16)
--#define BIT_OFFSET	GENMASK(15, 8)
--#define STAT_BIT_OFFSET	GENMASK(7, 0)
-+#define REG_OFFSET_MASK	GENMASK(31, 16)
-+#define BIT_OFFSET_MASK	GENMASK(15, 8)
-+#define STAT_BIT_OFFSET_MASK	GENMASK(7, 0)
- 
- #define to_reset_data(x)	container_of(x, struct intel_reset_data, rcdev)
- 
-@@ -51,11 +51,11 @@ static u32 id_to_reg_and_bit_offsets(struct intel_reset_data *data,
- 				     unsigned long id, u32 *rst_req,
- 				     u32 *req_bit, u32 *stat_bit)
- {
--	*rst_req = FIELD_GET(REG_OFFSET, id);
--	*req_bit = FIELD_GET(BIT_OFFSET, id);
-+	*rst_req = FIELD_GET(REG_OFFSET_MASK, id);
-+	*req_bit = FIELD_GET(BIT_OFFSET_MASK, id);
- 
- 	if (data->soc_data->legacy)
--		*stat_bit = FIELD_GET(STAT_BIT_OFFSET, id);
-+		*stat_bit = FIELD_GET(STAT_BIT_OFFSET_MASK, id);
- 	else
- 		*stat_bit = *req_bit;
- 
-@@ -141,14 +141,14 @@ static int intel_reset_xlate(struct reset_controller_dev *rcdev,
- 	if (spec->args[1] > 31)
- 		return -EINVAL;
- 
--	id = FIELD_PREP(REG_OFFSET, spec->args[0]);
--	id |= FIELD_PREP(BIT_OFFSET, spec->args[1]);
-+	id = FIELD_PREP(REG_OFFSET_MASK, spec->args[0]);
-+	id |= FIELD_PREP(BIT_OFFSET_MASK, spec->args[1]);
- 
- 	if (data->soc_data->legacy) {
- 		if (spec->args[2] > 31)
- 			return -EINVAL;
- 
--		id |= FIELD_PREP(STAT_BIT_OFFSET, spec->args[2]);
-+		id |= FIELD_PREP(STAT_BIT_OFFSET_MASK, spec->args[2]);
- 	}
- 
- 	return id;
-@@ -210,11 +210,11 @@ static int intel_reset_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
- 
--	data->reboot_id = FIELD_PREP(REG_OFFSET, rb_id[0]);
--	data->reboot_id |= FIELD_PREP(BIT_OFFSET, rb_id[1]);
-+	data->reboot_id = FIELD_PREP(REG_OFFSET_MASK, rb_id[0]);
-+	data->reboot_id |= FIELD_PREP(BIT_OFFSET_MASK, rb_id[1]);
- 
- 	if (data->soc_data->legacy)
--		data->reboot_id |= FIELD_PREP(STAT_BIT_OFFSET, rb_id[2]);
-+		data->reboot_id |= FIELD_PREP(STAT_BIT_OFFSET_MASK, rb_id[2]);
- 
- 	data->restart_nb.notifier_call =	intel_reset_restart_handler;
- 	data->restart_nb.priority =		128;
 -- 
 2.25.1
 
