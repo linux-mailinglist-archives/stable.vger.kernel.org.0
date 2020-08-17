@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF1D246B73
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C482246A84
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388033AbgHQPzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:55:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43042 "EHLO mail.kernel.org"
+        id S1730562AbgHQPhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:37:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388023AbgHQPz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:55:28 -0400
+        id S2387412AbgHQPhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:37:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78FDF2072E;
-        Mon, 17 Aug 2020 15:55:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06FC6208E4;
+        Mon, 17 Aug 2020 15:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679724;
-        bh=YzR3arlFhG1Mq5w7TH4ZYOeYhBrHZPDduFiJncIXyCY=;
+        s=default; t=1597678656;
+        bh=AUgn2tKQIYQ9H75ylkm6VLGiXyJBQJUmEjbxTcbu/2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dg7AY171+hFm7hJZsUeDlP6xYj6+kHx7kf00g6L3K8EBk1BagcNQc/KsfNCRM75RO
-         h9KaYNXBuUnaBbX6FRqvJpH49AgxV9BM6c9YAB8NaXt3OwV4bNj1gPa+jXc943SYpE
-         b7rWaOUWgtrB9xqDJdsJE8z5Lgcfv0DKTIuol3f8=
+        b=al9omZ/sGgeBEyO5yie99Jx58Cqu8NkPIiycQxlWchLUDayuG7EHjrg7vlrLeWm0e
+         nMZbuo5/AeaXOTpzyh3JkDUD1IqAk2pofgdGLVeIv8MSuFPEcM1eTFJqsif639He3G
+         ioTjuvu6wijpcbPCbJjqe4aQnwSiwE+BpJZWkqSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 312/393] svcrdma: Fix page leak in svc_rdma_recv_read_chunk()
+        stable@vger.kernel.org, Matteo Croce <mcroce@linux.microsoft.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.8 409/464] pstore: Fix linking when crypto API disabled
 Date:   Mon, 17 Aug 2020 17:16:02 +0200
-Message-Id: <20200817143834.744049639@linuxfoundation.org>
+Message-Id: <20200817143853.371582987@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Matteo Croce <mcroce@linux.microsoft.com>
 
-[ Upstream commit e814eecbe3bbeaa8b004d25a4b8974d232b765a9 ]
+commit fd49e03280e596e54edb93a91bc96170f8e97e4a upstream.
 
-Commit 07d0ff3b0cd2 ("svcrdma: Clean up Read chunk path") moved the
-page saver logic so that it gets executed event when an error occurs.
-In that case, the I/O is never posted, and those pages are then
-leaked. Errors in this path, however, are quite rare.
+When building a kernel with CONFIG_PSTORE=y and CONFIG_CRYPTO not set,
+a build error happens:
 
-Fixes: 07d0ff3b0cd2 ("svcrdma: Clean up Read chunk path")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    ld: fs/pstore/platform.o: in function `pstore_dump':
+    platform.c:(.text+0x3f9): undefined reference to `crypto_comp_compress'
+    ld: fs/pstore/platform.o: in function `pstore_get_backend_records':
+    platform.c:(.text+0x784): undefined reference to `crypto_comp_decompress'
+
+This because some pstore code uses crypto_comp_(de)compress regardless
+of the CONFIG_CRYPTO status. Fix it by wrapping the (de)compress usage
+by IS_ENABLED(CONFIG_PSTORE_COMPRESS)
+
+Signed-off-by: Matteo Croce <mcroce@linux.microsoft.com>
+Link: https://lore.kernel.org/lkml/20200706234045.9516-1-mcroce@linux.microsoft.com
+Fixes: cb3bee0369bc ("pstore: Use crypto compress API")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/sunrpc/xprtrdma/svc_rdma_rw.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ fs/pstore/platform.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtrdma/svc_rdma_rw.c b/net/sunrpc/xprtrdma/svc_rdma_rw.c
-index 23c2d3ce0dc9a..e0a0ae39848c4 100644
---- a/net/sunrpc/xprtrdma/svc_rdma_rw.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_rw.c
-@@ -678,7 +678,6 @@ static int svc_rdma_build_read_chunk(struct svc_rqst *rqstp,
- 				     struct svc_rdma_read_info *info,
- 				     __be32 *p)
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -269,6 +269,9 @@ static int pstore_compress(const void *i
  {
--	unsigned int i;
  	int ret;
  
- 	ret = -EINVAL;
-@@ -701,12 +700,6 @@ static int svc_rdma_build_read_chunk(struct svc_rqst *rqstp,
- 		info->ri_chunklen += rs_length;
- 	}
- 
--	/* Pages under I/O have been copied to head->rc_pages.
--	 * Prevent their premature release by svc_xprt_release() .
--	 */
--	for (i = 0; i < info->ri_readctxt->rc_page_count; i++)
--		rqstp->rq_pages[i] = NULL;
--
- 	return ret;
- }
- 
-@@ -801,6 +794,26 @@ static int svc_rdma_build_pz_read_chunk(struct svc_rqst *rqstp,
- 	return ret;
- }
- 
-+/* Pages under I/O have been copied to head->rc_pages. Ensure they
-+ * are not released by svc_xprt_release() until the I/O is complete.
-+ *
-+ * This has to be done after all Read WRs are constructed to properly
-+ * handle a page that is part of I/O on behalf of two different RDMA
-+ * segments.
-+ *
-+ * Do this only if I/O has been posted. Otherwise, we do indeed want
-+ * svc_xprt_release() to clean things up properly.
-+ */
-+static void svc_rdma_save_io_pages(struct svc_rqst *rqstp,
-+				   const unsigned int start,
-+				   const unsigned int num_pages)
-+{
-+	unsigned int i;
++	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION))
++		return -EINVAL;
 +
-+	for (i = start; i < num_pages + start; i++)
-+		rqstp->rq_pages[i] = NULL;
-+}
-+
- /**
-  * svc_rdma_recv_read_chunk - Pull a Read chunk from the client
-  * @rdma: controlling RDMA transport
-@@ -854,6 +867,7 @@ int svc_rdma_recv_read_chunk(struct svcxprt_rdma *rdma, struct svc_rqst *rqstp,
- 	ret = svc_rdma_post_chunk_ctxt(&info->ri_cc);
- 	if (ret < 0)
- 		goto out_err;
-+	svc_rdma_save_io_pages(rqstp, 0, head->rc_page_count);
- 	return 0;
+ 	ret = crypto_comp_compress(tfm, in, inlen, out, &outlen);
+ 	if (ret) {
+ 		pr_err("crypto_comp_compress failed, ret = %d!\n", ret);
+@@ -668,7 +671,7 @@ static void decompress_record(struct pst
+ 	int unzipped_len;
+ 	char *unzipped, *workspace;
  
- out_err:
--- 
-2.25.1
-
+-	if (!record->compressed)
++	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION) || !record->compressed)
+ 		return;
+ 
+ 	/* Only PSTORE_TYPE_DMESG support compression. */
 
 
