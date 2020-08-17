@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB032246BA0
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E24246AA8
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730956AbgHQP7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46416 "EHLO mail.kernel.org"
+        id S1730464AbgHQPkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:40:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730950AbgHQP7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:59:11 -0400
+        id S1730674AbgHQPkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B57D206FA;
-        Mon, 17 Aug 2020 15:59:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02552207FF;
+        Mon, 17 Aug 2020 15:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679949;
-        bh=VxGE96xVX8mqRT56wQqLgk6r5LrYyc4XB8oho4I7MnA=;
+        s=default; t=1597678837;
+        bh=kLRldtUwC7t3HFPXhNORNdUQOkvhyX8mWGlBQq4PcV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfP0FwTD0yGxVyDnAPqGRkNwObxSesZlCsAlPMzdraqFzUYvI4HEB2MgKxmDFDJtS
-         EUSwMKDszRUm74RZTkHGigy1r8jh4R9DRFJkhULvS7YTUKzh2R6ysUtLVuUjOchLhl
-         mbYWn57DFAD1jDYf48ObtUVmG7AcGL8IW5AM9+EY=
+        b=uCtDGdM99oT2GD53EQUG75o7x8bHXdgt5QA+QtIEznXnIavMY+aMbWvw2XxbOSoy9
+         2minu+mEDqYp3s9PqtuEwlY6ZOJDcpMr1+fnIjs1D5mhdU4oubs1hpaj3FaRNUtFbE
+         3fzCi5GIzR8JCengttVQQm7r0kdrjH0L0cyv0IOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.7 359/393] NFS: Dont return layout segments that are in use
-Date:   Mon, 17 Aug 2020 17:16:49 +0200
-Message-Id: <20200817143837.016330666@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.8 458/464] s390/numa: set node distance to LOCAL_DISTANCE
+Date:   Mon, 17 Aug 2020 17:16:51 +0200
+Message-Id: <20200817143855.712919334@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-commit d474f96104bd4377573526ebae2ee212205a6839 upstream.
+commit 535e4fc623fab2e09a0653fc3a3e17f382ad0251 upstream.
 
-If the NFS_LAYOUT_RETURN_REQUESTED flag is set, we want to return the
-layout as soon as possible, meaning that the affected layout segments
-should be marked as invalid, and should no longer be in use for I/O.
+The node distance is hardcoded to 0, which causes a trouble
+for some user-level applications. In particular, "libnuma"
+expects the distance of a node to itself as LOCAL_DISTANCE.
+This update removes the offending node distance override.
 
-Fixes: f0b429819b5f ("pNFS: Ignore non-recalled layouts in pnfs_layout_need_return()")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: <stable@vger.kernel.org> # 4.4
+Fixes: 3a368f742da1 ("s390/numa: add core infrastructure")
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pnfs.c |   34 +++++++++++++++-------------------
- 1 file changed, 15 insertions(+), 19 deletions(-)
+ arch/s390/include/asm/topology.h |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1226,31 +1226,27 @@ out:
- 	return status;
- }
+--- a/arch/s390/include/asm/topology.h
++++ b/arch/s390/include/asm/topology.h
+@@ -86,12 +86,6 @@ static inline const struct cpumask *cpum
  
-+static bool
-+pnfs_layout_segments_returnable(struct pnfs_layout_hdr *lo,
-+				enum pnfs_iomode iomode,
-+				u32 seq)
-+{
-+	struct pnfs_layout_range recall_range = {
-+		.length = NFS4_MAX_UINT64,
-+		.iomode = iomode,
-+	};
-+	return pnfs_mark_matching_lsegs_return(lo, &lo->plh_return_segs,
-+					       &recall_range, seq) != -EBUSY;
-+}
-+
- /* Return true if layoutreturn is needed */
- static bool
- pnfs_layout_need_return(struct pnfs_layout_hdr *lo)
- {
--	struct pnfs_layout_segment *s;
--	enum pnfs_iomode iomode;
--	u32 seq;
--
- 	if (!test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags))
- 		return false;
--
--	seq = lo->plh_return_seq;
--	iomode = lo->plh_return_iomode;
--
--	/* Defer layoutreturn until all recalled lsegs are done */
--	list_for_each_entry(s, &lo->plh_segs, pls_list) {
--		if (seq && pnfs_seqid_is_newer(s->pls_seq, seq))
--			continue;
--		if (iomode != IOMODE_ANY && s->pls_range.iomode != iomode)
--			continue;
--		if (test_bit(NFS_LSEG_LAYOUTRETURN, &s->pls_flags))
--			return false;
--	}
--
--	return true;
-+	return pnfs_layout_segments_returnable(lo, lo->plh_return_iomode,
-+					       lo->plh_return_seq);
- }
+ #define pcibus_to_node(bus) __pcibus_to_node(bus)
  
- static void pnfs_layoutreturn_before_put_layout_hdr(struct pnfs_layout_hdr *lo)
+-#define node_distance(a, b) __node_distance(a, b)
+-static inline int __node_distance(int a, int b)
+-{
+-	return 0;
+-}
+-
+ #else /* !CONFIG_NUMA */
+ 
+ #define numa_node_id numa_node_id
 
 
