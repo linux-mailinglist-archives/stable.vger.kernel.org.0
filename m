@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D67E246F1B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFFF9246F1E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731570AbgHQRmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731572AbgHQRmx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 13:42:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53838 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731038AbgHQQP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:27 -0400
+        id S1731067AbgHQQP3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59C1222CF6;
-        Mon, 17 Aug 2020 16:15:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF7E0204FD;
+        Mon, 17 Aug 2020 16:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680926;
-        bh=wJuZ2z88cxKs15hNs6mhPY0+FeX4LWP21/7l2Szj+fA=;
+        s=default; t=1597680929;
+        bh=nLLYUBUWCRpFXe2Wu7VJ/KUG5pyqVVVZ2tDy6TkbfxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HboWJx82iJFzVCikAMsgFA0EQtrXRj3xwKqQyLZkS16a0jcgLt0lyMUm3Hfnl4ZkQ
-         D9ZEFmwZPUzEL5u8E5+zr2qpNTNms8yogZyUHcjG8xvKBvpjl+Ndk2TfFGYEx0gBd/
-         MFK4p/WmkuUDglbJfI6+Z0P7PmRxZOLeQMlIBMFc=
+        b=ji77f3RxK3rUo0nMq4kc+pPmgUcz41Gdb2WI8NwNkU3ELmwdyazrtFURYxm51ENDN
+         v66QdnNjwkYQeND5j0QiGEYrQZXz/DhvgyASoHYezgiOtrw1oL1Jsni0BMadKZ/7Aw
+         k1us5x3raFgv583OyePSAo2T4EbQqmFX0w3TnOk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 114/168] s390/qeth: dont process empty bridge port events
-Date:   Mon, 17 Aug 2020 17:17:25 +0200
-Message-Id: <20200817143739.379273834@linuxfoundation.org>
+Subject: [PATCH 4.19 115/168] wl1251: fix always return 0 error
+Date:   Mon, 17 Aug 2020 17:17:26 +0200
+Message-Id: <20200817143739.430856546@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -45,38 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 02472e28b9a45471c6d8729ff2c7422baa9be46a ]
+[ Upstream commit 20e6421344b5bc2f97b8e2db47b6994368417904 ]
 
-Discard events that don't contain any entries. This shouldn't happen,
-but subsequent code relies on being able to use entry 0. So better
-be safe than accessing garbage.
+wl1251_event_ps_report() should not always return 0 because
+wl1251_ps_set_mode() may fail. Change it to return 'ret'.
 
-Fixes: b4d72c08b358 ("qeth: bridgeport support - basic control")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f7ad1eed4d4b ("wl1251: retry power save entry")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200730073939.33704-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l2_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ti/wl1251/event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index eb917e93fa72f..8d30f9ac3e9d5 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1463,6 +1463,10 @@ static void qeth_bridge_state_change(struct qeth_card *card,
- 	int extrasize;
+diff --git a/drivers/net/wireless/ti/wl1251/event.c b/drivers/net/wireless/ti/wl1251/event.c
+index f5acd24d0e2b1..988abb49771f9 100644
+--- a/drivers/net/wireless/ti/wl1251/event.c
++++ b/drivers/net/wireless/ti/wl1251/event.c
+@@ -84,7 +84,7 @@ static int wl1251_event_ps_report(struct wl1251 *wl,
+ 		break;
+ 	}
  
- 	QETH_CARD_TEXT(card, 2, "brstchng");
-+	if (qports->num_entries == 0) {
-+		QETH_CARD_TEXT(card, 2, "BPempty");
-+		return;
-+	}
- 	if (qports->entry_length != sizeof(struct qeth_sbp_port_entry)) {
- 		QETH_CARD_TEXT_(card, 2, "BPsz%04x", qports->entry_length);
- 		return;
+-	return 0;
++	return ret;
+ }
+ 
+ static void wl1251_event_mbox_dump(struct event_mailbox *mbox)
 -- 
 2.25.1
 
