@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C635246F36
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:44:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78753246F35
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389020AbgHQRoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52624 "EHLO mail.kernel.org"
+        id S2388666AbgHQQPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:15:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731044AbgHQQO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:14:57 -0400
+        id S2388129AbgHQQPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 980C923108;
-        Mon, 17 Aug 2020 16:14:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDBFB22B45;
+        Mon, 17 Aug 2020 16:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680895;
-        bh=8ZGoBqju/lye+2LTT4VSSUJ0uHKgnw6J0Qizfb+cNtQ=;
+        s=default; t=1597680905;
+        bh=DIhwfaHIx7haxE15HfsTsiSJsUEg2xtWAfqosJb4amg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uX5vftjKOgghVbHH9Dk3XVR/sH8UghPzlXXA7jsc2rC9J6WcA+jp9I/yZwwrdozKh
-         v9dIM6MpuRKmoWZJ17v/f/wT9kDoJINtMlJsffJ1BhAeFBn5Mrgt/wUFAULXQb9HyB
-         XTs4PpdJ46GCq7W0ezHRslvBR3QZ675QKqwIXd6Q=
+        b=Rl6SbJQqtMwbxB4bPp/cer26JodpjMLa8XKFHTqubqbcZwyV1lanJlrtl7+J0aSY4
+         naQd9cYcoH4r3uHNaTuekxV3MRtb1L1zHq7qpvF6Wb6OBfPJPpkivvjwOvnI3wasJN
+         d38pvswFwdBpw+Ro+BEahfaCvDDwA8L4aps87hUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/168] scsi: powertec: Fix different dev_id between request_irq() and free_irq()
-Date:   Mon, 17 Aug 2020 17:16:41 +0200
-Message-Id: <20200817143737.207280782@linuxfoundation.org>
+Subject: [PATCH 4.19 074/168] media: exynos4-is: Add missed check for pinctrl_lookup_state()
+Date:   Mon, 17 Aug 2020 17:16:45 +0200
+Message-Id: <20200817143737.413925127@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -45,35 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit d179f7c763241c1dc5077fca88ddc3c47d21b763 ]
+[ Upstream commit 18ffec750578f7447c288647d7282c7d12b1d969 ]
 
-The dev_id used in request_irq() and free_irq() should match. Use 'info' in
-both cases.
+fimc_md_get_pinctrl() misses a check for pinctrl_lookup_state().
+Add the missed check to fix it.
 
-Link: https://lore.kernel.org/r/20200626035948.944148-1-christophe.jaillet@wanadoo.fr
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration]")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arm/powertec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/arm/powertec.c b/drivers/scsi/arm/powertec.c
-index 79aa88911b7f3..b5e4a25ea1ef3 100644
---- a/drivers/scsi/arm/powertec.c
-+++ b/drivers/scsi/arm/powertec.c
-@@ -382,7 +382,7 @@ static int powertecscsi_probe(struct expansion_card *ec,
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index b5993532831da..2d25a197dc657 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1259,6 +1259,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
  
- 	if (info->info.scsi.dma != NO_DMA)
- 		free_dma(info->info.scsi.dma);
--	free_irq(ec->irq, host);
-+	free_irq(ec->irq, info);
+ 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
+ 					PINCTRL_STATE_IDLE);
++	if (IS_ERR(pctl->state_idle))
++		return PTR_ERR(pctl->state_idle);
++
+ 	return 0;
+ }
  
-  out_release:
- 	fas216_release(host);
 -- 
 2.25.1
 
