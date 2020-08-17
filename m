@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92251246EB5
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 983F2246FE3
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729456AbgHQRfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:35:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56220 "EHLO mail.kernel.org"
+        id S2388726AbgHQRza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730322AbgHQQRu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:17:50 -0400
+        id S2388561AbgHQQKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:10:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E567822CAF;
-        Mon, 17 Aug 2020 16:17:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ADE920729;
+        Mon, 17 Aug 2020 16:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597681068;
-        bh=oH4VHohmkYgfHQ4bhyNLNm4/Q8IS8mB1/jcuedtF8ps=;
+        s=default; t=1597680639;
+        bh=cNyIhF9xGuChpYRKI4UxdpDeXRQU1HRs8qXk0u2UPFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VX6Ub9N/TM6uIQk7G4JaZWsPREO85LAqGlx/8JWlHdNeqaVM2xvnsbMptz/8641ua
-         twPx7zRoODczuNi4WmPhxNeZYTjRX2ClM6y0krzC2OujwQTKTA22HL2QJYde9vvAFH
-         lmBSoi6mANQ4hN3BzlZZ3F80AQtTDQSX6yCyOCbI=
+        b=PjOx7wro6undvdvLoUKTrfCjnuyMeCFtQSWYFlDuWBWzmVKsncLm4MQU1vF3yywM1
+         SQQp5SKRHnuBUoxJljtLsSKAsj+H4OG4JO6yC4EgAQkMp/muXlPL2W83paCMYLcLpm
+         oTyvRZwWVAode9qwa1fj1e+YBggW+uAxTjqz8UsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
-        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 138/168] USB: serial: cp210x: re-enable auto-RTS on open
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 268/270] s390/dasd: fix inability to use DASD with DIAG driver
 Date:   Mon, 17 Aug 2020 17:17:49 +0200
-Message-Id: <20200817143740.592062851@linuxfoundation.org>
+Message-Id: <20200817143809.156290988@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brant Merryman <brant.merryman@silabs.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit c7614ff9b73a1e6fb2b1b51396da132ed22fecdb upstream.
+commit 9f4aa52387c68049403b59939df5c0dd8e3872cc upstream.
 
-CP210x hardware disables auto-RTS but leaves auto-CTS when in hardware
-flow control mode and UART on cp210x hardware is disabled. When
-re-opening the port, if auto-CTS is enabled on the cp210x, then auto-RTS
-must be re-enabled in the driver.
+During initialization of the DASD DIAG driver a request is issued
+that has a bio structure that resides on the stack. With virtually
+mapped kernel stacks this bio address might be in virtual storage
+which is unsuitable for usage with the diag250 call.
+In this case the device can not be set online using the DIAG
+discipline and fails with -EOPNOTSUP.
+In the system journal the following error message is presented:
 
-Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
-Co-developed-by: Phu Luu <phu.luu@silabs.com>
-Signed-off-by: Phu Luu <phu.luu@silabs.com>
-Link: https://lore.kernel.org/r/ECCF8E73-91F3-4080-BE17-1714BC8818FB@silabs.com
-[ johan: fix up tags and problem description ]
-Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
-Cc: stable <stable@vger.kernel.org>     # 2.6.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
+dasd: X.X.XXXX Setting the DASD online with discipline DIAG failed
+with rc=-95
+
+Fix by allocating the bio structure instead of having it on the stack.
+
+Fixes: ce3dc447493f ("s390: add support for virtually mapped kernel stacks")
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: stable@vger.kernel.org #4.20
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/cp210x.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/s390/block/dasd_diag.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -893,6 +893,7 @@ static void cp210x_get_termios_port(stru
- 	u32 baud;
- 	u16 bits;
- 	u32 ctl_hs;
-+	u32 flow_repl;
- 
- 	cp210x_read_u32_reg(port, CP210X_GET_BAUDRATE, &baud);
- 
-@@ -993,6 +994,22 @@ static void cp210x_get_termios_port(stru
- 	ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
- 	if (ctl_hs & CP210X_SERIAL_CTS_HANDSHAKE) {
- 		dev_dbg(dev, "%s - flow control = CRTSCTS\n", __func__);
-+		/*
-+		 * When the port is closed, the CP210x hardware disables
-+		 * auto-RTS and RTS is deasserted but it leaves auto-CTS when
-+		 * in hardware flow control mode. When re-opening the port, if
-+		 * auto-CTS is enabled on the cp210x, then auto-RTS must be
-+		 * re-enabled in the driver.
-+		 */
-+		flow_repl = le32_to_cpu(flow_ctl.ulFlowReplace);
-+		flow_repl &= ~CP210X_SERIAL_RTS_MASK;
-+		flow_repl |= CP210X_SERIAL_RTS_SHIFT(CP210X_SERIAL_RTS_FLOW_CTL);
-+		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
-+		cp210x_write_reg_block(port,
-+				CP210X_SET_FLOW,
-+				&flow_ctl,
-+				sizeof(flow_ctl));
-+
- 		cflag |= CRTSCTS;
- 	} else {
- 		dev_dbg(dev, "%s - flow control = NONE\n", __func__);
+--- a/drivers/s390/block/dasd_diag.c
++++ b/drivers/s390/block/dasd_diag.c
+@@ -319,7 +319,7 @@ dasd_diag_check_device(struct dasd_devic
+ 	struct dasd_diag_characteristics *rdc_data;
+ 	struct vtoc_cms_label *label;
+ 	struct dasd_block *block;
+-	struct dasd_diag_bio bio;
++	struct dasd_diag_bio *bio;
+ 	unsigned int sb, bsize;
+ 	blocknum_t end_block;
+ 	int rc;
+@@ -395,29 +395,36 @@ dasd_diag_check_device(struct dasd_devic
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
++	bio = kzalloc(sizeof(*bio), GFP_KERNEL);
++	if (bio == NULL)  {
++		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
++			      "No memory to allocate initialization bio");
++		rc = -ENOMEM;
++		goto out_label;
++	}
+ 	rc = 0;
+ 	end_block = 0;
+ 	/* try all sizes - needed for ECKD devices */
+ 	for (bsize = 512; bsize <= PAGE_SIZE; bsize <<= 1) {
+ 		mdsk_init_io(device, bsize, 0, &end_block);
+-		memset(&bio, 0, sizeof (struct dasd_diag_bio));
+-		bio.type = MDSK_READ_REQ;
+-		bio.block_number = private->pt_block + 1;
+-		bio.buffer = label;
++		memset(bio, 0, sizeof(*bio));
++		bio->type = MDSK_READ_REQ;
++		bio->block_number = private->pt_block + 1;
++		bio->buffer = label;
+ 		memset(&private->iob, 0, sizeof (struct dasd_diag_rw_io));
+ 		private->iob.dev_nr = rdc_data->dev_nr;
+ 		private->iob.key = 0;
+ 		private->iob.flags = 0;	/* do synchronous io */
+ 		private->iob.block_count = 1;
+ 		private->iob.interrupt_params = 0;
+-		private->iob.bio_list = &bio;
++		private->iob.bio_list = bio;
+ 		private->iob.flaga = DASD_DIAG_FLAGA_DEFAULT;
+ 		rc = dia250(&private->iob, RW_BIO);
+ 		if (rc == 3) {
+ 			pr_warn("%s: A 64-bit DIAG call failed\n",
+ 				dev_name(&device->cdev->dev));
+ 			rc = -EOPNOTSUPP;
+-			goto out_label;
++			goto out_bio;
+ 		}
+ 		mdsk_term_io(device);
+ 		if (rc == 0)
+@@ -427,7 +434,7 @@ dasd_diag_check_device(struct dasd_devic
+ 		pr_warn("%s: Accessing the DASD failed because of an incorrect format (rc=%d)\n",
+ 			dev_name(&device->cdev->dev), rc);
+ 		rc = -EIO;
+-		goto out_label;
++		goto out_bio;
+ 	}
+ 	/* check for label block */
+ 	if (memcmp(label->label_id, DASD_DIAG_CMS1,
+@@ -457,6 +464,8 @@ dasd_diag_check_device(struct dasd_devic
+ 			(rc == 4) ? ", read-only device" : "");
+ 		rc = 0;
+ 	}
++out_bio:
++	kfree(bio);
+ out_label:
+ 	free_page((long) label);
+ out:
 
 
