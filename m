@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EEF2470BA
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9037F2470B1
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390589AbgHQSOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54682 "EHLO mail.kernel.org"
+        id S2390306AbgHQSNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:13:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730927AbgHQQGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:06:34 -0400
+        id S1731057AbgHQQGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:06:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8CDD208B3;
-        Mon, 17 Aug 2020 16:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35CD0208C7;
+        Mon, 17 Aug 2020 16:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680394;
-        bh=Zp/yRxZtaCfCO8w71p4bKfgOA4GCCdc5DuSOBoDFmcs=;
+        s=default; t=1597680396;
+        bh=N8Em1HI5CHy+i59UwXfiCvdXnRiojqqoK0W2KciPvSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1W0ZgD1F5igQfSU/0mEOw29SMjr1cX7cnwgPdN+oMUSUIgAkPQreIr+citEBjRZX0
-         dpsDmTMkqb1wP62EHN/3/0Pqd98UcIDGFelnAfuf2VOMT1pvL78fF7/ONaFXjIodrg
-         gYQ92xNfoXajps8z+cM5fx6hxVdUaRFGVd3bqmZk=
+        b=U6m1HglAbbjNNDW8sukIeJ4kR39vASH0YR2peic9pCeymqzTWSz9GxEhRxD9O1P1G
+         ZgXsTgc2tyXBwaNlId2VmQUDagmlVC8LEfNN3PI2ypmXcwEVMqJK3CUFgwv3pUDdDb
+         dkO2I/u4Ifn6HRYN3eltBpnr+iAxirDYlplF+Tz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Li Heng <liheng40@huawei.com>,
-        Parav Pandit <parav@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+a22c6092d003d6fe1122@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 170/270] RDMA/core: Fix return error value in _ib_modify_qp() to negative
-Date:   Mon, 17 Aug 2020 17:16:11 +0200
-Message-Id: <20200817143804.300892472@linuxfoundation.org>
+Subject: [PATCH 5.4 171/270] Smack: fix another vsscanf out of bounds
+Date:   Mon, 17 Aug 2020 17:16:12 +0200
+Message-Id: <20200817143804.347106048@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -46,36 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Heng <liheng40@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 47fda651d5af2506deac57d54887cf55ce26e244 ]
+[ Upstream commit a6bd4f6d9b07452b0b19842044a6c3ea384b0b88 ]
 
-The error codes in _ib_modify_qp() are supposed to be negative errno.
+This is similar to commit 84e99e58e8d1 ("Smack: slab-out-of-bounds in
+vsscanf") where we added a bounds check on "rule".
 
-Fixes: 7a5c938b9ed0 ("IB/core: Check for rdma_protocol_ib only after validating port_num")
-Link: https://lore.kernel.org/r/1595645787-20375-1-git-send-email-liheng40@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Li Heng <liheng40@huawei.com>
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: syzbot+a22c6092d003d6fe1122@syzkaller.appspotmail.com
+Fixes: f7112e6c9abf ("Smack: allow for significantly longer Smack labels v4")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/verbs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/smack/smackfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
-index 6c4093d0a91d1..d4815f29cfd24 100644
---- a/drivers/infiniband/core/verbs.c
-+++ b/drivers/infiniband/core/verbs.c
-@@ -1648,7 +1648,7 @@ static int _ib_modify_qp(struct ib_qp *qp, struct ib_qp_attr *attr,
- 		if (!(rdma_protocol_ib(qp->device,
- 				       attr->alt_ah_attr.port_num) &&
- 		      rdma_protocol_ib(qp->device, port))) {
--			ret = EINVAL;
-+			ret = -EINVAL;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 840a192e93370..2bae1fc493d16 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -905,6 +905,10 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 
+ 	for (i = 0; i < catlen; i++) {
+ 		rule += SMK_DIGITLEN;
++		if (rule > data + count) {
++			rc = -EOVERFLOW;
++			goto out;
++		}
+ 		ret = sscanf(rule, "%u", &cat);
+ 		if (ret != 1 || cat > SMACK_CIPSO_MAXCATNUM)
  			goto out;
- 		}
- 	}
 -- 
 2.25.1
 
