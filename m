@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1A42473F6
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31AB52473F2
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387413AbgHQTD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58112 "EHLO mail.kernel.org"
+        id S2391935AbgHQTDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:03:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730797AbgHQPqV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:46:21 -0400
+        id S1730804AbgHQPqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:46:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97D752065D;
-        Mon, 17 Aug 2020 15:46:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02B3B2067C;
+        Mon, 17 Aug 2020 15:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679181;
-        bh=S4Mw5vQjisE0/gv5M1pVAxErxaOQbd+LwMolgKU4L5Y=;
+        s=default; t=1597679189;
+        bh=HM15DRQruEOLK3MMp93V+owjUYiahA5zhe7I8I3MwYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BNlt+VHR2nWPH9UnflzNHMW97U0KM5Uu8yoDqYm3ID2WWsgCMoeb8s3K49bID48zB
-         caKg5GEtVMtQ+W9oDh4LDihve1KY3xtm3FHAQ/+IgzQW4QjrM2SIogtZac7kVWQ1Hy
-         qRtLzG8SNrMnbLQfhQ2rlELCxbvv0vf586jz0BJA=
+        b=uYsD10D1cAabwuEX15msB1Nxlr2jcRp5Qu1Mntm/N+2qMpffh0ckSHyQ5NWYjX4rv
+         BHoTwyJPt+4uK34IhvkePAqi2C50Tmvu3ofX7Qki0YNfHEvoHNGVWEXeq+7gFYJTtD
+         exS7PXYVTjMJWI09aqf3lLgd47rMs5RQYQ0+4QyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        linux-mm@kvack.org, Shakeel Butt <shakeelb@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 093/393] mm/mmap.c: Add cond_resched() for exit_mmap() CPU stalls
-Date:   Mon, 17 Aug 2020 17:12:23 +0200
-Message-Id: <20200817143824.139614267@linuxfoundation.org>
+Subject: [PATCH 5.7 096/393] drm/amdgpu/display: properly guard the calls to swSMU functions
+Date:   Mon, 17 Aug 2020 17:12:26 +0200
+Message-Id: <20200817143824.283043751@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,80 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 0a3b3c253a1eb2c7fe7f34086d46660c909abeb3 ]
+[ Upstream commit 4072327a2622af8688b88f5cd0a472136d3bf33d ]
 
-A large process running on a heavily loaded system can encounter the
-following RCU CPU stall warning:
+It's only applicable on newer asics.  We could end up here when
+using DC on older asics like SI or KV.
 
-  rcu: INFO: rcu_sched self-detected stall on CPU
-  rcu: 	3-....: (20998 ticks this GP) idle=4ea/1/0x4000000000000002 softirq=556558/556558 fqs=5190
-  	(t=21013 jiffies g=1005461 q=132576)
-  NMI backtrace for cpu 3
-  CPU: 3 PID: 501900 Comm: aio-free-ring-w Kdump: loaded Not tainted 5.2.9-108_fbk12_rc3_3858_gb83b75af7909 #1
-  Hardware name: Wiwynn   HoneyBadger/PantherPlus, BIOS HBM6.71 02/03/2016
-  Call Trace:
-   <IRQ>
-   dump_stack+0x46/0x60
-   nmi_cpu_backtrace.cold.3+0x13/0x50
-   ? lapic_can_unplug_cpu.cold.27+0x34/0x34
-   nmi_trigger_cpumask_backtrace+0xba/0xca
-   rcu_dump_cpu_stacks+0x99/0xc7
-   rcu_sched_clock_irq.cold.87+0x1aa/0x397
-   ? tick_sched_do_timer+0x60/0x60
-   update_process_times+0x28/0x60
-   tick_sched_timer+0x37/0x70
-   __hrtimer_run_queues+0xfe/0x270
-   hrtimer_interrupt+0xf4/0x210
-   smp_apic_timer_interrupt+0x5e/0x120
-   apic_timer_interrupt+0xf/0x20
-   </IRQ>
-  RIP: 0010:kmem_cache_free+0x223/0x300
-  Code: 88 00 00 00 0f 85 ca 00 00 00 41 8b 55 18 31 f6 f7 da 41 f6 45 0a 02 40 0f 94 c6 83 c6 05 9c 41 5e fa e8 a0 a7 01 00 41 56 9d <49> 8b 47 08 a8 03 0f 85 87 00 00 00 65 48 ff 08 e9 3d fe ff ff 65
-  RSP: 0018:ffffc9000e8e3da8 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
-  RAX: 0000000000020000 RBX: ffff88861b9de960 RCX: 0000000000000030
-  RDX: fffffffffffe41e8 RSI: 000060777fe3a100 RDI: 000000000001be18
-  RBP: ffffea00186e7780 R08: ffffffffffffffff R09: ffffffffffffffff
-  R10: ffff88861b9dea28 R11: ffff88887ffde000 R12: ffffffff81230a1f
-  R13: ffff888854684dc0 R14: 0000000000000206 R15: ffff8888547dbc00
-   ? remove_vma+0x4f/0x60
-   remove_vma+0x4f/0x60
-   exit_mmap+0xd6/0x160
-   mmput+0x4a/0x110
-   do_exit+0x278/0xae0
-   ? syscall_trace_enter+0x1d3/0x2b0
-   ? handle_mm_fault+0xaa/0x1c0
-   do_group_exit+0x3a/0xa0
-   __x64_sys_exit_group+0x14/0x20
-   do_syscall_64+0x42/0x100
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-And on a PREEMPT=n kernel, the "while (vma)" loop in exit_mmap() can run
-for a very long time given a large process.  This commit therefore adds
-a cond_resched() to this loop, providing RCU any needed quiescent states.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: <linux-mm@kvack.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1170
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index bb1822ac99090..55bb456fd0d0f 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -3171,6 +3171,7 @@ void exit_mmap(struct mm_struct *mm)
- 		if (vma->vm_flags & VM_ACCOUNT)
- 			nr_accounted += vma_pages(vma);
- 		vma = remove_vma(vma);
-+		cond_resched();
- 	}
- 	vm_unacct_memory(nr_accounted);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
+index 7cee8070cb113..5c6a6ae48d396 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
+@@ -106,7 +106,7 @@ bool dm_pp_apply_display_requirements(
+ 			adev->powerplay.pp_funcs->display_configuration_change(
+ 				adev->powerplay.pp_handle,
+ 				&adev->pm.pm_display_cfg);
+-		else
++		else if (adev->smu.ppt_funcs)
+ 			smu_display_configuration_change(smu,
+ 							 &adev->pm.pm_display_cfg);
+ 
+@@ -592,7 +592,7 @@ void pp_rv_set_wm_ranges(struct pp_smu *pp,
+ 	if (pp_funcs && pp_funcs->set_watermarks_for_clocks_ranges)
+ 		pp_funcs->set_watermarks_for_clocks_ranges(pp_handle,
+ 							   &wm_with_clock_ranges);
+-	else
++	else if (adev->smu.ppt_funcs)
+ 		smu_set_watermarks_for_clock_ranges(&adev->smu,
+ 				&wm_with_clock_ranges);
  }
 -- 
 2.25.1
