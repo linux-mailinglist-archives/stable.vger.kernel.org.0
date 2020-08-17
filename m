@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83CF42476D2
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:44:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF9D2247701
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729486AbgHQPWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48322 "EHLO mail.kernel.org"
+        id S1732622AbgHQToP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:44:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729483AbgHQPWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:22:50 -0400
+        id S1729511AbgHQPXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:23:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41B012224D;
-        Mon, 17 Aug 2020 15:22:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92C3E20825;
+        Mon, 17 Aug 2020 15:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677769;
-        bh=x9GG5gygsBiraECBSOqumUJcpCscr6B3l3sBiltVbKI=;
+        s=default; t=1597677781;
+        bh=CaGu3jCShAi6zK9n0jAB+MVmHli5uXnzyL5xTif5KX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWKRg27jYIYY8rcehvcLobu+lc+TwUrwr/JOT2Cm753n5FIjxsIT9RUNyUEoMZfmO
-         zz15ewu+h8W+1PmuFt994+brv12DzPLP0+Mr/mimgaVc6XEMaKhuhHf8O5EMs4csaF
-         Ai+55X+SvLGwx/C9tFweJBjaMUIOh/QyRVwiiNKk=
+        b=rp2FmgRsUo5/TtE75bzMpFGYloBh1P96iozItvGki82C3gaKH0u31xbD9ktRxSOBx
+         rsWE1RWvNXvm38HH0igip1P+Wip4bIcTqGjRtKQlByJSjB3XZVXlRKqPZFq8P36NJg
+         aEO4tNG85GXhysmPRpB6o8f7dHmkxJInaIoM/nDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 102/464] usb: mtu3: clear dual mode of u3port when disable device
-Date:   Mon, 17 Aug 2020 17:10:55 +0200
-Message-Id: <20200817143838.676863754@linuxfoundation.org>
+Subject: [PATCH 5.8 105/464] drm/debugfs: fix plain echo to connector "force" attribute
+Date:   Mon, 17 Aug 2020 17:10:58 +0200
+Message-Id: <20200817143838.823807881@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,39 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-[ Upstream commit f1e51e99ed498d4aa9ae5df28e43d558ea627781 ]
+[ Upstream commit c704b17071c4dc571dca3af4e4151dac51de081a ]
 
-If not clear u3port's dual mode when disable device, the IP
-will fail to enter sleep mode when suspend.
+Using plain echo to set the "force" connector attribute fails with
+-EINVAL, because echo appends a newline to the output.
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1595834101-13094-10-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Replace strcmp with sysfs_streq to also accept strings that end with a
+newline.
+
+v2: use sysfs_streq instead of stripping trailing whitespace
+
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170817104307.17124-1-m.tretter@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_debugfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/mtu3/mtu3_core.c b/drivers/usb/mtu3/mtu3_core.c
-index 9dd02160cca97..e3780d4d65149 100644
---- a/drivers/usb/mtu3/mtu3_core.c
-+++ b/drivers/usb/mtu3/mtu3_core.c
-@@ -131,8 +131,12 @@ static void mtu3_device_disable(struct mtu3 *mtu)
- 	mtu3_setbits(ibase, SSUSB_U2_CTRL(0),
- 		SSUSB_U2_PORT_DIS | SSUSB_U2_PORT_PDN);
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index 2bea221307037..bfe4602f206b4 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -311,13 +311,13 @@ static ssize_t connector_write(struct file *file, const char __user *ubuf,
  
--	if (mtu->ssusb->dr_mode == USB_DR_MODE_OTG)
-+	if (mtu->ssusb->dr_mode == USB_DR_MODE_OTG) {
- 		mtu3_clrbits(ibase, SSUSB_U2_CTRL(0), SSUSB_U2_PORT_OTG_SEL);
-+		if (mtu->is_u3_ip)
-+			mtu3_clrbits(ibase, SSUSB_U3_CTRL(0),
-+				     SSUSB_U3_PORT_DUAL_MODE);
-+	}
+ 	buf[len] = '\0';
  
- 	mtu3_setbits(ibase, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
- }
+-	if (!strcmp(buf, "on"))
++	if (sysfs_streq(buf, "on"))
+ 		connector->force = DRM_FORCE_ON;
+-	else if (!strcmp(buf, "digital"))
++	else if (sysfs_streq(buf, "digital"))
+ 		connector->force = DRM_FORCE_ON_DIGITAL;
+-	else if (!strcmp(buf, "off"))
++	else if (sysfs_streq(buf, "off"))
+ 		connector->force = DRM_FORCE_OFF;
+-	else if (!strcmp(buf, "unspecified"))
++	else if (sysfs_streq(buf, "unspecified"))
+ 		connector->force = DRM_FORCE_UNSPECIFIED;
+ 	else
+ 		return -EINVAL;
 -- 
 2.25.1
 
