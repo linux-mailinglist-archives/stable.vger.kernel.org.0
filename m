@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08F62473B8
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC9F2473B5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389119AbgHQTAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60412 "EHLO mail.kernel.org"
+        id S2391863AbgHQS7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730849AbgHQPsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:48:17 -0400
+        id S1730852AbgHQPsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:48:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18DC92075B;
-        Mon, 17 Aug 2020 15:48:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD3E20885;
+        Mon, 17 Aug 2020 15:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679295;
-        bh=Ev2MKrV3RTdHkwWtyN15qSAmclYuXz3Qy4/2nqB5rpE=;
+        s=default; t=1597679298;
+        bh=u6wmnyOOZXtqwxDGaWRzoJFsFE7VNtRuFcd3L5HmiBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcfqzE2GQ0WSExMMMq7uCOMmNHVmGJlFbyrG3Q+os0hz7JYf3cZJ7Ps/2c8yjIavi
-         SrG0Rf5ofrhIm8VQ9JdSzcTw31nIbae6vewRzmlT5/Vn/YwAR35lUaf+/vnYNM54sV
-         Vy0mqcpLk9EJ9qL5psgeDXf8i94v3h9ZtwKy8pyM=
+        b=j8704IthNOUtJaGUtPudum6bxhZvjn3Hq4jK/MhJLlhN3Wzxv1Ct8umlbv0q2BtH+
+         fmNyY4F3kUZmWkC3xXE6+KITOAGq3j6hAWc24ywYiwalHBGUcXrGTNQnda7FZzmCnt
+         SEkdEKDTlKpriJG8u3UxlYdGZpjKChs45ylJaXzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Chiras <robert.chiras@nxp.com>,
-        Vinay Simha BN <simhavcs@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 163/393] drm/mipi: use dcs write for mipi_dsi_dcs_set_tear_scanline
-Date:   Mon, 17 Aug 2020 17:13:33 +0200
-Message-Id: <20200817143827.524032519@linuxfoundation.org>
+Subject: [PATCH 5.7 164/393] cxl: Fix kobject memleak
+Date:   Mon, 17 Aug 2020 17:13:34 +0200
+Message-Id: <20200817143827.571586506@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -48,48 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Velikov <emil.velikov@collabora.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 7a05c3b6d24b8460b3cec436cf1d33fac43c8450 ]
+[ Upstream commit 85c5cbeba8f4fb28e6b9bfb3e467718385f78f76 ]
 
-The helper uses the MIPI_DCS_SET_TEAR_SCANLINE, although it's currently
-using the generic write. This does not look right.
+Currently the error return path from kobject_init_and_add() is not
+followed by a call to kobject_put() - which means we are leaking
+the kobject.
 
-Perhaps some platforms don't distinguish between the two writers?
+Fix it by adding a call to kobject_put() in the error path of
+kobject_init_and_add().
 
-Cc: Robert Chiras <robert.chiras@nxp.com>
-Cc: Vinay Simha BN <simhavcs@gmail.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Thierry Reding <treding@nvidia.com>
-Fixes: e83950816367 ("drm/dsi: Implement set tear scanline")
-Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200505160329.2976059-3-emil.l.velikov@gmail.com
+Fixes: b087e6190ddc ("cxl: Export optional AFU configuration record in sysfs")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200602120733.5943-1-wanghai38@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/misc/cxl/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
-index 55531895dde6d..37b03fefbdf6f 100644
---- a/drivers/gpu/drm/drm_mipi_dsi.c
-+++ b/drivers/gpu/drm/drm_mipi_dsi.c
-@@ -1082,11 +1082,11 @@ EXPORT_SYMBOL(mipi_dsi_dcs_set_pixel_format);
-  */
- int mipi_dsi_dcs_set_tear_scanline(struct mipi_dsi_device *dsi, u16 scanline)
- {
--	u8 payload[3] = { MIPI_DCS_SET_TEAR_SCANLINE, scanline >> 8,
--			  scanline & 0xff };
-+	u8 payload[2] = { scanline >> 8, scanline & 0xff };
- 	ssize_t err;
+diff --git a/drivers/misc/cxl/sysfs.c b/drivers/misc/cxl/sysfs.c
+index f0263d1a1fdf2..d97a243ad30c0 100644
+--- a/drivers/misc/cxl/sysfs.c
++++ b/drivers/misc/cxl/sysfs.c
+@@ -624,7 +624,7 @@ static struct afu_config_record *cxl_sysfs_afu_new_cr(struct cxl_afu *afu, int c
+ 	rc = kobject_init_and_add(&cr->kobj, &afu_config_record_type,
+ 				  &afu->dev.kobj, "cr%i", cr->cr);
+ 	if (rc)
+-		goto err;
++		goto err1;
  
--	err = mipi_dsi_generic_write(dsi, payload, sizeof(payload));
-+	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_TEAR_SCANLINE, payload,
-+				 sizeof(payload));
- 	if (err < 0)
- 		return err;
- 
+ 	rc = sysfs_create_bin_file(&cr->kobj, &cr->config_attr);
+ 	if (rc)
 -- 
 2.25.1
 
