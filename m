@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 669AB246A0E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9797F246A16
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730089AbgHQP3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:29:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48720 "EHLO mail.kernel.org"
+        id S1729701AbgHQPaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:30:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729778AbgHQP3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:29:37 -0400
+        id S1730151AbgHQP34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:29:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8548D23C32;
-        Mon, 17 Aug 2020 15:29:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6281723D3C;
+        Mon, 17 Aug 2020 15:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678177;
-        bh=byHwtIwlZgL0WdEMuf+rCeZTZK2eJE6pssQD0B2LeE4=;
+        s=default; t=1597678195;
+        bh=05iKHycDZmcIvSow2mGu/p3lmoFOWIEpyO5G7US79J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3I6CmBDJ3l4L4NjNHEEWxCOvCBldf9PcktTOmNzoR7RxE7vKTtsTcR8xawnXgsnN
-         VpBSf9zrdkhPo1Zfvg6sbacezUKTbskDMGj8KannDjWWE8eW8RBn0zkJGdEy7gGFU5
-         E2fuxJ8CrqykRD74n3XWb5dIIbvq3CODuvQ0kjjk=
+        b=u9ugcQn2mEY1TyCvBZaYUjNFo+G+l1Vh0vzgJEEcecRB/1z6haF2qa6RZ8rYeJUC3
+         T7cTuySIij8RVz0iHpKGHitRzBpqgabbR8kjhrN0fsH0+FZ/e/OIVXSe1FPfgJg7ij
+         q5jS2OPQRXh4MlQ18ysVl6Br/JBvjbgcDCKa85IA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 244/464] ima: Fail rule parsing when the KEY_CHECK hook is combined with an invalid cond
-Date:   Mon, 17 Aug 2020 17:13:17 +0200
-Message-Id: <20200817143845.485575843@linuxfoundation.org>
+Subject: [PATCH 5.8 249/464] media: s5p-g2d: Fix a memory leak in an error handling path in g2d_probe()
+Date:   Mon, 17 Aug 2020 17:13:22 +0200
+Message-Id: <20200817143845.723289831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,41 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit eb624fe214a2e156ddafd9868377cf91499f789d ]
+[ Upstream commit 94b9ce6870f9c90ac92505482689818b254312f7 ]
 
-The KEY_CHECK function only supports the uid, pcr, and keyrings
-conditionals. Make this clear at policy load so that IMA policy authors
-don't assume that other conditionals are supported.
+Memory allocated with 'v4l2_m2m_init()' must be freed by a corresponding
+call to 'v4l2_m2m_release()'
 
-Fixes: 5808611cccb2 ("IMA: Add KEY_CHECK func to measure keys")
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Also reorder the code at the end of the probe function so that
+'video_register_device()' is called last.
+Update the error handling path accordingly.
+
+Fixes: 5ce60d790a24 ("[media] s5p-g2d: Add DT based discovery support")
+Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[hverkuil-cisco@xs4all.nl: checkpatch: align with parenthesis]
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/media/platform/s5p-g2d/g2d.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index a77e0b34e72f7..3e3e568c81309 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -1023,6 +1023,13 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
- 		if (entry->action & ~(MEASURE | DONT_MEASURE))
- 			return false;
+diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
+index 6932fd47071b0..15bcb7f6e113c 100644
+--- a/drivers/media/platform/s5p-g2d/g2d.c
++++ b/drivers/media/platform/s5p-g2d/g2d.c
+@@ -695,21 +695,13 @@ static int g2d_probe(struct platform_device *pdev)
+ 	vfd->lock = &dev->mutex;
+ 	vfd->v4l2_dev = &dev->v4l2_dev;
+ 	vfd->device_caps = V4L2_CAP_VIDEO_M2M | V4L2_CAP_STREAMING;
+-	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
+-	if (ret) {
+-		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
+-		goto rel_vdev;
+-	}
+-	video_set_drvdata(vfd, dev);
+-	dev->vfd = vfd;
+-	v4l2_info(&dev->v4l2_dev, "device registered as /dev/video%d\n",
+-								vfd->num);
++
+ 	platform_set_drvdata(pdev, dev);
+ 	dev->m2m_dev = v4l2_m2m_init(&g2d_m2m_ops);
+ 	if (IS_ERR(dev->m2m_dev)) {
+ 		v4l2_err(&dev->v4l2_dev, "Failed to init mem2mem device\n");
+ 		ret = PTR_ERR(dev->m2m_dev);
+-		goto unreg_video_dev;
++		goto rel_vdev;
+ 	}
  
-+		if (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
-+				     IMA_KEYRINGS))
-+			return false;
+ 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
+@@ -717,14 +709,24 @@ static int g2d_probe(struct platform_device *pdev)
+ 	of_id = of_match_node(exynos_g2d_match, pdev->dev.of_node);
+ 	if (!of_id) {
+ 		ret = -ENODEV;
+-		goto unreg_video_dev;
++		goto free_m2m;
+ 	}
+ 	dev->variant = (struct g2d_variant *)of_id->data;
+ 
++	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
++	if (ret) {
++		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
++		goto free_m2m;
++	}
++	video_set_drvdata(vfd, dev);
++	dev->vfd = vfd;
++	v4l2_info(&dev->v4l2_dev, "device registered as /dev/video%d\n",
++		  vfd->num);
 +
-+		if (ima_rule_contains_lsm_cond(entry))
-+			return false;
-+
- 		break;
- 	default:
- 		return false;
+ 	return 0;
+ 
+-unreg_video_dev:
+-	video_unregister_device(dev->vfd);
++free_m2m:
++	v4l2_m2m_release(dev->m2m_dev);
+ rel_vdev:
+ 	video_device_release(vfd);
+ unreg_v4l2_dev:
 -- 
 2.25.1
 
