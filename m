@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0654246C5C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50730246C0E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388753AbgHQQOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
+        id S2388479AbgHQQIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388785AbgHQQOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:14:17 -0400
+        id S2388460AbgHQQId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:08:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF82620825;
-        Mon, 17 Aug 2020 16:14:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B35CC22B4E;
+        Mon, 17 Aug 2020 16:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680857;
-        bh=vpLSfXoKR1MHlZ8yGXef8XVFmlC40F+UnSJ/HtKcSj0=;
+        s=default; t=1597680513;
+        bh=wEHEpnY21BIQiJBhHTEDRxYaJnYW3PivCC0GcHmkWe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2oPRL2bWglaeE3oOqj2lmfL55mNI9ZYaS9Nppbk0+Ny/JTr2WlRKalB3BCzO2vb9
-         OvVK2g8qyuXjb/RjEf6bttuGa4yXJSTVCXVeEHRPK8IjiVElw39PxgGVn8+kol910P
-         yBeQlhOfipEs0W99pCG3cCeXfaWhDqYyL7zcG/mQ=
+        b=PKeGfvAxolKR1etI1Me32n9r35xq6ny7NG0483KNNx3S8YSpd5K6r+UA5uDeOyaiE
+         guCwUFbOjr/uL0ItojtzWAOQFzcmkzjix9NUYvLeiSyLJZWYWTXA0B8BnpMn3Srzq7
+         bWMsMDRETaXPSmb4Jt2XCjkwo/1GK9lSJZRNN1hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Milton Miller <miltonm@us.ibm.com>,
-        Anton Blanchard <anton@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Jian Cai <caij2003@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/168] powerpc/vdso: Fix vdso cpu truncation
-Date:   Mon, 17 Aug 2020 17:16:56 +0200
-Message-Id: <20200817143737.984332584@linuxfoundation.org>
+Subject: [PATCH 5.4 216/270] crypto: aesni - add compatibility with IAS
+Date:   Mon, 17 Aug 2020 17:16:57 +0200
+Message-Id: <20200817143806.536073644@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Milton Miller <miltonm@us.ibm.com>
+From: Jian Cai <caij2003@gmail.com>
 
-[ Upstream commit a9f675f950a07d5c1dbcbb97aabac56f5ed085e3 ]
+[ Upstream commit 44069737ac9625a0f02f0f7f5ab96aae4cd819bc ]
 
-The code in vdso_cpu_init that exposes the cpu and numa node to
-userspace via SPRG_VDSO incorrctly masks the cpu to 12 bits. This means
-that any kernel running on a box with more than 4096 threads (NR_CPUS
-advertises a limit of of 8192 cpus) would expose userspace to two cpu
-contexts running at the same time with the same cpu number.
+Clang's integrated assembler complains "invalid reassignment of
+non-absolute variable 'var_ddq_add'" while assembling
+arch/x86/crypto/aes_ctrby8_avx-x86_64.S. It was because var_ddq_add was
+reassigned with non-absolute values several times, which IAS did not
+support. We can avoid the reassignment by replacing the uses of
+var_ddq_add with its definitions accordingly to have compatilibility
+with IAS.
 
-Note: I'm not aware of any distro shipping a kernel with support for more
-than 4096 threads today, nor of any system image that currently exceeds
-4096 threads. Found via code browsing.
-
-Fixes: 18ad51dd342a7eb09dbcd059d0b451b616d4dafc ("powerpc: Add VDSO version of getcpu")
-Signed-off-by: Milton Miller <miltonm@us.ibm.com>
-Signed-off-by: Anton Blanchard <anton@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200715233704.1352257-1-anton@ozlabs.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1008
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reported-by: Fangrui Song <maskray@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # build+boot Linux v5.7.5; clang v11.0.0-git
+Signed-off-by: Jian Cai <caij2003@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/vdso.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/crypto/aes_ctrby8_avx-x86_64.S | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
-index 65b3bdb99f0ba..31ab6eb61e26e 100644
---- a/arch/powerpc/kernel/vdso.c
-+++ b/arch/powerpc/kernel/vdso.c
-@@ -705,7 +705,7 @@ int vdso_getcpu_init(void)
- 	node = cpu_to_node(cpu);
- 	WARN_ON_ONCE(node > 0xffff);
+diff --git a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
+index 5f6a5af9c489b..77043a82da510 100644
+--- a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
++++ b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
+@@ -127,10 +127,6 @@ ddq_add_8:
  
--	val = (cpu & 0xfff) | ((node & 0xffff) << 16);
-+	val = (cpu & 0xffff) | ((node & 0xffff) << 16);
- 	mtspr(SPRN_SPRG_VDSO_WRITE, val);
- 	get_paca()->sprg_vdso = val;
+ /* generate a unique variable for ddq_add_x */
  
+-.macro setddq n
+-	var_ddq_add = ddq_add_\n
+-.endm
+-
+ /* generate a unique variable for xmm register */
+ .macro setxdata n
+ 	var_xdata = %xmm\n
+@@ -140,9 +136,7 @@ ddq_add_8:
+ 
+ .macro club name, id
+ .altmacro
+-	.if \name == DDQ_DATA
+-		setddq %\id
+-	.elseif \name == XDATA
++	.if \name == XDATA
+ 		setxdata %\id
+ 	.endif
+ .noaltmacro
+@@ -165,9 +159,8 @@ ddq_add_8:
+ 
+ 	.set i, 1
+ 	.rept (by - 1)
+-		club DDQ_DATA, i
+ 		club XDATA, i
+-		vpaddq	var_ddq_add(%rip), xcounter, var_xdata
++		vpaddq	(ddq_add_1 + 16 * (i - 1))(%rip), xcounter, var_xdata
+ 		vptest	ddq_low_msk(%rip), var_xdata
+ 		jnz 1f
+ 		vpaddq	ddq_high_add_1(%rip), var_xdata, var_xdata
+@@ -180,8 +173,7 @@ ddq_add_8:
+ 	vmovdqa	1*16(p_keys), xkeyA
+ 
+ 	vpxor	xkey0, xdata0, xdata0
+-	club DDQ_DATA, by
+-	vpaddq	var_ddq_add(%rip), xcounter, xcounter
++	vpaddq	(ddq_add_1 + 16 * (by - 1))(%rip), xcounter, xcounter
+ 	vptest	ddq_low_msk(%rip), xcounter
+ 	jnz	1f
+ 	vpaddq	ddq_high_add_1(%rip), xcounter, xcounter
 -- 
 2.25.1
 
