@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F7F2464B1
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 797F52464B3
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgHQKn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 06:43:28 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:38645 "EHLO
+        id S1726685AbgHQKnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 06:43:32 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55809 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726265AbgHQKn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:43:28 -0400
+        by vger.kernel.org with ESMTP id S1726480AbgHQKnb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:43:31 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 40F2B1941BAA;
-        Mon, 17 Aug 2020 06:43:27 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 50B3E1941AC1;
+        Mon, 17 Aug 2020 06:43:30 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:43:27 -0400
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:43:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Teu9B7
-        Gnt9oT1dkfoBHjgZua8kGwK5I108BsbrjlUCY=; b=e+4KUItjTdZEbQeWWxvOsB
-        Uzt0RSSQOsQsAKD56VcF5fhxvn8Y8LcxwwdiIFIgkTyi2EeKUk1llCDZ2Ul+Nbgr
-        xDVPOTS6hFA7+CNID4BL05YnaWckDMOtWy+M6RF8sULb8qN4tOoP58+uRcb95eiW
-        0XVXs0RuAedxoK6jd8RUS9mXUmEhcHOvCwkLBN2yOCBJrJ7Rc7ddlIeFMlV2uZJf
-        DFuBPC+nzRFGs4IUz5Tv/XF5TER5fmfY6pc9R9TY9S91UHuhfQqPqDpERMO+9Ytw
-        E+UJI4t4ZO7pRFxWRqkkwBBwShJQoiCx1otRkHb5uaU9hDTsGrMamw77Zc45DtGg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5OtDhF
+        sovIbrPETCRBPpzsHVh1ZN3McXS08ZricVa4Q=; b=iThyvL7IqqqJHbWfRZgir/
+        fKgul7MNGuF7M/+MJ1JtZ6jYYvVbTxSmoqw5znge9ZVYIEDNpluHjku3F/XIpx1J
+        vB/lTp+lwBdLWOSsjQx42GR49g5zc2lipuSH19Fd/8k5/45I7yqClE8r/nnOl7o3
+        u73HocvicnqhC1JUnSIQj0sKlyV2bSdr+gOAZQWzOfgt4xMIE34LvDoacKqe7yZO
+        KyqufHnAKKRqdnScn9pOFhqnIxiyjD+pNnmk0I2xoH+Jlc0WMaTHgHLN9YIa6NIR
+        rsizL/bDhJFOCf3Zj1++OJvLxyK586kElI0A+D6NZKtoykXvkCRuHaIxH/UVARyA
         ==
-X-ME-Sender: <xms:Tl86X1p63QBUHpMmocvgNz1GV8vZar1Tld0mg_dNUJFuEb2yxSanFw>
+X-ME-Sender: <xms:Ul86X_3laTno5X0m2p1VwaTi2IiHnn3vHqDPCA3TkOTKVLVFrecVmg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgfedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:T186X3oQKHnnXNFiL5WU5dZANP2JcA4-oMvNMKOIsbfkIbSD0Z8zOQ>
-    <xmx:T186XyP4tIhYWo5SmpAmDZE6KOHOsshNHI1qHxsmBJBRxsoeQO61Zw>
-    <xmx:T186Xw6FJCvd1Sla9EtzC27BRKju4-O7oRoeqHne0aCAJpemdEyRfA>
-    <xmx:T186X5UYzBd3TVhPAdsFyHnKbpDEdfCQBVKIMKJ6bHv5Mrg7cAo2Xw>
+X-ME-Proxy: <xmx:Ul86X-FW6knOuFOyYU-6rLc4EMqw0P1J46CRXIqurtV8RUKkeG94Bg>
+    <xmx:Ul86X_57oS9JntR7avY377ei1PWkUm_sxRAp2xwbDe2luneaSQNk2g>
+    <xmx:Ul86X01rMzSISdd9yMfk6Vr5xHNxf_5u8dtAQL91BV-6Yc0iAy70MQ>
+    <xmx:Ul86X9wkdNAuPhqgI6rp1GwsmmOqdlzPZqoCf1jvdYKFkPfXVEFMiw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A1437306005F;
-        Mon, 17 Aug 2020 06:43:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: Fix NULL pointer dereference in loop_rw_iter()" failed to apply to 5.4-stable tree
-To:     hgy5945@gmail.com, axboe@kernel.dk
+        by mail.messagingengine.com (Postfix) with ESMTPA id E55DF306005F;
+        Mon, 17 Aug 2020 06:43:29 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: enable lookup of links holding inflight files" failed to apply to 5.7-stable tree
+To:     axboe@kernel.dk, josef.grieb@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Aug 2020 12:43:42 +0200
-Message-ID: <159766102242127@kroah.com>
+Date:   Mon, 17 Aug 2020 12:43:47 +0200
+Message-ID: <1597661027209127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,103 +69,164 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2dd2111d0d383df104b144e0d1f6b5a00cb7cd88 Mon Sep 17 00:00:00 2001
-From: Guoyu Huang <hgy5945@gmail.com>
-Date: Wed, 5 Aug 2020 03:53:50 -0700
-Subject: [PATCH] io_uring: Fix NULL pointer dereference in loop_rw_iter()
+From f254ac04c8744cf7bfed012717eac34eacc65dfb Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Wed, 12 Aug 2020 17:33:30 -0600
+Subject: [PATCH] io_uring: enable lookup of links holding inflight files
 
-loop_rw_iter() does not check whether the file has a read or
-write function. This can lead to NULL pointer dereference
-when the user passes in a file descriptor that does not have
-read or write function.
+When a process exits, we cancel whatever requests it has pending that
+are referencing the file table. However, if a link is holding a
+reference, then we cannot find it by simply looking at the inflight
+list.
 
-The crash log looks like this:
+Enable checking of the poll and timeout list to find the link, and
+cancel it appropriately.
 
-[   99.834071] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[   99.835364] #PF: supervisor instruction fetch in kernel mode
-[   99.836522] #PF: error_code(0x0010) - not-present page
-[   99.837771] PGD 8000000079d62067 P4D 8000000079d62067 PUD 79d8c067 PMD 0
-[   99.839649] Oops: 0010 [#2] SMP PTI
-[   99.840591] CPU: 1 PID: 333 Comm: io_wqe_worker-0 Tainted: G      D           5.8.0 #2
-[   99.842622] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-[   99.845140] RIP: 0010:0x0
-[   99.845840] Code: Bad RIP value.
-[   99.846672] RSP: 0018:ffffa1c7c01ebc08 EFLAGS: 00010202
-[   99.848018] RAX: 0000000000000000 RBX: ffff92363bd67300 RCX: ffff92363d461208
-[   99.849854] RDX: 0000000000000010 RSI: 00007ffdbf696bb0 RDI: ffff92363bd67300
-[   99.851743] RBP: ffffa1c7c01ebc40 R08: 0000000000000000 R09: 0000000000000000
-[   99.853394] R10: ffffffff9ec692a0 R11: 0000000000000000 R12: 0000000000000010
-[   99.855148] R13: 0000000000000000 R14: ffff92363d461208 R15: ffffa1c7c01ebc68
-[   99.856914] FS:  0000000000000000(0000) GS:ffff92363dd00000(0000) knlGS:0000000000000000
-[   99.858651] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   99.860032] CR2: ffffffffffffffd6 CR3: 000000007ac66000 CR4: 00000000000006e0
-[   99.861979] Call Trace:
-[   99.862617]  loop_rw_iter.part.0+0xad/0x110
-[   99.863838]  io_write+0x2ae/0x380
-[   99.864644]  ? kvm_sched_clock_read+0x11/0x20
-[   99.865595]  ? sched_clock+0x9/0x10
-[   99.866453]  ? sched_clock_cpu+0x11/0xb0
-[   99.867326]  ? newidle_balance+0x1d4/0x3c0
-[   99.868283]  io_issue_sqe+0xd8f/0x1340
-[   99.869216]  ? __switch_to+0x7f/0x450
-[   99.870280]  ? __switch_to_asm+0x42/0x70
-[   99.871254]  ? __switch_to_asm+0x36/0x70
-[   99.872133]  ? lock_timer_base+0x72/0xa0
-[   99.873155]  ? switch_mm_irqs_off+0x1bf/0x420
-[   99.874152]  io_wq_submit_work+0x64/0x180
-[   99.875192]  ? kthread_use_mm+0x71/0x100
-[   99.876132]  io_worker_handle_work+0x267/0x440
-[   99.877233]  io_wqe_worker+0x297/0x350
-[   99.878145]  kthread+0x112/0x150
-[   99.878849]  ? __io_worker_unuse+0x100/0x100
-[   99.879935]  ? kthread_park+0x90/0x90
-[   99.880874]  ret_from_fork+0x22/0x30
-[   99.881679] Modules linked in:
-[   99.882493] CR2: 0000000000000000
-[   99.883324] ---[ end trace 4453745f4673190b ]---
-[   99.884289] RIP: 0010:0x0
-[   99.884837] Code: Bad RIP value.
-[   99.885492] RSP: 0018:ffffa1c7c01ebc08 EFLAGS: 00010202
-[   99.886851] RAX: 0000000000000000 RBX: ffff92363acd7f00 RCX: ffff92363d461608
-[   99.888561] RDX: 0000000000000010 RSI: 00007ffe040d9e10 RDI: ffff92363acd7f00
-[   99.890203] RBP: ffffa1c7c01ebc40 R08: 0000000000000000 R09: 0000000000000000
-[   99.891907] R10: ffffffff9ec692a0 R11: 0000000000000000 R12: 0000000000000010
-[   99.894106] R13: 0000000000000000 R14: ffff92363d461608 R15: ffffa1c7c01ebc68
-[   99.896079] FS:  0000000000000000(0000) GS:ffff92363dd00000(0000) knlGS:0000000000000000
-[   99.898017] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   99.899197] CR2: ffffffffffffffd6 CR3: 000000007ac66000 CR4: 00000000000006e0
-
-Fixes: 32960613b7c3 ("io_uring: correctly handle non ->{read,write}_iter() file_operations")
 Cc: stable@vger.kernel.org
-Signed-off-by: Guoyu Huang <hgy5945@gmail.com>
+Reported-by: Josef <josef.grieb@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5e1c08e22990..8f96566603f3 100644
+index 8a2afd8c33c9..1ec25ee71372 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3066,7 +3066,10 @@ static int io_iter_do_read(struct io_kiocb *req, struct iov_iter *iter)
- {
- 	if (req->file->f_op->read_iter)
- 		return call_read_iter(req->file, &req->rw.kiocb, iter);
--	return loop_rw_iter(READ, req->file, &req->rw.kiocb, iter);
-+	else if (req->file->f_op->read)
-+		return loop_rw_iter(READ, req->file, &req->rw.kiocb, iter);
-+	else
-+		return -EINVAL;
+@@ -4937,6 +4937,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
+ 		io_cqring_fill_event(req, -ECANCELED);
+ 		io_commit_cqring(req->ctx);
+ 		req->flags |= REQ_F_COMP_LOCKED;
++		req_set_fail_links(req);
+ 		io_put_req(req);
+ 	}
+ 
+@@ -5109,6 +5110,23 @@ static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
+ 	return HRTIMER_NORESTART;
  }
  
- static int io_read(struct io_kiocb *req, bool force_nonblock,
-@@ -3203,8 +3206,10 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
++static int __io_timeout_cancel(struct io_kiocb *req)
++{
++	int ret;
++
++	list_del_init(&req->timeout.list);
++
++	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
++	if (ret == -1)
++		return -EALREADY;
++
++	req_set_fail_links(req);
++	req->flags |= REQ_F_COMP_LOCKED;
++	io_cqring_fill_event(req, -ECANCELED);
++	io_put_req(req);
++	return 0;
++}
++
+ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
+ {
+ 	struct io_kiocb *req;
+@@ -5116,7 +5134,6 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
  
- 	if (req->file->f_op->write_iter)
- 		ret2 = call_write_iter(req->file, kiocb, &iter);
--	else
-+	else if (req->file->f_op->write)
- 		ret2 = loop_rw_iter(WRITE, req->file, kiocb, &iter);
-+	else
-+		ret2 = -EINVAL;
+ 	list_for_each_entry(req, &ctx->timeout_list, timeout.list) {
+ 		if (user_data == req->user_data) {
+-			list_del_init(&req->timeout.list);
+ 			ret = 0;
+ 			break;
+ 		}
+@@ -5125,15 +5142,7 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
+ 	if (ret == -ENOENT)
+ 		return ret;
  
- 	/*
- 	 * Raw bdev writes will return -EOPNOTSUPP for IOCB_NOWAIT. Just
+-	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
+-	if (ret == -1)
+-		return -EALREADY;
+-
+-	req_set_fail_links(req);
+-	req->flags |= REQ_F_COMP_LOCKED;
+-	io_cqring_fill_event(req, -ECANCELED);
+-	io_put_req(req);
+-	return 0;
++	return __io_timeout_cancel(req);
+ }
+ 
+ static int io_timeout_remove_prep(struct io_kiocb *req,
+@@ -7935,6 +7944,71 @@ static bool io_wq_files_match(struct io_wq_work *work, void *data)
+ 	return work->files == files;
+ }
+ 
++/*
++ * Returns true if 'preq' is the link parent of 'req'
++ */
++static bool io_match_link(struct io_kiocb *preq, struct io_kiocb *req)
++{
++	struct io_kiocb *link;
++
++	if (!(preq->flags & REQ_F_LINK_HEAD))
++		return false;
++
++	list_for_each_entry(link, &preq->link_list, link_list) {
++		if (link == req)
++			return true;
++	}
++
++	return false;
++}
++
++/*
++ * We're looking to cancel 'req' because it's holding on to our files, but
++ * 'req' could be a link to another request. See if it is, and cancel that
++ * parent request if so.
++ */
++static bool io_poll_remove_link(struct io_ring_ctx *ctx, struct io_kiocb *req)
++{
++	struct hlist_node *tmp;
++	struct io_kiocb *preq;
++	bool found = false;
++	int i;
++
++	spin_lock_irq(&ctx->completion_lock);
++	for (i = 0; i < (1U << ctx->cancel_hash_bits); i++) {
++		struct hlist_head *list;
++
++		list = &ctx->cancel_hash[i];
++		hlist_for_each_entry_safe(preq, tmp, list, hash_node) {
++			found = io_match_link(preq, req);
++			if (found) {
++				io_poll_remove_one(preq);
++				break;
++			}
++		}
++	}
++	spin_unlock_irq(&ctx->completion_lock);
++	return found;
++}
++
++static bool io_timeout_remove_link(struct io_ring_ctx *ctx,
++				   struct io_kiocb *req)
++{
++	struct io_kiocb *preq;
++	bool found = false;
++
++	spin_lock_irq(&ctx->completion_lock);
++	list_for_each_entry(preq, &ctx->timeout_list, timeout.list) {
++		found = io_match_link(preq, req);
++		if (found) {
++			__io_timeout_cancel(preq);
++			break;
++		}
++	}
++	spin_unlock_irq(&ctx->completion_lock);
++	return found;
++}
++
+ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct files_struct *files)
+ {
+@@ -7989,6 +8063,9 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 			}
+ 		} else {
+ 			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
++			/* could be a link, check and remove if it is */
++			if (!io_poll_remove_link(ctx, cancel_req))
++				io_timeout_remove_link(ctx, cancel_req);
+ 			io_put_req(cancel_req);
+ 		}
+ 
 
