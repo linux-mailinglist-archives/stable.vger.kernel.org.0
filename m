@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51DD6246B5E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AF23246A6F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387942AbgHQPxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40692 "EHLO mail.kernel.org"
+        id S1729880AbgHQPgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387939AbgHQPxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:42 -0400
+        id S1730472AbgHQPfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:35:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 573682063A;
-        Mon, 17 Aug 2020 15:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66E2A22BEF;
+        Mon, 17 Aug 2020 15:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679621;
-        bh=Fiw50jeqkobRhQDGKeJkItSxQGeO+dfc6ICco/9FPvY=;
+        s=default; t=1597678554;
+        bh=q61iwKxty6pQwSJKWSlbwBdJz6N4UwWGth0ffNuPeBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMF5jYdgnvubI/m3Qk1FoWe7UiJWGHahFr9fqHpbzHsbSC1994uSvwrgaNwvKkAM+
-         C5b3rrEx4rsoCsvx6E2AUySkAEkIsGvQZS8Y/vFPLZeIots1J1DPvoW92MNKmglg8i
-         qCIohrIz8oxncvO29yPijRYf8JGh2wV1L88uWduw=
+        b=EWyRBvXrX8lt/JhrNzL1vCf5gnw1QUZ/BQgIOskfzQv18hMzmSOW7ombx8ZdyPxHT
+         c2Oa0il/+NPrQB+Nn0VS0w2tITfu5vw8ssN6BwuB6pP5VgoS9rzkKvBUcMhUui6uLr
+         IgxQnQ3Z9IA55/AoFz9SE+a/vf8FEOufc5hognZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 277/393] ASoC: meson: axg-tdm-formatters: fix sclk inversion
+Subject: [PATCH 5.8 374/464] dlm: Fix kobject memleak
 Date:   Mon, 17 Aug 2020 17:15:27 +0200
-Message-Id: <20200817143833.056492499@linuxfoundation.org>
+Message-Id: <20200817143851.687829580@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,119 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 0d3f01dcdc234001f979a0af0b6b31cb9f25b6c1 ]
+[ Upstream commit 0ffddafc3a3970ef7013696e7f36b3d378bc4c16 ]
 
-After carefully checking, it appears that both tdmout and tdmin require the
-rising edge of the sclk they get to be synchronized with the frame sync
-event (which should be a rising edge of lrclk).
+Currently the error return path from kobject_init_and_add() is not
+followed by a call to kobject_put() - which means we are leaking
+the kobject.
 
-TDMIN was improperly set before this patch. Remove the sclk_invert quirk
-which is no longer needed and fix the sclk phase.
+Set do_unreg = 1 before kobject_init_and_add() to ensure that
+kobject_put() can be called in its error patch.
 
-Fixes: 1a11d88f499c ("ASoC: meson: add tdm formatter base driver")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200729154456.1983396-4-jbrunet@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 901195ed7f4b ("Kobject: change GFS2 to use kobject_init_and_add")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/axg-tdm-formatter.c | 11 ++++++-----
- sound/soc/meson/axg-tdm-formatter.h |  1 -
- sound/soc/meson/axg-tdmin.c         |  2 --
- sound/soc/meson/axg-tdmout.c        |  3 ---
- 4 files changed, 6 insertions(+), 11 deletions(-)
+ fs/dlm/lockspace.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/meson/axg-tdm-formatter.c b/sound/soc/meson/axg-tdm-formatter.c
-index 358c8c0d861cd..f7e8e9da68a06 100644
---- a/sound/soc/meson/axg-tdm-formatter.c
-+++ b/sound/soc/meson/axg-tdm-formatter.c
-@@ -70,7 +70,7 @@ EXPORT_SYMBOL_GPL(axg_tdm_formatter_set_channel_masks);
- static int axg_tdm_formatter_enable(struct axg_tdm_formatter *formatter)
- {
- 	struct axg_tdm_stream *ts = formatter->stream;
--	bool invert = formatter->drv->quirks->invert_sclk;
-+	bool invert;
- 	int ret;
+diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
+index e93670ecfae5b..624617c12250a 100644
+--- a/fs/dlm/lockspace.c
++++ b/fs/dlm/lockspace.c
+@@ -622,6 +622,9 @@ static int new_lockspace(const char *name, const char *cluster,
+ 	wait_event(ls->ls_recover_lock_wait,
+ 		   test_bit(LSFL_RECOVER_LOCK, &ls->ls_flags));
  
- 	/* Do nothing if the formatter is already enabled */
-@@ -96,11 +96,12 @@ static int axg_tdm_formatter_enable(struct axg_tdm_formatter *formatter)
- 		return ret;
++	/* let kobject handle freeing of ls if there's an error */
++	do_unreg = 1;
++
+ 	ls->ls_kobj.kset = dlm_kset;
+ 	error = kobject_init_and_add(&ls->ls_kobj, &dlm_ktype, NULL,
+ 				     "%s", ls->ls_name);
+@@ -629,9 +632,6 @@ static int new_lockspace(const char *name, const char *cluster,
+ 		goto out_recoverd;
+ 	kobject_uevent(&ls->ls_kobj, KOBJ_ADD);
  
- 	/*
--	 * If sclk is inverted, invert it back and provide the inversion
--	 * required by the formatter
-+	 * If sclk is inverted, it means the bit should latched on the
-+	 * rising edge which is what our HW expects. If not, we need to
-+	 * invert it before the formatter.
- 	 */
--	invert ^= axg_tdm_sclk_invert(ts->iface->fmt);
--	ret = clk_set_phase(formatter->sclk, invert ? 180 : 0);
-+	invert = axg_tdm_sclk_invert(ts->iface->fmt);
-+	ret = clk_set_phase(formatter->sclk, invert ? 0 : 180);
- 	if (ret)
- 		return ret;
- 
-diff --git a/sound/soc/meson/axg-tdm-formatter.h b/sound/soc/meson/axg-tdm-formatter.h
-index 9ef98e955cb27..a1f0dcc0ff134 100644
---- a/sound/soc/meson/axg-tdm-formatter.h
-+++ b/sound/soc/meson/axg-tdm-formatter.h
-@@ -16,7 +16,6 @@ struct snd_kcontrol;
- 
- struct axg_tdm_formatter_hw {
- 	unsigned int skew_offset;
--	bool invert_sclk;
- };
- 
- struct axg_tdm_formatter_ops {
-diff --git a/sound/soc/meson/axg-tdmin.c b/sound/soc/meson/axg-tdmin.c
-index 3d002b4eb939e..88ed95ae886bb 100644
---- a/sound/soc/meson/axg-tdmin.c
-+++ b/sound/soc/meson/axg-tdmin.c
-@@ -228,7 +228,6 @@ static const struct axg_tdm_formatter_driver axg_tdmin_drv = {
- 	.regmap_cfg	= &axg_tdmin_regmap_cfg,
- 	.ops		= &axg_tdmin_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk	= false,
- 		.skew_offset	= 2,
- 	},
- };
-@@ -238,7 +237,6 @@ static const struct axg_tdm_formatter_driver g12a_tdmin_drv = {
- 	.regmap_cfg	= &axg_tdmin_regmap_cfg,
- 	.ops		= &axg_tdmin_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk	= false,
- 		.skew_offset	= 3,
- 	},
- };
-diff --git a/sound/soc/meson/axg-tdmout.c b/sound/soc/meson/axg-tdmout.c
-index 418ec314b37d4..3ceabddae629e 100644
---- a/sound/soc/meson/axg-tdmout.c
-+++ b/sound/soc/meson/axg-tdmout.c
-@@ -238,7 +238,6 @@ static const struct axg_tdm_formatter_driver axg_tdmout_drv = {
- 	.regmap_cfg	= &axg_tdmout_regmap_cfg,
- 	.ops		= &axg_tdmout_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk = true,
- 		.skew_offset = 1,
- 	},
- };
-@@ -248,7 +247,6 @@ static const struct axg_tdm_formatter_driver g12a_tdmout_drv = {
- 	.regmap_cfg	= &axg_tdmout_regmap_cfg,
- 	.ops		= &axg_tdmout_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk = true,
- 		.skew_offset = 2,
- 	},
- };
-@@ -309,7 +307,6 @@ static const struct axg_tdm_formatter_driver sm1_tdmout_drv = {
- 	.regmap_cfg	= &axg_tdmout_regmap_cfg,
- 	.ops		= &axg_tdmout_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk = true,
- 		.skew_offset = 2,
- 	},
- };
+-	/* let kobject handle freeing of ls if there's an error */
+-	do_unreg = 1;
+-
+ 	/* This uevent triggers dlm_controld in userspace to add us to the
+ 	   group of nodes that are members of this lockspace (managed by the
+ 	   cluster infrastructure.)  Once it's done that, it tells us who the
 -- 
 2.25.1
 
