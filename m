@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5149724652C
+	by mail.lfdr.de (Postfix) with ESMTP id CFBD124652D
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 13:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbgHQLJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 07:09:56 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60807 "EHLO
+        id S1726651AbgHQLJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 07:09:57 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:58823 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727021AbgHQLJt (ORCPT
+        by vger.kernel.org with ESMTP id S1727093AbgHQLJt (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 07:09:49 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id B646B1941A4A;
-        Mon, 17 Aug 2020 07:09:28 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2867A194175C;
+        Mon, 17 Aug 2020 07:09:30 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 17 Aug 2020 07:09:28 -0400
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 07:09:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GhkZhE
-        raQqyDvRMK/YYBEz9KpcRcgO+9W+u3UO/GJWc=; b=Tp0nk0SPLoMO1wbG5K+G4f
-        5BmkON9RjPom5d/Pe3lZj3r39mGcYTvoxwDiBdS6b1fKkQdYTZ9ovarsWqWgj+Ht
-        iMmFOwlhiTQzF5NtAy2vf7bcmI3jFZHZcxj78SXvWYWftxaL7YIC4ON0t6m3RoBH
-        RttiByYrifYl6V+uAn8CxXbIPP+VTWcvM3n2O1ZrtdhV9YlndqkcRfF+ryXntfOq
-        lyXRh29ECChuHmd5JDZpsLF6/j7SriOMviYc6PnlFXZgkermpX36rK2XXgoKTBNa
-        Mv5bLrpDoP5fm21TCD2whGtUTlzKr8A5TFdu1NhXRNY1UjqhLvNIvpGFpMZwh9nw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HNHOBK
+        6o59pSacselveNlpsflemBX/9ITlR+9gVmveA=; b=I4CvOHQ/qQlbCjE0TFWq2U
+        gn/GU+AGnR8Sqvyz283YBG0X/+WiONcSlMjBsP1BqO8UkItXM2E86U2FqWJxcSQF
+        PPAIUIpsPcMY8eSQ2SFt9nVfe3M4gpQ14kGC83Wt/PspoeMRIG3tQY7QSwUJdvug
+        H3NPY10tzYqe4wjrWKx4I815XGb1+90xg0jNHn3dtnVz7/bW2tNziz4Y7M0Zr4lF
+        /vxTe7F1zw2vT+QZFE6XgD5lf/IykqnLdjtyOHbDSDnfjkSpfVNgdqh0ipAijvv9
+        K0HWVv1PDXomvnWDonV/iCdIdDWnLxk+J4TZBZoH2mE+A3FSgYceAYA7MeHFXzKg
         ==
-X-ME-Sender: <xms:aGU6X5JCK_fNGQUxc_AxXeLa-BC1QNMaoNsFpdpv-64Sg9OdjCJJsw>
+X-ME-Sender: <xms:aWU6X4aRVCYlsKgIgkKU-kMKTS6xGCR4e6DjB-WlqbeaXOawD_4IIA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgfeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgfeehucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:aGU6X1KgyF2oc7gQQsTiOhrrrRrxkWpGndc1lefI7po7gWVLrHvSHA>
-    <xmx:aGU6XxtHbg2858Qaqdyq7tvnGtp9XG36WuVwWtsddVAaplG9wjbV4g>
-    <xmx:aGU6X6b0nQeHghlpCocqtMm4YazWapxLNR44zF4PyrkcjOeg-6xJQg>
-    <xmx:aGU6X23LDTw3v36koKinMFWWYlyylEOHFlB2Phxe903ONQ7TXj5uqw>
+X-ME-Proxy: <xmx:aWU6XzZ2PvCT94ICR9X3q6d2vi8WU_6rSNF2yEiI0zIgepbNtwPEEw>
+    <xmx:aWU6Xy8x9S3mkoPwm0o6Dx_jEtMCzamHEPgopQtPkX16KJA6Bzrfjw>
+    <xmx:aWU6XyqXzTn4KTp1gUC1__da6YV5x4e-ZX2uDxdw1nwbxs-gQWsvIQ>
+    <xmx:amU6X9H5CtNl9Ac68Sx5AB9ssr3d_FsGlZv_fLs_Zx6hQtyRVk3fOA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 529E430600A3;
-        Mon, 17 Aug 2020 07:09:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Fix EPP setting via sysfs in active" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A96C13060067;
+        Mon, 17 Aug 2020 07:09:29 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Fix EPP setting via sysfs in active" failed to apply to 4.19-stable tree
 To:     rafael.j.wysocki@intel.com, currojerez@riseup.net,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Aug 2020 13:09:46 +0200
-Message-ID: <159766258621168@kroah.com>
+Date:   Mon, 17 Aug 2020 13:09:47 +0200
+Message-ID: <1597662587212236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
