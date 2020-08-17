@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ADB324706B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FD1247068
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390217AbgHQSIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:08:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57082 "EHLO mail.kernel.org"
+        id S2389680AbgHQSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:08:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388436AbgHQQIO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:08:14 -0400
+        id S2388444AbgHQQIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:08:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BE1120772;
-        Mon, 17 Aug 2020 16:08:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E28CE20866;
+        Mon, 17 Aug 2020 16:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680493;
-        bh=ouHiwBydkFBQhtjmRlBBI6rcbVSRk0+9z+SehdQwHSA=;
+        s=default; t=1597680495;
+        bh=Yc7j79dnbAWX6tEFGGgvS0Ycw7eGmKt4dcAot2CU+GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=092xSqiYEnDJFIJ/gnvOLS0ReYXpd4THc1m/HIAFnymi0yEveSj0QkyfRg9HBwEJs
-         4FAnHtmNfswCaJH6E9re6yim6cUk27HkG793jVyCmufbr9Fqet8qszlh2EbxsQfye5
-         ansJFr+laO56QWGp7cTvKClRlxfy9jQpbDIcl3Kw=
+        b=pZDE0ISFK88Ig6GBE7/LRq1v/x3vjUVlMqsWxR+o6P/qKeoMlibMPS/bnXccnDsa4
+         2kWGGP7RIIBOv3KWqLmCBuXChEHWuXIEVmvL7/fK8UTwVdYYQD7ezC524Sdq5pRJe7
+         qVqBPbg+V6ok/dndkClX51SFodiqrgCzyNsS9GM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dean Nelson <dnelson@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 209/270] net: thunderx: initialize VFs mailbox mutex before first usage
-Date:   Mon, 17 Aug 2020 17:16:50 +0200
-Message-Id: <20200817143806.192999982@linuxfoundation.org>
+Subject: [PATCH 5.4 210/270] dlm: Fix kobject memleak
+Date:   Mon, 17 Aug 2020 17:16:51 +0200
+Message-Id: <20200817143806.246083079@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,102 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Nelson <dnelson@redhat.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit c1055b76ad00aed0e8b79417080f212d736246b6 ]
+[ Upstream commit 0ffddafc3a3970ef7013696e7f36b3d378bc4c16 ]
 
-A VF's mailbox mutex is not getting initialized by nicvf_probe() until after
-it is first used. And such usage is resulting in...
+Currently the error return path from kobject_init_and_add() is not
+followed by a call to kobject_put() - which means we are leaking
+the kobject.
 
-[   28.270927] ------------[ cut here ]------------
-[   28.270934] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-[   28.270980] WARNING: CPU: 9 PID: 675 at kernel/locking/mutex.c:938 __mutex_lock+0xdac/0x12f0
-[   28.270985] Modules linked in: ast(+) nicvf(+) i2c_algo_bit drm_vram_helper drm_ttm_helper ttm nicpf(+) drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm ixgbe(+) sg thunder_bgx mdio i2c_thunderx mdio_thunder thunder_xcv mdio_cavium dm_mirror dm_region_hash dm_log dm_mod
-[   28.271064] CPU: 9 PID: 675 Comm: systemd-udevd Not tainted 4.18.0+ #1
-[   28.271070] Hardware name: GIGABYTE R120-T34-00/MT30-GS2-00, BIOS F02 08/06/2019
-[   28.271078] pstate: 60000005 (nZCv daif -PAN -UAO)
-[   28.271086] pc : __mutex_lock+0xdac/0x12f0
-[   28.271092] lr : __mutex_lock+0xdac/0x12f0
-[   28.271097] sp : ffff800d42146fb0
-[   28.271103] x29: ffff800d42146fb0 x28: 0000000000000000
-[   28.271113] x27: ffff800d24361180 x26: dfff200000000000
-[   28.271122] x25: 0000000000000000 x24: 0000000000000002
-[   28.271132] x23: ffff20001597cc80 x22: ffff2000139e9848
-[   28.271141] x21: 0000000000000000 x20: 1ffff001a8428e0c
-[   28.271151] x19: ffff200015d5d000 x18: 1ffff001ae0f2184
-[   28.271160] x17: 0000000000000000 x16: 0000000000000000
-[   28.271170] x15: ffff800d70790c38 x14: ffff20001597c000
-[   28.271179] x13: ffff20001597cc80 x12: ffff040002b2f779
-[   28.271189] x11: 1fffe40002b2f778 x10: ffff040002b2f778
-[   28.271199] x9 : 0000000000000000 x8 : 00000000f1f1f1f1
-[   28.271208] x7 : 00000000f2f2f2f2 x6 : 0000000000000000
-[   28.271217] x5 : 1ffff001ae0f2186 x4 : 1fffe400027eb03c
-[   28.271227] x3 : dfff200000000000 x2 : ffff1001a8428dbe
-[   28.271237] x1 : c87fdfac7ea11d00 x0 : 0000000000000000
-[   28.271246] Call trace:
-[   28.271254]  __mutex_lock+0xdac/0x12f0
-[   28.271261]  mutex_lock_nested+0x3c/0x50
-[   28.271297]  nicvf_send_msg_to_pf+0x40/0x3a0 [nicvf]
-[   28.271316]  nicvf_register_misc_interrupt+0x20c/0x328 [nicvf]
-[   28.271334]  nicvf_probe+0x508/0xda0 [nicvf]
-[   28.271344]  local_pci_probe+0xc4/0x180
-[   28.271352]  pci_device_probe+0x3ec/0x528
-[   28.271363]  driver_probe_device+0x21c/0xb98
-[   28.271371]  device_driver_attach+0xe8/0x120
-[   28.271379]  __driver_attach+0xe0/0x2a0
-[   28.271386]  bus_for_each_dev+0x118/0x190
-[   28.271394]  driver_attach+0x48/0x60
-[   28.271401]  bus_add_driver+0x328/0x558
-[   28.271409]  driver_register+0x148/0x398
-[   28.271416]  __pci_register_driver+0x14c/0x1b0
-[   28.271437]  nicvf_init_module+0x54/0x10000 [nicvf]
-[   28.271447]  do_one_initcall+0x18c/0xc18
-[   28.271457]  do_init_module+0x18c/0x618
-[   28.271464]  load_module+0x2bc0/0x4088
-[   28.271472]  __se_sys_finit_module+0x110/0x188
-[   28.271479]  __arm64_sys_finit_module+0x70/0xa0
-[   28.271490]  el0_svc_handler+0x15c/0x380
-[   28.271496]  el0_svc+0x8/0xc
-[   28.271502] irq event stamp: 52649
-[   28.271513] hardirqs last  enabled at (52649): [<ffff200011b4d790>] _raw_spin_unlock_irqrestore+0xc0/0xd8
-[   28.271522] hardirqs last disabled at (52648): [<ffff200011b4d3c4>] _raw_spin_lock_irqsave+0x3c/0xf0
-[   28.271530] softirqs last  enabled at (52330): [<ffff200010082af4>] __do_softirq+0xacc/0x117c
-[   28.271540] softirqs last disabled at (52313): [<ffff20001019b354>] irq_exit+0x3cc/0x500
-[   28.271545] ---[ end trace a9b90324c8a0d4ee ]---
+Set do_unreg = 1 before kobject_init_and_add() to ensure that
+kobject_put() can be called in its error patch.
 
-This problem is resolved by moving the call to mutex_init() up earlier
-in nicvf_probe().
-
-Fixes: 609ea65c65a0 ("net: thunderx: add mutex to protect mailbox from concurrent calls for same VF")
-Signed-off-by: Dean Nelson <dnelson@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 901195ed7f4b ("Kobject: change GFS2 to use kobject_init_and_add")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/dlm/lockspace.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-index f414f5651dbd8..5c45c0c6dd234 100644
---- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-+++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-@@ -2185,6 +2185,9 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		nic->max_queues *= 2;
- 	nic->ptp_clock = ptp_clock;
+diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
+index afb8340918b86..c689359ca532b 100644
+--- a/fs/dlm/lockspace.c
++++ b/fs/dlm/lockspace.c
+@@ -632,6 +632,9 @@ static int new_lockspace(const char *name, const char *cluster,
+ 	wait_event(ls->ls_recover_lock_wait,
+ 		   test_bit(LSFL_RECOVER_LOCK, &ls->ls_flags));
  
-+	/* Initialize mutex that serializes usage of VF's mailbox */
-+	mutex_init(&nic->rx_mode_mtx);
++	/* let kobject handle freeing of ls if there's an error */
++	do_unreg = 1;
 +
- 	/* MAP VF's configuration registers */
- 	nic->reg_base = pcim_iomap(pdev, PCI_CFG_REG_BAR_NUM, 0);
- 	if (!nic->reg_base) {
-@@ -2261,7 +2264,6 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	ls->ls_kobj.kset = dlm_kset;
+ 	error = kobject_init_and_add(&ls->ls_kobj, &dlm_ktype, NULL,
+ 				     "%s", ls->ls_name);
+@@ -639,9 +642,6 @@ static int new_lockspace(const char *name, const char *cluster,
+ 		goto out_recoverd;
+ 	kobject_uevent(&ls->ls_kobj, KOBJ_ADD);
  
- 	INIT_WORK(&nic->rx_mode_work.work, nicvf_set_rx_mode_task);
- 	spin_lock_init(&nic->rx_mode_wq_lock);
--	mutex_init(&nic->rx_mode_mtx);
- 
- 	err = register_netdev(netdev);
- 	if (err) {
+-	/* let kobject handle freeing of ls if there's an error */
+-	do_unreg = 1;
+-
+ 	/* This uevent triggers dlm_controld in userspace to add us to the
+ 	   group of nodes that are members of this lockspace (managed by the
+ 	   cluster infrastructure.)  Once it's done that, it tells us who the
 -- 
 2.25.1
 
