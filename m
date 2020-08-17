@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23989246C3F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:12:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F38246C46
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388677AbgHQQMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:12:16 -0400
+        id S2388690AbgHQQMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:12:21 -0400
 Received: from mail.kernel.org ([198.145.29.99]:42256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388669AbgHQQMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:12:09 -0400
+        id S2388674AbgHQQMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:12:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47BE720760;
-        Mon, 17 Aug 2020 16:12:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E78AB22DBF;
+        Mon, 17 Aug 2020 16:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680729;
-        bh=yH+DAPdtU3IVv54d4VVXWRQgzC7pzyB7IRbaGehowlw=;
+        s=default; t=1597680734;
+        bh=B9FMDVvr3fPuFO0rvt9cDBfcrTv/H4aJ3IcGv2fBJSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWjaQVeCNEMeRuH2m0hUozb+MCmUVocsAXNRKHDP9cH9zJ4cUpNsIccAp4R/caG3E
-         p7dnpJztfEYKQSb2PhcMxyMiJT9jngb2YPRYgL4remMNow5x45/Sm+3wLPN5PwhU5i
-         KRYkY4PyW8ttJtlcCQwP6Bpq0smU7WUdwVocg3NY=
+        b=aZ4JbVj6OZ1BOIHYy4ImXLLDmbgTjvedu0HRgymq8ceR6TqejuX2Idj5VZOmfUKGs
+         prVe6MWzT3o538xgFx7pjtNg17qiLyt4+GM5dAwwPbT++H3dvrEIazLhDWKHux4Uo1
+         BUu7/h4rLERMNxEBHKrb46JhlQZOoaGxpJlbW9i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
+        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 004/168] x86/mce/inject: Fix a wrong assignment of i_mce.status
-Date:   Mon, 17 Aug 2020 17:15:35 +0200
-Message-Id: <20200817143733.928530433@linuxfoundation.org>
+Subject: [PATCH 4.19 006/168] sched: correct SD_flags returned by tl->sd_flags()
+Date:   Mon, 17 Aug 2020 17:15:37 +0200
+Message-Id: <20200817143734.031941558@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -45,36 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Peng Liu <iwtbavbm@gmail.com>
 
-[ Upstream commit 5d7f7d1d5e01c22894dee7c9c9266500478dca99 ]
+[ Upstream commit 9b1b234bb86bcdcdb142e900d39b599185465dbb ]
 
-The original code is a nop as i_mce.status is or'ed with part of itself,
-fix it.
+During sched domain init, we check whether non-topological SD_flags are
+returned by tl->sd_flags(), if found, fire a waning and correct the
+violation, but the code failed to correct the violation. Correct this.
 
-Fixes: a1300e505297 ("x86/ras/mce_amd_inj: Trigger deferred and thresholding errors interrupts")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Link: https://lkml.kernel.org/r/20200611023238.3830-1-zhenzhong.duan@gmail.com
+Fixes: 143e1e28cb40 ("sched: Rework sched_domain topology definition")
+Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20200609150936.GA13060@iZj6chx1xj0e0buvshuecpZ
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce-inject.c | 2 +-
+ kernel/sched/topology.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce-inject.c b/arch/x86/kernel/cpu/mcheck/mce-inject.c
-index 1ceccc4a5472c..9cc524be3c949 100644
---- a/arch/x86/kernel/cpu/mcheck/mce-inject.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce-inject.c
-@@ -518,7 +518,7 @@ static void do_inject(void)
- 	 */
- 	if (inj_type == DFR_INT_INJ) {
- 		i_mce.status |= MCI_STATUS_DEFERRED;
--		i_mce.status |= (i_mce.status & ~MCI_STATUS_UC);
-+		i_mce.status &= ~MCI_STATUS_UC;
- 	}
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index 74b694392f2fd..f58efa5cc6474 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1098,7 +1098,7 @@ sd_init(struct sched_domain_topology_level *tl,
+ 		sd_flags = (*tl->sd_flags)();
+ 	if (WARN_ONCE(sd_flags & ~TOPOLOGY_SD_FLAGS,
+ 			"wrong sd_flags in topology description\n"))
+-		sd_flags &= ~TOPOLOGY_SD_FLAGS;
++		sd_flags &= TOPOLOGY_SD_FLAGS;
  
- 	/*
+ 	*sd = (struct sched_domain){
+ 		.min_interval		= sd_weight,
 -- 
 2.25.1
 
