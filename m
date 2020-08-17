@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B021F247657
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A715247634
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730022AbgHQP2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:28:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
+        id S1730165AbgHQTet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:34:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730019AbgHQP2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:28:42 -0400
+        id S1730152AbgHQP37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:29:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2CAF233CF;
-        Mon, 17 Aug 2020 15:28:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B676B23B1B;
+        Mon, 17 Aug 2020 15:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678121;
-        bh=JrYOhwWwwmrReXwB+ZeyDYHuIP3lqKqROWwbKCFhgOs=;
+        s=default; t=1597678198;
+        bh=9oe0MYIMIE/Q6b/G0gZaljM7z+x2ht+t61swJGRmr5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6G3hS/yzj9jpcf5dQnbsJCcgsOFcPTAKvn9t6vVbOxL9oY8AaZDL2FggLJ+23P40
-         EmKaP7k/Y5gmHdGp8YTxNEC6vovO7qKwptBm4pE5YsLXUZq4egncZxsa3F0T+QPVF8
-         Se4r3NFyr7Wgrqto3OlFxNT8e6kne4KoPcqjBeSs=
+        b=ZsCQ+dPToITgcTGVhLNN3BAlQXhp/p8sOVtyxV8Ti78ZfxNr5weG4NrAbHTffia5U
+         tGxM9qgF8p/UeJNAGtqSzqlqvHyahImO7ESouuuLPIeLBcyiA7M4ZCgBpkJa2EcKwD
+         a42ds29CvdwJCPQlunnuJWA1FVpFexg1rqpuMPlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Yannick=20Fertr=C3=A9?= <yannick.fertre@st.com>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-        Vincent Abriou <vincent.abriou@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 218/464] drm/stm: repair runtime power management
-Date:   Mon, 17 Aug 2020 17:12:51 +0200
-Message-Id: <20200817143844.245721026@linuxfoundation.org>
+Subject: [PATCH 5.8 221/464] drm: panel: simple: Fix bpc for LG LB070WV8 panel
+Date:   Mon, 17 Aug 2020 17:12:54 +0200
+Message-Id: <20200817143844.383763485@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -52,57 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit ebd267b2e3c25d5f93a08528b47c036569eb8744 ]
+[ Upstream commit a6ae2fe5c9f9fd355a48fb7d21c863e5b20d6c9c ]
 
-Add missing pm_runtime_get_sync() into ltdc_crtc_atomic_enable() to
-match pm_runtime_put_sync() in ltdc_crtc_atomic_disable(), otherwise
-the LTDC might suspend via runtime PM, disable clock, and then fail
-to resume later on.
+The LG LB070WV8 panel incorrectly reports a 16 bits per component value,
+while the panel uses 8 bits per component. Fix it.
 
-The test which triggers it is roughly -- run qt5 application which
-uses eglfs platform and etnaviv, stop the application, sleep for 15
-minutes, run the application again. This leads to a timeout waiting
-for vsync, because the LTDC has suspended, but did not resume.
-
-Fixes: 35ab6cfbf211 ("drm/stm: support runtime power management")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Yannick Fertré <yannick.fertre@st.com>
-Cc: Philippe Cornu <philippe.cornu@st.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: Vincent Abriou <vincent.abriou@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-To: dri-devel@lists.freedesktop.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-arm-kernel@lists.infradead.org
-Acked-by: Philippe Cornu <philippe.cornu@st.com>
-Tested-by: Yannick Fertre <yannick.fertre@st.com>
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200229221649.90813-1-marex@denx.de
+Fixes: dd0150026901 ("drm/panel: simple: Add support for LG LB070WV8 800x480 7" panel")
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200711225317.28476-1-laurent.pinchart+renesas@ideasonboard.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/stm/ltdc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/panel/panel-simple.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
-index f894968d6e452..3f590d916e916 100644
---- a/drivers/gpu/drm/stm/ltdc.c
-+++ b/drivers/gpu/drm/stm/ltdc.c
-@@ -423,9 +423,12 @@ static void ltdc_crtc_atomic_enable(struct drm_crtc *crtc,
- 				    struct drm_crtc_state *old_state)
- {
- 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
-+	struct drm_device *ddev = crtc->dev;
- 
- 	DRM_DEBUG_DRIVER("\n");
- 
-+	pm_runtime_get_sync(ddev->dev);
-+
- 	/* Sets the background color value */
- 	reg_write(ldev->regs, LTDC_BCCR, BCCR_BCBLACK);
- 
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 4aeb960ccf151..444b77490a42a 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -2304,7 +2304,7 @@ static const struct drm_display_mode lg_lb070wv8_mode = {
+ static const struct panel_desc lg_lb070wv8 = {
+ 	.modes = &lg_lb070wv8_mode,
+ 	.num_modes = 1,
+-	.bpc = 16,
++	.bpc = 8,
+ 	.size = {
+ 		.width = 151,
+ 		.height = 91,
 -- 
 2.25.1
 
