@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38243246C06
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA743246C4F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:13:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388343AbgHQQIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:08:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
+        id S2388740AbgHQQNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388399AbgHQQH0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:07:26 -0400
+        id S2388730AbgHQQM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:12:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6689120888;
-        Mon, 17 Aug 2020 16:07:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F7A822BEB;
+        Mon, 17 Aug 2020 16:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680424;
-        bh=+q16tVvoqn+1RNAC3l/0/VWWPT5WJdZe4rdN6K952ps=;
+        s=default; t=1597680776;
+        bh=y3+g7EZTyn6i975gKp0Mp3Bv6elrogf8OcOKszMUTU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWLF2OS6pTWhsrx7JBBcbI7hqTKgvcrXmJSn3apdp8EOiL71FhkmTAS5DzhqxPuhx
-         zZWAYZ/eCYePg7NSDCnaEBswjlRzLidykv73oJZQB0yPyt9/GeRAwtaEzy7y/Uu9FD
-         Pd1jSn/rw9IrYXewX4mP3tYi7Vb3vfu08PzVtImU=
+        b=xJ3vUpFYKf2CBOENtay3xu+zfXjURWUggx39suIK7/z+QIWg0TjzMLVKw9vl14dzs
+         pxkP4zPZYXCPWEhQIQ4n96SSYlN9ltkVJ1Io1Za5vdHT1y7F2hJ6/HOJJj2V6EEpKl
+         SLoJB5D3jzTDCbD0iZMgOUh8MNEjpHzpXRcgqLUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 181/270] powerpc/boot: Fix CONFIG_PPC_MPC52XX references
-Date:   Mon, 17 Aug 2020 17:16:22 +0200
-Message-Id: <20200817143804.817895284@linuxfoundation.org>
+Subject: [PATCH 4.19 052/168] bcache: fix super block seq numbers comparision in register_cache_set()
+Date:   Mon, 17 Aug 2020 17:16:23 +0200
+Message-Id: <20200817143736.343393947@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit e5eff89657e72a9050d95fde146b54c7dc165981 ]
+[ Upstream commit 117f636ea695270fe492d0c0c9dfadc7a662af47 ]
 
-Commit 866bfc75f40e ("powerpc: conditionally compile platform-specific
-serial drivers") made some code depend on CONFIG_PPC_MPC52XX, which
-doesn't exist.
+In register_cache_set(), c is pointer to struct cache_set, and ca is
+pointer to struct cache, if ca->sb.seq > c->sb.seq, it means this
+registering cache has up to date version and other members, the in-
+memory version and other members should be updated to the newer value.
 
-Fix it to use CONFIG_PPC_MPC52xx.
+But current implementation makes a cache set only has a single cache
+device, so the above assumption works well except for a special case.
+The execption is when a cache device new created and both ca->sb.seq and
+c->sb.seq are 0, because the super block is never flushed out yet. In
+the location for the following if() check,
+2156         if (ca->sb.seq > c->sb.seq) {
+2157                 c->sb.version           = ca->sb.version;
+2158                 memcpy(c->sb.set_uuid, ca->sb.set_uuid, 16);
+2159                 c->sb.flags             = ca->sb.flags;
+2160                 c->sb.seq               = ca->sb.seq;
+2161                 pr_debug("set version = %llu\n", c->sb.version);
+2162         }
+c->sb.version is not initialized yet and valued 0. When ca->sb.seq is 0,
+the if() check will fail (because both values are 0), and the cache set
+version, set_uuid, flags and seq won't be updated.
 
-Fixes: 866bfc75f40e ("powerpc: conditionally compile platform-specific serial drivers")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200724131728.1643966-7-mpe@ellerman.id.au
+The above problem is hiden for current code, because the bucket size is
+compatible among different super block version. And the next time when
+running cache set again, ca->sb.seq will be larger than 0 and cache set
+super block version will be updated properly.
+
+But if the large bucket feature is enabled,  sb->bucket_size is the low
+16bits of the bucket size. For a power of 2 value, when the actual
+bucket size exceeds 16bit width, sb->bucket_size will always be 0. Then
+read_super_common() will fail because the if() check to
+is_power_of_2(sb->bucket_size) is false. This is how the long time
+hidden bug is triggered.
+
+This patch modifies the if() check to the following way,
+2156         if (ca->sb.seq > c->sb.seq || c->sb.seq == 0) {
+Then cache set's version, set_uuid, flags and seq will always be updated
+corectly including for a new created cache device.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/Makefile | 2 +-
- arch/powerpc/boot/serial.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/bcache/super.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
-index dfbd7f22eef5e..8c69bd07ada6a 100644
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -119,7 +119,7 @@ src-wlib-y := string.S crt0.S stdio.c decompress.c main.c \
- 		elf_util.c $(zlib-y) devtree.c stdlib.c \
- 		oflib.c ofconsole.c cuboot.c
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 68ebc2759c2ef..46ad0bf18e1fd 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -2013,7 +2013,14 @@ static const char *register_cache_set(struct cache *ca)
+ 	    sysfs_create_link(&c->kobj, &ca->kobj, buf))
+ 		goto err;
  
--src-wlib-$(CONFIG_PPC_MPC52XX) += mpc52xx-psc.c
-+src-wlib-$(CONFIG_PPC_MPC52xx) += mpc52xx-psc.c
- src-wlib-$(CONFIG_PPC64_BOOT_WRAPPER) += opal-calls.S opal.c
- ifndef CONFIG_PPC64_BOOT_WRAPPER
- src-wlib-y += crtsavres.S
-diff --git a/arch/powerpc/boot/serial.c b/arch/powerpc/boot/serial.c
-index 9457863147f9b..00179cd6bdd08 100644
---- a/arch/powerpc/boot/serial.c
-+++ b/arch/powerpc/boot/serial.c
-@@ -128,7 +128,7 @@ int serial_console_init(void)
- 	         dt_is_compatible(devp, "fsl,cpm2-smc-uart"))
- 		rc = cpm_console_init(devp, &serial_cd);
- #endif
--#ifdef CONFIG_PPC_MPC52XX
-+#ifdef CONFIG_PPC_MPC52xx
- 	else if (dt_is_compatible(devp, "fsl,mpc5200-psc-uart"))
- 		rc = mpc5200_psc_console_init(devp, &serial_cd);
- #endif
+-	if (ca->sb.seq > c->sb.seq) {
++	/*
++	 * A special case is both ca->sb.seq and c->sb.seq are 0,
++	 * such condition happens on a new created cache device whose
++	 * super block is never flushed yet. In this case c->sb.version
++	 * and other members should be updated too, otherwise we will
++	 * have a mistaken super block version in cache set.
++	 */
++	if (ca->sb.seq > c->sb.seq || c->sb.seq == 0) {
+ 		c->sb.version		= ca->sb.version;
+ 		memcpy(c->sb.set_uuid, ca->sb.set_uuid, 16);
+ 		c->sb.flags             = ca->sb.flags;
 -- 
 2.25.1
 
