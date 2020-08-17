@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD39247127
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7A124712D
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388269AbgHQQDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51518 "EHLO mail.kernel.org"
+        id S2390894AbgHQSVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:21:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388260AbgHQQDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:03:48 -0400
+        id S2388268AbgHQQDy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:03:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE50B20748;
-        Mon, 17 Aug 2020 16:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03BB920729;
+        Mon, 17 Aug 2020 16:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680228;
-        bh=dDHCttxOlMfqErKZolfL4n9zuGTiz1whoW+rGBbmAR8=;
+        s=default; t=1597680233;
+        bh=n+4mjzhZOD0dhZ5FpubvJtXCZana5ujBHbrb6imTBqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlT3TlqsmFFzgIFVxgy1dajNwQOq/A0qHCBPU5rupZc1+OwGH0DXl2bAUMWULZmpO
-         kz5F5O27X5LvwGrJyCmAQGwJDxh++LMEgdg3Tsf2689ANOqu1r5pYewK71P+hRTxxf
-         bFEL1kYTqasGtsOew5ImzKS3BXhY78pH1vBaQBm8=
+        b=ZAny6X7oYmoyWHia/YMff1gDK04OwHXY3PdyN1o27b6x4eG4gTF9KbNeQjm7JtYEB
+         UgXgP5L2KbeGjHyb1EQt4YsU5eH7uPxKQHDAncTEkv5+J3K9IrNnLyspFbL3zkQdl7
+         V5sPbQ2lITmnXT/c0vua9Q14uHWVXTEtdlKbjb9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Liviu Dudau <Liviu.Dudau@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/270] drm/arm: fix unintentional integer overflow on left shift
-Date:   Mon, 17 Aug 2020 17:15:04 +0200
-Message-Id: <20200817143800.911478782@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 105/270] leds: lm355x: avoid enum conversion warning
+Date:   Mon, 17 Aug 2020 17:15:06 +0200
+Message-Id: <20200817143801.012141646@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -45,39 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5f368ddea6fec519bdb93b5368f6a844b6ea27a6 ]
+[ Upstream commit 985b1f596f9ed56f42b8c2280005f943e1434c06 ]
 
-Shifting the integer value 1 is evaluated using 32-bit arithmetic
-and then used in an expression that expects a long value leads to
-a potential integer overflow. Fix this by using the BIT macro to
-perform the shift to avoid the overflow.
+clang points out that doing arithmetic between diffent enums is usually
+a mistake:
 
-Addresses-Coverity: ("Unintentional integer overflow")
-Fixes: ad49f8602fe8 ("drm/arm: Add support for Mali Display Processors")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200618100400.11464-1-colin.king@canonical.com
+drivers/leds/leds-lm355x.c:167:28: warning: bitwise operation between different enumeration types ('enum lm355x_tx2' and 'enum lm355x_ntc') [-Wenum-enum-conversion]
+                reg_val = pdata->pin_tx2 | pdata->ntc_pin;
+                          ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~
+drivers/leds/leds-lm355x.c:178:28: warning: bitwise operation between different enumeration types ('enum lm355x_tx2' and 'enum lm355x_ntc') [-Wenum-enum-conversion]
+                reg_val = pdata->pin_tx2 | pdata->ntc_pin | pdata->pass_mode;
+                          ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~
+
+In this driver, it is intentional, so add a cast to hide the false-positive
+warning. It appears to be the only instance of this warning at the moment.
+
+Fixes: b98d13c72592 ("leds: Add new LED driver for lm355x chips")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/arm/malidp_planes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/leds/leds-lm355x.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/arm/malidp_planes.c b/drivers/gpu/drm/arm/malidp_planes.c
-index 3c70a53813bf2..0b2bb485d9be3 100644
---- a/drivers/gpu/drm/arm/malidp_planes.c
-+++ b/drivers/gpu/drm/arm/malidp_planes.c
-@@ -928,7 +928,7 @@ int malidp_de_planes_init(struct drm_device *drm)
- 	const struct malidp_hw_regmap *map = &malidp->dev->hw->map;
- 	struct malidp_plane *plane = NULL;
- 	enum drm_plane_type plane_type;
--	unsigned long crtcs = 1 << drm->mode_config.num_crtc;
-+	unsigned long crtcs = BIT(drm->mode_config.num_crtc);
- 	unsigned long flags = DRM_MODE_ROTATE_0 | DRM_MODE_ROTATE_90 | DRM_MODE_ROTATE_180 |
- 			      DRM_MODE_ROTATE_270 | DRM_MODE_REFLECT_X | DRM_MODE_REFLECT_Y;
- 	unsigned int blend_caps = BIT(DRM_MODE_BLEND_PIXEL_NONE) |
+diff --git a/drivers/leds/leds-lm355x.c b/drivers/leds/leds-lm355x.c
+index a5abb499574b8..129f475aebf29 100644
+--- a/drivers/leds/leds-lm355x.c
++++ b/drivers/leds/leds-lm355x.c
+@@ -165,18 +165,19 @@ static int lm355x_chip_init(struct lm355x_chip_data *chip)
+ 	/* input and output pins configuration */
+ 	switch (chip->type) {
+ 	case CHIP_LM3554:
+-		reg_val = pdata->pin_tx2 | pdata->ntc_pin;
++		reg_val = (u32)pdata->pin_tx2 | (u32)pdata->ntc_pin;
+ 		ret = regmap_update_bits(chip->regmap, 0xE0, 0x28, reg_val);
+ 		if (ret < 0)
+ 			goto out;
+-		reg_val = pdata->pass_mode;
++		reg_val = (u32)pdata->pass_mode;
+ 		ret = regmap_update_bits(chip->regmap, 0xA0, 0x04, reg_val);
+ 		if (ret < 0)
+ 			goto out;
+ 		break;
+ 
+ 	case CHIP_LM3556:
+-		reg_val = pdata->pin_tx2 | pdata->ntc_pin | pdata->pass_mode;
++		reg_val = (u32)pdata->pin_tx2 | (u32)pdata->ntc_pin |
++		          (u32)pdata->pass_mode;
+ 		ret = regmap_update_bits(chip->regmap, 0x0A, 0xC4, reg_val);
+ 		if (ret < 0)
+ 			goto out;
 -- 
 2.25.1
 
