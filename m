@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FE424731C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE92024731B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391730AbgHQSvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
+        id S2391524AbgHQSvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:51:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387890AbgHQPxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:01 -0400
+        id S2387892AbgHQPxD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F016A2072E;
-        Mon, 17 Aug 2020 15:52:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92DA720657;
+        Mon, 17 Aug 2020 15:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679580;
-        bh=Z+GvHvMVeUTHOxKmGxr0IsDsDVqCy9Y3RZoaikMeSH8=;
+        s=default; t=1597679583;
+        bh=u2l8rYnpqO1GxowdoZloj+Y5TmSk8RmfO86+JjBpaeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrR1jBHimMK34SaB8H4lQ6GYXFwAc7HpMec3lijuOgc7uEnaT9plbUCSD5CG0ejQc
-         lwAhIEdecwsIf3pHv7tIveqhfwysj36ah8K9+YZPqSItiFfzChp15CTTslv9qPASBG
-         CkWivSuf4u4JGtuJX7NKDfR3qcBxJF+MoRsRIXdw=
+        b=RO+pLPcY96ZEPWwDrD6mgT96b6Izbez7ETsVwRFF/O9CEGnPmmczVes3tEjhy3si+
+         f0CayJqARFwY0pgDysMvMAnqQ31VYM6q3uCZz6ujUdM4FHJFc2OyiUXVMxUssxu36Y
+         fvrhhOxqkpGd8onUfMVHSnWIdLvV3YPMCY2cTYz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Allison Collins <allison.henderson@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
+        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 264/393] xfs: clear XFS_DQ_FREEING if we cant lock the dquot buffer to flush
-Date:   Mon, 17 Aug 2020 17:15:14 +0200
-Message-Id: <20200817143832.418564967@linuxfoundation.org>
+Subject: [PATCH 5.7 265/393] selftests/powerpc: Squash spurious errors due to device removal
+Date:   Mon, 17 Aug 2020 17:15:15 +0200
+Message-Id: <20200817143832.469464474@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -49,73 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit c97738a960a86081a147e7d436138e6481757445 ]
+[ Upstream commit 5f8cf6475828b600ff6d000e580c961ac839cc61 ]
 
-In commit 8d3d7e2b35ea, we changed xfs_qm_dqpurge to bail out if we
-can't lock the dquot buf to flush the dquot.  This prevents the AIL from
-blocking on the dquot, but it also forgets to clear the FREEING flag on
-its way out.  A subsequent purge attempt will see the FREEING flag is
-set and bail out, which leads to dqpurge_all failing to purge all the
-dquots.
+For drivers that don't have the error handling callbacks we implement
+recovery by removing the device and re-probing it. This causes the sysfs
+directory for the PCI device to be removed which causes the following
+spurious error to be printed when checking the PE state:
 
-(copy-pasting from Dave Chinner's identical patch)
+Breaking 0005:03:00.0...
+./eeh-basic.sh: line 13: can't open /sys/bus/pci/devices/0005:03:00.0/eeh_pe_state: no such file
+0005:03:00.0, waited 0/60
+0005:03:00.0, waited 1/60
+0005:03:00.0, waited 2/60
+0005:03:00.0, waited 3/60
+0005:03:00.0, waited 4/60
+0005:03:00.0, waited 5/60
+0005:03:00.0, waited 6/60
+0005:03:00.0, waited 7/60
+0005:03:00.0, Recovered after 8 seconds
 
-This was found by inspection after having xfs/305 hang 1 in ~50
-iterations in a quotaoff operation:
+We currently try to avoid this by checking if the PE state file exists
+before reading from it. This is however inherently racy so re-work the
+state checking so that we only read from the file once, and we squash any
+errors that occur while reading.
 
-[ 8872.301115] xfs_quota       D13888 92262  91813 0x00004002
-[ 8872.302538] Call Trace:
-[ 8872.303193]  __schedule+0x2d2/0x780
-[ 8872.304108]  ? do_raw_spin_unlock+0x57/0xd0
-[ 8872.305198]  schedule+0x6e/0xe0
-[ 8872.306021]  schedule_timeout+0x14d/0x300
-[ 8872.307060]  ? __next_timer_interrupt+0xe0/0xe0
-[ 8872.308231]  ? xfs_qm_dqusage_adjust+0x200/0x200
-[ 8872.309422]  schedule_timeout_uninterruptible+0x2a/0x30
-[ 8872.310759]  xfs_qm_dquot_walk.isra.0+0x15a/0x1b0
-[ 8872.311971]  xfs_qm_dqpurge_all+0x7f/0x90
-[ 8872.313022]  xfs_qm_scall_quotaoff+0x18d/0x2b0
-[ 8872.314163]  xfs_quota_disable+0x3a/0x60
-[ 8872.315179]  kernel_quotactl+0x7e2/0x8d0
-[ 8872.316196]  ? __do_sys_newstat+0x51/0x80
-[ 8872.317238]  __x64_sys_quotactl+0x1e/0x30
-[ 8872.318266]  do_syscall_64+0x46/0x90
-[ 8872.319193]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 8872.320490] RIP: 0033:0x7f46b5490f2a
-[ 8872.321414] Code: Bad RIP value.
-
-Returning -EAGAIN from xfs_qm_dqpurge() without clearing the
-XFS_DQ_FREEING flag means the xfs_qm_dqpurge_all() code can never
-free the dquot, and we loop forever waiting for the XFS_DQ_FREEING
-flag to go away on the dquot that leaked it via -EAGAIN.
-
-Fixes: 8d3d7e2b35ea ("xfs: trylock underlying buffer on dquot flush")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Fixes: 85d86c8aa52e ("selftests/powerpc: Add basic EEH selftest")
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200727010127.23698-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_qm.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/powerpc/eeh/eeh-functions.sh | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/xfs_qm.c b/fs/xfs/xfs_qm.c
-index c225691fad156..2a0cdca80f861 100644
---- a/fs/xfs/xfs_qm.c
-+++ b/fs/xfs/xfs_qm.c
-@@ -148,6 +148,7 @@ xfs_qm_dqpurge(
- 			error = xfs_bwrite(bp);
- 			xfs_buf_relse(bp);
- 		} else if (error == -EAGAIN) {
-+			dqp->dq_flags &= ~XFS_DQ_FREEING;
- 			goto out_unlock;
- 		}
- 		xfs_dqflock(dqp);
+diff --git a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+index f52ed92b53e74..00dc32c0ed75c 100755
+--- a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
++++ b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+@@ -5,12 +5,17 @@ pe_ok() {
+ 	local dev="$1"
+ 	local path="/sys/bus/pci/devices/$dev/eeh_pe_state"
+ 
+-	if ! [ -e "$path" ] ; then
++	# if a driver doesn't support the error handling callbacks then the
++	# device is recovered by removing and re-probing it. This causes the
++	# sysfs directory to disappear so read the PE state once and squash
++	# any potential error messages
++	local eeh_state="$(cat $path 2>/dev/null)"
++	if [ -z "$eeh_state" ]; then
+ 		return 1;
+ 	fi
+ 
+-	local fw_state="$(cut -d' ' -f1 < $path)"
+-	local sw_state="$(cut -d' ' -f2 < $path)"
++	local fw_state="$(echo $eeh_state | cut -d' ' -f1)"
++	local sw_state="$(echo $eeh_state | cut -d' ' -f2)"
+ 
+ 	# If EEH_PE_ISOLATED or EEH_PE_RECOVERING are set then the PE is in an
+ 	# error state or being recovered. Either way, not ok.
 -- 
 2.25.1
 
