@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A230F2469BF
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D242469D5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729725AbgHQPZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:25:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59728 "EHLO mail.kernel.org"
+        id S1729840AbgHQP0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729438AbgHQPZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:25:30 -0400
+        id S1729523AbgHQP0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:26:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A7BF23110;
-        Mon, 17 Aug 2020 15:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D91223A55;
+        Mon, 17 Aug 2020 15:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677929;
-        bh=xPQ55l8TgbrNEJVWJSK3Tk8/hsvVC1iKAIUrDRUITfo=;
+        s=default; t=1597678003;
+        bh=aG6/cNzF/fLRw+msgmxCSZEjywWkqbEYBxZEW8/PZs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkeEoLC98/PnLMGfWuddQHllXAWfWux2IhjCdv4LtFIOkO49Ln8t5GtwAzFrzISPL
-         uJmdr+/F1sP0Ki6rHsGueo14YS4+k84/qZYbbfIwoRQ+CbXOGhENyFZcB5Th0oBEqu
-         9G+ZXfTMx0A+pnRkWCNNpKxiaP7xnNg/+gQtyMtc=
+        b=rck/4AcGwpfX5rXC3+43goO+MNuzC0wdNCfHbBTzutrvpVWpQn6HdQZtKHeM5cNU4
+         6D6K4rzLN+n+ReRY6b0FBiqzJumSOvud1bYsc1oj1kmk6pImJVYoTEY7qvMqkkN20C
+         k61YacxP/OU2CzVrsBDrbiG/595qtE4F4hp85wjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Len Brown <len.brown@intel.com>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 152/464] Bluetooth: hci_qca: Fix an error pointer dereference
-Date:   Mon, 17 Aug 2020 17:11:45 +0200
-Message-Id: <20200817143841.092975291@linuxfoundation.org>
+Subject: [PATCH 5.8 155/464] Bluetooth: Allow suspend even when preparation has failed
+Date:   Mon, 17 Aug 2020 17:11:48 +0200
+Message-Id: <20200817143841.232914943@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,65 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
 
-[ Upstream commit 4c07a5d7aeb39f559b29aa58ec9a8a5ab4282cb0 ]
+[ Upstream commit a9ec8423134a54c9f0ae8d4ef59e1e833ca917c2 ]
 
-When a function like devm_clk_get_optional() function returns both error
-pointers on error and NULL then the NULL return means that the optional
-feature is deliberately disabled.  It is a special sort of success and
-should not trigger an error message.  The surrounding code should be
-written to check for NULL and not crash.
+It is preferable to allow suspend even when Bluetooth has problems
+preparing for sleep. When Bluetooth fails to finish preparing for
+suspend, log the error and allow the suspend notifier to continue
+instead.
 
-On the other hand, if we encounter an error, then the probe from should
-clean up and return a failure.
+To also make it clearer why suspend failed, change bt_dev_dbg to
+bt_dev_err when handling the suspend timeout.
 
-In this code, if devm_clk_get_optional() returns an error pointer then
-the kernel will crash inside the call to:
-
-	clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
-
-The error handling must be updated to prevent that.
-
-Fixes: 77131dfec6af ("Bluetooth: hci_qca: Replace devm_gpiod_get() with devm_gpiod_get_optional()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: dd522a7429b07e ("Bluetooth: Handle LE devices during suspend")
+Reported-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ net/bluetooth/hci_core.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index 3788ec7a4ad6b..25659b8b0c0c8 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -1994,17 +1994,17 @@ static int qca_serdev_probe(struct serdev_device *serdev)
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index dbe2d79f233fb..83ce665d3cbfb 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3289,10 +3289,10 @@ static int hci_suspend_wait_event(struct hci_dev *hdev)
+ 				     WAKE_COND, SUSPEND_NOTIFIER_TIMEOUT);
+ 
+ 	if (ret == 0) {
+-		bt_dev_dbg(hdev, "Timed out waiting for suspend");
++		bt_dev_err(hdev, "Timed out waiting for suspend events");
+ 		for (i = 0; i < __SUSPEND_NUM_TASKS; ++i) {
+ 			if (test_bit(i, hdev->suspend_tasks))
+-				bt_dev_dbg(hdev, "Bit %d is set", i);
++				bt_dev_err(hdev, "Suspend timeout bit: %d", i);
+ 			clear_bit(i, hdev->suspend_tasks);
  		}
  
- 		qcadev->susclk = devm_clk_get_optional(&serdev->dev, NULL);
--		if (!qcadev->susclk) {
-+		if (IS_ERR(qcadev->susclk)) {
- 			dev_warn(&serdev->dev, "failed to acquire clk\n");
--		} else {
--			err = clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
--			if (err)
--				return err;
+@@ -3360,12 +3360,15 @@ static int hci_suspend_notifier(struct notifier_block *nb, unsigned long action,
+ 		ret = hci_change_suspend_state(hdev, BT_RUNNING);
+ 	}
+ 
+-	/* If suspend failed, restore it to running */
+-	if (ret && action == PM_SUSPEND_PREPARE)
+-		hci_change_suspend_state(hdev, BT_RUNNING);
 -
--			err = clk_prepare_enable(qcadev->susclk);
--			if (err)
--				return err;
-+			return PTR_ERR(qcadev->susclk);
- 		}
-+		err = clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
-+		if (err)
-+			return err;
+ done:
+-	return ret ? notifier_from_errno(-EBUSY) : NOTIFY_STOP;
++	/* We always allow suspend even if suspend preparation failed and
++	 * attempt to recover in resume.
++	 */
++	if (ret)
++		bt_dev_err(hdev, "Suspend notifier action (%lu) failed: %d",
++			   action, ret);
 +
-+		err = clk_prepare_enable(qcadev->susclk);
-+		if (err)
-+			return err;
++	return NOTIFY_STOP;
+ }
  
- 		err = hci_uart_register_device(&qcadev->serdev_hu, &qca_proto);
- 		if (err) {
+ /* Alloc HCI device */
 -- 
 2.25.1
 
