@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 579EB246C65
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3046246C6B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:16:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731068AbgHQQPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:15:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53838 "EHLO mail.kernel.org"
+        id S1731089AbgHQQPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729355AbgHQQPU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:20 -0400
+        id S1729495AbgHQQP1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34CFA20578;
-        Mon, 17 Aug 2020 16:15:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA8A722B4E;
+        Mon, 17 Aug 2020 16:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680919;
-        bh=pQ16N8e2LiWEf96sWV/dqGe0lIXWe2ZQI7wtOvW25Ko=;
+        s=default; t=1597680924;
+        bh=Asd07owELHLcVJSCB7XcF6eSEPdZsLwxYMqKCmtZ44g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qT68V3+RCWZLrg37DPWwd88Ubm4sVsBb01cx3s4wA1VfC6IkeZ2V+gmjlZEGG4l4G
-         fzY/dHe9GIL3EO1x2kjJ5ARA/UXeRurD2tHHKVFcqYd4a4D+D3lxe2xeyFd452homF
-         sAzi4q3yoodJtESzltt/MqOAwdty4JM1ZSgX6D9A=
+        b=jxJWSdIbSn4dFB3DhbffFGHH01IvneyhwU6RWZ3y7/DncC53/Q0cdssDAgKajzKuC
+         5o3Eku0X+W7csKLhamYg6YKSOqNxCkiR8YjP7S58DjliVjU3mzFCvvTopnecV0VteF
+         xzX1imtwx1gsjw1MGafLRX4n4WmlXZAl2mcLIHJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/168] PCI: Release IVRS table in AMD ACS quirk
-Date:   Mon, 17 Aug 2020 17:17:22 +0200
-Message-Id: <20200817143739.234115972@linuxfoundation.org>
+Subject: [PATCH 4.19 113/168] ASoC: meson: axg-tdm-interface: fix link fmt setup
+Date:   Mon, 17 Aug 2020 17:17:24 +0200
+Message-Id: <20200817143739.332370053@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -44,38 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 090688fa4e448284aaa16136372397d7d10814db ]
+[ Upstream commit 6878ba91ce84f7a07887a0615af70f969508839f ]
 
-The acpi_get_table() should be coupled with acpi_put_table() if the mapped
-table is not used at runtime to release the table mapping.
+The .set_fmt() callback of the axg tdm interface incorrectly
+test the content of SND_SOC_DAIFMT_MASTER_MASK as if it was a
+bitfield, which it is not.
 
-In pci_quirk_amd_sb_acs(), IVRS table is just used for checking AMD IOMMU
-is supported, not used at runtime, so put the table after using it.
+Implement the test correctly.
 
-Fixes: 15b100dfd1c9 ("PCI: Claim ACS support for AMD southbridge devices")
-Link: https://lore.kernel.org/r/1595411068-15440-1-git-send-email-guohanjun@huawei.com
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: d60e4f1e4be5 ("ASoC: meson: add tdm interface driver")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200729154456.1983396-2-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/meson/axg-tdm-interface.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 8f856657dac22..9129ccd593d10 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4334,6 +4334,8 @@ static int pci_quirk_amd_sb_acs(struct pci_dev *dev, u16 acs_flags)
- 	if (ACPI_FAILURE(status))
- 		return -ENODEV;
+diff --git a/sound/soc/meson/axg-tdm-interface.c b/sound/soc/meson/axg-tdm-interface.c
+index 7b8baf46d9689..5c055d8de8c7d 100644
+--- a/sound/soc/meson/axg-tdm-interface.c
++++ b/sound/soc/meson/axg-tdm-interface.c
+@@ -111,18 +111,25 @@ static int axg_tdm_iface_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ {
+ 	struct axg_tdm_iface *iface = snd_soc_dai_get_drvdata(dai);
  
-+	acpi_put_table(header);
+-	/* These modes are not supported */
+-	if (fmt & (SND_SOC_DAIFMT_CBS_CFM | SND_SOC_DAIFMT_CBM_CFS)) {
++	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
++	case SND_SOC_DAIFMT_CBS_CFS:
++		if (!iface->mclk) {
++			dev_err(dai->dev, "cpu clock master: mclk missing\n");
++			return -ENODEV;
++		}
++		break;
 +
- 	/* Filter out flags not applicable to multifunction */
- 	acs_flags &= (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_EC | PCI_ACS_DT);
++	case SND_SOC_DAIFMT_CBM_CFM:
++		break;
++
++	case SND_SOC_DAIFMT_CBS_CFM:
++	case SND_SOC_DAIFMT_CBM_CFS:
+ 		dev_err(dai->dev, "only CBS_CFS and CBM_CFM are supported\n");
++		/* Fall-through */
++	default:
+ 		return -EINVAL;
+ 	}
  
+-	/* If the TDM interface is the clock master, it requires mclk */
+-	if (!iface->mclk && (fmt & SND_SOC_DAIFMT_CBS_CFS)) {
+-		dev_err(dai->dev, "cpu clock master: mclk missing\n");
+-		return -ENODEV;
+-	}
+-
+ 	iface->fmt = fmt;
+ 	return 0;
+ }
+@@ -311,7 +318,8 @@ static int axg_tdm_iface_hw_params(struct snd_pcm_substream *substream,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (iface->fmt & SND_SOC_DAIFMT_CBS_CFS) {
++	if ((iface->fmt & SND_SOC_DAIFMT_MASTER_MASK) ==
++	    SND_SOC_DAIFMT_CBS_CFS) {
+ 		ret = axg_tdm_iface_set_sclk(dai, params);
+ 		if (ret)
+ 			return ret;
 -- 
 2.25.1
 
