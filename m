@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F9C247147
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC16247143
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388281AbgHQSYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
+        id S2390807AbgHQSX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731046AbgHQQDJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:03:09 -0400
+        id S2388235AbgHQQDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:03:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50FAC20748;
-        Mon, 17 Aug 2020 16:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED5FA2053B;
+        Mon, 17 Aug 2020 16:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680187;
-        bh=3PqwFuyvyWp01jmhrrMGQOLnNySxF9XPHp52ZDa19Ek=;
+        s=default; t=1597680198;
+        bh=SKGMe+AprkijJRliWRr1iYnN8WQZPb7T8w0+0v5Nv6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCbOWv3QW3xu/eP2UR56ryNMhWn9wpa+5PrN0icMFixi4Dyis78qU78Ko306q4DyQ
-         L9PAgWsJf5OqUv8tfjpv/fA4laX27b0JJBDWVAJFbX0ZAO5ZcvSkQfjwWelRODlNPV
-         4pkTCU5FkLK67uxKaYPbaQxhYgjEtMbS7e2w7gY4=
+        b=uCl1Zl8+ZPSnX2nZOjOkbtGCuJQNVfMxIeh/ksjMTczI4cU8l2vixNmmk/FTtrO/Q
+         guhNTax9eliv0yPQn6/9JGzyZ5X3c2EPkjt/lsM1x3TEMllXt0q3TNAn+Eqnwm6AB+
+         xHSTvHPUX9y0EybVpJTTXCrKZ2O+kYkcXk0JkHck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jbaron@akamai.com,
-        Jim Cromie <jim.cromie@gmail.com>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Abhinav Kumar <abhinavk@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/270] dyndbg: fix a BUG_ON in ddebug_describe_flags
-Date:   Mon, 17 Aug 2020 17:14:47 +0200
-Message-Id: <20200817143800.050431684@linuxfoundation.org>
+Subject: [PATCH 5.4 089/270] drm/msm: ratelimit crtc event overflow error
+Date:   Mon, 17 Aug 2020 17:14:50 +0200
+Message-Id: <20200817143800.194189346@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,98 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit f678ce8cc3cb2ad29df75d8824c74f36398ba871 ]
+[ Upstream commit 5e16372b5940b1fecc3cc887fc02a50ba148d373 ]
 
-ddebug_describe_flags() currently fills a caller provided string buffer,
-after testing its size (also passed) in a BUG_ON.  Fix this by
-replacing them with a known-big-enough string buffer wrapped in a
-struct, and passing that instead.
+This can happen a lot when things go pear shaped.  Lets not flood dmesg
+when this happens.
 
-Also simplify ddebug_describe_flags() flags parameter from a struct to
-a member in that struct, and hoist the member deref up to the caller.
-This makes the function reusable (soon) where flags are unpacked.
-
-Acked-by: <jbaron@akamai.com>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20200719231058.1586423-8-jim.cromie@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index c60409138e136..ccf05719b1ad6 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -87,22 +87,22 @@ static struct { unsigned flag:8; char opt_char; } opt_array[] = {
- 	{ _DPRINTK_FLAGS_NONE, '_' },
- };
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
+index ce59adff06aa1..36c85c05b7cf7 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
+@@ -381,7 +381,7 @@ static void dpu_crtc_frame_event_cb(void *data, u32 event)
+ 	spin_unlock_irqrestore(&dpu_crtc->spin_lock, flags);
  
-+struct flagsbuf { char buf[ARRAY_SIZE(opt_array)+1]; };
-+
- /* format a string into buf[] which describes the _ddebug's flags */
--static char *ddebug_describe_flags(struct _ddebug *dp, char *buf,
--				    size_t maxlen)
-+static char *ddebug_describe_flags(unsigned int flags, struct flagsbuf *fb)
- {
--	char *p = buf;
-+	char *p = fb->buf;
- 	int i;
- 
--	BUG_ON(maxlen < 6);
- 	for (i = 0; i < ARRAY_SIZE(opt_array); ++i)
--		if (dp->flags & opt_array[i].flag)
-+		if (flags & opt_array[i].flag)
- 			*p++ = opt_array[i].opt_char;
--	if (p == buf)
-+	if (p == fb->buf)
- 		*p++ = '_';
- 	*p = '\0';
- 
--	return buf;
-+	return fb->buf;
- }
- 
- #define vpr_info(fmt, ...)					\
-@@ -144,7 +144,7 @@ static int ddebug_change(const struct ddebug_query *query,
- 	struct ddebug_table *dt;
- 	unsigned int newflags;
- 	unsigned int nfound = 0;
--	char flagbuf[10];
-+	struct flagsbuf fbuf;
- 
- 	/* search for matching ddebugs */
- 	mutex_lock(&ddebug_lock);
-@@ -201,8 +201,7 @@ static int ddebug_change(const struct ddebug_query *query,
- 			vpr_info("changed %s:%d [%s]%s =%s\n",
- 				 trim_prefix(dp->filename), dp->lineno,
- 				 dt->mod_name, dp->function,
--				 ddebug_describe_flags(dp, flagbuf,
--						       sizeof(flagbuf)));
-+				 ddebug_describe_flags(dp->flags, &fbuf));
- 		}
+ 	if (!fevent) {
+-		DRM_ERROR("crtc%d event %d overflow\n", crtc->base.id, event);
++		DRM_ERROR_RATELIMITED("crtc%d event %d overflow\n", crtc->base.id, event);
+ 		return;
  	}
- 	mutex_unlock(&ddebug_lock);
-@@ -816,7 +815,7 @@ static int ddebug_proc_show(struct seq_file *m, void *p)
- {
- 	struct ddebug_iter *iter = m->private;
- 	struct _ddebug *dp = p;
--	char flagsbuf[10];
-+	struct flagsbuf flags;
- 
- 	vpr_info("called m=%p p=%p\n", m, p);
- 
-@@ -829,7 +828,7 @@ static int ddebug_proc_show(struct seq_file *m, void *p)
- 	seq_printf(m, "%s:%u [%s]%s =%s \"",
- 		   trim_prefix(dp->filename), dp->lineno,
- 		   iter->table->mod_name, dp->function,
--		   ddebug_describe_flags(dp, flagsbuf, sizeof(flagsbuf)));
-+		   ddebug_describe_flags(dp->flags, &flags));
- 	seq_escape(m, dp->format, "\t\r\n\"");
- 	seq_puts(m, "\"\n");
  
 -- 
 2.25.1
