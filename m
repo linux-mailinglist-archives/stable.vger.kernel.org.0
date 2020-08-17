@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFE32475B1
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8972475A7
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730666AbgHQT05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:26:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
+        id S1732103AbgHQT0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:26:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730403AbgHQPds (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:33:48 -0400
+        id S1730405AbgHQPdu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:33:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26AD923884;
-        Mon, 17 Aug 2020 15:33:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B956120709;
+        Mon, 17 Aug 2020 15:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678427;
-        bh=Fiw50jeqkobRhQDGKeJkItSxQGeO+dfc6ICco/9FPvY=;
+        s=default; t=1597678430;
+        bh=aiYRv65Y3QYFkYEbYpsjnGsAGZP+8qIm7BC1IX6bIaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5L1UvLRhwnX9mA/yrEdZHoXMyDgAScOdZONdjWftd+4jpIRvYK5d2JG8Kk4oXtre
-         wFVXeMpgTDtNiaeDhL4YmSMxwNdwGX/lJY7aSsf+zsDboE4KwCTGOxAWerpELA9Mfo
-         wC9f4RoAp/nl5nF3L4nO+BJKDIJPHHS6IebohNWQ=
+        b=hwe2sb4cDLMpVJefaUaNFIKefsED/3V4/LdeqRqGt0x3wKZMA/afen3QTqSqfr3eu
+         lNQgx2dKLxXHu/r1J6kDoSW+Vj5EgbH4zvngLVfrt7KTCXJMrk6HywjLK/Y0Af61gM
+         hsplbw1bbub+EMEC5RqUGlf0NG/gfnIU9OA1N/sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 331/464] ASoC: meson: axg-tdm-formatters: fix sclk inversion
-Date:   Mon, 17 Aug 2020 17:14:44 +0200
-Message-Id: <20200817143849.643980637@linuxfoundation.org>
+Subject: [PATCH 5.8 332/464] ASoC: soc-core: Fix regression causing sysfs entries to disappear
+Date:   Mon, 17 Aug 2020 17:14:45 +0200
+Message-Id: <20200817143849.691239925@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,119 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 0d3f01dcdc234001f979a0af0b6b31cb9f25b6c1 ]
+[ Upstream commit 5c74c9d34aec1ac756de6979dd5580096aba8643 ]
 
-After carefully checking, it appears that both tdmout and tdmin require the
-rising edge of the sclk they get to be synchronized with the frame sync
-event (which should be a rising edge of lrclk).
+The allocation order of things in soc_new_pcm_runtime was changed to
+move the device_register before the allocation of the rtd structure.
+This was to allow the rtd allocation to be managed by devm. However
+currently the sysfs entries are added by device_register and their
+visibility depends on variables within the rtd structure, this causes
+the pmdown_time and dapm_widgets sysfs entries to be missing for all
+rtds.
 
-TDMIN was improperly set before this patch. Remove the sclk_invert quirk
-which is no longer needed and fix the sclk phase.
+Correct this issue by manually calling device_add_groups after the
+appropriate information is available.
 
-Fixes: 1a11d88f499c ("ASoC: meson: add tdm formatter base driver")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200729154456.1983396-4-jbrunet@baylibre.com
+Fixes: d918a37610b1 ("ASoC: soc-core: tidyup soc_new_pcm_runtime() alloc order")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200730120715.637-1-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/axg-tdm-formatter.c | 11 ++++++-----
- sound/soc/meson/axg-tdm-formatter.h |  1 -
- sound/soc/meson/axg-tdmin.c         |  2 --
- sound/soc/meson/axg-tdmout.c        |  3 ---
- 4 files changed, 6 insertions(+), 11 deletions(-)
+ sound/soc/soc-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/meson/axg-tdm-formatter.c b/sound/soc/meson/axg-tdm-formatter.c
-index 358c8c0d861cd..f7e8e9da68a06 100644
---- a/sound/soc/meson/axg-tdm-formatter.c
-+++ b/sound/soc/meson/axg-tdm-formatter.c
-@@ -70,7 +70,7 @@ EXPORT_SYMBOL_GPL(axg_tdm_formatter_set_channel_masks);
- static int axg_tdm_formatter_enable(struct axg_tdm_formatter *formatter)
- {
- 	struct axg_tdm_stream *ts = formatter->stream;
--	bool invert = formatter->drv->quirks->invert_sclk;
-+	bool invert;
- 	int ret;
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 2b8abf88ec603..f1d641cd48da9 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -446,7 +446,6 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
  
- 	/* Do nothing if the formatter is already enabled */
-@@ -96,11 +96,12 @@ static int axg_tdm_formatter_enable(struct axg_tdm_formatter *formatter)
- 		return ret;
+ 	dev->parent	= card->dev;
+ 	dev->release	= soc_release_rtd_dev;
+-	dev->groups	= soc_dev_attr_groups;
  
- 	/*
--	 * If sclk is inverted, invert it back and provide the inversion
--	 * required by the formatter
-+	 * If sclk is inverted, it means the bit should latched on the
-+	 * rising edge which is what our HW expects. If not, we need to
-+	 * invert it before the formatter.
- 	 */
--	invert ^= axg_tdm_sclk_invert(ts->iface->fmt);
--	ret = clk_set_phase(formatter->sclk, invert ? 180 : 0);
-+	invert = axg_tdm_sclk_invert(ts->iface->fmt);
-+	ret = clk_set_phase(formatter->sclk, invert ? 0 : 180);
- 	if (ret)
- 		return ret;
+ 	dev_set_name(dev, "%s", dai_link->name);
  
-diff --git a/sound/soc/meson/axg-tdm-formatter.h b/sound/soc/meson/axg-tdm-formatter.h
-index 9ef98e955cb27..a1f0dcc0ff134 100644
---- a/sound/soc/meson/axg-tdm-formatter.h
-+++ b/sound/soc/meson/axg-tdm-formatter.h
-@@ -16,7 +16,6 @@ struct snd_kcontrol;
+@@ -503,6 +502,10 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
+ 	/* see for_each_card_rtds */
+ 	list_add_tail(&rtd->list, &card->rtd_list);
  
- struct axg_tdm_formatter_hw {
- 	unsigned int skew_offset;
--	bool invert_sclk;
- };
++	ret = device_add_groups(dev, soc_dev_attr_groups);
++	if (ret < 0)
++		goto free_rtd;
++
+ 	return rtd;
  
- struct axg_tdm_formatter_ops {
-diff --git a/sound/soc/meson/axg-tdmin.c b/sound/soc/meson/axg-tdmin.c
-index 3d002b4eb939e..88ed95ae886bb 100644
---- a/sound/soc/meson/axg-tdmin.c
-+++ b/sound/soc/meson/axg-tdmin.c
-@@ -228,7 +228,6 @@ static const struct axg_tdm_formatter_driver axg_tdmin_drv = {
- 	.regmap_cfg	= &axg_tdmin_regmap_cfg,
- 	.ops		= &axg_tdmin_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk	= false,
- 		.skew_offset	= 2,
- 	},
- };
-@@ -238,7 +237,6 @@ static const struct axg_tdm_formatter_driver g12a_tdmin_drv = {
- 	.regmap_cfg	= &axg_tdmin_regmap_cfg,
- 	.ops		= &axg_tdmin_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk	= false,
- 		.skew_offset	= 3,
- 	},
- };
-diff --git a/sound/soc/meson/axg-tdmout.c b/sound/soc/meson/axg-tdmout.c
-index 418ec314b37d4..3ceabddae629e 100644
---- a/sound/soc/meson/axg-tdmout.c
-+++ b/sound/soc/meson/axg-tdmout.c
-@@ -238,7 +238,6 @@ static const struct axg_tdm_formatter_driver axg_tdmout_drv = {
- 	.regmap_cfg	= &axg_tdmout_regmap_cfg,
- 	.ops		= &axg_tdmout_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk = true,
- 		.skew_offset = 1,
- 	},
- };
-@@ -248,7 +247,6 @@ static const struct axg_tdm_formatter_driver g12a_tdmout_drv = {
- 	.regmap_cfg	= &axg_tdmout_regmap_cfg,
- 	.ops		= &axg_tdmout_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk = true,
- 		.skew_offset = 2,
- 	},
- };
-@@ -309,7 +307,6 @@ static const struct axg_tdm_formatter_driver sm1_tdmout_drv = {
- 	.regmap_cfg	= &axg_tdmout_regmap_cfg,
- 	.ops		= &axg_tdmout_ops,
- 	.quirks		= &(const struct axg_tdm_formatter_hw) {
--		.invert_sclk = true,
- 		.skew_offset = 2,
- 	},
- };
+ free_rtd:
 -- 
 2.25.1
 
