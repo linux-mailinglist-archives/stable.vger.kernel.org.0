@@ -2,162 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C992471C4
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303CA247207
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388711AbgHQSd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:33:29 -0400
-Received: from mga09.intel.com ([134.134.136.24]:20115 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391194AbgHQSdZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 14:33:25 -0400
-IronPort-SDR: UdlPOJnxxm+O/ZUYwfBL/z/tNYCRexoN2soL15b0jhfI8FYYQvTYrX4EZu0En96s4Nc/AI4iPb
- iRsWjReSWp7w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="155861181"
-X-IronPort-AV: E=Sophos;i="5.76,324,1592895600"; 
-   d="scan'208";a="155861181"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2020 11:33:23 -0700
-IronPort-SDR: nbGYDkBru5jWL+2XrTJFOCkkUau6lpQkhmK8HLE10iRovyCehiQV4xs8wtUebHn5lBZ+ToWdbL
- kSFs2d1qEeog==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,324,1592895600"; 
-   d="scan'208";a="440958545"
-Received: from araj-mobl1.jf.intel.com ([10.254.122.10])
-  by orsmga004.jf.intel.com with ESMTP; 17 Aug 2020 11:33:23 -0700
-Date:   Mon, 17 Aug 2020 11:33:22 -0700
-From:   "Raj, Ashok" <ashok.raj@intel.com>
-To:     Evan Green <evgreen@chromium.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        Ashok Raj <ashok.raj@intel.com>
-Subject: Re: [PATCH] x86/hotplug: Silence APIC only after all irq's are
- migrated
-Message-ID: <20200817183322.GA11486@araj-mobl1.jf.intel.com>
-References: <20200814213842.31151-1-ashok.raj@intel.com>
- <CAE=gft6fQ7cLQO025TDYNF-d6xxMeGkOHVieMZDq6wAZ84NsGQ@mail.gmail.com>
+        id S1730899AbgHQShI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730863AbgHQShC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 14:37:02 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8891CC061342
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 11:37:01 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id m8so8654202pfh.3
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 11:37:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Qs4A+yO1as0umF/I9cYQ72bVP8PG6ZMKCk38nSsEIIo=;
+        b=SISFndTkcUp1pFH8U2YJFkEw+BBQKq+fPBX0eplQ0w0CvJ7hvE9YNjpKcE135MBPmF
+         aNGX23frr8ivsWZfRpIx6QCzwGTIyYb009KwfQPglZxUaQMAGseC48uBHP5u3tXn4Y41
+         viemUxJp2fH19u/cR+4Li1Qh5Yt0qX3bEb5ezK61MDWVsYXc/1sy3x2sYodeRPMh73jt
+         xacOsf6vqOjFVkL95ZrjdTHG5h3gxGixIkz2LYtqd7u/MxXS0iLkVgfIv7u6C2Ff4QiG
+         OitIeDihGZSyo+I7KjXFEdUHSxPnYEEbNqC2Pjx3klB0C8VMJtcc/qPNYa4pZMBABFm+
+         FJcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Qs4A+yO1as0umF/I9cYQ72bVP8PG6ZMKCk38nSsEIIo=;
+        b=Y8B8MZtOcENMrC0viDM/yKQ4bd3TF1zHZQjeX/47dhlI/uEymh9D8h37df0WmOTvO/
+         BL1UTD80cia50L+N9byL4LrsHgANKd4F09+ztE8TlyTzEPoUnLcbHOHQHhuk8T3q5eat
+         ouxQiZh5y9UVHaLKJDS1/H82Um1l6o0OXSzLmL/an065IbTnr8F6W2QxAe0LGNOefpbI
+         ZOC6zOhjXXTrvbEMXPK79zinZhimcp1uaUMbsaanyrwPTmbGq09mr9ZblHNCnxqhSk8P
+         jZDrqEI1Rw7ZBVh8soDODBhRQRqO024wHLHmI9Pf6JSu8Mzrq15ho8saGscnnz6BJJcH
+         YUNw==
+X-Gm-Message-State: AOAM533PorJLOaX5ETyd2FQpfuGyzfzuhs3TDXkhgmSIXYLGNjjx6/Rr
+        QRMkeGzQhs87jNk4uWMe5uyDUPEBvty4+SHHq4xjaQ==
+X-Google-Smtp-Source: ABdhPJzSDKc0EvCiFo6KHm47j9PJB2kRpSihpJykKUkv7WSSdYOXLHmnjugILSKRGo8bc2gUQ1TMZ0JAA8w0atuBhWw=
+X-Received: by 2002:a05:6a00:14d0:: with SMTP id w16mr12126301pfu.39.1597689420744;
+ Mon, 17 Aug 2020 11:37:00 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAE=gft6fQ7cLQO025TDYNF-d6xxMeGkOHVieMZDq6wAZ84NsGQ@mail.gmail.com>
-User-Agent: Mutt/1.9.1 (2017-09-22)
+References: <20200815014006.GB99152@rani.riverdale.lan> <20200815020946.1538085-1-ndesaulniers@google.com>
+ <202008150921.B70721A359@keescook> <CAKwvOdnyHfx6ayqEoOr3pb_ibKBAG9vj31LuKE+f712W=7LFKA@mail.gmail.com>
+ <457a91183581509abfa00575d0392be543acbe07.camel@perches.com>
+ <CAKwvOdk4PRi45MXCtg4kmeN6c1AK5w9EJ1XFBJ5GyUjwEtRj1g@mail.gmail.com>
+ <ccacb2a860151fdd6ce95371f1e0cd7658a308d1.camel@perches.com>
+ <CAKwvOd=QkpmdWHAvWVFtogsDom2z_fA4XmDF6aLqz1czjSgZbQ@mail.gmail.com>
+ <20200816001917.4krsnrik7hxxfqfm@google.com> <CA+icZUW=rQ-e=mmYWsgVns8jDoQ=FJ7kdem1fWnW_i5jx-6JzQ@mail.gmail.com>
+ <20200816150217.GA1306483@rani.riverdale.lan> <CABCJKucsXufD6rmv7qQZ=9kLC7XrngCJkKA_WzGOAn-KfcObeA@mail.gmail.com>
+In-Reply-To: <CABCJKucsXufD6rmv7qQZ=9kLC7XrngCJkKA_WzGOAn-KfcObeA@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 17 Aug 2020 11:36:49 -0700
+Message-ID: <CAKwvOd=Ns4_+amT8P-7yQ56xUdDmL=1zDUThF-OmFKhexhJPdg@mail.gmail.com>
+Subject: Re: [PATCH v2] lib/string.c: implement stpcpy
+To:     Sami Tolvanen <samitolvanen@google.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Kees Cook <keescook@chromium.org>
+Cc:     Sedat Dilek <sedat.dilek@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Joe Perches <joe@perches.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?B?RMOhdmlkIEJvbHZhbnNrw70=?= <david.bolvansky@gmail.com>,
+        Eli Friedman <efriedma@quicinc.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Daniel Axtens <dja@axtens.net>, Ingo Molnar <mingo@kernel.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Evan
-
-Some details below, 
-
-On Mon, Aug 17, 2020 at 11:12:17AM -0700, Evan Green wrote:
-> Hi Ashok,
-> Thank you, Srikanth, and Sukumar for some very impressive debugging here.
-> 
-> On Fri, Aug 14, 2020 at 2:38 PM Ashok Raj <ashok.raj@intel.com> wrote:
+On Mon, Aug 17, 2020 at 10:14 AM Sami Tolvanen <samitolvanen@google.com> wrote:
+>
+> On Sun, Aug 16, 2020 at 8:02 AM Arvind Sankar <nivedita@alum.mit.edu> wrote:
 > >
-> > When offlining CPU's, fixup_irqs() migrates all interrupts away from the
-> > outgoing CPU to an online CPU. Its always possible the device sent an
-> > interrupt to the previous CPU destination. Pending interrupt bit in IRR in
-> > lapic identifies such interrupts. apic_soft_disable() will not capture any
-> > new interrupts in IRR. This causes interrupts from device to be lost during
-> > cpu offline. The issue was found when explicitly setting MSI affinity to a
-> > CPU and immediately offlining it. It was simple to recreate with a USB
-> > ethernet device and doing I/O to it while the CPU is offlined. Lost
-> > interrupts happen even when Interrupt Remapping is enabled.
+> > On Sun, Aug 16, 2020 at 07:22:35AM +0200, Sedat Dilek wrote:
+> > > On Sun, Aug 16, 2020 at 2:19 AM 'Fangrui Song' via Clang Built Linux
+> > > <clang-built-linux@googlegroups.com> wrote:
+> > > >
+> > > > Adding a definition without a declaration for stpcpy looks good.
+> > > > Clang LTO will work.
+> > > >
+> > > > (If the kernel does not want to provide these routines,
+> > > > is http://git.kernel.org/linus/6edfba1b33c701108717f4e036320fc39abe1912
+> > > > probably wrong? (why remove -ffreestanding from the main Makefile) )
+> > > >
+> > >
+> > > We had some many issues in arch/x86 where *FLAGS were removed or used
+> > > differently and had to re-add them :-(.
+> > >
+> > > So if -ffreestanding is used in arch/x86 and was! used in top-level
+> > > Makefile - it makes sense to re-add it back?
+> > > ( I cannot speak for archs other than x86. )
+> > >
+> > > - Sedat -
 > >
-> > Current code does apic_soft_disable() before migrating interrupts.
+> > -ffreestanding disables _all_ builtins and libcall optimizations, which
+> > is probably not desirable. If we added it back, we'd need to also go
+
+I agree.
+
+> > back to #define various string functions to the __builtin versions.
 > >
-> > native_cpu_disable()
-> > {
-> >         ...
-> >         apic_soft_disable();
-> >         cpu_disable_common();
-> >           --> fixup_irqs(); // Too late to capture anything in IRR.
-> > }
-> >
-> > Just fliping the above call sequence seems to hit the IRR checks
-> > and the lost interrupt is fixed for both legacy MSI and when
-> > interrupt remapping is enabled.
-> >
-> >
-> > Fixes: 60dcaad5736f ("x86/hotplug: Silence APIC and NMI when CPU is dead")
-> > Link: https://lore.kernel.org/lkml/875zdarr4h.fsf@nanos.tec.linutronix.de/
-> > Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-> >
-> > To: linux-kernel@vger.kernel.org
-> > To: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Sukumar Ghorai <sukumar.ghorai@intel.com>
-> > Cc: Srikanth Nandamuri <srikanth.nandamuri@intel.com>
-> > Cc: Evan Green <evgreen@chromium.org>
-> > Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-> > Cc: Bjorn Helgaas <bhelgaas@google.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  arch/x86/kernel/smpboot.c | 11 +++++++++--
-> >  1 file changed, 9 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> > index ffbd9a3d78d8..278cc9f92f2f 100644
-> > --- a/arch/x86/kernel/smpboot.c
-> > +++ b/arch/x86/kernel/smpboot.c
-> > @@ -1603,13 +1603,20 @@ int native_cpu_disable(void)
-> >         if (ret)
-> >                 return ret;
-> >
-> > +       cpu_disable_common();
-> >         /*
-> >          * Disable the local APIC. Otherwise IPI broadcasts will reach
-> >          * it. It still responds normally to INIT, NMI, SMI, and SIPI
-> > -        * messages.
-> 
-> I'm slightly unclear about whether interrupts are disabled at the core
-> by this point or not. I followed native_cpu_disable() up to
-> __cpu_disable(), up to take_cpu_down(). This is passed into a call to
-> stop_machine_cpuslocked(), where interrupts get disabled at the core.
-> So unless there's another path, it seems like interrupts are always
-> disabled at the core by this point.
+> > Though I don't understand the original issue, with -ffreestanding,
+> > sprintf shouldn't have been turned into strcpy in the first place.
 
-local_irq_disable() just does cli() which allows interrupts to trickle
-in to the IRR bits, and once you do sti() things would flow back for
-normal interrupt processing. 
+Huh? The original issue for this thread is because `-ffreestanding`
+*isn't* being used for most targets (oh boy, actually mixed usage by
+ARCH. Looks like MIPS, m68k, superH, xtensa, and 32b x86 use it?); and
+I'm not suggesting it be used.
 
+> > 32-bit still has -ffreestanding -- I wonder if that's actually necessary
+> > any more?
 
-> 
-> If interrupts are always disabled, then the comment above is a little
+Fair question.  Someone will have to go chase git history, since
+0a6ef376d4ba covers it up.  If anyone has any tricks to do so quickly;
+I'd love to know.  I generally checkout the commit prior, then use vim
+fugitive to get git blame.
 
-Disable interrupts is different from disabling LAPIC. Once you do the
-apic_soft_disable(), there is nothing flowing into the LAPIC except
-for INIT, NMI, SMI and SIPI messages. 
+> > Why does -fno-builtin-stpcpy not work with clang LTO? Isn't that a
+> > compiler bug?
 
-This turns off the pipe for all other interrupts to enter LAPIC. Which
-is different from doing a cli().
+Yes; Sami found a recent patch that looks to me like it may have
+recently solved that bug.
+https://reviews.llvm.org/D71193 which landed Dec 12 2019. The bug
+report was based on
+https://github.com/ClangBuiltLinux/linux/issues/416#issuecomment-472231304
+(Issue reported March 8 2019).  And I do recall being able to
+reproduce the bug when I sent
+commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
 
+Now that that is fixed as reported by Sami below, I don't mind sending
+a revert for 5f074f3e192f that adds -fno-builtin-bcmp, because the
+current implementation of bcmp isn't useful.
 
-> obsolete, since we're not expecting to receive broadcast IPIs from
-> here on out anyway. We could clean up that comment in this change.
-> 
-> If there is a path to here where interrupts are still enabled at the
-> core, then we'd need to watch out, because this change now allows
-> broadcast IPIs to come in during cpu_disable_common(). That could be
-> bad. But I think that's not this case, so this should be ok.
+That said, this libcall optimization/transformation (sprintf->stpcpy)
+does look useful to me.  Kees, do you have thoughts on me providing
+the implementation without exposing it in a header vs using
+-fno-builtin-stpcpy?  (I would need to add the missing EXPORT_SYMBOL,
+as pointed out by 0day bot and on the github thread).  I don't care
+either way; I'd just like your input before sending a V+1.  Maybe
+better to just not implement it and never implement it?
 
-Section SDM Vol3.b 10.4.7.2 says.
+>
+> I just confirmed that adding -fno-builtin-stpcpy to KBUILD_CFLAGS does
+> work with LTO as well.
+>
+> Sami
 
-* The reception of any interrupt or transmission of any IPIs that are in 
-  progress when the local APIC is disabled are completed before the local 
-  APIC enters the software-disabled state.
-
-It doesn't actually say much about broadcast IPI's, except broadcast 
-NMI for instance, which is still permitted when cli() is set.
-
-Hope this helps.
-
-Cheers,
-Ashok
+-- 
+Thanks,
+~Nick Desaulniers
