@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F12246A2D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:31:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04FE0246B22
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730275AbgHQPbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:31:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54848 "EHLO mail.kernel.org"
+        id S2387735AbgHQPtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730273AbgHQPbP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:31:15 -0400
+        id S2387770AbgHQPtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:49:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4406922B4E;
-        Mon, 17 Aug 2020 15:31:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1265F20789;
+        Mon, 17 Aug 2020 15:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678274;
-        bh=qZCuGZZreY0kD5kUbaQ6CJlNK25aU5S6PjzyCntTlDY=;
+        s=default; t=1597679351;
+        bh=/0WF2HzaJkRlHABOF4pK8/hY3Inw71GYs2pC0/o9Qqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKawQYJh5rDXKUASLME32xn3KkKsHO6Nu4K0vcpJpHyUkv2jfTPxvIAqZiHH8/MhX
-         VpMjNC0NCY0m2hcW9FMW9ABYtyByd8Zp+L23F5FvvKVL1Po4bzSoEMZ0Zlu4JRdewe
-         KBBHRh9iYzKUKo0FqH2uqVGzWzJt4Ac2M6hA3rqY=
+        b=M2L8YY1Gn1aXbzHVARK+KAIDmjtRSHjmI5sVpj5Ljp+ilV/UJUOoTRE7kj9H3Spkz
+         +C1QP3o+uwLrP1J84li+WbDH2a0N2RL+k+hMUpGy9lyFrlQJy6YRZyC9WyqqixaedH
+         +YeY8T9YfDLJWbM4q1JW9ZLJuRb14m9m0RmPt354=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Quentin Monnet <quentin@isovalent.com>,
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 277/464] tools/bpftool: Fix error handing in do_skeleton()
-Date:   Mon, 17 Aug 2020 17:13:50 +0200
-Message-Id: <20200817143847.036709454@linuxfoundation.org>
+Subject: [PATCH 5.7 181/393] media: staging: rkisp1: rsz: supported formats are the isps src formats, not sink formats
+Date:   Mon, 17 Aug 2020 17:13:51 +0200
+Message-Id: <20200817143828.399477326@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 956fcfcd359512f15b19bcd157fa8206ed26605b ]
+[ Upstream commit 7b8ce1f2763b9351a4cb04b802835470e76770a5 ]
 
-Fix pass 0 to PTR_ERR, also dump more err info using
-libbpf_strerror.
+The rkisp1_resizer's enum callback 'rkisp1_rsz_enum_mbus_code'
+calls the enum callback of the 'rkisp1_isp' on it's video sink pad.
+This is a bug, the resizer should support the same formats
+supported by the 'rkisp1_isp' on the source pad (not the sink pad).
 
-Fixes: 5dc7a8b21144 ("bpftool, selftests/bpf: Embed object file inside skeleton")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Link: https://lore.kernel.org/bpf/20200717123059.29624-1-yuehaibing@huawei.com
+Fixes: 56e3b29f9f6b "media: staging: rkisp1: add streaming paths"
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Acked-by: Helen Koike <helen.koike@collabora.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/gen.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/media/rkisp1/rkisp1-resizer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
-index 10de76b296ba1..540ffde0b03a3 100644
---- a/tools/bpf/bpftool/gen.c
-+++ b/tools/bpf/bpftool/gen.c
-@@ -305,8 +305,11 @@ static int do_skeleton(int argc, char **argv)
- 	opts.object_name = obj_name;
- 	obj = bpf_object__open_mem(obj_data, file_sz, &opts);
- 	if (IS_ERR(obj)) {
-+		char err_buf[256];
-+
-+		libbpf_strerror(PTR_ERR(obj), err_buf, sizeof(err_buf));
-+		p_err("failed to open BPF object file: %s", err_buf);
- 		obj = NULL;
--		p_err("failed to open BPF object file: %ld", PTR_ERR(obj));
- 		goto out;
- 	}
+diff --git a/drivers/staging/media/rkisp1/rkisp1-resizer.c b/drivers/staging/media/rkisp1/rkisp1-resizer.c
+index 87799fbf0363e..8b1c0cc5ea3f1 100644
+--- a/drivers/staging/media/rkisp1/rkisp1-resizer.c
++++ b/drivers/staging/media/rkisp1/rkisp1-resizer.c
+@@ -427,8 +427,8 @@ static int rkisp1_rsz_enum_mbus_code(struct v4l2_subdev *sd,
+ 	u32 pad = code->pad;
+ 	int ret;
+ 
+-	/* supported mbus codes are the same in isp sink pad */
+-	code->pad = RKISP1_ISP_PAD_SINK_VIDEO;
++	/* supported mbus codes are the same in isp video src pad */
++	code->pad = RKISP1_ISP_PAD_SOURCE_VIDEO;
+ 	ret = v4l2_subdev_call(&rsz->rkisp1->isp.sd, pad, enum_mbus_code,
+ 			       &dummy_cfg, code);
  
 -- 
 2.25.1
