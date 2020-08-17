@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CF92472DF
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99BBC2472D8
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403799AbgHQSsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42956 "EHLO mail.kernel.org"
+        id S2391635AbgHQSr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:47:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388018AbgHQPz2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388019AbgHQPz2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 11:55:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC56420885;
-        Mon, 17 Aug 2020 15:55:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99077208B3;
+        Mon, 17 Aug 2020 15:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679715;
-        bh=6M08l+qba3w1cnpo6A4R3/eEQ9w/R/WVzannPHL4M/M=;
+        s=default; t=1597679718;
+        bh=lcURmuB0sanhhJVraJDp8d0WGsWJPNVtwW8HalFB16c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5hqE/NocgARUI0Rj3unD4OGPfQnCjy4iLUMc8mx5oQz4PgAiAgA3AQfZrIcWpbFB
-         eRCvXW9h4TCMhf+XDPyz3F/W4+TX0DmjXIFhzlu5w5Vh8XnCW+msi22bLev7siGzQ8
-         mUfjX3r9NDIDcbauAcq0hu16ibWnKRvHqMgNLmRE=
+        b=Ug7RWLFASXd1JA5odfFCGYzXW+LdtAp2VrI87865/mK3BIhL2tBPdDIMXmasc6IKr
+         PSA8Y6vDduZUksOkIdm2dE0HEUK8kOrl/svX81oYDD8kK0J/F99gX3o3HlzYIJPDKa
+         1l6ee1IaZzFoN86bAOiBP/4eTUuNx72Is1sTemiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Drew Fustini <drew@beagleboard.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 309/393] ocfs2: fix unbalanced locking
-Date:   Mon, 17 Aug 2020 17:15:59 +0200
-Message-Id: <20200817143834.600206769@linuxfoundation.org>
+Subject: [PATCH 5.7 310/393] pinctrl-single: fix pcs_parse_pinconf() return value
+Date:   Mon, 17 Aug 2020 17:16:00 +0200
+Message-Id: <20200817143834.648898215@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -51,54 +45,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
+From: Drew Fustini <drew@beagleboard.org>
 
-[ Upstream commit 57c720d4144a9c2b88105c3e8f7b0e97e4b5cc93 ]
+[ Upstream commit f46fe79ff1b65692a65266a5bec6dbe2bf7fc70f ]
 
-Based on what fails, function can return with nfs_sync_rwlock either
-locked or unlocked. That can not be right.
+This patch causes pcs_parse_pinconf() to return -ENOTSUPP when no
+pinctrl_map is added.  The current behavior is to return 0 when
+!PCS_HAS_PINCONF or !nconfs.  Thus pcs_parse_one_pinctrl_entry()
+incorrectly assumes that a map was added and sets num_maps = 2.
 
-Always return with lock unlocked on error.
+Analysis:
+=========
+The function pcs_parse_one_pinctrl_entry() calls pcs_parse_pinconf()
+if PCS_HAS_PINCONF is enabled.  The function pcs_parse_pinconf()
+returns 0 to indicate there was no error and num_maps is then set to 2:
 
-Fixes: 4cd9973f9ff6 ("ocfs2: avoid inode removal while nfsd is accessing it")
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Link: http://lkml.kernel.org/r/20200724124443.GA28164@duo.ucw.cz
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ 980 static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
+ 981                                                 struct device_node *np,
+ 982                                                 struct pinctrl_map **map,
+ 983                                                 unsigned *num_maps,
+ 984                                                 const char **pgnames)
+ 985 {
+<snip>
+1053         (*map)->type = PIN_MAP_TYPE_MUX_GROUP;
+1054         (*map)->data.mux.group = np->name;
+1055         (*map)->data.mux.function = np->name;
+1056
+1057         if (PCS_HAS_PINCONF && function) {
+1058                 res = pcs_parse_pinconf(pcs, np, function, map);
+1059                 if (res)
+1060                         goto free_pingroups;
+1061                 *num_maps = 2;
+1062         } else {
+1063                 *num_maps = 1;
+1064         }
+
+However, pcs_parse_pinconf() will also return 0 if !PCS_HAS_PINCONF or
+!nconfs.  I believe these conditions should indicate that no map was
+added by returning -ENOTSUPP. Otherwise pcs_parse_one_pinctrl_entry()
+will set num_maps = 2 even though no maps were successfully added, as
+it does not reach "m++" on line 940:
+
+ 895 static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
+ 896                              struct pcs_function *func,
+ 897                              struct pinctrl_map **map)
+ 898
+ 899 {
+ 900         struct pinctrl_map *m = *map;
+<snip>
+ 917         /* If pinconf isn't supported, don't parse properties in below. */
+ 918         if (!PCS_HAS_PINCONF)
+ 919                 return 0;
+ 920
+ 921         /* cacluate how much properties are supported in current node */
+ 922         for (i = 0; i < ARRAY_SIZE(prop2); i++) {
+ 923                 if (of_find_property(np, prop2[i].name, NULL))
+ 924                         nconfs++;
+ 925         }
+ 926         for (i = 0; i < ARRAY_SIZE(prop4); i++) {
+ 927                 if (of_find_property(np, prop4[i].name, NULL))
+ 928                         nconfs++;
+ 929         }
+ 930         if (!nconfs)
+ 919                 return 0;
+ 932
+ 933         func->conf = devm_kcalloc(pcs->dev,
+ 934                                   nconfs, sizeof(struct pcs_conf_vals),
+ 935                                   GFP_KERNEL);
+ 936         if (!func->conf)
+ 937                 return -ENOMEM;
+ 938         func->nconfs = nconfs;
+ 939         conf = &(func->conf[0]);
+ 940         m++;
+
+This situtation will cause a boot failure [0] on the BeagleBone Black
+(AM3358) when am33xx_pinmux node in arch/arm/boot/dts/am33xx-l4.dtsi
+has compatible = "pinconf-single" instead of "pinctrl-single".
+
+The patch fixes this issue by returning -ENOSUPP when !PCS_HAS_PINCONF
+or !nconfs, so that pcs_parse_one_pinctrl_entry() will know that no
+map was added.
+
+Logic is also added to pcs_parse_one_pinctrl_entry() to distinguish
+between -ENOSUPP and other errors.  In the case of -ENOSUPP, num_maps
+is set to 1 as it is valid for pinconf to be enabled and a given pin
+group to not any pinconf properties.
+
+[0] https://lore.kernel.org/linux-omap/20200529175544.GA3766151@x1/
+
+Fixes: 9dddb4df90d1 ("pinctrl: single: support generic pinconf")
+Signed-off-by: Drew Fustini <drew@beagleboard.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20200608125143.GA2789203@x1
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlmglue.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-single.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
-index 751bc4dc74663..8e3a369086dbd 100644
---- a/fs/ocfs2/dlmglue.c
-+++ b/fs/ocfs2/dlmglue.c
-@@ -2871,9 +2871,15 @@ int ocfs2_nfs_sync_lock(struct ocfs2_super *osb, int ex)
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index 1e0614daee9bf..a9d511982780c 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -916,7 +916,7 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
  
- 	status = ocfs2_cluster_lock(osb, lockres, ex ? LKM_EXMODE : LKM_PRMODE,
- 				    0, 0);
--	if (status < 0)
-+	if (status < 0) {
- 		mlog(ML_ERROR, "lock on nfs sync lock failed %d\n", status);
+ 	/* If pinconf isn't supported, don't parse properties in below. */
+ 	if (!PCS_HAS_PINCONF)
+-		return 0;
++		return -ENOTSUPP;
  
-+		if (ex)
-+			up_write(&osb->nfs_sync_rwlock);
+ 	/* cacluate how much properties are supported in current node */
+ 	for (i = 0; i < ARRAY_SIZE(prop2); i++) {
+@@ -928,7 +928,7 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
+ 			nconfs++;
+ 	}
+ 	if (!nconfs)
+-		return 0;
++		return -ENOTSUPP;
+ 
+ 	func->conf = devm_kcalloc(pcs->dev,
+ 				  nconfs, sizeof(struct pcs_conf_vals),
+@@ -1056,9 +1056,12 @@ static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
+ 
+ 	if (PCS_HAS_PINCONF && function) {
+ 		res = pcs_parse_pinconf(pcs, np, function, map);
+-		if (res)
++		if (res == 0)
++			*num_maps = 2;
++		else if (res == -ENOTSUPP)
++			*num_maps = 1;
 +		else
-+			up_read(&osb->nfs_sync_rwlock);
-+	}
-+
- 	return status;
- }
- 
+ 			goto free_pingroups;
+-		*num_maps = 2;
+ 	} else {
+ 		*num_maps = 1;
+ 	}
 -- 
 2.25.1
 
