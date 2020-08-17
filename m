@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEB2246C2F
+	by mail.lfdr.de (Postfix) with ESMTP id 7CEA6246C30
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388612AbgHQQLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388614AbgHQQLU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 12:11:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388605AbgHQQLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:11:14 -0400
+        id S2388606AbgHQQLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:11:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A80722D73;
-        Mon, 17 Aug 2020 16:11:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 916C022BF5;
+        Mon, 17 Aug 2020 16:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680673;
-        bh=ZqsSaEHvtOy52gcYLr/fBxsyzfTsBC6SGkRQ0JU6LgQ=;
+        s=default; t=1597680676;
+        bh=5umpobZfU532MNHExFEMg4AwPASjY4mr8L46crhIfWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eh7qKxyRLvt3S+7qsuQ7SYdsitJV0hzlIrFxj7lhmEq3pWU4+F4MsWK/qtaGHzK3/
-         P0X6BTyUKeZJbswO25ankgs/JGI9FkujRWnd3Y0v0GyNsVJEr4KLMyXZJW0o8qMJcE
-         /QZhIWhjZDhfvW+IjN8r5E/7FS1omnf93DPuesF8=
+        b=Fk86VXhBa4tBbGHDJxjIr3BWLnMCtm5NvY4KH2BvwV0GeQxkqmEr2iCPLAT8g6naT
+         IailWnlTPxWuy038uF3UTU/n3WbWnBasI5TTPl6U1iiO+MahDp2x5lz6NU7XTSj1t6
+         rRqW0IaD1bReqwiDjsZ9DCzlvy2A5q43VecVJ9Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Markus Elfring <Markus.Elfring@web.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 011/168] arm64: dts: qcom: msm8916: Replace invalid bias-pull-none property
-Date:   Mon, 17 Aug 2020 17:15:42 +0200
-Message-Id: <20200817143734.285035960@linuxfoundation.org>
+Subject: [PATCH 4.19 012/168] crypto: ccree - fix resource leak on error path
+Date:   Mon, 17 Aug 2020 17:15:43 +0200
+Message-Id: <20200817143734.336080170@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -46,79 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-[ Upstream commit 1b6a1a162defe649c5599d661b58ac64bb6f31b6 ]
+[ Upstream commit 9bc6165d608d676f05d8bf156a2c9923ee38d05b ]
 
-msm8916-pins.dtsi specifies "bias-pull-none" for most of the audio
-pin configurations. This was likely copied from the qcom kernel fork
-where the same property was used for these audio pins.
+Fix a small resource leak on the error path of cipher processing.
 
-However, "bias-pull-none" actually does not exist at all - not in
-mainline and not in downstream. I can only guess that the original
-intention was to configure "no pull", i.e. bias-disable.
-
-Change it to that instead.
-
-Fixes: 143bb9ad85b7 ("arm64: dts: qcom: add audio pinctrls")
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200605185916.318494-2-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Fixes: 63ee04c8b491e ("crypto: ccree - add skcipher support")
+Cc: Markus Elfring <Markus.Elfring@web.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916-pins.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/crypto/ccree/cc_cipher.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
-index 390a2fa285145..60d218c5275c1 100644
---- a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
-@@ -516,7 +516,7 @@ pinconf {
- 				pins = "gpio63", "gpio64", "gpio65", "gpio66",
- 				       "gpio67", "gpio68";
- 				drive-strength = <8>;
--				bias-pull-none;
-+				bias-disable;
- 			};
- 		};
- 		cdc_pdm_lines_sus: pdm_lines_off {
-@@ -545,7 +545,7 @@ pinconf {
- 				pins = "gpio113", "gpio114", "gpio115",
- 				       "gpio116";
- 				drive-strength = <8>;
--				bias-pull-none;
-+				bias-disable;
- 			};
- 		};
+diff --git a/drivers/crypto/ccree/cc_cipher.c b/drivers/crypto/ccree/cc_cipher.c
+index 28a5b8b38fa2f..1bcb6f0157b07 100644
+--- a/drivers/crypto/ccree/cc_cipher.c
++++ b/drivers/crypto/ccree/cc_cipher.c
+@@ -137,7 +137,6 @@ static int cc_cipher_init(struct crypto_tfm *tfm)
+ 				     skcipher_alg.base);
+ 	struct device *dev = drvdata_to_dev(cc_alg->drvdata);
+ 	unsigned int max_key_buf_size = cc_alg->skcipher_alg.max_keysize;
+-	int rc = 0;
  
-@@ -573,7 +573,7 @@ pinmux {
- 			pinconf {
- 				pins = "gpio110";
- 				drive-strength = <8>;
--				bias-pull-none;
-+				bias-disable;
- 			};
- 		};
+ 	dev_dbg(dev, "Initializing context @%p for %s\n", ctx_p,
+ 		crypto_tfm_alg_name(tfm));
+@@ -149,10 +148,19 @@ static int cc_cipher_init(struct crypto_tfm *tfm)
+ 	ctx_p->flow_mode = cc_alg->flow_mode;
+ 	ctx_p->drvdata = cc_alg->drvdata;
  
-@@ -599,7 +599,7 @@ pinmux {
- 			pinconf {
- 				pins = "gpio116";
- 				drive-strength = <8>;
--				bias-pull-none;
-+				bias-disable;
- 			};
- 		};
- 		ext_mclk_tlmm_lines_sus: mclk_lines_off {
-@@ -627,7 +627,7 @@ pinconf {
- 				pins = "gpio112", "gpio117", "gpio118",
- 					"gpio119";
- 				drive-strength = <8>;
--				bias-pull-none;
-+				bias-disable;
- 			};
- 		};
- 		ext_sec_tlmm_lines_sus: tlmm_lines_off {
++	if (ctx_p->cipher_mode == DRV_CIPHER_ESSIV) {
++		/* Alloc hash tfm for essiv */
++		ctx_p->shash_tfm = crypto_alloc_shash("sha256-generic", 0, 0);
++		if (IS_ERR(ctx_p->shash_tfm)) {
++			dev_err(dev, "Error allocating hash tfm for ESSIV.\n");
++			return PTR_ERR(ctx_p->shash_tfm);
++		}
++	}
++
+ 	/* Allocate key buffer, cache line aligned */
+ 	ctx_p->user.key = kmalloc(max_key_buf_size, GFP_KERNEL);
+ 	if (!ctx_p->user.key)
+-		return -ENOMEM;
++		goto free_shash;
+ 
+ 	dev_dbg(dev, "Allocated key buffer in context. key=@%p\n",
+ 		ctx_p->user.key);
+@@ -164,21 +172,19 @@ static int cc_cipher_init(struct crypto_tfm *tfm)
+ 	if (dma_mapping_error(dev, ctx_p->user.key_dma_addr)) {
+ 		dev_err(dev, "Mapping Key %u B at va=%pK for DMA failed\n",
+ 			max_key_buf_size, ctx_p->user.key);
+-		return -ENOMEM;
++		goto free_key;
+ 	}
+ 	dev_dbg(dev, "Mapped key %u B at va=%pK to dma=%pad\n",
+ 		max_key_buf_size, ctx_p->user.key, &ctx_p->user.key_dma_addr);
+ 
+-	if (ctx_p->cipher_mode == DRV_CIPHER_ESSIV) {
+-		/* Alloc hash tfm for essiv */
+-		ctx_p->shash_tfm = crypto_alloc_shash("sha256-generic", 0, 0);
+-		if (IS_ERR(ctx_p->shash_tfm)) {
+-			dev_err(dev, "Error allocating hash tfm for ESSIV.\n");
+-			return PTR_ERR(ctx_p->shash_tfm);
+-		}
+-	}
++	return 0;
+ 
+-	return rc;
++free_key:
++	kfree(ctx_p->user.key);
++free_shash:
++	crypto_free_shash(ctx_p->shash_tfm);
++
++	return -ENOMEM;
+ }
+ 
+ static void cc_cipher_exit(struct crypto_tfm *tfm)
 -- 
 2.25.1
 
