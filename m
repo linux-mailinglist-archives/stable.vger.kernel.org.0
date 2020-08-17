@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F29246ED3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F56246ED1
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729933AbgHQRha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58114 "EHLO mail.kernel.org"
+        id S2387407AbgHQRh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:37:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729746AbgHQQRY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729893AbgHQQRY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 12:17:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 605DE20772;
-        Mon, 17 Aug 2020 16:17:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D11DA207FF;
+        Mon, 17 Aug 2020 16:17:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597681040;
-        bh=ztlG9QaknFyTfYzdpNT3wqiqJdOID9j2ksEW3cd4nbk=;
+        s=default; t=1597681043;
+        bh=HbHefs1iBPgzef623Gxpm21VIKkRHpLV0at4bO95Kgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fp5QezfThy0E+8gwAk5BnNBMZo8+c8cgZKv7z5hlzsrMLoVMBrNReMa5qNMSe3yzn
-         mBeqo4Qzk//OCahLdGSzhQfSlanAYkGak8kw1iJUpPI3DeORP3ZFfwqq4pzg57PtNC
-         ekuqoafvU6NMK3dXe/nf0J4aGTyTvlMFwb+ckPyc=
+        b=XvV9xWrAhRk+yxgy0dOId7IwEnRcbEw4qyLSaVtClYEbcUdwgfQELvH+zP71jqUvJ
+         t64Kv3SA2iYCRmE8/jl0KEA4BmuhLTKgPzryiHyoTUMfWnqpMpa4EsP7hLOQKrOY6u
+         2DpDYW2k6lGkuv4GFriTU3Yuwxawyb8Ld6v2PEXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.19 157/168] NFS: Dont return layout segments that are in use
-Date:   Mon, 17 Aug 2020 17:18:08 +0200
-Message-Id: <20200817143741.510921746@linuxfoundation.org>
+        stable@vger.kernel.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 4.19 158/168] cpufreq: dt: fix oops on armada37xx
+Date:   Mon, 17 Aug 2020 17:18:09 +0200
+Message-Id: <20200817143741.564803945@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -43,71 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 
-commit d474f96104bd4377573526ebae2ee212205a6839 upstream.
+commit 10470dec3decaf5ed3c596f85debd7c42777ae12 upstream.
 
-If the NFS_LAYOUT_RETURN_REQUESTED flag is set, we want to return the
-layout as soon as possible, meaning that the affected layout segments
-should be marked as invalid, and should no longer be in use for I/O.
+Commit 0c868627e617e43a295d8 (cpufreq: dt: Allow platform specific
+intermediate callbacks) added two function pointers to the
+struct cpufreq_dt_platform_data. However, armada37xx_cpufreq_driver_init()
+has this struct (pdata) located on the stack and uses only "suspend"
+and "resume" fields. So these newly added "get_intermediate" and
+"target_intermediate" pointers are uninitialized and contain arbitrary
+non-null values, causing all kinds of trouble.
 
-Fixes: f0b429819b5f ("pNFS: Ignore non-recalled layouts in pnfs_layout_need_return()")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+For instance, here is an oops on espressobin after an attempt to change
+the cpefreq governor:
+
+[   29.174554] Unable to handle kernel execute from non-executable memory at virtual address ffff00003f87bdc0
+...
+[   29.269373] pc : 0xffff00003f87bdc0
+[   29.272957] lr : __cpufreq_driver_target+0x138/0x580
+...
+
+Fixed by zeroing out pdata before use.
+
+Cc: <stable@vger.kernel.org> # v5.7+
+Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pnfs.c |   34 +++++++++++++++-------------------
- 1 file changed, 15 insertions(+), 19 deletions(-)
+ drivers/cpufreq/armada-37xx-cpufreq.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1181,31 +1181,27 @@ out:
- 	return status;
- }
+--- a/drivers/cpufreq/armada-37xx-cpufreq.c
++++ b/drivers/cpufreq/armada-37xx-cpufreq.c
+@@ -458,6 +458,7 @@ static int __init armada37xx_cpufreq_dri
+ 	/* Now that everything is setup, enable the DVFS at hardware level */
+ 	armada37xx_cpufreq_enable_dvfs(nb_pm_base);
  
-+static bool
-+pnfs_layout_segments_returnable(struct pnfs_layout_hdr *lo,
-+				enum pnfs_iomode iomode,
-+				u32 seq)
-+{
-+	struct pnfs_layout_range recall_range = {
-+		.length = NFS4_MAX_UINT64,
-+		.iomode = iomode,
-+	};
-+	return pnfs_mark_matching_lsegs_return(lo, &lo->plh_return_segs,
-+					       &recall_range, seq) != -EBUSY;
-+}
-+
- /* Return true if layoutreturn is needed */
- static bool
- pnfs_layout_need_return(struct pnfs_layout_hdr *lo)
- {
--	struct pnfs_layout_segment *s;
--	enum pnfs_iomode iomode;
--	u32 seq;
--
- 	if (!test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags))
- 		return false;
--
--	seq = lo->plh_return_seq;
--	iomode = lo->plh_return_iomode;
--
--	/* Defer layoutreturn until all recalled lsegs are done */
--	list_for_each_entry(s, &lo->plh_segs, pls_list) {
--		if (seq && pnfs_seqid_is_newer(s->pls_seq, seq))
--			continue;
--		if (iomode != IOMODE_ANY && s->pls_range.iomode != iomode)
--			continue;
--		if (test_bit(NFS_LSEG_LAYOUTRETURN, &s->pls_flags))
--			return false;
--	}
--
--	return true;
-+	return pnfs_layout_segments_returnable(lo, lo->plh_return_iomode,
-+					       lo->plh_return_seq);
- }
++	memset(&pdata, 0, sizeof(pdata));
+ 	pdata.suspend = armada37xx_cpufreq_suspend;
+ 	pdata.resume = armada37xx_cpufreq_resume;
  
- static void pnfs_layoutreturn_before_put_layout_hdr(struct pnfs_layout_hdr *lo)
 
 
