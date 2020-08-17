@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96EBA247346
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21485247343
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391535AbgHQSxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:53:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36732 "EHLO mail.kernel.org"
+        id S2391790AbgHQSxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:53:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387810AbgHQPvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:51:44 -0400
+        id S2387814AbgHQPvr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:51:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55D1F2063A;
-        Mon, 17 Aug 2020 15:51:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCB2120657;
+        Mon, 17 Aug 2020 15:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679503;
-        bh=GcF9Oe8I5nbSA24PxJyVGNRfg6ycr/7DGFIS9wrAiJc=;
+        s=default; t=1597679506;
+        bh=eD/OFt1++bnzXdDBZwIFG18Hdy1KClaBq7QVFbnSbVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2BqbETUNUbVV2azZJLUSzP93ifqC9MC0F3x6KF4fWwBL+g3lUiQi6gUILYEzuPx+
-         S2iy34r6/ILqZLLcbxApOnmSm53ZOtKGd2tq5KXtAYgR4u7N+/ez+uwHSPF+AXPfeD
-         UAia/Tn1pzN5oODyTApSjGyim+pupVfNoIV6XaGs=
+        b=C7rmBEmDMioYi23UERrSv2zGEEE6k3mMZU9IJmRI8sfq1ZJlKReT6KetNCKgzseL3
+         Y9YEMcrLzMj5izifgA/XXBCpXVhX9JbgbS7xgsRfX+DnET2vHd9hZtflJDo9H3DH1T
+         cYMD9uKaN0+gDEMcKMzwjAyvXp9M1eG9prsNxLzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, Vinod Koul <vkoul@kernel.org>,
+        stable@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 235/393] phy: armada-38x: fix NETA lockup when repeatedly switching speeds
-Date:   Mon, 17 Aug 2020 17:14:45 +0200
-Message-Id: <20200817143831.019725909@linuxfoundation.org>
+Subject: [PATCH 5.7 236/393] s390/bpf: Fix sign extension in branch_ku
+Date:   Mon, 17 Aug 2020 17:14:46 +0200
+Message-Id: <20200817143831.066765186@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,139 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 1dea06cd643da38931382ebdc151efced201ffad ]
+[ Upstream commit 7477d43be5b1448bc0d4c85cb185a0144cc080e1 ]
 
-The mvneta hardware appears to lock up in various random ways when
-repeatedly switching speeds between 1G and 2.5G, which involves
-reprogramming the COMPHY.  It is not entirely clear why this happens,
-but best guess is that reprogramming the COMPHY glitches mvneta clocks
-causing the hardware to fail.  It seems that rebooting resolves the
-failure, but not down/up cycling the interface alone.
+Both signed and unsigned variants of BPF_JMP | BPF_K require
+sign-extending the immediate. JIT emits cgfi for the signed case,
+which is correct, and clgfi for the unsigned case, which is not
+correct: clgfi zero-extends the immediate.
 
-Various other approaches have been tried, such as trying to cleanly
-power down the COMPHY and then take it back through the power up
-initialisation, but this does not seem to help.
+s390 does not provide an instruction that does sign-extension and
+unsigned comparison at the same time. Therefore, fix by first loading
+the sign-extended immediate into work register REG_1 and proceeding
+as if it's BPF_X.
 
-It was finally noticed that u-boot's last step when configuring a
-COMPHY for "SGMII" mode was to poke at a register described as
-"GBE_CONFIGURATION_REG", which is undocumented in any external
-documentation.  All that we have is the fact that u-boot sets a bit
-corresponding to the "SGMII" lane at the end of COMPHY initialisation.
-
-Experimentation shows that if we clear this bit prior to changing the
-speed, and then set it afterwards, mvneta does not suffer this problem
-on the SolidRun Clearfog when switching speeds between 1G and 2.5G.
-
-This problem was found while script-testing phylink.
-
-This fix also requires the corresponding change to DT to be effective.
-See "ARM: dts: armada-38x: fix NETA lockup when repeatedly switching
-speeds".
-
-Fixes: 14dc100b4411 ("phy: armada38x: add common phy support")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/E1jxtRj-0003Tz-CG@rmk-PC.armlinux.org.uk
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 4e9b4a6883dd ("s390/bpf: Use relative long branches")
+Reported-by: Seth Forshee <seth.forshee@canonical.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Tested-by: Seth Forshee <seth.forshee@canonical.com>
+Link: https://lore.kernel.org/bpf/20200717165326.6786-3-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/marvell/phy-armada38x-comphy.c | 45 ++++++++++++++++++----
- 1 file changed, 38 insertions(+), 7 deletions(-)
+ arch/s390/net/bpf_jit_comp.c | 19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/phy/marvell/phy-armada38x-comphy.c b/drivers/phy/marvell/phy-armada38x-comphy.c
-index 6960dfd8ad8c9..0fe4089643342 100644
---- a/drivers/phy/marvell/phy-armada38x-comphy.c
-+++ b/drivers/phy/marvell/phy-armada38x-comphy.c
-@@ -41,6 +41,7 @@ struct a38x_comphy_lane {
- 
- struct a38x_comphy {
- 	void __iomem *base;
-+	void __iomem *conf;
- 	struct device *dev;
- 	struct a38x_comphy_lane lane[MAX_A38X_COMPHY];
- };
-@@ -54,6 +55,21 @@ static const u8 gbe_mux[MAX_A38X_COMPHY][MAX_A38X_PORTS] = {
- 	{ 0, 0, 3 },
- };
- 
-+static void a38x_set_conf(struct a38x_comphy_lane *lane, bool enable)
-+{
-+	struct a38x_comphy *priv = lane->priv;
-+	u32 conf;
-+
-+	if (priv->conf) {
-+		conf = readl_relaxed(priv->conf);
-+		if (enable)
-+			conf |= BIT(lane->port);
-+		else
-+			conf &= ~BIT(lane->port);
-+		writel(conf, priv->conf);
-+	}
-+}
-+
- static void a38x_comphy_set_reg(struct a38x_comphy_lane *lane,
- 				unsigned int offset, u32 mask, u32 value)
- {
-@@ -97,6 +113,7 @@ static int a38x_comphy_set_mode(struct phy *phy, enum phy_mode mode, int sub)
- {
- 	struct a38x_comphy_lane *lane = phy_get_drvdata(phy);
- 	unsigned int gen;
-+	int ret;
- 
- 	if (mode != PHY_MODE_ETHERNET)
- 		return -EINVAL;
-@@ -115,13 +132,20 @@ static int a38x_comphy_set_mode(struct phy *phy, enum phy_mode mode, int sub)
- 		return -EINVAL;
- 	}
- 
-+	a38x_set_conf(lane, false);
-+
- 	a38x_comphy_set_speed(lane, gen, gen);
- 
--	return a38x_comphy_poll(lane, COMPHY_STAT1,
--				COMPHY_STAT1_PLL_RDY_TX |
--				COMPHY_STAT1_PLL_RDY_RX,
--				COMPHY_STAT1_PLL_RDY_TX |
--				COMPHY_STAT1_PLL_RDY_RX);
-+	ret = a38x_comphy_poll(lane, COMPHY_STAT1,
-+			       COMPHY_STAT1_PLL_RDY_TX |
-+			       COMPHY_STAT1_PLL_RDY_RX,
-+			       COMPHY_STAT1_PLL_RDY_TX |
-+			       COMPHY_STAT1_PLL_RDY_RX);
-+
-+	if (ret == 0)
-+		a38x_set_conf(lane, true);
-+
-+	return ret;
- }
- 
- static const struct phy_ops a38x_comphy_ops = {
-@@ -174,14 +198,21 @@ static int a38x_comphy_probe(struct platform_device *pdev)
- 	if (!priv)
- 		return -ENOMEM;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	base = devm_ioremap_resource(&pdev->dev, res);
-+	base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
- 
- 	priv->dev = &pdev->dev;
- 	priv->base = base;
- 
-+	/* Optional */
-+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "conf");
-+	if (res) {
-+		priv->conf = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(priv->conf))
-+			return PTR_ERR(priv->conf);
-+	}
-+
- 	for_each_available_child_of_node(pdev->dev.of_node, child) {
- 		struct phy *phy;
- 		int ret;
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 0f37a1b635f85..ac227ea13cbe7 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -1416,21 +1416,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
+ 		}
+ 		break;
+ branch_ku:
+-		is_jmp32 = BPF_CLASS(insn->code) == BPF_JMP32;
+-		/* clfi or clgfi %dst,imm */
+-		EMIT6_IMM(is_jmp32 ? 0xc20f0000 : 0xc20e0000,
+-			  dst_reg, imm);
+-		if (!is_first_pass(jit) &&
+-		    can_use_rel(jit, addrs[i + off + 1])) {
+-			/* brc mask,off */
+-			EMIT4_PCREL_RIC(0xa7040000,
+-					mask >> 12, addrs[i + off + 1]);
+-		} else {
+-			/* brcl mask,off */
+-			EMIT6_PCREL_RILC(0xc0040000,
+-					 mask >> 12, addrs[i + off + 1]);
+-		}
+-		break;
++		/* lgfi %w1,imm (load sign extend imm) */
++		src_reg = REG_1;
++		EMIT6_IMM(0xc0010000, src_reg, imm);
++		goto branch_xu;
+ branch_xs:
+ 		is_jmp32 = BPF_CLASS(insn->code) == BPF_JMP32;
+ 		if (!is_first_pass(jit) &&
 -- 
 2.25.1
 
