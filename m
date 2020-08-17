@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 002F8246B69
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC2D246B6A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387992AbgHQPyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:54:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41830 "EHLO mail.kernel.org"
+        id S2387712AbgHQPye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387980AbgHQPyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:54:21 -0400
+        id S2387986AbgHQPy1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:54:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86D8F2245C;
-        Mon, 17 Aug 2020 15:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B5AD20657;
+        Mon, 17 Aug 2020 15:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679660;
-        bh=LIxqRBPcvOoUtOkQW4c43VrIb8itUKAS0rSS5ci8yC0=;
+        s=default; t=1597679666;
+        bh=3bA66jFSyUuGfQ13Zx/hap/5xok8FbaDikQg8GCSOgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L6mzhF5jEqDiO2ZVdoT6yJvgPlp3lzRQn0YB8avHUK4SbuxEjvB33J12ZXBXxZVaD
-         XxZUzUNqEjj3GoQl0qAucmtHIO+2lz5y8jWjhORl9R4rtafvnsllRiypQOZe5xodN5
-         tHqoF3odPdCyMiisLYyq9WZHi7NsiU5feG44gHFs=
+        b=iDyIyUN6S1QiPQl8bxu3AmeT4JgI4PI32hcsAaWNeSpbMYpVZLPk8kl+HCxEdCbcM
+         7wIdiGEAi92IFUZIYHei0TMDtC9plHNwDynxWZR9EQ2mmGdL8bT52IKEBiZ7XpW8wf
+         d2LDSVhRS7f/gVOb6x3KZu1uEg0RP32e7CuL9/I4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Miao-chen Chou <mcchou@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Mauri Sandberg <sandberg@mailfence.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 259/393] Bluetooth: Fix suspend notifier race
-Date:   Mon, 17 Aug 2020 17:15:09 +0200
-Message-Id: <20200817143832.174128402@linuxfoundation.org>
+Subject: [PATCH 5.7 261/393] net: dsa: rtl8366: Fix VLAN semantics
+Date:   Mon, 17 Aug 2020 17:15:11 +0200
+Message-Id: <20200817143832.271000552@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,73 +47,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 4e8c36c3b0d73d46aa27cfd4308aaa445a1067df ]
+[ Upstream commit 15ab7906cc9290afb006df1bb1074907fbcc7061 ]
 
-Unregister from suspend notifications and cancel suspend preparations
-before running hci_dev_do_close. Otherwise, the suspend notifier may
-race with unregister and cause cmd_timeout even after hdev has been
-freed.
+The RTL8366 would not handle adding new members (ports) to
+a VLAN: the code assumed that ->port_vlan_add() was only
+called once for a single port. When intializing the
+switch with .configure_vlan_while_not_filtering set to
+true, the function is called numerous times for adding
+all ports to VLAN1, which was something the code could
+not handle.
 
-Below is the trace from when this panic was seen:
+Alter rtl8366_set_vlan() to just |= new members and
+untagged flags to 4k and MC VLAN table entries alike.
+This makes it possible to just add new ports to a
+VLAN.
 
-[  832.578518] Bluetooth: hci_core.c:hci_cmd_timeout() hci0: command 0x0c05 tx timeout
-[  832.586200] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[  832.586203] #PF: supervisor read access in kernel mode
-[  832.586205] #PF: error_code(0x0000) - not-present page
-[  832.586206] PGD 0 P4D 0
-[  832.586210] PM: suspend exit
-[  832.608870] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  832.613232] CPU: 3 PID: 10755 Comm: kworker/3:7 Not tainted 5.4.44-04894-g1e9dbb96a161 #1
-[  832.630036] Workqueue: events hci_cmd_timeout [bluetooth]
-[  832.630046] RIP: 0010:__queue_work+0xf0/0x374
-[  832.630051] RSP: 0018:ffff9b5285f1fdf8 EFLAGS: 00010046
-[  832.674033] RAX: ffff8a97681bac00 RBX: 0000000000000000 RCX: ffff8a976a000600
-[  832.681162] RDX: 0000000000000000 RSI: 0000000000000009 RDI: ffff8a976a000748
-[  832.688289] RBP: ffff9b5285f1fe38 R08: 0000000000000000 R09: ffff8a97681bac00
-[  832.695418] R10: 0000000000000002 R11: ffff8a976a0006d8 R12: ffff8a9745107600
-[  832.698045] usb 1-6: new full-speed USB device number 119 using xhci_hcd
-[  832.702547] R13: ffff8a9673658850 R14: 0000000000000040 R15: 000000000000001e
-[  832.702549] FS:  0000000000000000(0000) GS:ffff8a976af80000(0000) knlGS:0000000000000000
-[  832.702550] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  832.702550] CR2: 0000000000000000 CR3: 000000010415a000 CR4: 00000000003406e0
-[  832.702551] Call Trace:
-[  832.702558]  queue_work_on+0x3f/0x68
-[  832.702562]  process_one_work+0x1db/0x396
-[  832.747397]  worker_thread+0x216/0x375
-[  832.751147]  kthread+0x138/0x140
-[  832.754377]  ? pr_cont_work+0x58/0x58
-[  832.758037]  ? kthread_blkcg+0x2e/0x2e
-[  832.761787]  ret_from_fork+0x22/0x40
-[  832.846191] ---[ end trace fa93f466da517212 ]---
+Put in some helpful debug code that can be used to find
+any further bugs here.
 
-Fixes: 9952d90ea2885 ("Bluetooth: Handle PM_SUSPEND_PREPARE and PM_POST_SUSPEND")
-Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: DENG Qingfang <dqfext@gmail.com>
+Cc: Mauri Sandberg <sandberg@mailfence.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/dsa/rtl8366.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 4e5ecc2c9602d..c17e1a3e8218c 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3597,9 +3597,10 @@ void hci_unregister_dev(struct hci_dev *hdev)
+diff --git a/drivers/net/dsa/rtl8366.c b/drivers/net/dsa/rtl8366.c
+index ac88caca5ad4d..a75dcd6698b8a 100644
+--- a/drivers/net/dsa/rtl8366.c
++++ b/drivers/net/dsa/rtl8366.c
+@@ -43,18 +43,26 @@ int rtl8366_set_vlan(struct realtek_smi *smi, int vid, u32 member,
+ 	int ret;
+ 	int i;
  
- 	cancel_work_sync(&hdev->power_on);
- 
--	hci_dev_do_close(hdev);
--
- 	unregister_pm_notifier(&hdev->suspend_notifier);
-+	cancel_work_sync(&hdev->suspend_prepare);
++	dev_dbg(smi->dev,
++		"setting VLAN%d 4k members: 0x%02x, untagged: 0x%02x\n",
++		vid, member, untag);
 +
-+	hci_dev_do_close(hdev);
+ 	/* Update the 4K table */
+ 	ret = smi->ops->get_vlan_4k(smi, vid, &vlan4k);
+ 	if (ret)
+ 		return ret;
  
- 	if (!test_bit(HCI_INIT, &hdev->flags) &&
- 	    !hci_dev_test_flag(hdev, HCI_SETUP) &&
+-	vlan4k.member = member;
+-	vlan4k.untag = untag;
++	vlan4k.member |= member;
++	vlan4k.untag |= untag;
+ 	vlan4k.fid = fid;
+ 	ret = smi->ops->set_vlan_4k(smi, &vlan4k);
+ 	if (ret)
+ 		return ret;
+ 
++	dev_dbg(smi->dev,
++		"resulting VLAN%d 4k members: 0x%02x, untagged: 0x%02x\n",
++		vid, vlan4k.member, vlan4k.untag);
++
+ 	/* Try to find an existing MC entry for this VID */
+ 	for (i = 0; i < smi->num_vlan_mc; i++) {
+ 		struct rtl8366_vlan_mc vlanmc;
+@@ -65,11 +73,16 @@ int rtl8366_set_vlan(struct realtek_smi *smi, int vid, u32 member,
+ 
+ 		if (vid == vlanmc.vid) {
+ 			/* update the MC entry */
+-			vlanmc.member = member;
+-			vlanmc.untag = untag;
++			vlanmc.member |= member;
++			vlanmc.untag |= untag;
+ 			vlanmc.fid = fid;
+ 
+ 			ret = smi->ops->set_vlan_mc(smi, i, &vlanmc);
++
++			dev_dbg(smi->dev,
++				"resulting VLAN%d MC members: 0x%02x, untagged: 0x%02x\n",
++				vid, vlanmc.member, vlanmc.untag);
++
+ 			break;
+ 		}
+ 	}
 -- 
 2.25.1
 
