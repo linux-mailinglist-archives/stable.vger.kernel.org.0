@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B69E247038
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:05:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2EF24703B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390265AbgHQSFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
+        id S2390268AbgHQSFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388490AbgHQQJE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:09:04 -0400
+        id S2388491AbgHQQJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:09:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A2E222B47;
-        Mon, 17 Aug 2020 16:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19ADA20772;
+        Mon, 17 Aug 2020 16:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680543;
-        bh=rjF2FCv8YBcLcgHOazBalU9zhULGooI14SzRWQnIjP8=;
+        s=default; t=1597680545;
+        bh=vLJR8xZLcKqCtpxOSFjcQBrdDx0PLRV8VQbxaVtwd5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQT/oBKqfJUwkHacSDZ5HAZmKeMHG+Ohhq6JUBTERKjZidh4wJrL0LmwRb+ZQjAiA
-         laOnRENJmLRzsmixGfzei+WACe/mhxgYzVhg6y9M5sgP1n0FI/is/yG1kFUcBvsIAH
-         jKzbGhrkE8HtH0BtOPrFTX/khRFyzmLrS2feXdnM=
+        b=YzVe0vWJ9RlirQyGNJ0CwRH2MNEkY7q8HxqCNer1sRzfKgqk1uA9MSDlnRLqlE72t
+         IiNAmhYMKOh+Ts/oM+1tN2YMQakNkr5QX4T0hZwbp/QU0f/zfovvlTIDxqQPczHy6c
+         nNuyFV7T+vfyV0xB1MuqlEtDnOfkCbzRByzzdbMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Tobias Klauser <tklauser@distanz.ch>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org, Alex Vesker <valex@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 198/270] tools, bpftool: Fix wrong return value in do_dump()
-Date:   Mon, 17 Aug 2020 17:16:39 +0200
-Message-Id: <20200817143805.650741245@linuxfoundation.org>
+Subject: [PATCH 5.4 199/270] net/mlx5: DR, Change push vlan action sequence
+Date:   Mon, 17 Aug 2020 17:16:40 +0200
+Message-Id: <20200817143805.698998747@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -48,38 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Alex Vesker <valex@mellanox.com>
 
-[ Upstream commit 041549b7b2c7811ec40e705c439211f00ade2dda ]
+[ Upstream commit b206490940216542c68563699b279eed3c55107c ]
 
-In case of btf_id does not exist, a negative error code -ENOENT
-should be returned.
+The DR TX state machine supports the following order:
+modify header, push vlan and encapsulation.
+Instead fs_dr would pass:
+push vlan, modify header and encapsulation.
 
-Fixes: c93cc69004df3 ("bpftool: add ability to dump BTF types")
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Tobias Klauser <tklauser@distanz.ch>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20200802111540.5384-1-tianjia.zhang@linux.alibaba.com
+The above caused the rule creation to fail on invalid action
+sequence provided error.
+
+Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
+Signed-off-by: Alex Vesker <valex@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/btf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../mellanox/mlx5/core/steering/fs_dr.c       | 42 +++++++++----------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/tools/bpf/bpftool/btf.c b/tools/bpf/bpftool/btf.c
-index 9a9376d1d3df2..66765f970bc51 100644
---- a/tools/bpf/bpftool/btf.c
-+++ b/tools/bpf/bpftool/btf.c
-@@ -510,7 +510,7 @@ static int do_dump(int argc, char **argv)
- 			goto done;
- 		}
- 		if (!btf) {
--			err = ENOENT;
-+			err = -ENOENT;
- 			p_err("can't find btf with ID (%u)", btf_id);
- 			goto done;
- 		}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+index 1e32e2443f737..348f02e336f68 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+@@ -247,29 +247,9 @@ static int mlx5_cmd_dr_create_fte(struct mlx5_flow_root_namespace *ns,
+ 
+ 	/* The order of the actions are must to be keep, only the following
+ 	 * order is supported by SW steering:
+-	 * TX: push vlan -> modify header -> encap
++	 * TX: modify header -> push vlan -> encap
+ 	 * RX: decap -> pop vlan -> modify header
+ 	 */
+-	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH) {
+-		tmp_action = create_action_push_vlan(domain, &fte->action.vlan[0]);
+-		if (!tmp_action) {
+-			err = -ENOMEM;
+-			goto free_actions;
+-		}
+-		fs_dr_actions[fs_dr_num_actions++] = tmp_action;
+-		actions[num_actions++] = tmp_action;
+-	}
+-
+-	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH_2) {
+-		tmp_action = create_action_push_vlan(domain, &fte->action.vlan[1]);
+-		if (!tmp_action) {
+-			err = -ENOMEM;
+-			goto free_actions;
+-		}
+-		fs_dr_actions[fs_dr_num_actions++] = tmp_action;
+-		actions[num_actions++] = tmp_action;
+-	}
+-
+ 	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_DECAP) {
+ 		enum mlx5dr_action_reformat_type decap_type =
+ 			DR_ACTION_REFORMAT_TYP_TNL_L2_TO_L2;
+@@ -322,6 +302,26 @@ static int mlx5_cmd_dr_create_fte(struct mlx5_flow_root_namespace *ns,
+ 		actions[num_actions++] =
+ 			fte->action.modify_hdr->action.dr_action;
+ 
++	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH) {
++		tmp_action = create_action_push_vlan(domain, &fte->action.vlan[0]);
++		if (!tmp_action) {
++			err = -ENOMEM;
++			goto free_actions;
++		}
++		fs_dr_actions[fs_dr_num_actions++] = tmp_action;
++		actions[num_actions++] = tmp_action;
++	}
++
++	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH_2) {
++		tmp_action = create_action_push_vlan(domain, &fte->action.vlan[1]);
++		if (!tmp_action) {
++			err = -ENOMEM;
++			goto free_actions;
++		}
++		fs_dr_actions[fs_dr_num_actions++] = tmp_action;
++		actions[num_actions++] = tmp_action;
++	}
++
+ 	if (delay_encap_set)
+ 		actions[num_actions++] =
+ 			fte->action.pkt_reformat->action.dr_action;
 -- 
 2.25.1
 
