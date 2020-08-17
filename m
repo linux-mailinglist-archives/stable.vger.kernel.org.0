@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 938602471D4
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D3152473AD
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390746AbgHQSeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:34:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
+        id S2390112AbgHQS71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:59:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731005AbgHQQAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:00:11 -0400
+        id S1730858AbgHQPsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:48:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D31AF20885;
-        Mon, 17 Aug 2020 16:00:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C99292245C;
+        Mon, 17 Aug 2020 15:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680011;
-        bh=lWgkR05ZLdyajB7h9qa3gzGicGf+5etfvA1S5tRgY10=;
+        s=default; t=1597679316;
+        bh=rSL6QdtU0Mf1/15eO1cQ6g+ILy1aHSvw5VXPrBmWID8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yrk9iv/U4Mt1OmlX+f3zWIuKcuKi6SUjVbcFPEQG9b2vLMJ2XN/ws6oCbPrvxwOmV
-         tV+3MiNIm6Twa6fMACLZN3ardwPJhA9ZDeRfg2ylVais2+5PoLfV2Wo8BjRiak2RXT
-         +K/HOCoWGumOrW8J0k7fUzA8GTdUQpbQt5nmcT4I=
+        b=2J1CzDKNIYrChd4QZKHFEf1sJt9aZW8RQLQKuGOgyGEHFsXSGxIOw0cj1T4WOiShq
+         XdnFpb3ecsfRgkz0lgNrsjMvXVf6N1mtDnqK6+p3tjV6XUevzBrSzbEziNd/zHBRe5
+         YOrKiz9SGE3FiLNZdScmWWgIHiGvTZ1mC1SHokQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/270] arm64: dts: exynos: Fix silent hang after boot on Espresso
+Subject: [PATCH 5.7 170/393] drm/amdgpu: ensure 0 is returned for success in jpeg_v2_5_wait_for_idle
 Date:   Mon, 17 Aug 2020 17:13:40 +0200
-Message-Id: <20200817143756.745688466@linuxfoundation.org>
+Message-Id: <20200817143827.868383785@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit b072714bfc0e42c984b8fd6e069f3ca17de8137a ]
+[ Upstream commit 57f01856645afe4c3d0f9915ee2bb043e8dd7982 ]
 
-Once regulators are disabled after kernel boot, on Espresso board silent
-hang observed because of LDO7 being disabled.  LDO7 actually provide
-power to CPU cores and non-cpu blocks circuitries.  Keep this regulator
-always-on to fix this hang.
+In the cases where adev->jpeg.num_jpeg_inst is zero or the condition
+adev->jpeg.harvest_config & (1 << i) is always non-zero the variable
+ret is never set to an error condition and the function returns
+an uninitialized value in ret.  Since the only exit condition at
+the end if the function is a success then explicitly return
+0 rather than a potentially uninitialized value in ret.
 
-Fixes: 9589f7721e16 ("arm64: dts: Add S2MPS15 PMIC node on exynos7-espresso")
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 14f43e8f88c5 ("drm/amdgpu: move JPEG2.5 out from VCN2.5")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7-espresso.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-index 080e0f56e108f..61ee7b6a31594 100644
---- a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-+++ b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-@@ -157,6 +157,7 @@ ldo7_reg: LDO7 {
- 				regulator-min-microvolt = <700000>;
- 				regulator-max-microvolt = <1150000>;
- 				regulator-enable-ramp-delay = <125>;
-+				regulator-always-on;
- 			};
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
+index c04c2078a7c1f..a7fcb55babb85 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
+@@ -462,7 +462,7 @@ static int jpeg_v2_5_wait_for_idle(void *handle)
+ 			return ret;
+ 	}
  
- 			ldo8_reg: LDO8 {
+-	return ret;
++	return 0;
+ }
+ 
+ static int jpeg_v2_5_set_clockgating_state(void *handle,
 -- 
 2.25.1
 
