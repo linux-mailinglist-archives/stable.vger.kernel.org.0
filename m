@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E05FC2476AE
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93DD22476A9
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729459AbgHQTkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:40:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60764 "EHLO mail.kernel.org"
+        id S1732539AbgHQTkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:40:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729749AbgHQPZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:25:45 -0400
+        id S1729768AbgHQPZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:25:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA5023A5E;
-        Mon, 17 Aug 2020 15:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81AC1205CB;
+        Mon, 17 Aug 2020 15:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677944;
-        bh=U7cUe149+oKVFDMQFypevGk4UfBFfRVuFM0ffKU6T4A=;
+        s=default; t=1597677953;
+        bh=9tU5YFD76bVfGvbZRgLUI4JCisB5S13EcVehNhmKP9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nc6hRVp9tQI6kPeiUpTFn0g9vTpkU7tLF6U8TNE64DbRwu8PkesXphi7GeP89I39
-         95Uwe8gLM7iVg5slutVWaKqTjHL7e4qvdY7CY5d0ozPunNuqin3+mOC5gdK9RB1ezE
-         XsFVA2sNzPn+p0pUgG4EWBVRV4/QsgCX41+faOFk=
+        b=nXjYdXHo9CeXKExJ4jGhwcg0LNR0hUniPMmVAMGaBUEhjsvzMg9OlfuDOeZR33L+U
+         O3SCpxPbMSQG1D8AYlsLtXEBjd98yXXxEbsVk1hUJJrtyOjlIUZY49tFRBUBiA1lR+
+         ecNs6l9f72JSq72/WgFy/yNUP+5Ntv//p4ttNdLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 165/464] clk: bcm63xx-gate: fix last clock availability
-Date:   Mon, 17 Aug 2020 17:11:58 +0200
-Message-Id: <20200817143841.716670759@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 168/464] leds: lm355x: avoid enum conversion warning
+Date:   Mon, 17 Aug 2020 17:12:01 +0200
+Message-Id: <20200817143841.865037175@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,35 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit cf8030d7035bd3e89c9e66f7193a7fc8057a9b9a ]
+[ Upstream commit 985b1f596f9ed56f42b8c2280005f943e1434c06 ]
 
-In order to make the last clock available, maxbit has to be set to the
-highest bit value plus 1.
+clang points out that doing arithmetic between diffent enums is usually
+a mistake:
 
-Fixes: 1c099779c1e2 ("clk: add BCM63XX gated clock controller driver")
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Link: https://lore.kernel.org/r/20200609110846.4029620-1-noltari@gmail.com
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+drivers/leds/leds-lm355x.c:167:28: warning: bitwise operation between different enumeration types ('enum lm355x_tx2' and 'enum lm355x_ntc') [-Wenum-enum-conversion]
+                reg_val = pdata->pin_tx2 | pdata->ntc_pin;
+                          ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~
+drivers/leds/leds-lm355x.c:178:28: warning: bitwise operation between different enumeration types ('enum lm355x_tx2' and 'enum lm355x_ntc') [-Wenum-enum-conversion]
+                reg_val = pdata->pin_tx2 | pdata->ntc_pin | pdata->pass_mode;
+                          ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~
+
+In this driver, it is intentional, so add a cast to hide the false-positive
+warning. It appears to be the only instance of this warning at the moment.
+
+Fixes: b98d13c72592 ("leds: Add new LED driver for lm355x chips")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm63xx-gate.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/leds/leds-lm355x.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm63xx-gate.c b/drivers/clk/bcm/clk-bcm63xx-gate.c
-index 98e884957db87..911a29bd744ef 100644
---- a/drivers/clk/bcm/clk-bcm63xx-gate.c
-+++ b/drivers/clk/bcm/clk-bcm63xx-gate.c
-@@ -155,6 +155,7 @@ static int clk_bcm63xx_probe(struct platform_device *pdev)
+diff --git a/drivers/leds/leds-lm355x.c b/drivers/leds/leds-lm355x.c
+index 11ce052497514..b2eb2e1e9c04b 100644
+--- a/drivers/leds/leds-lm355x.c
++++ b/drivers/leds/leds-lm355x.c
+@@ -164,18 +164,19 @@ static int lm355x_chip_init(struct lm355x_chip_data *chip)
+ 	/* input and output pins configuration */
+ 	switch (chip->type) {
+ 	case CHIP_LM3554:
+-		reg_val = pdata->pin_tx2 | pdata->ntc_pin;
++		reg_val = (u32)pdata->pin_tx2 | (u32)pdata->ntc_pin;
+ 		ret = regmap_update_bits(chip->regmap, 0xE0, 0x28, reg_val);
+ 		if (ret < 0)
+ 			goto out;
+-		reg_val = pdata->pass_mode;
++		reg_val = (u32)pdata->pass_mode;
+ 		ret = regmap_update_bits(chip->regmap, 0xA0, 0x04, reg_val);
+ 		if (ret < 0)
+ 			goto out;
+ 		break;
  
- 	for (entry = table; entry->name; entry++)
- 		maxbit = max_t(u8, maxbit, entry->bit);
-+	maxbit++;
- 
- 	hw = devm_kzalloc(&pdev->dev, struct_size(hw, data.hws, maxbit),
- 			  GFP_KERNEL);
+ 	case CHIP_LM3556:
+-		reg_val = pdata->pin_tx2 | pdata->ntc_pin | pdata->pass_mode;
++		reg_val = (u32)pdata->pin_tx2 | (u32)pdata->ntc_pin |
++		          (u32)pdata->pass_mode;
+ 		ret = regmap_update_bits(chip->regmap, 0x0A, 0xC4, reg_val);
+ 		if (ret < 0)
+ 			goto out;
 -- 
 2.25.1
 
