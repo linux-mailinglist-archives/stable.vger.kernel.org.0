@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA18424730E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BB2247308
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387945AbgHQSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:50:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40242 "EHLO mail.kernel.org"
+        id S2391551AbgHQSuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387927AbgHQPxg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:36 -0400
+        id S2387572AbgHQPxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AB1A20882;
-        Mon, 17 Aug 2020 15:53:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D20220729;
+        Mon, 17 Aug 2020 15:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679615;
-        bh=HTbYPPiLX1D+TeX1/625p9jUsugtMD+BGLOZNajy31g=;
+        s=default; t=1597679624;
+        bh=kO1Y19OI4AfooucGLBEOzmQUbrn5X6bISJvX0cbpDWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwIVhv1m2b8FZOY1mreiQhJQwiXm6vPkdOA5AbN/DkoNxHdF+tiXG2HO0OWhUnBAT
-         nmvUldfBRz/pNemncVGqq5eHKztdX4GPdCO15RST2jGgDd0V0o1Cgt6SZ51xreIIEM
-         ta9bQ9ziuLmIJtCa96vLRG3HUfioeBDFqQ7jMRBg=
+        b=ZT7+VhfoeEkwJvqfeHxjp1H8oQUHQT2Heo5RYMUbnDZyXpia2FBRqboYcIvEUCzGj
+         sYc6NDhg6RVrD+kGmgQDyo7s4MVupd0a9Cnajbz33iO+02Uc1Xad/WE/Yc/AXMo5by
+         OdrgyJGYtEB8kLMHM7paAL4rRVPXKmjPrrfw0WnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 275/393] ASoC: meson: axg-tdm-interface: fix link fmt setup
-Date:   Mon, 17 Aug 2020 17:15:25 +0200
-Message-Id: <20200817143832.960829154@linuxfoundation.org>
+Subject: [PATCH 5.7 278/393] ASoC: soc-core: Fix regression causing sysfs entries to disappear
+Date:   Mon, 17 Aug 2020 17:15:28 +0200
+Message-Id: <20200817143833.104581277@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,73 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 6878ba91ce84f7a07887a0615af70f969508839f ]
+[ Upstream commit 5c74c9d34aec1ac756de6979dd5580096aba8643 ]
 
-The .set_fmt() callback of the axg tdm interface incorrectly
-test the content of SND_SOC_DAIFMT_MASTER_MASK as if it was a
-bitfield, which it is not.
+The allocation order of things in soc_new_pcm_runtime was changed to
+move the device_register before the allocation of the rtd structure.
+This was to allow the rtd allocation to be managed by devm. However
+currently the sysfs entries are added by device_register and their
+visibility depends on variables within the rtd structure, this causes
+the pmdown_time and dapm_widgets sysfs entries to be missing for all
+rtds.
 
-Implement the test correctly.
+Correct this issue by manually calling device_add_groups after the
+appropriate information is available.
 
-Fixes: d60e4f1e4be5 ("ASoC: meson: add tdm interface driver")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200729154456.1983396-2-jbrunet@baylibre.com
+Fixes: d918a37610b1 ("ASoC: soc-core: tidyup soc_new_pcm_runtime() alloc order")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200730120715.637-1-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/axg-tdm-interface.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ sound/soc/soc-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/meson/axg-tdm-interface.c b/sound/soc/meson/axg-tdm-interface.c
-index d51f3344be7c6..e25336f739123 100644
---- a/sound/soc/meson/axg-tdm-interface.c
-+++ b/sound/soc/meson/axg-tdm-interface.c
-@@ -119,18 +119,25 @@ static int axg_tdm_iface_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- {
- 	struct axg_tdm_iface *iface = snd_soc_dai_get_drvdata(dai);
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index e5433e8fcf19e..b5c4473f1e499 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -443,7 +443,6 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
  
--	/* These modes are not supported */
--	if (fmt & (SND_SOC_DAIFMT_CBS_CFM | SND_SOC_DAIFMT_CBM_CFS)) {
-+	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
-+	case SND_SOC_DAIFMT_CBS_CFS:
-+		if (!iface->mclk) {
-+			dev_err(dai->dev, "cpu clock master: mclk missing\n");
-+			return -ENODEV;
-+		}
-+		break;
+ 	dev->parent	= card->dev;
+ 	dev->release	= soc_release_rtd_dev;
+-	dev->groups	= soc_dev_attr_groups;
+ 
+ 	dev_set_name(dev, "%s", dai_link->name);
+ 
+@@ -502,6 +501,10 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
+ 	rtd->num = card->num_rtd;
+ 	card->num_rtd++;
+ 
++	ret = device_add_groups(dev, soc_dev_attr_groups);
++	if (ret < 0)
++		goto free_rtd;
 +
-+	case SND_SOC_DAIFMT_CBM_CFM:
-+		break;
-+
-+	case SND_SOC_DAIFMT_CBS_CFM:
-+	case SND_SOC_DAIFMT_CBM_CFS:
- 		dev_err(dai->dev, "only CBS_CFS and CBM_CFM are supported\n");
-+		/* Fall-through */
-+	default:
- 		return -EINVAL;
- 	}
+ 	return rtd;
  
--	/* If the TDM interface is the clock master, it requires mclk */
--	if (!iface->mclk && (fmt & SND_SOC_DAIFMT_CBS_CFS)) {
--		dev_err(dai->dev, "cpu clock master: mclk missing\n");
--		return -ENODEV;
--	}
--
- 	iface->fmt = fmt;
- 	return 0;
- }
-@@ -319,7 +326,8 @@ static int axg_tdm_iface_hw_params(struct snd_pcm_substream *substream,
- 	if (ret)
- 		return ret;
- 
--	if (iface->fmt & SND_SOC_DAIFMT_CBS_CFS) {
-+	if ((iface->fmt & SND_SOC_DAIFMT_MASTER_MASK) ==
-+	    SND_SOC_DAIFMT_CBS_CFS) {
- 		ret = axg_tdm_iface_set_sclk(dai, params);
- 		if (ret)
- 			return ret;
+ free_rtd:
 -- 
 2.25.1
 
