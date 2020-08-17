@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181EB247779
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B62E24777B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390746AbgHQTtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:49:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41072 "EHLO mail.kernel.org"
+        id S1729395AbgHQTtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:49:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729243AbgHQPUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:20:04 -0400
+        id S1729245AbgHQPUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:20:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09CCB2065C;
-        Mon, 17 Aug 2020 15:20:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 906D4206FA;
+        Mon, 17 Aug 2020 15:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677603;
-        bh=Qu/3foyaXERMqY1vv8CRgOXlPV4nyRt88WLVppSA5wU=;
+        s=default; t=1597677606;
+        bh=8INbqVHcC//Bj7jsi7PEmcghl29Dn+dGUL9hboMj/8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBvXbgcMmVnjM5hwC2FVtSFlIX/lAlVDsrTrBxDTSIfY3PrStbmBKHKigiO5+JPQ4
-         x8Q+cBo1fQ5gsxNpLL9L9GNWkRGlx1Sq0MrFGiTZWIdEB+w9oVOPQFmrCFInxeSdLp
-         Jgf3wPnSP8M1AeTjZenPwezLQDhLj7Gc8oSDabGE=
+        b=PZn8Xzt46J+XsXtKyqSDNkyXvVNAlQfBfJgFugS0vwUyc16XoX581o4ZOAsSA/tKQ
+         2GJ+lfIvdjuNeN3QrTzn7YNMlcLiHK4N7xwHvb2jRKtMt50IkZBwvdDnEbb6/quUUp
+         R000A8olE3GwM04wtxmRrX/L0NA2MMySAzz52AGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dejin Zheng <zhengdejin5@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 041/464] reset: intel: fix a compile warning about REG_OFFSET redefined
-Date:   Mon, 17 Aug 2020 17:09:54 +0200
-Message-Id: <20200817143835.722203155@linuxfoundation.org>
+Subject: [PATCH 5.8 042/464] ARM: dts: at91: sama5d3_xplained: change phy-mode
+Date:   Mon, 17 Aug 2020 17:09:55 +0200
+Message-Id: <20200817143835.769246910@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,103 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dejin Zheng <zhengdejin5@gmail.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 308646785e51976dea7e20d29a1842d14bf0b9bd ]
+[ Upstream commit 7dbf4bbf1c320d82058878bd44805724d171e1e8 ]
 
-kernel test robot reports a compile warning about REG_OFFSET redefined
-in the reset-intel-gw.c after merging commit e44ab4e14d6f4 ("regmap:
-Simplify implementation of the regmap_read_poll_timeout() macro"). the
-warning is like that:
+Since commit bcf3440c6dd7 ("net: phy: micrel: add phy-mode support for the
+KSZ9031 PHY"), networking is broken on sama5d3 xplained.
 
-drivers/reset/reset-intel-gw.c:18:0: warning: "REG_OFFSET" redefined
- #define REG_OFFSET GENMASK(31, 16)
+The device tree has phy-mode = "rgmii" and this worked before, because
+KSZ9031 PHY started with default RGMII internal delays configuration (TX
+off, RX on 1.2 ns) and MAC provided TX delay. After above commit, the
+KSZ9031 PHY starts handling phy mode properly and disables RX delay, as
+result networking is become broken.
 
-In file included from ./arch/arm/mach-ixp4xx/include/mach/hardware.h:30:0,
-                 from ./arch/arm/mach-ixp4xx/include/mach/io.h:15,
-                 from ./arch/arm/include/asm/io.h:198,
-                 from ./include/linux/io.h:13,
-                 from ./include/linux/iopoll.h:14,
-                 from ./include/linux/regmap.h:20,
-                 from drivers/reset/reset-intel-gw.c:12:
-./arch/arm/mach-ixp4xx/include/mach/platform.h:25:0: note: this is the location of the previous definition
- #define REG_OFFSET 3
+Fix it by switching to phy-mode = "rgmii-rxid" to reflect previous
+behavior.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: c9aef213e38cde ("reset: intel: Add system reset controller driver")
-Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: bcf3440c6dd78bfe ("net: phy: micrel: add phy-mode support for the KSZ9031 PHY")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20200717233644.841080-1-alexandre.belloni@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-intel-gw.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/at91-sama5d3_xplained.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/reset/reset-intel-gw.c b/drivers/reset/reset-intel-gw.c
-index 854238444616b..effc177db80af 100644
---- a/drivers/reset/reset-intel-gw.c
-+++ b/drivers/reset/reset-intel-gw.c
-@@ -15,9 +15,9 @@
- #define RCU_RST_STAT	0x0024
- #define RCU_RST_REQ	0x0048
+diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+index 61f068a7b362a..7abf555cd2fe3 100644
+--- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+@@ -128,7 +128,7 @@ vddana_reg: LDO_REG2 {
+ 			};
  
--#define REG_OFFSET	GENMASK(31, 16)
--#define BIT_OFFSET	GENMASK(15, 8)
--#define STAT_BIT_OFFSET	GENMASK(7, 0)
-+#define REG_OFFSET_MASK	GENMASK(31, 16)
-+#define BIT_OFFSET_MASK	GENMASK(15, 8)
-+#define STAT_BIT_OFFSET_MASK	GENMASK(7, 0)
- 
- #define to_reset_data(x)	container_of(x, struct intel_reset_data, rcdev)
- 
-@@ -51,11 +51,11 @@ static u32 id_to_reg_and_bit_offsets(struct intel_reset_data *data,
- 				     unsigned long id, u32 *rst_req,
- 				     u32 *req_bit, u32 *stat_bit)
- {
--	*rst_req = FIELD_GET(REG_OFFSET, id);
--	*req_bit = FIELD_GET(BIT_OFFSET, id);
-+	*rst_req = FIELD_GET(REG_OFFSET_MASK, id);
-+	*req_bit = FIELD_GET(BIT_OFFSET_MASK, id);
- 
- 	if (data->soc_data->legacy)
--		*stat_bit = FIELD_GET(STAT_BIT_OFFSET, id);
-+		*stat_bit = FIELD_GET(STAT_BIT_OFFSET_MASK, id);
- 	else
- 		*stat_bit = *req_bit;
- 
-@@ -141,14 +141,14 @@ static int intel_reset_xlate(struct reset_controller_dev *rcdev,
- 	if (spec->args[1] > 31)
- 		return -EINVAL;
- 
--	id = FIELD_PREP(REG_OFFSET, spec->args[0]);
--	id |= FIELD_PREP(BIT_OFFSET, spec->args[1]);
-+	id = FIELD_PREP(REG_OFFSET_MASK, spec->args[0]);
-+	id |= FIELD_PREP(BIT_OFFSET_MASK, spec->args[1]);
- 
- 	if (data->soc_data->legacy) {
- 		if (spec->args[2] > 31)
- 			return -EINVAL;
- 
--		id |= FIELD_PREP(STAT_BIT_OFFSET, spec->args[2]);
-+		id |= FIELD_PREP(STAT_BIT_OFFSET_MASK, spec->args[2]);
- 	}
- 
- 	return id;
-@@ -210,11 +210,11 @@ static int intel_reset_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
- 
--	data->reboot_id = FIELD_PREP(REG_OFFSET, rb_id[0]);
--	data->reboot_id |= FIELD_PREP(BIT_OFFSET, rb_id[1]);
-+	data->reboot_id = FIELD_PREP(REG_OFFSET_MASK, rb_id[0]);
-+	data->reboot_id |= FIELD_PREP(BIT_OFFSET_MASK, rb_id[1]);
- 
- 	if (data->soc_data->legacy)
--		data->reboot_id |= FIELD_PREP(STAT_BIT_OFFSET, rb_id[2]);
-+		data->reboot_id |= FIELD_PREP(STAT_BIT_OFFSET_MASK, rb_id[2]);
- 
- 	data->restart_nb.notifier_call =	intel_reset_restart_handler;
- 	data->restart_nb.priority =		128;
+ 			macb0: ethernet@f0028000 {
+-				phy-mode = "rgmii";
++				phy-mode = "rgmii-rxid";
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				status = "okay";
 -- 
 2.25.1
 
