@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1356E247523
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 494EA24751F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387433AbgHQTTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:19:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44812 "EHLO mail.kernel.org"
+        id S2404188AbgHQTT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730538AbgHQPhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:37:13 -0400
+        id S1730239AbgHQPha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:37:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D835A22C9F;
-        Mon, 17 Aug 2020 15:37:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBCBE208E4;
+        Mon, 17 Aug 2020 15:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678633;
-        bh=XgOrT0vcgqMw2nMkmaD47txC4iPex3+wH6BiKJBG6qw=;
+        s=default; t=1597678650;
+        bh=qqQlDeNP9ll3TBVFHzlpclXEDbLIy2T5o7RyM+U8G1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sW1huQsmHQsHLbn1bOQ5+KKlzeunYFGFCH7rFEGeUDoa9DgeUybS5a3wljV9pWYWP
-         eyS29dvGFyf/xdin2El9ZTRIJhTM/KIEGiGC3mwu1bvoXtbpTFdkHCtliBf8qeAsTq
-         v63FZZe+2QXownweJ28Z8nm63R3InVuu6Xi3v6d0=
+        b=KwK0EVh3sls/fGnvNuTIsWR4OUC1YW+D4Cth26atggdFSILJevuqJpeZmJ7QfHaNO
+         rdj5Gamr+F8dDzmnG/XL90tH+BxanRqdXKfH9t1PGkidteTaBwBUillhQTlFsRkQMW
+         NHI+KI/TDJpHDhPRkGy4lI9WouP4aY+ceT42ns+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 402/464] ALSA: hda - fix the micmute led status for Lenovo ThinkCentre AIO
-Date:   Mon, 17 Aug 2020 17:15:55 +0200
-Message-Id: <20200817143853.036666469@linuxfoundation.org>
+Subject: [PATCH 5.8 407/464] ALSA: usb-audio: add quirk for Pioneer DDJ-RB
+Date:   Mon, 17 Aug 2020 17:16:00 +0200
+Message-Id: <20200817143853.276111725@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,36 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Hector Martin <marcan@marcan.st>
 
-commit 386a6539992b82fe9ac4f9dc3f548956fd894d8c upstream.
+commit 6e8596172ee1cd46ec0bfd5adcf4ff86371478b6 upstream.
 
-After installing the Ubuntu Linux, the micmute led status is not
-correct. Users expect that the led is on if the capture is disabled,
-but with the current kernel, the led is off with the capture disabled.
+This is just another Pioneer device with fixed endpoints. Input is dummy
+but used as feedback (it always returns silence).
 
-We tried the old linux kernel like linux-4.15, there is no this issue.
-It looks like we introduced this issue when switching to the led_cdev.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200810021659.7429-1-hui.wang@canonical.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200810082502.225979-1-marcan@marcan.st
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/quirks-table.h |   56 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4426,6 +4426,7 @@ static void alc233_fixup_lenovo_line2_mi
- {
- 	struct alc_spec *spec = codec->spec;
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3541,6 +3541,62 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
+ 		}
+ 	}
+ },
++{
++	/*
++	 * PIONEER DJ DDJ-RB
++	 * PCM is 4 channels out, 2 dummy channels in @ 44.1 fixed
++	 * The feedback for the output is the dummy input.
++	 */
++	USB_DEVICE_VENDOR_SPEC(0x2b73, 0x000e),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = (const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
++					.channels = 4,
++					.iface = 0,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x01,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC|
++						   USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_44100,
++					.rate_min = 44100,
++					.rate_max = 44100,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 44100 }
++				}
++			},
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
++					.channels = 2,
++					.iface = 0,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC|
++						 USB_ENDPOINT_SYNC_ASYNC|
++						 USB_ENDPOINT_USAGE_IMPLICIT_FB,
++					.rates = SNDRV_PCM_RATE_44100,
++					.rate_min = 44100,
++					.rate_max = 44100,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 44100 }
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
  
-+	spec->micmute_led_polarity = 1;
- 	alc_fixup_hp_gpio_led(codec, action, 0, 0x04);
- 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
- 		spec->init_amp = ALC_INIT_DEFAULT;
+ #define ALC1220_VB_DESKTOP(vend, prod) { \
+ 	USB_DEVICE(vend, prod),	\
 
 
