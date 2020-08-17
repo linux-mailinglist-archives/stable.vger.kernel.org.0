@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A139D246BA5
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D589246BAF
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730984AbgHQP7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46888 "EHLO mail.kernel.org"
+        id S1731026AbgHQQAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:00:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730975AbgHQP7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:59:38 -0400
+        id S1731006AbgHQQAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:00:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FD7A20825;
-        Mon, 17 Aug 2020 15:59:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C80F7207FF;
+        Mon, 17 Aug 2020 16:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679977;
-        bh=0Lulmu8qY+l8cB5M7Ak1H3xJrMUnSSGPpXUUroF0XiA=;
+        s=default; t=1597680014;
+        bh=Wjh1zmTtqnm8XeYUSPfbp2YVMtHTpJQyH8Z6DM5I+dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pp3JDieZsPy8+QXUU2cMZelSY6SCGhaidkAJPjL6cbdFgEmblUHbCUtaos1dkecEa
-         sBDEcC1W401MwcNjGawyUF9BcvaVisHGh05CN5eT8yAmhPqNp7dc2f+k68NRbdoKxK
-         0C2Uz5+/upm5Xd//Se1G42T6NxOI3DIZbiXuQjZo=
+        b=e3zHDeF7LpI/4ytlBR4w4eNAmIHuZzlKDQknjc+MFxZCaiCXwNL6xeCtE8HHhTukf
+         vjztRLcGFMGoQ/rZcdqvLYV6pFvIMfn4Yt4oLRCFIMkvZXlWg86qb3dmCG64WAiztj
+         0dM3WJvobYgAqxccMTeMg6Sreks+cTMcKcajDIzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 392/393] io_uring: enable lookup of links holding inflight files
-Date:   Mon, 17 Aug 2020 17:17:22 +0200
-Message-Id: <20200817143838.604364210@linuxfoundation.org>
+        stable@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>,
+        Darren Hart <darren@dvhart.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 002/270] HID: input: Fix devices that return multiple bytes in battery report
+Date:   Mon, 17 Aug 2020 17:13:23 +0200
+Message-Id: <20200817143755.932777623@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,168 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Grant Likely <grant.likely@secretlab.ca>
 
-commit f254ac04c8744cf7bfed012717eac34eacc65dfb upstream.
+commit 4f57cace81438cc873a96f9f13f08298815c9b51 upstream.
 
-When a process exits, we cancel whatever requests it has pending that
-are referencing the file table. However, if a link is holding a
-reference, then we cannot find it by simply looking at the inflight
-list.
+Some devices, particularly the 3DConnexion Spacemouse wireless 3D
+controllers, return more than just the battery capacity in the battery
+report. The Spacemouse devices return an additional byte with a device
+specific field. However, hidinput_query_battery_capacity() only
+requests a 2 byte transfer.
 
-Enable checking of the poll and timeout list to find the link, and
-cancel it appropriately.
+When a spacemouse is connected via USB (direct wire, no wireless dongle)
+and it returns a 3 byte report instead of the assumed 2 byte battery
+report the larger transfer confuses and frightens the USB subsystem
+which chooses to ignore the transfer. Then after 2 seconds assume the
+device has stopped responding and reset it. This can be reproduced
+easily by using a wired connection with a wireless spacemouse. The
+Spacemouse will enter a loop of resetting every 2 seconds which can be
+observed in dmesg.
 
+This patch solves the problem by increasing the transfer request to 4
+bytes instead of 2. The fix isn't particularly elegant, but it is simple
+and safe to backport to stable kernels. A further patch will follow to
+more elegantly handle battery reports that contain additional data.
+
+Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+Cc: Darren Hart <darren@dvhart.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: stable@vger.kernel.org
-Reported-by: Josef <josef.grieb@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Tested-by: Darren Hart <dvhart@infradead.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- fs/io_uring.c |   97 ++++++++++++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 87 insertions(+), 10 deletions(-)
+ drivers/hid/hid-input.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4638,6 +4638,7 @@ static bool io_poll_remove_one(struct io
- 		io_cqring_fill_event(req, -ECANCELED);
- 		io_commit_cqring(req->ctx);
- 		req->flags |= REQ_F_COMP_LOCKED;
-+		req_set_fail_links(req);
- 		io_put_req(req);
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -350,13 +350,13 @@ static int hidinput_query_battery_capaci
+ 	u8 *buf;
+ 	int ret;
+ 
+-	buf = kmalloc(2, GFP_KERNEL);
++	buf = kmalloc(4, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
++	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 4,
+ 				 dev->battery_report_type, HID_REQ_GET_REPORT);
+-	if (ret != 2) {
++	if (ret < 2) {
+ 		kfree(buf);
+ 		return -ENODATA;
  	}
- 
-@@ -4820,6 +4821,23 @@ static enum hrtimer_restart io_timeout_f
- 	return HRTIMER_NORESTART;
- }
- 
-+static int __io_timeout_cancel(struct io_kiocb *req)
-+{
-+	int ret;
-+
-+	list_del_init(&req->list);
-+
-+	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
-+	if (ret == -1)
-+		return -EALREADY;
-+
-+	req_set_fail_links(req);
-+	req->flags |= REQ_F_COMP_LOCKED;
-+	io_cqring_fill_event(req, -ECANCELED);
-+	io_put_req(req);
-+	return 0;
-+}
-+
- static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
- {
- 	struct io_kiocb *req;
-@@ -4827,7 +4845,6 @@ static int io_timeout_cancel(struct io_r
- 
- 	list_for_each_entry(req, &ctx->timeout_list, list) {
- 		if (user_data == req->user_data) {
--			list_del_init(&req->list);
- 			ret = 0;
- 			break;
- 		}
-@@ -4836,15 +4853,7 @@ static int io_timeout_cancel(struct io_r
- 	if (ret == -ENOENT)
- 		return ret;
- 
--	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
--	if (ret == -1)
--		return -EALREADY;
--
--	req_set_fail_links(req);
--	req->flags |= REQ_F_COMP_LOCKED;
--	io_cqring_fill_event(req, -ECANCELED);
--	io_put_req(req);
--	return 0;
-+	return __io_timeout_cancel(req);
- }
- 
- static int io_timeout_remove_prep(struct io_kiocb *req,
-@@ -7579,6 +7588,71 @@ static int io_uring_release(struct inode
- 	return 0;
- }
- 
-+/*
-+ * Returns true if 'preq' is the link parent of 'req'
-+ */
-+static bool io_match_link(struct io_kiocb *preq, struct io_kiocb *req)
-+{
-+	struct io_kiocb *link;
-+
-+	if (!(preq->flags & REQ_F_LINK_HEAD))
-+		return false;
-+
-+	list_for_each_entry(link, &preq->link_list, link_list) {
-+		if (link == req)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/*
-+ * We're looking to cancel 'req' because it's holding on to our files, but
-+ * 'req' could be a link to another request. See if it is, and cancel that
-+ * parent request if so.
-+ */
-+static bool io_poll_remove_link(struct io_ring_ctx *ctx, struct io_kiocb *req)
-+{
-+	struct hlist_node *tmp;
-+	struct io_kiocb *preq;
-+	bool found = false;
-+	int i;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	for (i = 0; i < (1U << ctx->cancel_hash_bits); i++) {
-+		struct hlist_head *list;
-+
-+		list = &ctx->cancel_hash[i];
-+		hlist_for_each_entry_safe(preq, tmp, list, hash_node) {
-+			found = io_match_link(preq, req);
-+			if (found) {
-+				io_poll_remove_one(preq);
-+				break;
-+			}
-+		}
-+	}
-+	spin_unlock_irq(&ctx->completion_lock);
-+	return found;
-+}
-+
-+static bool io_timeout_remove_link(struct io_ring_ctx *ctx,
-+				   struct io_kiocb *req)
-+{
-+	struct io_kiocb *preq;
-+	bool found = false;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	list_for_each_entry(preq, &ctx->timeout_list, list) {
-+		found = io_match_link(preq, req);
-+		if (found) {
-+			__io_timeout_cancel(preq);
-+			break;
-+		}
-+	}
-+	spin_unlock_irq(&ctx->completion_lock);
-+	return found;
-+}
-+
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
- {
-@@ -7629,6 +7703,9 @@ static void io_uring_cancel_files(struct
- 			}
- 		} else {
- 			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
-+			/* could be a link, check and remove if it is */
-+			if (!io_poll_remove_link(ctx, cancel_req))
-+				io_timeout_remove_link(ctx, cancel_req);
- 			io_put_req(cancel_req);
- 		}
- 
 
 
