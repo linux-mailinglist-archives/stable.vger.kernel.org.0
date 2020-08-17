@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2711324724E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB7E247229
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391417AbgHQSk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:40:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
+        id S2389546AbgHQSj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:39:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730802AbgHQP5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:57:45 -0400
+        id S2388117AbgHQP6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:58:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EED22177B;
-        Mon, 17 Aug 2020 15:57:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8313520882;
+        Mon, 17 Aug 2020 15:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679864;
-        bh=fW0PLUaemraPxR56ZlLLDoiTZLlCiLqb4+qpdqoPWUg=;
+        s=default; t=1597679897;
+        bh=Z7uuX6jONzBmCL1BMhZ1gplvGythd9IoiXwr1HTKKvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvDFehjMBtMKo8OOT4dcazK+E/s7eE8zrzIPP/BM55aQAtVSlGZcN/ZieyPU0qfMI
-         baUcWJiYsH4fSkN8gwkJUauhPFKoaHXnDueJlpoGr4uQl2Mom5ZKpQYPOnhpM7xs60
-         a03MCCeF6pGDZ6eTmavyhUHMrJoZacQpfKeg4AXc=
+        b=FNeT7lgbCetppitiDrA1T1lYCnmOPQ8uV+ZTyBwNlAo+Viemb600b5CzNGK44YCIn
+         ELT79jRwEhiG6hrZhDhkUhcNMnnnIV+CLV85TYYSRu5t7iCxCfk3mMdgnmpmaw/Ik8
+         WFWRPibT/kH+WHuFzynlmZhYa5gUatpttWILiL/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6bed2d543cf7e48b822b@syzkaller.appspotmail.com,
-        Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.7 353/393] media: media-request: Fix crash if memory allocation fails
-Date:   Mon, 17 Aug 2020 17:16:43 +0200
-Message-Id: <20200817143836.725314288@linuxfoundation.org>
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 5.7 354/393] drm/ttm/nouveau: dont call tt destroy callback on alloc failure.
+Date:   Mon, 17 Aug 2020 17:16:44 +0200
+Message-Id: <20200817143836.774634072@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -47,118 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+From: Dave Airlie <airlied@redhat.com>
 
-commit e30cc79cc80fd919b697a15c5000d9f57487de8e upstream.
+commit 5de5b6ecf97a021f29403aa272cb4e03318ef586 upstream.
 
-Syzbot reports a NULL-ptr deref in the kref_put() call:
+This is confusing, and from my reading of all the drivers only
+nouveau got this right.
 
-BUG: KASAN: null-ptr-deref in media_request_put drivers/media/mc/mc-request.c:81 [inline]
- kref_put include/linux/kref.h:64 [inline]
- media_request_put drivers/media/mc/mc-request.c:81 [inline]
- media_request_close+0x4d/0x170 drivers/media/mc/mc-request.c:89
- __fput+0x2ed/0x750 fs/file_table.c:281
- task_work_run+0x147/0x1d0 kernel/task_work.c:123
- tracehook_notify_resume include/linux/tracehook.h:188 [inline]
- exit_to_usermode_loop arch/x86/entry/common.c:165 [inline]
- prepare_exit_to_usermode+0x48e/0x600 arch/x86/entry/common.c:196
+Just make the API act under driver control of it's own allocation
+failing, and don't call destroy, if the page table fails to
+create there is nothing to cleanup here.
 
-What led to this crash was an injected memory allocation failure in
-media_request_alloc():
+(I'm willing to believe I've missed something here, so please
+review deeply).
 
-FAULT_INJECTION: forcing a failure.
-name failslab, interval 1, probability 0, space 0, times 0
- should_failslab+0x5/0x20
- kmem_cache_alloc_trace+0x57/0x300
- ? anon_inode_getfile+0xe5/0x170
- media_request_alloc+0x339/0x440
- media_device_request_alloc+0x94/0xc0
- media_device_ioctl+0x1fb/0x330
- ? do_vfs_ioctl+0x6ea/0x1a00
- ? media_ioctl+0x101/0x120
- ? __media_device_usb_init+0x430/0x430
- ? media_poll+0x110/0x110
- __se_sys_ioctl+0xf9/0x160
- do_syscall_64+0xf3/0x1b0
-
-When that allocation fails, filp->private_data is left uninitialized
-which media_request_close() does not expect and crashes.
-
-To avoid this, reorder media_request_alloc() such that
-allocating the struct file happens as the last step thus
-media_request_close() will no longer get called for a partially created
-media request.
-
-Reported-by: syzbot+6bed2d543cf7e48b822b@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-Fixes: 10905d70d788 ("media: media-request: implement media requests")
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200728041736.20689-1-airlied@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/mc/mc-request.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_sgdma.c |    9 +++------
+ drivers/gpu/drm/ttm/ttm_tt.c            |    3 ---
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
---- a/drivers/media/mc/mc-request.c
-+++ b/drivers/media/mc/mc-request.c
-@@ -296,9 +296,18 @@ int media_request_alloc(struct media_dev
- 	if (WARN_ON(!mdev->ops->req_alloc ^ !mdev->ops->req_free))
- 		return -ENOMEM;
+--- a/drivers/gpu/drm/nouveau/nouveau_sgdma.c
++++ b/drivers/gpu/drm/nouveau/nouveau_sgdma.c
+@@ -96,12 +96,9 @@ nouveau_sgdma_create_ttm(struct ttm_buff
+ 	else
+ 		nvbe->ttm.ttm.func = &nv50_sgdma_backend;
  
-+	if (mdev->ops->req_alloc)
-+		req = mdev->ops->req_alloc(mdev);
-+	else
-+		req = kzalloc(sizeof(*req), GFP_KERNEL);
-+	if (!req)
-+		return -ENOMEM;
-+
- 	fd = get_unused_fd_flags(O_CLOEXEC);
--	if (fd < 0)
--		return fd;
-+	if (fd < 0) {
-+		ret = fd;
-+		goto err_free_req;
+-	if (ttm_dma_tt_init(&nvbe->ttm, bo, page_flags))
+-		/*
+-		 * A failing ttm_dma_tt_init() will call ttm_tt_destroy()
+-		 * and thus our nouveau_sgdma_destroy() hook, so we don't need
+-		 * to free nvbe here.
+-		 */
++	if (ttm_dma_tt_init(&nvbe->ttm, bo, page_flags)) {
++		kfree(nvbe);
+ 		return NULL;
 +	}
- 
- 	filp = anon_inode_getfile("request", &request_fops, NULL, O_CLOEXEC);
- 	if (IS_ERR(filp)) {
-@@ -306,15 +315,6 @@ int media_request_alloc(struct media_dev
- 		goto err_put_fd;
- 	}
- 
--	if (mdev->ops->req_alloc)
--		req = mdev->ops->req_alloc(mdev);
--	else
--		req = kzalloc(sizeof(*req), GFP_KERNEL);
--	if (!req) {
--		ret = -ENOMEM;
--		goto err_fput;
--	}
--
- 	filp->private_data = req;
- 	req->mdev = mdev;
- 	req->state = MEDIA_REQUEST_STATE_IDLE;
-@@ -336,12 +336,15 @@ int media_request_alloc(struct media_dev
- 
- 	return 0;
- 
--err_fput:
--	fput(filp);
--
- err_put_fd:
- 	put_unused_fd(fd);
- 
-+err_free_req:
-+	if (mdev->ops->req_free)
-+		mdev->ops->req_free(req);
-+	else
-+		kfree(req);
-+
- 	return ret;
+ 	return &nvbe->ttm.ttm;
  }
+--- a/drivers/gpu/drm/ttm/ttm_tt.c
++++ b/drivers/gpu/drm/ttm/ttm_tt.c
+@@ -242,7 +242,6 @@ int ttm_tt_init(struct ttm_tt *ttm, stru
+ 	ttm_tt_init_fields(ttm, bo, page_flags);
  
+ 	if (ttm_tt_alloc_page_directory(ttm)) {
+-		ttm_tt_destroy(ttm);
+ 		pr_err("Failed allocating page table\n");
+ 		return -ENOMEM;
+ 	}
+@@ -266,7 +265,6 @@ int ttm_dma_tt_init(struct ttm_dma_tt *t
+ 
+ 	INIT_LIST_HEAD(&ttm_dma->pages_list);
+ 	if (ttm_dma_tt_alloc_page_directory(ttm_dma)) {
+-		ttm_tt_destroy(ttm);
+ 		pr_err("Failed allocating page table\n");
+ 		return -ENOMEM;
+ 	}
+@@ -288,7 +286,6 @@ int ttm_sg_tt_init(struct ttm_dma_tt *tt
+ 	else
+ 		ret = ttm_dma_tt_alloc_page_directory(ttm_dma);
+ 	if (ret) {
+-		ttm_tt_destroy(ttm);
+ 		pr_err("Failed allocating page table\n");
+ 		return -ENOMEM;
+ 	}
 
 
