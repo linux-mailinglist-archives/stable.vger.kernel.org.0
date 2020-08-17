@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B3A2473AB
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7100A2471CE
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391824AbgHQS7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
+        id S2390845AbgHQSeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:34:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387600AbgHQPss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:48:48 -0400
+        id S1731012AbgHQQAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:00:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 572B82065D;
-        Mon, 17 Aug 2020 15:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 758A6208E4;
+        Mon, 17 Aug 2020 16:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679327;
-        bh=3LE1sERH2op8tr81KcVJnW6F9WEIbmmNSLlI6nSbYV4=;
+        s=default; t=1597680022;
+        bh=LgP2OlZL56NdcDzxmOX1Pp5E0+D4FDy8ClRGYt4r8wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4g6RgcQsWlqqPvXs2BJEf1ouaVcKhT1BpFx7OfUnTx7kCS5Q+L2N32mr1ekZ+GlD
-         IgSTN8XNmLnFgSkRhl9zBamd56n4d7tZ+UOfWdCOw3fCj60VPOfQx6Yk02fihbpw8Z
-         YAlZo7TPsXYKKCQCiZXX0UO4ek4FFX39Bw5rs/NQ=
+        b=jcyUZR5BktA4pA7fiRMXb9XgNw05HKDpJ6n3dumJST+Uwm/Cx+v/RJGFaBIKUA+ec
+         vSUqU/HStijoeXRSsYlrM1e5Tifu7xIk17VVHK152IBZTI8487AxCTLR2YlReI7Evy
+         89wuZUa2LHFqYLFkkm9UQ+SEfh7E7KPe1ZL6xfsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        Joshua Thompson <funaho@jurai.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 173/393] iavf: fix error return code in iavf_init_get_resources()
+Subject: [PATCH 5.4 022/270] m68k: mac: Dont send IOP message until channel is idle
 Date:   Mon, 17 Aug 2020 17:13:43 +0200
-Message-Id: <20200817143828.013398792@linuxfoundation.org>
+Message-Id: <20200817143756.888470754@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 753f3884f253de6b6d3a516e6651bda0baf4aede ]
+[ Upstream commit aeb445bf2194d83e12e85bf5c65baaf1f093bd8f ]
 
-Fix to return negative error code -ENOMEM from the error handling
-case instead of 0, as done elsewhere in this function.
+In the following sequence of calls, iop_do_send() gets called when the
+"send" channel is not in the IOP_MSG_IDLE state:
 
-Fixes: b66c7bc1cd4d ("iavf: Refactor init state machine")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+	iop_ism_irq()
+		iop_handle_send()
+			(msg->handler)()
+				iop_send_message()
+			iop_do_send()
+
+Avoid this by testing the channel state before calling iop_do_send().
+
+When sending, and iop_send_queue is empty, call iop_do_send() because
+the channel is idle. If iop_send_queue is not empty, iop_do_send() will
+get called later by iop_handle_send().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Cc: Joshua Thompson <funaho@jurai.org>
+Link: https://lore.kernel.org/r/6d667c39e53865661fa5a48f16829d18ed8abe54.1590880333.git.fthain@telegraphics.com.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/m68k/mac/iop.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index a21ae74bcd1b6..8deff711cc02c 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -1863,8 +1863,10 @@ static int iavf_init_get_resources(struct iavf_adapter *adapter)
+diff --git a/arch/m68k/mac/iop.c b/arch/m68k/mac/iop.c
+index 9bfa170157688..d8f2282978f9c 100644
+--- a/arch/m68k/mac/iop.c
++++ b/arch/m68k/mac/iop.c
+@@ -416,7 +416,8 @@ static void iop_handle_send(uint iop_num, uint chan)
+ 	msg->status = IOP_MSGSTATUS_UNUSED;
+ 	msg = msg->next;
+ 	iop_send_queue[iop_num][chan] = msg;
+-	if (msg) iop_do_send(msg);
++	if (msg && iop_readb(iop, IOP_ADDR_SEND_STATE + chan) == IOP_MSG_IDLE)
++		iop_do_send(msg);
+ }
  
- 	adapter->rss_key = kzalloc(adapter->rss_key_size, GFP_KERNEL);
- 	adapter->rss_lut = kzalloc(adapter->rss_lut_size, GFP_KERNEL);
--	if (!adapter->rss_key || !adapter->rss_lut)
-+	if (!adapter->rss_key || !adapter->rss_lut) {
-+		err = -ENOMEM;
- 		goto err_mem;
-+	}
- 	if (RSS_AQ(adapter))
- 		adapter->aq_required |= IAVF_FLAG_AQ_CONFIGURE_RSS;
- 	else
+ /*
+@@ -490,16 +491,12 @@ int iop_send_message(uint iop_num, uint chan, void *privdata,
+ 
+ 	if (!(q = iop_send_queue[iop_num][chan])) {
+ 		iop_send_queue[iop_num][chan] = msg;
++		iop_do_send(msg);
+ 	} else {
+ 		while (q->next) q = q->next;
+ 		q->next = msg;
+ 	}
+ 
+-	if (iop_readb(iop_base[iop_num],
+-	    IOP_ADDR_SEND_STATE + chan) == IOP_MSG_IDLE) {
+-		iop_do_send(msg);
+-	}
+-
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
