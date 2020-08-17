@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8639E246A18
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9EA246A1A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:30:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730141AbgHQPaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:30:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50326 "EHLO mail.kernel.org"
+        id S1730173AbgHQPaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:30:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730161AbgHQPaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:30:02 -0400
+        id S1729448AbgHQPaL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:30:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95EB423B70;
-        Mon, 17 Aug 2020 15:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B96292395B;
+        Mon, 17 Aug 2020 15:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678201;
-        bh=XugmzUNp+yDZbPuVILCbUKm0S2q7YDvtvt0tPgBwu04=;
+        s=default; t=1597678210;
+        bh=18Kb9L0d2/YacLQLp9iqHZqdiB+gKYnwcnzOM4HUAIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdzAgTKT9X7ZDbX3xao0gD2DPN2lx00lA9NksxiMRLSxSL73JAt5YgQ8Xhn7uXGC6
-         6NpWnPaWpLuhI0SE5psYyL6gcnihEXR8ZMYWwwoKRKq9AL7Q4iPO62b13cP2M8Ydp4
-         uOl6GbD7fZ3S6xMmKB8JmQD9LN5g2dX/ob3C604o=
+        b=yGN5AMccL33DU83UCvymJkosL90izRs+k1D7QUkWO9TXxZp4YTKy2OQ3NX0+Ekm5M
+         jAmN7mfefk8lVzZMSbkz6A85HNL2mrnxZsyPVcy8aISQ3ZNEraYoRyJjumRRKmZrNn
+         H6yrrkMpNtjokl7NSdDJLOeJhZ7iyxVLok/X8LGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 222/464] phy: cadence: salvo: fix wrong bit definition
-Date:   Mon, 17 Aug 2020 17:12:55 +0200
-Message-Id: <20200817143844.431489756@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 225/464] mmc: sdhci-of-arasan: Add missed checks for devm_clk_register()
+Date:   Mon, 17 Aug 2020 17:12:58 +0200
+Message-Id: <20200817143844.574706188@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,35 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 270ff6048f45759d31a7b62d3983b084153837f5 ]
+[ Upstream commit c99e1d0c91ac8d7db3062ea1af315f21295701d7 ]
 
-It fixes RX detect wakeup using USB3 device, otherwise, the USB3
-device can't wakeup USB PHY when the PHY is in 32Khz clock.
+These functions do not check the return value of devm_clk_register():
+  - sdhci_arasan_register_sdcardclk()
+  - sdhci_arasan_register_sampleclk()
 
-Fixes: 50d35aa8c15f ("phy: cadence: salvo: add salvo phy driver")
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200703064600.14181-1-peter.chen@nxp.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Therefore, add the missed checks to fix them.
+
+Fixes: c390f2110adf1 ("mmc: sdhci-of-arasan: Add ability to export card clock")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200608162226.3259186-1-hslester96@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/cadence/phy-cadence-salvo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-arasan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/phy/cadence/phy-cadence-salvo.c b/drivers/phy/cadence/phy-cadence-salvo.c
-index 1ecbb964cd216..016514e4aa549 100644
---- a/drivers/phy/cadence/phy-cadence-salvo.c
-+++ b/drivers/phy/cadence/phy-cadence-salvo.c
-@@ -88,7 +88,7 @@
- #define TB_ADDR_TX_RCVDETSC_CTRL	        0x4124
+diff --git a/drivers/mmc/host/sdhci-of-arasan.c b/drivers/mmc/host/sdhci-of-arasan.c
+index db9b544465cda..fb26e743e1fd4 100644
+--- a/drivers/mmc/host/sdhci-of-arasan.c
++++ b/drivers/mmc/host/sdhci-of-arasan.c
+@@ -1299,6 +1299,8 @@ sdhci_arasan_register_sdcardclk(struct sdhci_arasan_data *sdhci_arasan,
+ 	clk_data->sdcardclk_hw.init = &sdcardclk_init;
+ 	clk_data->sdcardclk =
+ 		devm_clk_register(dev, &clk_data->sdcardclk_hw);
++	if (IS_ERR(clk_data->sdcardclk))
++		return PTR_ERR(clk_data->sdcardclk);
+ 	clk_data->sdcardclk_hw.init = NULL;
  
- /* TB_ADDR_TX_RCVDETSC_CTRL */
--#define RXDET_IN_P3_32KHZ			BIT(1)
-+#define RXDET_IN_P3_32KHZ			BIT(0)
+ 	ret = of_clk_add_provider(np, of_clk_src_simple_get,
+@@ -1349,6 +1351,8 @@ sdhci_arasan_register_sampleclk(struct sdhci_arasan_data *sdhci_arasan,
+ 	clk_data->sampleclk_hw.init = &sampleclk_init;
+ 	clk_data->sampleclk =
+ 		devm_clk_register(dev, &clk_data->sampleclk_hw);
++	if (IS_ERR(clk_data->sampleclk))
++		return PTR_ERR(clk_data->sampleclk);
+ 	clk_data->sampleclk_hw.init = NULL;
  
- struct cdns_reg_pairs {
- 	u16 val;
+ 	ret = of_clk_add_provider(np, of_clk_src_simple_get,
 -- 
 2.25.1
 
