@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DC8247264
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EDAB247262
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731046AbgHQSmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43850 "EHLO mail.kernel.org"
+        id S1730677AbgHQSlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388107AbgHQP5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:57:19 -0400
+        id S1730674AbgHQP5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:57:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AC892053B;
-        Mon, 17 Aug 2020 15:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCC452072E;
+        Mon, 17 Aug 2020 15:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679838;
-        bh=H/sAWZNayUAm6VUsoiyFzC7IG2z6At5vQNCvO8FW/vg=;
+        s=default; t=1597679841;
+        bh=8cLVw7nzYeeb/D1UEPPeffAQwZifocd6+H+cQwWUp8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxwS/7EDx9d/1mEZDJ1mM4N5mQIPMhG0hcmOweX3KO+/DHPcCHivWUSOo5RH1NrY/
-         ty5V0QItzJLw7WgMXJYdPEvnnGt46DmIpjFOb0+yS5oCThhqOpcd6skGJ8qST8mh+y
-         Wzv7afA0iRDiORkyoaFIhgpel1C+hjIdKyroG5AU=
+        b=K3/yy7qc8+tRY8bKb/Dwj3e1wLNyMlEWoxR/+8DZ5DLoWFpSVlzGROx7CgPCpw/ft
+         TkCrg+hptu3d+tUD/2rqsPYP7HdLGnsRrLdfoTbj7cY6RL3zEQ2y9t0CtJky5utvIC
+         Mr3xhyUFCKv6n1pS/X71iYY29C9BjmN24R26jvGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.7 350/393] kvm: x86: replace kvm_spec_ctrl_test_value with runtime test on the host
-Date:   Mon, 17 Aug 2020 17:16:40 +0200
-Message-Id: <20200817143836.579829758@linuxfoundation.org>
+        stable@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.7 351/393] 9p: Fix memory leak in v9fs_mount
+Date:   Mon, 17 Aug 2020 17:16:41 +0200
+Message-Id: <20200817143836.628088230@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,125 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-commit 841c2be09fe4f495fe5224952a419bd8c7e5b455 upstream.
+commit cb0aae0e31c632c407a2cab4307be85a001d4d98 upstream.
 
-To avoid complex and in some cases incorrect logic in
-kvm_spec_ctrl_test_value, just try the guest's given value on the host
-processor instead, and if it doesn't #GP, allow the guest to set it.
+v9fs_mount
+  v9fs_session_init
+    v9fs_cache_session_get_cookie
+      v9fs_random_cachetag                     -->alloc cachetag
+      v9ses->fscache = fscache_acquire_cookie  -->maybe NULL
+  sb = sget                                    -->fail, goto clunk
+clunk_fid:
+  v9fs_session_close
+    if (v9ses->fscache)                        -->NULL
+      kfree(v9ses->cachetag)
 
-One such case is when host CPU supports STIBP mitigation
-but doesn't support IBRS (as is the case with some Zen2 AMD cpus),
-and in this case we were giving guest #GP when it tried to use STIBP
+Thus memleak happens.
 
-The reason why can can do the host test is that IA32_SPEC_CTRL msr is
-passed to the guest, after the guest sets it to a non zero value
-for the first time (due to performance reasons),
-and as as result of this, it is pointless to emulate #GP condition on
-this first access, in a different way than what the host CPU does.
-
-This is based on a patch from Sean Christopherson, who suggested this idea.
-
-Fixes: 6441fa6178f5 ("KVM: x86: avoid incorrect writes to host MSR_IA32_SPEC_CTRL")
-Cc: stable@vger.kernel.org
-Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20200708115731.180097-1-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: http://lkml.kernel.org/r/20200615012153.89538-1-zhengbin13@huawei.com
+Fixes: 60e78d2c993e ("9p: Add fscache support to 9p")
+Cc: <stable@vger.kernel.org> # v2.6.32+
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/svm/svm.c |    2 +-
- arch/x86/kvm/vmx/vmx.c |    2 +-
- arch/x86/kvm/x86.c     |   40 ++++++++++++++++++++++------------------
- arch/x86/kvm/x86.h     |    2 +-
- 4 files changed, 25 insertions(+), 21 deletions(-)
+ fs/9p/v9fs.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -2509,7 +2509,7 @@ static int svm_set_msr(struct kvm_vcpu *
- 		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
- 			return 1;
+--- a/fs/9p/v9fs.c
++++ b/fs/9p/v9fs.c
+@@ -500,10 +500,9 @@ void v9fs_session_close(struct v9fs_sess
+ 	}
  
--		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
-+		if (kvm_spec_ctrl_test_value(data))
- 			return 1;
- 
- 		svm->spec_ctrl = data;
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2015,7 +2015,7 @@ static int vmx_set_msr(struct kvm_vcpu *
- 		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
- 			return 1;
- 
--		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
-+		if (kvm_spec_ctrl_test_value(data))
- 			return 1;
- 
- 		vmx->spec_ctrl = data;
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10573,28 +10573,32 @@ bool kvm_arch_no_poll(struct kvm_vcpu *v
- }
- EXPORT_SYMBOL_GPL(kvm_arch_no_poll);
- 
--u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu)
-+
-+int kvm_spec_ctrl_test_value(u64 value)
- {
--	uint64_t bits = SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD;
-+	/*
-+	 * test that setting IA32_SPEC_CTRL to given value
-+	 * is allowed by the host processor
-+	 */
-+
-+	u64 saved_value;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	local_irq_save(flags);
-+
-+	if (rdmsrl_safe(MSR_IA32_SPEC_CTRL, &saved_value))
-+		ret = 1;
-+	else if (wrmsrl_safe(MSR_IA32_SPEC_CTRL, value))
-+		ret = 1;
-+	else
-+		wrmsrl(MSR_IA32_SPEC_CTRL, saved_value);
- 
--	/* The STIBP bit doesn't fault even if it's not advertised */
--	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
--	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS))
--		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
--	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL) &&
--	    !boot_cpu_has(X86_FEATURE_AMD_IBRS))
--		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
--
--	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL_SSBD) &&
--	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
--		bits &= ~SPEC_CTRL_SSBD;
--	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) &&
--	    !boot_cpu_has(X86_FEATURE_AMD_SSBD))
--		bits &= ~SPEC_CTRL_SSBD;
-+	local_irq_restore(flags);
- 
--	return bits;
-+	return ret;
- }
--EXPORT_SYMBOL_GPL(kvm_spec_ctrl_valid_bits);
-+EXPORT_SYMBOL_GPL(kvm_spec_ctrl_test_value);
- 
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_fast_mmio);
---- a/arch/x86/kvm/x86.h
-+++ b/arch/x86/kvm/x86.h
-@@ -357,6 +357,6 @@ static inline bool kvm_dr7_valid(u64 dat
- 
- void kvm_load_guest_xsave_state(struct kvm_vcpu *vcpu);
- void kvm_load_host_xsave_state(struct kvm_vcpu *vcpu);
--u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu);
-+int kvm_spec_ctrl_test_value(u64 value);
- 
+ #ifdef CONFIG_9P_FSCACHE
+-	if (v9ses->fscache) {
++	if (v9ses->fscache)
+ 		v9fs_cache_session_put_cookie(v9ses);
+-		kfree(v9ses->cachetag);
+-	}
++	kfree(v9ses->cachetag);
  #endif
+ 	kfree(v9ses->uname);
+ 	kfree(v9ses->aname);
 
 
