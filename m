@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B80E247574
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67832247570
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731950AbgHQTXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38918 "EHLO mail.kernel.org"
+        id S1730621AbgHQTXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:23:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730116AbgHQPe5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:34:57 -0400
+        id S1730431AbgHQPfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:35:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18A1823434;
-        Mon, 17 Aug 2020 15:34:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7D9E20882;
+        Mon, 17 Aug 2020 15:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678497;
-        bh=nY7Z+58bxMpqeEY+egYViKeihsa18A5ZvgjKv7qVcAQ=;
+        s=default; t=1597678500;
+        bh=NgurdkAyS3ZCan68jj+yrGYmGwZI9CQBOjFPTO0lW1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vg8Lgph2zzaTLFM+4gdil9wAU9TZOwXyI5JvPOsGGqjLjXYCFMqTem4rk/7J10h2V
-         BhGApiiq7k1DoXrtpYqzZEvPVw9MvaHUN3g/4l3/giQwSmFm7+bTYtELDAOEh8WRFk
-         dX5MACFzBqShm6yl43zHMSqwh4PSNr5NksvZRzmg=
+        b=a6y1gmQkGyMhhuLsgLVj6DUqLJs7i3yQp6aGJJ+g1IGzxkbNaMtZGyRtObW383iwZ
+         N52Ustqab1ED6xP53QE92xDnqniai36Eqq9cYgr3soeTrbRJOKRXP2UuOg5Ea+WHF2
+         3d96iG7viyJ84/dK75oydZkHt73MtXNBegxCz3EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 323/464] PCI: Release IVRS table in AMD ACS quirk
-Date:   Mon, 17 Aug 2020 17:14:36 +0200
-Message-Id: <20200817143849.265318404@linuxfoundation.org>
+Subject: [PATCH 5.8 324/464] cpufreq: ap806: fix cpufreq driver needs ap cpu clk
+Date:   Mon, 17 Aug 2020 17:14:37 +0200
+Message-Id: <20200817143849.312255244@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,38 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Sven Auhagen <sven.auhagen@voleatech.de>
 
-[ Upstream commit 090688fa4e448284aaa16136372397d7d10814db ]
+[ Upstream commit 8c37ad2f523396e15cf002b29f8f796447c71932 ]
 
-The acpi_get_table() should be coupled with acpi_put_table() if the mapped
-table is not used at runtime to release the table mapping.
+The Armada 8K cpufreq driver needs the Armada AP CPU CLK
+to work. This dependency is currently not satisfied and
+the ARMADA_AP_CPU_CLK can not be selected independently.
 
-In pci_quirk_amd_sb_acs(), IVRS table is just used for checking AMD IOMMU
-is supported, not used at runtime, so put the table after using it.
+Add it to the cpufreq Armada8k driver.
 
-Fixes: 15b100dfd1c9 ("PCI: Claim ACS support for AMD southbridge devices")
-Link: https://lore.kernel.org/r/1595411068-15440-1-git-send-email-guohanjun@huawei.com
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: f525a670533d ("cpufreq: ap806: add cpufreq driver for Armada 8K")
+Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/cpufreq/Kconfig.arm | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 2ea61abd58302..d442219cd2708 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4422,6 +4422,8 @@ static int pci_quirk_amd_sb_acs(struct pci_dev *dev, u16 acs_flags)
- 	if (ACPI_FAILURE(status))
- 		return -ENODEV;
- 
-+	acpi_put_table(header);
-+
- 	/* Filter out flags not applicable to multifunction */
- 	acs_flags &= (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_EC | PCI_ACS_DT);
- 
+diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
+index c6cbfc8baf724..a967894c4613e 100644
+--- a/drivers/cpufreq/Kconfig.arm
++++ b/drivers/cpufreq/Kconfig.arm
+@@ -41,6 +41,7 @@ config ARM_ARMADA_37XX_CPUFREQ
+ config ARM_ARMADA_8K_CPUFREQ
+ 	tristate "Armada 8K CPUFreq driver"
+ 	depends on ARCH_MVEBU && CPUFREQ_DT
++	select ARMADA_AP_CPU_CLK
+ 	help
+ 	  This enables the CPUFreq driver support for Marvell
+ 	  Armada8k SOCs.
 -- 
 2.25.1
 
