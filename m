@@ -2,110 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C6B2467E7
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 16:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E783D246944
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728537AbgHQODJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 10:03:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728471AbgHQODI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 10:03:08 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE1AFC061389
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 07:03:08 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id ep8so7737362pjb.3
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 07:03:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=HV/EMzOGCVO9qqnDD6buHcDsuc1JeZWBO9wGnHx3D0s=;
-        b=2EESDErOQ6+7gj8CMTuLQmIMkIzQqPA9eMwosEb1VEHCb81Y/WgRiXM5eWNi1pdNqn
-         Gqam9hQt5wmfS0E9bXZT6SzStwF1s9DCnqweIhevKL0gDOzHJAQnWZPWVoQ7K5jDQSxc
-         YDLGNLs1VIc7Gnub8/pvgmOwNDKe5wKwu6fQ+7s8lFHSGB+DXlNFiOvSSgLvKqcOeTko
-         xuROy6wZpJ3D1pkIKsL7v01vXSS48R3hVX7g0TI4IkA0+jY02GKFWVE1Uyqs/G+y4CNv
-         hUWYBio+LqUkITQNiMuIv8I1DtzcJJt5ZEYnOlxdGnHHsY+liLIPbAIuwJjRvlAM88Qe
-         Osog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=HV/EMzOGCVO9qqnDD6buHcDsuc1JeZWBO9wGnHx3D0s=;
-        b=UkW+oyWrNl0vEL3pDYu0fA8/fixfZQhrcrwh+KEEqWQXPLVeURBB3YIp9Gd38LdIYI
-         3p3OnnqrW2ff23HNjO0lhEj7cEuykHCYTvgkeBg0lkNbkeTyjPIPgzo/ZkHXjFAkLD3U
-         J/A6m4o6pIblBsreUtYw2a0bb9uiTZOt9t11VRGugSTn8KxkicMEZCIISk1qAHvyfgnh
-         nh3mmr9SbyJEVEJ2DG0WvqwBhS8cTdDq8uWWcXhLEbu6qXTyi0bCiQ7zx57Z3O0awmNa
-         gougtdy32nwWUhxLuzMwcYZf/aSmnRb0fOLYGIjC9Zwnv4dQ+YBOvFPJsxr/Md/Q85SH
-         DGNw==
-X-Gm-Message-State: AOAM533eLnc9+C+A0LotsfvSR3TTc9GGVmpjh93pour9HS+MdNOe5Wk8
-        f5YoLHVeBpCyORD3MTuGiNYlgC9z3nrVfA==
-X-Google-Smtp-Source: ABdhPJw5so/Aqa68m2udQD1urJxvSMgxFvsJEuuVJAYAfZbdFlt4ujP/j/iaIy4I4sTnibdQDomSbQ==
-X-Received: by 2002:a17:90a:e544:: with SMTP id ei4mr12646980pjb.122.1597672987664;
-        Mon, 17 Aug 2020 07:03:07 -0700 (PDT)
-Received: from ?IPv6:2605:e000:100e:8c61:ff2c:a74f:a461:daa2? ([2605:e000:100e:8c61:ff2c:a74f:a461:daa2])
-        by smtp.gmail.com with ESMTPSA id g2sm17552138pju.23.2020.08.17.07.03.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Aug 2020 07:03:06 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] io_uring: hold 'ctx' reference around
- task_work queue +" failed to apply to 5.8-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <1597661043160117@kroah.com>
- <6d363f5c-711c-6953-d417-2f9dfbf3dd7a@kernel.dk>
- <20200817131341.GA208556@kroah.com>
- <da8acd62-2312-1baf-8562-d2085c78e062@kernel.dk>
- <20200817134412.GE359148@kroah.com>
- <cd794f40-ba84-0766-a68e-d6f0cb8c77e2@kernel.dk>
- <20200817135557.GA503390@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <45a49f1e-7fa2-4d0e-eb53-13d2309c0b37@kernel.dk>
-Date:   Mon, 17 Aug 2020 07:03:05 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1729145AbgHQPSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:18:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729128AbgHQPSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:18:30 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDFF62065C;
+        Mon, 17 Aug 2020 15:18:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597677509;
+        bh=3vfQKMttlM0pOTyMoFBwaEXl9k9Q1/ngIocA8s8nfjU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VYpXIQu8ybujXfde4CPcT95hQ6lh5ivUb+KDY5+FQkB724oTUXEb93B82pnQzFWvA
+         n/pC+Vir2VZ1on2V4y99xkRCAe/1QNHRGbAwTrO5NNwdh+ybwUHVe27S5jZ5QLM4yx
+         a9VvZs3Io2+dGwazndkHtfmmGlHosooZmd7jgXQ4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Tim Murray <timmurray@google.com>,
+        Simon MacMullen <simonmacm@google.com>,
+        Greg Hackmann <ghackmann@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.8 001/464] tracepoint: Mark __tracepoint_strings __used
+Date:   Mon, 17 Aug 2020 17:09:14 +0200
+Message-Id: <20200817143833.807083399@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-In-Reply-To: <20200817135557.GA503390@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/17/20 6:55 AM, Greg KH wrote:
-> On Mon, Aug 17, 2020 at 06:48:26AM -0700, Jens Axboe wrote:
->> On 8/17/20 6:44 AM, Greg KH wrote:
->>> On Mon, Aug 17, 2020 at 06:21:02AM -0700, Jens Axboe wrote:
->>>> On 8/17/20 6:13 AM, Greg KH wrote:
->>>>> On Mon, Aug 17, 2020 at 06:10:04AM -0700, Jens Axboe wrote:
->>>>>> On 8/17/20 3:44 AM, gregkh@linuxfoundation.org wrote:
->>>>>>>
->>>>>>> The patch below does not apply to the 5.8-stable tree.
->>>>>>> If someone wants it applied there, or to any other stable or longterm
->>>>>>> tree, then please email the backport, including the original git commit
->>>>>>> id to <stable@vger.kernel.org>.
->>>>>>
->>>>>> Here's a 5.8 version.
->>>>>
->>>>> Applied, thanks!
->>>>>
->>>>> Looks like it applies to 5.7 too, want me to take this for that as well?
->>>>
->>>> Heh, didn't see this email, just going through this by kernel revision.
->>>> Either one should work, sent a specific set for that too.
->>>
->>> Oops, it did not build on 5.7, so I still need a working backport for
->>> that.
->>
->> Maybe I missed that, in any case, here it is. This one is for 5.7, to be
->> specific.
-> 
-> That worked, thanks!
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-Great, thanks. I think that concludes the stable fest from me this morning :-)
+commit f3751ad0116fb6881f2c3c957d66a9327f69cefb upstream.
 
--- 
-Jens Axboe
+__tracepoint_string's have their string data stored in .rodata, and an
+address to that data stored in the "__tracepoint_str" section. Functions
+that refer to those strings refer to the symbol of the address. Compiler
+optimization can replace those address references with references
+directly to the string data. If the address doesn't appear to have other
+uses, then it appears dead to the compiler and is removed. This can
+break the /tracing/printk_formats sysfs node which iterates the
+addresses stored in the "__tracepoint_str" section.
+
+Like other strings stored in custom sections in this header, mark these
+__used to inform the compiler that there are other non-obvious users of
+the address, so they should still be emitted.
+
+Link: https://lkml.kernel.org/r/20200730224555.2142154-2-ndesaulniers@google.com
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 102c9323c35a8 ("tracing: Add __tracepoint_string() to export string pointers")
+Reported-by: Tim Murray <timmurray@google.com>
+Reported-by: Simon MacMullen <simonmacm@google.com>
+Suggested-by: Greg Hackmann <ghackmann@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ include/linux/tracepoint.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -361,7 +361,7 @@ static inline struct tracepoint *tracepo
+ 		static const char *___tp_str __tracepoint_string = str; \
+ 		___tp_str;						\
+ 	})
+-#define __tracepoint_string	__attribute__((section("__tracepoint_str")))
++#define __tracepoint_string	__attribute__((section("__tracepoint_str"), used))
+ #else
+ /*
+  * tracepoint_string() is used to save the string address for userspace
+
 
