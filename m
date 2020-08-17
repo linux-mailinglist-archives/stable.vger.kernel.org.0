@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB672469C3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9B02469C7
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729758AbgHQPZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:25:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
+        id S1729766AbgHQPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729751AbgHQPZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:25:48 -0400
+        id S1729762AbgHQPZv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:25:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 036C82333B;
-        Mon, 17 Aug 2020 15:25:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A2C92053B;
+        Mon, 17 Aug 2020 15:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677947;
-        bh=1XFPFE0sJKoxL1C0uECPNsIw+Kvaz1aUejOSXQzcn50=;
+        s=default; t=1597677950;
+        bh=NQ9HpT42qKnDEik0gl+C4Tbq0zOJHb+Ya1GpxXLw+DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0tHjlpm2MqFMmQWXhryJKkVjCvTZ9hzzLDG93u2QhxYjhY8pA7QJTzoVaAhjWCsZw
-         zYNE9jV0yXumY9RaYTnwg8aydQBfgblJ2zewFJK5GkcISgBQ1vxNai83cnnNYcmp2n
-         yM6RE2Zvwhl6qqet8nu2iYsQuuRD3E16gMEaMbYw=
+        b=gVN30oDMov0djttFgHFSCXQf0bZVtGDADzWbGfptx2C+/5oy+lF6z8aj85T29ShaU
+         flN5MAz3P7jOAc1Iub+2MzJz2ofH7XXeagAmzpOZNc1oTY3Z5uvU1wrten2EU6oGbM
+         ohOa390HfB4WpGJMJuUtSwEt22XiLr/lnC92lE0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 166/464] powerpc/mm: Fix typo in IS_ENABLED()
-Date:   Mon, 17 Aug 2020 17:11:59 +0200
-Message-Id: <20200817143841.765738351@linuxfoundation.org>
+Subject: [PATCH 5.8 167/464] powerpc/fixmap: Fix FIX_EARLY_DEBUG_BASE when page size is 256k
+Date:   Mon, 17 Aug 2020 17:12:00 +0200
+Message-Id: <20200817143841.816014420@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,43 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Perches <joe@perches.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 55bd9ac468397c4f12a33b7ec714b5d0362c3aa2 ]
+[ Upstream commit 03fd42d458fb9cb69e712600bd69ff77ff3a45a8 ]
 
-IS_ENABLED() matches names exactly, so the missing "CONFIG_" prefix
-means this code would never be built.
+FIX_EARLY_DEBUG_BASE reserves a 128k area for debuging.
 
-Also fixes a missing newline in pr_warn().
+When page size is 256k, the calculation results in a 0 number of
+pages, leading to the following failure:
 
-Fixes: 970d54f99cea ("powerpc/book3s64/hash: Disable 16M linear mapping size if not aligned")
-Signed-off-by: Joe Perches <joe@perches.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+  CC      arch/powerpc/kernel/asm-offsets.s
+In file included from ./arch/powerpc/include/asm/nohash/32/pgtable.h:77:0,
+                 from ./arch/powerpc/include/asm/nohash/pgtable.h:8,
+                 from ./arch/powerpc/include/asm/pgtable.h:20,
+                 from ./include/linux/pgtable.h:6,
+                 from ./arch/powerpc/include/asm/kup.h:42,
+                 from ./arch/powerpc/include/asm/uaccess.h:9,
+                 from ./include/linux/uaccess.h:11,
+                 from ./include/linux/crypto.h:21,
+                 from ./include/crypto/hash.h:11,
+                 from ./include/linux/uio.h:10,
+                 from ./include/linux/socket.h:8,
+                 from ./include/linux/compat.h:15,
+                 from arch/powerpc/kernel/asm-offsets.c:14:
+./arch/powerpc/include/asm/fixmap.h:75:2: error: overflow in enumeration values
+  __end_of_permanent_fixed_addresses,
+  ^
+make[2]: *** [arch/powerpc/kernel/asm-offsets.s] Error 1
+
+Ensure the debug area is at least one page.
+
+Fixes: b8e8efaa8639 ("powerpc: reserve fixmap entries for early debug")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/202006050717.A2F9809E@keescook
+Link: https://lore.kernel.org/r/ca8c9f8249f523b1fab873e67b81b11989d46553.1592207216.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/hash_utils.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/fixmap.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
-index 9b9f92ad0e7ab..3d5c9092feb19 100644
---- a/arch/powerpc/mm/book3s64/hash_utils.c
-+++ b/arch/powerpc/mm/book3s64/hash_utils.c
-@@ -663,11 +663,10 @@ static void __init htab_init_page_sizes(void)
- 		 * Pick a size for the linear mapping. Currently, we only
- 		 * support 16M, 1M and 4K which is the default
- 		 */
--		if (IS_ENABLED(STRICT_KERNEL_RWX) &&
-+		if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX) &&
- 		    (unsigned long)_stext % 0x1000000) {
- 			if (mmu_psize_defs[MMU_PAGE_16M].shift)
--				pr_warn("Kernel not 16M aligned, "
--					"disabling 16M linear map alignment");
-+				pr_warn("Kernel not 16M aligned, disabling 16M linear map alignment\n");
- 			aligned = false;
- 		}
- 
+diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
+index 29188810ba302..925cf89cbf4ba 100644
+--- a/arch/powerpc/include/asm/fixmap.h
++++ b/arch/powerpc/include/asm/fixmap.h
+@@ -52,7 +52,7 @@ enum fixed_addresses {
+ 	FIX_HOLE,
+ 	/* reserve the top 128K for early debugging purposes */
+ 	FIX_EARLY_DEBUG_TOP = FIX_HOLE,
+-	FIX_EARLY_DEBUG_BASE = FIX_EARLY_DEBUG_TOP+((128*1024)/PAGE_SIZE)-1,
++	FIX_EARLY_DEBUG_BASE = FIX_EARLY_DEBUG_TOP+(ALIGN(SZ_128, PAGE_SIZE)/PAGE_SIZE)-1,
+ #ifdef CONFIG_HIGHMEM
+ 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
+ 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
 -- 
 2.25.1
 
