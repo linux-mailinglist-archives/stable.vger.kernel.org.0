@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FD1247068
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35B86247040
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389680AbgHQSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:08:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57298 "EHLO mail.kernel.org"
+        id S2388459AbgHQQId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:08:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388444AbgHQQIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:08:16 -0400
+        id S2388451AbgHQQIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:08:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E28CE20866;
-        Mon, 17 Aug 2020 16:08:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 575492063A;
+        Mon, 17 Aug 2020 16:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680495;
-        bh=Yc7j79dnbAWX6tEFGGgvS0Ycw7eGmKt4dcAot2CU+GE=;
+        s=default; t=1597680500;
+        bh=IfKN3REDauHQZ/PGl9v8EeseMIn6klqyx3/YaMFuU9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZDE0ISFK88Ig6GBE7/LRq1v/x3vjUVlMqsWxR+o6P/qKeoMlibMPS/bnXccnDsa4
-         2kWGGP7RIIBOv3KWqLmCBuXChEHWuXIEVmvL7/fK8UTwVdYYQD7ezC524Sdq5pRJe7
-         qVqBPbg+V6ok/dndkClX51SFodiqrgCzyNsS9GM0=
+        b=PvMb7Q9MmkpEn5TXV//ZWhWcOH/1TPTm0mQUL5XZ/4aQqwe6TDb8giF/ukHa3yKGn
+         naJdXUTMJaA3xJZSOmVD9YIfPEf2ulbFeSYpJFDAnw48DJSZHTJLMG6WcBPA3osX+N
+         vUtxK6SIWXCtuPEWJNztmcML4vZkv429dcZQnTGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 210/270] dlm: Fix kobject memleak
-Date:   Mon, 17 Aug 2020 17:16:51 +0200
-Message-Id: <20200817143806.246083079@linuxfoundation.org>
+Subject: [PATCH 5.4 211/270] ocfs2: fix unbalanced locking
+Date:   Mon, 17 Aug 2020 17:16:52 +0200
+Message-Id: <20200817143806.292639163@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -45,50 +51,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Pavel Machek <pavel@ucw.cz>
 
-[ Upstream commit 0ffddafc3a3970ef7013696e7f36b3d378bc4c16 ]
+[ Upstream commit 57c720d4144a9c2b88105c3e8f7b0e97e4b5cc93 ]
 
-Currently the error return path from kobject_init_and_add() is not
-followed by a call to kobject_put() - which means we are leaking
-the kobject.
+Based on what fails, function can return with nfs_sync_rwlock either
+locked or unlocked. That can not be right.
 
-Set do_unreg = 1 before kobject_init_and_add() to ensure that
-kobject_put() can be called in its error patch.
+Always return with lock unlocked on error.
 
-Fixes: 901195ed7f4b ("Kobject: change GFS2 to use kobject_init_and_add")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Fixes: 4cd9973f9ff6 ("ocfs2: avoid inode removal while nfsd is accessing it")
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Link: http://lkml.kernel.org/r/20200724124443.GA28164@duo.ucw.cz
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lockspace.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ocfs2/dlmglue.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
-index afb8340918b86..c689359ca532b 100644
---- a/fs/dlm/lockspace.c
-+++ b/fs/dlm/lockspace.c
-@@ -632,6 +632,9 @@ static int new_lockspace(const char *name, const char *cluster,
- 	wait_event(ls->ls_recover_lock_wait,
- 		   test_bit(LSFL_RECOVER_LOCK, &ls->ls_flags));
+diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
+index e2c34c704185d..50a863fc17792 100644
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -2871,9 +2871,15 @@ int ocfs2_nfs_sync_lock(struct ocfs2_super *osb, int ex)
  
-+	/* let kobject handle freeing of ls if there's an error */
-+	do_unreg = 1;
+ 	status = ocfs2_cluster_lock(osb, lockres, ex ? LKM_EXMODE : LKM_PRMODE,
+ 				    0, 0);
+-	if (status < 0)
++	if (status < 0) {
+ 		mlog(ML_ERROR, "lock on nfs sync lock failed %d\n", status);
+ 
++		if (ex)
++			up_write(&osb->nfs_sync_rwlock);
++		else
++			up_read(&osb->nfs_sync_rwlock);
++	}
 +
- 	ls->ls_kobj.kset = dlm_kset;
- 	error = kobject_init_and_add(&ls->ls_kobj, &dlm_ktype, NULL,
- 				     "%s", ls->ls_name);
-@@ -639,9 +642,6 @@ static int new_lockspace(const char *name, const char *cluster,
- 		goto out_recoverd;
- 	kobject_uevent(&ls->ls_kobj, KOBJ_ADD);
+ 	return status;
+ }
  
--	/* let kobject handle freeing of ls if there's an error */
--	do_unreg = 1;
--
- 	/* This uevent triggers dlm_controld in userspace to add us to the
- 	   group of nodes that are members of this lockspace (managed by the
- 	   cluster infrastructure.)  Once it's done that, it tells us who the
 -- 
 2.25.1
 
