@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3FBA246B26
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360A6246A50
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387788AbgHQPta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:49:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
+        id S1730384AbgHQPd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:33:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387782AbgHQPt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:49:26 -0400
+        id S1730379AbgHQPd0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:33:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F08020855;
-        Mon, 17 Aug 2020 15:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABEDF20882;
+        Mon, 17 Aug 2020 15:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679366;
-        bh=iPCciwlE+Izoq2VcPO5gcCSP/vAeWEixAgllqOvtQMY=;
+        s=default; t=1597678406;
+        bh=aIdBegmoJqYzGJqA0iO6D/hsXKMLYI+op7SBQVwN0VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyxLSKSSmCNvL+ixamkFDOv76g+Yak4Yye0hhB6MuVgFeMbSO22YNd0uvfgVI9b/S
-         UFY3waDB+WyCvtDi8lezo+Q1r0ucoPuMIKuQVwgtrzqW2lXCw0RR0mJOFczMENH2ru
-         3dEIoEWOzMHbB7KmsVncAeOTXx19z3PYWFSfcfwI=
+        b=NuvPQUnMKIyvAgo3saioii9q14Nr4H/oEYSnh8Hm8gH7fmB8cDVFGzBQkvG49FecP
+         6mlHKEFY2ooc/KQ/4G2eo6v3BwMjPxZXINRvruug+0cuZ1YSvFDExDQiaE7SCyBjhD
+         ylMN0b08tAYYqBX4kINDNQFW9XRzE9XmIzTvx/ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dariusz Marcinkiewicz <darekm@google.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 185/393] media: cros-ec-cec: do not bail on device_init_wakeup failure
-Date:   Mon, 17 Aug 2020 17:13:55 +0200
-Message-Id: <20200817143828.594817240@linuxfoundation.org>
+Subject: [PATCH 5.8 283/464] MIPS: OCTEON: add missing put_device() call in dwc3_octeon_device_init()
+Date:   Mon, 17 Aug 2020 17:13:56 +0200
+Message-Id: <20200817143847.311841897@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dariusz Marcinkiewicz <darekm@google.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 6f01dfb760c027d5dd6199d91ee9599f2676b5c6 ]
+[ Upstream commit e8b9fc10f2615b9a525fce56981e40b489528355 ]
 
-Do not fail probing when device_init_wakeup fails.
+if of_find_device_by_node() succeed, dwc3_octeon_device_init() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-device_init_wakeup fails when the device is already enabled as wakeup
-device. Hence, the driver fails to probe the device if:
-- The device has already been enabled for wakeup (by e.g. sysfs)
-- The driver has been unloaded and is being loaded again.
-
-This goal of the patch is to fix the above cases.
-
-Overwhelming majority of the drivers do not check device_init_wakeup
-return code.
-
-Fixes: cd70de2d356ee ("media: platform: Add ChromeOS EC CEC driver")
-Signed-off-by: Dariusz Marcinkiewicz <darekm@google.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 93e502b3c2d4 ("MIPS: OCTEON: Platform support for OCTEON III USB controller")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/cros-ec-cec/cros-ec-cec.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/mips/cavium-octeon/octeon-usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-index 0e7e2772f08f9..2d95e16cd2489 100644
---- a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-+++ b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-@@ -277,11 +277,7 @@ static int cros_ec_cec_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, cros_ec_cec);
- 	cros_ec_cec->cros_ec = cros_ec;
+diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
+index 1fd85c559700c..950e6c6e86297 100644
+--- a/arch/mips/cavium-octeon/octeon-usb.c
++++ b/arch/mips/cavium-octeon/octeon-usb.c
+@@ -518,6 +518,7 @@ static int __init dwc3_octeon_device_init(void)
  
--	ret = device_init_wakeup(&pdev->dev, 1);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to initialize wakeup\n");
--		return ret;
--	}
-+	device_init_wakeup(&pdev->dev, 1);
+ 			res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 			if (res == NULL) {
++				put_device(&pdev->dev);
+ 				dev_err(&pdev->dev, "No memory resources\n");
+ 				return -ENXIO;
+ 			}
+@@ -529,8 +530,10 @@ static int __init dwc3_octeon_device_init(void)
+ 			 * know the difference.
+ 			 */
+ 			base = devm_ioremap_resource(&pdev->dev, res);
+-			if (IS_ERR(base))
++			if (IS_ERR(base)) {
++				put_device(&pdev->dev);
+ 				return PTR_ERR(base);
++			}
  
- 	cros_ec_cec->adap = cec_allocate_adapter(&cros_ec_cec_ops, cros_ec_cec,
- 						 DRV_NAME,
+ 			mutex_lock(&dwc3_octeon_clocks_mutex);
+ 			dwc3_octeon_clocks_start(&pdev->dev, (u64)base);
 -- 
 2.25.1
 
