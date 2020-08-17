@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 624A7246CC3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A81E246C23
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729983AbgHQQ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
+        id S2388579AbgHQQKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:10:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731141AbgHQQSB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:18:01 -0400
+        id S2388575AbgHQQKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:10:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16F4F22CA1;
-        Mon, 17 Aug 2020 16:17:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0DB320729;
+        Mon, 17 Aug 2020 16:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597681075;
-        bh=vPeBCt8thzFG8GWW6Q01OjtB4q5Va9ZO6h/U/hX0IDg=;
+        s=default; t=1597680652;
+        bh=CAZDTOlSXeiXvjXUcKkxqT5P8FHgyvW4xuTDWxyLWxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiBSIu8/bC1R/+kqZOBQL9s9fZ01uWb19+sDS5zQWtF9/hW+Dfkb9k7Pe2nfPJLSf
-         39EL6MVYGBQC1kWjh27Dj3NiW62CT+d+ra1K54BfLt+clf8ApjgSiV7j0pXiQMEEr0
-         8SFb6KMxgrAwv2d0A7NPlP0yA0beyUOIRZVqG6JI=
+        b=ibXO9k88otT/QRZi3JSXk1VJhWCNwGBZsiRozy2I+KKMAsGKV4YQ0o2e95PJPTuoY
+         G3yMMsCtDjuN2I5WxZrBtc3YDPbdXPuXf45JvYh7+V7ILoFwjTVquzIxL6g1NJPdCn
+         kNtkUNASdUv8XLHci2M8VvXAvjorndDICamLUMVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
-        kernel test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 131/168] af_packet: TPACKET_V3: fix fill status rwlock imbalance
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sami Tolvanen <samitolvanen@google.com>
+Subject: [PATCH 5.4 261/270] bitfield.h: dont compile-time validate _val in FIELD_FIT
 Date:   Mon, 17 Aug 2020 17:17:42 +0200
-Message-Id: <20200817143740.241219751@linuxfoundation.org>
+Message-Id: <20200817143808.820042758@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 88fd1cb80daa20af063bce81e1fad14e945a8dc4 ]
+commit 444da3f52407d74c9aa12187ac6b01f76ee47d62 upstream.
 
-After @blk_fill_in_prog_lock is acquired there is an early out vnet
-situation that can occur. In that case, the rwlock needs to be
-released.
+When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
+compiler to deduce a case where _val can only have the value of -1 at
+compile time. Specifically,
 
-Also, since @blk_fill_in_prog_lock is only acquired when @tp_version
-is exactly TPACKET_V3, only release it on that exact condition as
-well.
+/* struct bpf_insn: _s32 imm */
+u64 imm = insn->imm; /* sign extend */
+if (imm >> 32) { /* non-zero only if insn->imm is negative */
+  /* inlined from ur_load_imm_any */
+  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
+  if (__builtin_constant_p(__imm) && __imm > 255)
+    compiletime_assert_XXX()
 
-And finally, add sparse annotation so that it is clearer that
-prb_fill_curr_block() and prb_clear_blk_fill_status() are acquiring
-and releasing @blk_fill_in_prog_lock, respectively. sparse is still
-unable to understand the balance, but the warnings are now on a
-higher level that make more sense.
+This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
+checks that a given value is representable in one byte (interpreted as
+unsigned).
 
-Fixes: 632ca50f2cbd ("af_packet: TPACKET_V3: replace busy-wait loop")
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Reported-by: kernel test robot <lkp@intel.com>
+FIELD_FIT() should return true or false at runtime for whether a value
+can fit for not. Don't break the build over a value that's too large for
+the mask. We'd prefer to keep the inlining and compiler optimizations
+though we know this case will always return false.
+
+Cc: stable@vger.kernel.org
+Fixes: 1697599ee301a ("bitfield.h: add FIELD_FIT() helper")
+Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
+Reported-by: Masahiro Yamada <masahiroy@kernel.org>
+Debugged-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -949,6 +949,7 @@ static int prb_queue_frozen(struct tpack
- }
- 
- static void prb_clear_blk_fill_status(struct packet_ring_buffer *rb)
-+	__releases(&pkc->blk_fill_in_prog_lock)
- {
- 	struct tpacket_kbdq_core *pkc  = GET_PBDQC_FROM_RB(rb);
- 	atomic_dec(&pkc->blk_fill_in_prog);
-@@ -996,6 +997,7 @@ static void prb_fill_curr_block(char *cu
- 				struct tpacket_kbdq_core *pkc,
- 				struct tpacket_block_desc *pbd,
- 				unsigned int len)
-+	__acquires(&pkc->blk_fill_in_prog_lock)
- {
- 	struct tpacket3_hdr *ppd;
- 
-@@ -2272,8 +2274,11 @@ static int tpacket_rcv(struct sk_buff *s
- 	if (do_vnet &&
- 	    virtio_net_hdr_from_skb(skb, h.raw + macoff -
- 				    sizeof(struct virtio_net_hdr),
--				    vio_le(), true, 0))
-+				    vio_le(), true, 0)) {
-+		if (po->tp_version == TPACKET_V3)
-+			prb_clear_blk_fill_status(&po->rx_ring);
- 		goto drop_n_account;
-+	}
- 
- 	if (po->tp_version <= TPACKET_V2) {
- 		packet_increment_rx_head(po, &po->rx_ring);
-@@ -2379,7 +2384,7 @@ static int tpacket_rcv(struct sk_buff *s
- 		__clear_bit(slot_id, po->rx_ring.rx_owner_map);
- 		spin_unlock(&sk->sk_receive_queue.lock);
- 		sk->sk_data_ready(sk);
--	} else {
-+	} else if (po->tp_version == TPACKET_V3) {
- 		prb_clear_blk_fill_status(&po->rx_ring);
- 	}
+---
+ include/linux/bitfield.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/include/linux/bitfield.h
++++ b/include/linux/bitfield.h
+@@ -64,7 +64,7 @@
+  */
+ #define FIELD_FIT(_mask, _val)						\
+ 	({								\
+-		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
++		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
+ 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
+ 	})
  
 
 
