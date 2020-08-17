@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8678B246FBD
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1F5246FA5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731079AbgHQRvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42454 "EHLO mail.kernel.org"
+        id S2389611AbgHQRun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388147AbgHQQMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:12:00 -0400
+        id S2388431AbgHQQMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:12:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B774320658;
-        Mon, 17 Aug 2020 16:11:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7710522CA0;
+        Mon, 17 Aug 2020 16:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680720;
-        bh=Js4eyX2/HEXwJyJDQgGlfdHa5Hkzj6cK8yD7m/QXJWY=;
+        s=default; t=1597680724;
+        bh=oQ0uPvUk3cWTbfw3EQOsapSTZSuYYtxomEmeBV3SuSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=buF/aE7sUooiQTsq0yytkFs7oWJxZ+33xbI60VGsq4RuYb9V9DELcWItwNEFWgYpH
-         hev4/G0qw1zhnnWrWh32tPGiUVkbb0bQKT/AGwj815Yh2KeF0CEJDTMvKJfPL9s6/0
-         8PEWboFUtcO2fwmKqR8Rcs2lUSxwcz8GIbwcUSGE=
+        b=OrvKnHdfb5XHs1kl7mL6Npsy4QWZ9fJZfADMB5/8DnDCsFELkYnEuzk5Jpm1NefF3
+         YNv98dKm339CQ4eFv8r+YUqj8UR81MliTD2O2eMAlNyLrK9djeP1zJwH7srM+FTS5U
+         NVaYQNz7I6yt1Zfs1y1QQX43MTCayMQnHz3AyFzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Jack Xiao <Jack.Xiao@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/168] fs/btrfs: Add cond_resched() for try_release_extent_mapping() stalls
-Date:   Mon, 17 Aug 2020 17:16:00 +0200
-Message-Id: <20200817143735.210902031@linuxfoundation.org>
+Subject: [PATCH 4.19 030/168] drm/amdgpu: avoid dereferencing a NULL pointer
+Date:   Mon, 17 Aug 2020 17:16:01 +0200
+Message-Id: <20200817143735.262185363@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -43,60 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Jack Xiao <Jack.Xiao@amd.com>
 
-[ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
+[ Upstream commit 55611b507fd6453d26030c0c0619fdf0c262766d ]
 
-Very large I/Os can cause the following RCU CPU stall warning:
+Check if irq_src is NULL to avoid dereferencing a NULL pointer,
+for MES ring is uneccessary to recieve an interrupt notification.
 
-RIP: 0010:rb_prev+0x8/0x50
-Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
-89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
-RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
-RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
-RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
-RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
-R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
-R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
- __lookup_extent_mapping+0xa0/0x110
- try_release_extent_mapping+0xdc/0x220
- btrfs_releasepage+0x45/0x70
- shrink_page_list+0xa39/0xb30
- shrink_inactive_list+0x18f/0x3b0
- shrink_lruvec+0x38e/0x6b0
- shrink_node+0x14d/0x690
- do_try_to_free_pages+0xc6/0x3e0
- try_to_free_mem_cgroup_pages+0xe6/0x1e0
- reclaim_high.constprop.73+0x87/0xc0
- mem_cgroup_handle_over_high+0x66/0x150
- exit_to_usermode_loop+0x82/0xd0
- do_syscall_64+0xd4/0x100
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-On a PREEMPT=n kernel, the try_release_extent_mapping() function's
-"while" loop might run for a very long time on a large I/O.  This commit
-therefore adds a cond_resched() to this loop, providing RCU any needed
-quiescent states.
-
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Jack Xiao <Jack.Xiao@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 520b70b543314..fbcd18d96c524 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4270,6 +4270,8 @@ int try_release_extent_mapping(struct page *page, gfp_t mask)
- 
- 			/* once for us */
- 			free_extent_map(em);
-+
-+			cond_resched(); /* Allow large-extent preemption. */
- 		}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index 869ff624b108c..e5e51e4d4f3d8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -396,7 +396,9 @@ int amdgpu_fence_driver_start_ring(struct amdgpu_ring *ring,
+ 		ring->fence_drv.gpu_addr = adev->uvd.inst[ring->me].gpu_addr + index;
  	}
- 	return try_release_extent_state(tree, page, mask);
+ 	amdgpu_fence_write(ring, atomic_read(&ring->fence_drv.last_seq));
+-	amdgpu_irq_get(adev, irq_src, irq_type);
++
++	if (irq_src)
++		amdgpu_irq_get(adev, irq_src, irq_type);
+ 
+ 	ring->fence_drv.irq_src = irq_src;
+ 	ring->fence_drv.irq_type = irq_type;
+@@ -508,8 +510,9 @@ void amdgpu_fence_driver_fini(struct amdgpu_device *adev)
+ 			/* no need to trigger GPU reset as we are unloading */
+ 			amdgpu_fence_driver_force_completion(ring);
+ 		}
+-		amdgpu_irq_put(adev, ring->fence_drv.irq_src,
+-			       ring->fence_drv.irq_type);
++		if (ring->fence_drv.irq_src)
++			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
++				       ring->fence_drv.irq_type);
+ 		drm_sched_fini(&ring->sched);
+ 		del_timer_sync(&ring->fence_drv.fallback_timer);
+ 		for (j = 0; j <= ring->fence_drv.num_fences_mask; ++j)
+@@ -545,8 +548,9 @@ void amdgpu_fence_driver_suspend(struct amdgpu_device *adev)
+ 		}
+ 
+ 		/* disable the interrupt */
+-		amdgpu_irq_put(adev, ring->fence_drv.irq_src,
+-			       ring->fence_drv.irq_type);
++		if (ring->fence_drv.irq_src)
++			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
++				       ring->fence_drv.irq_type);
+ 	}
+ }
+ 
+@@ -572,8 +576,9 @@ void amdgpu_fence_driver_resume(struct amdgpu_device *adev)
+ 			continue;
+ 
+ 		/* enable the interrupt */
+-		amdgpu_irq_get(adev, ring->fence_drv.irq_src,
+-			       ring->fence_drv.irq_type);
++		if (ring->fence_drv.irq_src)
++			amdgpu_irq_get(adev, ring->fence_drv.irq_src,
++				       ring->fence_drv.irq_type);
+ 	}
+ }
+ 
 -- 
 2.25.1
 
