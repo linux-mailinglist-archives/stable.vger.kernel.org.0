@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C0624738D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EEED247193
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729615AbgHQS5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:57:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34482 "EHLO mail.kernel.org"
+        id S2391052AbgHQSaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730628AbgHQPuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:50:09 -0400
+        id S2388149AbgHQQBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:01:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 672F522BEF;
-        Mon, 17 Aug 2020 15:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 098ED20866;
+        Mon, 17 Aug 2020 16:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679401;
-        bh=AyElFQfZQUnxk1g4iE2ZhsheYmXTadXTMfApX3KRBB8=;
+        s=default; t=1597680090;
+        bh=hUo21oQW7nz+fD4ACNrbY5Chug6U6GeExSjug/QP+IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5ob+beCvJq7rMkmwDT+UQs5wvBssyHelq5D+0gjgmPjgAdi/NcOWqIre0hSri2nb
-         mNb1TAOm1tuSKMujDHssU+NAwcVD5J3O71IVvosMytuJEDhrxyOSK6PIv8Caqrbh5l
-         PBvafqQOW5hTvJr4wRKeAFvAfKUlLEJ9BkPx/ihQ=
+        b=Pjmb9HSWk+V9q1XBI0n/AXsy2M1QU9wFa3gszT7PkhgZhOIIc0TDLzBWo2QY1tV2C
+         5Smyf9LtRds2xnY0TqQXF6Pfhyj8I51dnHKszJqxz0KiBPgQVZsfiymWXxI5i0F7Xf
+         OiCnYhhFpW7YzjXrBYzthysRh12xTx+fyVw0DQro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot+96414aa0033c363d8458@syzkaller.appspotmail.com,
+        Lihong Kou <koulihong@huawei.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 199/393] scsi: scsi_debug: Add check for sdebug_max_queue during module init
+Subject: [PATCH 5.4 048/270] Bluetooth: add a mutex lock to avoid UAF in do_enale_set
 Date:   Mon, 17 Aug 2020 17:14:09 +0200
-Message-Id: <20200817143829.276260876@linuxfoundation.org>
+Message-Id: <20200817143758.175729504@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,90 +46,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Lihong Kou <koulihong@huawei.com>
 
-[ Upstream commit c87bf24cfb60bce27b4d2c7e56ebfd86fb9d16bb ]
+[ Upstream commit f9c70bdc279b191da8d60777c627702c06e4a37d ]
 
-sdebug_max_queue should not exceed SDEBUG_CANQUEUE, otherwise crashes like
-this can be triggered by passing an out-of-range value:
+In the case we set or free the global value listen_chan in
+different threads, we can encounter the UAF problems because
+the method is not protected by any lock, add one to avoid
+this bug.
 
-Hardware name: Huawei D06 /D06, BIOS Hisilicon D06 UEFI RC0 - V1.16.01 03/15/2019
- pstate: 20400009 (nzCv daif +PAN -UAO BTYPE=--)
- pc : schedule_resp+0x2a4/0xa70 [scsi_debug]
- lr : schedule_resp+0x52c/0xa70 [scsi_debug]
- sp : ffff800022ab36f0
- x29: ffff800022ab36f0 x28: ffff0023a935a610
- x27: ffff800008e0a648 x26: 0000000000000003
- x25: ffff0023e84f3200 x24: 00000000003d0900
- x23: 0000000000000000 x22: 0000000000000000
- x21: ffff0023be60a320 x20: ffff0023be60b538
- x19: ffff800008e13000 x18: 0000000000000000
- x17: 0000000000000000 x16: 0000000000000000
- x15: 0000000000000000 x14: 0000000000000000
- x13: 0000000000000000 x12: 0000000000000000
- x11: 0000000000000000 x10: 0000000000000000
- x9 : 0000000000000001 x8 : 0000000000000000
- x7 : 0000000000000000 x6 : 00000000000000c1
- x5 : 0000020000200000 x4 : dead0000000000ff
- x3 : 0000000000000200 x2 : 0000000000000200
- x1 : ffff800008e13d88 x0 : 0000000000000000
- Call trace:
-schedule_resp+0x2a4/0xa70 [scsi_debug]
-scsi_debug_queuecommand+0x2c4/0x9e0 [scsi_debug]
-scsi_queue_rq+0x698/0x840
-__blk_mq_try_issue_directly+0x108/0x228
-blk_mq_request_issue_directly+0x58/0x98
-blk_mq_try_issue_list_directly+0x5c/0xf0
-blk_mq_sched_insert_requests+0x18c/0x200
-blk_mq_flush_plug_list+0x11c/0x190
-blk_flush_plug_list+0xdc/0x110
-blk_finish_plug+0x38/0x210
-blkdev_direct_IO+0x450/0x4d8
-generic_file_read_iter+0x84/0x180
-blkdev_read_iter+0x3c/0x50
-aio_read+0xc0/0x170
-io_submit_one+0x5c8/0xc98
-__arm64_sys_io_submit+0x1b0/0x258
-el0_svc_common.constprop.3+0x68/0x170
-do_el0_svc+0x24/0x90
-el0_sync_handler+0x13c/0x1a8
-el0_sync+0x158/0x180
- Code: 528847e0 72a001e0 6b00003f 540018cd (3941c340)
+BUG: KASAN: use-after-free in l2cap_chan_close+0x48/0x990
+net/bluetooth/l2cap_core.c:730
+Read of size 8 at addr ffff888096950000 by task kworker/1:102/2868
 
-In addition, it should not be less than 1.
+CPU: 1 PID: 2868 Comm: kworker/1:102 Not tainted 5.5.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine,
+BIOS Google 01/01/2011
+Workqueue: events do_enable_set
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1fb/0x318 lib/dump_stack.c:118
+ print_address_description+0x74/0x5c0 mm/kasan/report.c:374
+ __kasan_report+0x149/0x1c0 mm/kasan/report.c:506
+ kasan_report+0x26/0x50 mm/kasan/common.c:641
+ __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
+ l2cap_chan_close+0x48/0x990 net/bluetooth/l2cap_core.c:730
+ do_enable_set+0x660/0x900 net/bluetooth/6lowpan.c:1074
+ process_one_work+0x7f5/0x10f0 kernel/workqueue.c:2264
+ worker_thread+0xbbc/0x1630 kernel/workqueue.c:2410
+ kthread+0x332/0x350 kernel/kthread.c:255
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
 
-So add checks for these, and fail the module init for those cases.
+Allocated by task 2870:
+ save_stack mm/kasan/common.c:72 [inline]
+ set_track mm/kasan/common.c:80 [inline]
+ __kasan_kmalloc+0x118/0x1c0 mm/kasan/common.c:515
+ kasan_kmalloc+0x9/0x10 mm/kasan/common.c:529
+ kmem_cache_alloc_trace+0x221/0x2f0 mm/slab.c:3551
+ kmalloc include/linux/slab.h:555 [inline]
+ kzalloc include/linux/slab.h:669 [inline]
+ l2cap_chan_create+0x50/0x320 net/bluetooth/l2cap_core.c:446
+ chan_create net/bluetooth/6lowpan.c:640 [inline]
+ bt_6lowpan_listen net/bluetooth/6lowpan.c:959 [inline]
+ do_enable_set+0x6a4/0x900 net/bluetooth/6lowpan.c:1078
+ process_one_work+0x7f5/0x10f0 kernel/workqueue.c:2264
+ worker_thread+0xbbc/0x1630 kernel/workqueue.c:2410
+ kthread+0x332/0x350 kernel/kthread.c:255
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
 
-[mkp: changed if condition to match error message]
+Freed by task 2870:
+ save_stack mm/kasan/common.c:72 [inline]
+ set_track mm/kasan/common.c:80 [inline]
+ kasan_set_free_info mm/kasan/common.c:337 [inline]
+ __kasan_slab_free+0x12e/0x1e0 mm/kasan/common.c:476
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:485
+ __cache_free mm/slab.c:3426 [inline]
+ kfree+0x10d/0x220 mm/slab.c:3757
+ l2cap_chan_destroy net/bluetooth/l2cap_core.c:484 [inline]
+ kref_put include/linux/kref.h:65 [inline]
+ l2cap_chan_put+0x170/0x190 net/bluetooth/l2cap_core.c:498
+ do_enable_set+0x66c/0x900 net/bluetooth/6lowpan.c:1075
+ process_one_work+0x7f5/0x10f0 kernel/workqueue.c:2264
+ worker_thread+0xbbc/0x1630 kernel/workqueue.c:2410
+ kthread+0x332/0x350 kernel/kthread.c:255
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
 
-Link: https://lore.kernel.org/r/1594297400-24756-2-git-send-email-john.garry@huawei.com
-Fixes: c483739430f1 ("scsi_debug: add multiple queue support")
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The buggy address belongs to the object at ffff888096950000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 0 bytes inside of
+ 2048-byte region [ffff888096950000, ffff888096950800)
+The buggy address belongs to the page:
+page:ffffea00025a5400 refcount:1 mapcount:0 mapping:ffff8880aa400e00 index:0x0
+flags: 0xfffe0000000200(slab)
+raw: 00fffe0000000200 ffffea00027d1548 ffffea0002397808 ffff8880aa400e00
+raw: 0000000000000000 ffff888096950000 0000000100000001 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88809694ff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff88809694ff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff888096950000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                   ^
+ ffff888096950080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888096950100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Reported-by: syzbot+96414aa0033c363d8458@syzkaller.appspotmail.com
+Signed-off-by: Lihong Kou <koulihong@huawei.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/bluetooth/6lowpan.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 4c6c448dc2df6..c17ff74164e86 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -5297,6 +5297,12 @@ static int __init scsi_debug_init(void)
- 		pr_err("submit_queues must be 1 or more\n");
- 		return -EINVAL;
+diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
+index 4febc82a7c761..52fb6d6d6d585 100644
+--- a/net/bluetooth/6lowpan.c
++++ b/net/bluetooth/6lowpan.c
+@@ -50,6 +50,7 @@ static bool enable_6lowpan;
+ /* We are listening incoming connections via this channel
+  */
+ static struct l2cap_chan *listen_chan;
++static DEFINE_MUTEX(set_lock);
+ 
+ struct lowpan_peer {
+ 	struct list_head list;
+@@ -1070,12 +1071,14 @@ static void do_enable_set(struct work_struct *work)
+ 
+ 	enable_6lowpan = set_enable->flag;
+ 
++	mutex_lock(&set_lock);
+ 	if (listen_chan) {
+ 		l2cap_chan_close(listen_chan, 0);
+ 		l2cap_chan_put(listen_chan);
  	}
-+
-+	if ((sdebug_max_queue > SDEBUG_CANQUEUE) || (sdebug_max_queue < 1)) {
-+		pr_err("max_queue must be in range [1, %d]\n", SDEBUG_CANQUEUE);
-+		return -EINVAL;
-+	}
-+
- 	sdebug_q_arr = kcalloc(submit_queues, sizeof(struct sdebug_queue),
- 			       GFP_KERNEL);
- 	if (sdebug_q_arr == NULL)
+ 
+ 	listen_chan = bt_6lowpan_listen();
++	mutex_unlock(&set_lock);
+ 
+ 	kfree(set_enable);
+ }
+@@ -1127,11 +1130,13 @@ static ssize_t lowpan_control_write(struct file *fp,
+ 		if (ret == -EINVAL)
+ 			return ret;
+ 
++		mutex_lock(&set_lock);
+ 		if (listen_chan) {
+ 			l2cap_chan_close(listen_chan, 0);
+ 			l2cap_chan_put(listen_chan);
+ 			listen_chan = NULL;
+ 		}
++		mutex_unlock(&set_lock);
+ 
+ 		if (conn) {
+ 			struct lowpan_peer *peer;
 -- 
 2.25.1
 
