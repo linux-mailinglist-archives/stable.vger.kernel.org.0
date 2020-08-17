@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B024924762E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EDD92475F9
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730147AbgHQP3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49694 "EHLO mail.kernel.org"
+        id S2390606AbgHQTbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:31:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729668AbgHQP3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:29:53 -0400
+        id S1730047AbgHQPby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:31:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C00B82054F;
-        Mon, 17 Aug 2020 15:29:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D7832075B;
+        Mon, 17 Aug 2020 15:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678192;
-        bh=e9Rxt8dGvwp9PMOOJfLvDUzKt3V8QEgABawfLsCWcbU=;
+        s=default; t=1597678313;
+        bh=LP/ESwE5uXSLHnZg76uKNJaf8JA4zFy3qEkEfQyv0Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnWiDwv6XyZ3Z8uctrCVzNiVqKFhxARykav3oY5cTo/1ITgSpZAPYPwZe4POs0uHv
-         a+cnMcqevQ2TCSjPPEg8If18DCSiMnsxV9b8K0g171l209+S4mkSSTf5Z3OxqjROEP
-         zUg+ioIOcGcBZkXHuteOMShCC7npzf3jFHgBBvlg=
+        b=LOpC8wYJDITdXnQfwlEPbjtK03F9xyhBxuv7Znc9hmb86gUqkWXXBGzqWrCZFuP5s
+         BOqeku/FIsbhRTIPUglTk569tw/vVTQe23pxlLPr4XLq4GQeaEFRs1d65RnUyj6NTM
+         h2mdyosSbh1KKN3ze7FUxW7bgEf0ePky+lzUflQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+cabfa4b5b05ff6be4ef0@syzkaller.appspotmail.com
-Subject: [PATCH 5.8 248/464] go7007: add sanity checking for endpoints
-Date:   Mon, 17 Aug 2020 17:13:21 +0200
-Message-Id: <20200817143845.675703715@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 250/464] phy: renesas: rcar-gen3-usb2: move irq registration to init
+Date:   Mon, 17 Aug 2020 17:13:23 +0200
+Message-Id: <20200817143845.771345671@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,71 +46,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 137641287eb40260783a4413847a0aef06023a6c ]
+[ Upstream commit 08b0ad375ca66181faee725b1b358bcae8d592ee ]
 
-A malicious USB device may lack endpoints the driver assumes to exist
-Accessing them leads to NULL pointer accesses. This patch introduces
-sanity checking.
+If CONFIG_DEBUG_SHIRQ was enabled, r8a77951-salvator-xs could boot
+correctly. If we appended "earlycon keep_bootcon" to the kernel
+command like, we could get kernel log like below.
 
-Reported-and-tested-by: syzbot+cabfa4b5b05ff6be4ef0@syzkaller.appspotmail.com
+    SError Interrupt on CPU0, code 0xbf000002 -- SError
+    CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.8.0-rc3-salvator-x-00505-g6c843129e6faaf01 #785
+    Hardware name: Renesas Salvator-X 2nd version board based on r8a77951 (DT)
+    pstate: 60400085 (nZCv daIf +PAN -UAO BTYPE=--)
+    pc : rcar_gen3_phy_usb2_irq+0x14/0x54
+    lr : free_irq+0xf4/0x27c
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This means free_irq() calls the interrupt handler while PM runtime
+is not getting if DEBUG_SHIRQ is enabled and rcar_gen3_phy_usb2_probe()
+failed. To fix the issue, move the irq registration place to
+rcar_gen3_phy_usb2_init() which is ready to handle the interrupts.
+
+Note that after the commit 549b6b55b005 ("phy: renesas: rcar-gen3-usb2:
+enable/disable independent irqs") which is merged into v5.2, since this
+driver creates multiple phy instances, needs to check whether one of
+phy instances is initialized. However, if we backport this patch to v5.1
+or less, we don't need to check it because such kernel have single
+phy instance.
+
+Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 9f391c574efc ("phy: rcar-gen3-usb2: add runtime ID/VBUS pin detection")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1594986297-12434-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-usb.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/phy/renesas/phy-rcar-gen3-usb2.c | 61 +++++++++++++-----------
+ 1 file changed, 33 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
-index f889c9d740cd1..dbf0455d5d50d 100644
---- a/drivers/media/usb/go7007/go7007-usb.c
-+++ b/drivers/media/usb/go7007/go7007-usb.c
-@@ -1132,6 +1132,10 @@ static int go7007_usb_probe(struct usb_interface *intf,
- 		go->hpi_ops = &go7007_usb_onboard_hpi_ops;
- 	go->hpi_context = usb;
+diff --git a/drivers/phy/renesas/phy-rcar-gen3-usb2.c b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
+index bfb22f868857f..5087b7c44d55b 100644
+--- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
++++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
+@@ -111,6 +111,7 @@ struct rcar_gen3_chan {
+ 	struct work_struct work;
+ 	struct mutex lock;	/* protects rphys[...].powered */
+ 	enum usb_dr_mode dr_mode;
++	int irq;
+ 	bool extcon_host;
+ 	bool is_otg_channel;
+ 	bool uses_otg_pins;
+@@ -389,12 +390,38 @@ static void rcar_gen3_init_otg(struct rcar_gen3_chan *ch)
+ 	rcar_gen3_device_recognition(ch);
+ }
  
-+	ep = usb->usbdev->ep_in[4];
-+	if (!ep)
-+		return -ENODEV;
++static irqreturn_t rcar_gen3_phy_usb2_irq(int irq, void *_ch)
++{
++	struct rcar_gen3_chan *ch = _ch;
++	void __iomem *usb2_base = ch->base;
++	u32 status = readl(usb2_base + USB2_OBINTSTA);
++	irqreturn_t ret = IRQ_NONE;
 +
- 	/* Allocate the URB and buffer for receiving incoming interrupts */
- 	usb->intr_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (usb->intr_urb == NULL)
-@@ -1141,7 +1145,6 @@ static int go7007_usb_probe(struct usb_interface *intf,
- 	if (usb->intr_urb->transfer_buffer == NULL)
- 		goto allocfail;
++	if (status & USB2_OBINT_BITS) {
++		dev_vdbg(ch->dev, "%s: %08x\n", __func__, status);
++		writel(USB2_OBINT_BITS, usb2_base + USB2_OBINTSTA);
++		rcar_gen3_device_recognition(ch);
++		ret = IRQ_HANDLED;
++	}
++
++	return ret;
++}
++
+ static int rcar_gen3_phy_usb2_init(struct phy *p)
+ {
+ 	struct rcar_gen3_phy *rphy = phy_get_drvdata(p);
+ 	struct rcar_gen3_chan *channel = rphy->ch;
+ 	void __iomem *usb2_base = channel->base;
+ 	u32 val;
++	int ret;
++
++	if (!rcar_gen3_is_any_rphy_initialized(channel) && channel->irq >= 0) {
++		INIT_WORK(&channel->work, rcar_gen3_phy_usb2_work);
++		ret = request_irq(channel->irq, rcar_gen3_phy_usb2_irq,
++				  IRQF_SHARED, dev_name(channel->dev), channel);
++		if (ret < 0)
++			dev_err(channel->dev, "No irq handler (%d)\n", channel->irq);
++	}
  
--	ep = usb->usbdev->ep_in[4];
- 	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
- 		usb_fill_bulk_urb(usb->intr_urb, usb->usbdev,
- 			usb_rcvbulkpipe(usb->usbdev, 4),
-@@ -1263,9 +1266,13 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	/* Initialize USB2 part */
+ 	val = readl(usb2_base + USB2_INT_ENABLE);
+@@ -433,6 +460,9 @@ static int rcar_gen3_phy_usb2_exit(struct phy *p)
+ 		val &= ~USB2_INT_ENABLE_UCOM_INTEN;
+ 	writel(val, usb2_base + USB2_INT_ENABLE);
  
- 	/* Allocate the URBs and buffers for receiving the video stream */
- 	if (board->flags & GO7007_USB_EZUSB) {
-+		if (!usb->usbdev->ep_in[6])
-+			goto allocfail;
- 		v_urb_len = 1024;
- 		video_pipe = usb_rcvbulkpipe(usb->usbdev, 6);
- 	} else {
-+		if (!usb->usbdev->ep_in[1])
-+			goto allocfail;
- 		v_urb_len = 512;
- 		video_pipe = usb_rcvbulkpipe(usb->usbdev, 1);
- 	}
-@@ -1285,6 +1292,8 @@ static int go7007_usb_probe(struct usb_interface *intf,
- 	/* Allocate the URBs and buffers for receiving the audio stream */
- 	if ((board->flags & GO7007_USB_EZUSB) &&
- 	    (board->main_info.flags & GO7007_BOARD_HAS_AUDIO)) {
-+		if (!usb->usbdev->ep_in[8])
-+			goto allocfail;
- 		for (i = 0; i < 8; ++i) {
- 			usb->audio_urbs[i] = usb_alloc_urb(0, GFP_KERNEL);
- 			if (usb->audio_urbs[i] == NULL)
++	if (channel->irq >= 0 && !rcar_gen3_is_any_rphy_initialized(channel))
++		free_irq(channel->irq, channel);
++
+ 	return 0;
+ }
+ 
+@@ -503,23 +533,6 @@ static const struct phy_ops rz_g1c_phy_usb2_ops = {
+ 	.owner		= THIS_MODULE,
+ };
+ 
+-static irqreturn_t rcar_gen3_phy_usb2_irq(int irq, void *_ch)
+-{
+-	struct rcar_gen3_chan *ch = _ch;
+-	void __iomem *usb2_base = ch->base;
+-	u32 status = readl(usb2_base + USB2_OBINTSTA);
+-	irqreturn_t ret = IRQ_NONE;
+-
+-	if (status & USB2_OBINT_BITS) {
+-		dev_vdbg(ch->dev, "%s: %08x\n", __func__, status);
+-		writel(USB2_OBINT_BITS, usb2_base + USB2_OBINTSTA);
+-		rcar_gen3_device_recognition(ch);
+-		ret = IRQ_HANDLED;
+-	}
+-
+-	return ret;
+-}
+-
+ static const struct of_device_id rcar_gen3_phy_usb2_match_table[] = {
+ 	{
+ 		.compatible = "renesas,usb2-phy-r8a77470",
+@@ -598,7 +611,7 @@ static int rcar_gen3_phy_usb2_probe(struct platform_device *pdev)
+ 	struct phy_provider *provider;
+ 	struct resource *res;
+ 	const struct phy_ops *phy_usb2_ops;
+-	int irq, ret = 0, i;
++	int ret = 0, i;
+ 
+ 	if (!dev->of_node) {
+ 		dev_err(dev, "This driver needs device tree\n");
+@@ -614,16 +627,8 @@ static int rcar_gen3_phy_usb2_probe(struct platform_device *pdev)
+ 	if (IS_ERR(channel->base))
+ 		return PTR_ERR(channel->base);
+ 
+-	/* call request_irq for OTG */
+-	irq = platform_get_irq_optional(pdev, 0);
+-	if (irq >= 0) {
+-		INIT_WORK(&channel->work, rcar_gen3_phy_usb2_work);
+-		irq = devm_request_irq(dev, irq, rcar_gen3_phy_usb2_irq,
+-				       IRQF_SHARED, dev_name(dev), channel);
+-		if (irq < 0)
+-			dev_err(dev, "No irq handler (%d)\n", irq);
+-	}
+-
++	/* get irq number here and request_irq for OTG in phy_init */
++	channel->irq = platform_get_irq_optional(pdev, 0);
+ 	channel->dr_mode = rcar_gen3_get_dr_mode(dev->of_node);
+ 	if (channel->dr_mode != USB_DR_MODE_UNKNOWN) {
+ 		int ret;
 -- 
 2.25.1
 
