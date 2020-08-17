@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E73A24769A
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17085247697
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729809AbgHQTjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:39:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34232 "EHLO mail.kernel.org"
+        id S1732505AbgHQTj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:39:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729792AbgHQP0P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:26:15 -0400
+        id S1729809AbgHQP0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:26:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 084EF23AC6;
-        Mon, 17 Aug 2020 15:26:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2C18205CB;
+        Mon, 17 Aug 2020 15:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677974;
-        bh=C8HJY6mzlMYJgOJb/37DmfGgi7e8IQV70Tp3hB3M2jk=;
+        s=default; t=1597677980;
+        bh=XQvguJYpqzHHuNq99nf21rgDry64Bxh3rtWSa+3nf7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8mKsPmDULMkcgX/JEI2D9CgpnsFT5Lmg3XyOPveNO5ImHBK00IGDy/O+rgJa980T
-         9nAzkoIdNH0/ZZODP81g9s+ou3AHvrTAyWFGhyrgGimaPeowcVAXyg8qWop1WZUsgF
-         AfomTatXL68LNm3tmN3UIW/P59TiUtXZf0c66NO0=
+        b=w/wzl4ErdxV3EIiqtU8EUtq/CSKk1/q8CrqDKWNGa6nBqpE8GVkBXZQmcVti5dWWh
+         3jCgWX+TCPEra8XB4yM8cK6nfOlCmuuo6ATytzgqVeO6ErSxVHZC2tVd0AUPgquy1v
+         qWmb7bIL+vTxseaLUXTGVZVjufBLgoI/MzmYkJEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 175/464] staging: most: avoid null pointer dereference when iface is null
-Date:   Mon, 17 Aug 2020 17:12:08 +0200
-Message-Id: <20200817143842.199993811@linuxfoundation.org>
+Subject: [PATCH 5.8 177/464] ASoC: SOF: nocodec: add missing .owner field
+Date:   Mon, 17 Aug 2020 17:12:10 +0200
+Message-Id: <20200817143842.297630354@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,42 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit e4463e49e29f43eecec86e2e2b2e2ab4feb7d867 ]
+[ Upstream commit 8753889e2720c1ef7ebf03370e384f5bf5ff4fab ]
 
-In the case where the pointer iface is null then the reporting of this
-error will dereference iface when printing an error message causing which
-is not ideal.  Since the majority of callers to most_register_interface
-report an error when -EINVAL is returned a simple fix is to just remove
-the error message, I doubt it will be missed.
+This field is required for ASoC cards. Not setting it will result in a
+module->name pointer being NULL and generate problems such as
 
-Addresses-Coverity: ("Dereference after null check")
-Fixes: 57562a72414c ("Staging: most: add MOST driver's core module")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200624163957.11676-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cat /proc/asound/modules
+ 0 (efault)
+
+Fixes: 8017b8fd37bf ('ASoC: SOF: Add Nocodec machine driver support')
+Reported-by: Jaroslav Kysela <perex@perex.cz>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200625191308.3322-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/most/core.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/soc/sof/nocodec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/most/core.c b/drivers/most/core.c
-index f781c46cd4af9..353ab277cbc6b 100644
---- a/drivers/most/core.c
-+++ b/drivers/most/core.c
-@@ -1283,10 +1283,8 @@ int most_register_interface(struct most_interface *iface)
- 	struct most_channel *c;
+diff --git a/sound/soc/sof/nocodec.c b/sound/soc/sof/nocodec.c
+index d03b5be31255b..9e922df6a7101 100644
+--- a/sound/soc/sof/nocodec.c
++++ b/sound/soc/sof/nocodec.c
+@@ -14,6 +14,7 @@
  
- 	if (!iface || !iface->enqueue || !iface->configure ||
--	    !iface->poison_channel || (iface->num_channels > MAX_CHANNELS)) {
--		dev_err(iface->dev, "Bad interface or channel overflow\n");
-+	    !iface->poison_channel || (iface->num_channels > MAX_CHANNELS))
- 		return -EINVAL;
--	}
+ static struct snd_soc_card sof_nocodec_card = {
+ 	.name = "nocodec", /* the sof- prefix is added by the core */
++	.owner = THIS_MODULE
+ };
  
- 	id = ida_simple_get(&mdev_id, 0, 0, GFP_KERNEL);
- 	if (id < 0) {
+ static int sof_nocodec_bes_setup(struct device *dev,
 -- 
 2.25.1
 
