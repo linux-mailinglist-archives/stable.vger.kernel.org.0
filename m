@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26534246953
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4EB246947
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729244AbgHQPUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:20:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
+        id S1729146AbgHQPSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:18:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729193AbgHQPTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:19:13 -0400
+        id S1729186AbgHQPSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:18:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64ED720729;
-        Mon, 17 Aug 2020 15:19:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DF14205CB;
+        Mon, 17 Aug 2020 15:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677553;
-        bh=F592JwkZMMRW6U976eGgKBJ9UP2MyAhBL78uU1iPJ+E=;
+        s=default; t=1597677522;
+        bh=sB317FLKXl8ZWzvoUjIVlaxiV8Hf9CrJJB1t9Ct1CJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4Fk4EoYgk/uhGCqvGN1QOxrtni1b/PbF5Jt/41cTj2sbKPq2/tVP7GwoPosMg9Qr
-         dq5VGU3hqbgxGK0MMClAeyI8wco7cCNDbuGz5bJIBlnqNDXsAGYE2LOsDzAp5XY32D
-         ysilwQ4lnmfD/y9JL/bbkt10OXEdw/3abvVV30PE=
+        b=KxPBjgUOW8SytjXVuXcH16pxZbY8Dr1DXs6mPAL1fzqaFie5xs2gEl3iPDthLon3r
+         fQQpFGHGUPTBTTfssFq5xfuah42qgiNhxRlTF/v3l4FDJzK9WqvMh53bSF4EBfDazY
+         5aIv4+uSoVOIu6xD8YXBg6Sq2EnyC5T8bEMxaMrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ammy Yi <ammy.yi@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Chao Qin <chao.qin@intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 008/464] perf/x86/intel/uncore: Fix oops when counting IMC uncore events on some TGL
-Date:   Mon, 17 Aug 2020 17:09:21 +0200
-Message-Id: <20200817143834.149381289@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 014/464] arm64: dts: rockchip: fix rk3368-lion gmac reset gpio
+Date:   Mon, 17 Aug 2020 17:09:27 +0200
+Message-Id: <20200817143834.438811775@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,57 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-[ Upstream commit 2af834f1faab3f1e218fcbcab70a399121620d62 ]
+[ Upstream commit 2300e6dab473e93181cf76e4fe6671aa3d24c57b ]
 
-When counting IMC uncore events on some TGL machines, an oops will be
-triggered.
-  [ 393.101262] BUG: unable to handle page fault for address:
-  ffffb45200e15858
-  [ 393.101269] #PF: supervisor read access in kernel mode
-  [ 393.101271] #PF: error_code(0x0000) - not-present page
+The lion gmac node currently uses opposite active-values for the
+gmac phy reset pin. The gpio-declaration uses active-high while the
+separate snps,reset-active-low property marks the pin as active low.
 
-Current perf uncore driver still use the IMC MAP SIZE inherited from
-SNB, which is 0x6000.
-However, the offset of IMC uncore counters is larger than 0x6000,
-e.g. 0xd8a0.
+While on the kernel side this works ok, other DT users may get
+confused - as seen with uboot right now.
 
-Enlarge the IMC MAP SIZE for TGL to 0xe000.
+So bring this in line and make both properties match, similar to the
+other Rockchip board.
 
-Fixes: fdb64822443e ("perf/x86: Add Intel Tiger Lake uncore support")
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Ammy Yi <ammy.yi@intel.com>
-Tested-by: Chao Qin <chao.qin@intel.com>
-Link: https://lkml.kernel.org/r/1590679169-61823-1-git-send-email-kan.liang@linux.intel.com
+Fixes: d99a02bcfa81 ("arm64: dts: rockchip: add RK3368-uQ7 (Lion) SoM")
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20200607212909.920575-1-heiko@sntech.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
-index 3de1065eefc44..1038e9f1e3542 100644
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -1085,6 +1085,7 @@ static struct pci_dev *tgl_uncore_get_mc_dev(void)
- }
- 
- #define TGL_UNCORE_MMIO_IMC_MEM_OFFSET		0x10000
-+#define TGL_UNCORE_PCI_IMC_MAP_SIZE		0xe000
- 
- static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
- {
-@@ -1112,7 +1113,7 @@ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
- 	addr |= ((resource_size_t)mch_bar << 32);
- #endif
- 
--	box->io_addr = ioremap(addr, SNB_UNCORE_PCI_IMC_MAP_SIZE);
-+	box->io_addr = ioremap(addr, TGL_UNCORE_PCI_IMC_MAP_SIZE);
- }
- 
- static struct intel_uncore_ops tgl_uncore_imc_freerunning_ops = {
+diff --git a/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi b/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi
+index e17311e090826..216aafd90e7f1 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi
+@@ -156,7 +156,7 @@ &gmac {
+ 	pinctrl-0 = <&rgmii_pins>;
+ 	snps,reset-active-low;
+ 	snps,reset-delays-us = <0 10000 50000>;
+-	snps,reset-gpio = <&gpio3 RK_PB3 GPIO_ACTIVE_HIGH>;
++	snps,reset-gpio = <&gpio3 RK_PB3 GPIO_ACTIVE_LOW>;
+ 	tx_delay = <0x10>;
+ 	rx_delay = <0x10>;
+ 	status = "okay";
 -- 
 2.25.1
 
