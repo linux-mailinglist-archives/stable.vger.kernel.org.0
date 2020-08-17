@@ -2,36 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9392472E0
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 257622472D3
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403836AbgHQSsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:48:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
+        id S2403812AbgHQSrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:47:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388021AbgHQPz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:55:28 -0400
+        id S2388013AbgHQPze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:55:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6140208C7;
-        Mon, 17 Aug 2020 15:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C49B20760;
+        Mon, 17 Aug 2020 15:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679721;
-        bh=epOxAWj3C6DUTPwZ1Pr6rDKvdzHlGJpjgFWKmRk7ZRQ=;
+        s=default; t=1597679733;
+        bh=tOeoHQl/xkAbw98W/d/HbPYQ9y5YcAyc2aZjIwp5VYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0/KtLOTPa9QmolS/T5SjiH6KLtLZYmbdBCIlWbOW9RFF3AAs+2ueWSnDbnG2Sp0G
-         y7NC+8RMJSSH3B+fnYIN6PbVhT1eyKZ2mlx7pU05qOwpVYI5Sjh5ojqUQu5qLd07XE
-         ZsYXJHlof86xSC8DZHKgx20iTTIptfbEl4fj1cK0=
+        b=Bnb4Vp+5ldUZi3gCyZtTWslx0Nd4DcKd1FdSk4NXBe3A0waQSTYnaGbkqZNkVsKa4
+         Oi+CdkcsM5zVCAoeLJFvui3pR/Mo3eRLHzoLYKdC7G2XzwE8unT1WJ9Qf89AOSNPKN
+         WamS4F4vQjeWYDVuAH2AFT6a60KRhmVPWuJF8RLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 311/393] mtd: rawnand: brcmnand: Dont default to edu transfer
-Date:   Mon, 17 Aug 2020 17:16:01 +0200
-Message-Id: <20200817143834.696473791@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Brian Gerst <brgerst@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Denys Vlasenko <dvlasenk@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Markus T Metzger <markus.t.metzger@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Shankar <ravi.v.shankar@intel.com>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, Jann Horn <jannh@google.com>
+Subject: [PATCH 5.7 315/393] x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task
+Date:   Mon, 17 Aug 2020 17:16:05 +0200
+Message-Id: <20200817143834.887647766@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,39 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Dasu <kdasu.kdev@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit bee3ab8bdd3b13faf08e5b6e0218f59b0a49fcc3 ]
+[ Upstream commit 8ab49526b53d3172d1d8dd03a75c7d1f5bd21239 ]
 
-When flash-dma is absent do not default to using flash-edu.
-Make sure flash-edu is enabled before setting EDU transfer
-function.
+syzbot found its way in 86_fsgsbase_read_task() and triggered this oops:
 
-Fixes: a5d53ad26a8b ("mtd: rawnand: brcmnand: Add support for flash-edu for dma transfers")
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200612212902.21347-2-kdasu.kdev@gmail.com
+   KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+   CPU: 0 PID: 6866 Comm: syz-executor262 Not tainted 5.8.0-syzkaller #0
+   RIP: 0010:x86_fsgsbase_read_task+0x16d/0x310 arch/x86/kernel/process_64.c:393
+   Call Trace:
+     putreg32+0x3ab/0x530 arch/x86/kernel/ptrace.c:876
+     genregs32_set arch/x86/kernel/ptrace.c:1026 [inline]
+     genregs32_set+0xa4/0x100 arch/x86/kernel/ptrace.c:1006
+     copy_regset_from_user include/linux/regset.h:326 [inline]
+     ia32_arch_ptrace arch/x86/kernel/ptrace.c:1061 [inline]
+     compat_arch_ptrace+0x36c/0xd90 arch/x86/kernel/ptrace.c:1198
+     __do_compat_sys_ptrace kernel/ptrace.c:1420 [inline]
+     __se_compat_sys_ptrace kernel/ptrace.c:1389 [inline]
+     __ia32_compat_sys_ptrace+0x220/0x2f0 kernel/ptrace.c:1389
+     do_syscall_32_irqs_on arch/x86/entry/common.c:84 [inline]
+     __do_fast_syscall_32+0x57/0x80 arch/x86/entry/common.c:126
+     do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:149
+     entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+
+This can happen if ptrace() or sigreturn() pokes an LDT selector into FS
+or GS for a task with no LDT and something tries to read the base before
+a return to usermode notices the bad selector and fixes it.
+
+The fix is to make sure ldt pointer is not NULL.
+
+Fixes: 07e1d88adaae ("x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately")
+Co-developed-by: Jann Horn <jannh@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Chang S. Bae <chang.seok.bae@intel.com>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Gerst <brgerst@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Denys Vlasenko <dvlasenk@redhat.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Markus T Metzger <markus.t.metzger@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Shankar <ravi.v.shankar@intel.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/brcmnand/brcmnand.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/process_64.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-index 968ff77039256..cdae2311a3b69 100644
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -2960,8 +2960,9 @@ int brcmnand_probe(struct platform_device *pdev, struct brcmnand_soc *soc)
- 		if (ret < 0)
- 			goto err;
- 
--		/* set edu transfer function to call */
--		ctrl->dma_trans = brcmnand_edu_trans;
-+		if (has_edu(ctrl))
-+			/* set edu transfer function to call */
-+			ctrl->dma_trans = brcmnand_edu_trans;
- 	}
- 
- 	/* Disable automatic device ID config, direct addressing */
+diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
+index 5ef9d8f25b0e8..cf2cda72a75bf 100644
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -315,7 +315,7 @@ static unsigned long x86_fsgsbase_read_task(struct task_struct *task,
+ 		 */
+ 		mutex_lock(&task->mm->context.lock);
+ 		ldt = task->mm->context.ldt;
+-		if (unlikely(idx >= ldt->nr_entries))
++		if (unlikely(!ldt || idx >= ldt->nr_entries))
+ 			base = 0;
+ 		else
+ 			base = get_desc_base(ldt->entries + idx);
 -- 
 2.25.1
 
