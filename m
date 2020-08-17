@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A342472E5
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A14E42472D2
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391531AbgHQSsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:48:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
+        id S2388030AbgHQSrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:47:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388012AbgHQPzE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:55:04 -0400
+        id S2388028AbgHQPzj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:55:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C44F2072E;
-        Mon, 17 Aug 2020 15:55:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2390F207DA;
+        Mon, 17 Aug 2020 15:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679703;
-        bh=aEs59r/tWiUmQw/L2vM83zIJrUO60M5LIbt0D1F46tc=;
+        s=default; t=1597679736;
+        bh=dHoB6WN7dMe7me8nFYFb2Na5SEj5aIZg5J6VQssDatI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlRY9TxP2sPQP5O2684XET4z0seXW0u1iMc2UMXy0nBb9J6zmI8u5RGStk3HWF/ZF
-         PyzzWnChPaLuvdFQhuc+iXc9+V9BNOY9ztavDXfWv6+WoNJDcRuvsmH3kwG7i9ErCi
-         Vip49Fp7MNuUZFdynSC0redW9AdBBxHXidGS08V0=
+        b=Moe8LbpojW1yjvaPjDYkTC1f803SkghqIXrBLBQJ4GQ6GV3lzIFiFvtiX/HZ7Ux6z
+         EJKlX6Ghe0FuyJbsNKR8ocKNYcHwW0Twyu+HIMTsat2k7V782ee3jy0rg+tHfGgpKk
+         ZCRPU0zltybHWLBzYbEwY3FZTIz1u+o+Q3Ly/eKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Sergey Matyukevich <geomatsi@gmail.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 288/393] rtw88: coex: only skip coex triggered by BT info
-Date:   Mon, 17 Aug 2020 17:15:38 +0200
-Message-Id: <20200817143833.591406861@linuxfoundation.org>
+Subject: [PATCH 5.7 289/393] qtnfmac: Missing platform_device_unregister() on error in qtnf_core_mac_alloc()
+Date:   Mon, 17 Aug 2020 17:15:39 +0200
+Message-Id: <20200817143833.641551886@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,48 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan-Hsuan Chuang <yhchuang@realtek.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 3f194bd4ca1cd9b8eef34d37d562279dbeb80319 ]
+[ Upstream commit 141bc9abbbffa89d020957caa9ac4a61d0ef1e26 ]
 
-The coex mechanism used to skip upon the freeze flag is raised.
-That will cause the coex mechanism being skipped unexpectedly.
-Coex only wanted to keep the TDMA table from being changed by
-BT side.
+Add the missing platform_device_unregister() before return from
+qtnf_core_mac_alloc() in the error handling case.
 
-So, check the freeze and reason, if the coex reason is coming
-from BT info, skip it, to make sure the coex triggered by Wifi
-itself can work.
-
-This is required for the AP mode, while the control flow is
-different with STA mode. When starting an AP mode, the AP mode
-needs to start working immedaitely after leaving IPS, and the
-freeze flag could be raised. If the coex info is skipped, then
-the AP mode will not set the antenna owner, leads to TX stuck.
-
-Fixes: 4136214f7c46 ("rtw88: add BT co-existence support")
-Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
+Fixes: 616f5701f4ab ("qtnfmac: assign each wiphy to its own virtual platform device")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Sergey Matyukevich <geomatsi@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200717064937.27966-5-yhchuang@realtek.com
+Link: https://lore.kernel.org/r/20200730064910.37589-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/coex.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/quantenna/qtnfmac/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/coex.c b/drivers/net/wireless/realtek/rtw88/coex.c
-index 567372fb4e12e..c73101afbeddb 100644
---- a/drivers/net/wireless/realtek/rtw88/coex.c
-+++ b/drivers/net/wireless/realtek/rtw88/coex.c
-@@ -1920,7 +1920,8 @@ static void rtw_coex_run_coex(struct rtw_dev *rtwdev, u8 reason)
- 	if (coex_stat->wl_under_ips)
- 		return;
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/core.c b/drivers/net/wireless/quantenna/qtnfmac/core.c
+index eea777f8acea5..6aafff9d4231b 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/core.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/core.c
+@@ -446,8 +446,11 @@ static struct qtnf_wmac *qtnf_core_mac_alloc(struct qtnf_bus *bus,
+ 	}
  
--	if (coex->freeze && !coex_stat->bt_setup_link)
-+	if (coex->freeze && coex_dm->reason == COEX_RSN_BTINFO &&
-+	    !coex_stat->bt_setup_link)
- 		return;
+ 	wiphy = qtnf_wiphy_allocate(bus, pdev);
+-	if (!wiphy)
++	if (!wiphy) {
++		if (pdev)
++			platform_device_unregister(pdev);
+ 		return ERR_PTR(-ENOMEM);
++	}
  
- 	coex_stat->cnt_wl[COEX_CNT_WL_COEXRUN]++;
+ 	mac = wiphy_priv(wiphy);
+ 
 -- 
 2.25.1
 
