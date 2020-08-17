@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 007CC247151
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BC124713A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388205AbgHQQCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50322 "EHLO mail.kernel.org"
+        id S2390783AbgHQSX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388223AbgHQQCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:02:48 -0400
+        id S2388233AbgHQQDW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:03:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 948C0206FA;
-        Mon, 17 Aug 2020 16:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9041A206FA;
+        Mon, 17 Aug 2020 16:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680168;
-        bh=slit+5tZxoGPIjOWZ4Ys7ijQ5PuZFpyv9tER/QkkOas=;
+        s=default; t=1597680196;
+        bh=OVDkHsSG07NKTNVnTJzwLv0lVIcR7G7fqta95REk53A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pt5mtZITHv++45E4hy0zjTMhmgJfTxZRNspTeBROw4HaO+95y5rHLz8Q6ps4jH9sr
-         beFbkGrupp6Cz3r7fwhVnRAXzOSdh6j9PIZOsNxvuOHFc8QiuQjdfnmhXpEEufs976
-         WmDCLgU/hcYN7Dc6dkHq1PvMBbMk5tsqYPjEn0FM=
+        b=MGc6lIU1cyLo1mkZbCfZ/6C8++A9HZUOZ/47zNq1h/EZorG3WoWzLN2q1VSTmofi1
+         DZX7h7buaS3MOcv9lM8jGOVm+4319e0GsOsveKWv0hdDRYGNJD3wnWhdh7HLDrHDwC
+         HAFQ5HJPbybeGsNa2gE2graY+XqPun3F7odHPMVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
         Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/270] drm/nouveau: fix reference count leak in nouveau_debugfs_strap_peek
-Date:   Mon, 17 Aug 2020 17:14:22 +0200
-Message-Id: <20200817143758.796306254@linuxfoundation.org>
+Subject: [PATCH 5.4 062/270] drm/nouveau: fix multiple instances of reference count leaks
+Date:   Mon, 17 Aug 2020 17:14:23 +0200
+Message-Id: <20200817143758.844564966@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -46,35 +46,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 8f29432417b11039ef960ab18987c7d61b2b5396 ]
+[ Upstream commit 659fb5f154c3434c90a34586f3b7aa1c39cf6062 ]
 
-nouveau_debugfs_strap_peek() calls pm_runtime_get_sync() that
-increments the reference count. In case of failure, decrement the
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
 ref count before returning the error.
 
 Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_debugfs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_drm.c | 8 ++++++--
+ drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_debugfs.c b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
-index 7dfbbbc1beea6..5c314f135dd10 100644
---- a/drivers/gpu/drm/nouveau/nouveau_debugfs.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
-@@ -54,8 +54,10 @@ nouveau_debugfs_strap_peek(struct seq_file *m, void *data)
- 	int ret;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index b1beed40e746a..5347e5bdee8cc 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -1052,8 +1052,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
  
- 	ret = pm_runtime_get_sync(drm->dev->dev);
+ 	/* need to bring up power immediately if opening device */
+ 	ret = pm_runtime_get_sync(dev->dev);
 -	if (ret < 0 && ret != -EACCES)
 +	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(drm->dev->dev);
++		pm_runtime_put_autosuspend(dev->dev);
  		return ret;
 +	}
  
- 	seq_printf(m, "0x%08x\n",
- 		   nvif_rd32(&drm->client.device.object, 0x101000));
+ 	get_task_comm(tmpname, current);
+ 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
+@@ -1135,8 +1137,10 @@ nouveau_drm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	long ret;
+ 
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
+ 
+ 	switch (_IOC_NR(cmd) - DRM_COMMAND_BASE) {
+ 	case DRM_NOUVEAU_NVIF:
+diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
+index 1324c19f4e5cf..fbfe254227740 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_gem.c
++++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
+@@ -45,8 +45,10 @@ nouveau_gem_object_del(struct drm_gem_object *gem)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (WARN_ON(ret < 0 && ret != -EACCES))
++	if (WARN_ON(ret < 0 && ret != -EACCES)) {
++		pm_runtime_put_autosuspend(dev);
+ 		return;
++	}
+ 
+ 	if (gem->import_attach)
+ 		drm_prime_gem_destroy(gem, nvbo->bo.sg);
 -- 
 2.25.1
 
