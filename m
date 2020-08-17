@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 417F2246A97
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66794246A9B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730628AbgHQPiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:38:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47136 "EHLO mail.kernel.org"
+        id S2387434AbgHQPjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:39:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730612AbgHQPiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:38:51 -0400
+        id S2387424AbgHQPi6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:38:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 271D223120;
-        Mon, 17 Aug 2020 15:38:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D3CC208E4;
+        Mon, 17 Aug 2020 15:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678730;
-        bh=WyO2If/OfFCea9PXnScXqeh4WKPM3dmI5l5aslUJ0Zs=;
+        s=default; t=1597678735;
+        bh=0t5POLBWNfw7QFM1DJCV/inOcg3oxp4uCilRlsw1hfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAmoaSWDvih/JxKoA87g9851GFfeDKgjpGoWyoZewldYnjEhmuTBLCOYZwEXtCMjL
-         QlF6hsO0Ir0dbCMXde+zeBjAZNrQohub3ZOUAgmYx9rOF6/Ufcb9khnYzgM3rrd+SG
-         sgf570FiHTV0oVIHBx8XasCyqQNi/imd4AWtIHHc=
+        b=b9nzOz5G2VVDm5WjPtyT69/61bNgjBaYzJBLzBMSiuPdtFWwV5YIgBQqvFKNEuzWo
+         CRaz4RNdTRGTutcQncWEYicMa5mmaUFcWYMf4GcEz/K+A9eQrgr+//hqhELFhDXFWn
+         hL2rb/J5C79G+vRFaPF5wcaPcqSDNCb64r45GNh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 5.8 435/464] PM / devfreq: Fix indentaion of devfreq_summary debugfs node
-Date:   Mon, 17 Aug 2020 17:16:28 +0200
-Message-Id: <20200817143854.615375831@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.8 436/464] spi: spidev: Align buffers for DMA
+Date:   Mon, 17 Aug 2020 17:16:29 +0200
+Message-Id: <20200817143854.663083713@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -42,82 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanwoo Choi <cw00.choi@samsung.com>
+From: Christian Eggers <ceggers@arri.de>
 
-commit 0aae11bcdefb4894b6100656ad24cbd85ff34b52 upstream.
+commit aa9e862d7d5bcecd4dca9f39e8b684b93dd84ee7 upstream.
 
-The commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name
-as devfreq(X) for sysfs"") roll back the device name from 'devfreqX'
-to device name explained in DT. After applied commit 66d0e797bf09,
-the indentation of devfreq_summary debugfs node was broken.
+Simply copying all xfers from userspace into one bounce buffer causes
+alignment problems if the SPI controller uses DMA.
 
-So, fix indentaion of devfreq_summary debugfs node as following:
+Ensure that all transfer data blocks within the rx and tx bounce buffers
+are aligned for DMA (according to ARCH_KMALLOC_MINALIGN).
 
-For example on Exynos5422-based Odroid-XU3 board,
-$ cat /sys/kernel/debug/devfreq/devfreq_summary
-dev                            parent_dev                     governor        polling_ms  cur_freq_Hz  min_freq_Hz  max_freq_Hz
------------------------------- ------------------------------ --------------- ---------- ------------ ------------ ------------
-10c20000.memory-controller     null                           simple_ondemand          0    413000000    165000000    825000000
-soc:bus_wcore                  null                           simple_ondemand         50     88700000     88700000    532000000
-soc:bus_noc                    soc:bus_wcore                  passive                  0     66600000     66600000    111000000
-soc:bus_fsys_apb               soc:bus_wcore                  passive                  0    111000000    111000000    222000000
-soc:bus_fsys                   soc:bus_wcore                  passive                  0     75000000     75000000    200000000
-soc:bus_fsys2                  soc:bus_wcore                  passive                  0     75000000     75000000    200000000
-soc:bus_mfc                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
-soc:bus_gen                    soc:bus_wcore                  passive                  0     88700000     88700000    266000000
-soc:bus_peri                   soc:bus_wcore                  passive                  0     66600000     66600000     66600000
-soc:bus_g2d                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
-soc:bus_g2d_acp                soc:bus_wcore                  passive                  0            0     66500000    266000000
-soc:bus_jpeg                   soc:bus_wcore                  passive                  0            0     75000000    300000000
-soc:bus_jpeg_apb               soc:bus_wcore                  passive                  0            0     83250000    166500000
-soc:bus_disp1_fimd             soc:bus_wcore                  passive                  0            0    120000000    200000000
-soc:bus_disp1                  soc:bus_wcore                  passive                  0            0    120000000    300000000
-soc:bus_gscl_scaler            soc:bus_wcore                  passive                  0            0    150000000    300000000
-soc:bus_mscl                   soc:bus_wcore                  passive                  0            0     84000000    666000000
+Alignment may increase the usage of the bounce buffers. In some cases,
+the buffers may need to be increased using the "bufsiz" module
+parameter.
 
+Signed-off-by: Christian Eggers <ceggers@arri.de>
 Cc: stable@vger.kernel.org
-Fixes: 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"")
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Link: https://lore.kernel.org/r/20200728100832.24788-1-ceggers@arri.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/devfreq/devfreq.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/spi/spidev.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -1657,8 +1657,7 @@ static int devfreq_summary_show(struct s
- 	unsigned long cur_freq, min_freq, max_freq;
- 	unsigned int polling_ms;
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -224,6 +224,11 @@ static int spidev_message(struct spidev_
+ 	for (n = n_xfers, k_tmp = k_xfers, u_tmp = u_xfers;
+ 			n;
+ 			n--, k_tmp++, u_tmp++) {
++		/* Ensure that also following allocations from rx_buf/tx_buf will meet
++		 * DMA alignment requirements.
++		 */
++		unsigned int len_aligned = ALIGN(u_tmp->len, ARCH_KMALLOC_MINALIGN);
++
+ 		k_tmp->len = u_tmp->len;
  
--	seq_printf(s, "%-30s %-10s %-10s %-15s %10s %12s %12s %12s\n",
--			"dev_name",
-+	seq_printf(s, "%-30s %-30s %-15s %10s %12s %12s %12s\n",
- 			"dev",
- 			"parent_dev",
- 			"governor",
-@@ -1666,10 +1665,9 @@ static int devfreq_summary_show(struct s
- 			"cur_freq_Hz",
- 			"min_freq_Hz",
- 			"max_freq_Hz");
--	seq_printf(s, "%30s %10s %10s %15s %10s %12s %12s %12s\n",
-+	seq_printf(s, "%30s %30s %15s %10s %12s %12s %12s\n",
-+			"------------------------------",
- 			"------------------------------",
--			"----------",
--			"----------",
- 			"---------------",
- 			"----------",
- 			"------------",
-@@ -1698,8 +1696,7 @@ static int devfreq_summary_show(struct s
- 		mutex_unlock(&devfreq->lock);
+ 		total += k_tmp->len;
+@@ -239,17 +244,17 @@ static int spidev_message(struct spidev_
  
- 		seq_printf(s,
--			"%-30s %-10s %-10s %-15s %10d %12ld %12ld %12ld\n",
--			dev_name(devfreq->dev.parent),
-+			"%-30s %-30s %-15s %10d %12ld %12ld %12ld\n",
- 			dev_name(&devfreq->dev),
- 			p_devfreq ? dev_name(&p_devfreq->dev) : "null",
- 			devfreq->governor_name,
+ 		if (u_tmp->rx_buf) {
+ 			/* this transfer needs space in RX bounce buffer */
+-			rx_total += k_tmp->len;
++			rx_total += len_aligned;
+ 			if (rx_total > bufsiz) {
+ 				status = -EMSGSIZE;
+ 				goto done;
+ 			}
+ 			k_tmp->rx_buf = rx_buf;
+-			rx_buf += k_tmp->len;
++			rx_buf += len_aligned;
+ 		}
+ 		if (u_tmp->tx_buf) {
+ 			/* this transfer needs space in TX bounce buffer */
+-			tx_total += k_tmp->len;
++			tx_total += len_aligned;
+ 			if (tx_total > bufsiz) {
+ 				status = -EMSGSIZE;
+ 				goto done;
+@@ -259,7 +264,7 @@ static int spidev_message(struct spidev_
+ 						(uintptr_t) u_tmp->tx_buf,
+ 					u_tmp->len))
+ 				goto done;
+-			tx_buf += k_tmp->len;
++			tx_buf += len_aligned;
+ 		}
+ 
+ 		k_tmp->cs_change = !!u_tmp->cs_change;
+@@ -293,16 +298,16 @@ static int spidev_message(struct spidev_
+ 		goto done;
+ 
+ 	/* copy any rx data out of bounce buffer */
+-	rx_buf = spidev->rx_buffer;
+-	for (n = n_xfers, u_tmp = u_xfers; n; n--, u_tmp++) {
++	for (n = n_xfers, k_tmp = k_xfers, u_tmp = u_xfers;
++			n;
++			n--, k_tmp++, u_tmp++) {
+ 		if (u_tmp->rx_buf) {
+ 			if (copy_to_user((u8 __user *)
+-					(uintptr_t) u_tmp->rx_buf, rx_buf,
++					(uintptr_t) u_tmp->rx_buf, k_tmp->rx_buf,
+ 					u_tmp->len)) {
+ 				status = -EFAULT;
+ 				goto done;
+ 			}
+-			rx_buf += u_tmp->len;
+ 		}
+ 	}
+ 	status = total;
 
 
