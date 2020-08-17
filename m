@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA040246C31
+	by mail.lfdr.de (Postfix) with ESMTP id 0FEB2246C2F
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388617AbgHQQLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39198 "EHLO mail.kernel.org"
+        id S2388612AbgHQQLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:11:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388604AbgHQQLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388605AbgHQQLO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 12:11:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1B7820658;
-        Mon, 17 Aug 2020 16:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A80722D73;
+        Mon, 17 Aug 2020 16:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680671;
-        bh=U+gWfkrY3BsVuOe18g1jlpr8DJgrJunvSINNKdy/Hcs=;
+        s=default; t=1597680673;
+        bh=ZqsSaEHvtOy52gcYLr/fBxsyzfTsBC6SGkRQ0JU6LgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHOI44LScfXG7iNATNIqy5Pmoy6eFxcA6EmPkjnqnovHfrp6pT2zZmzl4t1w7y5AI
-         urqdzdiw2JyGIOzq6SzNtrMuSqozA9OzHVP5Nn3lD+f+i67Mr9cGQNH98b+UGfR/ri
-         SDEis6NFEHLuGKhygMm9/YjT8CNXlT0FlvJzVKBg=
+        b=Eh7qKxyRLvt3S+7qsuQ7SYdsitJV0hzlIrFxj7lhmEq3pWU4+F4MsWK/qtaGHzK3/
+         P0X6BTyUKeZJbswO25ankgs/JGI9FkujRWnd3Y0v0GyNsVJEr4KLMyXZJW0o8qMJcE
+         /QZhIWhjZDhfvW+IjN8r5E/7FS1omnf93DPuesF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 010/168] EDAC: Fix reference count leaks
-Date:   Mon, 17 Aug 2020 17:15:41 +0200
-Message-Id: <20200817143734.228179359@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 011/168] arm64: dts: qcom: msm8916: Replace invalid bias-pull-none property
+Date:   Mon, 17 Aug 2020 17:15:42 +0200
+Message-Id: <20200817143734.285035960@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -43,57 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 17ed808ad243192fb923e4e653c1338d3ba06207 ]
+[ Upstream commit 1b6a1a162defe649c5599d661b58ac64bb6f31b6 ]
 
-When kobject_init_and_add() returns an error, it should be handled
-because kobject_init_and_add() takes a reference even when it fails. If
-this function returns an error, kobject_put() must be called to properly
-clean up the memory associated with the object.
+msm8916-pins.dtsi specifies "bias-pull-none" for most of the audio
+pin configurations. This was likely copied from the qcom kernel fork
+where the same property was used for these audio pins.
 
-Therefore, replace calling kfree() and call kobject_put() and add a
-missing kobject_put() in the edac_device_register_sysfs_main_kobj()
-error path.
+However, "bias-pull-none" actually does not exist at all - not in
+mainline and not in downstream. I can only guess that the original
+intention was to configure "no pull", i.e. bias-disable.
 
- [ bp: Massage and merge into a single patch. ]
+Change it to that instead.
 
-Fixes: b2ed215a3338 ("Kobject: change drivers/edac to use kobject_init_and_add")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200528202238.18078-1-wu000273@umn.edu
-Link: https://lkml.kernel.org/r/20200528203526.20908-1-wu000273@umn.edu
+Fixes: 143bb9ad85b7 ("arm64: dts: qcom: add audio pinctrls")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200605185916.318494-2-stephan@gerhold.net
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_device_sysfs.c | 1 +
- drivers/edac/edac_pci_sysfs.c    | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8916-pins.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/edac/edac_device_sysfs.c b/drivers/edac/edac_device_sysfs.c
-index 0e7ea3591b781..5e75937537997 100644
---- a/drivers/edac/edac_device_sysfs.c
-+++ b/drivers/edac/edac_device_sysfs.c
-@@ -275,6 +275,7 @@ int edac_device_register_sysfs_main_kobj(struct edac_device_ctl_info *edac_dev)
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+index 390a2fa285145..60d218c5275c1 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+@@ -516,7 +516,7 @@ pinconf {
+ 				pins = "gpio63", "gpio64", "gpio65", "gpio66",
+ 				       "gpio67", "gpio68";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
+ 		cdc_pdm_lines_sus: pdm_lines_off {
+@@ -545,7 +545,7 @@ pinconf {
+ 				pins = "gpio113", "gpio114", "gpio115",
+ 				       "gpio116";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
  
- 	/* Error exit stack */
- err_kobj_reg:
-+	kobject_put(&edac_dev->kobj);
- 	module_put(edac_dev->owner);
+@@ -573,7 +573,7 @@ pinmux {
+ 			pinconf {
+ 				pins = "gpio110";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
  
- err_out:
-diff --git a/drivers/edac/edac_pci_sysfs.c b/drivers/edac/edac_pci_sysfs.c
-index 72c9eb9fdffbe..53042af7262e2 100644
---- a/drivers/edac/edac_pci_sysfs.c
-+++ b/drivers/edac/edac_pci_sysfs.c
-@@ -386,7 +386,7 @@ static int edac_pci_main_kobj_setup(void)
- 
- 	/* Error unwind statck */
- kobject_init_and_add_fail:
--	kfree(edac_pci_top_main_kobj);
-+	kobject_put(edac_pci_top_main_kobj);
- 
- kzalloc_fail:
- 	module_put(THIS_MODULE);
+@@ -599,7 +599,7 @@ pinmux {
+ 			pinconf {
+ 				pins = "gpio116";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
+ 		ext_mclk_tlmm_lines_sus: mclk_lines_off {
+@@ -627,7 +627,7 @@ pinconf {
+ 				pins = "gpio112", "gpio117", "gpio118",
+ 					"gpio119";
+ 				drive-strength = <8>;
+-				bias-pull-none;
++				bias-disable;
+ 			};
+ 		};
+ 		ext_sec_tlmm_lines_sus: tlmm_lines_off {
 -- 
 2.25.1
 
