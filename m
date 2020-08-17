@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E632474A2
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4441D2474A0
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392107AbgHQTMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49916 "EHLO mail.kernel.org"
+        id S1730686AbgHQPku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:40:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730384AbgHQPkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:40:46 -0400
+        id S1730684AbgHQPks (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA26E20760;
-        Mon, 17 Aug 2020 15:40:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90B8E207DA;
+        Mon, 17 Aug 2020 15:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678845;
-        bh=4ZMcA9lxt25C+CH9qI2a6HgE43khl92nn/Elyq4fcy0=;
+        s=default; t=1597678848;
+        bh=TKxSJQ7vNumH47O7qPfVFf/C+OEWYUJDGaHXT7FsDWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHkpE/owcQ85ZLpFEYRNJNPhKFlvV4nO9I14Zzkb5+QrsKT0L+u6oKfbbfeeqlsww
-         c4LJPRtMYdelRUESmWBgrukccYTUTsQ1zhGMEttaSZ+WtIaufl99KXgDgU2qXRU+X9
-         oLYJlG2Uu7A0MJhpQJJeHb8oIEz9RjCprYizro78=
+        b=2rnHbxHLuApF8P/a+GnvHvJnUl7P1HMEINlMn7KLe8ZLmXqxOUIc/MLUFjywhzj2W
+         P3C4w7RFm43eNucIegLbdACgkZCKonet46e7fY/weYqu16fSrX44Gsm8vx6UFmBoqf
+         M38vpyfUpk0CrhqOMTvy1S3obTLk2q4uPfVNQHDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Valentin Schneider <valentin.schneider@arm.com>,
-        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 010/393] sched/fair: Fix NOHZ next idle balance
-Date:   Mon, 17 Aug 2020 17:11:00 +0200
-Message-Id: <20200817143820.097729241@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 011/393] sched: correct SD_flags returned by tl->sd_flags()
+Date:   Mon, 17 Aug 2020 17:11:01 +0200
+Message-Id: <20200817143820.146094440@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,84 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Peng Liu <iwtbavbm@gmail.com>
 
-[ Upstream commit 3ea2f097b17e13a8280f1f9386c331b326a3dbef ]
+[ Upstream commit 9b1b234bb86bcdcdb142e900d39b599185465dbb ]
 
-With commit:
-  'b7031a02ec75 ("sched/fair: Add NOHZ_STATS_KICK")'
-rebalance_domains of the local cfs_rq happens before others idle cpus have
-updated nohz.next_balance and its value is overwritten.
+During sched domain init, we check whether non-topological SD_flags are
+returned by tl->sd_flags(), if found, fire a waning and correct the
+violation, but the code failed to correct the violation. Correct this.
 
-Move the update of nohz.next_balance for other idles cpus before balancing
-and updating the next_balance of local cfs_rq.
-
-Also, the nohz.next_balance is now updated only if all idle cpus got a
-chance to rebalance their domains and the idle balance has not been aborted
-because of new activities on the CPU. In case of need_resched, the idle
-load balance will be kick the next jiffie in order to address remaining
-ilb.
-
-Fixes: b7031a02ec75 ("sched/fair: Add NOHZ_STATS_KICK")
-Reported-by: Peng Liu <iwtbavbm@gmail.com>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Fixes: 143e1e28cb40 ("sched: Rework sched_domain topology definition")
+Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
 Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Link: https://lkml.kernel.org/r/20200609123748.18636-1-vincent.guittot@linaro.org
+Link: https://lkml.kernel.org/r/20200609150936.GA13060@iZj6chx1xj0e0buvshuecpZ
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ kernel/sched/topology.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 5c31875a7d9dc..e44332b829b4d 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -10033,7 +10033,12 @@ static void kick_ilb(unsigned int flags)
- {
- 	int ilb_cpu;
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index 8344757bba6e6..160178d6eb20e 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1338,7 +1338,7 @@ sd_init(struct sched_domain_topology_level *tl,
+ 		sd_flags = (*tl->sd_flags)();
+ 	if (WARN_ONCE(sd_flags & ~TOPOLOGY_SD_FLAGS,
+ 			"wrong sd_flags in topology description\n"))
+-		sd_flags &= ~TOPOLOGY_SD_FLAGS;
++		sd_flags &= TOPOLOGY_SD_FLAGS;
  
--	nohz.next_balance++;
-+	/*
-+	 * Increase nohz.next_balance only when if full ilb is triggered but
-+	 * not if we only update stats.
-+	 */
-+	if (flags & NOHZ_BALANCE_KICK)
-+		nohz.next_balance = jiffies+1;
- 
- 	ilb_cpu = find_new_ilb();
- 
-@@ -10351,6 +10356,14 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
- 		}
- 	}
- 
-+	/*
-+	 * next_balance will be updated only when there is a need.
-+	 * When the CPU is attached to null domain for ex, it will not be
-+	 * updated.
-+	 */
-+	if (likely(update_next_balance))
-+		nohz.next_balance = next_balance;
-+
- 	/* Newly idle CPU doesn't need an update */
- 	if (idle != CPU_NEWLY_IDLE) {
- 		update_blocked_averages(this_cpu);
-@@ -10371,14 +10384,6 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
- 	if (has_blocked_load)
- 		WRITE_ONCE(nohz.has_blocked, 1);
- 
--	/*
--	 * next_balance will be updated only when there is a need.
--	 * When the CPU is attached to null domain for ex, it will not be
--	 * updated.
--	 */
--	if (likely(update_next_balance))
--		nohz.next_balance = next_balance;
--
- 	return ret;
- }
- 
+ 	/* Apply detected topology flags */
+ 	sd_flags |= dflags;
 -- 
 2.25.1
 
