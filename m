@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DABCD247486
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2717D247481
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391940AbgHQTK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51054 "EHLO mail.kernel.org"
+        id S2404093AbgHQTKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730399AbgHQPl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:27 -0400
+        id S1730750AbgHQPlf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:41:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D0DD2075B;
-        Mon, 17 Aug 2020 15:41:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2720220760;
+        Mon, 17 Aug 2020 15:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678886;
-        bh=n5BejSjOLaNTzyZ8gbGcxvwo3oVY7+1z+ltbc4YdsIE=;
+        s=default; t=1597678892;
+        bh=F592JwkZMMRW6U976eGgKBJ9UP2MyAhBL78uU1iPJ+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiiVKP0Kmat9+0w6eU9yIzk2gvCR/jPORO08SDjYuYnl+jmKNOuuqFZFDrKvOqelE
-         BgdvtQBY0LfPmYLpaIzJ9FxNAcGLJHAo0tqmuKMO1hAw4+j/2AH+59nmMdWyxS56TX
-         /hSqamxpZ7uPuni+K4Kgowb5r41BAxjuJt1DVNHA=
+        b=GUkreXvEIo1Ufl2tZbKVq4kSGe/ztOtBi6x7TETQaEPsFnr0JjoORqGOutH8VW/kL
+         snp1qagZRCmvzpytMLm771jQWJ3mwbdRZmXbZRbSg4oHo8IaEjIh1GwunaAs1X2oYx
+         xcS2AbOUheFhhR97bPZnHWjUAazDt5ncX7nt+UL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 005/393] ARM: dts: stm32: fix uart7_pins_a comments in stm32mp15-pinctrl
-Date:   Mon, 17 Aug 2020 17:10:55 +0200
-Message-Id: <20200817143819.852030792@linuxfoundation.org>
+        stable@vger.kernel.org, Ammy Yi <ammy.yi@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Chao Qin <chao.qin@intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 007/393] perf/x86/intel/uncore: Fix oops when counting IMC uncore events on some TGL
+Date:   Mon, 17 Aug 2020 17:10:57 +0200
+Message-Id: <20200817143819.947028640@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,45 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erwan Le Ray <erwan.leray@st.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 391e437eedc0dab0a9f2c26997e68e040ae04ea3 ]
+[ Upstream commit 2af834f1faab3f1e218fcbcab70a399121620d62 ]
 
-Fix uart7_pins_a comments to indicate UART7 pins instead of UART4 pins.
+When counting IMC uncore events on some TGL machines, an oops will be
+triggered.
+  [ 393.101262] BUG: unable to handle page fault for address:
+  ffffb45200e15858
+  [ 393.101269] #PF: supervisor read access in kernel mode
+  [ 393.101271] #PF: error_code(0x0000) - not-present page
 
-Fixes: bf4b5f379fed ("ARM: dts: stm32: Add missing pinctrl definitions for STM32MP157")
+Current perf uncore driver still use the IMC MAP SIZE inherited from
+SNB, which is 0x6000.
+However, the offset of IMC uncore counters is larger than 0x6000,
+e.g. 0xd8a0.
 
-Signed-off-by: Erwan Le Ray <erwan.leray@st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Enlarge the IMC MAP SIZE for TGL to 0xe000.
+
+Fixes: fdb64822443e ("perf/x86: Add Intel Tiger Lake uncore support")
+Reported-by: Ammy Yi <ammy.yi@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Ammy Yi <ammy.yi@intel.com>
+Tested-by: Chao Qin <chao.qin@intel.com>
+Link: https://lkml.kernel.org/r/1590679169-61823-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/events/intel/uncore_snb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-index 73c07f0dfad27..4b67b682dd53f 100644
---- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-@@ -1095,15 +1095,15 @@ pins2 {
+diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
+index 3de1065eefc44..1038e9f1e3542 100644
+--- a/arch/x86/events/intel/uncore_snb.c
++++ b/arch/x86/events/intel/uncore_snb.c
+@@ -1085,6 +1085,7 @@ static struct pci_dev *tgl_uncore_get_mc_dev(void)
+ }
  
- 	uart7_pins_a: uart7-0 {
- 		pins1 {
--			pinmux = <STM32_PINMUX('E', 8, AF7)>; /* UART4_TX */
-+			pinmux = <STM32_PINMUX('E', 8, AF7)>; /* UART7_TX */
- 			bias-disable;
- 			drive-push-pull;
- 			slew-rate = <0>;
- 		};
- 		pins2 {
--			pinmux = <STM32_PINMUX('E', 7, AF7)>, /* UART4_RX */
--				 <STM32_PINMUX('E', 10, AF7)>, /* UART4_CTS */
--				 <STM32_PINMUX('E', 9, AF7)>; /* UART4_RTS */
-+			pinmux = <STM32_PINMUX('E', 7, AF7)>, /* UART7_RX */
-+				 <STM32_PINMUX('E', 10, AF7)>, /* UART7_CTS */
-+				 <STM32_PINMUX('E', 9, AF7)>; /* UART7_RTS */
- 			bias-disable;
- 		};
- 	};
+ #define TGL_UNCORE_MMIO_IMC_MEM_OFFSET		0x10000
++#define TGL_UNCORE_PCI_IMC_MAP_SIZE		0xe000
+ 
+ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
+ {
+@@ -1112,7 +1113,7 @@ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
+ 	addr |= ((resource_size_t)mch_bar << 32);
+ #endif
+ 
+-	box->io_addr = ioremap(addr, SNB_UNCORE_PCI_IMC_MAP_SIZE);
++	box->io_addr = ioremap(addr, TGL_UNCORE_PCI_IMC_MAP_SIZE);
+ }
+ 
+ static struct intel_uncore_ops tgl_uncore_imc_freerunning_ops = {
 -- 
 2.25.1
 
