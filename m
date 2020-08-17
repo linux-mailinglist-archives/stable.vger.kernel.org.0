@@ -2,344 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8AD02476C1
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24DF24777A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404297AbgHQTle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:41:34 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:56434 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404286AbgHQTld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 15:41:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597693290;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=3xV5XSGqbyVLfsNzrnW0KdBUx8B1oJgFclWbpRvJ+Qw=;
-        b=d6tBE5OBoLPEje+H1mvjxtoFR9c4470knVTMLuR1t1PxKVuehKjqNQXOE6Tpu8xlSPxECj
-        yRE2lp0QBTG7dxoNc7bnj+Pg0LoOp6cY9oojYMEToE6DwxBmYthbpYSStuYnH0ltFcpLeb
-        t80sJbzb8t9BTh7rUI/FAqzYbt1Edfo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-461-hX5x00hDPViB7SHMVNki-g-1; Mon, 17 Aug 2020 15:41:26 -0400
-X-MC-Unique: hX5x00hDPViB7SHMVNki-g-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 174AD81F007
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 19:41:26 +0000 (UTC)
-Received: from [10.131.1.175] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 63AC37D923;
-        Mon, 17 Aug 2020 19:41:22 +0000 (UTC)
+        id S1729243AbgHQTtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46320 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732778AbgHQTth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 15:49:37 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2039AC061342
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 12:49:37 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id a79so8737653pfa.8
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 12:49:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=y3rNw5849pF0ub5+x7IDKad5HNQPjwKH++4mnM5vpjE=;
+        b=pqshLm+NLHBt4XU4O3iLK1KdDBwhukiznfCqVHR8QUQxLkw/gv7Y0SIv9rt/lbAlg8
+         9VaYnQPYqR5BSv2zIsZR8q8klpiWemMAxJNDGPwIxO+tBqBnYTtufRJWOlgDgkqSQGM8
+         PE3jvrd6iuCj1PZsHVBcmrQZQXbMsEwaRUzyrdRd8CltBtNjzeimCst4TGAOp1S2xzaO
+         R4n2cwHglkiWJbfsfRAc8WyqAFhS6F+BIjuTpcga7Fvqb4OEFw7kJ8eGcEQzKVYYaOD0
+         /sNbDn5W4iIFAX6xrvn5fzy1BGgjgyxFwfNoNcP3xTtsJY0rPngKdeSBBbilaip8oiDp
+         2Gog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=y3rNw5849pF0ub5+x7IDKad5HNQPjwKH++4mnM5vpjE=;
+        b=MMXe5St8kM8BC16tWH665il1o8brenp7hZEX9VQCzLVXRgVE4hCqMMAS3bz7/Qacio
+         cRcNLWyrHt81SbbW/z4rqvDBhbtxsL9tfXkhX1bhg8W/+Ko7OP43rrwgDX6kUHszs62Y
+         t+Te1Fy6NYbE3pqkUvDNe91T1i/iB19RzQSD973Ukf0ODhb93/B2UDo679T5rzB0ynIw
+         bwwBmksDoJ/bWsejYbA9+IPwn3M0qiV86VrpEZMLC+G/6ZV3xghFzm1Xs2YWEi01FJ/0
+         S+dcDEry+yjO9BKo9uG23tZLN5zznOIRX8rSWtbOvYrZEFwBKI6hYR0+GahqHuCcFLgA
+         Zatg==
+X-Gm-Message-State: AOAM533vLhxDSxFoQqhzvG/Tko9ir0yyVNVRWmlnvp7gcLzRzm0L5lEw
+        dTeSxXYGeCLF2bYe5HuVrEBHyT3x2+oXsg==
+X-Google-Smtp-Source: ABdhPJxt4oCpQK1ileNmI/HH6BDQQqU4W5VnYeO9EBFhvIWjIPsDYjtd4Q/5jIqC59SRqAxpr8wgfg==
+X-Received: by 2002:aa7:93a6:: with SMTP id x6mr12628425pff.37.1597693775597;
+        Mon, 17 Aug 2020 12:49:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a13sm20274210pfo.49.2020.08.17.12.49.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Aug 2020 12:49:34 -0700 (PDT)
+Message-ID: <5f3adf4e.1c69fb81.81d36.1fb5@mx.google.com>
+Date:   Mon, 17 Aug 2020 12:49:34 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.1-f3ab983.cki
- (stable-queue)
-Date:   Mon, 17 Aug 2020 19:41:22 -0000
-Message-ID: <cki.A3FAEDFFE7.R7YX7J9LFM@redhat.com>
-X-Gitlab-Pipeline-ID: 612150
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/612150
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.139-169-g9950f9b4d350
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 183 runs,
+ 4 regressions (v4.19.139-169-g9950f9b4d350)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y baseline: 183 runs, 4 regressions (v4.19.139-169-g99=
+50f9b4d350)
 
-Hello,
+Regressions Summary
+-------------------
 
-We ran automated tests on a recent commit from this kernel tree:
+platform              | arch  | lab          | compiler | defconfig        =
+  | results
+----------------------+-------+--------------+----------+------------------=
+--+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
+  | 0/1    =
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: f3ab983c61ba - NFS: Don't return layout segments that are=
- in use
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
+  | 4/5    =
 
-The results of these automated tests are provided below.
+hsdk                  | arc   | lab-baylibre | gcc-8    | hsdk_defconfig   =
+  | 0/1    =
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+omap3-beagle-xm       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
+g | 0/1    =
 
-All kernel binaries, config files, and logs are available for download here:
 
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/08/17/612150
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.139-169-g9950f9b4d350/plan/baseline/
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.139-169-g9950f9b4d350
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9950f9b4d350ca9b4f05daa2d16b090000b1d2d7 =
 
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+Test Regressions
+---------------- =
 
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
 
-  ppc64le:
-    Host 1:
+platform              | arch  | lab          | compiler | defconfig        =
+  | results
+----------------------+-------+--------------+----------+------------------=
+--+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
+  | 0/1    =
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
 
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
+  Details:     https://kernelci.org/test/plan/id/5f3aad2ba8902682dfd99a5d
 
-    Host 2:
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
+ama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
+ama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
 
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+  * baseline.login: https://kernelci.org/test/case/id/5f3aad2ba8902682dfd99=
+a5e
+      failing since 62 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
+ail: v4.19.126-113-gd694d4388e88)  =
 
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
-  x86_64:
-    Host 1:
+platform              | arch  | lab          | compiler | defconfig        =
+  | results
+----------------------+-------+--------------+----------+------------------=
+--+--------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
+  | 4/5    =
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
 
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+  Details:     https://kernelci.org/test/plan/id/5f3aa9eff86774ae33d99a6c
 
-    Host 2:
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
+i-3-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
+i-3-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
 
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - file-load
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f3aa9eff86774ae=
+33d99a6f
+      failing since 5 days (last pass: v4.19.138-49-gb0e1bc72f7dd, first fa=
+il: v4.19.139)
+      1 lines
 
-    Host 3:
+    2020-08-17 16:01:35.154000  / # =
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
+    2020-08-17 16:01:35.165000  =
 
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - kexec_boot
+    2020-08-17 16:01:35.269000  / # #
+    2020-08-17 16:01:35.278000  #
+    2020-08-17 16:01:36.536000  / # export SHELL=3D/bin/sh
+    2020-08-17 16:01:36.547000  export SH[   16.490183] brcmfmac: brcmf_sdi=
+o_htclk: HT Avail timeout (1000000): clkctl 0x50
+    2020-08-17 16:01:36.547000  ELL=3D/bin/sh[   17.149235] hwmon hwmon1: U=
+ndervoltage detected!
+    2020-08-17 16:01:36.547000  =
 
-    Host 4:
+    2020-08-17 16:01:38.167000  / # . /lava-286204/environment
+    2020-08-17 16:01:38.178000  . /[   17.405179] Bluetooth: hci0: command =
+0xfc18 tx timeout
+    ... (12 line(s) more)
+      =
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
 
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - file-load
 
-    Host 5:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
+platform              | arch  | lab          | compiler | defconfig        =
+  | results
+----------------------+-------+--------------+----------+------------------=
+--+--------
+hsdk                  | arc   | lab-baylibre | gcc-8    | hsdk_defconfig   =
+  | 0/1    =
 
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
 
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
+  Details:     https://kernelci.org/test/plan/id/5f3aad2c868277c17bd99a65
 
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: hsdk_defconfig
+  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
+19.03-rc1) 8.3.1 20190225)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arc/baseline/rootfs.cpio.gz =
 
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
 
+  * baseline.login: https://kernelci.org/test/case/id/5f3aad2c868277c17bd99=
+a66
+      failing since 27 days (last pass: v4.19.125-93-g80718197a8a3, first f=
+ail: v4.19.133-134-g9d319b54cc24)  =
+
+
+
+platform              | arch  | lab          | compiler | defconfig        =
+  | results
+----------------------+-------+--------------+----------+------------------=
+--+--------
+omap3-beagle-xm       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
+g | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f3aaf6e4556e3d9f9d99a68
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-oma=
+p3-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+39-169-g9950f9b4d350/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-oma=
+p3-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f3aaf6e4556e3d9f9d99=
+a69
+      new failure (last pass: v4.19.139)  =20
