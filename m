@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A77C247693
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A30247692
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732491AbgHQTjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:39:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35680 "EHLO mail.kernel.org"
+        id S1729851AbgHQTjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729547AbgHQP0i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:26:38 -0400
+        id S1729277AbgHQP0l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:26:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1273923A9A;
-        Mon, 17 Aug 2020 15:26:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 029A52078D;
+        Mon, 17 Aug 2020 15:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677997;
-        bh=UZUBwEF4e/RfXG5mcWp5oc22U3LXwLC+GXqXMZIrbZY=;
+        s=default; t=1597678000;
+        bh=LbUYP1IQLhtmeYiSftNfPFlg4bh7sn+HM28H+KDvsSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MB03q+OSxKLUuDqCjf7g1kaYbmQvpg+ZUPEs+Jo62TOL9oluR3QPv91TWA7NpcVTZ
-         tFnnPXXqgxXmO/mG4Renhm1tEbgrQvaFQE+ACJpifuJq6Xelg24jazOGjzPdwpGDYL
-         O+zqutCLqPpfYgARLKUMpwgz/8zyjnSfsZtRgc6A=
+        b=RtKlUihoAiLrW+zfiDg/D31yNfT6LMQvum2HlL9mFYAz5ndZ5OG0EExBj/NrCDSF9
+         QtnaD643SD9EBOquvrnyPaygxl7n/DHM3pQLsfi+C6bkOIW4FY5wscrHGHAwKd+PZ3
+         96lS4iGxEeLQrlYWOuL3vTErGSqiykOKYWk0RP94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Starovoytov <mstarovoitov@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 182/464] net: atlantic: MACSec offload statistics checkpatch fix
-Date:   Mon, 17 Aug 2020 17:12:15 +0200
-Message-Id: <20200817143842.535570375@linuxfoundation.org>
+Subject: [PATCH 5.8 183/464] scsi: cumana_2: Fix different dev_id between request_irq() and free_irq()
+Date:   Mon, 17 Aug 2020 17:12:16 +0200
+Message-Id: <20200817143842.586674004@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,51 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Starovoytov <mstarovoitov@marvell.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 3a8b44546979cf682324bd2fd61e539f428911b4 ]
+[ Upstream commit 040ab9c4fd0070cd5fa71ba3a7b95b8470db9b4d ]
 
-This patch fixes a checkpatch warning.
+The dev_id used in request_irq() and free_irq() should match.  Use 'info'
+in both cases.
 
-Fixes: aec0f1aac58e ("net: atlantic: MACSec offload statistics implementation")
-
-Signed-off-by: Mark Starovoytov <mstarovoitov@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200625204730.943520-1-christophe.jaillet@wanadoo.fr
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/arm/cumana_2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-index 743d3b13b39d7..bb1fc6052bcf1 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-@@ -123,21 +123,21 @@ static const char aq_macsec_stat_names[][ETH_GSTRING_LEN] = {
- 	"MACSec OutUnctrlHitDropRedir",
- };
+diff --git a/drivers/scsi/arm/cumana_2.c b/drivers/scsi/arm/cumana_2.c
+index 65691c21f133d..29294f0ef8a9a 100644
+--- a/drivers/scsi/arm/cumana_2.c
++++ b/drivers/scsi/arm/cumana_2.c
+@@ -450,7 +450,7 @@ static int cumanascsi2_probe(struct expansion_card *ec,
  
--static const char *aq_macsec_txsc_stat_names[] = {
-+static const char * const aq_macsec_txsc_stat_names[] = {
- 	"MACSecTXSC%d ProtectedPkts",
- 	"MACSecTXSC%d EncryptedPkts",
- 	"MACSecTXSC%d ProtectedOctets",
- 	"MACSecTXSC%d EncryptedOctets",
- };
+ 	if (info->info.scsi.dma != NO_DMA)
+ 		free_dma(info->info.scsi.dma);
+-	free_irq(ec->irq, host);
++	free_irq(ec->irq, info);
  
--static const char *aq_macsec_txsa_stat_names[] = {
-+static const char * const aq_macsec_txsa_stat_names[] = {
- 	"MACSecTXSC%dSA%d HitDropRedirect",
- 	"MACSecTXSC%dSA%d Protected2Pkts",
- 	"MACSecTXSC%dSA%d ProtectedPkts",
- 	"MACSecTXSC%dSA%d EncryptedPkts",
- };
- 
--static const char *aq_macsec_rxsa_stat_names[] = {
-+static const char * const aq_macsec_rxsa_stat_names[] = {
- 	"MACSecRXSC%dSA%d UntaggedHitPkts",
- 	"MACSecRXSC%dSA%d CtrlHitDrpRedir",
- 	"MACSecRXSC%dSA%d NotUsingSa",
+  out_release:
+ 	fas216_release(host);
 -- 
 2.25.1
 
