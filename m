@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F27224730F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6C624730A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391607AbgHQSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2403913AbgHQSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 14:50:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39734 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387921AbgHQPxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:33 -0400
+        id S2387920AbgHQPxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61858208E4;
-        Mon, 17 Aug 2020 15:53:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2225C2063A;
+        Mon, 17 Aug 2020 15:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679607;
-        bh=F2ijL2IhcbB8o6/E5TLmLlUAkinlujYtASuTkeUWwfg=;
+        s=default; t=1597679612;
+        bh=iUmHx0gnU9KXKyMHqL5n3WV2OpVGhB51nKFJ6EEKsww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ipoSqxsIXx0YI5uOq2RSea1qXYQxJkaYWnExGCR4uJMLdZ51tW9rtwY0bE5Ctd9uA
-         OYWY+HXb2RhoVxb1bVjbHyY7uCfPAAKjGz4L9KJ/rBUIkwaK0X7KaQ3d7Ip8ZX2jZh
-         zSAjlactI64yGCsfElR31YRVfLMuQ4JHaV/jCNr8=
+        b=WIzoxWlNKuw+3xG7jUxtd1TbDI/PMMfVAz8q+MWHGipi8wmBwunxcSNJplnfK7a2F
+         j8nl4TSqWkj6cptRNcAl3BO1iO73yKQlPDD3K/rj7wvPPYcyu3+cH8ZZQeoA3B43np
+         ksZl8j7/izLBLJNe6EQMm8xp7kKOj1IsAXRs/8JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 272/393] cpufreq: ap806: fix cpufreq driver needs ap cpu clk
-Date:   Mon, 17 Aug 2020 17:15:22 +0200
-Message-Id: <20200817143832.814107038@linuxfoundation.org>
+Subject: [PATCH 5.7 274/393] selftests/powerpc: Fix online CPU selection
+Date:   Mon, 17 Aug 2020 17:15:24 +0200
+Message-Id: <20200817143832.911323527@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,36 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Sandipan Das <sandipan@linux.ibm.com>
 
-[ Upstream commit 8c37ad2f523396e15cf002b29f8f796447c71932 ]
+[ Upstream commit dfa03fff86027e58c8dba5c03ae68150d4e513ad ]
 
-The Armada 8K cpufreq driver needs the Armada AP CPU CLK
-to work. This dependency is currently not satisfied and
-the ARMADA_AP_CPU_CLK can not be selected independently.
+The size of the CPU affinity mask must be large enough for
+systems with a very large number of CPUs. Otherwise, tests
+which try to determine the first online CPU by calling
+sched_getaffinity() will fail. This makes sure that the size
+of the allocated affinity mask is dependent on the number of
+CPUs as reported by get_nprocs_conf().
 
-Add it to the cpufreq Armada8k driver.
-
-Fixes: f525a670533d ("cpufreq: ap806: add cpufreq driver for Armada 8K")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 3752e453f6ba ("selftests/powerpc: Add tests of PMU EBBs")
+Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/a408c4b8e9a23bb39b539417a21eb0ff47bb5127.1596084858.git.sandipan@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/Kconfig.arm | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/powerpc/utils.c | 37 +++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
-index 15c1a12315164..c65241bfa5128 100644
---- a/drivers/cpufreq/Kconfig.arm
-+++ b/drivers/cpufreq/Kconfig.arm
-@@ -41,6 +41,7 @@ config ARM_ARMADA_37XX_CPUFREQ
- config ARM_ARMADA_8K_CPUFREQ
- 	tristate "Armada 8K CPUFreq driver"
- 	depends on ARCH_MVEBU && CPUFREQ_DT
-+	select ARMADA_AP_CPU_CLK
- 	help
- 	  This enables the CPUFreq driver support for Marvell
- 	  Armada8k SOCs.
+diff --git a/tools/testing/selftests/powerpc/utils.c b/tools/testing/selftests/powerpc/utils.c
+index 5ee0e98c48967..eb530e73e02c1 100644
+--- a/tools/testing/selftests/powerpc/utils.c
++++ b/tools/testing/selftests/powerpc/utils.c
+@@ -16,6 +16,7 @@
+ #include <string.h>
+ #include <sys/ioctl.h>
+ #include <sys/stat.h>
++#include <sys/sysinfo.h>
+ #include <sys/types.h>
+ #include <sys/utsname.h>
+ #include <unistd.h>
+@@ -88,28 +89,40 @@ void *get_auxv_entry(int type)
+ 
+ int pick_online_cpu(void)
+ {
+-	cpu_set_t mask;
+-	int cpu;
++	int ncpus, cpu = -1;
++	cpu_set_t *mask;
++	size_t size;
++
++	ncpus = get_nprocs_conf();
++	size = CPU_ALLOC_SIZE(ncpus);
++	mask = CPU_ALLOC(ncpus);
++	if (!mask) {
++		perror("malloc");
++		return -1;
++	}
+ 
+-	CPU_ZERO(&mask);
++	CPU_ZERO_S(size, mask);
+ 
+-	if (sched_getaffinity(0, sizeof(mask), &mask)) {
++	if (sched_getaffinity(0, size, mask)) {
+ 		perror("sched_getaffinity");
+-		return -1;
++		goto done;
+ 	}
+ 
+ 	/* We prefer a primary thread, but skip 0 */
+-	for (cpu = 8; cpu < CPU_SETSIZE; cpu += 8)
+-		if (CPU_ISSET(cpu, &mask))
+-			return cpu;
++	for (cpu = 8; cpu < ncpus; cpu += 8)
++		if (CPU_ISSET_S(cpu, size, mask))
++			goto done;
+ 
+ 	/* Search for anything, but in reverse */
+-	for (cpu = CPU_SETSIZE - 1; cpu >= 0; cpu--)
+-		if (CPU_ISSET(cpu, &mask))
+-			return cpu;
++	for (cpu = ncpus - 1; cpu >= 0; cpu--)
++		if (CPU_ISSET_S(cpu, size, mask))
++			goto done;
+ 
+ 	printf("No cpus in affinity mask?!\n");
+-	return -1;
++
++done:
++	CPU_FREE(mask);
++	return cpu;
+ }
+ 
+ bool is_ppc64le(void)
 -- 
 2.25.1
 
