@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC060246B95
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77788246B9B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730937AbgHQP6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:58:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46042 "EHLO mail.kernel.org"
+        id S1730885AbgHQP7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730846AbgHQP6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:58:43 -0400
+        id S1730939AbgHQP6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:58:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E17BA2072E;
-        Mon, 17 Aug 2020 15:58:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7936920760;
+        Mon, 17 Aug 2020 15:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679923;
-        bh=5QAZABmxmAr8UBXRYsJfzTUAG8IuMU8x+DTk2b2D7dY=;
+        s=default; t=1597679935;
+        bh=tEM0h2Eeq0xk2+/KRcSElEjI+YzKG8o5jvvzr5kp4tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfale9jQOtArKi/+tuTuri0kBNvtcr35KT9aRgtZOAheDrKZ528FGdl+s30IL7Ny5
-         xd0TcfZw+qeDNUDcHzQVWBnd2nfnrhiCE4hkH5A5/uPShqHV9ImlrTbYyCbghrbPAQ
-         xZxFtFCa2EhhwUrwdSugviO2duzCEHyU03Y2G4RM=
+        b=0+TqDItDoGl0+80yDxxpfMRz9BfwWKA2ryTjo+1yPk8A89OLcp9DLcz7sZsZXkX7g
+         Wii3N1I23AU6BSOmkujB2f3V5MXuCx8x0d4N3Av1uaLzIx1ETnkSfc0xikKf5WeUzJ
+         vuGjlNiRJW3sIEgAb1HCFb6oPng/T/w6jcewsW64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Branden <scott.branden@broadcom.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.7 380/393] firmware_loader: EFI firmware loader must handle pre-allocated buffer
-Date:   Mon, 17 Aug 2020 17:17:10 +0200
-Message-Id: <20200817143838.041441532@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.7 383/393] xen/gntdev: Fix dmabuf import with non-zero sgt offset
+Date:   Mon, 17 Aug 2020 17:17:13 +0200
+Message-Id: <20200817143838.185481005@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-commit 4fb60b158afd3ac9e0fe9975aa476213f5cc0a4d upstream.
+commit 5fa4e6f1c2d8c9a4e47e1931b42893172d388f2b upstream.
 
-The EFI platform firmware fallback would clobber any pre-allocated
-buffers. Instead, correctly refuse to reallocate when too small (as
-already done in the sysfs fallback), or perform allocation normally
-when needed.
+It is possible that the scatter-gather table during dmabuf import has
+non-zero offset of the data, but user-space doesn't expect that.
+Fix this by failing the import, so user-space doesn't access wrong data.
 
-Fixes: e4c2c0ff00ec ("firmware: Add new platform fallback mechanism and firmware_request_platform()")
-Cc: stable@vger.kernel.org
-Acked-by: Scott Branden <scott.branden@broadcom.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724213640.389191-4-keescook@chromium.org
+Fixes: bf8dc55b1358 ("xen/gntdev: Implement dma-buf import functionality")
+
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Acked-by: Juergen Gross <jgross@suse.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200813062113.11030-2-andr2000@gmail.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/base/firmware_loader/fallback_platform.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/fallback_platform.c
-+++ b/drivers/base/firmware_loader/fallback_platform.c
-@@ -25,7 +25,10 @@ int firmware_fallback_platform(struct fw
- 	if (rc)
- 		return rc; /* rc == -ENOENT when the fw was not found */
+---
+ drivers/xen/gntdev-dmabuf.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/drivers/xen/gntdev-dmabuf.c
++++ b/drivers/xen/gntdev-dmabuf.c
+@@ -613,6 +613,14 @@ dmabuf_imp_to_refs(struct gntdev_dmabuf_
+ 		goto fail_detach;
+ 	}
  
--	fw_priv->data = vmalloc(size);
-+	if (fw_priv->data && size > fw_priv->allocated_size)
-+		return -ENOMEM;
-+	if (!fw_priv->data)
-+		fw_priv->data = vmalloc(size);
- 	if (!fw_priv->data)
- 		return -ENOMEM;
- 
++	/* Check that we have zero offset. */
++	if (sgt->sgl->offset) {
++		ret = ERR_PTR(-EINVAL);
++		pr_debug("DMA buffer has %d bytes offset, user-space expects 0\n",
++			 sgt->sgl->offset);
++		goto fail_unmap;
++	}
++
+ 	/* Check number of pages that imported buffer has. */
+ 	if (attach->dmabuf->size != gntdev_dmabuf->nr_pages << PAGE_SHIFT) {
+ 		ret = ERR_PTR(-EINVAL);
 
 
