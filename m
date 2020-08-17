@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 439EB246C5D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F9F246C62
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388796AbgHQQOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50286 "EHLO mail.kernel.org"
+        id S2388802AbgHQQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:15:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388607AbgHQQOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:14:15 -0400
+        id S1730805AbgHQQO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:14:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9913A22BF3;
-        Mon, 17 Aug 2020 16:14:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C47F207DE;
+        Mon, 17 Aug 2020 16:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680855;
-        bh=6lnznEESfPMCiney1DT3mUsSIQgxpaQaaD0tLhQirpI=;
+        s=default; t=1597680897;
+        bh=ivOMTOdFsLN/sz1ORCYQGPOcLijlJUddQvL8fkZTMnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1i0UnOfQlV7FJuddzIW7ePx5SbcmFFMKEhz/BU6YbeTPCslhKX4lVCjnf0bp7E0q
-         TZTchZyy52djY0ITUxqwsvgud17Eq6FrF/9e2vaarllaUmjbTAXTRMBBLXhfWUxXdr
-         G+l+LompGUOXquJeJ2UWSksMV+2UScwpCwARTYAo=
+        b=nMhwAW+hsD+tOhtqloFsRI5VkO3CfbHaUZq2uhRdwiEqv792giL5LbHXoF5lfDQHr
+         +RTgbhjWma7tmw7NK5YpfOBVXpI5KLUJ+o/+PewUmMljbFKWCPkovS6h3Zxb+GX2BC
+         7nYrMiFYByob9EqmfNQq9KaNSCDjsQlPpF5b3cZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Chiras <robert.chiras@nxp.com>,
-        Vinay Simha BN <simhavcs@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/168] drm/mipi: use dcs write for mipi_dsi_dcs_set_tear_scanline
-Date:   Mon, 17 Aug 2020 17:16:38 +0200
-Message-Id: <20200817143737.077279473@linuxfoundation.org>
+Subject: [PATCH 4.19 071/168] scsi: eesox: Fix different dev_id between request_irq() and free_irq()
+Date:   Mon, 17 Aug 2020 17:16:42 +0200
+Message-Id: <20200817143737.261687232@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -48,48 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Velikov <emil.velikov@collabora.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 7a05c3b6d24b8460b3cec436cf1d33fac43c8450 ]
+[ Upstream commit 86f2da1112ccf744ad9068b1d5d9843faf8ddee6 ]
 
-The helper uses the MIPI_DCS_SET_TEAR_SCANLINE, although it's currently
-using the generic write. This does not look right.
+The dev_id used in request_irq() and free_irq() should match. Use 'info' in
+both cases.
 
-Perhaps some platforms don't distinguish between the two writers?
-
-Cc: Robert Chiras <robert.chiras@nxp.com>
-Cc: Vinay Simha BN <simhavcs@gmail.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Thierry Reding <treding@nvidia.com>
-Fixes: e83950816367 ("drm/dsi: Implement set tear scanline")
-Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200505160329.2976059-3-emil.l.velikov@gmail.com
+Link: https://lore.kernel.org/r/20200626040553.944352-1-christophe.jaillet@wanadoo.fr
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/arm/eesox.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
-index 80b75501f5c6a..7ed8e510565ec 100644
---- a/drivers/gpu/drm/drm_mipi_dsi.c
-+++ b/drivers/gpu/drm/drm_mipi_dsi.c
-@@ -1034,11 +1034,11 @@ EXPORT_SYMBOL(mipi_dsi_dcs_set_pixel_format);
-  */
- int mipi_dsi_dcs_set_tear_scanline(struct mipi_dsi_device *dsi, u16 scanline)
- {
--	u8 payload[3] = { MIPI_DCS_SET_TEAR_SCANLINE, scanline >> 8,
--			  scanline & 0xff };
-+	u8 payload[2] = { scanline >> 8, scanline & 0xff };
- 	ssize_t err;
+diff --git a/drivers/scsi/arm/eesox.c b/drivers/scsi/arm/eesox.c
+index e93e047f43165..65bb34ce93b94 100644
+--- a/drivers/scsi/arm/eesox.c
++++ b/drivers/scsi/arm/eesox.c
+@@ -575,7 +575,7 @@ static int eesoxscsi_probe(struct expansion_card *ec, const struct ecard_id *id)
  
--	err = mipi_dsi_generic_write(dsi, payload, sizeof(payload));
-+	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_TEAR_SCANLINE, payload,
-+				 sizeof(payload));
- 	if (err < 0)
- 		return err;
+ 	if (info->info.scsi.dma != NO_DMA)
+ 		free_dma(info->info.scsi.dma);
+-	free_irq(ec->irq, host);
++	free_irq(ec->irq, info);
  
+  out_remove:
+ 	fas216_remove(host);
 -- 
 2.25.1
 
