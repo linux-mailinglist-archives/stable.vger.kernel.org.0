@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5703724766E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1DE624766B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732310AbgHQThX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
+        id S1730011AbgHQThS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729961AbgHQP1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:27:49 -0400
+        id S1729481AbgHQP1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:27:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FC17205CB;
-        Mon, 17 Aug 2020 15:27:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCD7C23442;
+        Mon, 17 Aug 2020 15:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678068;
-        bh=NC2wQCkyKXqJ+OccUDOoa9h1+j4lhGQf6dnygT8nk94=;
+        s=default; t=1597678071;
+        bh=r/97GU+YHqJuzF5uO5WtAAq5nQtAD/oOjr2scckSSzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoaOZ+K0y6kZMT3n8Lgopq1IaIFFp2EnLkrt4ydZSPDuNGls/15EOp8wawkxVz9ao
-         u8Yen8d+/pPEZS/82eKpG4/k3i0WFLUo+yOOZO952hahC6im+dGLcXXhj/sajQmInw
-         l3nV0SXsT98bT+y3krCFQdewkpYwwyTTMCVt/jvY=
+        b=XQyy+i5hKEWXO9opRt+6eFRoswEu6ND39y0OOzFrN/VAjCOWEDQvxZXDT7jYJWsGk
+         ozEpCp7v9GOEN9bFM4+YGDyXfAVsSz6leKZesRTmoWBaJA5FDoz+JMUR2s15bV523V
+         Dhfwt0HuxtP9S7cnijDglIaIxGpBzb7E2aCej1m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
-        Tomasz Figa <tfiga@chromium.org>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 207/464] media: staging: rkisp1: rsz: fix resolution limitation on sink pad
-Date:   Mon, 17 Aug 2020 17:12:40 +0200
-Message-Id: <20200817143843.729819074@linuxfoundation.org>
+Subject: [PATCH 5.8 208/464] media: tvp5150: Add missed media_entity_cleanup()
+Date:   Mon, 17 Aug 2020 17:12:41 +0200
+Message-Id: <20200817143843.778716173@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,47 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 906dceb48dfa1e7c99c32e6b25878d47023e916b ]
+[ Upstream commit d000e9b5e4a23dd700b3f58a4738c94bb5179ff0 ]
 
-Resizer sink pad is limited by what the ISP can generate.
-The configurations describes what the resizer can produce.
+This driver does not call media_entity_cleanup() in the error handler
+of tvp5150_registered() and tvp5150_remove(), while it has called
+media_entity_pads_init() at first.
+Add the missed calls to fix it.
 
-This was tested on a Scarlet device with ChromiumOs, where the selfpath
-receives 2592x1944 and produces 1600x1200 (which isn't possible without
-this fix).
-
-Fixes: 56e3b29f9f6b2 ("media: staging: rkisp1: add streaming paths")
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Fixes: 0556f1d580d4 ("media: tvp5150: add input source selection of_graph support")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkisp1/rkisp1-resizer.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/i2c/tvp5150.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/rkisp1/rkisp1-resizer.c b/drivers/staging/media/rkisp1/rkisp1-resizer.c
-index d64c064bdb1d2..e188944941b58 100644
---- a/drivers/staging/media/rkisp1/rkisp1-resizer.c
-+++ b/drivers/staging/media/rkisp1/rkisp1-resizer.c
-@@ -553,11 +553,11 @@ static void rkisp1_rsz_set_sink_fmt(struct rkisp1_resizer *rsz,
- 	src_fmt->code = sink_fmt->code;
+diff --git a/drivers/media/i2c/tvp5150.c b/drivers/media/i2c/tvp5150.c
+index eb39cf5ea0895..9df575238952a 100644
+--- a/drivers/media/i2c/tvp5150.c
++++ b/drivers/media/i2c/tvp5150.c
+@@ -1664,8 +1664,10 @@ static int tvp5150_registered(struct v4l2_subdev *sd)
+ 	return 0;
  
- 	sink_fmt->width = clamp_t(u32, format->width,
--				  rsz->config->min_rsz_width,
--				  rsz->config->max_rsz_width);
-+				  RKISP1_ISP_MIN_WIDTH,
-+				  RKISP1_ISP_MAX_WIDTH);
- 	sink_fmt->height = clamp_t(u32, format->height,
--				   rsz->config->min_rsz_height,
--				   rsz->config->max_rsz_height);
-+				  RKISP1_ISP_MIN_HEIGHT,
-+				  RKISP1_ISP_MAX_HEIGHT);
+ err:
+-	for (i = 0; i < decoder->connectors_num; i++)
++	for (i = 0; i < decoder->connectors_num; i++) {
+ 		media_device_unregister_entity(&decoder->connectors[i].ent);
++		media_entity_cleanup(&decoder->connectors[i].ent);
++	}
+ 	return ret;
+ #endif
  
- 	*format = *sink_fmt;
+@@ -2248,8 +2250,10 @@ static int tvp5150_remove(struct i2c_client *c)
  
+ 	for (i = 0; i < decoder->connectors_num; i++)
+ 		v4l2_fwnode_connector_free(&decoder->connectors[i].base);
+-	for (i = 0; i < decoder->connectors_num; i++)
++	for (i = 0; i < decoder->connectors_num; i++) {
+ 		media_device_unregister_entity(&decoder->connectors[i].ent);
++		media_entity_cleanup(&decoder->connectors[i].ent);
++	}
+ 	v4l2_async_unregister_subdev(sd);
+ 	v4l2_ctrl_handler_free(&decoder->hdl);
+ 	pm_runtime_disable(&c->dev);
 -- 
 2.25.1
 
