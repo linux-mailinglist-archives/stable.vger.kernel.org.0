@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC9AE246ADD
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F21A246ADE
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387655AbgHQPnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:43:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53928 "EHLO mail.kernel.org"
+        id S2387668AbgHQPnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:43:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387646AbgHQPnb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:43:31 -0400
+        id S2387660AbgHQPng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE8AA2075B;
-        Mon, 17 Aug 2020 15:43:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8E9622CF8;
+        Mon, 17 Aug 2020 15:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679010;
-        bh=AILpoJFYFqqiQwh8J5OFU9tSJgZo+/G+qh3xcX/ibdE=;
+        s=default; t=1597679016;
+        bh=UnMzxSx1bFTza18KxTSF0DkGaDImt48XwHIJpKEOgLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMKk2K8cXqzf8rtivTcf7LpDnriOUPY0pYeMw27HCb8wY4vK/maoQCOubya49zmP3
-         ML575GbbUyADwku12rvKrcUR+UIIZVrifZ1qqXgMlbUm8rW5GYQrXqm8t0pmgzJZ+y
-         3+1QH3HnxQH+LoC7Km9+CTC1n23UTPI2qNt+84Vo=
+        b=TtbOoV8L0DV9GBA0qY7qP9hAZ65Z9ZDUp1fcL6/UPjkdG9pBsytFA1bCsV9Ic8UB9
+         N0YDxe9jWv/apiz4ILgYrwWOcBV1EFvCWSy+BYG54v8MAj2xzbXmZXn6XQD4X2DU5p
+         CO/BoyBzhXKjVT2MwRqR8hhjJlkN5mkEwasJQGbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 066/393] ARM: exynos: clear L310_AUX_CTRL_FULL_LINE_ZERO in default l2c_aux_val
-Date:   Mon, 17 Aug 2020 17:11:56 +0200
-Message-Id: <20200817143822.825152303@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 068/393] loop: be paranoid on exit and prevent new additions / removals
+Date:   Mon, 17 Aug 2020 17:11:58 +0200
+Message-Id: <20200817143822.909879084@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,57 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Tucker <guillaume.tucker@collabora.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit 5b17a04addc29201dc142c8d2c077eb7745d2e35 ]
+[ Upstream commit 200f93377220504c5e56754823e7adfea6037f1a ]
 
-This "alert" error message can be seen on exynos4412-odroidx2:
+Be pedantic on removal as well and hold the mutex.
+This should prevent uses of addition while we exit.
 
-    L2C: platform modifies aux control register: 0x02070000 -> 0x3e470001
-    L2C: platform provided aux values permit register corruption.
-
-Followed by this plain error message:
-
-    L2C-310: enabling full line of zeros but not enabled in Cortex-A9
-
-To fix it, don't set the L310_AUX_CTRL_FULL_LINE_ZERO flag (bit 0) in
-the default value of l2c_aux_val.  It may instead be enabled when
-applicable by the logic in l2c310_enable() if the attribute
-"arm,full-line-zero-disable" was set in the device tree.
-
-The initial commit that introduced this default value was in v2.6.38
-commit 1cf0eb799759 ("ARM: S5PV310: Add L2 cache init function in
-cpu.c").
-
-However, the code to set the L310_AUX_CTRL_FULL_LINE_ZERO flag and
-manage that feature was added much later and the default value was not
-updated then.  So this seems to have been a subtle oversight
-especially since enabling it only in the cache and not in the A9 core
-doesn't actually prevent the platform from running.  According to the
-TRM, the opposite would be a real issue, if the feature was enabled in
-the A9 core but not in the cache controller.
-
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-exynos/exynos.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/loop.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/mach-exynos/exynos.c b/arch/arm/mach-exynos/exynos.c
-index 7a8d1555db404..36c37444485a8 100644
---- a/arch/arm/mach-exynos/exynos.c
-+++ b/arch/arm/mach-exynos/exynos.c
-@@ -193,7 +193,7 @@ static void __init exynos_dt_fixup(void)
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 418bb4621255a..6b36fc2f4edc7 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -2333,6 +2333,8 @@ static void __exit loop_exit(void)
+ 
+ 	range = max_loop ? max_loop << part_shift : 1UL << MINORBITS;
+ 
++	mutex_lock(&loop_ctl_mutex);
++
+ 	idr_for_each(&loop_index_idr, &loop_exit_cb, NULL);
+ 	idr_destroy(&loop_index_idr);
+ 
+@@ -2340,6 +2342,8 @@ static void __exit loop_exit(void)
+ 	unregister_blkdev(LOOP_MAJOR, "loop");
+ 
+ 	misc_deregister(&loop_misc);
++
++	mutex_unlock(&loop_ctl_mutex);
  }
  
- DT_MACHINE_START(EXYNOS_DT, "Samsung Exynos (Flattened Device Tree)")
--	.l2c_aux_val	= 0x3c400001,
-+	.l2c_aux_val	= 0x3c400000,
- 	.l2c_aux_mask	= 0xc20fffff,
- 	.smp		= smp_ops(exynos_smp_ops),
- 	.map_io		= exynos_init_io,
+ module_init(loop_init);
 -- 
 2.25.1
 
