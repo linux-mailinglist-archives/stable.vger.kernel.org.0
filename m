@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2412247266
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:42:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55DC8247264
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731667AbgHQSmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:42:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
+        id S1731046AbgHQSmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387519AbgHQP5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:57:16 -0400
+        id S2388107AbgHQP5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:57:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A149120729;
-        Mon, 17 Aug 2020 15:57:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AC892053B;
+        Mon, 17 Aug 2020 15:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679835;
-        bh=tu5BHVgGfCYGAiaqVkbBFErksR4pdIG1CSJuZ8WnQyw=;
+        s=default; t=1597679838;
+        bh=H/sAWZNayUAm6VUsoiyFzC7IG2z6At5vQNCvO8FW/vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mySpNKUzApYfNDfaJ0f8FtJAR3hY8XSYzRhtBG35PaHESB7u9H4XHS8ADYmt6RwKY
-         OGIcYqBkNzEqh/rClkgbm8BdRCWtPP38u8fLHVe9rH+bbUl38boR4T+LamJITSW/dD
-         YjUhnpq7od/zCIqr5MWAh59RVRDGMGuhLnxyuD0A=
+        b=HxwS/7EDx9d/1mEZDJ1mM4N5mQIPMhG0hcmOweX3KO+/DHPcCHivWUSOo5RH1NrY/
+         ty5V0QItzJLw7WgMXJYdPEvnnGt46DmIpjFOb0+yS5oCThhqOpcd6skGJ8qST8mh+y
+         Wzv7afA0iRDiORkyoaFIhgpel1C+hjIdKyroG5AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com,
-        syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com,
-        syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Qiujun Huang <anenbupt@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 349/393] fs/minix: reject too-large maximum file size
-Date:   Mon, 17 Aug 2020 17:16:39 +0200
-Message-Id: <20200817143836.530703027@linuxfoundation.org>
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 350/393] kvm: x86: replace kvm_spec_ctrl_test_value with runtime test on the host
+Date:   Mon, 17 Aug 2020 17:16:40 +0200
+Message-Id: <20200817143836.579829758@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -50,76 +45,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 270ef41094e9fa95273f288d7d785313ceab2ff3 upstream.
+commit 841c2be09fe4f495fe5224952a419bd8c7e5b455 upstream.
 
-If the minix filesystem tries to map a very large logical block number to
-its on-disk location, block_to_path() can return offsets that are too
-large, causing out-of-bounds memory accesses when accessing indirect index
-blocks.  This should be prevented by the check against the maximum file
-size, but this doesn't work because the maximum file size is read directly
-from the on-disk superblock and isn't validated itself.
+To avoid complex and in some cases incorrect logic in
+kvm_spec_ctrl_test_value, just try the guest's given value on the host
+processor instead, and if it doesn't #GP, allow the guest to set it.
 
-Fix this by validating the maximum file size at mount time.
+One such case is when host CPU supports STIBP mitigation
+but doesn't support IBRS (as is the case with some Zen2 AMD cpus),
+and in this case we were giving guest #GP when it tried to use STIBP
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com
-Reported-by: syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com
-Reported-by: syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200628060846.682158-4-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The reason why can can do the host test is that IA32_SPEC_CTRL msr is
+passed to the guest, after the guest sets it to a non zero value
+for the first time (due to performance reasons),
+and as as result of this, it is pointless to emulate #GP condition on
+this first access, in a different way than what the host CPU does.
+
+This is based on a patch from Sean Christopherson, who suggested this idea.
+
+Fixes: 6441fa6178f5 ("KVM: x86: avoid incorrect writes to host MSR_IA32_SPEC_CTRL")
+Cc: stable@vger.kernel.org
+Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20200708115731.180097-1-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/minix/inode.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm/svm.c |    2 +-
+ arch/x86/kvm/vmx/vmx.c |    2 +-
+ arch/x86/kvm/x86.c     |   40 ++++++++++++++++++++++------------------
+ arch/x86/kvm/x86.h     |    2 +-
+ 4 files changed, 25 insertions(+), 21 deletions(-)
 
---- a/fs/minix/inode.c
-+++ b/fs/minix/inode.c
-@@ -150,6 +150,23 @@ static int minix_remount (struct super_b
- 	return 0;
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -2509,7 +2509,7 @@ static int svm_set_msr(struct kvm_vcpu *
+ 		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
+ 			return 1;
+ 
+-		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
++		if (kvm_spec_ctrl_test_value(data))
+ 			return 1;
+ 
+ 		svm->spec_ctrl = data;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -2015,7 +2015,7 @@ static int vmx_set_msr(struct kvm_vcpu *
+ 		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
+ 			return 1;
+ 
+-		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
++		if (kvm_spec_ctrl_test_value(data))
+ 			return 1;
+ 
+ 		vmx->spec_ctrl = data;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10573,28 +10573,32 @@ bool kvm_arch_no_poll(struct kvm_vcpu *v
  }
+ EXPORT_SYMBOL_GPL(kvm_arch_no_poll);
  
-+static bool minix_check_superblock(struct minix_sb_info *sbi)
-+{
-+	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
-+		return false;
+-u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu)
 +
-+	/*
-+	 * s_max_size must not exceed the block mapping limitation.  This check
-+	 * is only needed for V1 filesystems, since V2/V3 support an extra level
-+	 * of indirect blocks which places the limit well above U32_MAX.
-+	 */
-+	if (sbi->s_version == MINIX_V1 &&
-+	    sbi->s_max_size > (7 + 512 + 512*512) * BLOCK_SIZE)
-+		return false;
-+
-+	return true;
-+}
-+
- static int minix_fill_super(struct super_block *s, void *data, int silent)
++int kvm_spec_ctrl_test_value(u64 value)
  {
- 	struct buffer_head *bh;
-@@ -228,11 +245,12 @@ static int minix_fill_super(struct super
- 	} else
- 		goto out_no_fs;
- 
-+	if (!minix_check_superblock(sbi))
-+		goto out_illegal_sb;
+-	uint64_t bits = SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD;
++	/*
++	 * test that setting IA32_SPEC_CTRL to given value
++	 * is allowed by the host processor
++	 */
 +
- 	/*
- 	 * Allocate the buffer map to keep the superblock small.
- 	 */
--	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
--		goto out_illegal_sb;
- 	i = (sbi->s_imap_blocks + sbi->s_zmap_blocks) * sizeof(bh);
- 	map = kzalloc(i, GFP_KERNEL);
- 	if (!map)
++	u64 saved_value;
++	unsigned long flags;
++	int ret = 0;
++
++	local_irq_save(flags);
++
++	if (rdmsrl_safe(MSR_IA32_SPEC_CTRL, &saved_value))
++		ret = 1;
++	else if (wrmsrl_safe(MSR_IA32_SPEC_CTRL, value))
++		ret = 1;
++	else
++		wrmsrl(MSR_IA32_SPEC_CTRL, saved_value);
+ 
+-	/* The STIBP bit doesn't fault even if it's not advertised */
+-	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
+-	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS))
+-		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
+-	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL) &&
+-	    !boot_cpu_has(X86_FEATURE_AMD_IBRS))
+-		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
+-
+-	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL_SSBD) &&
+-	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
+-		bits &= ~SPEC_CTRL_SSBD;
+-	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) &&
+-	    !boot_cpu_has(X86_FEATURE_AMD_SSBD))
+-		bits &= ~SPEC_CTRL_SSBD;
++	local_irq_restore(flags);
+ 
+-	return bits;
++	return ret;
+ }
+-EXPORT_SYMBOL_GPL(kvm_spec_ctrl_valid_bits);
++EXPORT_SYMBOL_GPL(kvm_spec_ctrl_test_value);
+ 
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_fast_mmio);
+--- a/arch/x86/kvm/x86.h
++++ b/arch/x86/kvm/x86.h
+@@ -357,6 +357,6 @@ static inline bool kvm_dr7_valid(u64 dat
+ 
+ void kvm_load_guest_xsave_state(struct kvm_vcpu *vcpu);
+ void kvm_load_host_xsave_state(struct kvm_vcpu *vcpu);
+-u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu);
++int kvm_spec_ctrl_test_value(u64 value);
+ 
+ #endif
 
 
