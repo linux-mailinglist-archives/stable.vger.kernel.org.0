@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7CC246C32
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389C1246BFA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730357AbgHQQLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S1730295AbgHQQGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:06:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388615AbgHQQLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:11:21 -0400
+        id S2388371AbgHQQFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:05:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A0E920748;
-        Mon, 17 Aug 2020 16:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91C2C206FA;
+        Mon, 17 Aug 2020 16:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680680;
-        bh=MAmK02myBiOmRCCmZhei5NrKsLigcr8ZtSo2hj9UJi0=;
+        s=default; t=1597680334;
+        bh=gHsN9jhXumNw+tbpnE6zTu3lcgEEreImArIzYB4SLk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wBcKhmeTdyCwmlnvWhUvLkxtZxlLfjibKCVS5Fes/5wiFiPvsOSLLjXqnOfAM2QoH
-         D42e9adHy6duLdMSIKuv537F0p10C48wQHSu8VMrW9Vxd/bY0tWi8Vyd/av+NPp5bw
-         FoYL75Px6jSS8V2lborFWRqrjGxpk3H+to6rtWtY=
+        b=PPMNAj6VJbUPmgZkOrwSARg2Ho2TDPkJjiThjb6X6484RCTVQIrSPxliNBvrLnbXK
+         XoMtQecGX2Mrc9M7XoTFdtd3qLMvjIVUhSZe8MO3ZMUnPqFAGBhCVB1S86Fow6OTJr
+         4pGqHUmuNCapzh2VW1pSmnTdginOJ//2h2Bf+Skg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Janne Karhunen <janne.karhunen@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 014/168] arm64: dts: exynos: Fix silent hang after boot on Espresso
-Date:   Mon, 17 Aug 2020 17:15:45 +0200
-Message-Id: <20200817143734.431155037@linuxfoundation.org>
+Subject: [PATCH 5.4 145/270] ima: Have the LSM free its audit rule
+Date:   Mon, 17 Aug 2020 17:15:46 +0200
+Message-Id: <20200817143803.022733744@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit b072714bfc0e42c984b8fd6e069f3ca17de8137a ]
+[ Upstream commit 9ff8a616dfab96a4fa0ddd36190907dc68886d9b ]
 
-Once regulators are disabled after kernel boot, on Espresso board silent
-hang observed because of LDO7 being disabled.  LDO7 actually provide
-power to CPU cores and non-cpu blocks circuitries.  Keep this regulator
-always-on to fix this hang.
+Ask the LSM to free its audit rule rather than directly calling kfree().
+Both AppArmor and SELinux do additional work in their audit_rule_free()
+hooks. Fix memory leaks by allowing the LSMs to perform necessary work.
 
-Fixes: 9589f7721e16 ("arm64: dts: Add S2MPS15 PMIC node on exynos7-espresso")
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: b16942455193 ("ima: use the lsm policy update notifier")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc: Janne Karhunen <janne.karhunen@gmail.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7-espresso.dts | 1 +
- 1 file changed, 1 insertion(+)
+ security/integrity/ima/ima.h        | 5 +++++
+ security/integrity/ima/ima_policy.c | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-index 00dd89b92b427..d991eae5202f2 100644
---- a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-+++ b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-@@ -152,6 +152,7 @@ ldo7_reg: LDO7 {
- 				regulator-min-microvolt = <700000>;
- 				regulator-max-microvolt = <1150000>;
- 				regulator-enable-ramp-delay = <125>;
-+				regulator-always-on;
- 			};
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index be469fce19e12..8173982e00ab5 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -362,6 +362,7 @@ static inline void ima_free_modsig(struct modsig *modsig)
+ #ifdef CONFIG_IMA_LSM_RULES
  
- 			ldo8_reg: LDO8 {
+ #define security_filter_rule_init security_audit_rule_init
++#define security_filter_rule_free security_audit_rule_free
+ #define security_filter_rule_match security_audit_rule_match
+ 
+ #else
+@@ -372,6 +373,10 @@ static inline int security_filter_rule_init(u32 field, u32 op, char *rulestr,
+ 	return -EINVAL;
+ }
+ 
++static inline void security_filter_rule_free(void *lsmrule)
++{
++}
++
+ static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
+ 					     void *lsmrule)
+ {
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 558a7607bf93a..e725d41872713 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -254,7 +254,7 @@ static void ima_lsm_free_rule(struct ima_rule_entry *entry)
+ 	int i;
+ 
+ 	for (i = 0; i < MAX_LSM_RULES; i++) {
+-		kfree(entry->lsm[i].rule);
++		security_filter_rule_free(entry->lsm[i].rule);
+ 		kfree(entry->lsm[i].args_p);
+ 	}
+ 	kfree(entry);
 -- 
 2.25.1
 
