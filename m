@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92883246A81
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF1D246B73
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgHQPhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:37:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44926 "EHLO mail.kernel.org"
+        id S2388033AbgHQPzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:55:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730551AbgHQPh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:37:28 -0400
+        id S2388023AbgHQPz2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:55:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2860222C9F;
-        Mon, 17 Aug 2020 15:37:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78FDF2072E;
+        Mon, 17 Aug 2020 15:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678647;
-        bh=AqcUg/PlyETWKVRqrV5LzpZlEdM9LDlWmBGMYiYKR/Y=;
+        s=default; t=1597679724;
+        bh=YzR3arlFhG1Mq5w7TH4ZYOeYhBrHZPDduFiJncIXyCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqHm/TrtiKDO5UOqRIZZmwyHo2o1xW2iMycWNFeGnNJOtdnIOVs+GPI7Xn7MG9i2f
-         gltVL5QEKtMpRGUNLB9v/xxs2gKL5Ld6EgYZXFIMneWDQzI1FKFTYxNRZ25a+Fxdkz
-         /yzXNXlBUhASvMDBU6OnsGU+YXeVTslsKI9B53xE=
+        b=dg7AY171+hFm7hJZsUeDlP6xYj6+kHx7kf00g6L3K8EBk1BagcNQc/KsfNCRM75RO
+         h9KaYNXBuUnaBbX6FRqvJpH49AgxV9BM6c9YAB8NaXt3OwV4bNj1gPa+jXc943SYpE
+         b7rWaOUWgtrB9xqDJdsJE8z5Lgcfv0DKTIuol3f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 406/464] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
-Date:   Mon, 17 Aug 2020 17:15:59 +0200
-Message-Id: <20200817143853.227266255@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 312/393] svcrdma: Fix page leak in svc_rdma_recv_read_chunk()
+Date:   Mon, 17 Aug 2020 17:16:02 +0200
+Message-Id: <20200817143834.744049639@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
+[ Upstream commit e814eecbe3bbeaa8b004d25a4b8974d232b765a9 ]
 
-Further investigation of the L-R swap problem on the MS2109 reveals that
-the problem isn't that the channels are swapped, but rather that they
-are swapped and also out of phase by one sample. In other words, the
-issue is actually that the very first frame that comes from the hardware
-is a half-frame containing only the right channel, and after that
-everything becomes offset.
+Commit 07d0ff3b0cd2 ("svcrdma: Clean up Read chunk path") moved the
+page saver logic so that it gets executed event when an error occurs.
+In that case, the I/O is never posted, and those pages are then
+leaked. Errors in this path, however, are quite rare.
 
-So introduce a new quirk field to drop the very first 2 bytes that come
-in after the format is configured and a capture stream starts. This puts
-the channels in phase and in the correct order.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 07d0ff3b0cd2 ("svcrdma: Clean up Read chunk path")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.h   |    1 +
- sound/usb/pcm.c    |    6 ++++++
- sound/usb/quirks.c |    3 +++
- sound/usb/stream.c |    1 +
- 4 files changed, 11 insertions(+)
+ net/sunrpc/xprtrdma/svc_rdma_rw.c | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -137,6 +137,7 @@ struct snd_usb_substream {
- 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
- 	unsigned int fmt_type;		/* USB audio format type (1-3) */
- 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
-+	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
+diff --git a/net/sunrpc/xprtrdma/svc_rdma_rw.c b/net/sunrpc/xprtrdma/svc_rdma_rw.c
+index 23c2d3ce0dc9a..e0a0ae39848c4 100644
+--- a/net/sunrpc/xprtrdma/svc_rdma_rw.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_rw.c
+@@ -678,7 +678,6 @@ static int svc_rdma_build_read_chunk(struct svc_rqst *rqstp,
+ 				     struct svc_rdma_read_info *info,
+ 				     __be32 *p)
+ {
+-	unsigned int i;
+ 	int ret;
  
- 	unsigned int running: 1;	/* running status */
- 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -1420,6 +1420,12 @@ static void retire_capture_urb(struct sn
- 			// continue;
- 		}
- 		bytes = urb->iso_frame_desc[i].actual_length;
-+		if (subs->stream_offset_adj > 0) {
-+			unsigned int adj = min(subs->stream_offset_adj, bytes);
-+			cp += adj;
-+			bytes -= adj;
-+			subs->stream_offset_adj -= adj;
-+		}
- 		frames = bytes / stride;
- 		if (!subs->txfr_quirk)
- 			bytes = frames * stride;
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1495,6 +1495,9 @@ void snd_usb_set_format_quirk(struct snd
- 	case USB_ID(0x2b73, 0x000a): /* Pioneer DJ DJM-900NXS2 */
- 		pioneer_djm_set_format_quirk(subs);
- 		break;
-+	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
-+		subs->stream_offset_adj = 2;
-+		break;
+ 	ret = -EINVAL;
+@@ -701,12 +700,6 @@ static int svc_rdma_build_read_chunk(struct svc_rqst *rqstp,
+ 		info->ri_chunklen += rs_length;
  	}
+ 
+-	/* Pages under I/O have been copied to head->rc_pages.
+-	 * Prevent their premature release by svc_xprt_release() .
+-	 */
+-	for (i = 0; i < info->ri_readctxt->rc_page_count; i++)
+-		rqstp->rq_pages[i] = NULL;
+-
+ 	return ret;
  }
  
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -94,6 +94,7 @@ static void snd_usb_init_substream(struc
- 	subs->tx_length_quirk = as->chip->tx_length_quirk;
- 	subs->speed = snd_usb_get_speed(subs->dev);
- 	subs->pkt_offset_adj = 0;
-+	subs->stream_offset_adj = 0;
+@@ -801,6 +794,26 @@ static int svc_rdma_build_pz_read_chunk(struct svc_rqst *rqstp,
+ 	return ret;
+ }
  
- 	snd_usb_set_pcm_ops(as->pcm, stream);
++/* Pages under I/O have been copied to head->rc_pages. Ensure they
++ * are not released by svc_xprt_release() until the I/O is complete.
++ *
++ * This has to be done after all Read WRs are constructed to properly
++ * handle a page that is part of I/O on behalf of two different RDMA
++ * segments.
++ *
++ * Do this only if I/O has been posted. Otherwise, we do indeed want
++ * svc_xprt_release() to clean things up properly.
++ */
++static void svc_rdma_save_io_pages(struct svc_rqst *rqstp,
++				   const unsigned int start,
++				   const unsigned int num_pages)
++{
++	unsigned int i;
++
++	for (i = start; i < num_pages + start; i++)
++		rqstp->rq_pages[i] = NULL;
++}
++
+ /**
+  * svc_rdma_recv_read_chunk - Pull a Read chunk from the client
+  * @rdma: controlling RDMA transport
+@@ -854,6 +867,7 @@ int svc_rdma_recv_read_chunk(struct svcxprt_rdma *rdma, struct svc_rqst *rqstp,
+ 	ret = svc_rdma_post_chunk_ctxt(&info->ri_cc);
+ 	if (ret < 0)
+ 		goto out_err;
++	svc_rdma_save_io_pages(rqstp, 0, head->rc_page_count);
+ 	return 0;
  
+ out_err:
+-- 
+2.25.1
+
 
 
