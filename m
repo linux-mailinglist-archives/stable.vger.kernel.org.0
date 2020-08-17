@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 903E1247544
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7934D247532
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387705AbgHQTV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:21:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
+        id S2392312AbgHQTUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730050AbgHQPgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:36:21 -0400
+        id S1730106AbgHQPgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:36:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25898221E2;
-        Mon, 17 Aug 2020 15:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DC4923100;
+        Mon, 17 Aug 2020 15:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678580;
-        bh=A+gXy+WEDFoe8sMhOiELZeqnP0z58AULk6aCMoFF6Ls=;
+        s=default; t=1597678603;
+        bh=on4WbdGmOnMIsMJpFF44wrMNQFSXXwarxFatc7BnNyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJWdFVAebUBHhGq97CGMxAFpjbfNMQ6Gz7uASbwtHm938FZqSQj4YXSLqhoauJE4O
-         CsLFZ2WEW7UbeWSPOn04BUeZQudbnSFXow33Y+7aGJMZWJKTa28mXxSrB6XjnOTPUo
-         q0c3EBzfa3VpK7rYGXLDHE7LaYJ+VkrQDNjvA/AI=
+        b=c2K7dl/zskfqphCCY6nUw0ZCIfBL6eAtWGNM64DcA4OHr1oiwJ5acLlOnSoa788PG
+         8gjg3XTNfaxEAsWDQU+Rkdm0LPXs77Reh6bmppiCatc3mvHr8tg2I7V8Aq99lFgHWW
+         Bl8jyDRmeAsWvQG5onkq718OSXLM5Ffx/W9TrfXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Jian Cai <caij2003@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 382/464] crypto: aesni - add compatibility with IAS
-Date:   Mon, 17 Aug 2020 17:15:35 +0200
-Message-Id: <20200817143852.075012454@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Xie He <xie.he.0141@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 384/464] drivers/net/wan/lapbether: Added needed_headroom and a skb->len check
+Date:   Mon, 17 Aug 2020 17:15:37 +0200
+Message-Id: <20200817143852.173290254@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,78 +48,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Cai <caij2003@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 44069737ac9625a0f02f0f7f5ab96aae4cd819bc ]
+[ Upstream commit c7ca03c216acb14466a713fedf1b9f2c24994ef2 ]
 
-Clang's integrated assembler complains "invalid reassignment of
-non-absolute variable 'var_ddq_add'" while assembling
-arch/x86/crypto/aes_ctrby8_avx-x86_64.S. It was because var_ddq_add was
-reassigned with non-absolute values several times, which IAS did not
-support. We can avoid the reassignment by replacing the uses of
-var_ddq_add with its definitions accordingly to have compatilibility
-with IAS.
+1. Added a skb->len check
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1008
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reported-by: Fangrui Song <maskray@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # build+boot Linux v5.7.5; clang v11.0.0-git
-Signed-off-by: Jian Cai <caij2003@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This driver expects upper layers to include a pseudo header of 1 byte
+when passing down a skb for transmission. This driver will read this
+1-byte header. This patch added a skb->len check before reading the
+header to make sure the header exists.
+
+2. Changed to use needed_headroom instead of hard_header_len to request
+necessary headroom to be allocated
+
+In net/packet/af_packet.c, the function packet_snd first reserves a
+headroom of length (dev->hard_header_len + dev->needed_headroom).
+Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+which calls dev->header_ops->create, to create the link layer header.
+If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+length (dev->hard_header_len), and assumes the user to provide the
+appropriate link layer header.
+
+So according to the logic of af_packet.c, dev->hard_header_len should
+be the length of the header that would be created by
+dev->header_ops->create.
+
+However, this driver doesn't provide dev->header_ops, so logically
+dev->hard_header_len should be 0.
+
+So we should use dev->needed_headroom instead of dev->hard_header_len
+to request necessary headroom to be allocated.
+
+This change fixes kernel panic when this driver is used with AF_PACKET
+SOCK_RAW sockets.
+
+Call stack when panic:
+
+[  168.399197] skbuff: skb_under_panic: text:ffffffff819d95fb len:20
+put:14 head:ffff8882704c0a00 data:ffff8882704c09fd tail:0x11 end:0xc0
+dev:veth0
+...
+[  168.399255] Call Trace:
+[  168.399259]  skb_push.cold+0x14/0x24
+[  168.399262]  eth_header+0x2b/0xc0
+[  168.399267]  lapbeth_data_transmit+0x9a/0xb0 [lapbether]
+[  168.399275]  lapb_data_transmit+0x22/0x2c [lapb]
+[  168.399277]  lapb_transmit_buffer+0x71/0xb0 [lapb]
+[  168.399279]  lapb_kick+0xe3/0x1c0 [lapb]
+[  168.399281]  lapb_data_request+0x76/0xc0 [lapb]
+[  168.399283]  lapbeth_xmit+0x56/0x90 [lapbether]
+[  168.399286]  dev_hard_start_xmit+0x91/0x1f0
+[  168.399289]  ? irq_init_percpu_irqstack+0xc0/0x100
+[  168.399291]  __dev_queue_xmit+0x721/0x8e0
+[  168.399295]  ? packet_parse_headers.isra.0+0xd2/0x110
+[  168.399297]  dev_queue_xmit+0x10/0x20
+[  168.399298]  packet_sendmsg+0xbf0/0x19b0
+......
+
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/crypto/aes_ctrby8_avx-x86_64.S | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/net/wan/lapbether.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
-index ec437db1fa547..494a3bda84870 100644
---- a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
-+++ b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
-@@ -127,10 +127,6 @@ ddq_add_8:
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -157,6 +157,12 @@ static netdev_tx_t lapbeth_xmit(struct s
+ 	if (!netif_running(dev))
+ 		goto drop;
  
- /* generate a unique variable for ddq_add_x */
++	/* There should be a pseudo header of 1 byte added by upper layers.
++	 * Check to make sure it is there before reading it.
++	 */
++	if (skb->len < 1)
++		goto drop;
++
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:
+ 		break;
+@@ -305,6 +311,7 @@ static void lapbeth_setup(struct net_dev
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->needs_free_netdev = true;
+ 	dev->type            = ARPHRD_X25;
++	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
+ }
+@@ -331,7 +338,8 @@ static int lapbeth_new_device(struct net
+ 	 * then this driver prepends a length field of 2 bytes,
+ 	 * then the underlying Ethernet device prepends its own header.
+ 	 */
+-	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
++					   + dev->needed_headroom;
  
--.macro setddq n
--	var_ddq_add = ddq_add_\n
--.endm
--
- /* generate a unique variable for xmm register */
- .macro setxdata n
- 	var_xdata = %xmm\n
-@@ -140,9 +136,7 @@ ddq_add_8:
- 
- .macro club name, id
- .altmacro
--	.if \name == DDQ_DATA
--		setddq %\id
--	.elseif \name == XDATA
-+	.if \name == XDATA
- 		setxdata %\id
- 	.endif
- .noaltmacro
-@@ -165,9 +159,8 @@ ddq_add_8:
- 
- 	.set i, 1
- 	.rept (by - 1)
--		club DDQ_DATA, i
- 		club XDATA, i
--		vpaddq	var_ddq_add(%rip), xcounter, var_xdata
-+		vpaddq	(ddq_add_1 + 16 * (i - 1))(%rip), xcounter, var_xdata
- 		vptest	ddq_low_msk(%rip), var_xdata
- 		jnz 1f
- 		vpaddq	ddq_high_add_1(%rip), var_xdata, var_xdata
-@@ -180,8 +173,7 @@ ddq_add_8:
- 	vmovdqa	1*16(p_keys), xkeyA
- 
- 	vpxor	xkey0, xdata0, xdata0
--	club DDQ_DATA, by
--	vpaddq	var_ddq_add(%rip), xcounter, xcounter
-+	vpaddq	(ddq_add_1 + 16 * (by - 1))(%rip), xcounter, xcounter
- 	vptest	ddq_low_msk(%rip), xcounter
- 	jnz	1f
- 	vpaddq	ddq_high_add_1(%rip), xcounter, xcounter
--- 
-2.25.1
-
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
 
 
