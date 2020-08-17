@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BDB2475E3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB3C2475CC
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731985AbgHQT3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:29:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S1730306AbgHQPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730301AbgHQPcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:32:05 -0400
+        id S1730300AbgHQPcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:32:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AC8F22CBE;
-        Mon, 17 Aug 2020 15:32:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE11120709;
+        Mon, 17 Aug 2020 15:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678324;
-        bh=GkcRN+bMz+7K9z0kn8bWe7OlGo50pYckHJVciOJpBO4=;
+        s=default; t=1597678330;
+        bh=gfh42KL7ujKCHV4kDSr4rdAn7B6+6CS7vRDFhoN80vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5ZkLk7+S85OaDD/jUiUdzKnuP58cSEzscd2gM8v9JLOpA8H5tkJHnALPGFPGAF1k
-         h99TAHQwnQntLb5QPaRBDR0PBXfTGE7rUOMLWwnjNAn1s/IZvmndEMmzP7gzZVGe7/
-         Mwah7ApN6Y7pdfuRYIfw9NZFBkDtAuNPIpNksRe4=
+        b=uqvHdJmZZGvC0uxWRSpL9q+XqJlHT/xHw9vpRRSR6BDfoaDfPO/625FnF8rxN4Fvk
+         2Y9xiZ7N14HwgoF4cH9wQBMobAEeUgOPDGZ2W+4JYobWjuhOzKrmPSf108fn4F1gfb
+         P/92fMMBhy447P6xk3jDDtR/I8JXgqnXYQcCVe+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Michael Walle <michael@walle.cc>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 295/464] powerpc/watchpoint: Fix DAWR exception for CACHEOP
-Date:   Mon, 17 Aug 2020 17:14:08 +0200
-Message-Id: <20200817143847.889929337@linuxfoundation.org>
+Subject: [PATCH 5.8 297/464] gpio: regmap: fix type clash
+Date:   Mon, 17 Aug 2020 17:14:10 +0200
+Message-Id: <20200817143848.033752577@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,71 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit f3c832f1350bcf1e6906113ee3168066f4235dbe ]
+[ Upstream commit a070bdbbb06d7787ec7844a4f1e059cf8b55205d ]
 
-'ea' returned by analyse_instr() needs to be aligned down to cache
-block size for CACHEOP instructions. analyse_instr() does not set
-size for CACHEOP, thus size also needs to be calculated manually.
+GPIO_REGMAP_ADDR_ZERO() cast to unsigned long but the actual config
+parameters are unsigned int. We use unsigned int here because that is
+the type which is used by the underlying regmap.
 
-Fixes: 27985b2a640e ("powerpc/watchpoint: Don't ignore extraneous exceptions blindly")
-Fixes: 74c6881019b7 ("powerpc/watchpoint: Prepare handler to handle more than one watchpoint")
-Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200723090813.303838-4-ravi.bangoria@linux.ibm.com
+Fixes: ebe363197e52 ("gpio: add a reusable generic gpio_chip using regmap")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20200725232337.27581-1-michael@walle.cc
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/hw_breakpoint.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ include/linux/gpio/regmap.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/hw_breakpoint.c b/arch/powerpc/kernel/hw_breakpoint.c
-index a971e22aea819..c55e67bab2710 100644
---- a/arch/powerpc/kernel/hw_breakpoint.c
-+++ b/arch/powerpc/kernel/hw_breakpoint.c
-@@ -538,7 +538,12 @@ static bool check_dawrx_constraints(struct pt_regs *regs, int type,
- 	if (OP_IS_LOAD(type) && !(info->type & HW_BRK_TYPE_READ))
- 		return false;
+diff --git a/include/linux/gpio/regmap.h b/include/linux/gpio/regmap.h
+index 4c1e6b34e8249..ad76f3d0a6ba1 100644
+--- a/include/linux/gpio/regmap.h
++++ b/include/linux/gpio/regmap.h
+@@ -8,7 +8,7 @@ struct gpio_regmap;
+ struct irq_domain;
+ struct regmap;
  
--	if (OP_IS_STORE(type) && !(info->type & HW_BRK_TYPE_WRITE))
-+	/*
-+	 * The Cache Management instructions other than dcbz never
-+	 * cause a match. i.e. if type is CACHEOP, the instruction
-+	 * is dcbz, and dcbz is treated as Store.
-+	 */
-+	if ((OP_IS_STORE(type) || type == CACHEOP) && !(info->type & HW_BRK_TYPE_WRITE))
- 		return false;
+-#define GPIO_REGMAP_ADDR_ZERO ((unsigned long)(-1))
++#define GPIO_REGMAP_ADDR_ZERO ((unsigned int)(-1))
+ #define GPIO_REGMAP_ADDR(addr) ((addr) ? : GPIO_REGMAP_ADDR_ZERO)
  
- 	if (is_kernel_addr(regs->nip) && !(info->type & HW_BRK_TYPE_KERNEL))
-@@ -601,6 +606,15 @@ static bool check_constraints(struct pt_regs *regs, struct ppc_inst instr,
- 	return false;
- }
- 
-+static int cache_op_size(void)
-+{
-+#ifdef __powerpc64__
-+	return ppc64_caches.l1d.block_size;
-+#else
-+	return L1_CACHE_BYTES;
-+#endif
-+}
-+
- static void get_instr_detail(struct pt_regs *regs, struct ppc_inst *instr,
- 			     int *type, int *size, unsigned long *ea)
- {
-@@ -616,7 +630,12 @@ static void get_instr_detail(struct pt_regs *regs, struct ppc_inst *instr,
- 	if (!(regs->msr & MSR_64BIT))
- 		*ea &= 0xffffffffUL;
- #endif
-+
- 	*size = GETSIZE(op.type);
-+	if (*type == CACHEOP) {
-+		*size = cache_op_size();
-+		*ea &= ~(*size - 1);
-+	}
- }
- 
- static bool is_larx_stcx_instr(int type)
+ /**
 -- 
 2.25.1
 
