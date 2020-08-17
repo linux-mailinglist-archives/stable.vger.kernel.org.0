@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B0F024735B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9BD24719B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730914AbgHQSym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:54:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
+        id S2390870AbgHQSaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730917AbgHQPvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:51:18 -0400
+        id S2387991AbgHQQBS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:01:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFC3B214F1;
-        Mon, 17 Aug 2020 15:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8570E20729;
+        Mon, 17 Aug 2020 16:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679474;
-        bh=oX7lTzGgeXonwrNUvKojEuRglaFg/4flqmCnB8GgwlE=;
+        s=default; t=1597680075;
+        bh=mDvJv/VK+kao2IarrXzUF5c67w22XnuUMVb8zUHLb6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMiHQPlpwSEEXD0gYAv91xdV0O3eT0YvO/Ma+8xaWd/DpnuUxxebQiuhDup9uWERS
-         ttzLSO6tzRDG3eRPYvhm32Dzx48a08ejLsO3yH4vrvCMSXQ4QVNB2DqfjyJsR23Rsn
-         Z3T9d94aGc7XQdfyPCQpCFTMtO95GxEi543ft3kI=
+        b=MF1m84Z7OaXpKlxiPdGUKm9QQ95bnpa2V7sodZyyUvKd8BvmMPIIQtmBCjISLE+Qs
+         Y8IdCj2fAjn9eioFSrgzJhg0hxB30PVe/F5gEfnuJCILA2ppdnxCP41wMQqHwgXlQP
+         7JQaRvP9S1dGNOPhYeQuuPm+GJKgrQumB/rchaVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 194/393] leds: core: Flush scheduled work for system suspend
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 043/270] nvme-rdma: fix controller reset hang during traffic
 Date:   Mon, 17 Aug 2020 17:14:04 +0200
-Message-Id: <20200817143829.033538927@linuxfoundation.org>
+Message-Id: <20200817143757.947858638@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 302a085c20194bfa7df52e0fe684ee0c41da02e6 ]
+[ Upstream commit 9f98772ba307dd89a3d17dc2589f213d3972fc64 ]
 
-Sometimes LED won't be turned off by LED_CORE_SUSPENDRESUME flag upon
-system suspend.
+commit fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+exposed an issue where we may hang trying to wait for queue freeze
+during I/O. We call blk_mq_update_nr_hw_queues which in case of multiple
+queue maps (which we have now for default/read/poll) is attempting to
+freeze the queue. However we never started queue freeze when starting the
+reset, which means that we have inflight pending requests that entered the
+queue that we will not complete once the queue is quiesced.
 
-led_set_brightness_nopm() uses schedule_work() to set LED brightness.
-However, there's no guarantee that the scheduled work gets executed
-because no one flushes the work.
+So start a freeze before we quiesce the queue, and unfreeze the queue
+after we successfully connected the I/O queues (and make sure to call
+blk_mq_update_nr_hw_queues only after we are sure that the queue was
+already frozen).
 
-So flush the scheduled work to make sure LED gets turned off.
+This follows to how the pci driver handles resets.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Fixes: 81fe8e5b73e3 ("leds: core: Add led_set_brightness_nosleep{nopm} functions")
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/led-class.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/rdma.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
-index 3363a6551a708..cc3929f858b68 100644
---- a/drivers/leds/led-class.c
-+++ b/drivers/leds/led-class.c
-@@ -173,6 +173,7 @@ void led_classdev_suspend(struct led_classdev *led_cdev)
- {
- 	led_cdev->flags |= LED_SUSPENDED;
- 	led_set_brightness_nopm(led_cdev, 0);
-+	flush_work(&led_cdev->set_brightness_work);
- }
- EXPORT_SYMBOL_GPL(led_classdev_suspend);
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index cd0d499781908..d0336545e1fe0 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -890,15 +890,20 @@ static int nvme_rdma_configure_io_queues(struct nvme_rdma_ctrl *ctrl, bool new)
+ 			ret = PTR_ERR(ctrl->ctrl.connect_q);
+ 			goto out_free_tag_set;
+ 		}
+-	} else {
+-		blk_mq_update_nr_hw_queues(&ctrl->tag_set,
+-			ctrl->ctrl.queue_count - 1);
+ 	}
  
+ 	ret = nvme_rdma_start_io_queues(ctrl);
+ 	if (ret)
+ 		goto out_cleanup_connect_q;
+ 
++	if (!new) {
++		nvme_start_queues(&ctrl->ctrl);
++		nvme_wait_freeze(&ctrl->ctrl);
++		blk_mq_update_nr_hw_queues(ctrl->ctrl.tagset,
++			ctrl->ctrl.queue_count - 1);
++		nvme_unfreeze(&ctrl->ctrl);
++	}
++
+ 	return 0;
+ 
+ out_cleanup_connect_q:
+@@ -931,6 +936,7 @@ static void nvme_rdma_teardown_io_queues(struct nvme_rdma_ctrl *ctrl,
+ 		bool remove)
+ {
+ 	if (ctrl->ctrl.queue_count > 1) {
++		nvme_start_freeze(&ctrl->ctrl);
+ 		nvme_stop_queues(&ctrl->ctrl);
+ 		nvme_rdma_stop_io_queues(ctrl);
+ 		if (ctrl->ctrl.tagset) {
 -- 
 2.25.1
 
