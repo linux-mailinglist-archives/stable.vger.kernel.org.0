@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68397247074
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA1B247073
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390266AbgHQSI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:08:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
+        id S2389555AbgHQSI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:08:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388428AbgHQQH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:07:56 -0400
+        id S2388429AbgHQQH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:07:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D19A20885;
-        Mon, 17 Aug 2020 16:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7114720760;
+        Mon, 17 Aug 2020 16:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680475;
-        bh=Npu3UeR3EM6VyxZdke2f0joPg//KAUdcSv7WEvWzGj0=;
+        s=default; t=1597680477;
+        bh=Vu9YtsmIoFQfdcdLRbaC+4txrJLouS8kwzF+ksYOP9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vje9qwakZ3nYkMe2DqonBzTfr4L9WQCIWMQF86GKKKxQDAvMQ6pT6Q68Hs4UIwF9M
-         I6tnDJUwtS3DFyAYo7xJSJ8BbXe1gwYR+BC6D/I3CHEokTPBrcJRUFDwlaw2S/alJW
-         fUdsz44iHh7tbWmDV5/ucUWvB/Sh3NocVoVvtQ4A=
+        b=g7Dn4ZajOiDQ6zhpaYajK9MqHyb7/1esJWUDYjlyERMRpF42i1IYIymmXRmBvXfCX
+         4p8MzvHz5XihhFXDQdjWIMLyCpfs9yzYS/+oRRunVMqUOdVExdsQqSXOfs90bfWXZV
+         EoWzwMC7fKN05xzKpsYghSJKjUoDgRJMM4KD5j2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rick Farrington <ricardo.farrington@cavium.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 202/270] liquidio: Fix wrong return value in cn23xx_get_pf_num()
-Date:   Mon, 17 Aug 2020 17:16:43 +0200
-Message-Id: <20200817143805.842036556@linuxfoundation.org>
+Subject: [PATCH 5.4 203/270] net: spider_net: Fix the size used in a dma_free_coherent() call
+Date:   Mon, 17 Aug 2020 17:16:44 +0200
+Message-Id: <20200817143805.890592496@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -46,35 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit aa027850a292ea65524b8fab83eb91a124ad362c ]
+[ Upstream commit 36f28f7687a9ce665479cce5d64ce7afaa9e77ae ]
 
-On an error exit path, a negative error code should be returned
-instead of a positive return value.
+Update the size used in 'dma_free_coherent()' in order to match the one
+used in the corresponding 'dma_alloc_coherent()', in
+'spider_net_init_chain()'.
 
-Fixes: 0c45d7fe12c7e ("liquidio: fix use of pf in pass-through mode in a virtual machine")
-Cc: Rick Farrington <ricardo.farrington@cavium.com>
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Fixes: d4ed8f8d1fb7 ("Spidernet DMA coalescing")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/toshiba/spider_net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-index 43d11c38b38a9..4cddd628d41b2 100644
---- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-+++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-@@ -1167,7 +1167,7 @@ static int cn23xx_get_pf_num(struct octeon_device *oct)
- 		oct->pf_num = ((fdl_bit >> CN23XX_PCIE_SRIOV_FDL_BIT_POS) &
- 			       CN23XX_PCIE_SRIOV_FDL_MASK);
- 	} else {
--		ret = EINVAL;
-+		ret = -EINVAL;
+diff --git a/drivers/net/ethernet/toshiba/spider_net.c b/drivers/net/ethernet/toshiba/spider_net.c
+index 538e70810d3de..a99c7c95de5cc 100644
+--- a/drivers/net/ethernet/toshiba/spider_net.c
++++ b/drivers/net/ethernet/toshiba/spider_net.c
+@@ -283,8 +283,8 @@ spider_net_free_chain(struct spider_net_card *card,
+ 		descr = descr->next;
+ 	} while (descr != chain->ring);
  
- 		/* Under some virtual environments, extended PCI regs are
- 		 * inaccessible, in which case the above read will have failed.
+-	dma_free_coherent(&card->pdev->dev, chain->num_desc,
+-	    chain->hwring, chain->dma_addr);
++	dma_free_coherent(&card->pdev->dev, chain->num_desc * sizeof(struct spider_net_hw_descr),
++			  chain->hwring, chain->dma_addr);
+ }
+ 
+ /**
 -- 
 2.25.1
 
