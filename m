@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDCC624753E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292B3247541
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388893AbgHQTVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:21:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43778 "EHLO mail.kernel.org"
+        id S2387499AbgHQTVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:21:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730501AbgHQPgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730503AbgHQPgi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 11:36:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABEDB20709;
-        Mon, 17 Aug 2020 15:36:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAC39208E4;
+        Mon, 17 Aug 2020 15:36:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678589;
-        bh=KVA7jIGmUpUlfr8yJQEV2oOgWlA9Co+YOsKvENc/6E0=;
+        s=default; t=1597678592;
+        bh=Npu3UeR3EM6VyxZdke2f0joPg//KAUdcSv7WEvWzGj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bk3SJilwnN+OQwd7pltbpcd68rYccOITgkPIvEehbdQCHXFZ5qFMAWvVg+k6z9k3e
-         24dYIzRK6IJ4b2tJKsk8t7lI7rXgf9Y1SLEh0EY7QEnVH8j05cm7POUlWwDMXCwfEX
-         NAGI5uIKA/rhCtnJ3xOyynhVLLYQQTkneyGXrqIs=
+        b=dIR698ie1DTDjrCidA9YcpzFs/OmuvZJi4l8sQIAsUCAkkkYQmwUyTH96OPe3GiuQ
+         tXdsgz3VXVdWhCsqESN1fhJqNsmWkZFxVPiU78bhcvhYvDmZqkq8wqdBmOnTVJ/qPf
+         fRy5gSnQmTnh7k3p/AkfDAJxaKrz+rG88joYc2Xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David VomLehn <vomlehn@texas.net>,
+        stable@vger.kernel.org,
+        Rick Farrington <ricardo.farrington@cavium.com>,
         Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 356/464] net: ethernet: aquantia: Fix wrong return value
-Date:   Mon, 17 Aug 2020 17:15:09 +0200
-Message-Id: <20200817143850.818079496@linuxfoundation.org>
+Subject: [PATCH 5.8 357/464] liquidio: Fix wrong return value in cn23xx_get_pf_num()
+Date:   Mon, 17 Aug 2020 17:15:10 +0200
+Message-Id: <20200817143850.865635363@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -47,33 +48,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 0470a48880f8bc42ce26962b79c7b802c5a695ec ]
+[ Upstream commit aa027850a292ea65524b8fab83eb91a124ad362c ]
 
-In function hw_atl_a0_hw_multicast_list_set(), when an invalid
-request is encountered, a negative error code should be returned.
+On an error exit path, a negative error code should be returned
+instead of a positive return value.
 
-Fixes: bab6de8fd180b ("net: ethernet: aquantia: Atlantic A0 and B0 specific functions")
-Cc: David VomLehn <vomlehn@texas.net>
+Fixes: 0c45d7fe12c7e ("liquidio: fix use of pf in pass-through mode in a virtual machine")
+Cc: Rick Farrington <ricardo.farrington@cavium.com>
 Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_a0.c | 2 +-
+ drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_a0.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_a0.c
-index a312864969afe..6640fd35b29b2 100644
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_a0.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_a0.c
-@@ -782,7 +782,7 @@ static int hw_atl_a0_hw_multicast_list_set(struct aq_hw_s *self,
- 	int err = 0;
+diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
+index 43d11c38b38a9..4cddd628d41b2 100644
+--- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
++++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
+@@ -1167,7 +1167,7 @@ static int cn23xx_get_pf_num(struct octeon_device *oct)
+ 		oct->pf_num = ((fdl_bit >> CN23XX_PCIE_SRIOV_FDL_BIT_POS) &
+ 			       CN23XX_PCIE_SRIOV_FDL_MASK);
+ 	} else {
+-		ret = EINVAL;
++		ret = -EINVAL;
  
- 	if (count > (HW_ATL_A0_MAC_MAX - HW_ATL_A0_MAC_MIN)) {
--		err = EBADRQC;
-+		err = -EBADRQC;
- 		goto err_exit;
- 	}
- 	for (self->aq_nic_cfg->mc_list_count = 0U;
+ 		/* Under some virtual environments, extended PCI regs are
+ 		 * inaccessible, in which case the above read will have failed.
 -- 
 2.25.1
 
