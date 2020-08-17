@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9171247728
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76718247720
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390663AbgHQTqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:46:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
+        id S1729387AbgHQPVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:21:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729373AbgHQPVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:21:41 -0400
+        id S1729379AbgHQPVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:21:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD75F20748;
-        Mon, 17 Aug 2020 15:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A6CB22B43;
+        Mon, 17 Aug 2020 15:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677700;
-        bh=APvDs6SRzrE3GBnZEeLG0DagUxL255mNjD/D2GdW9DY=;
+        s=default; t=1597677702;
+        bh=n4+rbEnu5fyOcSLZHKIsQ0tr72OZykSW/pXLx9Eq//Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwH/qp+SK/l4I6SI72VRTu4LASjdhG2QK4uOviQrvPQv1hHR5Zh78GkF9uP41wHac
-         7Iq9BHYMsJWbo8Oam8xdn2+8mrIuEP0XEbuPpxr3rxbmFOeoYS5+T7jyE2+RZ0aMME
-         vJiTHSxdRb0g6LEavA5lSxRm9+MnlPkqUS0S/8cQ=
+        b=j8zGzL8x9NVpHjQWQNWjqMw65mPFwJmnhcEaqM5qFIMWF9MG3LAoDmuRHOlTx1pX0
+         435ZfnAqrbcCnLBnRAFsfbA8NfQuFFsqN53acp1sy4S5gkPIgMgS7BCBLai4kwZVuB
+         4xBrAS1zjTOnpiEfki9/faT+c+KelAKA0yvKIPE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 076/464] block: dont do revalidate zones on invalid devices
-Date:   Mon, 17 Aug 2020 17:10:29 +0200
-Message-Id: <20200817143837.416131733@linuxfoundation.org>
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Jyri Sarha <jsarha@ti.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 077/464] drm/tilcdc: fix leak & null ref in panel_connector_get_modes
+Date:   Mon, 17 Aug 2020 17:10:30 +0200
+Message-Id: <20200817143837.463988990@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,103 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-[ Upstream commit 1a1206dc4cf02cee4b5cbce583ee4c22368b4c28 ]
+[ Upstream commit 3f9c1c872cc97875ddc8d63bc9fe6ee13652b933 ]
 
-When we loose a device for whatever reason while (re)scanning zones, we
-trip over a NULL pointer in blk_revalidate_zone_cb, like in the following
-log:
+If videomode_from_timings() returns true, the mode allocated with
+drm_mode_create will be leaked.
 
-sd 0:0:0:0: [sda] 3418095616 4096-byte logical blocks: (14.0 TB/12.7 TiB)
-sd 0:0:0:0: [sda] 52156 zones of 65536 logical blocks
-sd 0:0:0:0: [sda] Write Protect is off
-sd 0:0:0:0: [sda] Mode Sense: 37 00 00 08
-sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-sd 0:0:0:0: [sda] REPORT ZONES start lba 1065287680 failed
-sd 0:0:0:0: [sda] REPORT ZONES: Result: hostbyte=0x00 driverbyte=0x08
-sd 0:0:0:0: [sda] Sense Key : 0xb [current]
-sd 0:0:0:0: [sda] ASC=0x0 ASCQ=0x6
-sda: failed to revalidate zones
-sd 0:0:0:0: [sda] 0 4096-byte logical blocks: (0 B/0 B)
-sda: detected capacity change from 14000519643136 to 0
-==================================================================
-BUG: KASAN: null-ptr-deref in blk_revalidate_zone_cb+0x1b7/0x550
-Write of size 8 at addr 0000000000000010 by task kworker/u4:1/58
+Also, the return value of drm_mode_create() is never checked, and thus
+could cause NULL deref.
 
-CPU: 1 PID: 58 Comm: kworker/u4:1 Not tainted 5.8.0-rc1 #692
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4-rebuilt.opensuse.org 04/01/2014
-Workqueue: events_unbound async_run_entry_fn
-Call Trace:
- dump_stack+0x7d/0xb0
- ? blk_revalidate_zone_cb+0x1b7/0x550
- kasan_report.cold+0x5/0x37
- ? blk_revalidate_zone_cb+0x1b7/0x550
- check_memory_region+0x145/0x1a0
- blk_revalidate_zone_cb+0x1b7/0x550
- sd_zbc_parse_report+0x1f1/0x370
- ? blk_req_zone_write_trylock+0x200/0x200
- ? sectors_to_logical+0x60/0x60
- ? blk_req_zone_write_trylock+0x200/0x200
- ? blk_req_zone_write_trylock+0x200/0x200
- sd_zbc_report_zones+0x3c4/0x5e0
- ? sd_dif_config_host+0x500/0x500
- blk_revalidate_disk_zones+0x231/0x44d
- ? _raw_write_lock_irqsave+0xb0/0xb0
- ? blk_queue_free_zone_bitmaps+0xd0/0xd0
- sd_zbc_read_zones+0x8cf/0x11a0
- sd_revalidate_disk+0x305c/0x64e0
- ? __device_add_disk+0x776/0xf20
- ? read_capacity_16.part.0+0x1080/0x1080
- ? blk_alloc_devt+0x250/0x250
- ? create_object.isra.0+0x595/0xa20
- ? kasan_unpoison_shadow+0x33/0x40
- sd_probe+0x8dc/0xcd2
- really_probe+0x20e/0xaf0
- __driver_attach_async_helper+0x249/0x2d0
- async_run_entry_fn+0xbe/0x560
- process_one_work+0x764/0x1290
- ? _raw_read_unlock_irqrestore+0x30/0x30
- worker_thread+0x598/0x12f0
- ? __kthread_parkme+0xc6/0x1b0
- ? schedule+0xed/0x2c0
- ? process_one_work+0x1290/0x1290
- kthread+0x36b/0x440
- ? kthread_create_worker_on_cpu+0xa0/0xa0
- ret_from_fork+0x22/0x30
-==================================================================
+Fix these two issues.
 
-When the device is already gone we end up with the following scenario:
-The device's capacity is 0 and thus the number of zones will be 0 as well. When
-allocating the bitmap for the conventional zones, we then trip over a NULL
-pointer.
-
-So if we encounter a zoned block device with a 0 capacity, don't dare to
-revalidate the zones sizes.
-
-Fixes: 6c6b35491422 ("block: set the zone size in blk_revalidate_disk_zones atomically")
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200429104234.18910-1-tomi.valkeinen@ti.com
+Reviewed-by: Jyri Sarha <jsarha@ti.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-zoned.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-zoned.c b/block/blk-zoned.c
-index 23831fa8701d8..480dfff69a00c 100644
---- a/block/blk-zoned.c
-+++ b/block/blk-zoned.c
-@@ -497,6 +497,9 @@ int blk_revalidate_disk_zones(struct gendisk *disk,
- 	if (WARN_ON_ONCE(!queue_is_mq(q)))
- 		return -EIO;
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+index 12823d60c4e89..4be53768f0146 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+@@ -139,12 +139,16 @@ static int panel_connector_get_modes(struct drm_connector *connector)
+ 	int i;
  
-+	if (!get_capacity(disk))
-+		return -EIO;
+ 	for (i = 0; i < timings->num_timings; i++) {
+-		struct drm_display_mode *mode = drm_mode_create(dev);
++		struct drm_display_mode *mode;
+ 		struct videomode vm;
+ 
+ 		if (videomode_from_timings(timings, &vm, i))
+ 			break;
+ 
++		mode = drm_mode_create(dev);
++		if (!mode)
++			break;
 +
- 	/*
- 	 * Ensure that all memory allocations in this context are done as if
- 	 * GFP_NOIO was specified.
+ 		drm_display_mode_from_videomode(&vm, mode);
+ 
+ 		mode->type = DRM_MODE_TYPE_DRIVER;
 -- 
 2.25.1
 
