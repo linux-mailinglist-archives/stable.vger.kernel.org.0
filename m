@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D48B82474E8
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3422474EC
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387437AbgHQPjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:39:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47386 "EHLO mail.kernel.org"
+        id S2390247AbgHQTRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387431AbgHQPjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:39:01 -0400
+        id S2387439AbgHQPjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:39:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9A4422C9F;
-        Mon, 17 Aug 2020 15:38:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E8D22CB3;
+        Mon, 17 Aug 2020 15:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678739;
-        bh=hBzGgBzNahpEdDADEaYlbQNpcif8S6aBNv/CwkRJClE=;
+        s=default; t=1597678742;
+        bh=j9meu59QtJZfpbeCevjf8a7s2tMKlBJtUzDL50SHWjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwRvotq6UBbrLr+M9kCvyeFT24h4CEJbUc9Hzyk4OoD8la+jCqT8q1BEk2ea2KnVZ
-         L7HrFGSWPNDn/8rQo6b12PWOQIStofbpg4FoqQp5PPisgens2n7/udm+FTS1lyNggc
-         u5/TQW9q5RYvFADo3KJXEcMcUX1M0JllIHWguh8k=
+        b=oqFeKL3x/nJiR8VNx+3K6mDsOEdpx39HLtOhHUNT6wt/WS2iwut77kdmWlUILLBSS
+         J9zEvflK4OcFLpsJAmaCKCslc5FD0KsUnl2nBpso9ko1jyA7h77msVF38YIr4pyxMR
+         pWXE/CHT9u1c6velLoF2KgSWvGbuUOJyZWkiwFmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sivaprakash Murugesan <sivaprak@codeaurora.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.8 437/464] mtd: rawnand: qcom: avoid write to unavailable register
-Date:   Mon, 17 Aug 2020 17:16:30 +0200
-Message-Id: <20200817143854.709969525@linuxfoundation.org>
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 5.8 438/464] mtd: spi-nor: intel-spi: Simulate WRDI command
+Date:   Mon, 17 Aug 2020 17:16:31 +0200
+Message-Id: <20200817143854.755252885@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,68 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sivaprakash Murugesan <sivaprak@codeaurora.org>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 443440cc4a901af462239d286cd10721aa1c7dfc upstream.
+commit 44a80df4bfce02f5d51fe5040bdbdf10d0d78f4e upstream.
 
-SFLASHC_BURST_CFG is only available on older ipq NAND platforms, this
-register has been removed when the NAND controller got implemented in
-the qpic controller.
+After spi_nor_write_disable() return code checks were introduced in the
+spi-nor front end intel-spi backend stopped to work because WRDI was never
+supported and always failed.
 
-Avoid writing this register on devices which are based on qpic NAND
-controller.
+Just pretend it was sucessful and ignore the command itself. HW sequencer
+shall do the right thing automatically, while with SW sequencer we cannot
+do it anyway, because the only tool we had was preopcode and it makes no
+sense for WRDI.
 
-Fixes: dce84760b09f ("mtd: nand: qcom: Support for IPQ8074 QPIC NAND controller")
+Fixes: bce679e5ae3a ("mtd: spi-nor: Check for errors after each Register Operation")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/1591948696-16015-2-git-send-email-sivaprak@codeaurora.org
+Link: https://lore.kernel.org/r/282e1305-fd08-e446-1a22-eb4dff78cfb4@nokia.com
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/qcom_nandc.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mtd/spi-nor/controllers/intel-spi.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/mtd/nand/raw/qcom_nandc.c
-+++ b/drivers/mtd/nand/raw/qcom_nandc.c
-@@ -459,11 +459,13 @@ struct qcom_nand_host {
-  * among different NAND controllers.
-  * @ecc_modes - ecc mode for NAND
-  * @is_bam - whether NAND controller is using BAM
-+ * @is_qpic - whether NAND CTRL is part of qpic IP
-  * @dev_cmd_reg_start - NAND_DEV_CMD_* registers starting offset
-  */
- struct qcom_nandc_props {
- 	u32 ecc_modes;
- 	bool is_bam;
-+	bool is_qpic;
- 	u32 dev_cmd_reg_start;
- };
+--- a/drivers/mtd/spi-nor/controllers/intel-spi.c
++++ b/drivers/mtd/spi-nor/controllers/intel-spi.c
+@@ -612,6 +612,15 @@ static int intel_spi_write_reg(struct sp
+ 		return 0;
+ 	}
  
-@@ -2774,7 +2776,8 @@ static int qcom_nandc_setup(struct qcom_
- 	u32 nand_ctrl;
++	/*
++	 * We hope that HW sequencer will do the right thing automatically and
++	 * with the SW sequencer we cannot use preopcode anyway, so just ignore
++	 * the Write Disable operation and pretend it was completed
++	 * successfully.
++	 */
++	if (opcode == SPINOR_OP_WRDI)
++		return 0;
++
+ 	writel(0, ispi->base + FADDR);
  
- 	/* kill onenand */
--	nandc_write(nandc, SFLASHC_BURST_CFG, 0);
-+	if (!nandc->props->is_qpic)
-+		nandc_write(nandc, SFLASHC_BURST_CFG, 0);
- 	nandc_write(nandc, dev_cmd_reg_addr(nandc, NAND_DEV_CMD_VLD),
- 		    NAND_DEV_CMD_VLD_VAL);
- 
-@@ -3035,12 +3038,14 @@ static const struct qcom_nandc_props ipq
- static const struct qcom_nandc_props ipq4019_nandc_props = {
- 	.ecc_modes = (ECC_BCH_4BIT | ECC_BCH_8BIT),
- 	.is_bam = true,
-+	.is_qpic = true,
- 	.dev_cmd_reg_start = 0x0,
- };
- 
- static const struct qcom_nandc_props ipq8074_nandc_props = {
- 	.ecc_modes = (ECC_BCH_4BIT | ECC_BCH_8BIT),
- 	.is_bam = true,
-+	.is_qpic = true,
- 	.dev_cmd_reg_start = 0x7000,
- };
- 
+ 	/* Write the value beforehand */
 
 
