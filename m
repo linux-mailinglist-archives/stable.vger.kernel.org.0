@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94124246F33
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDF68246F67
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731038AbgHQRoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:44:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
+        id S2388280AbgHQRqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:46:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388533AbgHQQPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:08 -0400
+        id S2388765AbgHQQNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:13:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DEFE20658;
-        Mon, 17 Aug 2020 16:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 951B620748;
+        Mon, 17 Aug 2020 16:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680907;
-        bh=mNPQzFRpnFM/yjUDRE1EI03Lr2TjX1ko4u6BoKoOOBA=;
+        s=default; t=1597680828;
+        bh=gTLRA3ulGVzYqjj0OJoYWPcDhF3IYNJ+AcMX/wCReJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIj1jfZl3ofqdSMQIH7KVmUwKpdel9pMWGo2xt1ftxiN5D9/WTjlgbAB/SajRW3ck
-         H4FulamO2IIN6IlT7zU3IpyA0QNiAnohFQj+Fp/WEu+XKyWH6KqhjedhPQAKQpkpCQ
-         51xQgX5o6JgMT/YX55bCHBbHRTU3AzhVsvteuuYc=
+        b=okvXGwxgSgm8HSmjVWMOrTCZhutifmcCHVRUqu45H0GRS+y3Ei2cRsf2fJwISC912
+         eACyetGwq6VUeDxgIaquPuLLJEhK5glMgM9WidoAuLAhRMH3bPaKHTF0Ic4zx+5uij
+         ottpRJD/aq9QqVjGWiqYX4dk1H4AjY7n7D8JVKKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/168] ASoC: Intel: bxt_rt298: add missing .owner field
-Date:   Mon, 17 Aug 2020 17:16:36 +0200
-Message-Id: <20200817143736.979549233@linuxfoundation.org>
+Subject: [PATCH 4.19 066/168] scsi: cumana_2: Fix different dev_id between request_irq() and free_irq()
+Date:   Mon, 17 Aug 2020 17:16:37 +0200
+Message-Id: <20200817143737.027458197@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -47,48 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 88cee34b776f80d2da04afb990c2a28c36799c43 ]
+[ Upstream commit 040ab9c4fd0070cd5fa71ba3a7b95b8470db9b4d ]
 
-This field is required for ASoC cards. Not setting it will result in a
-module->name pointer being NULL and generate problems such as
+The dev_id used in request_irq() and free_irq() should match.  Use 'info'
+in both cases.
 
-cat /proc/asound/modules
- 0 (efault)
-
-Fixes: 76016322ec56 ('ASoC: Intel: Add Broxton-P machine driver')
-Reported-by: Jaroslav Kysela <perex@perex.cz>
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200625191308.3322-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200625204730.943520-1-christophe.jaillet@wanadoo.fr
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bxt_rt298.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/arm/cumana_2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bxt_rt298.c b/sound/soc/intel/boards/bxt_rt298.c
-index 27308337ab127..ba76e37a4b094 100644
---- a/sound/soc/intel/boards/bxt_rt298.c
-+++ b/sound/soc/intel/boards/bxt_rt298.c
-@@ -544,6 +544,7 @@ static int bxt_card_late_probe(struct snd_soc_card *card)
- /* broxton audio machine driver for SPT + RT298S */
- static struct snd_soc_card broxton_rt298 = {
- 	.name = "broxton-rt298",
-+	.owner = THIS_MODULE,
- 	.dai_link = broxton_rt298_dais,
- 	.num_links = ARRAY_SIZE(broxton_rt298_dais),
- 	.controls = broxton_controls,
-@@ -559,6 +560,7 @@ static struct snd_soc_card broxton_rt298 = {
+diff --git a/drivers/scsi/arm/cumana_2.c b/drivers/scsi/arm/cumana_2.c
+index edce5f3cfdba0..93ba83e3148eb 100644
+--- a/drivers/scsi/arm/cumana_2.c
++++ b/drivers/scsi/arm/cumana_2.c
+@@ -454,7 +454,7 @@ static int cumanascsi2_probe(struct expansion_card *ec,
  
- static struct snd_soc_card geminilake_rt298 = {
- 	.name = "geminilake-rt298",
-+	.owner = THIS_MODULE,
- 	.dai_link = broxton_rt298_dais,
- 	.num_links = ARRAY_SIZE(broxton_rt298_dais),
- 	.controls = broxton_controls,
+ 	if (info->info.scsi.dma != NO_DMA)
+ 		free_dma(info->info.scsi.dma);
+-	free_irq(ec->irq, host);
++	free_irq(ec->irq, info);
+ 
+  out_release:
+ 	fas216_release(host);
 -- 
 2.25.1
 
