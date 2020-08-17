@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5794D24735F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF0F24719A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388541AbgHQSzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36256 "EHLO mail.kernel.org"
+        id S2390964AbgHQSay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:30:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730915AbgHQPvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:51:17 -0400
+        id S2387979AbgHQQBS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:01:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99B1E20888;
-        Mon, 17 Aug 2020 15:51:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11E9720829;
+        Mon, 17 Aug 2020 16:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679471;
-        bh=GLoDUOwmC610yENadQGS6YsK/gPoQy/7rRYSTZ2bj9M=;
+        s=default; t=1597680072;
+        bh=obDiQ1N67GFkAj7InPl86bhjnnFnZMxhTP60Tjy/xc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSLiVvE7BWToc0jNfn0vhT+Ta2ZqBVg4wfgEaeV89KP1yp3iIxS/Uam2dTN/323QR
-         v8QrPcPiu5eKhm+m5uaIt4CXzdO2e1tv/daIaOUAALz/h10+ELhH/FcXLqV4LygjIK
-         fIaUBcowBC47ZmHFYkMe5BBb/0hYL9273pvS3VII=
+        b=pKz3KtkXzMxKhp9L6VZI66s6s+lLbHWlN83vdbEEAlTY+iJh8modbpU1sa982ItBM
+         U4lkJpr6BywO6aoMtFfSvxbdcdQok417JB16FZF7j8zFWG3OXWJu7Ff7rDyuMeTbme
+         pqMdw94hlPVrs8P/1LpDJ4AlzhvxLJVXM6zKN4oQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        kernel test robot <rong.a.chen@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 193/393] kobject: Avoid premature parent object freeing in kobject_cleanup()
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 042/270] nvme-tcp: fix controller reset hang during traffic
 Date:   Mon, 17 Aug 2020 17:14:03 +0200
-Message-Id: <20200817143828.985107612@linuxfoundation.org>
+Message-Id: <20200817143757.899851628@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,114 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 079ad2fb4bf9eba8a0aaab014b49705cd7f07c66 ]
+[ Upstream commit 2875b0aecabe2f081a8432e2bc85b85df0529490 ]
 
-If kobject_del() is invoked by kobject_cleanup() to delete the
-target kobject, it may cause its parent kobject to be freed
-before invoking the target kobject's ->release() method, which
-effectively means freeing the parent before dealing with the
-child entirely.
+commit fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+exposed an issue where we may hang trying to wait for queue freeze
+during I/O. We call blk_mq_update_nr_hw_queues which in case of multiple
+queue maps (which we have now for default/read/poll) is attempting to
+freeze the queue. However we never started queue freeze when starting the
+reset, which means that we have inflight pending requests that entered the
+queue that we will not complete once the queue is quiesced.
 
-That is confusing at best and it may also lead to functional
-issues if the callers of kobject_cleanup() are not careful enough
-about the order in which these calls are made, so avoid the
-problem by making kobject_cleanup() drop the last reference to
-the target kobject's parent at the end, after invoking the target
-kobject's ->release() method.
+So start a freeze before we quiesce the queue, and unfreeze the queue
+after we successfully connected the I/O queues (and make sure to call
+blk_mq_update_nr_hw_queues only after we are sure that the queue was
+already frozen).
 
-[ rjw: Rewrite the subject and changelog, make kobject_cleanup()
-  drop the parent reference only when __kobject_del() has been
-  called. ]
+This follows to how the pci driver handles resets.
 
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Fixes: 7589238a8cf3 ("Revert "software node: Simplify software_node_release() function"")
-Suggested-by: Rafael J. Wysocki <rafael@kernel.org>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/1908555.IiAGLGrh1Z@kreacher
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kobject.c | 33 +++++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/nvme/host/tcp.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/lib/kobject.c b/lib/kobject.c
-index 83198cb37d8d9..386873bdd51c9 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -599,14 +599,7 @@ int kobject_move(struct kobject *kobj, struct kobject *new_parent)
- }
- EXPORT_SYMBOL_GPL(kobject_move);
- 
--/**
-- * kobject_del() - Unlink kobject from hierarchy.
-- * @kobj: object.
-- *
-- * This is the function that should be called to delete an object
-- * successfully added via kobject_add().
-- */
--void kobject_del(struct kobject *kobj)
-+static void __kobject_del(struct kobject *kobj)
- {
- 	struct kernfs_node *sd;
- 	const struct kobj_type *ktype;
-@@ -625,9 +618,23 @@ void kobject_del(struct kobject *kobj)
- 
- 	kobj->state_in_sysfs = 0;
- 	kobj_kset_leave(kobj);
--	kobject_put(kobj->parent);
- 	kobj->parent = NULL;
- }
-+
-+/**
-+ * kobject_del() - Unlink kobject from hierarchy.
-+ * @kobj: object.
-+ *
-+ * This is the function that should be called to delete an object
-+ * successfully added via kobject_add().
-+ */
-+void kobject_del(struct kobject *kobj)
-+{
-+	struct kobject *parent = kobj->parent;
-+
-+	__kobject_del(kobj);
-+	kobject_put(parent);
-+}
- EXPORT_SYMBOL(kobject_del);
- 
- /**
-@@ -663,6 +670,7 @@ EXPORT_SYMBOL(kobject_get_unless_zero);
-  */
- static void kobject_cleanup(struct kobject *kobj)
- {
-+	struct kobject *parent = kobj->parent;
- 	struct kobj_type *t = get_ktype(kobj);
- 	const char *name = kobj->name;
- 
-@@ -684,7 +692,10 @@ static void kobject_cleanup(struct kobject *kobj)
- 	if (kobj->state_in_sysfs) {
- 		pr_debug("kobject: '%s' (%p): auto cleanup kobject_del\n",
- 			 kobject_name(kobj), kobj);
--		kobject_del(kobj);
-+		__kobject_del(kobj);
-+	} else {
-+		/* avoid dropping the parent reference unnecessarily */
-+		parent = NULL;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 53e113a18a549..0166ff0e4738e 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1684,15 +1684,20 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
+ 			ret = PTR_ERR(ctrl->connect_q);
+ 			goto out_free_tag_set;
+ 		}
+-	} else {
+-		blk_mq_update_nr_hw_queues(ctrl->tagset,
+-			ctrl->queue_count - 1);
  	}
  
- 	if (t && t->release) {
-@@ -698,6 +709,8 @@ static void kobject_cleanup(struct kobject *kobj)
- 		pr_debug("kobject: '%s': free name\n", name);
- 		kfree_const(name);
- 	}
-+
-+	kobject_put(parent);
- }
+ 	ret = nvme_tcp_start_io_queues(ctrl);
+ 	if (ret)
+ 		goto out_cleanup_connect_q;
  
- #ifdef CONFIG_DEBUG_KOBJECT_RELEASE
++	if (!new) {
++		nvme_start_queues(ctrl);
++		nvme_wait_freeze(ctrl);
++		blk_mq_update_nr_hw_queues(ctrl->tagset,
++			ctrl->queue_count - 1);
++		nvme_unfreeze(ctrl);
++	}
++
+ 	return 0;
+ 
+ out_cleanup_connect_q:
+@@ -1797,6 +1802,7 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ {
+ 	if (ctrl->queue_count <= 1)
+ 		return;
++	nvme_start_freeze(ctrl);
+ 	nvme_stop_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+ 	if (ctrl->tagset) {
 -- 
 2.25.1
 
