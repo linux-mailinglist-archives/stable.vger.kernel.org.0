@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D8D1246AEA
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D32BB246AE5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730553AbgHQPo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:44:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55930 "EHLO mail.kernel.org"
+        id S1729605AbgHQPor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:44:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387717AbgHQPo4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:44:56 -0400
+        id S2387690AbgHQPoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:44:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCF3322CF8;
-        Mon, 17 Aug 2020 15:44:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6217B2075B;
+        Mon, 17 Aug 2020 15:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679095;
-        bh=bpCArGqYhu7XR0T4plFq2F98eNWRFqKGrxCDzFsaknQ=;
+        s=default; t=1597679078;
+        bh=REczOt4TXKPZcId4XYB6HQe/95cS7RHQwDga/Y9APWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylwX6LekODkLGtVkwVsQt33smWArj1NvO9y8Gt67yrp1Wwr3LsekIl/DDKGoF2OZ1
-         Jl75aei2rnPynXdJUAgMSGdCWk/mhB2BN/YGPALhjqee+UB2hgk53WfB1RpZ/XcjT6
-         mg/n8nlejL6gGNamTtA5cqI94JeNz2QtL6vnWxo8=
+        b=aqVKpWSAGw8jy9DgiRr3/tP52PupFNgVBAKxf/ncSZDLTnwoEXQCERZmmLdbH3hIv
+         5lydJsEjmFYry14ERCLig/V8qKX8JWfGKwqHaYwByEqZ5IqsZJjFAymBiQZq/f/6fv
+         VjDrxt5TFuhsjjbqYym6lVAYlimYWKhgL78DSAzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 054/393] md: raid0/linear: fix dereference before null check on pointer mddev
-Date:   Mon, 17 Aug 2020 17:11:44 +0200
-Message-Id: <20200817143822.237081915@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 058/393] nvme-tcp: fix controller reset hang during traffic
+Date:   Mon, 17 Aug 2020 17:11:48 +0200
+Message-Id: <20200817143822.430709851@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,52 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 9a5a85972c073f720d81a7ebd08bfe278e6e16db ]
+[ Upstream commit 2875b0aecabe2f081a8432e2bc85b85df0529490 ]
 
-Pointer mddev is being dereferenced with a test_bit call before mddev
-is being null checked, this may cause a null pointer dereference. Fix
-this by moving the null pointer checks to sanity check mddev before
-it is dereferenced.
+commit fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+exposed an issue where we may hang trying to wait for queue freeze
+during I/O. We call blk_mq_update_nr_hw_queues which in case of multiple
+queue maps (which we have now for default/read/poll) is attempting to
+freeze the queue. However we never started queue freeze when starting the
+reset, which means that we have inflight pending requests that entered the
+queue that we will not complete once the queue is quiesced.
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: 62f7b1989c02 ("md raid0/linear: Mark array as 'broken' and fail BIOs if a member is gone")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+So start a freeze before we quiesce the queue, and unfreeze the queue
+after we successfully connected the I/O queues (and make sure to call
+blk_mq_update_nr_hw_queues only after we are sure that the queue was
+already frozen).
+
+This follows to how the pci driver handles resets.
+
+Fixes: fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/nvme/host/tcp.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 41eead9cbee98..d5a5c18813985 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -469,17 +469,18 @@ static blk_qc_t md_make_request(struct request_queue *q, struct bio *bio)
- 	struct mddev *mddev = q->queuedata;
- 	unsigned int sectors;
- 
--	if (unlikely(test_bit(MD_BROKEN, &mddev->flags)) && (rw == WRITE)) {
-+	if (mddev == NULL || mddev->pers == NULL) {
- 		bio_io_error(bio);
- 		return BLK_QC_T_NONE;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 26461bf3fdcc3..99eaa0474e10b 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1753,15 +1753,20 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
+ 			ret = PTR_ERR(ctrl->connect_q);
+ 			goto out_free_tag_set;
+ 		}
+-	} else {
+-		blk_mq_update_nr_hw_queues(ctrl->tagset,
+-			ctrl->queue_count - 1);
  	}
  
--	blk_queue_split(q, &bio);
--
--	if (mddev == NULL || mddev->pers == NULL) {
-+	if (unlikely(test_bit(MD_BROKEN, &mddev->flags)) && (rw == WRITE)) {
- 		bio_io_error(bio);
- 		return BLK_QC_T_NONE;
- 	}
+ 	ret = nvme_tcp_start_io_queues(ctrl);
+ 	if (ret)
+ 		goto out_cleanup_connect_q;
+ 
++	if (!new) {
++		nvme_start_queues(ctrl);
++		nvme_wait_freeze(ctrl);
++		blk_mq_update_nr_hw_queues(ctrl->tagset,
++			ctrl->queue_count - 1);
++		nvme_unfreeze(ctrl);
++	}
 +
-+	blk_queue_split(q, &bio);
-+
- 	if (mddev->ro == 1 && unlikely(rw == WRITE)) {
- 		if (bio_sectors(bio) != 0)
- 			bio->bi_status = BLK_STS_IOERR;
+ 	return 0;
+ 
+ out_cleanup_connect_q:
+@@ -1866,6 +1871,7 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ {
+ 	if (ctrl->queue_count <= 1)
+ 		return;
++	nvme_start_freeze(ctrl);
+ 	nvme_stop_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+ 	if (ctrl->tagset) {
 -- 
 2.25.1
 
