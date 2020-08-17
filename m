@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27AC724747F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E632474A2
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730781AbgHQTKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:10:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51314 "EHLO mail.kernel.org"
+        id S2392107AbgHQTMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:12:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730754AbgHQPlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:39 -0400
+        id S1730384AbgHQPkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCBDB20825;
-        Mon, 17 Aug 2020 15:41:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA26E20760;
+        Mon, 17 Aug 2020 15:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678898;
-        bh=G5K0RJa7nYZUNphGIKeV64484sMdLIh3FAx+a8erWrg=;
+        s=default; t=1597678845;
+        bh=4ZMcA9lxt25C+CH9qI2a6HgE43khl92nn/Elyq4fcy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPeyLWY6nJBww4r2CmOfKDBX7mMfMCftUW25iCqoYW4n/xPpl/m4kFzTTdS8duQW+
-         Cg/qXd+LAYM+8nP4uMNmnj4ekAATsIA/tyeydtXl4Y/0BXrU8PEe6FHfXlouYe4yNa
-         sRKjr4ItlSne/H5eGRmRyQmnsDSqhz5Ik0LNFUT4=
+        b=ZHkpE/owcQ85ZLpFEYRNJNPhKFlvV4nO9I14Zzkb5+QrsKT0L+u6oKfbbfeeqlsww
+         c4LJPRtMYdelRUESmWBgrukccYTUTsQ1zhGMEttaSZ+WtIaufl99KXgDgU2qXRU+X9
+         oLYJlG2Uu7A0MJhpQJJeHb8oIEz9RjCprYizro78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giovanni Gherdovich <ggherdovich@suse.cz>,
+        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 009/393] x86, sched: Bail out of frequency invariance if turbo_freq/base_freq gives 0
-Date:   Mon, 17 Aug 2020 17:10:59 +0200
-Message-Id: <20200817143820.038425590@linuxfoundation.org>
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 010/393] sched/fair: Fix NOHZ next idle balance
+Date:   Mon, 17 Aug 2020 17:11:00 +0200
+Message-Id: <20200817143820.097729241@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,51 +46,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Gherdovich <ggherdovich@suse.cz>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit f4291df103315a696f0b8c4f45ca8ae773c17441 ]
+[ Upstream commit 3ea2f097b17e13a8280f1f9386c331b326a3dbef ]
 
-Be defensive against the case where the processor reports a base_freq
-larger than turbo_freq (the ratio would be zero).
+With commit:
+  'b7031a02ec75 ("sched/fair: Add NOHZ_STATS_KICK")'
+rebalance_domains of the local cfs_rq happens before others idle cpus have
+updated nohz.next_balance and its value is overwritten.
 
-Fixes: 1567c3e3467c ("x86, sched: Add support for frequency invariance")
-Signed-off-by: Giovanni Gherdovich <ggherdovich@suse.cz>
+Move the update of nohz.next_balance for other idles cpus before balancing
+and updating the next_balance of local cfs_rq.
+
+Also, the nohz.next_balance is now updated only if all idle cpus got a
+chance to rebalance their domains and the idle balance has not been aborted
+because of new activities on the CPU. In case of need_resched, the idle
+load balance will be kick the next jiffie in order to address remaining
+ilb.
+
+Fixes: b7031a02ec75 ("sched/fair: Add NOHZ_STATS_KICK")
+Reported-by: Peng Liu <iwtbavbm@gmail.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lkml.kernel.org/r/20200531182453.15254-4-ggherdovich@suse.cz
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Acked-by: Mel Gorman <mgorman@suse.de>
+Link: https://lkml.kernel.org/r/20200609123748.18636-1-vincent.guittot@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/smpboot.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 3917a2de1580c..e5b2b20a0aeee 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1974,6 +1974,7 @@ static bool core_set_max_freq_ratio(u64 *base_freq, u64 *turbo_freq)
- static bool intel_set_max_freq_ratio(void)
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 5c31875a7d9dc..e44332b829b4d 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -10033,7 +10033,12 @@ static void kick_ilb(unsigned int flags)
  {
- 	u64 base_freq, turbo_freq;
-+	u64 turbo_ratio;
+ 	int ilb_cpu;
  
- 	if (slv_set_max_freq_ratio(&base_freq, &turbo_freq))
- 		goto out;
-@@ -2007,9 +2008,15 @@ static bool intel_set_max_freq_ratio(void)
- 		return false;
+-	nohz.next_balance++;
++	/*
++	 * Increase nohz.next_balance only when if full ilb is triggered but
++	 * not if we only update stats.
++	 */
++	if (flags & NOHZ_BALANCE_KICK)
++		nohz.next_balance = jiffies+1;
+ 
+ 	ilb_cpu = find_new_ilb();
+ 
+@@ -10351,6 +10356,14 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
+ 		}
  	}
  
--	arch_turbo_freq_ratio = div_u64(turbo_freq * SCHED_CAPACITY_SCALE,
--					base_freq);
-+	turbo_ratio = div_u64(turbo_freq * SCHED_CAPACITY_SCALE, base_freq);
-+	if (!turbo_ratio) {
-+		pr_debug("Non-zero turbo and base frequencies led to a 0 ratio.\n");
-+		return false;
-+	}
++	/*
++	 * next_balance will be updated only when there is a need.
++	 * When the CPU is attached to null domain for ex, it will not be
++	 * updated.
++	 */
++	if (likely(update_next_balance))
++		nohz.next_balance = next_balance;
 +
-+	arch_turbo_freq_ratio = turbo_ratio;
- 	arch_set_max_freq_ratio(turbo_disabled());
-+
- 	return true;
+ 	/* Newly idle CPU doesn't need an update */
+ 	if (idle != CPU_NEWLY_IDLE) {
+ 		update_blocked_averages(this_cpu);
+@@ -10371,14 +10384,6 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
+ 	if (has_blocked_load)
+ 		WRITE_ONCE(nohz.has_blocked, 1);
+ 
+-	/*
+-	 * next_balance will be updated only when there is a need.
+-	 * When the CPU is attached to null domain for ex, it will not be
+-	 * updated.
+-	 */
+-	if (likely(update_next_balance))
+-		nohz.next_balance = next_balance;
+-
+ 	return ret;
  }
  
 -- 
