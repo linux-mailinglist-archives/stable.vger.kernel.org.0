@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66794246A9B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 979E8246B85
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387434AbgHQPjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:39:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
+        id S1730689AbgHQP5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387424AbgHQPi6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:38:58 -0400
+        id S2388088AbgHQP4z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:56:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D3CC208E4;
-        Mon, 17 Aug 2020 15:38:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E86C2072E;
+        Mon, 17 Aug 2020 15:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678735;
-        bh=0t5POLBWNfw7QFM1DJCV/inOcg3oxp4uCilRlsw1hfQ=;
+        s=default; t=1597679809;
+        bh=S7j7YsTvV1ENChbM9ZZxsKF51FQ4HIe8f8rjCrA/2J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9nzOz5G2VVDm5WjPtyT69/61bNgjBaYzJBLzBMSiuPdtFWwV5YIgBQqvFKNEuzWo
-         CRaz4RNdTRGTutcQncWEYicMa5mmaUFcWYMf4GcEz/K+A9eQrgr+//hqhELFhDXFWn
-         hL2rb/J5C79G+vRFaPF5wcaPcqSDNCb64r45GNh0=
+        b=xV6k46ZZdB9w7feCAMX3TSm7R/U8uQjpuCVgSe1s9SM0EzNYXbWhskb3TyFZxi6mY
+         nURa26Zw1IIVPQJhf2jS7CHS0/2/kkn/h60Z/W8raOnBYHCAgZ5ROVAQDwpflPdCqx
+         MoRV9AtMwmMcmL2uEp//TNnN899WSssD0jONeEys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.8 436/464] spi: spidev: Align buffers for DMA
-Date:   Mon, 17 Aug 2020 17:16:29 +0200
-Message-Id: <20200817143854.663083713@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.7 341/393] crypto: hisilicon - dont sleep of CRYPTO_TFM_REQ_MAY_SLEEP was not specified
+Date:   Mon, 17 Aug 2020 17:16:31 +0200
+Message-Id: <20200817143836.137428133@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit aa9e862d7d5bcecd4dca9f39e8b684b93dd84ee7 upstream.
+commit 5ead051780404b5cb22147170acadd1994dc3236 upstream.
 
-Simply copying all xfers from userspace into one bounce buffer causes
-alignment problems if the SPI controller uses DMA.
+There is this call chain:
+sec_alg_skcipher_encrypt -> sec_alg_skcipher_crypto ->
+sec_alg_alloc_and_calc_split_sizes -> kcalloc
+where we call sleeping allocator function even if CRYPTO_TFM_REQ_MAY_SLEEP
+was not specified.
 
-Ensure that all transfer data blocks within the rx and tx bounce buffers
-are aligned for DMA (according to ARCH_KMALLOC_MINALIGN).
-
-Alignment may increase the usage of the bounce buffers. In some cases,
-the buffers may need to be increased using the "bufsiz" module
-parameter.
-
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200728100832.24788-1-ceggers@arri.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org	# v4.19+
+Fixes: 915e4e8413da ("crypto: hisilicon - SEC security accelerator driver")
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spidev.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/crypto/hisilicon/sec/sec_algs.c |   34 ++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -224,6 +224,11 @@ static int spidev_message(struct spidev_
- 	for (n = n_xfers, k_tmp = k_xfers, u_tmp = u_xfers;
- 			n;
- 			n--, k_tmp++, u_tmp++) {
-+		/* Ensure that also following allocations from rx_buf/tx_buf will meet
-+		 * DMA alignment requirements.
-+		 */
-+		unsigned int len_aligned = ALIGN(u_tmp->len, ARCH_KMALLOC_MINALIGN);
-+
- 		k_tmp->len = u_tmp->len;
+--- a/drivers/crypto/hisilicon/sec/sec_algs.c
++++ b/drivers/crypto/hisilicon/sec/sec_algs.c
+@@ -175,7 +175,8 @@ static int sec_alloc_and_fill_hw_sgl(str
+ 				     dma_addr_t *psec_sgl,
+ 				     struct scatterlist *sgl,
+ 				     int count,
+-				     struct sec_dev_info *info)
++				     struct sec_dev_info *info,
++				     gfp_t gfp)
+ {
+ 	struct sec_hw_sgl *sgl_current = NULL;
+ 	struct sec_hw_sgl *sgl_next;
+@@ -190,7 +191,7 @@ static int sec_alloc_and_fill_hw_sgl(str
+ 		sge_index = i % SEC_MAX_SGE_NUM;
+ 		if (sge_index == 0) {
+ 			sgl_next = dma_pool_zalloc(info->hw_sgl_pool,
+-						   GFP_KERNEL, &sgl_next_dma);
++						   gfp, &sgl_next_dma);
+ 			if (!sgl_next) {
+ 				ret = -ENOMEM;
+ 				goto err_free_hw_sgls;
+@@ -545,14 +546,14 @@ void sec_alg_callback(struct sec_bd_info
+ }
  
- 		total += k_tmp->len;
-@@ -239,17 +244,17 @@ static int spidev_message(struct spidev_
+ static int sec_alg_alloc_and_calc_split_sizes(int length, size_t **split_sizes,
+-					      int *steps)
++					      int *steps, gfp_t gfp)
+ {
+ 	size_t *sizes;
+ 	int i;
  
- 		if (u_tmp->rx_buf) {
- 			/* this transfer needs space in RX bounce buffer */
--			rx_total += k_tmp->len;
-+			rx_total += len_aligned;
- 			if (rx_total > bufsiz) {
- 				status = -EMSGSIZE;
- 				goto done;
- 			}
- 			k_tmp->rx_buf = rx_buf;
--			rx_buf += k_tmp->len;
-+			rx_buf += len_aligned;
- 		}
- 		if (u_tmp->tx_buf) {
- 			/* this transfer needs space in TX bounce buffer */
--			tx_total += k_tmp->len;
-+			tx_total += len_aligned;
- 			if (tx_total > bufsiz) {
- 				status = -EMSGSIZE;
- 				goto done;
-@@ -259,7 +264,7 @@ static int spidev_message(struct spidev_
- 						(uintptr_t) u_tmp->tx_buf,
- 					u_tmp->len))
- 				goto done;
--			tx_buf += k_tmp->len;
-+			tx_buf += len_aligned;
- 		}
+ 	/* Split into suitable sized blocks */
+ 	*steps = roundup(length, SEC_REQ_LIMIT) / SEC_REQ_LIMIT;
+-	sizes = kcalloc(*steps, sizeof(*sizes), GFP_KERNEL);
++	sizes = kcalloc(*steps, sizeof(*sizes), gfp);
+ 	if (!sizes)
+ 		return -ENOMEM;
  
- 		k_tmp->cs_change = !!u_tmp->cs_change;
-@@ -293,16 +298,16 @@ static int spidev_message(struct spidev_
- 		goto done;
+@@ -568,7 +569,7 @@ static int sec_map_and_split_sg(struct s
+ 				int steps, struct scatterlist ***splits,
+ 				int **splits_nents,
+ 				int sgl_len_in,
+-				struct device *dev)
++				struct device *dev, gfp_t gfp)
+ {
+ 	int ret, count;
  
- 	/* copy any rx data out of bounce buffer */
--	rx_buf = spidev->rx_buffer;
--	for (n = n_xfers, u_tmp = u_xfers; n; n--, u_tmp++) {
-+	for (n = n_xfers, k_tmp = k_xfers, u_tmp = u_xfers;
-+			n;
-+			n--, k_tmp++, u_tmp++) {
- 		if (u_tmp->rx_buf) {
- 			if (copy_to_user((u8 __user *)
--					(uintptr_t) u_tmp->rx_buf, rx_buf,
-+					(uintptr_t) u_tmp->rx_buf, k_tmp->rx_buf,
- 					u_tmp->len)) {
- 				status = -EFAULT;
- 				goto done;
- 			}
--			rx_buf += u_tmp->len;
- 		}
+@@ -576,12 +577,12 @@ static int sec_map_and_split_sg(struct s
+ 	if (!count)
+ 		return -EINVAL;
+ 
+-	*splits = kcalloc(steps, sizeof(struct scatterlist *), GFP_KERNEL);
++	*splits = kcalloc(steps, sizeof(struct scatterlist *), gfp);
+ 	if (!*splits) {
+ 		ret = -ENOMEM;
+ 		goto err_unmap_sg;
  	}
- 	status = total;
+-	*splits_nents = kcalloc(steps, sizeof(int), GFP_KERNEL);
++	*splits_nents = kcalloc(steps, sizeof(int), gfp);
+ 	if (!*splits_nents) {
+ 		ret = -ENOMEM;
+ 		goto err_free_splits;
+@@ -589,7 +590,7 @@ static int sec_map_and_split_sg(struct s
+ 
+ 	/* output the scatter list before and after this */
+ 	ret = sg_split(sgl, count, 0, steps, split_sizes,
+-		       *splits, *splits_nents, GFP_KERNEL);
++		       *splits, *splits_nents, gfp);
+ 	if (ret) {
+ 		ret = -ENOMEM;
+ 		goto err_free_splits_nents;
+@@ -630,13 +631,13 @@ static struct sec_request_el
+ 			   int el_size, bool different_dest,
+ 			   struct scatterlist *sgl_in, int n_ents_in,
+ 			   struct scatterlist *sgl_out, int n_ents_out,
+-			   struct sec_dev_info *info)
++			   struct sec_dev_info *info, gfp_t gfp)
+ {
+ 	struct sec_request_el *el;
+ 	struct sec_bd_info *req;
+ 	int ret;
+ 
+-	el = kzalloc(sizeof(*el), GFP_KERNEL);
++	el = kzalloc(sizeof(*el), gfp);
+ 	if (!el)
+ 		return ERR_PTR(-ENOMEM);
+ 	el->el_length = el_size;
+@@ -668,7 +669,7 @@ static struct sec_request_el
+ 	el->sgl_in = sgl_in;
+ 
+ 	ret = sec_alloc_and_fill_hw_sgl(&el->in, &el->dma_in, el->sgl_in,
+-					n_ents_in, info);
++					n_ents_in, info, gfp);
+ 	if (ret)
+ 		goto err_free_el;
+ 
+@@ -679,7 +680,7 @@ static struct sec_request_el
+ 		el->sgl_out = sgl_out;
+ 		ret = sec_alloc_and_fill_hw_sgl(&el->out, &el->dma_out,
+ 						el->sgl_out,
+-						n_ents_out, info);
++						n_ents_out, info, gfp);
+ 		if (ret)
+ 			goto err_free_hw_sgl_in;
+ 
+@@ -720,6 +721,7 @@ static int sec_alg_skcipher_crypto(struc
+ 	int *splits_out_nents = NULL;
+ 	struct sec_request_el *el, *temp;
+ 	bool split = skreq->src != skreq->dst;
++	gfp_t gfp = skreq->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP ? GFP_KERNEL : GFP_ATOMIC;
+ 
+ 	mutex_init(&sec_req->lock);
+ 	sec_req->req_base = &skreq->base;
+@@ -728,13 +730,13 @@ static int sec_alg_skcipher_crypto(struc
+ 	sec_req->len_in = sg_nents(skreq->src);
+ 
+ 	ret = sec_alg_alloc_and_calc_split_sizes(skreq->cryptlen, &split_sizes,
+-						 &steps);
++						 &steps, gfp);
+ 	if (ret)
+ 		return ret;
+ 	sec_req->num_elements = steps;
+ 	ret = sec_map_and_split_sg(skreq->src, split_sizes, steps, &splits_in,
+ 				   &splits_in_nents, sec_req->len_in,
+-				   info->dev);
++				   info->dev, gfp);
+ 	if (ret)
+ 		goto err_free_split_sizes;
+ 
+@@ -742,7 +744,7 @@ static int sec_alg_skcipher_crypto(struc
+ 		sec_req->len_out = sg_nents(skreq->dst);
+ 		ret = sec_map_and_split_sg(skreq->dst, split_sizes, steps,
+ 					   &splits_out, &splits_out_nents,
+-					   sec_req->len_out, info->dev);
++					   sec_req->len_out, info->dev, gfp);
+ 		if (ret)
+ 			goto err_unmap_in_sg;
+ 	}
+@@ -775,7 +777,7 @@ static int sec_alg_skcipher_crypto(struc
+ 					       splits_in[i], splits_in_nents[i],
+ 					       split ? splits_out[i] : NULL,
+ 					       split ? splits_out_nents[i] : 0,
+-					       info);
++					       info, gfp);
+ 		if (IS_ERR(el)) {
+ 			ret = PTR_ERR(el);
+ 			goto err_free_elements;
 
 
