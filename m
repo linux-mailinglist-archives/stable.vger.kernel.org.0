@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F1E246966
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8982024696E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729355AbgHQPV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:21:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43678 "EHLO mail.kernel.org"
+        id S1729401AbgHQPV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729352AbgHQPVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:21:24 -0400
+        id S1729399AbgHQPVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:21:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2227022BEB;
-        Mon, 17 Aug 2020 15:21:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72E942177B;
+        Mon, 17 Aug 2020 15:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677684;
-        bh=y3ay4eqwenAnrngmgR+QAaAj3ao0sQXVgUW43M+TdYA=;
+        s=default; t=1597677714;
+        bh=PkKczme5tW5pmLkOMAZI0L7Dfxsl6ApuLO0C0aQmgH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nL1lJy/wNfPjSdub/o8rnYPkxGZbj/VZZNZoCFw+riqA2nM5oMNrditE169f2wcyH
-         0PgYKdO1e/PNKRTGyaOGFTaVTmaCuX0wjqIvXbsm8WOXzXNxVVkNJNN+2VVoEjTdZi
-         F0MeMPzrohzkZo7ec71paLJF2IXNM3qBdAf4Srg0=
+        b=RvNAJxEnnYa0BwtmD/z7PubNUGoO9ny4PIKqTsQZcxzavxhQFbNRn2bYuKTqQv1fx
+         b5Yj+HHYb+ovGu5kbv0+HBt3vdCHvfMB1ryAtwIuabvsupYjbe85dySgA+edTkv2/U
+         SzW2hKkvCdcy3KPvboUXRsvrmlXOiXFQQqT63S/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christian Hewitt <christianshewitt@gmail.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 053/464] arm64: dts: meson: misc fixups for w400 dtsi
-Date:   Mon, 17 Aug 2020 17:10:06 +0200
-Message-Id: <20200817143836.299940996@linuxfoundation.org>
+Subject: [PATCH 5.8 054/464] arm64: dts: meson: fix mmc0 tuning error on Khadas VIM3
+Date:   Mon, 17 Aug 2020 17:10:07 +0200
+Message-Id: <20200817143836.347919419@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -47,9 +47,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 2fa17dd09533d5d83201be3229a28c1010a8ea3e ]
+[ Upstream commit f1bb924e8f5b50752a80fa5b48c43003680a7b64 ]
 
-Current devices using the W400 dtsi show mmc tuning errors:
+Similar to other G12B devices using the W400 dtsi, I see reports of mmc0
+tuning errors on VIM3 after a few hours uptime:
 
 [12483.917391] mmc0: tuning execution failed: -5
 [30535.551221] mmc0: tuning execution failed: -5
@@ -57,44 +58,47 @@ Current devices using the W400 dtsi show mmc tuning errors:
 [35561.875332] mmc0: tuning execution failed: -5
 [61733.348709] mmc0: tuning execution failed: -5
 
-Removing "sd-uhs-sdr50" from the SDIO node prevents this. We also add
-keep-power-in-suspend to the SDIO node and fix an indentation.
+I do not see the same on VIM3L, so remove sd-uhs-sdr50 from the common dtsi
+to silence the error, then (re)add it to the VIM3L dts.
 
-Fixes: 3cb74db9b256 ("arm64: dts: meson: convert ugoos-am6 to common w400 dtsi")
+Fixes: 4f26cc1c96c9 ("arm64: dts: khadas-vim3: move common nodes into meson-khadas-vim3.dtsi")
+Fixes: 700ab8d83927 ("arm64: dts: khadas-vim3: add support for the SM1 based VIM3L")
 Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
 Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200721013952.11635-1-christianshewitt@gmail.com
+Link: https://lore.kernel.org/r/20200721015950.11816-1-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi     | 1 -
+ arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts | 4 ++++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi
-index 98b70d216a6f3..2802ddbb83ac7 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi
-@@ -336,9 +336,11 @@ &sd_emmc_a {
+diff --git a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
+index 1ef1e3672b967..ff5ba85b7562e 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
+@@ -270,7 +270,6 @@ &sd_emmc_a {
  
  	bus-width = <4>;
  	cap-sd-highspeed;
 -	sd-uhs-sdr50;
  	max-frequency = <100000000>;
  
-+	/* WiFi firmware requires power to be kept while in suspend */
-+	keep-power-in-suspend;
-+
  	non-removable;
- 	disable-wp;
- 
-@@ -398,7 +400,7 @@ bluetooth {
- 		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
- 		max-speed = <2000000>;
- 		clocks = <&wifi32k>;
--	clock-names = "lpo";
-+		clock-names = "lpo";
- 	};
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
+index dbbf29a0dbf6d..026b21708b078 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
+@@ -88,6 +88,10 @@ &pcie {
+ 	status = "okay";
  };
  
++&sd_emmc_a {
++	sd-uhs-sdr50;
++};
++
+ &usb {
+ 	phys = <&usb2_phy0>, <&usb2_phy1>;
+ 	phy-names = "usb2-phy0", "usb2-phy1";
 -- 
 2.25.1
 
