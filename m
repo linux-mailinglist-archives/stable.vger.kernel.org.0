@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA9F246C28
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D886246C15
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388567AbgHQQKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
+        id S2388509AbgHQQJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388553AbgHQQKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:37 -0400
+        id S2388501AbgHQQJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:09:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0E9120578;
-        Mon, 17 Aug 2020 16:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B43C220658;
+        Mon, 17 Aug 2020 16:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680630;
-        bh=eLivimOm56pMwF4gQgsZcnUOz4mOosZfB22sIXPRjfQ=;
+        s=default; t=1597680558;
+        bh=fW0PLUaemraPxR56ZlLLDoiTZLlCiLqb4+qpdqoPWUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bpthls62uMb3MDy+7/l0lX7Z+arxTAioRB1O7Jorzjo772UzoPsoiHVvToYnW21Xy
-         4PkW6FqoTlkTAsm1juywdgXFWkspHRQuxZpp2vAtx4Ea3i4s0alW2hxnb64l7aPirP
-         20oXvWQXwHtuB/urRN3F5iu3JQU1LlOgn/hm4YVc=
+        b=quAarE4ORPWpKpjdlyBZB6/4bsxmFfCatHgSAKiQGi6bwZnaNR+PSaajVB+5xSOwp
+         oy8Erj+IeQNiu8TyEQZSQFsuGI05zEg4ig/IkeIOCDvOsnukhsdg19WoJ5CnKpU2dA
+         lHOWYu28h0WNIkzpR4SS2bwMFhDitUthh/grKHq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 233/270] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
-Date:   Mon, 17 Aug 2020 17:17:14 +0200
-Message-Id: <20200817143807.401358620@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+6bed2d543cf7e48b822b@syzkaller.appspotmail.com,
+        Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 235/270] media: media-request: Fix crash if memory allocation fails
+Date:   Mon, 17 Aug 2020 17:17:16 +0200
+Message-Id: <20200817143807.509404066@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -43,80 +47,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
 
-commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
+commit e30cc79cc80fd919b697a15c5000d9f57487de8e upstream.
 
-Further investigation of the L-R swap problem on the MS2109 reveals that
-the problem isn't that the channels are swapped, but rather that they
-are swapped and also out of phase by one sample. In other words, the
-issue is actually that the very first frame that comes from the hardware
-is a half-frame containing only the right channel, and after that
-everything becomes offset.
+Syzbot reports a NULL-ptr deref in the kref_put() call:
 
-So introduce a new quirk field to drop the very first 2 bytes that come
-in after the format is configured and a capture stream starts. This puts
-the channels in phase and in the correct order.
+BUG: KASAN: null-ptr-deref in media_request_put drivers/media/mc/mc-request.c:81 [inline]
+ kref_put include/linux/kref.h:64 [inline]
+ media_request_put drivers/media/mc/mc-request.c:81 [inline]
+ media_request_close+0x4d/0x170 drivers/media/mc/mc-request.c:89
+ __fput+0x2ed/0x750 fs/file_table.c:281
+ task_work_run+0x147/0x1d0 kernel/task_work.c:123
+ tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+ exit_to_usermode_loop arch/x86/entry/common.c:165 [inline]
+ prepare_exit_to_usermode+0x48e/0x600 arch/x86/entry/common.c:196
 
+What led to this crash was an injected memory allocation failure in
+media_request_alloc():
+
+FAULT_INJECTION: forcing a failure.
+name failslab, interval 1, probability 0, space 0, times 0
+ should_failslab+0x5/0x20
+ kmem_cache_alloc_trace+0x57/0x300
+ ? anon_inode_getfile+0xe5/0x170
+ media_request_alloc+0x339/0x440
+ media_device_request_alloc+0x94/0xc0
+ media_device_ioctl+0x1fb/0x330
+ ? do_vfs_ioctl+0x6ea/0x1a00
+ ? media_ioctl+0x101/0x120
+ ? __media_device_usb_init+0x430/0x430
+ ? media_poll+0x110/0x110
+ __se_sys_ioctl+0xf9/0x160
+ do_syscall_64+0xf3/0x1b0
+
+When that allocation fails, filp->private_data is left uninitialized
+which media_request_close() does not expect and crashes.
+
+To avoid this, reorder media_request_alloc() such that
+allocating the struct file happens as the last step thus
+media_request_close() will no longer get called for a partially created
+media request.
+
+Reported-by: syzbot+6bed2d543cf7e48b822b@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+Fixes: 10905d70d788 ("media: media-request: implement media requests")
+Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/card.h   |    1 +
- sound/usb/pcm.c    |    6 ++++++
- sound/usb/quirks.c |    3 +++
- sound/usb/stream.c |    1 +
- 4 files changed, 11 insertions(+)
+ drivers/media/mc/mc-request.c |   31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -133,6 +133,7 @@ struct snd_usb_substream {
- 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
- 	unsigned int fmt_type;		/* USB audio format type (1-3) */
- 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
-+	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
+--- a/drivers/media/mc/mc-request.c
++++ b/drivers/media/mc/mc-request.c
+@@ -296,9 +296,18 @@ int media_request_alloc(struct media_dev
+ 	if (WARN_ON(!mdev->ops->req_alloc ^ !mdev->ops->req_free))
+ 		return -ENOMEM;
  
- 	unsigned int running: 1;	/* running status */
++	if (mdev->ops->req_alloc)
++		req = mdev->ops->req_alloc(mdev);
++	else
++		req = kzalloc(sizeof(*req), GFP_KERNEL);
++	if (!req)
++		return -ENOMEM;
++
+ 	fd = get_unused_fd_flags(O_CLOEXEC);
+-	if (fd < 0)
+-		return fd;
++	if (fd < 0) {
++		ret = fd;
++		goto err_free_req;
++	}
  
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -1417,6 +1417,12 @@ static void retire_capture_urb(struct sn
- 			// continue;
- 		}
- 		bytes = urb->iso_frame_desc[i].actual_length;
-+		if (subs->stream_offset_adj > 0) {
-+			unsigned int adj = min(subs->stream_offset_adj, bytes);
-+			cp += adj;
-+			bytes -= adj;
-+			subs->stream_offset_adj -= adj;
-+		}
- 		frames = bytes / stride;
- 		if (!subs->txfr_quirk)
- 			bytes = frames * stride;
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1432,6 +1432,9 @@ void snd_usb_set_format_quirk(struct snd
- 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
- 		set_format_emu_quirk(subs, fmt);
- 		break;
-+	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
-+		subs->stream_offset_adj = 2;
-+		break;
+ 	filp = anon_inode_getfile("request", &request_fops, NULL, O_CLOEXEC);
+ 	if (IS_ERR(filp)) {
+@@ -306,15 +315,6 @@ int media_request_alloc(struct media_dev
+ 		goto err_put_fd;
  	}
+ 
+-	if (mdev->ops->req_alloc)
+-		req = mdev->ops->req_alloc(mdev);
+-	else
+-		req = kzalloc(sizeof(*req), GFP_KERNEL);
+-	if (!req) {
+-		ret = -ENOMEM;
+-		goto err_fput;
+-	}
+-
+ 	filp->private_data = req;
+ 	req->mdev = mdev;
+ 	req->state = MEDIA_REQUEST_STATE_IDLE;
+@@ -336,12 +336,15 @@ int media_request_alloc(struct media_dev
+ 
+ 	return 0;
+ 
+-err_fput:
+-	fput(filp);
+-
+ err_put_fd:
+ 	put_unused_fd(fd);
+ 
++err_free_req:
++	if (mdev->ops->req_free)
++		mdev->ops->req_free(req);
++	else
++		kfree(req);
++
+ 	return ret;
  }
- 
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -94,6 +94,7 @@ static void snd_usb_init_substream(struc
- 	subs->tx_length_quirk = as->chip->tx_length_quirk;
- 	subs->speed = snd_usb_get_speed(subs->dev);
- 	subs->pkt_offset_adj = 0;
-+	subs->stream_offset_adj = 0;
- 
- 	snd_usb_set_pcm_ops(as->pcm, stream);
  
 
 
