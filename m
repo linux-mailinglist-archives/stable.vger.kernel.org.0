@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7128124757C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79902247539
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729571AbgHQTYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:24:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
+        id S2392238AbgHQTUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729796AbgHQPen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:34:43 -0400
+        id S1730502AbgHQPgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:36:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE4B220882;
-        Mon, 17 Aug 2020 15:34:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D55A2221E2;
+        Mon, 17 Aug 2020 15:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678483;
-        bh=dHoB6WN7dMe7me8nFYFb2Na5SEj5aIZg5J6VQssDatI=;
+        s=default; t=1597678600;
+        bh=a2Kv20AJygXJoaR4OPP/5jAv940SoiUnSAZ3rXPGb8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yHKm1KpIciKJvMk4SMmu9cf6YKRxum1HzPYBVzRXQm+7OmybcxeDjlqMIos0dvSiZ
-         Coytc+MNJzoOcT/kLAUB3HGNJzdpXDVBYO49drWQSNqAO4DDXxGVZZNuaz4soq+QZb
-         Trc3sBM1UlND9RR5jugL+RCMpwUYC1nQ68PDUbZY=
+        b=j44j4hdeLsDdEzvJSIm3HblhXwk4BLyxxEzqs2PHDipr1ty29T5CHKdiw2zvddgEj
+         aiUHNb6YbfS1K51MFtTC2kKx8YeUiGatkGhrwfuAlTBVJ6OOJpTB4VMDEsOeij9ldg
+         13NHYIHReYrQmMgZybBPJuuKl2e0iY/jym1YLDgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Sergey Matyukevich <geomatsi@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 348/464] qtnfmac: Missing platform_device_unregister() on error in qtnf_core_mac_alloc()
-Date:   Mon, 17 Aug 2020 17:15:01 +0200
-Message-Id: <20200817143850.440841711@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 350/464] tools, build: Propagate build failures from tools/build/Makefile.build
+Date:   Mon, 17 Aug 2020 17:15:03 +0200
+Message-Id: <20200817143850.536157499@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit 141bc9abbbffa89d020957caa9ac4a61d0ef1e26 ]
+[ Upstream commit a278f3d8191228212c553a5d4303fa603214b717 ]
 
-Add the missing platform_device_unregister() before return from
-qtnf_core_mac_alloc() in the error handling case.
+The '&&' command seems to have a bad effect when $(cmd_$(1)) exits with
+non-zero effect: the command failure is masked (despite `set -e`) and all but
+the first command of $(dep-cmd) is executed (successfully, as they are mostly
+printfs), thus overall returning 0 in the end.
 
-Fixes: 616f5701f4ab ("qtnfmac: assign each wiphy to its own virtual platform device")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Reviewed-by: Sergey Matyukevich <geomatsi@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200730064910.37589-1-wanghai38@huawei.com
+This means in practice that despite compilation errors, tools's build Makefile
+will return success. We see this very reliably with libbpf's Makefile, which
+doesn't get compilation error propagated properly. This in turns causes issues
+with selftests build, as well as bpftool and other projects that rely on
+building libbpf.
+
+The fix is simple: don't use &&. Given `set -e`, we don't need to chain
+commands with &&. The shell will exit on first failure, giving desired
+behavior and propagating error properly.
+
+Fixes: 275e2d95591e ("tools build: Move dependency copy into function")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/bpf/20200731024244.872574-1-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/build/Build.include | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/core.c b/drivers/net/wireless/quantenna/qtnfmac/core.c
-index eea777f8acea5..6aafff9d4231b 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/core.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/core.c
-@@ -446,8 +446,11 @@ static struct qtnf_wmac *qtnf_core_mac_alloc(struct qtnf_bus *bus,
- 	}
+diff --git a/tools/build/Build.include b/tools/build/Build.include
+index 9ec01f4454f9f..585486e40995b 100644
+--- a/tools/build/Build.include
++++ b/tools/build/Build.include
+@@ -74,7 +74,8 @@ dep-cmd = $(if $(wildcard $(fixdep)),
+ #                   dependencies in the cmd file
+ if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)),         \
+                   @set -e;                                         \
+-                  $(echo-cmd) $(cmd_$(1)) && $(dep-cmd))
++                  $(echo-cmd) $(cmd_$(1));                         \
++                  $(dep-cmd))
  
- 	wiphy = qtnf_wiphy_allocate(bus, pdev);
--	if (!wiphy)
-+	if (!wiphy) {
-+		if (pdev)
-+			platform_device_unregister(pdev);
- 		return ERR_PTR(-ENOMEM);
-+	}
- 
- 	mac = wiphy_priv(wiphy);
- 
+ # if_changed      - execute command if any prerequisite is newer than
+ #                   target, or command line has changed
 -- 
 2.25.1
 
