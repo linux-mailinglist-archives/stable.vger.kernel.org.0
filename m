@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37163246C1A
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1C4246C66
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730588AbgHQQJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
+        id S1731072AbgHQQPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388507AbgHQQJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:09:29 -0400
+        id S1729307AbgHQQPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46F4522BEF;
-        Mon, 17 Aug 2020 16:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D407622CF7;
+        Mon, 17 Aug 2020 16:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680567;
-        bh=3ZUdMGNGVtzVHRjFEW6QRWy7L4pih5J5PASz2rAOfto=;
+        s=default; t=1597680917;
+        bh=8vYg9VB/+RQNMzlHch8gpYo0lzW65j9Y2L692K7Wbcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smtnGIpFbHk9zsVOVui9ykLgzU1tRkDBmxjb86VvNruYBUY7BgFCFNbwuSxnKWTih
-         rybL8mzqKC81VpxspGa4gn6qv62A7ixh9ndcHYgYdtxvwI8iE1mVP+Uw+H88SHZo/I
-         WGkVdUMA1uuDkOK3+X9UfhpbJaogqyW6NPHj1hWY=
+        b=G0jBv+XEFHYGaBxptnDg117jqSP0M9C/aRbA8hgvgmwHvJwJrsLbZZr0eG5Dwpcs0
+         5dyB0g8c5D5CAs6Or4nxi8BgA5adPREZSFu260WMia0fIciRr+m7amxgtWwxlBknr/
+         OKOGNabFl+lFe/PENyXt2SFKOe/JoFs+DFc1z2Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.4 239/270] NFS: Dont return layout segments that are in use
-Date:   Mon, 17 Aug 2020 17:17:20 +0200
-Message-Id: <20200817143807.711054341@linuxfoundation.org>
+        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Harish <harish@linux.ibm.com>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 110/168] selftests/powerpc: Fix CPU affinity for child process
+Date:   Mon, 17 Aug 2020 17:17:21 +0200
+Message-Id: <20200817143739.184679793@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Harish <harish@linux.ibm.com>
 
-commit d474f96104bd4377573526ebae2ee212205a6839 upstream.
+[ Upstream commit 854eb5022be04f81e318765f089f41a57c8e5d83 ]
 
-If the NFS_LAYOUT_RETURN_REQUESTED flag is set, we want to return the
-layout as soon as possible, meaning that the affected layout segments
-should be marked as invalid, and should no longer be in use for I/O.
+On systems with large number of cpus, test fails trying to set
+affinity by calling sched_setaffinity() with smaller size for affinity
+mask. This patch fixes it by making sure that the size of allocated
+affinity mask is dependent on the number of CPUs as reported by
+get_nprocs().
 
-Fixes: f0b429819b5f ("pNFS: Ignore non-recalled layouts in pnfs_layout_need_return()")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 00b7ec5c9cf3 ("selftests/powerpc: Import Anton's context_switch2 benchmark")
+Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Harish <harish@linux.ibm.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Reviewed-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200609081423.529664-1-harish@linux.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c |   34 +++++++++++++++-------------------
- 1 file changed, 15 insertions(+), 19 deletions(-)
+ .../powerpc/benchmarks/context_switch.c       | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1198,31 +1198,27 @@ out:
- 	return status;
- }
+diff --git a/tools/testing/selftests/powerpc/benchmarks/context_switch.c b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+index 87f1f0252299f..9ec7674697b1e 100644
+--- a/tools/testing/selftests/powerpc/benchmarks/context_switch.c
++++ b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+@@ -23,6 +23,7 @@
+ #include <limits.h>
+ #include <sys/time.h>
+ #include <sys/syscall.h>
++#include <sys/sysinfo.h>
+ #include <sys/types.h>
+ #include <sys/shm.h>
+ #include <linux/futex.h>
+@@ -108,8 +109,9 @@ static void start_thread_on(void *(*fn)(void *), void *arg, unsigned long cpu)
  
-+static bool
-+pnfs_layout_segments_returnable(struct pnfs_layout_hdr *lo,
-+				enum pnfs_iomode iomode,
-+				u32 seq)
-+{
-+	struct pnfs_layout_range recall_range = {
-+		.length = NFS4_MAX_UINT64,
-+		.iomode = iomode,
-+	};
-+	return pnfs_mark_matching_lsegs_return(lo, &lo->plh_return_segs,
-+					       &recall_range, seq) != -EBUSY;
-+}
-+
- /* Return true if layoutreturn is needed */
- static bool
- pnfs_layout_need_return(struct pnfs_layout_hdr *lo)
+ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
  {
--	struct pnfs_layout_segment *s;
--	enum pnfs_iomode iomode;
--	u32 seq;
--
- 	if (!test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags))
- 		return false;
--
--	seq = lo->plh_return_seq;
--	iomode = lo->plh_return_iomode;
--
--	/* Defer layoutreturn until all recalled lsegs are done */
--	list_for_each_entry(s, &lo->plh_segs, pls_list) {
--		if (seq && pnfs_seqid_is_newer(s->pls_seq, seq))
--			continue;
--		if (iomode != IOMODE_ANY && s->pls_range.iomode != iomode)
--			continue;
--		if (test_bit(NFS_LSEG_LAYOUTRETURN, &s->pls_flags))
--			return false;
--	}
--
--	return true;
-+	return pnfs_layout_segments_returnable(lo, lo->plh_return_iomode,
-+					       lo->plh_return_seq);
- }
+-	int pid;
+-	cpu_set_t cpuset;
++	int pid, ncpus;
++	cpu_set_t *cpuset;
++	size_t size;
  
- static void pnfs_layoutreturn_before_put_layout_hdr(struct pnfs_layout_hdr *lo)
+ 	pid = fork();
+ 	if (pid == -1) {
+@@ -120,14 +122,23 @@ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+ 	if (pid)
+ 		return;
+ 
+-	CPU_ZERO(&cpuset);
+-	CPU_SET(cpu, &cpuset);
++	ncpus = get_nprocs();
++	size = CPU_ALLOC_SIZE(ncpus);
++	cpuset = CPU_ALLOC(ncpus);
++	if (!cpuset) {
++		perror("malloc");
++		exit(1);
++	}
++	CPU_ZERO_S(size, cpuset);
++	CPU_SET_S(cpu, size, cpuset);
+ 
+-	if (sched_setaffinity(0, sizeof(cpuset), &cpuset)) {
++	if (sched_setaffinity(0, size, cpuset)) {
+ 		perror("sched_setaffinity");
++		CPU_FREE(cpuset);
+ 		exit(1);
+ 	}
+ 
++	CPU_FREE(cpuset);
+ 	fn(arg);
+ 
+ 	exit(0);
+-- 
+2.25.1
+
 
 
