@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE441247338
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9519247333
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:52:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391666AbgHQSwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37952 "EHLO mail.kernel.org"
+        id S2403910AbgHQSwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387833AbgHQPwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:52:08 -0400
+        id S2387462AbgHQPwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:52:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87C8720729;
-        Mon, 17 Aug 2020 15:52:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 740D5208B3;
+        Mon, 17 Aug 2020 15:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679528;
-        bh=IVjjFA0DYsoC7bTosHCMh3WCsr8pULJgQQr7kWsxjpA=;
+        s=default; t=1597679531;
+        bh=g2OJoc78cXZVdQzYawWrSL+0Rb7WpVND5XaW11Ri9e4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWWoYwNj+9xvAiG1cu+65I8x0woui9/coGj3npHOf7xtRBnTcDAskxJODi8234U/D
-         N9BtX1QRMp+cttOw1q1ydGcTGce72zN2cxDPTdg2QAUk/4L9Vp+CIwxLhctpKGnzM8
-         qdRyC3OCeGhjZ17tI9pfgHbwc6uihaWI1ITXHMeI=
+        b=BHvxDVZLzBI1yx3pkAU2ZX0Mzv2k5bBxp1AJs+iSpPPe6jZvD2KgoSDSxfLExCN1l
+         ro2A9nn7D7UpykTD1eOW1IBqgnyrZkmCrcalxlYgdNJLf3W4C2A4ANO9s6s0NrS+Oj
+         gD7bWNyl/n1gQOFIk9ZNW3WJwAnmlNvPq0JLuZTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 243/393] thermal: int340x: processor_thermal: fix: update Jasper Lake PCI id
-Date:   Mon, 17 Aug 2020 17:14:53 +0200
-Message-Id: <20200817143831.406811888@linuxfoundation.org>
+Subject: [PATCH 5.7 244/393] usb: dwc2: Fix error path in gadget registration
+Date:   Mon, 17 Aug 2020 17:14:54 +0200
+Message-Id: <20200817143831.455577031@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,36 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 287d959558357e155c889bc35579eb35691a8fcb ]
+[ Upstream commit 33a06f1300a79cfd461cea0268f05e969d4f34ec ]
 
-Update PCI device id for Jasper Lake processor thermal device.
-With this proc_thermal driver is getting loaded and processor
-thermal functionality works on Jasper Lake system.
+When gadget registration fails, one should not call usb_del_gadget_udc().
+Ensure this by setting gadget->udc to NULL. Also in case of a failure
+there is no need to disable low-level hardware, so return immiedetly
+instead of jumping to error_init label.
 
-Fixes: f64a6583d3f5 ("thermal: int340x: processor_thermal: Add Jasper Lake support")
-Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1595577146-1221-1-git-send-email-sumeet.r.pawnikar@intel.com
+This fixes the following kernel NULL ptr dereference on gadget failure
+(can be easily triggered with g_mass_storage without any module
+parameters):
+
+dwc2 12480000.hsotg: dwc2_check_params: Invalid parameter besl=1
+dwc2 12480000.hsotg: dwc2_check_params: Invalid parameter g_np_tx_fifo_size=1024
+dwc2 12480000.hsotg: EPs: 16, dedicated fifos, 7808 entries in SPRAM
+Mass Storage Function, version: 2009/09/11
+LUN: removable file: (no medium)
+no file given for LUN0
+g_mass_storage 12480000.hsotg: failed to start g_mass_storage: -22
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000104
+pgd = (ptrval)
+[00000104] *pgd=00000000
+Internal error: Oops: 805 [#1] PREEMPT SMP ARM
+Modules linked in:
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.8.0-rc5 #3133
+Hardware name: Samsung Exynos (Flattened Device Tree)
+Workqueue: events deferred_probe_work_func
+PC is at usb_del_gadget_udc+0x38/0xc4
+LR is at __mutex_lock+0x31c/0xb18
+...
+Process kworker/0:1 (pid: 12, stack limit = 0x(ptrval))
+Stack: (0xef121db0 to 0xef122000)
+...
+[<c076bf3c>] (usb_del_gadget_udc) from [<c0726bec>] (dwc2_hsotg_remove+0x10/0x20)
+[<c0726bec>] (dwc2_hsotg_remove) from [<c0711208>] (dwc2_driver_probe+0x57c/0x69c)
+[<c0711208>] (dwc2_driver_probe) from [<c06247c0>] (platform_drv_probe+0x6c/0xa4)
+[<c06247c0>] (platform_drv_probe) from [<c0621df4>] (really_probe+0x200/0x48c)
+[<c0621df4>] (really_probe) from [<c06221e8>] (driver_probe_device+0x78/0x1fc)
+[<c06221e8>] (driver_probe_device) from [<c061fcd4>] (bus_for_each_drv+0x74/0xb8)
+[<c061fcd4>] (bus_for_each_drv) from [<c0621b54>] (__device_attach+0xd4/0x16c)
+[<c0621b54>] (__device_attach) from [<c0620c98>] (bus_probe_device+0x88/0x90)
+[<c0620c98>] (bus_probe_device) from [<c06211b0>] (deferred_probe_work_func+0x3c/0xd0)
+[<c06211b0>] (deferred_probe_work_func) from [<c0149280>] (process_one_work+0x234/0x7dc)
+[<c0149280>] (process_one_work) from [<c014986c>] (worker_thread+0x44/0x51c)
+[<c014986c>] (worker_thread) from [<c0150b1c>] (kthread+0x158/0x1a0)
+[<c0150b1c>] (kthread) from [<c0100114>] (ret_from_fork+0x14/0x20)
+Exception stack(0xef121fb0 to 0xef121ff8)
+...
+---[ end trace 9724c2fc7cc9c982 ]---
+
+While fixing this also fix the double call to dwc2_lowlevel_hw_disable()
+if dr_mode is set to USB_DR_MODE_PERIPHERAL. In such case low-level
+hardware is already disabled before calling usb_add_gadget_udc(). That
+function correctly preserves low-level hardware state, there is no need
+for the second unconditional dwc2_lowlevel_hw_disable() call.
+
+Fixes: 207324a321a8 ("usb: dwc2: Postponed gadget registration to the udc class driver")
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../thermal/intel/int340x_thermal/processor_thermal_device.c    | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc2/platform.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-index 297db1d2d960c..81e8b15ef405d 100644
---- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-+++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-@@ -43,7 +43,7 @@
- #define PCI_DEVICE_ID_PROC_ICL_THERMAL	0x8a03
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index 797afa99ef3b4..4ad85fa2c9328 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -543,6 +543,7 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 	if (hsotg->gadget_enabled) {
+ 		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
+ 		if (retval) {
++			hsotg->gadget.udc = NULL;
+ 			dwc2_hsotg_remove(hsotg);
+ 			goto error_init;
+ 		}
+@@ -554,7 +555,8 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 	if (hsotg->params.activate_stm_id_vb_detection)
+ 		regulator_disable(hsotg->usb33d);
+ error:
+-	dwc2_lowlevel_hw_disable(hsotg);
++	if (hsotg->dr_mode != USB_DR_MODE_PERIPHERAL)
++		dwc2_lowlevel_hw_disable(hsotg);
+ 	return retval;
+ }
  
- /* JasperLake thermal reporting device */
--#define PCI_DEVICE_ID_PROC_JSL_THERMAL	0x4503
-+#define PCI_DEVICE_ID_PROC_JSL_THERMAL	0x4E03
- 
- /* TigerLake thermal reporting device */
- #define PCI_DEVICE_ID_PROC_TGL_THERMAL	0x9A03
 -- 
 2.25.1
 
