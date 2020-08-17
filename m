@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 887E4246A29
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF97246B21
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730265AbgHQPbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54458 "EHLO mail.kernel.org"
+        id S2387774AbgHQPtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:49:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730262AbgHQPbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:31:09 -0400
+        id S2387765AbgHQPtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:49:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 464352245C;
-        Mon, 17 Aug 2020 15:31:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F2C62065D;
+        Mon, 17 Aug 2020 15:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678268;
-        bh=puuZK4Hc/ru+F/LefG+5ZC9v99mVnZgP2MsXOFegl9U=;
+        s=default; t=1597679345;
+        bh=A5cDiprIgsMvCjnEr/jbEPmBcCQcz0QY9VuRftCkkn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDuHtfXDDkoW0gR51mirMoKE5vsHd2mKqeAtdJjTOhdBGCw7uOLWaEMmnj2hUlwCt
-         Rp3OcEL/ZUUUaJjrJ+PdbQajnOvivTktYKJlGvQvZAPCM8rBzYq7e/eV7YlXZlfMnU
-         joz+mtmj9IMYalzrScdBbUxdIfgG6flGZV/W/vRM=
+        b=MuauEgPCBcKOnR67RR0RGuvHUZNXmCxme46WNynpvkXl/xQmTAhjft/qePzjYdUzh
+         nu5bQDo4FDDfkJtI7EIHGEJ7fNiC8q85kZBzCmQleBle0gj8d/F+ztnA0yfkfyiMEH
+         eHL9fJ9ngOyHu+HWBDaeCe2aOZCOb0rwGGhqHghE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 275/464] s390/bpf: Use brcl for jumping to exit_ip if necessary
-Date:   Mon, 17 Aug 2020 17:13:48 +0200
-Message-Id: <20200817143846.943990302@linuxfoundation.org>
+Subject: [PATCH 5.7 179/393] media: firewire: Using uninitialized values in node_probe()
+Date:   Mon, 17 Aug 2020 17:13:49 +0200
+Message-Id: <20200817143828.299603634@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5fa6974471c5518a50bdd814067508dbcb477251 ]
+[ Upstream commit 2505a210fc126599013aec2be741df20aaacc490 ]
 
-"BPF_MAXINSNS: Maximum possible literals" test causes panic with
-bpf_jit_harden = 2. The reason is that BPF_JMP | BPF_EXIT is always
-emitted as brc, however, after removal of JITed image size
-limitations, brcl might be required.
+If fw_csr_string() returns -ENOENT, then "name" is uninitialized.  So
+then the "strlen(model_names[i]) <= name_len" is true because strlen()
+is unsigned and -ENOENT is type promoted to a very high positive value.
+Then the "strncmp(name, model_names[i], name_len)" uses uninitialized
+data because "name" is uninitialized.
 
-Fix by using brcl when necessary.
-
-Fixes: 4e9b4a6883dd ("s390/bpf: Use relative long branches")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200717165326.6786-4-iii@linux.ibm.com
+Fixes: 92374e886c75 ("[media] firedtv: drop obsolete backend abstraction")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/firewire/firedtv-fw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 6b3d612948fba..6b8968f6e207d 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -1268,8 +1268,12 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
- 		last = (i == fp->len - 1) ? 1 : 0;
- 		if (last)
- 			break;
--		/* j <exit> */
--		EMIT4_PCREL(0xa7f40000, jit->exit_ip - jit->prg);
-+		if (!is_first_pass(jit) && can_use_rel(jit, jit->exit_ip))
-+			/* brc 0xf, <exit> */
-+			EMIT4_PCREL_RIC(0xa7040000, 0xf, jit->exit_ip);
-+		else
-+			/* brcl 0xf, <exit> */
-+			EMIT6_PCREL_RILC(0xc0040000, 0xf, jit->exit_ip);
- 		break;
- 	/*
- 	 * Branch relative (number of skipped instructions) to offset on
+diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/firedtv-fw.c
+index 97144734eb052..3f1ca40b9b987 100644
+--- a/drivers/media/firewire/firedtv-fw.c
++++ b/drivers/media/firewire/firedtv-fw.c
+@@ -272,6 +272,8 @@ static int node_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
+ 
+ 	name_len = fw_csr_string(unit->directory, CSR_MODEL,
+ 				 name, sizeof(name));
++	if (name_len < 0)
++		return name_len;
+ 	for (i = ARRAY_SIZE(model_names); --i; )
+ 		if (strlen(model_names[i]) <= name_len &&
+ 		    strncmp(name, model_names[i], name_len) == 0)
 -- 
 2.25.1
 
