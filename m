@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7E124708A
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B5E24709C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390444AbgHQSLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54028 "EHLO mail.kernel.org"
+        id S2390352AbgHQSMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388281AbgHQQH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387897AbgHQQH0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 12:07:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A92420866;
-        Mon, 17 Aug 2020 16:07:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D07EA22B45;
+        Mon, 17 Aug 2020 16:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680422;
-        bh=F3hGrF7cMPs0Zativ+0w34SfGFDKisWaCsceG/QxuSw=;
+        s=default; t=1597680427;
+        bh=zJJf9ufwWpUpsbzGQo2GcLdzmv5cztp9mfuTvLC4nV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ru7FXo6ServxVol8zEVPQLaCHr8Gdhp9Mu1JyiF6EJFZNSKGfQRW9HNycfqw+TZQ+
-         tsIvudWsv6v3rQJGi6nP0wf9MAdS4fM6p8bmrqN73we3Z+3ePElfKn67J3e/KK2r5W
-         Ujdui+8j18y3qI2+U+9Gayag1vh4s7vjSXxwxHBE=
+        b=U1tFTK4WuDxSQ7ZvSd+Fd1S+uIUU63cczWgC6z9jRLVVfijpWaq3hdUb7ZaCGB0wg
+         joJ6GzCdFWDoPOZAdC/+LcP1Q/Kds0cOh8k8IsjoiqBWbLeliNrSEOXGCM85CnjXZw
+         Ddlt2+MwKHsOW+AXo/WS198/vCzxi8IdPFC1Fe8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Harish <harish@linux.ibm.com>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 180/270] powerpc/32s: Fix CONFIG_BOOK3S_601 uses
-Date:   Mon, 17 Aug 2020 17:16:21 +0200
-Message-Id: <20200817143804.770051937@linuxfoundation.org>
+Subject: [PATCH 5.4 182/270] selftests/powerpc: Fix CPU affinity for child process
+Date:   Mon, 17 Aug 2020 17:16:23 +0200
+Message-Id: <20200817143804.872767177@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -43,48 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Harish <harish@linux.ibm.com>
 
-[ Upstream commit df4d4ef22446b3a789a4efd74d34f2ec1e24deb2 ]
+[ Upstream commit 854eb5022be04f81e318765f089f41a57c8e5d83 ]
 
-We have two uses of CONFIG_BOOK3S_601, which doesn't exist. Fix them
-to use CONFIG_PPC_BOOK3S_601 which is the correct symbol.
+On systems with large number of cpus, test fails trying to set
+affinity by calling sched_setaffinity() with smaller size for affinity
+mask. This patch fixes it by making sure that the size of allocated
+affinity mask is dependent on the number of CPUs as reported by
+get_nprocs().
 
-Fixes: 12c3f1fd87bf ("powerpc/32s: get rid of CPU_FTR_601 feature")
+Fixes: 00b7ec5c9cf3 ("selftests/powerpc: Import Anton's context_switch2 benchmark")
+Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Harish <harish@linux.ibm.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Reviewed-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200724131728.1643966-5-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20200609081423.529664-1-harish@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/ptrace.h | 2 +-
- arch/powerpc/include/asm/timex.h  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ .../powerpc/benchmarks/context_switch.c       | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/ptrace.h b/arch/powerpc/include/asm/ptrace.h
-index ee3ada66deb58..c41220f4aad9e 100644
---- a/arch/powerpc/include/asm/ptrace.h
-+++ b/arch/powerpc/include/asm/ptrace.h
-@@ -203,7 +203,7 @@ do {									      \
- #endif /* __powerpc64__ */
+diff --git a/tools/testing/selftests/powerpc/benchmarks/context_switch.c b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+index a2e8c9da7fa53..d50cc05df4952 100644
+--- a/tools/testing/selftests/powerpc/benchmarks/context_switch.c
++++ b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+@@ -19,6 +19,7 @@
+ #include <limits.h>
+ #include <sys/time.h>
+ #include <sys/syscall.h>
++#include <sys/sysinfo.h>
+ #include <sys/types.h>
+ #include <sys/shm.h>
+ #include <linux/futex.h>
+@@ -104,8 +105,9 @@ static void start_thread_on(void *(*fn)(void *), void *arg, unsigned long cpu)
  
- #define arch_has_single_step()	(1)
--#ifndef CONFIG_BOOK3S_601
-+#ifndef CONFIG_PPC_BOOK3S_601
- #define arch_has_block_step()	(true)
- #else
- #define arch_has_block_step()	(false)
-diff --git a/arch/powerpc/include/asm/timex.h b/arch/powerpc/include/asm/timex.h
-index d2d2c4bd84358..6047402b0a4db 100644
---- a/arch/powerpc/include/asm/timex.h
-+++ b/arch/powerpc/include/asm/timex.h
-@@ -17,7 +17,7 @@ typedef unsigned long cycles_t;
- 
- static inline cycles_t get_cycles(void)
+ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
  {
--	if (IS_ENABLED(CONFIG_BOOK3S_601))
-+	if (IS_ENABLED(CONFIG_PPC_BOOK3S_601))
- 		return 0;
+-	int pid;
+-	cpu_set_t cpuset;
++	int pid, ncpus;
++	cpu_set_t *cpuset;
++	size_t size;
  
- 	return mftb();
+ 	pid = fork();
+ 	if (pid == -1) {
+@@ -116,14 +118,23 @@ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+ 	if (pid)
+ 		return;
+ 
+-	CPU_ZERO(&cpuset);
+-	CPU_SET(cpu, &cpuset);
++	ncpus = get_nprocs();
++	size = CPU_ALLOC_SIZE(ncpus);
++	cpuset = CPU_ALLOC(ncpus);
++	if (!cpuset) {
++		perror("malloc");
++		exit(1);
++	}
++	CPU_ZERO_S(size, cpuset);
++	CPU_SET_S(cpu, size, cpuset);
+ 
+-	if (sched_setaffinity(0, sizeof(cpuset), &cpuset)) {
++	if (sched_setaffinity(0, size, cpuset)) {
+ 		perror("sched_setaffinity");
++		CPU_FREE(cpuset);
+ 		exit(1);
+ 	}
+ 
++	CPU_FREE(cpuset);
+ 	fn(arg);
+ 
+ 	exit(0);
 -- 
 2.25.1
 
