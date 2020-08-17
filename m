@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5AC246A53
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D36C246B44
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730140AbgHQPdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:33:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35976 "EHLO mail.kernel.org"
+        id S2387816AbgHQPvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730385AbgHQPdd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:33:33 -0400
+        id S1730923AbgHQPv0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:51:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91FFF22BEB;
-        Mon, 17 Aug 2020 15:33:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A433920729;
+        Mon, 17 Aug 2020 15:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678412;
-        bh=iUmHx0gnU9KXKyMHqL5n3WV2OpVGhB51nKFJ6EEKsww=;
+        s=default; t=1597679486;
+        bh=Ld3YU6n9yLM5vrTVM/ZssuRx8dNGoxeIPIjiABqy/hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CKjLb86alG0sIRizdo+KNbjlDICd0n3F4/nXjEuLwmd6w2Xon/Mm1p8mboqfPeVm
-         PYPC4TdMBqO+VzOC53fZUb5sNsS1STPZhplJiIEda2+ieg9G0pB3n6+SFU2f46EYgc
-         hgt2uCbo00QLNwx1R50tmilzU52KrgLZugOPENhU=
+        b=Y20XZXAXlyv43agzhsg2WWRBL3dbo8yFbKwDRfEvjLhSrNErxjUDD5tcRtwWzFPOp
+         mu1sucw9XrpT4Q+aYAmvcoFuuKbjKuI0a5YnmWjg+Rzhv+ZaLMSOakCa6LzlXU/Thd
+         f13nd8bMOLYGYl9h+kye4mO3uVYSVNOAJcJIq++o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 326/464] selftests/powerpc: Fix online CPU selection
+Subject: [PATCH 5.7 229/393] coresight: etmv4: Counter values not saved on disable
 Date:   Mon, 17 Aug 2020 17:14:39 +0200
-Message-Id: <20200817143849.408739879@linuxfoundation.org>
+Message-Id: <20200817143830.734681475@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,93 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan@linux.ibm.com>
+From: Mike Leach <mike.leach@linaro.org>
 
-[ Upstream commit dfa03fff86027e58c8dba5c03ae68150d4e513ad ]
+[ Upstream commit 8fa43700f69703f995ea715b76be6fabdd2f05de ]
 
-The size of the CPU affinity mask must be large enough for
-systems with a very large number of CPUs. Otherwise, tests
-which try to determine the first online CPU by calling
-sched_getaffinity() will fail. This makes sure that the size
-of the allocated affinity mask is dependent on the number of
-CPUs as reported by get_nprocs_conf().
+The counter value registers change during operation, however this change
+is not reflected in the values seen by the user in sysfs.
 
-Fixes: 3752e453f6ba ("selftests/powerpc: Add tests of PMU EBBs")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a408c4b8e9a23bb39b539417a21eb0ff47bb5127.1596084858.git.sandipan@linux.ibm.com
+This fixes the issue by reading back the values on disable.
+
+Signed-off-by: Mike Leach <mike.leach@linaro.org>
+Fixes: 2e1cdfe184b52 ("coresight-etm4x: Adding CoreSight ETM4x driver")
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200716175746.3338735-11-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/utils.c | 37 +++++++++++++++++--------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ drivers/hwtracing/coresight/coresight-etm4x.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/utils.c b/tools/testing/selftests/powerpc/utils.c
-index 5ee0e98c48967..eb530e73e02c1 100644
---- a/tools/testing/selftests/powerpc/utils.c
-+++ b/tools/testing/selftests/powerpc/utils.c
-@@ -16,6 +16,7 @@
- #include <string.h>
- #include <sys/ioctl.h>
- #include <sys/stat.h>
-+#include <sys/sysinfo.h>
- #include <sys/types.h>
- #include <sys/utsname.h>
- #include <unistd.h>
-@@ -88,28 +89,40 @@ void *get_auxv_entry(int type)
- 
- int pick_online_cpu(void)
- {
--	cpu_set_t mask;
--	int cpu;
-+	int ncpus, cpu = -1;
-+	cpu_set_t *mask;
-+	size_t size;
-+
-+	ncpus = get_nprocs_conf();
-+	size = CPU_ALLOC_SIZE(ncpus);
-+	mask = CPU_ALLOC(ncpus);
-+	if (!mask) {
-+		perror("malloc");
-+		return -1;
-+	}
- 
--	CPU_ZERO(&mask);
-+	CPU_ZERO_S(size, mask);
- 
--	if (sched_getaffinity(0, sizeof(mask), &mask)) {
-+	if (sched_getaffinity(0, size, mask)) {
- 		perror("sched_getaffinity");
--		return -1;
-+		goto done;
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
+index d59e4b1e5ce58..942b362a1f220 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x.c
+@@ -507,6 +507,12 @@ static void etm4_disable_hw(void *info)
+ 			readl_relaxed(drvdata->base + TRCSSCSRn(i));
  	}
  
- 	/* We prefer a primary thread, but skip 0 */
--	for (cpu = 8; cpu < CPU_SETSIZE; cpu += 8)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = 8; cpu < ncpus; cpu += 8)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	/* Search for anything, but in reverse */
--	for (cpu = CPU_SETSIZE - 1; cpu >= 0; cpu--)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = ncpus - 1; cpu >= 0; cpu--)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	printf("No cpus in affinity mask?!\n");
--	return -1;
++	/* read back the current counter values */
++	for (i = 0; i < drvdata->nr_cntr; i++) {
++		config->cntr_val[i] =
++			readl_relaxed(drvdata->base + TRCCNTVRn(i));
++	}
 +
-+done:
-+	CPU_FREE(mask);
-+	return cpu;
- }
+ 	coresight_disclaim_device_unlocked(drvdata->base);
  
- bool is_ppc64le(void)
+ 	CS_LOCK(drvdata->base);
 -- 
 2.25.1
 
