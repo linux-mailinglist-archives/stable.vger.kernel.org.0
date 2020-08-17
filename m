@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5BF2476FE
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F5E2476FD
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732608AbgHQToG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:44:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49292 "EHLO mail.kernel.org"
+        id S1729744AbgHQToD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:44:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729272AbgHQPXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:23:04 -0400
+        id S1729275AbgHQPXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:23:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28BD123109;
-        Mon, 17 Aug 2020 15:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9345823136;
+        Mon, 17 Aug 2020 15:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677783;
-        bh=FAWNIdyvFpKy3gLuGZk3l1aE1ffiq5S95HtYP5TCpc4=;
+        s=default; t=1597677794;
+        bh=sP4va8tw/LWQq1aLYu/jsNtjodsiB3MIonkDEyyS1RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwbWnupcXDiOIVg4dca5qhMe8ZEBCqGBGs/OqgepCWMOaJqVc/pT0d2IQY5ZEJZ9i
-         Qq5SGt/26RHJytrTPfLoKe7y5tsCU8xrOJixGlSX/ZAr3fnXdW52fI/RuZ4ZtDhLvC
-         LJ66bEMyDc8ELqnrgVKmcOh52enemJOPzxq5HrqM=
+        b=J0V1XQNPEsf/8wYjKVD7n3fWfFJuLp6S6oGOG7mpPiS+fIVkA8CiFmJxZxX+1HqYu
+         8KYxK40jRXuMgKj6c2JMxA8ZDZPY8JNk/nVPrIrec9jUUURenQ6ulWxCu8xwznSrtQ
+         xypywCF+4hkIc2jnkDo76yairrSWMh2Ys9Oe+gK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Aric Cyr <aric.cyr@amd.com>,
+        Wenjing Liu <Wenjing.Liu@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 106/464] drm/radeon: disable AGP by default
-Date:   Mon, 17 Aug 2020 17:10:59 +0200
-Message-Id: <20200817143838.874655870@linuxfoundation.org>
+Subject: [PATCH 5.8 110/464] drm/amd/display: Improve DisplayPort monitor interop
+Date:   Mon, 17 Aug 2020 17:11:03 +0200
+Message-Id: <20200817143839.072660737@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,39 +47,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit ba806f98f868ce107aa9c453fef751de9980e4af ]
+[ Upstream commit eec3303de3378cdfaa0bb86f43546dbbd88f94e2 ]
 
-Always use the PCI GART instead. We just have to many cases
-where AGP still causes problems. This means a performance
-regression for some GPUs, but also a bug fix for some others.
+[Why]
+DC is very fast at link training and stream enablement
+which causes issues such as blackscreens for non-compliant
+monitors.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+[How]
+After debugging with scaler vendors we implement the
+minimum delays at the necessary locations to ensure
+the monitor does not hang.  Delays are generic due to
+lack of IEEE OUI information on the failing displays.
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Acked-by: Tony Cheng <Tony.Cheng@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_drv.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c    |  4 +++-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 16 ++++++++++------
+ .../amd/display/dc/dce110/dce110_hw_sequencer.c  | 11 ++++++++++-
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
-index 62b5069122cc4..4cd30613fa1dd 100644
---- a/drivers/gpu/drm/radeon/radeon_drv.c
-+++ b/drivers/gpu/drm/radeon/radeon_drv.c
-@@ -171,12 +171,7 @@ int radeon_no_wb;
- int radeon_modeset = -1;
- int radeon_dynclks = -1;
- int radeon_r4xx_atom = 0;
--#ifdef __powerpc__
--/* Default to PCI on PowerPC (fdo #95017) */
- int radeon_agpmode = -1;
--#else
--int radeon_agpmode = 0;
--#endif
- int radeon_vram_limit = 0;
- int radeon_gart_size = -1; /* auto */
- int radeon_benchmarking = 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 48ab51533d5d6..841cc051b7d01 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3298,9 +3298,11 @@ void core_link_disable_stream(struct pipe_ctx *pipe_ctx)
+ 			write_i2c_redriver_setting(pipe_ctx, false);
+ 		}
+ 	}
+-	dc->hwss.disable_stream(pipe_ctx);
+ 
+ 	disable_link(pipe_ctx->stream->link, pipe_ctx->stream->signal);
++
++	dc->hwss.disable_stream(pipe_ctx);
++
+ 	if (pipe_ctx->stream->timing.flags.DSC) {
+ 		if (dc_is_dp_signal(pipe_ctx->stream->signal))
+ 			dp_set_dsc_enable(pipe_ctx, false);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 91cd884d6f257..6124af571bff6 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1102,6 +1102,10 @@ static inline enum link_training_result perform_link_training_int(
+ 	dpcd_pattern.v1_4.TRAINING_PATTERN_SET = DPCD_TRAINING_PATTERN_VIDEOIDLE;
+ 	dpcd_set_training_pattern(link, dpcd_pattern);
+ 
++	/* delay 5ms after notifying sink of idle pattern before switching output */
++	if (link->connector_signal != SIGNAL_TYPE_EDP)
++		msleep(5);
++
+ 	/* 4. mainlink output idle pattern*/
+ 	dp_set_hw_test_pattern(link, DP_TEST_PATTERN_VIDEO_MODE, NULL, 0);
+ 
+@@ -1551,6 +1555,12 @@ bool perform_link_training_with_retries(
+ 	struct dc_link *link = stream->link;
+ 	enum dp_panel_mode panel_mode = dp_get_panel_mode(link);
+ 
++	/* We need to do this before the link training to ensure the idle pattern in SST
++	 * mode will be sent right after the link training
++	 */
++	link->link_enc->funcs->connect_dig_be_to_fe(link->link_enc,
++							pipe_ctx->stream_res.stream_enc->id, true);
++
+ 	for (j = 0; j < attempts; ++j) {
+ 
+ 		dp_enable_link_phy(
+@@ -1567,12 +1577,6 @@ bool perform_link_training_with_retries(
+ 
+ 		dp_set_panel_mode(link, panel_mode);
+ 
+-		/* We need to do this before the link training to ensure the idle pattern in SST
+-		 * mode will be sent right after the link training
+-		 */
+-		link->link_enc->funcs->connect_dig_be_to_fe(link->link_enc,
+-								pipe_ctx->stream_res.stream_enc->id, true);
+-
+ 		if (link->aux_access_disabled) {
+ 			dc_link_dp_perform_link_training_skip_aux(link, link_setting);
+ 			return true;
+diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+index b77e9dc160863..2af1d74d16ad8 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+@@ -1069,8 +1069,17 @@ void dce110_blank_stream(struct pipe_ctx *pipe_ctx)
+ 		link->dc->hwss.set_abm_immediate_disable(pipe_ctx);
+ 	}
+ 
+-	if (dc_is_dp_signal(pipe_ctx->stream->signal))
++	if (dc_is_dp_signal(pipe_ctx->stream->signal)) {
+ 		pipe_ctx->stream_res.stream_enc->funcs->dp_blank(pipe_ctx->stream_res.stream_enc);
++
++		/*
++		 * After output is idle pattern some sinks need time to recognize the stream
++		 * has changed or they enter protection state and hang.
++		 */
++		if (!dc_is_embedded_signal(pipe_ctx->stream->signal))
++			msleep(60);
++	}
++
+ }
+ 
+ 
 -- 
 2.25.1
 
