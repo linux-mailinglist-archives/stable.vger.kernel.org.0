@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A792479EB
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 00:06:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4F62479ED
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 00:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729799AbgHQWG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 18:06:57 -0400
+        id S1729819AbgHQWHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 18:07:06 -0400
 Received: from mail-bn8nam12on2053.outbound.protection.outlook.com ([40.107.237.53]:39554
         "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729767AbgHQWGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 18:06:53 -0400
+        id S1729490AbgHQWG6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 18:06:58 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Xqr3RCA0oxv1aoHQhvkXMKqz5M+NECFcAmhmpBBibguIf1y7vaZI+Tx4WGiOzUMwksEIsCiqdJsKhl2v/7qcAz2Iy+dQ0/zKwtiAv76BEhvGJafqp0gu2joBO7wopg+4eIrKyCUJ0AOaY9jWKuh0MCHhhH6xW2mACX3RwebMMWfhdngLAPBS1GIzNzn2TlrGjrxIlVss8JegOeHJuHZkA4hzLA47sWa6yhZfUdMZTGNqLc8UkEvRX0fDJ56tN1dQrIfzhwnv+UmZcbN8DJcj3DkcX9tFq3SKElYtP20+UF5anLrS8Bk1OTIe3mevYYEzE52lQ2z/+l8ADw+FXNA3pQ==
+ b=bSsxNiV+B/B57Cr3b43AmcWC/3oTJGjlQW48HIElELbfX1qOLyeJLDT1v7DcFIdzZ3hcICqMJ6IN2EJQ1mmdYQvwR8GsHmZH6x96KyV9YvRGnUqkAGpXXEsSS5nFYAU0cR2m5I9tslvWXo2pWorxdup4Fd7vZI9rlLoW2G0aLhoriNJmXKRp6/kiuTZr3tasCX75yqA2qb/A+nS2ID3FYQ5lw7/RCs8oZX96OWs9AyXdwxVfd2UrJ34B8mPz7YSPgu/M92B20dI846cFHmMjEo5sb+6NLzJd6quPCSDUEPMB9aIQ8tiEuKPEEhrpjx6r93O4cb3ss1E3IP9w0dp6HA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PmO/aI1NWmHz2oh0VbSJLKm8lAQ4etfNF+EodHjWwwg=;
- b=NdXl66XDUzEr/9c5qgtYtnEoSO2TCw0D/L18+ulVVh/G1Mlk4g8KMwx0qay+Q90QzhjV7umxw1D7scVfIi7OIM0ivBvxrbuB1PdylSa/MVLZIk2FiU4AEyX1ieX5ZO30/yiO5Tr17dUlu1mVJRGAJjNM7byFQbFpCEGX2LBNmhIFbFblX7+UrXkfxFY5NoGrHy4efPZO/gw3QajTkZHmcdQHQG3AFVGTWygw+4kjqOaZQ+8qMYdqWZA+lCUmUq6r7je2QmDHZCLbshzyNsYuyuaW1u9jsmk3ZxU6ww0INV2fWp1t8VXMGAKepP2Zj0m1i4/HYhrIQ5ISZJcpVJBVOA==
+ bh=vz3l4IMv/eu5lQ+xaLn+lGDhiOJGJG+95W9dQEUlSqQ=;
+ b=NC1yl9j4G9g3Clf/VLJ/MrErOIhk8XWjdcxbQoY69YsIwG0pntHYX3mF/rQ2p29yxX/QoW7+waSjU6Qq9NH9Ht3vVcOvmwzxsHpDinlgD6qsDgZob6+jh8/PnuXLb08sQo2UJ5pzo0TRwkVF1o+6PMTIC9H1o+xp8yCTgSjCCh1j/+DEJ82WG+V/9xIlsHaaGL4+TiutCNe/zKagqIZb9c9/hNhAic4tQdaVEGeZ6q6jAnUOt+ARorMM/hERoerdlPX+l23WJRQp5CyvfyIYv8aY3Mu87CokQJ28FD2DShovYTdIJIXtTBa10b90AHKzPMOH/crd4h2N/LNGZt+odw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PmO/aI1NWmHz2oh0VbSJLKm8lAQ4etfNF+EodHjWwwg=;
- b=O/E0mH0z/jAQB4cFVK+xxMCwAPZGn2z8zEj141nKLG1ODUhXaqqqZg8c8qBLC3JIP7YLrULw80JHU8uNJ1Vmh29CrQsVeABrXaUMppZt6uDdKRpsM+moFIs5lpAT7f+UB0Qloo4QkznflKm0QIzAIilNEWtxzQZnsfWAkHNyXao=
+ bh=vz3l4IMv/eu5lQ+xaLn+lGDhiOJGJG+95W9dQEUlSqQ=;
+ b=jBMSs0AcFoD32B+23AdptXoCNqzRmklxuOIphRb5ioRkgFSPOmCbZo/pZNsLvOgjisxlfCWpZ1En63jLqGAFACG61RgVHLPbbTFp83tuFr3qKVWn9XPLZWAqAWm/VL7vLSXS2XKzDVsHt+kEIgyd0GiksDLsDYz+95JsPh/ftRw=
 Authentication-Results: infradead.org; dkim=none (message not signed)
  header.d=none;infradead.org; dmarc=none action=none header.from=amd.com;
 Received: from BN8PR12MB2946.namprd12.prod.outlook.com (2603:10b6:408:9d::13)
  by BN8PR12MB3220.namprd12.prod.outlook.com (2603:10b6:408:9e::24) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3283.18; Mon, 17 Aug
- 2020 22:06:38 +0000
+ 2020 22:06:51 +0000
 Received: from BN8PR12MB2946.namprd12.prod.outlook.com
  ([fe80::ac22:9457:4d25:5ff0]) by BN8PR12MB2946.namprd12.prod.outlook.com
  ([fe80::ac22:9457:4d25:5ff0%5]) with mapi id 15.20.3283.024; Mon, 17 Aug 2020
- 22:06:38 +0000
+ 22:06:51 +0000
 From:   Kim Phillips <kim.phillips@amd.com>
 To:     Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>,
@@ -53,85 +53,65 @@ Cc:     Stephane Eranian <eranian@google.com>,
         Namhyung Kim <namhyung@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>, x86 <x86@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH 1/7 RESEND] perf/amd/uncore: Set all slices and threads to restore perf stat -a behaviour
-Date:   Mon, 17 Aug 2020 17:06:22 -0500
-Message-Id: <20200817220628.7604-1-kim.phillips@amd.com>
+Subject: [PATCH 2/7] perf/x86/amd: Fix sampling Large Increment per Cycle events
+Date:   Mon, 17 Aug 2020 17:06:23 -0500
+Message-Id: <20200817220628.7604-2-kim.phillips@amd.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200817220628.7604-1-kim.phillips@amd.com>
+References: <20200817220628.7604-1-kim.phillips@amd.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SN4PR0701CA0019.namprd07.prod.outlook.com
- (2603:10b6:803:28::29) To BN8PR12MB2946.namprd12.prod.outlook.com
+X-ClientProxiedBy: SA9PR10CA0025.namprd10.prod.outlook.com
+ (2603:10b6:806:a7::30) To BN8PR12MB2946.namprd12.prod.outlook.com
  (2603:10b6:408:9d::13)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (70.114.200.6) by SN4PR0701CA0019.namprd07.prod.outlook.com (2603:10b6:803:28::29) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3283.16 via Frontend Transport; Mon, 17 Aug 2020 22:06:37 +0000
+Received: from localhost.localdomain (70.114.200.6) by SA9PR10CA0025.namprd10.prod.outlook.com (2603:10b6:806:a7::30) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3283.20 via Frontend Transport; Mon, 17 Aug 2020 22:06:50 +0000
 X-Mailer: git-send-email 2.27.0
 X-Originating-IP: [70.114.200.6]
 X-MS-PublicTrafficType: Email
 X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 27195c5c-cc53-4eec-8ed5-08d842f9d06c
+X-MS-Office365-Filtering-Correlation-Id: 46a018d7-0712-45eb-cdef-08d842f9d812
 X-MS-TrafficTypeDiagnostic: BN8PR12MB3220:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BN8PR12MB32202BA59D8237404B0083BF875F0@BN8PR12MB3220.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1227;
+X-Microsoft-Antispam-PRVS: <BN8PR12MB3220FACD9D80781B94863D62875F0@BN8PR12MB3220.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: CrWxjsRfOR4FzUkoC77gXrV1UuvMgkY8GdrufxaPNzFH6rhzZjL2XsXYqFvFgQqyLVv6nu2CgPqLnJbZZuqELNUw43I7ZF2jsHTD0vxcC2BGRuBteZyZTIRDYBDmoGGcbHxFZYZnEgOZ8qg8esjvgxbJcXqKgG5Id4GuPuCsjNclnIdapdG6eiahRbJ1sH5uABdzO71qNvQErKMMsCWmVlBg6/HkIfjpY4VvajGWXo22yf6hwZ8b8PyIoBliZMSYUgO0bRBLaYOxaxQHZioZNbRi33Bk6pGGgR4MfXQVns2+XWnyZx4arzRvM40HzpCZW9iDJ6Bz34e2e+TVi5WDgfk/lMQEnSzlqtsCI9LckxQejWjQLjB7dvM/mG27GR9iTKlHcQ9UWNlPZxM5B2cFuJLmHZwkLkHqP1eRaaj0H6Pw8i+S/jLHI1/1mWBVPGXHVOFtvASd+DKNOcnDOZEe8w==
+X-Microsoft-Antispam-Message-Info: 0JnPjfRZSMyau1B60HhtCtpIN0GdS29YG5SphI/AWaPKdpGuyN7wuooLIX/v9xdE75GvgIM7oMawgmKjTwXPT4G+/KdraPCCoioMGTN2UrDmkaoJ/yQ7kab2uZLqhxipNEIVWhcGhyCCcT2OZlbud6IArTdSzBx0h0QP+m5fJ6pzKopVRqsK9huMPCxLV50CjwDzLBy+oaVXg7HDEl5Gr4QK0xTk41KPWP1008aLx68rM/KZ99ejvDkNcC/SLCWwL0H0PNd8xqsBcOn079OmTWISAppSkuPWVADP7i5BYyl/OghQKcgf5K6hyRO2sGB7dAyFRZgeI/YbG69+izq+PkDSf+uL1j19tK5tu/OHfWSYiSR8ZlQ6QByOooE4BxXJUuiLyWJU3jl1Yw5cDC0bJqOE7V7dHVQYosQ4oyxvm4cKzMrI3oGygkEY6V7GS+X8DbNPoG3ocTqwAFOYfe2PQQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB2946.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(366004)(136003)(396003)(39860400002)(346002)(36756003)(5660300002)(7049001)(2906002)(6506007)(83380400001)(44832011)(956004)(186003)(52116002)(69590400007)(478600001)(2616005)(16526019)(7416002)(6486002)(4326008)(966005)(6512007)(8676002)(66946007)(1076003)(6666004)(86362001)(26005)(316002)(66556008)(110136005)(8936002)(54906003)(66476007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: ZntcP/8HoCDwC8NfJt6yOmu3k2yN4d5ZLja6EJg1pGZCJCgqOgtk+ib0ognkO3IWB/ziowsYfSVExoSQgVOqJHZRMcQIIkUDOx+cgZIbs0pIxd6lJO+D083JjAHkIrYljyPgVZFcmy8ZY6g6rvM97LfBAghMvSLsV1yKkvKawq1B99Sn7wFfUdPOYV3QJ6BlCpLIZ1B1mgF36Myesi29qGFT8V3YpgssO2UU3r7UU+UI9K+YZhEBXfXzCd2d81hX7kdfbM57M4kWwy+3ZvJZUcCcxgA6U2DSW/nLGcttEjGRxDjHY8fCUdlH4D1vmVIYWtNC/Tt8HOqO8TitbR6BHuOC4HIjqNH9qt2u4ujRShPJ+ncmThcTeX2NJh1eHOz071iNiWW/M/tHLI9OdbkmzyOrlam61VCV/ZrMZap39lSygMYIrzzd//wtTDgAEs0dtlRdcnDKfoXkvTyqOEcYTCOkY8Hx2J9mcLasZ7DjfOgKW5fXMews8Thka8xbiE4D+ilo7y2z6xaroHQahua9UJHs1qq4lSV5k83D/vLnMVka/lROCSM5oi++jGaf+4UTL/+zrH3p0AxnR+CcbqLqTWhXzumTWQiZoz+f7OPoe3Bb4wXOHIMKaY9pBaofzoz41mF/KDvA85I2G+ZSRNTz0Q==
+X-MS-Exchange-AntiSpam-MessageData: xlZpAcLhhjVSEHwm+Cmpm2G+RZm6LtZKECtSjOtMdbthXWJX1NMBXa9PZ74W7CIxczXQGTEjZ3CLhc/aeVbfxNSrmNzTT93N0qV07w0vp66np0tyJyfI1YbXpZkbzmX2hVARpOY+ZYA4jXIFd0Gg/BI2GrAHaLozg9GqHw2MaHSGAxVarYkGk1rzpckQBYH25kQgNZfDbxIj8wRGcUqv6V6Dz6FWmvsd11MkxhPJdUYurWYvpF3PV8DKO+v/bUig31fP72xJhPtEE7kCS4iXVPS2DO5lhF3Qhn+ZWtOkuxKmdTGeeMq3yKRcXmqZH1JN8cWVpc90r/g+Nplc4fkCmQ6VN6ODgVyP0u17PWLhOL6jUuhRxLIdhqdXjkUf7UURaJNzDC/l9xUoHKpUxFqFgivsXxmZj4cSCag34geDaf09TQLnaeGupSXf/gOCzf5Ze0JCGO4iNxkcwkKgBKHcNxruRRfxrZHNO2evA+noI3e6T2gSK9BE9VYij/9evmvN9RkWtww7KAKaRZeSdOjddflBC/wyG6+mCUttOAi7cqvQZBUNXr8UlKDD6xhoy0mG59CTuvwdD8c8AFzuqpfxcusDrl1eQ+wtvRPF70GtbJGDqowlfzhrYapLcCl2S5MdepYa2EKGdLxY38HK7tOjPw==
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 27195c5c-cc53-4eec-8ed5-08d842f9d06c
+X-MS-Exchange-CrossTenant-Network-Message-Id: 46a018d7-0712-45eb-cdef-08d842f9d812
 X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB2946.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Aug 2020 22:06:38.6479
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Aug 2020 22:06:51.4444
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 50NtEo0Is1NvEm/8LrHJeQKGyLuJuZMC4Tlm/7IRquA9qI8vgaRiGHhAYxEvYeQxhSixjGLFSvl5c+1UhdQBwQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: Vy9TcVR32nAOPpxnWF8qRWottkR+udfDqdX3RCfvrUXdjknwE7sYPWF99wA3nfuJJ9Quf+WwdJWVPOhUlOcoEg==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3220
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for
-F17h L3 PMCs") inadvertently changed the uncore driver's behaviour
-wrt perf tool invocations with or without a CPU list, specified with
--C / --cpu=.
+Commit 5738891229a2 ("perf/x86/amd: Add support for Large Increment
+per Cycle Events") mistakenly zeroes the upper 16 bits of the count
+in set_period().  That's fine for counting with perf stat, but not
+sampling with perf record when only Large Increment events are being
+sampled.  To enable sampling, we sign extend the upper 16 bits of the
+merged counter pair as described in the Family 17h PPRs:
 
-Change the behaviour of the driver to assume the former all-cpu (-a)
-case, which is the more commonly desired default.  This fixes
-'-a -A' invocations without explicit cpu lists (-C) to not count
-L3 events only on behalf of the first thread of the first core
-in the L3 domain.
+"Software wanting to preload a value to a merged counter pair writes the
+high-order 16-bit value to the low-order 16 bits of the odd counter and
+then writes the low-order 48-bit value to the even counter. Reading the
+even counter of the merged counter pair returns the full 64-bit value."
 
-BEFORE:
-
-Activity performed by the first thread of the last core (CPU#43) in
-CPU#40's L3 domain is not reported by CPU#40:
-
-sudo perf stat -a -A -e l3_request_g1.caching_l3_cache_accesses taskset -c 43 perf bench mem memcpy -s 32mb -l 100 -f default
-...
-CPU36                 21,835      l3_request_g1.caching_l3_cache_accesses
-CPU40                 87,066      l3_request_g1.caching_l3_cache_accesses
-CPU44                 17,360      l3_request_g1.caching_l3_cache_accesses
-...
-
-AFTER:
-
-The L3 domain activity is now reported by CPU#40:
-
-sudo perf stat -a -A -e l3_request_g1.caching_l3_cache_accesses taskset -c 43 perf bench mem memcpy -s 32mb -l 100 -f default
-...
-CPU36                354,891      l3_request_g1.caching_l3_cache_accesses
-CPU40              1,780,870      l3_request_g1.caching_l3_cache_accesses
-CPU44                315,062      l3_request_g1.caching_l3_cache_accesses
-...
-
-Reported-by: Stephane Eranian <eranian@google.com>
+Fixes: 5738891229a2 ("perf/x86/amd: Add support for Large Increment per Cycle Events")
 Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Fixes: 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for F17h L3 PMCs")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
 Cc: Stephane Eranian <eranian@google.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Ingo Molnar <mingo@kernel.org>
@@ -149,62 +129,27 @@ Cc: LKML <linux-kernel@vger.kernel.org>
 Cc: x86 <x86@kernel.org>
 Cc: stable@vger.kernel.org
 ---
-Original submission:
+ arch/x86/events/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-https://lore.kernel.org/lkml/20200323233159.19601-1-kim.phillips@amd.com/
-
- arch/x86/events/amd/uncore.c | 28 ++++++++--------------------
- 1 file changed, 8 insertions(+), 20 deletions(-)
-
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index 76400c052b0e..e7e61c8b56bd 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -181,28 +181,16 @@ static void amd_uncore_del(struct perf_event *event, int flags)
- }
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index 1cbf57dc2ac8..2fdc211e3e56 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -1284,11 +1284,11 @@ int x86_perf_event_set_period(struct perf_event *event)
+ 	wrmsrl(hwc->event_base, (u64)(-left) & x86_pmu.cntval_mask);
  
- /*
-- * Convert logical CPU number to L3 PMC Config ThreadMask format
-+ * Return a full thread and slice mask until per-CPU is
-+ * properly supported.
-  */
--static u64 l3_thread_slice_mask(int cpu)
-+static u64 l3_thread_slice_mask(void)
- {
--	u64 thread_mask, core = topology_core_id(cpu);
--	unsigned int shift, thread = 0;
-+	if (boot_cpu_data.x86 <= 0x18)
-+		return AMD64_L3_SLICE_MASK | AMD64_L3_THREAD_MASK;
- 
--	if (topology_smt_supported() && !topology_is_primary_thread(cpu))
--		thread = 1;
--
--	if (boot_cpu_data.x86 <= 0x18) {
--		shift = AMD64_L3_THREAD_SHIFT + 2 * (core % 4) + thread;
--		thread_mask = BIT_ULL(shift);
--
--		return AMD64_L3_SLICE_MASK | thread_mask;
--	}
--
--	core = (core << AMD64_L3_COREID_SHIFT) & AMD64_L3_COREID_MASK;
--	shift = AMD64_L3_THREAD_SHIFT + thread;
--	thread_mask = BIT_ULL(shift);
--
--	return AMD64_L3_EN_ALL_SLICES | core | thread_mask;
-+	return AMD64_L3_EN_ALL_SLICES | AMD64_L3_EN_ALL_CORES |
-+	       AMD64_L3_F19H_THREAD_MASK;
- }
- 
- static int amd_uncore_event_init(struct perf_event *event)
-@@ -232,7 +220,7 @@ static int amd_uncore_event_init(struct perf_event *event)
- 	 * For other events, the two fields do not affect the count.
+ 	/*
+-	 * Clear the Merge event counter's upper 16 bits since
++	 * Sign extend the Merge event counter's upper 16 bits since
+ 	 * we currently declare a 48-bit counter width
  	 */
- 	if (l3_mask && is_llc_event(event))
--		hwc->config |= l3_thread_slice_mask(event->cpu);
-+		hwc->config |= l3_thread_slice_mask();
+ 	if (is_counter_pair(hwc))
+-		wrmsrl(x86_pmu_event_addr(idx + 1), 0);
++		wrmsrl(x86_pmu_event_addr(idx + 1), 0xffff);
  
- 	uncore = event_to_amd_uncore(event);
- 	if (!uncore)
+ 	/*
+ 	 * Due to erratum on certan cpu we need
 -- 
 2.27.0
 
