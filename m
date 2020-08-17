@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A2F246F48
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A26246F41
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389339AbgHQRov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389384AbgHQRov (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 13:44:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50286 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388792AbgHQQOd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:14:33 -0400
+        id S2388240AbgHQQOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:14:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A61920578;
-        Mon, 17 Aug 2020 16:14:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D5A022E02;
+        Mon, 17 Aug 2020 16:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680872;
-        bh=5KGiXZqA0KWzec0awu2qfq/1IAew9sXfSH80X8CoOmI=;
+        s=default; t=1597680875;
+        bh=cF0+Cm2DJGFCjspJL3HSzk5pk/xf6WEJ+CskoXzRUoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCDg7PbMACvPDIRHX95LklEsNV+DNEy6a/h1AUxoM28YGs7W8eN6BTqEeIXhYdGTF
-         bFXFVhDqqZO/etub3+nzPJnuzgmwjoHA9rMILN4pPMIxj5o8YDjc7a9m0nFhz6lcvo
-         0vwYqUcW/iOFG2mQ347bYntIyFayhlL0a8UTTs8o=
+        b=VZXONjj0hvXnAtElIGHG4+9L+ZL6yRl9DjHUGo8rnluopfjZpm/b74igtRBZXn7g+
+         oC4HBUg+/n1WHCwERNE/6Rufj5RF1hTzjJ0O434VGqQv51lUk7jcu1to6HBrE/F9i5
+         ZH0mAJzJBgAfGIbH/yxPnf/2EIQABlXSQcK0gxEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, George Spelvin <lkml@sdf.org>,
+        Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/168] drm/imx: tve: fix regulator_disable error path
-Date:   Mon, 17 Aug 2020 17:17:02 +0200
-Message-Id: <20200817143738.256178488@linuxfoundation.org>
+Subject: [PATCH 4.19 092/168] USB: serial: iuu_phoenix: fix led-activity helpers
+Date:   Mon, 17 Aug 2020 17:17:03 +0200
+Message-Id: <20200817143738.311921478@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -44,68 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 7bb58b987fee26da2a1665c01033022624986b7c ]
+[ Upstream commit de37458f8c2bfc465500a1dd0d15dbe96d2a698c ]
 
-Add missing regulator_disable() as devm_action to avoid dedicated
-unbind() callback and fix the missing error handling.
+The set-led command is eight bytes long and starts with a command byte
+followed by six bytes of RGB data and ends with a byte encoding a
+frequency (see iuu_led() and iuu_rgbf_fill_buffer()).
 
-Fixes: fcbc51e54d2a ("staging: drm/imx: Add support for Television Encoder (TVEv2)")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+The led activity helpers had a few long-standing bugs which corrupted
+the command packets by inserting a second command byte and thereby
+offsetting the RGB data and dropping the frequency in non-xmas mode.
+
+In xmas mode, a related off-by-one error left the frequency field
+uninitialised.
+
+Fixes: 60a8fc017103 ("USB: add iuu_phoenix driver")
+Reported-by: George Spelvin <lkml@sdf.org>
+Link: https://lore.kernel.org/r/20200716085056.31471-1-johan@kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-tve.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/usb/serial/iuu_phoenix.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
-index cffd3310240e5..c19c1dfbfcdc4 100644
---- a/drivers/gpu/drm/imx/imx-tve.c
-+++ b/drivers/gpu/drm/imx/imx-tve.c
-@@ -498,6 +498,13 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
- 	return 0;
- }
- 
-+static void imx_tve_disable_regulator(void *data)
-+{
-+	struct imx_tve *tve = data;
+diff --git a/drivers/usb/serial/iuu_phoenix.c b/drivers/usb/serial/iuu_phoenix.c
+index e287fd52c575b..734f18d0a7f73 100644
+--- a/drivers/usb/serial/iuu_phoenix.c
++++ b/drivers/usb/serial/iuu_phoenix.c
+@@ -353,10 +353,11 @@ static void iuu_led_activity_on(struct urb *urb)
+ 	struct usb_serial_port *port = urb->context;
+ 	int result;
+ 	char *buf_ptr = port->write_urb->transfer_buffer;
+-	*buf_ptr++ = IUU_SET_LED;
 +
-+	regulator_disable(tve->dac_reg);
-+}
-+
- static bool imx_tve_readable_reg(struct device *dev, unsigned int reg)
- {
- 	return (reg % 4 == 0) && (reg <= 0xdc);
-@@ -622,6 +629,9 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 		ret = regulator_enable(tve->dac_reg);
- 		if (ret)
- 			return ret;
-+		ret = devm_add_action_or_reset(dev, imx_tve_disable_regulator, tve);
-+		if (ret)
-+			return ret;
+ 	if (xmas) {
+-		get_random_bytes(buf_ptr, 6);
+-		*(buf_ptr+7) = 1;
++		buf_ptr[0] = IUU_SET_LED;
++		get_random_bytes(buf_ptr + 1, 6);
++		buf_ptr[7] = 1;
+ 	} else {
+ 		iuu_rgbf_fill_buffer(buf_ptr, 255, 255, 0, 0, 0, 0, 255);
  	}
- 
- 	tve->clk = devm_clk_get(dev, "tve");
-@@ -668,18 +678,8 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 	return 0;
- }
- 
--static void imx_tve_unbind(struct device *dev, struct device *master,
--	void *data)
--{
--	struct imx_tve *tve = dev_get_drvdata(dev);
--
--	if (!IS_ERR(tve->dac_reg))
--		regulator_disable(tve->dac_reg);
--}
--
- static const struct component_ops imx_tve_ops = {
- 	.bind	= imx_tve_bind,
--	.unbind	= imx_tve_unbind,
- };
- 
- static int imx_tve_probe(struct platform_device *pdev)
+@@ -374,13 +375,14 @@ static void iuu_led_activity_off(struct urb *urb)
+ 	struct usb_serial_port *port = urb->context;
+ 	int result;
+ 	char *buf_ptr = port->write_urb->transfer_buffer;
++
+ 	if (xmas) {
+ 		iuu_rxcmd(urb);
+ 		return;
+-	} else {
+-		*buf_ptr++ = IUU_SET_LED;
+-		iuu_rgbf_fill_buffer(buf_ptr, 0, 0, 255, 255, 0, 0, 255);
+ 	}
++
++	iuu_rgbf_fill_buffer(buf_ptr, 0, 0, 255, 255, 0, 0, 255);
++
+ 	usb_fill_bulk_urb(port->write_urb, port->serial->dev,
+ 			  usb_sndbulkpipe(port->serial->dev,
+ 					  port->bulk_out_endpointAddress),
 -- 
 2.25.1
 
