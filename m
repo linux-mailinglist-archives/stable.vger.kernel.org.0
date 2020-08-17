@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 547A42474C1
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5492474FA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390753AbgHQTO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:14:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48552 "EHLO mail.kernel.org"
+        id S1730277AbgHQTRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:17:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387465AbgHQPkM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:40:12 -0400
+        id S1730596AbgHQPi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:38:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0237422C9F;
-        Mon, 17 Aug 2020 15:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33A2A23105;
+        Mon, 17 Aug 2020 15:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678792;
-        bh=BFM0aHLr6cc0jtGytIfnjTesWK9Evh4IARFIdsrE21A=;
+        s=default; t=1597678706;
+        bh=hVCf1vtbcgT6nblngcNF5TbXlrzSAIyUa+ja/yUPDxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZ9LX1xz7xWX5uC3yt7JRcahS1UoMGUJcb1LquL4en/eHzbmh4ekIaF2SXa5osj0K
-         h7tdwAb6JSceOCzlFOWqSPmUI+H7Z0150/V7kr/7DRLjMbiWpJLqJcO6L8mJ9H42PN
-         3RQo9baAQE/HX/ZezqGsGIppbYRTja3e1cvfkfX4=
+        b=fp7/xgo9wt9teLOvp4EQ+LdpWcpHJT2sWBgUJSfOGHwsZrMZYMZIDAXjJl9TcczWS
+         ofp6aaRVUpdbkgIaYku68LNPdWsoB6A0WJhBcLAjNySkjoK8D/pb5xpV5WBARpZRuE
+         ukUt/qbxApDVEibiou2mgEmngP7ZHKozNcjqRb4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+7f617d4a9369028b8a2c@syzkaller.appspotmail.com,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 425/464] io_uring: use TWA_SIGNAL for task_work uncondtionally
-Date:   Mon, 17 Aug 2020 17:16:18 +0200
-Message-Id: <20200817143854.133460948@linuxfoundation.org>
+Subject: [PATCH 5.8 427/464] io_uring: sanitize double poll handling
+Date:   Mon, 17 Aug 2020 17:16:20 +0200
+Message-Id: <20200817143854.232224051@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,62 +46,119 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 0ba9c9edcd152158a0e321a4c13ac1dfc571ff3d upstream.
+commit d4e7cd36a90e38e0276d6ce0c20f5ccef17ec38c upstream.
 
-An earlier commit:
+There's a bit of confusion on the matching pairs of poll vs double poll,
+depending on if the request is a pure poll (IORING_OP_POLL_ADD) or
+poll driven retry.
 
-b7db41c9e03b ("io_uring: fix regression with always ignoring signals in io_cqring_wait()")
+Add io_poll_get_double() that returns the double poll waitqueue, if any,
+and io_poll_get_single() that returns the original poll waitqueue. With
+that, remove the argument to io_poll_remove_double().
 
-ensured that we didn't get stuck waiting for eventfd reads when it's
-registered with the io_uring ring for event notification, but we still
-have cases where the task can be waiting on other events in the kernel and
-need a bigger nudge to make forward progress. Or the task could be in the
-kernel and running, but on its way to blocking.
+Finally ensure that wait->private is cleared once the double poll handler
+has run, so that remove knows it's already been seen.
 
-This means that TWA_RESUME cannot reliably be used to ensure we make
-progress. Use TWA_SIGNAL unconditionally.
-
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Josef <josef.grieb@gmail.com>
+Cc: stable@vger.kernel.org # v5.8
+Reported-by: syzbot+7f617d4a9369028b8a2c@syzkaller.appspotmail.com
+Fixes: 18bceab101ad ("io_uring: allow POLL_ADD with double poll_wait() users")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/io_uring.c |   34 +++++++++++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 9 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4100,22 +4100,22 @@ static int io_req_task_work_add(struct i
- {
- 	struct task_struct *tsk = req->task;
- 	struct io_ring_ctx *ctx = req->ctx;
--	int ret, notify = TWA_RESUME;
-+	int ret, notify;
- 
- 	/*
--	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
--	 * If we're not using an eventfd, then TWA_RESUME is always fine,
--	 * as we won't have dependencies between request completions for
--	 * other kernel wait conditions.
-+	 * SQPOLL kernel thread doesn't need notification, just a wakeup. For
-+	 * all other cases, use TWA_SIGNAL unconditionally to ensure we're
-+	 * processing task_work. There's no reliable way to tell if TWA_RESUME
-+	 * will do the job.
- 	 */
--	if (ctx->flags & IORING_SETUP_SQPOLL)
--		notify = 0;
--	else if (ctx->cq_ev_fd)
-+	notify = 0;
-+	if (!(ctx->flags & IORING_SETUP_SQPOLL))
- 		notify = TWA_SIGNAL;
- 
- 	ret = task_work_add(tsk, cb, notify);
- 	if (!ret)
- 		wake_up_process(tsk);
-+
- 	return ret;
+@@ -4172,9 +4172,24 @@ static bool io_poll_rewait(struct io_kio
+ 	return false;
  }
  
+-static void io_poll_remove_double(struct io_kiocb *req, void *data)
++static struct io_poll_iocb *io_poll_get_double(struct io_kiocb *req)
+ {
+-	struct io_poll_iocb *poll = data;
++	/* pure poll stashes this in ->io, poll driven retry elsewhere */
++	if (req->opcode == IORING_OP_POLL_ADD)
++		return (struct io_poll_iocb *) req->io;
++	return req->apoll->double_poll;
++}
++
++static struct io_poll_iocb *io_poll_get_single(struct io_kiocb *req)
++{
++	if (req->opcode == IORING_OP_POLL_ADD)
++		return &req->poll;
++	return &req->apoll->poll;
++}
++
++static void io_poll_remove_double(struct io_kiocb *req)
++{
++	struct io_poll_iocb *poll = io_poll_get_double(req);
+ 
+ 	lockdep_assert_held(&req->ctx->completion_lock);
+ 
+@@ -4194,7 +4209,7 @@ static void io_poll_complete(struct io_k
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+-	io_poll_remove_double(req, req->io);
++	io_poll_remove_double(req);
+ 	req->poll.done = true;
+ 	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
+ 	io_commit_cqring(ctx);
+@@ -4236,7 +4251,7 @@ static int io_poll_double_wake(struct wa
+ 			       int sync, void *key)
+ {
+ 	struct io_kiocb *req = wait->private;
+-	struct io_poll_iocb *poll = req->apoll->double_poll;
++	struct io_poll_iocb *poll = io_poll_get_single(req);
+ 	__poll_t mask = key_to_poll(key);
+ 
+ 	/* for instances that support it check for an event match first: */
+@@ -4250,6 +4265,8 @@ static int io_poll_double_wake(struct wa
+ 		done = list_empty(&poll->wait.entry);
+ 		if (!done)
+ 			list_del_init(&poll->wait.entry);
++		/* make sure double remove sees this as being gone */
++		wait->private = NULL;
+ 		spin_unlock(&poll->head->lock);
+ 		if (!done)
+ 			__io_async_wake(req, poll, mask, io_poll_task_func);
+@@ -4358,7 +4375,7 @@ static void io_async_task_func(struct ca
+ 		}
+ 	}
+ 
+-	io_poll_remove_double(req, apoll->double_poll);
++	io_poll_remove_double(req);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 
+ 	/* restore ->work in case we need to retry again */
+@@ -4484,7 +4501,7 @@ static bool io_arm_poll_handler(struct i
+ 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
+ 					io_async_wake);
+ 	if (ret || ipt.error) {
+-		io_poll_remove_double(req, apoll->double_poll);
++		io_poll_remove_double(req);
+ 		spin_unlock_irq(&ctx->completion_lock);
+ 		if (req->flags & REQ_F_WORK_INITIALIZED)
+ 			memcpy(&req->work, &apoll->work, sizeof(req->work));
+@@ -4518,14 +4535,13 @@ static bool io_poll_remove_one(struct io
+ {
+ 	bool do_complete;
+ 
++	io_poll_remove_double(req);
++
+ 	if (req->opcode == IORING_OP_POLL_ADD) {
+-		io_poll_remove_double(req, req->io);
+ 		do_complete = __io_poll_remove_one(req, &req->poll);
+ 	} else {
+ 		struct async_poll *apoll = req->apoll;
+ 
+-		io_poll_remove_double(req, apoll->double_poll);
+-
+ 		/* non-poll requests have submit ref still */
+ 		do_complete = __io_poll_remove_one(req, &apoll->poll);
+ 		if (do_complete) {
 
 
