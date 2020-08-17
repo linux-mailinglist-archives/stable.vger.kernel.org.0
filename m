@@ -2,36 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA6A124702B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20A4824702A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390124AbgHQSE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:04:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60508 "EHLO mail.kernel.org"
+        id S2389924AbgHQSEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:04:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388504AbgHQQJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:09:21 -0400
+        id S2388513AbgHQQJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:09:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0902620760;
-        Mon, 17 Aug 2020 16:09:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4117822BF5;
+        Mon, 17 Aug 2020 16:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680560;
-        bh=0twkCdG4JqCbSm6fsCcGK0oLqz8tjy0hd07lO6A9CZw=;
+        s=default; t=1597680574;
+        bh=HmyTzhTls7OPRFBV1qexzdJejBvb5zN+sUdMNAOl0Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KCB9Dwe+j/YiTnd13xh1JJLwDDOAaleCERS+dD3Gi8Ni+oODx4ZoymWhHfuW+Aazm
-         s1Cd/EI777wQqFacNVdvYRRnS8F/mjKhEd4JaOhQ4ZjPvXodNUD1IuXVgiQJJkKRJu
-         om9Cb1hnrJ5PfU6v6llYb68asQ7ek1tIA0tYSPyc=
+        b=zyP4horu/dyaVKHEwfKvw1aPyipRGltP3qWeSyrEnEe12dC0SoZGBzxsRbwA8MHMG
+         3F29aYiJVqJa5YQAvHFn8c9d3bGaQFR7YcZHmiB2ynlB636dCI2J50CXLidGzLKS+B
+         TIZgTOmbjAsmwwsoRT4mZqkX436JxClHM2YLNUnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 5.4 236/270] drm/ttm/nouveau: dont call tt destroy callback on alloc failure.
-Date:   Mon, 17 Aug 2020 17:17:17 +0200
-Message-Id: <20200817143807.551078136@linuxfoundation.org>
+        stable@vger.kernel.org, Romain Naour <romain.naour@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alan Modra <amodra@gmail.com>,
+        Bin Meng <bin.meng@windriver.com>,
+        Chen Zhou <chenzhou10@huawei.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Rich Felker <dalias@libc.org>, Sam Ravnborg <sam@ravnborg.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 242/270] include/asm-generic/vmlinux.lds.h: align ro_after_init
+Date:   Mon, 17 Aug 2020 17:17:23 +0200
+Message-Id: <20200817143807.865851184@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,73 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Romain Naour <romain.naour@gmail.com>
 
-commit 5de5b6ecf97a021f29403aa272cb4e03318ef586 upstream.
+commit 7f897acbe5d57995438c831670b7c400e9c0dc00 upstream.
 
-This is confusing, and from my reading of all the drivers only
-nouveau got this right.
+Since the patch [1], building the kernel using a toolchain built with
+binutils 2.33.1 prevents booting a sh4 system under Qemu.  Apply the patch
+provided by Alan Modra [2] that fix alignment of rodata.
 
-Just make the API act under driver control of it's own allocation
-failing, and don't call destroy, if the page table fails to
-create there is nothing to cleanup here.
+[1] https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=ebd2263ba9a9124d93bbc0ece63d7e0fae89b40e
+[2] https://www.sourceware.org/ml/binutils/2019-12/msg00112.html
 
-(I'm willing to believe I've missed something here, so please
-review deeply).
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200728041736.20689-1-airlied@gmail.com
+Signed-off-by: Romain Naour <romain.naour@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alan Modra <amodra@gmail.com>
+Cc: Bin Meng <bin.meng@windriver.com>
+Cc: Chen Zhou <chenzhou10@huawei.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: <stable@vger.kernel.org>
+Link: https://marc.info/?l=linux-sh&m=158429470221261
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nouveau_sgdma.c |    9 +++------
- drivers/gpu/drm/ttm/ttm_tt.c            |    3 ---
- 2 files changed, 3 insertions(+), 9 deletions(-)
+ include/asm-generic/vmlinux.lds.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/nouveau/nouveau_sgdma.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_sgdma.c
-@@ -96,12 +96,9 @@ nouveau_sgdma_create_ttm(struct ttm_buff
- 	else
- 		nvbe->ttm.ttm.func = &nv50_sgdma_backend;
- 
--	if (ttm_dma_tt_init(&nvbe->ttm, bo, page_flags))
--		/*
--		 * A failing ttm_dma_tt_init() will call ttm_tt_destroy()
--		 * and thus our nouveau_sgdma_destroy() hook, so we don't need
--		 * to free nvbe here.
--		 */
-+	if (ttm_dma_tt_init(&nvbe->ttm, bo, page_flags)) {
-+		kfree(nvbe);
- 		return NULL;
-+	}
- 	return &nvbe->ttm.ttm;
- }
---- a/drivers/gpu/drm/ttm/ttm_tt.c
-+++ b/drivers/gpu/drm/ttm/ttm_tt.c
-@@ -241,7 +241,6 @@ int ttm_tt_init(struct ttm_tt *ttm, stru
- 	ttm_tt_init_fields(ttm, bo, page_flags);
- 
- 	if (ttm_tt_alloc_page_directory(ttm)) {
--		ttm_tt_destroy(ttm);
- 		pr_err("Failed allocating page table\n");
- 		return -ENOMEM;
- 	}
-@@ -265,7 +264,6 @@ int ttm_dma_tt_init(struct ttm_dma_tt *t
- 
- 	INIT_LIST_HEAD(&ttm_dma->pages_list);
- 	if (ttm_dma_tt_alloc_page_directory(ttm_dma)) {
--		ttm_tt_destroy(ttm);
- 		pr_err("Failed allocating page table\n");
- 		return -ENOMEM;
- 	}
-@@ -287,7 +285,6 @@ int ttm_sg_tt_init(struct ttm_dma_tt *tt
- 	else
- 		ret = ttm_dma_tt_alloc_page_directory(ttm_dma);
- 	if (ret) {
--		ttm_tt_destroy(ttm);
- 		pr_err("Failed allocating page table\n");
- 		return -ENOMEM;
- 	}
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -340,6 +340,7 @@
+  */
+ #ifndef RO_AFTER_INIT_DATA
+ #define RO_AFTER_INIT_DATA						\
++	. = ALIGN(8);							\
+ 	__start_ro_after_init = .;					\
+ 	*(.data..ro_after_init)						\
+ 	JUMP_TABLE_DATA							\
 
 
