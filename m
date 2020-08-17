@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C24246995
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B69C246998
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbgHQPXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:23:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52274 "EHLO mail.kernel.org"
+        id S1729571AbgHQPXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729273AbgHQPXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:23:47 -0400
+        id S1729349AbgHQPXx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:23:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F15E2339D;
-        Mon, 17 Aug 2020 15:23:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E54322B4E;
+        Mon, 17 Aug 2020 15:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677827;
-        bh=kbuDP+M988482p05npem60kQat8V2wwECI9KCrdipsk=;
+        s=default; t=1597677832;
+        bh=zHckG6m84Zqzd5VIOruZMFe/2Q7NFzcOkZYzhVCARjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+l8O1KJxi3KlWf6Y+t1fGXsoZ6bJcbyTuARGXAxqGQf9SPrB6nlvLXb6715veZkr
-         Fm6td/brK/EgwCxIkre8HFYcbrMJaA0+YxQyeG0pcdu6i4ZU53yxR3d3iHa3t45Z3T
-         7ytta//DrGoEwYAwvnO93SK0Ho3GiNWZB82tv6ck=
+        b=fNtfH1d5rDC2z6hLmpVqbe48LiuBK/iWe3Uxi3Pv5aj0CmxW/2nBGNXcp8R+K1x4Y
+         klcAO36x9zJ2fvaOCNDYa1LNKyyVGqoRXpSPwFEFlhktI/cnuQQsGxFCLleeIyvxCx
+         zwX8FAIlPwULGAarHN2MsHshR0H3gwTe3VQst1w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 092/464] rtw88: 8822ce: add support for device ID 0xc82f
-Date:   Mon, 17 Aug 2020 17:10:45 +0200
-Message-Id: <20200817143838.196129828@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 094/464] arm64: dts: hisilicon: hikey: fixes to comply with adi, adv7533 DT binding
+Date:   Mon, 17 Aug 2020 17:10:47 +0200
+Message-Id: <20200817143838.293313598@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,41 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
 
-[ Upstream commit 7d428b1c9ffc9ddcdd64c6955836bbb17a233ef3 ]
+[ Upstream commit bbe28fc3cbabbef781bcdf847615d52ce2e26e42 ]
 
-New device ID 0xc82f found on Lenovo ThinkCenter.
-Tested it with c822 driver, works good.
+hi3660-hikey960.dts:
+  Define a 'ports' node for 'adv7533: adv7533@39' and the
+  'adi,dsi-lanes' property to make it compliant with the adi,adv7533 DT
+  binding.
 
-PCI id:
-03:00.0 Network controller [0280]: Realtek Semiconductor Co., Ltd.
-Device [10ec:c82f]
-        Subsystem: Lenovo Device [17aa:c02f]
+  This fills the requirements to meet the binding requirements,
+  remote endpoints are not defined.
 
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200612082745.204400-1-aaron.ma@canonical.com
+hi6220-hikey.dts:
+  Change property name s/pd-gpio/pd-gpios, gpio properties should be
+  plural. This is just a cosmetic change.
+
+Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/rtw8822ce.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts | 11 +++++++++++
+ arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts    |  2 +-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8822ce.c b/drivers/net/wireless/realtek/rtw88/rtw8822ce.c
-index 7b6bd990651e1..026ac49ce6e3c 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8822ce.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8822ce.c
-@@ -11,6 +11,10 @@ static const struct pci_device_id rtw_8822ce_id_table[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0xC822),
- 		.driver_data = (kernel_ulong_t)&rtw8822c_hw_spec
- 	},
-+	{
-+		PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0xC82F),
-+		.driver_data = (kernel_ulong_t)&rtw8822c_hw_spec
-+	},
- 	{}
+diff --git a/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts b/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
+index e035cf195b19a..8c4bfbaf3a806 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
++++ b/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
+@@ -530,6 +530,17 @@ adv7533: adv7533@39 {
+ 		status = "ok";
+ 		compatible = "adi,adv7533";
+ 		reg = <0x39>;
++		adi,dsi-lanes = <4>;
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			port@0 {
++				reg = <0>;
++			};
++			port@1 {
++				reg = <1>;
++			};
++		};
+ 	};
  };
- MODULE_DEVICE_TABLE(pci, rtw_8822ce_id_table);
+ 
+diff --git a/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts b/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
+index c14205cd6bf5c..3e47150c05ec2 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
++++ b/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
+@@ -516,7 +516,7 @@ adv7533: adv7533@39 {
+ 		reg = <0x39>;
+ 		interrupt-parent = <&gpio1>;
+ 		interrupts = <1 2>;
+-		pd-gpio = <&gpio0 4 0>;
++		pd-gpios = <&gpio0 4 0>;
+ 		adi,dsi-lanes = <4>;
+ 		#sound-dai-cells = <0>;
+ 
 -- 
 2.25.1
 
