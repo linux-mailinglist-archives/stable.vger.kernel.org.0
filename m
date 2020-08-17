@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F372C246EDE
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0141B246EEA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388069AbgHQRiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:38:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
+        id S2388114AbgHQRi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731137AbgHQQRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731138AbgHQQRN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 12:17:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E43522B43;
-        Mon, 17 Aug 2020 16:17:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DC7420825;
+        Mon, 17 Aug 2020 16:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597681026;
-        bh=j4iW3bDCES6FYiVtT2sBulqbky9I8LRv2a6evIHCvzw=;
+        s=default; t=1597681028;
+        bh=D16BKy0lMAy9jb1AgkZenCiQTSco08fFLlYh9bODH3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QtkG+Pk1gvXwLTkg8S5FQ1H+CwNkyQx82VAwUXntbw1nafrStJ+g6dt4COlgWD/49
-         v5Hx9gl4m9mc0wMXqm6Yb0IHEmfCHTYRrqzVlU+QBvM+GxXQidWQciMEAr3XqVpwMV
-         VBEZTWBmSz72cCskxTludrSYiySUbk+1iKZfdgw8=
+        b=KqG9cMGLakKbsYNEF60cO326mUc9zbePk/Jk1Oxtgwq/Zeur1a7aBK5fJjIb63GyN
+         t+SF/S7MRnIS2CtozmbYK4c1QxU7puDyhOtH31f5WOBp2M7zN+5WtbAulx3w66nEUc
+         w2AARPBhxZaUMHusfgyETnnXHi/nyY5CrxwvXmZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 153/168] ALSA: usb-audio: add quirk for Pioneer DDJ-RB
-Date:   Mon, 17 Aug 2020 17:18:04 +0200
-Message-Id: <20200817143741.309066328@linuxfoundation.org>
+        stable@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 4.19 154/168] 9p: Fix memory leak in v9fs_mount
+Date:   Mon, 17 Aug 2020 17:18:05 +0200
+Message-Id: <20200817143741.356365865@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -43,87 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-commit 6e8596172ee1cd46ec0bfd5adcf4ff86371478b6 upstream.
+commit cb0aae0e31c632c407a2cab4307be85a001d4d98 upstream.
 
-This is just another Pioneer device with fixed endpoints. Input is dummy
-but used as feedback (it always returns silence).
+v9fs_mount
+  v9fs_session_init
+    v9fs_cache_session_get_cookie
+      v9fs_random_cachetag                     -->alloc cachetag
+      v9ses->fscache = fscache_acquire_cookie  -->maybe NULL
+  sb = sget                                    -->fail, goto clunk
+clunk_fid:
+  v9fs_session_close
+    if (v9ses->fscache)                        -->NULL
+      kfree(v9ses->cachetag)
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200810082502.225979-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Thus memleak happens.
+
+Link: http://lkml.kernel.org/r/20200615012153.89538-1-zhengbin13@huawei.com
+Fixes: 60e78d2c993e ("9p: Add fscache support to 9p")
+Cc: <stable@vger.kernel.org> # v2.6.32+
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks-table.h |   56 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ fs/9p/v9fs.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3419,6 +3419,62 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
- 		.type = QUIRK_SETUP_FMT_AFTER_RESUME
+--- a/fs/9p/v9fs.c
++++ b/fs/9p/v9fs.c
+@@ -515,10 +515,9 @@ void v9fs_session_close(struct v9fs_sess
  	}
- },
-+{
-+	/*
-+	 * PIONEER DJ DDJ-RB
-+	 * PCM is 4 channels out, 2 dummy channels in @ 44.1 fixed
-+	 * The feedback for the output is the dummy input.
-+	 */
-+	USB_DEVICE_VENDOR_SPEC(0x2b73, 0x000e),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = (const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 4,
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						   USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_44100,
-+					.rate_min = 44100,
-+					.rate_max = 44100,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 44100 }
-+				}
-+			},
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 2,
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						 USB_ENDPOINT_SYNC_ASYNC|
-+						 USB_ENDPOINT_USAGE_IMPLICIT_FB,
-+					.rates = SNDRV_PCM_RATE_44100,
-+					.rate_min = 44100,
-+					.rate_max = 44100,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 44100 }
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
  
- #define ALC1220_VB_DESKTOP(vend, prod) { \
- 	USB_DEVICE(vend, prod),	\
+ #ifdef CONFIG_9P_FSCACHE
+-	if (v9ses->fscache) {
++	if (v9ses->fscache)
+ 		v9fs_cache_session_put_cookie(v9ses);
+-		kfree(v9ses->cachetag);
+-	}
++	kfree(v9ses->cachetag);
+ #endif
+ 	kfree(v9ses->uname);
+ 	kfree(v9ses->aname);
 
 
