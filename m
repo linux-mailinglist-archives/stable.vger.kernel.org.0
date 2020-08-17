@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B28D24778B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F97D247788
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732240AbgHQTuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:50:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41072 "EHLO mail.kernel.org"
+        id S2404420AbgHQTuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:50:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729226AbgHQPTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:19:31 -0400
+        id S1729231AbgHQPTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:19:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAEC52065C;
-        Mon, 17 Aug 2020 15:19:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3B4F206FA;
+        Mon, 17 Aug 2020 15:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677570;
-        bh=D/f7KeSvbnpfeuO5AHy05pktd39Vhn5bLwVvks2iLkM=;
+        s=default; t=1597677573;
+        bh=5FS1bRYbhh3iZG9BJtPW8I/Q7cLQiRbWaIwY811DndM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spGct+M8OvJHW+fuZv4E6j2URYxIR7WgP9enh9jh4ng9WoPmr1sanbwgC67wie4cx
-         uwVk173+6T5USZ+c6Kcbgnv4PisBR18KdAom8JgQ3yGxOBJEsHP3GaXUXZaF5uocJK
-         tgl9aSv6Sw2BNW88EzU0NmVebJDI0FRm8tadj5VE=
+        b=Py+ppD5F426rVQ2SJEi5AHZz3TpNBg4/oNMBNy8uuhanCzD37pJUM3eiAdJ+ZT8LB
+         tR3W9CX3QgaYBOZOwp+K4bnwgANSKkz+TsY5DPsunSbFg7Q1Evlooru4NPXNxdu0z2
+         la2kYq9NYBADfQOYPVpWDVZJfspvRlFBhSOubPSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 030/464] crypto: qat - allow xts requests not multiple of block
-Date:   Mon, 17 Aug 2020 17:09:43 +0200
-Message-Id: <20200817143835.200745355@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Dien Pham <dien.pham.ry@renesas.com>
+Subject: [PATCH 5.8 031/464] clk: scmi: Fix min and max rate when registering clocks with discrete rates
+Date:   Mon, 17 Aug 2020 17:09:44 +0200
+Message-Id: <20200817143835.248900470@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,79 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 528f776df67c440361b2847b4da400d8754bf030 ]
+[ Upstream commit fcd2e0deae50bce48450f14c8fc5611b08d7438c ]
 
-Allow AES-XTS requests that are not multiple of the block size.
-If a request is smaller than the block size, return -EINVAL.
+Currently we are not initializing the scmi clock with discrete rates
+correctly. We fetch the min_rate and max_rate value only for clocks with
+ranges and ignore the ones with discrete rates. This will lead to wrong
+initialization of rate range when clock supports discrete rate.
 
-This fixes the following issue reported by the crypto testmgr self-test:
+Fix this by using the first and the last rate in the sorted list of the
+discrete clock rates while registering the clock.
 
-  alg: skcipher: qat_aes_xts encryption failed on test vector "random: len=116 klen=64"; expected_error=0, actual_error=-22, cfg="random: inplace may_sleep use_finup src_divs=[<reimport>45.85%@+4077, <flush>54.15%@alignmask+18]"
-
-Fixes: 96ee111a659e ("crypto: qat - return error for block...")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Link: https://lore.kernel.org/r/20200709081705.46084-2-sudeep.holla@arm.com
+Fixes: 6d6a1d82eaef7 ("clk: add support for clocks provided by SCMI")
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Reported-and-tested-by: Dien Pham <dien.pham.ry@renesas.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_algs.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/clk/clk-scmi.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
-index e14d3dd291f09..1b050391c0c90 100644
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -55,6 +55,7 @@
- #include <crypto/hmac.h>
- #include <crypto/algapi.h>
- #include <crypto/authenc.h>
-+#include <crypto/xts.h>
- #include <linux/dma-mapping.h>
- #include "adf_accel_devices.h"
- #include "adf_transport.h"
-@@ -1102,6 +1103,14 @@ static int qat_alg_skcipher_blk_encrypt(struct skcipher_request *req)
- 	return qat_alg_skcipher_encrypt(req);
- }
- 
-+static int qat_alg_skcipher_xts_encrypt(struct skcipher_request *req)
-+{
-+	if (req->cryptlen < XTS_BLOCK_SIZE)
-+		return -EINVAL;
-+
-+	return qat_alg_skcipher_encrypt(req);
-+}
-+
- static int qat_alg_skcipher_decrypt(struct skcipher_request *req)
+diff --git a/drivers/clk/clk-scmi.c b/drivers/clk/clk-scmi.c
+index c491f5de0f3f4..c754dfbb73fd4 100644
+--- a/drivers/clk/clk-scmi.c
++++ b/drivers/clk/clk-scmi.c
+@@ -103,6 +103,8 @@ static const struct clk_ops scmi_clk_ops = {
+ static int scmi_clk_ops_init(struct device *dev, struct scmi_clk *sclk)
  {
- 	struct crypto_skcipher *stfm = crypto_skcipher_reqtfm(req);
-@@ -1161,6 +1170,15 @@ static int qat_alg_skcipher_blk_decrypt(struct skcipher_request *req)
+ 	int ret;
++	unsigned long min_rate, max_rate;
++
+ 	struct clk_init_data init = {
+ 		.flags = CLK_GET_RATE_NOCACHE,
+ 		.num_parents = 0,
+@@ -112,9 +114,23 @@ static int scmi_clk_ops_init(struct device *dev, struct scmi_clk *sclk)
  
- 	return qat_alg_skcipher_decrypt(req);
+ 	sclk->hw.init = &init;
+ 	ret = devm_clk_hw_register(dev, &sclk->hw);
+-	if (!ret)
+-		clk_hw_set_rate_range(&sclk->hw, sclk->info->range.min_rate,
+-				      sclk->info->range.max_rate);
++	if (ret)
++		return ret;
++
++	if (sclk->info->rate_discrete) {
++		int num_rates = sclk->info->list.num_rates;
++
++		if (num_rates <= 0)
++			return -EINVAL;
++
++		min_rate = sclk->info->list.rates[0];
++		max_rate = sclk->info->list.rates[num_rates - 1];
++	} else {
++		min_rate = sclk->info->range.min_rate;
++		max_rate = sclk->info->range.max_rate;
++	}
++
++	clk_hw_set_rate_range(&sclk->hw, min_rate, max_rate);
+ 	return ret;
  }
-+
-+static int qat_alg_skcipher_xts_decrypt(struct skcipher_request *req)
-+{
-+	if (req->cryptlen < XTS_BLOCK_SIZE)
-+		return -EINVAL;
-+
-+	return qat_alg_skcipher_decrypt(req);
-+}
-+
- static int qat_alg_aead_init(struct crypto_aead *tfm,
- 			     enum icp_qat_hw_auth_algo hash,
- 			     const char *hash_name)
-@@ -1354,8 +1372,8 @@ static struct skcipher_alg qat_skciphers[] = { {
- 	.init = qat_alg_skcipher_init_tfm,
- 	.exit = qat_alg_skcipher_exit_tfm,
- 	.setkey = qat_alg_skcipher_xts_setkey,
--	.decrypt = qat_alg_skcipher_blk_decrypt,
--	.encrypt = qat_alg_skcipher_blk_encrypt,
-+	.decrypt = qat_alg_skcipher_xts_decrypt,
-+	.encrypt = qat_alg_skcipher_xts_encrypt,
- 	.min_keysize = 2 * AES_MIN_KEY_SIZE,
- 	.max_keysize = 2 * AES_MAX_KEY_SIZE,
- 	.ivsize = AES_BLOCK_SIZE,
+ 
 -- 
 2.25.1
 
