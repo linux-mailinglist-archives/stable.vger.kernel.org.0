@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B86247040
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2408247064
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388459AbgHQQId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57454 "EHLO mail.kernel.org"
+        id S2388518AbgHQSIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388451AbgHQQIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:08:22 -0400
+        id S2388357AbgHQQI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:08:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 575492063A;
-        Mon, 17 Aug 2020 16:08:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEFB620658;
+        Mon, 17 Aug 2020 16:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680500;
-        bh=IfKN3REDauHQZ/PGl9v8EeseMIn6klqyx3/YaMFuU9k=;
+        s=default; t=1597680508;
+        bh=3Vmt7elrrY0Kx0wt65LnXkA3Dxd0dWGwpRqdwHSx8QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvMb7Q9MmkpEn5TXV//ZWhWcOH/1TPTm0mQUL5XZ/4aQqwe6TDb8giF/ukHa3yKGn
-         naJdXUTMJaA3xJZSOmVD9YIfPEf2ulbFeSYpJFDAnw48DJSZHTJLMG6WcBPA3osX+N
-         vUtxK6SIWXCtuPEWJNztmcML4vZkv429dcZQnTGE=
+        b=FRlMKKh3njc5+yWIDG8GD9b5X8Bo/AeujltM5eQIOUHK7vZgB+VkKWj0KsQMtQCUf
+         KeG53jCfZhBgXXlIM10Lu4djpOnU7tzsVmFVuDTjeKZNwKWfbyoImD5xfAXjOlr2Z1
+         O8wf4i1icPyPfOy7AzSu4wa6qpKAgyBdncUk5oAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Pierre Sauter <pierre.sauter@stwm.de>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 211/270] ocfs2: fix unbalanced locking
-Date:   Mon, 17 Aug 2020 17:16:52 +0200
-Message-Id: <20200817143806.292639163@linuxfoundation.org>
+Subject: [PATCH 5.4 214/270] SUNRPC: Fix ("SUNRPC: Add "@len" parameter to gss_unwrap()")
+Date:   Mon, 17 Aug 2020 17:16:55 +0200
+Message-Id: <20200817143806.437599061@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -51,54 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 57c720d4144a9c2b88105c3e8f7b0e97e4b5cc93 ]
+[ Upstream commit 986a4b63d3bc5f2c0eb4083b05aff2bf883b7b2f ]
 
-Based on what fails, function can return with nfs_sync_rwlock either
-locked or unlocked. That can not be right.
+Braino when converting "buf->len -=" to "buf->len = len -".
 
-Always return with lock unlocked on error.
+The result is under-estimation of the ralign and rslack values. On
+krb5p mounts, this has caused READDIR to fail with EIO, and KASAN
+splats when decoding READLINK replies.
 
-Fixes: 4cd9973f9ff6 ("ocfs2: avoid inode removal while nfsd is accessing it")
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Link: http://lkml.kernel.org/r/20200724124443.GA28164@duo.ucw.cz
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+As a result of fixing this oversight, the gss_unwrap method now
+returns a buf->len that can be shorter than priv_len for small
+RPC messages. The additional adjustment done in unwrap_priv_data()
+can underflow buf->len. This causes the nfsd_request_too_large
+check to fail during some NFSv3 operations.
+
+Reported-by: Marian Rainer-Harbach
+Reported-by: Pierre Sauter <pierre.sauter@stwm.de>
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1886277
+Fixes: 31c9590ae468 ("SUNRPC: Add "@len" parameter to gss_unwrap()")
+Reviewed-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlmglue.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/sunrpc/auth_gss/gss_krb5_wrap.c | 2 +-
+ net/sunrpc/auth_gss/svcauth_gss.c   | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
-index e2c34c704185d..50a863fc17792 100644
---- a/fs/ocfs2/dlmglue.c
-+++ b/fs/ocfs2/dlmglue.c
-@@ -2871,9 +2871,15 @@ int ocfs2_nfs_sync_lock(struct ocfs2_super *osb, int ex)
+diff --git a/net/sunrpc/auth_gss/gss_krb5_wrap.c b/net/sunrpc/auth_gss/gss_krb5_wrap.c
+index 683755d950758..78ad416569969 100644
+--- a/net/sunrpc/auth_gss/gss_krb5_wrap.c
++++ b/net/sunrpc/auth_gss/gss_krb5_wrap.c
+@@ -584,7 +584,7 @@ gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, int len,
+ 							buf->head[0].iov_len);
+ 	memmove(ptr, ptr + GSS_KRB5_TOK_HDR_LEN + headskip, movelen);
+ 	buf->head[0].iov_len -= GSS_KRB5_TOK_HDR_LEN + headskip;
+-	buf->len = len - GSS_KRB5_TOK_HDR_LEN + headskip;
++	buf->len = len - (GSS_KRB5_TOK_HDR_LEN + headskip);
  
- 	status = ocfs2_cluster_lock(osb, lockres, ex ? LKM_EXMODE : LKM_PRMODE,
- 				    0, 0);
--	if (status < 0)
-+	if (status < 0) {
- 		mlog(ML_ERROR, "lock on nfs sync lock failed %d\n", status);
+ 	/* Trim off the trailing "extra count" and checksum blob */
+ 	xdr_buf_trim(buf, ec + GSS_KRB5_TOK_HDR_LEN + tailskip);
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index fd91274e834d6..3645cd241d3ea 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -949,7 +949,6 @@ unwrap_priv_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct gs
  
-+		if (ex)
-+			up_write(&osb->nfs_sync_rwlock);
-+		else
-+			up_read(&osb->nfs_sync_rwlock);
-+	}
-+
- 	return status;
- }
- 
+ 	maj_stat = gss_unwrap(ctx, 0, priv_len, buf);
+ 	pad = priv_len - buf->len;
+-	buf->len -= pad;
+ 	/* The upper layers assume the buffer is aligned on 4-byte boundaries.
+ 	 * In the krb5p case, at least, the data ends up offset, so we need to
+ 	 * move it around. */
 -- 
 2.25.1
 
