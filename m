@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540D2247357
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9F324738F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731492AbgHQSyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36596 "EHLO mail.kernel.org"
+        id S2391740AbgHQS5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:57:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730919AbgHQPvV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:51:21 -0400
+        id S1730655AbgHQPuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:50:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1B1120657;
-        Mon, 17 Aug 2020 15:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEAE02067C;
+        Mon, 17 Aug 2020 15:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679480;
-        bh=mjuxfjKqgxt2gXjsirK1S359T6DYB81tLFOmd6wXCKM=;
+        s=default; t=1597679389;
+        bh=SJxSG5hjeCoBv7dI/pFgKfrBpXKRvG9S8f+X7U2EkEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bufl4kw/Ow93RbdStSWLgiWNVRO5vPxQSAM0heWd0o2G0WItFVPuEOOmeXXk8zGTK
-         DmQHfTTRxue6R7/A54miJhJda7mZGrnVdxeAnh996ZMZLiZYN/4CiIiXRWP77Fsm5C
-         3p1ZRbsa7byp51pQTZRZFixc90qntOK1VV3yfQio=
+        b=sG8aHlV+bu/wm4j9/Kdv22bXCaAX8Q7s38l9diNqv7hRpc5ElQd9vpiZb26/Y/YzK
+         R1zWmYVErNKJ15a2IudZpUIborSEfIJRwoXlSx3q1auvQBo8pa9cOE9/BQf/GIQGCA
+         JHGadqA3wM4rTLDtMs4qO2nBwmtiUpovNerB9zts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
         Brian Foster <bfoster@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 186/393] xfs: dont eat an EIO/ENOSPC writeback error when scrubbing data fork
-Date:   Mon, 17 Aug 2020 17:13:56 +0200
-Message-Id: <20200817143828.643410220@linuxfoundation.org>
+Subject: [PATCH 5.7 187/393] xfs: fix reflink quota reservation accounting error
+Date:   Mon, 17 Aug 2020 17:13:57 +0200
+Message-Id: <20200817143828.691455190@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -48,66 +47,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit eb0efe5063bb10bcb653e4f8e92a74719c03a347 ]
+[ Upstream commit 83895227aba1ade33e81f586aa7b6b1e143096a5 ]
 
-The data fork scrubber calls filemap_write_and_wait to flush dirty pages
-and delalloc reservations out to disk prior to checking the data fork's
-extent mappings.  Unfortunately, this means that scrub can consume the
-EIO/ENOSPC errors that would otherwise have stayed around in the address
-space until (we hope) the writer application calls fsync to persist data
-and collect errors.  The end result is that programs that wrote to a
-file might never see the error code and proceed as if nothing were
-wrong.
+Quota reservations are supposed to account for the blocks that might be
+allocated due to a bmap btree split.  Reflink doesn't do this, so fix
+this to make the quota accounting more accurate before we start
+rearranging things.
 
-xfs_scrub is not in a position to notify file writers about the
-writeback failure, and it's only here to check metadata, not file
-contents.  Therefore, if writeback fails, we should stuff the error code
-back into the address space so that an fsync by the writer application
-can pick that up.
-
-Fixes: 99d9d8d05da2 ("xfs: scrub inode block mappings")
+Fixes: 862bb360ef56 ("xfs: reflink extents from one file to another")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/scrub/bmap.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_reflink.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/fs/xfs/scrub/bmap.c b/fs/xfs/scrub/bmap.c
-index add8598eacd5d..c4788d244de35 100644
---- a/fs/xfs/scrub/bmap.c
-+++ b/fs/xfs/scrub/bmap.c
-@@ -45,9 +45,27 @@ xchk_setup_inode_bmap(
- 	 */
- 	if (S_ISREG(VFS_I(sc->ip)->i_mode) &&
- 	    sc->sm->sm_type == XFS_SCRUB_TYPE_BMBTD) {
-+		struct address_space	*mapping = VFS_I(sc->ip)->i_mapping;
-+
- 		inode_dio_wait(VFS_I(sc->ip));
--		error = filemap_write_and_wait(VFS_I(sc->ip)->i_mapping);
--		if (error)
-+
-+		/*
-+		 * Try to flush all incore state to disk before we examine the
-+		 * space mappings for the data fork.  Leave accumulated errors
-+		 * in the mapping for the writer threads to consume.
-+		 *
-+		 * On ENOSPC or EIO writeback errors, we continue into the
-+		 * extent mapping checks because write failures do not
-+		 * necessarily imply anything about the correctness of the file
-+		 * metadata.  The metadata and the file data could be on
-+		 * completely separate devices; a media failure might only
-+		 * affect a subset of the disk, etc.  We can handle delalloc
-+		 * extents in the scrubber, so leaving them in memory is fine.
-+		 */
-+		error = filemap_fdatawrite(mapping);
-+		if (!error)
-+			error = filemap_fdatawait_keep_errors(mapping);
-+		if (error && (error != -ENOSPC && error != -EIO))
- 			goto out;
- 	}
+diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
+index 107bf2a2f3448..d89201d40891f 100644
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1003,6 +1003,7 @@ xfs_reflink_remap_extent(
+ 	xfs_filblks_t		rlen;
+ 	xfs_filblks_t		unmap_len;
+ 	xfs_off_t		newlen;
++	int64_t			qres;
+ 	int			error;
  
+ 	unmap_len = irec->br_startoff + irec->br_blockcount - destoff;
+@@ -1025,13 +1026,19 @@ xfs_reflink_remap_extent(
+ 	xfs_ilock(ip, XFS_ILOCK_EXCL);
+ 	xfs_trans_ijoin(tp, ip, 0);
+ 
+-	/* If we're not just clearing space, then do we have enough quota? */
+-	if (real_extent) {
+-		error = xfs_trans_reserve_quota_nblks(tp, ip,
+-				irec->br_blockcount, 0, XFS_QMOPT_RES_REGBLKS);
+-		if (error)
+-			goto out_cancel;
+-	}
++	/*
++	 * Reserve quota for this operation.  We don't know if the first unmap
++	 * in the dest file will cause a bmap btree split, so we always reserve
++	 * at least enough blocks for that split.  If the extent being mapped
++	 * in is written, we need to reserve quota for that too.
++	 */
++	qres = XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK);
++	if (real_extent)
++		qres += irec->br_blockcount;
++	error = xfs_trans_reserve_quota_nblks(tp, ip, qres, 0,
++			XFS_QMOPT_RES_REGBLKS);
++	if (error)
++		goto out_cancel;
+ 
+ 	trace_xfs_reflink_remap(ip, irec->br_startoff,
+ 				irec->br_blockcount, irec->br_startblock);
 -- 
 2.25.1
 
