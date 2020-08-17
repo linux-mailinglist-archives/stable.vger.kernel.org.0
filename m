@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECEC5246BC7
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF5E8246BCA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388209AbgHQQCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50074 "EHLO mail.kernel.org"
+        id S2388218AbgHQQCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388203AbgHQQCf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:02:35 -0400
+        id S2388214AbgHQQCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:02:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A60B2206FA;
-        Mon, 17 Aug 2020 16:02:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CC3E20772;
+        Mon, 17 Aug 2020 16:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680155;
-        bh=fawSJcfUm9T8ngtROovH+G7OVNYMfbyCkgJlVlGEZDI=;
+        s=default; t=1597680161;
+        bh=jvLKgD1cS7A9R2GlVBsCHj8ADBoxKuI7Kyw2Xze/fUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuB3okpNh2qJOXgAcf27CXBP2Qh3V+oYxq8EK5sWGrWju1Vm7MT/mVRevb3C/QYiO
-         FmwvRqir18eYd7ZtpLYglWGPXC+IN2zEsBi9A/GU9314QZM+AZKferF65q3vhzImWG
-         UKrzUAvKWmmAvxso3pGHAFjT+jrtlkiXKKvXIk84=
+        b=uL3qY1hHGU9gOg1kyfbqcd1DCtH4GsyM8GlYOJLU4Z2Au8Ml1AedtvH8UJOYOcqO+
+         LPNjhYFhmue15X/ucHn6kOqHZa1qRXJRY9mSKRB3UVk7N8btSq6BvlDk4G8NrRuCfz
+         vg/fEVvKj7uOi4tgLZRA+aha87BbHc5EvNV3se40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenbo Zhang <ethercflow@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andriin@fb.com>,
+        stable@vger.kernel.org,
+        Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Wright Feng <wright.feng@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/270] bpf: Fix fds_example SIGSEGV error
-Date:   Mon, 17 Aug 2020 17:14:35 +0200
-Message-Id: <20200817143759.443952233@linuxfoundation.org>
+Subject: [PATCH 5.4 076/270] brcmfmac: To fix Bss Info flag definition Bug
+Date:   Mon, 17 Aug 2020 17:14:37 +0200
+Message-Id: <20200817143759.544789831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -45,43 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenbo Zhang <ethercflow@gmail.com>
+From: Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>
 
-[ Upstream commit eef8a42d6ce087d1c81c960ae0d14f955b742feb ]
+[ Upstream commit fa3266541b13f390eb35bdbc38ff4a03368be004 ]
 
-The `BPF_LOG_BUF_SIZE`'s value is `UINT32_MAX >> 8`, so define an array
-with it on stack caused an overflow.
+Bss info flag definition need to be fixed from 0x2 to 0x4
+This flag is for rssi info received on channel.
+All Firmware branches defined as 0x4 and this is bug in brcmfmac.
 
-Signed-off-by: Wenbo Zhang <ethercflow@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200710092035.28919-1-ethercflow@gmail.com
+Signed-off-by: Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200604071835.3842-6-wright.feng@cypress.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/fds_example.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/samples/bpf/fds_example.c b/samples/bpf/fds_example.c
-index 2d4b717726b64..34b3fca788e8d 100644
---- a/samples/bpf/fds_example.c
-+++ b/samples/bpf/fds_example.c
-@@ -30,6 +30,8 @@
- #define BPF_M_MAP	1
- #define BPF_M_PROG	2
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+index 37c512036e0e3..ce18433aaefb5 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+@@ -19,7 +19,7 @@
+ #define BRCMF_ARP_OL_PEER_AUTO_REPLY	0x00000008
  
-+char bpf_log_buf[BPF_LOG_BUF_SIZE];
-+
- static void usage(void)
- {
- 	printf("Usage: fds_example [...]\n");
-@@ -57,7 +59,6 @@ static int bpf_prog_create(const char *object)
- 		BPF_EXIT_INSN(),
- 	};
- 	size_t insns_cnt = sizeof(insns) / sizeof(struct bpf_insn);
--	char bpf_log_buf[BPF_LOG_BUF_SIZE];
- 	struct bpf_object *obj;
- 	int prog_fd;
+ #define	BRCMF_BSS_INFO_VERSION	109 /* curr ver of brcmf_bss_info_le struct */
+-#define BRCMF_BSS_RSSI_ON_CHANNEL	0x0002
++#define BRCMF_BSS_RSSI_ON_CHANNEL	0x0004
  
+ #define BRCMF_STA_BRCM			0x00000001	/* Running a Broadcom driver */
+ #define BRCMF_STA_WME			0x00000002	/* WMM association */
 -- 
 2.25.1
 
