@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5844224747C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70987247460
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392094AbgHQTKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51490 "EHLO mail.kernel.org"
+        id S2392021AbgHQTIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730768AbgHQPlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:45 -0400
+        id S2387586AbgHQPmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:42:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2122020760;
-        Mon, 17 Aug 2020 15:41:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BA9920760;
+        Mon, 17 Aug 2020 15:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678904;
-        bh=RHEKZ6I/+5OeDI3eloga0sMl+G/igcSeiT7G2cBFdFo=;
+        s=default; t=1597678968;
+        bh=0/hszbWEWY+uc1pMJXENVvjhlqC59WOheY0I+GsN32Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3kEyt1sGL0y3UmzOw/34p3rl6o044D+nyJzoxo3krQ3G+9kLg0wrWZtzsH6KFPZU
-         ecxwiSlYNJNuK5Das0tALYEXp+4ebt4xJ4V8j68IAYcM7L1PgeSwQ5IGsfV3qXRuVX
-         hIJ3dIVx/nFaHn5wXrrYIp/gBac4HB8Dl6ieOZxc=
+        b=OQx9louYzBvCiw2ItBQJGKA9y/BYnDPLyYaM6hx3qr2yvBgRrQasgBdV9mGYv93CW
+         Q5YRTNp7CrDBRLdBFTs7L789qSC1KZX7XbC79EkUkW02QgrcXCmX764SkRWQercq/X
+         Z1AYSZFG+7kad4Sw6OalTBKT+jsh50/jBDjQ7nZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 022/393] rcu/tree: Repeat the monitor if any free channel is busy
-Date:   Mon, 17 Aug 2020 17:11:12 +0200
-Message-Id: <20200817143820.670019550@linuxfoundation.org>
+Subject: [PATCH 5.7 024/393] arm64: dts: sun50i-pinephone: dldo4 must not be >= 1.8V
+Date:   Mon, 17 Aug 2020 17:11:14 +0200
+Message-Id: <20200817143820.775296147@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,58 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uladzislau Rezki (Sony) <urezki@gmail.com>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit 594aa5975b9b5cfe9edaec06170e43b8c0607377 ]
+[ Upstream commit 86be5c789690eb08656b08c072c50a7b02bf41f1 ]
 
-It is possible that one of the channels cannot be detached
-because its free channel is busy and previously queued data
-has not been processed yet. On the other hand, another
-channel can be successfully detached causing the monitor
-work to stop.
+Some outputs from the RTL8723CS are connected to the PL port (BT_WAKE_AP),
+which runs at 1.8V. When BT_WAKE_AP is high, the PL pin this signal is
+connected to is overdriven, and the whole PL port's voltage rises
+somewhat. This results in changing voltage on the R_PWM pin (PL10),
+which is the cause for backlight flickering very noticeably when typing
+on a Bluetooth keyboard, because backlight intensity is highly sensitive
+to the voltage of the R_PWM pin.
 
-Prevent that by rescheduling the monitor work if there are
-any channels in the pending state after a detach attempt.
+Limit the maximum WiFi/BT I/O voltage to 1.8V to avoid overdriving
+the PL port pins via BT and WiFi IO port signals. WiFi and BT
+functionality is unaffected by this change.
 
-Fixes: 34c881745549e ("rcu: Support kfree_bulk() interface in kfree_rcu()")
-Acked-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+This completely stops the backlight flicker when using bluetooth.
+
+Fixes: 91f480d40942 ("arm64: dts: allwinner: Add initial support for Pine64 PinePhone")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Link: https://lore.kernel.org/r/20200703194842.111845-4-megous@megous.com
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index d9a49cd6065a2..a3aa129cc8f5f 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2895,7 +2895,7 @@ static void kfree_rcu_work(struct work_struct *work)
- static inline bool queue_kfree_rcu_work(struct kfree_rcu_cpu *krcp)
- {
- 	struct kfree_rcu_cpu_work *krwp;
--	bool queued = false;
-+	bool repeat = false;
- 	int i;
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+index cefda145c3c9d..342733a20c337 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+@@ -279,7 +279,7 @@ &reg_dldo3 {
  
- 	lockdep_assert_held(&krcp->lock);
-@@ -2931,11 +2931,14 @@ static inline bool queue_kfree_rcu_work(struct kfree_rcu_cpu *krcp)
- 			 * been detached following each other, one by one.
- 			 */
- 			queue_rcu_work(system_wq, &krwp->rcu_work);
--			queued = true;
- 		}
-+
-+		/* Repeat if any "free" corresponding channel is still busy. */
-+		if (krcp->bhead || krcp->head)
-+			repeat = true;
- 	}
+ &reg_dldo4 {
+ 	regulator-min-microvolt = <1800000>;
+-	regulator-max-microvolt = <3300000>;
++	regulator-max-microvolt = <1800000>;
+ 	regulator-name = "vcc-wifi-io";
+ };
  
--	return queued;
-+	return !repeat;
- }
- 
- static inline void kfree_rcu_drain_unlock(struct kfree_rcu_cpu *krcp,
 -- 
 2.25.1
 
