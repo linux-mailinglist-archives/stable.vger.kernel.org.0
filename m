@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6E0247115
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7B9B247119
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388306AbgHQQE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:04:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51982 "EHLO mail.kernel.org"
+        id S2390844AbgHQSUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388294AbgHQQEW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:04:22 -0400
+        id S2388296AbgHQQEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:04:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0241A20748;
-        Mon, 17 Aug 2020 16:04:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 574F52053B;
+        Mon, 17 Aug 2020 16:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680257;
-        bh=Og6BRER/IdheScylKyPnxC2vtten3NIln1YWxKEmPpQ=;
+        s=default; t=1597680262;
+        bh=RwtrKVP5RQWAvp1tztqKQtXfF1K0yIRnWyu7KPRMd6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSNjH4Up325TXLBlza73L7RjbLsl9lB7EzKuF+ULtGG2UpN5TNNzeQLZjVsOfZ+gr
-         8ntORpEjxgZSMYZGoF7Ju8Pg2n5KgGNGwIaCZCAiAHSpZSlpPjiqDOWt4cuHGS8swA
-         pVkEi8aNHp2OwG2ESJCOZFf+J02gpJrvG3qk1IYU=
+        b=qrndPxfBwVLpRHwZCgQFnM8B2VS7IvCIMDOhqhsGOsIRXsZ1Vs2VvhvGs3VB5ZEsf
+         h02mVXPIOPOzyHHK7KPpW4JQPY6+b/qGL41JMoKv3601CEV6/6yucNzolCq9jOsR2/
+         n9i9RTq13U54wUjM7WTzwjAOjJPUA8XrKJRVeW7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Chiras <robert.chiras@nxp.com>,
-        Vinay Simha BN <simhavcs@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/270] drm/mipi: use dcs write for mipi_dsi_dcs_set_tear_scanline
-Date:   Mon, 17 Aug 2020 17:15:15 +0200
-Message-Id: <20200817143801.451201771@linuxfoundation.org>
+Subject: [PATCH 5.4 116/270] drm/radeon: fix array out-of-bounds read and write issues
+Date:   Mon, 17 Aug 2020 17:15:17 +0200
+Message-Id: <20200817143801.551976591@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -48,48 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Velikov <emil.velikov@collabora.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 7a05c3b6d24b8460b3cec436cf1d33fac43c8450 ]
+[ Upstream commit 7ee78aff9de13d5dccba133f4a0de5367194b243 ]
 
-The helper uses the MIPI_DCS_SET_TEAR_SCANLINE, although it's currently
-using the generic write. This does not look right.
+There is an off-by-one bounds check on the index into arrays
+table->mc_reg_address and table->mc_reg_table_entry[k].mc_data[j] that
+can lead to reads and writes outside of arrays. Fix the bound checking
+off-by-one error.
 
-Perhaps some platforms don't distinguish between the two writers?
-
-Cc: Robert Chiras <robert.chiras@nxp.com>
-Cc: Vinay Simha BN <simhavcs@gmail.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Thierry Reding <treding@nvidia.com>
-Fixes: e83950816367 ("drm/dsi: Implement set tear scanline")
-Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200505160329.2976059-3-emil.l.velikov@gmail.com
+Addresses-Coverity: ("Out-of-bounds read/write")
+Fixes: cc8dbbb4f62a ("drm/radeon: add dpm support for CI dGPUs (v2)")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/radeon/ci_dpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
-index bd2498bbd74ac..b99f96dcc6f1e 100644
---- a/drivers/gpu/drm/drm_mipi_dsi.c
-+++ b/drivers/gpu/drm/drm_mipi_dsi.c
-@@ -1029,11 +1029,11 @@ EXPORT_SYMBOL(mipi_dsi_dcs_set_pixel_format);
-  */
- int mipi_dsi_dcs_set_tear_scanline(struct mipi_dsi_device *dsi, u16 scanline)
- {
--	u8 payload[3] = { MIPI_DCS_SET_TEAR_SCANLINE, scanline >> 8,
--			  scanline & 0xff };
-+	u8 payload[2] = { scanline >> 8, scanline & 0xff };
- 	ssize_t err;
+diff --git a/drivers/gpu/drm/radeon/ci_dpm.c b/drivers/gpu/drm/radeon/ci_dpm.c
+index f9685cce16520..1e62e7bbf1b1d 100644
+--- a/drivers/gpu/drm/radeon/ci_dpm.c
++++ b/drivers/gpu/drm/radeon/ci_dpm.c
+@@ -4366,7 +4366,7 @@ static int ci_set_mc_special_registers(struct radeon_device *rdev,
+ 					table->mc_reg_table_entry[k].mc_data[j] |= 0x100;
+ 			}
+ 			j++;
+-			if (j > SMU7_DISCRETE_MC_REGISTER_ARRAY_SIZE)
++			if (j >= SMU7_DISCRETE_MC_REGISTER_ARRAY_SIZE)
+ 				return -EINVAL;
  
--	err = mipi_dsi_generic_write(dsi, payload, sizeof(payload));
-+	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_TEAR_SCANLINE, payload,
-+				 sizeof(payload));
- 	if (err < 0)
- 		return err;
- 
+ 			if (!pi->mem_gddr5) {
 -- 
 2.25.1
 
