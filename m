@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32499247306
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE6C247300
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391506AbgHQSuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41072 "EHLO mail.kernel.org"
+        id S2403883AbgHQSt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:49:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387954AbgHQPxy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:54 -0400
+        id S2387963AbgHQPyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:54:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E19720882;
-        Mon, 17 Aug 2020 15:53:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2A1C2063A;
+        Mon, 17 Aug 2020 15:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679633;
-        bh=bBnBdwc8fgDqOQIX/VuGZYQBTY3MkI6HpQsAxL6o+vc=;
+        s=default; t=1597679642;
+        bh=ciMy4Lc0X7f/X4FmvZ8YQPigCmj7iTZ3Q6YvqEQEMxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YA2hTCxVE8VjAPyCZDVemzY2f8QuSc9YLWh6Xemo9SjVVrT1eZfeARJRU10trAOTj
-         dINTjC5Aftea8mo9mRZlnWguCzUQU+HT5y1wUhRDyfp6Nw4hvj4FMqediofIM6OT3V
-         NdElxhJiJrK0RoUsdgDxbftyqpbuwiFDD14zrC3s=
+        b=2lX5Ne8Jtr1SL1JXgJFbWbULQcMkWvBSJDmD3ljHORaImt5WwARbcvQz4xtXFwhF1
+         GTLxqYeJW359+LbmW0gfurlES4R6sQ/R2HPU/Zd3jXtEN4uf0CXDumuiVDreYxjzin
+         s8r3KIUzwZ2euGv8MaHxE6JpIFXsmEe/zCHNy8zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Vignesh Sridhar <vignesh.sridhar@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 281/393] s390/qeth: tolerate pre-filled RX buffer
-Date:   Mon, 17 Aug 2020 17:15:31 +0200
-Message-Id: <20200817143833.250363826@linuxfoundation.org>
+Subject: [PATCH 5.7 283/393] ice: Clear and free XLT entries on reset
+Date:   Mon, 17 Aug 2020 17:15:33 +0200
+Message-Id: <20200817143833.347121771@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,91 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Vignesh Sridhar <vignesh.sridhar@intel.com>
 
-[ Upstream commit eff73e16ee116f6eafa2be48fab42659a27cb453 ]
+[ Upstream commit ec1d1d2302067e3ccbc4d0adcd36d72410933b70 ]
 
-When preparing a buffer for RX refill, tolerate that it already has a
-pool_entry attached. Otherwise we could easily leak such a pool_entry
-when re-driving the RX refill after an error (from eg. do_qdio()).
+This fix has been added to address memory leak issues resulting from
+triggering a sudden driver reset which does not allow us to follow our
+normal removal flows for SW XLT entries for advanced features.
 
-This needs some minor adjustment in the code that drains RX buffer(s)
-prior to RX refill and during teardown, so that ->pool_entry is NULLed
-accordingly.
+- Adding call to destroy flow profile locks when clearing SW XLT tables.
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- Extraction sequence entries were not correctly cleared previously
+which could cause ownership conflicts for repeated reset-replay calls.
+
+Fixes: 31ad4e4ee1e4 ("ice: Allocate flow profile")
+Signed-off-by: Vignesh Sridhar <vignesh.sridhar@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_flex_pipe.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 60d675fefac7d..40ddd17864304 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -202,12 +202,17 @@ EXPORT_SYMBOL_GPL(qeth_threads_running);
- void qeth_clear_working_pool_list(struct qeth_card *card)
- {
- 	struct qeth_buffer_pool_entry *pool_entry, *tmp;
-+	struct qeth_qdio_q *queue = card->qdio.in_q;
-+	unsigned int i;
- 
- 	QETH_CARD_TEXT(card, 5, "clwrklst");
- 	list_for_each_entry_safe(pool_entry, tmp,
- 			    &card->qdio.in_buf_pool.entry_list, list){
- 			list_del(&pool_entry->list);
- 	}
+diff --git a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
+index abfec38bb4831..d60e31f65749f 100644
+--- a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
++++ b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
+@@ -2291,6 +2291,8 @@ static void ice_free_flow_profs(struct ice_hw *hw, u8 blk_idx)
+ 	mutex_lock(&hw->fl_profs_locks[blk_idx]);
+ 	list_for_each_entry_safe(p, tmp, &hw->fl_profs[blk_idx], l_entry) {
+ 		list_del(&p->l_entry);
 +
-+	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
-+		queue->bufs[i].pool_entry = NULL;
- }
- EXPORT_SYMBOL_GPL(qeth_clear_working_pool_list);
- 
-@@ -2671,7 +2676,7 @@ static struct qeth_buffer_pool_entry *qeth_find_free_buffer_pool_entry(
- static int qeth_init_input_buffer(struct qeth_card *card,
- 		struct qeth_qdio_buffer *buf)
- {
--	struct qeth_buffer_pool_entry *pool_entry;
-+	struct qeth_buffer_pool_entry *pool_entry = buf->pool_entry;
- 	int i;
- 
- 	if ((card->options.cq == QETH_CQ_ENABLED) && (!buf->rx_skb)) {
-@@ -2682,9 +2687,13 @@ static int qeth_init_input_buffer(struct qeth_card *card,
- 			return -ENOMEM;
++		mutex_destroy(&p->entries_lock);
+ 		devm_kfree(ice_hw_to_dev(hw), p);
  	}
+ 	mutex_unlock(&hw->fl_profs_locks[blk_idx]);
+@@ -2408,7 +2410,7 @@ void ice_clear_hw_tbls(struct ice_hw *hw)
+ 		memset(prof_redir->t, 0,
+ 		       prof_redir->count * sizeof(*prof_redir->t));
  
--	pool_entry = qeth_find_free_buffer_pool_entry(card);
--	if (!pool_entry)
--		return -ENOBUFS;
-+	if (!pool_entry) {
-+		pool_entry = qeth_find_free_buffer_pool_entry(card);
-+		if (!pool_entry)
-+			return -ENOBUFS;
-+
-+		buf->pool_entry = pool_entry;
-+	}
- 
- 	/*
- 	 * since the buffer is accessed only from the input_tasklet
-@@ -2692,8 +2701,6 @@ static int qeth_init_input_buffer(struct qeth_card *card,
- 	 * the QETH_IN_BUF_REQUEUE_THRESHOLD we should never run  out off
- 	 * buffers
- 	 */
--
--	buf->pool_entry = pool_entry;
- 	for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i) {
- 		buf->buffer->element[i].length = PAGE_SIZE;
- 		buf->buffer->element[i].addr =
-@@ -5521,6 +5528,7 @@ static unsigned int qeth_rx_poll(struct qeth_card *card, int budget)
- 		if (done) {
- 			QETH_CARD_STAT_INC(card, rx_bufs);
- 			qeth_put_buffer_pool_entry(card, buffer->pool_entry);
-+			buffer->pool_entry = NULL;
- 			qeth_queue_input_buffer(card, card->rx.b_index);
- 			card->rx.b_count--;
- 
+-		memset(es->t, 0, es->count * sizeof(*es->t));
++		memset(es->t, 0, es->count * sizeof(*es->t) * es->fvw);
+ 		memset(es->ref_count, 0, es->count * sizeof(*es->ref_count));
+ 		memset(es->written, 0, es->count * sizeof(*es->written));
+ 	}
 -- 
 2.25.1
 
