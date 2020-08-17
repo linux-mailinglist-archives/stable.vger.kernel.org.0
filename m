@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E4F246ABA
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D29C5246AAD
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730752AbgHQPlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:41:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51150 "EHLO mail.kernel.org"
+        id S1730696AbgHQPk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730745AbgHQPla (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:30 -0400
+        id S1730691AbgHQPkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFDD620825;
-        Mon, 17 Aug 2020 15:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E608207DA;
+        Mon, 17 Aug 2020 15:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678889;
-        bh=xfYaG1bsvUo5UvyrUtAI4ovzdgEKIRkl9oapADRDFIg=;
+        s=default; t=1597678853;
+        bh=aYFQSt6KXZxgKtvmLhTIs84s0J4Db4P+g7kKUrTJG78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3JpVuW1fethkkpZawUhH8chJmljX/K8tgOlpUvdfqHR2SQvsx4GfIX34YHAN9l5E
-         Pm7P0+B+1Q0Ft0JrDq7ieAre1J88smOrnR/TpAHopCtk1aekMbwGimtlIJ/rNAf0vq
-         NKm5BcsSTA9/uol9h7twfIpH9Nd8TGJXpDNSzsOU=
+        b=Z+Yl1Rgx+6YhVKC2Tm5AI3q6AKi85G2iVXIPhEVP0LAiDkpDeYLc6/0/coAreRZ91
+         CyIkvg0zR45N0czrPCamfesxPdArg1Rswcn4sCQmjc+e3/Cg8dEvT5grMVcATR0bd9
+         zgANnXAyasI9kSDiT1VOVzVqPaI1ho0d4EXCJ0Ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
+        stable@vger.kernel.org,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 006/393] x86/mce/inject: Fix a wrong assignment of i_mce.status
-Date:   Mon, 17 Aug 2020 17:10:56 +0200
-Message-Id: <20200817143819.899419295@linuxfoundation.org>
+Subject: [PATCH 5.7 013/393] arm64: dts: rockchip: fix rk3399-puma vcc5v0-host gpio
+Date:   Mon, 17 Aug 2020 17:11:03 +0200
+Message-Id: <20200817143820.231973889@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,36 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-[ Upstream commit 5d7f7d1d5e01c22894dee7c9c9266500478dca99 ]
+[ Upstream commit 7a7184f6cfa9279f1a1c10a1845d247d7fad54ff ]
 
-The original code is a nop as i_mce.status is or'ed with part of itself,
-fix it.
+The puma vcc5v0_host regulator node currently uses opposite active-values
+for the enable pin. The gpio-declaration uses active-high while the
+separate enable-active-low property marks the pin as active low.
 
-Fixes: a1300e505297 ("x86/ras/mce_amd_inj: Trigger deferred and thresholding errors interrupts")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Link: https://lkml.kernel.org/r/20200611023238.3830-1-zhenzhong.duan@gmail.com
+While on the kernel side this works ok, other DT users may get
+confused - as seen with uboot right now.
+
+So bring this in line and make both properties match, similar to the
+gmac fix.
+
+Fixes: 2c66fc34e945 ("arm64: dts: rockchip: add RK3399-Q7 (Puma) SoM")
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20200604091239.424318-1-heiko@sntech.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/inject.c | 2 +-
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/inject.c b/arch/x86/kernel/cpu/mce/inject.c
-index 3413b41b8d55f..dc28a615e340f 100644
---- a/arch/x86/kernel/cpu/mce/inject.c
-+++ b/arch/x86/kernel/cpu/mce/inject.c
-@@ -511,7 +511,7 @@ static void do_inject(void)
- 	 */
- 	if (inj_type == DFR_INT_INJ) {
- 		i_mce.status |= MCI_STATUS_DEFERRED;
--		i_mce.status |= (i_mce.status & ~MCI_STATUS_UC);
-+		i_mce.status &= ~MCI_STATUS_UC;
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index 07694b196fdbe..063f59a420b65 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -101,7 +101,7 @@ vcc3v3_sys: vcc3v3-sys {
  
- 	/*
+ 	vcc5v0_host: vcc5v0-host-regulator {
+ 		compatible = "regulator-fixed";
+-		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_HIGH>;
++		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
+ 		enable-active-low;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&vcc5v0_host_en>;
 -- 
 2.25.1
 
