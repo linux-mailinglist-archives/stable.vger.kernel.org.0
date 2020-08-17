@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 601B424744D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D0324743D
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387642AbgHQTIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53708 "EHLO mail.kernel.org"
+        id S2404118AbgHQTHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:07:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387634AbgHQPnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:43:21 -0400
+        id S2387677AbgHQPny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:43:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B59D20760;
-        Mon, 17 Aug 2020 15:43:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EB6C2075B;
+        Mon, 17 Aug 2020 15:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679001;
-        bh=0AgMrIP7GP2rYQZIrGzD4CARHK1GDj4u+58ZN43cdUU=;
+        s=default; t=1597679033;
+        bh=x2EdT82fe7GeAYl9x+JFtiof54LVZjz/+2qJUuXzK6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxKHEfpmo1x1KXlNOLQA7eQBjCgoyAazhebylocJ+5Oi+DKdnRzcXZVPjB13OY6R8
-         dGldD2G5L0wsu2gVsiu4XHNawAOqdudYsogciQ3G9ew4d53dcCpBP729FEXl6Kc0UE
-         CDhosyBEeSrPdkZCXS1N4nYtixz4SCNv/nHLTlW4=
+        b=qL0ovati17HC3ou39KMAVdBpieN5agH+hBUxNcLvA0oeWAlqxj/kwhdh3JVcA+b1b
+         Vx5yOtgYqPp9/gEDAROiSmf4fxlva/4i6JYCJMi7EwbmrCeNkmoEeyGx/2FTHdjU8g
+         3ZxXtiqqFItadqsJI3wKxgsw5u7gqy8mO3Y9KVFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianmin Lv <lvjianmin@loongson.cn>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 055/393] irqchip/loongson-liointc: Fix potential dead lock
-Date:   Mon, 17 Aug 2020 17:11:45 +0200
-Message-Id: <20200817143822.286279142@linuxfoundation.org>
+Subject: [PATCH 5.7 056/393] irqchip/irq-bcm7038-l1: Guard uses of cpu_logical_map
+Date:   Mon, 17 Aug 2020 17:11:46 +0200
+Message-Id: <20200817143822.335398984@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,35 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit fa03587cad9bd32aa552377de4f05c50181a35a8 ]
+[ Upstream commit 9808357ff2e5bfe1e0dcafef5e78cc5b617a7078 ]
 
-In the function liointc_set_type(), we need to call the function
-irq_gc_unlock_irqrestore() before returning.
+cpu_logical_map is only defined for CONFIG_SMP builds, when we are in an
+UP configuration, the boot CPU is 0.
 
-Fixes: dbb152267908 ("irqchip: Add driver for Loongson I/O Local Interrupt Controller")
-Reported-by: Jianmin Lv <lvjianmin@loongson.cn>
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Fixes: 6468fc18b006 ("irqchip/irq-bcm7038-l1: Add PM support")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/1594087972-21715-8-git-send-email-yangtiezhu@loongson.cn
+Link: https://lore.kernel.org/r/20200724184157.29150-1-f.fainelli@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-loongson-liointc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-bcm7038-l1.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/irqchip/irq-loongson-liointc.c b/drivers/irqchip/irq-loongson-liointc.c
-index 63b61474a0cc2..6ef86a334c62d 100644
---- a/drivers/irqchip/irq-loongson-liointc.c
-+++ b/drivers/irqchip/irq-loongson-liointc.c
-@@ -114,6 +114,7 @@ static int liointc_set_type(struct irq_data *data, unsigned int type)
- 		liointc_set_bit(gc, LIOINTC_REG_INTC_POL, mask, false);
- 		break;
- 	default:
-+		irq_gc_unlock_irqrestore(gc, flags);
- 		return -EINVAL;
- 	}
- 	irq_gc_unlock_irqrestore(gc, flags);
+diff --git a/drivers/irqchip/irq-bcm7038-l1.c b/drivers/irqchip/irq-bcm7038-l1.c
+index fd7c537fb42ac..4127eeab10af1 100644
+--- a/drivers/irqchip/irq-bcm7038-l1.c
++++ b/drivers/irqchip/irq-bcm7038-l1.c
+@@ -327,7 +327,11 @@ static int bcm7038_l1_suspend(void)
+ 	u32 val;
+ 
+ 	/* Wakeup interrupt should only come from the boot cpu */
++#ifdef CONFIG_SMP
+ 	boot_cpu = cpu_logical_map(0);
++#else
++	boot_cpu = 0;
++#endif
+ 
+ 	list_for_each_entry(intc, &bcm7038_l1_intcs_list, list) {
+ 		for (word = 0; word < intc->n_words; word++) {
+@@ -347,7 +351,11 @@ static void bcm7038_l1_resume(void)
+ 	struct bcm7038_l1_chip *intc;
+ 	int boot_cpu, word;
+ 
++#ifdef CONFIG_SMP
+ 	boot_cpu = cpu_logical_map(0);
++#else
++	boot_cpu = 0;
++#endif
+ 
+ 	list_for_each_entry(intc, &bcm7038_l1_intcs_list, list) {
+ 		for (word = 0; word < intc->n_words; word++) {
 -- 
 2.25.1
 
