@@ -2,51 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0962E247545
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903E1247544
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392182AbgHQTV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
+        id S2387705AbgHQTV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:21:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729268AbgHQPgS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:36:18 -0400
+        id S1730050AbgHQPgV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:36:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1E0C22C9E;
-        Mon, 17 Aug 2020 15:36:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25898221E2;
+        Mon, 17 Aug 2020 15:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678577;
-        bh=1D89z81J9uFiyiMvlOEFXBBf5UcsmJ4+TZurXofpGiA=;
+        s=default; t=1597678580;
+        bh=A+gXy+WEDFoe8sMhOiELZeqnP0z58AULk6aCMoFF6Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7qTOLjuOfbPMP79R1D77+O2qHyUfwt4dA5gcjp2mGcbFDjv8XPBxLJLf21CRrwsW
-         ISy7p35F3Gt/JyfaMbJyeSPw28k+z/CPhjWfE5sLqpOUAhGrze/TGH3sZDK4RoksBm
-         QXxe6Dl9Zkc67lbEBfPrFiVbRuqLwKf5G1Aj+aOI=
+        b=OJWdFVAebUBHhGq97CGMxAFpjbfNMQ6Gz7uASbwtHm938FZqSQj4YXSLqhoauJE4O
+         CsLFZ2WEW7UbeWSPOn04BUeZQudbnSFXow33Y+7aGJMZWJKTa28mXxSrB6XjnOTPUo
+         q0c3EBzfa3VpK7rYGXLDHE7LaYJ+VkrQDNjvA/AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Brian Gerst <brgerst@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Denys Vlasenko <dvlasenk@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Markus T Metzger <markus.t.metzger@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Shankar <ravi.v.shankar@intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, Jann Horn <jannh@google.com>
-Subject: [PATCH 5.8 381/464] x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task
-Date:   Mon, 17 Aug 2020 17:15:34 +0200
-Message-Id: <20200817143852.025403732@linuxfoundation.org>
+        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Jian Cai <caij2003@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 382/464] crypto: aesni - add compatibility with IAS
+Date:   Mon, 17 Aug 2020 17:15:35 +0200
+Message-Id: <20200817143852.075012454@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -59,73 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jian Cai <caij2003@gmail.com>
 
-[ Upstream commit 8ab49526b53d3172d1d8dd03a75c7d1f5bd21239 ]
+[ Upstream commit 44069737ac9625a0f02f0f7f5ab96aae4cd819bc ]
 
-syzbot found its way in 86_fsgsbase_read_task() and triggered this oops:
+Clang's integrated assembler complains "invalid reassignment of
+non-absolute variable 'var_ddq_add'" while assembling
+arch/x86/crypto/aes_ctrby8_avx-x86_64.S. It was because var_ddq_add was
+reassigned with non-absolute values several times, which IAS did not
+support. We can avoid the reassignment by replacing the uses of
+var_ddq_add with its definitions accordingly to have compatilibility
+with IAS.
 
-   KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-   CPU: 0 PID: 6866 Comm: syz-executor262 Not tainted 5.8.0-syzkaller #0
-   RIP: 0010:x86_fsgsbase_read_task+0x16d/0x310 arch/x86/kernel/process_64.c:393
-   Call Trace:
-     putreg32+0x3ab/0x530 arch/x86/kernel/ptrace.c:876
-     genregs32_set arch/x86/kernel/ptrace.c:1026 [inline]
-     genregs32_set+0xa4/0x100 arch/x86/kernel/ptrace.c:1006
-     copy_regset_from_user include/linux/regset.h:326 [inline]
-     ia32_arch_ptrace arch/x86/kernel/ptrace.c:1061 [inline]
-     compat_arch_ptrace+0x36c/0xd90 arch/x86/kernel/ptrace.c:1198
-     __do_compat_sys_ptrace kernel/ptrace.c:1420 [inline]
-     __se_compat_sys_ptrace kernel/ptrace.c:1389 [inline]
-     __ia32_compat_sys_ptrace+0x220/0x2f0 kernel/ptrace.c:1389
-     do_syscall_32_irqs_on arch/x86/entry/common.c:84 [inline]
-     __do_fast_syscall_32+0x57/0x80 arch/x86/entry/common.c:126
-     do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:149
-     entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
-
-This can happen if ptrace() or sigreturn() pokes an LDT selector into FS
-or GS for a task with no LDT and something tries to read the base before
-a return to usermode notices the bad selector and fixes it.
-
-The fix is to make sure ldt pointer is not NULL.
-
-Fixes: 07e1d88adaae ("x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately")
-Co-developed-by: Jann Horn <jannh@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: Chang S. Bae <chang.seok.bae@intel.com>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Markus T Metzger <markus.t.metzger@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Shankar <ravi.v.shankar@intel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1008
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reported-by: Fangrui Song <maskray@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # build+boot Linux v5.7.5; clang v11.0.0-git
+Signed-off-by: Jian Cai <caij2003@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/process_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/crypto/aes_ctrby8_avx-x86_64.S | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
-index 9a97415b21394..3ebc70bd01e83 100644
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -314,7 +314,7 @@ static unsigned long x86_fsgsbase_read_task(struct task_struct *task,
- 		 */
- 		mutex_lock(&task->mm->context.lock);
- 		ldt = task->mm->context.ldt;
--		if (unlikely(idx >= ldt->nr_entries))
-+		if (unlikely(!ldt || idx >= ldt->nr_entries))
- 			base = 0;
- 		else
- 			base = get_desc_base(ldt->entries + idx);
+diff --git a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
+index ec437db1fa547..494a3bda84870 100644
+--- a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
++++ b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
+@@ -127,10 +127,6 @@ ddq_add_8:
+ 
+ /* generate a unique variable for ddq_add_x */
+ 
+-.macro setddq n
+-	var_ddq_add = ddq_add_\n
+-.endm
+-
+ /* generate a unique variable for xmm register */
+ .macro setxdata n
+ 	var_xdata = %xmm\n
+@@ -140,9 +136,7 @@ ddq_add_8:
+ 
+ .macro club name, id
+ .altmacro
+-	.if \name == DDQ_DATA
+-		setddq %\id
+-	.elseif \name == XDATA
++	.if \name == XDATA
+ 		setxdata %\id
+ 	.endif
+ .noaltmacro
+@@ -165,9 +159,8 @@ ddq_add_8:
+ 
+ 	.set i, 1
+ 	.rept (by - 1)
+-		club DDQ_DATA, i
+ 		club XDATA, i
+-		vpaddq	var_ddq_add(%rip), xcounter, var_xdata
++		vpaddq	(ddq_add_1 + 16 * (i - 1))(%rip), xcounter, var_xdata
+ 		vptest	ddq_low_msk(%rip), var_xdata
+ 		jnz 1f
+ 		vpaddq	ddq_high_add_1(%rip), var_xdata, var_xdata
+@@ -180,8 +173,7 @@ ddq_add_8:
+ 	vmovdqa	1*16(p_keys), xkeyA
+ 
+ 	vpxor	xkey0, xdata0, xdata0
+-	club DDQ_DATA, by
+-	vpaddq	var_ddq_add(%rip), xcounter, xcounter
++	vpaddq	(ddq_add_1 + 16 * (by - 1))(%rip), xcounter, xcounter
+ 	vptest	ddq_low_msk(%rip), xcounter
+ 	jnz	1f
+ 	vpaddq	ddq_high_add_1(%rip), xcounter, xcounter
 -- 
 2.25.1
 
