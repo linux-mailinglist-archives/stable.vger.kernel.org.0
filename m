@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF11246BE9
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20EF0246BED
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388342AbgHQQEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:04:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52548 "EHLO mail.kernel.org"
+        id S2388355AbgHQQFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388337AbgHQQEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:04:42 -0400
+        id S2388340AbgHQQEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:04:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62EE72053B;
-        Mon, 17 Aug 2020 16:04:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE15B206FA;
+        Mon, 17 Aug 2020 16:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680281;
-        bh=hATG7HafjljLdKj1Wt4+pOi/Kd8iH8DCfcjblneNboc=;
+        s=default; t=1597680284;
+        bh=A5cDiprIgsMvCjnEr/jbEPmBcCQcz0QY9VuRftCkkn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSJQuXF5OpmJDBJh135hTn6XZnYw1SZoKFZ3TDwWwVYGb95QUd14X3I55lPufKA8H
-         5cNeK8JRuzdxAD3eQd3K+FCcEbPiop7oUszNCxhNM/LdA+rWcHh3YCjOmbSEDpWKeZ
-         vIP4G4A2ze01I+y+kE+R/7GqpVFeqzn7+fVKbM64=
+        b=hQ9d7g59mbqZ2dl9ymC4S4lM9IAruMQVLVGdPD+yGj+J1Tgu4L1kChWIkp/wjewsB
+         BAkcOl/G3AgfDlf0p796IBxb4UnEw/nE9U2hUb3BbkR9L1jpJHUHNJIDbsdatiTOta
+         C8EczJsbIpZ/PDjfefWHFpZsAhmsLyyZo8T0x4BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YangYuxi <yx.atom1@gmail.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/270] ipvs: allow connection reuse for unconfirmed conntrack
-Date:   Mon, 17 Aug 2020 17:15:24 +0200
-Message-Id: <20200817143801.896368126@linuxfoundation.org>
+Subject: [PATCH 5.4 124/270] media: firewire: Using uninitialized values in node_probe()
+Date:   Mon, 17 Aug 2020 17:15:25 +0200
+Message-Id: <20200817143801.952102926@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -46,125 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f0a5e4d7a594e0fe237d3dfafb069bb82f80f42f ]
+[ Upstream commit 2505a210fc126599013aec2be741df20aaacc490 ]
 
-YangYuxi is reporting that connection reuse
-is causing one-second delay when SYN hits
-existing connection in TIME_WAIT state.
-Such delay was added to give time to expire
-both the IPVS connection and the corresponding
-conntrack. This was considered a rare case
-at that time but it is causing problem for
-some environments such as Kubernetes.
+If fw_csr_string() returns -ENOENT, then "name" is uninitialized.  So
+then the "strlen(model_names[i]) <= name_len" is true because strlen()
+is unsigned and -ENOENT is type promoted to a very high positive value.
+Then the "strncmp(name, model_names[i], name_len)" uses uninitialized
+data because "name" is uninitialized.
 
-As nf_conntrack_tcp_packet() can decide to
-release the conntrack in TIME_WAIT state and
-to replace it with a fresh NEW conntrack, we
-can use this to allow rescheduling just by
-tuning our check: if the conntrack is
-confirmed we can not schedule it to different
-real server and the one-second delay still
-applies but if new conntrack was created,
-we are free to select new real server without
-any delays.
-
-YangYuxi lists some of the problem reports:
-
-- One second connection delay in masquerading mode:
-https://marc.info/?t=151683118100004&r=1&w=2
-
-- IPVS low throughput #70747
-https://github.com/kubernetes/kubernetes/issues/70747
-
-- Apache Bench can fill up ipvs service proxy in seconds #544
-https://github.com/cloudnativelabs/kube-router/issues/544
-
-- Additional 1s latency in `host -> service IP -> pod`
-https://github.com/kubernetes/kubernetes/issues/90854
-
-Fixes: f719e3754ee2 ("ipvs: drop first packet to redirect conntrack")
-Co-developed-by: YangYuxi <yx.atom1@gmail.com>
-Signed-off-by: YangYuxi <yx.atom1@gmail.com>
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Reviewed-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 92374e886c75 ("[media] firedtv: drop obsolete backend abstraction")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip_vs.h             | 10 ++++------
- net/netfilter/ipvs/ip_vs_core.c | 12 +++++++-----
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/media/firewire/firedtv-fw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
-index 078887c8c586a..7c37e3c3b1c79 100644
---- a/include/net/ip_vs.h
-+++ b/include/net/ip_vs.h
-@@ -1624,18 +1624,16 @@ static inline void ip_vs_conn_drop_conntrack(struct ip_vs_conn *cp)
- }
- #endif /* CONFIG_IP_VS_NFCT */
+diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/firedtv-fw.c
+index 97144734eb052..3f1ca40b9b987 100644
+--- a/drivers/media/firewire/firedtv-fw.c
++++ b/drivers/media/firewire/firedtv-fw.c
+@@ -272,6 +272,8 @@ static int node_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
  
--/* Really using conntrack? */
--static inline bool ip_vs_conn_uses_conntrack(struct ip_vs_conn *cp,
--					     struct sk_buff *skb)
-+/* Using old conntrack that can not be redirected to another real server? */
-+static inline bool ip_vs_conn_uses_old_conntrack(struct ip_vs_conn *cp,
-+						 struct sk_buff *skb)
- {
- #ifdef CONFIG_IP_VS_NFCT
- 	enum ip_conntrack_info ctinfo;
- 	struct nf_conn *ct;
- 
--	if (!(cp->flags & IP_VS_CONN_F_NFCT))
--		return false;
- 	ct = nf_ct_get(skb, &ctinfo);
--	if (ct)
-+	if (ct && nf_ct_is_confirmed(ct))
- 		return true;
- #endif
- 	return false;
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index 8b80ab794a92b..64a05906cc0e6 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -2061,14 +2061,14 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
- 
- 	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
- 	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
--		bool uses_ct = false, resched = false;
-+		bool old_ct = false, resched = false;
- 
- 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
- 		    unlikely(!atomic_read(&cp->dest->weight))) {
- 			resched = true;
--			uses_ct = ip_vs_conn_uses_conntrack(cp, skb);
-+			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
- 		} else if (is_new_conn_expected(cp, conn_reuse_mode)) {
--			uses_ct = ip_vs_conn_uses_conntrack(cp, skb);
-+			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
- 			if (!atomic_read(&cp->n_control)) {
- 				resched = true;
- 			} else {
-@@ -2076,15 +2076,17 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
- 				 * that uses conntrack while it is still
- 				 * referenced by controlled connection(s).
- 				 */
--				resched = !uses_ct;
-+				resched = !old_ct;
- 			}
- 		}
- 
- 		if (resched) {
-+			if (!old_ct)
-+				cp->flags &= ~IP_VS_CONN_F_NFCT;
- 			if (!atomic_read(&cp->n_control))
- 				ip_vs_conn_expire_now(cp);
- 			__ip_vs_conn_put(cp);
--			if (uses_ct)
-+			if (old_ct)
- 				return NF_DROP;
- 			cp = NULL;
- 		}
+ 	name_len = fw_csr_string(unit->directory, CSR_MODEL,
+ 				 name, sizeof(name));
++	if (name_len < 0)
++		return name_len;
+ 	for (i = ARRAY_SIZE(model_names); --i; )
+ 		if (strlen(model_names[i]) <= name_len &&
+ 		    strncmp(name, model_names[i], name_len) == 0)
 -- 
 2.25.1
 
