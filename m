@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A5A247386
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B640247381
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730674AbgHQS52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:57:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34516 "EHLO mail.kernel.org"
+        id S2388592AbgHQS5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730850AbgHQPuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:50:12 -0400
+        id S1730872AbgHQPuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:50:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32AF120789;
-        Mon, 17 Aug 2020 15:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13CCC2065D;
+        Mon, 17 Aug 2020 15:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679410;
-        bh=/s/iZMZcGVUNRB2X0mw1qJdmE74Pi5yzHrVRPPxBlT0=;
+        s=default; t=1597679413;
+        bh=uuMTeL7/mJ6LPBIWYPxtOVDrOKl9ZtXuIdNwtd3RTHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HK4FPAmgLqq3zPB/I9IqvkPVWpEwUbUfIfcfFCR4HbDAhos/m7MC9RofhFzbZNCJP
-         XYmMpOhjGH8SkbHYUcmnGUgalowmpcxC8z0aXLcpnatipqqCBfYA1eEAdHKQQgc9RJ
-         rUXx0HMlQ3ZpcbMVID55jIukj/13R/tKWnaS/+M0=
+        b=wGHxqecpkbWM8JBkI96dh+Zo9+w5HN9/PJzuMZ0UH24r5UNzX3tc9qHnJm2kb3MAE
+         JnjKt/gEhge6M+z5YW8Eibx+ddcqtPDp47ghNzrx+lhDJUs0oiLaEW6t8OFPno8ptz
+         Ht4EczXYMedKhUkxGlqf83k4kWsXF92EK8vwG8Zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 202/393] powerpc/pseries: remove cede offline state for CPUs
-Date:   Mon, 17 Aug 2020 17:14:12 +0200
-Message-Id: <20200817143829.424524485@linuxfoundation.org>
+Subject: [PATCH 5.7 203/393] powerpc/rtas: dont online CPUs for partition suspend
+Date:   Mon, 17 Aug 2020 17:14:13 +0200
+Message-Id: <20200817143829.474079959@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -47,437 +46,290 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 48f6e7f6d948b56489da027bc3284c709b939d28 ]
+[ Upstream commit ec2fc2a9e9bbad9023aab65bc472ce7a3ca8608f ]
 
-This effectively reverts commit 3aa565f53c39 ("powerpc/pseries: Add
-hooks to put the CPU into an appropriate offline state"), which added
-an offline mode for CPUs which uses the H_CEDE hcall instead of the
-architected stop-self RTAS function in order to facilitate "folding"
-of dedicated mode processors on PowerVM platforms to achieve energy
-savings. This has been the default offline mode since its
-introduction.
+Partition suspension, used for hibernation and migration, requires
+that the OS place all but one of the LPAR's processor threads into one
+of two states prior to calling the ibm,suspend-me RTAS function:
 
-There's nothing about stop-self that would prevent the hypervisor from
-achieving the energy savings available via H_CEDE, so the original
-premise of this change appears to be flawed.
+  * the architected offline state (via RTAS stop-self); or
+  * the H_JOIN hcall, which does not return until the partition
+    resumes execution
 
-I also have encountered the claim that the transition to and from
-ceded state is much faster than stop-self/start-cpu. Certainly we
-would not want to use stop-self as an *idle* mode. That is what H_CEDE
-is for. However, this difference is insignificant in the context of
-Linux CPU hotplug, where the latency of an offline or online operation
-on current systems is on the order of 100ms, mainly attributable to
-all the various subsystems' cpuhp callbacks.
+Using H_CEDE as the offline mode, introduced by
+commit 3aa565f53c39 ("powerpc/pseries: Add hooks to put the CPU into
+an appropriate offline state"), means that any threads which are
+offline from Linux's point of view must be moved to one of those two
+states before a partition suspension can proceed.
 
-The cede offline mode also prevents accurate accounting, as discussed
-before:
-https://lore.kernel.org/linuxppc-dev/1571740391-3251-1-git-send-email-ego@linux.vnet.ibm.com/
+This was eventually addressed in commit 120496ac2d2d ("powerpc: Bring
+all threads online prior to migration/hibernation"), which added code
+to temporarily bring up any offline processor threads so they can call
+H_JOIN. Conceptually this is fine, but the implementation has had
+multiple races with cpu hotplug operations initiated from user
+space[1][2][3], the error handling is fragile, and it generates
+user-visible cpu hotplug events which is a lot of noise for a platform
+feature that's supposed to minimize disruption to workloads.
 
-Unconditionally use stop-self to offline processor threads. This is
-the architected method for offlining CPUs on PAPR systems.
+With commit 3aa565f53c39 ("powerpc/pseries: Add hooks to put the CPU
+into an appropriate offline state") reverted, this code becomes
+unnecessary, so remove it. Since any offline CPUs now are truly
+offline from the platform's point of view, it is no longer necessary
+to bring up CPUs only to have them call H_JOIN and then go offline
+again upon resuming. Only active threads are required to call H_JOIN;
+stopped threads can be left alone.
 
-The "cede_offline" boot parameter is rendered obsolete.
+[1] commit a6717c01ddc2 ("powerpc/rtas: use device model APIs and
+    serialization during LPM")
+[2] commit 9fb603050ffd ("powerpc/rtas: retry when cpu offline races
+    with suspend/migration")
+[3] commit dfd718a2ed1f ("powerpc/rtas: Fix a potential race between
+    CPU-Offline & Migration")
 
-Removing this code enables the removal of the partition suspend code
-which temporarily onlines all present CPUs.
-
-Fixes: 3aa565f53c39 ("powerpc/pseries: Add hooks to put the CPU into an appropriate offline state")
+Fixes: 120496ac2d2d ("powerpc: Bring all threads online prior to migration/hibernation")
 Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200612051238.1007764-2-nathanl@linux.ibm.com
+Link: https://lore.kernel.org/r/20200612051238.1007764-3-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/core-api/cpu_hotplug.rst        |   7 -
- arch/powerpc/platforms/pseries/hotplug-cpu.c  | 170 ++----------------
- .../platforms/pseries/offline_states.h        |  38 ----
- arch/powerpc/platforms/pseries/pmem.c         |   1 -
- arch/powerpc/platforms/pseries/smp.c          |  28 +--
- 5 files changed, 15 insertions(+), 229 deletions(-)
- delete mode 100644 arch/powerpc/platforms/pseries/offline_states.h
+ arch/powerpc/include/asm/rtas.h          |   2 -
+ arch/powerpc/kernel/rtas.c               | 122 +----------------------
+ arch/powerpc/platforms/pseries/suspend.c |  22 +---
+ 3 files changed, 3 insertions(+), 143 deletions(-)
 
-diff --git a/Documentation/core-api/cpu_hotplug.rst b/Documentation/core-api/cpu_hotplug.rst
-index 4a50ab7817f77..b1ae1ac159cf9 100644
---- a/Documentation/core-api/cpu_hotplug.rst
-+++ b/Documentation/core-api/cpu_hotplug.rst
-@@ -50,13 +50,6 @@ Command Line Switches
+diff --git a/arch/powerpc/include/asm/rtas.h b/arch/powerpc/include/asm/rtas.h
+index 3c1887351c713..bd227e0eab07b 100644
+--- a/arch/powerpc/include/asm/rtas.h
++++ b/arch/powerpc/include/asm/rtas.h
+@@ -368,8 +368,6 @@ extern int rtas_set_indicator_fast(int indicator, int index, int new_value);
+ extern void rtas_progress(char *s, unsigned short hex);
+ extern int rtas_suspend_cpu(struct rtas_suspend_me_data *data);
+ extern int rtas_suspend_last_cpu(struct rtas_suspend_me_data *data);
+-extern int rtas_online_cpus_mask(cpumask_var_t cpus);
+-extern int rtas_offline_cpus_mask(cpumask_var_t cpus);
+ extern int rtas_ibm_suspend_me(u64 handle);
  
-   This option is limited to the X86 and S390 architecture.
- 
--``cede_offline={"off","on"}``
--  Use this option to disable/enable putting offlined processors to an extended
--  ``H_CEDE`` state on supported pseries platforms. If nothing is specified,
--  ``cede_offline`` is set to "on".
--
--  This option is limited to the PowerPC architecture.
--
- ``cpu0_hotplug``
-   Allow to shutdown CPU0.
- 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-index 3e8cbfe7a80fd..d4b346355bb9e 100644
---- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-@@ -35,54 +35,10 @@
- #include <asm/topology.h>
- 
- #include "pseries.h"
--#include "offline_states.h"
- 
- /* This version can't take the spinlock, because it never returns */
- static int rtas_stop_self_token = RTAS_UNKNOWN_SERVICE;
- 
--static DEFINE_PER_CPU(enum cpu_state_vals, preferred_offline_state) =
--							CPU_STATE_OFFLINE;
--static DEFINE_PER_CPU(enum cpu_state_vals, current_state) = CPU_STATE_OFFLINE;
--
--static enum cpu_state_vals default_offline_state = CPU_STATE_OFFLINE;
--
--static bool cede_offline_enabled __read_mostly = true;
--
--/*
-- * Enable/disable cede_offline when available.
-- */
--static int __init setup_cede_offline(char *str)
--{
--	return (kstrtobool(str, &cede_offline_enabled) == 0);
--}
--
--__setup("cede_offline=", setup_cede_offline);
--
--enum cpu_state_vals get_cpu_current_state(int cpu)
--{
--	return per_cpu(current_state, cpu);
--}
--
--void set_cpu_current_state(int cpu, enum cpu_state_vals state)
--{
--	per_cpu(current_state, cpu) = state;
--}
--
--enum cpu_state_vals get_preferred_offline_state(int cpu)
--{
--	return per_cpu(preferred_offline_state, cpu);
--}
--
--void set_preferred_offline_state(int cpu, enum cpu_state_vals state)
--{
--	per_cpu(preferred_offline_state, cpu) = state;
--}
--
--void set_default_offline_state(int cpu)
--{
--	per_cpu(preferred_offline_state, cpu) = default_offline_state;
--}
--
- static void rtas_stop_self(void)
- {
- 	static struct rtas_args args;
-@@ -101,9 +57,7 @@ static void rtas_stop_self(void)
- 
- static void pseries_mach_cpu_die(void)
- {
--	unsigned int cpu = smp_processor_id();
- 	unsigned int hwcpu = hard_smp_processor_id();
--	u8 cede_latency_hint = 0;
- 
- 	local_irq_disable();
- 	idle_task_exit();
-@@ -112,49 +66,6 @@ static void pseries_mach_cpu_die(void)
- 	else
- 		xics_teardown_cpu();
- 
--	if (get_preferred_offline_state(cpu) == CPU_STATE_INACTIVE) {
--		set_cpu_current_state(cpu, CPU_STATE_INACTIVE);
--		if (ppc_md.suspend_disable_cpu)
--			ppc_md.suspend_disable_cpu();
--
--		cede_latency_hint = 2;
--
--		get_lppaca()->idle = 1;
--		if (!lppaca_shared_proc(get_lppaca()))
--			get_lppaca()->donate_dedicated_cpu = 1;
--
--		while (get_preferred_offline_state(cpu) == CPU_STATE_INACTIVE) {
--			while (!prep_irq_for_idle()) {
--				local_irq_enable();
--				local_irq_disable();
--			}
--
--			extended_cede_processor(cede_latency_hint);
--		}
--
--		local_irq_disable();
--
--		if (!lppaca_shared_proc(get_lppaca()))
--			get_lppaca()->donate_dedicated_cpu = 0;
--		get_lppaca()->idle = 0;
--
--		if (get_preferred_offline_state(cpu) == CPU_STATE_ONLINE) {
--			unregister_slb_shadow(hwcpu);
--
--			hard_irq_disable();
--			/*
--			 * Call to start_secondary_resume() will not return.
--			 * Kernel stack will be reset and start_secondary()
--			 * will be called to continue the online operation.
--			 */
--			start_secondary_resume();
--		}
--	}
--
--	/* Requested state is CPU_STATE_OFFLINE at this point */
--	WARN_ON(get_preferred_offline_state(cpu) != CPU_STATE_OFFLINE);
--
--	set_cpu_current_state(cpu, CPU_STATE_OFFLINE);
- 	unregister_slb_shadow(hwcpu);
- 	rtas_stop_self();
- 
-@@ -200,24 +111,13 @@ static void pseries_cpu_die(unsigned int cpu)
- 	int cpu_status = 1;
- 	unsigned int pcpu = get_hard_smp_processor_id(cpu);
- 
--	if (get_preferred_offline_state(cpu) == CPU_STATE_INACTIVE) {
--		cpu_status = 1;
--		for (tries = 0; tries < 5000; tries++) {
--			if (get_cpu_current_state(cpu) == CPU_STATE_INACTIVE) {
--				cpu_status = 0;
--				break;
--			}
--			msleep(1);
--		}
--	} else if (get_preferred_offline_state(cpu) == CPU_STATE_OFFLINE) {
-+	for (tries = 0; tries < 25; tries++) {
-+		cpu_status = smp_query_cpu_stopped(pcpu);
-+		if (cpu_status == QCSS_STOPPED ||
-+		    cpu_status == QCSS_HARDWARE_ERROR)
-+			break;
-+		cpu_relax();
- 
--		for (tries = 0; tries < 25; tries++) {
--			cpu_status = smp_query_cpu_stopped(pcpu);
--			if (cpu_status == QCSS_STOPPED ||
--			    cpu_status == QCSS_HARDWARE_ERROR)
--				break;
--			cpu_relax();
--		}
- 	}
- 
- 	if (cpu_status != 0) {
-@@ -359,28 +259,15 @@ static int dlpar_offline_cpu(struct device_node *dn)
- 			if (get_hard_smp_processor_id(cpu) != thread)
- 				continue;
- 
--			if (get_cpu_current_state(cpu) == CPU_STATE_OFFLINE)
-+			if (!cpu_online(cpu))
- 				break;
- 
--			if (get_cpu_current_state(cpu) == CPU_STATE_ONLINE) {
--				set_preferred_offline_state(cpu,
--							    CPU_STATE_OFFLINE);
--				cpu_maps_update_done();
--				timed_topology_update(1);
--				rc = device_offline(get_cpu_device(cpu));
--				if (rc)
--					goto out;
--				cpu_maps_update_begin();
--				break;
--			}
--
--			/*
--			 * The cpu is in CPU_STATE_INACTIVE.
--			 * Upgrade it's state to CPU_STATE_OFFLINE.
--			 */
--			set_preferred_offline_state(cpu, CPU_STATE_OFFLINE);
--			WARN_ON(plpar_hcall_norets(H_PROD, thread) != H_SUCCESS);
--			__cpu_die(cpu);
-+			cpu_maps_update_done();
-+			timed_topology_update(1);
-+			rc = device_offline(get_cpu_device(cpu));
-+			if (rc)
-+				goto out;
-+			cpu_maps_update_begin();
- 			break;
- 		}
- 		if (cpu == num_possible_cpus()) {
-@@ -414,8 +301,6 @@ static int dlpar_online_cpu(struct device_node *dn)
- 		for_each_present_cpu(cpu) {
- 			if (get_hard_smp_processor_id(cpu) != thread)
- 				continue;
--			BUG_ON(get_cpu_current_state(cpu)
--					!= CPU_STATE_OFFLINE);
- 			cpu_maps_update_done();
- 			timed_topology_update(1);
- 			find_and_online_cpu_nid(cpu);
-@@ -1013,27 +898,8 @@ static struct notifier_block pseries_smp_nb = {
- 	.notifier_call = pseries_smp_notifier,
- };
- 
--#define MAX_CEDE_LATENCY_LEVELS		4
--#define	CEDE_LATENCY_PARAM_LENGTH	10
--#define CEDE_LATENCY_PARAM_MAX_LENGTH	\
--	(MAX_CEDE_LATENCY_LEVELS * CEDE_LATENCY_PARAM_LENGTH * sizeof(char))
--#define CEDE_LATENCY_TOKEN		45
--
--static char cede_parameters[CEDE_LATENCY_PARAM_MAX_LENGTH];
--
--static int parse_cede_parameters(void)
--{
--	memset(cede_parameters, 0, CEDE_LATENCY_PARAM_MAX_LENGTH);
--	return rtas_call(rtas_token("ibm,get-system-parameter"), 3, 1,
--			 NULL,
--			 CEDE_LATENCY_TOKEN,
--			 __pa(cede_parameters),
--			 CEDE_LATENCY_PARAM_MAX_LENGTH);
--}
--
- static int __init pseries_cpu_hotplug_init(void)
- {
--	int cpu;
- 	int qcss_tok;
- 
- #ifdef CONFIG_ARCH_CPU_PROBE_RELEASE
-@@ -1056,16 +922,8 @@ static int __init pseries_cpu_hotplug_init(void)
- 	smp_ops->cpu_die = pseries_cpu_die;
- 
- 	/* Processors can be added/removed only on LPAR */
--	if (firmware_has_feature(FW_FEATURE_LPAR)) {
-+	if (firmware_has_feature(FW_FEATURE_LPAR))
- 		of_reconfig_notifier_register(&pseries_smp_nb);
--		cpu_maps_update_begin();
--		if (cede_offline_enabled && parse_cede_parameters() == 0) {
--			default_offline_state = CPU_STATE_INACTIVE;
--			for_each_online_cpu(cpu)
--				set_default_offline_state(cpu);
--		}
--		cpu_maps_update_done();
--	}
- 
- 	return 0;
+ struct rtc_time;
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index c5fa251b8950c..01210593d60c3 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -842,96 +842,6 @@ static void rtas_percpu_suspend_me(void *info)
+ 	__rtas_suspend_cpu((struct rtas_suspend_me_data *)info, 1);
  }
-diff --git a/arch/powerpc/platforms/pseries/offline_states.h b/arch/powerpc/platforms/pseries/offline_states.h
-deleted file mode 100644
-index 51414aee28625..0000000000000
---- a/arch/powerpc/platforms/pseries/offline_states.h
-+++ /dev/null
-@@ -1,38 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _OFFLINE_STATES_H_
--#define _OFFLINE_STATES_H_
--
--/* Cpu offline states go here */
--enum cpu_state_vals {
--	CPU_STATE_OFFLINE,
--	CPU_STATE_INACTIVE,
--	CPU_STATE_ONLINE,
--	CPU_MAX_OFFLINE_STATES
+ 
+-enum rtas_cpu_state {
+-	DOWN,
+-	UP,
 -};
 -
--#ifdef CONFIG_HOTPLUG_CPU
--extern enum cpu_state_vals get_cpu_current_state(int cpu);
--extern void set_cpu_current_state(int cpu, enum cpu_state_vals state);
--extern void set_preferred_offline_state(int cpu, enum cpu_state_vals state);
--extern void set_default_offline_state(int cpu);
+-#ifndef CONFIG_SMP
+-static int rtas_cpu_state_change_mask(enum rtas_cpu_state state,
+-				cpumask_var_t cpus)
+-{
+-	if (!cpumask_empty(cpus)) {
+-		cpumask_clear(cpus);
+-		return -EINVAL;
+-	} else
+-		return 0;
+-}
 -#else
--static inline enum cpu_state_vals get_cpu_current_state(int cpu)
+-/* On return cpumask will be altered to indicate CPUs changed.
+- * CPUs with states changed will be set in the mask,
+- * CPUs with status unchanged will be unset in the mask. */
+-static int rtas_cpu_state_change_mask(enum rtas_cpu_state state,
+-				cpumask_var_t cpus)
 -{
--	return CPU_STATE_ONLINE;
--}
+-	int cpu;
+-	int cpuret = 0;
+-	int ret = 0;
 -
--static inline void set_cpu_current_state(int cpu, enum cpu_state_vals state)
--{
--}
+-	if (cpumask_empty(cpus))
+-		return 0;
 -
--static inline void set_preferred_offline_state(int cpu, enum cpu_state_vals state)
--{
--}
+-	for_each_cpu(cpu, cpus) {
+-		struct device *dev = get_cpu_device(cpu);
 -
--static inline void set_default_offline_state(int cpu)
--{
+-		switch (state) {
+-		case DOWN:
+-			cpuret = device_offline(dev);
+-			break;
+-		case UP:
+-			cpuret = device_online(dev);
+-			break;
+-		}
+-		if (cpuret < 0) {
+-			pr_debug("%s: cpu_%s for cpu#%d returned %d.\n",
+-					__func__,
+-					((state == UP) ? "up" : "down"),
+-					cpu, cpuret);
+-			if (!ret)
+-				ret = cpuret;
+-			if (state == UP) {
+-				/* clear bits for unchanged cpus, return */
+-				cpumask_shift_right(cpus, cpus, cpu);
+-				cpumask_shift_left(cpus, cpus, cpu);
+-				break;
+-			} else {
+-				/* clear bit for unchanged cpu, continue */
+-				cpumask_clear_cpu(cpu, cpus);
+-			}
+-		}
+-		cond_resched();
+-	}
+-
+-	return ret;
 -}
 -#endif
 -
--extern enum cpu_state_vals get_preferred_offline_state(int cpu);
--#endif
-diff --git a/arch/powerpc/platforms/pseries/pmem.c b/arch/powerpc/platforms/pseries/pmem.c
-index f860a897a9e05..f827de7087e9b 100644
---- a/arch/powerpc/platforms/pseries/pmem.c
-+++ b/arch/powerpc/platforms/pseries/pmem.c
-@@ -24,7 +24,6 @@
- #include <asm/topology.h>
- 
- #include "pseries.h"
--#include "offline_states.h"
- 
- static struct device_node *pmem_node;
- 
-diff --git a/arch/powerpc/platforms/pseries/smp.c b/arch/powerpc/platforms/pseries/smp.c
-index ad61e90032da9..a8a070269151f 100644
---- a/arch/powerpc/platforms/pseries/smp.c
-+++ b/arch/powerpc/platforms/pseries/smp.c
-@@ -44,8 +44,6 @@
- #include <asm/svm.h>
- 
- #include "pseries.h"
--#include "offline_states.h"
+-int rtas_online_cpus_mask(cpumask_var_t cpus)
+-{
+-	int ret;
 -
+-	ret = rtas_cpu_state_change_mask(UP, cpus);
+-
+-	if (ret) {
+-		cpumask_var_t tmp_mask;
+-
+-		if (!alloc_cpumask_var(&tmp_mask, GFP_KERNEL))
+-			return ret;
+-
+-		/* Use tmp_mask to preserve cpus mask from first failure */
+-		cpumask_copy(tmp_mask, cpus);
+-		rtas_offline_cpus_mask(tmp_mask);
+-		free_cpumask_var(tmp_mask);
+-	}
+-
+-	return ret;
+-}
+-
+-int rtas_offline_cpus_mask(cpumask_var_t cpus)
+-{
+-	return rtas_cpu_state_change_mask(DOWN, cpus);
+-}
+-
+ int rtas_ibm_suspend_me(u64 handle)
+ {
+ 	long state;
+@@ -939,8 +849,6 @@ int rtas_ibm_suspend_me(u64 handle)
+ 	unsigned long retbuf[PLPAR_HCALL_BUFSIZE];
+ 	struct rtas_suspend_me_data data;
+ 	DECLARE_COMPLETION_ONSTACK(done);
+-	cpumask_var_t offline_mask;
+-	int cpuret;
  
- /*
-  * The Primary thread of each non-boot processor was started from the OF client
-@@ -108,10 +106,7 @@ static inline int smp_startup_cpu(unsigned int lcpu)
- 
- 	/* Fixup atomic count: it exited inside IRQ handler. */
- 	task_thread_info(paca_ptrs[lcpu]->__current)->preempt_count	= 0;
--#ifdef CONFIG_HOTPLUG_CPU
--	if (get_cpu_current_state(lcpu) == CPU_STATE_INACTIVE)
--		goto out;
--#endif
-+
- 	/* 
- 	 * If the RTAS start-cpu token does not exist then presume the
- 	 * cpu is already spinning.
-@@ -126,9 +121,6 @@ static inline int smp_startup_cpu(unsigned int lcpu)
- 		return 0;
+ 	if (!rtas_service_present("ibm,suspend-me"))
+ 		return -ENOSYS;
+@@ -961,9 +869,6 @@ int rtas_ibm_suspend_me(u64 handle)
+ 		return -EIO;
  	}
  
--#ifdef CONFIG_HOTPLUG_CPU
--out:
--#endif
- 	return 1;
- }
- 
-@@ -143,10 +135,6 @@ static void smp_setup_cpu(int cpu)
- 		vpa_init(cpu);
- 
- 	cpumask_clear_cpu(cpu, of_spin_mask);
--#ifdef CONFIG_HOTPLUG_CPU
--	set_cpu_current_state(cpu, CPU_STATE_ONLINE);
--	set_default_offline_state(cpu);
--#endif
- }
- 
- static int smp_pSeries_kick_cpu(int nr)
-@@ -163,20 +151,6 @@ static int smp_pSeries_kick_cpu(int nr)
- 	 * the processor will continue on to secondary_start
- 	 */
- 	paca_ptrs[nr]->cpu_start = 1;
--#ifdef CONFIG_HOTPLUG_CPU
--	set_preferred_offline_state(nr, CPU_STATE_ONLINE);
+-	if (!alloc_cpumask_var(&offline_mask, GFP_KERNEL))
+-		return -ENOMEM;
 -
--	if (get_cpu_current_state(nr) == CPU_STATE_INACTIVE) {
--		long rc;
--		unsigned long hcpuid;
--
--		hcpuid = get_hard_smp_processor_id(nr);
--		rc = plpar_hcall_norets(H_PROD, hcpuid);
--		if (rc != H_SUCCESS)
--			printk(KERN_ERR "Error: Prod to wake up processor %d "
--						"Ret= %ld\n", nr, rc);
+ 	atomic_set(&data.working, 0);
+ 	atomic_set(&data.done, 0);
+ 	atomic_set(&data.error, 0);
+@@ -972,24 +877,8 @@ int rtas_ibm_suspend_me(u64 handle)
+ 
+ 	lock_device_hotplug();
+ 
+-	/* All present CPUs must be online */
+-	cpumask_andnot(offline_mask, cpu_present_mask, cpu_online_mask);
+-	cpuret = rtas_online_cpus_mask(offline_mask);
+-	if (cpuret) {
+-		pr_err("%s: Could not bring present CPUs online.\n", __func__);
+-		atomic_set(&data.error, cpuret);
+-		goto out;
 -	}
--#endif
+-
+ 	cpu_hotplug_disable();
  
- 	return 0;
+-	/* Check if we raced with a CPU-Offline Operation */
+-	if (!cpumask_equal(cpu_present_mask, cpu_online_mask)) {
+-		pr_info("%s: Raced against a concurrent CPU-Offline\n", __func__);
+-		atomic_set(&data.error, -EAGAIN);
+-		goto out_hotplug_enable;
+-	}
+-
+ 	/* Call function on all CPUs.  One of us will make the
+ 	 * rtas call
+ 	 */
+@@ -1000,18 +889,11 @@ int rtas_ibm_suspend_me(u64 handle)
+ 	if (atomic_read(&data.error) != 0)
+ 		printk(KERN_ERR "Error doing global join\n");
+ 
+-out_hotplug_enable:
+-	cpu_hotplug_enable();
+ 
+-	/* Take down CPUs not online prior to suspend */
+-	cpuret = rtas_offline_cpus_mask(offline_mask);
+-	if (cpuret)
+-		pr_warn("%s: Could not restore CPUs to offline state.\n",
+-				__func__);
++	cpu_hotplug_enable();
+ 
+-out:
+ 	unlock_device_hotplug();
+-	free_cpumask_var(offline_mask);
++
+ 	return atomic_read(&data.error);
  }
+ #else /* CONFIG_PPC_PSERIES */
+diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
+index 0a24a5a185f02..f789693f61f40 100644
+--- a/arch/powerpc/platforms/pseries/suspend.c
++++ b/arch/powerpc/platforms/pseries/suspend.c
+@@ -132,15 +132,11 @@ static ssize_t store_hibernate(struct device *dev,
+ 			       struct device_attribute *attr,
+ 			       const char *buf, size_t count)
+ {
+-	cpumask_var_t offline_mask;
+ 	int rc;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+-	if (!alloc_cpumask_var(&offline_mask, GFP_KERNEL))
+-		return -ENOMEM;
+-
+ 	stream_id = simple_strtoul(buf, NULL, 16);
+ 
+ 	do {
+@@ -150,32 +146,16 @@ static ssize_t store_hibernate(struct device *dev,
+ 	} while (rc == -EAGAIN);
+ 
+ 	if (!rc) {
+-		/* All present CPUs must be online */
+-		cpumask_andnot(offline_mask, cpu_present_mask,
+-				cpu_online_mask);
+-		rc = rtas_online_cpus_mask(offline_mask);
+-		if (rc) {
+-			pr_err("%s: Could not bring present CPUs online.\n",
+-					__func__);
+-			goto out;
+-		}
+-
+ 		stop_topology_update();
+ 		rc = pm_suspend(PM_SUSPEND_MEM);
+ 		start_topology_update();
+-
+-		/* Take down CPUs not online prior to suspend */
+-		if (!rtas_offline_cpus_mask(offline_mask))
+-			pr_warn("%s: Could not restore CPUs to offline "
+-					"state.\n", __func__);
+ 	}
+ 
+ 	stream_id = 0;
+ 
+ 	if (!rc)
+ 		rc = count;
+-out:
+-	free_cpumask_var(offline_mask);
++
+ 	return rc;
+ }
+ 
 -- 
 2.25.1
 
