@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09FB3247599
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80A6724758E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732054AbgHQTZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
+        id S1730106AbgHQTY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730420AbgHQPeC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:34:02 -0400
+        id S1729748AbgHQPeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:34:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 616282173E;
-        Mon, 17 Aug 2020 15:34:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59A8B23441;
+        Mon, 17 Aug 2020 15:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678441;
-        bh=zJJf9ufwWpUpsbzGQo2GcLdzmv5cztp9mfuTvLC4nV4=;
+        s=default; t=1597678474;
+        bh=5jBy9Sbw6TZGfmZD9NAK0ySdYA0L+padKW5xd+QSurk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XE7znOgmx2AHjD4YDb9XEbxMrayEuvGO1ScUwC1pxT2UkPDnQnqPJRRbs6FGCpLrx
-         iS78ufaO8TTMkZ5q8wQlSwHtnl2so4XUZCDOdUPwMDcGAgcsLYL6B/Y5wtZrDTxwpx
-         OGlxjgjpfJi7+0Ti9eoztcFhBDc5183ePg+I++sU=
+        b=uvBYrEbmK1jX4RCnf3gQlK2hrWqIkniVLixx64JT4rj9lnpuutmnrDB61wQ8Lxu24
+         y6lyXBIof5ElUX01jSLcXBqhrJE3vZ+L/pZevgsgcibFRudyIcsav+KOJMIKm5kKqO
+         JiH4g9os75kiCeczGOkA7r/WkEixbsFSde9EnSfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Harish <harish@linux.ibm.com>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 318/464] selftests/powerpc: Fix CPU affinity for child process
-Date:   Mon, 17 Aug 2020 17:14:31 +0200
-Message-Id: <20200817143849.028895428@linuxfoundation.org>
+Subject: [PATCH 5.8 319/464] nvmem: sprd: Fix return value of sprd_efuse_probe()
+Date:   Mon, 17 Aug 2020 17:14:32 +0200
+Message-Id: <20200817143849.077200748@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -48,80 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harish <harish@linux.ibm.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 854eb5022be04f81e318765f089f41a57c8e5d83 ]
+[ Upstream commit bcd14bb7a68520bf88e45e91d354e43535624f82 ]
 
-On systems with large number of cpus, test fails trying to set
-affinity by calling sched_setaffinity() with smaller size for affinity
-mask. This patch fixes it by making sure that the size of allocated
-affinity mask is dependent on the number of CPUs as reported by
-get_nprocs().
+When call function devm_platform_ioremap_resource(), we should use IS_ERR()
+to check the return value and return PTR_ERR() if failed.
 
-Fixes: 00b7ec5c9cf3 ("selftests/powerpc: Import Anton's context_switch2 benchmark")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Signed-off-by: Harish <harish@linux.ibm.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Reviewed-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200609081423.529664-1-harish@linux.ibm.com
+Fixes: 096030e7f449 ("nvmem: sprd: Add Spreadtrum SoCs eFuse support")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200722100705.7772-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../powerpc/benchmarks/context_switch.c       | 21 ++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/nvmem/sprd-efuse.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/benchmarks/context_switch.c b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
-index a2e8c9da7fa53..d50cc05df4952 100644
---- a/tools/testing/selftests/powerpc/benchmarks/context_switch.c
-+++ b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
-@@ -19,6 +19,7 @@
- #include <limits.h>
- #include <sys/time.h>
- #include <sys/syscall.h>
-+#include <sys/sysinfo.h>
- #include <sys/types.h>
- #include <sys/shm.h>
- #include <linux/futex.h>
-@@ -104,8 +105,9 @@ static void start_thread_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+diff --git a/drivers/nvmem/sprd-efuse.c b/drivers/nvmem/sprd-efuse.c
+index 925feb21d5adf..59523245db8a5 100644
+--- a/drivers/nvmem/sprd-efuse.c
++++ b/drivers/nvmem/sprd-efuse.c
+@@ -378,8 +378,8 @@ static int sprd_efuse_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
- static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
- {
--	int pid;
--	cpu_set_t cpuset;
-+	int pid, ncpus;
-+	cpu_set_t *cpuset;
-+	size_t size;
+ 	efuse->base = devm_platform_ioremap_resource(pdev, 0);
+-	if (!efuse->base)
+-		return -ENOMEM;
++	if (IS_ERR(efuse->base))
++		return PTR_ERR(efuse->base);
  
- 	pid = fork();
- 	if (pid == -1) {
-@@ -116,14 +118,23 @@ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
- 	if (pid)
- 		return;
- 
--	CPU_ZERO(&cpuset);
--	CPU_SET(cpu, &cpuset);
-+	ncpus = get_nprocs();
-+	size = CPU_ALLOC_SIZE(ncpus);
-+	cpuset = CPU_ALLOC(ncpus);
-+	if (!cpuset) {
-+		perror("malloc");
-+		exit(1);
-+	}
-+	CPU_ZERO_S(size, cpuset);
-+	CPU_SET_S(cpu, size, cpuset);
- 
--	if (sched_setaffinity(0, sizeof(cpuset), &cpuset)) {
-+	if (sched_setaffinity(0, size, cpuset)) {
- 		perror("sched_setaffinity");
-+		CPU_FREE(cpuset);
- 		exit(1);
- 	}
- 
-+	CPU_FREE(cpuset);
- 	fn(arg);
- 
- 	exit(0);
+ 	ret = of_hwspin_lock_get_id(np, 0);
+ 	if (ret < 0) {
 -- 
 2.25.1
 
