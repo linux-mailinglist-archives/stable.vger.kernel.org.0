@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1970247717
+	by mail.lfdr.de (Postfix) with ESMTP id 729A3247716
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729370AbgHQPWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729430AbgHQPWP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 11:22:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729421AbgHQPWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:22:10 -0400
+        id S1729424AbgHQPWN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:22:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 167D322B45;
-        Mon, 17 Aug 2020 15:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0D17230FF;
+        Mon, 17 Aug 2020 15:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677729;
-        bh=IPrxSe+zlkAV1YF+9agKI2SRHHcxYLSZAX0ZjcL2ix0=;
+        s=default; t=1597677733;
+        bh=rsrKN8/Zq2kTiieVqJx9AAitOPFHZwp5YN/wsqrv6uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RezhYY/DQYtb/ASe3/XqLlLY0D6PGdoLMXe7CHMCVgynyKJzqLiR73vvflIkvkcGO
-         j7zjzen5+30nR08rB3FTsQjs5kc99ZRilnyPqEQNSUtjQNvsF5PrtWPX77HvzLot31
-         234Q/xElnUiqrAbgQFBjyw7eGD7iQFJ6au3XCaI0=
+        b=okDCrXX30nGU0KlcxmNu0rTRn4cI1hF5EAW1WlVxlcG15vqgDoiFfOcHtWwplgEJo
+         rp5jE/LHBvArAdIm77dLi4sLEAefQWOSYNgYP3W4WM7nVcgj22WHBq9YtJauQ3mbV6
+         N7zwiiezSqA9grwqXfJBBYmZXcaE7eCGjOASPhfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 056/464] spi: rockchip: Fix error in SPI slave pio read
-Date:   Mon, 17 Aug 2020 17:10:09 +0200
-Message-Id: <20200817143836.444580437@linuxfoundation.org>
+Subject: [PATCH 5.8 057/464] ARM: socfpga: PM: add missing put_device() call in socfpga_setup_ocram_self_refresh()
+Date:   Mon, 17 Aug 2020 17:10:10 +0200
+Message-Id: <20200817143836.495231253@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,37 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Lin <jon.lin@rock-chips.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 4294e4accf8d695ea5605f6b189008b692e3e82c ]
+[ Upstream commit 3ad7b4e8f89d6bcc9887ca701cf2745a6aedb1a0 ]
 
-The RXFLR is possible larger than rx_left in Rockchip SPI, fix it.
+if of_find_device_by_node() succeed, socfpga_setup_ocram_self_refresh
+doesn't have a corresponding put_device(). Thus add a jump target to
+fix the exception handling for this function implementation.
 
-Fixes: 01b59ce5dac8 ("spi: rockchip: use irq rather than polling")
-Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
-Tested-by: Emil Renner Berthing <kernel@esmil.dk>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Reviewed-by: Emil Renner Berthing <kernel@esmil.dk>
-Link: https://lore.kernel.org/r/20200723004356.6390-3-jon.lin@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 44fd8c7d4005 ("ARM: socfpga: support suspend to ram")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-socfpga/pm.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 9b8a5e1233c06..4776aa815c3fa 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -288,7 +288,7 @@ static void rockchip_spi_pio_writer(struct rockchip_spi *rs)
- static void rockchip_spi_pio_reader(struct rockchip_spi *rs)
- {
- 	u32 words = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXFLR);
--	u32 rx_left = rs->rx_left - words;
-+	u32 rx_left = (rs->rx_left > words) ? rs->rx_left - words : 0;
+diff --git a/arch/arm/mach-socfpga/pm.c b/arch/arm/mach-socfpga/pm.c
+index 6ed887cf8dc9a..365c0428b21b6 100644
+--- a/arch/arm/mach-socfpga/pm.c
++++ b/arch/arm/mach-socfpga/pm.c
+@@ -49,14 +49,14 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- 	/* the hardware doesn't allow us to change fifo threshold
- 	 * level while spi is enabled, so instead make sure to leave
+ 	ocram_base = gen_pool_alloc(ocram_pool, socfpga_sdram_self_refresh_sz);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -67,7 +67,7 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!suspend_ocram_base) {
+ 		pr_warn("%s: __arm_ioremap_exec failed!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	/* Copy the code that puts DDR in self refresh to ocram */
+@@ -81,6 +81,8 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!socfpga_sdram_self_refresh_in_ocram)
+ 		ret = -EFAULT;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(np);
+ 
 -- 
 2.25.1
 
