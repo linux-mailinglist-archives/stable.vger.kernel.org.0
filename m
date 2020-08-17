@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1124324766A
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1CB247668
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729992AbgHQP2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:28:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41208 "EHLO mail.kernel.org"
+        id S1729999AbgHQP2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:28:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729980AbgHQP2A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:28:00 -0400
+        id S1729989AbgHQP2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:28:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 645C923442;
-        Mon, 17 Aug 2020 15:27:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8755623AC0;
+        Mon, 17 Aug 2020 15:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678080;
-        bh=HPpur3AcZsnKoew8nx57JsgJtcKgbmaF7FrVy1/AC7g=;
+        s=default; t=1597678086;
+        bh=SJxSG5hjeCoBv7dI/pFgKfrBpXKRvG9S8f+X7U2EkEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8TwWaonn3PJGjiPF4cbDsfqFxO8OaVrj+4IJlybVZud1DSCWVFjDyG7eHN0KH+FE
-         Iw794CdYYNyHH6ujVUEtiIOgrMx/CCB1w95s6Q4plW+TQsnLJUCizOTdOA4m//Cs5s
-         Z+5UFWrn1RSXRhHiYTE1ihmM6Y7e+WiThtQTKFdA=
+        b=sFiK4Lb9Jyz9fjJiggtGf0eSMphLsIlZAPoV2xd8gh6CKIVbAscMn9RZQEBhdjStL
+         415GPusdhunmTQWJMFB5/A1Bie9G+P72//xE2kX/317pUQ0k+0qQiZCxmaU53mJGrY
+         LllHm7mVGE7yp0qfUbeUoiK3fdbJa1gZVirbx/CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        stable@vger.kernel.org,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 211/464] xfs: preserve rmapbt swapext block reservation from freed blocks
-Date:   Mon, 17 Aug 2020 17:12:44 +0200
-Message-Id: <20200817143843.918936064@linuxfoundation.org>
+Subject: [PATCH 5.8 213/464] xfs: fix reflink quota reservation accounting error
+Date:   Mon, 17 Aug 2020 17:12:46 +0200
+Message-Id: <20200817143844.015665239@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,143 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit f74681ba2006434be195402e0b15fc5763cddd7e ]
+[ Upstream commit 83895227aba1ade33e81f586aa7b6b1e143096a5 ]
 
-The rmapbt extent swap algorithm remaps individual extents between
-the source inode and the target to trigger reverse mapping metadata
-updates. If either inode straddles a format or other bmap allocation
-boundary, the individual unmap and map cycles can trigger repeated
-bmap block allocations and frees as the extent count bounces back
-and forth across the boundary. While net block usage is bound across
-the swap operation, this behavior can prematurely exhaust the
-transaction block reservation because it continuously drains as the
-transaction rolls. Each allocation accounts against the reservation
-and each free returns to global free space on transaction roll.
+Quota reservations are supposed to account for the blocks that might be
+allocated due to a bmap btree split.  Reflink doesn't do this, so fix
+this to make the quota accounting more accurate before we start
+rearranging things.
 
-The previous workaround to this problem attempted to detect this
-boundary condition and provide surplus block reservation to
-acommodate it. This is insufficient because more remaps can occur
-than implied by the extent counts; if start offset boundaries are
-not aligned between the two inodes, for example.
-
-To address this problem more generically and dynamically, add a
-transaction accounting mode that returns freed blocks to the
-transaction reservation instead of the superblock counters on
-transaction roll and use it when the rmapbt based algorithm is
-active. This allows the chain of remap transactions to preserve the
-block reservation based own its own frees and prevent premature
-exhaustion regardless of the remap pattern. Note that this is only
-safe for superblocks with lazy sb accounting, but the latter is
-required for v5 supers and the rmap feature depends on v5.
-
-Fixes: b3fed434822d0 ("xfs: account format bouncing into rmapbt swapext tx reservation")
-Root-caused-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: 862bb360ef56 ("xfs: reflink extents from one file to another")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_shared.h |  1 +
- fs/xfs/xfs_bmap_util.c     | 18 +++++++++---------
- fs/xfs/xfs_trans.c         | 19 ++++++++++++++++++-
- 3 files changed, 28 insertions(+), 10 deletions(-)
+ fs/xfs/xfs_reflink.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_shared.h b/fs/xfs/libxfs/xfs_shared.h
-index c45acbd3add94..708feb8eac766 100644
---- a/fs/xfs/libxfs/xfs_shared.h
-+++ b/fs/xfs/libxfs/xfs_shared.h
-@@ -65,6 +65,7 @@ void	xfs_log_get_max_trans_res(struct xfs_mount *mp,
- #define XFS_TRANS_DQ_DIRTY	0x10	/* at least one dquot in trx dirty */
- #define XFS_TRANS_RESERVE	0x20    /* OK to use reserved data blocks */
- #define XFS_TRANS_NO_WRITECOUNT 0x40	/* do not elevate SB writecount */
-+#define XFS_TRANS_RES_FDBLKS	0x80	/* reserve newly freed blocks */
- /*
-  * LOWMODE is used by the allocator to activate the lowspace algorithm - when
-  * free space is running low the extent allocator may choose to allocate an
-diff --git a/fs/xfs/xfs_bmap_util.c b/fs/xfs/xfs_bmap_util.c
-index f37f5cc4b19ff..afdc7f8e0e701 100644
---- a/fs/xfs/xfs_bmap_util.c
-+++ b/fs/xfs/xfs_bmap_util.c
-@@ -1567,6 +1567,7 @@ xfs_swap_extents(
- 	int			lock_flags;
- 	uint64_t		f;
- 	int			resblks = 0;
-+	unsigned int		flags = 0;
+diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
+index 107bf2a2f3448..d89201d40891f 100644
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1003,6 +1003,7 @@ xfs_reflink_remap_extent(
+ 	xfs_filblks_t		rlen;
+ 	xfs_filblks_t		unmap_len;
+ 	xfs_off_t		newlen;
++	int64_t			qres;
+ 	int			error;
  
- 	/*
- 	 * Lock the inodes against other IO, page faults and truncate to
-@@ -1630,17 +1631,16 @@ xfs_swap_extents(
- 		resblks +=  XFS_SWAP_RMAP_SPACE_RES(mp, tipnext, w);
+ 	unmap_len = irec->br_startoff + irec->br_blockcount - destoff;
+@@ -1025,13 +1026,19 @@ xfs_reflink_remap_extent(
+ 	xfs_ilock(ip, XFS_ILOCK_EXCL);
+ 	xfs_trans_ijoin(tp, ip, 0);
  
- 		/*
--		 * Handle the corner case where either inode might straddle the
--		 * btree format boundary. If so, the inode could bounce between
--		 * btree <-> extent format on unmap -> remap cycles, freeing and
--		 * allocating a bmapbt block each time.
-+		 * If either inode straddles a bmapbt block allocation boundary,
-+		 * the rmapbt algorithm triggers repeated allocs and frees as
-+		 * extents are remapped. This can exhaust the block reservation
-+		 * prematurely and cause shutdown. Return freed blocks to the
-+		 * transaction reservation to counter this behavior.
- 		 */
--		if (ipnext == (XFS_IFORK_MAXEXT(ip, w) + 1))
--			resblks += XFS_IFORK_MAXEXT(ip, w);
--		if (tipnext == (XFS_IFORK_MAXEXT(tip, w) + 1))
--			resblks += XFS_IFORK_MAXEXT(tip, w);
-+		flags |= XFS_TRANS_RES_FDBLKS;
- 	}
--	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_write, resblks, 0, 0, &tp);
-+	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_write, resblks, 0, flags,
-+				&tp);
- 	if (error)
- 		goto out_unlock;
+-	/* If we're not just clearing space, then do we have enough quota? */
+-	if (real_extent) {
+-		error = xfs_trans_reserve_quota_nblks(tp, ip,
+-				irec->br_blockcount, 0, XFS_QMOPT_RES_REGBLKS);
+-		if (error)
+-			goto out_cancel;
+-	}
++	/*
++	 * Reserve quota for this operation.  We don't know if the first unmap
++	 * in the dest file will cause a bmap btree split, so we always reserve
++	 * at least enough blocks for that split.  If the extent being mapped
++	 * in is written, we need to reserve quota for that too.
++	 */
++	qres = XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK);
++	if (real_extent)
++		qres += irec->br_blockcount;
++	error = xfs_trans_reserve_quota_nblks(tp, ip, qres, 0,
++			XFS_QMOPT_RES_REGBLKS);
++	if (error)
++		goto out_cancel;
  
-diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
-index 3c94e5ff43160..0ad72a83edac4 100644
---- a/fs/xfs/xfs_trans.c
-+++ b/fs/xfs/xfs_trans.c
-@@ -107,7 +107,8 @@ xfs_trans_dup(
- 
- 	ntp->t_flags = XFS_TRANS_PERM_LOG_RES |
- 		       (tp->t_flags & XFS_TRANS_RESERVE) |
--		       (tp->t_flags & XFS_TRANS_NO_WRITECOUNT);
-+		       (tp->t_flags & XFS_TRANS_NO_WRITECOUNT) |
-+		       (tp->t_flags & XFS_TRANS_RES_FDBLKS);
- 	/* We gave our writer reference to the new transaction */
- 	tp->t_flags |= XFS_TRANS_NO_WRITECOUNT;
- 	ntp->t_ticket = xfs_log_ticket_get(tp->t_ticket);
-@@ -272,6 +273,8 @@ xfs_trans_alloc(
- 	 */
- 	WARN_ON(resp->tr_logres > 0 &&
- 		mp->m_super->s_writers.frozen == SB_FREEZE_COMPLETE);
-+	ASSERT(!(flags & XFS_TRANS_RES_FDBLKS) ||
-+	       xfs_sb_version_haslazysbcount(&mp->m_sb));
- 
- 	tp->t_magic = XFS_TRANS_HEADER_MAGIC;
- 	tp->t_flags = flags;
-@@ -365,6 +368,20 @@ xfs_trans_mod_sb(
- 			tp->t_blk_res_used += (uint)-delta;
- 			if (tp->t_blk_res_used > tp->t_blk_res)
- 				xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
-+		} else if (delta > 0 && (tp->t_flags & XFS_TRANS_RES_FDBLKS)) {
-+			int64_t	blkres_delta;
-+
-+			/*
-+			 * Return freed blocks directly to the reservation
-+			 * instead of the global pool, being careful not to
-+			 * overflow the trans counter. This is used to preserve
-+			 * reservation across chains of transaction rolls that
-+			 * repeatedly free and allocate blocks.
-+			 */
-+			blkres_delta = min_t(int64_t, delta,
-+					     UINT_MAX - tp->t_blk_res);
-+			tp->t_blk_res += blkres_delta;
-+			delta -= blkres_delta;
- 		}
- 		tp->t_fdblocks_delta += delta;
- 		if (xfs_sb_version_haslazysbcount(&mp->m_sb))
+ 	trace_xfs_reflink_remap(ip, irec->br_startoff,
+ 				irec->br_blockcount, irec->br_startblock);
 -- 
 2.25.1
 
