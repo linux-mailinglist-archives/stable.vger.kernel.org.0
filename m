@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA038246B90
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:58:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D51246B94
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388135AbgHQP6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:58:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1730934AbgHQP6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:58:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388124AbgHQP6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:58:25 -0400
+        id S2388136AbgHQP6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:58:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5E2520729;
-        Mon, 17 Aug 2020 15:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC4AA2072E;
+        Mon, 17 Aug 2020 15:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679905;
-        bh=WE+uSikW384/lDpstgKl9Ks5l2pEQaqvx23IxVZjKmA=;
+        s=default; t=1597679911;
+        bh=mdDePSu7eStr8QxZQkIFDAJN7NczDRXPX+oERb1uTbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwKbfz3SyHxhHreKDWuIOCw+kvqiD/Ay60Z0Xxa1vc79QXmEVqw6m1erBiMy5EH64
-         7jUSMydJNNOMskePPoLzpcn2ieLHDwRIHcfRQiOhexSUBy5nHLMEVyomB+hdkwq55G
-         zN0A36BzFUvq08KrZJAKAkrf1FbJ0rHpFQDuRPKY=
+        b=wNFx/ieFKbWNMcCl/NZdnj0eBCPzYsUaCo2lfZ+dj3hijw/UUWos9V9cWSeObj0+X
+         p0o86FgCaa9W7VOhyz8Bm3P+hkcXwKRYqCUTd/wDuYVodT2tJZraAzdMNkCJDbiX1F
+         Tf7WATxIdVgReCgkh4eX86zd1/DZFNvjdUC9L8WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.7 374/393] parisc: Implement __smp_store_release and __smp_load_acquire barriers
-Date:   Mon, 17 Aug 2020 17:17:04 +0200
-Message-Id: <20200817143837.750832669@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.7 376/393] ARM: dts: exynos: Extend all Exynos5800 A15s OPPs with max voltage data
+Date:   Mon, 17 Aug 2020 17:17:06 +0200
+Message-Id: <20200817143837.847384622@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,92 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit e96ebd589debd9a6a793608c4ec7019c38785dea upstream.
+commit d644853ff8fcbb7a4e3757f9d8ccc39d930b7e3c upstream.
 
-This patch implements the __smp_store_release and __smp_load_acquire barriers
-using ordered stores and loads.  This avoids the sync instruction present in
-the generic implementation.
+On Exynos5422/5800 the regulator supply for the A15 cores ("vdd_arm") is
+coupled with the regulator supply for the SoC internal circuits
+("vdd_int"), thus all operating points that modify one of those supplies
+have to specify a triplet of the min/target/max values to properly work
+with regulator coupling.
 
-Cc: <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Dave Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: eaffc4de16c6 ("ARM: dts: exynos: Add missing CPU frequencies for Exynos5422/5800")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/include/asm/barrier.h |   61 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 61 insertions(+)
+ arch/arm/boot/dts/exynos5800.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/parisc/include/asm/barrier.h
-+++ b/arch/parisc/include/asm/barrier.h
-@@ -26,6 +26,67 @@
- #define __smp_rmb()	mb()
- #define __smp_wmb()	mb()
- 
-+#define __smp_store_release(p, v)					\
-+do {									\
-+	typeof(p) __p = (p);						\
-+        union { typeof(*p) __val; char __c[1]; } __u =			\
-+                { .__val = (__force typeof(*p)) (v) };			\
-+	compiletime_assert_atomic_type(*p);				\
-+	switch (sizeof(*p)) {						\
-+	case 1:								\
-+		asm volatile("stb,ma %0,0(%1)"				\
-+				: : "r"(*(__u8 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 2:								\
-+		asm volatile("sth,ma %0,0(%1)"				\
-+				: : "r"(*(__u16 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 4:								\
-+		asm volatile("stw,ma %0,0(%1)"				\
-+				: : "r"(*(__u32 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 8:								\
-+		if (IS_ENABLED(CONFIG_64BIT))				\
-+			asm volatile("std,ma %0,0(%1)"			\
-+				: : "r"(*(__u64 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	}								\
-+} while (0)
-+
-+#define __smp_load_acquire(p)						\
-+({									\
-+	union { typeof(*p) __val; char __c[1]; } __u;			\
-+	typeof(p) __p = (p);						\
-+	compiletime_assert_atomic_type(*p);				\
-+	switch (sizeof(*p)) {						\
-+	case 1:								\
-+		asm volatile("ldb,ma 0(%1),%0"				\
-+				: "=r"(*(__u8 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 2:								\
-+		asm volatile("ldh,ma 0(%1),%0"				\
-+				: "=r"(*(__u16 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 4:								\
-+		asm volatile("ldw,ma 0(%1),%0"				\
-+				: "=r"(*(__u32 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 8:								\
-+		if (IS_ENABLED(CONFIG_64BIT))				\
-+			asm volatile("ldd,ma 0(%1),%0"			\
-+				: "=r"(*(__u64 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	}								\
-+	__u.__val;							\
-+})
- #include <asm-generic/barrier.h>
- 
- #endif /* !__ASSEMBLY__ */
+--- a/arch/arm/boot/dts/exynos5800.dtsi
++++ b/arch/arm/boot/dts/exynos5800.dtsi
+@@ -23,17 +23,17 @@
+ &cluster_a15_opp_table {
+ 	opp-2000000000 {
+ 		opp-hz = /bits/ 64 <2000000000>;
+-		opp-microvolt = <1312500>;
++		opp-microvolt = <1312500 1312500 1500000>;
+ 		clock-latency-ns = <140000>;
+ 	};
+ 	opp-1900000000 {
+ 		opp-hz = /bits/ 64 <1900000000>;
+-		opp-microvolt = <1262500>;
++		opp-microvolt = <1262500 1262500 1500000>;
+ 		clock-latency-ns = <140000>;
+ 	};
+ 	opp-1800000000 {
+ 		opp-hz = /bits/ 64 <1800000000>;
+-		opp-microvolt = <1237500>;
++		opp-microvolt = <1237500 1237500 1500000>;
+ 		clock-latency-ns = <140000>;
+ 	};
+ 	opp-1700000000 {
 
 
