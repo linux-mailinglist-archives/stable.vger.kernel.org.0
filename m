@@ -2,65 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E56246536
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 13:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09CB2246551
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 13:27:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbgHQLOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 07:14:20 -0400
-Received: from sonic310-13.consmr.mail.bf2.yahoo.com ([74.6.135.123]:40949
-        "EHLO sonic310-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726385AbgHQLOT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 07:14:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1597662858; bh=vSZ7gQ8F13hDNYtYk6t77g8qrdmtAY1S6LJUlA/r/r4=; h=Date:From:Reply-To:Subject:References:From:Subject; b=aBwnqg6rqn4XcFOF3XfQxWUHITR8D+maPfb54WDKnRxTzGCcrSxRSMlPK0g5R2dsfAaaVLoC+s4ZvGe5gU96qoOGyzxKnSIi3cFsYxBChHLsNgs60HCWX8juXohnTjeRupHvfFagPGFMbDTlRZtVsODdm33bf0YUbwoR3BjdcuY2yqe8zRVbAMn027Bzdo+WrpTRsaNLKZ5DQZ9E+rf0c5qQh6wq0J3MoByFxVOXCx4hLa8EGFdAMXAIvyVlUcR/gYevWw1vsb9e/SVuPwajwCUbh6xKSjnkAfQFsS8uc327aa2g3oVnBwTlCeez7Z/fXX7A/cdCBUWFEPzuNcxmQA==
-X-YMail-OSG: 3KdVq0YVM1l_OLDCde5Eam30slX72K607lIUwPt.uUuRUAwmr9Kg.qLxGaLPw.t
- qeaH.BjFcCGINuYmFLnvKWBVJ2YXTxL3g7o.F_8O.UvxKnI4heUh5xRPgQl6zrfmtpEiGMBPPg9a
- WqiLi.46RAFX29EVsGRL7yxJM7vIBd3LsC1QeFBLLOPfeLSekZCaRBTVZy28TheT_kjrf8f4YMUz
- _INBkhtCNUr157v656deuJcGtueOYk.CdWxPZ_XObtXfYWW20t3gdMwuUnH0yo8BAW1ME8kwbv3L
- xEMUP_LT7Jx.qyJHXaLf62Zra3VJbDpNu4oDWl83k5b9jWtyRIIp2i5TDxxTgFrus87KltZ7UEbz
- puxAGnMXq4hHtfrSsjbLFSNmw5XdodYN5og9UosPHNbnbepKRKdWbFY3lXM_5lT4cImzueRxPd2F
- 6EE5wnfm250w8WQWl2XSPKiujH97uSSRwqcFNABzqlp88hfivUtvn0.j_ztso0Hgh_yccX4XwA3K
- 7rROH7myRGxBCCa_MNWkzxrRViuXlVQDaBCjXcfVbJ8Afg1stYBJuv5FVf08C7PazENAUgPlQy4q
- ieTgJbkYTi5Ct8UcDlzKuHo_f9700913_vGSXd9SaEXdq51RNBS5w19CNcDcUbw0L0Qgmrw6JA61
- JKhQuY8_sv8Nb4_f3t8Tw3WEBCdmPtyd43Rh48zPwCF9WEXkNSAuZG1SlJOoIDjyqGaziLU3rxKE
- NDe06DqmH6r2s_xrNH3bjkjKvfpe8vybfz1FS8NZN_fsfcb8_VuKM7A6Jo1GBPy7t3dmTiiKGpgs
- 5cxrFZz40yid2DqyoVrvDhUB1Gtw4s2izfr2dx7tmsock0KMxVZhIcpJV8UEGM5mFa6TV9Bj..d2
- MzafyzUD9umThgSBlLOLJMiGvjNxQMVDfBKiaQuVCBEf4OnYgk8zF7dcF90.JhUBb4RIL71y1oft
- WnB.c1pSj4tWEK.lSfd5f8EBwCwuJaciK0FhbAIAgir2tQIviKPvt7t5_txOeAFvk55vzz4UH9bU
- 3yq8cyCUK.FqMw0fDTM4BbmuMtZvG8CKzH9tZ0u2kX_U3rwlNcsQFx5bjjAZjCUkfgOSwXx2AGyy
- eedcvP1tHSwlhYasgP.VoPlSMUiLkLC7jxPHACv_A7JN9ALqlMsx2ysdXZH1idbsm2DPytGzHPy9
- LQGpMbgneXB3rsDu.PZ.peos54qkfvr_HaPNCCtMjaydBsunRJODFLvIns7S_.mbznGFDUkecN35
- byrU25IzXujZyNU0slOYdNFWjaL3P87_hGbrTvmwu_gmLD29sjyHSewFvDfuXghkq3NHDpMbFwHf
- 9PKyLcjPIorlAWo916Euc6zMc8rw_XsCE1bAOSni2ItYO7NOfxfcAhw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Mon, 17 Aug 2020 11:14:18 +0000
-Date:   Mon, 17 Aug 2020 11:14:17 +0000 (UTC)
-From:   Mrs Faiza Mohammed <mohammedfaiza505@gmail.com>
-Reply-To: faiza_mo303@yahoo.com
-Message-ID: <1017314475.2253864.1597662857642@mail.yahoo.com>
-Subject: Hello My Dear,
+        id S1727969AbgHQL1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 07:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54432 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726171AbgHQL1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 07:27:11 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EBF12072E;
+        Mon, 17 Aug 2020 11:27:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597663631;
+        bh=9xHlyo2BiYY/T+jraPVXVIU/n0TQ3xcC8NLLp7vd8lg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fiQpaf4hcczm5YVq+LzoOvnS1jJ1jZ34bULN1mFapmrHwcZ5DEr/7K7X1cTDB3GL3
+         uPsUNFv3gWypQwvHiP7KChSTQIYZ3mMsOjf9NIoa1yTi6RXU8pInxCiHtrMmjEcWT8
+         dML+poG1KEWklmMhQ5SoXDnEM0ETJtcAzgwvA9xw=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1k7dID-003Y6k-Fq; Mon, 17 Aug 2020 12:27:09 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 0/2] input/hid: Fix bitmap boundary validation
+Date:   Mon, 17 Aug 2020 12:26:58 +0100
+Message-Id: <20200817112700.468743-1-maz@kernel.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1017314475.2253864.1597662857642.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16455 YMailNodin Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+It recently became apparent that some of the low-level input and hid
+helpers lack some form of input validation when associating an event
+code with their internal capability bitmap, leading to potential
+memory corruption.
 
+These two patches address two occurrences of that issue, by masking
+out the top bits of the event code (all capability bitmaps are
+conveniently sized as power of twos), and spitting out a warning for
+further debugging.
 
-Hello My Dear,
+Marc Zyngier (2):
+  Input; Sanitize event code before modifying bitmaps
+  HID: core; Sanitize event code and type before mapping input
 
-Please do not feel disturbed for contacting you, based on the critical condition I find mine self though, it's not financial problem, but my health you might have know that cancer is not what to talk home about, I am married to Mr.Umair Mohammed who worked with Tunisia embassy in Burkina Faso for nine years before he died in the year 2012.We were married for eleven years without a child. He died after a brief illness that lasted for five days.
+ drivers/input/input.c | 16 +++++++++++++++-
+ include/linux/hid.h   | 19 +++++++++++++++----
+ 2 files changed, 30 insertions(+), 5 deletions(-)
 
-Since his death I decided not to remarry, When my late husband was alive he deposited the sum of US$ 9.2m (Nine million two hundred thousand dollars) in a bank in Burkina Faso, Presently this money is still in bank. And My Doctor told me that I don't have much time to live because of the cancer problem, Having known my condition I decided to hand you over this fond to take care of the less-privileged people, you will utilize this money the way I am going to instruct herein. I want you to take 30 Percent of the total money for your personal use While 70% of the money will go to charity" people and helping the orphanage.
+-- 
+2.27.0
 
-I don't want my husband's efforts to be used by the Government. I grew up as an Orphan and I don't have anybody as my family member,
-
-I am expecting your response to private faiza_mo303@yahoo.com
-
-Regards,
-
-Mrs.Faiza Mohammed.
-written from Hospital.
