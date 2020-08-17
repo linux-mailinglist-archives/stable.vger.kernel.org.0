@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A6BE2474D8
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C2D2474D1
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:16:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392129AbgHQTQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S2387447AbgHQPji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:39:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730329AbgHQPj3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:39:29 -0400
+        id S1730649AbgHQPjb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:39:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5718322C9F;
-        Mon, 17 Aug 2020 15:39:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9C5A22DD6;
+        Mon, 17 Aug 2020 15:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678768;
-        bh=WE+uSikW384/lDpstgKl9Ks5l2pEQaqvx23IxVZjKmA=;
+        s=default; t=1597678771;
+        bh=uNGWZjCsg64ckoUhe0XxFhNdO/u7Unjei4kpB/FWVdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XShu+UjBnRi0RDaT9cTnG6XLF3xsju8C5+pyfNIzwl30bqwdRiAdUKX3PKJldxZv+
-         afyiONMAArL1ldWp4fp45/yY1/YWdWH+qFK+Kw/GzbrRvAjDSxZk/gDAa7O90YImz7
-         tynZXBl/M0A7Pw0Rvs2QKgj9EQsbbR1TBCS7k2Wk=
+        b=Xh3Hn5U/P9qRYVAX8IJXNIT5dpw7IW2ZdMPWqgQf2tlzQqrTujMXoIKTu4fbC+aqw
+         hK8ziRrXLrvKcWVGM4YaKAXbmgqmUEgKjNnU0Oid3gkBI1lDECQTMb/Ac5WbwKXQCO
+         lGRQ7GhVr/9zVqb1AcsVos+tXQjMvgts7SJkoQY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
         Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.8 446/464] parisc: Implement __smp_store_release and __smp_load_acquire barriers
-Date:   Mon, 17 Aug 2020 17:16:39 +0200
-Message-Id: <20200817143855.143218311@linuxfoundation.org>
+Subject: [PATCH 5.8 447/464] parisc: mask out enable and reserved bits from sba imask
+Date:   Mon, 17 Aug 2020 17:16:40 +0200
+Message-Id: <20200817143855.193232198@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,92 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Sven Schnelle <svens@stackframe.org>
 
-commit e96ebd589debd9a6a793608c4ec7019c38785dea upstream.
+commit 5b24993c21cbf2de11aff077a48c5cb0505a0450 upstream.
 
-This patch implements the __smp_store_release and __smp_load_acquire barriers
-using ordered stores and loads.  This avoids the sync instruction present in
-the generic implementation.
+When using kexec the SBA IOMMU IBASE might still have the RE
+bit set. This triggers a WARN_ON when trying to write back the
+IBASE register later, and it also makes some mask calculations fail.
 
-Cc: <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Dave Anglin <dave.anglin@bell.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/include/asm/barrier.h |   61 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 61 insertions(+)
+ drivers/parisc/sba_iommu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/include/asm/barrier.h
-+++ b/arch/parisc/include/asm/barrier.h
-@@ -26,6 +26,67 @@
- #define __smp_rmb()	mb()
- #define __smp_wmb()	mb()
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -1270,7 +1270,7 @@ sba_ioc_init_pluto(struct parisc_device
+ 	** (one that doesn't overlap memory or LMMIO space) in the
+ 	** IBASE and IMASK registers.
+ 	*/
+-	ioc->ibase = READ_REG(ioc->ioc_hpa + IOC_IBASE);
++	ioc->ibase = READ_REG(ioc->ioc_hpa + IOC_IBASE) & ~0x1fffffULL;
+ 	iova_space_size = ~(READ_REG(ioc->ioc_hpa + IOC_IMASK) & 0xFFFFFFFFUL) + 1;
  
-+#define __smp_store_release(p, v)					\
-+do {									\
-+	typeof(p) __p = (p);						\
-+        union { typeof(*p) __val; char __c[1]; } __u =			\
-+                { .__val = (__force typeof(*p)) (v) };			\
-+	compiletime_assert_atomic_type(*p);				\
-+	switch (sizeof(*p)) {						\
-+	case 1:								\
-+		asm volatile("stb,ma %0,0(%1)"				\
-+				: : "r"(*(__u8 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 2:								\
-+		asm volatile("sth,ma %0,0(%1)"				\
-+				: : "r"(*(__u16 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 4:								\
-+		asm volatile("stw,ma %0,0(%1)"				\
-+				: : "r"(*(__u32 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 8:								\
-+		if (IS_ENABLED(CONFIG_64BIT))				\
-+			asm volatile("std,ma %0,0(%1)"			\
-+				: : "r"(*(__u64 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	}								\
-+} while (0)
-+
-+#define __smp_load_acquire(p)						\
-+({									\
-+	union { typeof(*p) __val; char __c[1]; } __u;			\
-+	typeof(p) __p = (p);						\
-+	compiletime_assert_atomic_type(*p);				\
-+	switch (sizeof(*p)) {						\
-+	case 1:								\
-+		asm volatile("ldb,ma 0(%1),%0"				\
-+				: "=r"(*(__u8 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 2:								\
-+		asm volatile("ldh,ma 0(%1),%0"				\
-+				: "=r"(*(__u16 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 4:								\
-+		asm volatile("ldw,ma 0(%1),%0"				\
-+				: "=r"(*(__u32 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 8:								\
-+		if (IS_ENABLED(CONFIG_64BIT))				\
-+			asm volatile("ldd,ma 0(%1),%0"			\
-+				: "=r"(*(__u64 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	}								\
-+	__u.__val;							\
-+})
- #include <asm-generic/barrier.h>
- 
- #endif /* !__ASSEMBLY__ */
+ 	if ((ioc->ibase < 0xfed00000UL) && ((ioc->ibase + iova_space_size) > 0xfee00000UL)) {
 
 
