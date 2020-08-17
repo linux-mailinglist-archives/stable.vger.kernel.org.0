@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4994247732
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E970247733
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404395AbgHQTq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404331AbgHQTq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 15:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43484 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729346AbgHQPVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:21:22 -0400
+        id S1729353AbgHQPV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:21:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D264B206FA;
-        Mon, 17 Aug 2020 15:21:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6BFD20709;
+        Mon, 17 Aug 2020 15:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677681;
-        bh=LeIfYr0l/Y0cKUOJyG6VPSw7hUwxWj1TrqOpoXJKVKE=;
+        s=default; t=1597677687;
+        bh=n4p+AeW6JiuIsLx1WW7NJfTXfksep1+709oM9kBwEgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNRMD+cF23yGI1qDSyYYUenlqpUCWSbhhHZ7oaKBFdf8RUzdgkXscdLfIydVr522c
-         jkTnp8OIPzeF8idvl5Z7wGM8TYweT0b/08PebkoigTK7U61viO9wCpiG/7+0+5pIeE
-         2/casE3xZZb38RCjCusPVRseBsDg3zHCgzucdPO4=
+        b=lx7J+ALfUbQCjO1biPZ99KKu6gegwiNOdKXS6lXMg7QIRr/h2WJqqB/tTd9kwmX1e
+         9HON5CNEc+Dlx6Z9+/eEZhef3ld+aRxnZ4PknPqrvOXm4Y3mtIMK6Bu/W0jMos4bZd
+         VOGqic4yfsYbsTwZw1Gxks2p9/e4v/Eu8SDMAaCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 070/464] irqchip/gic-v4.1: Use GFP_ATOMIC flag in allocate_vpe_l1_table()
-Date:   Mon, 17 Aug 2020 17:10:23 +0200
-Message-Id: <20200817143837.120735004@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 071/464] nvme-tcp: fix controller reset hang during traffic
+Date:   Mon, 17 Aug 2020 17:10:24 +0200
+Message-Id: <20200817143837.169466159@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,72 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit d1bd7e0ba533a2a6f313579ec9b504f6614c35c4 ]
+[ Upstream commit 2875b0aecabe2f081a8432e2bc85b85df0529490 ]
 
-Booting the latest kernel with DEBUG_ATOMIC_SLEEP=y on a GICv4.1 enabled
-box, I get the following kernel splat:
+commit fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+exposed an issue where we may hang trying to wait for queue freeze
+during I/O. We call blk_mq_update_nr_hw_queues which in case of multiple
+queue maps (which we have now for default/read/poll) is attempting to
+freeze the queue. However we never started queue freeze when starting the
+reset, which means that we have inflight pending requests that entered the
+queue that we will not complete once the queue is quiesced.
 
-[    0.053766] BUG: sleeping function called from invalid context at mm/slab.h:567
-[    0.053767] in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 0, name: swapper/1
-[    0.053769] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.8.0-rc3+ #23
-[    0.053770] Call trace:
-[    0.053774]  dump_backtrace+0x0/0x218
-[    0.053775]  show_stack+0x2c/0x38
-[    0.053777]  dump_stack+0xc4/0x10c
-[    0.053779]  ___might_sleep+0xfc/0x140
-[    0.053780]  __might_sleep+0x58/0x90
-[    0.053782]  slab_pre_alloc_hook+0x7c/0x90
-[    0.053783]  kmem_cache_alloc_trace+0x60/0x2f0
-[    0.053785]  its_cpu_init+0x6f4/0xe40
-[    0.053786]  gic_starting_cpu+0x24/0x38
-[    0.053788]  cpuhp_invoke_callback+0xa0/0x710
-[    0.053789]  notify_cpu_starting+0xcc/0xd8
-[    0.053790]  secondary_start_kernel+0x148/0x200
+So start a freeze before we quiesce the queue, and unfreeze the queue
+after we successfully connected the I/O queues (and make sure to call
+blk_mq_update_nr_hw_queues only after we are sure that the queue was
+already frozen).
 
- # ./scripts/faddr2line vmlinux its_cpu_init+0x6f4/0xe40
-its_cpu_init+0x6f4/0xe40:
-allocate_vpe_l1_table at drivers/irqchip/irq-gic-v3-its.c:2818
-(inlined by) its_cpu_init_lpis at drivers/irqchip/irq-gic-v3-its.c:3138
-(inlined by) its_cpu_init at drivers/irqchip/irq-gic-v3-its.c:5166
+This follows to how the pci driver handles resets.
 
-It turned out that we're allocating memory using GFP_KERNEL (may sleep)
-within the CPU hotplug notifier, which is indeed an atomic context. Bad
-thing may happen if we're playing on a system with more than a single
-CommonLPIAff group. Avoid it by turning this into an atomic allocation.
-
-Fixes: 5e5168461c22 ("irqchip/gic-v4.1: VPE table (aka GICR_VPROPBASER) allocation")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200630133746.816-1-yuzenghui@huawei.com
+Fixes: fe35ec58f0d3 ("block: update hctx map when use multiple maps")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/tcp.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index beac4caefad9a..da44bfa48bc25 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2814,7 +2814,7 @@ static int allocate_vpe_l1_table(void)
- 	if (val & GICR_VPROPBASER_4_1_VALID)
- 		goto out;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index f3a91818167b1..83bb329d4113a 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1744,15 +1744,20 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
+ 			ret = PTR_ERR(ctrl->connect_q);
+ 			goto out_free_tag_set;
+ 		}
+-	} else {
+-		blk_mq_update_nr_hw_queues(ctrl->tagset,
+-			ctrl->queue_count - 1);
+ 	}
  
--	gic_data_rdist()->vpe_table_mask = kzalloc(sizeof(cpumask_t), GFP_KERNEL);
-+	gic_data_rdist()->vpe_table_mask = kzalloc(sizeof(cpumask_t), GFP_ATOMIC);
- 	if (!gic_data_rdist()->vpe_table_mask)
- 		return -ENOMEM;
+ 	ret = nvme_tcp_start_io_queues(ctrl);
+ 	if (ret)
+ 		goto out_cleanup_connect_q;
  
-@@ -2881,7 +2881,7 @@ static int allocate_vpe_l1_table(void)
++	if (!new) {
++		nvme_start_queues(ctrl);
++		nvme_wait_freeze(ctrl);
++		blk_mq_update_nr_hw_queues(ctrl->tagset,
++			ctrl->queue_count - 1);
++		nvme_unfreeze(ctrl);
++	}
++
+ 	return 0;
  
- 	pr_debug("np = %d, npg = %lld, psz = %d, epp = %d, esz = %d\n",
- 		 np, npg, psz, epp, esz);
--	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, get_order(np * PAGE_SIZE));
-+	page = alloc_pages(GFP_ATOMIC | __GFP_ZERO, get_order(np * PAGE_SIZE));
- 	if (!page)
- 		return -ENOMEM;
- 
+ out_cleanup_connect_q:
+@@ -1857,6 +1862,7 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ {
+ 	if (ctrl->queue_count <= 1)
+ 		return;
++	nvme_start_freeze(ctrl);
+ 	nvme_stop_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+ 	if (ctrl->tagset) {
 -- 
 2.25.1
 
