@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C67C247146
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A37247149
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731042AbgHQQDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:03:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50556 "EHLO mail.kernel.org"
+        id S2390838AbgHQSYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:24:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731035AbgHQQDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:03:00 -0400
+        id S1731034AbgHQQDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:03:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AD3E20772;
-        Mon, 17 Aug 2020 16:03:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ADDD2053B;
+        Mon, 17 Aug 2020 16:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680180;
-        bh=dKrMHON5WHDYvhzpQyR3cOpLkKILpGjs3K0fz8kF4lI=;
+        s=default; t=1597680183;
+        bh=GojjC6uCeUIFjllzkZFs+d8HgBoSm/cfabwAnhoPo0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZ8HD+yGtdtoVUCvmJhibMkGjA1+TZCb4P9UX8APwOMlY4Csd5MhGTeuCdiWke9/g
-         II9+4UK/IT7QXRoZQwS3M4wdNmYmV3vmwsk5Jjm5QUK4Aqeu/Mznp1VEQOatqB0VDq
-         FlGbUOlzcPgQtGa2spcaFXX+NISR1CUiFPr8A3Ko=
+        b=Ecn8pi/aczY6ed2Bh9E39sgfxk276N0cuono7t85YA7nyps/LevI8LsDlndzGuZY0
+         T/N3VmWbPOaCRdczr6gQggfB3bThWplTtTrzImQ6joPud7La65wejbeKMkgBDkJUiW
+         svCBtxLpZrKI+hjcYBAhFMGumkD/o1KqBF2N3Dvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        stable@vger.kernel.org, Sasi Kumar <sasi.kumar@broadcom.com>,
+        Al Cooper <alcooperx@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/270] usb: gadget: net2280: fix memory leak on probe error handling paths
-Date:   Mon, 17 Aug 2020 17:14:44 +0200
-Message-Id: <20200817143759.909983371@linuxfoundation.org>
+Subject: [PATCH 5.4 084/270] bdc: Fix bug causing crash after multiple disconnects
+Date:   Mon, 17 Aug 2020 17:14:45 +0200
+Message-Id: <20200817143759.955667926@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,40 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Sasi Kumar <sasi.kumar@broadcom.com>
 
-[ Upstream commit 2468c877da428ebfd701142c4cdfefcfb7d4c00e ]
+[ Upstream commit a95bdfd22076497288868c028619bc5995f5cc7f ]
 
-Driver does not release memory for device on error handling paths in
-net2280_probe() when gadget_release() is not registered yet.
+Multiple connects/disconnects can cause a crash on the second
+disconnect. The driver had a problem where it would try to send
+endpoint commands after it was disconnected which is not allowed
+by the hardware. The fix is to only allow the endpoint commands
+when the endpoint is connected. This will also fix issues that
+showed up when using configfs to create gadgets.
 
-The patch fixes the bug like in other similar drivers.
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Sasi Kumar <sasi.kumar@broadcom.com>
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/net2280.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/bdc/bdc_core.c |  4 ++++
+ drivers/usb/gadget/udc/bdc/bdc_ep.c   | 16 ++++++++++------
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/net2280.c b/drivers/usb/gadget/udc/net2280.c
-index 51efee21915ff..7c616d7641c6d 100644
---- a/drivers/usb/gadget/udc/net2280.c
-+++ b/drivers/usb/gadget/udc/net2280.c
-@@ -3782,8 +3782,10 @@ static int net2280_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
+index cc4a16e253ac5..174555e94a6c0 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_core.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
+@@ -282,6 +282,7 @@ static void bdc_mem_init(struct bdc *bdc, bool reinit)
+ 	 * in that case reinit is passed as 1
+ 	 */
+ 	if (reinit) {
++		int i;
+ 		/* Enable interrupts */
+ 		temp = bdc_readl(bdc->regs, BDC_BDCSC);
+ 		temp |= BDC_GIE;
+@@ -291,6 +292,9 @@ static void bdc_mem_init(struct bdc *bdc, bool reinit)
+ 		/* Initialize SRR to 0 */
+ 		memset(bdc->srr.sr_bds, 0,
+ 					NUM_SR_ENTRIES * sizeof(struct bdc_bd));
++		/* clear ep flags to avoid post disconnect stops/deconfigs */
++		for (i = 1; i < bdc->num_eps; ++i)
++			bdc->bdc_ep_array[i]->flags = 0;
+ 	} else {
+ 		/* One time initiaization only */
+ 		/* Enable status report function pointers */
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_ep.c b/drivers/usb/gadget/udc/bdc/bdc_ep.c
+index d49c6dc1082dc..9ddc0b4e92c9c 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_ep.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_ep.c
+@@ -615,7 +615,6 @@ int bdc_ep_enable(struct bdc_ep *ep)
+ 	}
+ 	bdc_dbg_bd_list(bdc, ep);
+ 	/* only for ep0: config ep is called for ep0 from connect event */
+-	ep->flags |= BDC_EP_ENABLED;
+ 	if (ep->ep_num == 1)
+ 		return ret;
  
- done:
--	if (dev)
-+	if (dev) {
- 		net2280_remove(pdev);
-+		kfree(dev);
-+	}
- 	return retval;
- }
+@@ -759,10 +758,13 @@ static int ep_dequeue(struct bdc_ep *ep, struct bdc_req *req)
+ 					__func__, ep->name, start_bdi, end_bdi);
+ 	dev_dbg(bdc->dev, "ep_dequeue ep=%p ep->desc=%p\n",
+ 						ep, (void *)ep->usb_ep.desc);
+-	/* Stop the ep to see where the HW is ? */
+-	ret = bdc_stop_ep(bdc, ep->ep_num);
+-	/* if there is an issue with stopping ep, then no need to go further */
+-	if (ret)
++	/* if still connected, stop the ep to see where the HW is ? */
++	if (!(bdc_readl(bdc->regs, BDC_USPC) & BDC_PST_MASK)) {
++		ret = bdc_stop_ep(bdc, ep->ep_num);
++		/* if there is an issue, then no need to go further */
++		if (ret)
++			return 0;
++	} else
+ 		return 0;
  
+ 	/*
+@@ -1911,7 +1913,9 @@ static int bdc_gadget_ep_disable(struct usb_ep *_ep)
+ 		__func__, ep->name, ep->flags);
+ 
+ 	if (!(ep->flags & BDC_EP_ENABLED)) {
+-		dev_warn(bdc->dev, "%s is already disabled\n", ep->name);
++		if (bdc->gadget.speed != USB_SPEED_UNKNOWN)
++			dev_warn(bdc->dev, "%s is already disabled\n",
++				 ep->name);
+ 		return 0;
+ 	}
+ 	spin_lock_irqsave(&bdc->lock, flags);
 -- 
 2.25.1
 
