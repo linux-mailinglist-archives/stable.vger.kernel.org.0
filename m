@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CAB2476A4
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD96247696
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732399AbgHQTkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:40:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33478 "EHLO mail.kernel.org"
+        id S1730046AbgHQTj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:39:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729779AbgHQP0B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:26:01 -0400
+        id S1729813AbgHQP0c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:26:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC33B20885;
-        Mon, 17 Aug 2020 15:26:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B95323718;
+        Mon, 17 Aug 2020 15:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677961;
-        bh=8thRGMa9HAsMNS+bjxZvdNHUOnx+8B3XqlO1Ya55qq4=;
+        s=default; t=1597677991;
+        bh=7zefk5AnHsO0CJkvNYQwHaA5V3ogPlSFdGnb5lfCmhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VckAg48urQwlwOgJGgIUabLt79x4wTWV9d9fjSWZFjKidnENOAZYJ1OsxF5CzftSe
-         txnwOxzpBKamZz7KZq3Bpqw4x6mh3MJn1bSnyCFZDQ1CfB+SgzGb761h25nk9ouwwi
-         uDSw8zHXdPofzID1UQXujLHRBbNm5wE8RQX5B5i8=
+        b=XzyjD7sABwZ7QHGRH7dzBHIP3AZyz2o+X2lHpFg4Y9e9+YwMQ1JarmWfx4sWJWlPR
+         qeorOi5mjT+ESLkbMuvSvac+j7hWC7euNxQ24QNWEHmuw4b2ZAUBH14mR5Lt0VIaqb
+         GnbdYO+ZYZNVdbY6RnOJU0Ef09EgRggTcI9pPc9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 153/464] drm/mm: fix hole size comparison
-Date:   Mon, 17 Aug 2020 17:11:46 +0200
-Message-Id: <20200817143841.142266377@linuxfoundation.org>
+Subject: [PATCH 5.8 154/464] Bluetooth: hci_qca: Only remove TX clock vote after TX is completed
+Date:   Mon, 17 Aug 2020 17:11:47 +0200
+Message-Id: <20200817143841.189648230@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,44 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.aiemd@gmail.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 18ece75d7d74eb108f6a7325cf247077a666cba8 ]
+[ Upstream commit eff981f6579d5797d68d27afc0eede529ac8778a ]
 
-Fixes: 0cdea4455acd350a ("drm/mm: optimize rb_hole_addr rbtree search")
+qca_suspend() removes the vote for the UART TX clock after
+writing an IBS sleep request to the serial buffer. This is
+not a good idea since there is no guarantee that the request
+has been sent at this point. Instead remove the vote after
+successfully entering IBS sleep. This also fixes the issue
+of the vote being removed in case of an aborted suspend due
+to a failure of entering IBS sleep.
 
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Reported-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/367726/
+Fixes: 41d5b25fed0a0 ("Bluetooth: hci_qca: add PM support")
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_qca.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mm.c b/drivers/gpu/drm/drm_mm.c
-index f4ca1ff80af9f..60e9a9c91e9d9 100644
---- a/drivers/gpu/drm/drm_mm.c
-+++ b/drivers/gpu/drm/drm_mm.c
-@@ -407,7 +407,7 @@ next_hole_high_addr(struct drm_mm_node *entry, u64 size)
- 		left_node = rb_entry(left_rb_node,
- 				     struct drm_mm_node, rb_hole_addr);
- 		if ((left_node->subtree_max_hole < size ||
--		     entry->size == entry->subtree_max_hole) &&
-+		     HOLE_SIZE(entry) == entry->subtree_max_hole) &&
- 		    parent_rb_node && parent_rb_node->rb_left != rb_node)
- 			return rb_hole_addr_to_node(parent_rb_node);
- 	}
-@@ -447,7 +447,7 @@ next_hole_low_addr(struct drm_mm_node *entry, u64 size)
- 		right_node = rb_entry(right_rb_node,
- 				      struct drm_mm_node, rb_hole_addr);
- 		if ((right_node->subtree_max_hole < size ||
--		     entry->size == entry->subtree_max_hole) &&
-+		     HOLE_SIZE(entry) == entry->subtree_max_hole) &&
- 		    parent_rb_node && parent_rb_node->rb_right != rb_node)
- 			return rb_hole_addr_to_node(parent_rb_node);
- 	}
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 25659b8b0c0c8..328919b79f7b9 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -2115,8 +2115,6 @@ static int __maybe_unused qca_suspend(struct device *dev)
+ 
+ 		qca->tx_ibs_state = HCI_IBS_TX_ASLEEP;
+ 		qca->ibs_sent_slps++;
+-
+-		qca_wq_serial_tx_clock_vote_off(&qca->ws_tx_vote_off);
+ 		break;
+ 
+ 	case HCI_IBS_TX_ASLEEP:
+@@ -2144,8 +2142,10 @@ static int __maybe_unused qca_suspend(struct device *dev)
+ 			qca->rx_ibs_state == HCI_IBS_RX_ASLEEP,
+ 			msecs_to_jiffies(IBS_BTSOC_TX_IDLE_TIMEOUT_MS));
+ 
+-	if (ret > 0)
++	if (ret > 0) {
++		qca_wq_serial_tx_clock_vote_off(&qca->ws_tx_vote_off);
+ 		return 0;
++	}
+ 
+ 	if (ret == 0)
+ 		ret = -ETIMEDOUT;
 -- 
 2.25.1
 
