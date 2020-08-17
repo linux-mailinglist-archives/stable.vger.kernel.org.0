@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AEC246EEC
+	by mail.lfdr.de (Postfix) with ESMTP id 7950D246EEB
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388639AbgHQRjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56320 "EHLO mail.kernel.org"
+        id S2387498AbgHQRi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:38:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731124AbgHQQQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:16:42 -0400
+        id S1731128AbgHQQRE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:17:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93EF722B45;
-        Mon, 17 Aug 2020 16:16:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6C0C204FD;
+        Mon, 17 Aug 2020 16:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680996;
-        bh=1cG5suJdmIeIr48+dIUrQ2m7BOQsojiTL7hzZnjbduk=;
+        s=default; t=1597681001;
+        bh=jthDV5NL6FjB8XfrKmJlklaY9aISJmazXh2IzZZc254=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJpnGkliMM+i9UW20fdI15IdrOMhn5ZXkAyttCAE/+jjQOFgE5pslw6wgyW0zS8nX
-         eAIK7+OCPhpMHHz+AelYA2HnYYEckw5Iu3nqb9YYpsU8lvesTE9u/fZLaGsRZ2O/KZ
-         +poxwJ4OvArGuO/ApxkVtMx/AK2Wh+2DCfWZmZfY=
+        b=bNqzZtwu+zt5+le5ovjbCPcCxnuI7K5LaolySKAvprAMFUDHNO5oIceTHs2v3/r7F
+         YOslpFra9MB5FrbKxNLLISIVBnRkdqDq62nxeaBWLskV5ZCu1RWsxHS4D3KP3l25VC
+         m4x+T6lOLaieWAWnfeU7ReEBNbnhJEOxsvbcYnxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 142/168] ALSA: usb-audio: fix overeager device match for MacroSilicon MS2109
-Date:   Mon, 17 Aug 2020 17:17:53 +0200
-Message-Id: <20200817143740.779416594@linuxfoundation.org>
+        stable@vger.kernel.org, Matteo Croce <mcroce@linux.microsoft.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 144/168] pstore: Fix linking when crypto API disabled
+Date:   Mon, 17 Aug 2020 17:17:55 +0200
+Message-Id: <20200817143740.863496829@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -43,40 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Matteo Croce <mcroce@linux.microsoft.com>
 
-commit 14a720dc1f5332f3bdf30a23a3bc549e81be974c upstream.
+commit fd49e03280e596e54edb93a91bc96170f8e97e4a upstream.
 
-Matching by device matches all interfaces, which breaks the video/HID
-portions of the device depending on module load order.
+When building a kernel with CONFIG_PSTORE=y and CONFIG_CRYPTO not set,
+a build error happens:
 
-Fixes: e337bf19f6af ("ALSA: usb-audio: add quirk for MacroSilicon MS2109")
+    ld: fs/pstore/platform.o: in function `pstore_dump':
+    platform.c:(.text+0x3f9): undefined reference to `crypto_comp_compress'
+    ld: fs/pstore/platform.o: in function `pstore_get_backend_records':
+    platform.c:(.text+0x784): undefined reference to `crypto_comp_decompress'
+
+This because some pstore code uses crypto_comp_(de)compress regardless
+of the CONFIG_CRYPTO status. Fix it by wrapping the (de)compress usage
+by IS_ENABLED(CONFIG_PSTORE_COMPRESS)
+
+Signed-off-by: Matteo Croce <mcroce@linux.microsoft.com>
+Link: https://lore.kernel.org/lkml/20200706234045.9516-1-mcroce@linux.microsoft.com
+Fixes: cb3bee0369bc ("pstore: Use crypto compress API")
 Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200810045319.128745-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks-table.h |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/pstore/platform.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3472,7 +3472,13 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* A
-  * with.
-  */
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -250,6 +250,9 @@ static int pstore_compress(const void *i
  {
--	USB_DEVICE(0x534d, 0x2109),
-+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |
-+		       USB_DEVICE_ID_MATCH_INT_CLASS |
-+		       USB_DEVICE_ID_MATCH_INT_SUBCLASS,
-+	.idVendor = 0x534d,
-+	.idProduct = 0x2109,
-+	.bInterfaceClass = USB_CLASS_AUDIO,
-+	.bInterfaceSubClass = USB_SUBCLASS_AUDIOCONTROL,
- 	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
- 		.vendor_name = "MacroSilicon",
- 		.product_name = "MS2109",
+ 	int ret;
+ 
++	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION))
++		return -EINVAL;
++
+ 	ret = crypto_comp_compress(tfm, in, inlen, out, &outlen);
+ 	if (ret) {
+ 		pr_err("crypto_comp_compress failed, ret = %d!\n", ret);
+@@ -647,7 +650,7 @@ static void decompress_record(struct pst
+ 	int unzipped_len;
+ 	char *decompressed;
+ 
+-	if (!record->compressed)
++	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION) || !record->compressed)
+ 		return;
+ 
+ 	/* Only PSTORE_TYPE_DMESG support compression. */
 
 
