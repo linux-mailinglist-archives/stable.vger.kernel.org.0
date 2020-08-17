@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B209246A63
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C453246B5A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730266AbgHQPfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:35:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39474 "EHLO mail.kernel.org"
+        id S2387928AbgHQPxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:53:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730440AbgHQPeq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:34:46 -0400
+        id S2387789AbgHQPxd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E604522E00;
-        Mon, 17 Aug 2020 15:34:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C78920729;
+        Mon, 17 Aug 2020 15:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678486;
-        bh=4CFGfsTcuLmf6c/2l3yQniiMu66wdLCJlBLj0T632xw=;
+        s=default; t=1597679604;
+        bh=bN7E5iG/RTgo3CgEpGacs6B2YD4jqwur/wMV2RNafec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtlyLVw90c8qH6B7mwXuCTeFjdBGiE7kDe+7tmS1UPN7xuFVgF2ugu/85DSfxOF1e
-         ZxnX1nEMLQ5GocVfiD1rmwfAUy7RWciNyq7+qODDjWabfaerivbiHWFukk3xScT2wj
-         TIGlz7tdKNOBijfdAbFSuzAL+hvIGfkmDrwb+vvs=
+        b=ilxknprzeeTqAoR2L/hCdAaesDIQ+z9oQn/VPoVfn9bbjjowCMiHLe0HsxVWlcndE
+         Em1Lg2dkSYp/92WD8U2S6A7OYPAGJZXLCgPGkXsTWmYZfvnoYZOGUaCz7K2BVduw2T
+         lYA3XYUs7NPpNenlM0Dp7p0HcaO5nXCZVBHNGO0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 349/464] wl1251: fix always return 0 error
-Date:   Mon, 17 Aug 2020 17:15:02 +0200
-Message-Id: <20200817143850.488290042@linuxfoundation.org>
+Subject: [PATCH 5.7 254/393] Smack: prevent underflow in smk_set_cipso()
+Date:   Mon, 17 Aug 2020 17:15:04 +0200
+Message-Id: <20200817143831.936342216@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 20e6421344b5bc2f97b8e2db47b6994368417904 ]
+[ Upstream commit 42a2df3e829f3c5562090391b33714b2e2e5ad4a ]
 
-wl1251_event_ps_report() should not always return 0 because
-wl1251_ps_set_mode() may fail. Change it to return 'ret'.
+We have an upper bound on "maplevel" but forgot to check for negative
+values.
 
-Fixes: f7ad1eed4d4b ("wl1251: retry power save entry")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200730073939.33704-1-wanghai38@huawei.com
+Fixes: e114e473771c ("Smack: Simplified Mandatory Access Control Kernel")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wl1251/event.c | 2 +-
+ security/smack/smackfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ti/wl1251/event.c b/drivers/net/wireless/ti/wl1251/event.c
-index 850864dbafa11..e6d426edab56b 100644
---- a/drivers/net/wireless/ti/wl1251/event.c
-+++ b/drivers/net/wireless/ti/wl1251/event.c
-@@ -70,7 +70,7 @@ static int wl1251_event_ps_report(struct wl1251 *wl,
- 		break;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 2bae1fc493d16..9c4308077574c 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -884,7 +884,7 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
  	}
  
--	return 0;
-+	return ret;
- }
+ 	ret = sscanf(rule, "%d", &maplevel);
+-	if (ret != 1 || maplevel > SMACK_CIPSO_MAXLEVEL)
++	if (ret != 1 || maplevel < 0 || maplevel > SMACK_CIPSO_MAXLEVEL)
+ 		goto out;
  
- static void wl1251_event_mbox_dump(struct event_mailbox *mbox)
+ 	rule += SMK_DIGITLEN;
 -- 
 2.25.1
 
