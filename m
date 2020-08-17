@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C341E247052
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09FA624705B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390304AbgHQSGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:06:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58728 "EHLO mail.kernel.org"
+        id S2390319AbgHQSHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:07:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388475AbgHQQIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388477AbgHQQIv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 12:08:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F04E6207FF;
-        Mon, 17 Aug 2020 16:08:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56E13207FB;
+        Mon, 17 Aug 2020 16:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680528;
-        bh=Ng2tOrxEp8pZfbfhtFR6UdaLGZgSyRBgIuydK9oq/+4=;
+        s=default; t=1597680530;
+        bh=VB67BcQRe1DuAd65X3jiZpXUTQ0j7BJtEfXDpKVmN48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AIahBpPMoCBjSGq2C7eDqrW8pRSUikR0cJ+n4ii36onhOUJvHtBimwptAsZ70daqY
-         /ko85i6La2FN54aS256yBEzH4dswvcqZeeKUJx9JFIiHSSi9qqyqRlk+0/tcoHNRMl
-         zhbXKPXfqdwc101G+KcoR0jKQTbTBFChWbqHTg0c=
+        b=V3XHwei/NAVYOzRFid1iDfuZ0bHjUY48ODlmc1d9C6XYB9w+KyaB2Urfsnvv7dpJu
+         SdeDruzihW8mbABMfdzPfmsR8j48YAKMMixs6aVPtYN2FGtdmU5gToSYyc/G3Q52Ny
+         AD1qkpz4mFdxB3CnLA/PS0BDS+831zQxQe1eI9Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 221/270] net: phy: fix memory leak in device-create error path
-Date:   Mon, 17 Aug 2020 17:17:02 +0200
-Message-Id: <20200817143806.780252460@linuxfoundation.org>
+Subject: [PATCH 5.4 222/270] net: Set fput_needed iff FDPUT_FPUT is set
+Date:   Mon, 17 Aug 2020 17:17:03 +0200
+Message-Id: <20200817143806.828898347@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,46 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit d02cbc46136105cf86f84ac355e16f04696f538d ]
+[ Upstream commit ce787a5a074a86f76f5d3fd804fa78e01bfb9e89 ]
 
-A recent commit introduced a late error path in phy_device_create()
-which fails to release the device name allocated by dev_set_name().
+We should fput() file iff FDPUT_FPUT is set. So we should set fput_needed
+accordingly.
 
-Fixes: 13d0ab6750b2 ("net: phy: check return code when requesting PHY driver module")
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 00e188ef6a7e ("sockfd_lookup_light(): switch to fdget^W^Waway from fget_light")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/socket.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -615,7 +615,9 @@ struct phy_device *phy_device_create(str
- 	if (c45_ids)
- 		dev->c45_ids = *c45_ids;
- 	dev->irq = bus->irq[addr];
-+
- 	dev_set_name(&mdiodev->dev, PHY_ID_FMT, bus->id, addr);
-+	device_initialize(&mdiodev->dev);
- 
- 	dev->state = PHY_DOWN;
- 
-@@ -649,10 +651,8 @@ struct phy_device *phy_device_create(str
- 		ret = phy_request_driver_module(dev, phy_id);
- 	}
- 
--	if (!ret) {
--		device_initialize(&mdiodev->dev);
--	} else {
--		kfree(dev);
-+	if (ret) {
-+		put_device(&mdiodev->dev);
- 		dev = ERR_PTR(ret);
- 	}
- 
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -485,7 +485,7 @@ static struct socket *sockfd_lookup_ligh
+ 	if (f.file) {
+ 		sock = sock_from_file(f.file, err);
+ 		if (likely(sock)) {
+-			*fput_needed = f.flags;
++			*fput_needed = f.flags & FDPUT_FPUT;
+ 			return sock;
+ 		}
+ 		fdput(f);
 
 
