@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA89246FDD
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B28C4246EF5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731707AbgHQRyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38200 "EHLO mail.kernel.org"
+        id S1730937AbgHQRjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:39:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388577AbgHQQKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:55 -0400
+        id S1731119AbgHQQQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:16:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C9BE22D3E;
-        Mon, 17 Aug 2020 16:10:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68BEA207FF;
+        Mon, 17 Aug 2020 16:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680654;
-        bh=Vz1IWgRRXlQKFbJAubLEj5+gx2dz54XngUGfMWWbNtA=;
+        s=default; t=1597680990;
+        bh=3rs8wf13xh084nzzGopD0s//ChqqhjtCScDCs3dHddw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvvdsCJ8ZbxDF10SsWWoGIS+GKpHY4pP/DJBn+j3s6CNvq7PV+p0I/X4zPwDM4o+g
-         QwZOyUNS7yYieZ7DQ8GwmGp9XSobsUXRl9xqsqkebbNNV5aKa/175cYmUlQPhg9jQn
-         feGFegKwWHbK0Sen3n+AaEEkxuSsCn1/ks3e2oa0=
+        b=ARvF6w8epI0X5Mr32ADitRUEJSq0WJcQ9/mmirL1CUuANdr5S9gGA/w/G66dB6KDo
+         pvsfEiEMu3ufC/Bs9UhDV0B2CZkoHW86ecKiNAgV7gFTTaZd899fODwAYmbeDDIUaz
+         mYUes3oElvLSVPBuaIT2cBajgN8OkC/lfjaNTuvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Qiujun Huang <anenbupt@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 262/270] fs/minix: check return value of sb_getblk()
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Xie He <xie.he.0141@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 132/168] drivers/net/wan/lapbether: Added needed_headroom and a skb->len check
 Date:   Mon, 17 Aug 2020 17:17:43 +0200
-Message-Id: <20200817143808.868521773@linuxfoundation.org>
+Message-Id: <20200817143740.289368026@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,78 +48,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit da27e0a0e5f655f0d58d4e153c3182bb2b290f64 upstream.
+[ Upstream commit c7ca03c216acb14466a713fedf1b9f2c24994ef2 ]
 
-Patch series "fs/minix: fix syzbot bugs and set s_maxbytes".
+1. Added a skb->len check
 
-This series fixes all syzbot bugs in the minix filesystem:
+This driver expects upper layers to include a pseudo header of 1 byte
+when passing down a skb for transmission. This driver will read this
+1-byte header. This patch added a skb->len check before reading the
+header to make sure the header exists.
 
-	KASAN: null-ptr-deref Write in get_block
-	KASAN: use-after-free Write in get_block
-	KASAN: use-after-free Read in get_block
-	WARNING in inc_nlink
-	KMSAN: uninit-value in get_block
-	WARNING in drop_nlink
+2. Changed to use needed_headroom instead of hard_header_len to request
+necessary headroom to be allocated
 
-It also fixes the minix filesystem to set s_maxbytes correctly, so that
-userspace sees the correct behavior when exceeding the max file size.
+In net/packet/af_packet.c, the function packet_snd first reserves a
+headroom of length (dev->hard_header_len + dev->needed_headroom).
+Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+which calls dev->header_ops->create, to create the link layer header.
+If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+length (dev->hard_header_len), and assumes the user to provide the
+appropriate link layer header.
 
-This patch (of 6):
+So according to the logic of af_packet.c, dev->hard_header_len should
+be the length of the header that would be created by
+dev->header_ops->create.
 
-sb_getblk() can fail, so check its return value.
+However, this driver doesn't provide dev->header_ops, so logically
+dev->hard_header_len should be 0.
 
-This fixes a NULL pointer dereference.
+So we should use dev->needed_headroom instead of dev->hard_header_len
+to request necessary headroom to be allocated.
 
-Originally from Qiujun Huang.
+This change fixes kernel panic when this driver is used with AF_PACKET
+SOCK_RAW sockets.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200628060846.682158-1-ebiggers@kernel.org
-Link: http://lkml.kernel.org/r/20200628060846.682158-2-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Call stack when panic:
+
+[  168.399197] skbuff: skb_under_panic: text:ffffffff819d95fb len:20
+put:14 head:ffff8882704c0a00 data:ffff8882704c09fd tail:0x11 end:0xc0
+dev:veth0
+...
+[  168.399255] Call Trace:
+[  168.399259]  skb_push.cold+0x14/0x24
+[  168.399262]  eth_header+0x2b/0xc0
+[  168.399267]  lapbeth_data_transmit+0x9a/0xb0 [lapbether]
+[  168.399275]  lapb_data_transmit+0x22/0x2c [lapb]
+[  168.399277]  lapb_transmit_buffer+0x71/0xb0 [lapb]
+[  168.399279]  lapb_kick+0xe3/0x1c0 [lapb]
+[  168.399281]  lapb_data_request+0x76/0xc0 [lapb]
+[  168.399283]  lapbeth_xmit+0x56/0x90 [lapbether]
+[  168.399286]  dev_hard_start_xmit+0x91/0x1f0
+[  168.399289]  ? irq_init_percpu_irqstack+0xc0/0x100
+[  168.399291]  __dev_queue_xmit+0x721/0x8e0
+[  168.399295]  ? packet_parse_headers.isra.0+0xd2/0x110
+[  168.399297]  dev_queue_xmit+0x10/0x20
+[  168.399298]  packet_sendmsg+0xbf0/0x19b0
+......
+
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/minix/itree_common.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/wan/lapbether.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/fs/minix/itree_common.c
-+++ b/fs/minix/itree_common.c
-@@ -75,6 +75,7 @@ static int alloc_branch(struct inode *in
- 	int n = 0;
- 	int i;
- 	int parent = minix_new_block(inode);
-+	int err = -ENOSPC;
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -160,6 +160,12 @@ static netdev_tx_t lapbeth_xmit(struct s
+ 	if (!netif_running(dev))
+ 		goto drop;
  
- 	branch[0].key = cpu_to_block(parent);
- 	if (parent) for (n = 1; n < num; n++) {
-@@ -85,6 +86,11 @@ static int alloc_branch(struct inode *in
- 			break;
- 		branch[n].key = cpu_to_block(nr);
- 		bh = sb_getblk(inode->i_sb, parent);
-+		if (!bh) {
-+			minix_free_block(inode, nr);
-+			err = -ENOMEM;
-+			break;
-+		}
- 		lock_buffer(bh);
- 		memset(bh->b_data, 0, bh->b_size);
- 		branch[n].bh = bh;
-@@ -103,7 +109,7 @@ static int alloc_branch(struct inode *in
- 		bforget(branch[i].bh);
- 	for (i = 0; i < n; i++)
- 		minix_free_block(inode, block_to_cpu(branch[i].key));
--	return -ENOSPC;
-+	return err;
++	/* There should be a pseudo header of 1 byte added by upper layers.
++	 * Check to make sure it is there before reading it.
++	 */
++	if (skb->len < 1)
++		goto drop;
++
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:
+ 		break;
+@@ -308,6 +314,7 @@ static void lapbeth_setup(struct net_dev
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->needs_free_netdev = true;
+ 	dev->type            = ARPHRD_X25;
++	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
  }
+@@ -334,7 +341,8 @@ static int lapbeth_new_device(struct net
+ 	 * then this driver prepends a length field of 2 bytes,
+ 	 * then the underlying Ethernet device prepends its own header.
+ 	 */
+-	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
++					   + dev->needed_headroom;
  
- static inline int splice_branch(struct inode *inode,
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
 
 
