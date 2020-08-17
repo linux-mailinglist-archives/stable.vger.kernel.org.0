@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA29F247255
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68CB4247252
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731014AbgHQSlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45088 "EHLO mail.kernel.org"
+        id S2391427AbgHQSlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbgHQP5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:57:34 -0400
+        id S1730783AbgHQP5h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:57:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C4AF207DA;
-        Mon, 17 Aug 2020 15:57:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 152C0214F1;
+        Mon, 17 Aug 2020 15:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679853;
-        bh=DWTVzSsMCSmP9vYrGkvMqgt0NcExBvacQ+f8zAp15ek=;
+        s=default; t=1597679856;
+        bh=b7Yu3sQYWoqbtcJgs4FPhBXye/HKQxUh/xoeKTgJoD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLdsP8zHjXMi5XBxDSzr/PFuDvrykvkiBuSVXwebv24HWEq7Mgz6gh/sLSaYfmtdK
-         F8N6vstwXVWF3Vu8B4+Yna8lTBKjNADzjxNqAPHHGDw+IsMuppGdToPC24rDdGEzy0
-         K6glVnnjSVqS4Uj2lgAV+xkFLhsvk6t4jep34kEU=
+        b=0gWbAfltgpmTpDMOpopLM1UqxESultuFCpjD5Frwgrpo3GFatRQmZP6l9bdh7fyQc
+         5fzVrGGL45xIH60alu1AaP3ij+q4Lw06jSI6n1ybNpLza9iQgS77Z2ou7eCpbo8q3O
+         WZgtPAq853W3QAL0+jYUookp5YIb5XBSKMyYe8s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Matthieu Baerts <matthieu.baerts@tessares.net>,
         Tim Froidcoeur <tim.froidcoeur@tessares.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 326/393] net: refactor bind_bucket fastreuse into helper
-Date:   Mon, 17 Aug 2020 17:16:16 +0200
-Message-Id: <20200817143835.409260921@linuxfoundation.org>
+Subject: [PATCH 5.7 327/393] net: initialize fastreuse on inet_inherit_port
+Date:   Mon, 17 Aug 2020 17:16:17 +0200
+Message-Id: <20200817143835.458507117@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -47,152 +47,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tim Froidcoeur <tim.froidcoeur@tessares.net>
 
-[ Upstream commit 62ffc589abb176821662efc4525ee4ac0b9c3894 ]
+[ Upstream commit d76f3351cea2d927fdf70dd7c06898235035e84e ]
 
-Refactor the fastreuse update code in inet_csk_get_port into a small
-helper function that can be called from other places.
+In the case of TPROXY, bind_conflict optimizations for SO_REUSEADDR or
+SO_REUSEPORT are broken, possibly resulting in O(n) instead of O(1) bind
+behaviour or in the incorrect reuse of a bind.
 
+the kernel keeps track for each bind_bucket if all sockets in the
+bind_bucket support SO_REUSEADDR or SO_REUSEPORT in two fastreuse flags.
+These flags allow skipping the costly bind_conflict check when possible
+(meaning when all sockets have the proper SO_REUSE option).
+
+For every socket added to a bind_bucket, these flags need to be updated.
+As soon as a socket that does not support reuse is added, the flag is
+set to false and will never go back to true, unless the bind_bucket is
+deleted.
+
+Note that there is no mechanism to re-evaluate these flags when a socket
+is removed (this might make sense when removing a socket that would not
+allow reuse; this leaves room for a future patch).
+
+For this optimization to work, it is mandatory that these flags are
+properly initialized and updated.
+
+When a child socket is created from a listen socket in
+__inet_inherit_port, the TPROXY case could create a new bind bucket
+without properly initializing these flags, thus preventing the
+optimization to work. Alternatively, a socket not allowing reuse could
+be added to an existing bind bucket without updating the flags, causing
+bind_conflict to never be called as it should.
+
+Call inet_csk_update_fastreuse when __inet_inherit_port decides to create
+a new bind_bucket or use a different bind_bucket than the one of the
+listen socket.
+
+Fixes: 093d282321da ("tproxy: fix hash locking issue when using port redirection in __inet_inherit_port()")
 Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_connection_sock.h |    4 +
- net/ipv4/inet_connection_sock.c    |   97 ++++++++++++++++++++-----------------
- 2 files changed, 57 insertions(+), 44 deletions(-)
+ net/ipv4/inet_hashtables.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/inet_connection_sock.h
-+++ b/include/net/inet_connection_sock.h
-@@ -309,6 +309,10 @@ int inet_csk_compat_getsockopt(struct so
- int inet_csk_compat_setsockopt(struct sock *sk, int level, int optname,
- 			       char __user *optval, unsigned int optlen);
- 
-+/* update the fast reuse flag when adding a socket */
-+void inet_csk_update_fastreuse(struct inet_bind_bucket *tb,
-+			       struct sock *sk);
-+
- struct dst_entry *inet_csk_update_pmtu(struct sock *sk, u32 mtu);
- 
- #define TCP_PINGPONG_THRESH	3
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -296,6 +296,57 @@ static inline int sk_reuseport_match(str
- 				    ipv6_only_sock(sk), true, false);
- }
- 
-+void inet_csk_update_fastreuse(struct inet_bind_bucket *tb,
-+			       struct sock *sk)
-+{
-+	kuid_t uid = sock_i_uid(sk);
-+	bool reuse = sk->sk_reuse && sk->sk_state != TCP_LISTEN;
-+
-+	if (hlist_empty(&tb->owners)) {
-+		tb->fastreuse = reuse;
-+		if (sk->sk_reuseport) {
-+			tb->fastreuseport = FASTREUSEPORT_ANY;
-+			tb->fastuid = uid;
-+			tb->fast_rcv_saddr = sk->sk_rcv_saddr;
-+			tb->fast_ipv6_only = ipv6_only_sock(sk);
-+			tb->fast_sk_family = sk->sk_family;
-+#if IS_ENABLED(CONFIG_IPV6)
-+			tb->fast_v6_rcv_saddr = sk->sk_v6_rcv_saddr;
-+#endif
-+		} else {
-+			tb->fastreuseport = 0;
-+		}
-+	} else {
-+		if (!reuse)
-+			tb->fastreuse = 0;
-+		if (sk->sk_reuseport) {
-+			/* We didn't match or we don't have fastreuseport set on
-+			 * the tb, but we have sk_reuseport set on this socket
-+			 * and we know that there are no bind conflicts with
-+			 * this socket in this tb, so reset our tb's reuseport
-+			 * settings so that any subsequent sockets that match
-+			 * our current socket will be put on the fast path.
-+			 *
-+			 * If we reset we need to set FASTREUSEPORT_STRICT so we
-+			 * do extra checking for all subsequent sk_reuseport
-+			 * socks.
-+			 */
-+			if (!sk_reuseport_match(tb, sk)) {
-+				tb->fastreuseport = FASTREUSEPORT_STRICT;
-+				tb->fastuid = uid;
-+				tb->fast_rcv_saddr = sk->sk_rcv_saddr;
-+				tb->fast_ipv6_only = ipv6_only_sock(sk);
-+				tb->fast_sk_family = sk->sk_family;
-+#if IS_ENABLED(CONFIG_IPV6)
-+				tb->fast_v6_rcv_saddr = sk->sk_v6_rcv_saddr;
-+#endif
-+			}
-+		} else {
-+			tb->fastreuseport = 0;
-+		}
-+	}
-+}
-+
- /* Obtain a reference to a local port for the given sock,
-  * if snum is zero it means select any available local port.
-  * We try to allocate an odd port (and leave even ports for connect())
-@@ -308,7 +359,6 @@ int inet_csk_get_port(struct sock *sk, u
- 	struct inet_bind_hashbucket *head;
- 	struct net *net = sock_net(sk);
- 	struct inet_bind_bucket *tb = NULL;
--	kuid_t uid = sock_i_uid(sk);
- 	int l3mdev;
- 
- 	l3mdev = inet_sk_bound_l3mdev(sk);
-@@ -345,49 +395,8 @@ tb_found:
- 			goto fail_unlock;
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -163,6 +163,7 @@ int __inet_inherit_port(const struct soc
+ 				return -ENOMEM;
+ 			}
+ 		}
++		inet_csk_update_fastreuse(tb, child);
  	}
- success:
--	if (hlist_empty(&tb->owners)) {
--		tb->fastreuse = reuse;
--		if (sk->sk_reuseport) {
--			tb->fastreuseport = FASTREUSEPORT_ANY;
--			tb->fastuid = uid;
--			tb->fast_rcv_saddr = sk->sk_rcv_saddr;
--			tb->fast_ipv6_only = ipv6_only_sock(sk);
--			tb->fast_sk_family = sk->sk_family;
--#if IS_ENABLED(CONFIG_IPV6)
--			tb->fast_v6_rcv_saddr = sk->sk_v6_rcv_saddr;
--#endif
--		} else {
--			tb->fastreuseport = 0;
--		}
--	} else {
--		if (!reuse)
--			tb->fastreuse = 0;
--		if (sk->sk_reuseport) {
--			/* We didn't match or we don't have fastreuseport set on
--			 * the tb, but we have sk_reuseport set on this socket
--			 * and we know that there are no bind conflicts with
--			 * this socket in this tb, so reset our tb's reuseport
--			 * settings so that any subsequent sockets that match
--			 * our current socket will be put on the fast path.
--			 *
--			 * If we reset we need to set FASTREUSEPORT_STRICT so we
--			 * do extra checking for all subsequent sk_reuseport
--			 * socks.
--			 */
--			if (!sk_reuseport_match(tb, sk)) {
--				tb->fastreuseport = FASTREUSEPORT_STRICT;
--				tb->fastuid = uid;
--				tb->fast_rcv_saddr = sk->sk_rcv_saddr;
--				tb->fast_ipv6_only = ipv6_only_sock(sk);
--				tb->fast_sk_family = sk->sk_family;
--#if IS_ENABLED(CONFIG_IPV6)
--				tb->fast_v6_rcv_saddr = sk->sk_v6_rcv_saddr;
--#endif
--			}
--		} else {
--			tb->fastreuseport = 0;
--		}
--	}
-+	inet_csk_update_fastreuse(tb, sk);
-+
- 	if (!inet_csk(sk)->icsk_bind_hash)
- 		inet_bind_hash(sk, tb, port);
- 	WARN_ON(inet_csk(sk)->icsk_bind_hash != tb);
+ 	inet_bind_hash(child, tb, port);
+ 	spin_unlock(&head->lock);
 
 
