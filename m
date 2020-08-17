@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2197246A8F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8C8246A91
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbgHQPi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
+        id S2387420AbgHQPie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730598AbgHQPiY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:38:24 -0400
+        id S2387413AbgHQPia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:38:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B5422DD6;
-        Mon, 17 Aug 2020 15:38:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B91CE208E4;
+        Mon, 17 Aug 2020 15:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678704;
-        bh=KvOPUuswtjEN64kyvtbe3DNP5BXjGHn9igwDSi8vjr4=;
+        s=default; t=1597678710;
+        bh=vlHt9tpYNwGZ4ENADltlfg5pqYoTKoHP+nArZuNnC+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTOACrsaquC7JkNBj3K9iYZFlj8EwCv+GrFH2zfEhOILDZmZbUqooHpysRokGHb7V
-         HtI7N0fBaDq63a5pdmchSg765s8AbAyDg4QsFKmCvnqInth51ik6uM/2nqc8CZKmWZ
-         Cm73gbxU5sTcDT0yXvFy0f+gaKunN84dHTDepKZg=
+        b=GwSDlYuvvOVH1Fe0AJVoNHALBaOJa+/qOXMBEwvavJzaUKhhZdYv4CBJdmDvKwn+G
+         ZYaWqpijdVF3FLay2EJTxabcDiFMmRnXNrjHnO5dGKA3+qcFoYICsuDtqxaI24776m
+         ro7MG7aAsKmkWTWuSGv1qY+LShBkcTCpXJC1+gr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+a730016dc0bdce4f6ff5@syzkaller.appspotmail.com,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 426/464] io_uring: fail poll arm on queue proc failure
-Date:   Mon, 17 Aug 2020 17:16:19 +0200
-Message-Id: <20200817143854.182187054@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.8 428/464] NFS: Dont move layouts to plh_return_segs list while in use
+Date:   Mon, 17 Aug 2020 17:16:21 +0200
+Message-Id: <20200817143854.280804520@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,38 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit a36da65c46565d2527eec3efdb546251e38253fd upstream.
+commit ff041727e9e029845857cac41aae118ead5e261b upstream.
 
-Check the ipt.error value, it must have been either cleared to zero or
-set to another error than the default -EINVAL if we don't go through the
-waitqueue proc addition. Just give up on poll at that point and return
-failure, this will fallback to async work.
+If the layout segment is still in use for a read or a write, we should
+not move it to the layout plh_return_segs list. If we do, we can end
+up returning the layout while I/O is still in progress.
 
-io_poll_add() doesn't suffer from this failure case, as it returns the
-error value directly.
-
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: syzbot+a730016dc0bdce4f6ff5@syzkaller.appspotmail.com
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e0b7d420f72a ("pNFS: Don't discard layout segments that are marked for return")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/pnfs.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4483,7 +4483,7 @@ static bool io_arm_poll_handler(struct i
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2392,16 +2392,6 @@ out_forget:
+ 	return ERR_PTR(-EAGAIN);
+ }
  
- 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
- 					io_async_wake);
--	if (ret) {
-+	if (ret || ipt.error) {
- 		io_poll_remove_double(req, apoll->double_poll);
- 		spin_unlock_irq(&ctx->completion_lock);
- 		if (req->flags & REQ_F_WORK_INITIALIZED)
+-static int
+-mark_lseg_invalid_or_return(struct pnfs_layout_segment *lseg,
+-		struct list_head *tmp_list)
+-{
+-	if (!mark_lseg_invalid(lseg, tmp_list))
+-		return 0;
+-	pnfs_cache_lseg_for_layoutreturn(lseg->pls_layout, lseg);
+-	return 1;
+-}
+-
+ /**
+  * pnfs_mark_matching_lsegs_return - Free or return matching layout segments
+  * @lo: pointer to layout header
+@@ -2438,7 +2428,7 @@ pnfs_mark_matching_lsegs_return(struct p
+ 				lseg, lseg->pls_range.iomode,
+ 				lseg->pls_range.offset,
+ 				lseg->pls_range.length);
+-			if (mark_lseg_invalid_or_return(lseg, tmp_list))
++			if (mark_lseg_invalid(lseg, tmp_list))
+ 				continue;
+ 			remaining++;
+ 			set_bit(NFS_LSEG_LAYOUTRETURN, &lseg->pls_flags);
 
 
