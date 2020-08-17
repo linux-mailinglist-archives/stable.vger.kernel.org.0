@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9BC247531
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A8A247530
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392225AbgHQTUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
+        id S2387436AbgHQTUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:20:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730512AbgHQPgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:36:46 -0400
+        id S1730517AbgHQPgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:36:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E37423159;
-        Mon, 17 Aug 2020 15:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7DC32310F;
+        Mon, 17 Aug 2020 15:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678606;
-        bh=b7Yu3sQYWoqbtcJgs4FPhBXye/HKQxUh/xoeKTgJoD0=;
+        s=default; t=1597678609;
+        bh=/omsBwg8Yyncdrw92Temo+2BdmMOicqXhOUwneH6NX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=so4jUuVUBv7Wm2So/udgqs0Ju+LjPgsy6amqg2ukpE6IaH167FnwViOoAnEO90UED
-         jSn4fQ3hB+yEK+vXhQ784bwpkKMWhJZcYMZ1oykCxGzOaOsOxzFYd1pUgB4uIJG3NN
-         B2Tr3pNU6V77MhAbRouLpA99cEn51ddJrJG9Z29o=
+        b=ykN/sySLLZISY9YpjYMmxlU7V6ak5oMxO+LvzOUvTwRqSo9CUfL7QteL7SbZDJitx
+         SqSXI60uojad3G/Ss+IoqtAxQumDjvSmm0pMe8pkzadQ6t44UbtOOTVzNjLqesB+sj
+         /aBhOiiXFpPl44r6u7OWiivkGkGFQNT319QRo1vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Tim Froidcoeur <tim.froidcoeur@tessares.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 393/464] net: initialize fastreuse on inet_inherit_port
-Date:   Mon, 17 Aug 2020 17:15:46 +0200
-Message-Id: <20200817143852.604807323@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+a61bac2fcc1a7c6623fe@syzkaller.appspotmail.com
+Subject: [PATCH 5.8 394/464] vsock: fix potential null pointer dereference in vsock_poll()
+Date:   Mon, 17 Aug 2020 17:15:47 +0200
+Message-Id: <20200817143852.652250005@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,60 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit d76f3351cea2d927fdf70dd7c06898235035e84e ]
+[ Upstream commit 1980c05844830a44708c98c96d600833aa3fae08 ]
 
-In the case of TPROXY, bind_conflict optimizations for SO_REUSEADDR or
-SO_REUSEPORT are broken, possibly resulting in O(n) instead of O(1) bind
-behaviour or in the incorrect reuse of a bind.
+syzbot reported this issue where in the vsock_poll() we find the
+socket state at TCP_ESTABLISHED, but 'transport' is null:
+  general protection fault, probably for non-canonical address 0xdffffc0000000012: 0000 [#1] PREEMPT SMP KASAN
+  KASAN: null-ptr-deref in range [0x0000000000000090-0x0000000000000097]
+  CPU: 0 PID: 8227 Comm: syz-executor.2 Not tainted 5.8.0-rc7-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:vsock_poll+0x75a/0x8e0 net/vmw_vsock/af_vsock.c:1038
+  Call Trace:
+   sock_poll+0x159/0x460 net/socket.c:1266
+   vfs_poll include/linux/poll.h:90 [inline]
+   do_pollfd fs/select.c:869 [inline]
+   do_poll fs/select.c:917 [inline]
+   do_sys_poll+0x607/0xd40 fs/select.c:1011
+   __do_sys_poll fs/select.c:1069 [inline]
+   __se_sys_poll fs/select.c:1057 [inline]
+   __x64_sys_poll+0x18c/0x440 fs/select.c:1057
+   do_syscall_64+0x60/0xe0 arch/x86/entry/common.c:384
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-the kernel keeps track for each bind_bucket if all sockets in the
-bind_bucket support SO_REUSEADDR or SO_REUSEPORT in two fastreuse flags.
-These flags allow skipping the costly bind_conflict check when possible
-(meaning when all sockets have the proper SO_REUSE option).
+This issue can happen if the TCP_ESTABLISHED state is set after we read
+the vsk->transport in the vsock_poll().
 
-For every socket added to a bind_bucket, these flags need to be updated.
-As soon as a socket that does not support reuse is added, the flag is
-set to false and will never go back to true, unless the bind_bucket is
-deleted.
+We could put barriers to synchronize, but this can only happen during
+connection setup, so we can simply check that 'transport' is valid.
 
-Note that there is no mechanism to re-evaluate these flags when a socket
-is removed (this might make sense when removing a socket that would not
-allow reuse; this leaves room for a future patch).
-
-For this optimization to work, it is mandatory that these flags are
-properly initialized and updated.
-
-When a child socket is created from a listen socket in
-__inet_inherit_port, the TPROXY case could create a new bind bucket
-without properly initializing these flags, thus preventing the
-optimization to work. Alternatively, a socket not allowing reuse could
-be added to an existing bind bucket without updating the flags, causing
-bind_conflict to never be called as it should.
-
-Call inet_csk_update_fastreuse when __inet_inherit_port decides to create
-a new bind_bucket or use a different bind_bucket than the one of the
-listen socket.
-
-Fixes: 093d282321da ("tproxy: fix hash locking issue when using port redirection in __inet_inherit_port()")
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+Reported-and-tested-by: syzbot+a61bac2fcc1a7c6623fe@syzkaller.appspotmail.com
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/vmw_vsock/af_vsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -163,6 +163,7 @@ int __inet_inherit_port(const struct soc
- 				return -ENOMEM;
- 			}
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1032,7 +1032,7 @@ static __poll_t vsock_poll(struct file *
  		}
-+		inet_csk_update_fastreuse(tb, child);
- 	}
- 	inet_bind_hash(child, tb, port);
- 	spin_unlock(&head->lock);
+ 
+ 		/* Connected sockets that can produce data can be written. */
+-		if (sk->sk_state == TCP_ESTABLISHED) {
++		if (transport && sk->sk_state == TCP_ESTABLISHED) {
+ 			if (!(sk->sk_shutdown & SEND_SHUTDOWN)) {
+ 				bool space_avail_now = false;
+ 				int ret = transport->notify_poll_out(
 
 
