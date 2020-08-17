@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EE0246A0B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 669AB246A0E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730093AbgHQP30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:29:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47570 "EHLO mail.kernel.org"
+        id S1730089AbgHQP3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:29:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730088AbgHQP3X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:29:23 -0400
+        id S1729778AbgHQP3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:29:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D5C12395B;
-        Mon, 17 Aug 2020 15:29:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8548D23C32;
+        Mon, 17 Aug 2020 15:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678162;
-        bh=1sMJ4DzHl9wjIkYM1UGBRkiU3Arytg+JDvm2TSLd80A=;
+        s=default; t=1597678177;
+        bh=byHwtIwlZgL0WdEMuf+rCeZTZK2eJE6pssQD0B2LeE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=db7VWCLlW/Ghrhmgn6wGlP4gyfY8sC9xVVILjnlci0B8ugsC+KcWuIvT8GsgK++WK
-         4iVCoeSzgxs29pfK59B4OeOnLnuPhPe5ydnwEksSe7bNZGmcMsUf1zCsqWQkj9nGT8
-         cHHdLNLbPojDtqx7sssMzzWJdR/Qomp/+qAGXDgI=
+        b=o3I6CmBDJ3l4L4NjNHEEWxCOvCBldf9PcktTOmNzoR7RxE7vKTtsTcR8xawnXgsnN
+         VpBSf9zrdkhPo1Zfvg6sbacezUKTbskDMGj8KannDjWWE8eW8RBn0zkJGdEy7gGFU5
+         E2fuxJ8CrqykRD74n3XWb5dIIbvq3CODuvQ0kjjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Janne Karhunen <janne.karhunen@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
         Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 239/464] ima: Have the LSM free its audit rule
-Date:   Mon, 17 Aug 2020 17:13:12 +0200
-Message-Id: <20200817143845.244431488@linuxfoundation.org>
+Subject: [PATCH 5.8 244/464] ima: Fail rule parsing when the KEY_CHECK hook is combined with an invalid cond
+Date:   Mon, 17 Aug 2020 17:13:17 +0200
+Message-Id: <20200817143845.485575843@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -48,60 +47,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit 9ff8a616dfab96a4fa0ddd36190907dc68886d9b ]
+[ Upstream commit eb624fe214a2e156ddafd9868377cf91499f789d ]
 
-Ask the LSM to free its audit rule rather than directly calling kfree().
-Both AppArmor and SELinux do additional work in their audit_rule_free()
-hooks. Fix memory leaks by allowing the LSMs to perform necessary work.
+The KEY_CHECK function only supports the uid, pcr, and keyrings
+conditionals. Make this clear at policy load so that IMA policy authors
+don't assume that other conditionals are supported.
 
-Fixes: b16942455193 ("ima: use the lsm policy update notifier")
+Fixes: 5808611cccb2 ("IMA: Add KEY_CHECK func to measure keys")
 Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Cc: Janne Karhunen <janne.karhunen@gmail.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Reviewed-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima.h        | 5 +++++
- security/integrity/ima/ima_policy.c | 2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ security/integrity/ima/ima_policy.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 9d94080bdad82..f0748f8ca47e9 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -404,6 +404,7 @@ static inline void ima_free_modsig(struct modsig *modsig)
- #ifdef CONFIG_IMA_LSM_RULES
- 
- #define security_filter_rule_init security_audit_rule_init
-+#define security_filter_rule_free security_audit_rule_free
- #define security_filter_rule_match security_audit_rule_match
- 
- #else
-@@ -414,6 +415,10 @@ static inline int security_filter_rule_init(u32 field, u32 op, char *rulestr,
- 	return -EINVAL;
- }
- 
-+static inline void security_filter_rule_free(void *lsmrule)
-+{
-+}
-+
- static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
- 					     void *lsmrule)
- {
 diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index e493063a3c344..236a731492d1e 100644
+index a77e0b34e72f7..3e3e568c81309 100644
 --- a/security/integrity/ima/ima_policy.c
 +++ b/security/integrity/ima/ima_policy.c
-@@ -258,7 +258,7 @@ static void ima_lsm_free_rule(struct ima_rule_entry *entry)
- 	int i;
+@@ -1023,6 +1023,13 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
+ 		if (entry->action & ~(MEASURE | DONT_MEASURE))
+ 			return false;
  
- 	for (i = 0; i < MAX_LSM_RULES; i++) {
--		kfree(entry->lsm[i].rule);
-+		security_filter_rule_free(entry->lsm[i].rule);
- 		kfree(entry->lsm[i].args_p);
- 	}
- 	kfree(entry);
++		if (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
++				     IMA_KEYRINGS))
++			return false;
++
++		if (ima_rule_contains_lsm_cond(entry))
++			return false;
++
+ 		break;
+ 	default:
+ 		return false;
 -- 
 2.25.1
 
