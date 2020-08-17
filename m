@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B0A246C70
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:16:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAA9F246C28
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731110AbgHQQQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54756 "EHLO mail.kernel.org"
+        id S2388567AbgHQQKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731071AbgHQQPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:37 -0400
+        id S2388553AbgHQQKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:10:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B269B22CB3;
-        Mon, 17 Aug 2020 16:15:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0E9120578;
+        Mon, 17 Aug 2020 16:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680937;
-        bh=b8dcykdGfMKAbIUCpCxX7tLSFSWEjDh6yo3ccQiiFkc=;
+        s=default; t=1597680630;
+        bh=eLivimOm56pMwF4gQgsZcnUOz4mOosZfB22sIXPRjfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FH11BozWF7GzfLw7YHCnPRubhjh5cwZ+d7FCSQwZr2EiGRCO4GtD8yfvsGCSL7V4S
-         124vpyNeOvhvssJAzOTYQ/NA5ozTTe57/4UTF1d6iD2onN46thwRwsZ5E4wHL03k8A
-         3Whv8ekprg4D8wZVq5M4ACeGQEh6VFqoM2x5Bd+s=
+        b=Bpthls62uMb3MDy+7/l0lX7Z+arxTAioRB1O7Jorzjo772UzoPsoiHVvToYnW21Xy
+         4PkW6FqoTlkTAsm1juywdgXFWkspHRQuxZpp2vAtx4Ea3i4s0alW2hxnb64l7aPirP
+         20oXvWQXwHtuB/urRN3F5iu3JQU1LlOgn/hm4YVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 100/168] PCI: cadence: Fix updating Vendor ID and Subsystem Vendor ID register
-Date:   Mon, 17 Aug 2020 17:17:11 +0200
-Message-Id: <20200817143738.710505810@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 233/270] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
+Date:   Mon, 17 Aug 2020 17:17:14 +0200
+Message-Id: <20200817143807.401358620@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit e3bca37d15dca118f2ef1f0a068bb6e07846ea20 ]
+commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
 
-Commit 1b79c5284439 ("PCI: cadence: Add host driver for Cadence PCIe
-controller") in order to update Vendor ID, directly wrote to
-PCI_VENDOR_ID register. However PCI_VENDOR_ID in root port configuration
-space is read-only register and writing to it will have no effect.
-Use local management register to configure Vendor ID and Subsystem Vendor
-ID.
+Further investigation of the L-R swap problem on the MS2109 reveals that
+the problem isn't that the channels are swapped, but rather that they
+are swapped and also out of phase by one sample. In other words, the
+issue is actually that the very first frame that comes from the hardware
+is a half-frame containing only the right channel, and after that
+everything becomes offset.
 
-Link: https://lore.kernel.org/r/20200722110317.4744-10-kishon@ti.com
-Fixes: 1b79c5284439 ("PCI: cadence: Add host driver for Cadence PCIe controller")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So introduce a new quirk field to drop the very first 2 bytes that come
+in after the format is configured and a capture stream starts. This puts
+the channels in phase and in the correct order.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/controller/pcie-cadence-host.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ sound/usb/card.h   |    1 +
+ sound/usb/pcm.c    |    6 ++++++
+ sound/usb/quirks.c |    3 +++
+ sound/usb/stream.c |    1 +
+ 4 files changed, 11 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-cadence-host.c b/drivers/pci/controller/pcie-cadence-host.c
-index ec394f6a19c8e..ae7affcb1a811 100644
---- a/drivers/pci/controller/pcie-cadence-host.c
-+++ b/drivers/pci/controller/pcie-cadence-host.c
-@@ -102,6 +102,7 @@ static int cdns_pcie_host_init_root_port(struct cdns_pcie_rc *rc)
- {
- 	struct cdns_pcie *pcie = &rc->pcie;
- 	u32 value, ctrl;
-+	u32 id;
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -133,6 +133,7 @@ struct snd_usb_substream {
+ 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
+ 	unsigned int fmt_type;		/* USB audio format type (1-3) */
+ 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
++	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
  
- 	/*
- 	 * Set the root complex BAR configuration register:
-@@ -121,8 +122,12 @@ static int cdns_pcie_host_init_root_port(struct cdns_pcie_rc *rc)
- 	cdns_pcie_writel(pcie, CDNS_PCIE_LM_RC_BAR_CFG, value);
+ 	unsigned int running: 1;	/* running status */
  
- 	/* Set root port configuration space */
--	if (rc->vendor_id != 0xffff)
--		cdns_pcie_rp_writew(pcie, PCI_VENDOR_ID, rc->vendor_id);
-+	if (rc->vendor_id != 0xffff) {
-+		id = CDNS_PCIE_LM_ID_VENDOR(rc->vendor_id) |
-+			CDNS_PCIE_LM_ID_SUBSYS(rc->vendor_id);
-+		cdns_pcie_writel(pcie, CDNS_PCIE_LM_ID, id);
-+	}
-+
- 	if (rc->device_id != 0xffff)
- 		cdns_pcie_rp_writew(pcie, PCI_DEVICE_ID, rc->device_id);
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1417,6 +1417,12 @@ static void retire_capture_urb(struct sn
+ 			// continue;
+ 		}
+ 		bytes = urb->iso_frame_desc[i].actual_length;
++		if (subs->stream_offset_adj > 0) {
++			unsigned int adj = min(subs->stream_offset_adj, bytes);
++			cp += adj;
++			bytes -= adj;
++			subs->stream_offset_adj -= adj;
++		}
+ 		frames = bytes / stride;
+ 		if (!subs->txfr_quirk)
+ 			bytes = frames * stride;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1432,6 +1432,9 @@ void snd_usb_set_format_quirk(struct snd
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
+ 		break;
++	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
++		subs->stream_offset_adj = 2;
++		break;
+ 	}
+ }
  
--- 
-2.25.1
-
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -94,6 +94,7 @@ static void snd_usb_init_substream(struc
+ 	subs->tx_length_quirk = as->chip->tx_length_quirk;
+ 	subs->speed = snd_usb_get_speed(subs->dev);
+ 	subs->pkt_offset_adj = 0;
++	subs->stream_offset_adj = 0;
+ 
+ 	snd_usb_set_pcm_ops(as->pcm, stream);
+ 
 
 
