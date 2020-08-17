@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2500246F69
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94124246F33
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388592AbgHQRqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
+        id S1731038AbgHQRoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388751AbgHQQNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:13:38 -0400
+        id S2388533AbgHQQPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F061520657;
-        Mon, 17 Aug 2020 16:13:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DEFE20658;
+        Mon, 17 Aug 2020 16:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680808;
-        bh=S9sr35SapIea/QfuCO5/tRlFpqSo9BlddiMPpbSQt7Q=;
+        s=default; t=1597680907;
+        bh=mNPQzFRpnFM/yjUDRE1EI03Lr2TjX1ko4u6BoKoOOBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cf/gN5y7P+lvaINARS3O1pUUWxKdzQEQ7dSa5wj1YxyTOOmCr0MgaGZVpkvCA71uZ
-         VEKJCAi6T/4+Dkbopi113SXeFiXLS6+LmypPhUBEYzOwxd5HsVErbmV0FWHqHcoWJ0
-         aGnURmtU8/RqbmbndjDZ7W6h7WntOa3lPITYoKi0=
+        b=HIj1jfZl3ofqdSMQIH7KVmUwKpdel9pMWGo2xt1ftxiN5D9/WTjlgbAB/SajRW3ck
+         H4FulamO2IIN6IlT7zU3IpyA0QNiAnohFQj+Fp/WEu+XKyWH6KqhjedhPQAKQpkpCQ
+         51xQgX5o6JgMT/YX55bCHBbHRTU3AzhVsvteuuYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/168] media: omap3isp: Add missed v4l2_ctrl_handler_free() for preview_init_entities()
-Date:   Mon, 17 Aug 2020 17:16:35 +0200
-Message-Id: <20200817143736.937489136@linuxfoundation.org>
+Subject: [PATCH 4.19 065/168] ASoC: Intel: bxt_rt298: add missing .owner field
+Date:   Mon, 17 Aug 2020 17:16:36 +0200
+Message-Id: <20200817143736.979549233@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -46,46 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit dc7690a73017e1236202022e26a6aa133f239c8c ]
+[ Upstream commit 88cee34b776f80d2da04afb990c2a28c36799c43 ]
 
-preview_init_entities() does not call v4l2_ctrl_handler_free() when
-it fails.
-Add the missed function to fix it.
+This field is required for ASoC cards. Not setting it will result in a
+module->name pointer being NULL and generate problems such as
 
-Fixes: de1135d44f4f ("[media] omap3isp: CCDC, preview engine and resizer")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+cat /proc/asound/modules
+ 0 (efault)
+
+Fixes: 76016322ec56 ('ASoC: Intel: Add Broxton-P machine driver')
+Reported-by: Jaroslav Kysela <perex@perex.cz>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200625191308.3322-5-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/omap3isp/isppreview.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/bxt_rt298.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/omap3isp/isppreview.c b/drivers/media/platform/omap3isp/isppreview.c
-index 591c6de498f89..20857ae42a77f 100644
---- a/drivers/media/platform/omap3isp/isppreview.c
-+++ b/drivers/media/platform/omap3isp/isppreview.c
-@@ -2290,7 +2290,7 @@ static int preview_init_entities(struct isp_prev_device *prev)
- 	me->ops = &preview_media_ops;
- 	ret = media_entity_pads_init(me, PREV_PADS_NUM, pads);
- 	if (ret < 0)
--		return ret;
-+		goto error_handler_free;
+diff --git a/sound/soc/intel/boards/bxt_rt298.c b/sound/soc/intel/boards/bxt_rt298.c
+index 27308337ab127..ba76e37a4b094 100644
+--- a/sound/soc/intel/boards/bxt_rt298.c
++++ b/sound/soc/intel/boards/bxt_rt298.c
+@@ -544,6 +544,7 @@ static int bxt_card_late_probe(struct snd_soc_card *card)
+ /* broxton audio machine driver for SPT + RT298S */
+ static struct snd_soc_card broxton_rt298 = {
+ 	.name = "broxton-rt298",
++	.owner = THIS_MODULE,
+ 	.dai_link = broxton_rt298_dais,
+ 	.num_links = ARRAY_SIZE(broxton_rt298_dais),
+ 	.controls = broxton_controls,
+@@ -559,6 +560,7 @@ static struct snd_soc_card broxton_rt298 = {
  
- 	preview_init_formats(sd, NULL);
- 
-@@ -2323,6 +2323,8 @@ static int preview_init_entities(struct isp_prev_device *prev)
- 	omap3isp_video_cleanup(&prev->video_in);
- error_video_in:
- 	media_entity_cleanup(&prev->subdev.entity);
-+error_handler_free:
-+	v4l2_ctrl_handler_free(&prev->ctrls);
- 	return ret;
- }
- 
+ static struct snd_soc_card geminilake_rt298 = {
+ 	.name = "geminilake-rt298",
++	.owner = THIS_MODULE,
+ 	.dai_link = broxton_rt298_dais,
+ 	.num_links = ARRAY_SIZE(broxton_rt298_dais),
+ 	.controls = broxton_controls,
 -- 
 2.25.1
 
