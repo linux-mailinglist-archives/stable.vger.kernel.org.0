@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F4D24746C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A92C24746A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387509AbgHQPmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52172 "EHLO mail.kernel.org"
+        id S2387530AbgHQTJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:09:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387503AbgHQPmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:42:14 -0400
+        id S2387482AbgHQPmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:42:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03CA920760;
-        Mon, 17 Aug 2020 15:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EEF520760;
+        Mon, 17 Aug 2020 15:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678933;
-        bh=r9cARwlmRmQB2cn/JMr7t+CaD0wcuI04mAkfiugb6E4=;
+        s=default; t=1597678939;
+        bh=46yjb/k7TSnzZl7IjWeJ7jhtvXAOuNZPB8pbLl///So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlrNQFiqVa+DQoMwyQZh1KUzFi6YeOg7Tu1A62aSJYiJPhcxFLr8db1z/JwX2t7+o
-         dtlxmfzQpvH5zO8vkU6THhDmj2LuSTdjzOeN5aom+D95CcLQRjcnOmXPdpE4xqh8nm
-         Czi0JY6yeYeiX9VgeQjwLeWnTqrK3+s2I684vxS8=
+        b=qcwpF5WMMpwSN4OXuRffSzSMMnNyFfeM4Z22rkaODLYxWSd8tFypOVSuituybowxy
+         IPcQAaRtgYzkCnU0jLApEYmqNX4SW1iz6AeqQQlJKMjCSUumou0WY+4r5EEXZG5sj3
+         bFOq4Ht3GH9azQrN5znx6n2u4JpnxiKIlgj5u/3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Dilip Kota <eswara.kota@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 040/393] ARM: dts: sunxi: bananapi-m2-plus-v1.2: Fix CPU supply voltages
-Date:   Mon, 17 Aug 2020 17:11:30 +0200
-Message-Id: <20200817143821.544251963@linuxfoundation.org>
+Subject: [PATCH 5.7 041/393] spi: lantiq: fix: Rx overflow error in full duplex mode
+Date:   Mon, 17 Aug 2020 17:11:31 +0200
+Message-Id: <20200817143821.592853292@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,46 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Dilip Kota <eswara.kota@linux.intel.com>
 
-[ Upstream commit e4dae01bf08b754de79072441c357737220b873f ]
+[ Upstream commit 661ccf2b3f1360be50242726f7c26ced6a9e7d52 ]
 
-The Bananapi M2+ uses a GPIO line to change the effective resistance of
-the CPU supply regulator's feedback resistor network. The voltages
-described in the device tree were given directly by the vendor. This
-turns out to be slightly off compared to the real values.
+In full duplex mode, rx overflow error is observed. To overcome the error,
+wait until the complete data got received and proceed further.
 
-The updated voltages are based on calculations of the feedback resistor
-network, and verified down to three decimal places with a multi-meter.
-
-Fixes: 6eeb4180d4b9 ("ARM: dts: sunxi: h3-h5: Add Bananapi M2+ v1.2 device trees")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20200717160053.31191-4-wens@kernel.org
+Fixes: 17f84b793c01 ("spi: lantiq-ssc: add support for Lantiq SSC SPI controller")
+Signed-off-by: Dilip Kota <eswara.kota@linux.intel.com>
+Link: https://lore.kernel.org/r/efb650b0faa49a00788c4e0ca8ef7196bdba851d.1594957019.git.eswara.kota@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/spi/spi-lantiq-ssc.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
-index a628b5ee72b65..235994a4a2ebb 100644
---- a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
-+++ b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
-@@ -16,12 +16,12 @@ reg_vdd_cpux: vdd-cpux {
- 		regulator-type = "voltage";
- 		regulator-boot-on;
- 		regulator-always-on;
--		regulator-min-microvolt = <1100000>;
--		regulator-max-microvolt = <1300000>;
-+		regulator-min-microvolt = <1108475>;
-+		regulator-max-microvolt = <1308475>;
- 		regulator-ramp-delay = <50>; /* 4ms */
- 		gpios = <&r_pio 0 1 GPIO_ACTIVE_HIGH>; /* PL1 */
- 		gpios-states = <0x1>;
--		states = <1100000 0>, <1300000 1>;
-+		states = <1108475 0>, <1308475 1>;
- 	};
+diff --git a/drivers/spi/spi-lantiq-ssc.c b/drivers/spi/spi-lantiq-ssc.c
+index 1fd7ee53d4510..44600fb71c484 100644
+--- a/drivers/spi/spi-lantiq-ssc.c
++++ b/drivers/spi/spi-lantiq-ssc.c
+@@ -184,6 +184,7 @@ struct lantiq_ssc_spi {
+ 	unsigned int			tx_fifo_size;
+ 	unsigned int			rx_fifo_size;
+ 	unsigned int			base_cs;
++	unsigned int			fdx_tx_level;
  };
+ 
+ static u32 lantiq_ssc_readl(const struct lantiq_ssc_spi *spi, u32 reg)
+@@ -481,6 +482,7 @@ static void tx_fifo_write(struct lantiq_ssc_spi *spi)
+ 	u32 data;
+ 	unsigned int tx_free = tx_fifo_free(spi);
+ 
++	spi->fdx_tx_level = 0;
+ 	while (spi->tx_todo && tx_free) {
+ 		switch (spi->bits_per_word) {
+ 		case 2 ... 8:
+@@ -509,6 +511,7 @@ static void tx_fifo_write(struct lantiq_ssc_spi *spi)
+ 
+ 		lantiq_ssc_writel(spi, data, LTQ_SPI_TB);
+ 		tx_free--;
++		spi->fdx_tx_level++;
+ 	}
+ }
+ 
+@@ -520,6 +523,13 @@ static void rx_fifo_read_full_duplex(struct lantiq_ssc_spi *spi)
+ 	u32 data;
+ 	unsigned int rx_fill = rx_fifo_level(spi);
+ 
++	/*
++	 * Wait until all expected data to be shifted in.
++	 * Otherwise, rx overrun may occur.
++	 */
++	while (rx_fill != spi->fdx_tx_level)
++		rx_fill = rx_fifo_level(spi);
++
+ 	while (rx_fill) {
+ 		data = lantiq_ssc_readl(spi, LTQ_SPI_RB);
  
 -- 
 2.25.1
