@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2640C246A52
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC0A246B47
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730376AbgHQPdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:33:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35900 "EHLO mail.kernel.org"
+        id S2387830AbgHQPwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730383AbgHQPda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:33:30 -0400
+        id S2387825AbgHQPv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:51:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDEB022D70;
-        Mon, 17 Aug 2020 15:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2C5220882;
+        Mon, 17 Aug 2020 15:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678409;
-        bh=xkpyY6I8Zhi0kMyrTuN+pP4gLQV21eoOEKpQZ8mG5Sk=;
+        s=default; t=1597679514;
+        bh=TVYzjNuX4vwDfn/79udKVbRMl5PZMEj9N1jvPHPi73c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKE+dnvUbHwXAsBj15PhyK93EwdR9Qb8J0eq93MLzNuR6Ji78ej8LUMdZVTw6Ibvf
-         81PPZ69mn//yoammLOISte68DZ3ZcpBdT1hT4A3t9yBiQtaXwbupnoIXAxK9h9OBr3
-         +I5cigika8XiluyizK3S68/YSYqlLX2JYfS50a34=
+        b=mPs7ZcBW+W7aHnTs/fEKEWCNg/z3AOG4q+40Xdzc1VlUgU1bMSyJiXpw2NkSPeQeh
+         hZvqIeVo0wj06HoVYoyCLrc8QIYE7+Iy3iNQryyZfU4KoFspdPrRMnQNzs1yVxtsKl
+         CWzd9bTHXHEGrQFPZolOX5bQPqwPNtFCWh0+6hyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 317/464] powerpc/boot: Fix CONFIG_PPC_MPC52XX references
-Date:   Mon, 17 Aug 2020 17:14:30 +0200
-Message-Id: <20200817143848.980474582@linuxfoundation.org>
+Subject: [PATCH 5.7 221/393] drm/imx: tve: fix regulator_disable error path
+Date:   Mon, 17 Aug 2020 17:14:31 +0200
+Message-Id: <20200817143830.343688448@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit e5eff89657e72a9050d95fde146b54c7dc165981 ]
+[ Upstream commit 7bb58b987fee26da2a1665c01033022624986b7c ]
 
-Commit 866bfc75f40e ("powerpc: conditionally compile platform-specific
-serial drivers") made some code depend on CONFIG_PPC_MPC52XX, which
-doesn't exist.
+Add missing regulator_disable() as devm_action to avoid dedicated
+unbind() callback and fix the missing error handling.
 
-Fix it to use CONFIG_PPC_MPC52xx.
-
-Fixes: 866bfc75f40e ("powerpc: conditionally compile platform-specific serial drivers")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200724131728.1643966-7-mpe@ellerman.id.au
+Fixes: fcbc51e54d2a ("staging: drm/imx: Add support for Television Encoder (TVEv2)")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/Makefile | 2 +-
- arch/powerpc/boot/serial.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/imx/imx-tve.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
-index 63d7456b95180..2039ed41250df 100644
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -117,7 +117,7 @@ src-wlib-y := string.S crt0.S stdio.c decompress.c main.c \
- 		elf_util.c $(zlib-y) devtree.c stdlib.c \
- 		oflib.c ofconsole.c cuboot.c
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index 9fd4b464e829c..f91c3eb7697bc 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -494,6 +494,13 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
+ 	return 0;
+ }
  
--src-wlib-$(CONFIG_PPC_MPC52XX) += mpc52xx-psc.c
-+src-wlib-$(CONFIG_PPC_MPC52xx) += mpc52xx-psc.c
- src-wlib-$(CONFIG_PPC64_BOOT_WRAPPER) += opal-calls.S opal.c
- ifndef CONFIG_PPC64_BOOT_WRAPPER
- src-wlib-y += crtsavres.S
-diff --git a/arch/powerpc/boot/serial.c b/arch/powerpc/boot/serial.c
-index 0bfa7e87e5460..9a19e5905485c 100644
---- a/arch/powerpc/boot/serial.c
-+++ b/arch/powerpc/boot/serial.c
-@@ -128,7 +128,7 @@ int serial_console_init(void)
- 	         dt_is_compatible(devp, "fsl,cpm2-smc-uart"))
- 		rc = cpm_console_init(devp, &serial_cd);
- #endif
--#ifdef CONFIG_PPC_MPC52XX
-+#ifdef CONFIG_PPC_MPC52xx
- 	else if (dt_is_compatible(devp, "fsl,mpc5200-psc-uart"))
- 		rc = mpc5200_psc_console_init(devp, &serial_cd);
- #endif
++static void imx_tve_disable_regulator(void *data)
++{
++	struct imx_tve *tve = data;
++
++	regulator_disable(tve->dac_reg);
++}
++
+ static bool imx_tve_readable_reg(struct device *dev, unsigned int reg)
+ {
+ 	return (reg % 4 == 0) && (reg <= 0xdc);
+@@ -617,6 +624,9 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
+ 		ret = regulator_enable(tve->dac_reg);
+ 		if (ret)
+ 			return ret;
++		ret = devm_add_action_or_reset(dev, imx_tve_disable_regulator, tve);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	tve->clk = devm_clk_get(dev, "tve");
+@@ -661,18 +671,8 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
+ 	return 0;
+ }
+ 
+-static void imx_tve_unbind(struct device *dev, struct device *master,
+-	void *data)
+-{
+-	struct imx_tve *tve = dev_get_drvdata(dev);
+-
+-	if (!IS_ERR(tve->dac_reg))
+-		regulator_disable(tve->dac_reg);
+-}
+-
+ static const struct component_ops imx_tve_ops = {
+ 	.bind	= imx_tve_bind,
+-	.unbind	= imx_tve_unbind,
+ };
+ 
+ static int imx_tve_probe(struct platform_device *pdev)
 -- 
 2.25.1
 
