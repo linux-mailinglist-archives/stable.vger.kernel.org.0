@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9797F246A16
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74569246AAA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:40:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729701AbgHQPaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:30:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49990 "EHLO mail.kernel.org"
+        id S1730679AbgHQPkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730151AbgHQP34 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:29:56 -0400
+        id S1730677AbgHQPkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6281723D3C;
-        Mon, 17 Aug 2020 15:29:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 481F32075B;
+        Mon, 17 Aug 2020 15:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678195;
-        bh=05iKHycDZmcIvSow2mGu/p3lmoFOWIEpyO5G7US79J0=;
+        s=default; t=1597678842;
+        bh=3vfQKMttlM0pOTyMoFBwaEXl9k9Q1/ngIocA8s8nfjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9ugcQn2mEY1TyCvBZaYUjNFo+G+l1Vh0vzgJEEcecRB/1z6haF2qa6RZ8rYeJUC3
-         T7cTuySIij8RVz0iHpKGHitRzBpqgabbR8kjhrN0fsH0+FZ/e/OIVXSe1FPfgJg7ij
-         q5jS2OPQRXh4MlQ18ysVl6Br/JBvjbgcDCKa85IA=
+        b=Dh1ZpV+X/2Pej+WxVo7EmU2fCW0rGz9YdvGfHJmGx9CoJdr7ajflJPFp2Ylzd4tnQ
+         hbOf6uEBYz/XqNYRMD4EXCY9BE55+PYn0GQZxtBlwRn8RQV2VdsxYUcQMimM3L6aIO
+         3JfyOt7CJfbygP5kI+hMHDFXq+f7hfGuCBbo+zfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 249/464] media: s5p-g2d: Fix a memory leak in an error handling path in g2d_probe()
-Date:   Mon, 17 Aug 2020 17:13:22 +0200
-Message-Id: <20200817143845.723289831@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Tim Murray <timmurray@google.com>,
+        Simon MacMullen <simonmacm@google.com>,
+        Greg Hackmann <ghackmann@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.7 001/393] tracepoint: Mark __tracepoint_strings __used
+Date:   Mon, 17 Aug 2020 17:10:51 +0200
+Message-Id: <20200817143819.658929848@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,86 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 94b9ce6870f9c90ac92505482689818b254312f7 ]
+commit f3751ad0116fb6881f2c3c957d66a9327f69cefb upstream.
 
-Memory allocated with 'v4l2_m2m_init()' must be freed by a corresponding
-call to 'v4l2_m2m_release()'
+__tracepoint_string's have their string data stored in .rodata, and an
+address to that data stored in the "__tracepoint_str" section. Functions
+that refer to those strings refer to the symbol of the address. Compiler
+optimization can replace those address references with references
+directly to the string data. If the address doesn't appear to have other
+uses, then it appears dead to the compiler and is removed. This can
+break the /tracing/printk_formats sysfs node which iterates the
+addresses stored in the "__tracepoint_str" section.
 
-Also reorder the code at the end of the probe function so that
-'video_register_device()' is called last.
-Update the error handling path accordingly.
+Like other strings stored in custom sections in this header, mark these
+__used to inform the compiler that there are other non-obvious users of
+the address, so they should still be emitted.
 
-Fixes: 5ce60d790a24 ("[media] s5p-g2d: Add DT based discovery support")
-Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[hverkuil-cisco@xs4all.nl: checkpatch: align with parenthesis]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20200730224555.2142154-2-ndesaulniers@google.com
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 102c9323c35a8 ("tracing: Add __tracepoint_string() to export string pointers")
+Reported-by: Tim Murray <timmurray@google.com>
+Reported-by: Simon MacMullen <simonmacm@google.com>
+Suggested-by: Greg Hackmann <ghackmann@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/s5p-g2d/g2d.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ include/linux/tracepoint.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
-index 6932fd47071b0..15bcb7f6e113c 100644
---- a/drivers/media/platform/s5p-g2d/g2d.c
-+++ b/drivers/media/platform/s5p-g2d/g2d.c
-@@ -695,21 +695,13 @@ static int g2d_probe(struct platform_device *pdev)
- 	vfd->lock = &dev->mutex;
- 	vfd->v4l2_dev = &dev->v4l2_dev;
- 	vfd->device_caps = V4L2_CAP_VIDEO_M2M | V4L2_CAP_STREAMING;
--	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
--	if (ret) {
--		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
--		goto rel_vdev;
--	}
--	video_set_drvdata(vfd, dev);
--	dev->vfd = vfd;
--	v4l2_info(&dev->v4l2_dev, "device registered as /dev/video%d\n",
--								vfd->num);
-+
- 	platform_set_drvdata(pdev, dev);
- 	dev->m2m_dev = v4l2_m2m_init(&g2d_m2m_ops);
- 	if (IS_ERR(dev->m2m_dev)) {
- 		v4l2_err(&dev->v4l2_dev, "Failed to init mem2mem device\n");
- 		ret = PTR_ERR(dev->m2m_dev);
--		goto unreg_video_dev;
-+		goto rel_vdev;
- 	}
- 
- 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
-@@ -717,14 +709,24 @@ static int g2d_probe(struct platform_device *pdev)
- 	of_id = of_match_node(exynos_g2d_match, pdev->dev.of_node);
- 	if (!of_id) {
- 		ret = -ENODEV;
--		goto unreg_video_dev;
-+		goto free_m2m;
- 	}
- 	dev->variant = (struct g2d_variant *)of_id->data;
- 
-+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
-+	if (ret) {
-+		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
-+		goto free_m2m;
-+	}
-+	video_set_drvdata(vfd, dev);
-+	dev->vfd = vfd;
-+	v4l2_info(&dev->v4l2_dev, "device registered as /dev/video%d\n",
-+		  vfd->num);
-+
- 	return 0;
- 
--unreg_video_dev:
--	video_unregister_device(dev->vfd);
-+free_m2m:
-+	v4l2_m2m_release(dev->m2m_dev);
- rel_vdev:
- 	video_device_release(vfd);
- unreg_v4l2_dev:
--- 
-2.25.1
-
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -361,7 +361,7 @@ static inline struct tracepoint *tracepo
+ 		static const char *___tp_str __tracepoint_string = str; \
+ 		___tp_str;						\
+ 	})
+-#define __tracepoint_string	__attribute__((section("__tracepoint_str")))
++#define __tracepoint_string	__attribute__((section("__tracepoint_str"), used))
+ #else
+ /*
+  * tracepoint_string() is used to save the string address for userspace
 
 
