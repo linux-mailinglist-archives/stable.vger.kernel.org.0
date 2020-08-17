@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1729B247321
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FE424731C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387888AbgHQSvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39408 "EHLO mail.kernel.org"
+        id S2391730AbgHQSvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:51:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387795AbgHQPw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:52:58 -0400
+        id S2387890AbgHQPxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B30F2063A;
-        Mon, 17 Aug 2020 15:52:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F016A2072E;
+        Mon, 17 Aug 2020 15:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679577;
-        bh=MDW7zPGSxlpGtuVlSdNQEyo/5VeyAqxAcooG2pKk2kc=;
+        s=default; t=1597679580;
+        bh=Z+GvHvMVeUTHOxKmGxr0IsDsDVqCy9Y3RZoaikMeSH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7t9LDdQETwfmeSPcPt3Pid4DQaaC+2BotX+2ZIZfZWJJHvp680JHcDVW+QkhnjLg
-         JMny7jI9MjzFrdC06nYNwGuKB0fokTCf/g1asr+cyFZKh3z4t99+v05LYssukTP5zD
-         CZYgkL7VlYuWV5olOOQcWVrt3vll17n/IfBh5oAk=
+        b=wrR1jBHimMK34SaB8H4lQ6GYXFwAc7HpMec3lijuOgc7uEnaT9plbUCSD5CG0ejQc
+         lwAhIEdecwsIf3pHv7tIveqhfwysj36ah8K9+YZPqSItiFfzChp15CTTslv9qPASBG
+         CkWivSuf4u4JGtuJX7NKDfR3qcBxJF+MoRsRIXdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        stable@vger.kernel.org,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 263/393] xfs: fix inode allocation block res calculation precedence
-Date:   Mon, 17 Aug 2020 17:15:13 +0200
-Message-Id: <20200817143832.370190899@linuxfoundation.org>
+        Allison Collins <allison.henderson@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 264/393] xfs: clear XFS_DQ_FREEING if we cant lock the dquot buffer to flush
+Date:   Mon, 17 Aug 2020 17:15:14 +0200
+Message-Id: <20200817143832.418564967@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,44 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit b2a8864728683443f34a9fd33a2b78b860934cc1 ]
+[ Upstream commit c97738a960a86081a147e7d436138e6481757445 ]
 
-The block reservation calculation for inode allocation is supposed
-to consist of the blocks required for the inode chunk plus
-(maxlevels-1) of the inode btree multiplied by the number of inode
-btrees in the fs (2 when finobt is enabled, 1 otherwise).
+In commit 8d3d7e2b35ea, we changed xfs_qm_dqpurge to bail out if we
+can't lock the dquot buf to flush the dquot.  This prevents the AIL from
+blocking on the dquot, but it also forgets to clear the FREEING flag on
+its way out.  A subsequent purge attempt will see the FREEING flag is
+set and bail out, which leads to dqpurge_all failing to purge all the
+dquots.
 
-Instead, the macro returns (ialloc_blocks + 2) due to a precedence
-error in the calculation logic. This leads to block reservation
-overruns via generic/531 on small block filesystems with finobt
-enabled. Add braces to fix the calculation and reserve the
-appropriate number of blocks.
+(copy-pasting from Dave Chinner's identical patch)
 
-Fixes: 9d43b180af67 ("xfs: update inode allocation/free transaction reservations for finobt")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+This was found by inspection after having xfs/305 hang 1 in ~50
+iterations in a quotaoff operation:
+
+[ 8872.301115] xfs_quota       D13888 92262  91813 0x00004002
+[ 8872.302538] Call Trace:
+[ 8872.303193]  __schedule+0x2d2/0x780
+[ 8872.304108]  ? do_raw_spin_unlock+0x57/0xd0
+[ 8872.305198]  schedule+0x6e/0xe0
+[ 8872.306021]  schedule_timeout+0x14d/0x300
+[ 8872.307060]  ? __next_timer_interrupt+0xe0/0xe0
+[ 8872.308231]  ? xfs_qm_dqusage_adjust+0x200/0x200
+[ 8872.309422]  schedule_timeout_uninterruptible+0x2a/0x30
+[ 8872.310759]  xfs_qm_dquot_walk.isra.0+0x15a/0x1b0
+[ 8872.311971]  xfs_qm_dqpurge_all+0x7f/0x90
+[ 8872.313022]  xfs_qm_scall_quotaoff+0x18d/0x2b0
+[ 8872.314163]  xfs_quota_disable+0x3a/0x60
+[ 8872.315179]  kernel_quotactl+0x7e2/0x8d0
+[ 8872.316196]  ? __do_sys_newstat+0x51/0x80
+[ 8872.317238]  __x64_sys_quotactl+0x1e/0x30
+[ 8872.318266]  do_syscall_64+0x46/0x90
+[ 8872.319193]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 8872.320490] RIP: 0033:0x7f46b5490f2a
+[ 8872.321414] Code: Bad RIP value.
+
+Returning -EAGAIN from xfs_qm_dqpurge() without clearing the
+XFS_DQ_FREEING flag means the xfs_qm_dqpurge_all() code can never
+free the dquot, and we loop forever waiting for the XFS_DQ_FREEING
+flag to go away on the dquot that leaked it via -EAGAIN.
+
+Fixes: 8d3d7e2b35ea ("xfs: trylock underlying buffer on dquot flush")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_trans_space.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_qm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xfs/libxfs/xfs_trans_space.h b/fs/xfs/libxfs/xfs_trans_space.h
-index 88221c7a04ccf..c6df01a2a1585 100644
---- a/fs/xfs/libxfs/xfs_trans_space.h
-+++ b/fs/xfs/libxfs/xfs_trans_space.h
-@@ -57,7 +57,7 @@
- 	XFS_DAREMOVE_SPACE_RES(mp, XFS_DATA_FORK)
- #define	XFS_IALLOC_SPACE_RES(mp)	\
- 	(M_IGEO(mp)->ialloc_blks + \
--	 (xfs_sb_version_hasfinobt(&mp->m_sb) ? 2 : 1 * \
-+	 ((xfs_sb_version_hasfinobt(&mp->m_sb) ? 2 : 1) * \
- 	  (M_IGEO(mp)->inobt_maxlevels - 1)))
- 
- /*
+diff --git a/fs/xfs/xfs_qm.c b/fs/xfs/xfs_qm.c
+index c225691fad156..2a0cdca80f861 100644
+--- a/fs/xfs/xfs_qm.c
++++ b/fs/xfs/xfs_qm.c
+@@ -148,6 +148,7 @@ xfs_qm_dqpurge(
+ 			error = xfs_bwrite(bp);
+ 			xfs_buf_relse(bp);
+ 		} else if (error == -EAGAIN) {
++			dqp->dq_flags &= ~XFS_DQ_FREEING;
+ 			goto out_unlock;
+ 		}
+ 		xfs_dqflock(dqp);
 -- 
 2.25.1
 
