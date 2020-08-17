@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4441D2474A0
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BFDC247499
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730686AbgHQPku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:40:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49976 "EHLO mail.kernel.org"
+        id S2387627AbgHQTMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730684AbgHQPks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:40:48 -0400
+        id S1730690AbgHQPkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90B8E207DA;
-        Mon, 17 Aug 2020 15:40:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8DFB20760;
+        Mon, 17 Aug 2020 15:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678848;
-        bh=TKxSJQ7vNumH47O7qPfVFf/C+OEWYUJDGaHXT7FsDWo=;
+        s=default; t=1597678851;
+        bh=sB317FLKXl8ZWzvoUjIVlaxiV8Hf9CrJJB1t9Ct1CJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rnHbxHLuApF8P/a+GnvHvJnUl7P1HMEINlMn7KLe8ZLmXqxOUIc/MLUFjywhzj2W
-         P3C4w7RFm43eNucIegLbdACgkZCKonet46e7fY/weYqu16fSrX44Gsm8vx6UFmBoqf
-         M38vpyfUpk0CrhqOMTvy1S3obTLk2q4uPfVNQHDM=
+        b=rsj5sC+CQ1L9NAsUsl6Hw/xO8GA2iJ6ydshhDbzf5CBruwxWeQFvpJ3K5TyRBgj9e
+         GKY6agJo4vt+iGqxDrvNtf6y/Z1iLhWxkhMYR1MlFpuMWoHuAOMScNixLQSWTuBgrL
+         S/3koDIWlFF7pulfrCIFc1o9GW0c2dtL42dN6OHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
+        stable@vger.kernel.org,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 011/393] sched: correct SD_flags returned by tl->sd_flags()
-Date:   Mon, 17 Aug 2020 17:11:01 +0200
-Message-Id: <20200817143820.146094440@linuxfoundation.org>
+Subject: [PATCH 5.7 012/393] arm64: dts: rockchip: fix rk3368-lion gmac reset gpio
+Date:   Mon, 17 Aug 2020 17:11:02 +0200
+Message-Id: <20200817143820.194373451@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,38 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Liu <iwtbavbm@gmail.com>
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-[ Upstream commit 9b1b234bb86bcdcdb142e900d39b599185465dbb ]
+[ Upstream commit 2300e6dab473e93181cf76e4fe6671aa3d24c57b ]
 
-During sched domain init, we check whether non-topological SD_flags are
-returned by tl->sd_flags(), if found, fire a waning and correct the
-violation, but the code failed to correct the violation. Correct this.
+The lion gmac node currently uses opposite active-values for the
+gmac phy reset pin. The gpio-declaration uses active-high while the
+separate snps,reset-active-low property marks the pin as active low.
 
-Fixes: 143e1e28cb40 ("sched: Rework sched_domain topology definition")
-Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20200609150936.GA13060@iZj6chx1xj0e0buvshuecpZ
+While on the kernel side this works ok, other DT users may get
+confused - as seen with uboot right now.
+
+So bring this in line and make both properties match, similar to the
+other Rockchip board.
+
+Fixes: d99a02bcfa81 ("arm64: dts: rockchip: add RK3368-uQ7 (Lion) SoM")
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20200607212909.920575-1-heiko@sntech.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/topology.c | 2 +-
+ arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index 8344757bba6e6..160178d6eb20e 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -1338,7 +1338,7 @@ sd_init(struct sched_domain_topology_level *tl,
- 		sd_flags = (*tl->sd_flags)();
- 	if (WARN_ONCE(sd_flags & ~TOPOLOGY_SD_FLAGS,
- 			"wrong sd_flags in topology description\n"))
--		sd_flags &= ~TOPOLOGY_SD_FLAGS;
-+		sd_flags &= TOPOLOGY_SD_FLAGS;
- 
- 	/* Apply detected topology flags */
- 	sd_flags |= dflags;
+diff --git a/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi b/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi
+index e17311e090826..216aafd90e7f1 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3368-lion.dtsi
+@@ -156,7 +156,7 @@ &gmac {
+ 	pinctrl-0 = <&rgmii_pins>;
+ 	snps,reset-active-low;
+ 	snps,reset-delays-us = <0 10000 50000>;
+-	snps,reset-gpio = <&gpio3 RK_PB3 GPIO_ACTIVE_HIGH>;
++	snps,reset-gpio = <&gpio3 RK_PB3 GPIO_ACTIVE_LOW>;
+ 	tx_delay = <0x10>;
+ 	rx_delay = <0x10>;
+ 	status = "okay";
 -- 
 2.25.1
 
