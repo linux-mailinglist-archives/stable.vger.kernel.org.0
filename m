@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797F52464B3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBE752464B2
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726685AbgHQKnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 06:43:32 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55809 "EHLO
+        id S1726265AbgHQKna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 06:43:30 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:56829 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726480AbgHQKnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:43:31 -0400
+        by vger.kernel.org with ESMTP id S1726480AbgHQKn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:43:29 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 50B3E1941AC1;
-        Mon, 17 Aug 2020 06:43:30 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 74D5F1941B52;
+        Mon, 17 Aug 2020 06:43:28 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:43:30 -0400
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:43:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5OtDhF
-        sovIbrPETCRBPpzsHVh1ZN3McXS08ZricVa4Q=; b=iThyvL7IqqqJHbWfRZgir/
-        fKgul7MNGuF7M/+MJ1JtZ6jYYvVbTxSmoqw5znge9ZVYIEDNpluHjku3F/XIpx1J
-        vB/lTp+lwBdLWOSsjQx42GR49g5zc2lipuSH19Fd/8k5/45I7yqClE8r/nnOl7o3
-        u73HocvicnqhC1JUnSIQj0sKlyV2bSdr+gOAZQWzOfgt4xMIE34LvDoacKqe7yZO
-        KyqufHnAKKRqdnScn9pOFhqnIxiyjD+pNnmk0I2xoH+Jlc0WMaTHgHLN9YIa6NIR
-        rsizL/bDhJFOCf3Zj1++OJvLxyK586kElI0A+D6NZKtoykXvkCRuHaIxH/UVARyA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=f8/rIg
+        FhWgSOffINBui4TpKcx0edzHSWGdZCZNXBk+8=; b=HGMCJYZOHHxrGjc+cS4YDN
+        M/7N7MbRIdjOMqRfw3nyvSOMXCB+kbYh/kfComdpXZJ7Ssyrbur1olXb5qtIbhKb
+        2+JuXieoIZ0yyJIHPNdlQrvYX4Ifmq1eFsQOJM9Jbrv5Ew0a4Td8u1taVZDbtVz8
+        /81LSfanKCJW5i+YhlY/149+U3rn3BZ5uNkZJBbMAAKKSOHjTlT0QpizWqr1lHfI
+        fjUW/H0KM1TzLKC5KPrE/y/oc/gg0FT+KeCnaTPGAaVXxYGGL+1GhfYJLVIf794K
+        dhRpPsxYOYWirV9dzqALy/7qag9Sfhkx5j3PRMBZnU1Oh/I72GUNv9xLr0161jpg
         ==
-X-ME-Sender: <xms:Ul86X_3laTno5X0m2p1VwaTi2IiHnn3vHqDPCA3TkOTKVLVFrecVmg>
+X-ME-Sender: <xms:UF86X2fr_l6fmSRRNhjcRQvUqrfXn_TjcVOZyPcKvmIYvQs5NSF96g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgfedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgfedtucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:Ul86X-FW6knOuFOyYU-6rLc4EMqw0P1J46CRXIqurtV8RUKkeG94Bg>
-    <xmx:Ul86X_57oS9JntR7avY377ei1PWkUm_sxRAp2xwbDe2luneaSQNk2g>
-    <xmx:Ul86X01rMzSISdd9yMfk6Vr5xHNxf_5u8dtAQL91BV-6Yc0iAy70MQ>
-    <xmx:Ul86X9wkdNAuPhqgI6rp1GwsmmOqdlzPZqoCf1jvdYKFkPfXVEFMiw>
+X-ME-Proxy: <xmx:UF86XwPh8haw48d1zPMKrR3TZ3ZKLyyyvM4QJMjH8VRJnjcorVa3Dw>
+    <xmx:UF86X3jYtvtsffxCFxdY3cRzuf93j309NRzBws7EacdbfCUBcp22NQ>
+    <xmx:UF86Xz9n2Vadh8KjScPMqbomo-38j_v-NgwrxsXzCeEhEfuCT8al5g>
+    <xmx:UF86Xz4RQ6GsB85KVWB6TBHcKYubACaF5ErynRezvHTTXf7eLdvgoA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E55DF306005F;
-        Mon, 17 Aug 2020 06:43:29 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: enable lookup of links holding inflight files" failed to apply to 5.7-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1788D3060067;
+        Mon, 17 Aug 2020 06:43:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: enable lookup of links holding inflight files" failed to apply to 5.4-stable tree
 To:     axboe@kernel.dk, josef.grieb@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Aug 2020 12:43:47 +0200
-Message-ID: <1597661027209127@kroah.com>
+Message-ID: <159766102725059@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.7-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
