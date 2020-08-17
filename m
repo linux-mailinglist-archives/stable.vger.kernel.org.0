@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26125246C63
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B0A246C70
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388804AbgHQQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53290 "EHLO mail.kernel.org"
+        id S1731110AbgHQQQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388799AbgHQQPK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:10 -0400
+        id S1731071AbgHQQPh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C2CD20578;
-        Mon, 17 Aug 2020 16:15:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B269B22CB3;
+        Mon, 17 Aug 2020 16:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680910;
-        bh=VaCrLvSekWJClVn1YBP6qZ2kXCHDNEXrVPAJS2fvwRs=;
+        s=default; t=1597680937;
+        bh=b8dcykdGfMKAbIUCpCxX7tLSFSWEjDh6yo3ccQiiFkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kv00r9UoCwFy54kY7qY76F04pPW1NVNxrG8ycv/ScXQb3JsmfjvXkL75tJTGpEGgM
-         zJl1x3B5pebUl1+c2TudKETFqSdcL6sO/AnhLSFMuq1182tep5N2vZDbW8G6oHDQIS
-         sPy9Q5vsSHxojZfPGNum0y1PxSBQWzGXOVXYG2DA=
+        b=FH11BozWF7GzfLw7YHCnPRubhjh5cwZ+d7FCSQwZr2EiGRCO4GtD8yfvsGCSL7V4S
+         124vpyNeOvhvssJAzOTYQ/NA5ozTTe57/4UTF1d6iD2onN46thwRwsZ5E4wHL03k8A
+         3Whv8ekprg4D8wZVq5M4ACeGQEh6VFqoM2x5Bd+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 099/168] net: dsa: mv88e6xxx: MV88E6097 does not support jumbo configuration
-Date:   Mon, 17 Aug 2020 17:17:10 +0200
-Message-Id: <20200817143738.655691195@linuxfoundation.org>
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 100/168] PCI: cadence: Fix updating Vendor ID and Subsystem Vendor ID register
+Date:   Mon, 17 Aug 2020 17:17:11 +0200
+Message-Id: <20200817143738.710505810@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -46,36 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 0f3c66a3c7b4e8b9f654b3c998e9674376a51b0f ]
+[ Upstream commit e3bca37d15dca118f2ef1f0a068bb6e07846ea20 ]
 
-The MV88E6097 chip does not support configuring jumbo frames. Prior to
-commit 5f4366660d65 only the 6352, 6351, 6165 and 6320 chips configured
-jumbo mode. The refactor accidentally added the function for the 6097.
-Remove the erroneous function pointer assignment.
+Commit 1b79c5284439 ("PCI: cadence: Add host driver for Cadence PCIe
+controller") in order to update Vendor ID, directly wrote to
+PCI_VENDOR_ID register. However PCI_VENDOR_ID in root port configuration
+space is read-only register and writing to it will have no effect.
+Use local management register to configure Vendor ID and Subsystem Vendor
+ID.
 
-Fixes: 5f4366660d65 ("net: dsa: mv88e6xxx: Refactor setting of jumbo frames")
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200722110317.4744-10-kishon@ti.com
+Fixes: 1b79c5284439 ("PCI: cadence: Add host driver for Cadence PCIe controller")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/pci/controller/pcie-cadence-host.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 43b00e8bcdcd7..6fa8aa69b4180 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2930,7 +2930,6 @@ static const struct mv88e6xxx_ops mv88e6097_ops = {
- 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
- 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
- 	.port_set_ether_type = mv88e6351_port_set_ether_type,
--	.port_set_jumbo_size = mv88e6165_port_set_jumbo_size,
- 	.port_egress_rate_limiting = mv88e6095_port_egress_rate_limiting,
- 	.port_pause_limit = mv88e6097_port_pause_limit,
- 	.port_disable_learn_limit = mv88e6xxx_port_disable_learn_limit,
+diff --git a/drivers/pci/controller/pcie-cadence-host.c b/drivers/pci/controller/pcie-cadence-host.c
+index ec394f6a19c8e..ae7affcb1a811 100644
+--- a/drivers/pci/controller/pcie-cadence-host.c
++++ b/drivers/pci/controller/pcie-cadence-host.c
+@@ -102,6 +102,7 @@ static int cdns_pcie_host_init_root_port(struct cdns_pcie_rc *rc)
+ {
+ 	struct cdns_pcie *pcie = &rc->pcie;
+ 	u32 value, ctrl;
++	u32 id;
+ 
+ 	/*
+ 	 * Set the root complex BAR configuration register:
+@@ -121,8 +122,12 @@ static int cdns_pcie_host_init_root_port(struct cdns_pcie_rc *rc)
+ 	cdns_pcie_writel(pcie, CDNS_PCIE_LM_RC_BAR_CFG, value);
+ 
+ 	/* Set root port configuration space */
+-	if (rc->vendor_id != 0xffff)
+-		cdns_pcie_rp_writew(pcie, PCI_VENDOR_ID, rc->vendor_id);
++	if (rc->vendor_id != 0xffff) {
++		id = CDNS_PCIE_LM_ID_VENDOR(rc->vendor_id) |
++			CDNS_PCIE_LM_ID_SUBSYS(rc->vendor_id);
++		cdns_pcie_writel(pcie, CDNS_PCIE_LM_ID, id);
++	}
++
+ 	if (rc->device_id != 0xffff)
+ 		cdns_pcie_rp_writew(pcie, PCI_DEVICE_ID, rc->device_id);
+ 
 -- 
 2.25.1
 
