@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B63AE2473C4
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7893F2473DA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390135AbgHQTA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60236 "EHLO mail.kernel.org"
+        id S1730815AbgHQPrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:47:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730835AbgHQPsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:48:09 -0400
+        id S2387751AbgHQPqv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:46:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 759982065D;
-        Mon, 17 Aug 2020 15:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B94422065D;
+        Mon, 17 Aug 2020 15:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679287;
-        bh=EqM+gLh7D3odZQRkGC9GZ7RNw+ABm4SgeE8Cenu11Gg=;
+        s=default; t=1597679210;
+        bh=hvnd6rY9b+ciKQ1KWJkWmZnmieEZ4BnpOAOucN+yc8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHQAkzRcQ/gOioFMPL3d3T41HjqiM4PuE5o5ekiXzW2QJZswnqxE7+z/+3hxZHtTD
-         2jPa4QDmUXDm0YXVboD3EjyBCoKpPY8vfOnUSROqeAxVEal322aU4+cCHt1/nvRAwm
-         oV8TulEGq252F/zDoK1QmygVcERnDGHs1fLJy3HA=
+        b=xvILtrOjRnlYPG0hTRvQGgaG60J/fq6Utk3TShKtYsydAl/C7i+sgy78o6jZom7Ue
+         xiPKktQZ/EUZkqZgu57gZfLT+pwdGUrxDOvs0jVXrwyd8fEeQX4+D+L1JajxYbisuV
+         em4Ws/g8xtrmWmXdvAvyHRQdGX8C1GD0OnmdFmo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 129/393] btmrvl: Fix firmware filename for sd8977 chipset
-Date:   Mon, 17 Aug 2020 17:12:59 +0200
-Message-Id: <20200817143825.866153275@linuxfoundation.org>
+Subject: [PATCH 5.7 134/393] Bluetooth: hci_qca: Fix an error pointer dereference
+Date:   Mon, 17 Aug 2020 17:13:04 +0200
+Message-Id: <20200817143826.109775509@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,45 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit dbec3af5f13b88a96e31f252957ae1a82484a923 ]
+[ Upstream commit 4c07a5d7aeb39f559b29aa58ec9a8a5ab4282cb0 ]
 
-Firmware for sd8977 chipset is distributed by Marvell package and also as
-part of the linux-firmware repository in filename sdsd8977_combo_v2.bin.
+When a function like devm_clk_get_optional() function returns both error
+pointers on error and NULL then the NULL return means that the optional
+feature is deliberately disabled.  It is a special sort of success and
+should not trigger an error message.  The surrounding code should be
+written to check for NULL and not crash.
 
-This patch fixes mwifiex driver to load correct firmware file for sd8977.
+On the other hand, if we encounter an error, then the probe from should
+clean up and return a failure.
 
-Fixes: 8c57983bf7a79 ("Bluetooth: btmrvl: add support for sd8977 chipset")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+In this code, if devm_clk_get_optional() returns an error pointer then
+the kernel will crash inside the call to:
+
+	clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
+
+The error handling must be updated to prevent that.
+
+Fixes: 77131dfec6af ("Bluetooth: hci_qca: Replace devm_gpiod_get() with devm_gpiod_get_optional()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmrvl_sdio.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_qca.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/bluetooth/btmrvl_sdio.c b/drivers/bluetooth/btmrvl_sdio.c
-index 0f3a020703ab2..7aa2c94720bc5 100644
---- a/drivers/bluetooth/btmrvl_sdio.c
-+++ b/drivers/bluetooth/btmrvl_sdio.c
-@@ -328,7 +328,7 @@ static const struct btmrvl_sdio_device btmrvl_sdio_sd8897 = {
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 14e4d2eaf8959..568f7ec20b000 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -1941,17 +1941,17 @@ static int qca_serdev_probe(struct serdev_device *serdev)
+ 		}
  
- static const struct btmrvl_sdio_device btmrvl_sdio_sd8977 = {
- 	.helper         = NULL,
--	.firmware       = "mrvl/sd8977_uapsta.bin",
-+	.firmware       = "mrvl/sdsd8977_combo_v2.bin",
- 	.reg            = &btmrvl_reg_8977,
- 	.support_pscan_win_report = true,
- 	.sd_blksz_fw_dl = 256,
-@@ -1831,6 +1831,6 @@ MODULE_FIRMWARE("mrvl/sd8787_uapsta.bin");
- MODULE_FIRMWARE("mrvl/sd8797_uapsta.bin");
- MODULE_FIRMWARE("mrvl/sd8887_uapsta.bin");
- MODULE_FIRMWARE("mrvl/sd8897_uapsta.bin");
--MODULE_FIRMWARE("mrvl/sd8977_uapsta.bin");
-+MODULE_FIRMWARE("mrvl/sdsd8977_combo_v2.bin");
- MODULE_FIRMWARE("mrvl/sd8987_uapsta.bin");
- MODULE_FIRMWARE("mrvl/sd8997_uapsta.bin");
+ 		qcadev->susclk = devm_clk_get_optional(&serdev->dev, NULL);
+-		if (!qcadev->susclk) {
++		if (IS_ERR(qcadev->susclk)) {
+ 			dev_warn(&serdev->dev, "failed to acquire clk\n");
+-		} else {
+-			err = clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
+-			if (err)
+-				return err;
+-
+-			err = clk_prepare_enable(qcadev->susclk);
+-			if (err)
+-				return err;
++			return PTR_ERR(qcadev->susclk);
+ 		}
++		err = clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
++		if (err)
++			return err;
++
++		err = clk_prepare_enable(qcadev->susclk);
++		if (err)
++			return err;
+ 
+ 		err = hci_uart_register_device(&qcadev->serdev_hu, &qca_proto);
+ 		if (err) {
 -- 
 2.25.1
 
