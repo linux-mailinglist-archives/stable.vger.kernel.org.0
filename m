@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155B8247138
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E75247137
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389176AbgHQSXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:23:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51086 "EHLO mail.kernel.org"
+        id S2390910AbgHQSVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388241AbgHQQD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:03:26 -0400
+        id S2388253AbgHQQDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:03:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C6E120772;
-        Mon, 17 Aug 2020 16:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF4802053B;
+        Mon, 17 Aug 2020 16:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680205;
-        bh=uVMG5b5otyl6qwqwsN/Tcmg2xmutUScQrHiyk0Y2vHk=;
+        s=default; t=1597680218;
+        bh=oQk6zhJygBxUGkiPvt9y14xunwmcZ95J2ZuNbpEIpEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgHZFzBYTID8deNvPV6+k22hS7KhVH2SlQi9/Vcw0WvZC2untd7Kj+4XczDCs8Biw
-         Tc/uUhdfXJMRbT+KZ6NFkRPUh4DxUSVwVtu7qGWMqO85JmR49U4e/eevCltzlgvBT3
-         I7mwkXhHdwdIb12VVqRPHArq+V32j+hqr8ryrLa4=
+        b=AUEdXZWPndstum5iZi9sNKd9Hw2PoHAu7LPCjtgtuMNGi5l4fkeMuDkuoiSpVCZSI
+         8Ffh8zZU1Rqj4j8b08MUPGAPZghgseOydabBuf1h4tzE33/kwefIrcI6DzBbwpUli+
+         f4Ltu+1+gNXAMJPHb0unX6XY5LZBwZrvw37OWZQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/270] mmc: sdhci-cadence: do not use hardware tuning for SD mode
-Date:   Mon, 17 Aug 2020 17:14:24 +0200
-Message-Id: <20200817143758.893566740@linuxfoundation.org>
+Subject: [PATCH 5.4 068/270] drm/debugfs: fix plain echo to connector "force" attribute
+Date:   Mon, 17 Aug 2020 17:14:29 +0200
+Message-Id: <20200817143759.135087272@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -45,193 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-[ Upstream commit adc40a5179df30421a5537bfeb4545100ab97d5e ]
+[ Upstream commit c704b17071c4dc571dca3af4e4151dac51de081a ]
 
-As commit ef6b75671b5f ("mmc: sdhci-cadence: send tune request twice to
-work around errata") stated, this IP has an errata. This commit applies
-the second workaround for the SD mode.
+Using plain echo to set the "force" connector attribute fails with
+-EINVAL, because echo appends a newline to the output.
 
-Due to the errata, it is not possible to use the hardware tuning provided
-by SDHCI_HOST_CONTROL2.
+Replace strcmp with sysfs_streq to also accept strings that end with a
+newline.
 
-Use the software-controlled tuning like the eMMC mode.
+v2: use sysfs_streq instead of stripping trailing whitespace
 
-Set sdhci_host_ops::platform_execute_tuning instead of overriding
-mmc_host_ops::execute_tuning.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Link: https://lore.kernel.org/r/20200720061141.172944-1-yamada.masahiro@socionext.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170817104307.17124-1-m.tretter@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-cadence.c | 123 ++++++++++++++++---------------
- 1 file changed, 62 insertions(+), 61 deletions(-)
+ drivers/gpu/drm/drm_debugfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-cadence.c b/drivers/mmc/host/sdhci-cadence.c
-index 5f2e9696ee4de..0c2489446bd73 100644
---- a/drivers/mmc/host/sdhci-cadence.c
-+++ b/drivers/mmc/host/sdhci-cadence.c
-@@ -194,57 +194,6 @@ static u32 sdhci_cdns_get_emmc_mode(struct sdhci_cdns_priv *priv)
- 	return FIELD_GET(SDHCI_CDNS_HRS06_MODE, tmp);
- }
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index eab0f2687cd6e..00debd02c3220 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -337,13 +337,13 @@ static ssize_t connector_write(struct file *file, const char __user *ubuf,
  
--static void sdhci_cdns_set_uhs_signaling(struct sdhci_host *host,
--					 unsigned int timing)
--{
--	struct sdhci_cdns_priv *priv = sdhci_cdns_priv(host);
--	u32 mode;
--
--	switch (timing) {
--	case MMC_TIMING_MMC_HS:
--		mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
--		break;
--	case MMC_TIMING_MMC_DDR52:
--		mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
--		break;
--	case MMC_TIMING_MMC_HS200:
--		mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
--		break;
--	case MMC_TIMING_MMC_HS400:
--		if (priv->enhanced_strobe)
--			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400ES;
--		else
--			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
--		break;
--	default:
--		mode = SDHCI_CDNS_HRS06_MODE_SD;
--		break;
--	}
--
--	sdhci_cdns_set_emmc_mode(priv, mode);
--
--	/* For SD, fall back to the default handler */
--	if (mode == SDHCI_CDNS_HRS06_MODE_SD)
--		sdhci_set_uhs_signaling(host, timing);
--}
--
--static const struct sdhci_ops sdhci_cdns_ops = {
--	.set_clock = sdhci_set_clock,
--	.get_timeout_clock = sdhci_cdns_get_timeout_clock,
--	.set_bus_width = sdhci_set_bus_width,
--	.reset = sdhci_reset,
--	.set_uhs_signaling = sdhci_cdns_set_uhs_signaling,
--};
--
--static const struct sdhci_pltfm_data sdhci_cdns_uniphier_pltfm_data = {
--	.ops = &sdhci_cdns_ops,
--	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
--};
--
--static const struct sdhci_pltfm_data sdhci_cdns_pltfm_data = {
--	.ops = &sdhci_cdns_ops,
--};
--
- static int sdhci_cdns_set_tune_val(struct sdhci_host *host, unsigned int val)
- {
- 	struct sdhci_cdns_priv *priv = sdhci_cdns_priv(host);
-@@ -278,23 +227,24 @@ static int sdhci_cdns_set_tune_val(struct sdhci_host *host, unsigned int val)
- 	return 0;
- }
+ 	buf[len] = '\0';
  
--static int sdhci_cdns_execute_tuning(struct mmc_host *mmc, u32 opcode)
-+/*
-+ * In SD mode, software must not use the hardware tuning and instead perform
-+ * an almost identical procedure to eMMC.
-+ */
-+static int sdhci_cdns_execute_tuning(struct sdhci_host *host, u32 opcode)
- {
--	struct sdhci_host *host = mmc_priv(mmc);
- 	int cur_streak = 0;
- 	int max_streak = 0;
- 	int end_of_streak = 0;
- 	int i;
- 
- 	/*
--	 * This handler only implements the eMMC tuning that is specific to
--	 * this controller.  Fall back to the standard method for SD timing.
-+	 * Do not execute tuning for UHS_SDR50 or UHS_DDR50.
-+	 * The delay is set by probe, based on the DT properties.
- 	 */
--	if (host->timing != MMC_TIMING_MMC_HS200)
--		return sdhci_execute_tuning(mmc, opcode);
--
--	if (WARN_ON(opcode != MMC_SEND_TUNING_BLOCK_HS200))
--		return -EINVAL;
-+	if (host->timing != MMC_TIMING_MMC_HS200 &&
-+	    host->timing != MMC_TIMING_UHS_SDR104)
-+		return 0;
- 
- 	for (i = 0; i < SDHCI_CDNS_MAX_TUNING_LOOP; i++) {
- 		if (sdhci_cdns_set_tune_val(host, i) ||
-@@ -317,6 +267,58 @@ static int sdhci_cdns_execute_tuning(struct mmc_host *mmc, u32 opcode)
- 	return sdhci_cdns_set_tune_val(host, end_of_streak - max_streak / 2);
- }
- 
-+static void sdhci_cdns_set_uhs_signaling(struct sdhci_host *host,
-+					 unsigned int timing)
-+{
-+	struct sdhci_cdns_priv *priv = sdhci_cdns_priv(host);
-+	u32 mode;
-+
-+	switch (timing) {
-+	case MMC_TIMING_MMC_HS:
-+		mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
-+		break;
-+	case MMC_TIMING_MMC_DDR52:
-+		mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
-+		break;
-+	case MMC_TIMING_MMC_HS200:
-+		mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
-+		break;
-+	case MMC_TIMING_MMC_HS400:
-+		if (priv->enhanced_strobe)
-+			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400ES;
-+		else
-+			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
-+		break;
-+	default:
-+		mode = SDHCI_CDNS_HRS06_MODE_SD;
-+		break;
-+	}
-+
-+	sdhci_cdns_set_emmc_mode(priv, mode);
-+
-+	/* For SD, fall back to the default handler */
-+	if (mode == SDHCI_CDNS_HRS06_MODE_SD)
-+		sdhci_set_uhs_signaling(host, timing);
-+}
-+
-+static const struct sdhci_ops sdhci_cdns_ops = {
-+	.set_clock = sdhci_set_clock,
-+	.get_timeout_clock = sdhci_cdns_get_timeout_clock,
-+	.set_bus_width = sdhci_set_bus_width,
-+	.reset = sdhci_reset,
-+	.platform_execute_tuning = sdhci_cdns_execute_tuning,
-+	.set_uhs_signaling = sdhci_cdns_set_uhs_signaling,
-+};
-+
-+static const struct sdhci_pltfm_data sdhci_cdns_uniphier_pltfm_data = {
-+	.ops = &sdhci_cdns_ops,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
-+};
-+
-+static const struct sdhci_pltfm_data sdhci_cdns_pltfm_data = {
-+	.ops = &sdhci_cdns_ops,
-+};
-+
- static void sdhci_cdns_hs400_enhanced_strobe(struct mmc_host *mmc,
- 					     struct mmc_ios *ios)
- {
-@@ -377,7 +379,6 @@ static int sdhci_cdns_probe(struct platform_device *pdev)
- 	priv->hrs_addr = host->ioaddr;
- 	priv->enhanced_strobe = false;
- 	host->ioaddr += SDHCI_CDNS_SRS_BASE;
--	host->mmc_host_ops.execute_tuning = sdhci_cdns_execute_tuning;
- 	host->mmc_host_ops.hs400_enhanced_strobe =
- 				sdhci_cdns_hs400_enhanced_strobe;
- 	sdhci_enable_v4_mode(host);
+-	if (!strcmp(buf, "on"))
++	if (sysfs_streq(buf, "on"))
+ 		connector->force = DRM_FORCE_ON;
+-	else if (!strcmp(buf, "digital"))
++	else if (sysfs_streq(buf, "digital"))
+ 		connector->force = DRM_FORCE_ON_DIGITAL;
+-	else if (!strcmp(buf, "off"))
++	else if (sysfs_streq(buf, "off"))
+ 		connector->force = DRM_FORCE_OFF;
+-	else if (!strcmp(buf, "unspecified"))
++	else if (sysfs_streq(buf, "unspecified"))
+ 		connector->force = DRM_FORCE_UNSPECIFIED;
+ 	else
+ 		return -EINVAL;
 -- 
 2.25.1
 
