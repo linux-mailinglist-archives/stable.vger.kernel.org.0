@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C8D247529
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805BA247528
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392308AbgHQTTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:19:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S2392305AbgHQTTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:19:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730525AbgHQPhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:37:05 -0400
+        id S1730526AbgHQPhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:37:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAEAA23123;
-        Mon, 17 Aug 2020 15:37:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6F2F23121;
+        Mon, 17 Aug 2020 15:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678624;
-        bh=6koyF1NfnaLb45FSujL5ROUMUf95tKOeWT7QZ7MH0kk=;
+        s=default; t=1597678627;
+        bh=pa7M8dBoZwbrpDy4ZMTrCKWCazaSlXNnYetm23sZ98o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLZxGnbIgzNrCkvxzA13hW/TQza2FjOf5I8ouB+YoMuw6GqeHkD5danxzZ1NIPOj7
-         bJiVs9ewO379KkYTCe43oFPnpnMzpbktS53fqh9e8XiAF3fQ7PToVAohaR1uRysc6o
-         Aq8WAf+4p2rc1EM9QomApywIF2UwIE4LTltrGY9s=
+        b=fq04HTUf2YMThPKFFpcD/Ub6ysssvSyra0F8H719KI5ypN1YDkeSRj+f78lvlrer+
+         z+QO1c6WP/oEhfG1U1u1r7dAxitIPEMMy2WKC6aBXfmVJUKTaltnINb4OFmCWVA4OO
+         HEpYzzB8Hi09mllB3kltChkLLe8OWDL2/RiMk3rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.8 399/464] usb: cdns3: gadget: always zeroed TRB buffer when enable endpoint
-Date:   Mon, 17 Aug 2020 17:15:52 +0200
-Message-Id: <20200817143852.897871187@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Koba Ko <koba.ko@canonical.com>,
+        Jun Miao <jun.miao@windriver.com>,
+        Ashok Raj <ashok.raj@intel.com>, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.8 400/464] iommu/vt-d: Skip TE disabling on quirky gfx dedicated iommu
+Date:   Mon, 17 Aug 2020 17:15:53 +0200
+Message-Id: <20200817143852.945678875@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,76 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-commit 95f5acfc4f58f01a22b66d8c9c0ffb72aa96271c upstream.
+commit b1012ca8dc4f9b1a1fe8e2cb1590dd6d43ea3849 upstream.
 
-During the endpoint dequeue operation, it changes dequeued TRB as link
-TRB, when the endpoint is disabled and re-enabled, the DMA fetches the
-TRB before the link TRB, after it handles current TRB, the DMA pointer
-will advance to the TRB after link TRB, but enqueue and dequene
-variables don't know it due to no hardware interrupt at the time, when
-the next TRB is added to link TRB position, the DMA will not handle
-this TRB due to its pointer is already at the next TRB. See the trace
-log like below:
+The VT-d spec requires (10.4.4 Global Command Register, TE field) that:
 
-file-storage-675   [001] d..1    86.585657: usb_ep_queue: ep0: req 00000000df9b3a4f length 0/0 sgs 0/0 stream 0 zsI status 0 --> 0
-file-storage-675   [001] d..1    86.585663: cdns3_ep_queue: ep1out: req: 000000002ebce364, req buff 00000000f5bc96b4, length: 0/1024 zsi, status: -115, trb: [start:0, end:0: virt addr (null)], flags:0 SID: 0
-file-storage-675   [001] d..1    86.585671: cdns3_prepare_trb: ep1out: trb 000000007f770303, dma buf: 0xbd195800, size: 1024, burst: 128 ctrl: 0x00000425 (C=1, T=0, ISP, IOC, Normal) SID:0 LAST_SID:0
-file-storage-675   [001] d..1    86.585676: cdns3_ring:
-            Ring contents for ep1out:
-            Ring deq index: 0, trb: 000000007f770303 (virt), 0xc4003000 (dma)
-            Ring enq index: 1, trb: 0000000049c1ba21 (virt), 0xc400300c (dma)
-            free trbs: 38, CCS=1, PCS=1
-            @0x00000000c4003000 bd195800 80020400 00000425
-            @0x00000000c400300c c4003018 80020400 00001811
-            @0x00000000c4003018 bcfcc000 0000001f 00000426
-            @0x00000000c4003024 bcfce800 0000001f 00000426
+Hardware implementations supporting DMA draining must drain any in-flight
+DMA read/write requests queued within the Root-Complex before completing
+the translation enable command and reflecting the status of the command
+through the TES field in the Global Status register.
 
-	    ...
+Unfortunately, some integrated graphic devices fail to do so after some
+kind of power state transition. As the result, the system might stuck in
+iommu_disable_translation(), waiting for the completion of TE transition.
 
- irq/144-5b13000-698   [000] d...    87.619286: usb_gadget_giveback_request: ep1in: req 0000000031b832eb length 13/13 sgs 0/0 stream 0 zsI status 0 --> 0
-    file-storage-675   [001] d..1    87.619287: cdns3_ep_queue: ep1out: req: 000000002ebce364, req buff 00000000f5bc96b4, length: 0/1024 zsi, status: -115, trb: [start:0, end:0: virt addr 0x80020400c400300c], flags:0 SID: 0
-    file-storage-675   [001] d..1    87.619294: cdns3_prepare_trb: ep1out: trb 0000000049c1ba21, dma buf: 0xbd198000, size: 1024, burst: 128 ctrl: 0x00000425 (C=1, T=0, ISP, IOC, Normal) SID:0 LAST_SID:0
-    file-storage-675   [001] d..1    87.619297: cdns3_ring:
-                Ring contents for ep1out:
-                Ring deq index: 1, trb: 0000000049c1ba21 (virt), 0xc400300c (dma)
-                Ring enq index: 2, trb: 0000000059b34b67 (virt), 0xc4003018 (dma)
-                free trbs: 38, CCS=1, PCS=1
-                @0x00000000c4003000 bd195800 0000001f 00000427
-                @0x00000000c400300c bd198000 80020400 00000425
-                @0x00000000c4003018 bcfcc000 0000001f 00000426
-                @0x00000000c4003024 bcfce800 0000001f 00000426
-		...
+This provides a quirk list for those devices and skips TE disabling if
+the qurik hits.
 
-    file-storage-675   [001] d..1    87.619305: cdns3_doorbell_epx: ep1out, ep_trbaddr c4003018
-    file-storage-675   [001] ....    87.619308: usb_ep_queue: ep1out: req 000000002ebce364 length 0/1024 sgs 0/0 stream 0 zsI status -115 --> 0
- irq/144-5b13000-698   [000] d..1    87.619315: cdns3_epx_irq: IRQ for ep1out: 01000c80 TRBERR , ep_traddr: c4003018 ep_last_sid: 00000000 use_streams: 0
- irq/144-5b13000-698   [000] d..1    87.619395: cdns3_usb_irq: IRQ 00000008 = Hot Reset
-
-Fixes: f616c3bda47e ("usb: cdns3: Fix dequeue implementation")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=208363
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=206571
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Tested-by: Koba Ko <koba.ko@canonical.com>
+Tested-by: Jun Miao <jun.miao@windriver.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200723013437.2268-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/cdns3/gadget.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/intel/dmar.c  |    1 +
+ drivers/iommu/intel/iommu.c |   27 +++++++++++++++++++++++++++
+ include/linux/dmar.h        |    1 +
+ include/linux/intel-iommu.h |    2 ++
+ 4 files changed, 31 insertions(+)
 
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -242,9 +242,10 @@ int cdns3_allocate_trb_pool(struct cdns3
- 			return -ENOMEM;
- 
- 		priv_ep->alloc_ring_size = ring_size;
--		memset(priv_ep->trb_pool, 0, ring_size);
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -1102,6 +1102,7 @@ static int alloc_iommu(struct dmar_drhd_
  	}
  
-+	memset(priv_ep->trb_pool, 0, ring_size);
-+
- 	priv_ep->num_trbs = num_trbs;
+ 	drhd->iommu = iommu;
++	iommu->drhd = drhd;
  
- 	if (!priv_ep->num)
+ 	return 0;
+ 
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -356,6 +356,7 @@ static int intel_iommu_strict;
+ static int intel_iommu_superpage = 1;
+ static int iommu_identity_mapping;
+ static int intel_no_bounce;
++static int iommu_skip_te_disable;
+ 
+ #define IDENTMAP_GFX		2
+ #define IDENTMAP_AZALIA		4
+@@ -1629,6 +1630,10 @@ static void iommu_disable_translation(st
+ 	u32 sts;
+ 	unsigned long flag;
+ 
++	if (iommu_skip_te_disable && iommu->drhd->gfx_dedicated &&
++	    (cap_read_drain(iommu->cap) || cap_write_drain(iommu->cap)))
++		return;
++
+ 	raw_spin_lock_irqsave(&iommu->register_lock, flag);
+ 	iommu->gcmd &= ~DMA_GCMD_TE;
+ 	writel(iommu->gcmd, iommu->reg + DMAR_GCMD_REG);
+@@ -4039,6 +4044,7 @@ static void __init init_no_remapping_dev
+ 
+ 		/* This IOMMU has *only* gfx devices. Either bypass it or
+ 		   set the gfx_mapped flag, as appropriate */
++		drhd->gfx_dedicated = 1;
+ 		if (!dmar_map_gfx) {
+ 			drhd->ignored = 1;
+ 			for_each_active_dev_scope(drhd->devices,
+@@ -6182,6 +6188,27 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_I
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x0062, quirk_calpella_no_shadow_gtt);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x006a, quirk_calpella_no_shadow_gtt);
+ 
++static void quirk_igfx_skip_te_disable(struct pci_dev *dev)
++{
++	unsigned short ver;
++
++	if (!IS_GFX_DEVICE(dev))
++		return;
++
++	ver = (dev->device >> 8) & 0xff;
++	if (ver != 0x45 && ver != 0x46 && ver != 0x4c &&
++	    ver != 0x4e && ver != 0x8a && ver != 0x98 &&
++	    ver != 0x9a)
++		return;
++
++	if (risky_device(dev))
++		return;
++
++	pci_info(dev, "Skip IOMMU disabling for graphics\n");
++	iommu_skip_te_disable = 1;
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_ANY_ID, quirk_igfx_skip_te_disable);
++
+ /* On Tylersburg chipsets, some BIOSes have been known to enable the
+    ISOCH DMAR unit for the Azalia sound device, but not give it any
+    TLB entries, which causes it to deadlock. Check for that.  We do
+--- a/include/linux/dmar.h
++++ b/include/linux/dmar.h
+@@ -48,6 +48,7 @@ struct dmar_drhd_unit {
+ 	u16	segment;		/* PCI domain		*/
+ 	u8	ignored:1; 		/* ignore drhd		*/
+ 	u8	include_all:1;
++	u8	gfx_dedicated:1;	/* graphic dedicated	*/
+ 	struct intel_iommu *iommu;
+ };
+ 
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -600,6 +600,8 @@ struct intel_iommu {
+ 	struct iommu_device iommu;  /* IOMMU core code handle */
+ 	int		node;
+ 	u32		flags;      /* Software defined flags */
++
++	struct dmar_drhd_unit *drhd;
+ };
+ 
+ /* PCI domain-device relationship */
 
 
