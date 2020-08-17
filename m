@@ -2,75 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A42245C11
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 07:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E0AC245CE8
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 09:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726684AbgHQFpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 01:45:42 -0400
-Received: from verein.lst.de ([213.95.11.211]:55031 "EHLO verein.lst.de"
+        id S1726963AbgHQHDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 03:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726303AbgHQFpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 01:45:42 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 69E1767357; Mon, 17 Aug 2020 07:45:38 +0200 (CEST)
-Date:   Mon, 17 Aug 2020 07:45:38 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Cong Wang <xiyou.wangcong@gmail.com>
-Cc:     Coly Li <colyli@suse.de>, linux-block@vger.kernel.org,
-        linux-nvme@lists.infradead.org,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
-        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Vlastimil Babka <vbabka@suse.com>
-Subject: Re: [PATCH v5 1/3] net: introduce helper sendpage_ok() in
- include/linux/net.h
-Message-ID: <20200817054538.GA11705@lst.de>
-References: <20200816071518.6964-1-colyli@suse.de> <CAM_iQpUFtZdrhfUbuYYODNeSVqPOqx8mio6Znp6v3Q5iDZeyqg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAM_iQpUFtZdrhfUbuYYODNeSVqPOqx8mio6Znp6v3Q5iDZeyqg@mail.gmail.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+        id S1726341AbgHQHA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 03:00:27 -0400
+Received: from localhost.localdomain (unknown [194.230.155.242])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBC5F2072D;
+        Mon, 17 Aug 2020 07:00:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597647626;
+        bh=PYY8uXXlmytuiAxIl2R7A+XdZTSPkLshPeJXisdTWNM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=sNU0etOLQpWcb3qMjipDoDxDj9JLuaaIOnZ8yUNr38mQuFXWCJrdNvSYDcSIJ/7DV
+         3PgKsoksU/zqkRnRaB7roOJqpU7csaHTLwzLuZEUguwDtmCaTVBXAnLomgt7KWOTno
+         Skka53gMXQxzddzNfZFRJWHtXluIukgyR62ZdCGk=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Vijai Kumar K <vijaikumar.kanagarajan@gmail.com>,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2 04/13] extcon: ptn5150: Fix usage of atomic GPIO with sleeping GPIO chips
+Date:   Mon, 17 Aug 2020 09:00:00 +0200
+Message-Id: <20200817070009.4631-5-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200817070009.4631-1-krzk@kernel.org>
+References: <20200817070009.4631-1-krzk@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 16, 2020 at 10:55:09AM -0700, Cong Wang wrote:
-> On Sun, Aug 16, 2020 at 1:36 AM Coly Li <colyli@suse.de> wrote:
-> >
-> > The original problem was from nvme-over-tcp code, who mistakenly uses
-> > kernel_sendpage() to send pages allocated by __get_free_pages() without
-> > __GFP_COMP flag. Such pages don't have refcount (page_count is 0) on
-> > tail pages, sending them by kernel_sendpage() may trigger a kernel panic
-> > from a corrupted kernel heap, because these pages are incorrectly freed
-> > in network stack as page_count 0 pages.
-> >
-> > This patch introduces a helper sendpage_ok(), it returns true if the
-> > checking page,
-> > - is not slab page: PageSlab(page) is false.
-> > - has page refcount: page_count(page) is not zero
-> >
-> > All drivers who want to send page to remote end by kernel_sendpage()
-> > may use this helper to check whether the page is OK. If the helper does
-> > not return true, the driver should try other non sendpage method (e.g.
-> > sock_no_sendpage()) to handle the page.
-> 
-> Can we leave this helper to mm subsystem?
-> 
-> I know it is for sendpage, but its implementation is all about some
-> mm details and its two callers do not belong to net subsystem either.
-> 
-> Think this in another way: who would fix it if it is buggy? I bet mm people
-> should. ;)
+The driver uses atomic version of gpiod_set_value() without any real
+reason.  It is called in a workqueue under mutex so it could sleep
+there.  Changing it to "can_sleep" flavor allows to use the driver with
+all GPIO chips.
 
-No.  This is all about a really unusual imitation in sendpage, which
-is pretty much unexpected.  In fact the best thing would be to make
-sock_sendpage do the right thing and call sock_no_sendpage based
-on this condition, so that driver writers don't have to worry at all.
+Fixes: 4ed754de2d66 ("extcon: Add support for ptn5150 extcon driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/extcon/extcon-ptn5150.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/extcon/extcon-ptn5150.c b/drivers/extcon/extcon-ptn5150.c
+index d1c997599390..5f5252752644 100644
+--- a/drivers/extcon/extcon-ptn5150.c
++++ b/drivers/extcon/extcon-ptn5150.c
+@@ -127,7 +127,7 @@ static void ptn5150_irq_work(struct work_struct *work)
+ 			case PTN5150_DFP_ATTACHED:
+ 				extcon_set_state_sync(info->edev,
+ 						EXTCON_USB_HOST, false);
+-				gpiod_set_value(info->vbus_gpiod, 0);
++				gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 				extcon_set_state_sync(info->edev, EXTCON_USB,
+ 						true);
+ 				break;
+@@ -138,9 +138,9 @@ static void ptn5150_irq_work(struct work_struct *work)
+ 					PTN5150_REG_CC_VBUS_DETECTION_MASK) >>
+ 					PTN5150_REG_CC_VBUS_DETECTION_SHIFT);
+ 				if (vbus)
+-					gpiod_set_value(info->vbus_gpiod, 0);
++					gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 				else
+-					gpiod_set_value(info->vbus_gpiod, 1);
++					gpiod_set_value_cansleep(info->vbus_gpiod, 1);
+ 
+ 				extcon_set_state_sync(info->edev,
+ 						EXTCON_USB_HOST, true);
+@@ -156,7 +156,7 @@ static void ptn5150_irq_work(struct work_struct *work)
+ 					EXTCON_USB_HOST, false);
+ 			extcon_set_state_sync(info->edev,
+ 					EXTCON_USB, false);
+-			gpiod_set_value(info->vbus_gpiod, 0);
++			gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 		}
+ 	}
+ 
+-- 
+2.17.1
+
