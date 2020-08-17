@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 736C9246BA3
+	by mail.lfdr.de (Postfix) with ESMTP id E07F1246BA4
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730978AbgHQP7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:59:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46662 "EHLO mail.kernel.org"
+        id S1730983AbgHQP7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:59:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730964AbgHQP7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:59:22 -0400
+        id S1730973AbgHQP7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:59:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A821206FA;
-        Mon, 17 Aug 2020 15:59:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 155B92072E;
+        Mon, 17 Aug 2020 15:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679961;
-        bh=kLRldtUwC7t3HFPXhNORNdUQOkvhyX8mWGlBQq4PcV0=;
+        s=default; t=1597679974;
+        bh=jKOfGDb+Ma2P/IuavrLaR/NvUHLaZJplk3hkOcRTXkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qBjtwDaxOUQjqvvenH6FRGmF79VuxICOn3HLyGZnrps5mh2uBfIFZwDA+Wo48G4y
-         KSJeb3IExNtG7oqzsjipfFopKxYmbA//XOAENqOVzTCvAW1KvgcfWXstc3G9WGjnph
-         1HsW3T78JyE+stzrqaFw+B42x78m4mYF25Qe2u9M=
+        b=BNHKEOzKlYGEefmbYlKpCxcu5BN7TLapSyx7//HN9/O5P+APtdYbprmH2EpLdlRcM
+         dkWnaZNK/cWfOZ87gtg4q06GShqLlV1WHPcr4DTMwzXJr17lYBzuJYgTnpGHtoEJ7s
+         i5wK5KvRAK9JNOEYTzgidj8AHCu2VWiTNK/KFuMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.7 386/393] s390/numa: set node distance to LOCAL_DISTANCE
-Date:   Mon, 17 Aug 2020 17:17:16 +0200
-Message-Id: <20200817143838.323520254@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.7 391/393] io_uring: add missing REQ_F_COMP_LOCKED for nested requests
+Date:   Mon, 17 Aug 2020 17:17:21 +0200
+Message-Id: <20200817143838.563246519@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,39 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 535e4fc623fab2e09a0653fc3a3e17f382ad0251 upstream.
+commit 9b7adba9eaec28e0e4343c96d0dbeb9578802f5f upstream.
 
-The node distance is hardcoded to 0, which causes a trouble
-for some user-level applications. In particular, "libnuma"
-expects the distance of a node to itself as LOCAL_DISTANCE.
-This update removes the offending node distance override.
+When we traverse into failing links or timeouts, we need to ensure we
+propagate the REQ_F_COMP_LOCKED flag to ensure that we correctly signal
+to the completion side that we already hold the completion lock.
 
-Cc: <stable@vger.kernel.org> # 4.4
-Fixes: 3a368f742da1 ("s390/numa: add core infrastructure")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/s390/include/asm/topology.h |    6 ------
- 1 file changed, 6 deletions(-)
 
---- a/arch/s390/include/asm/topology.h
-+++ b/arch/s390/include/asm/topology.h
-@@ -86,12 +86,6 @@ static inline const struct cpumask *cpum
- 
- #define pcibus_to_node(bus) __pcibus_to_node(bus)
- 
--#define node_distance(a, b) __node_distance(a, b)
--static inline int __node_distance(int a, int b)
--{
--	return 0;
--}
+---
+ fs/io_uring.c |   24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
+
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1484,12 +1484,9 @@ static void io_req_link_next(struct io_k
+ /*
+  * Called if REQ_F_LINK_HEAD is set, and we fail the head request
+  */
+-static void io_fail_links(struct io_kiocb *req)
++static void __io_fail_links(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	unsigned long flags;
 -
- #else /* !CONFIG_NUMA */
+-	spin_lock_irqsave(&ctx->completion_lock, flags);
  
- #define numa_node_id numa_node_id
+ 	while (!list_empty(&req->link_list)) {
+ 		struct io_kiocb *link = list_first_entry(&req->link_list,
+@@ -1503,13 +1500,29 @@ static void io_fail_links(struct io_kioc
+ 			io_link_cancel_timeout(link);
+ 		} else {
+ 			io_cqring_fill_event(link, -ECANCELED);
++			link->flags |= REQ_F_COMP_LOCKED;
+ 			__io_double_put_req(link);
+ 		}
+ 		req->flags &= ~REQ_F_LINK_TIMEOUT;
+ 	}
+ 
+ 	io_commit_cqring(ctx);
+-	spin_unlock_irqrestore(&ctx->completion_lock, flags);
++}
++
++static void io_fail_links(struct io_kiocb *req)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++
++	if (!(req->flags & REQ_F_COMP_LOCKED)) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&ctx->completion_lock, flags);
++		__io_fail_links(req);
++		spin_unlock_irqrestore(&ctx->completion_lock, flags);
++	} else {
++		__io_fail_links(req);
++	}
++
+ 	io_cqring_ev_posted(ctx);
+ }
+ 
+@@ -4828,6 +4841,7 @@ static int io_timeout_cancel(struct io_r
+ 		return -EALREADY;
+ 
+ 	req_set_fail_links(req);
++	req->flags |= REQ_F_COMP_LOCKED;
+ 	io_cqring_fill_event(req, -ECANCELED);
+ 	io_put_req(req);
+ 	return 0;
 
 
