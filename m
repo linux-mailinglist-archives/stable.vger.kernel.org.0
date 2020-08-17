@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC58B247752
+	by mail.lfdr.de (Postfix) with ESMTP id 03D0E247750
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732685AbgHQTrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42396 "EHLO mail.kernel.org"
+        id S1732684AbgHQTrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:47:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729150AbgHQPUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:20:33 -0400
+        id S1729271AbgHQPUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:20:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05E5B20786;
-        Mon, 17 Aug 2020 15:20:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A62632075B;
+        Mon, 17 Aug 2020 15:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677632;
-        bh=PtAUaUXWVdMKmJKMJdJwK0Vyk3IPL8CzcjLOySQH6vk=;
+        s=default; t=1597677635;
+        bh=+sEfMOMLHGs7h/0AYlLu4SUxfOejMe/f4lp3oYV0P3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2s6EXPctuTmgQNY6nX4B78UjtBEkKaynZ9Q+j9qSeivlqio79L0XCjOoFCp3XB+IX
-         KnXtMEuQuIl+OTo8XFat0bxn9LkqKo81bGysmg5g5bE1seoPkBY9e9O+1C7W36iAJ7
-         w8hdLzGyHty4EQw0z8yHhfYaI4pkECSex2Dil9sg=
+        b=qfXKtxzSwwu9LkoM6AQAnRcsq95i3yEKJH3JqXT2KfXBzbVRUk8CKgaUX3EUyG87Q
+         gwBdjRzxamjAlj4PAeqwdeBk2y2t1fkZ9EsEBLk+9yXLAJNWsEldO+HYLInfilthhb
+         skP+iBSNElZ0LYjTM48m7Ya5TKiVTNqFani93Qhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Maulik Shah <mkshah@codeaurora.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Markus Elfring <Markus.Elfring@web.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 022/464] soc: qcom: rpmh-rsc: Dont use ktime for timeout in write_tcs_reg_sync()
-Date:   Mon, 17 Aug 2020 17:09:35 +0200
-Message-Id: <20200817143834.826643806@linuxfoundation.org>
+Subject: [PATCH 5.8 023/464] crypto: ccree - fix resource leak on error path
+Date:   Mon, 17 Aug 2020 17:09:36 +0200
+Message-Id: <20200817143834.866725624@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,67 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-[ Upstream commit be24c6a71ecfbd9436ea1f496eb518a53e06368c ]
+[ Upstream commit 9bc6165d608d676f05d8bf156a2c9923ee38d05b ]
 
-The write_tcs_reg_sync() may be called after timekeeping is suspended
-so it's not OK to use ktime.  The readl_poll_timeout_atomic() macro
-implicitly uses ktime.  This was causing a warning at suspend time.
+Fix a small resource leak on the error path of cipher processing.
 
-Change to just loop 1000000 times with a delay of 1 us between loops.
-This may give a timeout of more than 1 second but never less and is
-safe even if timekeeping is suspended.
-
-NOTE: I don't have any actual evidence that we need to loop here.
-It's possibly that all we really need to do is just read the value
-back to ensure that the pipes are cleaned and the looping/comparing is
-totally not needed.  I never saw the loop being needed in my tests.
-However, the loop shouldn't hurt.
-
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Maulik Shah <mkshah@codeaurora.org>
-Fixes: 91160150aba0 ("soc: qcom: rpmh-rsc: Timeout after 1 second in write_tcs_reg_sync()")
-Reported-by: Maulik Shah <mkshah@codeaurora.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200528074530.1.Ib86e5b406fe7d16575ae1bb276d650faa144b63c@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Fixes: 63ee04c8b491e ("crypto: ccree - add skcipher support")
+Cc: Markus Elfring <Markus.Elfring@web.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmh-rsc.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/crypto/ccree/cc_cipher.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/soc/qcom/rpmh-rsc.c b/drivers/soc/qcom/rpmh-rsc.c
-index 076fd27f3081c..906778e2c1fae 100644
---- a/drivers/soc/qcom/rpmh-rsc.c
-+++ b/drivers/soc/qcom/rpmh-rsc.c
-@@ -175,13 +175,21 @@ static void write_tcs_reg(const struct rsc_drv *drv, int reg, int tcs_id,
- static void write_tcs_reg_sync(const struct rsc_drv *drv, int reg, int tcs_id,
- 			       u32 data)
- {
--	u32 new_data;
-+	int i;
+diff --git a/drivers/crypto/ccree/cc_cipher.c b/drivers/crypto/ccree/cc_cipher.c
+index 872ea3ff1c6ba..f144fe04748b0 100644
+--- a/drivers/crypto/ccree/cc_cipher.c
++++ b/drivers/crypto/ccree/cc_cipher.c
+@@ -159,7 +159,6 @@ static int cc_cipher_init(struct crypto_tfm *tfm)
+ 				     skcipher_alg.base);
+ 	struct device *dev = drvdata_to_dev(cc_alg->drvdata);
+ 	unsigned int max_key_buf_size = cc_alg->skcipher_alg.max_keysize;
+-	int rc = 0;
  
- 	writel(data, tcs_reg_addr(drv, reg, tcs_id));
--	if (readl_poll_timeout_atomic(tcs_reg_addr(drv, reg, tcs_id), new_data,
--				      new_data == data, 1, USEC_PER_SEC))
--		pr_err("%s: error writing %#x to %d:%#x\n", drv->name,
--		       data, tcs_id, reg);
-+
-+	/*
-+	 * Wait until we read back the same value.  Use a counter rather than
-+	 * ktime for timeout since this may be called after timekeeping stops.
-+	 */
-+	for (i = 0; i < USEC_PER_SEC; i++) {
-+		if (readl(tcs_reg_addr(drv, reg, tcs_id)) == data)
-+			return;
-+		udelay(1);
+ 	dev_dbg(dev, "Initializing context @%p for %s\n", ctx_p,
+ 		crypto_tfm_alg_name(tfm));
+@@ -171,10 +170,19 @@ static int cc_cipher_init(struct crypto_tfm *tfm)
+ 	ctx_p->flow_mode = cc_alg->flow_mode;
+ 	ctx_p->drvdata = cc_alg->drvdata;
+ 
++	if (ctx_p->cipher_mode == DRV_CIPHER_ESSIV) {
++		/* Alloc hash tfm for essiv */
++		ctx_p->shash_tfm = crypto_alloc_shash("sha256-generic", 0, 0);
++		if (IS_ERR(ctx_p->shash_tfm)) {
++			dev_err(dev, "Error allocating hash tfm for ESSIV.\n");
++			return PTR_ERR(ctx_p->shash_tfm);
++		}
 +	}
-+	pr_err("%s: error writing %#x to %d:%#x\n", drv->name,
-+	       data, tcs_id, reg);
++
+ 	/* Allocate key buffer, cache line aligned */
+ 	ctx_p->user.key = kmalloc(max_key_buf_size, GFP_KERNEL);
+ 	if (!ctx_p->user.key)
+-		return -ENOMEM;
++		goto free_shash;
+ 
+ 	dev_dbg(dev, "Allocated key buffer in context. key=@%p\n",
+ 		ctx_p->user.key);
+@@ -186,21 +194,19 @@ static int cc_cipher_init(struct crypto_tfm *tfm)
+ 	if (dma_mapping_error(dev, ctx_p->user.key_dma_addr)) {
+ 		dev_err(dev, "Mapping Key %u B at va=%pK for DMA failed\n",
+ 			max_key_buf_size, ctx_p->user.key);
+-		return -ENOMEM;
++		goto free_key;
+ 	}
+ 	dev_dbg(dev, "Mapped key %u B at va=%pK to dma=%pad\n",
+ 		max_key_buf_size, ctx_p->user.key, &ctx_p->user.key_dma_addr);
+ 
+-	if (ctx_p->cipher_mode == DRV_CIPHER_ESSIV) {
+-		/* Alloc hash tfm for essiv */
+-		ctx_p->shash_tfm = crypto_alloc_shash("sha256-generic", 0, 0);
+-		if (IS_ERR(ctx_p->shash_tfm)) {
+-			dev_err(dev, "Error allocating hash tfm for ESSIV.\n");
+-			return PTR_ERR(ctx_p->shash_tfm);
+-		}
+-	}
++	return 0;
+ 
+-	return rc;
++free_key:
++	kfree(ctx_p->user.key);
++free_shash:
++	crypto_free_shash(ctx_p->shash_tfm);
++
++	return -ENOMEM;
  }
  
- /**
+ static void cc_cipher_exit(struct crypto_tfm *tfm)
 -- 
 2.25.1
 
