@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8561246BE3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:04:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF11246BE9
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387690AbgHQQE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:04:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52116 "EHLO mail.kernel.org"
+        id S2388342AbgHQQEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388295AbgHQQEW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:04:22 -0400
+        id S2388337AbgHQQEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:04:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE17420866;
-        Mon, 17 Aug 2020 16:04:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62EE72053B;
+        Mon, 17 Aug 2020 16:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680260;
-        bh=u6wmnyOOZXtqwxDGaWRzoJFsFE7VNtRuFcd3L5HmiBc=;
+        s=default; t=1597680281;
+        bh=hATG7HafjljLdKj1Wt4+pOi/Kd8iH8DCfcjblneNboc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zo5L7UBDGUZ9zNHURXN+AtFqwheNcSnO4enKQ6kgtshpokElUUAXVZnRcNxuzqFml
-         wRba6J1+g9YZmdYQHyKfiOKLvC+vdoHJtG3qe8eHRe+PiFSueel3n8YEgHw6hNM024
-         W9WZaYUfK3i2ybkng5OSEHi/yBzWhxdNtODFZH98=
+        b=LSJQuXF5OpmJDBJh135hTn6XZnYw1SZoKFZ3TDwWwVYGb95QUd14X3I55lPufKA8H
+         5cNeK8JRuzdxAD3eQd3K+FCcEbPiop7oUszNCxhNM/LdA+rWcHh3YCjOmbSEDpWKeZ
+         vIP4G4A2ze01I+y+kE+R/7GqpVFeqzn7+fVKbM64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
+        stable@vger.kernel.org, YangYuxi <yx.atom1@gmail.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/270] cxl: Fix kobject memleak
-Date:   Mon, 17 Aug 2020 17:15:16 +0200
-Message-Id: <20200817143801.501830168@linuxfoundation.org>
+Subject: [PATCH 5.4 123/270] ipvs: allow connection reuse for unconfirmed conntrack
+Date:   Mon, 17 Aug 2020 17:15:24 +0200
+Message-Id: <20200817143801.896368126@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -46,42 +46,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Julian Anastasov <ja@ssi.bg>
 
-[ Upstream commit 85c5cbeba8f4fb28e6b9bfb3e467718385f78f76 ]
+[ Upstream commit f0a5e4d7a594e0fe237d3dfafb069bb82f80f42f ]
 
-Currently the error return path from kobject_init_and_add() is not
-followed by a call to kobject_put() - which means we are leaking
-the kobject.
+YangYuxi is reporting that connection reuse
+is causing one-second delay when SYN hits
+existing connection in TIME_WAIT state.
+Such delay was added to give time to expire
+both the IPVS connection and the corresponding
+conntrack. This was considered a rare case
+at that time but it is causing problem for
+some environments such as Kubernetes.
 
-Fix it by adding a call to kobject_put() in the error path of
-kobject_init_and_add().
+As nf_conntrack_tcp_packet() can decide to
+release the conntrack in TIME_WAIT state and
+to replace it with a fresh NEW conntrack, we
+can use this to allow rescheduling just by
+tuning our check: if the conntrack is
+confirmed we can not schedule it to different
+real server and the one-second delay still
+applies but if new conntrack was created,
+we are free to select new real server without
+any delays.
 
-Fixes: b087e6190ddc ("cxl: Export optional AFU configuration record in sysfs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200602120733.5943-1-wanghai38@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+YangYuxi lists some of the problem reports:
+
+- One second connection delay in masquerading mode:
+https://marc.info/?t=151683118100004&r=1&w=2
+
+- IPVS low throughput #70747
+https://github.com/kubernetes/kubernetes/issues/70747
+
+- Apache Bench can fill up ipvs service proxy in seconds #544
+https://github.com/cloudnativelabs/kube-router/issues/544
+
+- Additional 1s latency in `host -> service IP -> pod`
+https://github.com/kubernetes/kubernetes/issues/90854
+
+Fixes: f719e3754ee2 ("ipvs: drop first packet to redirect conntrack")
+Co-developed-by: YangYuxi <yx.atom1@gmail.com>
+Signed-off-by: YangYuxi <yx.atom1@gmail.com>
+Signed-off-by: Julian Anastasov <ja@ssi.bg>
+Reviewed-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/ip_vs.h             | 10 ++++------
+ net/netfilter/ipvs/ip_vs_core.c | 12 +++++++-----
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/misc/cxl/sysfs.c b/drivers/misc/cxl/sysfs.c
-index f0263d1a1fdf2..d97a243ad30c0 100644
---- a/drivers/misc/cxl/sysfs.c
-+++ b/drivers/misc/cxl/sysfs.c
-@@ -624,7 +624,7 @@ static struct afu_config_record *cxl_sysfs_afu_new_cr(struct cxl_afu *afu, int c
- 	rc = kobject_init_and_add(&cr->kobj, &afu_config_record_type,
- 				  &afu->dev.kobj, "cr%i", cr->cr);
- 	if (rc)
--		goto err;
-+		goto err1;
+diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
+index 078887c8c586a..7c37e3c3b1c79 100644
+--- a/include/net/ip_vs.h
++++ b/include/net/ip_vs.h
+@@ -1624,18 +1624,16 @@ static inline void ip_vs_conn_drop_conntrack(struct ip_vs_conn *cp)
+ }
+ #endif /* CONFIG_IP_VS_NFCT */
  
- 	rc = sysfs_create_bin_file(&cr->kobj, &cr->config_attr);
- 	if (rc)
+-/* Really using conntrack? */
+-static inline bool ip_vs_conn_uses_conntrack(struct ip_vs_conn *cp,
+-					     struct sk_buff *skb)
++/* Using old conntrack that can not be redirected to another real server? */
++static inline bool ip_vs_conn_uses_old_conntrack(struct ip_vs_conn *cp,
++						 struct sk_buff *skb)
+ {
+ #ifdef CONFIG_IP_VS_NFCT
+ 	enum ip_conntrack_info ctinfo;
+ 	struct nf_conn *ct;
+ 
+-	if (!(cp->flags & IP_VS_CONN_F_NFCT))
+-		return false;
+ 	ct = nf_ct_get(skb, &ctinfo);
+-	if (ct)
++	if (ct && nf_ct_is_confirmed(ct))
+ 		return true;
+ #endif
+ 	return false;
+diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
+index 8b80ab794a92b..64a05906cc0e6 100644
+--- a/net/netfilter/ipvs/ip_vs_core.c
++++ b/net/netfilter/ipvs/ip_vs_core.c
+@@ -2061,14 +2061,14 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
+ 
+ 	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
+ 	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
+-		bool uses_ct = false, resched = false;
++		bool old_ct = false, resched = false;
+ 
+ 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
+ 		    unlikely(!atomic_read(&cp->dest->weight))) {
+ 			resched = true;
+-			uses_ct = ip_vs_conn_uses_conntrack(cp, skb);
++			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
+ 		} else if (is_new_conn_expected(cp, conn_reuse_mode)) {
+-			uses_ct = ip_vs_conn_uses_conntrack(cp, skb);
++			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
+ 			if (!atomic_read(&cp->n_control)) {
+ 				resched = true;
+ 			} else {
+@@ -2076,15 +2076,17 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
+ 				 * that uses conntrack while it is still
+ 				 * referenced by controlled connection(s).
+ 				 */
+-				resched = !uses_ct;
++				resched = !old_ct;
+ 			}
+ 		}
+ 
+ 		if (resched) {
++			if (!old_ct)
++				cp->flags &= ~IP_VS_CONN_F_NFCT;
+ 			if (!atomic_read(&cp->n_control))
+ 				ip_vs_conn_expire_now(cp);
+ 			__ip_vs_conn_put(cp);
+-			if (uses_ct)
++			if (old_ct)
+ 				return NF_DROP;
+ 			cp = NULL;
+ 		}
 -- 
 2.25.1
 
