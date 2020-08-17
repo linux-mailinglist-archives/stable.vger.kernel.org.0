@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE630246B89
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:58:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588F1246A99
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387976AbgHQP6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        id S2387429AbgHQPi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730791AbgHQP5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:57:42 -0400
+        id S1730625AbgHQPiy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:38:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EF9B21744;
-        Mon, 17 Aug 2020 15:57:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3C6A22CB3;
+        Mon, 17 Aug 2020 15:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679862;
-        bh=fj7OTwg1Q9qwuTeOWnL//T7iD24j2iceMgT8eXMLeE8=;
+        s=default; t=1597678733;
+        bh=tu5BHVgGfCYGAiaqVkbBFErksR4pdIG1CSJuZ8WnQyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=harGuBlWLqTd9pcxARxsNcWeF81xBqpPBG7eCF2pL1SuOiObdHHjT42VGkTjYSXeK
-         hv+rFp7TiVrcpd/KkUdAevTIHtzaAktKpyH8HJf1XAcPPHmaBBFh4gPshKXq2W+t5V
-         qKyCaVuux8N6h3f2/1LhsdOuS9v3q2kAWCyS+EJQ=
+        b=PNargjWKRDxC3jcF53bKLzKC1dc2ARmqR0CDC/uFvbXknBJcT1ysDJv1CYq3+uLx8
+         PD9+oIxh0kV6Lx6sazAle7I/ebXjor8+CVJHqNkTxPs/gXOAY3Gt5hFM7xPKpsgKfN
+         bDR5geeqWR8E5TnR6X9BBQuIKMK6VQrTYmj06gRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 319/393] net: Fix potential memory leak in proto_register()
-Date:   Mon, 17 Aug 2020 17:16:09 +0200
-Message-Id: <20200817143835.078988445@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com,
+        syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com,
+        syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 418/464] fs/minix: reject too-large maximum file size
+Date:   Mon, 17 Aug 2020 17:16:11 +0200
+Message-Id: <20200817143853.801921489@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +50,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 0f5907af39137f8183ed536aaa00f322d7365130 ]
+commit 270ef41094e9fa95273f288d7d785313ceab2ff3 upstream.
 
-If we failed to assign proto idx, we free the twsk_slab_name but forget to
-free the twsk_slab. Add a helper function tw_prot_cleanup() to free these
-together and also use this helper function in proto_unregister().
+If the minix filesystem tries to map a very large logical block number to
+its on-disk location, block_to_path() can return offsets that are too
+large, causing out-of-bounds memory accesses when accessing indirect index
+blocks.  This should be prevented by the check against the maximum file
+size, but this doesn't work because the maximum file size is read directly
+from the on-disk superblock and isn't validated itself.
 
-Fixes: b45ce32135d1 ("sock: fix potential memory leak in proto_register()")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by validating the maximum file size at mount time.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com
+Reported-by: syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com
+Reported-by: syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200628060846.682158-4-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/sock.c |   25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3354,6 +3354,16 @@ static void sock_inuse_add(struct net *n
+---
+ fs/minix/inode.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+--- a/fs/minix/inode.c
++++ b/fs/minix/inode.c
+@@ -150,6 +150,23 @@ static int minix_remount (struct super_b
+ 	return 0;
  }
- #endif
  
-+static void tw_prot_cleanup(struct timewait_sock_ops *twsk_prot)
++static bool minix_check_superblock(struct minix_sb_info *sbi)
 +{
-+	if (!twsk_prot)
-+		return;
-+	kfree(twsk_prot->twsk_slab_name);
-+	twsk_prot->twsk_slab_name = NULL;
-+	kmem_cache_destroy(twsk_prot->twsk_slab);
-+	twsk_prot->twsk_slab = NULL;
++	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
++		return false;
++
++	/*
++	 * s_max_size must not exceed the block mapping limitation.  This check
++	 * is only needed for V1 filesystems, since V2/V3 support an extra level
++	 * of indirect blocks which places the limit well above U32_MAX.
++	 */
++	if (sbi->s_version == MINIX_V1 &&
++	    sbi->s_max_size > (7 + 512 + 512*512) * BLOCK_SIZE)
++		return false;
++
++	return true;
 +}
 +
- static void req_prot_cleanup(struct request_sock_ops *rsk_prot)
+ static int minix_fill_super(struct super_block *s, void *data, int silent)
  {
- 	if (!rsk_prot)
-@@ -3424,7 +3434,7 @@ int proto_register(struct proto *prot, i
- 						  prot->slab_flags,
- 						  NULL);
- 			if (prot->twsk_prot->twsk_slab == NULL)
--				goto out_free_timewait_sock_slab_name;
-+				goto out_free_timewait_sock_slab;
- 		}
- 	}
+ 	struct buffer_head *bh;
+@@ -228,11 +245,12 @@ static int minix_fill_super(struct super
+ 	} else
+ 		goto out_no_fs;
  
-@@ -3432,15 +3442,15 @@ int proto_register(struct proto *prot, i
- 	ret = assign_proto_idx(prot);
- 	if (ret) {
- 		mutex_unlock(&proto_list_mutex);
--		goto out_free_timewait_sock_slab_name;
-+		goto out_free_timewait_sock_slab;
- 	}
- 	list_add(&prot->node, &proto_list);
- 	mutex_unlock(&proto_list_mutex);
- 	return ret;
- 
--out_free_timewait_sock_slab_name:
-+out_free_timewait_sock_slab:
- 	if (alloc_slab && prot->twsk_prot)
--		kfree(prot->twsk_prot->twsk_slab_name);
-+		tw_prot_cleanup(prot->twsk_prot);
- out_free_request_sock_slab:
- 	if (alloc_slab) {
- 		req_prot_cleanup(prot->rsk_prot);
-@@ -3464,12 +3474,7 @@ void proto_unregister(struct proto *prot
- 	prot->slab = NULL;
- 
- 	req_prot_cleanup(prot->rsk_prot);
--
--	if (prot->twsk_prot != NULL && prot->twsk_prot->twsk_slab != NULL) {
--		kmem_cache_destroy(prot->twsk_prot->twsk_slab);
--		kfree(prot->twsk_prot->twsk_slab_name);
--		prot->twsk_prot->twsk_slab = NULL;
--	}
-+	tw_prot_cleanup(prot->twsk_prot);
- }
- EXPORT_SYMBOL(proto_unregister);
- 
++	if (!minix_check_superblock(sbi))
++		goto out_illegal_sb;
++
+ 	/*
+ 	 * Allocate the buffer map to keep the superblock small.
+ 	 */
+-	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
+-		goto out_illegal_sb;
+ 	i = (sbi->s_imap_blocks + sbi->s_zmap_blocks) * sizeof(bh);
+ 	map = kzalloc(i, GFP_KERNEL);
+ 	if (!map)
 
 
