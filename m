@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8280524733E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:53:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8D7247353
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387818AbgHQPvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:51:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
+        id S2387916AbgHQSyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:54:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387420AbgHQPvd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:51:33 -0400
+        id S2387500AbgHQPvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:51:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CDEB2072E;
-        Mon, 17 Aug 2020 15:51:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44D1120882;
+        Mon, 17 Aug 2020 15:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679492;
-        bh=aA5Kts/EOMrSJOwXS+IBSah7je7tbYhhRPRHVnVJbmY=;
+        s=default; t=1597679494;
+        bh=0JfNETjq/XTA0zMeFA6Xk35P+x0qg/r5ZflzwEjc7k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzHs/NAQoOAAtjxm//IyX1BOF92gWDAoVxRJ9t9pfc5Bly73T1Jsotq9v2MlMh289
-         CWWZn4Qku66nei64khRcpMSIVQt5UWIyVajvzQ5N4FdUMUngOetXwoNIwKrZr7Ixsv
-         DFAMrtfyhDWtXnSQuZ8Wz6lpECvN+MtmE0rVv0ZA=
+        b=BQ4weodnUsCVDGcrdNkw9EUtumh4GkrIV6l0mElcVjYc0o5fHRTrlDBokoOdUKOwz
+         7b/n4A8k/jJw/NeUyF/GmeyBLJclz9OJvKwACEbnTipCW7WlB8/yBa0RyfLp+JxisN
+         yUStaSv1aikqFwXjQCmuWtPUUfqg9k32euFMun9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 231/393] coresight: etm4x: Fix save/restore during cpu idle
-Date:   Mon, 17 Aug 2020 17:14:41 +0200
-Message-Id: <20200817143830.831016065@linuxfoundation.org>
+Subject: [PATCH 5.7 232/393] powerpc/perf: Fix missing is_sier_aviable() during build
+Date:   Mon, 17 Aug 2020 17:14:42 +0200
+Message-Id: <20200817143830.875778044@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,92 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Madhavan Srinivasan <maddy@linux.ibm.com>
 
-[ Upstream commit 342c8a1d1d9e418d32fa02d635cf96989f9a986e ]
+[ Upstream commit 3c9450c053f88e525b2db1e6990cdf34d14e7696 ]
 
-The ETM state save/restore incorrectly reads/writes some of the 64bit
-registers (e.g, address comparators, vmid/cid comparators etc.) using
-32bit accesses. Ensure we use the appropriate width accessors for
-the registers.
+Compilation error:
+  arch/powerpc/perf/perf_regs.c:80:undefined reference to `.is_sier_available'
 
-Fixes: f188b5e76aae ("coresight: etm4x: Save/restore state across CPU low power states")
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200716175746.3338735-18-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently is_sier_available() is part of core-book3s.c, which is added
+to build based on CONFIG_PPC_PERF_CTRS.
+
+A config with CONFIG_PERF_EVENTS and without CONFIG_PPC_PERF_CTRS will
+have a build break because of missing is_sier_available().
+
+In practice it only breaks when CONFIG_FSL_EMB_PERF_EVENT=n because
+that also guards the usage of is_sier_available(). That only happens
+with CONFIG_PPC_BOOK3E_64=y and CONFIG_FSL_SOC_BOOKE=n.
+
+Patch adds is_sier_available() in asm/perf_event.h to fix the build
+break for configs missing CONFIG_PPC_PERF_CTRS.
+
+Fixes: 333804dc3b7a ("powerpc/perf: Update perf_regs structure to include SIER")
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+[mpe: Add detail about CONFIG_FSL_SOC_BOOKE]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200614083604.302611-1-maddy@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 16 ++++++++--------
- drivers/hwtracing/coresight/coresight-etm4x.h |  2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ arch/powerpc/include/asm/perf_event.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index 942b362a1f220..13c362cddd6a6 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -1213,8 +1213,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
- 	}
+diff --git a/arch/powerpc/include/asm/perf_event.h b/arch/powerpc/include/asm/perf_event.h
+index eed3954082fa2..1e8b2e1ec1db6 100644
+--- a/arch/powerpc/include/asm/perf_event.h
++++ b/arch/powerpc/include/asm/perf_event.h
+@@ -12,6 +12,8 @@
  
- 	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
--		state->trcacvr[i] = readl(drvdata->base + TRCACVRn(i));
--		state->trcacatr[i] = readl(drvdata->base + TRCACATRn(i));
-+		state->trcacvr[i] = readq(drvdata->base + TRCACVRn(i));
-+		state->trcacatr[i] = readq(drvdata->base + TRCACATRn(i));
- 	}
+ #ifdef CONFIG_PPC_PERF_CTRS
+ #include <asm/perf_event_server.h>
++#else
++static inline bool is_sier_available(void) { return false; }
+ #endif
  
- 	/*
-@@ -1225,10 +1225,10 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
- 	 */
- 
- 	for (i = 0; i < drvdata->numcidc; i++)
--		state->trccidcvr[i] = readl(drvdata->base + TRCCIDCVRn(i));
-+		state->trccidcvr[i] = readq(drvdata->base + TRCCIDCVRn(i));
- 
- 	for (i = 0; i < drvdata->numvmidc; i++)
--		state->trcvmidcvr[i] = readl(drvdata->base + TRCVMIDCVRn(i));
-+		state->trcvmidcvr[i] = readq(drvdata->base + TRCVMIDCVRn(i));
- 
- 	state->trccidcctlr0 = readl(drvdata->base + TRCCIDCCTLR0);
- 	state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
-@@ -1326,18 +1326,18 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
- 	}
- 
- 	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
--		writel_relaxed(state->trcacvr[i],
-+		writeq_relaxed(state->trcacvr[i],
- 			       drvdata->base + TRCACVRn(i));
--		writel_relaxed(state->trcacatr[i],
-+		writeq_relaxed(state->trcacatr[i],
- 			       drvdata->base + TRCACATRn(i));
- 	}
- 
- 	for (i = 0; i < drvdata->numcidc; i++)
--		writel_relaxed(state->trccidcvr[i],
-+		writeq_relaxed(state->trccidcvr[i],
- 			       drvdata->base + TRCCIDCVRn(i));
- 
- 	for (i = 0; i < drvdata->numvmidc; i++)
--		writel_relaxed(state->trcvmidcvr[i],
-+		writeq_relaxed(state->trcvmidcvr[i],
- 			       drvdata->base + TRCVMIDCVRn(i));
- 
- 	writel_relaxed(state->trccidcctlr0, drvdata->base + TRCCIDCCTLR0);
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.h b/drivers/hwtracing/coresight/coresight-etm4x.h
-index b0d633daf7162..47729e04aac72 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.h
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.h
-@@ -334,7 +334,7 @@ struct etmv4_save_state {
- 	u64	trcacvr[ETM_MAX_SINGLE_ADDR_CMP];
- 	u64	trcacatr[ETM_MAX_SINGLE_ADDR_CMP];
- 	u64	trccidcvr[ETMv4_MAX_CTXID_CMP];
--	u32	trcvmidcvr[ETM_MAX_VMID_CMP];
-+	u64	trcvmidcvr[ETM_MAX_VMID_CMP];
- 	u32	trccidcctlr0;
- 	u32	trccidcctlr1;
- 	u32	trcvmidcctlr0;
+ #ifdef CONFIG_FSL_EMB_PERF_EVENT
 -- 
 2.25.1
 
