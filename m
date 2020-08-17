@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E8C2476F7
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F032476EE
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732448AbgHQTnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:43:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51524 "EHLO mail.kernel.org"
+        id S2390869AbgHQTnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729545AbgHQPXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:23:37 -0400
+        id S1729593AbgHQPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:23:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EF092339D;
-        Mon, 17 Aug 2020 15:23:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D0A620885;
+        Mon, 17 Aug 2020 15:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677817;
-        bh=TWkVTrn4wtXnPeHy9dd1qMkMpuJMdWKnycx+yE2RMEw=;
+        s=default; t=1597677838;
+        bh=WjVelzmhMMwyehM7ehdWPo305YSvnE48zEuooK9dnmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK5zwLK5ePSvYhnrVnbDwoUbrcWyd/2YaSghPlkKLQIA0OUuvF8/znSfe1dIC7WOF
-         RsQ91b6cowUqG6ELxtYBf7k3dWaJUeCTjlMrKIKuC4LL1LUuv8tWTxVIfSpUUwxPFH
-         rV2bxXgseBorh9k1HdRYu0GCx+t0ShOzRxQ1E3QQ=
+        b=1d7v3G+sJ+XVAnDV/RWXUmAW0USlJcAgbrhFzAr1HU6BZ36ZfhnKztGa7ja2Umpji
+         LlYrFksq1eVR6+HdWJc++s7idFZwT3CzC31azU87u0ZvS4kqFd5q2lcPN5hGxJS0eD
+         OsfpArBtxnvHi5kXAb02/AtnKq3rpEBOof3LDLG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Wright Feng <wright.feng@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 117/464] Bluetooth: hci_qca: Bug fixes for SSR
-Date:   Mon, 17 Aug 2020 17:11:10 +0200
-Message-Id: <20200817143839.416025818@linuxfoundation.org>
+Subject: [PATCH 5.8 119/464] brcmfmac: To fix Bss Info flag definition Bug
+Date:   Mon, 17 Aug 2020 17:11:12 +0200
+Message-Id: <20200817143839.509744304@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,111 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
+From: Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>
 
-[ Upstream commit 3344537f614b966f726c1ec044d1c70a8cabe178 ]
+[ Upstream commit fa3266541b13f390eb35bdbc38ff4a03368be004 ]
 
-1.During SSR for command time out if BT SoC goes to inresponsive
-state, power cycling of BT SoC was not happening. Given the fix by
-sending hw error event to reset the BT SoC.
+Bss info flag definition need to be fixed from 0x2 to 0x4
+This flag is for rssi info received on channel.
+All Firmware branches defined as 0x4 and this is bug in brcmfmac.
 
-2.If SSR is triggered then ignore the transmit data requests to
-BT SoC until SSR is completed.
-
-Signed-off-by: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200604071835.3842-6-wright.feng@cypress.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 40 +++++++++++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index 81c3c38baba18..3788ec7a4ad6b 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -72,7 +72,8 @@ enum qca_flags {
- 	QCA_DROP_VENDOR_EVENT,
- 	QCA_SUSPENDING,
- 	QCA_MEMDUMP_COLLECTION,
--	QCA_HW_ERROR_EVENT
-+	QCA_HW_ERROR_EVENT,
-+	QCA_SSR_TRIGGERED
- };
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+index de0ef1b545c4f..2e31cc10c1954 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+@@ -19,7 +19,7 @@
+ #define BRCMF_ARP_OL_PEER_AUTO_REPLY	0x00000008
  
- enum qca_capabilities {
-@@ -862,6 +863,13 @@ static int qca_enqueue(struct hci_uart *hu, struct sk_buff *skb)
- 	BT_DBG("hu %p qca enq skb %p tx_ibs_state %d", hu, skb,
- 	       qca->tx_ibs_state);
+ #define	BRCMF_BSS_INFO_VERSION	109 /* curr ver of brcmf_bss_info_le struct */
+-#define BRCMF_BSS_RSSI_ON_CHANNEL	0x0002
++#define BRCMF_BSS_RSSI_ON_CHANNEL	0x0004
  
-+	if (test_bit(QCA_SSR_TRIGGERED, &qca->flags)) {
-+		/* As SSR is in progress, ignore the packets */
-+		bt_dev_dbg(hu->hdev, "SSR is in progress");
-+		kfree_skb(skb);
-+		return 0;
-+	}
-+
- 	/* Prepend skb with frame type */
- 	memcpy(skb_push(skb, 1), &hci_skb_pkt_type(skb), 1);
- 
-@@ -1128,6 +1136,7 @@ static int qca_controller_memdump_event(struct hci_dev *hdev,
- 	struct hci_uart *hu = hci_get_drvdata(hdev);
- 	struct qca_data *qca = hu->priv;
- 
-+	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
- 	skb_queue_tail(&qca->rx_memdump_q, skb);
- 	queue_work(qca->workqueue, &qca->ctrl_memdump_evt);
- 
-@@ -1488,6 +1497,7 @@ static void qca_hw_error(struct hci_dev *hdev, u8 code)
- 	struct qca_memdump_data *qca_memdump = qca->qca_memdump;
- 	char *memdump_buf = NULL;
- 
-+	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
- 	set_bit(QCA_HW_ERROR_EVENT, &qca->flags);
- 	bt_dev_info(hdev, "mem_dump_status: %d", qca->memdump_state);
- 
-@@ -1532,10 +1542,30 @@ static void qca_cmd_timeout(struct hci_dev *hdev)
- 	struct hci_uart *hu = hci_get_drvdata(hdev);
- 	struct qca_data *qca = hu->priv;
- 
--	if (qca->memdump_state == QCA_MEMDUMP_IDLE)
-+	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
-+	if (qca->memdump_state == QCA_MEMDUMP_IDLE) {
-+		set_bit(QCA_MEMDUMP_COLLECTION, &qca->flags);
- 		qca_send_crashbuffer(hu);
--	else
--		bt_dev_info(hdev, "Dump collection is in process");
-+		qca_wait_for_dump_collection(hdev);
-+	} else if (qca->memdump_state == QCA_MEMDUMP_COLLECTING) {
-+		/* Let us wait here until memory dump collected or
-+		 * memory dump timer expired.
-+		 */
-+		bt_dev_info(hdev, "waiting for dump to complete");
-+		qca_wait_for_dump_collection(hdev);
-+	}
-+
-+	mutex_lock(&qca->hci_memdump_lock);
-+	if (qca->memdump_state != QCA_MEMDUMP_COLLECTED) {
-+		qca->memdump_state = QCA_MEMDUMP_TIMEOUT;
-+		if (!test_bit(QCA_HW_ERROR_EVENT, &qca->flags)) {
-+			/* Inject hw error event to reset the device
-+			 * and driver.
-+			 */
-+			hci_reset_dev(hu->hdev);
-+		}
-+	}
-+	mutex_unlock(&qca->hci_memdump_lock);
- }
- 
- static int qca_wcn3990_init(struct hci_uart *hu)
-@@ -1646,6 +1676,8 @@ static int qca_setup(struct hci_uart *hu)
- 	if (ret)
- 		return ret;
- 
-+	clear_bit(QCA_SSR_TRIGGERED, &qca->flags);
-+
- 	if (qca_is_wcn399x(soc_type)) {
- 		set_bit(HCI_QUIRK_USE_BDADDR_PROPERTY, &hdev->quirks);
- 
+ #define BRCMF_STA_BRCM			0x00000001	/* Running a Broadcom driver */
+ #define BRCMF_STA_WME			0x00000002	/* WMM association */
 -- 
 2.25.1
 
