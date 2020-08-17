@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9E0247474
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3C124746F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387485AbgHQPl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:41:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
+        id S2387701AbgHQTJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:09:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387470AbgHQPl6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:58 -0400
+        id S2387497AbgHQPmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:42:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9319720825;
-        Mon, 17 Aug 2020 15:41:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1275420825;
+        Mon, 17 Aug 2020 15:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678916;
-        bh=FayhK48XD6LCySWNLP0EHUcGUO9hym0PaArFbF+l6/A=;
+        s=default; t=1597678927;
+        bh=Qu/3foyaXERMqY1vv8CRgOXlPV4nyRt88WLVppSA5wU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hef5uIEeWT3OZ7UOYQn+kxvvTCYHX6aKvHbPmx2gIuIMUNrxSvqZzzNYC6a+FrlqK
-         fdd2l6LtWzdygz8WI/T1gRJ7JLvaN7kH4gjb3JtmjrJrNUyYL18d9n8wEIsp0zuw5x
-         HN0Red67zLiNhqpnpv4MT/hdlSCQ5dtLHuHUmlEE=
+        b=XgJqVUs2ssWPu6VIgXUTMPfGJ8n1/QZwtYOowzX/E7+aTB4z5I+iC4JjxjdIG09M3
+         xAbqrqhKCnnFc7LMKs0XoSQRC+lvbc4H+mYwqO4iENF7g0E2u/GnOnN7py7DsywwAT
+         BiZ9n4Lu4TrszG6HcPbSG+k2iOhJdx1c6gdFecxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dejin Zheng <zhengdejin5@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 034/393] arm64: dts: renesas: Fix SD Card/eMMC interface device node names
-Date:   Mon, 17 Aug 2020 17:11:24 +0200
-Message-Id: <20200817143821.263484393@linuxfoundation.org>
+Subject: [PATCH 5.7 038/393] reset: intel: fix a compile warning about REG_OFFSET redefined
+Date:   Mon, 17 Aug 2020 17:11:28 +0200
+Message-Id: <20200817143821.454930538@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,353 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Dejin Zheng <zhengdejin5@gmail.com>
 
-[ Upstream commit a6cb262af1e1adfa6287cb43f09021ee42beb21c ]
+[ Upstream commit 308646785e51976dea7e20d29a1842d14bf0b9bd ]
 
-Fix the device node names as "mmc@".
+kernel test robot reports a compile warning about REG_OFFSET redefined
+in the reset-intel-gw.c after merging commit e44ab4e14d6f4 ("regmap:
+Simplify implementation of the regmap_read_poll_timeout() macro"). the
+warning is like that:
 
-Fixes: 663386c3e1aa ("arm64: dts: renesas: r8a774a1: Add SDHI nodes")
-Fixes: 9b33e3001b67 ("arm64: dts: renesas: Initial r8a774b1 SoC device tree")
-Fixes: 77223211f44d ("arm64: dts: renesas: r8a774c0: Add SDHI nodes")
-Fixes: d9d67010e0c6 ("arm64: dts: r8a7795: Add SDHI support to dtsi")
-Fixes: a513cf1e6457 ("arm64: dts: r8a7796: add SDHI nodes")
-Fixes: 111cc9ace2b5 ("arm64: dts: renesas: r8a77961: Add SDHI nodes")
-Fixes: f51746ad7d1f ("arm64: dts: renesas: Add Renesas R8A77961 SoC support")
-Fixes: df863d6f95f5 ("arm64: dts: renesas: initial R8A77965 SoC device tree")
-Fixes: 9aa3558a02f0 ("arm64: dts: renesas: ebisu: Add and enable SDHI device nodes")
-Fixes: 83f18749c2f6 ("arm64: dts: renesas: r8a77995: Add SDHI (MMC) support")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1594382634-13714-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+drivers/reset/reset-intel-gw.c:18:0: warning: "REG_OFFSET" redefined
+ #define REG_OFFSET GENMASK(31, 16)
+
+In file included from ./arch/arm/mach-ixp4xx/include/mach/hardware.h:30:0,
+                 from ./arch/arm/mach-ixp4xx/include/mach/io.h:15,
+                 from ./arch/arm/include/asm/io.h:198,
+                 from ./include/linux/io.h:13,
+                 from ./include/linux/iopoll.h:14,
+                 from ./include/linux/regmap.h:20,
+                 from drivers/reset/reset-intel-gw.c:12:
+./arch/arm/mach-ixp4xx/include/mach/platform.h:25:0: note: this is the location of the previous definition
+ #define REG_OFFSET 3
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: c9aef213e38cde ("reset: intel: Add system reset controller driver")
+Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a774a1.dtsi | 8 ++++----
- arch/arm64/boot/dts/renesas/r8a774b1.dtsi | 8 ++++----
- arch/arm64/boot/dts/renesas/r8a774c0.dtsi | 6 +++---
- arch/arm64/boot/dts/renesas/r8a77951.dtsi | 8 ++++----
- arch/arm64/boot/dts/renesas/r8a77960.dtsi | 8 ++++----
- arch/arm64/boot/dts/renesas/r8a77961.dtsi | 8 ++++----
- arch/arm64/boot/dts/renesas/r8a77965.dtsi | 8 ++++----
- arch/arm64/boot/dts/renesas/r8a77990.dtsi | 6 +++---
- arch/arm64/boot/dts/renesas/r8a77995.dtsi | 2 +-
- 9 files changed, 31 insertions(+), 31 deletions(-)
+ drivers/reset/reset-intel-gw.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a774a1.dtsi b/arch/arm64/boot/dts/renesas/r8a774a1.dtsi
-index a603d947970ec..16b059d7fd015 100644
---- a/arch/arm64/boot/dts/renesas/r8a774a1.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a774a1.dtsi
-@@ -2250,7 +2250,7 @@ usb2_phy1: usb-phy@ee0a0200 {
- 			status = "disabled";
- 		};
+diff --git a/drivers/reset/reset-intel-gw.c b/drivers/reset/reset-intel-gw.c
+index 854238444616b..effc177db80af 100644
+--- a/drivers/reset/reset-intel-gw.c
++++ b/drivers/reset/reset-intel-gw.c
+@@ -15,9 +15,9 @@
+ #define RCU_RST_STAT	0x0024
+ #define RCU_RST_REQ	0x0048
  
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a774a1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -2262,7 +2262,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
+-#define REG_OFFSET	GENMASK(31, 16)
+-#define BIT_OFFSET	GENMASK(15, 8)
+-#define STAT_BIT_OFFSET	GENMASK(7, 0)
++#define REG_OFFSET_MASK	GENMASK(31, 16)
++#define BIT_OFFSET_MASK	GENMASK(15, 8)
++#define STAT_BIT_OFFSET_MASK	GENMASK(7, 0)
  
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a774a1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -2274,7 +2274,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
+ #define to_reset_data(x)	container_of(x, struct intel_reset_data, rcdev)
  
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a774a1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
-@@ -2286,7 +2286,7 @@ sdhi2: sd@ee140000 {
- 			status = "disabled";
- 		};
+@@ -51,11 +51,11 @@ static u32 id_to_reg_and_bit_offsets(struct intel_reset_data *data,
+ 				     unsigned long id, u32 *rst_req,
+ 				     u32 *req_bit, u32 *stat_bit)
+ {
+-	*rst_req = FIELD_GET(REG_OFFSET, id);
+-	*req_bit = FIELD_GET(BIT_OFFSET, id);
++	*rst_req = FIELD_GET(REG_OFFSET_MASK, id);
++	*req_bit = FIELD_GET(BIT_OFFSET_MASK, id);
  
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a774a1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a774b1.dtsi b/arch/arm64/boot/dts/renesas/r8a774b1.dtsi
-index 1e51855c7cd38..6db8b6a4d191b 100644
---- a/arch/arm64/boot/dts/renesas/r8a774b1.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a774b1.dtsi
-@@ -2108,7 +2108,7 @@ usb2_phy1: usb-phy@ee0a0200 {
- 			status = "disabled";
- 		};
+ 	if (data->soc_data->legacy)
+-		*stat_bit = FIELD_GET(STAT_BIT_OFFSET, id);
++		*stat_bit = FIELD_GET(STAT_BIT_OFFSET_MASK, id);
+ 	else
+ 		*stat_bit = *req_bit;
  
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a774b1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -2120,7 +2120,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
+@@ -141,14 +141,14 @@ static int intel_reset_xlate(struct reset_controller_dev *rcdev,
+ 	if (spec->args[1] > 31)
+ 		return -EINVAL;
  
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a774b1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -2132,7 +2132,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
+-	id = FIELD_PREP(REG_OFFSET, spec->args[0]);
+-	id |= FIELD_PREP(BIT_OFFSET, spec->args[1]);
++	id = FIELD_PREP(REG_OFFSET_MASK, spec->args[0]);
++	id |= FIELD_PREP(BIT_OFFSET_MASK, spec->args[1]);
  
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a774b1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
-@@ -2144,7 +2144,7 @@ sdhi2: sd@ee140000 {
- 			status = "disabled";
- 		};
+ 	if (data->soc_data->legacy) {
+ 		if (spec->args[2] > 31)
+ 			return -EINVAL;
  
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a774b1",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a774c0.dtsi b/arch/arm64/boot/dts/renesas/r8a774c0.dtsi
-index 5c72a7efbb035..42171190cce46 100644
---- a/arch/arm64/boot/dts/renesas/r8a774c0.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a774c0.dtsi
-@@ -1618,7 +1618,7 @@ usb2_phy0: usb-phy@ee080200 {
- 			status = "disabled";
- 		};
+-		id |= FIELD_PREP(STAT_BIT_OFFSET, spec->args[2]);
++		id |= FIELD_PREP(STAT_BIT_OFFSET_MASK, spec->args[2]);
+ 	}
  
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a774c0",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -1630,7 +1630,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
+ 	return id;
+@@ -210,11 +210,11 @@ static int intel_reset_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a774c0",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -1642,7 +1642,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
+-	data->reboot_id = FIELD_PREP(REG_OFFSET, rb_id[0]);
+-	data->reboot_id |= FIELD_PREP(BIT_OFFSET, rb_id[1]);
++	data->reboot_id = FIELD_PREP(REG_OFFSET_MASK, rb_id[0]);
++	data->reboot_id |= FIELD_PREP(BIT_OFFSET_MASK, rb_id[1]);
  
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a774c0",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77951.dtsi b/arch/arm64/boot/dts/renesas/r8a77951.dtsi
-index 61d67d9714ab9..9beb8e76d9235 100644
---- a/arch/arm64/boot/dts/renesas/r8a77951.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77951.dtsi
-@@ -2590,7 +2590,7 @@ usb2_phy3: usb-phy@ee0e0200 {
- 			status = "disabled";
- 		};
+ 	if (data->soc_data->legacy)
+-		data->reboot_id |= FIELD_PREP(STAT_BIT_OFFSET, rb_id[2]);
++		data->reboot_id |= FIELD_PREP(STAT_BIT_OFFSET_MASK, rb_id[2]);
  
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a7795",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -2603,7 +2603,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
- 
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a7795",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -2616,7 +2616,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
- 
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a7795",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
-@@ -2629,7 +2629,7 @@ sdhi2: sd@ee140000 {
- 			status = "disabled";
- 		};
- 
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a7795",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77960.dtsi b/arch/arm64/boot/dts/renesas/r8a77960.dtsi
-index 33bf62acffbb7..4dfb7f0767871 100644
---- a/arch/arm64/boot/dts/renesas/r8a77960.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77960.dtsi
-@@ -2394,7 +2394,7 @@ usb2_phy1: usb-phy@ee0a0200 {
- 			status = "disabled";
- 		};
- 
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a7796",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -2407,7 +2407,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
- 
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a7796",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -2420,7 +2420,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
- 
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a7796",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
-@@ -2433,7 +2433,7 @@ sdhi2: sd@ee140000 {
- 			status = "disabled";
- 		};
- 
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a7796",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77961.dtsi b/arch/arm64/boot/dts/renesas/r8a77961.dtsi
-index 0d96f2d3492b6..8227b68b5646a 100644
---- a/arch/arm64/boot/dts/renesas/r8a77961.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77961.dtsi
-@@ -928,7 +928,7 @@ usb2_phy1: usb-phy@ee0a0200 {
- 			/* placeholder */
- 		};
- 
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a77961",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -940,7 +940,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
- 
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a77961",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -952,7 +952,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
- 
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a77961",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
-@@ -964,7 +964,7 @@ sdhi2: sd@ee140000 {
- 			status = "disabled";
- 		};
- 
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a77961",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 6f7ab39fd2824..fe4dc12e2bdfa 100644
---- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -2120,7 +2120,7 @@ usb2_phy1: usb-phy@ee0a0200 {
- 			status = "disabled";
- 		};
- 
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a77965",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -2133,7 +2133,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
- 
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a77965",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -2146,7 +2146,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
- 
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a77965",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
-@@ -2159,7 +2159,7 @@ sdhi2: sd@ee140000 {
- 			status = "disabled";
- 		};
- 
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a77965",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77990.dtsi b/arch/arm64/boot/dts/renesas/r8a77990.dtsi
-index cd11f24744d4a..1991bdc36792f 100644
---- a/arch/arm64/boot/dts/renesas/r8a77990.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77990.dtsi
-@@ -1595,7 +1595,7 @@ usb2_phy0: usb-phy@ee080200 {
- 			status = "disabled";
- 		};
- 
--		sdhi0: sd@ee100000 {
-+		sdhi0: mmc@ee100000 {
- 			compatible = "renesas,sdhi-r8a77990",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee100000 0 0x2000>;
-@@ -1608,7 +1608,7 @@ sdhi0: sd@ee100000 {
- 			status = "disabled";
- 		};
- 
--		sdhi1: sd@ee120000 {
-+		sdhi1: mmc@ee120000 {
- 			compatible = "renesas,sdhi-r8a77990",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee120000 0 0x2000>;
-@@ -1621,7 +1621,7 @@ sdhi1: sd@ee120000 {
- 			status = "disabled";
- 		};
- 
--		sdhi3: sd@ee160000 {
-+		sdhi3: mmc@ee160000 {
- 			compatible = "renesas,sdhi-r8a77990",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee160000 0 0x2000>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77995.dtsi b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
-index e5617ec0f49cb..2c2272f5f5b52 100644
---- a/arch/arm64/boot/dts/renesas/r8a77995.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
-@@ -916,7 +916,7 @@ usb2_phy0: usb-phy@ee080200 {
- 			status = "disabled";
- 		};
- 
--		sdhi2: sd@ee140000 {
-+		sdhi2: mmc@ee140000 {
- 			compatible = "renesas,sdhi-r8a77995",
- 				     "renesas,rcar-gen3-sdhi";
- 			reg = <0 0xee140000 0 0x2000>;
+ 	data->restart_nb.notifier_call =	intel_reset_restart_handler;
+ 	data->restart_nb.priority =		128;
 -- 
 2.25.1
 
