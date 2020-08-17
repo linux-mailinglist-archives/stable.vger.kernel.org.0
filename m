@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDAB247262
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC782471F7
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730677AbgHQSlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44934 "EHLO mail.kernel.org"
+        id S2391253AbgHQSgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730674AbgHQP5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:57:21 -0400
+        id S1730962AbgHQP7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:59:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCC452072E;
-        Mon, 17 Aug 2020 15:57:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F295C20760;
+        Mon, 17 Aug 2020 15:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679841;
-        bh=8cLVw7nzYeeb/D1UEPPeffAQwZifocd6+H+cQwWUp8A=;
+        s=default; t=1597679958;
+        bh=po7Aa9O9UO8NOGTly4ubZx2QUjPg5goS3alS0iMlVoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3/yy7qc8+tRY8bKb/Dwj3e1wLNyMlEWoxR/+8DZ5DLoWFpSVlzGROx7CgPCpw/ft
-         TkCrg+hptu3d+tUD/2rqsPYP7HdLGnsRrLdfoTbj7cY6RL3zEQ2y9t0CtJky5utvIC
-         Mr3xhyUFCKv6n1pS/X71iYY29C9BjmN24R26jvGA=
+        b=Fh7PAA0x77e/pfcRbkSctcdcfq3R4xvYzBxGc8O5dulVGTpFJihV8QteXVUtk/RcH
+         tYq2eJzKy5jcyRFwuJD6T7egOA0dNzTO3NHuun8VdSuPy3wVd8yAds2X4+qMZAs2WA
+         aLDVd4vu/tuBSoT/w4NMpqSP+3d4mw1shlSDoabQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 5.7 351/393] 9p: Fix memory leak in v9fs_mount
-Date:   Mon, 17 Aug 2020 17:16:41 +0200
-Message-Id: <20200817143836.628088230@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+805f5f6ae37411f15b64@syzkaller.appspotmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.7 352/393] driver core: Fix probe_count imbalance in really_probe()
+Date:   Mon, 17 Aug 2020 17:16:42 +0200
+Message-Id: <20200817143836.676896342@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,48 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit cb0aae0e31c632c407a2cab4307be85a001d4d98 upstream.
+commit b292b50b0efcc7095d8bf15505fba6909bb35dce upstream.
 
-v9fs_mount
-  v9fs_session_init
-    v9fs_cache_session_get_cookie
-      v9fs_random_cachetag                     -->alloc cachetag
-      v9ses->fscache = fscache_acquire_cookie  -->maybe NULL
-  sb = sget                                    -->fail, goto clunk
-clunk_fid:
-  v9fs_session_close
-    if (v9ses->fscache)                        -->NULL
-      kfree(v9ses->cachetag)
+syzbot is reporting hung task in wait_for_device_probe() [1]. At least,
+we always need to decrement probe_count if we incremented probe_count in
+really_probe().
 
-Thus memleak happens.
+However, since I can't find "Resources present before probing" message in
+the console log, both "this message simply flowed off" and "syzbot is not
+hitting this path" will be possible. Therefore, while we are at it, let's
+also prepare for concurrent wait_for_device_probe() calls by replacing
+wake_up() with wake_up_all().
 
-Link: http://lkml.kernel.org/r/20200615012153.89538-1-zhengbin13@huawei.com
-Fixes: 60e78d2c993e ("9p: Add fscache support to 9p")
-Cc: <stable@vger.kernel.org> # v2.6.32+
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+[1] https://syzkaller.appspot.com/bug?id=25c833f1983c9c1d512f4ff860dd0d7f5a2e2c0f
+
+Reported-by: syzbot <syzbot+805f5f6ae37411f15b64@syzkaller.appspotmail.com>
+Fixes: 7c35e699c88bd607 ("driver core: Print device when resources present in really_probe()")
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20200713021254.3444-1-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- fs/9p/v9fs.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/fs/9p/v9fs.c
-+++ b/fs/9p/v9fs.c
-@@ -500,10 +500,9 @@ void v9fs_session_close(struct v9fs_sess
+---
+ drivers/base/dd.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -276,7 +276,7 @@ static void deferred_probe_timeout_work_
+ 
+ 	list_for_each_entry_safe(private, p, &deferred_probe_pending_list, deferred_probe)
+ 		dev_info(private->device, "deferred probe pending");
+-	wake_up(&probe_timeout_waitqueue);
++	wake_up_all(&probe_timeout_waitqueue);
+ }
+ static DECLARE_DELAYED_WORK(deferred_probe_timeout_work, deferred_probe_timeout_work_func);
+ 
+@@ -487,7 +487,8 @@ static int really_probe(struct device *d
+ 		 drv->bus->name, __func__, drv->name, dev_name(dev));
+ 	if (!list_empty(&dev->devres_head)) {
+ 		dev_crit(dev, "Resources present before probing\n");
+-		return -EBUSY;
++		ret = -EBUSY;
++		goto done;
  	}
  
- #ifdef CONFIG_9P_FSCACHE
--	if (v9ses->fscache) {
-+	if (v9ses->fscache)
- 		v9fs_cache_session_put_cookie(v9ses);
--		kfree(v9ses->cachetag);
--	}
-+	kfree(v9ses->cachetag);
- #endif
- 	kfree(v9ses->uname);
- 	kfree(v9ses->aname);
+ re_probe:
+@@ -608,7 +609,7 @@ pinctrl_bind_failed:
+ 	ret = 0;
+ done:
+ 	atomic_dec(&probe_count);
+-	wake_up(&probe_waitqueue);
++	wake_up_all(&probe_waitqueue);
+ 	return ret;
+ }
+ 
 
 
