@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE23524642C
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9455124642D
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726685AbgHQKNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 06:13:51 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:45035 "EHLO
+        id S1726451AbgHQKN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 06:13:59 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60363 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726151AbgHQKNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:13:50 -0400
+        by vger.kernel.org with ESMTP id S1726151AbgHQKN6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:13:58 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5F4C31941AD4;
-        Mon, 17 Aug 2020 06:13:49 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:13:49 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 569721941AD8;
+        Mon, 17 Aug 2020 06:13:57 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:13:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ihUmj+
-        Zl6feElivpQYgZNcLjWaa+8JV0eYOVTnd2BzU=; b=A9dHDWDTB66SFIY45vlRfE
-        B//9ple3+WYvwb5ZX2BAcVNkbh2KDS19OToeI6eBr2xr8O3B2UhlwDg20tN1QM1H
-        hUPEIfACWewy8E8oqkydTXu+bZpszI8kHjwnux7OBzPfhYhCKKNtPc1IfSoW4rZo
-        gcHYe9g0J+vPZv9wrXpwMUGJBfN0aVzJ2Sb7hnKg8uS89P4FF3YTDxtj2tJqIRXg
-        49cik0UUx1Mgbc9pY8AbW7rBzkcQ+EM+T6ZIOfj/Q6Ui9sntWksmVf34oqmBQwHH
-        vTQ5TPfYvb2C8DsT9qEofhemgiygHANKS+NDm4ixB5+3E2qJNBRDN2PMxfgfigcA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=/b950o
+        OCZEei+OyZkAgpiKw2iy5Hi6Pos96GngKVOY0=; b=PVPbwx6o1Rl6Idl0VgwUmv
+        79/BLxoP6Ocq7lHJmiJ3IQJcQN4zQqX6CctkaHx+I8pyD2I83HaJvqcnqXhXdNtC
+        1QhSIaM7D7leiOxQ/efyrFhZ5VeybPzgs3XnjsMfqFnzLxI+H+dsaCuHEreewJWw
+        zG9k03IvJPS1XeJV2z7Y27ww8R5PyShdlOBUC6YYBZ5hi9ALDfN4T1uhROWks4rC
+        MqutfaZ2S7PzHEeWXx4wsi+/4plg3NM7Clxq3TOMLDGYIq4wA3frnUxxthBmrGK1
+        k74T7K1OODaudjprLfWy/NgtyR4g9JIxTt/P545d4ezZGTt+M3QWAbstPUJIm8lw
         ==
-X-ME-Sender: <xms:XFg6X3v22jDx1HdT1Q7jjL61hNsVZC9L2ClMy9_upEMdVZVpTH1_2Q>
+X-ME-Sender: <xms:ZVg6X_s8UjAj4g1N5phA9vM2_-Hu_2RFbOQZAfClA-43JBwO7Bcirw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:XFg6X4eQB7J9m-Ef0YgPb4LvxJOKTPR3B6MSKBK15McU4jwNB1MFQw>
-    <xmx:XFg6X6wr5t684-HdgNFCNsYkCSLmDFAW8TM_jb30KZb_N6EpsbmBhg>
-    <xmx:XFg6X2OMsGJOtBqNAUZc5U6_TFLib7E9nNcSOsKLkx2wIIcWiRj26Q>
-    <xmx:XVg6X0GS9PwWmy-pp173aTkQTSbbkR9kY-6LUh9k9c59uCeq0mVzNQ>
+X-ME-Proxy: <xmx:ZVg6XweVJ5_qy4M3EEqlRjS4WsRFlx5qjE4vzxPhd7-YU3J7oztMYg>
+    <xmx:ZVg6XywWk7_AChrP0jHuPQ9ckP01lUm1zkPpHs7oGkOqDH9JpqKMfg>
+    <xmx:ZVg6X-Nk_5RFm1bcZhhLMGnFvf_A2QyYTftJZFp0Tgq64WMuRYPSJw>
+    <xmx:ZVg6X8FMZL27kRscw3k1rr_eHrLndeFqkwZSUxfGAyfS6diC8ime5w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5DC98328005E;
-        Mon, 17 Aug 2020 06:13:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tpm: Unify the mismatching TPM space buffer sizes" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id EAFC03060067;
+        Mon, 17 Aug 2020 06:13:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tpm: Unify the mismatching TPM space buffer sizes" failed to apply to 4.14-stable tree
 To:     jarkko.sakkinen@linux.intel.com, jsnitsel@redhat.com,
         stefanb@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Aug 2020 12:14:08 +0200
-Message-ID: <159765924819527@kroah.com>
+Date:   Mon, 17 Aug 2020 12:14:09 +0200
+Message-ID: <1597659249143217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
