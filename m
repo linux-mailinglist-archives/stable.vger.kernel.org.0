@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033E62470CC
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FFB5247083
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390652AbgHQSPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54028 "EHLO mail.kernel.org"
+        id S2390387AbgHQSKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731027AbgHQQGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:06:23 -0400
+        id S2388315AbgHQQHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:07:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC86321744;
-        Mon, 17 Aug 2020 16:06:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE59F20829;
+        Mon, 17 Aug 2020 16:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680366;
-        bh=gHmsU+XG61m0rQS0oJmH2tnjbgwl5bnj4xGsCcFs6/U=;
+        s=default; t=1597680468;
+        bh=37MMSSoL6oqEcfaGDD2YYEbR6qmbWEcwABOL7QfqCbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zs49VldXE8voZxZkZbuL1qZq9dHG6J371IMaTcj59Myo7l1wIYz6ukytT50IDYQwT
-         XCC1RQ6Wlvc01zxer/hHpVV6+vakoH1XhNJGFG0xd7/TmAfnNc+hezGYlE2COqMAAA
-         axJImmPOHnw+FCDJqsHwhUshOY8BBab1L8/mMTjc=
+        b=VVAagpXw3e/gs4SUIjhr2olMfwMs2HwGCIJdhWngXp72Ns8hfGOIvJrr7hLMYYvqX
+         dD0+xcaNHKZYAzlv801dGVgDSg0o2CPZN0ypRYeD2ujEvYtAegzzzfn8ruhzRMjfd6
+         PyL98AQpnopkBWJTS6MEQJg1mZHoCpFJHXzlBH3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/270] thermal: ti-soc-thermal: Fix reversed condition in ti_thermal_expose_sensor()
-Date:   Mon, 17 Aug 2020 17:15:58 +0200
-Message-Id: <20200817143803.663682485@linuxfoundation.org>
+Subject: [PATCH 5.4 158/270] coresight: tmc: Fix TMC mode read in tmc_read_unprepare_etb()
+Date:   Mon, 17 Aug 2020 17:15:59 +0200
+Message-Id: <20200817143803.711561681@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,34 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-[ Upstream commit 0f348db01fdf128813fdd659fcc339038fb421a4 ]
+[ Upstream commit d021f5c5ff679432c5e9faee0fd7350db2efb97c ]
 
-This condition is reversed and will cause breakage.
+Reading TMC mode register without proper coresight power
+management can lead to exceptions like the one in the call
+trace below in tmc_read_unprepare_etb() when the trace data
+is read after the sink is disabled. So fix this by having
+a check for coresight sysfs mode before reading TMC mode
+management register in tmc_read_unprepare_etb() similar to
+tmc_read_prepare_etb().
 
-Fixes: 7440f518dad9 ("thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200616091949.GA11940@mwanda
+  SError Interrupt on CPU6, code 0xbe000411 -- SError
+  pstate: 80400089 (Nzcv daIf +PAN -UAO)
+  pc : tmc_read_unprepare_etb+0x74/0x108
+  lr : tmc_read_unprepare_etb+0x54/0x108
+  sp : ffffff80d9507c30
+  x29: ffffff80d9507c30 x28: ffffff80b3569a0c
+  x27: 0000000000000000 x26: 00000000000a0001
+  x25: ffffff80cbae9550 x24: 0000000000000010
+  x23: ffffffd07296b0f0 x22: ffffffd0109ee028
+  x21: 0000000000000000 x20: ffffff80d19e70e0
+  x19: ffffff80d19e7080 x18: 0000000000000000
+  x17: 0000000000000000 x16: 0000000000000000
+  x15: 0000000000000000 x14: 0000000000000000
+  x13: 0000000000000000 x12: 0000000000000000
+  x11: 0000000000000000 x10: dfffffd000000001
+  x9 : 0000000000000000 x8 : 0000000000000002
+  x7 : ffffffd071d0fe78 x6 : 0000000000000000
+  x5 : 0000000000000080 x4 : 0000000000000001
+  x3 : ffffffd071d0fe98 x2 : 0000000000000000
+  x1 : 0000000000000004 x0 : 0000000000000001
+  Kernel panic - not syncing: Asynchronous SError Interrupt
+
+Fixes: 4525412a5046 ("coresight: tmc: making prepare/unprepare functions generic")
+Reported-by: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Tested-by: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200716175746.3338735-14-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-tmc-etf.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-index 85776db4bf346..2ce4b19f312ac 100644
---- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-+++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-@@ -169,7 +169,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+index 36cce2bfb7449..6375504ba8b00 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -639,15 +639,14 @@ int tmc_read_unprepare_etb(struct tmc_drvdata *drvdata)
  
- 	data = ti_bandgap_get_sensor_data(bgp, id);
+ 	spin_lock_irqsave(&drvdata->spinlock, flags);
  
--	if (!IS_ERR_OR_NULL(data))
-+	if (IS_ERR_OR_NULL(data))
- 		data = ti_thermal_build_data(bgp, id);
- 
- 	if (!data)
+-	/* There is no point in reading a TMC in HW FIFO mode */
+-	mode = readl_relaxed(drvdata->base + TMC_MODE);
+-	if (mode != TMC_MODE_CIRCULAR_BUFFER) {
+-		spin_unlock_irqrestore(&drvdata->spinlock, flags);
+-		return -EINVAL;
+-	}
+-
+ 	/* Re-enable the TMC if need be */
+ 	if (drvdata->mode == CS_MODE_SYSFS) {
++		/* There is no point in reading a TMC in HW FIFO mode */
++		mode = readl_relaxed(drvdata->base + TMC_MODE);
++		if (mode != TMC_MODE_CIRCULAR_BUFFER) {
++			spin_unlock_irqrestore(&drvdata->spinlock, flags);
++			return -EINVAL;
++		}
+ 		/*
+ 		 * The trace run will continue with the same allocated trace
+ 		 * buffer. As such zero-out the buffer so that we don't end
 -- 
 2.25.1
 
