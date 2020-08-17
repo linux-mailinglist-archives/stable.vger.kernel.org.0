@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 032BB2469AA
+	by mail.lfdr.de (Postfix) with ESMTP id E88692469AC
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729676AbgHQPYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:24:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
+        id S1729692AbgHQPYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729420AbgHQPYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:24:40 -0400
+        id S1729686AbgHQPYr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:24:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D2A420855;
-        Mon, 17 Aug 2020 15:24:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16ED523384;
+        Mon, 17 Aug 2020 15:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677879;
-        bh=VPk1/68gAeSbr4dY1na6HaYHqUTOTZcN9LqH9WMmFag=;
+        s=default; t=1597677887;
+        bh=v0QKmyZbjTqae5qzYAsrlug6hBwSbq3eR+6nXGiXYbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWu9pJ7ZNj1b1uJIPsz4FkaviptKTa/mYHmmVdLydXApduRx9P/mCJoxeVPPMmXCz
-         p4UFq/Wajv/sIpL6+NpZPCI5j8nqHfyBwOJx1VlOeaJrFYLiuCTF/8Ce1VJi8m2tPO
-         mULc5/arr6m7FC6rqQrYOP+SfQp/UT8CvMKLKe5w=
+        b=BHOYyOd/ERgS0J91yb0n0JGhLUrmtdknlRwFyl+vJNTcJ5zuVY5j9mfkh4fpWZzPv
+         LGRYI0zL+L28xmJKDTTuYGkrlH8KMyWe9yjBPOCmY5ge03PrEwtHauPDraLYaIhn0c
+         CboHUMX8zCCUA3n0XdmtkSDUhIFPikawNwYLD67A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 141/464] drm/bridge: ti-sn65dsi86: Clear old error bits before AUX transfers
-Date:   Mon, 17 Aug 2020 17:11:34 +0200
-Message-Id: <20200817143840.569162397@linuxfoundation.org>
+Subject: [PATCH 5.8 144/464] agp/intel: Fix a memory leak on module initialisation failure
+Date:   Mon, 17 Aug 2020 17:11:37 +0200
+Message-Id: <20200817143840.712283432@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,44 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit baef4d56195b6d6e0f681f6eac03d8c6db011d34 ]
+[ Upstream commit b975abbd382fe442713a4c233549abb90e57c22b ]
 
-The AUX channel transfer error bits in the status register are latched
-and need to be cleared.  Clear them before doing our transfer so we
-don't see old bits and get confused.
+In intel_gtt_setup_scratch_page(), pointer "page" is not released if
+pci_dma_mapping_error() return an error, leading to a memory leak on
+module initialisation failure.  Simply fix this issue by freeing "page"
+before return.
 
-Without this patch having a single failure would mean that all future
-transfers would look like they failed.
-
-Fixes: b814ec6d4535 ("drm/bridge: ti-sn65dsi86: Implement AUX channel")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200508163314.1.Idfa69d5d3fc9623083c0ff78572fea87dccb199c@changeid
+Fixes: 0e87d2b06cb46 ("intel-gtt: initialize our own scratch page")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200522083451.7448-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/char/agp/intel-gtt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index 6ad688b320aee..d865cc2565bc0 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -827,6 +827,12 @@ static ssize_t ti_sn_aux_transfer(struct drm_dp_aux *aux,
- 				     buf[i]);
- 	}
+diff --git a/drivers/char/agp/intel-gtt.c b/drivers/char/agp/intel-gtt.c
+index 4b34a5195c653..5bfdf222d5f90 100644
+--- a/drivers/char/agp/intel-gtt.c
++++ b/drivers/char/agp/intel-gtt.c
+@@ -304,8 +304,10 @@ static int intel_gtt_setup_scratch_page(void)
+ 	if (intel_private.needs_dmar) {
+ 		dma_addr = pci_map_page(intel_private.pcidev, page, 0,
+ 				    PAGE_SIZE, PCI_DMA_BIDIRECTIONAL);
+-		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr))
++		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr)) {
++			__free_page(page);
+ 			return -EINVAL;
++		}
  
-+	/* Clear old status bits before start so we don't get confused */
-+	regmap_write(pdata->regmap, SN_AUX_CMD_STATUS_REG,
-+		     AUX_IRQ_STATUS_NAT_I2C_FAIL |
-+		     AUX_IRQ_STATUS_AUX_RPLY_TOUT |
-+		     AUX_IRQ_STATUS_AUX_SHORT);
-+
- 	regmap_write(pdata->regmap, SN_AUX_CMD_REG, request_val | AUX_CMD_SEND);
- 
- 	ret = regmap_read_poll_timeout(pdata->regmap, SN_AUX_CMD_REG, val,
+ 		intel_private.scratch_page_dma = dma_addr;
+ 	} else
 -- 
 2.25.1
 
