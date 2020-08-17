@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD647246A79
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FAFB246B70
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730528AbgHQPhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:37:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
+        id S2387753AbgHQPzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:55:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730520AbgHQPgw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:36:52 -0400
+        id S2388007AbgHQPyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:54:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7995020709;
-        Mon, 17 Aug 2020 15:36:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 715F4208C7;
+        Mon, 17 Aug 2020 15:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678612;
-        bh=TJ9AZakn52veKcbnZMKtfI9JpjIqWLaXbvn0eVDK0/8=;
+        s=default; t=1597679695;
+        bh=lPwaDgqodgo5PJ/CLW43a1CyO2NVrcWLZMq9KWFqots=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCI/6ggC/ki06LObWJ3Af3LQSor26sN7kA4NHVHB2oYKTO1vF2yJk2ZCmG7fT8ecc
-         icdeKQ8YrLmRM729KcjqTfgA7ekfPLcbmJ3k8HaaNvX4XpbKdRyNmEKX6g95MeK4m/
-         +I9ozehsqypN35gCLa1BoTyIjOlulAKe/0ptzWW0=
+        b=yUQlJz0E2w0RauiXN89l/WNrsVYA2o0wDsboiwbQEGWPry9l6WDN2z3PaLkYw2eY2
+         VyzwuJ8iv3+4bM1FI3lT8ykgxMhR80VkYwRHNjVaNR1HfCsHwvtZ9RNJvyQ4uznmgA
+         h2BOLO0t6ih9flN9bgUt/1nPzEwBDdXRgOQaCCh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        Andrew Lunn <andrew@lunn.ch>, Baruch Siach <baruch@tkos.co.il>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 395/464] net: phy: marvell10g: fix null pointer dereference
-Date:   Mon, 17 Aug 2020 17:15:48 +0200
-Message-Id: <20200817143852.699988475@linuxfoundation.org>
+        Florinel Iordache <florinel.iordache@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 303/393] fsl/fman: check dereferencing null pointer
+Date:   Mon, 17 Aug 2020 17:15:53 +0200
+Message-Id: <20200817143834.312852947@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,85 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Marek Behún" <marek.behun@nic.cz>
+From: Florinel Iordache <florinel.iordache@nxp.com>
 
-[ Upstream commit 1b8ef1423dbfd34de2439a2db457b84480b7c8a8 ]
+[ Upstream commit cc5d229a122106733a85c279d89d7703f21e4d4f ]
 
-Commit c3e302edca24 ("net: phy: marvell10g: fix temperature sensor on 2110")
-added a check for PHY ID via phydev->drv->phy_id in a function which is
-called by devres at a time when phydev->drv is already set to null by
-phy_remove function.
+Add a safe check to avoid dereferencing null pointer
 
-This null pointer dereference can be triggered via SFP subsystem with a
-SFP module containing this Marvell PHY. When the SFP interface is put
-down, the SFP subsystem removes the PHY.
-
-Fixes: c3e302edca24 ("net: phy: marvell10g: fix temperature sensor on 2110")
-Signed-off-by: Marek Behún <marek.behun@nic.cz>
-Cc: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Baruch Siach <baruch@tkos.co.il>
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 57ba4c9b56d8 ("fsl/fman: Add FMan MAC support")
+Signed-off-by: Florinel Iordache <florinel.iordache@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell10g.c |   18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/freescale/fman/fman_dtsec.c | 4 ++--
+ drivers/net/ethernet/freescale/fman/fman_memac.c | 2 +-
+ drivers/net/ethernet/freescale/fman/fman_tgec.c  | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/phy/marvell10g.c
-+++ b/drivers/net/phy/marvell10g.c
-@@ -205,13 +205,6 @@ static int mv3310_hwmon_config(struct ph
- 			      MV_V2_TEMP_CTRL_MASK, val);
- }
+diff --git a/drivers/net/ethernet/freescale/fman/fman_dtsec.c b/drivers/net/ethernet/freescale/fman/fman_dtsec.c
+index 004c266802a87..bce3c9398887c 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_dtsec.c
++++ b/drivers/net/ethernet/freescale/fman/fman_dtsec.c
+@@ -1200,7 +1200,7 @@ int dtsec_del_hash_mac_address(struct fman_mac *dtsec, enet_addr_t *eth_addr)
+ 		list_for_each(pos,
+ 			      &dtsec->multicast_addr_hash->lsts[bucket]) {
+ 			hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-			if (hash_entry->addr == addr) {
++			if (hash_entry && hash_entry->addr == addr) {
+ 				list_del_init(&hash_entry->node);
+ 				kfree(hash_entry);
+ 				break;
+@@ -1213,7 +1213,7 @@ int dtsec_del_hash_mac_address(struct fman_mac *dtsec, enet_addr_t *eth_addr)
+ 		list_for_each(pos,
+ 			      &dtsec->unicast_addr_hash->lsts[bucket]) {
+ 			hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-			if (hash_entry->addr == addr) {
++			if (hash_entry && hash_entry->addr == addr) {
+ 				list_del_init(&hash_entry->node);
+ 				kfree(hash_entry);
+ 				break;
+diff --git a/drivers/net/ethernet/freescale/fman/fman_memac.c b/drivers/net/ethernet/freescale/fman/fman_memac.c
+index bb02b37422cc2..645764abdaae5 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_memac.c
++++ b/drivers/net/ethernet/freescale/fman/fman_memac.c
+@@ -981,7 +981,7 @@ int memac_del_hash_mac_address(struct fman_mac *memac, enet_addr_t *eth_addr)
  
--static void mv3310_hwmon_disable(void *data)
--{
--	struct phy_device *phydev = data;
--
--	mv3310_hwmon_config(phydev, false);
--}
--
- static int mv3310_hwmon_probe(struct phy_device *phydev)
- {
- 	struct device *dev = &phydev->mdio.dev;
-@@ -235,10 +228,6 @@ static int mv3310_hwmon_probe(struct phy
- 	if (ret)
- 		return ret;
+ 	list_for_each(pos, &memac->multicast_addr_hash->lsts[hash]) {
+ 		hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-		if (hash_entry->addr == addr) {
++		if (hash_entry && hash_entry->addr == addr) {
+ 			list_del_init(&hash_entry->node);
+ 			kfree(hash_entry);
+ 			break;
+diff --git a/drivers/net/ethernet/freescale/fman/fman_tgec.c b/drivers/net/ethernet/freescale/fman/fman_tgec.c
+index 8c7eb878d5b43..41946b16f6c72 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_tgec.c
++++ b/drivers/net/ethernet/freescale/fman/fman_tgec.c
+@@ -626,7 +626,7 @@ int tgec_del_hash_mac_address(struct fman_mac *tgec, enet_addr_t *eth_addr)
  
--	ret = devm_add_action_or_reset(dev, mv3310_hwmon_disable, phydev);
--	if (ret)
--		return ret;
--
- 	priv->hwmon_dev = devm_hwmon_device_register_with_info(dev,
- 				priv->hwmon_name, phydev,
- 				&mv3310_hwmon_chip_info, NULL);
-@@ -423,6 +412,11 @@ static int mv3310_probe(struct phy_devic
- 	return phy_sfp_probe(phydev, &mv3310_sfp_ops);
- }
- 
-+static void mv3310_remove(struct phy_device *phydev)
-+{
-+	mv3310_hwmon_config(phydev, false);
-+}
-+
- static int mv3310_suspend(struct phy_device *phydev)
- {
- 	return mv3310_power_down(phydev);
-@@ -762,6 +756,7 @@ static struct phy_driver mv3310_drivers[
- 		.read_status	= mv3310_read_status,
- 		.get_tunable	= mv3310_get_tunable,
- 		.set_tunable	= mv3310_set_tunable,
-+		.remove		= mv3310_remove,
- 	},
- 	{
- 		.phy_id		= MARVELL_PHY_ID_88E2110,
-@@ -776,6 +771,7 @@ static struct phy_driver mv3310_drivers[
- 		.read_status	= mv3310_read_status,
- 		.get_tunable	= mv3310_get_tunable,
- 		.set_tunable	= mv3310_set_tunable,
-+		.remove		= mv3310_remove,
- 	},
- };
- 
+ 	list_for_each(pos, &tgec->multicast_addr_hash->lsts[hash]) {
+ 		hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-		if (hash_entry->addr == addr) {
++		if (hash_entry && hash_entry->addr == addr) {
+ 			list_del_init(&hash_entry->node);
+ 			kfree(hash_entry);
+ 			break;
+-- 
+2.25.1
+
 
 
