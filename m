@@ -2,120 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB7A2474BA
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED30B24753A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730590AbgHQTOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48964 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730340AbgHQPkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:40:16 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F8CC23343;
-        Mon, 17 Aug 2020 15:40:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678815;
-        bh=OcRL81cZfVRoE/k4wxL8Y+ucO+Gbpj6KCXAPEkW9zzU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPP6nFFwshbLWyiMKm+i453zewa/Oc2++k1+lqXEkinH4GkgaTfbuUPjG0Lbp399v
-         0mFRL+cpTviGgGoY6n89ID9ZYrpdRfhQ5CZHmZl1nNhJkBlz1wGmzhDak2UUiG9jmA
-         mtM29L5oZS2TXjQS+zrtCUfMFc+tpguZ/uFWnork=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 464/464] task_work: only grab task signal lock when needed
-Date:   Mon, 17 Aug 2020 17:16:57 +0200
-Message-Id: <20200817143856.004716384@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2392332AbgHQTUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:20:46 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:34968 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730505AbgHQPgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 11:36:40 -0400
+Received: from mail-qk1-f197.google.com ([209.85.222.197])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <gpiccoli@canonical.com>)
+        id 1k7hBZ-0003mA-5A
+        for stable@vger.kernel.org; Mon, 17 Aug 2020 15:36:33 +0000
+Received: by mail-qk1-f197.google.com with SMTP id k142so11119926qke.7
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 08:36:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:in-reply-to:from:subject:autocrypt
+         :message-id:date:user-agent:mime-version:content-language
+         :content-transfer-encoding;
+        bh=lX4oOpPokyQTRhoLahqmU7hqvUsW/41acop/Y5jmbvU=;
+        b=WeOca49WzAEyA4kGUlIrCtdAuJaNIoEAhDz9UvvKb1GNU+FV4OmWN0jGub6aElELgd
+         OtjgL+7WtUt8KDXd/8zeHQA6NroLi9u8dvGmkncXU+4LW+1Ob2aImY+Vj6+9IOW0KwDS
+         zWdW2+IT/RXVMLrXR4pxmOGSlabX8+RCCugU+b8rJv+N8HOSsO7N3PLvDntLOGKyH4Zz
+         vanSVxfZXatlYu6NP639woSMBvGnmP6qHkgvn6bSx3m/1TNiVPMQ4bv20Ar/f+ewLpV1
+         DIAEi4n/MGyY/jy+KruQJ25qGhzDltie+tykOjb0YuPC6Ex1UacNnvdeAvoy7qcklDwN
+         6NLg==
+X-Gm-Message-State: AOAM530jm9v1yt3bVLe7BAj8vRH0q0dW90J9f0toUpHWNI09Yi3KpWDs
+        SQnFWxauWSojWYuDlyReFh2K6mMyfrBv3xE+7PF4Bi6jBqxvtlk3M592ha/79LAxOrBflh028cA
+        dth6Q4+7GYlOGR9FuhJ2PKx012dtzrtNToQ==
+X-Received: by 2002:a05:620a:122c:: with SMTP id v12mr13770142qkj.113.1597678592180;
+        Mon, 17 Aug 2020 08:36:32 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzchQO2wunkBbUHR/IjckxcCFqozbIFfFvtzJjLWjYXzLfIMTg7Akjsd9tvlBZhBTWCddLYzA==
+X-Received: by 2002:a05:620a:122c:: with SMTP id v12mr13770114qkj.113.1597678591791;
+        Mon, 17 Aug 2020 08:36:31 -0700 (PDT)
+Received: from [192.168.1.75] ([191.8.4.228])
+        by smtp.gmail.com with ESMTPSA id n6sm16058624qkh.74.2020.08.17.08.36.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Aug 2020 08:36:30 -0700 (PDT)
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     jan.kiszka@siemens.com, jbeulich@suse.com,
+        linux-kernel@vger.kernel.org, marc.zyngier@arm.com,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Guilherme G. Piccoli" <kernel@gpiccoli.net>,
+        gpiccoli@canonical.com, pedro.principeza@canonical.com
+In-Reply-To: 
+From:   "Guilherme G. Piccoli" <gpiccoli@canonical.com>
+Subject: Re: [PATCH 4.19 35/47] x86/irq: Seperate unused system vectors from
+ spurious entry again
+Autocrypt: addr=gpiccoli@canonical.com; prefer-encrypt=mutual; keydata=
+ xsBNBFpVBxcBCADPNKmu2iNKLepiv8+Ssx7+fVR8lrL7cvakMNFPXsXk+f0Bgq9NazNKWJIn
+ Qxpa1iEWTZcLS8ikjatHMECJJqWlt2YcjU5MGbH1mZh+bT3RxrJRhxONz5e5YILyNp7jX+Vh
+ 30rhj3J0vdrlIhPS8/bAt5tvTb3ceWEic9mWZMsosPavsKVcLIO6iZFlzXVu2WJ9cov8eQM/
+ irIgzvmFEcRyiQ4K+XUhuA0ccGwgvoJv4/GWVPJFHfMX9+dat0Ev8HQEbN/mko/bUS4Wprdv
+ 7HR5tP9efSLucnsVzay0O6niZ61e5c97oUa9bdqHyApkCnGgKCpg7OZqLMM9Y3EcdMIJABEB
+ AAHNLUd1aWxoZXJtZSBHLiBQaWNjb2xpIDxncGljY29saUBjYW5vbmljYWwuY29tPsLAdwQT
+ AQgAIQUCWmClvQIbAwULCQgHAgYVCAkKCwIEFgIDAQIeAQIXgAAKCRDOR5EF9K/7Gza3B/9d
+ 5yczvEwvlh6ksYq+juyuElLvNwMFuyMPsvMfP38UslU8S3lf+ETukN1S8XVdeq9yscwtsRW/
+ 4YoUwHinJGRovqy8gFlm3SAtjfdqysgJqUJwBmOtcsHkmvFXJmPPGVoH9rMCUr9s6VDPox8f
+ q2W5M7XE9YpsfchS/0fMn+DenhQpV3W6pbLtuDvH/81GKrhxO8whSEkByZbbc+mqRhUSTdN3
+ iMpRL0sULKPVYbVMbQEAnfJJ1LDkPqlTikAgt3peP7AaSpGs1e3pFzSEEW1VD2jIUmmDku0D
+ LmTHRl4t9KpbU/H2/OPZkrm7809QovJGRAxjLLPcYOAP7DUeltvezsBNBFpVBxcBCADbxD6J
+ aNw/KgiSsbx5Sv8nNqO1ObTjhDR1wJw+02Bar9DGuFvx5/qs3ArSZkl8qX0X9Vhptk8rYnkn
+ pfcrtPBYLoux8zmrGPA5vRgK2ItvSc0WN31YR/6nqnMfeC4CumFa/yLl26uzHJa5RYYQ47jg
+ kZPehpc7IqEQ5IKy6cCKjgAkuvM1rDP1kWQ9noVhTUFr2SYVTT/WBHqUWorjhu57/OREo+Tl
+ nxI1KrnmW0DbF52tYoHLt85dK10HQrV35OEFXuz0QPSNrYJT0CZHpUprkUxrupDgkM+2F5LI
+ bIcaIQ4uDMWRyHpDbczQtmTke0x41AeIND3GUc+PQ4hWGp9XABEBAAHCwF8EGAEIAAkFAlpV
+ BxcCGwwACgkQzkeRBfSv+xv1wwgAj39/45O3eHN5pK0XMyiRF4ihH9p1+8JVfBoSQw7AJ6oU
+ 1Hoa+sZnlag/l2GTjC8dfEGNoZd3aRxqfkTrpu2TcfT6jIAsxGjnu+fUCoRNZzmjvRziw3T8
+ egSPz+GbNXrTXB8g/nc9mqHPPprOiVHDSK8aGoBqkQAPZDjUtRwVx112wtaQwArT2+bDbb/Y
+ Yh6gTrYoRYHo6FuQl5YsHop/fmTahpTx11IMjuh6IJQ+lvdpdfYJ6hmAZ9kiVszDF6pGFVkY
+ kHWtnE2Aa5qkxnA2HoFpqFifNWn5TyvJFpyqwVhVI8XYtXyVHub/WbXLWQwSJA4OHmqU8gDl
+ X18zwLgdiQ==
+Message-ID: <c2b7a96a-122e-bdec-7368-d54700a55915@canonical.com>
+Date:   Mon, 17 Aug 2020 12:36:25 -0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+Hi Greg / Thomas and all involved here. First, apologies for
+necro-bumping this thread, but I'm working a backport of this patch to
+kernel 4.15 (Ubuntu) and then I noticed we have it on stable, but only
+in 4.19+.
 
-commit ebf0d100df0731901c16632f78d78d35f4123bc4 upstream.
+Since the fixes tag presents an old commit (since ~3.19), I'm curious if
+we have a special reason to not have it on long-term stables, like 4.9
+or 4.14. It's a subtle portion of arch code, so I'm afraid I didn't see
+something that prevents its backport for previous versions.
 
-If JOBCTL_TASK_WORK is already set on the targeted task, then we need
-not go through {lock,unlock}_task_sighand() to set it again and queue
-a signal wakeup. This is safe as we're checking it _after_ adding the
-new task_work with cmpxchg().
-
-The ordering is as follows:
-
-task_work_add()				get_signal()
---------------------------------------------------------------
-STORE(task->task_works, new_work);	STORE(task->jobctl);
-mb();					mb();
-LOAD(task->jobctl);			LOAD(task->task_works);
-
-This speeds up TWA_SIGNAL handling quite a bit, which is important now
-that io_uring is relying on it for all task_work deliveries.
-
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Jann Horn <jannh@google.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- kernel/signal.c    |   16 +++++++++++++++-
- kernel/task_work.c |    8 +++++++-
- 2 files changed, 22 insertions(+), 2 deletions(-)
-
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2541,7 +2541,21 @@ bool get_signal(struct ksignal *ksig)
- 
- relock:
- 	spin_lock_irq(&sighand->siglock);
--	current->jobctl &= ~JOBCTL_TASK_WORK;
-+	/*
-+	 * Make sure we can safely read ->jobctl() in task_work add. As Oleg
-+	 * states:
-+	 *
-+	 * It pairs with mb (implied by cmpxchg) before READ_ONCE. So we
-+	 * roughly have
-+	 *
-+	 *	task_work_add:				get_signal:
-+	 *	STORE(task->task_works, new_work);	STORE(task->jobctl);
-+	 *	mb();					mb();
-+	 *	LOAD(task->jobctl);			LOAD(task->task_works);
-+	 *
-+	 * and we can rely on STORE-MB-LOAD [ in task_work_add].
-+	 */
-+	smp_store_mb(current->jobctl, current->jobctl & ~JOBCTL_TASK_WORK);
- 	if (unlikely(current->task_works)) {
- 		spin_unlock_irq(&sighand->siglock);
- 		task_work_run();
---- a/kernel/task_work.c
-+++ b/kernel/task_work.c
-@@ -42,7 +42,13 @@ task_work_add(struct task_struct *task,
- 		set_notify_resume(task);
- 		break;
- 	case TWA_SIGNAL:
--		if (lock_task_sighand(task, &flags)) {
-+		/*
-+		 * Only grab the sighand lock if we don't already have some
-+		 * task_work pending. This pairs with the smp_store_mb()
-+		 * in get_signal(), see comment there.
-+		 */
-+		if (!(READ_ONCE(task->jobctl) & JOBCTL_TASK_WORK) &&
-+		    lock_task_sighand(task, &flags)) {
- 			task->jobctl |= JOBCTL_TASK_WORK;
- 			signal_wake_up(task, 0);
- 			unlock_task_sighand(task, &flags);
+Thanks in advance,
 
 
+Guilherme
