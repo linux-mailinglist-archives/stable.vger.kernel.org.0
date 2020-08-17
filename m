@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E8C2471FF
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6832471E1
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391358AbgHQSgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46322 "EHLO mail.kernel.org"
+        id S1730974AbgHQP7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:59:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730946AbgHQP7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:59:04 -0400
+        id S1730954AbgHQP7N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:59:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5998120729;
-        Mon, 17 Aug 2020 15:59:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD06920729;
+        Mon, 17 Aug 2020 15:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679943;
-        bh=y708uWgSHbGvpVbbWkqv/I//b1Eb3citB2TGp3O3MF0=;
+        s=default; t=1597679952;
+        bh=Awa9szfVnyfHhZXV0EKIVyiunFy+LWKFXGUkDfuCRVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ug2euTPlRM3ZFSvwQ1n30i/mPfcoRs59oUty+2RYW6VH+F6XBnXJAAG3esGt4D0PR
-         EyOK3HEf6garx4oszAZAQXQRq9CQ+piv6+qyVWtfT3FobQWZSCuabjHdgbYX4Flwqy
-         OaouDioUklLXGoDbW09rL29tCN0a/NQV5jWlqfZE=
+        b=gB0mKpFSuvlUHhx0KTi2rVElOuXcEZ4D0NVpcoc0tUb3NM4Ar14of0CKuF6PasKeC
+         bh75QSvc1EAZIhxjZ9pILv8hGdyCFxdRkwzlHK3D8e7B5bl6Ubgil+eI3QGZ6I1pBn
+         c+dQxXgudZr2LNAL4Tf5P6ibMeeKW/gvWDzSzMxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a730016dc0bdce4f6ff5@syzkaller.appspotmail.com,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 357/393] io_uring: fail poll arm on queue proc failure
-Date:   Mon, 17 Aug 2020 17:16:47 +0200
-Message-Id: <20200817143836.915920303@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.7 360/393] cpufreq: Fix locking issues with governors
+Date:   Mon, 17 Aug 2020 17:16:50 +0200
+Message-Id: <20200817143837.065164987@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,38 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit a36da65c46565d2527eec3efdb546251e38253fd upstream.
+commit 8cc46ae565c393f77417cb9530b1265eb50f5d2e upstream.
 
-Check the ipt.error value, it must have been either cleared to zero or
-set to another error than the default -EINVAL if we don't go through the
-waitqueue proc addition. Just give up on poll at that point and return
-failure, this will fallback to async work.
+The locking around governors handling isn't adequate currently.
 
-io_poll_add() doesn't suffer from this failure case, as it returns the
-error value directly.
+The list of governors should never be traversed without the locking
+in place. Also governor modules must not be removed while the code
+in them is still in use.
 
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: syzbot+a730016dc0bdce4f6ff5@syzkaller.appspotmail.com
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: All applicable <stable@vger.kernel.org>
+[ rjw: Changelog ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c |   58 +++++++++++++++++++++++++++-------------------
+ 1 file changed, 35 insertions(+), 23 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4544,7 +4544,7 @@ static bool io_arm_poll_handler(struct i
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -621,6 +621,24 @@ static struct cpufreq_governor *find_gov
+ 	return NULL;
+ }
  
- 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
- 					io_async_wake);
--	if (ret) {
-+	if (ret || ipt.error) {
- 		io_poll_remove_double(req, apoll->double_poll);
- 		spin_unlock_irq(&ctx->completion_lock);
- 		memcpy(&req->work, &apoll->work, sizeof(req->work));
++static struct cpufreq_governor *get_governor(const char *str_governor)
++{
++	struct cpufreq_governor *t;
++
++	mutex_lock(&cpufreq_governor_mutex);
++	t = find_governor(str_governor);
++	if (!t)
++		goto unlock;
++
++	if (!try_module_get(t->owner))
++		t = NULL;
++
++unlock:
++	mutex_unlock(&cpufreq_governor_mutex);
++
++	return t;
++}
++
+ static unsigned int cpufreq_parse_policy(char *str_governor)
+ {
+ 	if (!strncasecmp(str_governor, "performance", CPUFREQ_NAME_LEN))
+@@ -640,28 +658,14 @@ static struct cpufreq_governor *cpufreq_
+ {
+ 	struct cpufreq_governor *t;
+ 
+-	mutex_lock(&cpufreq_governor_mutex);
+-
+-	t = find_governor(str_governor);
+-	if (!t) {
+-		int ret;
++	t = get_governor(str_governor);
++	if (t)
++		return t;
+ 
+-		mutex_unlock(&cpufreq_governor_mutex);
++	if (request_module("cpufreq_%s", str_governor))
++		return NULL;
+ 
+-		ret = request_module("cpufreq_%s", str_governor);
+-		if (ret)
+-			return NULL;
+-
+-		mutex_lock(&cpufreq_governor_mutex);
+-
+-		t = find_governor(str_governor);
+-	}
+-	if (t && !try_module_get(t->owner))
+-		t = NULL;
+-
+-	mutex_unlock(&cpufreq_governor_mutex);
+-
+-	return t;
++	return get_governor(str_governor);
+ }
+ 
+ /**
+@@ -815,12 +819,14 @@ static ssize_t show_scaling_available_go
+ 		goto out;
+ 	}
+ 
++	mutex_lock(&cpufreq_governor_mutex);
+ 	for_each_governor(t) {
+ 		if (i >= (ssize_t) ((PAGE_SIZE / sizeof(char))
+ 		    - (CPUFREQ_NAME_LEN + 2)))
+-			goto out;
++			break;
+ 		i += scnprintf(&buf[i], CPUFREQ_NAME_PLEN, "%s ", t->name);
+ 	}
++	mutex_unlock(&cpufreq_governor_mutex);
+ out:
+ 	i += sprintf(&buf[i], "\n");
+ 	return i;
+@@ -1058,15 +1064,17 @@ static int cpufreq_init_policy(struct cp
+ 	struct cpufreq_governor *def_gov = cpufreq_default_governor();
+ 	struct cpufreq_governor *gov = NULL;
+ 	unsigned int pol = CPUFREQ_POLICY_UNKNOWN;
++	int ret;
+ 
+ 	if (has_target()) {
+ 		/* Update policy governor to the one used before hotplug. */
+-		gov = find_governor(policy->last_governor);
++		gov = get_governor(policy->last_governor);
+ 		if (gov) {
+ 			pr_debug("Restoring governor %s for cpu %d\n",
+ 				 policy->governor->name, policy->cpu);
+ 		} else if (def_gov) {
+ 			gov = def_gov;
++			__module_get(gov->owner);
+ 		} else {
+ 			return -ENODATA;
+ 		}
+@@ -1089,7 +1097,11 @@ static int cpufreq_init_policy(struct cp
+ 			return -ENODATA;
+ 	}
+ 
+-	return cpufreq_set_policy(policy, gov, pol);
++	ret = cpufreq_set_policy(policy, gov, pol);
++	if (gov)
++		module_put(gov->owner);
++
++	return ret;
+ }
+ 
+ static int cpufreq_add_policy_cpu(struct cpufreq_policy *policy, unsigned int cpu)
 
 
