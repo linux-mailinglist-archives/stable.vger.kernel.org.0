@@ -2,130 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7518F246670
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 14:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6592824666F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 14:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727931AbgHQMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 08:36:08 -0400
-Received: from mga05.intel.com ([192.55.52.43]:30247 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726842AbgHQMgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 08:36:07 -0400
-IronPort-SDR: gWV7RRmb590N64RAr09TTN+499FxAKUFjItclMXYqSLxcMteP+3y7mKOpzaCiaA711gvnwoW7N
- kAi88b1PLiuA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9715"; a="239511562"
-X-IronPort-AV: E=Sophos;i="5.76,322,1592895600"; 
-   d="scan'208";a="239511562"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2020 05:36:06 -0700
-IronPort-SDR: 6YSXvBe7aV6+qbV8fBqlgQsjDeMhuD08+TM00moNaENwk9qUZ3x+JWMsbbmci3G6LO+QxIxVBY
- Mtelo0j/Gp1g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,322,1592895600"; 
-   d="scan'208";a="292419166"
-Received: from rosetta.fi.intel.com ([10.237.72.194])
-  by orsmga003.jf.intel.com with ESMTP; 17 Aug 2020 05:36:04 -0700
-Received: by rosetta.fi.intel.com (Postfix, from userid 1000)
-        id 5A7DA8404BB; Mon, 17 Aug 2020 15:34:15 +0300 (EEST)
-From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Takashi Iwai <tiwai@suse.de>,
-        Tyler Hicks <tyhicks@canonical.com>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>
-Subject: [PATCH] drm/i915: Fix cmd parser desc matching with masks
-Date:   Mon, 17 Aug 2020 15:34:12 +0300
-Message-Id: <20200817123412.4655-1-mika.kuoppala@linux.intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1728274AbgHQMfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 08:35:55 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34491 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726151AbgHQMfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 08:35:53 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 81B6419414ED;
+        Mon, 17 Aug 2020 08:35:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 08:35:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9cuEWm
+        tzYQDX2mUm7Hoqk2rVIC6hsIAMLR3bwAOr0lI=; b=MTljxbVFGcgLsFBy5G56Wm
+        wFMaBscdhKL4Lea5wgKX3oNnvlb8EAVgcuCna2H9joZM/oGFYCYLDBmYWsC5PvKt
+        X8a6+AcfFQe/ou9f7NIMPrZw9Et7bC29pfOPa2c6NjF5a3WAX7tUo1AasJG612qv
+        6fCvXpwpRMaBny1EwMo+dl6SqNWQSLpZQYFHoEc1/svVuxgZ1rZ8IVSOaDpkc0we
+        lYll4g0bsicn3N9xedgCSjPRR2FTS6rMaTAhMrrp62BXdCxO+NVBHzUN8xP1MYzl
+        Of7biiLGqQ3BXV+OWu9kII1jv7HbdWtLeZ7Nzha96yI9fiDkM/v2cW9YTeKUot2Q
+        ==
+X-ME-Sender: <xms:qHk6XwGWTPvtBsZjuTQbpOlbJwLpXPGxhgrvnPMPczpPdmKk2rnQ8w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedghedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:qHk6X5XgQj3P80TdQqYx_xqvquEVfyihvIVp6rHRVK-FhjJda0tJVA>
+    <xmx:qHk6X6LV-2HYFnT07DLZN3fLOYxjEU6X8yIePjIhdbPzljrYVRfLIw>
+    <xmx:qHk6XyHuZKwZ77qyvLfOXLIZ1U7ki7xObSBlDbFvaNX8kv06eW7Pdw>
+    <xmx:qHk6XxCxaN8Yjd0ffIMWVBquf8V5Mb-s2HF_smQCETfCpyWYP-p5Cw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id BD7E1328005A;
+        Mon, 17 Aug 2020 08:35:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PM / devfreq: rk3399_dmc: Fix kernel oops when rockchip,pmu" failed to apply to 5.4-stable tree
+To:     maz@kernel.org, cw00.choi@samsung.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 Aug 2020 14:36:09 +0200
+Message-ID: <159766776914832@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Our variety of defined gpu commands have the actual
-command id field and possibly length and flags applied.
 
-We did start to apply the mask during initialization of
-the cmd descriptors but forgot to also apply it on comparisons.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fix comparisons in order to properly deny access with
-associated commands.
+thanks,
 
-References: 926abff21a8f ("drm/i915/cmdparser: Ignore Length operands during command matching")
-Reported-by: Nicolai Stange <nstange@suse.de>
-Cc: stable@vger.kernel.org # v5.4+
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Tyler Hicks <tyhicks@canonical.com>
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Cc: Chris Wilson <chris.p.wilson@intel.com>
-Signed-off-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
----
- drivers/gpu/drm/i915/i915_cmd_parser.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+greg k-h
 
-diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
-index 372354d33f55..f2b0eb458d2d 100644
---- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-+++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-@@ -1204,6 +1204,12 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 	return dst;
- }
+------------------ original commit in Linus's tree ------------------
+
+From 63ef91f24f9bfc70b6446319f6cabfd094481372 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Tue, 30 Jun 2020 11:05:46 +0100
+Subject: [PATCH] PM / devfreq: rk3399_dmc: Fix kernel oops when rockchip,pmu
+ is absent
+
+Booting a recent kernel on a rk3399-based system (nanopc-t4),
+equipped with a recent u-boot and ATF results in an Oops due
+to a NULL pointer dereference.
+
+This turns out to be due to the rk3399-dmc driver looking for
+an *undocumented* property (rockchip,pmu), and happily using
+a NULL pointer when the property isn't there.
+
+Instead, make most of what was brought in with 9173c5ceb035
+("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters
+to TF-A.") conditioned on finding this property in the device-tree,
+preventing the driver from exploding.
+
+Cc: stable@vger.kernel.org
+Fixes: 9173c5ceb035 ("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters to TF-A.")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+
+diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
+index 24f04f78285b..027769e39f9b 100644
+--- a/drivers/devfreq/rk3399_dmc.c
++++ b/drivers/devfreq/rk3399_dmc.c
+@@ -95,18 +95,20 @@ static int rk3399_dmcfreq_target(struct device *dev, unsigned long *freq,
  
-+static inline bool cmd_desc_is(const struct drm_i915_cmd_descriptor * const desc,
-+			       const u32 cmd)
-+{
-+	return desc->cmd.value == (cmd & desc->cmd.mask);
-+}
+ 	mutex_lock(&dmcfreq->lock);
+ 
+-	if (target_rate >= dmcfreq->odt_dis_freq)
+-		odt_enable = true;
+-
+-	/*
+-	 * This makes a SMC call to the TF-A to set the DDR PD (power-down)
+-	 * timings and to enable or disable the ODT (on-die termination)
+-	 * resistors.
+-	 */
+-	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
+-		      dmcfreq->odt_pd_arg1,
+-		      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
+-		      odt_enable, 0, 0, 0, &res);
++	if (dmcfreq->regmap_pmu) {
++		if (target_rate >= dmcfreq->odt_dis_freq)
++			odt_enable = true;
 +
- static bool check_cmd(const struct intel_engine_cs *engine,
- 		      const struct drm_i915_cmd_descriptor *desc,
- 		      const u32 *cmd, u32 length)
-@@ -1242,24 +1248,24 @@ static bool check_cmd(const struct intel_engine_cs *engine,
- 			 * allowed mask/value pair given in the whitelist entry.
- 			 */
- 			if (reg->mask) {
--				if (desc->cmd.value == MI_LOAD_REGISTER_MEM) {
-+				if (cmd_desc_is(desc, MI_LOAD_REGISTER_MEM)) {
- 					DRM_DEBUG("CMD: Rejected LRM to masked register 0x%08X\n",
- 						  reg_addr);
- 					return false;
--				}
--
--				if (desc->cmd.value == MI_LOAD_REGISTER_REG) {
-+				} else if (cmd_desc_is(desc, MI_LOAD_REGISTER_REG)) {
- 					DRM_DEBUG("CMD: Rejected LRR to masked register 0x%08X\n",
- 						  reg_addr);
- 					return false;
--				}
--
--				if (desc->cmd.value == MI_LOAD_REGISTER_IMM(1) &&
-+				} else if (cmd_desc_is(desc, MI_LOAD_REGISTER_IMM(1)) &&
- 				    (offset + 2 > length ||
- 				     (cmd[offset + 1] & reg->mask) != reg->value)) {
- 					DRM_DEBUG("CMD: Rejected LRI to masked register 0x%08X\n",
- 						  reg_addr);
- 					return false;
-+				} else {
-+					DRM_DEBUG("CMD: Rejecting cmd 0x%08X to masked register 0x%08X\n",
-+						  desc->cmd.value, reg_addr);
-+					return false;
- 				}
- 			}
- 		}
-@@ -1478,7 +1484,7 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			break;
- 		}
++		/*
++		 * This makes a SMC call to the TF-A to set the DDR PD
++		 * (power-down) timings and to enable or disable the
++		 * ODT (on-die termination) resistors.
++		 */
++		arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
++			      dmcfreq->odt_pd_arg1,
++			      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
++			      odt_enable, 0, 0, 0, &res);
++	}
  
--		if (desc->cmd.value == MI_BATCH_BUFFER_START) {
-+		if (cmd_desc_is(desc, MI_BATCH_BUFFER_START)) {
- 			ret = check_bbstart(cmd, offset, length, batch_length,
- 					    batch_addr, shadow_addr,
- 					    jump_whitelist);
--- 
-2.17.1
+ 	/*
+ 	 * If frequency scaling from low to high, adjust voltage first.
+@@ -371,13 +373,14 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	node = of_parse_phandle(np, "rockchip,pmu", 0);
+-	if (node) {
+-		data->regmap_pmu = syscon_node_to_regmap(node);
+-		of_node_put(node);
+-		if (IS_ERR(data->regmap_pmu)) {
+-			ret = PTR_ERR(data->regmap_pmu);
+-			goto err_edev;
+-		}
++	if (!node)
++		goto no_pmu;
++
++	data->regmap_pmu = syscon_node_to_regmap(node);
++	of_node_put(node);
++	if (IS_ERR(data->regmap_pmu)) {
++		ret = PTR_ERR(data->regmap_pmu);
++		goto err_edev;
+ 	}
+ 
+ 	regmap_read(data->regmap_pmu, RK3399_PMUGRF_OS_REG2, &val);
+@@ -399,6 +402,7 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
+ 		goto err_edev;
+ 	};
+ 
++no_pmu:
+ 	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, 0, 0,
+ 		      ROCKCHIP_SIP_CONFIG_DRAM_INIT,
+ 		      0, 0, 0, 0, &res);
 
