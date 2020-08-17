@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D9824720E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43E8C2471FF
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730979AbgHQShe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:37:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
+        id S2391358AbgHQSgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730945AbgHQP7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:59:03 -0400
+        id S1730946AbgHQP7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:59:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27920206FA;
-        Mon, 17 Aug 2020 15:58:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5998120729;
+        Mon, 17 Aug 2020 15:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679940;
-        bh=bG8t/xepkdf4mxiEc3Yj/rM9RKATeDbJ8MdTAc8pIqU=;
+        s=default; t=1597679943;
+        bh=y708uWgSHbGvpVbbWkqv/I//b1Eb3citB2TGp3O3MF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=af/XlmM/TAUvgHJLkHlp1FowPdXDp+9D+NGgKiy94JAUBEDhecy4icxyOwHhsKAhN
-         ORWMEOX1iIOFD6k6I/VC5xJzBHIShY7+MwmuV9oQxhLwwlEVa9Ncp/xoRfSbJHGnwm
-         K/629xnoCuN5gTUIOgSt6k+rSicfI1c+6v5AbMNI=
+        b=Ug2euTPlRM3ZFSvwQ1n30i/mPfcoRs59oUty+2RYW6VH+F6XBnXJAAG3esGt4D0PR
+         EyOK3HEf6garx4oszAZAQXQRq9CQ+piv6+qyVWtfT3FobQWZSCuabjHdgbYX4Flwqy
+         OaouDioUklLXGoDbW09rL29tCN0a/NQV5jWlqfZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+a730016dc0bdce4f6ff5@syzkaller.appspotmail.com,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 356/393] io_uring: use TWA_SIGNAL for task_work uncondtionally
-Date:   Mon, 17 Aug 2020 17:16:46 +0200
-Message-Id: <20200817143836.867157350@linuxfoundation.org>
+Subject: [PATCH 5.7 357/393] io_uring: fail poll arm on queue proc failure
+Date:   Mon, 17 Aug 2020 17:16:47 +0200
+Message-Id: <20200817143836.915920303@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,62 +47,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 0ba9c9edcd152158a0e321a4c13ac1dfc571ff3d upstream.
+commit a36da65c46565d2527eec3efdb546251e38253fd upstream.
 
-An earlier commit:
+Check the ipt.error value, it must have been either cleared to zero or
+set to another error than the default -EINVAL if we don't go through the
+waitqueue proc addition. Just give up on poll at that point and return
+failure, this will fallback to async work.
 
-b7db41c9e03b ("io_uring: fix regression with always ignoring signals in io_cqring_wait()")
-
-ensured that we didn't get stuck waiting for eventfd reads when it's
-registered with the io_uring ring for event notification, but we still
-have cases where the task can be waiting on other events in the kernel and
-need a bigger nudge to make forward progress. Or the task could be in the
-kernel and running, but on its way to blocking.
-
-This means that TWA_RESUME cannot reliably be used to ensure we make
-progress. Use TWA_SIGNAL unconditionally.
+io_poll_add() doesn't suffer from this failure case, as it returns the
+error value directly.
 
 Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Josef <josef.grieb@gmail.com>
+Reported-by: syzbot+a730016dc0bdce4f6ff5@syzkaller.appspotmail.com
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/io_uring.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4161,22 +4161,22 @@ static int io_req_task_work_add(struct i
- {
- 	struct task_struct *tsk = req->task;
- 	struct io_ring_ctx *ctx = req->ctx;
--	int ret, notify = TWA_RESUME;
-+	int ret, notify;
+@@ -4544,7 +4544,7 @@ static bool io_arm_poll_handler(struct i
  
- 	/*
--	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
--	 * If we're not using an eventfd, then TWA_RESUME is always fine,
--	 * as we won't have dependencies between request completions for
--	 * other kernel wait conditions.
-+	 * SQPOLL kernel thread doesn't need notification, just a wakeup. For
-+	 * all other cases, use TWA_SIGNAL unconditionally to ensure we're
-+	 * processing task_work. There's no reliable way to tell if TWA_RESUME
-+	 * will do the job.
- 	 */
--	if (ctx->flags & IORING_SETUP_SQPOLL)
--		notify = 0;
--	else if (ctx->cq_ev_fd)
-+	notify = 0;
-+	if (!(ctx->flags & IORING_SETUP_SQPOLL))
- 		notify = TWA_SIGNAL;
- 
- 	ret = task_work_add(tsk, cb, notify);
- 	if (!ret)
- 		wake_up_process(tsk);
-+
- 	return ret;
- }
- 
+ 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
+ 					io_async_wake);
+-	if (ret) {
++	if (ret || ipt.error) {
+ 		io_poll_remove_double(req, apoll->double_poll);
+ 		spin_unlock_irq(&ctx->completion_lock);
+ 		memcpy(&req->work, &apoll->work, sizeof(req->work));
 
 
