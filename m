@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 236AC247459
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E8C3247451
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389989AbgHQTIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:08:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S2387628AbgHQPnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:43:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387610AbgHQPnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:43:01 -0400
+        id S2387618AbgHQPnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:43:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F11F2075B;
-        Mon, 17 Aug 2020 15:43:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F14FA22CAE;
+        Mon, 17 Aug 2020 15:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678980;
-        bh=bkVpK0KOWR9Ed9jeIrDj4gZF2KKuZLesyyGYbP4hNZU=;
+        s=default; t=1597678983;
+        bh=yIxbhgabo7mdCS7x+F+liubHbDxp3iWHeZ2h1v7TaMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ky5N4VEM79STvbmFvCvPSI7PRnu2X5mnyQtPUszya1Bz6v0R98JUQ/kU8A77anYar
-         00lwOV440xStVL78p4kZQmSk58gO3Xl89Olt+BV74ikVpLmpidf8nC5up0lvLU4g16
-         qD/D3aGDg3925I6YQW3hD74lX2+ElMc43LD/Z4v4=
+        b=JC0FQFIWqb9/fFx5umaYxzZljQ/Fz2Rc7p10GfpYoqsSgQXmOvpcaKkdC330v+VhC
+         yypiSOfX4LChsP8AU63VtD4xKsuC23itXIHy+b1WnXuHdVmbuTJBRcbKo5ULwMy2ny
+         W/d1zMFZD1PGLhZmOCe0kwwW6SOg4qXN6IRycaiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 025/393] arm64: dts: exynos: Fix silent hang after boot on Espresso
-Date:   Mon, 17 Aug 2020 17:11:15 +0200
-Message-Id: <20200817143820.823156924@linuxfoundation.org>
+Subject: [PATCH 5.7 026/393] sched/uclamp: Fix initialization of struct uclamp_rq
+Date:   Mon, 17 Aug 2020 17:11:16 +0200
+Message-Id: <20200817143820.877691888@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,35 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit b072714bfc0e42c984b8fd6e069f3ca17de8137a ]
+[ Upstream commit d81ae8aac85ca2e307d273f6dc7863a721bf054e ]
 
-Once regulators are disabled after kernel boot, on Espresso board silent
-hang observed because of LDO7 being disabled.  LDO7 actually provide
-power to CPU cores and non-cpu blocks circuitries.  Keep this regulator
-always-on to fix this hang.
+struct uclamp_rq was zeroed out entirely in assumption that in the first
+call to uclamp_rq_inc() they'd be initialized correctly in accordance to
+default settings.
 
-Fixes: 9589f7721e16 ("arm64: dts: Add S2MPS15 PMIC node on exynos7-espresso")
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+But when next patch introduces a static key to skip
+uclamp_rq_{inc,dec}() until userspace opts in to use uclamp, schedutil
+will fail to perform any frequency changes because the
+rq->uclamp[UCLAMP_MAX].value is zeroed at init and stays as such. Which
+means all rqs are capped to 0 by default.
+
+Fix it by making sure we do proper initialization at init without
+relying on uclamp_rq_inc() doing it later.
+
+Fixes: 69842cba9ace ("sched/uclamp: Add CPU's clamp buckets refcounting")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Lukasz Luba <lukasz.luba@arm.com>
+Link: https://lkml.kernel.org/r/20200630112123.12076-2-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7-espresso.dts | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/core.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-index 7af288fa9475f..a9412805c1d6a 100644
---- a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-+++ b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-@@ -157,6 +157,7 @@ ldo7_reg: LDO7 {
- 				regulator-min-microvolt = <700000>;
- 				regulator-max-microvolt = <1150000>;
- 				regulator-enable-ramp-delay = <125>;
-+				regulator-always-on;
- 			};
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index a7ef76a62699a..1bae86fc128b2 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1237,6 +1237,20 @@ static void uclamp_fork(struct task_struct *p)
+ 	}
+ }
  
- 			ldo8_reg: LDO8 {
++static void __init init_uclamp_rq(struct rq *rq)
++{
++	enum uclamp_id clamp_id;
++	struct uclamp_rq *uc_rq = rq->uclamp;
++
++	for_each_clamp_id(clamp_id) {
++		uc_rq[clamp_id] = (struct uclamp_rq) {
++			.value = uclamp_none(clamp_id)
++		};
++	}
++
++	rq->uclamp_flags = 0;
++}
++
+ static void __init init_uclamp(void)
+ {
+ 	struct uclamp_se uc_max = {};
+@@ -1245,11 +1259,8 @@ static void __init init_uclamp(void)
+ 
+ 	mutex_init(&uclamp_mutex);
+ 
+-	for_each_possible_cpu(cpu) {
+-		memset(&cpu_rq(cpu)->uclamp, 0,
+-				sizeof(struct uclamp_rq)*UCLAMP_CNT);
+-		cpu_rq(cpu)->uclamp_flags = 0;
+-	}
++	for_each_possible_cpu(cpu)
++		init_uclamp_rq(cpu_rq(cpu));
+ 
+ 	for_each_clamp_id(clamp_id) {
+ 		uclamp_se_set(&init_task.uclamp_req[clamp_id],
 -- 
 2.25.1
 
