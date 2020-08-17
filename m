@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF072470C3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B772247102
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390616AbgHQSOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54486 "EHLO mail.kernel.org"
+        id S2390772AbgHQSTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:19:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388394AbgHQQG0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:06:26 -0400
+        id S2387902AbgHQQFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:05:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4859A207FB;
-        Mon, 17 Aug 2020 16:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF1D6207FF;
+        Mon, 17 Aug 2020 16:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680384;
-        bh=C8r8mALl/7ZEMq5jWAreO2rJacfW0xTMtM7RPgVBCDI=;
+        s=default; t=1597680304;
+        bh=Z6wxDB/kNNPoBu4IE1f6YOWOpB/XzsTJije4bwfd+5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLHI0p5x24ZyiFwsZgCORw2cmfn5ai7Yk7i+KKaXQjnyTlDtgU6Hflot8pfLL5pBG
-         x1sNmJadFq12XgbKfZWZ4phWww10RfELrzmXmYNIa5rwhkAgAf3fuwOFii/sDfZ7kX
-         heZqTEWPr022i145jwAR/bcpkelKeWKVIEECH33U=
+        b=T8NAFZLUIlvZZH/RYSVWsh4Y/1d6+QorEXvC+2KEE2AqXt4UJkV956UNgLM9vaAvn
+         sy2tjoLg0hrEowC2jQImDZqFWhF9AWtsgsAbW23wnI0P+PbpwOnJxsfrYctlIqGKIn
+         2YvysJuYOL3TUDOijrA6ZtiQ6+MuoadCXubhHAPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        stable@vger.kernel.org, Dariusz Marcinkiewicz <darekm@google.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 125/270] media: exynos4-is: Add missed check for pinctrl_lookup_state()
-Date:   Mon, 17 Aug 2020 17:15:26 +0200
-Message-Id: <20200817143801.999748521@linuxfoundation.org>
+Subject: [PATCH 5.4 126/270] media: cros-ec-cec: do not bail on device_init_wakeup failure
+Date:   Mon, 17 Aug 2020 17:15:27 +0200
+Message-Id: <20200817143802.057347794@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -45,36 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Dariusz Marcinkiewicz <darekm@google.com>
 
-[ Upstream commit 18ffec750578f7447c288647d7282c7d12b1d969 ]
+[ Upstream commit 6f01dfb760c027d5dd6199d91ee9599f2676b5c6 ]
 
-fimc_md_get_pinctrl() misses a check for pinctrl_lookup_state().
-Add the missed check to fix it.
+Do not fail probing when device_init_wakeup fails.
 
-Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration]")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+device_init_wakeup fails when the device is already enabled as wakeup
+device. Hence, the driver fails to probe the device if:
+- The device has already been enabled for wakeup (by e.g. sysfs)
+- The driver has been unloaded and is being loaded again.
+
+This goal of the patch is to fix the above cases.
+
+Overwhelming majority of the drivers do not check device_init_wakeup
+return code.
+
+Fixes: cd70de2d356ee ("media: platform: Add ChromeOS EC CEC driver")
+Signed-off-by: Dariusz Marcinkiewicz <darekm@google.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/media-dev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/cros-ec-cec/cros-ec-cec.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index 9aaf3b8060d50..9c31d950cddf7 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1270,6 +1270,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
+diff --git a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
+index 4a3b3810fd895..31390ce2dbf2d 100644
+--- a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
++++ b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
+@@ -278,11 +278,7 @@ static int cros_ec_cec_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, cros_ec_cec);
+ 	cros_ec_cec->cros_ec = cros_ec;
  
- 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
- 					PINCTRL_STATE_IDLE);
-+	if (IS_ERR(pctl->state_idle))
-+		return PTR_ERR(pctl->state_idle);
-+
- 	return 0;
- }
+-	ret = device_init_wakeup(&pdev->dev, 1);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to initialize wakeup\n");
+-		return ret;
+-	}
++	device_init_wakeup(&pdev->dev, 1);
  
+ 	cros_ec_cec->adap = cec_allocate_adapter(&cros_ec_cec_ops, cros_ec_cec,
+ 						 DRV_NAME,
 -- 
 2.25.1
 
